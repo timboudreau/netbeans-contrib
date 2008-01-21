@@ -63,7 +63,7 @@ import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.nio.CharBuffer;
-import org.netbeans.modules.javafx.editor.JavaFXPier;
+//import org.netbeans.modules.javafx.editor.JavaFXPier;
 
 import net.java.javafx.typeImpl.Compilation;
 import net.java.javafx.type.expr.CompilationUnit;
@@ -294,8 +294,8 @@ public class SemanticAnalyzerTest extends NbTestCase {
         CompilationInfo info = getInfo(relFilePath);
         
         String text = info.getDocument().getText(0, info.getDocument().getLength());
-        Compilation compilation = JavaFXPier.getNewCompilation(info.getFileObject());
-        JavaFXPier.readCompilationUnit(compilation, info.getFileObject().getPath(), new StringReader(text));
+        //Compilation compilation = JavaFXPier.getNewCompilation(info.getFileObject());
+        //JavaFXPier.readCompilationUnit(compilation, info.getFileObject().getPath(), new StringReader(text));
 
         analyzer.run(info);
         Map<OffsetRange, ColoringAttributes> highlights = analyzer.getHighlights();
@@ -306,7 +306,9 @@ public class SemanticAnalyzerTest extends NbTestCase {
     }
 
     public void testAnalysis() throws Exception {
-        checkSemantic("code.fx");
+        //checkSemantic("code.fx");
+        fail("JavaFXPier class was removed. Use the onother one.");
+
     }
 
 /*    public void testAnalysis2() throws Exception {
