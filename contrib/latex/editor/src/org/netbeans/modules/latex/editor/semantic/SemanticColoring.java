@@ -77,7 +77,6 @@ import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.Environment;
 import org.netbeans.modules.latex.model.command.MathNode;
-import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.command.TraverseHandler;
 import org.netbeans.modules.latex.model.lexer.TexTokenId;
 import org.netbeans.spi.editor.highlighting.support.PositionsBag;
@@ -240,33 +239,22 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
                 document.render(new Runnable() {
                     public void run() {
                         try {
-                            if (node.getChildrenCount() > 0) {
-                                for (Iterator<Node> children = node.getChildrenIterator(); children.hasNext();) {
-                                    for (Token t : children.next().getNodeTokens()) {
-                                        add(token2Attributes, t, attrsFin);
-                                        if (tokenList[0] != null) {
-                                            tokenList[0].add(t);
-                                        }
-                                    }
-                                }
-                            } else {
-                                boolean first = true;
+                            boolean first = true;
 
-                                for (Iterator<? extends Token> it = node.getNodeTokens().iterator(); it.hasNext();) {
-                                    Token t = it.next();
+                            for (Iterator<? extends Token> it = node.getNodeTokens().iterator(); it.hasNext();) {
+                                Token t = it.next();
 
-                                    if (first && t.id() == TexTokenId.COMP_BRACKET_LEFT) {
-                                        continue;
-                                    }
-                                    if (t.id() == TexTokenId.COMP_BRACKET_RIGHT && !it.hasNext()) {
-                                        continue;
-                                    }
-                                    add(token2Attributes, t, attrsFin);
-                                    if (tokenList[0] != null) {
-                                        tokenList[0].add(t);
-                                    }
-                                    first = false;
+                                if (first && t.id() == TexTokenId.COMP_BRACKET_LEFT) {
+                                    continue;
                                 }
+                                if (t.id() == TexTokenId.COMP_BRACKET_RIGHT && !it.hasNext()) {
+                                    continue;
+                                }
+                                add(token2Attributes, t, attrsFin);
+                                if (tokenList[0] != null) {
+                                    tokenList[0].add(t);
+                                }
+                                first = false;
                             }
                         } catch (IOException e) {
                             Exceptions.printStackTrace(e);
