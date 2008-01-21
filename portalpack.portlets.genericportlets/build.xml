@@ -92,13 +92,19 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <ant dir="../../../schema2beans" target="build"/>
   </target>
   <target name="s2binit" depends="schema2beans">
-	<taskdef name="schema2beans" classname="org.netbeans.modules.s2banttask.Schema2BeansAntTask">
-	  <classpath>
-		<pathelement path="${schema2beans/rt.dir}/modules/org-netbeans-modules-schema2beans.jar" />
-		<pathelement path="${nb_all}/schema2beans/dev/schema2beansdev.jar" />
-		<pathelement path="${nb_all}/schema2beans/anttask/s2banttask.jar"/>
-	  </classpath>
-	</taskdef>
+              <condition property="schema2beans.dir" value="${nb_all}/schema2beans/rt" else="${nb_all}/schema2beans">
+                 <available file="${nb_all}/schema2beans/rt/dev/schema2beansdev.jar"/>
+             </condition>
+      
+              <echo message="Location For Schema2Beans jars : ${schema2beans.dir}"/>
+               <taskdef name="schema2beans" classname="org.netbeans.modules.s2banttask.Schema2BeansAntTask">
+                <classpath>
+                    <pathelement path="${schema2beans/rt.dir}/modules/org-netbeans-modules-schema2beans.jar" />
+                    <pathelement path="${schema2beans.dir}/dev/schema2beansdev.jar" />
+                    <pathelement path="${schema2beans.dir}/anttask/s2banttask.jar"/>
+                    
+	        </classpath>
+               </taskdef>
   </target>
   
   <target name="dd2beans_gen" depends="s2binit">
