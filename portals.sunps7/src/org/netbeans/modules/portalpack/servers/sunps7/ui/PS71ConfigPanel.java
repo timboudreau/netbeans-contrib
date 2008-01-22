@@ -60,6 +60,7 @@ public class PS71ConfigPanel extends ConfigPanel implements DocumentListener{
         adminPortTf.getDocument().addDocumentListener(this);
         portalUriTf.getDocument().addDocumentListener(this);
         connectorPortTf.getDocument().addDocumentListener(this);
+        passwordTf.getDocument().addDocumentListener(this);
 
     }
 
@@ -381,6 +382,12 @@ public class PS71ConfigPanel extends ConfigPanel implements DocumentListener{
         if(adminUserTf.getText() == null || adminUserTf.getText().trim().length() == 0)
         {
             setErrorMessage(NbBundle.getMessage(PS71ConfigPanel.class,"MSG_INVALID_ADMIN_USER"));
+            return false;
+        }
+        
+        if(passwordTf.getPassword() == null || passwordTf.getPassword().length == 0)
+        {
+            setErrorMessage(NbBundle.getMessage(PS71ConfigPanel.class,"MSG_INVALID_ADMIN_PASSWORD"));
             return false;
         }
         
