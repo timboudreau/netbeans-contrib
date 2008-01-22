@@ -59,8 +59,8 @@ final class PathtoolsOptionsPanelController extends OptionsPanelController {
         if (Utilities.isWindows()) {
             DEFAULT_FOLDER_EXPLORE_COMMAND = "explorer /e, \"{path}\""; // NOI18N
             DEFAULT_FILE_EXPLORE_COMMAND = "explorer /e,/select, \"{path}\""; // NOI18N
-            DEFAULT_FOLDER_SHELL_COMMAND = "cmd /C start cmd /K cd \"{path}\""; // NOI18N
-            DEFAULT_FILE_SHELL_COMMAND = "cmd /C start cmd /K cd \"{parent-path}\""; // NOI18N
+            DEFAULT_FOLDER_SHELL_COMMAND = "cmd /C start cmd /K cd /D \"{path}\""; // NOI18N
+            DEFAULT_FILE_SHELL_COMMAND = "cmd /C start cmd /K cd /D \"{parent-path}\""; // NOI18N
             DEFAULT_FOLDER_EDIT_COMMAND = "explorer /e, \"{path}\""; // NOI18N
             DEFAULT_FILE_EDIT_COMMAND = "cmd /C start notepad \"{path}\""; // NOI18N
         } else if ((Utilities.getOperatingSystem() & Utilities.OS_LINUX) !=0) {
