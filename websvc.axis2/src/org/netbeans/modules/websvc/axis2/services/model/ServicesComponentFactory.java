@@ -46,6 +46,7 @@ public interface ServicesComponentFactory {
     ServicesComponent create(Element element, ServicesComponent context);    
     Service createService();
     ServiceGroup createServiceGroup();
+    Schema createSchema();
     Parameter createParameter();
     MessageReceivers createMessageReceivers();
     MessageReceiver createMessageReceiver();

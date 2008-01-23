@@ -45,6 +45,8 @@ import org.netbeans.modules.xml.xam.dom.Attribute;
 public enum ServicesAttributes implements Attribute {
     attrName("name"),
     attrScope("scope"),
+    attrTargetNamespace("targetNamespace"),
+    attrSchemaNamespace("schemaNamespace"),
     attrClass("class"),
     attrMep("mep");
 

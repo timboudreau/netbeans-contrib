@@ -47,6 +47,7 @@ public interface ServicesVisitor {
     void visit(MessageReceiver receiver);
     void visit(MessageReceivers receivers);
     void visit(Operation operation);
+    void visit(Schema schema);
     /**
      * Default shallow visitor.
      */
@@ -69,6 +70,9 @@ public interface ServicesVisitor {
         }
 
         public void visit(Operation operation) {
+        }
+        
+        public void visit(Schema schema) {
         }
     }
     

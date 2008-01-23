@@ -205,11 +205,4 @@ public class AxisUtils {
         }
     }
     
-    public static String getSchemaNamespaceFromClassName(String className) {
-        StringTokenizer tokens = new StringTokenizer(className,"."); //NOI18N
-        if (tokens.countTokens() <= 1) return DEFAULT_SCHEMA_NAMESPACE;
-        else {
-            return getNamespaceFromClassName(className)+"xsd/";
-        }
-    }
 }

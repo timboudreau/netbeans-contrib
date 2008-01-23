@@ -44,6 +44,7 @@ import org.netbeans.modules.websvc.axis2.services.model.MessageReceiver;
 import org.netbeans.modules.websvc.axis2.services.model.MessageReceivers;
 import org.netbeans.modules.websvc.axis2.services.model.Operation;
 import org.netbeans.modules.websvc.axis2.services.model.Parameter;
+import org.netbeans.modules.websvc.axis2.services.model.Schema;
 import org.netbeans.modules.websvc.axis2.services.model.Service;
 import org.netbeans.modules.websvc.axis2.services.model.ServiceGroup;
 import org.netbeans.modules.websvc.axis2.services.model.Services;
@@ -103,6 +104,9 @@ public class ServicesComponentFactoryImpl implements ServicesComponentFactory {
             if (isElementQName(ServicesQNames.SERVICE_GROUP)) {
                 created = new ServiceGroupImpl((ServicesModelImpl)context.getModel(), element);
             }
+            if (isElementQName(ServicesQNames.SCHEMA)) {
+                created = new SchemaImpl((ServicesModelImpl)context.getModel(), element);
+            }
             if (isElementQName(ServicesQNames.PARAMETER)) {
                 created = new ParameterImpl((ServicesModelImpl)context.getModel(), element);
             }
@@ -142,6 +146,10 @@ public class ServicesComponentFactoryImpl implements ServicesComponentFactory {
 
     public Parameter createParameter() {
         return new ParameterImpl(model);
+    }
+    
+    public Schema createSchema() {
+        return new SchemaImpl(model);
     }
 
     public MessageReceivers createMessageReceivers() {

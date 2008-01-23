@@ -39,12 +39,14 @@
 
 package org.netbeans.modules.websvc.axis2.wizards;
 
+import org.netbeans.modules.websvc.axis2.AxisUtils;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2ComponentFactory;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
 import org.netbeans.modules.websvc.axis2.services.model.MessageReceiver;
 import org.netbeans.modules.websvc.axis2.services.model.MessageReceivers;
 import org.netbeans.modules.websvc.axis2.services.model.Parameter;
+import org.netbeans.modules.websvc.axis2.services.model.Schema;
 import org.netbeans.modules.websvc.axis2.services.model.Service;
 import org.netbeans.modules.websvc.axis2.services.model.ServiceGroup;
 import org.netbeans.modules.websvc.axis2.services.model.Services;
@@ -59,6 +61,9 @@ import org.openide.filesystems.FileObject;
 public class WizardUtils {
     static void addService(ServicesModel servicesModel, String serviceClass, FileObject serviceFo) {
         ServicesComponentFactory factory = servicesModel.getFactory();
+        String defaultNs = AxisUtils.getNamespaceFromClassName(serviceClass);       
+        Schema schema = factory.createSchema();
+        schema.setSchemaNamespaceAttr(defaultNs+"xsd"); //NOI18N
         Parameter param = factory.createParameter();
         param.setNameAttr("ServiceClass"); //NOI18N
         param.setValue(serviceClass);
@@ -73,6 +78,7 @@ public class WizardUtils {
         receivers.addMessageReceiver(receiver2);
 
         Services services = servicesModel.getRootComponent();
+        
         if (servicesModel.isServicesGroup()) {
             ServiceGroup serviceGroup = (ServiceGroup)services;
             
@@ -80,8 +86,10 @@ public class WizardUtils {
             Service service = factory.createService();
             service.setNameAttr(serviceFo.getName());
             service.setScopeAttr("application"); //NOI18N
+            service.setTargetNamespaceAttr(defaultNs);
             service.setDescription(serviceFo.getName()+" service"); //NOI18N
             service.setMessageReceivers(receivers);
+            service.setSchema(schema);
             service.addParameter(param);
             serviceGroup.addService(service);
             servicesModel.endTransaction();
@@ -92,8 +100,10 @@ public class WizardUtils {
             servicesModel.startTransaction();
             service.setNameAttr(serviceFo.getName());
             service.setScopeAttr("application"); //NOI18N
+            service.setTargetNamespaceAttr(defaultNs);
             service.setDescription(serviceFo.getName()+" service"); //NOI18N
             service.setMessageReceivers(receivers);
+            service.setSchema(schema);
             service.addParameter(param);
             servicesModel.endTransaction();
         }

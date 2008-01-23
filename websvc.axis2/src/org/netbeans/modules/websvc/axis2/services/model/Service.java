@@ -44,12 +44,14 @@ import java.util.List;
 
 public interface Service extends Services {
     public static String SERVICE_PROP = ServicesQNames.SERVICE.getLocalName();    
-    public static String DESCRIPTION_PROP = ServicesQNames.DESCRIPTION.getLocalName(); 
+    public static String DESCRIPTION_PROP = ServicesQNames.DESCRIPTION.getLocalName();
+    public static String SCHEMA_PROP = ServicesQNames.SCHEMA.getLocalName();
     public static String PARAMETER_PROP = ServicesQNames.PARAMETER.getLocalName();
     public static String OPERATION_PROP = ServicesQNames.OPERATION.getLocalName(); 
     public static String MESSAGE_RECEIVERS_PROP = ServicesQNames.MESSAGE_RECEIVERS.getLocalName(); 
     public static String NAME_ATTR_PROP = ServicesAttributes.attrName.getName();
     public static String SCOPE_ATTR_PROP = ServicesAttributes.attrScope.getName();
+    public static String TARGET_NAMESPACE_ATTR_PROP = ServicesAttributes.attrTargetNamespace.getName();
     
     String getNameAttr();
     void setNameAttr(String name);
@@ -57,8 +59,15 @@ public interface Service extends Services {
     String getScopeAttr();
     void setScopeAttr(String scope);
     
+    String getTargetNamespaceAttr();
+    void setTargetNamespaceAttr(String targetNamespace);
+    
     String getDescription();
     void setDescription(String descriptionsid);
+    
+    Schema getSchema();
+    void removeSchema(Schema schema);
+    void setSchema(Schema schema);
     
     List<Parameter> getParameters();
     void addParameter(Parameter param);

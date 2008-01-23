@@ -38,58 +38,35 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.websvc.axis2.services.model;
+package org.netbeans.modules.websvc.axis2.services.model.impl;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import javax.xml.namespace.QName;
+import org.netbeans.modules.websvc.axis2.services.model.Schema;
+import org.netbeans.modules.websvc.axis2.services.model.ServicesAttributes;
+import org.netbeans.modules.websvc.axis2.services.model.ServicesQNames;
+import org.netbeans.modules.websvc.axis2.services.model.ServicesVisitor;
+import org.w3c.dom.Element;
 
-public enum ServicesQNames {
-    SERVICE("service"), //NOI18N
-    SERVICE_GROUP("serviceGroup"), //NOI18N
-    DESCRIPTION("description"), //NOI18N
-    SCHEMA("schema"), //NOI18N
-    PARAMETER("parameter"), //NOI18N
-    OPERATION("operation"), //NOI18N
-    ACTION_MAPPING("actionMapping"), //NOI18N
-    OUTPUT_ACTION_MAPPING("outputActionMapping"), //NOI18N
-    MESSAGE_RECEIVER("messageReceiver"), //NOI18N
-    MESSAGE_RECEIVERS("messageReceivers"); //NOI18N
+public class SchemaImpl extends ServicesComponentImpl implements Schema {
     
-    private static Set<QName> mappedQNames = new HashSet<QName>();
-    static {
-        mappedQNames.add(SERVICE.getQName());
-        mappedQNames.add(SERVICE_GROUP.getQName());
-        mappedQNames.add(DESCRIPTION.getQName());
-        mappedQNames.add(SCHEMA.getQName());
-        mappedQNames.add(PARAMETER.getQName());
-        mappedQNames.add(OPERATION.getQName());
-        mappedQNames.add(ACTION_MAPPING.getQName());
-        mappedQNames.add(OUTPUT_ACTION_MAPPING.getQName());
-        mappedQNames.add(MESSAGE_RECEIVER.getQName());
-        mappedQNames.add(MESSAGE_RECEIVERS.getQName());
+    public SchemaImpl(ServicesModelImpl model, Element e) {
+        super(model, e);
+    }
+    
+    public SchemaImpl(ServicesModelImpl model) {
+        this(model, createElementNS(model, ServicesQNames.SCHEMA));
+    }
+    
+    public void accept(ServicesVisitor visitor) {
+        visitor.visit(this);
     }
 
-    private QName qname;
-    
-    ServicesQNames(String localName) {
-        qname = new QName(localName);
-    }
-    
-    public QName getQName() { 
-        return qname; 
+    public String getSchemaNamespaceAttr() {
+        return getAttribute(ServicesAttributes.attrName);
     }
 
-    public String getLocalName() { 
-        return qname.getLocalPart();
+    public void setSchemaNamespaceAttr(String schemaNamespace) {
+        super.setAttribute(SCHEMA_NAMESPACE_ATTR_PROP, ServicesAttributes.attrSchemaNamespace, schemaNamespace);
     }
+
     
-    public String getQualifiedName() {
-        return qname.getPrefix() + ":" + qname.getLocalPart(); //NOI18N
-    }
-    
-    public static Set<QName> getMappedQNames() {
-        return Collections.unmodifiableSet(mappedQNames);
-    }
 }

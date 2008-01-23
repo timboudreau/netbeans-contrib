@@ -44,6 +44,7 @@ import java.util.List;
 import org.netbeans.modules.websvc.axis2.services.model.MessageReceivers;
 import org.netbeans.modules.websvc.axis2.services.model.Operation;
 import org.netbeans.modules.websvc.axis2.services.model.Parameter;
+import org.netbeans.modules.websvc.axis2.services.model.Schema;
 import org.netbeans.modules.websvc.axis2.services.model.Service;
 import org.netbeans.modules.websvc.axis2.services.model.ServicesAttributes;
 import org.netbeans.modules.websvc.axis2.services.model.ServicesQNames;
@@ -84,6 +85,18 @@ public class ServiceImpl extends ServicesComponentImpl implements Service {
         removeChild(PARAMETER_PROP, param);
     }
 
+    public Schema getSchema() {
+        return super.getChild(Schema.class);
+    }
+
+    public void setSchema(Schema schema) {
+        appendChild(SCHEMA_PROP, schema);
+    }
+    
+    public void removeSchema(Schema schema) {
+        removeChild(SCHEMA_PROP, schema);
+    }
+
     public List<Operation> getOperations() {
         return super.getChildren(Operation.class);
     }
@@ -119,5 +132,12 @@ public class ServiceImpl extends ServicesComponentImpl implements Service {
     public void setScopeAttr(String scope) {
         super.setAttribute(SCOPE_ATTR_PROP, ServicesAttributes.attrScope, scope);
     }
-    
+
+    public String getTargetNamespaceAttr() {
+        return getAttribute(ServicesAttributes.attrTargetNamespace);
+    }
+
+    public void setTargetNamespaceAttr(String targetNamespace) {
+        super.setAttribute(TARGET_NAMESPACE_ATTR_PROP, ServicesAttributes.attrTargetNamespace, targetNamespace);
+    }    
 }
