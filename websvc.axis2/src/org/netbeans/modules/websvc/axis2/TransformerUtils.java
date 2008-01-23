@@ -67,7 +67,7 @@ import org.openide.util.MutexException;
  * @author mkuchtiak
  */
 public class TransformerUtils {
-    static final String AXIS2_XML_PATH = "nbproject/axis2.xml"; // NOI18N
+    public static final String AXIS2_XML_PATH = "nbproject/axis2.xml"; // NOI18N
     static final String AXIS2_BUILD_XML_PATH = "nbproject/axis2-build.xml"; // NOI18N
     
     private static final String AXIS2_STYLESHEET_RESOURCE="/org/netbeans/modules/websvc/axis2/resources/axis2.xsl"; //NOI18N

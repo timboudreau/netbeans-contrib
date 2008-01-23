@@ -137,6 +137,7 @@ public class Axis2LookupProvider implements LookupProvider {
                                handleAxis2BuildScript(axis2Model);
                            }
                         };
+                        axis2Model.getRootComponent().addPropertyChangeListener(axis2Listener);
                         axis2ModelProvider.setAxis2Model(axis2Model);
                     }
                 }

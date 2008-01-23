@@ -46,6 +46,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 import org.netbeans.modules.xml.xam.ModelSource;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileLock;
@@ -62,6 +65,9 @@ import org.openide.util.lookup.Lookups;
  * @author mkuchtiak
  */
 public class AxisUtils {
+    
+    private static final String DEFAULT_NAMESPACE="http://ws.apache.org/axis2"; //NOI18N
+    private static final String DEFAULT_SCHEMA_NAMESPACE=DEFAULT_NAMESPACE+"/xsd"; //NOI18N
     
     public static void retrieveServicesFromResource(final FileObject targetDir, boolean isWsGroup) throws IOException {
         final String handlerContent =
@@ -178,5 +184,32 @@ public class AxisUtils {
         
 
         return null;
+    }
+    
+    public static String getNamespaceFromClassName(String className) {
+        StringTokenizer tokens = new StringTokenizer(className,"."); //NOI18N
+        if (tokens.countTokens() <= 1) return DEFAULT_NAMESPACE;
+        else {
+            List<String> list = new ArrayList<String>();
+            int index=0;
+            while (tokens.hasMoreTokens()) {
+                list.add(tokens.nextToken());
+                index++;
+            }
+            list.remove(index-1);
+            StringBuffer buf = new StringBuffer("http://"); //NOI18N
+            for (int i = index-2; i>=0; i--) {
+                buf.append(list.get(i)+"/"); //NOI18N
+            }
+            return buf.toString();
+        }
+    }
+    
+    public static String getSchemaNamespaceFromClassName(String className) {
+        StringTokenizer tokens = new StringTokenizer(className,"."); //NOI18N
+        if (tokens.countTokens() <= 1) return DEFAULT_SCHEMA_NAMESPACE;
+        else {
+            return getNamespaceFromClassName(className)+"xsd/";
+        }
     }
 }
