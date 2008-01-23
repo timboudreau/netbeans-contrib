@@ -180,7 +180,7 @@ public class ScalaSemanticAnalyser {
      *
      * @Notice astRoot may be changed after this feature calling? if so, the doc <--> astRoot is useless to prevent redudant parsing.
      */
-    public static void process(SyntaxContext syntaxContext) {
+    @Deprecated public static void process(SyntaxContext syntaxContext) {
         Document doc = syntaxContext.getDocument();
         ASTNode astRoot = (ASTNode) syntaxContext.getASTPath().getRoot();
         /**
@@ -1104,6 +1104,8 @@ public class ScalaSemanticAnalyser {
 
                 }
             }
+//        } else if (isNode(expr, "Type")) {
+//            processAnyType(rootCtx, expr, currCtx);
         } else {
             for (ASTItem item : expr.getChildren()) {
                 if (isTokenTypeName(item, "var_identifier") | isTokenTypeName(item, "upper_identifier")) {

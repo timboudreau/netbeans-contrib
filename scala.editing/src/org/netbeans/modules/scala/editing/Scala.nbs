@@ -889,9 +889,9 @@ TopStat = TopTmplDef
 TopTmplDef = (Annotation)* (Modifier)* TmplDef;
 Packaging = <package> QualId [<lbrace> (<nl>)* TopStats <rbrace>];
 
-AST {
-    process:org.netbeans.modules.scala.editing.semantic.ScalaSemanticAnalyser.process;
-}
+#AST {
+#    process:org.netbeans.modules.scala.editing.semantic.ScalaSemanticAnalyser.process;
+#}
 
 
 #SYNTAX_ERROR:Expr: {
