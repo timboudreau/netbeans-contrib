@@ -220,7 +220,7 @@ public class ScalaSemanticAnalyser {
 
     public static ASTNode getAstRoot(Document doc) {
         return getAnalyser(doc).astRoot;
-    }    
+    }
 
     public static ScalaContext getCurrentCtxRoot(Document doc) {
         return getAnalyser(doc).rootCtx;
@@ -228,7 +228,7 @@ public class ScalaSemanticAnalyser {
 
     public static Map<ASTItem, String> getTypeMap(Document doc) {
         return getAnalyser(doc).astItemToType;
-    }    
+    }
 
     /**
      * @NOTICE we should avoid re-entrant of analyse. There is a case may cause that:
@@ -250,7 +250,7 @@ public class ScalaSemanticAnalyser {
         }
     }
 
-    private void process(ScalaContext ctxRoot, ASTItem n, ScalaContext currentContext) {
+    private void process(ScalaContext rootCtx, ASTItem n, ScalaContext currCtx) {
         if (isNode(n, "TopStats")) {
             /**
              * pre-process
@@ -262,16 +262,16 @@ public class ScalaSemanticAnalyser {
                 if (isNode(item, "TopStat")) {
                     for (ASTItem child : item.getChildren()) {
                         if (isNode(child, "Packaging")) {
-                            preProcessAttibuteDeclaration(ctxRoot, child);
+                            preProcessAttibuteDeclaration(rootCtx, child);
                             for (ASTItem item1 : child.getChildren()) {
                                 if (isNode(item1, "TopStats")) {
                                     ScalaContext ctx = new ScalaContext(child.getOffset(), child.getEndOffset());
-                                    currentContext.addContext(ctx);
-                                    process(ctxRoot, item1, ctx);
+                                    currCtx.addContext(ctx);
+                                    process(rootCtx, item1, ctx);
                                 }
                             }
                         } else if (isNode(child, "Import")) {
-                            preProcessFunctionDeclaration(ctxRoot, child);
+                            processImportStat(rootCtx, child, rootCtx);
                         } else if (isNode(child, "TopTmplDef")) {
 
                         }
@@ -286,7 +286,7 @@ public class ScalaSemanticAnalyser {
             for (ASTItem form : postProcessTopStats) {
                 for (ASTItem item : form.getChildren()) {
                     if (isNode(item, "AttributeDeclaration")) {
-                        postProcessAttibuteDeclaration(ctxRoot, item);
+                        postProcessAttibuteDeclaration(rootCtx, item);
                         processedTopStats.add(form);
                     }
                 }
@@ -295,82 +295,24 @@ public class ScalaSemanticAnalyser {
 
             /** normal process */
             for (ASTItem TopStat : postProcessTopStats) {
-                process(ctxRoot, TopStat, currentContext);
+                process(rootCtx, TopStat, currCtx);
             }
         } else {
             for (ASTItem item : n.getChildren()) {
                 if (isNode(item, "TopTmplDef")) {
-                    /**
-                     * only TopTmplDef needs to be detailed processed now
-                     */
-                    processPendingItems(ctxRoot, postProcessFullTmplDef(ctxRoot, item, currentContext));
+                    Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
+                    pendingItems.putAll(processDclDef(rootCtx, item, currCtx));
+                    processPendingItems(rootCtx, pendingItems);
                 } else if (item instanceof ASTNode) {
-                    process(ctxRoot, item, currentContext);
+                    process(rootCtx, item, currCtx);
                 }
             }
         }
-    }
-
-    private void preProcessFunctionDeclaration(ScalaContext ctxRoot, ASTItem functionDeclaration) {
-        for (ASTItem item : functionDeclaration.getChildren()) {
-            if (isNode(item, "FunctionClauses")) {
-                for (ASTItem child : item.getChildren()) {
-                    if (isNode(child, "FunctionClause")) {
-                        preProcessFunctionClause(ctxRoot, child);
-                    }
-                }
-            }
-        }
-    }
-
-    private void preProcessFunctionClause(ScalaContext rootCtx, ASTItem function) {
-        String nameStr = "";
-        String argumentsStr = "";
-        int arityInt = 0;
-        ASTToken functionName = null;
-        for (ASTItem item : function.getChildren()) {
-            if (isTokenTypeName(item, "atom")) {
-                functionName = (ASTToken) item;
-            } else if (isNode(item, "Exprs")) {
-                /** arguments */
-                argumentsStr = ((ASTNode) item).getAsText().trim();
-                for (ASTItem child : item.getChildren()) {
-                    if (isNode(child, "Expr")) {
-                        arityInt++;
-                    }
-                }
-            }
-        }
-        if (functionName != null) {
-            Function functionDef = rootCtx.getFunctionInScope(functionName.getIdentifier(), arityInt);
-            if (functionDef == null) {
-                nameStr = functionName.getIdentifier().trim();
-                functionDef = new Function(nameStr, function.getOffset(), function.getEndOffset(), arityInt);
-                rootCtx.addDefinition(functionDef);
-            }
-            rootCtx.addUsage(functionName, functionDef);
-            if (!argumentsStr.equals("")) {
-                functionDef.addArgumentsOpt(argumentsStr);
-            }
-        }
-    }
-
-    private Map<ASTItem, ScalaContext> postProcessFullTmplDef(ScalaContext rootCtx, ASTItem fullTmplDef, ScalaContext currCtx) {
-        Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
-        for (ASTItem item : fullTmplDef.getChildren()) {
-            if (isNode(item, "Modifier")) {
-
-            } else if (isNode(item, "TmplDef")) {
-                pendingItems.putAll(processTmplDef(rootCtx, item, currCtx));
-            }
-        }
-        return pendingItems;
     }
 
     /** process TemplateStats || BlockStats || CaseBlockStats */
     private void processBlockStates(ScalaContext rootCtx, ASTItem blockStats, ScalaContext currCtx) {
         Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
-
         ScalaContext ctx = new ScalaContext(blockStats.getOffset(), blockStats.getEndOffset());
         currCtx.addContext(ctx);
         for (ASTItem item1 : blockStats.getChildren()) {
@@ -383,7 +325,7 @@ public class ScalaSemanticAnalyser {
                             }
                         }
                     } else if (isNode(item2, "DclDefInTemplate") || isNode(item2, "DclDefInBlock") || isNode(item2, "DclDefInCaseBlock")) {
-                        processDclDef(rootCtx, item2, ctx);
+                        pendingItems.putAll(processDclDef(rootCtx, item2, ctx));
                     } else if (isNode(item2, "ExprInTemplate") || isNode(item2, "ExprInBlock") || isNode(item2, "ExprInCaseBlock")) {
                         pendingItems.put(item2, ctx);
                     }
@@ -393,50 +335,76 @@ public class ScalaSemanticAnalyser {
         processPendingItems(rootCtx, pendingItems);
     }
 
-    private void processDclDef(ScalaContext rootCtx, ASTItem dclDef, ScalaContext currCtx) {
+    private Map<ASTItem, ScalaContext> processDclDef(ScalaContext rootCtx, ASTItem dclDef, ScalaContext currCtx) {
         Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
         for (ASTItem item : dclDef.getChildren()) {
             if (isNode(item, "ValDclDef") || isNode(item, "VarDclDef")) {
                 pendingItems.putAll(processVarValDclDef(rootCtx, item, currCtx));
             } else if (isNode(item, "FunDclDef")) {
-                pendingItems.putAll(processFunDclDef(rootCtx, item, currCtx));
+                Function funDfn = null;
+                for (ASTItem item1 : item.getChildren()) {
+                    if (isNode(item1, "NameId")) {
+                        ASTToken nameToken = getIdTokenFromNameId(item1);
+                        funDfn = new Function(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), 0);
+                        currCtx.addDefinition(funDfn);
+                        currCtx.addUsage(nameToken, funDfn);
+                        break;
+                    }
+                }
+                pendingItems.putAll(processFunDclDef(rootCtx, item, currCtx, funDfn));
             } else if (isNode(item, "TmplDef")) {
-                pendingItems.putAll(processTmplDef(rootCtx, item, currCtx));
+                ASTItem defStat = null;
+                Kind kind = null;
+                for (ASTItem item1 : item.getChildren()) {
+                    if (isNode(item1, "ObjectDef")) {
+                        defStat = item1;
+                        kind = Kind.OBJECT;
+                    } else if (isNode(item1, "ClassDef")) {
+                        defStat = item1;
+                        kind = Kind.CLASS;
+                    } else if (isNode(item1, "TraitDef")) {
+                        defStat = item1;
+                        kind = Kind.TRAIT;
+                    }
+                }
+
+                Template tmplDfn = null;
+                for (ASTItem item1 : defStat.getChildren()) {
+                    if (isNode(item1, "NameId")) {
+                        ASTToken nameToken = getIdTokenFromNameId(item1);
+                        tmplDfn = new Template(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), kind);
+                        currCtx.addDefinition(tmplDfn);
+                        currCtx.addUsage(nameToken, tmplDfn);
+                        break;
+                    }
+                }
+                pendingItems.putAll(processTmplDef(rootCtx, defStat, currCtx, tmplDfn));
             } else if (isNode(item, "TypeDclDef")) {
-                pendingItems.putAll(processTypeDclDef(rootCtx, item, currCtx));
+                Type typeDfn = null;
+                for (ASTItem item1 : item.getChildren()) {
+                    if (isNode(item1, "NameId")) {
+                        ASTToken nameToken = getIdTokenFromNameId(item1);
+                        typeDfn = new Type(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset());
+                        currCtx.addDefinition(typeDfn);
+                        currCtx.addUsage(nameToken, typeDfn);
+                        break;
+                    }
+                }
+                pendingItems.putAll(processTypeDclDef(rootCtx, item, currCtx, typeDfn));
             }
         }
-
-        processPendingItems(rootCtx, pendingItems);
+        return pendingItems;
     }
 
-    private Map<ASTItem, ScalaContext> processTmplDef(ScalaContext rootCtx, ASTItem tmplDef, ScalaContext currCtx) {
+    private Map<ASTItem, ScalaContext> processTmplDef(ScalaContext rootCtx, ASTItem defStat, ScalaContext currCtx, Template tmplDfn) {
         Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
-
-        ScalaContext ctx = new ScalaContext(tmplDef.getOffset(), tmplDef.getEndOffset());
+        ScalaContext ctx = new ScalaContext(defStat.getOffset(), defStat.getEndOffset());
         currCtx.addContext(ctx);
 
-        Kind kind = null;
-        ASTItem defStat = null;
-        for (ASTItem item : tmplDef.getChildren()) {
-            if (isNode(item, "ObjectDef")) {
-                defStat = item;
-                kind = Kind.OBJECT;
-            } else if (isNode(item, "ClassDef")) {
-                defStat = item;
-                kind = Kind.CLASS;
-            } else if (isNode(item, "TraitDef")) {
-                defStat = item;
-                kind = Kind.TRAIT;
-            }
-        }
-
-        ASTToken nameToken = null;
+        Kind kind = tmplDfn.getKind();
         if (kind == Kind.OBJECT || kind == Kind.CLASS) {
             for (ASTItem item1 : defStat.getChildren()) {
-                if (isNode(item1, "NameId")) {
-                    nameToken = getIdTokenFromNameId(item1);
-                } else if (isNode(item1, "ClassTemplateOpt")) {
+                if (isNode(item1, "ClassTemplateOpt")) {
                     for (ASTItem item2 : item1.getChildren()) {
                         if (isNode(item2, "Template")) {
                             pendingItems.put(item2, ctx);
@@ -465,9 +433,7 @@ public class ScalaSemanticAnalyser {
         } else {
             // Trait
             for (ASTItem item1 : defStat.getChildren()) {
-                if (isNode(item1, "NameId")) {
-                    nameToken = getIdTokenFromNameId(item1);
-                } else if (isNode(item1, "TraitTemplateOpt")) {
+                if (isNode(item1, "TraitTemplateOpt")) {
                     for (ASTItem item2 : item1.getChildren()) {
                         if (isNode(item2, "Template")) {
                             pendingItems.put(item2, ctx);
@@ -484,16 +450,11 @@ public class ScalaSemanticAnalyser {
 
         }
 
-        if (nameToken != null) {
-            Template tmplDfn = new Template(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), kind);
-            currCtx.addDefinition(tmplDfn);
-            currCtx.addUsage(nameToken, tmplDfn);
-        }
 
         return pendingItems;
     }
 
-    private Map<ASTItem, ScalaContext> processVarValDclDef(ScalaContext ctxRoot, ASTItem nodeContainsDclDef, ScalaContext currCtx) {
+    private Map<ASTItem, ScalaContext> processVarValDclDef(ScalaContext rootCtx, ASTItem nodeContainsDclDef, ScalaContext currCtx) {
         Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
         List<ASTItem> patterns = new ArrayList<ASTItem>();
         if (isNode(nodeContainsDclDef, "ValDclDef") || isNode(nodeContainsDclDef, "VarDclDef")) {
@@ -589,24 +550,12 @@ public class ScalaSemanticAnalyser {
         return pendingItems;
     }
 
-    private Map<ASTItem, ScalaContext> processFunDclDef(ScalaContext rootCtx, ASTItem funDclDef, ScalaContext currCtx) {
+    private Map<ASTItem, ScalaContext> processFunDclDef(ScalaContext rootCtx, ASTItem funDclDef, ScalaContext currCtx, Function funDfn) {
         Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
         ScalaContext ctx = new ScalaContext(funDclDef.getOffset(), funDclDef.getEndOffset());
         currCtx.addContext(ctx);
-        String argumentsStr = "";
         for (ASTItem item : funDclDef.getChildren()) {
-            if (isNode(item, "NameId")) {
-                ASTToken nameToken = getIdTokenFromNameId(item);
-                Function funDfn = rootCtx.getFunctionInScope(nameToken.getIdentifier(), 0);
-                if (funDfn == null) {
-                    funDfn = new Function(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), 0);
-                    rootCtx.addDefinition(funDfn);
-                }
-                currCtx.addUsage(nameToken, funDfn);
-                if (!argumentsStr.equals("")) {
-                    funDfn.addArgumentsOpt(argumentsStr);
-                }
-            } else if (isNode(item, "FunTypeParamClause")) {
+            if (isNode(item, "FunTypeParamClause")) {
                 List<ASTItem> typeParams = query(item, "TypeParam");
                 for (ASTItem typeParam : typeParams) {
                     for (ASTItem item1 : typeParam.getChildren()) {
@@ -618,7 +567,7 @@ public class ScalaSemanticAnalyser {
                         } else if (isNode(item1, "Type")) {
                             processAnyType(rootCtx, item1, ctx);
                         } else if (isNode(item1, "TypeParamClause")) {
-                            /** @todo */
+                        /** @todo */
                         }
                     }
                 }
@@ -643,16 +592,10 @@ public class ScalaSemanticAnalyser {
         return pendingItems;
     }
 
-    private Map<ASTItem, ScalaContext> processTypeDclDef(ScalaContext rootCtx, ASTItem typeDclDef, ScalaContext currCtx) {
+    private Map<ASTItem, ScalaContext> processTypeDclDef(ScalaContext rootCtx, ASTItem typeDclDef, ScalaContext currCtx, Type typeDfn) {
         Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
         for (ASTItem item : typeDclDef.getChildren()) {
-            if (isNode(item, "NameId")) {
-                ASTToken nameToken = getIdTokenFromNameId(item);
-                Type typeDfn = new Type(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset());
-                currCtx.addDefinition(typeDfn);
-                currCtx.addUsage(nameToken, typeDfn);
-
-            } else if (isNode(item, "TypeParamClause")) {
+            if (isNode(item, "TypeParamClause")) {
                 List<ASTItem> nameIds = query(item, "VariantTypeParam/TypeParam/NameId");
                 for (ASTItem nameId : nameIds) {
                     ASTToken nameToken = getIdTokenFromNameId(nameId);
@@ -1245,12 +1188,13 @@ public class ScalaSemanticAnalyser {
             } // @todo process this super ?
             ASTToken funName = getIdTokenFromNameId(nameId);
             if (funName != null) {
-                Function funDfn = rootCtx.getFunctionInScope(funName.getIdentifier(), arityInt);
+                /** @todo get all functions with the same name, then find the same Type params one */
+                Function funDfn = currCtx.getDefinitionInScopeByName(Function.class, funName.getIdentifier());
                 if (funDfn == null) {
                     /** Is it a imported function call? */
                     funDfn = ErlBuiltIn.getBuiltInFunction(funName.getIdentifier(), arityInt);
                     if (funDfn != null) {
-                        rootCtx.addDefinition(funDfn);
+                        currCtx.addDefinition(funDfn);
                         currCtx.addUsage(funName, funDfn);
                     } else {
                         // It may be a apply/update function of var?
@@ -1297,28 +1241,21 @@ public class ScalaSemanticAnalyser {
         }
 
         if (isNewExpr) {
-            ASTItem nameId = null;
-            List<ASTItem> typeIds = query(simpleExpr, "NewExpr/ClassParents/AnnotType/SimpleType/TypeStableId/TypeId");
+            List<String> namespace = new ArrayList<String>();
+            List<ASTItem> typeIds = query(simpleExpr, "NewExpr/ClassParents/AnnotType/SimpleType/TypeStableId/TypeId/PathId");
             for (ASTItem typeId : typeIds) {
                 for (ASTItem item : typeId.getChildren()) {
-                    if (isNode(item, "PathId")) {
-                        for (ASTItem item1 : item.getChildren()) {
-                            if (isNode(item1, "NameId")) {
-                                nameId = item1;
-                                break;
-                            }
+                    if (isNode(item, "NameId")) {
+                        ASTToken tmplId = getIdTokenFromNameId(item);
+                        namespace.add(tmplId.getIdentifier());
+                        Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, tmplId.getIdentifier());
+                        if (tmplDfn != null && (tmplDfn.getKind() == Kind.CLASS || tmplDfn.getKind() == Kind.TRAIT)) {
+                            currCtx.addUsage(tmplId, tmplDfn);
                         }
-                        break;
-                    }
-                }
-                if (nameId == null) {
-                    return;
-                } // @todo process "this" and "super" ?
-                ASTToken tmplId = getIdTokenFromNameId(nameId);
-                if (tmplId != null && !(tmplId.getIdentifier().equals("_"))) {
-                    Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, tmplId.getIdentifier());
-                    if (tmplDfn != null && (tmplDfn.getKind() == Kind.CLASS || tmplDfn.getKind() == Kind.TRAIT)) {
-                        currCtx.addUsage(tmplId, tmplDfn);
+                    } else if (isTokenTypeName(item, "this")) {
+                        namespace.add("this");
+                    } else if (isTokenTypeName(item, "super")) {
+                        namespace.add("super");
                     }
                 }
             }

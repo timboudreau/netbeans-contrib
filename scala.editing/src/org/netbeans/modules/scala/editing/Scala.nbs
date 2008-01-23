@@ -939,7 +939,7 @@ NAVIGATOR:ObjectDef: {
 }
 
 NAVIGATOR:FunDclDef: {
-    display_name: "$NameId$$FunTypeParamClause$$ParamClauses$$colon$$Type$";
+    display_name: "$NameId$$FunTypeParamClause$$ParamClauses$ $colon$$Type$";
     icon: "/org/netbeans/modules/languages/resources/method.gif";
 }
 
