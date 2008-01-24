@@ -1033,15 +1033,15 @@ COLOR:Type,InfixType,AnnotType,SimpleType,TypeParam.NameId: {
     font_type: "bold";
 }
 
-COLOR:ClassDef.NameId, TraitDef.NameId, ObjectDef.NameId: {
+COLOR:ClassDef.NameId, TraitDef.NameId, ObjectDef.NameId, TypeDclDef.NameId: {
     foreground_color: "black";
     font_type: "bold";
-    condition: org.netbeans.modules.scala.editing.Scala.enableSemantic;
 }
 
 COLOR:FunDclDef.NameId: {
-    foreground_color: "black";
-    underline_color: "0x000000";
+    foreground_color: "0x2E92C7";
+#    foreground_color: "black";
+#    underline_color: "0x000000";
 }
 
 COLOR:integer,float: {

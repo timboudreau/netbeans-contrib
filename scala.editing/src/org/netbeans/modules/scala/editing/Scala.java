@@ -306,14 +306,6 @@ public class Scala {
         }
     }
 
-    /** Hacking method that will be called when render highlighting, we can put 
-     * the needed init for this doc here */
-    public static boolean enableSemantic(Context context) {
-        Document doc = context.getDocument();
-        ScalaSemanticAnalyser.getAnalyser(doc);
-        return true;
-    }
-
     // hyperlink
     public static Runnable hyperlink(Context context) {
         if (!(context instanceof SyntaxContext)) {
