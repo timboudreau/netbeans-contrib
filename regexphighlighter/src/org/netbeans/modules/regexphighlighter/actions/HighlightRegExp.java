@@ -125,11 +125,11 @@ public final class HighlightRegExp extends BooleanStateAction implements Propert
                                 NbDocument.runAtomicAsUser((StyledDocument) document, new Runnable() {
                                     public void run() {
                                         try {
-                                            document.insertString(offset, "\"" + 
+                                            document.insertString(offset, 
                                                     regExpTextField.getText()
                                                     .replaceAll(Pattern.quote("\\"), Matcher.quoteReplacement("\\\\"))
-                                                    .replaceAll(Pattern.quote("\""), Matcher.quoteReplacement("\\\""))
-                                                    + "\"", null);
+                                                    .replaceAll(Pattern.quote("\""), Matcher.quoteReplacement("\\\"")),
+                                                    null);
                                         } catch (BadLocationException ex) {
                                             Exceptions.printStackTrace(ex);
                                         }                                    
