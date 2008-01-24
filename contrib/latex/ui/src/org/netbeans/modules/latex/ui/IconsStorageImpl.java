@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -25,7 +25,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2008.
  * All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -262,7 +262,7 @@ public final class IconsStorageImpl extends IconsStorage {
     }
     
     private String constructSizeString(DelegatingIcon icon) {
-        if (icon.getDesiredSizeX() == (-1) || icon.getDesiredSizeY() == (-1))
+        if (icon.getDesiredSizeX() == (-1) || icon.getDesiredSizeY() == (-1) || !icon.isIcon)
             return null;
         
         return "" + icon.getDesiredSizeX() + "x" + icon.getDesiredSizeY();
@@ -299,8 +299,15 @@ public final class IconsStorageImpl extends IconsStorage {
             if (!iconFile.exists()) {
                 IconsCreator creator = IconsCreator.getDefault();
                 
-                if (!creator.createIconForExpression(icon.getText(), constructSizeString(icon)))
-                    iconFile = null;
+                if (icon.isIcon) {
+                    if (!creator.createIconForExpression(icon.getText(), constructSizeString(icon))) {
+                        iconFile = null;
+                    }
+                } else {
+                    if (!creator.createIconForText(icon.getText())) {
+                        iconFile = null;
+                    }
+                }
             }
             
             if (iconFile != null) {
@@ -334,13 +341,27 @@ public final class IconsStorageImpl extends IconsStorage {
     }
     
     private ChangeableIcon getIconForExpressionImpl(String expression, int sizeX, int sizeY) {
-        DelegatingIcon icon = new DelegatingIcon(expression, sizeX, sizeY);
+        DelegatingIcon icon = new DelegatingIcon(expression, sizeX, sizeY, true);
         
         setWaitingIcon(icon);
         
         return icon;
     }
 
+    private ChangeableIcon getIconForTextImpl(String text) {
+        DelegatingIcon icon = new DelegatingIcon(text, 0, 0, false);
+        
+        
+        if (IconsCreator.getDefault().isConfigurationUsable()) {
+            synchronized (iconsToCreate) {
+                iconsToCreate.put(icon);
+                iconsToCreate.notifyAll();
+            }
+        }
+
+        return icon;
+    }
+    
     public ChangeableIcon getIcon(String expression, int sizeX, int sizeY) {
         ChangeableIcon i = null;
         Reference sr = expression2Icon.get(expression);
@@ -352,6 +373,22 @@ public final class IconsStorageImpl extends IconsStorage {
         if (i == null) {
             i = getIconForExpressionImpl(expression, sizeX, sizeY);
             expression2Icon.put(expression, new SoftReference(i));
+        }
+        
+        return i;
+    }
+    
+    public ChangeableIcon getIconForText(String text) {
+        ChangeableIcon i = null;
+        Reference sr = expression2Icon.get(text);
+        
+        if (sr != null) {
+            i = (ChangeableIcon) sr.get();
+        }
+        
+        if (i == null) {
+            i = getIconForTextImpl(text);
+            expression2Icon.put(text, new SoftReference(i));
         }
         
         return i;
@@ -400,8 +437,10 @@ public final class IconsStorageImpl extends IconsStorage {
         private String cacheFileName;
         private int    desiredSizeX;
         private int    desiredSizeY;
+        private boolean isIcon;
+        private boolean computed;
         
-        public DelegatingIcon(Icon delegateTo, String text, int desiredSizeX, int desiredSizeY) {
+        public DelegatingIcon(Icon delegateTo, String text, int desiredSizeX, int desiredSizeY, boolean isIcon) {
             if (desiredSizeX < 0 || desiredSizeY < 0) {
                 throw new IllegalArgumentException("desiredSizeX= " + desiredSizeX + ", desiredSizeY" + desiredSizeY);
             }
@@ -410,15 +449,20 @@ public final class IconsStorageImpl extends IconsStorage {
             this.text       = text;
             this.desiredSizeX = desiredSizeX;
             this.desiredSizeY = desiredSizeY;
+            this.isIcon = isIcon;
         }
         
-        public DelegatingIcon(String text, int desiredSizeX, int desiredSizeY) {
-            this(null, text, desiredSizeX, desiredSizeY);
+        public DelegatingIcon(String text, int desiredSizeX, int desiredSizeY, boolean isIcon) {
+            this(null, text, desiredSizeX, desiredSizeY, isIcon);
         }
         
         //Only enclosing class should call this:
         private void setIcon(Icon delegateTo) {
             this.delegateTo = delegateTo;
+            
+            synchronized (this) {
+                this.computed = true;
+            }
             
             fireStateChanged();
         }
@@ -516,11 +560,15 @@ public final class IconsStorageImpl extends IconsStorage {
         }
         
         public int getIconWidth() {
-            return desiredSizeX;
+            return desiredSizeX <= 0 && delegateTo != null ? delegateTo.getIconWidth() : desiredSizeX;
         }
 
         public int getIconHeight() {
-            return desiredSizeY;
+            return desiredSizeY <= 0 && delegateTo != null ? delegateTo.getIconWidth() : desiredSizeY;
+        }
+
+        public synchronized boolean isComputed() {
+            return computed;
         }
         
     }

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -25,7 +25,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2008.
  * All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -43,20 +43,15 @@
  */
 package org.netbeans.modules.latex.ui;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JProgressBar;
 import org.openide.ErrorManager;
 
 
@@ -175,35 +170,40 @@ public final class IconsCreator {
     private void createPNG(File input, File output, String size) throws IOException, InterruptedException {
         Process gs = null;
         
-        if (size != null)
-            gs = Runtime.getRuntime().exec(new String[] {
-            this.gs,
-            "-sDEVICE=png16m",
-            "-dBATCH",
-            "-dNOPAUSE",
-            "-dGraphicsAlphaBits=4",
-            "-dTextAlphaBits=4",
-            "-dEPSFitPage",
-            "-g" + size,
-            "-sOutputFile=" + output.getAbsolutePath(),
-            input.getAbsolutePath()
-        });
-        else
-            gs = Runtime.getRuntime().exec(new String[] {
-            this.gs,
-            "-sDEVICE=pngalpha",
-            "-dBATCH",
-            "-r100",
-            "-dNOPAUSE",
-            "-dEPSCrop",
-            "-sOutputFile=" + output.getAbsolutePath(),
-            input.getAbsolutePath()
-        });
+        if (size != null) {
+            gs = Runtime.getRuntime().exec(new String[]{
+                this.gs,
+                "-sDEVICE=png16m",
+                "-dBATCH",
+                "-dNOPAUSE",
+                "-dGraphicsAlphaBits=4",
+                "-dTextAlphaBits=4",
+                "-dEPSFitPage",
+                "-g" + size,
+                "-sOutputFile=" + output.getAbsolutePath(),
+                input.getAbsolutePath()
+            });
+        } else {
+            gs = Runtime.getRuntime().exec(new String[]{
+                this.gs,
+                "-sDEVICE=pngalpha",
+                "-dBATCH",
+                "-r200",
+                "-dNOPAUSE",
+                "-dEPSCrop",
+                "-sOutputFile=" + output.getAbsolutePath(),
+                input.getAbsolutePath()
+            });
+        }
         
         waitFor(gs);
     }
     
     private File createPS(String command) throws IOException, InterruptedException {
+        return createPSText("\\[ " + command + " \\]");
+    }
+    
+    private File createPSText(String text) throws IOException, InterruptedException {
         File temp = null;
         File dvi  = null;
         
@@ -219,7 +219,7 @@ public final class IconsCreator {
             tempOut.println("\\usepackage{latexsym}");
             tempOut.println("\\pagestyle{empty}");
             tempOut.println("\\begin{document}");
-            tempOut.println("\\[ " + command + " \\]");
+            tempOut.println(text);
             tempOut.println("\\end{document}");
             
             tempOut.close();
@@ -277,8 +277,24 @@ public final class IconsCreator {
     public static String constructFileName(String expression, String size) {
         if (size != null)
             return encode(expression) + "-" + size + ".png";
-        else
-            return encode(expression) + ".png";
+        else {
+            try {
+                MessageDigest md = MessageDigest.getInstance("SHA1");
+                StringBuffer sb = new StringBuffer();
+                
+                for (byte b : md.digest(expression.getBytes("UTF-8"))) {
+                    String hex = Integer.toHexString(b);
+
+                    sb.append(String.format("%02X", b));
+                }
+                
+                return sb.toString() + ".png";
+            } catch (UnsupportedEncodingException ex) {
+                throw new IllegalStateException(ex);
+            } catch (NoSuchAlgorithmException ex) {
+                throw new IllegalStateException(ex);
+            }
+        }
     }
     
     private File getIconDirectory() throws IOException {
@@ -325,6 +341,21 @@ public final class IconsCreator {
         }
     }
     
+    private void createIconsForText(String text) {
+        try {
+            File iconDir = getIconDirectory();
+            
+            File ps = createPSText(text);
+            File png = new File(iconDir, constructFileName(text, null));
+
+            createPNG(ps, png, null);
+        } catch (IOException e) {
+            ErrorManager.getDefault().notify(e);
+        } catch (InterruptedException e) {
+            ErrorManager.getDefault().notify(e);
+        }
+    }
+    
     public boolean createIconForExpression(String expression, String size) {
         if (isConfigurationUsable()) {
             createIconsForCommand(expression, "", new String[] {size});
@@ -335,4 +366,14 @@ public final class IconsCreator {
         }
     }
 
+    public boolean createIconForText(String text) {
+        if (isConfigurationUsable()) {
+            createIconsForText(text);
+            
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
 }

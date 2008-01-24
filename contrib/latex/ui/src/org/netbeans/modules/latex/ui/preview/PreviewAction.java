@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
+ * 
  * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,14 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * Contributor(s):
- *
- * The Original Software is the LaTeX module.
- * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2008.
- * All Rights Reserved.
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -38,59 +31,29 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- *
- * Contributor(s): Jan Lahoda.
- */
-package org.netbeans.modules.latex.model;
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ */package org.netbeans.modules.latex.ui.preview;
 
-import java.util.Collection;
-import java.util.List;
-import javax.swing.Icon;
-import javax.swing.event.ChangeListener;
-import org.openide.util.Lookup;
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
+import org.openide.util.NbBundle;
+import org.openide.windows.TopComponent;
 
 /**
- *
- * @author Jan Lahoda
+ * Action which shows Preview component.
  */
-public abstract class IconsStorage {
-
-    public static final String DEFAULT_CATHEGORY = "<default>";
-
-    /** Creates a new instance of IconsStorage */
-    protected IconsStorage() {
+public class PreviewAction extends AbstractAction {
+    public PreviewAction() {
+        super(NbBundle.getMessage(PreviewAction.class, "CTL_PreviewAction"));
+//        putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(PreviewTopComponent.ICON_PATH, true)));
     }
 
-    public static IconsStorage getDefault() {
-        return (IconsStorage) Lookup.getDefault().lookup(IconsStorage.class);
+    public void actionPerformed(ActionEvent evt) {
+        TopComponent win = PreviewTopComponent.findInstance();
+        win.open();
+        win.requestActive();
     }
-    
-    public abstract List<String> getAllIconNames();
-    
-    public abstract List<String> getIconNamesForCathegory(String catName);
-    
-    public abstract Collection<String> getCathegories();
-    
-    public abstract String getCathegoryDisplayName(String catName);
-
-    /**Prefered size:
-     */
-    public abstract ChangeableIcon getIcon(String command);
-    
-    /**Given size:
-     */
-    public abstract ChangeableIcon getIcon(String command, int sizeX, int sizeY);
-
-    public abstract boolean getIconsInstalled();
-    
-    public static interface ChangeableIcon extends Icon {
-        
-        public void addChangeListener(ChangeListener l);
-        
-        public void removeChangeListener(ChangeListener l);
-        
-        public boolean isComputed();
-        
-    }
-
 }
