@@ -46,35 +46,31 @@ import java.awt.Component;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JToggleButton;
-import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.UIManager;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
-import javax.swing.text.Position;
-import org.netbeans.editor.BaseDocument;
+import javax.swing.text.StyledDocument;
 import org.netbeans.editor.Registry;
-import org.netbeans.modules.editor.NbEditorUtilities;
-import org.openide.filesystems.FileObject;
 import org.openide.text.NbDocument;
+import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.BooleanStateAction;
@@ -110,6 +106,43 @@ public final class HighlightRegExp extends BooleanStateAction implements Propert
                 processRegExp();
             }
         });
+        
+        regExpTextField.registerKeyboardAction(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        JTextComponent textComponent = Registry.getMostActiveComponent();
+                        if (textComponent == null) {
+                            return;
+                        }
+                        
+                        if (!textComponent.isEditable()) {
+                            return;
+                        }
+                        
+                        final int offset = textComponent.getCaretPosition();
+                        if (offset != -1) {
+                            final Document document = textComponent.getDocument();
+                            try {
+                                NbDocument.runAtomicAsUser((StyledDocument) document, new Runnable() {
+                                    public void run() {
+                                        try {
+                                            document.insertString(offset, "\"" + 
+                                                    regExpTextField.getText()
+                                                    .replaceAll(Pattern.quote("\\"), Matcher.quoteReplacement("\\\\"))
+                                                    .replaceAll(Pattern.quote("\""), Matcher.quoteReplacement("\\\""))
+                                                    + "\"", null);
+                                        } catch (BadLocationException ex) {
+                                            Exceptions.printStackTrace(ex);
+                                        }                                    
+                                    }
+                                });
+                            } catch (BadLocationException ex) {
+                                Exceptions.printStackTrace(ex);
+                            }
+                        }
+                    }
+                },
+                KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, InputEvent.CTRL_MASK, true),
+                JComponent.WHEN_FOCUSED);
         
         highlightGroupsToggleButton = new JToggleButton(HIGHLIGHT_GROUPS_ICON, true);
         highlightGroupsToggleButton.setFocusPainted(false);
@@ -158,8 +191,7 @@ public final class HighlightRegExp extends BooleanStateAction implements Propert
         
         regExpToolbar.add(regExpTextField);
         regExpToolbar.add(matchCaseRegExpToggleButton);
-        regExpToolbar.add(highlightGroupsToggleButton);
-        regExpToolbar.add(new JSeparator());
+        regExpToolbar.add(highlightGroupsToggleButton);        
         
         Component highlightRegExpToggleButton;
         highlightRegExpToggleButton = super.getToolbarPresenter();
