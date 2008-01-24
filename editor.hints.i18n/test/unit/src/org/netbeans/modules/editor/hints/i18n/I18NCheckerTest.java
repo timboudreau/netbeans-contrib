@@ -105,6 +105,14 @@ public class I18NCheckerTest extends TreeRuleTestBase {
         performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate void t() {String s2 = null; String s = \"\" + s|2 + s2;}\n}");
     }
     
+    public void testAnnotation1() throws Exception {
+        performAnalysisTest("test/Test.java", "package test; @SuppressWarnings(\"somet|hing\") public class Test {}\n}");
+    }
+    
+    public void testAnnotation2() throws Exception {
+        performAnalysisTest("test/Test.java", "package test; @SuppressWarnings({\"somet|hing\", \"AAAA\"}) public class Test {}\n}");
+    }
+    
     @Override
     protected List<ErrorDescription> computeErrors(CompilationInfo info, TreePath path) {
         if ("testNoStringLiteral".equals(getName()) || "testCompound1".equals(getName()) || "testCompound2".equals(getName())) {

@@ -124,6 +124,18 @@ public class I18NChecker extends AbstractHint {
         return false;
     }
     
+    private static boolean checkParentKind(TreePath tp, int parentIndex, Kind requiredKind) {
+        while (parentIndex-- > 0 && tp != null) {
+            tp = tp.getParentPath();
+        }
+        
+        if (tp == null) {
+            return false;
+        }
+        
+        return tp.getLeaf().getKind() == requiredKind;
+    }
+    
     private static final Set<String> LOCALIZING_METHODS = new HashSet<String>(Arrays.asList("getString", "getBundle", "getMessage"));
     
     public List<ErrorDescription> run(CompilationInfo compilationInfo, TreePath treePath) {
@@ -151,7 +163,7 @@ public class I18NChecker extends AbstractHint {
             }
             
             //check for localized string:
-            if (treePath.getParentPath().getLeaf().getKind() == Kind.METHOD_INVOCATION) {
+            if (checkParentKind(treePath, 1, Kind.METHOD_INVOCATION)) {
                 MethodInvocationTree mit = (MethodInvocationTree) treePath.getParentPath().getLeaf();
                 ExpressionTree  method = mit.getMethodSelect();
                 String methodName = null;
@@ -168,6 +180,22 @@ public class I18NChecker extends AbstractHint {
                 if (LOCALIZING_METHODS.contains(methodName)) {
                     return null;
                 }
+            }
+            
+            //@Annotation("..."):
+            if (checkParentKind(treePath, 1, Kind.ASSIGNMENT) && checkParentKind(treePath, 2, Kind.ANNOTATION)) {
+                return null;
+            }
+            
+            //@Annotation({"...", "..."}):
+            TreePath tp = treePath;
+            
+            while (tp != null) {
+                System.err.println("l=" + tp.getLeaf());
+                tp = tp.getParentPath();
+            }
+            if (checkParentKind(treePath, 1, Kind.NEW_ARRAY) && checkParentKind(treePath, 2, Kind.ASSIGNMENT) && checkParentKind(treePath, 3, Kind.ANNOTATION)) {
+                return null;
             }
             
             final long hardCodedOffset = compilationInfo.getTrees().getSourcePositions().getStartPosition(compilationInfo.getCompilationUnit(), treePath.getLeaf());
