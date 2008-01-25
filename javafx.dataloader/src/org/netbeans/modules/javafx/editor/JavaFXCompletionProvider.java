@@ -41,7 +41,6 @@
 
 package org.netbeans.modules.javafx.editor;
 
-import org.netbeans.modules.javafx.model.JavaFXModel;
 import net.java.javafx.type.Attribute;
 import net.java.javafx.type.Type;
 import net.java.javafx.type.expr.VariableDeclarator;
@@ -63,6 +62,7 @@ import java.util.Map;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import org.netbeans.modules.javafx.model.impl.JavaFXModel;
 import org.netbeans.spi.editor.completion.CompletionDocumentation;
 import org.netbeans.spi.editor.completion.CompletionProvider;
 import org.netbeans.spi.editor.completion.CompletionResultSet;

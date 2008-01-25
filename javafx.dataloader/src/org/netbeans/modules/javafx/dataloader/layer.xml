@@ -42,11 +42,13 @@ made subject to such option by the copyright holder.
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
+<!--    
     <folder name="Actions">
         <folder name="Edit">
             <file name="org-netbeans-modules-javafx-editor-JavaFXGoToDeclarationAction.instance"/>
         </folder>
     </folder>
+-->    
     <folder name="Services">
         <folder name="MIMEResolver">
             <file name="JavaFXResolver.xml" url="JavaFXResolver.xml">
@@ -67,14 +69,13 @@ made subject to such option by the copyright holder.
                         </folder>
                     </folder>
                 </folder>
-                
+<!--                
                  <folder name="HyperlinkProviders">
                     <file name="JavaFXHyperlinkProvider.instance">
                         <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.editor.JavaFXHyperlinkProvider"/>
                         <attr name="instanceOf" stringvalue="org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt"/>
                     </file>
                 </folder>
-
 
                 <folder name="Popup">
                     <folder name="Navigate">
@@ -85,6 +86,7 @@ made subject to such option by the copyright holder.
                     </folder>
 
                 </folder>
+-->                
                 <folder name="CompletionProviders">
                     <file name="org-netbeans-modules-javafx-editor-JavaFXCompletionProvider.instance"/>
                 </folder>
@@ -116,12 +118,16 @@ made subject to such option by the copyright holder.
                 </folder>
                 <folder name="Toolbars">
                     <folder name="Default">
-                        <file name="toggle-fx-preview-execution"/>
-                        <attr name="toggle-fx-preview-execution/toggle-reset-fx-preview-execution" boolvalue="true"/>
-                        <file name="toggle-reset-fx-preview-execution"/>
-                        <attr name="toggle-reset-fx-preview-execution/toggle-fx-error-syntax" boolvalue="true"/>
-                        <file name="toggle-fx-error-syntax"/>
-                        
+                        <file name="toggle-fx-preview-execution">
+                            <attr name="position" intvalue="10"/>
+                        </file>
+                        <file name="toggle-reset-fx-preview-execution">
+                            <attr name="position" intvalue="20"/>
+                        </file>    
+                        <file name="toggle-fx-error-syntax">
+                            <attr name="position" intvalue="30"/>
+                        </file>
+                            
                         <file name="Separator-before-comment.instance">
                             <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                             <attr name="position" intvalue="20100"/>
@@ -150,7 +156,9 @@ made subject to such option by the copyright holder.
                 </file>
                 
                 <folder name="BracesMatchers">
-                    <file name="org-netbeans-modules-javafx-editor-JavaFXBracesMatcher.instance"/>
+                    <file name="org-netbeans-modules-javafx-editor-JavaFXBracesMatcher.instance">
+                        <attr name="position" intvalue="500"/>
+                    </file>
                 </folder>
             </folder>
         </folder>
@@ -205,7 +213,7 @@ made subject to such option by the copyright holder.
             <folder name="x-fx">
                 
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
-                <attr name="iconBase" stringvalue="/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                <attr name="iconBase" stringvalue="org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
                 
                <folder name="Actions">
                     <file name="OpenAction.instance">
@@ -274,18 +282,17 @@ made subject to such option by the copyright holder.
             </folder>
         </folder>
     </folder>
-
+<!--
     <folder name="Shortcuts">
         <file name="D-B.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-javafx-editor-JavaFXGoToDeclarationAction.instance"/>
         </file>
     </folder>
-    
+-->    
     
     <folder name="Templates">
-        <attr name="Java/JavaFX" boolvalue="true"/>
         <folder name="JavaFX">
-            <attr name="position" intvalue="900"/>
+            <attr name="position" intvalue="930"/>
             <file name="JavaFXEmpty.fx" url="JavaFXEmpty.fx">
                 <attr name="position" intvalue="100"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.dataloader.Bundle"/>

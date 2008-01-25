@@ -59,12 +59,13 @@ import org.openide.util.NbBundle;
 public class PanelProjectTypesVisual extends SettingsPanel {
     
     private WizardDescriptor wizardDescriptor;
-    
+    private PanelConfigureProject panel;
     private PanelOptionsVisual optionsPanel;
     
     /** Creates new form PanelProjectTypesVisual */
-    public PanelProjectTypesVisual(PanelOptionsVisual optionsPanel) {
+    public PanelProjectTypesVisual(PanelConfigureProject confPanel, PanelOptionsVisual optionsPanel) {
         initComponents();
+        ((FolderList)sourcePanel).setConfigureProjectPanel(confPanel);
         
         // temporary disabled while this type of project not supported
         jRadioButton3.setVisible(false);
@@ -72,14 +73,19 @@ public class PanelProjectTypesVisual extends SettingsPanel {
         projectLocation.setVisible(false);
         browseButton.setVisible(false);
         
+        this.panel = confPanel;
         this.optionsPanel = optionsPanel;
+        
         ((FolderList)sourcePanel).setComponentsEnabled(false);
         projectLocation.setEnabled(false);
         browseButton.setEnabled(false);
     }
     
     boolean valid(WizardDescriptor wd) {
-        return true; //TODO
+        if (jRadioButton2.isSelected() && (((FolderList)sourcePanel).getFiles().length == 0)){
+            return false;
+        }
+        return true; 
     }
     
     void read (WizardDescriptor wd) {
@@ -254,6 +260,7 @@ private void projectTypeChanged(java.awt.event.ActionEvent evt) {//GEN-FIRST:eve
     projectLocation.setEnabled(jRadioButton3.isSelected());
     browseButton.setEnabled(jRadioButton3.isSelected());
     optionsPanel.enableMainClass(jRadioButton1.isSelected());
+    panel.fireChangeEvent();
 }//GEN-LAST:event_projectTypeChanged
 
     private void browseProjectLocation(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseProjectLocation

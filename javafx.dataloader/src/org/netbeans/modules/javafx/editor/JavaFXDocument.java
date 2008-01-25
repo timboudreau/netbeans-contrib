@@ -46,7 +46,6 @@ import java.awt.event.FocusListener;
 import java.io.IOException;
 import java.io.Writer;
 import javax.swing.event.DocumentEvent.EventType;
-import org.netbeans.modules.javafx.model.JavaFXModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -62,14 +61,16 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import org.netbeans.modules.editor.NbEditorDocument;
 import org.netbeans.modules.editor.NbEditorUtilities;
+import org.netbeans.modules.javafx.model.impl.JavaFXModel;
 import org.openide.loaders.DataObject;
 import org.netbeans.editor.Formatter;
+import org.netbeans.modules.javafx.model.FXDocument;
 
 /**
  *
  * @author answer
  */
-public class JavaFXDocument extends NbEditorDocument{
+public class JavaFXDocument extends NbEditorDocument implements FXDocument{
     
     private JPanel panel = null;
     private JPanel panelEmpty = null;
@@ -78,7 +79,7 @@ public class JavaFXDocument extends NbEditorDocument{
     private JScrollPane scroll = null;
 
     boolean executionEnabled = false;
-    boolean errorAndSyntaxEnabled = false;
+    boolean errorAndSyntaxEnabled = true;
     
     public JavaFXDocument(Class kitClass) {
         super(kitClass);
@@ -140,7 +141,7 @@ public class JavaFXDocument extends NbEditorDocument{
             panelEmpty.setMinimumSize(new Dimension(0, 0));
             panelEmpty.setMaximumSize(new Dimension(0, 0));
             
-            panel = new JPanel();
+            panel = new PreviewPanel(this);
             panel.setBackground(Color.WHITE);
 
             scroll = new JScrollPane();
@@ -248,4 +249,13 @@ public class JavaFXDocument extends NbEditorDocument{
             return doc;
         }
     }
+    
+    public class PreviewPanel extends JPanel{
+        public PreviewPanel(JavaFXDocument doc){
+            super();
+            // this is for the print preview
+            putClientProperty(java.awt.print.Printable.class, NbEditorUtilities.getFileObject(doc).getNameExt());
+        }
+    }
+    
 }

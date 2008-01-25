@@ -39,27 +39,7 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-
-<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
-<filesystem>
-    <attr name="Templates\Project\Samples\ApiSupport\position" intvalue="500"/>
-    <attr name="Templates\Project\Samples\Enterprise\position" intvalue="400"/>
-    <attr name="Templates\Project\Samples\Standard\position" intvalue="100"/>
-    <attr name="Templates\Project\Samples\Web\position" intvalue="300"/>
-    <folder name="Templates">
-        <folder name="Project">
-            <folder name="Samples">
-                <folder name="JavaFX">
-                    <attr name="position" intvalue="180"/>
-                    <file name="JavaFX Weather Application" url="resources/zip/WeatherFXApplicationProject.zip">
-                        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
-                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.weather2.Bundle"/>
-                        <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.weather2.WeatherFXApplicationWizardIterator.createIterator"/>
-                        <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/javafx/weather2/WeatherFXApplicationDescription.html"/>
-                        <attr name="template" boolvalue="true"/>
-                    </file>
-                </folder>
-            </folder>
-        </folder>
-    </folder>
-</filesystem>
+<project basedir="." default="netbeans" name="org.netbeans.modules.javafx.model">
+    <description>Builds, tests, and runs the project org.netbeans.modules.javafx.model</description>
+    <import file="../../nbbuild/templates/projectized.xml"/>
+</project>

@@ -64,9 +64,11 @@ import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.fileinfo.NonRecursiveFolder;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.modules.javafx.model.impl.JavaFXModel;
 import org.netbeans.modules.javafx.project.classpath.ClassPathProviderImpl;
 import org.netbeans.modules.javafx.project.ui.customizer.JavaFXProjectProperties;
 import org.netbeans.modules.javafx.project.ui.customizer.MainClassChooser;
@@ -203,7 +205,7 @@ class JavaFXActionProvider implements ActionProvider {
             return ;
         }
         
-        Runnable action = new Runnable () {
+        Thread action = new Thread(new Runnable () {
             public void run () {
                 Properties p = new Properties();
                 String[] targetNames;
@@ -227,21 +229,26 @@ class JavaFXActionProvider implements ActionProvider {
                         DialogDisplayer.getDefault().notify(nd);
                     }
                     else {
-                        ActionUtils.runTarget(buildFo, targetNames, p);
+                        ActionUtils.runTarget(buildFo, targetNames, p).waitFinished();
+        
+                        //when java source were compiled we need to create new compilation for preview
+                        if (COMMAND_BUILD.equals(command) || 
+                              COMMAND_REBUILD.equals(command) || 
+                              COMMAND_RUN.equals(command) || 
+                              COMMAND_RUN_SINGLE.equals(command) ||
+                              COMMAND_COMPILE_SINGLE.equals(command) ||
+                              COMMAND_CLEAN.equals(command)){
+                            JavaFXModel.projectChanged(project);
+                        }
                     }
                 } 
                 catch (IOException e) {
                     ErrorManager.getDefault().notify(e);
                 }
             }            
-        };
+        });
         
-//        if (this.bkgScanSensitiveActions.contains(command)) {        
-//            JMManager.getManager().invokeAfterScanFinished(action, NbBundle.getMessage (JavaFXActionProvider.class,"ACTION_"+command)); //NOI18N
-//        }
-//        else {
-            action.run();
-//        }
+        action.start();
     }
 
     /**

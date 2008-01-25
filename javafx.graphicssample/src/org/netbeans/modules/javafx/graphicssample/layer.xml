@@ -51,7 +51,7 @@ made subject to such option by the copyright holder.
         <folder name="Project">
             <folder name="Samples">
                 <folder name="JavaFX">
-                    <attr name="position" intvalue="200"/>
+                    <attr name="position" intvalue="180"/>
                     <file name="JavaFX 2D Tutorial" url="resources/zip/JavaFX2DTutorialProject.zip">
                         <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
                         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.graphicssample.Bundle"/>

@@ -40,7 +40,6 @@
  */
 package org.netbeans.modules.javafx.editor;
 
-import org.netbeans.modules.javafx.model.JavaFXModel;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.util.Map;
@@ -58,6 +57,7 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Settings;
 import org.netbeans.editor.SettingsNames;
 import org.netbeans.modules.editor.NbEditorKit;
+import org.netbeans.modules.javafx.model.impl.JavaFXModel;
 import org.openide.util.NbBundle;
 import javax.swing.text.*;
 import org.openide.loaders.DataObject;
@@ -127,8 +127,8 @@ public class JavaFXEditorKit extends NbEditorKit{
             new ToggleFXSyntaxErrorDetection(),
             new JavaDefaultKeyTypedAction(),
             new JavaDeleteCharAction(deletePrevCharAction, false),
-            new JavaInsertBreakAction(),
-            new JavaFXGoToDeclarationAction()
+            new JavaInsertBreakAction()
+//            new JavaFXGoToDeclarationAction()
 
         };
         return TextAction.augmentList(superActions, javafxActions);
@@ -247,8 +247,8 @@ public class JavaFXEditorKit extends NbEditorKit{
             super(toggleFXSyntaxErrorDetection);
             putValue(Action.SMALL_ICON, new ImageIcon(org.openide.util.Utilities.loadImage(
                     "org/netbeans/modules/javafx/editor/resources/detection.png"))); // NOI18N
-            //putValue(SHORT_DESCRIPTION,NbBundle.getBundle(JavaFXEditorKit.class).getString("disable-fx-error-syntax"));
-            putValue(SHORT_DESCRIPTION,NbBundle.getBundle(JavaFXEditorKit.class).getString("enable-fx-error-syntax"));
+            putValue(SHORT_DESCRIPTION,NbBundle.getBundle(JavaFXEditorKit.class).getString("disable-fx-error-syntax"));
+            //putValue(SHORT_DESCRIPTION,NbBundle.getBundle(JavaFXEditorKit.class).getString("enable-fx-error-syntax"));
             
         }
         
@@ -301,7 +301,7 @@ public class JavaFXEditorKit extends NbEditorKit{
         
         public java.awt.Component getToolbarPresenter() {
             b = new PreviewButton();
-            b.setSelected(false);
+            b.setSelected(true);
             b.setAction(this);
             b.putClientProperty("hideActionText", Boolean.TRUE); //NOI18N
             b.setText("");
@@ -346,10 +346,7 @@ public class JavaFXEditorKit extends NbEditorKit{
         
         public void actionPerformed(ActionEvent evt, JTextComponent target) {
             JavaFXDocument doc = getJavaFXDocument(target);
-            
-            if(doc != null && doc.executionAllowed()){
-                JavaFXModel.showPreview(doc, true);
-            }
+            JavaFXModel.showPreview(doc, true);
         }
         
         private JavaFXDocument getJavaFXDocument(JTextComponent comp){

@@ -3,4 +3,4 @@ AutoUpdate-Show-In-Client: false
 OpenIDE-Module: org.netbeans.modules.javafx.dataloader
 OpenIDE-Module-Layer: org/netbeans/modules/javafx/dataloader/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/javafx/dataloader/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0.4
+OpenIDE-Module-Specification-Version: 1.0.5

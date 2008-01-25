@@ -61,7 +61,7 @@ import org.netbeans.api.gsf.SemanticAnalyzer;
 import org.netbeans.api.gsf.SourceFileReader;
 import org.netbeans.modules.javafx.editor.JavaFXDocument;
 
-import org.netbeans.modules.javafx.model.JavaFXModel;
+import org.netbeans.modules.javafx.model.impl.JavaFXModel;
 import org.openide.cookies.EditorCookie;
 import org.openide.loaders.DataObject;
 
@@ -221,7 +221,7 @@ public class FXParser implements Parser {
                         }
                         processErrors(compilation, lineMap, file.getFileObject(), listener);
                     } catch (Exception e) {
-    //                    e.printStackTrace();
+//                        e.printStackTrace();
                     }
                 }
             } catch (DataObjectNotFoundException e) {
@@ -517,7 +517,7 @@ public class FXParser implements Parser {
     }
     
     private FileObject uriToFileObject(String _uri) {
-        if (_uri.startsWith("jar"))
+        if ((_uri == null) || _uri.startsWith("jar"))
             return null;
         URI uri = null;
         File file = null;

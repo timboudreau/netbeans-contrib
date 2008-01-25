@@ -69,6 +69,8 @@ public final class FolderList extends javax.swing.JPanel {
     public static final String PROP_FILES = "files";    //NOI18N
     public static final String PROP_LAST_USED_DIR = "lastUsedDir";  //NOI18N
 
+    private PanelConfigureProject panel;
+    
     private String fcMessage;
     private File projectFolder;
     private File lastUsedFolder;
@@ -97,6 +99,10 @@ public final class FolderList extends javax.swing.JPanel {
         this.removeButton.getAccessibleContext().setAccessibleDescription(removeButtonAccessibleDesc);
         this.removeButton.setMnemonic (removeButtonMnemonic);
         this.removeButton.setEnabled(false);
+    }
+    
+    public void setConfigureProjectPanel(PanelConfigureProject panel){
+        this.panel = panel;
     }
     
     public void setProjectFolder (File projectFolder) {
@@ -218,6 +224,7 @@ public final class FolderList extends javax.swing.JPanel {
             ((DefaultListModel)this.roots.getModel()).removeElement (selection[i]);
         }
         this.firePropertyChange(PROP_FILES, null, null);
+        fireChangeEvent();
     }//GEN-LAST:event_removeButtonActionPerformed
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
@@ -265,9 +272,15 @@ public final class FolderList extends javax.swing.JPanel {
             if (invalidRoots.size()>0) {
                 JavaFXSourceRootsUi.showIllegalRootsDialog(invalidRoots);
             }
+            fireChangeEvent();
         }
     }//GEN-LAST:event_addButtonActionPerformed
     
+    private void fireChangeEvent(){
+        if (panel != null){
+            panel.fireChangeEvent();
+        }
+    }
     
     static boolean isValidRoot (File file, File[] relatedRoots, File projectFolder) {
         Project p;

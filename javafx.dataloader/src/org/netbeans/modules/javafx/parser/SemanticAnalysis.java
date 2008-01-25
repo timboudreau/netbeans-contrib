@@ -62,8 +62,8 @@ import net.java.javafx.typeImpl.completion.Token;
 import java.util.TreeSet;
 import net.java.javafx.type.expr.ValidationError;
 import net.java.javafx.type.expr.Locatable;
-import org.netbeans.modules.javafx.model.JavaFXModel;
 import org.netbeans.modules.javafx.editor.JavaFXDocument;
+import org.netbeans.modules.javafx.model.impl.JavaFXModel;
 
 /**
  * Walk through the JRuby AST and note interesting things
