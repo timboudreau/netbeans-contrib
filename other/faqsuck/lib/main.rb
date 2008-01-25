@@ -71,8 +71,8 @@ end
 base = 'http://wiki.netbeans.org'
 faqsite = base + "/wiki/view/NetBeansDeveloperFAQ"
 content = Net::HTTP.get(URI.parse(faqsite))
+puts "Loading content from #{faqsite}"
 doc = REXML::Document.new content
-puts "Loaded content from #{faqsite}"
 matches = {}
 titleexp = /.*?>(.*?)<.*/
 faqexp = /.*DevFaq.*/
