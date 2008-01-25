@@ -31,8 +31,8 @@
 <editor_palette_item version="1.0">
     <class name="org.netbeans.modules.portalpack.saw.palette.items.EscalateTask" />
 
-    <icon16 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/java-logo.gif" />
-    <icon32 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/java-logo.gif" />
+    <icon16 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/Escalate_task.png" />
+    <icon32 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/Escalate_task.png" />
     <description localizing-bundle="org.netbeans.modules.portalpack.saw.palette.items.resources.Bundle"
                display-name-key="NAME_escalateTask"
                tooltip-key="HINT_escalateTask" />

@@ -31,8 +31,8 @@
 <editor_palette_item version="1.0">
     <class name="org.netbeans.modules.portalpack.saw.palette.items.DeleteTask" />
 
-    <icon16 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/java-logo.gif" />
-    <icon32 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/java-logo.gif" />
+    <icon16 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/Delete_task.png" />
+    <icon32 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/Delete_task.png" />
     <description localizing-bundle="org.netbeans.modules.portalpack.saw.palette.items.resources.Bundle"
                display-name-key="NAME_deletetask"
                tooltip-key="HINT_deletetask" />

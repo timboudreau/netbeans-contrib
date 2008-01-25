@@ -18,7 +18,7 @@
         <tag-class>com.sun.saw.taglib.GetTaskbyIdTag</tag-class>
         <body-content>scriptless</body-content>
        <attribute>
-            <name>workflowTaskVO</name>
+            <name>filterTaskVO</name>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
@@ -26,6 +26,12 @@
          <attribute>
             <name>returnvalue</name>
             <required>true</required>
+        </attribute>
+        
+         <attribute>
+            <name>properties</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
 
@@ -36,10 +42,10 @@
             If taskId is not provided and if userId is provided
         </description>
         <name>getTasks</name>
-        <tag-class>com.sun.saw.taglib.GetTasks</tag-class>
+        <tag-class>com.sun.saw.taglib.GetTasksTag</tag-class>
         <body-content>scriptless</body-content>
         <attribute>
-            <name>workflowTaskVO</name>
+            <name>filterTaskVO</name>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
@@ -47,6 +53,12 @@
         <attribute>
             <name>returnvalue</name>
             <required>true</required>
+        </attribute>
+        
+        <attribute>
+            <name>properties</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
 
@@ -57,7 +69,7 @@
         <body-content>scriptless</body-content>
 
       <attribute>
-            <name>workflowTaskVO</name>
+            <name>filterTaskVO</name>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
@@ -70,6 +82,12 @@
         <attribute>
             <name>subordinateCount</name>
             <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        
+        <attribute>
+            <name>properties</name>
+            <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>

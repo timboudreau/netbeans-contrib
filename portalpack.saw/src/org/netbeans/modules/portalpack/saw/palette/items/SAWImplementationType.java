@@ -16,13 +16,16 @@
  */
 package org.netbeans.modules.portalpack.saw.palette.items;
 
+import java.util.Properties;
+
 /**
  *
  * @author Vihang
  */
 public interface SAWImplementationType {
 
-    
+   public SAWMethod getWorkflowImpl(String type);   
+   public SAWMethod getWorkflowImplProp();
    public SAWMethod getCheckOutTasks();        
    public SAWMethod getCheckInTasks();
    public SAWMethod getCompleteTasks();

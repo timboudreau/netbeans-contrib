@@ -17,10 +17,11 @@
   * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
   * Microsystems, Inc. All Rights Reserved.
   */ -->
+
 <!--
-    Document   : GetTaskById.xml
-    Created on : April 19, 2007, 4:54 PM
-    Author     : PrakashKumar
+    Document   : CheckoutTask.xml
+    Created on : March 8, 2007, 12:12 PM
+    Author     : Vihang
     Description:
         Purpose of the document follows.
 -->
@@ -29,11 +30,11 @@
   "http://www.netbeans.org/dtds/editor-palette-item-1_0.dtd">
 
 <editor_palette_item version="1.0">
-    <class name="org.netbeans.modules.portalpack.saw.palette.items.CountTasks" />
+    <class name="org.netbeans.modules.portalpack.saw.palette.items.InitWorkflowImplProp" />
 
-    <icon16 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/Count_task.png" />
-    <icon32 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/Count_task.png" />
+    <icon16 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/CheckIn_task.png" />
+    <icon32 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/CheckIn_task.png" />
     <description localizing-bundle="org.netbeans.modules.portalpack.saw.palette.items.resources.Bundle"
-               display-name-key="NAME_counttasks"
-               tooltip-key="HINT_counttasks" />
+               display-name-key="NAME_initworkflowimplprop"
+               tooltip-key="HINT_initworkflowimplprop" />
 </editor_palette_item>

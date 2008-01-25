@@ -31,8 +31,8 @@
 <editor_palette_item version="1.0">
     <class name="org.netbeans.modules.portalpack.saw.palette.items.InitTaglib" />
 
-    <icon16 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/Groups.gif" />
-    <icon32 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/Groups.gif" />
+    <icon16 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/Initialize_Workflow_task.png" />
+    <icon32 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/Initialize_Workflow_task.png" />
     <description localizing-bundle="org.netbeans.modules.portalpack.saw.palette.items.resources.Bundle"
                display-name-key="NAME_inittaglib"
                tooltip-key="HINT_inittaglib" />

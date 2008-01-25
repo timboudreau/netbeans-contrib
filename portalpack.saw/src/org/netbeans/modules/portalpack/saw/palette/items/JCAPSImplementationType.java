@@ -18,7 +18,7 @@ package org.netbeans.modules.portalpack.saw.palette.items;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
+import java.util.Properties;
 import java.util.Vector;
 
 
@@ -30,29 +30,33 @@ public class JCAPSImplementationType implements SAWImplementationType {
 
     public JCAPSImplementationType() {
     }
-
-    public SAWMethod getCheckOut1Tasks() {
+    public SAWMethod getWorkflowImpl(String type) {
         SAWMethod sawMethod = new SAWMethod();
-        sawMethod.setMethodName("checkOutTasks");
-        Vector parametersVector = new Vector();
-        ParamObject paramObj = new ParamObject();
-        ParamObject paramObj1 = new ParamObject();
-        paramObj.setParamName("userId");
-        paramObj.setParamType("String");
-        parametersVector.add(paramObj);
-        paramObj1.setParamName("taskIdList");
-        paramObj1.setParamType("java.util.List");
-        parametersVector.add(paramObj1);
-        sawMethod.setParameters(parametersVector);
+        sawMethod.setMethodName("getWorkflowImpl");        
         ArrayList exceptionList = new ArrayList();
+        ParamObject paramObj2 = new ParamObject();
+        if(type.equals("overloaded")) {            
+            paramObj2.setParamName("properties");
+            paramObj2.setParamType("java.util.Properties");
+        
+        } else {
+            paramObj2.setParamName("");
+            paramObj2.setParamType("");
+        }
+        Vector parametersVector = new Vector();
+        parametersVector.add(paramObj2);
+        sawMethod.setParameters(parametersVector);
         exceptionList.add("com.sun.saw.WorkflowException");
         sawMethod.setExceptionList(exceptionList);
-        sawMethod.setReturnType("com.sun.saw.vo.OutputVO");
+        sawMethod.setReturnType("com.sun.saw.Workflow");
         StringWriter stringWriter = new StringWriter();
         String methodBody = new String();
         try {
             //    methodBody = Utils.mergeTemplateInString("checkout.template", null, stringWriter);
-            methodBody = "{com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();" + "com.sun.saw.vo.CheckoutTaskVO checkoutTaskVO = new com.sun.saw.vo.CheckoutTaskVO();" + "       checkoutTaskVO.setTaskIdList(taskIdList);" + "checkoutTaskVO.setUserId(userId);" + "com.sun.saw.vo.OutputVO outputVO = null;" + "outputVO = workFlowManager.checkoutTasks(checkoutTaskVO);" + "return outputVO;  }";
+            methodBody = "{com.sun.saw.Workflow workflow = null; " +   	
+                        "com.sun.saw.WorkflowFactory workflowFactory = com.sun.saw.WorkflowFactory.getInstance(); " +
+                        "workflow = workflowFactory.getWorkflowInstance(); " +
+                        "return workflow;}";
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -60,19 +64,52 @@ public class JCAPSImplementationType implements SAWImplementationType {
 
         return sawMethod;
     }
+    
+    public SAWMethod getWorkflowImplProp() {
+        SAWMethod sawMethod = new SAWMethod();
+        sawMethod.setMethodName("getWorkflowImpl");        
+        ArrayList exceptionList = new ArrayList();
+        ParamObject paramObj2 = new ParamObject();
+        paramObj2.setParamName("properties");
+        paramObj2.setParamType("java.util.Properties");
+        Vector parametersVector = new Vector();
+        parametersVector.add(paramObj2);
+        sawMethod.setParameters(parametersVector);
+        exceptionList.add("com.sun.saw.WorkflowException");
+        sawMethod.setExceptionList(exceptionList);
+        
+        sawMethod.setReturnType("com.sun.saw.Workflow");
+        StringWriter stringWriter = new StringWriter();
+        String methodBody = new String();
+        try {
+            //    methodBody = Utils.mergeTemplateInString("checkout.template", null, stringWriter);
+            methodBody = "{com.sun.saw.Workflow workflow = null; " +   	
+                        "com.sun.saw.WorkflowFactory workflowFactory = com.sun.sawWorkflowFactory.getInstance(); " +
+                        "workflow = workflowFactory.getWorkflowInstance(properties); " +
+                        "return workflow;}";
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        sawMethod.setMethodBody(methodBody);
 
-    public SAWMethod getCheckOutTasks() {
+        return sawMethod;
+    }
+       public SAWMethod getCheckOutTasks() {
         SAWMethod sawMethod = new SAWMethod();
         sawMethod.setMethodName("checkOutTasks");
         Vector parametersVector = new Vector();
         ParamObject paramObj = new ParamObject();
-        ParamObject paramObj1 = new ParamObject();
+        ParamObject paramObj1 = new ParamObject();               
         paramObj.setParamName("userId");
         paramObj.setParamType("String");
         parametersVector.add(paramObj);
         paramObj1.setParamName("taskIdList");
         paramObj1.setParamType("java.util.List");
         parametersVector.add(paramObj1);
+        ParamObject paramObj2 = new ParamObject();
+        paramObj2.setParamName("workflowImpl");
+        paramObj2.setParamType("Workflow");
+        parametersVector.add(paramObj2);
         sawMethod.setParameters(parametersVector);
         ArrayList exceptionList = new ArrayList();
         exceptionList.add("com.sun.saw.WorkflowException");
@@ -108,6 +145,10 @@ public class JCAPSImplementationType implements SAWImplementationType {
         paramObj1.setParamName("taskIdList");
         paramObj1.setParamType("java.util.List");
         parametersVector.add(paramObj1);
+        ParamObject paramObj2 = new ParamObject();
+        paramObj2.setParamName("workflowImpl");
+        paramObj2.setParamType("Workflow");
+        parametersVector.add(paramObj2);
         sawMethod.setParameters(parametersVector);
         ArrayList exceptionList = new ArrayList();
         exceptionList.add("com.sun.saw.WorkflowException");
@@ -143,6 +184,10 @@ public class JCAPSImplementationType implements SAWImplementationType {
         paramObj1.setParamName("taskIdList");
         paramObj1.setParamType("java.util.List");
         parametersVector.add(paramObj1);
+        ParamObject paramObj2 = new ParamObject();
+        paramObj2.setParamName("workflowImpl");
+        paramObj2.setParamType("Workflow");
+        parametersVector.add(paramObj2);
         sawMethod.setParameters(parametersVector);
         ArrayList exceptionList = new ArrayList();
         exceptionList.add("com.sun.saw.WorkflowException");
@@ -183,6 +228,10 @@ public class JCAPSImplementationType implements SAWImplementationType {
         paramObj1.setParamName("taskIdList");
         paramObj1.setParamType("java.util.List");
         parametersVector.add(paramObj1);
+        ParamObject paramObj2 = new ParamObject();
+        paramObj2.setParamName("workflowImpl");
+        paramObj2.setParamType("Workflow");
+        parametersVector.add(paramObj2);
         sawMethod.setParameters(parametersVector);
         ArrayList exceptionList = new ArrayList();
         exceptionList.add("com.sun.saw.WorkflowException");
@@ -219,6 +268,10 @@ public class JCAPSImplementationType implements SAWImplementationType {
         paramObj1.setParamName("taskIdList");
         paramObj1.setParamType("java.util.List");
         parametersVector.add(paramObj1);
+        ParamObject paramObj2 = new ParamObject();
+        paramObj2.setParamName("workflowImpl");
+        paramObj2.setParamType("Workflow");
+        parametersVector.add(paramObj2);
         sawMethod.setParameters(parametersVector);
         ArrayList exceptionList = new ArrayList();
         exceptionList.add("com.sun.saw.WorkflowException");
@@ -267,6 +320,10 @@ public class JCAPSImplementationType implements SAWImplementationType {
         paramObj2.setParamName("reassignUserIdList");
         paramObj2.setParamType("java.util.List");
         parametersVector.add(paramObj2);
+        ParamObject paramObj3 = new ParamObject();
+        paramObj3.setParamName("workflowImpl");
+        paramObj3.setParamType("Workflow");
+        parametersVector.add(paramObj3);
         sawMethod.setParameters(parametersVector);
         ArrayList exceptionList = new ArrayList();
         exceptionList.add("com.sun.saw.WorkflowException");
@@ -312,6 +369,10 @@ public class JCAPSImplementationType implements SAWImplementationType {
         paramObj3.setParamName("customAttributesMap");
         paramObj3.setParamType("java.util.HashMap");
         parametersVector.add(paramObj3);
+        ParamObject paramObj4 = new ParamObject();
+        paramObj4.setParamName("workflowImpl");
+        paramObj4.setParamType("Workflow");
+        parametersVector.add(paramObj4);
         sawMethod.setParameters(parametersVector);
         ArrayList exceptionList = new ArrayList();
         exceptionList.add("com.sun.saw.WorkflowException");
@@ -345,6 +406,10 @@ public class JCAPSImplementationType implements SAWImplementationType {
         ParamObject paramObj1 = new ParamObject();
         paramObj1.setParamName("taskIdList");
         paramObj1.setParamType("java.util.List");
+        ParamObject paramObj2 = new ParamObject();
+        paramObj2.setParamName("workflowImpl");
+        paramObj2.setParamType("Workflow");
+        parametersVector.add(paramObj2);
         parametersVector.add(paramObj1);
         sawMethod.setParameters(parametersVector);
         ArrayList exceptionList = new ArrayList();

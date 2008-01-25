@@ -54,7 +54,7 @@ private static Logger logger = Logger.getLogger("SAW_Logger");
         logger.log(Level.INFO,this.getClass() + ":","Class Name is:" + className);
         Class clazz = null;
         boolean flag = false;
-        return RefactoringUtil.addMethod(fObject,NbBundle.getBundle(EscalateTask.class).getString("Escalate_tasks"));
+        return RefactoringUtil.addMethod(fObject,NbBundle.getBundle(EscalateTask.class).getString("Escalate_tasks"),false);
         
     }
 }

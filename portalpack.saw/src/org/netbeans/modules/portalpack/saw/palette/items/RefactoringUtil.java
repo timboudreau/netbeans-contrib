@@ -85,7 +85,7 @@ public class RefactoringUtil {
     }
 
 
-    public static boolean addMethod(FileObject fObject, final String methodName) {
+    public static boolean addMethod(FileObject fObject, final String methodName,final boolean numberOfParameters) {
         boolean couldAddMethod = true;
         try {
 
@@ -112,10 +112,9 @@ public class RefactoringUtil {
                             FileObject[] fileObjectArray = sourceGroup[j].getRootFolder().getParent().getChildren();
                             System.out.println("FileObjectarray Length is:" +fileObjectArray.length);
                             for(int i=0; i<fileObjectArray.length;i++) {
-                                    System.out.println("FileObjectarray" + i + ":"+fileObjectArray[i]);
-                                    System.out.println("Name" + i + ":"+fileObjectArray[i].getName());
-                                    
-                                    if(fileObjectArray[i].getName().equals("java")) {
+                                   System.out.println("FileObjectarray" + i + ":"+fileObjectArray[i]);
+                                   System.out.println("Name" + i + ":"+fileObjectArray[i].getName());                                    
+                                   if(fileObjectArray[i].getName().equals("java")) {
                                    fileObject = fileObjectArray[i].getFileObject("ImplementationType","properties");
                                    fileObject1 = fileObjectArray[i].getFileObject("JCAPSWorkflowConfig","properties");
                                    fileObject2= fileObjectArray[i].getFileObject("WorkflowConfig","properties");
@@ -165,37 +164,102 @@ public class RefactoringUtil {
                 public void run(WorkingCopy workingCopy) throws Exception {
                     workingCopy.toPhase(Phase.RESOLVED);
                     boolean alreadyDefined = false;
+                    String methodType="normal";
                     TreeMaker make = workingCopy.getTreeMaker();
                     CompilationUnitTree cut = workingCopy.getCompilationUnit();
                     ClassTree clazz = null;
                     MethodTree methodTree = null;
                     for (Tree typeDecl : cut.getTypeDecls()) {
                         if (Tree.Kind.CLASS == typeDecl.getKind()) {
-                            clazz = (ClassTree) typeDecl;
-                            for (int i = 0; i < clazz.getMembers().size(); i++) {
+                           clazz = (ClassTree) typeDecl;
+                           HashMap methodMap = new HashMap();
+                           int i =0;
+                           ArrayList methodNameList = new ArrayList();
+                           for (int m = 0; m < clazz.getMembers().size(); m++) { 
+                               methodTree = (MethodTree) clazz.getMembers().get(m);                               
+                               if((methodTree.getName().toString()).equals("getWorkflowImpl")) {
+                                       MethodDetails methodDetails = new MethodDetails();
+                                       methodDetails.setMethodName(methodTree.getName().toString());
+                                       methodDetails.setHasParameters(((Iterator) methodTree.getParameters().iterator()).hasNext());
+                                       methodNameList.add(methodDetails);                              
+                               }
+                           }
+                         if(methodName.equals("getWorkflowImpl"))   {
+                           for(int j=0;j<methodNameList.size();j++) {
+                               MethodDetails methodDetails = (MethodDetails) methodNameList.get(j);
+                               if(!numberOfParameters) {
+                                   if(!methodDetails.getHasParameters()) {
+                                       NotifyDescriptor d = null;                                    
+                                       d = new NotifyDescriptor.Confirmation(NbBundle.getBundle(RefactoringUtil.class).getString("Add_Duplicate_Method"), NbBundle.getBundle(RefactoringUtil.class).getString("Method_Already_Exists"), NotifyDescriptor.OK_CANCEL_OPTION);                                                                        
+                                       if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
+                                              alreadyDefined = false;
+                                       } else {
+                                           alreadyDefined=true;
+                                       }
+                                             
+                                   } else {                                            
+                                       continue;
+                                   }
+                               } else {
+                                   if(methodDetails.getHasParameters()) {
+                                       NotifyDescriptor d = null;                                    
+                                       d = new NotifyDescriptor.Confirmation(NbBundle.getBundle(RefactoringUtil.class).getString("Add_Duplicate_Method"), NbBundle.getBundle(RefactoringUtil.class).getString("Method_Already_Exists"), NotifyDescriptor.OK_CANCEL_OPTION);                                                                        
+                                       if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
+                                              alreadyDefined = false;
+                                       } else {
+                                           alreadyDefined=true;
+                                       }
+                                   } else {
+                                       methodType="overloaded";
+                                       continue;
+                                   }
+                               }
+                               
+                           }//End of checking
+                        }//End of if for check of methodName.equals getWorkflowImpl
+                           for (int k = 0; k < clazz.getMembers().size(); k++) { 
+                               methodTree = (MethodTree) clazz.getMembers().get(k);
+                               String tempMethodName = methodTree.getName().toString();
+                                if (tempMethodName.equals(methodName) && !(tempMethodName.equals("getWorkflowImpl"))) {
+                                    alreadyDefined = true;                                   
+                                    NotifyDescriptor d = null;                                   
+                                    d = new NotifyDescriptor.Confirmation(NbBundle.getBundle(RefactoringUtil.class).getString("Add_Duplicate_Method"), NbBundle.getBundle(RefactoringUtil.class).getString("Method_Already_Exists"), NotifyDescriptor.OK_CANCEL_OPTION);                                                                        
+                                         if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
+                                              alreadyDefined = false;
+                                         }
+                                        logger.log(Level.INFO,this.getClass().getName() + ":",methodTree.getName());
+                                        break;
+                                }
+                               
+                           }//End of for for other methods checking
+                           /* for (int i = 0; i < clazz.getMembers().size(); i++) {
                                 methodTree = (MethodTree) clazz.getMembers().get(i);
                                 logger.log(Level.INFO,this.getClass().getName() + ":", methodTree.getName() + "##################");
-                                String tempMethodName = methodTree.getName().toString();
+                                String tempMethodName = methodTree.getName().toString();                                
                                 if (tempMethodName.equals(methodName)) {
-                                   alreadyDefined = true;
-                                    NotifyDescriptor d = new NotifyDescriptor.Confirmation(NbBundle.getBundle(RefactoringUtil.class).getString("Add_Duplicate_Method"), NbBundle.getBundle(RefactoringUtil.class).getString("Method_Already_Exists"), NotifyDescriptor.OK_CANCEL_OPTION);
-                                    if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
-                                        alreadyDefined = false;
+                                    boolean callDuplicateDialog = true;                                    
+                                    alreadyDefined = true;                                   
+                                    NotifyDescriptor d = null;
+                                    if(callDuplicateDialog) {
+                                         d = new NotifyDescriptor.Confirmation(NbBundle.getBundle(RefactoringUtil.class).getString("Add_Duplicate_Method"), NbBundle.getBundle(RefactoringUtil.class).getString("Method_Already_Exists"), NotifyDescriptor.OK_CANCEL_OPTION);                                                                        
+                                         if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
+                                              alreadyDefined = false;
+                                        }
+                                        logger.log(Level.INFO,this.getClass().getName() + ":",methodTree.getName());
+                                        break;
                                     }
-                                    logger.log(Level.INFO,this.getClass().getName() + ":",methodTree.getName());
-                                    break;
                                 }
-                            }
+                                /*} 
+                            } //end for  */
                         } // end if
-                        if (!alreadyDefined) {
-                            
+                        if (!alreadyDefined) {                            
                             // create method modifier: public and no annotation
                             com.sun.source.tree.ModifiersTree methodModifiers = make.Modifiers(Collections.<Modifier>emptySet(), Collections.<AnnotationTree>emptyList());
                             //New Code
                               FileObject propFileObject = null;
                            // FileObject propFileObject = WebModule.getWebModule(tempFileObject).getWebInf().getFileObject("ImplementationType.properties");
                             final  FileObject documentBase =WebModule.getWebModule(tempFileObject).getDocumentBase();
-                             Project project = FileOwnerQuery.getOwner(documentBase);
+                            Project project = FileOwnerQuery.getOwner(documentBase);
                             Sources sources = ProjectUtils.getSources(project);
                             SourceGroup[] sourceGroup  = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
                             for(int j=0;j<sourceGroup.length;j++) {                    
@@ -236,7 +300,10 @@ public class RefactoringUtil {
                                  sawMethod =  sawImplementationType.getEscalateTask();
                             } else if (methodName.equals(NbBundle.getBundle(RefactoringUtil.class).getString("Show_AuditHistory"))) {
                                  sawMethod =  sawImplementationType.showAuditHistory();
-                            }
+                            } else if (methodName.equals(NbBundle.getBundle(RefactoringUtil.class).getString("InitWorkflowImpl"))) {                                
+                                sawMethod =  sawImplementationType.getWorkflowImpl(methodType);
+                            
+                            } 
                             else {
                                 throw new Exception();
                             }
@@ -254,7 +321,11 @@ public class RefactoringUtil {
                                     paramTypeTree = make.Identifier("java.util.List");
                                 } else if (paramObj.getParamType().equals("java.util.HashMap")) {
                                      paramTypeTree = make.Identifier("java.util.HashMap");
-                                }
+                                } else if(paramObj.getParamType().equals("WorkflowImpl")) {
+                                    paramTypeTree = make.Identifier("WorkflowImpl");
+                                } else if(paramObj.getParamType().equals("java.util.Properties")) {
+                                    paramTypeTree = make.Identifier("java.util.Properties");
+                                } 
                                 VariableTree par1 = make.Variable(methodModifiers, paramObj.getParamName(), paramTypeTree, null);
                                 parList.add(par1);
                             }

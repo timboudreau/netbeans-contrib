@@ -58,7 +58,7 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
 
     /** Creates a new instance of WorkflowFrameworkProvider */
     public SAWFrameworkProvider() {
-        super(NbBundle.getBundle(SAWFrameworkProvider.class).getString("SAWFramework"), NbBundle.getBundle(SAWFrameworkProvider.class).getString("SAWFramework_desc"));
+        super(NbBundle.getBundle(SAWFrameworkProvider.class).getString("OpenIDE-Module-Name"), NbBundle.getBundle(SAWFrameworkProvider.class).getString("OpenIDE-Module-Short-Description"));
     }
 
     public WebModuleExtender createWebModuleExtender(WebModule wm, ExtenderController controller) {
@@ -132,23 +132,29 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
                             ostream.flush();
                             ostream.close();
                             fLock1.releaseLock();
-                            org.openide.filesystems.FileObject fObject11 = fileObjectArray[i].createData("WorkflowConfig", "properties");
+                           /* org.openide.filesystems.FileObject fObject11 = fileObjectArray[i].createData("WorkflowConfig", "properties");
                             org.openide.filesystems.FileLock fLock2 = fObject11.lock();
                             java.io.OutputStream ostream1 = fObject11.getOutputStream(fLock2);
                             ostream1.write(("businessProcess=" + "com.sun.saw.impls.jcaps.JCAPSWorkflow\n").getBytes());
                             ostream1.write(("logFileLocation=" + "Specify location of log file").getBytes());
                             ostream1.flush();
                             ostream1.close();
-                            fLock2.releaseLock();
-                            org.openide.filesystems.FileObject fObject12 = fileObjectArray[i].createData("JCAPSWorkflowConfig", "properties");
+                            fLock2.releaseLock(); */
+                            org.openide.filesystems.FileObject fObject12 = fileObjectArray[i].createData("workflowconfig", "properties");
                             org.openide.filesystems.FileLock fLock3 = fObject12.lock();
                             java.io.OutputStream ostream2 = fObject12.getOutputStream(fLock3);
-                            ostream2.write(("appserverhost=" + "host where jcaps is installed e.g. test.domain.com\n").getBytes());
-                            ostream2.write(("appserverport=" + "port where jcaps workflow service is available e.g. 8080\n").getBytes());
-                            ostream2.write(("appserverusername=" + "admin user name of jcaps app server e.g. admin\n").getBytes());
-                            ostream2.write(("appserverpassword=" + "password of jcaps app server e.g. abc \n").getBytes());
-                            ostream2.write(("contextfactory=" + "context factory of workflow service e.g. com.sun.jndi.cosnaming.CNCtxFactory \n").getBytes());
-                            ostream2.write(("serviceJndi=" + "jndi context of workflow service provided by jcaps e.g. WorkflowService").getBytes());
+                            ostream2.write(("#The Workflow Engine to use.\n").getBytes());
+                            ostream2.write(("businessProcess=" + "com.sun.saw.impls.jcaps.JCAPSWorkflow\n").getBytes());
+                            ostream2.write(("# Properties that are needed by the JCAPS Implementation of SAW.\n").getBytes());
+                            ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverhost=" + "host where jcaps is installed e.g. test.domain.com\n").getBytes());
+                            ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverport=" + "port where jcaps workflow service is available e.g. 8080\n").getBytes());
+                            ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverusername=" + "admin user name of jcaps app server e.g. admin\n").getBytes());
+                            ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverpassword=" + "password of jcaps app server e.g. abc \n").getBytes());
+                            ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.contextfactory=" + "context factory of workflow service e.g. com.sun.jndi.cosnaming.CNCtxFactory \n").getBytes());
+                            ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.serviceJndi=" + "jndi context of workflow service provided by jcaps e.g. WorkflowService\n").getBytes());                            
+                            ostream2.write(("#Properties that are needed by the JBOSS Implementation of SAW.\n").getBytes());
+                            ostream2.write(("jboss.server =" + "Specific JBOSS Server on Which jBPM is running\n").getBytes());
+                            ostream2.write(("jboss.password =" + "Value for the server password\n").getBytes());                            
                             ostream2.flush();
                             ostream2.close();
                             fLock3.releaseLock();

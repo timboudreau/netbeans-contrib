@@ -28,8 +28,8 @@
   "http://www.netbeans.org/dtds/editor-palette-item-1_0.dtd">
 <editor_palette_item version="1.0">
     <class name="org.netbeans.modules.portalpack.saw.palette.items.SaveTask" />
-    <icon16 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/java-logo.gif" />
-    <icon32 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/java-logo.gif" />
+    <icon16 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/Save_task.png" />
+    <icon32 urlvalue="/org/netbeans/modules/portalpack/saw/palette/items/resources/Save_task.png" />
     <description localizing-bundle="org.netbeans.modules.portalpack.saw.palette.items.resources.Bundle"
                display-name-key="NAME_save_task"
                tooltip-key="HINT_save_task" />

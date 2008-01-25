@@ -48,7 +48,7 @@ public class CheckInTask implements ActiveEditorDrop {
         
         Class clazz = null;
         boolean flag = false;
-        return RefactoringUtil.addMethod(fObject,NbBundle.getBundle(CheckInTask.class).getString("CheckIn_tasks"));
+        return RefactoringUtil.addMethod(fObject,NbBundle.getBundle(CheckInTask.class).getString("CheckIn_tasks"),false);
         
     }
 }

@@ -64,7 +64,7 @@ public class ShowAuditHistory implements ActiveEditorDrop {
         logger.log(Level.INFO,this.getClass().getName() + ":","Class Name is:" + className);
         Class clazz = null;
         boolean flag = false;
-        return RefactoringUtil.addMethod(fObject,NbBundle.getBundle(ShowAuditHistory.class).getString("Show_AuditHistory"));
+        return RefactoringUtil.addMethod(fObject,NbBundle.getBundle(ShowAuditHistory.class).getString("Show_AuditHistory"),false);
         
         
     }

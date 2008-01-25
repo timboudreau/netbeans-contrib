@@ -47,6 +47,8 @@
                 <file name="CompleteTask.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/CompleteTask.xml"/>
                 <file name="EscalateTask.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/EscalateTask.xml"/>
                 <file name="ShowAuditHistory.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/ShowAuditHistory.xml"/>
+                <file name="InitWorkflowImpl.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/InitWorkflowImpl.xml"/>
+                <file name="InitWorkflowImplProp.xml" url="/org/netbeans/modules/portalpack/saw/palette/items/resources/InitWorkflowImplProp.xml"/>
             </folder>
     </folder>
     

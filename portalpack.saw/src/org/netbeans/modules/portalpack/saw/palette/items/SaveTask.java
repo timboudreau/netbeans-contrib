@@ -60,7 +60,7 @@ public class SaveTask implements ActiveEditorDrop{
         logger.log(Level.INFO,this.getClass().getName() + ":","Class Name is:" + className);
         Class clazz = null;
         boolean flag = false;
-        return RefactoringUtil.addMethod(fObject,NbBundle.getBundle(SaveTask.class).getString("Save_tasks"));
+        return RefactoringUtil.addMethod(fObject,NbBundle.getBundle(SaveTask.class).getString("Save_tasks"),false);
        
     }
     
