@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
+DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
 Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
 
@@ -21,7 +23,11 @@ License Header, with the fields enclosed by brackets [] replaced by
 your own identifying information:
 "Portions Copyrighted [year] [name of copyright owner]"
 
-Contributor(s):The Original Software is NetBeans. The Initial Developer of the OriginalCode is Sun Microsystems, Inc. Portions Copyright 1997-2006 SunMicrosystems, Inc. All Rights Reserved.
+Contributor(s):
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
 
 If you wish your version of this file to be governed by only the CDDL
 or only the GPL Version 2, indicate your decision by adding
@@ -32,4 +38,28 @@ your version of this file under either the CDDL, the GPL Version 2 or
 to extend the choice of license to its licensees as provided above.
 However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
-made subject to such option by the copyright holder.--><filesystem>    <folder name="Services">        <file name="org-netbeans-modules-autoclose-autocloseoptions.settings" url="autocloseoptions.xml">           <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.autoclose.resources.Bundle"/><!--           <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/apache/tools/ant/module/resources/AntIcon.gif"/>-->        </file>    </folder>      <folder name="UI">    <folder name="Services">      <folder name="Editing">        <file name="org-netbeans-modules-autoclose-autocloseoptions.shadow">          <attr name="originalFile" stringvalue="Services/org-netbeans-modules-autoclose-autocloseoptions.settings"/>        </file>      </folder> <!-- Editing -->    </folder> <!-- Services -->  </folder> <!-- UI -->  </filesystem>
+made subject to such option by the copyright holder.
+-->
+<filesystem>
+    <folder name="Services">
+        <file name="org-netbeans-modules-autoclose-autocloseoptions.settings" url="autocloseoptions.xml">
+           <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.autoclose.resources.Bundle"/>
+<!--           <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/apache/tools/ant/module/resources/AntIcon.gif"/>-->
+        </file>
+    </folder>
+    
+  <folder name="UI">
+
+    <folder name="Services">
+
+      <folder name="Editing">
+        <file name="org-netbeans-modules-autoclose-autocloseoptions.shadow">
+          <attr name="originalFile" stringvalue="Services/org-netbeans-modules-autoclose-autocloseoptions.settings"/>
+        </file>
+      </folder> <!-- Editing -->
+
+    </folder> <!-- Services -->
+
+  </folder> <!-- UI -->
+  
+</filesystem>

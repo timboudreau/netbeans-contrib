@@ -69,12 +69,9 @@ class Faqpage
 end
 
 base = 'http://wiki.netbeans.org'
-faqsite = base + "/NetBeansDeveloperFAQ"
+faqsite = base + "/wiki/view/NetBeansDeveloperFAQ"
 content = Net::HTTP.get(URI.parse(faqsite))
 puts "Loading content from #{faqsite}"
-content.gsub!('<hr>', '<hr/>')
-content.gsub!('<hr >', '<hr/>')
-puts content
 doc = REXML::Document.new content
 matches = {}
 titleexp = /.*?>(.*?)<.*/
@@ -84,7 +81,7 @@ allcontent += "Generated " + Time.now.gmtime.to_s + "<p>"
 REXML::XPath.each(doc,'//div//li/a[@class="wikipage"]') do |match|
   path = match.attribute('href')
   if (faqexp.match(match.to_s))
-    spath = path.to_s
+    spath = base + path.to_s
     #skip two huge and unwieldy FAQ items - the app client one should
     #probably not be in the FAQ, but in the tutorials section of the web site
     if ('http://wiki.netbeans.org/wiki/view/DevFaqWindowsInternals' != spath &&
@@ -129,8 +126,6 @@ matches.keys.sort.each { |url|
         pagecontent.gsub!('</h1', '</h2')
         pagecontent.gsub!('</h3', '</h2')
         pagecontent.gsub!('</h4', '</h2')
-        pagecontent.gsub!('<hr>', '<hr/>')
-        pagecontent.gsub!('<hr >', '<hr/>')
         
       end
     end

@@ -21,6 +21,9 @@ class DefaultImpl implements AppImpl {
     public DefaultImpl() {
     }
 
+    public void init() {
+    }
+
     public Object getDefaultObject(Object scope, String key) {
         return null;
     }
@@ -40,5 +43,4 @@ class DefaultImpl implements AppImpl {
     public String getString(Object scope, String key) {
         return null;
     }
-    
 }
