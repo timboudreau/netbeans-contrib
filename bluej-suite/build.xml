@@ -98,7 +98,7 @@
         <mkdir dir="dist"/>
         <delete dir="build/l10n"/>
         <mkdir dir="build/l10n"/>
-        <property name="nbroot" location=".."/>
+        <property name="nbroot" location="../../ide"/>
         <l10n topdirs="${nb_all_2_level}" modules="ide,installer"
             localizablefile="bluejl10n.list" generatedfile="bluejl10n.list.translated"
             distdir="dist" changedfile="bluejl10n.list.changed"

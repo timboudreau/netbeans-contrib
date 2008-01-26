@@ -30,7 +30,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 <project name="org.netbeans.modules.portalpack.samplemodule" default="netbeans" basedir=".">
     
     <description>Builds, tests, and runs the project org.netbeans.modules.portalpack.portlets.genericportlets.</description>
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
     
     <!--
         Override default compile ant task to do custom things after compilation 

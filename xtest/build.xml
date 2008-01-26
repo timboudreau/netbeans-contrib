@@ -40,14 +40,14 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<project name="xtest/module" basedir="." default="netbeans">
+<project name="contrib/xtest" basedir="." default="netbeans">
 
     <import file="../../nbbuild/templates/projectized.xml"/>
 
     <!-- Called after jar target and before module-* targets in projectized.xml -->
     <target name="netbeans-extra">
-        <ant dir=".." target="makedist" inheritall="false"/>
-        <unzip src="../xtest-distribution.zip" dest="${cluster}/xtest-distribution" />
+        <ant dir="../../xtest" target="makedist" inheritall="false"/>
+        <unzip src="../../xtest/xtest-distribution.zip" dest="${cluster}/xtest-distribution" />
     </target>
 
     <target name="clean" depends="projectized-common.clean">

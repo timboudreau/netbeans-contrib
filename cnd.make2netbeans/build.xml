@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="netbeans" name="cnd/make2netbeans">
+<project basedir="." default="netbeans" name="contrib/cnd.make2netbeans">
     <description>Builds, tests, and runs the project org.netbeans.modules.cnd.make2netbeans</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
     

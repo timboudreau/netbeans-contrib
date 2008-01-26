@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="contrib/CodeInfo" default="netbeans" basedir=".">
+<project name="contrib/codeinfo" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project org.netbeans.modules.codeinfo</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
 </project>

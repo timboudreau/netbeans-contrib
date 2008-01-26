@@ -45,23 +45,23 @@ made subject to such option by the copyright holder.
   <property name="nbm_alias" value="nb_ide"/>
   <property name="homepage.base" value="netbeans.org"/>
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-  <property name="license.file" value="../../nbbuild/standard-nbm-license.txt"/>
+  <property name="license.file" value="../../../nbbuild/standard-nbm-license.txt"/>
 
-  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../../nbbuild/nbantext.jar"/>
-  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="../../nbbuild/nbantext.jar"/>
-  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="../../nbbuild/nbantext.jar"/>
+  <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../../../nbbuild/nbantext.jar"/>
+  <taskdef name="genlist" classname="org.netbeans.nbbuild.MakeListOfNBM" classpath="../../../nbbuild/nbantext.jar"/>
+  <taskdef name="locjar" classname="org.netbeans.nbbuild.LocalizedJar" classpath="../../../nbbuild/nbantext.jar"/>
 
   <target name="compile-insane">
     <echo message="Making local repackaged copy of performance/insane/*"/>
     <mkdir dir="tmp_insanesrc/insane"/>
     <filter token="//package insane" value="package insane"/>
-    <copy file="../../performance/insane/Insane.java" tofile="tmp_insanesrc/insane/Insane.java" filtering="on">
+    <copy file="../../../contrib/performance.insane/Insane.java" tofile="tmp_insanesrc/insane/Insane.java" filtering="on">
           <filterset begintoken="//" endtoken=";">
             <filter token="package insane" value="package insane;"/>
           </filterset> 
     </copy>
     
-    <copy file="../../performance/insane/InsaneParser.java" tofile="tmp_insanesrc/insane/InsaneParser.java" filtering="on">
+    <copy file="../../../contrib/performance.insane/InsaneParser.java" tofile="tmp_insanesrc/insane/InsaneParser.java" filtering="on">
           <filterset begintoken="//" endtoken=";">
             <filter token="package insane" value="package insane;"/>
           </filterset>
@@ -76,8 +76,8 @@ made subject to such option by the copyright holder.
     <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="true" verbose="false">
       <classpath>
         <pathelement location="tmp_insanesrc"/>
-        <pathelement location="../../openide/netbeans/lib/openide.jar"/>
-        <pathelement location="../../core/netbeans/lib/core.jar"/>
+        <pathelement location="../../../openide/netbeans/lib/openide.jar"/>
+        <pathelement location="../../../o.n.core/netbeans/lib/core.jar"/>
         <pathelement location="src"/>
       </classpath>
     </javac>
@@ -90,7 +90,7 @@ made subject to such option by the copyright holder.
     <locjar jarfile="netbeans/modules/oome.jar"
             manifest="manifest-subst.mf"
             basedir="src"
-	    excludesfile="../../nbbuild/standard-jar-excludes.txt"
+	    excludesfile="../../../nbbuild/standard-jar-excludes.txt"
 	    compress="false">
       <locale name="ja"/>
     </locjar>

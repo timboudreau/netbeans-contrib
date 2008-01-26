@@ -42,11 +42,11 @@
 
 <project name="Test a11y module" basedir="." default="all">
 
-    <import file="../../nbbuild/default.xml"/>
-    <property file="../../nbbuild/directories.properties"/>
+    <import file="../../../nbbuild/default.xml"/>
+    <property file="../../../nbbuild/directories.properties"/>
 
     <path id="codetest.classpath">
-        <pathelement location="../../nbbuild/netbeans/extra/modules/org-netbeans-modules-a11y.jar"/>
+        <pathelement location="../../../nbbuild/netbeans/extra/modules/org-netbeans-modules-a11y.jar"/>
     </path>
 
     <!-- ========= -->

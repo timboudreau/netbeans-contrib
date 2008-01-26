@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="netbeans" name="contrib/DeclarationAndJavadoc">
+<project basedir="." default="netbeans" name="contrib/declarationandjavadoc">
     <description>Builds, tests, and runs the project org.netbeans.modules.declarationandjavadoc</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
 </project>

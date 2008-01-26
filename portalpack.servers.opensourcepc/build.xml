@@ -24,7 +24,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 <!-- If you delete this file and reopen the project it will be recreated. -->
 <project name="org.netbeans.modules.portalpack.servers.jnpc" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project org.netbeans.modules.portalpack.servers.jnpc.</description>
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
     <property name="base.nbm.target.dir" value="build"/>
    <!-- <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
         <mkdir dir="build"/>

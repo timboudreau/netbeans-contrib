@@ -41,7 +41,7 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 <project default="all" name="Build Differences Between NetBeans APIs">
-    <property name="new-nb" location="../.." />
+    <property name="new-nb" location="../../contrib/other/.." />
     <property name="new-javadoc" location="${new-nb}/nbbuild/modules_javadoc" />
     <property name="old-nb" location="sources/old" />
     <property name="old-javadoc" location="${old-nb}/nbbuild/modules_javadoc" />

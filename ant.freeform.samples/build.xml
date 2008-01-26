@@ -40,9 +40,9 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<project basedir="." default="netbeans" name="ant/freeform/samples">
+<project basedir="." default="netbeans" name="contrib/ant.freeform.samples">
 
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
 
     <target name="compile" depends="projectized-common.compile">
         <zip zipfile="${build.classes.dir}/org/netbeans/modules/ant/freeform/samples/EmptyFreeformProject.zip" compress="true">
@@ -57,7 +57,7 @@ made subject to such option by the copyright holder.
                 <exclude name="user.build.properties"/>
                 <exclude name="**/.exists"/>
             </fileset>
-            <zipfileset dir="../../../java/freeform/src/org/netbeans/modules/java/freeform/jdkselection" includes="jdk.xml" prefix="nbproject/"/>
+            <zipfileset dir="../../java.freeform/src/org/netbeans/modules/java/freeform/jdkselection" includes="jdk.xml" prefix="nbproject/"/>
         </zip>
         <zip zipfile="${build.classes.dir}/org/netbeans/modules/ant/freeform/samples/AnagramFreeformProject.zip" compress="true">
             <fileset dir="templates/anagram">
@@ -68,7 +68,7 @@ made subject to such option by the copyright holder.
                 <exclude name="lib/build/"/>
                 <exclude name="lib/user.build.properties"/>
             </fileset>
-            <zipfileset dir="../../../java/freeform/src/org/netbeans/modules/java/freeform/jdkselection" includes="jdk.xml" prefix="nbproject/"/>
+            <zipfileset dir="../../java.freeform/src/org/netbeans/modules/java/freeform/jdkselection" includes="jdk.xml" prefix="nbproject/"/>
         </zip>
     </target>
     

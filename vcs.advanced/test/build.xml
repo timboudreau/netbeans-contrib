@@ -48,13 +48,13 @@ made subject to such option by the copyright holder.
     <property name="build.sysclasspath" value="ignore"/>
 
     <!-- Points to directory with IDE to test-->
-    <property name="netbeans.home" location="../../nbbuild/netbeans"/>
+    <property name="netbeans.home" location="../../../nbbuild/netbeans"/>
 
     <!-- Name of tested module -->
-    <property name="xtest.module" value="vcsgeneric"/>
+    <property name="xtest.module" value="contrib/vcs.advanced"/>
 
     <!-- Home of XTest -->
-    <property name="xtest.home" location="../../xtest"/>
+    <property name="xtest.home" location="../../../xtest"/>
    
     <!-- default testtypes, attributes used when no value is supplied from command line -->
     <property name="xtest.testtype" value="qa-functional"/>
@@ -79,7 +79,7 @@ made subject to such option by the copyright holder.
     <!-- This calls target which will call compilers according to cfg file.
          You should not change this target unless you realy know what you are doing -->
     <target name="buildtests">
-        <ant dir="../../vcscore/test" antfile="build.xml"
+        <ant dir="../../../contrib/vcscore/test" antfile="build.xml"
 	    target="buildtests"/>
        <ant dir="." antfile="${xtest.module_harness.antfile}"
              target="compiler-launcher"/>

@@ -51,7 +51,7 @@
             <public-packages/>
             <class-path-extension>
                 <runtime-relative-path>ext/beans2nbm.jar</runtime-relative-path>
-                <binary-origin>../../BeansToNbm/beans2nbm/dist/beans2nbm.jar</binary-origin>
+                <binary-origin>../../contrib/other/BeansToNbm/beans2nbm/dist/beans2nbm.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

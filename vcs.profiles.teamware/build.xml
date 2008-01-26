@@ -41,8 +41,8 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 
-<project name="vcsgeneric/profiles/teamware" default="netbeans" basedir=".">
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+<project name="contrib/vcs.profiles.teamware" default="netbeans" basedir=".">
+    <import file="../../nbbuild/templates/projectized.xml"/>
     <property name="teamware.jar" value="org-netbeans-modules-teamware.jar"/>
   <target name="reload" depends="jar">
     <mkdir dir="module-test"/>

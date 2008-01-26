@@ -55,7 +55,7 @@ made subject to such option by the copyright holder.
             <classpath>
 		<path refid="test.qa-functional.compile.cp"/>
                 <pathelement location="../build/classes"/>
-                <pathelement location="${tasklist/core.dir}/modules/org-netbeans-modules-tasklist-core.jar"/>
+                <pathelement location="${contrib/tasklist.core.dir}/modules/org-netbeans-modules-tasklist-core.jar"/>
             </classpath>
         </buildTests>
     </target>

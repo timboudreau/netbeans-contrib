@@ -40,16 +40,16 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<project name="tomcatint/tomcat5/bundled" basedir="." default="netbeans">
+<project name="contrib/tomcat5.bundled" basedir="." default="netbeans">
 
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
 
     <target name="netbeans-extra" depends="build-init">
         <unzip src="external/${tomcat.filename}.zip" dest="${cluster}"/>
         <!-- monitor -->
-        <copy file="${schema2beans/rt.dir}/modules/org-netbeans-modules-schema2beans.jar"
+        <copy file="${schema2beans.dir}/modules/org-netbeans-modules-schema2beans.jar"
             tofile="${cluster}/apache-tomcat-5.5.17/common/lib/org-netbeans-modules-schema2beans.jar"/>
-        <copy file="${monitor.dir}/modules/ext/org-netbeans-modules-web-httpmonitor.jar"
+        <copy file="${web.monitor.dir}/modules/ext/org-netbeans-modules-web-httpmonitor.jar"
             tofile="${cluster}/apache-tomcat-5.5.17/common/lib/org-netbeans-modules-web-httpmonitor.jar"/>
         <chmod perm="ugo+x">
             <fileset dir="${cluster}/${tomcat.filename}/bin">

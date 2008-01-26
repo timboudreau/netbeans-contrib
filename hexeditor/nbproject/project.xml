@@ -88,7 +88,7 @@ made subject to such option by the copyright holder.
             <public-packages/>
             <class-path-extension>
                 <runtime-relative-path>ext/hexedit.jar</runtime-relative-path>
-                <binary-origin>../hexedit/dist/hexedit.jar</binary-origin>
+                <binary-origin>../../contrib/other/hexedit/dist/hexedit.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

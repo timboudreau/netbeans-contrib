@@ -41,7 +41,7 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 
-<project basedir="." default="netbeans" name="contrib/doclet_completion/ejbdoclet">
+<project basedir="." default="netbeans" name="contrib/editor.java.doclet.ejb">
     <description>Builds, tests, and runs the project org.netbeans.modules.editor.java.doclet.ejb</description>
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
 </project>

@@ -41,12 +41,12 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 
-<project name="tasklist/suggestions/ui" default="netbeans" basedir=".">
+<project name="contrib/tasklist.suggestions" default="netbeans" basedir=".">
 
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
 
     <target name="changelog">
-        <style in="module-updates.xml" out="../../www/updates/tasklist-suggestions.html" style="../../www/updates/updates.xsl"/>
+        <style in="module-updates.xml" out="../../contrib/suggestions_framework/../www/updates/tasklist-suggestions.html" style="../../contrib/suggestions_framework/../www/updates/updates.xsl"/>
     </target>
 
 </project>

@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="netbeans" name="jackpot">
-    <import file="../nbbuild/templates/projectized.xml"/>
+<project basedir="." default="netbeans" name="contrib/jackpot">
+    <import file="../../nbbuild/templates/projectized.xml"/>
 </project>

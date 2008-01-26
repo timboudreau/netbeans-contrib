@@ -4,7 +4,7 @@
     <target name="compile">
         <javac srcdir="src" destdir="src">
             <classpath>
-                <pathelement location="../../openide/netbeans/lib/openide.jar"/>
+                <pathelement location="../../../openide/netbeans/lib/openide.jar"/>
                 <pathelement location="external/calpahtml-2.021.jar"/>
             </classpath>
         </javac>
@@ -13,7 +13,7 @@
     <target name="jars" depends="compile">
         <mkdir dir="netbeans/modules"/>
         <jar jarfile="netbeans/modules/calpane.jar" manifest="manifest.mf" compress="false">
-            <fileset dir="src" excludesfile="../../nbbuild/standard-jar-excludes.txt"/>
+            <fileset dir="src" excludesfile="../../../nbbuild/standard-jar-excludes.txt"/>
         </jar>
     </target>
     
@@ -35,7 +35,7 @@
     </target>
 
     <target name="nbm" depends="all" description="Prepare the module for distribution via Auto Update.">
-        <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../../nbbuild/nbantext.jar"/>
+        <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="../../../nbbuild/nbantext.jar"/>
         <makenbm file="calpane.nbm"
                  topdir="."
                  module="netbeans/modules/calpane.jar"
@@ -45,7 +45,7 @@
             <text>For the Calpane HTML component:</text>
             <file location="external/calpane-license.txt"/>
 	    <text>For the NetBeans integration module:</text>
-	    <file location="../../nbbuild/standard-nbm-license.txt"/>
+	    <file location="../../../nbbuild/standard-nbm-license.txt"/>
         </license>
     </target>
 

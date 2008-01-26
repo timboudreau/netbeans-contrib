@@ -41,9 +41,9 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 
-<project name="vcscore" default="netbeans" basedir=".">
+<project name="contrib/vcscore" default="netbeans" basedir=".">
 
-    <import file="../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
 
     <target name="check-for-jdk-1.5">
       <available property="have-jdk-1.5" classname="java.lang.ProcessBuilder"/>

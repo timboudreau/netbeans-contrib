@@ -43,15 +43,15 @@ made subject to such option by the copyright holder.
 
 <project name="enode-test" default="netbeans" basedir=".">
 
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
     <target name="compile" depends="init">
         <mkdir dir="${build.classes.dir}"/>
-        <javac srcdir="../test/unit/src" destdir="${build.classes.dir}" debug="${build.compiler.debug}" deprecation="${build.compiler.deprecation}" optimize="${build.compiler.optimize}" source="${javac.source}" includeantruntime="false">
+        <javac srcdir="../../contrib/enode/test/unit/src" destdir="${build.classes.dir}" debug="${build.compiler.debug}" deprecation="${build.compiler.deprecation}" optimize="${build.compiler.optimize}" source="${javac.source}" includeantruntime="false">
             <classpath refid="cp"/>
             <include name="org/netbeans/modules/enode/test/*.java"/>
         </javac>
         <copy todir="${build.classes.dir}">
-          <fileset dir="../test/unit/src" excludes="${jar-excludes}"/>
+          <fileset dir="../../contrib/enode/test/unit/src" excludes="${jar-excludes}"/>
         </copy>
     </target>
  

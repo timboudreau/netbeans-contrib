@@ -41,5 +41,5 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 <project basedir="." default="netbeans" name="debuggerjpda/api/examples/FilterringOfCallStackViews1">
-    <import file="../../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../debugger.jpda/../../nbbuild/templates/projectized.xml"/>
 </project>

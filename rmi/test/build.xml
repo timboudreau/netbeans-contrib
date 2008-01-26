@@ -60,7 +60,7 @@ made subject to such option by the copyright holder.
     <property name="xtest.ide.winsys" value="sdi"/>
 
     <!-- Name of tested module -->
-    <property name="xtest.module" value="rmi"/>
+    <property name="xtest.module" value="contrib/rmi"/>
 
     <property name="xtest.home" location="../../../nb_all/xtest"/>
 
@@ -101,8 +101,8 @@ made subject to such option by the copyright holder.
         <!-- List of directories where jars will be searched. -->
         <!-- original -->
         <!--property name="xtest.extra.jars.path" location="${nbextra.home}/jemmy;${nbextra.home}/jellytools;${netbeans.home}/modules;${netbeans.home}/lib;${netbeans.home}/lib/ext"/-->
-        <property name="jemmy.home" location="../../jemmy/builds"/>
-        <property name="jelly.home" location="../../jellytools/builds"/>
+        <property name="jemmy.home" location="../../../jemmy/builds"/>
+        <property name="jelly.home" location="../../../jellytools/builds"/>
         <property name="xtest.extra.jars.path" location="${jemmy.home};${jelly.home};${xtest.home}/lib;${netbeans.home}/modules;${netbeans.home}/modules/autoload;${netbeans.home}/lib;${netbeans.home}/lib/ext"/>
 
 

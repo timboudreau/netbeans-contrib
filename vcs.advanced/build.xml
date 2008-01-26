@@ -42,22 +42,22 @@ made subject to such option by the copyright holder.
 -->
 
 
-<project name="vcsgeneric" default="netbeans" basedir=".">
-    <import file="../nbbuild/templates/projectized.xml"/>
+<project name="contrib/vcs.advanced" default="netbeans" basedir=".">
+    <import file="../../nbbuild/templates/projectized.xml"/>
 
     <property name="stdprofiles" value="cvsprofiles, pvcs, vss"/>
 
     <target name="profile-cvsprofiles">
         <echo message="Building CVS profiles..."/>
-        <ant dir="profiles/cvsprofiles" target="netbeans"/>
+        <ant dir="../../contrib/vcs.profiles.cvsprofiles" target="netbeans"/>
     </target>
     <target name="profile-pvcs">
         <echo message="Building PVCS profiles..."/>
-        <ant dir="profiles/pvcs" target="netbeans"/>
+        <ant dir="../../contrib/vcs.profiles.pvcs" target="netbeans"/>
     </target>
     <target name="profile-vss">
         <echo message="Building VSS profiles..."/>
-        <ant dir="profiles/vss" target="netbeans"/>
+        <ant dir="../../contrib/vcs.profiles.vss" target="netbeans"/>
     </target>
 
 </project>

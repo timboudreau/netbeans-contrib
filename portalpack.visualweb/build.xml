@@ -40,7 +40,7 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<project basedir="." default="netbeans" name="portalpack/portletbuilder/visualweb">
+<project basedir="." default="netbeans" name="contrib/portalpack.visualweb">
     <description>Builds, tests, and runs the project org.netbeans.modules.portalpack.visualweb</description>
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
 </project>

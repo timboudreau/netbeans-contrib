@@ -41,8 +41,8 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 
-<project name="contrib/naming/test" basedir="." default="all">
-    <property name="xtest.module" value="contrib/naming"/>
+<project name="contrib/core.naming/test" basedir="." default="all">
+    <property name="xtest.module" value="contrib/core.naming"/>
     <import file="../../../nbbuild/templates/xtest.xml"/>
     <property name="xtest.testtype" value="unit"/>
     <property name="xtest.attribs" value="stable"/>

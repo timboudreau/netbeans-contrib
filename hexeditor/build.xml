@@ -47,7 +47,7 @@ made subject to such option by the copyright holder.
 
   <target name="netbeans-extra" depends="build-init">
     <mkdir dir="${cluster}/modules/ext"/>
-    <copy file="../hexedit/dist/hexedit.jar" todir="${cluster}/modules/ext"/>
+    <copy file="../../contrib/other/hexedit/dist/hexedit.jar" todir="${cluster}/modules/ext"/>
   </target>
 
 </project>

@@ -53,7 +53,7 @@
     <target name="jvm-compiler-editor">
         <echo message="**** JVM Compiler  ***"/>
 
-        <buildTests srcDir="../../editor/test/unit/src"> 
+        <buildTests srcDir="../../../contrib/javafx.dataloader/test/unit/src"> 
             <classpath refid="run.extra.jvm"/>
         </buildTests>
     </target>

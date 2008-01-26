@@ -55,10 +55,10 @@ made subject to such option by the copyright holder.
     </target>
 
     <target name="openide/fs-test" depends="check-openide/fs-test" unless="openide/fs-test.built">
-        <ant dir="../../../openide/fs/test" target="buildtests"/>
+        <ant dir="../../../openide.filesystems/test" target="buildtests"/>
     </target>
     <target name="check-openide/fs-test">
-        <available property="openide/fs-test.built" file="../../../openide/fs/build/test/unit/classes"/>
+        <available property="openide/fs-test.built" file="../../../openide.filesystems/build/test/unit/classes"/>
     </target>
 </project>
 

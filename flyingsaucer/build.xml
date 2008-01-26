@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="org.netbeans.modules.flyingsaucer" default="netbeans" basedir=".">
 
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
 
     <target name="build-init" depends="projectized.build-init">
         <fail>

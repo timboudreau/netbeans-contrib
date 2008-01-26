@@ -40,8 +40,8 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 
-<project name="contrib/doclet_completion/test" basedir="." default="all" >
-    <property name="xtest.module" value="contrib/doclet_completion"/>
+<project name="contrib/editor.java.doclet/test" basedir="." default="all" >
+    <property name="xtest.module" value="contrib/editor.java.doclet"/>
     <import file="../../../nbbuild/templates/xtest.xml"/>
     <property name="xtest.testtype" value="unit"/>
     <property name="xtest.attribs" value="stable"/>

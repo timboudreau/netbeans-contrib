@@ -18,8 +18,8 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<project name="languages/scala/project" default="netbeans" basedir=".">
+<project name="contrib/scala.project" default="netbeans" basedir=".">
 
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
 
 </project>

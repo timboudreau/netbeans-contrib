@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="refactoring/vcs" default="netbeans" basedir=".">
+<project name="contrib/refactoring.vcs" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project org.netbeans.modules.refactoring.vcs</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
 </project>

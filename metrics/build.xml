@@ -41,7 +41,7 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 
-<project name="metrics" default="netbeans" basedir=".">
+<project name="contrib/metrics" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the metrics project.</description>
-    <import file="../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
 </project>

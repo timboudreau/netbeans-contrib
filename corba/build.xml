@@ -42,14 +42,14 @@ made subject to such option by the copyright holder.
 -->
 
 
-<project name="corba" default="netbeans" basedir=".">
+<project name="contrib/corba" default="netbeans" basedir=".">
 
   <property name="nbroot" location=".."/>
-  <property name="nbext" location="../nbbuild"/>
+  <property name="nbext" location="../../nbbuild"/>
   <property name="nbm_alias" value="nb_ide"/>
   <property name="homepage.base" value="netbeans.org"/>
   <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>
-  <property name="license.file" location="../nbbuild/standard-nbm-license.txt"/>
+  <property name="license.file" location="../../nbbuild/standard-nbm-license.txt"/>
 
   <taskdef name="jhindexer" classname="org.netbeans.nbbuild.JHIndexer" classpath="${nbext}/nbantext.jar"/>
   <taskdef name="makenbm" classname="org.netbeans.nbbuild.MakeNBM" classpath="${nbext}/nbantext.jar"/>
@@ -81,12 +81,12 @@ made subject to such option by the copyright holder.
       <exclude name="org/netbeans/modules/corba/idl/editor/"/>
       <exclude name="org/netbeans/modules/corba/idl/compiler/"/>
       <classpath>
-	<pathelement location="../openide/openide-13javac-workaround.jar"/>
-        <pathelement location="../openide/netbeans/lib/openide.jar"/>
+	<pathelement location="../../openide/openide-13javac-workaround.jar"/>
+        <pathelement location="../../openide/netbeans/lib/openide.jar"/>
         <pathelement location="../openide/loaders/netbeans/lib/openide-loaders.jar"/>  <!-- XXX seems to use org.openide.loaders package, if not remove this line  -->
         <pathelement location="../openide/deprecated/netbeans/modules/autoload/openide-deprecated.jar"/> <!-- XXX -->
-        <pathelement location="../openide/compiler/netbeans/modules/autoload/openide-compiler.jar"/>
-        <pathelement location="../openide/execution/netbeans/modules/autoload/openide-execution.jar"/>
+        <pathelement location="../../openide/compiler/netbeans/modules/autoload/openide-compiler.jar"/>
+        <pathelement location="../../openide.execution/netbeans/modules/autoload/openide-execution.jar"/>
         <pathelement location="../java/srcmodel/netbeans/modules/autoload/java-src-model.jar"/>
 	<pathelement location="../java/netbeans/modules/java.jar"/>
         <pathelement location="../projects/netbeans/modules/projects.jar"/>
@@ -108,12 +108,12 @@ made subject to such option by the copyright holder.
     <javac srcdir="src" destdir="src" deprecation="${build.compiler.deprecation}" debug="${build.compiler.debug}">
       <include name="org/netbeans/modules/corba/idl/editor/"/>
       <classpath>
-	<pathelement location="../openide/openide-13javac-workaround.jar"/>
-        <fileset dir="../openide/netbeans/lib">
+	<pathelement location="../../openide/openide-13javac-workaround.jar"/>
+        <fileset dir="../../openide/netbeans/lib">
           <include name="openide*.jar" />
         </fileset>
-	<pathelement location="../editor/netbeans/modules/editor.jar"/>
-	<pathelement location="../editor/netbeans/modules/editor-lib.jar"/>
+	<pathelement location="../../editor/netbeans/modules/editor.jar"/>
+	<pathelement location="../../editor/netbeans/modules/editor-lib.jar"/>
       </classpath>
     </javac>
   </target>
@@ -175,7 +175,7 @@ made subject to such option by the copyright holder.
     <jhindexer basedir="javahelp/org/netbeans/modules/corba/docs/"
                db="javahelp/org/netbeans/modules/corba/docs/JavaHelpSearch2">
       <classpath>
-        <fileset dir="../nbbuild/external">
+        <fileset dir="../../nbbuild/external">
           <include name="jhall*.jar"/>
         </fileset>
       </classpath>

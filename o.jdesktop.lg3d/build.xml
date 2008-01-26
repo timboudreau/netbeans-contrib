@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="netbeans" name="java3d/venice/lg3d-integration">
+<project basedir="." default="netbeans" name="contrib/o.jdesktop.lg3d">
     <description>Builds, tests, and runs the project org.jdesktop.lg3d</description>
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
     
   <target name="netbeans-extra" depends="build-init">
     <mkdir dir="${cluster}/modules/ext"/>

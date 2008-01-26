@@ -136,7 +136,7 @@ made subject to such option by the copyright holder.
         <executeTests pluginName="ide" classpath="">
             <classpath>
                 <pathelement location="../build/classes"/>
-                <pathelement location="../../core/src"/>
+                <pathelement location="../../../contrib/tasklist.core/src"/>
                 <pathelement location="../../../nbbuild/netbeans/ide5/modules/org-netbeans-tasklistapi.jar"/>
                 <pathelement location="../../../nbbuild/netbeans/platform5/core/openide.jar"/>
             </classpath> 
@@ -232,7 +232,7 @@ made subject to such option by the copyright holder.
         <!-- Working sources should take precedence over core.jar: -->
            <pathelement location="../src"/>
            <pathelement location="../../../openide/netbeans/lib/openide.jar"/>
-           <pathelement location="../../api/netbeans/modules/autoload/tasklist-api.jar"/>
+           <pathelement location="../../../contrib/o.n.tasklistapi/netbeans/modules/autoload/tasklist-api.jar"/>
     	</path>
     </target>
     

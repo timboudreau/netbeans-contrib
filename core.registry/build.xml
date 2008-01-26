@@ -42,7 +42,7 @@ made subject to such option by the copyright holder.
 -->
 <project name="core/registry" default="netbeans" basedir=".">
 
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
 
     <!-- unit test data which must be build before test execution -->
     <property name="testmodules" location="${basedir}/test/unit/src/org/netbeans/core/registry/enabledisabletest/data"/>

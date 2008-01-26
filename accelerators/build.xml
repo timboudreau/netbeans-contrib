@@ -25,6 +25,6 @@ made subject to such option by the copyright holder.
 
 Contributor(s): Andrei Badea
 -->
-<project basedir="." default="netbeans" name="accelerators">
-    <import file="../nbbuild/templates/projectized.xml"/>
+<project basedir="." default="netbeans" name="contrib/accelerators">
+    <import file="../../nbbuild/templates/projectized.xml"/>
 </project>

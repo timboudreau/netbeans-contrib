@@ -4,7 +4,7 @@
 <!-- If you delete this file and reopen the project it will be recreated. -->
 <project name="com.sun.jbi.sapbc.sapwsdlgenerator" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project com.sun.jbi.sapbc.sapwsdlgenerator.</description>
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
     <target name="init" depends="projectized.init">
         <mkdir dir="${cluster}/modules/ext/sapwsdlgenerator/"/>
         <copy todir="${cluster}/modules/ext/sapwsdlgenerator/">

@@ -4,7 +4,7 @@
 <!-- If you delete this file and reopen the project it will be recreated. -->
 <project name="org.netbeans.bluej.ui" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project org.netbeans.bluej.ui.</description>
-    <loadproperties srcfile="../bluej-suite/external-references.properties"/>
+    <loadproperties srcfile="../../contrib/bluej-suite/external-references.properties"/>
     
     <import file="nbproject/build-impl.xml"/>
     <target name="branding" depends="init" if="branding.token">

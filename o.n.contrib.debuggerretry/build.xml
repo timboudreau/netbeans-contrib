@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="netbeans" name="contrib/debuggerretry">
+<project basedir="." default="netbeans" name="contrib/o.n.contrib.debuggerretry">
     <description>Builds, tests, and runs the project org.netbeans.contrib.debuggerretry</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
 </project>

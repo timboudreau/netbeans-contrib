@@ -48,13 +48,13 @@ made subject to such option by the copyright holder.
     <property name="build.sysclasspath" value="ignore"/>
 
     <!-- Points to directory with IDE to test-->
-    <property name="netbeans.home" location="../../nbbuild/netbeans"/>
+    <property name="netbeans.home" location="../../../nbbuild/netbeans"/>
 
     <!-- Name of tested module -->
-    <property name="xtest.module" value="clazz"/>
+    <property name="xtest.module" value="contrib/clazz"/>
 
     <!-- Home of XTest -->
-    <property name="xtest.home" location="../../xtest"/>
+    <property name="xtest.home" location="../../../xtest"/>
    
     <!-- default testtypes, attributes used when no value is supplied from command line -->
     <property name="xtest.testtype" value="qa-functional"/>

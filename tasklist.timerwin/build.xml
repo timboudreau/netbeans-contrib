@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="tasklist/timerwin" default="netbeans" basedir=".">
+<project name="contrib/tasklist.timerwin" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project org.netbeans.modules.tasklist.timerwin</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
     

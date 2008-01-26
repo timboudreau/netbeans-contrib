@@ -47,7 +47,7 @@ made subject to such option by the copyright holder.
     <property file="build.properties"/>
 
     <!-- Imports default default-compiler and run-unit-test executor. -->
-    <import file="../../../../nbbuild/templates/xtest-unit.xml"/>
+    <import file="../../../nbbuild/templates/xtest-unit.xml"/>
 
     <!-- ========= -->
     <!-- Executors -->

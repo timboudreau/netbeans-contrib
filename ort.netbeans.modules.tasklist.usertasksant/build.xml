@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="netbeans" name="tasklist/usertasksant">
     <description>Builds, tests, and runs the project ort.netbeans.modules.tasklist.usertasksant</description>
-    <import file="../../nbbuild/templates/projectized.xml"/>
+    <import file="../../contrib/tasklist.usertasks/../nbbuild/templates/projectized.xml"/>
 
     <target name="nblib" depends="init">
         <mkdir dir="build/antclasses"/>
@@ -10,7 +10,7 @@
                 <path refid="cp"/>
                 <pathelement location="${ant.jar}"/>
                 <pathelement location="${tools.jar}"/>
-                  <fileset dir="../external">
+                  <fileset dir="../../contrib/tasklist.usertasks/external">
                       <include name="*.jar"/>
                   </fileset>
             </classpath>

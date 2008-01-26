@@ -42,10 +42,10 @@ made subject to such option by the copyright holder.
 -->
 
 
-<project name="vcsgeneric/profiles/perforce" default="netbeans" basedir=".">
+<project name="contrib/vcs.profiles.perforce" default="netbeans" basedir=".">
 
     <property name="license.file" value="${basedir}/perforce-nbm-license.txt"/>
 
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
 
 </project>

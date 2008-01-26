@@ -43,6 +43,6 @@ made subject to such option by the copyright holder.
 
 Contributor(s): Andrei Badea
 -->
-<project basedir="." default="netbeans" name="contrib/terminal">
+<project basedir="." default="netbeans" name="contrib/accelerators.terminal">
     <import file="../../nbbuild/templates/projectized.xml"/>
 </project>

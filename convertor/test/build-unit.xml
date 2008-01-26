@@ -43,7 +43,7 @@ made subject to such option by the copyright holder.
 -->
 
 <project name="openide/convertor/test-unit" basedir="." default="all">
-    <import file="../../../nbbuild/templates/xtest-unit.xml"/>
+    <import file="../../../contrib/other/nbbuild/templates/xtest-unit.xml"/>
 
     <target name="pre-init-cp">
         <!-- Extra classpath for compilation: -->

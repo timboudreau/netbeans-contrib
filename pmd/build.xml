@@ -57,7 +57,7 @@ made subject to such option by the copyright holder.
 
                                          Cc.
 -->
-<project name="contrib/pmd-nb-wrapper" basedir="." default="netbeans">
+<project name="contrib/pmd" basedir="." default="netbeans">
 
     <property name="nbm_alias" value="nb_ide"/>
     <property name="dist.base" value="www.netbeans.org/download/nbms/40"/>

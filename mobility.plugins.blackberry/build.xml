@@ -41,7 +41,7 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 <project basedir="." default="netbeans" name="mobility/plugins/blackbery">
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
     <target name="netbeans-extra" depends="release"/>
 
     <target name="release" depends="init">

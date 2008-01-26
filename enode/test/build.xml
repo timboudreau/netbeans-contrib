@@ -40,12 +40,12 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<project name="openidex/enode/test" basedir="." default="all" >
+<project name="contrib/enode/test" basedir="." default="all" >
     <!-- build tested modules  -->
-    <property name="testmodules" location="${basedir}/../testmodule"/>
+    <property name="testmodules" location="${basedir}/../../../contrib/enode.test"/>
 
     <!-- Name of tested module -->
-    <property name="xtest.module" value="openidex/enode"/>
+    <property name="xtest.module" value="contrib/enode"/>
 
     <import file="../../../nbbuild/templates/xtest.xml"/>
 

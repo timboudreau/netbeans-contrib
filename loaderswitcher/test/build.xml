@@ -40,10 +40,10 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<project name="utilities/loaderswitcher" basedir="." default="all" >
+<project name="contrib/loaderswitcher" basedir="." default="all" >
 
     <!-- Name of tested module -->
-    <property name="xtest.module" value="utilities/loaderswitcher"/>
+    <property name="xtest.module" value="contrib/loaderswitcher"/>
 
     <import file="../../../nbbuild/templates/xtest.xml"/>
 

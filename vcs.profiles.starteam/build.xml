@@ -42,7 +42,7 @@ made subject to such option by the copyright holder.
 -->
 
 
-<project name="vcsgeneric/profiles/starteam" default="netbeans" basedir=".">
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+<project name="contrib/vcs.profiles.starteam" default="netbeans" basedir=".">
+    <import file="../../nbbuild/templates/projectized.xml"/>
 
 </project>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="netbeans" name="contrib/refactorings">
+<project basedir="." default="netbeans" name="contrib/java.additional.refactorings">
     <description>Builds, tests, and runs the project org.netbeans.modules.java.additional.refactorings</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
 </project>

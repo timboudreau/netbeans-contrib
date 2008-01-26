@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="netbeans" name="web/webrest">
+<project basedir="." default="netbeans" name="contrib/web.webrest">
     <description>Builds, tests, and runs the project org.netbeans.modules.web.webrest</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
 </project>

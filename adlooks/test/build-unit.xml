@@ -190,10 +190,10 @@ made subject to such option by the copyright holder.
 	           <pathelement location="../src"/>
  	      -->
 	    <pathelement location="../src"/>
-            <pathelement location="${nb_all}/openide/util/netbeans/lib/openide-util.jar"/>
-            <pathelement location="${nb_all}/openide/nodes/netbeans/lib/openide-nodes.jar"/>
+            <pathelement location="${nb_all}/openide.util/netbeans/lib/openide-util.jar"/>
+            <pathelement location="${nb_all}/openide.nodes/netbeans/lib/openide-nodes.jar"/>
       			<pathelement location="${openide/looks.dir}/modules/autoload/openide-looks.jar"/>
-            <pathelement location="${nb_all}/contrib/aspects/netbeans/modules/autoload/aspects.jar"/>
+            <pathelement location="${nb_all}/contrib/adlookup/netbeans/modules/autoload/aspects.jar"/>
 	</path>
     </target>
     
@@ -229,12 +229,12 @@ made subject to such option by the copyright holder.
 	           <pathelement location="${netbeans.home}/modules/somemodule.jar"/>
  	      --> 
             <pathelement location="../src" />
-            <pathelement location="${nb_all}/openide/util/netbeans/lib/openide-util.jar"/>
-            <pathelement location="${nb_all}/openide/nodes/netbeans/lib/openide-nodes.jar"/>
+            <pathelement location="${nb_all}/openide.util/netbeans/lib/openide-util.jar"/>
+            <pathelement location="${nb_all}/openide.nodes/netbeans/lib/openide-nodes.jar"/>
             <pathelement location="${nb_all}/openide/looks/netbeans/modules/autoload/openide-looks.jar"/>
             <pathelement location="${nb_all}/openide/registry/netbeans/modules/org-netbeans-modules-registry.jar"/>
-            <pathelement location="${nb_all}/core/registry/netbeans/modules/org-netbeans-core-registry.jar" />
-            <pathelement location="${nb_all}/contrib/aspects/netbeans/modules/autoload/aspects.jar"/>
+            <pathelement location="${nb_all}/o.n.core/registry/netbeans/modules/org-netbeans-core-registry.jar" />
+            <pathelement location="${nb_all}/contrib/adlookup/netbeans/modules/autoload/aspects.jar"/>
     	</path>
     </target>
     

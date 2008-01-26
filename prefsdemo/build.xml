@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="netbeans" name="contrib/prefsettings/demo">
+<project basedir="." default="netbeans" name="contrib/prefsdemo">
     <description>Builds, tests, and runs the project org.netbeans.modules.prefsdemo</description>
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../nbbuild/templates/projectized.xml"/>
 </project>
