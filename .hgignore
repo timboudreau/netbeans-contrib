@@ -230,3 +230,6 @@
 ^hibernate/src/org/netbeans/modules/hibernate/cfg/model$
 ^hibernate/src/org/netbeans/modules/hibernate/mapping/model$
 ^o.sample.registry.model/catalog\.xml$
+^xtest.examples/MyModule/mymodule\.jar$
+^xtest.examples/PaintApp/dist$
+^xtest.examples/anagrams/dist$
