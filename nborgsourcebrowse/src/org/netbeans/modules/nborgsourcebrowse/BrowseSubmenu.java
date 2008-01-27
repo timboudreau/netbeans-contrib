@@ -69,22 +69,16 @@ import org.openide.util.actions.Presenter;
 
 /**
  * Submenu active for nb.org files permitting you to browse to their sources, Javadoc, etc.
- * XXX handle branches, tags, specific revision numbers...
+ * XXX handle specific revisions rather than tip...
  * @author Jesse Glick
  */
 public class BrowseSubmenu implements Presenter.Menu {
 
-    /** Tuples of display label, URL format; use @FILEPATH@, @DIRPATH@, @JAVABASENAME@, @CNBDASHES@ */
+    /** Tuples of display label, URL format; use @REPO@, @FILEPATH@, @JAVABASENAME@, @CNBDASHES@ */
     private static final String[][] LINKS_FILE = {
-        {"Source (ViewCVS)", "http://www.netbeans.org/nonav/source/browse/~checkout~/@FILEPATH@?content-type=text/plain"},
-        {"Source (ViewCVS)", "http://www.netbeans.org/nonav/source/browse/@DIRPATH@/"},
-        {"Source (OpenGrok)", "http://deadlock.netbeans.org/opengrok/xref/@FILEPATH@"},
-        {"Source (OpenGrok)", "http://deadlock.netbeans.org/opengrok/xref/@DIRPATH@/"},
-        {"Source (Fisheye)", "http://deadlock.netbeans.org/fisheye/browse/~raw,r=HEAD/netbeans/@FILEPATH@"},
-        {"Source (Fisheye)", "http://deadlock.netbeans.org/fisheye/browse/netbeans/@DIRPATH@/"},
+        {"Source (Hg)", "@REPO@/raw-file/tip/@FILEPATH@"},
         {"Source (Hudson trunk)", "http://deadlock.netbeans.org/hudson/job/trunk/ws/@FILEPATH@"},
-        {"Source (Hudson trunk)", "http://deadlock.netbeans.org/hudson/job/trunk/ws/@DIRPATH@/"},
-        {"Javadoc (official)", "http://www.netbeans.org/download/dev/javadoc/@CNBDASHES@/@JAVABASENAME@.html"},
+        {"Javadoc (official)", "http://bits.netbeans.org/dev/javadoc/@CNBDASHES@/@JAVABASENAME@.html"},
         {"Javadoc (Hudson javadoc-nbms)", "http://deadlock.netbeans.org/hudson/job/javadoc-nbms/javadoc/@CNBDASHES@/@JAVABASENAME@.html"},
     };
     private static final String[][] LINKS_PRJ = {
@@ -107,49 +101,42 @@ public class BrowseSubmenu implements Presenter.Menu {
             if (d != null) {
                 FileObject f = d.getPrimaryFile();
                 FileObject dir = f.isFolder() ? f : f.getParent();
-                String root = slurp(dir.getFileObject("CVS/Root"));
-                if (root != null && root.contains("netbeans.org")) {
-                    String repos = slurp(dir.getFileObject("CVS/Repository"));
-                    if (repos != null) {
-                        /* XXX branch handling not yet implemented... most of these viewers will not handle it well anyway
-                        String tag = slurp(dir.getFileObject("CVS/Tag"));
-                        String branch = (tag != null && tag.startsWith("T")) ? tag.substring(1) : null;
-                         */
-                        for (String[] data : LINKS_FILE) {
-                            String label = data[0];
-                            String url = data[1];
-                            if (url.contains("@FILEPATH@")) {
-                                if (f.isData()) {
-                                    url = url.replace("@FILEPATH@", repos + "/" + f.getNameExt());
-                                } else {
-                                    continue;
-                                }
+                String[] repoAndPath = findRepoAndPath(dir, "");
+                if (repoAndPath != null) {
+                    for (String[] data : LINKS_FILE) {
+                        String label = data[0];
+                        String url = data[1];
+                        if (url.contains("@REPO@")) {
+                            if (repoAndPath[0] != null) {
+                                url = url.replace("@REPO@", repoAndPath[0]);
+                            } else {
+                                continue;
                             }
-                            if (url.contains("@DIRPATH@")) {
-                                if (f.isFolder()) {
-                                    url = url.replace("@DIRPATH@", repos);
-                                } else {
-                                    continue;
-                                }
-                            }
-                            if (url.contains("@JAVABASENAME@")) {
-                                Matcher m = Pattern.compile(".*/src/(.+)\\.java").matcher(repos + "/" + f.getNameExt());
-                                if (m.matches()) {
-                                    url = url.replace("@JAVABASENAME@", m.group(1));
-                                } else {
-                                    continue;
-                                }
-                            }
-                            if (url.contains("@CNBDASHES@")) {
-                                Project p = FileOwnerQuery.getOwner(f);
-                                if (p == null) {
-                                    continue;
-                                } else {
-                                    url = url.replace("@CNBDASHES@", ProjectUtils.getInformation(p).getName().replace('.', '-'));
-                                }
-                            }
-                            labelsAndUrls.add(new String[] {label, url});
                         }
+                        if (url.contains("@FILEPATH@")) {
+                            if (f.isData()) {
+                                url = url.replace("@FILEPATH@", repoAndPath[1] + f.getNameExt());
+                            } else if (f.isFolder()) {
+                                url = url.replace("@FILEPATH@", repoAndPath[1]);
+                            }
+                        }
+                        if (url.contains("@JAVABASENAME@")) {
+                            Matcher m = Pattern.compile(".*/src/(.+)\\.java").matcher(repoAndPath[1] + f.getNameExt());
+                            if (m.matches()) {
+                                url = url.replace("@JAVABASENAME@", m.group(1));
+                            } else {
+                                continue;
+                            }
+                        }
+                        if (url.contains("@CNBDASHES@")) {
+                            Project p = FileOwnerQuery.getOwner(f);
+                            if (p == null) {
+                                continue;
+                            } else {
+                                url = url.replace("@CNBDASHES@", ProjectUtils.getInformation(p).getName().replace('.', '-'));
+                            }
+                        }
+                        labelsAndUrls.add(new String[] {label, url});
                     }
                 }
             } else {
@@ -158,14 +145,14 @@ public class BrowseSubmenu implements Presenter.Menu {
                     for (String[] data : LINKS_PRJ) {
                         String label = data[0];
                         String url = data[1];
-                        labelsAndUrls.add(new String[] {data[0], data[1].replace("@CNBDASHES@", ProjectUtils.getInformation(p).getName().replace('.', '-'))});
+                        labelsAndUrls.add(new String[] {label, url.replace("@CNBDASHES@", ProjectUtils.getInformation(p).getName().replace('.', '-'))});
                     }
                 }
             }
             if (labelsAndUrls.isEmpty()) {
                 return new JComponent[0];
             } else {
-                JMenu menu = new JMenu("Browse cvs.netbeans.org");
+                JMenu menu = new JMenu("Browse hg.netbeans.org");
                 for (String[] labelAndUrl : labelsAndUrls) {
                     JMenuItem mi = new JMenuItem(labelAndUrl[0]);
                     final URL u;
@@ -185,21 +172,40 @@ public class BrowseSubmenu implements Presenter.Menu {
             }
         }
 
-        private static String slurp(FileObject f) {
-            if (f != null) {
-                try {
-                    InputStream is = f.getInputStream();
+        private static String[] findRepoAndPath(FileObject dir, String path) {
+            FileObject dotHg = dir.getFileObject(".hg");
+            if (dotHg != null && dotHg.isFolder()) {
+                String repo = null;
+                FileObject hgrc = dotHg.getFileObject("hgrc");
+                if (hgrc != null && hgrc.isData()) {
                     try {
-                        BufferedReader r = new BufferedReader(new InputStreamReader(is));
-                        return r.readLine();
-                    } finally {
-                        is.close();
+                        InputStream is = hgrc.getInputStream();
+                        try {
+                            BufferedReader r = new BufferedReader(new InputStreamReader(is));
+                            String line;
+                            while ((line = r.readLine()) != null) {
+                                Matcher m = Pattern.compile("default *= *(https?://[^:]+[^/])/?").matcher(line);
+                                if (m.matches()) {
+                                    repo = m.group(1);
+                                    break;
+                                }
+                            }
+                        } finally {
+                            is.close();
+                        }
+                    } catch (IOException x) {
+                        Exceptions.printStackTrace(x);
                     }
-                } catch (IOException x) {
-                    Exceptions.printStackTrace(x);
+                }
+                return new String[] {repo, path};
+            } else {
+                FileObject parent = dir.getParent();
+                if (parent == null) {
+                    return null;
+                } else {
+                    return findRepoAndPath(parent, dir.getNameExt() + "/" + path);
                 }
             }
-            return null;
         }
 
         public JComponent[] synchMenuPresenters(JComponent[] items) {
