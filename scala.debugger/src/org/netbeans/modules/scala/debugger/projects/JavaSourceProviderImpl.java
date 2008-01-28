@@ -38,7 +38,7 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.scala.debugger;
+package org.netbeans.modules.scala.debugger.projects;
 
 import java.io.IOException;
 import java.io.Reader;
