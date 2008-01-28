@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.scala.debugger
 OpenIDE-Module-Layer: org/netbeans/modules/scala/debugger/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/scala/debugger/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Specification-Version: 0.10.0
 

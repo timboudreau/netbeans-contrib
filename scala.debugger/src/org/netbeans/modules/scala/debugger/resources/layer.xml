@@ -82,7 +82,9 @@ made subject to such option by the copyright holder.
                     </folder>
             </folder>
         </folder>
-        <folder name="AnnotationTypes">  <!-- Editor gutter popup menu -->
+        <!-- Editor gutter popup menu -->
+        <!--
+        <folder name="AnnotationTypes">  
             <folder name="BreakpointActions">
                 <file name="org-netbeans-modules-scala-debugger-actions-BreakpointEnableAction.instance">
                     <attr name="position" intvalue="100"/>
@@ -96,6 +98,7 @@ made subject to such option by the copyright holder.
             <file name="FieldBreakpoint.xml" url="FieldBreakpoint.xml"/>
             <file name="MethodBreakpoint.xml" url="MethodBreakpoint.xml"/>
         </folder>
+        -->
     </folder>
     <!--
     <folder name="Loaders">
@@ -128,7 +131,7 @@ made subject to such option by the copyright holder.
         </folder>
         -->
     </folder>
-    
+    <!--
     <folder name="Projects">
         <folder name="Debugger_Actions_temporary">
             <file name="org-netbeans-modules-debugger-ui-actions-DebugProjectAction.shadow">
@@ -136,9 +139,10 @@ made subject to such option by the copyright holder.
             </file>
         </folder>
     </folder>
-
+    -->
     <!-- Main menu -->
-     <folder name="Menu">
+    <!-->
+    <folder name="Menu">
         <folder name="RunProject">
             <file name="org-netbeans-modules-debugger-ui-actions-ConnectAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Debug/org-netbeans-modules-debugger-ui-actions-ConnectAction.instance"/>
@@ -243,14 +247,13 @@ made subject to such option by the copyright holder.
                 <attr name="originalFile" stringvalue="Actions/Debug/org-netbeans-modules-debugger-ui-actions-AddWatchAction.instance"/>
                 <attr name="position" intvalue="2500"/>
             </file>
-            <!--
+            
             <file name="org-netbeans-modules-debugger-ui-actions-EvaluateAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Debug/org-netbeans-modules-scala-debugger-actions-EvaluateAction.instance"/>
                 <attr name="position" intvalue="2600"/>
             </file>
-            -->
+           
         </folder>
-        <!--
         <folder name="Window">
             <folder name="Debug">
                 <file name="org-netbeans-modules-scala-debugger-actions-SourcesViewAction.shadow">
@@ -259,9 +262,8 @@ made subject to such option by the copyright holder.
                 </file>
             </folder>
         </folder>
-        -->
     </folder>
-
+    -->
     <!--
     <folder name="Shortcuts">
         <file name="SO-8.shadow">
@@ -272,14 +274,14 @@ made subject to such option by the copyright holder.
         </file>
     </folder>
     -->
-
+    <!--
     <folder name="Toolbars">
-        <!--<folder name="Build">            
+        <folder name="Build">            
             <attr name="org-netbeans-modules-debugger-ui-actions-DebugMainProjectAction.shadow/org-netbeans-modules-debugger-ui-actions-ConnectAction.shadow" boolvalue="true" />
             <file name="org-netbeans-modules-debugger-ui-actions-ConnectAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Debug/org-netbeans-modules-debugger-ui-actions-ConnectAction.instance"/>
             </file>
-        </folder>-->
+        </folder>
         <folder name="Debug">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.debugger.Bundle"/>
             <file name="org-netbeans-modules-debugger-ui-actions-KillAction.shadow">
@@ -320,7 +322,8 @@ made subject to such option by the copyright holder.
             </file>
         </folder>
     </folder>
-
+    -->
+    <!--
     <folder name="Windows2">
         <folder name="Components">
             <file name="sources.settings" url="sources.settings"/>
@@ -341,4 +344,5 @@ made subject to such option by the copyright holder.
         </folder>
 
     </folder>
+    -->
 </filesystem>
