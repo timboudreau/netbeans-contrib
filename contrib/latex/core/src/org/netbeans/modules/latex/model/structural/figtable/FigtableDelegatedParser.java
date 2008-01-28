@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -45,13 +45,11 @@ package org.netbeans.modules.latex.model.structural.figtable;
 
 import java.util.Collection;
 import org.netbeans.modules.latex.model.command.BlockNode;
-import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.Environment;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.netbeans.modules.latex.model.structural.DelegatedParser;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
-import org.openide.util.actions.SystemAction;
 
 /**
  *
@@ -76,6 +74,7 @@ public class FigtableDelegatedParser extends DelegatedParser {
         return type;
     }
     
+    @Override
     public StructuralElement getElement(Node node) {
         //Only for case that some malicious module marked some Command with our attributes ;-(.
         if (node instanceof BlockNode) {
@@ -90,6 +89,7 @@ public class FigtableDelegatedParser extends DelegatedParser {
             return null;
     }
     
+    @Override
     public String[] getSupportedAttributes() {
         return new String[] {
             "#table-environment",
@@ -98,7 +98,8 @@ public class FigtableDelegatedParser extends DelegatedParser {
         };
     }
     
-    public StructuralElement updateElement(Node node, Collection/*<ParseError>*/ errors, StructuralElement element) {
+    @Override
+    public StructuralElement updateElement(Node node, StructuralElement element) {
         if (!(element instanceof FigtableStructuralElement))
             throw new IllegalStateException("");
         
@@ -106,6 +107,7 @@ public class FigtableDelegatedParser extends DelegatedParser {
         return element;
     }
     
+    @Override
     public Object getKey(Node node) {
         if (node instanceof BlockNode) {
             BlockNode bnode = (BlockNode) node;

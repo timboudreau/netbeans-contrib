@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -25,7 +25,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2008.
  * All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -44,21 +44,13 @@
 package org.netbeans.modules.latex.model.structural;
 
 import java.beans.IntrospectionException;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.netbeans.modules.latex.model.structural.StructuralElement;
-import org.netbeans.modules.latex.model.structural.StructuralNode;
 import org.openide.ErrorManager;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.FolderLookup;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
+import org.openide.util.lookup.Lookups;
 
 /**
  *
@@ -71,24 +63,9 @@ public final class StructuralNodeFactory {
     }
 
     private static synchronized List<NodeProvider> getNodeProviders() {
-        FileObject parsersFolder = Repository.getDefault().getDefaultFileSystem().findResource("latex/structural/nodes");
+        Lookup l = Lookups.forPath("latex/structural/nodes");
         
-        try {
-            DataObject od            = DataObject.find(parsersFolder);
-            
-            if (od instanceof DataFolder) {
-                FolderLookup flookup = new FolderLookup((DataFolder) od);
-                
-                flookup.run();
-                
-                Lookup l = flookup.getLookup();
-                
-                return new ArrayList<NodeProvider>(l.lookupAll(NodeProvider.class));
-            }
-        } catch (IOException e) {
-            ErrorManager.getDefault().notify(e);
-        }
-        return Collections.<NodeProvider>emptyList();
+        return new ArrayList<NodeProvider>(l.lookupAll(NodeProvider.class));
     }
     
     public static Node createNode(StructuralElement el) {

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -25,7 +25,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2008.
  * All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -43,23 +43,24 @@
  */
 package org.netbeans.modules.latex.model.structural.parser;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.Queue;
-import org.netbeans.modules.latex.model.command.*;
+import org.netbeans.modules.latex.model.command.ArgumentNode;
+import org.netbeans.modules.latex.model.command.Attributable;
+import org.netbeans.modules.latex.model.command.BlockNode;
+import org.netbeans.modules.latex.model.command.CommandNode;
+import org.netbeans.modules.latex.model.command.DocumentNode;
+import org.netbeans.modules.latex.model.command.Node;
+import org.netbeans.modules.latex.model.command.TraverseHandler;
 import org.netbeans.modules.latex.model.structural.DelegatedParser;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
 import org.netbeans.modules.latex.model.structural.label.LabelStructuralElement;
-import org.openide.ErrorManager;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.FolderLookup;
-import org.openide.util.Lookup;
-import org.openide.util.Lookup.Result;
-import org.openide.util.Lookup.Template;
+import org.openide.util.lookup.Lookups;
 
 
 /**
@@ -68,12 +69,11 @@ import org.openide.util.Lookup.Template;
  */
 public final class StructuralParserImpl {
     
-    private Map oldElementsMap;
+    private Map<Object, StructuralElement> oldElementsMap;
     private MainStructuralElement mainElement;
     
-    /** Creates a new instance of StructuralParser */
     public StructuralParserImpl() {
-        oldElementsMap = new HashMap();//MEMORY LEAK!
+        oldElementsMap = new  HashMap<Object, StructuralElement>();//MEMORY LEAK!
         mainElement = new MainStructuralElement();
     }
     
@@ -102,12 +102,12 @@ public final class StructuralParserImpl {
     }
     
     private void fireSubElementsChanged(StructuralElement el) {
-        Queue q = new Queue();
+        Queue<StructuralElement> q = new  Queue<StructuralElement>();
         
         q.put(el);
         
         while (!q.empty()) {
-            StructuralElement element = (StructuralElement) q.pop();
+            StructuralElement element = q.pop();
             
             element .fireSubElementsChange();
             
@@ -116,45 +116,17 @@ public final class StructuralParserImpl {
     }
     
     private static synchronized List<DelegatedParser> getDelegatedParsers() {
-        FileObject parsersFolder = Repository.getDefault().getDefaultFileSystem().findResource("latex/structural/parsers");
-        
-        try {
-//            System.err.println("parsersFolder = " + parsersFolder );
-            DataObject od            = DataObject.find(parsersFolder);
-            
-//            System.err.println("od = " + od );
-            if (od instanceof DataFolder) {
-                FolderLookup flookup = new FolderLookup((DataFolder) od);
-                
-                flookup.run();
-                
-                Lookup l = flookup.getLookup();
-//                System.err.println("l = " + l );
-                Result result = l.lookup(new Template(DelegatedParser.class));
-                
-//                System.err.println("result = " + result );
-//                System.err.println(result.allInstances());
-                return new ArrayList(result.allInstances());
-            }
-        } catch (IOException e) {
-//            System.err.println("1");
-            ErrorManager.getDefault().notify(e);
-        }
-//        System.err.println("2");
-        return Collections.EMPTY_LIST;
+        return new  LinkedList<DelegatedParser>(Lookups.forPath("latex/structural/parsers").lookupAll(DelegatedParser.class));
     }
     
-//    public void addElement(StructuralElement el) {
-//    }
-//    
     private class ParsingTraverseHandler extends TraverseHandler {
         
-        private Stack             elements;
-        private List              parsers;
-        private MainStructuralElement main;
+        private Stack<StructuralElement> elements;
+        private List<DelegatedParser>    parsers;
+        private MainStructuralElement    main;
         
-        public ParsingTraverseHandler(MainStructuralElement mainElement, List parsers) {
-            elements = new Stack();
+        public ParsingTraverseHandler(MainStructuralElement mainElement, List<DelegatedParser> parsers) {
+            elements = new  Stack<StructuralElement>();
             elements.push(mainElement);
             this.main = mainElement;
             
@@ -162,22 +134,20 @@ public final class StructuralParserImpl {
         }
         
         private void addElement(StructuralElement el) {
-            while (((StructuralElement) elements.peek()).getPriority() >= el.getPriority())
+            while ((elements.peek()).getPriority() >= el.getPriority())
                 elements.pop();
             
-            ((StructuralElement) elements.peek()).addSubElement(el);
+            elements.peek().addSubElement(el);
             elements.push(el);
 
             if (el instanceof LabelStructuralElement) {
-                //                        System.err.println("label...");
                 main.addLabel((LabelStructuralElement) el);
             }
         }
         
         private void handleNode(Node node, Attributable attributable) {
 //            System.err.println("handleNode(" + node + ", " + attributable + ")");
-            for (Iterator i = parsers.iterator(); i.hasNext(); ) {
-                DelegatedParser parser = (DelegatedParser) i.next();
+            for (DelegatedParser parser : parsers) {
                 String[]   attributes = parser.getSupportedAttributes();
                 boolean    accepts = false;
                 
@@ -196,7 +166,7 @@ public final class StructuralParserImpl {
                 Object key = parser.getKey(node);
                 
                 if (key != null) {
-                    StructuralElement oldEl = (StructuralElement) oldElementsMap.get(key);
+                    StructuralElement oldEl = oldElementsMap.get(key);
                     
                     if (oldEl != null) {
                         el = parser.updateElement(node, oldEl);

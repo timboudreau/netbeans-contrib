@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -25,7 +25,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2008.
  * All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -43,14 +43,11 @@
  */
 package org.netbeans.modules.latex.model.structural.section;
 
-import java.util.Collection;
-import java.util.Map;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.netbeans.modules.latex.model.structural.DelegatedParser;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
-import org.openide.util.actions.SystemAction;
 
 /**
  *
@@ -63,7 +60,7 @@ public class SectionDelegatedParser extends DelegatedParser {
     }
     
     private int getType(CommandNode node) {
-        int type = getTypeForName(((CommandNode) node).getCommand().getCommand());
+        int type = getTypeForName(node.getCommand().getCommand());
         
         if (type == (-1)) {
             throw new IllegalStateException("");
@@ -73,11 +70,12 @@ public class SectionDelegatedParser extends DelegatedParser {
     }
     
     private boolean accept(CommandNode node) {
-        int type = getTypeForName(((CommandNode) node).getCommand().getCommand());
+        int type = getTypeForName(node.getCommand().getCommand());
         
         return type != (-1);
     }
     
+    @Override
     public StructuralElement getElement(Node node) {
         //Only for case that some malicious module marked some Environment with our attributes ;-(.
         if (node instanceof CommandNode) {
@@ -93,6 +91,7 @@ public class SectionDelegatedParser extends DelegatedParser {
             return null;
     }
     
+    @Override
     public String[] getSupportedAttributes() {
         return new String[] {"#section-command"};
     }
@@ -125,7 +124,8 @@ public class SectionDelegatedParser extends DelegatedParser {
         return sectionNames[type - 1];
     }
 
-    public StructuralElement updateElement(Node node, Collection/*<ParseError>*/ errors, StructuralElement element) {
+    @Override
+    public StructuralElement updateElement(Node node, StructuralElement element) {
         if (!(element instanceof SectionStructuralElement))
             throw new IllegalStateException("");
         
@@ -133,6 +133,7 @@ public class SectionDelegatedParser extends DelegatedParser {
         return element;
     }
     
+    @Override
     public Object getKey(Node node) {
         if (node instanceof CommandNode) {
             CommandNode cnode = (CommandNode) node;
@@ -160,6 +161,7 @@ public class SectionDelegatedParser extends DelegatedParser {
 //            this.name = name;
         }
 
+        @Override
         public boolean equals(Object o) {
             if (!getClass().equals(o.getClass()))
                 return false;
@@ -184,6 +186,7 @@ public class SectionDelegatedParser extends DelegatedParser {
             return true;
         }
         
+        @Override
         public int hashCode() {
             return 1; //just for testing!!!!
         }

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -25,7 +25,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2008.
  * All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -43,28 +43,17 @@
  */
 package org.netbeans.modules.latex.editor.listing;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.text.Document;
-import org.netbeans.lib.lexer.inc.DocumentInput;
-import org.netbeans.modules.latex.editor.TexLexer;
 import org.netbeans.modules.latex.model.command.BlockNode;
-import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.Environment;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.netbeans.modules.latex.model.structural.DelegatedParser;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
-import org.netbeans.spi.lexer.TokenHierarchyControl;
-import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataObject;
-import org.openide.util.actions.SystemAction;
 
 /**
  *
@@ -92,6 +81,7 @@ public class ListingDelegatedParser extends DelegatedParser {
         return result;
     }
     
+    @Override
     public StructuralElement getElement(Node node) {
         Set<ListingStructuralElement> elements = getElements((FileObject) node.getStartingPosition().getFile());
         
@@ -112,13 +102,15 @@ public class ListingDelegatedParser extends DelegatedParser {
             return null;
     }
     
+    @Override
     public String[] getSupportedAttributes() {
         return new String[] {
             "listing",
         };
     }
     
-    public StructuralElement updateElement(Node node, Collection/*<ParseError>*/ errors, StructuralElement element) {
+    @Override
+    public StructuralElement updateElement(Node node, StructuralElement element) {
         if (!(element instanceof ListingStructuralElement))
             throw new IllegalStateException("");
         
@@ -128,6 +120,7 @@ public class ListingDelegatedParser extends DelegatedParser {
         return element;
     }
     
+    @Override
     public Object getKey(Node node) {
         if (node instanceof BlockNode) {
             BlockNode bnode = (BlockNode) node;
@@ -163,6 +156,7 @@ public class ListingDelegatedParser extends DelegatedParser {
 //            this.name = name;
         }
 
+        @Override
         public boolean equals(Object o) {
             if (!getClass().equals(o.getClass()))
                 return false;
@@ -181,6 +175,7 @@ public class ListingDelegatedParser extends DelegatedParser {
             return true;
         }
         
+        @Override
         public int hashCode() {
             return 1; //just for testing!!!!
         }
