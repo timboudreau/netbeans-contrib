@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -48,7 +48,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.WeakHashMap;
 import javax.swing.JEditorPane;
 import javax.swing.text.Document;
 import org.netbeans.api.gsf.CancellableTask;
@@ -264,7 +266,15 @@ public abstract class Utilities {
         return result;
     }
     
+    private Map<LaTeXParserResult, List<? extends PublicationEntry>> parse2PublicationsCache = new WeakHashMap<LaTeXParserResult, List<? extends PublicationEntry>>();
+    
     public final List<? extends PublicationEntry> getAllBibReferences(final LaTeXParserResult lpr) {
+        List<? extends PublicationEntry> possibleResult = parse2PublicationsCache.get(lpr);
+        
+        if (possibleResult != null) {
+            return possibleResult;
+        }
+        
         final List<PublicationEntry> result = new LinkedList<PublicationEntry>();
         DocumentNode node = lpr.getDocument();
 
@@ -292,7 +302,9 @@ public abstract class Utilities {
                 return false;
             }
         });
-                    
+        
+        parse2PublicationsCache.put(lpr, result);
+        
         return result;
     }
     

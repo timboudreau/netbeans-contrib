@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -48,7 +48,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.text.Document;
 import org.netbeans.api.gsf.CancellableTask;
 import org.netbeans.modules.latex.model.LaTeXParserResult;
-import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.CommandNode;
@@ -158,6 +157,7 @@ public class HintsProcessor implements CancellableTask<CompilationInfo> {
         providers = new LinkedList<HintProvider>();
         
         providers.add(new CheckCountersHint());
+        providers.add(new UnknownCiteHint());
     }
         
     static void handleNode(CompilationInfo info, List<HintProvider> providers, List<ErrorDescription> hints, Node n) {

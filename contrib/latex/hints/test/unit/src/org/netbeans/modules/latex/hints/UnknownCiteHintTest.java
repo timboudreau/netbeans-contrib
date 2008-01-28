@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -45,53 +45,44 @@ package org.netbeans.modules.latex.hints;
  *
  * @author Jan Lahoda
  */
-public class CheckCountersHintTest extends HintsTestBase {
+public class UnknownCiteHintTest extends HintsTestBase {
     
-    public CheckCountersHintTest(String testName) {
+    public UnknownCiteHintTest(String testName) {
         super(testName);
     }            
 
     public void testSimple1() throws Exception {
-        testAnalyze("\\documentclass{article}\n" + 
-             "\\begin{document}\n" + 
-             "\\value{unknown}\n" + 
-             "\\end{document}\n",
-             "2:6-2:15:warning:Undefined counter");
+        testAnalyze("\\documentclass{article}\n" +
+                    "\\begin{document}\n" +
+                    "\\cite{Unknown}\n" +
+                    "\\end{document}",
+                    "2:6-2:13:warning:Undefined citation");
     }
     
     public void testSimple2() throws Exception {
-        testAnalyze("\\documentclass{article}\n" + 
-             "\\newcounter{nue}\n" + 
-             "\\begin{document}\n" + 
-             "\\value{nue}\n" + 
-             "\\end{document}\n");
+        testAnalyze("\\documentclass{article}\n" +
+                    "\\begin{document}\n" +
+                    "\\cite{Unknown1,Unknown2}\n" +
+                    "\\end{document}",
+                    "2:6-2:14:warning:Undefined citation",
+                    "2:15-2:23:warning:Undefined citation");
     }
     
     public void testSimple3() throws Exception {
-        testAnalyze("\\documentclass{article}\n" + 
-             "\\newtheorem{nue}{A}\n" + 
-             "\\begin{document}\n" + 
-             "\\value{nue}\n" + 
-             "\\end{document}\n");
-    }
-    
-    public void testHardcoded() throws Exception {
-        testAnalyze("\\documentclass{article}\n" + 
-             "\\begin{document}\n" + 
-             "\\value{section}\n" + 
-             "\\end{document}\n");
-    }
-    
-    public void testNewTheorem() throws Exception {
-        testAnalyze("\\documentclass{book}\n" + 
-             "\\newtheorem{a}{a}[section]\n" + 
-             "\\begin{document}\n" + 
-             "\\end{document}\n");
+        testAnalyze("\\documentclass{article}\n" +
+                    "\\begin{document}\n" +
+                    "\\cite{TEST}\n" +
+                    "\\bibliography{bib.bib}" +
+                    "\\end{document}",
+                    "bib.bib",
+                    "@inproceedings(TEST)",
+                    true,
+                    new String[0]);
     }
     
     @Override
     protected HintProvider createProvider() {
-        return new CheckCountersHint();
+        return new UnknownCiteHint();
     }
-    
+
 }

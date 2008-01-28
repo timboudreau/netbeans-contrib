@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -57,6 +57,7 @@ import org.netbeans.modules.latex.model.command.InputNode;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.netbeans.modules.latex.model.command.TextNode;
+import org.netbeans.modules.latex.model.command.parser.ParserUtilities;
 
 /**
  *
@@ -296,6 +297,10 @@ public class CommandUtilitiesImpl implements CommandUtilities {
     
     public Environment getEnvironment(SourcePosition pos, String name) throws IOException {
         return ((NodeImpl) findNode(pos)).getEnvironment(name, false);
+    }
+
+    public CharSequence getArgumentValue(ArgumentNode an) {
+        return ParserUtilities.getArgumentValue(an);
     }
     
 }
