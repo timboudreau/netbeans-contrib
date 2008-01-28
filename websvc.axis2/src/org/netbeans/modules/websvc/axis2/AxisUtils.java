@@ -49,7 +49,10 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.xml.xam.ModelSource;
+import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
@@ -58,6 +61,8 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Lookup;
+import org.openide.util.Mutex;
+import org.openide.util.MutexException;
 import org.openide.util.lookup.Lookups;
 
 /**
@@ -142,9 +147,9 @@ public class AxisUtils {
         FileObject configFolder = projectDir.getFileObject("xml-resources/axis2/META-INF"); //NOI18N
         if (configFolder == null && create) {
             try {
-                configFolder = FileUtil.createData(projectDir, "xml-resources/axis2/META-INF");
+                configFolder = FileUtil.createFolder(projectDir, "xml-resources/axis2/META-INF");
             } catch (IOException ex) {
-                
+                ex.printStackTrace();
             }
         }
         return configFolder;
@@ -202,6 +207,54 @@ public class AxisUtils {
                 buf.append(list.get(i)+"/"); //NOI18N
             }
             return buf.toString();
+        }
+    }
+    
+    public static EditableProperties getEditableProperties(final Project prj,final  String propertiesPath) 
+        throws IOException {        
+        try {
+            return
+            ProjectManager.mutex().readAccess(new Mutex.ExceptionAction<EditableProperties>() {
+                public EditableProperties run() throws IOException {                                             
+                    FileObject propertiesFo = prj.getProjectDirectory().getFileObject(propertiesPath);
+                    EditableProperties ep = null;
+                    if (propertiesFo!=null) {
+                        InputStream is = null; 
+                        ep = new EditableProperties();
+                        try {
+                            is = propertiesFo.getInputStream();
+                            ep.load(is);
+                        } finally {
+                            if (is!=null) is.close();
+                        }
+                    }
+                    return ep;
+                }
+            });
+        } catch (MutexException ex) {
+            return null;
+        }
+    }
+    
+    public static void storeEditableProperties(final Project prj, final  String propertiesPath, final EditableProperties ep) 
+        throws IOException {        
+        try {
+            ProjectManager.mutex().writeAccess(new Mutex.ExceptionAction<Void>() {
+                public Void run() throws IOException {                                             
+                    FileObject propertiesFo = prj.getProjectDirectory().getFileObject(propertiesPath);
+                    if (propertiesFo!=null) {
+                        OutputStream os = null;
+                        try {
+                            os = propertiesFo.getOutputStream();
+                            ep.store(os);
+                        } finally {
+                            if (os!=null) os.close();
+                        }
+                    }
+                    return null;
+                }
+            });
+        } catch (MutexException ex) {
         }
     }
     

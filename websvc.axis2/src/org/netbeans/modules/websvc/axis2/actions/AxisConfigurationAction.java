@@ -51,6 +51,9 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
+import org.netbeans.modules.websvc.axis2.AxisUtils;
+import org.netbeans.spi.project.support.ant.AntProjectHelper;
+import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.filesystems.FileUtil;
@@ -82,17 +85,26 @@ public class AxisConfigurationAction extends NodeAction  {
     protected void performAction(Node[] activatedNodes) {
         Preferences preferences = NbPreferences.forModule(AxisConfigurationAction.class);
         String oldAxisHome = preferences.get("AXIS_HOME",""); //NOI18N
-        ConfigurationPanel configPanel = new ConfigurationPanel(oldAxisHome);
+        String oldAxisDeploy = preferences.get("AXIS_DEPLOY",""); //NOI18N
+        ConfigurationPanel configPanel = new ConfigurationPanel(oldAxisHome, oldAxisDeploy);
         DialogDescriptor dialog = new DialogDescriptor(configPanel, "Configuration");
         DialogDisplayer.getDefault().notify(dialog);   
         String axisHome = configPanel.getAxisHome();
-        if (axisHome != null && !axisHome.equals(oldAxisHome)) {
+        if (!axisHome.equals(oldAxisHome)) {
             preferences.put("AXIS_HOME", axisHome);
         }
+        String axisDeploy = configPanel.getAxisDeploy();
+        if (!axisDeploy.equals(oldAxisDeploy)) {
+            preferences.put("AXIS_DEPLOY", axisDeploy);
+        }
+        
+        Project prj = activatedNodes[0].getLookup().lookup(Project.class);
+        
+        // adding Axis libraries to project
         File file = new File(configPanel.getAxisHome());
         if (file.exists()) {
             try {
-                Project prj = activatedNodes[0].getLookup().lookup(Project.class);
+                
                 
                 // PENDING : Need to add all jars
                 final URL[] roots = new URL[2];
@@ -118,6 +130,18 @@ public class AxisConfigurationAction extends NodeAction  {
                 ex.printStackTrace();
             }
         }
+        try {
+            EditableProperties ep = AxisUtils.getEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH);
+            if (ep != null) {
+                ep.setProperty("axis2.home",axisHome); //NOI18N
+                if (axisDeploy.length() > 0)
+                    ep.setProperty("axis2.deploy",axisDeploy); //NOI18N
+            }
+            AxisUtils.storeEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH, ep);
+        } catch (IOException ex) {
+                ex.printStackTrace();
+        }
+        
     }
 }
 

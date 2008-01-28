@@ -15,13 +15,16 @@ import javax.swing.JFileChooser;
  */
 public class ConfigurationPanel extends javax.swing.JPanel {
     
-    private String previousDirectory;
+    private String previousHomeDirectory, previousDeployDirectory;
+    
     
     /** Creates new form ConfigurationPanel */
-    public ConfigurationPanel(String axisHome) {
-        previousDirectory = axisHome;
+    public ConfigurationPanel(String axisHome, String axisDeploy) {
+        previousHomeDirectory = axisHome;
+        previousDeployDirectory = axisDeploy;
         initComponents();
         axisHomeTf.setText(axisHome);
+        axisDeployTf.setText(axisDeploy);
     }
     
     /** This method is called from within the constructor to
@@ -35,9 +38,11 @@ public class ConfigurationPanel extends javax.swing.JPanel {
         axisHomeLabel = new javax.swing.JLabel();
         axisHomeTf = new javax.swing.JTextField();
         browseButton = new javax.swing.JButton();
-        axisHomeTf1 = new javax.swing.JTextField();
+        axisDeployTf = new javax.swing.JTextField();
         axisHomeLabel1 = new javax.swing.JLabel();
         browseButton1 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
 
         axisHomeLabel.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.axisHomeLabel.text")); // NOI18N
 
@@ -50,11 +55,20 @@ public class ConfigurationPanel extends javax.swing.JPanel {
             }
         });
 
-        axisHomeTf1.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.axisHomeTf1.text")); // NOI18N
+        axisDeployTf.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.axisDeployTf.text")); // NOI18N
 
         axisHomeLabel1.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.axisHomeLabel1.text")); // NOI18N
 
         browseButton1.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.browseButton1.text")); // NOI18N
+        browseButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                browseButton1ActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.jLabel1.text")); // NOI18N
+
+        jLabel2.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.jLabel2.text")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -64,15 +78,17 @@ public class ConfigurationPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(axisHomeTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 401, Short.MAX_VALUE)
+                        .add(axisHomeTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 549, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(browseButton))
                     .add(axisHomeLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(axisHomeTf1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 401, Short.MAX_VALUE)
+                        .add(axisDeployTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 549, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(browseButton1))
-                    .add(axisHomeLabel1))
+                    .add(axisHomeLabel1)
+                    .add(jLabel1)
+                    .add(jLabel2))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -84,36 +100,54 @@ public class ConfigurationPanel extends javax.swing.JPanel {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(browseButton)
                     .add(axisHomeTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jLabel1)
+                .add(40, 40, 40)
                 .add(axisHomeLabel1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(browseButton1)
-                    .add(axisHomeTf1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(188, Short.MAX_VALUE))
+                    .add(axisDeployTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jLabel2)
+                .addContainerGap(88, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
         // TODO add your handling code here:        
-        JFileChooser chooser = new JFileChooser(previousDirectory);
+        JFileChooser chooser = new JFileChooser(previousHomeDirectory);
         chooser.setMultiSelectionEnabled(false);
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         if(chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             File axisDir = chooser.getSelectedFile();
             axisHomeTf.setText(axisDir.getAbsolutePath());
-            previousDirectory = axisDir.getPath();
+            previousHomeDirectory = axisDir.getPath();
         } 
     }//GEN-LAST:event_browseButtonActionPerformed
+
+private void browseButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButton1ActionPerformed
+// TODO add your handling code here:
+        JFileChooser chooser = new JFileChooser(previousDeployDirectory);
+        chooser.setMultiSelectionEnabled(false);
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        if(chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File axisDir = chooser.getSelectedFile();
+            axisDeployTf.setText(axisDir.getAbsolutePath());
+            previousDeployDirectory = axisDir.getPath();
+        } 
+}//GEN-LAST:event_browseButton1ActionPerformed
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField axisDeployTf;
     private javax.swing.JLabel axisHomeLabel;
     private javax.swing.JLabel axisHomeLabel1;
     private javax.swing.JTextField axisHomeTf;
-    private javax.swing.JTextField axisHomeTf1;
     private javax.swing.JButton browseButton;
     private javax.swing.JButton browseButton1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     // End of variables declaration//GEN-END:variables
     
     
@@ -121,7 +155,7 @@ public class ConfigurationPanel extends javax.swing.JPanel {
         return axisHomeTf.getText().trim();
     }
     
-    public String getAxisApplicationDir() {
-        return axisHomeTf1.getText().trim();
+    public String getAxisDeploy() {
+        return axisDeployTf.getText().trim();
     }
 }
