@@ -97,6 +97,8 @@ public class LaTeXNavigatorPanel implements NavigatorPanel {
                     return lookup;
                 }
             }
+            
+            view.setRootVisible(false);
             panel = new Panel();
         }
         return panel;
