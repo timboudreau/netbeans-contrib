@@ -56,10 +56,7 @@ import org.netbeans.modules.clearcase.ClearcaseFileNode;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.ui.checkin.CheckinOptions;
-import org.netbeans.modules.clearcase.client.ExecutionUnit;
-import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
-import org.netbeans.modules.clearcase.client.MkElemCommand;
-import org.netbeans.modules.clearcase.client.NotificationListener;
+import org.netbeans.modules.clearcase.client.*;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.util.NbBundle;
@@ -70,13 +67,12 @@ import org.openide.util.HelpCtx;
  * 
  * @author Maros Sandor
  */
-public class AddAction extends AbstractAction implements NotificationListener {
+public class AddAction extends AbstractAction {
     
     static final String RECENT_ADD_MESSAGES = "add.messages";
 
     private final VCSContext context;
     protected final VersioningOutputManager voutput;
-    private File[] files;
 
     public AddAction(String name, VCSContext context) {
         this.context = context;
@@ -122,10 +118,14 @@ public class AddAction extends AbstractAction implements NotificationListener {
 
         Map<ClearcaseFileNode, CheckinOptions> filesToAdd = addTable.getAddFiles();
         
+        addFiles(message, checkInAddedFiles, filesToAdd);
+    }
+
+    public static ClearcaseClient.CommandRunnable addFiles(String message, boolean checkInAddedFiles, Map<ClearcaseFileNode, CheckinOptions> filesToAdd) {
         // TODO: process options
-        List<File> addFiles = new ArrayList<File>(); 
+        List<File> addFiles = new ArrayList<File>();
         for (Map.Entry<ClearcaseFileNode, CheckinOptions> entry : filesToAdd.entrySet()) {
-            if (entry.getValue() != CheckinOptions.EXCLUDE_FROM_ADD) {
+            if (entry.getValue() == CheckinOptions.ADD_BINARY || entry.getValue() == CheckinOptions.ADD_TEXT || entry.getValue() == CheckinOptions.ADD_DIRECTORY) {
                 addFiles.add(entry.getKey().getFile());
             }
         }
@@ -133,11 +133,18 @@ public class AddAction extends AbstractAction implements NotificationListener {
         // sort files - parents first, to avoid unnecessary warnings
         Collections.sort(addFiles);
 
-        files = addFiles.toArray(new File[addFiles.size()]);
-        Clearcase.getInstance().getClient().post(new ExecutionUnit(
+        final File [] files = addFiles.toArray(new File[addFiles.size()]);
+        return Clearcase.getInstance().getClient().post(new ExecutionUnit(
                 "Adding...",
                 new MkElemCommand(files, message, checkInAddedFiles ? MkElemCommand.Checkout.Checkin : MkElemCommand.Checkout.Default, 
-                                    false, this, new OutputWindowNotificationListener())));
+                                    false, new OutputWindowNotificationListener(), new NotificationListener() {
+                    public void commandStarted()        { /* boring */ }
+                    public void outputText(String line) { /* boring */ }
+                    public void errorText(String line)  { /* boring */ }
+                    public void commandFinished() {       
+                        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files);        
+                    }    
+                })));
     }
 
     private ClearcaseFileNode[] computeNodes() {
@@ -148,12 +155,5 @@ public class AddAction extends AbstractAction implements NotificationListener {
         }
         return nodes.toArray(new ClearcaseFileNode[nodes.size()]);
     }
-    
-    public void commandStarted()        { /* boring */ }
-    public void outputText(String line) { /* boring */ }
-    public void errorText(String line)  { /* boring */ }
-    public void commandFinished() {       
-        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files);        
-    }    
     
 }

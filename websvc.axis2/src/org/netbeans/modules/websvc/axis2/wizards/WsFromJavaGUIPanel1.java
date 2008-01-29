@@ -62,9 +62,10 @@ public class WsFromJavaGUIPanel1 extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
+        jCheckBox1 = new javax.swing.JCheckBox();
 
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(WsFromJavaGUIPanel1.class, "WsFromJavaGUIPanel1.jLabel1.text")); // NOI18N
+        jCheckBox1.setSelected(true);
+        jCheckBox1.setText(org.openide.util.NbBundle.getMessage(WsFromJavaGUIPanel1.class, "WsFromJavaGUIPanel1.jCheckBox1.text")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -72,21 +73,21 @@ public class WsFromJavaGUIPanel1 extends javax.swing.JPanel {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel1)
-                .addContainerGap(350, Short.MAX_VALUE))
+                .add(jCheckBox1)
+                .addContainerGap(280, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel1)
-                .addContainerGap(274, Short.MAX_VALUE))
+                .add(jCheckBox1)
+                .addContainerGap(270, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JCheckBox jCheckBox1;
     // End of variables declaration//GEN-END:variables
     
 }

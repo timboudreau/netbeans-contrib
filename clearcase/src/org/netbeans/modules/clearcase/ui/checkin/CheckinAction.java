@@ -52,6 +52,7 @@ import java.io.File;
 import java.util.*;
 
 import org.netbeans.modules.clearcase.*;
+import org.netbeans.modules.clearcase.ui.add.AddAction;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
 import org.netbeans.modules.clearcase.client.CheckinCommand;
@@ -127,11 +128,13 @@ public class CheckinAction extends AbstractAction implements NotificationListene
         boolean forceUnmodified = panel.cbForceUnmodified.isSelected();
         boolean preserveTime = panel.cbPreserveTime.isSelected();
 
-        Map<ClearcaseFileNode, CheckinOptions> filesToAdd = checkinTable.getAddFiles();
+        Map<ClearcaseFileNode, CheckinOptions> filesToCheckin = checkinTable.getAddFiles();
+
+        AddAction.addFiles(message, false, filesToCheckin);
         
         // TODO: process options
         List<File> ciFiles = new ArrayList<File>(); 
-        for (Map.Entry<ClearcaseFileNode, CheckinOptions> entry : filesToAdd.entrySet()) {
+        for (Map.Entry<ClearcaseFileNode, CheckinOptions> entry : filesToCheckin.entrySet()) {
             if (entry.getValue() != CheckinOptions.EXCLUDE) {
                 ciFiles.add(entry.getKey().getFile());
             }

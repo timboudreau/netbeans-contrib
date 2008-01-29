@@ -287,7 +287,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
     private static boolean isNothingVersioned(VCSContext ctx) {
         FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
         for (File file : ctx.getFiles()) {
-            if ((cache.getCachedInfo(file, false).getStatus() & FileInformation.STATUS_MANAGED) != 0) return false;  // XXX false?
+            if ((cache.getCachedInfo(file, true).getStatus() & FileInformation.STATUS_MANAGED) != 0) return false;
         }
         return true;
     }

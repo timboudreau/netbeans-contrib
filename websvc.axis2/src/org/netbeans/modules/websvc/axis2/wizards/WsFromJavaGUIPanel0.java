@@ -102,7 +102,7 @@ public class WsFromJavaGUIPanel0 extends javax.swing.JPanel implements ItemListe
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
 
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(WsFromJavaGUIPanel0.class, "WsFromJavaGUIPanel1.jLabel1.text")); // NOI18N
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(WsFromJavaGUIPanel0.class, "WsFromJavaGUIPanel0.jLabel1.text")); // NOI18N
         jLabel1.setEnabled(false);
 
         buttonGroup1.add(jRadioButton1);
@@ -142,7 +142,7 @@ public class WsFromJavaGUIPanel0 extends javax.swing.JPanel implements ItemListe
                         .add(21, 21, 21)
                         .add(jLabel1)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
+                        .add(jTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 399, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jButton1)
                         .addContainerGap())
@@ -154,14 +154,14 @@ public class WsFromJavaGUIPanel0 extends javax.swing.JPanel implements ItemListe
                                 .add(21, 21, 21)
                                 .add(jLabel3))
                             .add(jCheckBox2))
-                        .addContainerGap(68, Short.MAX_VALUE))
+                        .addContainerGap(144, Short.MAX_VALUE))
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(layout.createSequentialGroup()
                                 .add(21, 21, 21)
                                 .add(jLabel2))
                             .add(jCheckBox1))
-                        .addContainerGap(73, Short.MAX_VALUE))))
+                        .addContainerGap(160, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)

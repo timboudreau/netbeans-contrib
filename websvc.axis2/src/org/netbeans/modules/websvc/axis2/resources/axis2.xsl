@@ -133,7 +133,19 @@ made subject to such option by the copyright holder.
                     <jar destfile="${{build.dir}}/{$wsname}.aar">
                         <fileset excludes="**/Test.class" dir="${{build.dir}}/classes"/>
                     </jar>
-                </target>           
+                </target>
+                <target name="axis2-deploy-check" depends="axis2-aar">
+                    <condition property="axis2-deploy-required">
+                        <isset property="axis2.deploy.dir"/>
+                    </condition>
+                </target>    
+                <target name="axis2-deploy" depends="axis2-deploy-check" if="axis2-deploy-required">
+                    <copy toDir="${{axis2.deploy.dir}}/WEB-INF/services">
+                        <fileset dir="${{build.dir}}">
+                            <include name="*.aar"/>
+                        </fileset>
+                    </copy> 
+                </target>
             </xsl:if>
             
         </project>

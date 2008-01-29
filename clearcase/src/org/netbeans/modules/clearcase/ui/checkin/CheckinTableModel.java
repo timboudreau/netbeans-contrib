@@ -45,6 +45,7 @@ import org.openide.util.NbBundle;
 import org.netbeans.modules.clearcase.ClearcaseFileNode;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.*;
@@ -162,7 +163,7 @@ class CheckinTableModel extends AbstractTableModel {
         } else if (col.equals(COLUMN_NAME_ACTION)) {
             return checkinOptions[rowIndex];
         } else if (col.equals(COLUMN_NAME_PATH)) {
-            return "TODO: compute path";
+            return ClearcaseUtils.getLocation(nodes[rowIndex].getFile());
         }
         throw new IllegalArgumentException("Column index out of range: " + columnIndex); // NOI18N
     }
@@ -189,10 +190,6 @@ class CheckinTableModel extends AbstractTableModel {
                 case FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY:
                     checkinOptions[i] = getDefaultCommitOptions(node.getFile());
                     break;
-//                case FileInformation.STATUS_VERSIONED_DELETEDLOCALLY:
-//                case FileInformation.STATUS_VERSIONED_REMOVEDLOCALLY:
-//                    commitOptions[i] = CommitOptions.COMMIT_REMOVE;
-//                    break;
                 default:
                     checkinOptions[i] = CheckinOptions.COMMIT;
                 }
@@ -210,11 +207,11 @@ class CheckinTableModel extends AbstractTableModel {
 
     private CheckinOptions getDefaultCommitOptions(File file) {
         if (file.isFile()) {
-//            if (SvnUtils.getMimeType(file).startsWith("text")) {
+            if (ClearcaseUtils.getMimeType(file).startsWith("text")) {
                 return CheckinOptions.ADD_TEXT;
-//            } else {
-//                return CheckinOptions.ADD_BINARY;                
-//            }
+            } else {
+                return CheckinOptions.ADD_BINARY;                
+            }
         } else {
             return CheckinOptions.ADD_DIRECTORY;
         }
