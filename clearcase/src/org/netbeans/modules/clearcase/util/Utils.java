@@ -88,17 +88,16 @@ public class Utils {
         return VCSContext.forNodes(nodes);
     }
         
-
+    /**
+     * 
+     * @param files
+     */
     public static void afterCommandRefresh(final File[] files) {    
         Clearcase.getInstance().getRequestProcessor().post(new Runnable() {
             public void run() {
-                for (File file : files) {
-                    Clearcase.getInstance().getFileStatusCache().refresh(file, false);
-                }
+                Clearcase.getInstance().getFileStatusCache().refreshAsync(files);
                 FileUtil.refreshFor(files);
             }
         });
-
-    }
-    
+    }    
 }

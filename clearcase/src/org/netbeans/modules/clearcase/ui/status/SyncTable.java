@@ -46,7 +46,6 @@ import org.openide.nodes.*;
 import org.openide.nodes.PropertySupport.ReadOnly;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle;
-import org.openide.ErrorManager;
 import org.netbeans.modules.versioning.util.FilePathCellRenderer;
 import org.netbeans.modules.versioning.util.TableSorter;
 
@@ -65,6 +64,8 @@ import java.awt.Component;
 import java.awt.Color;
 import java.awt.Point;
 import java.util.*;
+import java.util.logging.Level;
+import org.netbeans.modules.clearcase.Clearcase;
 
 /**
  * Controls the {@link #getComponent() tsble} that displays nodes
@@ -117,7 +118,7 @@ class SyncTable implements MouseListener, ListSelectionListener, AncestorListene
                     String s2 = (String) p2.getValue();
                     return s1.compareToIgnoreCase(s2);
                 } catch (Exception e) {
-                    ErrorManager.getDefault().notify(e);
+                    Clearcase.LOG.log(Level.SEVERE, null, e);
                     return 0;
                 }
             }

@@ -19,7 +19,6 @@
 package org.netbeans.modules.clearcase;
 
 import org.netbeans.modules.versioning.spi.VCSInterceptor;
-import org.netbeans.modules.versioning.util.Utils;
 import org.netbeans.modules.clearcase.ui.checkout.CheckoutAction;
 
 import java.io.File;
@@ -49,7 +48,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     public boolean beforeDelete(File file) {                
         Clearcase.LOG.finer("beforeDelete " + file);        
         
-        int status = cache.getInfo(file).getStatus();
+        int status = cache.getInfo(file).getStatus(); // XXX MUST NOT call the cache from the interceptor
         // let the IDE take care for deletes of unversioned files        
         return (status & FileInformation.STATUS_VERSIONED) != 0;            
     }
@@ -67,17 +66,8 @@ public class ClearcaseInterceptor extends VCSInterceptor {
 
     @Override
     public void afterDelete(final File file) {
-        Clearcase.LOG.finer("afterDelete " + file);
-        
-        Clearcase.getInstance().getRequestProcessor().post(new Runnable() {
-            public void run() {
-                File parent = file.getParentFile(); // XXX shouldn't have the checkout cmd already refreshed the cache?
-                if(parent != null) {
-                    cache.refresh(parent, true);   
-                }                
-                cache.refresh(file, true);
-            }
-        });                
+        Clearcase.LOG.finer("afterDelete " + file);        
+        cache.refreshAsync(file);                        
     }
 
     private void checkout(File parent) {
@@ -146,12 +136,8 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     @Override
     public void afterMove(final File from, final File to) {
         Clearcase.LOG.finer("afterMove " + from + " " + to);
-        Clearcase.getInstance().getRequestProcessor().post(new Runnable() {
-            public void run() {
-               Clearcase.getInstance().getFileStatusCache().refresh(from.getParentFile(), true);
-               Clearcase.getInstance().getFileStatusCache().refresh(to.getParentFile(), true);         
-            }
-        });        
+        cache.refreshAsync(from);
+        cache.refreshAsync(to);
     }
 
     private void fileMovedImpl(File from, File to) {
@@ -198,16 +184,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     @Override
     public void afterCreate(final File file) {
         Clearcase.LOG.finer("afterCreate " + file);
-        
-        Clearcase.getInstance().getRequestProcessor().post(new Runnable() {
-            public void run() {
-                fileCreatedImpl(file);
-            }
-        });
-    }
-
-    private void fileCreatedImpl(File file) {
-       Clearcase.getInstance().getFileStatusCache().refresh(file, true);
+        cache.refreshAsync(file);                 
     }
     
     @Override
@@ -222,7 +199,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     }
 
     private void fileChangedImpl(File file) {
-        Clearcase.getInstance().getFileStatusCache().refresh(file, true);
+        cache.refreshAsync(file);
     }
 
     @Override

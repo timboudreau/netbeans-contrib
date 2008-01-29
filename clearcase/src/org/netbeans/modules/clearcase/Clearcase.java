@@ -181,15 +181,34 @@ public class Clearcase {
         // XXX
         return fileName.equals(".ccrc"); // NOI18N
     }
-        
+    
+    // XXX - this is more a short term solution. 
+    private Set<File> managedRoots = new HashSet<File>(10);
+    
     // XXX 
     //  - lsvob returns the topmost folder for dynamic views on *nix
     //  - lsview -properties -full returns some usefull info about views (snapshot dynamic etc.)
     // 
     public File getTopmostManagedParent(File file) {
-        if(file == null) {
+        
+        Clearcase.LOG.finer("getTopmostManagedParent " + file);
+        
+        if(file == null) {            
             return null;
         }
+        
+        File[] roots;
+        synchronized(managedRoots) {
+            roots = managedRoots.toArray(new File[managedRoots.size()]);
+        }
+        
+        for (File root : roots) {
+            if(Utils.isAncestorOrEqual(root, file)) {
+                Clearcase.LOG.finest("getTopmostManagedParent cached root " + root +  " for " + file);
+                return root;
+            }
+        }
+        Clearcase.LOG.finest("getTopmostManagedParent no cached root for " + file);
         
         // first check if it is a snapshot view. it's quite cheap 
         // compared to the following logic, so run it first
@@ -201,11 +220,16 @@ public class Clearcase {
             try {
                 client.exec(cmd);            
                 if(cmd.isVersioned()) {
+                    synchronized(managedRoots) {
+                        managedRoots.add(ancestor);
+                    }
+                    Clearcase.LOG.finest("getTopmostManagedParent found snapshot root " + ancestor +  " for " + file);
                     return ancestor;
                 }
             } catch (ClearcaseException ex) {
                 Clearcase.LOG.log(Level.WARNING, ex.getMessage());
             }
+            Clearcase.LOG.finest("getTopmostManagedParent snapshot ancestor " + ancestor + " for " + file + " not versioned");
             return null;
         }
         
@@ -221,14 +245,20 @@ public class Clearcase {
                     parent = file.getParentFile();                                        
                     versioned = true;
                 } else if(!versioned) {
+                    Clearcase.LOG.finest("getTopmostManagedParent no root for " + file);
                     return null;    
                 } else {
+                    synchronized(managedRoots) {
+                        managedRoots.add(file);
+                    }
+                    Clearcase.LOG.finest("getTopmostManagedParent found root " + file);
                     return file;
                 }               
             }            
         } catch (ClearcaseException ex) {
             Clearcase.LOG.log(Level.WARNING, ex.getMessage());
         }
+        Clearcase.LOG.finest("getTopmostManagedParent no root for " + file);
         return null;       
     }
 

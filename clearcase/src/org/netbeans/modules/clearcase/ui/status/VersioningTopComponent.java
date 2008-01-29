@@ -47,12 +47,12 @@ import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.openide.util.NbBundle;
 import org.openide.util.HelpCtx;
-import org.openide.ErrorManager;
-
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.io.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.versioning.spi.VCSContext;
 
 /**
@@ -220,8 +220,7 @@ public class VersioningTopComponent extends TopComponent implements Externalizab
         if (instance == null) {
             instance = (VersioningTopComponent) WindowManager.getDefault().findTopComponent(PREFERRED_ID); // NOI18N
             if (instance == null) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, new IllegalStateException(
-                    "Can not find Versioning component")); // NOI18N
+                Clearcase.LOG.log(Level.INFO, null, new IllegalStateException("Can not find Versioning component")); // NOI18N
                 instance = new VersioningTopComponent();
             }
         }

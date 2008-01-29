@@ -123,7 +123,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         boolean folderAnnotation = false;
         
         for (File file : context.getRootFiles()) {
-            FileInformation info = cache.getCachedInfo(file);
+            FileInformation info = cache.getCachedInfo(file, true);
             // XXX 
             if(info == null) {
                 return name;
@@ -168,7 +168,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         boolean isVersioned = false;
         for (Iterator i = context.getRootFiles().iterator(); i.hasNext();) {
             File file = (File) i.next();
-            if ((cache.getCachedInfo(file).getStatus() & STATUS_BADGEABLE) != 0) {  
+            if ((cache.getCachedInfo(file, true).getStatus() & STATUS_BADGEABLE) != 0) {  
                 isVersioned = true;
                 break;
             }
@@ -280,7 +280,6 @@ public class ClearcaseAnnotator extends VCSAnnotator {
                 actions.add(new IgnoreAction(ctx));
                 actions.add(new ShowPropertiesAction("Show Properties", ctx));
             }
-//            actions.add(new RemoveAction("Remove Name from Directory...", ctx));
         }
         return actions.toArray(new Action[actions.size()]);
     }    
@@ -288,7 +287,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
     private static boolean isNothingVersioned(VCSContext ctx) {
         FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
         for (File file : ctx.getFiles()) {
-            if ((cache.getCachedInfo(file).getStatus() & FileInformation.STATUS_MANAGED) != 0) return false;
+            if ((cache.getCachedInfo(file, false).getStatus() & FileInformation.STATUS_MANAGED) != 0) return false;  // XXX false?
         }
         return true;
     }

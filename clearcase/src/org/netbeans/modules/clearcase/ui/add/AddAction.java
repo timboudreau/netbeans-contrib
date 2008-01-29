@@ -59,6 +59,7 @@ import org.netbeans.modules.clearcase.ui.checkin.CheckinOptions;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
 import org.netbeans.modules.clearcase.client.MkElemCommand;
+import org.netbeans.modules.clearcase.client.NotificationListener;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.util.NbBundle;
@@ -69,12 +70,13 @@ import org.openide.util.HelpCtx;
  * 
  * @author Maros Sandor
  */
-public class AddAction extends AbstractAction {
+public class AddAction extends AbstractAction implements NotificationListener {
     
     static final String RECENT_ADD_MESSAGES = "add.messages";
 
     private final VCSContext context;
     protected final VersioningOutputManager voutput;
+    private File[] files;
 
     public AddAction(String name, VCSContext context) {
         this.context = context;
@@ -121,20 +123,21 @@ public class AddAction extends AbstractAction {
         Map<ClearcaseFileNode, CheckinOptions> filesToAdd = addTable.getAddFiles();
         
         // TODO: process options
-        List<File> files = new ArrayList<File>(); 
+        List<File> addFiles = new ArrayList<File>(); 
         for (Map.Entry<ClearcaseFileNode, CheckinOptions> entry : filesToAdd.entrySet()) {
             if (entry.getValue() != CheckinOptions.EXCLUDE_FROM_ADD) {
-                files.add(entry.getKey().getFile());
+                addFiles.add(entry.getKey().getFile());
             }
         }
         
         // sort files - parents first, to avoid unnecessary warnings
-        Collections.sort(files);
+        Collections.sort(addFiles);
 
+        files = addFiles.toArray(new File[addFiles.size()]);
         Clearcase.getInstance().getClient().post(new ExecutionUnit(
                 "Adding...",
-                new MkElemCommand(files.toArray(new File[files.size()]), message, checkInAddedFiles ? MkElemCommand.Checkout.Checkin : MkElemCommand.Checkout.Default, 
-                                    false, new OutputWindowNotificationListener())));
+                new MkElemCommand(files, message, checkInAddedFiles ? MkElemCommand.Checkout.Checkin : MkElemCommand.Checkout.Default, 
+                                    false, this, new OutputWindowNotificationListener())));
     }
 
     private ClearcaseFileNode[] computeNodes() {
@@ -145,4 +148,12 @@ public class AddAction extends AbstractAction {
         }
         return nodes.toArray(new ClearcaseFileNode[nodes.size()]);
     }
+    
+    public void commandStarted()        { /* boring */ }
+    public void outputText(String line) { /* boring */ }
+    public void errorText(String line)  { /* boring */ }
+    public void commandFinished() {       
+        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files);        
+    }    
+    
 }

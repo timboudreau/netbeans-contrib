@@ -179,9 +179,7 @@ class Cleartool {
     
     public synchronized void exec(ClearcaseCommand command) throws IOException, ClearcaseException {
         Arguments args = new Arguments();
-        command.prepareCommand(args);
-
-        Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: Executing \"" + command + "\"");
+        command.prepareCommand(args);        
         
         // read all pending output
         readAll(ctOutput);
@@ -193,12 +191,8 @@ class Cleartool {
             ctInput.println("'" + cwd.getAbsolutePath() + "'");
         }
         
-        StringBuilder cmd = new StringBuilder(100);
-        for (String arg : args) {
-            cmd.append(arg);
-            cmd.append(' ');
-        }
-        cmd.delete(cmd.length() - 1, cmd.length());
+        StringBuilder cmd = toString(args);
+        Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: Executing \"" + cmd + "\"");
         
         ctInput.println(cmd);
         if(promptFinnished) ctInput.println(MAGIC_PROMPT);
@@ -259,4 +253,15 @@ class Cleartool {
             arguments.add("quit");
         }
     };
+
+    public static StringBuilder toString(Arguments args) {
+        StringBuilder cmd = new StringBuilder(100);
+        for (String arg : args) {
+            cmd.append(arg);
+            cmd.append(' ');
+        }
+        cmd.delete(cmd.length() - 1, cmd.length());
+
+        return cmd;
+    }
 }

@@ -44,7 +44,6 @@ import org.openide.explorer.view.NodeTableModel;
 import org.openide.nodes.Node;
 import org.openide.nodes.PropertySupport;
 import org.openide.util.NbBundle;
-import org.openide.ErrorManager;
 import org.openide.windows.TopComponent;
 import org.netbeans.modules.versioning.util.TableSorter;
 import org.netbeans.modules.versioning.util.FilePathCellRenderer;
@@ -65,6 +64,8 @@ import java.awt.Component;
 import java.util.*;
 import java.lang.reflect.InvocationTargetException;
 import java.io.File;
+import java.util.logging.Level;
+import org.netbeans.modules.clearcase.Clearcase;
 
 /**
  * 
@@ -114,7 +115,7 @@ class DiffFileTable implements MouseListener, ListSelectionListener, AncestorLis
                     String s2 = (String) p2.getValue();
                     return s1.compareToIgnoreCase(s2);
                 } catch (Exception e) {
-                    ErrorManager.getDefault().notify(e);
+                    Clearcase.LOG.log(Level.SEVERE, null, e);
                     return 0;
                 }
             }
