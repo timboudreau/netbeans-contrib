@@ -27,6 +27,7 @@ import org.netbeans.modules.clearcase.ui.checkin.CheckinAction;
 import org.netbeans.modules.clearcase.ui.status.RefreshAction;
 import org.netbeans.modules.clearcase.ui.status.ShowPropertiesAction;
 import org.netbeans.modules.clearcase.ui.add.AddAction;
+import org.netbeans.modules.clearcase.ui.add.AddToRepositoryAction;
 import org.netbeans.modules.clearcase.ui.checkout.CheckoutAction;
 import org.netbeans.modules.clearcase.ui.checkout.UncheckoutAction;
 import org.netbeans.modules.clearcase.ui.update.UpdateAction;
@@ -256,28 +257,41 @@ public class ClearcaseAnnotator extends VCSAnnotator {
             actions.add(new ShowPropertiesAction("Show Properties", ctx));
 //            actions.add(new RemoveAction("Remove Name from Directory...", ctx));
         } else {
-            actions.add(new CheckoutAction("Checkout...", ctx));
-            actions.add(new UncheckoutAction("Undo Checkout", ctx));
-            actions.add(new AddAction("Add To Source Control...", ctx));
-            actions.add(null);
-            actions.add(SystemActionBridge.createAction(SystemAction.get(RefreshAction.class), "Show Changes", context));
-            actions.add(new DiffAction("Diff", ctx));
-            actions.add(new UpdateAction("Update", ctx));
-            actions.add(new MergeAction("Merge", ctx));
-            actions.add(new CheckinAction("Checkin...", ctx));
-            actions.add(null);
-            actions.add(new AnnotateAction(ctx, Clearcase.getInstance().getAnnotationsProvider(ctx)));
-            actions.add(new ViewRevisionAction("View Revision...", ctx));
-            actions.add(new TextHistoryAction("List History", ctx));
-            actions.add(new BrowseHistoryAction("Browse History", ctx));
-            actions.add(new BrowseVersionTreeAction("Browse Version Tree", ctx));
-            actions.add(null);
-            actions.add(new IgnoreAction(ctx));
-            actions.add(new ShowPropertiesAction("Show Properties", ctx));
+            boolean noneVersioned = isNothingVersioned(ctx);
+            if (noneVersioned) {
+                actions.add(new AddToRepositoryAction("Import into Clea&rcase Repository...", ctx));
+            } else {
+                actions.add(new CheckoutAction("Checkout...", ctx));
+                actions.add(new UncheckoutAction("Undo Checkout", ctx));
+                actions.add(new AddAction("Add To Source Control...", ctx));
+                actions.add(null);
+                actions.add(SystemActionBridge.createAction(SystemAction.get(RefreshAction.class), "Show Changes", context));
+                actions.add(new DiffAction("Diff", ctx));
+                actions.add(new UpdateAction("Update", ctx));
+                actions.add(new MergeAction("Merge", ctx));
+                actions.add(new CheckinAction("Checkin...", ctx));
+                actions.add(null);
+                actions.add(new AnnotateAction(ctx, Clearcase.getInstance().getAnnotationsProvider(ctx)));
+                actions.add(new ViewRevisionAction("View Revision...", ctx));
+                actions.add(new TextHistoryAction("List History", ctx));
+                actions.add(new BrowseHistoryAction("Browse History", ctx));
+                actions.add(new BrowseVersionTreeAction("Browse Version Tree", ctx));
+                actions.add(null);
+                actions.add(new IgnoreAction(ctx));
+                actions.add(new ShowPropertiesAction("Show Properties", ctx));
+            }
 //            actions.add(new RemoveAction("Remove Name from Directory...", ctx));
         }
         return actions.toArray(new Action[actions.size()]);
     }    
+    
+    private static boolean isNothingVersioned(VCSContext ctx) {
+        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
+        for (File file : ctx.getFiles()) {
+            if ((cache.getCachedInfo(file).getStatus() & FileInformation.STATUS_MANAGED) != 0) return false;
+        }
+        return true;
+    }
     
     public String annotateNameHtml(File file, FileInformation info) {
         return annotateNameHtml(file.getName(), info, file);
