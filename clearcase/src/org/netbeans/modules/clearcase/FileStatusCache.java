@@ -38,7 +38,6 @@ import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.versioning.spi.VersioningSupport;
 import org.netbeans.modules.versioning.util.ListenersSupport;
 import org.netbeans.modules.versioning.util.VersioningListener;
-import org.openide.util.Exceptions;
 import org.openide.util.RequestProcessor;
 
 /**
@@ -54,12 +53,7 @@ public class FileStatusCache {
      * The New value is a ChangedEvent object (old FileInformation object may be null)
      */
     public static final String EVENT_FILE_STATUS_CHANGED = "status.changed";
-    
-    /**
-     * A special map saying that no file inside the folder is managed.
-     */
-    private static final Map<File, FileInformation> NOT_MANAGED_MAP = new NotManagedMap();
-    
+        
     public static final FileStatus REPOSITORY_STATUS_UNKNOWN  = null;
     public static final FileStatus REPOSITORY_STATUS_FILE_ADDED = null;
     
@@ -96,7 +90,7 @@ public class FileStatusCache {
     public File [] listFiles(VCSContext context, int includeStatus) {
         Set<File> set = new HashSet<File>();        
         
-        // XXX this is crap. chcek for files from context
+        // XXX this is crap. check for files from context
         for(Entry<File, Map<File, FileInformation>> entry : statusMap.entrySet()) {
             
             Map<File, FileInformation> map = entry.getValue();    
@@ -148,7 +142,6 @@ public class FileStatusCache {
     public FileInformation getCachedInfo(final File file, boolean refreshUnknown) {
         File dir = file.getParentFile();
         
-        // XXX synchronize with refresh
         if (dir == null) {
             return FileStatusCache.FILE_INFORMATION_NOTMANAGED; // default for filesystem roots
         }                 
@@ -205,36 +198,6 @@ public class FileStatusCache {
         for(File file : dirsToRefresh) {
             refreshRecursively(file);
         }
-    }
-
-    private void fireStatusEvents(Map<File, FileInformation> newDirMap, Map<File, FileInformation> oldDirMap, boolean force) {
-        for (File file : newDirMap.keySet()) { 
-            FileInformation newInfo;
-            FileInformation oldInfo;
-            try {
-                newInfo = newDirMap.get(file.getCanonicalFile());
-                oldInfo = oldDirMap != null ? oldDirMap.get(file.getCanonicalFile()) : null;                
-                fireFileStatusChanged(file, oldInfo, newInfo, force);
-            } catch (IOException ex) {
-                Clearcase.LOG.log(Level.SEVERE, null, ex);
-            }            
-        }
-        if(oldDirMap == null) {
-            return;
-        }
-        for (File file : oldDirMap.keySet()) { 
-            FileInformation newInfo = newDirMap.get(file);
-            if(newInfo == null) {
-                FileInformation oldInfo;
-                try {
-                    oldInfo = oldDirMap.get(file.getCanonicalFile());
-                    fireFileStatusChanged(file, oldInfo, newInfo, force);    
-                } catch (IOException ex) {
-                    Clearcase.LOG.log(Level.SEVERE, null, ex);
-                }
-                                        
-            }
-        }                                        
     }
     
     /**
@@ -296,7 +259,6 @@ public class FileStatusCache {
     /**
      *
      */
-    // XXX refresh all files from the files parent, or only the file
     public FileInformation refresh(File file, boolean forceChangeEvent) { 
         
         // check if it is a managed directory structure
@@ -449,7 +411,7 @@ public class FileStatusCache {
             Clearcase.getInstance().getClient().exec(listedStatusUnit);
         } catch (ClearcaseException ex) {
             Clearcase.LOG.log(Level.SEVERE, "Exception in status command ", ex);
-            return new ArrayList<FileStatus>(); // XXX or maybe this? new FileInformation(FileInformation.STATUS_UNKNOWN, null, false);
+            return new ArrayList<FileStatus>(); // XXX
         }
         
         // 2. ... go throught the ct ls output ...
@@ -471,13 +433,13 @@ public class FileStatusCache {
                 Clearcase.getInstance().getClient().exec(lsco);    
             } catch (ClearcaseException ex) {
                 Clearcase.LOG.log(Level.SEVERE, "Exception in status command ", ex);
-                return new ArrayList<FileStatus>(); // XXX or maybe this? new FileInformation(FileInformation.STATUS_UNKNOWN, null, false); 
+                return new ArrayList<FileStatus>(); // XXX
             }
             
             List<LSCOOutput> checkouts = lsco.getOutputList();
             for(LSCOOutput c : checkouts) {        
                 ListFiles.ListOutput o = checkedout.get(c.getFile());
-                // if(o != null) {
+                // if(o != null) { XXX
                     statusValues.add(new FileStatus(o.getType(), o.getFile(), o.getOriginVersion(), o.getVersion(), o.getAnnotation(), c.isReserved()));               
                 //}
             }                
@@ -525,18 +487,12 @@ public class FileStatusCache {
         Clearcase.LOG.finer("createFileInformation " + status + " : " + info);
         return info;
         
-//        if (/** unversioned */ ) {
-//            if (!svn.isManaged(file)) {
-//                return file.isDirectory() ? FILE_INFORMATION_NOTMANAGED_DIRECTORY : FILE_INFORMATION_NOTMANAGED;
-//            }
-//            return createMissingEntryFileInformation(file, repositoryStatus);
-//        }                     
     }
     
     /**
      * Non-recursive ignore check.
      *
-     * <p>Side effect: if versioned by CC and ignered then also stores the is ignored information
+     * <p>Side effect: if versioned by CC and ignored then also stores the is ignored information
      *
      * @return true if file is listed in parent's ignore list
      * or IDE thinks it should be.
@@ -650,6 +606,36 @@ public class FileStatusCache {
 
     public void removeVersioningListener(VersioningListener listener) {
         listenerSupport.removeListener(listener);
+    }
+
+    private void fireStatusEvents(Map<File, FileInformation> newDirMap, Map<File, FileInformation> oldDirMap, boolean force) {
+        for (File file : newDirMap.keySet()) { 
+            FileInformation newInfo;
+            FileInformation oldInfo;
+            try {
+                newInfo = newDirMap.get(file.getCanonicalFile());
+                oldInfo = oldDirMap != null ? oldDirMap.get(file.getCanonicalFile()) : null;                
+                fireFileStatusChanged(file, oldInfo, newInfo, force);
+            } catch (IOException ex) {
+                Clearcase.LOG.log(Level.SEVERE, null, ex);
+            }            
+        }
+        if(oldDirMap == null) {
+            return;
+        }
+        for (File file : oldDirMap.keySet()) { 
+            FileInformation newInfo = newDirMap.get(file);
+            if(newInfo == null) {
+                FileInformation oldInfo;
+                try {
+                    oldInfo = oldDirMap.get(file.getCanonicalFile());
+                    fireFileStatusChanged(file, oldInfo, newInfo, force);    
+                } catch (IOException ex) {
+                    Clearcase.LOG.log(Level.SEVERE, null, ex);
+                }
+                                        
+            }
+        }                                        
     }
     
     private void fireFileStatusChanged(File file, FileInformation oldInfo, FileInformation newInfo, boolean force) {        
