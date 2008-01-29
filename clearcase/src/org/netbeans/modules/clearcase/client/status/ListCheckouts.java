@@ -59,12 +59,8 @@ public class ListCheckouts extends StatusExecutionUnit {
     private static String OUTPUT_DELIMITER = "<~=~>";
     private static String RESERVED = "reserved";
     
-    public ListCheckouts(File file, boolean handleChildren) {
-        
-        super(new LSCOCommand[] { new LSCOCommand(file, !handleChildren) /*handleChildren ? 
-                new LSCOCommand[] { new LSCOCommand(file, true), new LSCOCommand(file, false) } : 
-                new LSCOCommand[] { new LSCOCommand(file, true)*/ }
-        );        
+    public ListCheckouts(File file, boolean handleChildren) {        
+        super(new LSCOCommand[] { new LSCOCommand(file, !handleChildren)});        
     }        
     
     public List<LSCOOutput> getOutputList() {

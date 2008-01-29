@@ -18,6 +18,7 @@
  */
 package org.netbeans.modules.clearcase;
 
+import org.netbeans.modules.clearcase.client.ClearcaseClient;
 import org.netbeans.modules.clearcase.client.status.FileStatus;
 import org.netbeans.modules.clearcase.client.status.ListCheckouts.LSCOOutput;
 import org.openide.filesystems.FileUtil;
@@ -147,6 +148,7 @@ public class FileStatusCache {
      * @param refreshUnknown if true and no status value is stored in the cache the {@link #refresh} is called asynchronouslly
      * @return FileInformation structure containing the file status or {@link #FILE_INFORMATION_UNKNOWN} if there is no staus known yet
      * @see FileInformation 
+     * @see #refreshAsync
      */
     public FileInformation getCachedInfo(final File file, boolean refreshUnknown) {
         File dir = file.getParentFile();
@@ -195,21 +197,25 @@ public class FileStatusCache {
      * @param ctx the context to be refreshed
      */
     public void refreshRecursively(VCSContext ctx) {
-        Set<File> dirsToRefresh = new HashSet<File>();
-        for(File file : ctx.getRootFiles()) {
-            if(file.isFile()) {
-                File parent = file.getAbsoluteFile(); // XXX parent could be an unversioned directory. Be sure we can deal with it.
-                if(parent != null) {
-                    dirsToRefresh.add(parent);
-                }                
-            } else {
-                dirsToRefresh.add(file);
-            }
-        }                
-        for(File file : dirsToRefresh) {
-            refreshRecursively(file);
-        }
+        Set<File> files = ctx.getRootFiles();
+        refresh(true, files.toArray(new File[files.size()]));
     }            
+    
+    /**
+     * Asynchronously refreshes the status for the given files.
+     * Status change events will be fired to notify all registered listeners.
+     * 
+     * @param files
+     */
+    public void refreshAsync(File ...files) {
+        synchronized(filesToRefresh) {
+            for (File file : files) {
+                if(file == null) continue;
+                filesToRefresh.add(file);                
+            }
+        }
+        getFilesToRefreshTask().schedule(1000); 
+    }    
     
     // --- Package private contract ------------------------------------------
     
@@ -254,26 +260,58 @@ public class FileStatusCache {
         return status.get(0).getStatus();
     }
 
-    /**
-     * Asynchronously refreshes the status for the given files.
-     * 
-     * @param files
-     */
-    void refreshAsync(File ...files) {
-        synchronized(filesToRefresh) {
-            for (File file : files) {
-                if(file == null) continue;
-                filesToRefresh.add(file);                
-            }
-        }
-        getFilesToRefreshTask().schedule(1000); 
+    private void refresh(boolean recursivelly, File ...files) {        
+        Set<File> parents = new HashSet<File>();        
+        for (File file : files) {
+            File parent = file.getParentFile();         
+            if(recursivelly && file.isDirectory()) {
+                refreshRecursively(file);
+            } else {
+                if(!parents.contains(parent)) {
+                    // refresh the file, all its siblings and the parent (dir)
+                    refresh(file, true); 
+                    // all following kids from this files parent should be be skipped
+                    // as they were already refreshed
+                    parents.add(parent);                
+                }
+            }                                        
+        }                       
     }
-
+    
     /**
+     * Refreshes recursively all files in the given directory.
+     * @param dir
+     */
+    private void refreshRecursively(File dir) {        
+        File[] files = dir.listFiles();
+        if(files == null || files.length == 0) {
+            return;
+        }
+        boolean kidsRefreshed = false; 
+        for(File file : files) {
+            if(!kidsRefreshed) {
+                // refresh the file, all its siblings and the parent (dir)
+                refresh(file, true); 
+                // files parent directory (dir) and all it's children are refreshed
+                // so skip for the next child
+                kidsRefreshed = true; 
+               
+            } 
+            if (file.isDirectory()) {
+                refreshRecursively(file);                
+            }            
+        }
+    }        
+    
+    /**
+     * Refreshes the status value for the given file, all its siblings and its parent folder. 
+     * Status change events will be eventually thrown for the file, all its siblings and its parent folder. 
      * 
-     * @param file
-     * @param forceChangeEvent
-     * @return
+     * @param file the file to be refreshed
+     * @param forceChangeEvent if true status change event will fired even if 
+     *                         the newly retrieved status value for a file is the same as the already cached one
+     * @return FileInformation
+     * @see #ChangedEvent
      */
     private FileInformation refresh(File file, boolean forceChangeEvent) { 
         
@@ -406,73 +444,45 @@ public class FileStatusCache {
 //        return fi;
     }
     
-    /**
-     * Refreshes recursively all files in the given directory.
-     * @param dir
-     */
-    private void refreshRecursively(File dir) {        
-        File[] files = dir.listFiles();
-        if(files == null || files.length == 0) {
-            return;
-        }
-        boolean kidsRefreshed = false; // XXX HACK
-        for(File file : files) {
-            if(!kidsRefreshed) {
-                refresh(file, true);
-                kidsRefreshed = true;
-            } 
-            if (file.isDirectory()) {
-                refreshRecursively(file);                
-            }            
-        }
-    }        
-    
     private List<FileStatus> getFileStatus(File file, boolean handleChildren) {
-        // 1. list files ...
-        ListFiles listedStatusUnit;
-        if(handleChildren) {
-            listedStatusUnit = new ListFiles(new ListFiles.ListCommand[] {new ListFiles.ListCommand(file, true), new ListFiles.ListCommand(file, false) });
-        } else {
-            listedStatusUnit = new ListFiles(new ListFiles.ListCommand(file, false));
-        }
         
+        final ClearcaseClient client = Clearcase.getInstance().getClient();
+        List<FileStatus> statusValues = new ArrayList<FileStatus>();
         try {
-            Clearcase.getInstance().getClient().exec(listedStatusUnit);
+            // 1. list files ...
+            ListFiles listedStatusUnit = new ListFiles(file, handleChildren);    
+            client.exec(listedStatusUnit);
+        
+            // 2. ... go throught the ct ls output ...
+            List<ListFiles.ListOutput> listOutput = listedStatusUnit.getOutputList();            
+            Map<File, ListFiles.ListOutput> checkedout = new HashMap<File, ListFiles.ListOutput>();
+            for(ListFiles.ListOutput o : listOutput) {        
+                if(o.getVersion() != null && o.getVersion().isCheckedout()) {
+                    checkedout.put(o.getFile(), o);
+                } else {
+                    statusValues.add(new FileStatus(o.getType(), o.getFile(), o.getOriginVersion(), o.getVersion(), o.getAnnotation(), false));   
+                }
+            }        
+
+            // 3. ... list checkouts if there were checkouted files in ct ls ...
+            if(checkedout.size() > 0) {            
+                ListCheckouts lsco = new ListCheckouts(file, handleChildren);   // TODO !!!            
+
+                client.exec(lsco);    
+                
+                List<LSCOOutput> checkouts = lsco.getOutputList();
+                for(LSCOOutput c : checkouts) {        
+                    ListFiles.ListOutput o = checkedout.get(c.getFile());
+                    // if(o != null) { XXX
+                        statusValues.add(new FileStatus(o.getType(), o.getFile(), o.getOriginVersion(), o.getVersion(), o.getAnnotation(), c.isReserved()));               
+                    //}
+                }                
+            }      
+                        
         } catch (ClearcaseException ex) {
-            Clearcase.LOG.log(Level.SEVERE, "Exception in status command ", ex);
-            return new ArrayList<FileStatus>(); // XXX
+            Clearcase.LOG.log(Level.SEVERE, "Exception in status command ", ex);            
         }
-        
-        // 2. ... go throught the ct ls output ...
-        List<ListFiles.ListOutput> listOutput = listedStatusUnit.getOutputList();
-        List<FileStatus> statusValues = new ArrayList<FileStatus>(listOutput.size());
-        Map<File, ListFiles.ListOutput> checkedout = new HashMap<File, ListFiles.ListOutput>();
-        for(ListFiles.ListOutput o : listOutput) {        
-            if(o.getVersion() != null && o.getVersion().isCheckedout()) {
-                checkedout.put(o.getFile(), o);
-            } else {
-                statusValues.add(new FileStatus(o.getType(), o.getFile(), o.getOriginVersion(), o.getVersion(), o.getAnnotation(), false));   
-            }
-        }        
-        
-        if(checkedout.size() > 0) {            
-            ListCheckouts lsco = new ListCheckouts(file, handleChildren);   // TODO !!!            
-            
-            try {
-                Clearcase.getInstance().getClient().exec(lsco);    
-            } catch (ClearcaseException ex) {
-                Clearcase.LOG.log(Level.SEVERE, "Exception in status command ", ex);
-                return new ArrayList<FileStatus>(); // XXX
-            }
-            
-            List<LSCOOutput> checkouts = lsco.getOutputList();
-            for(LSCOOutput c : checkouts) {        
-                ListFiles.ListOutput o = checkedout.get(c.getFile());
-                // if(o != null) { XXX
-                    statusValues.add(new FileStatus(o.getType(), o.getFile(), o.getOriginVersion(), o.getVersion(), o.getAnnotation(), c.isReserved()));               
-                //}
-            }                
-        }      
+
         return statusValues;
     }
     
@@ -556,15 +566,8 @@ public class FileStatusCache {
                     synchronized(filesToRefresh) {
                         files = filesToRefresh.toArray(new File[filesToRefresh.size()]);
                         filesToRefresh.clear();
-                    }                           
-                    Set<File> parents = new HashSet<File>();
-                    for (File file : files) {
-                        File parent = file.getParentFile();
-                        if(!parents.contains(parent)) {
-                            refresh(file, true); 
-                            parents.add(parent);
-                        }                                                                   
-                    }               
+                    }                        
+                    refresh(false, files);
                 }
             });
         }
@@ -597,12 +600,6 @@ public class FileStatusCache {
     private boolean exists(File file) {
         if (!file.exists()) return false;
         return file.getAbsolutePath().equals(FileUtil.normalizeFile(file).getAbsolutePath());
-    }
-                
-    private static final class NotManagedMap extends AbstractMap<File, FileInformation> {
-        public Set<Entry<File, FileInformation>> entrySet() {
-            return Collections.emptySet();
-        }
     }
     
     public static class ChangedEvent {

@@ -72,7 +72,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
 
     private void checkout(File parent) {
         // check if not already checkedout
-        ListFiles listedStatus = new ListFiles(new ListFiles.ListCommand(parent, false));
+        ListFiles listedStatus = new ListFiles(parent, false);
         try {
             Clearcase.getInstance().getClient().exec(listedStatus);
         } catch (ClearcaseException ex) {
