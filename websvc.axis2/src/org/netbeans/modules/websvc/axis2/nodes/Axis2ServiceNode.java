@@ -42,14 +42,13 @@ package org.netbeans.modules.websvc.axis2.nodes;
 
 import java.io.IOException;
 import javax.swing.Action;
-//import org.apache.tools.ant.module.api.support.ActionUtils;
+import org.netbeans.modules.websvc.axis2.actions.GenerateWsdlAction;
 import org.netbeans.modules.websvc.axis2.actions.ServiceConfigurationAction;
 import org.netbeans.modules.websvc.axis2.config.model.Service;
 import org.openide.actions.DeleteAction;
 import org.openide.actions.OpenAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.cookies.EditCookie;
-//import org.openide.execution.ExecutorTask;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -115,6 +114,7 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
             SystemAction.get(OpenAction.class),
             null,
             SystemAction.get(ServiceConfigurationAction.class),
+            SystemAction.get(GenerateWsdlAction.class),
             null,
             SystemAction.get(DeleteAction.class),
             null,
