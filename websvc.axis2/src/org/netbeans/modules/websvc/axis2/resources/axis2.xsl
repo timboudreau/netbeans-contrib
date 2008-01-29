@@ -83,7 +83,13 @@ made subject to such option by the copyright holder.
                     <xsl:variable name="service_class" select="axis2:service-class"/>
                     <xsl:variable name="target_namespace" select="axis2:generate-wsdl/@targetNamespace"/>
                     <xsl:variable name="schema_namespace" select="axis2:generate-wsdl/@schemaNamespace"/>
-                    <target name="java2wsdl-{$wsname}" depends="java2wsdl-init">
+                    
+                    <target name="java2wsdl-check-{$wsname}" depends="java2wsdl-init">
+                        <condition property="java2wsdl-check-{$wsname}.notRequired">
+                            <available file="${{basedir}}/xml-resources/axis2/META-INF/{$wsname}.wsdl" type="file"/>
+                        </condition>
+                    </target>                    
+                    <target name="java2wsdl-{$wsname}" depends="java2wsdl-check-{$wsname}, compile" unless="java2wsdl-check-{$wsname}.notRequired" >
                         <java2wsdl
                             className="{$service_class}"
                             outputLocation="${{basedir}}/xml-resources/axis2/META-INF"
@@ -94,6 +100,9 @@ made subject to such option by the copyright holder.
                                 </classpath>
                         </java2wsdl>
                     </target>
+                    <target name="java2wsdl-clean-{$wsname}" depends="init" >
+                        <delete file="${{basedir}}/xml-resources/axis2/META-INF/{$wsname}.wsdl"/>
+                    </target>
                 </xsl:if>
             </xsl:for-each>
             
@@ -101,6 +110,12 @@ made subject to such option by the copyright holder.
             <xsl:if test="/axis2:axis2/axis2:service">
                 <xsl:variable name="wsname" select="/axis2:axis2/axis2:service/@name"/>
                 <target name="axis2-aar">
+                    <xsl:attribute name="depends">
+                        <xsl:for-each select="/axis2:axis2/axis2:service/axis2:generate-wsdl">
+                            <xsl:if test="position()!=1"><xsl:text>, </xsl:text></xsl:if>
+                            <xsl:text>java2wsdl-</xsl:text><xsl:value-of select="../@name"/>
+                        </xsl:for-each>
+                    </xsl:attribute>
                     <copy toDir="${{build.dir}}/classes" failonerror="false">
                         <fileset dir="${{basedir}}/xml-resources/axis2">
                             <include name="**/*.wsdl"/>
