@@ -75,7 +75,13 @@ public class ServiceImpl extends Axis2ComponentImpl implements Service {
     }
 
     public void setGenerateWsdl(GenerateWsdl value) {
-        appendChild(GENERATE_WSDL_PROP, value);
+        GenerateWsdl child = super.getChild(GenerateWsdl.class);
+        if (child != null) {
+            super.removeChild(GENERATE_WSDL_PROP, child);
+        }
+        if (value != null) {
+            appendChild(GENERATE_WSDL_PROP, value);
+        }
     }
 
     public String getNameAttr() {
