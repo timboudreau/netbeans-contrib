@@ -215,11 +215,10 @@ public class FileStatusCache {
     
     
     /**
-     * Returns 
+     * XXX now whats the difference to listFiles ?
      * @param root
      * @return
      */
-    // XXX whats the difference to listFiles ?
     Map<File, FileInformation> getAllModifiedValues(File root) {  // XXX add recursive flag
         Map<File, FileInformation> ret = new HashMap<File, FileInformation>();
         
@@ -256,6 +255,7 @@ public class FileStatusCache {
     }
 
     /**
+     * Asynchronously refreshes the status for the given files.
      * 
      * @param files
      */
