@@ -135,7 +135,7 @@ public class AxisConfigurationAction extends NodeAction  {
             if (ep != null) {
                 ep.setProperty("axis2.home",axisHome); //NOI18N
                 if (axisDeploy.length() > 0)
-                    ep.setProperty("axis2.deploy",axisDeploy); //NOI18N
+                    ep.setProperty("axis2.deploy.dir",axisDeploy); //NOI18N
             }
             AxisUtils.storeEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH, ep);
         } catch (IOException ex) {
