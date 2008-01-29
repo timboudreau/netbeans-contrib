@@ -84,31 +84,15 @@ public class FileStatusCache {
     }
     
     // --- Public interface -------------------------------------------------
-    
-//    /**
-//     * Lists <b>modified files</b> and all folders that are known to be inside
-//     * this folder. There are locally modified files present
-//     * plus any files that exist in the folder in the remote repository.
-//     *
-//     * @param dir folder to list
-//     * @return
-//     */
-//    public File [] listFiles(File dir) {
-//        Set<File> files = getScannedFiles(dir).keySet();
-//        return files.toArray(new File[files.size()]);
-//    }
-    
+
     /**
-     * Lists <b>interesting files</b> that are known to be inside given folders.
-     * Only locally and remotely modified and ignored files are returned
-     *
+     * Lists <b>interesting files</b> that are known to be inside given folders.     
      * <p>This method returns both folders and files.
      *
      * @param context context to examine
      * @param includeStatus limit returned files to those having one of supplied statuses
      * @return File [] array of interesting files
      */
-    // XXX context vs VCSContext
     public File [] listFiles(VCSContext context, int includeStatus) {
         Set<File> set = new HashSet<File>();        
         
@@ -151,44 +135,6 @@ public class FileStatusCache {
         }
         return set.toArray(new File[set.size()]);
     }
-
-    
-//    /**
-//     * Lists <b>interesting files</b> that are known to be inside given folders.
-//     * Only locally and remotely modified and ignored files are returned
-//     *
-//     * <p>Comapring to CVS this method returns both folders and files.
-//     *
-//     * @param roots context to examine
-//     * @param includeStatus limit returned files to those having one of supplied statuses
-//     * @return File [] array of interesting files
-//     */
-//    public File [] listFiles(File[] roots, int includeStatus) {
-//        Set<File> set = new HashSet<File>();
-//        Map allFiles = cacheProvider.getAllModifiedValues();
-//        for (Iterator i = allFiles.keySet().iterator(); i.hasNext();) {
-//            File file = (File) i.next();
-//            FileInformation info = (FileInformation) allFiles.get(file);
-//            if ((info.getStatus() & includeStatus) == 0) continue;
-//            for (int j = 0; j < roots.length; j++) {
-//                File root = roots[j];
-//                if (VersioningSupport.isFlat(root)) {
-//                    if (file.getParentFile().equals(root)) {
-//                        set.add(file);
-//                        break;
-//                    }
-//                } else {
-//                    if (Utils.isAncestorOrEqual(root, file)) {
-//                        set.add(file);
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//        return set.toArray(new File[set.size()]);
-//    }        
-    
-    
     
     /**
      * Returns the versionig status for a file as long it is already stored in the cache. Otherwise it returns
@@ -201,10 +147,20 @@ public class FileStatusCache {
      */
     public FileInformation getCachedInfo(final File file, boolean refreshUnknown) {
         File dir = file.getParentFile();
+        
+        // XXX synchronize with refresh
         if (dir == null) {
             return FileStatusCache.FILE_INFORMATION_NOTMANAGED; // default for filesystem roots
-        }
-                
+        }                 
+        if(!Clearcase.getInstance().isManaged(dir)) {            
+            if(!Clearcase.getInstance().isManaged(file)) {
+                // TODO what about children if dir?
+                return file.isDirectory() ? FILE_INFORMATION_NOTMANAGED_DIRECTORY : FILE_INFORMATION_NOTMANAGED;
+            }                          
+            // file seems to be the vob root
+            dir = file;            
+        }               
+        
         Map<File, FileInformation> dirMap = statusMap.get(dir); // XXX synchronize this
         FileInformation info = dirMap != null ? dirMap.get(file) : null;
         if(info == null) {
