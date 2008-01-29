@@ -152,14 +152,6 @@ public class FileStatusCache {
         if (dir == null) {
             return FileStatusCache.FILE_INFORMATION_NOTMANAGED; // default for filesystem roots
         }                 
-        if(!Clearcase.getInstance().isManaged(dir)) {            
-            if(!Clearcase.getInstance().isManaged(file)) {
-                // TODO what about children if dir?
-                return file.isDirectory() ? FILE_INFORMATION_NOTMANAGED_DIRECTORY : FILE_INFORMATION_NOTMANAGED;
-            }                          
-            // file seems to be the vob root
-            dir = file;            
-        }               
         
         Map<File, FileInformation> dirMap = statusMap.get(dir); // XXX synchronize this
         FileInformation info = dirMap != null ? dirMap.get(file) : null;
@@ -190,41 +182,7 @@ public class FileStatusCache {
             fi = refresh(file, false); 
         }
         if (fi == null) return FILE_INFORMATION_UNKNOWN;    // TODO: HOTFIX
-        return fi;
-               
-//
-//        try {
-//            List<FileStatus> fs = cmd.getStatus(file, false);    
-//        } catch (ClearcaseException ex) {
-//            Exceptions.printStackTrace(ex);
-//        }
-          //  return new FileInformation(FileInformation.STATUS_UNKNOWN, file.isDirectory());         
-// XXX HACK
-//        if (files == FileStatusCache.NOT_MANAGED_MAP) return FileStatusCache.FILE_INFORMATION_NOTMANAGED;
-//        FileInformation fi = (FileInformation) files.get(file);
-//        if (fi != null) {
-//            return fi;
-//        }
-//        if (!exists(file)) return FileStatusCache.FILE_INFORMATION_UNKNOWN;
-//        if (file.isDirectory()) {
-//            return refresh(file, FileStatus.RepositoryStatus.REPOSITORY_STATUS_UNKNOWN);
-//        } else {
-//            return new FileInformation(FileInformation.STATUS_VERSIONED_UPTODATE, false);
-//        }
-
-//        Map files = getScannedFiles(dir);
-//        if (files == FileStatusCache.NOT_MANAGED_MAP) return FileStatusCache.FILE_INFORMATION_NOTMANAGED;
-//        FileInformation fi = (FileInformation) files.get(file);
-//        if (fi != null) {
-//            return fi;
-//        }
-//        if (!exists(file)) return FileStatusCache.FILE_INFORMATION_UNKNOWN;
-//        if (file.isDirectory()) {
-//            return refresh(file, FileStatus.RepositoryStatus.REPOSITORY_STATUS_UNKNOWN);
-//        } else {
-//            return new FileInformation(FileInformation.STATUS_VERSIONED_UPTODATE, false);
-//        }
-
+        return fi;               
     }
     
     /**
@@ -258,7 +216,7 @@ public class FileStatusCache {
                 oldInfo = oldDirMap != null ? oldDirMap.get(file.getCanonicalFile()) : null;                
                 fireFileStatusChanged(file, oldInfo, newInfo, force);
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                Clearcase.LOG.log(Level.SEVERE, null, ex);
             }            
         }
         if(oldDirMap == null) {
@@ -272,7 +230,7 @@ public class FileStatusCache {
                     oldInfo = oldDirMap.get(file.getCanonicalFile());
                     fireFileStatusChanged(file, oldInfo, newInfo, force);    
                 } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
+                    Clearcase.LOG.log(Level.SEVERE, null, ex);
                 }
                                         
             }
@@ -325,11 +283,9 @@ public class FileStatusCache {
                     for (File file : files) {
                         File parent = file.getParentFile();
                         if(!parents.contains(parent)) {
-                            refresh(file, true); // false -> will be forced explicitly later       
+                            refresh(file, true); 
                             parents.add(parent);
-                        }                        
-//                        FileInformation info = getCachedInfo(file, false);
-//                        fireFileStatusChanged(file, null, info, true);                                                
+                        }                                                                   
                     }               
                 }
             });
@@ -343,37 +299,48 @@ public class FileStatusCache {
     // XXX refresh all files from the files parent, or only the file
     public FileInformation refresh(File file, boolean forceChangeEvent) { 
         
-        forceChangeEvent = true; // XXX FIX ME!
         // check if it is a managed directory structure
         File dir = file.getParentFile();
         if (dir == null) {
             return FileStatusCache.FILE_INFORMATION_NOTMANAGED; // default for filesystem roots
         }
         
-        if(!Clearcase.getInstance().isManaged(dir)) {            
-            if(!Clearcase.getInstance().isManaged(file)) {
-                // TODO what about children if dir?
-                return file.isDirectory() ? FILE_INFORMATION_NOTMANAGED_DIRECTORY : FILE_INFORMATION_NOTMANAGED;
-            }                          
-            // file seems to be the vob root
-            dir = file;            
-        }               
-        boolean isRoot = dir.equals(file);
+        if(!Clearcase.getInstance().isManaged(file)) {
+            // TODO what about children if dir?
+            return file.isDirectory() ? FILE_INFORMATION_NOTMANAGED_DIRECTORY : FILE_INFORMATION_NOTMANAGED;
+        }     
+
+        boolean isRoot;
+        List<FileStatus> statusValues;
         
-        List<FileStatus> statusValues = getFileStatus(file, !isRoot);
+        if(!Clearcase.getInstance().isManaged(dir)) {                        
+            isRoot = true;
+            // file seems to be the vob root
+            statusValues = getFileStatus(file, false);
+        } else {
+            isRoot = false;
+            statusValues = getFileStatus(dir, true);
+        }              
+                        
         if(statusValues == null || statusValues.size() == 0) {
             return FILE_INFORMATION_UNKNOWN;
         }
-        
+                
         Map<File, FileInformation> oldDirMap = statusMap.get(dir); // XXX synchronize this!
-        Map<File, FileInformation> newDirMap = new HashMap<File, FileInformation>();
-        
+        Map<File, FileInformation> newDirMap;        
+        if(!isRoot || oldDirMap == null) {
+            newDirMap = new HashMap<File, FileInformation>();            
+        } else {
+            // XXX what if vob gets deleted?
+            newDirMap = oldDirMap;
+        }
+                 
         for(FileStatus fs : statusValues) {            
             FileInformation fiNew = createFileInformation(fs, null); // XXX null for repository status!                            
             try {
                 newDirMap.put(fs.getFile().getCanonicalFile(), fiNew);            
             } catch (IOException ioe) {
-                Clearcase.LOG.log(Level.SEVERE, ioe.getMessage(), ioe);
+                Clearcase.LOG.log(Level.SEVERE, null, ioe);
             }
         }       
         
@@ -382,12 +349,11 @@ public class FileStatusCache {
         try {        
             fi = newDirMap.get(file.getCanonicalFile());            
         } catch (IOException ioe) {
-            Clearcase.LOG.log(Level.SEVERE, ioe.getMessage(), ioe);
+            Clearcase.LOG.log(Level.SEVERE, null, ioe);
         }
 
-        // assert fi != null : "NULL FileInformation for " + file; - is null when triggered by interceptor.delete()
-        if(fi == null) {            
-            // XXX HACK - may happen if there isn't the relevant entry in the newDirMap - how is that possible?!
+        if(fi == null) {                        
+            // e.g. when triggered by interceptor.delete()
             fi = FILE_INFORMATION_UNKNOWN;            
         }         
             
@@ -472,8 +438,13 @@ public class FileStatusCache {
     
     private List<FileStatus> getFileStatus(File file, boolean handleChildren) {
         // 1. list files ...
-        ListFiles listedStatusUnit = listedStatusUnit = new ListFiles(new ListFiles.ListCommand(file, handleChildren));
-
+        ListFiles listedStatusUnit;
+        if(handleChildren) {
+            listedStatusUnit = new ListFiles(new ListFiles.ListCommand[] {new ListFiles.ListCommand(file, true), new ListFiles.ListCommand(file, false) });
+        } else {
+            listedStatusUnit = new ListFiles(new ListFiles.ListCommand(file, false));
+        }
+        
         try {
             Clearcase.getInstance().getClient().exec(listedStatusUnit);
         } catch (ClearcaseException ex) {
