@@ -214,7 +214,7 @@ public class FileStatusCache {
             refreshAsync(file);
             return FILE_INFORMATION_UNKNOWN;
         } else {
-            return info;
+            return info == null ? FILE_INFORMATION_UNKNOWN : info;
         }        
     }
     
