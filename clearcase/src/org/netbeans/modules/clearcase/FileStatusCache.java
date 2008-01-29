@@ -52,10 +52,7 @@ public class FileStatusCache {
      * values if they are interested in this file.
      * The New value is a ChangedEvent object (old FileInformation object may be null)
      */
-    public static final String EVENT_FILE_STATUS_CHANGED = "status.changed";
-        
-    public static final FileStatus REPOSITORY_STATUS_UNKNOWN  = null;
-    public static final FileStatus REPOSITORY_STATUS_FILE_ADDED = null;
+    public static final String EVENT_FILE_STATUS_CHANGED = "status.changed";        
     
     // Constant FileInformation objects that can be safely reused
     // Files that have a revision number cannot share FileInformation objects
@@ -73,12 +70,23 @@ public class FileStatusCache {
     
     private RequestProcessor rp; 
     
+    private Set<File> filesToRefresh = new HashSet<File>();
+    private RequestProcessor.Task filesToRefreshTask;
+    
     FileStatusCache() {
         this.clearcase = Clearcase.getInstance();        
     }
     
     // --- Public interface -------------------------------------------------
 
+    public void addVersioningListener(VersioningListener listener) {
+        listenerSupport.addListener(listener);
+    }
+
+    public void removeVersioningListener(VersioningListener listener) {
+        listenerSupport.removeListener(listener);
+    }
+    
     /**
      * Lists <b>interesting files</b> that are known to be inside given folders.     
      * <p>This method returns both folders and files.
@@ -131,19 +139,20 @@ public class FileStatusCache {
     }
     
     /**
-     * Returns the versionig status for a file as long it is already stored in the cache. Otherwise it returns
-     * {@link #FILE_INFORMATION_UNKNOWN} and asynchronously refreshes the status for the given file. Status will 
-     * fired so all registered listenes will be notified.
+     * Returns the versionig status for a file as long it is already stored in the cache or {@link #FILE_INFORMATION_UNKNOWN}. 
+     * If refreshUnknown true and no status value is available at the moment a status refresh for the given file is triggered 
+     * asynchronously and subsequently status change events will be fired to notify all registered listeners.
      * 
      * @param file file to get status for
-     * @return FileInformation structure containing the file status or null if there is no staus known yet
+     * @param refreshUnknown if true and no status value is stored in the cache the {@link #refresh} is called asynchronouslly
+     * @return FileInformation structure containing the file status or {@link #FILE_INFORMATION_UNKNOWN} if there is no staus known yet
      * @see FileInformation 
      */
     public FileInformation getCachedInfo(final File file, boolean refreshUnknown) {
         File dir = file.getParentFile();
         
         if (dir == null) {
-            return FileStatusCache.FILE_INFORMATION_NOTMANAGED; // default for filesystem roots
+            return FILE_INFORMATION_NOTMANAGED; // default for filesystem roots
         }                 
         
         Map<File, FileInformation> dirMap = statusMap.get(dir); // XXX synchronize this
@@ -153,7 +162,7 @@ public class FileStatusCache {
                 // nothing known about the file yet, 
                 // return unknown info for now and 
                 // refresh with forced event firing
-                refreshAsync(file);                
+                refreshAsync(file); // XXX do we need a deep refresh?               
             }    
             return FILE_INFORMATION_UNKNOWN;
         } else {
@@ -165,7 +174,7 @@ public class FileStatusCache {
      * Determines the versioning status information for a file. 
      * This method synchronously accesses disk and may block for a long period of time.
      *
-     * @param file file to get the FileeInformation for
+     * @param file file to get the {@link FileInformation} for
      * @return FileInformation structure containing the file status
      * @see FileInformation
      */
@@ -180,6 +189,9 @@ public class FileStatusCache {
     
     /**
      * Refreshes recursively all files in the given context.
+     * This method synchronously accesses disk and may block for a long period of time.
+     * Status change events will be fired to notify all registered listeners.
+     * 
      * @param ctx the context to be refreshed
      */
     public void refreshRecursively(VCSContext ctx) {
@@ -193,37 +205,61 @@ public class FileStatusCache {
             } else {
                 dirsToRefresh.add(file);
             }
-        }        
-        
+        }                
         for(File file : dirsToRefresh) {
             refreshRecursively(file);
         }
+    }            
+    
+    // --- Package private contract ------------------------------------------
+    
+    
+    /**
+     * Returns 
+     * @param root
+     * @return
+     */
+    // XXX whats the difference to listFiles ?
+    Map<File, FileInformation> getAllModifiedValues(File root) {  // XXX add recursive flag
+        Map<File, FileInformation> ret = new HashMap<File, FileInformation>();
+        
+        for(File modifiedDir : statusMap.keySet()) {
+            if(Utils.isParentOrEqual(root, modifiedDir)) {                
+                Map<File, FileInformation> map = statusMap.get(modifiedDir);
+                for(File file : map.keySet()) {
+                    FileInformation info = map.get(file);
+
+                    if( (info.getStatus() & FileInformation.STATUS_LOCAL_CHANGE) != 0 ) { // XXX anything else
+                        ret.put(file, info);
+                    }                
+                }                
+            }            
+        }        
+        return ret;
     }
     
     /**
-     * Refreshes recursively all files in the given directory.
-     * @param dir
+     * This method avoids the cached status storage and returns the {@link FileStatus.ClearcaseStatus} 
+     * retrieved from a synchronous clearcase command call. 
+     * 
+     * This method synchronously accesses disk and may block for a longer period of time.
+     * 
+     * @param file the file
+     * @return {@link FileStatus.ClearcaseStatus} describing the files actuall status
      */
-    private void refreshRecursively(File dir) {        
-        File[] files = dir.listFiles();
-        if(files == null || files.length == 0) {
-            return;
+    FileStatus.ClearcaseStatus getClearcaseStatus(File file) {
+        List<FileStatus> status = getFileStatus(file, false);
+        if(status == null && status.size() == 0) {
+            return FileStatus.ClearcaseStatus.REPOSITORY_STATUS_UNKNOWN;
         }
-        boolean kidsRefreshed = false; // XXX HACK
-        for(File file : files) {
-            if(!kidsRefreshed) {
-                refresh(file, true);
-                kidsRefreshed = true;
-            } 
-            if (file.isDirectory()) {
-                refreshRecursively(file);                
-            }            
-        }
+        return status.get(0).getStatus();
     }
-    
-    private Set<File> filesToRefresh = new HashSet<File>();
-    private RequestProcessor.Task filesToRefreshTask;
-    public void refreshAsync(File ...files) {
+
+    /**
+     * 
+     * @param files
+     */
+    void refreshAsync(File ...files) {
         synchronized(filesToRefresh) {
             for (File file : files) {
                 if(file == null) continue;
@@ -232,34 +268,14 @@ public class FileStatusCache {
         }
         getFilesToRefreshTask().schedule(1000); 
     }
-            
-    private RequestProcessor.Task getFilesToRefreshTask() {
-        if(filesToRefreshTask == null) {
-            filesToRefreshTask = getRequestProcessor().create(new Runnable() {
-                public void run() {
-                    File[] files;
-                    synchronized(filesToRefresh) {
-                        files = filesToRefresh.toArray(new File[filesToRefresh.size()]);
-                        filesToRefresh.clear();
-                    }                           
-                    Set<File> parents = new HashSet<File>();
-                    for (File file : files) {
-                        File parent = file.getParentFile();
-                        if(!parents.contains(parent)) {
-                            refresh(file, true); 
-                            parents.add(parent);
-                        }                                                                   
-                    }               
-                }
-            });
-        }
-        return filesToRefreshTask;
-    }
-    
+
     /**
-     *
+     * 
+     * @param file
+     * @param forceChangeEvent
+     * @return
      */
-    public FileInformation refresh(File file, boolean forceChangeEvent) { 
+    private FileInformation refresh(File file, boolean forceChangeEvent) { 
         
         // check if it is a managed directory structure
         File dir = file.getParentFile();
@@ -390,13 +406,26 @@ public class FileStatusCache {
 //        return fi;
     }
     
-    FileStatus.ClearcaseStatus getClearcaseStatus(File file) {
-        List<FileStatus> status = getFileStatus(file, false);
-        if(status == null && status.size() == 0) {
-            return FileStatus.ClearcaseStatus.REPOSITORY_STATUS_UNKNOWN;
+    /**
+     * Refreshes recursively all files in the given directory.
+     * @param dir
+     */
+    private void refreshRecursively(File dir) {        
+        File[] files = dir.listFiles();
+        if(files == null || files.length == 0) {
+            return;
         }
-        return status.get(0).getStatus();
-    }
+        boolean kidsRefreshed = false; // XXX HACK
+        for(File file : files) {
+            if(!kidsRefreshed) {
+                refresh(file, true);
+                kidsRefreshed = true;
+            } 
+            if (file.isDirectory()) {
+                refreshRecursively(file);                
+            }            
+        }
+    }        
     
     private List<FileStatus> getFileStatus(File file, boolean handleChildren) {
         // 1. list files ...
@@ -497,7 +526,7 @@ public class FileStatusCache {
      * @return true if file is listed in parent's ignore list
      * or IDE thinks it should be.
      */
-    boolean isIgnored(final File file) {
+    private boolean isIgnored(final File file) {
         String name = file.getName();
 
         if(ClearcaseModuleConfig.isIgnored(file)) {
@@ -517,7 +546,30 @@ public class FileStatusCache {
 
             return false;
         }
-    }    
+    }            
+            
+    private RequestProcessor.Task getFilesToRefreshTask() {
+        if(filesToRefreshTask == null) {
+            filesToRefreshTask = getRequestProcessor().create(new Runnable() {
+                public void run() {
+                    File[] files;
+                    synchronized(filesToRefresh) {
+                        files = filesToRefresh.toArray(new File[filesToRefresh.size()]);
+                        filesToRefresh.clear();
+                    }                           
+                    Set<File> parents = new HashSet<File>();
+                    for (File file : files) {
+                        File parent = file.getParentFile();
+                        if(!parents.contains(parent)) {
+                            refresh(file, true); 
+                            parents.add(parent);
+                        }                                                                   
+                    }               
+                }
+            });
+        }
+        return filesToRefreshTask;
+    }   
            
 //    /**
 //     * Two FileInformation objects are equivalent if their status contants are equal AND they both reperesent a file (or
@@ -541,29 +593,7 @@ public class FileStatusCache {
 //                current != null && current.getStatus() == FileInformation.STATUS_NOTVERSIONED_NOTMANAGED) return true;
 //        return false;
 //    }
-        
-    // --- Package private contract ------------------------------------------
-        
-    Map<File, FileInformation> getAllModifiedValues(File root) {  // XXX add recursive flag
-        Map<File, FileInformation> ret = new HashMap<File, FileInformation>();
-        
-        for(File modifiedDir : statusMap.keySet()) {
-            if(Utils.isParentOrEqual(root, modifiedDir)) {                
-                Map<File, FileInformation> map = statusMap.get(modifiedDir);
-                for(File file : map.keySet()) {
-                    FileInformation info = map.get(file);
-
-                    if( (info.getStatus() & FileInformation.STATUS_LOCAL_CHANGE) != 0 ) { // XXX anything else
-                        ret.put(file, info);
-                    }                
-                }                
-            }            
-        }        
-
-        return ret;
-    }
-    
-   
+              
     private boolean exists(File file) {
         if (!file.exists()) return false;
         return file.getAbsolutePath().equals(FileUtil.normalizeFile(file).getAbsolutePath());
@@ -598,15 +628,7 @@ public class FileStatusCache {
         public FileInformation getNewInfo() {
             return newInfo;
         }
-    }
-    
-    public void addVersioningListener(VersioningListener listener) {
-        listenerSupport.addListener(listener);
-    }
-
-    public void removeVersioningListener(VersioningListener listener) {
-        listenerSupport.removeListener(listener);
-    }
+    }    
 
     private void fireStatusEvents(Map<File, FileInformation> newDirMap, Map<File, FileInformation> oldDirMap, boolean force) {
         for (File file : newDirMap.keySet()) { 
