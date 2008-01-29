@@ -199,7 +199,7 @@ public class FileStatusCache {
      * @return FileInformation structure containing the file status or null if there is no staus known yet
      * @see FileInformation 
      */
-    public FileInformation getCachedInfo(final File file, boolean forceRefresh) {
+    public FileInformation getCachedInfo(final File file, boolean refreshUnknown) {
         File dir = file.getParentFile();
         if (dir == null) {
             return FileStatusCache.FILE_INFORMATION_NOTMANAGED; // default for filesystem roots
@@ -207,11 +207,13 @@ public class FileStatusCache {
                 
         Map<File, FileInformation> dirMap = statusMap.get(dir); // XXX synchronize this
         FileInformation info = dirMap != null ? dirMap.get(file) : null;
-        if(info == null && forceRefresh) {
-            // nothing known about the file yet, 
-            // return unknown info for now and 
-            // refresh with forced event firing
-            refreshAsync(file);
+        if(info == null) {
+            if(refreshUnknown) {
+                // nothing known about the file yet, 
+                // return unknown info for now and 
+                // refresh with forced event firing
+                refreshAsync(file);                
+            }    
             return FILE_INFORMATION_UNKNOWN;
         } else {
             return info;
@@ -402,46 +404,11 @@ public class FileStatusCache {
         }               
         boolean isRoot = dir.equals(file);
         
-        // 1. list files ...
-        ListFiles listedStatusUnit = listedStatusUnit = new ListFiles(new ListFiles.ListCommand(dir, !isRoot));
-
-        try {
-            Clearcase.getInstance().getClient().exec(listedStatusUnit);
-        } catch (ClearcaseException ex) {
-            Clearcase.LOG.log(Level.SEVERE, "Exception in status command ", ex);
-            return null; // XXX or maybe this? new FileInformation(FileInformation.STATUS_UNKNOWN, null, false);
+        List<FileStatus> statusValues = getFileStatus(file, !isRoot);
+        if(statusValues == null || statusValues.size() == 0) {
+            return FILE_INFORMATION_UNKNOWN;
         }
         
-        // 2. ... go throught the ct ls output ...
-        List<ListFiles.ListOutput> listOutput = listedStatusUnit.getOutputList();
-        List<FileStatus> statusValues = new ArrayList<FileStatus>(listOutput.size());
-        Map<File, ListFiles.ListOutput> checkedout = new HashMap<File, ListFiles.ListOutput>();
-        for(ListFiles.ListOutput o : listOutput) {        
-            if(o.getVersion() != null && o.getVersion().isCheckedout()) {
-                checkedout.put(o.getFile(), o);
-            } else {
-                statusValues.add(new FileStatus(o.getType(), o.getFile(), o.getOriginVersion(), o.getVersion(), o.getAnnotation(), false));   
-            }
-        }        
-        
-        if(checkedout.size() > 0) {            
-            ListCheckouts lsco = new ListCheckouts(dir, !isRoot);   // TODO !!!            
-            
-            try {
-                Clearcase.getInstance().getClient().exec(lsco);    
-            } catch (ClearcaseException ex) {
-                Clearcase.LOG.log(Level.SEVERE, "Exception in status command ", ex);
-                return null; // XXX or maybe this? new FileInformation(FileInformation.STATUS_UNKNOWN, null, false); 
-            }
-            
-            List<LSCOOutput> checkouts = lsco.getOutputList();
-            for(LSCOOutput c : checkouts) {        
-                ListFiles.ListOutput o = checkedout.get(c.getFile());
-                // if(o != null) {
-                    statusValues.add(new FileStatus(o.getType(), o.getFile(), o.getOriginVersion(), o.getVersion(), o.getAnnotation(), c.isReserved()));               
-                //}
-            }                
-        }
         Map<File, FileInformation> oldDirMap = statusMap.get(dir); // XXX synchronize this!
         Map<File, FileInformation> newDirMap = new HashMap<File, FileInformation>();
         
@@ -537,6 +504,58 @@ public class FileStatusCache {
 //        }
 //        fireFileStatusChanged(file, current, fi);
 //        return fi;
+    }
+    
+    FileStatus.ClearcaseStatus getClearcaseStatus(File file) {
+        List<FileStatus> status = getFileStatus(file, false);
+        if(status == null && status.size() == 0) {
+            return FileStatus.ClearcaseStatus.REPOSITORY_STATUS_UNKNOWN;
+        }
+        return status.get(0).getStatus();
+    }
+    
+    private List<FileStatus> getFileStatus(File file, boolean handleChildren) {
+        // 1. list files ...
+        ListFiles listedStatusUnit = listedStatusUnit = new ListFiles(new ListFiles.ListCommand(file, handleChildren));
+
+        try {
+            Clearcase.getInstance().getClient().exec(listedStatusUnit);
+        } catch (ClearcaseException ex) {
+            Clearcase.LOG.log(Level.SEVERE, "Exception in status command ", ex);
+            return new ArrayList<FileStatus>(); // XXX or maybe this? new FileInformation(FileInformation.STATUS_UNKNOWN, null, false);
+        }
+        
+        // 2. ... go throught the ct ls output ...
+        List<ListFiles.ListOutput> listOutput = listedStatusUnit.getOutputList();
+        List<FileStatus> statusValues = new ArrayList<FileStatus>(listOutput.size());
+        Map<File, ListFiles.ListOutput> checkedout = new HashMap<File, ListFiles.ListOutput>();
+        for(ListFiles.ListOutput o : listOutput) {        
+            if(o.getVersion() != null && o.getVersion().isCheckedout()) {
+                checkedout.put(o.getFile(), o);
+            } else {
+                statusValues.add(new FileStatus(o.getType(), o.getFile(), o.getOriginVersion(), o.getVersion(), o.getAnnotation(), false));   
+            }
+        }        
+        
+        if(checkedout.size() > 0) {            
+            ListCheckouts lsco = new ListCheckouts(file, handleChildren);   // TODO !!!            
+            
+            try {
+                Clearcase.getInstance().getClient().exec(lsco);    
+            } catch (ClearcaseException ex) {
+                Clearcase.LOG.log(Level.SEVERE, "Exception in status command ", ex);
+                return new ArrayList<FileStatus>(); // XXX or maybe this? new FileInformation(FileInformation.STATUS_UNKNOWN, null, false); 
+            }
+            
+            List<LSCOOutput> checkouts = lsco.getOutputList();
+            for(LSCOOutput c : checkouts) {        
+                ListFiles.ListOutput o = checkedout.get(c.getFile());
+                // if(o != null) {
+                    statusValues.add(new FileStatus(o.getType(), o.getFile(), o.getOriginVersion(), o.getVersion(), o.getAnnotation(), c.isReserved()));               
+                //}
+            }                
+        }      
+        return statusValues;
     }
     
     /**

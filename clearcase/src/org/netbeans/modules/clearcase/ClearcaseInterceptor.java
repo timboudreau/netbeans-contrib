@@ -29,6 +29,7 @@ import org.netbeans.modules.clearcase.client.ClearcaseClient;
 import org.netbeans.modules.clearcase.client.DeleteCommand;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.MoveCommand;
+import org.netbeans.modules.clearcase.client.status.FileStatus;
 import org.netbeans.modules.clearcase.client.status.ListFiles;
 
 /**
@@ -47,10 +48,9 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     @Override
     public boolean beforeDelete(File file) {                
         Clearcase.LOG.finer("beforeDelete " + file);        
-        
-        int status = cache.getInfo(file).getStatus(); // XXX MUST NOT call the cache from the interceptor
+                
         // let the IDE take care for deletes of unversioned files        
-        return (status & FileInformation.STATUS_VERSIONED) != 0;            
+        return cache.getClearcaseStatus(file) != FileStatus.ClearcaseStatus.REPOSITORY_STATUS_VIEW_PRIVATE;            
     }
 
     @Override
@@ -122,9 +122,8 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     public boolean beforeMove(File from, File to) {
         Clearcase.LOG.finer("beforeMove " + from + " " + to);        
         
-        int fromStatus = cache.getInfo(from).getStatus();                
         // let the IDE take care for move of unversioned files        
-        return (fromStatus & FileInformation.STATUS_VERSIONED) != 0;
+        return cache.getClearcaseStatus(from) != FileStatus.ClearcaseStatus.REPOSITORY_STATUS_VIEW_PRIVATE;
     }
 
     @Override
