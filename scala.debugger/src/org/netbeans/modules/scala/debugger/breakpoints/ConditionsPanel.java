@@ -433,7 +433,7 @@ public class ConditionsPanel extends javax.swing.JPanel {
         spCondition = WatchPanel.createScrollableLineEditor(tfCondition);
         spCondition.setToolTipText(org.openide.util.NbBundle.getMessage(ConditionsPanel.class, "ConditionsPanel.spCondition.toolTipText")); // NOI18N
 
-        tfCondition.setContentType("text/x-java");
+        tfCondition.setContentType("text/x-scala");
         tfCondition.setToolTipText(org.openide.util.NbBundle.getMessage(ConditionsPanel.class, "ConditionsPanel.tfCondition.toolTipText")); // NOI18N
         spCondition.setViewportView(tfCondition);
         tfCondition.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ConditionsPanel.class, "ACSN_ConditionTF")); // NOI18N

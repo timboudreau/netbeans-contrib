@@ -114,7 +114,7 @@ public class MethodBreakpointPanel extends JPanel implements Controller, org.ope
         String className = "";
         String[] cf = b.getClassFilters ();
         className = ClassBreakpointPanel.concatClassFilters(cf);
-        tfClassName = new JEditorPane("text/x-java", className);
+        tfClassName = new JEditorPane("text/x-scala", className);
         tfClassName.getAccessibleContext().setAccessibleName(NbBundle.getMessage(MethodBreakpointPanel.class, "ACSN_Method_Breakpoint_ClassName"));
         tfClassName.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(MethodBreakpointPanel.class, "ACSD_Method_Breakpoint_ClassName"));
         jLabel3.setLabelFor(tfClassName);
