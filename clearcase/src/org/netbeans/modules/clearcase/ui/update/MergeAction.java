@@ -41,15 +41,11 @@
 package org.netbeans.modules.clearcase.ui.update;
 
 import org.netbeans.modules.versioning.spi.VCSContext;
-import org.netbeans.modules.versioning.util.Utils;
-import org.netbeans.modules.clearcase.client.MergeGraphicalCommand;
-import org.netbeans.modules.clearcase.Clearcase;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 
 /**
  * Launches external Merge tool.  
@@ -66,12 +62,14 @@ public class MergeAction extends AbstractAction {
     }
 
     public void actionPerformed(ActionEvent e) {
-        Set<File> files = ctx.getRootFiles();
-        MergeGraphicalCommand cmd = new MergeGraphicalCommand(files.toArray(new File[files.size()]));
-        try {
-            Clearcase.getInstance().getClient().execAsync(cmd);
-        } catch (IOException ex) {
-            Utils.logError(this, ex);
-        }
+        NotifyDescriptor nd = new NotifyDescriptor("Not implemeted yet!", "ClearCase", NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE, new Object[]{}, null);        
+        DialogDisplayer.getDefault().notify(nd);
+//        Set<File> files = ctx.getRootFiles();
+//        MergeGraphicalCommand cmd = new MergeGraphicalCommand(files.toArray(new File[files.size()]));
+//        try {
+//            Clearcase.getInstance().getClient().execAsync(cmd);
+//        } catch (IOException ex) {
+//            Utils.logError(this, ex);
+//        }
     }
 }
