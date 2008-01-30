@@ -58,6 +58,7 @@ made subject to such option by the copyright holder.
                         <attr name="position" intvalue="500"/>
                     </file>
                 </folder>
+                
                 <folder name="Popup">
                     <file name="org-netbeans-modules-debugger-ui-actions-DebugFileAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Debug/org-netbeans-modules-debugger-ui-actions-DebugFileAction.instance"/>
@@ -65,7 +66,7 @@ made subject to such option by the copyright holder.
                     </file>
                     
                     <file name="SeparatorAfterFormat.instance">
-			<attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="1600"/>
                     </file>
                     <file name="org-netbeans-modules-debugger-ui-actions-RunIntoMethodAction.shadow">
@@ -79,7 +80,8 @@ made subject to such option by the copyright holder.
                     <file name="org-netbeans-modules-debugger-ui-actions-AddWatchAction.instance">
                         <attr name="position" intvalue="1840"/>
                     </file>                    
-                    </folder>
+                </folder>
+                
             </folder>
         </folder>
         <!-- Editor gutter popup menu -->

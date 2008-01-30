@@ -235,7 +235,7 @@
       <SubComponents>
         <Component class="javax.swing.JEditorPane" name="tfCondition">
           <Properties>
-            <Property name="contentType" type="java.lang.String" value="text/x-java"/>
+            <Property name="contentType" type="java.lang.String" value="text/x-scala"/>
             <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
               <ResourceString bundle="org/netbeans/modules/debugger/jpda/ui/breakpoints/Bundle.properties" key="ConditionsPanel.tfCondition.toolTipText" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>

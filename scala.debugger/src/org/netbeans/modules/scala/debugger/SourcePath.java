@@ -374,7 +374,7 @@ public class SourcePath {
         int i = className.indexOf ('$');
         if (i > 0) className = className.substring (0, i);
         String sourceName = className.replace
-            ('.', '/') + ".java";
+            ('.', '/') + ".scala";
         return sourceName;
     }
 

@@ -283,8 +283,8 @@ public final class J2SEProject implements Project, AntProjectListener {
             new J2SEProjectEncodingQueryImpl (evaluator()),
             new J2SEPropertyEvaluatorImpl(evaluator()),
             new J2SETemplateAttributesProvider(this.helper),
-            ExtraSourceJavadocSupport.createExtraSourceQueryImplementation(helper, eval),
-            ExtraSourceJavadocSupport.createExtraJavadocQueryImplementation(helper, eval),
+            //ExtraSourceJavadocSupport.createExtraSourceQueryImplementation(helper, eval),
+            //ExtraSourceJavadocSupport.createExtraJavadocQueryImplementation(helper, eval),
             new BinaryForSourceQueryImpl(this.sourceRoots, this.testRoots, this.helper, this.eval) //Does not use APH to get/put properties/cfgdata
         });
         return LookupProviderSupport.createCompositeLookup(base, "Projects/org-netbeans-modules-scala-project/Lookup"); //NOI18N

@@ -89,6 +89,7 @@ made subject to such option by the copyright holder.
             <file name="Main.scala" url="Main.scala">
                 <attr name="template" boolvalue="true"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.project.ui.resources.Bundle"/>
+                <attr name="position" intvalue="100"/>
                 <!-- This is a hack to allow Erlang files to show up in Java projects as well in case you want to mix in Erlang for scripting. -->
                 <attr name="templateCategory" stringvalue="scala,java-classes"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/project/ui/resources/scalaMain.html"/>
@@ -98,11 +99,13 @@ made subject to such option by the copyright holder.
         
     </folder>
 
+    <!--
     <folder name="org-netbeans-api-project-libraries">
         <folder name="Libraries">
             <file name="CopyLibs.xml" url="CopyLibs.xml"/>
         </folder>
     </folder>
+    -->
     <folder name="Projects">
         <folder name="org-netbeans-modules-scala-project">
             <folder name="Customizer">
@@ -136,6 +139,7 @@ made subject to such option by the copyright holder.
                 </file>
                 <folder name="Application">
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.project.ui.customizer.Bundle"/>
+                    <attr name="position" intvalue="500"/>
                     <file name="Self.instance">
                         <attr name="instanceCreate" methodvalue="org.netbeans.modules.scala.project.ui.customizer.J2SECompositePanelProvider.createApplication"/>
                         <attr name="position" intvalue="0"/>
