@@ -260,6 +260,7 @@ public class FileStatusCache {
      * @param file the file
      * @return {@link FileStatus.ClearcaseStatus} describing the files actuall status
      */
+    // XXX has nothing to do with the cache
     FileStatus.ClearcaseStatus getClearcaseStatus(File file) {
         List<FileStatus> status = getFileStatus(file, false);
         if(status == null && status.size() == 0) {
