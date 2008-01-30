@@ -109,6 +109,7 @@
             </module-dependencies>
             <public-packages>
                 <package>org.netbeans.modules.scala.editing</package>
+                <package>org.netbeans.modules.scala.editing.semantic</package>
             </public-packages>
         </data>
     </configuration>

@@ -103,6 +103,16 @@ public class ScalaSemanticAnalyser {
 
     private ScalaSemanticAnalyser(Document doc) {
         this.doc = doc;
+        //initParserManagerListener
+    }
+    
+    private ScalaSemanticAnalyser(boolean forIndexing) {
+        this.doc = null;
+        this.forIndexing = forIndexing;
+    }
+
+    @Deprecated
+    private void initParserManagerListener() {
         parserManager = ParserManager.get(doc);
         parserManagerListener = new ParserManagerListener() {
 
@@ -115,11 +125,6 @@ public class ScalaSemanticAnalyser {
             }
         };
         parserManager.addListener(parserManagerListener);
-    }
-
-    private ScalaSemanticAnalyser(boolean forIndexing) {
-        this.doc = null;
-        this.forIndexing = forIndexing;
     }
 
     @Override
@@ -138,10 +143,10 @@ public class ScalaSemanticAnalyser {
         return rootCtx;
     }
 
-    public State getState() {
-        assert parserManager != null;
-        return parserManager.getState();
-    }
+//    public State getState() {
+//        assert parserManager != null;
+//        return parserManager.getState();
+//    }
 
     public static ScalaSemanticAnalyser getAnalyserForIndexing() {
         return ANALYSER_FOR_INDEXING;
@@ -175,12 +180,12 @@ public class ScalaSemanticAnalyser {
     /**
      * This is the method will be called by GLF feature as declared in Erlang.nbs:
      * AST {
-     *   process:org.netbeans.modules.languages.erlang.semantic.ScalaSemanticAnalyser.process
+     *   process:org.netbeans.modules.scala.editing.semantic.ScalaSemanticAnalyser.process
      * }
      *
      * @Notice astRoot may be changed after this feature calling? if so, the doc <--> astRoot is useless to prevent redudant parsing.
      */
-    @Deprecated public static void process(SyntaxContext syntaxContext) {
+    public static void process(SyntaxContext syntaxContext) {
         Document doc = syntaxContext.getDocument();
         ASTNode astRoot = (ASTNode) syntaxContext.getASTPath().getRoot();
         /**
@@ -222,7 +227,7 @@ public class ScalaSemanticAnalyser {
         return getAnalyser(doc).astRoot;
     }
 
-    public static ScalaContext getCurrentCtxRoot(Document doc) {
+    public static ScalaContext getCurrentRootCtx(Document doc) {
         return getAnalyser(doc).rootCtx;
     }
 
