@@ -80,7 +80,7 @@ public class FunctionRootNode extends AbstractNode {
     
     private Image mergeBadge(Image original) {
         if (isCalls) {
-            return Utilities.mergeImages(original, CallNode.callBadge, 8, 8);
+            return Utilities.mergeImages(original, CallNode.downBadge, 0, 0);
         }
         return original;
     }

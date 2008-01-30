@@ -1,20 +1,42 @@
 /*
- * The contents of this file are subject to the terms of the Common Development
- * and Distribution License (the License). You may not use this file except in
- * compliance with the License.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
- * or http://www.netbeans.org/cddl.txt.
- 
- * When distributing Covered Code, include this CDDL Header Notice in each file
- * and include the License file at http://www.netbeans.org/cddl.txt.
- * If applicable, add the following below the CDDL Header, with the fields
- * enclosed by brackets [] replaced by your own identifying information:
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ *
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
+ *
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
  */
 package org.netbeans.modules.clearcase;
 
@@ -23,7 +45,6 @@ import org.netbeans.modules.clearcase.client.status.FileStatus;
 import org.netbeans.modules.clearcase.client.status.ListCheckouts.LSCOOutput;
 import org.openide.filesystems.FileUtil;
 
-import java.io.File;
 import java.util.*;
 import java.io.File;
 import java.io.IOException;
@@ -69,7 +90,7 @@ public class FileStatusCache {
     
     private Clearcase clearcase;
     
-    private RequestProcessor rp; 
+    private RequestProcessor rp;
     
     private Set<File> filesToRefresh = new HashSet<File>();
     private RequestProcessor.Task filesToRefreshTask;
@@ -96,7 +117,7 @@ public class FileStatusCache {
      * @param includeStatus limit returned files to those having one of supplied statuses
      * @return File [] array of interesting files
      */
-    public File [] listFiles(VCSContext context, int includeStatus) {
+    public synchronized File [] listFiles(VCSContext context, int includeStatus) {
         Set<File> set = new HashSet<File>();        
         
         // XXX this is crap. check for files from context
@@ -150,30 +171,19 @@ public class FileStatusCache {
      * @see FileInformation 
      * @see #refreshAsync
      */
-    public FileInformation getCachedInfo(final File file, boolean refreshUnknown) {
+    public FileInformation getCachedInfo(final File file) {
         File dir = file.getParentFile();
         
         if (dir == null) {
             return FILE_INFORMATION_NOTMANAGED; // default for filesystem roots
         }                 
         
-        Map<File, FileInformation> dirMap = statusMap.get(dir); // XXX synchronize this
-        FileInformation info = dirMap != null ? dirMap.get(file) : null;
-        if(info == null) {
-            if(refreshUnknown) {
-                // nothing known about the file yet, 
-                // return unknown info for now and 
-                // refresh with forced event firing
-                refreshAsync(file); // XXX do we need a deep refresh?               
-            }    
-            return FILE_INFORMATION_UNKNOWN;
-        } else {
-            return info;
-        }        
+        Map<File, FileInformation> dirMap = get(dir); 
+        return dirMap != null ? dirMap.get(file) : null;
     }
     
     /**
-     * Determines the versioning status information for a file. 
+     * Determines the versioning status information for a file.
      * This method synchronously accesses disk and may block for a long period of time.
      *
      * @param file file to get the {@link FileInformation} for
@@ -181,11 +191,10 @@ public class FileStatusCache {
      * @see FileInformation
      */
     public FileInformation getInfo(File file) {      
-        FileInformation fi = getCachedInfo(file, false);
+        FileInformation fi = getCachedInfo(file);
         if(fi == null) {
             fi = refresh(file, false); 
-        }
-        if (fi == null) return FILE_INFORMATION_UNKNOWN;    // TODO: HOTFIX
+        }        
         return fi;               
     }
     
@@ -218,19 +227,18 @@ public class FileStatusCache {
     }    
     
     // --- Package private contract ------------------------------------------
-    
-    
+        
     /**
      * XXX now whats the difference to listFiles ?
      * @param root
      * @return
      */
-    Map<File, FileInformation> getAllModifiedValues(File root) {  // XXX add recursive flag
+    synchronized Map<File, FileInformation> getAllModifiedValues(File root) {  // XXX add recursive flag
         Map<File, FileInformation> ret = new HashMap<File, FileInformation>();
         
         for(File modifiedDir : statusMap.keySet()) {
             if(Utils.isParentOrEqual(root, modifiedDir)) {                
-                Map<File, FileInformation> map = statusMap.get(modifiedDir);
+                Map<File, FileInformation> map = get(modifiedDir);
                 for(File file : map.keySet()) {
                     FileInformation info = map.get(file);
 
@@ -252,6 +260,7 @@ public class FileStatusCache {
      * @param file the file
      * @return {@link FileStatus.ClearcaseStatus} describing the files actuall status
      */
+    // XXX has nothing to do with the cache
     FileStatus.ClearcaseStatus getClearcaseStatus(File file) {
         List<FileStatus> status = getFileStatus(file, false);
         if(status == null && status.size() == 0) {
@@ -259,7 +268,7 @@ public class FileStatusCache {
         }
         return status.get(0).getStatus();
     }
-
+    
     private void refresh(boolean recursivelly, File ...files) {        
         Set<File> parents = new HashSet<File>();        
         for (File file : files) {
@@ -342,7 +351,7 @@ public class FileStatusCache {
             return FILE_INFORMATION_UNKNOWN;
         }
                 
-        Map<File, FileInformation> oldDirMap = statusMap.get(dir); // XXX synchronize this!
+        Map<File, FileInformation> oldDirMap = get(dir); 
         Map<File, FileInformation> newDirMap;        
         if(!isRoot || oldDirMap == null) {
             newDirMap = new HashMap<File, FileInformation>();            
@@ -352,7 +361,7 @@ public class FileStatusCache {
         }
                  
         for(FileStatus fs : statusValues) {            
-            FileInformation fiNew = createFileInformation(fs, null); // XXX null for repository status!                            
+            FileInformation fiNew = createFileInformation(fs);
             try {
                 newDirMap.put(fs.getFile().getCanonicalFile(), fiNew);            
             } catch (IOException ioe) {
@@ -360,7 +369,7 @@ public class FileStatusCache {
             }
         }       
         
-        statusMap.put(dir, newDirMap);
+        put(dir, newDirMap);
         FileInformation fi = null;        
         try {        
             fi = newDirMap.get(file.getCanonicalFile());            
@@ -373,75 +382,8 @@ public class FileStatusCache {
             fi = FILE_INFORMATION_UNKNOWN;            
         }         
             
-        fireStatusEvents(newDirMap, oldDirMap, forceChangeEvent);        
-        
-        return fi;
-        
-        
-        //if (files == FileStatusCache.NOT_MANAGED_MAP && repositoryStatus == FileStatus.RepositoryStatus.REPOSITORY_STATUS_UNKNOWN) return FileStatusCache.FILE_INFORMATION_NOTMANAGED;
-        
-        // current cached file status info
-        
-//        // repository file status
-//        FileInformation fi = null;
-//        if(repositoryStatus == FileStatus.RepositoryStatus.REPOSITORY_STATUS_FILE_ADDED){
-//            // update file status info as up to date
-//            fi = new FileInformation(FileInformation.STATUS_VERSIONED_UPTODATE, file.isDirectory());
-//        } else if (repositoryStatus == FileStatus.RepositoryStatus.REPOSITORY_STATUS_FILE_NEW){
-//            fi = new FileInformation(FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY, file.isDirectory());
-//        } else if (repositoryStatus == FileStatus.RepositoryStatus.REPOSITORY_STATUS_FILE_MODIFIED){
-//            fi = new FileInformation(FileInformation.STATUS_VERSIONED_UPTODATE, file.isDirectory());
-//        } else if (repositoryStatus == FileStatus.RepositoryStatus.REPOSITORY_STATUS_FILE_LOCAL_MODIFIED) {
-//            // since local modified event could be fired by new file creation by interceptor
-//            // interceptor does not know if it is from new file or real file modified event
-//            // so we test here if it is from new file, do not set to local modified state
-//            fi = createFileInformation(file);
-//            // if there is not in cache, it is previously up to date file
-//            // if it is new file, the change is not the real file modification
-//            if(fi == null || fi.getStatus() != FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY)
-//                fi = new FileInformation(FileInformation.STATUS_VERSIONED_MODIFIEDLOCALLY, file.isDirectory());
-//        } else if(repositoryStatus == FileStatus.RepositoryStatus.REPOSITORY_STATUS_FILE_REMOVED){
-//            fi = new FileInformation(FileInformation.STATUS_VERSIONED_REMOVEDINREPOSITORY, file.isDirectory());
-//        } else if(repositoryStatus == FileStatus.RepositoryStatus.REPOSITORY_STATUS_FILE_REMOVED_LOCAL){
-//            fi = new FileInformation(FileInformation.STATUS_VERSIONED_REMOVEDLOCALLY, file.isDirectory());
-//        } else if(repositoryStatus == FileStatus.RepositoryStatus.REPOSITORY_STATUS_FILE_OPEN){
-//            fi = new FileInformation(FileInformation.STATUS_VERSIONED_UPTODATE, file.isDirectory());
-//        } else {
-//            fi = createFileInformation(file);
-//        }
-//        if (FileStatusCache.equivalent(fi, current)) {
-//            if (forceChangeEvent) fireFileStatusChanged(file, current, fi);
-//            return fi;
-//        }
-        
-        // do not include uptodate files into cache, missing directories must be included
-//        if (current == null && fi != null && !fi.isDirectory() && fi.getStatus() == FileInformation.STATUS_VERSIONED_UPTODATE) {
-//            if (forceChangeEvent) fireFileStatusChanged(file, current, fi);
-//            return fi;
-//        }
-        
-//        file = FileUtil.normalizeFile(file);
-//        dir = FileUtil.normalizeFile(dir);
-//        Map<File, FileInformation> newFiles = new HashMap<File, FileInformation>(files);
-//        if (fi != null && fi.getStatus() == FileInformation.STATUS_UNKNOWN) {
-//            newFiles.remove(file);
-//            turbo.writeEntry(file, FILE_STATUS_MAP, null);  // remove mapping in case of directories
-//        } else if (fi != null && fi.getStatus() == FileInformation.STATUS_VERSIONED_UPTODATE && file.isFile()) {
-//            newFiles.remove(file);
-//        } else {
-//            newFiles.put(file, fi);
-//        }
-//        assert newFiles.containsKey(dir) == false;
-//        turbo.writeEntry(dir, FILE_STATUS_MAP, newFiles.size() == 0 ? null : newFiles);
-//        
-//        if (file.isDirectory() && needRecursiveRefresh(fi, current)) {
-//            File [] content = listFiles(file);
-//            for (int i = 0; i < content.length; i++) {
-//                refresh(content[i], FileStatus.RepositoryStatus.REPOSITORY_STATUS_UNKNOWN);
-//            }
-//        }
-//        fireFileStatusChanged(file, current, fi);
-//        return fi;
+        fireStatusEvents(newDirMap, oldDirMap, forceChangeEvent);                
+        return fi;                
     }
     
     private List<FileStatus> getFileStatus(File file, boolean handleChildren) {
@@ -473,9 +415,7 @@ public class FileStatusCache {
                 List<LSCOOutput> checkouts = lsco.getOutputList();
                 for(LSCOOutput c : checkouts) {        
                     ListFiles.ListOutput o = checkedout.get(c.getFile());
-                    // if(o != null) { XXX
-                        statusValues.add(new FileStatus(o.getType(), o.getFile(), o.getOriginVersion(), o.getVersion(), o.getAnnotation(), c.isReserved()));               
-                    //}
+                    statusValues.add(new FileStatus(o.getType(), o.getFile(), o.getOriginVersion(), o.getVersion(), o.getAnnotation(), c.isReserved()));               
                 }                
             }      
                         
@@ -492,10 +432,9 @@ public class FileStatusCache {
      * @param status entry for this file or null if the file is unknown to subversion
      * @return FileInformation file/folder status bean
      */ 
-    private FileInformation createFileInformation(FileStatus status, FileStatus repositoryStatus) { // XXX get and handle repository status
+    private FileInformation createFileInformation(FileStatus status) { 
         FileInformation info;
         
-        // XXX why is this based on the repository status? WTH is the repository for? do we realy need it?
         if(status.getStatus() == FileStatus.ClearcaseStatus.REPOSITORY_STATUS_VIEW_PRIVATE) {
             if(isIgnored(status.getFile())) {
                 info = FILE_INFORMATION_IGNORED; // XXX what if file does not exists -> isDir = false;   
@@ -573,33 +512,13 @@ public class FileStatusCache {
         }
         return filesToRefreshTask;
     }   
-           
-//    /**
-//     * Two FileInformation objects are equivalent if their status contants are equal AND they both reperesent a file (or
-//     * both represent a directory) AND Entries they cache, if they can be compared, are equal.
-//     *
-//     * @param other object to compare to
-//     * @return true if status constants of both object are equal, false otherwise
-//     */
-//    private static boolean equivalent(FileInformation main, FileInformation other) {
-//        if (other == null || main.getStatus() != other.getStatus() || main.isDirectory() != other.isDirectory()) return false;
-//        
-//        FileStatus e1 = main.getStatus(null);
-//        FileStatus e2 = other.getStatus(null);
-//        return e1 == e2 || e1 == null || e2 == null || e1.equals(e2);
-//    }
-    
-//    private boolean needRecursiveRefresh(FileInformation fi, FileInformation current) {
-//        if (fi != null && fi.getStatus() == FileInformation.STATUS_NOTVERSIONED_EXCLUDED ||
-//                current != null && current.getStatus() == FileInformation.STATUS_NOTVERSIONED_EXCLUDED) return true;
-//        if (fi != null && fi.getStatus() == FileInformation.STATUS_NOTVERSIONED_NOTMANAGED ||
-//                current != null && current.getStatus() == FileInformation.STATUS_NOTVERSIONED_NOTMANAGED) return true;
-//        return false;
-//    }
-              
-    private boolean exists(File file) {
-        if (!file.exists()) return false;
-        return file.getAbsolutePath().equals(FileUtil.normalizeFile(file).getAbsolutePath());
+
+    private synchronized void put(File dir, Map<File, FileInformation> newDirMap) {
+        statusMap.put(dir, newDirMap);
+    }
+
+    private synchronized Map<File, FileInformation> get(File dir) {
+        return statusMap.get(dir);
     }
     
     public static class ChangedEvent {
