@@ -145,7 +145,8 @@ public class WsFromJavaWizardIterator implements TemplateWizard.Iterator /*, Ite
             Axis2ModelProvider axis2ModelProvider = project.getLookup().lookup(Axis2ModelProvider.class);
             Axis2Model axis2Model = axis2ModelProvider.getAxis2Model();
             if (axis2Model != null) {
-                WizardUtils.addService(axis2Model, serviceClass, serviceFo);
+                WizardUtils.addService(axis2Model, serviceClass, serviceFo, 
+                        ((Boolean)wiz.getProperty(WizardProperties.PROP_GENERATE_WSDL)).booleanValue());
                 DataObject dObj = DataObject.find(axis2Fo);
                 if (dObj != null) {
                     SaveCookie save = dObj.getCookie(SaveCookie.class);

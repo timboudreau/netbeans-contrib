@@ -40,22 +40,25 @@
  */
 package org.netbeans.modules.websvc.axis2.actions;
 
+import java.io.IOException;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.websvc.axis2.AxisUtils;
 import org.netbeans.modules.websvc.axis2.config.model.Service;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.cookies.EditCookie;
 import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.nodes.Node;
 import org.openide.util.actions.NodeAction;
 
-public class GenerateWsdlAction extends NodeAction  {
+public class EditWsdlAction extends NodeAction  {
     
     public String getName() {
-        return NbBundle.getMessage(GenerateWsdlAction.class, "LBL_GenerateWsdlAction");
+        return NbBundle.getMessage(ServiceConfigurationAction.class, "LBL_EditWsdlAction");
     }
     
     public HelpCtx getHelpCtx() {
@@ -75,27 +78,29 @@ public class GenerateWsdlAction extends NodeAction  {
     }
     
     protected void performAction(Node[] activatedNodes) {
-        boolean wsdlAlreadyExists = false;
-
         Service service = activatedNodes[0].getLookup().lookup(Service.class);
         FileObject srcRoot = activatedNodes[0].getLookup().lookup(FileObject.class);
         Project prj = FileOwnerQuery.getOwner(srcRoot);
         FileObject projectDir = prj.getProjectDirectory();
         String serviceName = service.getNameAttr();
-        if (projectDir.getFileObject("xml-resources/axis2/META-INF/"+serviceName+".wsdl") != null) { //NOI18N
-            wsdlAlreadyExists = true;
-        }
-        if (wsdlAlreadyExists) {
-            String message = NbBundle.getMessage(GenerateWsdlAction.class, "TXT_ConfirmWsdlReplace", serviceName);
-            NotifyDescriptor dialog = new NotifyDescriptor.Confirmation(message, NotifyDescriptor.YES_NO_OPTION);
-            DialogDisplayer.getDefault().notify(dialog);
-            if (dialog.getValue() == NotifyDescriptor.YES_OPTION) {
-                AxisUtils.runTargets(projectDir, new String[]{"java2wsdl-clean-"+serviceName,"java2wsdl-"+serviceName }); //NOI18N
+        FileObject wsdlFo = projectDir.getFileObject("xml-resources/axis2/META-INF/"+serviceName+".wsdl"); //NOI18N
+        if (wsdlFo != null) {
+            try {
+                DataObject dObj = DataObject.find(wsdlFo);
+                if (dObj!=null) {
+                    EditCookie ec = dObj.getCookie(EditCookie.class);
+                    if (ec != null) {
+                        ec.edit();
+                    }
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
         } else {
-            AxisUtils.runTargets(projectDir, new String[]{"java2wsdl-"+serviceName }); //NOI18N
+            String message = NbBundle.getMessage(EditWsdlAction.class, "TXT_WsdlNotGenerated");
+            NotifyDescriptor dialog = new NotifyDescriptor.Message(message);
+            DialogDisplayer.getDefault().notify(dialog);
         }
     }
 
 }
-
