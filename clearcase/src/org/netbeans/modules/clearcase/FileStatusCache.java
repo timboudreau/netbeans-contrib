@@ -45,7 +45,6 @@ import org.netbeans.modules.clearcase.client.status.FileStatus;
 import org.netbeans.modules.clearcase.client.status.ListCheckouts.LSCOOutput;
 import org.openide.filesystems.FileUtil;
 
-import java.io.File;
 import java.util.*;
 import java.io.File;
 import java.io.IOException;
