@@ -372,7 +372,7 @@ public class FileStatusCache {
         put(dir, newDirMap);
         FileInformation fi = null;        
         try {        
-            fi = newDirMap.get(file.getCanonicalFile());            
+            fi = newDirMap.get(file.getCanonicalFile());
         } catch (IOException ioe) {
             Clearcase.LOG.log(Level.SEVERE, null, ioe);
         }

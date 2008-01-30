@@ -70,9 +70,8 @@ public class ListFiles extends StatusExecutionUnit {
     private static Pattern checkedoutPattern = Pattern.compile("(.*?\\" + File.separator + "CHECKEDOUT)( +from +(.+?))?");
 
     public ListFiles(File file, boolean handleChildren) {
-        super(handleChildren ? 
-                new ListFiles.ListCommand[] { new ListFiles.ListCommand(file, true), new ListFiles.ListCommand(file, false) } : 
-                new ListFiles.ListCommand[] { new ListFiles.ListCommand(file, false) });        
+        super(new ListFiles.ListCommand(file, handleChildren)); 
+                
     }
 
     public List<ListOutput> getOutputList() {
