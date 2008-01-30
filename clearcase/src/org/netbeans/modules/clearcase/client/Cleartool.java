@@ -53,6 +53,12 @@ import java.io.*;
 class Cleartool {
     
     private static final String MAGIC_PROMPT = "i-am-finished-with-previous-command-sir";
+
+    /**
+     * Default timeout between two output (or error) messages from a cleartool command.
+     */
+    private static final int DEFAULT_TIMEOUT_MS = 30000;
+    
     private boolean promptFinnished = true;
    
     private final Process           ct;
@@ -202,6 +208,10 @@ class Cleartool {
         
         boolean isError = false;
         command.commandStarted();
+
+        long timeout = DEFAULT_TIMEOUT_MS;
+        long t0 = System.currentTimeMillis();
+        
         for (;;) {
             if (isStreamReady(ctError)) {
                 String line = ctError.readLine();
@@ -209,6 +219,7 @@ class Cleartool {
                 if (line.contains(MAGIC_PROMPT)) break;
                 isError = true;
                 command.errorText(line);
+                t0 = System.currentTimeMillis();
             } else {
                 // if there was an error and the error stream is no longer readable, return this error
                 if (isError) {
@@ -223,10 +234,20 @@ class Cleartool {
                     }
                     break;
                 }
+                if (notifyOutput(command)) {
+                    t0 = System.currentTimeMillis();
+                } else {
+                    try {
+                        // make sure the for(;;) cycle doesn't loop with no delay in between isStreamReady() calls
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        break;
+                    }
+                }
             }
-            notifyOutput(ctOutput, command);
+            if (System.currentTimeMillis() > t0 + timeout) throw new IOException("Cleartool: Command " + command + " timed out");
         }
-        notifyOutput(ctOutput, command);
+        notifyOutput(command);
         command.commandFinished();
     }
 
@@ -236,11 +257,18 @@ class Cleartool {
         return reader.ready();
     }
 
-    private void notifyOutput(BufferedReader r, ClearcaseCommand command) throws IOException {
-        while (isStreamReady(r)) {
-            String line = r.readLine();
-            command.outputText(line);
+    /**
+     * @param listener listener for outputText() events
+     * @return true if there were bytes available and read from the stream, false otherwise 
+     */
+    private boolean notifyOutput(NotificationListener listener) throws IOException {
+        boolean streamRead = false;
+        while (isStreamReady(ctOutput)) {
+            streamRead = true;
+            String line = ctOutput.readLine();
+            listener.outputText(line);
         }
+        return streamRead;
     }
 
     private void readAll(BufferedReader in) throws IOException {
