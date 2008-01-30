@@ -209,7 +209,7 @@ public class Axis2LookupProvider implements LookupProvider {
         if (extension==null) {
             extension = antExtender.addExtension(AXIS2_EXTENSION, axis2_build);
             //adding dependencies
-            extension.addDependency("jar", "axis2-deploy"); //NOI18N
+            extension.addDependency("jar", "axis2-aar"); //NOI18N
             ProjectManager.getDefault().saveProject(prj);
         }
     }
