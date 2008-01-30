@@ -171,7 +171,7 @@ public class FileStatusCache {
      * @see FileInformation 
      * @see #refreshAsync
      */
-    public FileInformation getCachedInfo(final File file, boolean refreshUnknown) {
+    public FileInformation getCachedInfo(final File file) {
         File dir = file.getParentFile();
         
         if (dir == null) {
@@ -179,18 +179,7 @@ public class FileStatusCache {
         }                 
         
         Map<File, FileInformation> dirMap = statusMap.get(dir); // XXX synchronize this
-        FileInformation info = dirMap != null ? dirMap.get(file) : null;
-        if(info == null) {
-            if(refreshUnknown) {
-                // nothing known about the file yet, 
-                // return unknown info for now and 
-                // refresh with forced event firing
-                refreshAsync(file); // XXX do we need a deep refresh?               
-            }    
-            return FILE_INFORMATION_UNKNOWN;
-        } else {
-            return info;
-        }        
+        return dirMap != null ? dirMap.get(file) : null;
     }
     
     /**
@@ -202,11 +191,10 @@ public class FileStatusCache {
      * @see FileInformation
      */
     public FileInformation getInfo(File file) {      
-        FileInformation fi = getCachedInfo(file, false);
+        FileInformation fi = getCachedInfo(file);
         if(fi == null) {
             fi = refresh(file, false); 
-        }
-        if (fi == null) return FILE_INFORMATION_UNKNOWN;    // TODO: HOTFIX
+        }        
         return fi;               
     }
     
@@ -239,8 +227,7 @@ public class FileStatusCache {
     }    
     
     // --- Package private contract ------------------------------------------
-    
-    
+        
     /**
      * XXX now whats the difference to listFiles ?
      * @param root
