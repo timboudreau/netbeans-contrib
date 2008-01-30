@@ -111,7 +111,7 @@ made subject to such option by the copyright holder.
                 <xsl:variable name="wsname" select="/axis2:axis2/axis2:service/@name"/>
                 <target name="axis2-aar">
                     <xsl:attribute name="depends">
-                        <xsl:text>init</xsl:text>
+                        <xsl:text>compile</xsl:text>
                         <xsl:for-each select="/axis2:axis2/axis2:service/axis2:generate-wsdl">
                             <xsl:text>, java2wsdl-</xsl:text><xsl:value-of select="../@name"/>
                         </xsl:for-each>
