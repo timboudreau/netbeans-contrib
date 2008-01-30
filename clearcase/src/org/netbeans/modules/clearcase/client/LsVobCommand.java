@@ -40,67 +40,35 @@
  */
 package org.netbeans.modules.clearcase.client;
 
-import org.netbeans.modules.versioning.util.Utils;
+import org.netbeans.modules.clearcase.ClearcaseException;
 
-import java.io.File;
+import java.util.*;
 
 /**
- * Base class for commands that operate on set of files.
+ * Simple "lsvob" command.
  * 
  * @author Maros Sandor
  */
-public abstract class FilesCommand extends ClearcaseCommand {
+public class LsVobCommand extends ClearcaseCommand {
+
+    private final List<String> vobs = new ArrayList<String>(5);
     
-    protected final File [] files;
-
-    protected FilesCommand(File[] files) {
-        super();
-        this.files = files;
-        commandWorkingDirectory = computeClosestCommonAncestor();
+    public void prepareCommand(Arguments arguments) throws ClearcaseException {
+        arguments.add("lsvob");
+        arguments.add("-short");
     }
 
-    protected FilesCommand(File[] files, NotificationListener... listeners) {
-        super(listeners);
-        this.files = files;
-        commandWorkingDirectory = computeClosestCommonAncestor();
+    public void commandStarted() {
+        super.commandStarted();
+        vobs.clear();
     }
 
-    protected String[] computeRelativePaths() {
-        String commonPath = commandWorkingDirectory.getAbsolutePath();
-        int commonPathLength = commonPath.length() + 1;
-        String [] paths = new String[files.length];
-        for (int i = 0; i < files.length; i++) {
-            paths[i] = files[i].getAbsolutePath().substring(commonPathLength);
-        }
-        return paths;
+    public void outputText(String line) {
+        super.outputText(line);
+        vobs.add(line);
     }
 
-    protected final void addFileArguments(Arguments arguments) {
-        String [] paths = computeRelativePaths();
-        for (String path : paths) {
-            arguments.add(path);
-        }
+    public List<String> getVobs() {
+        return vobs;
     }
-    
-    public File [] getContext() {
-        return files;
-    }
-    
-    private File computeClosestCommonAncestor() {
-        if (files.length == 0) return null;
-        File cca = files[0].getParentFile();
-        for (File file : files) {
-            file = file.getParentFile();
-            if (Utils.isAncestorOrEqual(cca, file)) continue;
-            if (Utils.isAncestorOrEqual(file, cca)) {
-                cca = file;
-                continue;
-            }
-            do {
-               cca = cca.getParentFile(); 
-            } while(!Utils.isAncestorOrEqual(cca, file));            
-        }
-        return cca;
-    }
-
 }

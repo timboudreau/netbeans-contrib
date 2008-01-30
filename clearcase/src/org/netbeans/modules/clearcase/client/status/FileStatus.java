@@ -181,17 +181,18 @@ public class FileStatus {
             sb.append(",");
             sb.append(type);
             sb.append(",");
-            sb.append(originVersion.getPath());
             if(version != null) {
                 sb.append(",");
                 sb.append(version.getPath());
                 sb.append(File.pathSeparator);
                 sb.append(version.getVersionNumber());
             }              
-            if(originVersion.getVersionNumber() != FileVersionSelector.CHECKEDOUT_VERSION) {
+            if(originVersion != null) {
+                sb.append(",");
+                sb.append(originVersion.getPath());
                 sb.append(File.pathSeparator);
                 sb.append(originVersion.getVersionNumber());
-            }                      
+            }                        
             if(modified) {
                 sb.append(",modified");
             }            

@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -38,69 +38,22 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.clearcase.client;
 
-import org.netbeans.modules.versioning.util.Utils;
+package org.netbeans.modules.clearcase.ui.selectors;
 
-import java.io.File;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 
 /**
- * Base class for commands that operate on set of files.
- * 
- * @author Maros Sandor
+ * Subclassed to get custom icon.
+ *
+ * @author Petr Kuzel
  */
-public abstract class FilesCommand extends ClearcaseCommand {
-    
-    protected final File [] files;
+final class WaitNode extends AbstractNode {
 
-    protected FilesCommand(File[] files) {
-        super();
-        this.files = files;
-        commandWorkingDirectory = computeClosestCommonAncestor();
+    public WaitNode(String name) {
+        super(Children.LEAF);
+        setDisplayName(name);
+        setIconBaseWithExtension("org/netbeans/modules/clearcase/ui/selectors/wait.gif");  // NOI18N
     }
-
-    protected FilesCommand(File[] files, NotificationListener... listeners) {
-        super(listeners);
-        this.files = files;
-        commandWorkingDirectory = computeClosestCommonAncestor();
-    }
-
-    protected String[] computeRelativePaths() {
-        String commonPath = commandWorkingDirectory.getAbsolutePath();
-        int commonPathLength = commonPath.length() + 1;
-        String [] paths = new String[files.length];
-        for (int i = 0; i < files.length; i++) {
-            paths[i] = files[i].getAbsolutePath().substring(commonPathLength);
-        }
-        return paths;
-    }
-
-    protected final void addFileArguments(Arguments arguments) {
-        String [] paths = computeRelativePaths();
-        for (String path : paths) {
-            arguments.add(path);
-        }
-    }
-    
-    public File [] getContext() {
-        return files;
-    }
-    
-    private File computeClosestCommonAncestor() {
-        if (files.length == 0) return null;
-        File cca = files[0].getParentFile();
-        for (File file : files) {
-            file = file.getParentFile();
-            if (Utils.isAncestorOrEqual(cca, file)) continue;
-            if (Utils.isAncestorOrEqual(file, cca)) {
-                cca = file;
-                continue;
-            }
-            do {
-               cca = cca.getParentFile(); 
-            } while(!Utils.isAncestorOrEqual(cca, file));            
-        }
-        return cca;
-    }
-
 }

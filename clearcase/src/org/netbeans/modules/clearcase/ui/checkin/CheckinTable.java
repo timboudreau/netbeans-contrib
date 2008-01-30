@@ -228,11 +228,6 @@ class CheckinTable implements AncestorListener, TableModelListener {
                 CheckinOptions.EXCLUDE
             };
 
-        private final Object[] removeOptions = new Object [] {
-                CheckinOptions.COMMIT_REMOVE,
-                CheckinOptions.EXCLUDE
-            };
-
         public CommitOptionsCellEditor() {
             super(new JComboBox());
         }
@@ -241,11 +236,8 @@ class CheckinTable implements AncestorListener, TableModelListener {
             FileInformation info = tableModel.getNode(sorter.modelIndex(row)).getInformation();
             int fileStatus = info.getStatus();
             JComboBox combo = (JComboBox) editorComponent;
-            if (false) {
-//            if (fileStatus == FileInformation.STATUS_VERSIONED_DELETEDLOCALLY || fileStatus == FileInformation.STATUS_VERSIONED_REMOVEDLOCALLY) {
-//                combo.setModel(new DefaultComboBoxModel(removeOptions));
-            } else if (false) {
-//            } else if ((fileStatus & FileInformation.STATUS_IN_REPOSITORY) == 0) {
+
+            if (fileStatus == FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY) {
                 if (info.isDirectory()) {
                     combo.setModel(new DefaultComboBoxModel(dirAddOptions));
                 } else {

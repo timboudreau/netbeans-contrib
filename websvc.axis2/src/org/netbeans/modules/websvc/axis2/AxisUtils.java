@@ -49,11 +49,16 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.xml.xam.ModelSource;
 import org.netbeans.spi.project.support.ant.EditableProperties;
+import org.netbeans.spi.project.support.ant.GeneratedFilesHelper;
 import org.openide.cookies.EditorCookie;
+import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
@@ -256,6 +261,21 @@ public class AxisUtils {
             });
         } catch (MutexException ex) {
         }
+    }
+    
+    public static void runTargets(FileObject projectDir, final String[] targets) {
+        final FileObject buildImplFo = projectDir.getFileObject(GeneratedFilesHelper.BUILD_IMPL_XML_PATH);
+        try {
+            ProjectManager.mutex().readAccess(new Mutex.ExceptionAction<Boolean>() {
+                public Boolean run() throws IOException {
+                    ExecutorTask wsimportTask =
+                            ActionUtils.runTarget(buildImplFo,targets,null); //NOI18N
+                    return Boolean.TRUE;
+                }
+            }).booleanValue();
+        } catch (MutexException e) {
+            Logger.getLogger(AxisUtils.class.getName()).log(Level.FINE, "AxisUtils.runTargets", e);
+        }       
     }
     
 }

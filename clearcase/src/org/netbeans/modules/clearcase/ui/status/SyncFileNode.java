@@ -53,6 +53,7 @@ import org.openide.loaders.DataObjectNotFoundException;
 import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
 import java.io.File;
+import java.util.logging.Level;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
@@ -177,7 +178,7 @@ public class SyncFileNode extends AbstractNode {
             try {
                 return getValue().toString();
             } catch (Exception e) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                Clearcase.LOG.log(Level.INFO, null,e);
                 return e.getLocalizedMessage();
             }
         }

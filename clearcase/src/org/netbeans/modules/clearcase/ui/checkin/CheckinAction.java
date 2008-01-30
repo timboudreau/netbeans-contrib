@@ -52,6 +52,7 @@ import java.io.File;
 import java.util.*;
 
 import org.netbeans.modules.clearcase.*;
+import org.netbeans.modules.clearcase.ui.add.AddAction;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
 import org.netbeans.modules.clearcase.client.CheckinCommand;
@@ -76,7 +77,7 @@ public class CheckinAction extends AbstractAction implements NotificationListene
             FileInformation.STATUS_VERSIONED_CHECKEDOUT_UNRESERVED | 
             FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY;
     
-    private ArrayList<File> files;
+    private File[] files;
     
     public CheckinAction(String name, VCSContext context) {
         this.context = context;
@@ -127,19 +128,21 @@ public class CheckinAction extends AbstractAction implements NotificationListene
         boolean forceUnmodified = panel.cbForceUnmodified.isSelected();
         boolean preserveTime = panel.cbPreserveTime.isSelected();
 
-        Map<ClearcaseFileNode, CheckinOptions> filesToAdd = checkinTable.getAddFiles();
+        Map<ClearcaseFileNode, CheckinOptions> filesToCheckin = checkinTable.getAddFiles();
+
+        AddAction.addFiles(message, false, filesToCheckin);
         
         // TODO: process options
-        files = new ArrayList<File>(); 
-        for (Map.Entry<ClearcaseFileNode, CheckinOptions> entry : filesToAdd.entrySet()) {
+        List<File> ciFiles = new ArrayList<File>(); 
+        for (Map.Entry<ClearcaseFileNode, CheckinOptions> entry : filesToCheckin.entrySet()) {
             if (entry.getValue() != CheckinOptions.EXCLUDE) {
-                files.add(entry.getKey().getFile());
+                ciFiles.add(entry.getKey().getFile());
             }
         }
-        
+        files = ciFiles.toArray(new File[ciFiles.size()]);
         Clearcase.getInstance().getClient().post(new ExecutionUnit(
                 "Checking in...",
-                new CheckinCommand(files.toArray(new File[files.size()]), message, forceUnmodified, 
+                new CheckinCommand(files, message, forceUnmodified, 
                                     preserveTime, new OutputWindowNotificationListener(), this)));
     }
 
@@ -155,8 +158,7 @@ public class CheckinAction extends AbstractAction implements NotificationListene
     public void commandStarted()        { /* boring */ }
     public void outputText(String line) { /* boring */ }
     public void errorText(String line)  { /* boring */ }
-    public void commandFinished() {       
-        File[] fileArray = files.toArray(new File[files.size()]);
-        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(fileArray);        
+    public void commandFinished() {               
+        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files);        
     }    
 }

@@ -45,12 +45,12 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.PropertySupport;
 import org.openide.util.lookup.Lookups;
-import org.openide.ErrorManager;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.Clearcase;
 
 import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
 
 /**
  * Visible in the Search History Diff view.
@@ -123,7 +123,7 @@ class DiffNode extends AbstractNode {
             try {
                 return getValue().toString();
             } catch (Exception e) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                Clearcase.LOG.log(Level.INFO, null, e);
                 return e.getLocalizedMessage();
             }
         }

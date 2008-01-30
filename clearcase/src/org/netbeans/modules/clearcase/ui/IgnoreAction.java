@@ -51,7 +51,6 @@ import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.FileStatusCache;
 import org.netbeans.modules.clearcase.util.Utils;
-import org.openide.filesystems.FileUtil;
 
 /**
  * @author Maros Sandor
@@ -71,20 +70,21 @@ public class IgnoreAction extends AbstractAction {
     }
     
     public void actionPerformed(ActionEvent e) {
-        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();        
         Set<File> roots = context.getRootFiles();
         if(roots.size() == 0 ) {
             return;
         }
-        for (File file : roots) {
-            if (ClearcaseModuleConfig.isIgnored(file)) {
-                ClearcaseModuleConfig.setUnignored(file);
-            } else {
-                ClearcaseModuleConfig.setIgnored(file);
+        try {
+            for (File file : roots) {
+                if (ClearcaseModuleConfig.isIgnored(file)) {
+                    ClearcaseModuleConfig.setUnignored(file);
+                } else {
+                    ClearcaseModuleConfig.setIgnored(file);
+                }                
             }    
-            Clearcase.getInstance().getFileStatusCache().refresh(file, false);
-        }                                
-        Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]));        
+        } finally {
+            Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]));            
+        }        
     }
 
     private static String getNameFromContext(VCSContext context) {

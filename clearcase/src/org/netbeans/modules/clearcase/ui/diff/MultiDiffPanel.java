@@ -52,11 +52,8 @@ import org.netbeans.modules.clearcase.FileStatusCache;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.api.diff.DiffController;
 import org.netbeans.api.diff.StreamSource;
-import org.netbeans.api.diff.Difference;
-import org.netbeans.spi.diff.DiffProvider;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
-import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 import org.openide.awt.UndoRedo;
 import org.openide.windows.TopComponent;
@@ -67,7 +64,6 @@ import org.openide.nodes.Children;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.LifecycleManager;
-import org.openide.ErrorManager;
 
 import javax.swing.*;
 import java.io.*;
@@ -78,6 +74,7 @@ import java.util.*;
 import java.util.List;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.util.logging.Level;
 
 /**
  *
@@ -639,7 +636,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
                         }
                     });
                 } catch (IOException e) {
-                    ErrorManager.getDefault().notify(e);
+                    Clearcase.LOG.log(Level.SEVERE, null, e);
                 }
             }
         }
@@ -904,7 +901,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
                 try {
                     return new InputStreamReader(new ByteArrayInputStream(value), "utf8");  // NOI18N
                 } catch (UnsupportedEncodingException ex) {
-                    ErrorManager.getDefault().notify(ex);
+                    Clearcase.LOG.log(Level.SEVERE, null, ex);
                     return new StringReader("[ERROR: " + ex.getLocalizedMessage() + "]"); // NOI18N
                 }
             }

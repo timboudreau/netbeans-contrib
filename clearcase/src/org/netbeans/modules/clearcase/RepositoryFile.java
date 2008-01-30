@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -38,69 +38,60 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.clearcase.client;
-
-import org.netbeans.modules.versioning.util.Utils;
-
-import java.io.File;
+package org.netbeans.modules.clearcase;
 
 /**
- * Base class for commands that operate on set of files.
- * 
- * @author Maros Sandor
+ *
+ * @author Ramin Moazeni
  */
-public abstract class FilesCommand extends ClearcaseCommand {
+public class RepositoryFile {
+
+    public static final String[] ROOT_FOLDER_PATH = new String[0];
+
+    private final String repositoryUrl;
+    private String fileUrl;
+    private String[] pathSegments;
+    private String path;    
+    private boolean repositoryRoot;
+
+    private String name;
     
-    protected final File [] files;
-
-    protected FilesCommand(File[] files) {
-        super();
-        this.files = files;
-        commandWorkingDirectory = computeClosestCommonAncestor();
+    public RepositoryFile(String repositoryUrl) {
+        assert repositoryUrl != null;        
+        
+        this.repositoryUrl = repositoryUrl;
+        repositoryRoot = true;
+    }   
+   
+    public String getRepositoryUrl() {
+        return repositoryUrl;
     }
 
-    protected FilesCommand(File[] files, NotificationListener... listeners) {
-        super(listeners);
-        this.files = files;
-        commandWorkingDirectory = computeClosestCommonAncestor();
-    }
-
-    protected String[] computeRelativePaths() {
-        String commonPath = commandWorkingDirectory.getAbsolutePath();
-        int commonPathLength = commonPath.length() + 1;
-        String [] paths = new String[files.length];
-        for (int i = 0; i < files.length; i++) {
-            paths[i] = files[i].getAbsolutePath().substring(commonPathLength);
+    public String getFileUrl() {
+        if(isRepositoryRoot()) {
+            return getRepositoryUrl();
         }
-        return paths;
+        return fileUrl;
     }
 
-    protected final void addFileArguments(Arguments arguments) {
-        String [] paths = computeRelativePaths();
-        for (String path : paths) {
-            arguments.add(path);
-        }
+    public String[] getPathSegments() {
+        if(isRepositoryRoot()) {
+            return ROOT_FOLDER_PATH;
+        }        
+        return pathSegments;
+    }
+
+    public String getPath() {
+        if(isRepositoryRoot()) { 
+            return ""; // NOI18N
+        }        
+        return path;
     }
     
-    public File [] getContext() {
-        return files;
+    public boolean isRepositoryRoot() {
+        return repositoryRoot;
     }
-    
-    private File computeClosestCommonAncestor() {
-        if (files.length == 0) return null;
-        File cca = files[0].getParentFile();
-        for (File file : files) {
-            file = file.getParentFile();
-            if (Utils.isAncestorOrEqual(cca, file)) continue;
-            if (Utils.isAncestorOrEqual(file, cca)) {
-                cca = file;
-                continue;
-            }
-            do {
-               cca = cca.getParentFile(); 
-            } while(!Utils.isAncestorOrEqual(cca, file));            
-        }
-        return cca;
+    public RepositoryFile appendPath(String path) {
+        return new RepositoryFile(repositoryUrl);
     }
-
 }
