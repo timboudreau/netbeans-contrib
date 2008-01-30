@@ -43,6 +43,7 @@ import org.netbeans.modules.websvc.axis2.AxisUtils;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2ComponentFactory;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
+import org.netbeans.modules.websvc.axis2.config.model.GenerateWsdl;
 import org.netbeans.modules.websvc.axis2.services.model.MessageReceiver;
 import org.netbeans.modules.websvc.axis2.services.model.MessageReceivers;
 import org.netbeans.modules.websvc.axis2.services.model.Parameter;
@@ -109,7 +110,7 @@ public class WizardUtils {
         }
     }
     
-    static void addService(Axis2Model axis2Model, String serviceClass, FileObject serviceFo) {
+    static void addService(Axis2Model axis2Model, String serviceClass, FileObject serviceFo, boolean generateWsdl) {
         Axis2ComponentFactory factory = axis2Model.getFactory();
 
         Axis2 axis2 = axis2Model.getRootComponent();
@@ -120,6 +121,13 @@ public class WizardUtils {
             org.netbeans.modules.websvc.axis2.config.model.Service service = factory.createService();
             service.setNameAttr(serviceFo.getName());
             service.setServiceClass(serviceClass);
+            if (generateWsdl) {
+                GenerateWsdl genWsdl = factory.createGenerateWsdl();
+                String defaultNs = AxisUtils.getNamespaceFromClassName(serviceClass);
+                genWsdl.setTargetNamespaceAttr(defaultNs);
+                genWsdl.setSchemaNamespaceAttr(defaultNs+"xsd");
+                service.setGenerateWsdl(genWsdl);
+            }
             axis2.addService(service);
             axis2Model.endTransaction();
         }

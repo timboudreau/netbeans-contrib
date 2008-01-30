@@ -42,6 +42,7 @@ package org.netbeans.modules.websvc.axis2.nodes;
 
 import java.io.IOException;
 import javax.swing.Action;
+import org.netbeans.modules.websvc.axis2.actions.EditWsdlAction;
 import org.netbeans.modules.websvc.axis2.actions.GenerateWsdlAction;
 import org.netbeans.modules.websvc.axis2.actions.ServiceConfigurationAction;
 import org.netbeans.modules.websvc.axis2.config.model.Service;
@@ -87,7 +88,7 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
         FileObject fo = srcRoot.getFileObject(service.getServiceClass().replace('.', '/')+".java"); //NOI18N
         try {
             DataObject dObj = DataObject.find(fo);
-            if (fo!=null) {
+            if (dObj!=null) {
                 EditCookie ec = dObj.getCookie(EditCookie.class);
                 if (ec != null) {
                     ec.edit();
@@ -115,6 +116,7 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
             null,
             SystemAction.get(ServiceConfigurationAction.class),
             SystemAction.get(GenerateWsdlAction.class),
+            SystemAction.get(EditWsdlAction.class),
             null,
             SystemAction.get(DeleteAction.class),
             null,
