@@ -90,7 +90,7 @@ public class FileStatusCache {
     
     private Clearcase clearcase;
     
-    private RequestProcessor rp; 
+    private RequestProcessor rp;
     
     private Set<File> filesToRefresh = new HashSet<File>();
     private RequestProcessor.Task filesToRefreshTask;
@@ -117,7 +117,7 @@ public class FileStatusCache {
      * @param includeStatus limit returned files to those having one of supplied statuses
      * @return File [] array of interesting files
      */
-    public File [] listFiles(VCSContext context, int includeStatus) {
+    public synchronized File [] listFiles(VCSContext context, int includeStatus) {
         Set<File> set = new HashSet<File>();        
         
         // XXX this is crap. check for files from context
@@ -178,12 +178,12 @@ public class FileStatusCache {
             return FILE_INFORMATION_NOTMANAGED; // default for filesystem roots
         }                 
         
-        Map<File, FileInformation> dirMap = statusMap.get(dir); // XXX synchronize this
+        Map<File, FileInformation> dirMap = get(dir); 
         return dirMap != null ? dirMap.get(file) : null;
     }
     
     /**
-     * Determines the versioning status information for a file. 
+     * Determines the versioning status information for a file.
      * This method synchronously accesses disk and may block for a long period of time.
      *
      * @param file file to get the {@link FileInformation} for
@@ -233,12 +233,12 @@ public class FileStatusCache {
      * @param root
      * @return
      */
-    Map<File, FileInformation> getAllModifiedValues(File root) {  // XXX add recursive flag
+    synchronized Map<File, FileInformation> getAllModifiedValues(File root) {  // XXX add recursive flag
         Map<File, FileInformation> ret = new HashMap<File, FileInformation>();
         
         for(File modifiedDir : statusMap.keySet()) {
             if(Utils.isParentOrEqual(root, modifiedDir)) {                
-                Map<File, FileInformation> map = statusMap.get(modifiedDir);
+                Map<File, FileInformation> map = get(modifiedDir);
                 for(File file : map.keySet()) {
                     FileInformation info = map.get(file);
 
@@ -267,7 +267,7 @@ public class FileStatusCache {
         }
         return status.get(0).getStatus();
     }
-
+    
     private void refresh(boolean recursivelly, File ...files) {        
         Set<File> parents = new HashSet<File>();        
         for (File file : files) {
@@ -350,7 +350,7 @@ public class FileStatusCache {
             return FILE_INFORMATION_UNKNOWN;
         }
                 
-        Map<File, FileInformation> oldDirMap = statusMap.get(dir); // XXX synchronize this!
+        Map<File, FileInformation> oldDirMap = get(dir); 
         Map<File, FileInformation> newDirMap;        
         if(!isRoot || oldDirMap == null) {
             newDirMap = new HashMap<File, FileInformation>();            
@@ -368,7 +368,7 @@ public class FileStatusCache {
             }
         }       
         
-        statusMap.put(dir, newDirMap);
+        put(dir, newDirMap);
         FileInformation fi = null;        
         try {        
             fi = newDirMap.get(file.getCanonicalFile());            
@@ -511,7 +511,15 @@ public class FileStatusCache {
         }
         return filesToRefreshTask;
     }   
-               
+
+    private synchronized void put(File dir, Map<File, FileInformation> newDirMap) {
+        statusMap.put(dir, newDirMap);
+    }
+
+    private synchronized Map<File, FileInformation> get(File dir) {
+        return statusMap.get(dir);
+    }
+    
     public static class ChangedEvent {
         
         private File file;
