@@ -172,7 +172,7 @@ public class Scala {
             ParserManager parserManager = ParserManager.get(doc);
             waitingForParsingFinished(parserManager);
             ASTNode astRoot = ScalaSemanticAnalyser.getAstRoot(doc);
-            ScalaContext rootCtx = ScalaSemanticAnalyser.getCurrentCtxRoot(doc);
+            ScalaContext rootCtx = ScalaSemanticAnalyser.getCurrentRootCtx(doc);
             Map<ASTItem, String> typeMap = ScalaSemanticAnalyser.getTypeMap(doc);
             TokenSequence tokenSequence = getTokenSequence(context);
             List<CompletionItem> result = new ArrayList<CompletionItem>();
@@ -551,7 +551,7 @@ public class Scala {
     private static Collection<CompletionItem> getMembers(Document doc, int offset) {
         membersBuf.clear();
         String title = getDocumentName(doc);
-        ScalaContext rootCtx = ScalaSemanticAnalyser.getCurrentCtxRoot(doc);
+        ScalaContext rootCtx = ScalaSemanticAnalyser.getCurrentRootCtx(doc);
         if (rootCtx == null) {
             return membersBuf;
         }

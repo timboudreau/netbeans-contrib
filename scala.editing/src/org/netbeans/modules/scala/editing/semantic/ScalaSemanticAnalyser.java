@@ -227,7 +227,7 @@ public class ScalaSemanticAnalyser {
         return getAnalyser(doc).astRoot;
     }
 
-    public static ScalaContext getCurrentCtxRoot(Document doc) {
+    public static ScalaContext getCurrentRootCtx(Document doc) {
         return getAnalyser(doc).rootCtx;
     }
 
