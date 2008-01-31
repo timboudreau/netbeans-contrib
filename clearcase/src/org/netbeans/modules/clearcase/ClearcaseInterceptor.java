@@ -77,8 +77,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
 
     @Override
     public void doDelete(final File file) throws IOException {
-        Clearcase.LOG.finer("doDelete " + file);
-        
+        Clearcase.LOG.finer("doDelete " + file);        
         Clearcase.getInstance().getRequestProcessor().post(new Runnable() {
             public void run() {                         
                 fileDeletedImpl(file);
@@ -88,8 +87,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
 
     @Override
     public void afterDelete(final File file) {
-        Clearcase.LOG.finer("afterDelete " + file);        
-        cache.refreshAsync(file);                        
+        Clearcase.LOG.finer("afterDelete " + file);             
     }
 
     private void checkout(File parent) {
@@ -134,7 +132,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
             // the file stays on the filessytem if it was checkedout eventually
             file.delete();
             
-            
+            cache.refreshLater(file); 
         } else {
             // XXX what if VOB root ???
         }                                 
@@ -157,8 +155,8 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     @Override
     public void afterMove(final File from, final File to) {
         Clearcase.LOG.finer("afterMove " + from + " " + to);
-        cache.refreshAsync(from);
-        cache.refreshAsync(to);
+        cache.refreshLater(from);
+        cache.refreshLater(to);
     }
 
     private void fileMovedImpl(File from, File to) {
@@ -205,7 +203,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     @Override
     public void afterCreate(final File file) {
         Clearcase.LOG.finer("afterCreate " + file);
-        cache.refreshAsync(file);                 
+        cache.refreshLater(file);                 
     }
     
     @Override
@@ -220,14 +218,15 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     }
 
     private void fileChangedImpl(File file) {
-        cache.refreshAsync(file);
+        cache.refreshLater(file);
     }
 
     @Override
     public void beforeEdit(File file) {
-        Clearcase.LOG.finer("beforeEdit " + file);
-        
-        CheckoutAction.checkout(file);
+        Clearcase.LOG.finer("beforeEdit " + file);        
+        if(!file.canWrite()) { // XXX HACK             
+            CheckoutAction.checkout(file);   
+        }
     }
     
     

@@ -148,7 +148,7 @@ public class UncheckoutAction extends AbstractAction implements NotificationList
     }
 
     public void commandFinished() {   
-        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files);        
+        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files, false);        
     }
 
     private static final FileFilter checkoutFileFilter = new FileFilter() {

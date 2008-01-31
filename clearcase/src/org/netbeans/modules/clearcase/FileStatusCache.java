@@ -216,14 +216,14 @@ public class FileStatusCache {
      * 
      * @param files
      */
-    public void refreshAsync(File ...files) {
+    public void refreshLater(File ...files) {
         synchronized(filesToRefresh) {
             for (File file : files) {
                 if(file == null) continue;
                 filesToRefresh.add(file);                
             }
         }
-        getFilesToRefreshTask().schedule(1000); 
+        getFilesToRefreshTask().schedule(500); 
     }    
     
     // --- Package private contract ------------------------------------------

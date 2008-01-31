@@ -419,7 +419,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
         FileInformation info = cache.getCachedInfo(file);
         if(info == null) {
-            cache.refreshAsync(file);
+            cache.refreshLater(file);
         }
         return info;
     }
