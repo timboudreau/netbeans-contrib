@@ -151,16 +151,8 @@ public class AddAction extends AbstractAction {
                     public void commandStarted()        { /* boring */ }
                     public void outputText(String line) { /* boring */ }
                     public void errorText(String line)  { /* boring */ }
-                    public void commandFinished() {                        
-                        Set<File> filesToRefresh = new HashSet<File>();
-                        for (File file : files) {
-                            File parent = file.getParentFile();
-                            if(parent != null) {
-                                filesToRefresh.add(parent);
-                            }
-                            filesToRefresh.add(file);
-                        }                        
-                        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(filesToRefresh.toArray(new File[filesToRefresh.size()]));        
+                    public void commandFinished() {                                                                        
+                        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files, true);        
                     }    
                 })));
     }

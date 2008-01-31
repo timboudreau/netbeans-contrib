@@ -89,15 +89,23 @@ public class Utils {
     }
         
     /**
+     * Refreshes the status for files
      * 
      * @param files
+     * @param includeParents if true all parents for the given files will be refreshed too
      */
-    public static void afterCommandRefresh(final File[] files) {    
-        Clearcase.getInstance().getRequestProcessor().post(new Runnable() {
-            public void run() {
-                Clearcase.getInstance().getFileStatusCache().refreshAsync(files);
-                FileUtil.refreshFor(files);
+    // XXX may be this should be somewere in the comand infrastructure
+    public static void afterCommandRefresh(final File[] files, boolean includeParents) {    
+        Set<File> refreshList = new HashSet<File>();
+        for (File file : files) {
+            File parent = file.getParentFile();
+            if(parent != null) {
+                refreshList.add(parent);
             }
-        });
+            refreshList.add(file);
+        }                        
+        File[] refreshFiles = refreshList.toArray(new File[refreshList.size()]);
+        Clearcase.getInstance().getFileStatusCache().refreshLater(refreshFiles);
+        FileUtil.refreshFor(refreshFiles); 
     }    
 }
