@@ -43,10 +43,15 @@ package org.netbeans.modules.clearcase.ui.add;
 
 import java.awt.event.ActionEvent;
 import java.awt.Dialog;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.*;
 import javax.swing.*;
 
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.clearcase.FileStatusCache;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.versioning.util.VersioningOutputManager;
@@ -60,8 +65,10 @@ import org.netbeans.modules.clearcase.ui.checkin.CheckinOptions;
 import org.netbeans.modules.clearcase.client.*;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.util.Cancellable;
 import org.openide.util.NbBundle;
 import org.openide.util.HelpCtx;
+import org.openide.util.RequestProcessor;
 
 /**
  * Sample Update action.
@@ -74,6 +81,7 @@ public class AddAction extends AbstractAction {
 
     private final VCSContext context;
     protected final VersioningOutputManager voutput;
+    private RequestProcessor.Task prepareTask;
 
     public AddAction(String name, VCSContext context) {
         this.context = context;
@@ -99,19 +107,25 @@ public class AddAction extends AbstractAction {
     
     public void actionPerformed(ActionEvent ev) {
         String contextTitle = Utils.getContextDisplayName(context);
-        JButton addButton = new JButton(); 
+        final JButton addButton = new JButton(); 
+        addButton.setEnabled(false);
+        JButton cancelButton = new JButton("Cancel"); 
         AddPanel panel = new AddPanel();
         
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(AddAction.class, "CTL_AddDialog_Title", contextTitle)); // NOI18N
         dd.setModal(true);        
         org.openide.awt.Mnemonics.setLocalizedText(addButton, org.openide.util.NbBundle.getMessage(AddAction.class, "CTL_AddDialog_Add"));
         
-        dd.setOptions(new Object[] {addButton, DialogDescriptor.CANCEL_OPTION}); // NOI18N
+        dd.setOptions(new Object[] {addButton, cancelButton}); // NOI18N
         dd.setHelpCtx(new HelpCtx(AddAction.class));
 
-        AddTable addTable = new AddTable(panel.jLabel2, AddTable.ADD_COLUMNS, new String [] { AddTableModel.COLUMN_NAME_NAME });
-        ClearcaseFileNode [] nodes = computeNodes();
-        addTable.setNodes(nodes);
+        final AddTable addTable = new AddTable(panel.jLabel2, AddTable.ADD_COLUMNS, new String [] { AddTableModel.COLUMN_NAME_NAME });
+        addTable.getTableModel().addTableModelListener(new TableModelListener() {
+            public void tableChanged(TableModelEvent e) {
+                addButton.setEnabled(addTable.getTableModel().getRowCount() > 0);
+            }
+        });
+        computeNodes(addTable, cancelButton);        
         panel.setAddTable(addTable);
         
         panel.putClientProperty("contentTitle", contextTitle);  // NOI18N
@@ -168,13 +182,50 @@ public class AddAction extends AbstractAction {
                 })));
     }
 
-    private ClearcaseFileNode[] computeNodes() {
-        File [] files = Clearcase.getInstance().getFileStatusCache().listFiles(context, FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY);
-        List<ClearcaseFileNode> nodes = new ArrayList<ClearcaseFileNode>(files.length);
-        for (File file : files) {
-            nodes.add(new ClearcaseFileNode(file));
+    // XXX temporary solution...
+    private void computeNodes(final AddTable table, JButton cancel) {
+        RequestProcessor rp = new RequestProcessor("Clearcase-AddTo");
+        final Cancellable c = new Cancellable() {            
+            public boolean cancel() {
+                // XXX doesn't realy work ...
+                if(prepareTask != null) {
+                    return prepareTask.cancel();
+                }
+                return false;
+            }
+        };                
+        cancel.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                c.cancel();
+            }
+        });
+        if(prepareTask == null) {
+            prepareTask = rp.create(new Runnable() {
+                public void run() {
+                    final ProgressHandle ph = ProgressHandleFactory.createHandle("Preparing add...", c);            
+                    try {
+                        ph.start();
+                        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
+
+                        // refresh the cache first so we will
+                        // know all checkin candites
+                        cache.refreshRecursively(context);
+                        
+                        // get all files to be added
+                        File [] files = cache.listFiles(context, FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY);
+                        List<ClearcaseFileNode> nodes = new ArrayList<ClearcaseFileNode>(files.length);
+                        for (File file : files) {
+                            nodes.add(new ClearcaseFileNode(file));
+                        }                        
+                        ClearcaseFileNode[] fileNodes = nodes.toArray(new ClearcaseFileNode[nodes.size()]);
+                        table.setNodes(fileNodes);
+                    } finally {
+                        ph.finish();
+                    }
+                }
+            });        
         }
-        return nodes.toArray(new ClearcaseFileNode[nodes.size()]);
+        prepareTask.schedule(0);
     }
     
 }
