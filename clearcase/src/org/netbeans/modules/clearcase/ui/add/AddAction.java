@@ -47,6 +47,7 @@ import java.io.File;
 import java.util.*;
 import javax.swing.*;
 
+import org.netbeans.modules.clearcase.FileStatusCache;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.versioning.util.VersioningOutputManager;
 import org.netbeans.modules.versioning.util.Utils;
@@ -82,8 +83,18 @@ public class AddAction extends AbstractAction {
     
     @Override
     public boolean isEnabled() {
-        // TODO
-        return true;
+        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
+        Set<File> roots = context.getRootFiles();        
+        for (File root : roots) {
+            if(root.isDirectory()) {
+                return true;
+            }
+            FileInformation info = cache.getCachedInfo(root);            
+            if(info != null && info.getStatus() == FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY) {
+                return true;
+            }
+        }
+        return false;
     }
     
     public void actionPerformed(ActionEvent ev) {
