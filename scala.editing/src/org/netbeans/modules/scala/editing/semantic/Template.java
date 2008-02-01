@@ -48,6 +48,7 @@ import org.netbeans.api.languages.database.DatabaseDefinition;
  * @author dcaoyuan
  */
 public class Template extends DatabaseDefinition {
+    
     public static enum Kind {
         OBJECT,
         CLASS,
@@ -56,13 +57,20 @@ public class Template extends DatabaseDefinition {
     
     private Kind kind;
     
-    public Template (String name, int offset, int endOffset, Kind kind) {
+    private Packaging enclosingPackage;
+    
+    public Template (String name, int offset, int endOffset, Kind kind, Packaging enclosingPackage) {
         super(name, null, offset, endOffset);
         this.kind = kind;
+        this.enclosingPackage = enclosingPackage;
     }
 
     public Kind getKind () {
         return kind;
+    }
+    
+    public Packaging getEnclosingPackage() {
+        return enclosingPackage;
     }
     
     @Override
