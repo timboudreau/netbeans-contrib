@@ -88,13 +88,17 @@ public class CheckinAction extends AbstractAction implements NotificationListene
     @Override
     public boolean isEnabled() {
         FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
-        Set<File> roots = context.getRootFiles();
-        for (File file : roots) {
-            if( (cache.getInfo(file).getStatus() & ALLOW_CHECKIN) == 0 ) {
-                return false;
-            }                
+        Set<File> roots = context.getRootFiles();        
+        for (File root : roots) {
+            if(root.isDirectory()) {
+                return true;
+            }
+            FileInformation info = cache.getCachedInfo(root);            
+            if(info != null && ((info.getStatus() & ALLOW_CHECKIN) == 0)) {
+                return true;
+            }
         }
-        return true;
+        return false;
     }
 
     public void actionPerformed(ActionEvent ev) {
@@ -111,7 +115,7 @@ public class CheckinAction extends AbstractAction implements NotificationListene
 
         CheckinTable checkinTable = new CheckinTable(panel.jLabel2, CheckinTable.CHECKIN_COLUMNS, new String [] { CheckinTableModel.COLUMN_NAME_NAME });
         ClearcaseFileNode[] nodes = computeNodes();
-        checkinTable.setNodes(nodes);
+
         panel.setCheckinTable(checkinTable);
         
         panel.putClientProperty("contentTitle", contextTitle);  // NOI18N
@@ -120,6 +124,7 @@ public class CheckinAction extends AbstractAction implements NotificationListene
         dialog.addWindowListener(new DialogBoundsPreserver(ClearcaseModuleConfig.getPreferences(), "add.dialog")); // NOI18N       
         dialog.pack();        
         dialog.setVisible(true);
+        checkinTable.setNodes(nodes);
         
         Object value = dd.getValue();
         if (value != addButton) return;
