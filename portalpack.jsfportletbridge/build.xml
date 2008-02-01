@@ -6,7 +6,7 @@
      <target name="netbeans-extra" depends="release"/>
 
     <target name="release" depends="init">
-        
+        <echo message="JSF Portlet Bridge library"/>
         <mkdir dir="${cluster}/modules/ext/portalpack/jsfportletbridge"/>
         
         <copy file="../../external/jsfportletbridge/jsf-portlet-1.2.jar"

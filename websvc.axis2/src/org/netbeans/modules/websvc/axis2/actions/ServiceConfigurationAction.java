@@ -43,11 +43,16 @@ package org.netbeans.modules.websvc.axis2.actions;
 import java.io.IOException;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.websvc.axis2.AxisUtils;
 import org.netbeans.modules.websvc.axis2.TransformerUtils;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2ComponentFactory;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
 import org.netbeans.modules.websvc.axis2.config.model.GenerateWsdl;
 import org.netbeans.modules.websvc.axis2.config.model.Service;
+import org.netbeans.modules.websvc.axis2.nodes.Axis2ServiceNode;
+import org.netbeans.modules.websvc.axis2.services.model.Parameter;
+import org.netbeans.modules.websvc.axis2.services.model.ServiceGroup;
+import org.netbeans.modules.websvc.axis2.services.model.ServicesModel;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.cookies.SaveCookie;
@@ -87,17 +92,25 @@ public class ServiceConfigurationAction extends NodeAction  {
             Axis2Model model = service.getModel();
             FileObject srcRoot = activatedNodes[0].getLookup().lookup(FileObject.class);
             boolean modelChanged = false;
+            boolean serviceNameChanged = false;
+            boolean serviceClassChanged = false;
             
             model.startTransaction();
             String newServiceName = configPanel.getServiceName();
-            if (newServiceName.length() > 0 && !newServiceName.equals(service.getNameAttr())) {
+            String oldServiceName = service.getNameAttr();
+            if (newServiceName.length() > 0 && !newServiceName.equals(oldServiceName)) {
                 service.setNameAttr(newServiceName);
                 modelChanged = true;
+                serviceNameChanged = true;
+                Axis2ServiceNode serviceNode = activatedNodes[0].getLookup().lookup(Axis2ServiceNode.class);
+                if (serviceNode != null) serviceNode.nameChanged(oldServiceName, newServiceName);
             }
             String newServiceClass = configPanel.getServiceClass();
-            if (newServiceClass.length() > 0 && !newServiceClass.equals(service.getServiceClass())) {
+            String oldServiceClass = service.getServiceClass();
+            if (newServiceClass.length() > 0 && !newServiceClass.equals(oldServiceClass)) {
                 service.setServiceClass(newServiceClass);
                 modelChanged = true;
+                serviceClassChanged = true;
             }
             boolean generateWsdl = configPanel.generateWsdl();
             if (service.getGenerateWsdl() == null && generateWsdl) {
@@ -128,16 +141,59 @@ public class ServiceConfigurationAction extends NodeAction  {
                 }
             }
             model.endTransaction();
-            
-            Project prj = FileOwnerQuery.getOwner(srcRoot);
-            if (prj!= null) {
-                try {
-                    saveConfigFile(prj);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
+
             if (modelChanged) {
+                Project prj = FileOwnerQuery.getOwner(srcRoot);
+                if (prj!= null) {
+                    try {
+                        saveConfigFile(prj);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+                if (serviceNameChanged || serviceClassChanged) {
+                   ServicesModel servicesModel = AxisUtils.getServicesModelForProject(prj);
+                   if (servicesModel != null) {
+                       servicesModel.startTransaction();
+                       if (servicesModel.isServicesGroup()) {
+                           ServiceGroup serviceGroup = (ServiceGroup) servicesModel.getRootComponent();
+                           for (org.netbeans.modules.websvc.axis2.services.model.Service serv:serviceGroup.getServices()) {
+                               if (oldServiceName.equals(serv.getNameAttr())) {
+                                   if (serviceNameChanged) {
+                                       serv.setNameAttr(newServiceName);
+                                   }
+                                   if (serviceClassChanged) {
+                                       for (Parameter param:serv.getParameters()) {
+                                           if ("ServiceClass".equals(param.getNameAttr())) {
+                                               param.setValue(newServiceClass);
+                                               break;
+                                           }
+                                       }
+                                   }
+                                   break;
+                               }
+                           }
+                       } else {
+                           org.netbeans.modules.websvc.axis2.services.model.Service serv =
+                               (org.netbeans.modules.websvc.axis2.services.model.Service)servicesModel.getRootComponent();
+                           if (serviceNameChanged) {
+                               serv.setNameAttr(newServiceName);
+                           }
+                           if (serviceClassChanged) {
+                               for (Parameter param:serv.getParameters()) {
+                                   if ("ServiceClass".equals(param.getNameAttr())) {
+                                       param.setValue(newServiceClass);
+                                       break;
+                                   }
+                               }
+                           }
+                       }
+                       servicesModel.endTransaction();
+                   }
+                }
+            
+
                 try {
                     TransformerUtils.transform(prj.getProjectDirectory());
                 } catch (IOException ex) {

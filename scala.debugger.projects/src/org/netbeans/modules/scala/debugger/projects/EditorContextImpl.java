@@ -38,7 +38,6 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.scala.debugger.projects;
 
 import com.sun.source.tree.Scope;
@@ -120,6 +119,7 @@ import org.netbeans.editor.JumpList;
 import org.netbeans.modules.scala.editing.semantic.ScalaContext;
 import org.netbeans.modules.scala.editing.semantic.ScalaSemanticAnalyser;
 import org.netbeans.modules.scala.editing.semantic.Template;
+import org.netbeans.modules.scala.editing.semantic.Packaging;
 import org.netbeans.spi.debugger.jpda.EditorContext;
 import org.netbeans.spi.debugger.jpda.SourcePathProvider;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
@@ -130,26 +130,23 @@ import org.openide.filesystems.FileUtil;
  * @author Jan Jancura
  */
 public class EditorContextImpl extends EditorContext {
-    
-    private static String fronting = 
-        System.getProperty ("netbeans.debugger.fronting");
-    
-    private PropertyChangeSupport   pcs;
-    private Map                     annotationToURL = new HashMap ();
-    private PropertyChangeListener  editorObservableListener;
 
+    private static String fronting =
+            System.getProperty("netbeans.debugger.fronting");
+    private PropertyChangeSupport pcs;
+    private Map annotationToURL = new HashMap();
+    private PropertyChangeListener editorObservableListener;
     private Lookup.Result resDataObject;
     private Lookup.Result resEditorCookie;
     private Lookup.Result resNode;
-
     private Object currentLock = new Object();
     private String currentURL = null;
     //private Element currentElement = null;
     private EditorCookie currentEditorCookie = null;
     
-    
+
     {
-        pcs = new PropertyChangeSupport (this);
+        pcs = new PropertyChangeSupport(this);
 
         resDataObject = Utilities.actionsGlobalContext().lookup(new Lookup.Template(DataObject.class));
         resDataObject.addLookupListener(new EditorLookupListener(DataObject.class));
@@ -161,8 +158,7 @@ public class EditorContextImpl extends EditorContext {
         resNode.addLookupListener(new EditorLookupListener(Node.class));
 
     }
-    
-    
+
     /**
      * Shows source with given url on given line number.
      *
@@ -170,23 +166,23 @@ public class EditorContextImpl extends EditorContext {
      * @param lineNumber a number of line to be shown
      * @param timeStamp a time stamp to be used
      */
-    public boolean showSource (String url, int lineNumber, Object timeStamp) {
-        Line l = LineTranslations.getTranslations().getLine (url, lineNumber, timeStamp); // false = use original ln
+    public boolean showSource(String url, int lineNumber, Object timeStamp) {
+        Line l = LineTranslations.getTranslations().getLine(url, lineNumber, timeStamp); // false = use original ln
         if (l == null) {
             ErrorManager.getDefault().log(ErrorManager.WARNING,
-                    "Show Source: Have no line for URL = "+url+", line number = "+lineNumber);
+                    "Show Source: Have no line for URL = " + url + ", line number = " + lineNumber);
             return false;
         }
         if ("true".equalsIgnoreCase(fronting) || Utilities.isWindows()) {
-            l.show (Line.SHOW_REUSE);
-            l.show (Line.SHOW_TOFRONT); //FIX 47825
+            l.show(Line.SHOW_REUSE);
+            l.show(Line.SHOW_TOFRONT); //FIX 47825
         } else {
-            l.show (Line.SHOW_REUSE);
+            l.show(Line.SHOW_REUSE);
         }
         addPositionToJumpList(url, l, 0);
         return true;
     }
-    
+
     /**
      * Shows source with given url on given line number.
      *
@@ -194,25 +190,25 @@ public class EditorContextImpl extends EditorContext {
      * @param lineNumber a number of line to be shown
      * @param timeStamp a time stamp to be used
      */
-    public boolean showSource (String url, int lineNumber, int column, int length, Object timeStamp) {
-        Line l = LineTranslations.getTranslations().getLine (url, lineNumber, timeStamp); // false = use original ln
+    public boolean showSource(String url, int lineNumber, int column, int length, Object timeStamp) {
+        Line l = LineTranslations.getTranslations().getLine(url, lineNumber, timeStamp); // false = use original ln
         if (l == null) {
             ErrorManager.getDefault().log(ErrorManager.WARNING,
-                    "Show Source: Have no line for URL = "+url+", line number = "+lineNumber);
+                    "Show Source: Have no line for URL = " + url + ", line number = " + lineNumber);
             return false;
         }
         if ("true".equalsIgnoreCase(fronting) || Utilities.isWindows()) {
-            l.show (Line.SHOW_TOFRONT, column); //FIX 47825
+            l.show(Line.SHOW_TOFRONT, column); //FIX 47825
         } else {
-            l.show (Line.SHOW_GOTO, column);
+            l.show(Line.SHOW_GOTO, column);
         }
         addPositionToJumpList(url, l, column);
         return true;
     }
-    
+
     /** Add the line offset into the jump history */
     private void addPositionToJumpList(String url, Line l, int column) {
-        DataObject dataObject = getDataObject (url);
+        DataObject dataObject = getDataObject(url);
         if (dataObject != null) {
             EditorCookie ec = dataObject.getLookup().lookup(EditorCookie.class);
             if (ec != null) {
@@ -228,14 +224,13 @@ public class EditorContextImpl extends EditorContext {
             }
         }
     }
-    
-    
+
     /**
      * Creates a new time stamp.
      *
      * @param timeStamp a new time stamp
      */
-    public void createTimeStamp (Object timeStamp) {
+    public void createTimeStamp(Object timeStamp) {
         LineTranslations.getTranslations().createTimeStamp(timeStamp);
     }
 
@@ -244,36 +239,35 @@ public class EditorContextImpl extends EditorContext {
      *
      * @param timeStamp a time stamp to be disposed
      */
-    public void disposeTimeStamp (Object timeStamp) {
+    public void disposeTimeStamp(Object timeStamp) {
         LineTranslations.getTranslations().disposeTimeStamp(timeStamp);
     }
-    
-    public Object annotate (
-        String url, 
-        int lineNumber, 
-        String annotationType,
-        Object timeStamp
-    ) {
-        Line l =  LineTranslations.getTranslations().getLine (
-            url, 
-            lineNumber, 
-            timeStamp
-        );
-        if (l == null) return null;
+
+    public Object annotate(
+            String url,
+            int lineNumber,
+            String annotationType,
+            Object timeStamp) {
+        Line l = LineTranslations.getTranslations().getLine(
+                url,
+                lineNumber,
+                timeStamp);
+        if (l == null) {
+            return null;
+        }
         DebuggerAnnotation annotation =
-            new DebuggerAnnotation (annotationType, l);
-        annotationToURL.put (annotation, url);
-        
+                new DebuggerAnnotation(annotationType, l);
+        annotationToURL.put(annotation, url);
+
         return annotation;
     }
 
-    public Object annotate (
-        String url,
-        int startPosition,
-        int endPosition,
-        String annotationType,
-        Object timeStamp
-    ) {
+    public Object annotate(
+            String url,
+            int startPosition,
+            int endPosition,
+            String annotationType,
+            Object timeStamp) {
         Coloring coloring;
         if (EditorContext.CURRENT_LAST_OPERATION_ANNOTATION_TYPE.equals(annotationType)) {
             coloring = new Coloring(null, Coloring.FONT_MODE_DEFAULT, null, null, getColor(annotationType), null, null);
@@ -285,15 +279,15 @@ public class EditorContextImpl extends EditorContext {
         try {
             annotation = new DebuggerAnnotation(annotationType, highlight, URLMapper.findFileObject(new URL(url)));
         } catch (MalformedURLException ex) {
-            RuntimeException rex = new RuntimeException("Bad URL: "+url);
+            RuntimeException rex = new RuntimeException("Bad URL: " + url);
             rex.initCause(ex);
             throw rex;
         }
-        annotationToURL.put (annotation, url);
-        
+        annotationToURL.put(annotation, url);
+
         return annotation;
     }
-    
+
     private static Color getColor(String annotationType) {
         if (annotationType.endsWith("_broken")) {
             annotationType = annotationType.substring(0, annotationType.length() - "_broken".length());
@@ -301,7 +295,7 @@ public class EditorContextImpl extends EditorContext {
         if (EditorContext.BREAKPOINT_ANNOTATION_TYPE.equals(annotationType)) {
             return new Color(0xFC9D9F);
         } else if (EditorContext.CURRENT_LINE_ANNOTATION_TYPE.equals(annotationType) ||
-                   EditorContext.CURRENT_OUT_OPERATION_ANNOTATION_TYPE.equals(annotationType)) {
+                EditorContext.CURRENT_OUT_OPERATION_ANNOTATION_TYPE.equals(annotationType)) {
             return new Color(0xBDE6AA);
         } else if (EditorContext.CURRENT_EXPRESSION_CURRENT_LINE_ANNOTATION_TYPE.equals(annotationType)) {
             return new Color(0xE9FFE6); // 0xE3FFD2// 0xD1FFBC
@@ -317,22 +311,21 @@ public class EditorContextImpl extends EditorContext {
      *
      * @return true if annotation has been successfully removed
      */
-    public void removeAnnotation (
-        Object a
-    ) {
+    public void removeAnnotation(
+            Object a) {
         if (a instanceof Collection) {
             Collection annotations = ((Collection) a);
-            for (Iterator it = annotations.iterator(); it.hasNext(); ) {
+            for (Iterator it = annotations.iterator(); it.hasNext();) {
                 removeAnnotation((DebuggerAnnotation) it.next());
             }
         } else {
             removeAnnotation((DebuggerAnnotation) a);
         }
     }
-    
+
     private void removeAnnotation(DebuggerAnnotation annotation) {
-        annotation.detach ();
-        annotationToURL.remove (annotation);
+        annotation.detach();
+        annotationToURL.remove(annotation);
     }
 
     /**
@@ -343,37 +336,37 @@ public class EditorContextImpl extends EditorContext {
      *
      * @return line number given annotation is associated with
      */
-    public int getLineNumber (
-        Object annotation,
-        Object timeStamp
-    ) {
+    public int getLineNumber(
+            Object annotation,
+            Object timeStamp) {
         if (annotation instanceof LineBreakpoint) {
             // A sort of hack to be able to retrieve the original line.
             LineBreakpoint lb = (LineBreakpoint) annotation;
             return LineTranslations.getTranslations().getOriginalLineNumber(lb, timeStamp);
         }
         /*if (annotation instanceof Object[]) {
-            // A sort of hack to be able to retrieve the original line.
-            Object[] urlLine = (Object[]) annotation;
-            String url = (String) urlLine[0];
-            int line = ((Integer) urlLine[1]).intValue();
-            return LineTranslations.getTranslations().getOriginalLineNumber(url, line, timeStamp);
+        // A sort of hack to be able to retrieve the original line.
+        Object[] urlLine = (Object[]) annotation;
+        String url = (String) urlLine[0];
+        int line = ((Integer) urlLine[1]).intValue();
+        return LineTranslations.getTranslations().getOriginalLineNumber(url, line, timeStamp);
         }*/
         DebuggerAnnotation a = (DebuggerAnnotation) annotation;
-        if (timeStamp == null) 
-            return a.getLine ().getLineNumber () + 1;
-        String url = (String) annotationToURL.get (a);
-        Line.Set lineSet = LineTranslations.getTranslations().getLineSet (url, timeStamp);
-        return lineSet.getOriginalLineNumber (a.getLine ()) + 1;
+        if (timeStamp == null) {
+            return a.getLine().getLineNumber() + 1;
+        }
+        String url = (String) annotationToURL.get(a);
+        Line.Set lineSet = LineTranslations.getTranslations().getLineSet(url, timeStamp);
+        return lineSet.getOriginalLineNumber(a.getLine()) + 1;
     }
-    
+
     /**
      * Updates timeStamp for gived url.
      *
      * @param timeStamp time stamp to be updated
      * @param url an url
      */
-    public void updateTimeStamp (Object timeStamp, String url) {
+    public void updateTimeStamp(Object timeStamp, String url) {
         LineTranslations.getTranslations().updateTimeStamp(timeStamp, url);
     }
 
@@ -382,13 +375,14 @@ public class EditorContextImpl extends EditorContext {
      *
      * @return number of line currently selected in editor or <code>-1</code>
      */
-    public int getCurrentLineNumber () {
+    public int getCurrentLineNumber() {
         if (SwingUtilities.isEventDispatchThread()) {
             return getCurrentLineNumber_();
         } else {
             final int[] ln = new int[1];
             try {
                 SwingUtilities.invokeAndWait(new Runnable() {
+
                     public void run() {
                         ln[0] = getCurrentLineNumber_();
                     }
@@ -401,35 +395,43 @@ public class EditorContextImpl extends EditorContext {
             return ln[0];
         }
     }
-    
+
     private int getCurrentLineNumber_() {
-        EditorCookie e = getCurrentEditorCookie ();
-        if (e == null) return -1;
-        JEditorPane ep = getCurrentEditor ();
-        if (ep == null) return -1;
-        StyledDocument d = e.getDocument ();
-        if (d == null) return -1;
-        Caret caret = ep.getCaret ();
-        if (caret == null) return -1;
-        int ln = NbDocument.findLineNumber (
-            d,
-            caret.getDot ()
-        );
+        EditorCookie e = getCurrentEditorCookie();
+        if (e == null) {
+            return -1;
+        }
+        JEditorPane ep = getCurrentEditor();
+        if (ep == null) {
+            return -1;
+        }
+        StyledDocument d = e.getDocument();
+        if (d == null) {
+            return -1;
+        }
+        Caret caret = ep.getCaret();
+        if (caret == null) {
+            return -1;
+        }
+        int ln = NbDocument.findLineNumber(
+                d,
+                caret.getDot());
         return ln + 1;
     }
-    
+
     /**
      * Returns number of line currently selected in editor or <code>-1</code>.
      *
      * @return number of line currently selected in editor or <code>-1</code>
      */
-    public int getCurrentOffset () {
+    public int getCurrentOffset() {
         if (SwingUtilities.isEventDispatchThread()) {
             return getCurrentOffset_();
         } else {
             final int[] ln = new int[1];
             try {
                 SwingUtilities.invokeAndWait(new Runnable() {
+
                     public void run() {
                         ln[0] = getCurrentOffset_();
                     }
@@ -442,28 +444,39 @@ public class EditorContextImpl extends EditorContext {
             return ln[0];
         }
     }
-    
+
     private int getCurrentOffset_() {
-        EditorCookie e = getCurrentEditorCookie ();
-        if (e == null) return -1;
-        JEditorPane ep = getCurrentEditor ();
-        if (ep == null) return -1;
-        StyledDocument d = e.getDocument ();
-        if (d == null) return -1;
-        Caret caret = ep.getCaret ();
-        if (caret == null) return -1;
+        EditorCookie e = getCurrentEditorCookie();
+        if (e == null) {
+            return -1;
+        }
+        JEditorPane ep = getCurrentEditor();
+        if (ep == null) {
+            return -1;
+        }
+        StyledDocument d = e.getDocument();
+        if (d == null) {
+            return -1;
+        }
+        Caret caret = ep.getCaret();
+        if (caret == null) {
+            return -1;
+        }
         return caret.getDot();
     }
-    
+
     /**
      * Returns name of class currently selected in editor or empty string.
      *
      * @return name of class currently selected in editor or empty string
      */
-    public String getCurrentClassName () {
+    public String getCurrentClassName() {
         String currentClass = getCurrentElement(ElementKind.CLASS);
-        if (currentClass == null) return "";
-        else return currentClass;
+        if (currentClass == null) {
+            return "";
+        } else {
+            return currentClass;
+        }
     }
 
     /**
@@ -471,21 +484,23 @@ public class EditorContextImpl extends EditorContext {
      *
      * @return URL of source currently selected in editor or empty string
      */
-    public String getCurrentURL () {
+    public String getCurrentURL() {
         synchronized (currentLock) {
             if (currentURL == null) {
-                DataObject[] nodes = (DataObject[])resDataObject.allInstances().toArray(new DataObject[0]);
+                DataObject[] nodes = (DataObject[]) resDataObject.allInstances().toArray(new DataObject[0]);
 
                 currentURL = "";
-                if (nodes.length != 1)
+                if (nodes.length != 1) {
                     return currentURL;
-                
+                }
+
                 DataObject dO = nodes[0];
-                if (dO instanceof DataShadow)
-                    dO = ((DataShadow) dO).getOriginal ();
+                if (dO instanceof DataShadow) {
+                    dO = ((DataShadow) dO).getOriginal();
+                }
 
                 try {
-                    currentURL = dO.getPrimaryFile ().getURL ().toString ();
+                    currentURL = dO.getPrimaryFile().getURL().toString();
                 } catch (FileStateInvalidException ex) {
                     //noop
                 }
@@ -500,10 +515,13 @@ public class EditorContextImpl extends EditorContext {
      *
      * @return name of method currently selected in editor or empty string
      */
-    public String getCurrentMethodName () {
+    public String getCurrentMethodName() {
         String currentMethod = getCurrentElement(ElementKind.METHOD);
-        if (currentMethod == null) return "";
-        else return currentMethod;
+        if (currentMethod == null) {
+            return "";
+        } else {
+            return currentMethod;
+        }
     }
 
     /**
@@ -511,12 +529,13 @@ public class EditorContextImpl extends EditorContext {
      *
      * @return signature of method currently selected in editor or null
      */
-    public String getCurrentMethodSignature () {
-        final Element[] elementPtr = new Element[] { null };
+    public String getCurrentMethodSignature() {
+        final Element[] elementPtr = new Element[]{null        };
         try {
             getCurrentElement(ElementKind.METHOD, elementPtr);
         } catch (final java.awt.IllegalComponentStateException icse) {
             throw new java.awt.IllegalComponentStateException() {
+
                 @Override
                 public String getMessage() {
                     icse.getMessage();
@@ -536,11 +555,14 @@ public class EditorContextImpl extends EditorContext {
      *
      * @return name of field currently selected in editor or <code>null</code>
      */
-    public String getCurrentFieldName () {
+    public String getCurrentFieldName() {
         String currentField = getCurrentElement(ElementKind.FIELD);
-        if (currentField == null) return "";
-        else return currentField;
-        //return getSelectedIdentifier ();
+        if (currentField == null) {
+            return "";
+        } else {
+            return currentField;
+        }
+    //return getSelectedIdentifier ();
     }
 
     /**
@@ -548,13 +570,14 @@ public class EditorContextImpl extends EditorContext {
      *
      * @return identifier currently selected in editor or <code>null</code>
      */
-    public String getSelectedIdentifier () {
+    public String getSelectedIdentifier() {
         if (SwingUtilities.isEventDispatchThread()) {
             return getSelectedIdentifier_();
         } else {
             final String[] si = new String[1];
             try {
                 SwingUtilities.invokeAndWait(new Runnable() {
+
                     public void run() {
                         si[0] = getSelectedIdentifier_();
                     }
@@ -569,11 +592,17 @@ public class EditorContextImpl extends EditorContext {
     }
 
     private String getSelectedIdentifier_() {
-        JEditorPane ep = getCurrentEditor ();
-        if (ep == null) return null;
-        String s = ep.getSelectedText ();
-        if (s == null) return null;
-        if (Utilities.isJavaIdentifier (s)) return s;
+        JEditorPane ep = getCurrentEditor();
+        if (ep == null) {
+            return null;
+        }
+        String s = ep.getSelectedText();
+        if (s == null) {
+            return null;
+        }
+        if (Utilities.isJavaIdentifier(s)) {
+            return s;
+        }
         return null;
     }
 
@@ -582,13 +611,14 @@ public class EditorContextImpl extends EditorContext {
      *
      * @return method name currently selected in editor or empty string
      */
-    public String getSelectedMethodName () {
+    public String getSelectedMethodName() {
         if (SwingUtilities.isEventDispatchThread()) {
             return getSelectedMethodName_();
         } else {
             final String[] mn = new String[1];
             try {
                 SwingUtilities.invokeAndWait(new Runnable() {
+
                     public void run() {
                         mn[0] = getSelectedMethodName_();
                     }
@@ -601,69 +631,80 @@ public class EditorContextImpl extends EditorContext {
             return mn[0];
         }
     }
-    
+
     private String getSelectedMethodName_() {
-        EditorCookie e = getCurrentEditorCookie ();
-        if (e == null) return "";
-        JEditorPane ep = getCurrentEditor ();
-        if (ep == null) return "";
-        StyledDocument doc = e.getDocument ();
-        if (doc == null) return "";
-        int offset = ep.getCaret ().getDot ();
+        EditorCookie e = getCurrentEditorCookie();
+        if (e == null) {
+            return "";
+        }
+        JEditorPane ep = getCurrentEditor();
+        if (ep == null) {
+            return "";
+        }
+        StyledDocument doc = e.getDocument();
+        if (doc == null) {
+            return "";
+        }
+        int offset = ep.getCaret().getDot();
         String t = null;
 //        if ( (ep.getSelectionStart () <= offset) &&
 //             (offset <= ep.getSelectionEnd ())
 //        )   t = ep.getSelectedText ();
 //        if (t != null) return t;
-        
-        int line = NbDocument.findLineNumber (
-            doc,
-            offset
-        );
-        int col = NbDocument.findLineColumn (
-            doc,
-            offset
-        );
-        try {
-            javax.swing.text.Element lineElem = 
-                org.openide.text.NbDocument.findLineRootElement (doc).
-                getElement (line);
 
-            if (lineElem == null) return "";
-            int lineStartOffset = lineElem.getStartOffset ();
-            int lineLen = lineElem.getEndOffset () - lineStartOffset;
+        int line = NbDocument.findLineNumber(
+                doc,
+                offset);
+        int col = NbDocument.findLineColumn(
+                doc,
+                offset);
+        try {
+            javax.swing.text.Element lineElem =
+                    org.openide.text.NbDocument.findLineRootElement(doc).
+                    getElement(line);
+
+            if (lineElem == null) {
+                return "";
+            }
+            int lineStartOffset = lineElem.getStartOffset();
+            int lineLen = lineElem.getEndOffset() - lineStartOffset;
             // t contains current line in editor
-            t = doc.getText (lineStartOffset, lineLen);
-            
+            t = doc.getText(lineStartOffset, lineLen);
+
             int identStart = col;
-            while ( identStart > 0 && 
-                    Character.isJavaIdentifierPart (
-                        t.charAt (identStart - 1)
-                    )
-            )   identStart--;
+            while (identStart > 0 &&
+                    Character.isJavaIdentifierPart(
+                    t.charAt(identStart - 1))) {
+                identStart--;
+            }
 
             int identEnd = col;
-            while (identEnd < lineLen && 
-                   Character.isJavaIdentifierPart (t.charAt (identEnd))
-            ) {
+            while (identEnd < lineLen &&
+                    Character.isJavaIdentifierPart(t.charAt(identEnd))) {
                 identEnd++;
             }
-            int i = t.indexOf ('(', identEnd);
-            if (i < 0) return "";
-            if (t.substring (identEnd, i).trim ().length () > 0) return "";
+            int i = t.indexOf('(', identEnd);
+            if (i < 0) {
+                return "";
+            }
+            if (t.substring(identEnd, i).trim().length() > 0) {
+                return "";
+            }
 
-            if (identStart == identEnd) return "";
-            return t.substring (identStart, identEnd);
+            if (identStart == identEnd) {
+                return "";
+            }
+            return t.substring(identStart, identEnd);
         } catch (javax.swing.text.BadLocationException ex) {
             return "";
         }
     }
-        
+
     private static TypeElement getTypeElement(CompilationController ci,
-                                              String binaryName,
-                                              String[] classExcludeNames) {
+            String binaryName,
+            String[] classExcludeNames) {
         ClassScanner cs = new ClassScanner(ci.getTrees(), ci.getElements(),
-                                           binaryName, classExcludeNames);
+                binaryName, classExcludeNames);
         TypeElement te = cs.scan(ci.getCompilationUnit(), null);
         if (te != null) {
             return te;
@@ -671,7 +712,7 @@ public class EditorContextImpl extends EditorContext {
             return null;
         }
     }
-    
+
     /**
      * Returns line number of given field in given class.
      *
@@ -682,96 +723,102 @@ public class EditorContextImpl extends EditorContext {
      *
      * @return line number or -1
      */
-    public int getFieldLineNumber (
-        String url, 
-        final String className, 
-        final String fieldName
-    ) {
-        final DataObject dataObject = getDataObject (url);
-        if (dataObject == null) return -1;
+    public int getFieldLineNumber(
+            String url,
+            final String className,
+            final String fieldName) {
+        final DataObject dataObject = getDataObject(url);
+        if (dataObject == null) {
+            return -1;
+        }
         return getFieldLineNumber(dataObject.getPrimaryFile(), className, fieldName);
     }
-    
-    static int getFieldLineNumber (
-        FileObject fo,
-        final String className,
-        final String fieldName
-    ) {
+
+    static int getFieldLineNumber(
+            FileObject fo,
+            final String className,
+            final String fieldName) {
         JavaSource js = JavaSource.forFileObject(fo);
-        if (js == null) return -1;
-        final int[] result = new int[] {-1};
-        
+        if (js == null) {
+            return -1;
+        }
+        final int[] result = new int[]{-1};
+
         final DataObject dataObject;
         try {
-            dataObject = DataObject.find (fo);
+            dataObject = DataObject.find(fo);
         } catch (DataObjectNotFoundException ex) {
             return -1;
         }
         try {
             js.runUserActionTask(new CancellableTask<CompilationController>() {
+
                 public void cancel() {
                 }
+
                 public void run(CompilationController ci) throws Exception {
                     if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {//TODO: ELEMENTS_RESOLVED may be sufficient
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
-                                "Unable to resolve "+ci.getFileObject()+" to phase "+Phase.RESOLVED+", current phase = "+ci.getPhase()+
-                                "\nDiagnostics = "+ci.getDiagnostics()+
-                                "\nFree memory = "+Runtime.getRuntime().freeMemory());
+                                "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
+                                "\nDiagnostics = " + ci.getDiagnostics() +
+                                "\nFree memory = " + Runtime.getRuntime().freeMemory());
                         return;
                     }
                     Elements elms = ci.getElements();
                     TypeElement classElement = getTypeElement(ci, className, null);
-                    if (classElement == null) return ;
+                    if (classElement == null) {
+                        return;
+                    }
                     List classMemberElements = elms.getAllMembers(classElement);
-                    for (Iterator it = classMemberElements.iterator(); it.hasNext(); ) {
+                    for (Iterator it = classMemberElements.iterator(); it.hasNext();) {
                         Element elm = (Element) it.next();
                         if (elm.getKind() == ElementKind.FIELD) {
                             String name = ((VariableElement) elm).getSimpleName().toString();
                             if (name.equals(fieldName)) {
-                                SourcePositions positions =  ci.getTrees().getSourcePositions();
+                                SourcePositions positions = ci.getTrees().getSourcePositions();
                                 Tree tree = ci.getTrees().getTree(elm);
-                                int pos = (int)positions.getStartPosition(ci.getCompilationUnit(), tree);
+                                int pos = (int) positions.getStartPosition(ci.getCompilationUnit(), tree);
                                 EditorCookie editor = (EditorCookie) dataObject.getCookie(EditorCookie.class);
                                 result[0] = NbDocument.findLineNumber(editor.openDocument(), pos) + 1;
-                                //return elms.getSourcePosition(elm).getLine();
+                            //return elms.getSourcePosition(elm).getLine();
                             }
                         }
                     }
                 }
-            },true);
+            }, true);
         } catch (IOException ioex) {
             ErrorManager.getDefault().notify(ioex);
             return -1;
         }
         return result[0];
-        /*
-        CompilationUnitTree cutree = ci.getTree();
-        if (cutree == null) return -1;
-        List typeDecls = cutree.getTypeDecls();
-        ClassTree ctree = findClassTree(typeDecls, className);
-        */
-        /*
-        Elements elms = ci.getElements();
-        SourceCookie.Editor sc = (SourceCookie.Editor) dataObject.getCookie 
-            (SourceCookie.Editor.class);
-        if (sc == null) return -1;
-        sc.open ();
-        StyledDocument sd = sc.getDocument ();
-        if (sd == null) return -1;
-        ClassElement[] classes = sc.getSource ().getAllClasses ();
-        FieldElement fe = null;
-        int i, k = classes.length;
-        for (i = 0; i < k; i++)
-            if (classes [i].getName ().getFullName ().equals (className)) {
-                fe = classes [i].getField (Identifier.create (fieldName));
-                break;
-            }
-        if (fe == null) return -1;
-        int position = sc.sourceToText (fe).getStartOffset ();
-        return NbDocument.findLineNumber (sd, position) + 1;
-         */
+    /*
+    CompilationUnitTree cutree = ci.getTree();
+    if (cutree == null) return -1;
+    List typeDecls = cutree.getTypeDecls();
+    ClassTree ctree = findClassTree(typeDecls, className);
+     */
+    /*
+    Elements elms = ci.getElements();
+    SourceCookie.Editor sc = (SourceCookie.Editor) dataObject.getCookie 
+    (SourceCookie.Editor.class);
+    if (sc == null) return -1;
+    sc.open ();
+    StyledDocument sd = sc.getDocument ();
+    if (sd == null) return -1;
+    ClassElement[] classes = sc.getSource ().getAllClasses ();
+    FieldElement fe = null;
+    int i, k = classes.length;
+    for (i = 0; i < k; i++)
+    if (classes [i].getName ().getFullName ().equals (className)) {
+    fe = classes [i].getField (Identifier.create (fieldName));
+    break;
     }
-    
+    if (fe == null) return -1;
+    int position = sc.sourceToText (fe).getStartOffset ();
+    return NbDocument.findLineNumber (sd, position) + 1;
+     */
+    }
+
     /**
      * Returns line number of given method in given class.
      *
@@ -784,14 +831,15 @@ public class EditorContextImpl extends EditorContext {
      *
      * @return line number or -1
      */
-    public int getMethodLineNumber (
-        String url, 
-        final String className, 
-        final String methodName,
-        final String methodSignature
-    ) {
-        final DataObject dataObject = getDataObject (url);
-        if (dataObject == null) return -1;
+    public int getMethodLineNumber(
+            String url,
+            final String className,
+            final String methodName,
+            final String methodSignature) {
+        final DataObject dataObject = getDataObject(url);
+        if (dataObject == null) {
+            return -1;
+        }
         int[] lns = getMethodLineNumbers(dataObject.getPrimaryFile(), className, null, methodName, methodSignature);
         if (lns.length == 0) {
             return -1;
@@ -799,40 +847,45 @@ public class EditorContextImpl extends EditorContext {
             return lns[0];
         }
     }
-    
+
     static int[] getMethodLineNumbers(
-        FileObject fo,
-        final String className,
-        final String[] classExcludeNames,
-        final String methodName,
-        final String methodSignature
-    ) {
+            FileObject fo,
+            final String className,
+            final String[] classExcludeNames,
+            final String methodName,
+            final String methodSignature) {
         JavaSource js = JavaSource.forFileObject(fo);
-        if (js == null) return new int[] {};
+        if (js == null) {
+            return new int[]{};
+        }
         final List<Integer> result = new ArrayList<Integer>();
-        
+
         final DataObject dataObject;
         try {
-            dataObject = DataObject.find (fo);
+            dataObject = DataObject.find(fo);
         } catch (DataObjectNotFoundException ex) {
-            return new int[] {};
+            return new int[]{};
         }
         try {
             js.runUserActionTask(new CancellableTask<CompilationController>() {
+
                 public void cancel() {
                 }
+
                 public void run(CompilationController ci) throws Exception {
                     if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {//TODO: ELEMENTS_RESOLVED may be sufficient
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
-                                "Unable to resolve "+ci.getFileObject()+" to phase "+Phase.RESOLVED+", current phase = "+ci.getPhase()+
-                                "\nDiagnostics = "+ci.getDiagnostics()+
-                                "\nFree memory = "+Runtime.getRuntime().freeMemory());
+                                "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
+                                "\nDiagnostics = " + ci.getDiagnostics() +
+                                "\nFree memory = " + Runtime.getRuntime().freeMemory());
                         return;
                     }
                     TypeElement classElement = getTypeElement(ci, className, classExcludeNames);
-                    if (classElement == null) return ;
+                    if (classElement == null) {
+                        return;
+                    }
                     List classMemberElements = ci.getElements().getAllMembers(classElement);
-                    for (Iterator it = classMemberElements.iterator(); it.hasNext(); ) {
+                    for (Iterator it = classMemberElements.iterator(); it.hasNext();) {
                         Element elm = (Element) it.next();
                         if (elm.getKind() == ElementKind.METHOD || elm.getKind() == ElementKind.CONSTRUCTOR) {
                             String name;
@@ -843,9 +896,9 @@ public class EditorContextImpl extends EditorContext {
                             }
                             if (name.equals(methodName)) {
                                 if (methodSignature == null || egualMethodSignatures(methodSignature, createSignature((ExecutableElement) elm))) {
-                                    SourcePositions positions =  ci.getTrees().getSourcePositions();
+                                    SourcePositions positions = ci.getTrees().getSourcePositions();
                                     Tree tree = ci.getTrees().getTree(elm);
-                                    int pos = (int)positions.getStartPosition(ci.getCompilationUnit(), tree);
+                                    int pos = (int) positions.getStartPosition(ci.getCompilationUnit(), tree);
                                     EditorCookie editor = (EditorCookie) dataObject.getCookie(EditorCookie.class);
                                     result.add(new Integer(NbDocument.findLineNumber(editor.openDocument(), pos) + 1));
                                 }
@@ -853,10 +906,10 @@ public class EditorContextImpl extends EditorContext {
                         }
                     }
                 }
-            },true);
+            }, true);
         } catch (IOException ioex) {
             ErrorManager.getDefault().notify(ioex);
-            return new int[] {};
+            return new int[]{};
         }
         int[] resultArray = new int[result.size()];
         for (int i = 0; i < resultArray.length; i++) {
@@ -864,43 +917,57 @@ public class EditorContextImpl extends EditorContext {
         }
         return resultArray;
     }
-    
+
     private static boolean egualMethodSignatures(String s1, String s2) {
         int i = s1.lastIndexOf(")");
-        if (i > 0) s1 = s1.substring(0, i);
+        if (i > 0) {
+            s1 = s1.substring(0, i);
+        }
         i = s2.lastIndexOf(")");
-        if (i > 0) s2 = s2.substring(0, i);
+        if (i > 0) {
+            s2 = s2.substring(0, i);
+        }
         return s1.equals(s2);
     }
-    
+
     /** @return { "method name", "method signature", "enclosing class name" }
      */
     public String[] getCurrentMethodDeclaration() {
-        Node[] nodes = TopComponent.getRegistry ().getCurrentNodes ();
-        if (nodes == null) return null;
-        if (nodes.length != 1) return null;
+        Node[] nodes = TopComponent.getRegistry().getCurrentNodes();
+        if (nodes == null) {
+            return null;
+        }
+        if (nodes.length != 1) {
+            return null;
+        }
         DataObject dataObject = nodes[0].getCookie(DataObject.class);
-        if (dataObject == null) return null;
+        if (dataObject == null) {
+            return null;
+        }
         JavaSource js = JavaSource.forFileObject(dataObject.getPrimaryFile());
-        if (js == null) return null;
+        if (js == null) {
+            return null;
+        }
         // TODO: Can be called outside of AWT? Probably need invokeAndWait()
         EditorCookie ec = nodes[0].getCookie(EditorCookie.class);
-        JEditorPane[] op = ec.getOpenedPanes ();
+        JEditorPane[] op = ec.getOpenedPanes();
         JEditorPane ep = (op != null && op.length >= 1) ? op[0] : null;
         final int currentOffset = (ep == null) ? 0 : ep.getCaretPosition();
         //final int currentOffset = org.netbeans.editor.Registry.getMostActiveComponent().getCaretPosition();
-        final String[] currentMethodPtr = new String[] { null, null, null };
+        final String[] currentMethodPtr = new String[]{null, null, null        };
         final Future<Void> scanFinished;
         try {
             scanFinished = js.runWhenScanFinished(new CancellableTask<CompilationController>() {
+
                 public void cancel() {
                 }
+
                 public void run(CompilationController ci) throws Exception {
                     if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {//TODO: ELEMENTS_RESOLVED may be sufficient
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
-                                "Unable to resolve "+ci.getFileObject()+" to phase "+Phase.RESOLVED+", current phase = "+ci.getPhase()+
-                                "\nDiagnostics = "+ci.getDiagnostics()+
-                                "\nFree memory = "+Runtime.getRuntime().freeMemory());
+                                "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
+                                "\nDiagnostics = " + ci.getDiagnostics() +
+                                "\nFree memory = " + Runtime.getRuntime().freeMemory());
                         return;
                     }
                     int offset = currentOffset;
@@ -908,16 +975,20 @@ public class EditorContextImpl extends EditorContext {
                     String text = ci.getText();
                     int l = text.length();
                     char c = 0;
-                    while (offset < l && (c = text.charAt(offset)) != '(' && c != ')' && c != '\n' && c != '\r') offset++;
-                    if (offset >= l) {
-                        return ;
+                    while (offset < l && (c = text.charAt(offset)) != '(' && c != ')' && c != '\n' && c != '\r') {
+                        offset++;
                     }
-                    if (c == '(') offset--;
-                    
+                    if (offset >= l) {
+                        return;
+                    }
+                    if (c == '(') {
+                        offset--;
+                    }
+
                     Tree tree = ci.getTreeUtilities().pathFor(offset).getLeaf();
                     if (tree.getKind() == Tree.Kind.METHOD) {
                         Element el = ci.getTrees().getElement(ci.getTrees().getPath(ci.getCompilationUnit(), tree));
-                    
+
                         //Element el = ci.getTrees().getElement(ci.getTreeUtilities().pathFor(offset));
                         if (el != null && (el.getKind() == ElementKind.METHOD || el.getKind() == ElementKind.CONSTRUCTOR)) {
                             currentMethodPtr[0] = el.getSimpleName().toString();
@@ -950,7 +1021,7 @@ public class EditorContextImpl extends EditorContext {
                     //       Thus we throw IllegalComponentStateException,
                     //       which returns the data upon call to getMessage()
                     throw new java.awt.IllegalComponentStateException() {
-                        
+
                         private void waitScanFinished() {
                             try {
                                 scanFinished.get();
@@ -959,12 +1030,12 @@ public class EditorContextImpl extends EditorContext {
                                 ErrorManager.getDefault().notify(eex);
                             }
                         }
-                        
+
                         public String getMessage() {
                             waitScanFinished();
                             return currentMethodPtr[0];
                         }
-                        
+
                         public String getLocalizedMessage() {
                             waitScanFinished();
                             return currentMethodPtr[1];
@@ -992,7 +1063,6 @@ public class EditorContextImpl extends EditorContext {
         }
     }
 
-    
     private static String createSignature(ExecutableElement elm) {
         StringBuilder signature = new StringBuilder("(");
         for (VariableElement param : elm.getParameters()) {
@@ -1004,7 +1074,7 @@ public class EditorContextImpl extends EditorContext {
         signature.append(getSignature(returnType));
         return signature.toString();
     }
-    
+
     private static String getSignature(String javaType) {
         if (javaType.equals("boolean")) {
             return "Z";
@@ -1023,12 +1093,12 @@ public class EditorContextImpl extends EditorContext {
         } else if (javaType.equals("double")) {
             return "D";
         } else if (javaType.endsWith("[]")) {
-            return "["+getSignature(javaType.substring(0, javaType.length() - 2));
+            return "[" + getSignature(javaType.substring(0, javaType.length() - 2));
         } else {
-            return "L"+javaType.replace('.', '/')+";";
+            return "L" + javaType.replace('.', '/') + ";";
         }
     }
-    
+
     /**
      * Returns binary class name for given url and line number or null.
      *
@@ -1037,16 +1107,19 @@ public class EditorContextImpl extends EditorContext {
      *
      * @return binary class name for given url and line number or null
      */
-    public String getClassName (
-        String url, 
-        int lineNumber
-    ) {
-        DataObject dataObject = getDataObject (url);
-        if (dataObject == null) return null;
+    public String getClassName(
+            String url,
+            int lineNumber) {
+        DataObject dataObject = getDataObject(url);
+        if (dataObject == null) {
+            return null;
+        }
 //        JavaSource js = JavaSource.forFileObject(dataObject.getPrimaryFile());
 //        if (js == null) return "";
         EditorCookie ec = (EditorCookie) dataObject.getCookie(EditorCookie.class);
-        if (ec == null) return "";
+        if (ec == null) {
+            return "";
+        }
         StyledDocument doc;
         try {
             doc = ec.openDocument();
@@ -1054,8 +1127,8 @@ public class EditorContextImpl extends EditorContext {
             ErrorManager.getDefault().notify(ex);
             return "";
         }
-        ScalaContext rootCtx = ScalaSemanticAnalyser.getCurrentRootCtx(doc);
         final int offset1 = NbDocument.findLineOffset(doc, lineNumber - 1);
+        ScalaContext rootCtx = ScalaSemanticAnalyser.getCurrentRootCtx(doc);
         Template tmpl = rootCtx.getEnclosingTemplate(offset1);
         String className = "";
         if (tmpl != null) {
@@ -1065,7 +1138,12 @@ public class EditorContextImpl extends EditorContext {
                 className = tmpl.getName();
             }
         }
-        return "scalaapplication14." + className;
+        Packaging enclosingPackge = tmpl.getEnclosingPackage();
+        if (enclosingPackge == null) {
+            return className;
+        } else {
+            return enclosingPackge.getPackageName() + "." + className;
+        }
 //        try {
 //            final int offset = NbDocument.findLineOffset(doc, lineNumber - 1);
 //            final String[] result = new String[] {""};
@@ -1099,45 +1177,51 @@ public class EditorContextImpl extends EditorContext {
 //            return null;
 //        }
         /*
-        SourceCookie.Editor sc = (SourceCookie.Editor) dataObject.getCookie 
-            (SourceCookie.Editor.class);
-        if (sc == null) return null;
-        StyledDocument sd = null;
-        try {
-            sd = sc.openDocument ();
-        } catch (IOException ex) {
-        }
-        if (sd == null) return null;
-        int offset;
-        try {
-            offset = NbDocument.findLineOffset (sd, lineNumber - 1);
-        } catch (IndexOutOfBoundsException ioobex) {
-            return null;
-        }
-        Element element = sc.findElement (offset);
-        
-        if (element == null) return "";
-        if (element instanceof ClassElement)
-            return getClassName ((ClassElement) element);
-        if (element instanceof ConstructorElement)
-            return getClassName (((ConstructorElement) element).getDeclaringClass ());
-        if (element instanceof FieldElement)
-            return getClassName (((FieldElement) element).getDeclaringClass ());
-        if (element instanceof InitializerElement)
-            return getClassName (((InitializerElement) element).getDeclaringClass());
-        return "";
-         */
+    SourceCookie.Editor sc = (SourceCookie.Editor) dataObject.getCookie 
+    (SourceCookie.Editor.class);
+    if (sc == null) return null;
+    StyledDocument sd = null;
+    try {
+    sd = sc.openDocument ();
+    } catch (IOException ex) {
     }
-        
+    if (sd == null) return null;
+    int offset;
+    try {
+    offset = NbDocument.findLineOffset (sd, lineNumber - 1);
+    } catch (IndexOutOfBoundsException ioobex) {
+    return null;
+    }
+    Element element = sc.findElement (offset);
+    
+    if (element == null) return "";
+    if (element instanceof ClassElement)
+    return getClassName ((ClassElement) element);
+    if (element instanceof ConstructorElement)
+    return getClassName (((ConstructorElement) element).getDeclaringClass ());
+    if (element instanceof FieldElement)
+    return getClassName (((FieldElement) element).getDeclaringClass ());
+    if (element instanceof InitializerElement)
+    return getClassName (((InitializerElement) element).getDeclaringClass());
+    return "";
+     */
+    }
+
     @Override
     public Operation[] getOperations(String url, final int lineNumber,
-                                     final BytecodeProvider bytecodeProvider) {
-        DataObject dataObject = getDataObject (url);
-        if (dataObject == null) return null;
+            final BytecodeProvider bytecodeProvider) {
+        DataObject dataObject = getDataObject(url);
+        if (dataObject == null) {
+            return null;
+        }
         JavaSource js = JavaSource.forFileObject(dataObject.getPrimaryFile());
-        if (js == null) return null;
+        if (js == null) {
+            return null;
+        }
         EditorCookie ec = (EditorCookie) dataObject.getCookie(EditorCookie.class);
-        if (ec == null) return null;
+        if (ec == null) {
+            return null;
+        }
         final StyledDocument doc;
         try {
             doc = ec.openDocument();
@@ -1149,45 +1233,47 @@ public class EditorContextImpl extends EditorContext {
         final Operation ops[][] = new Operation[1][];
         try {
             js.runUserActionTask(new CancellableTask<CompilationController>() {
+
                 public void cancel() {
                 }
+
                 public void run(CompilationController ci) throws Exception {
                     if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {//TODO: ELEMENTS_RESOLVED may be sufficient
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
-                                "Unable to resolve "+ci.getFileObject()+" to phase "+Phase.RESOLVED+", current phase = "+ci.getPhase()+
-                                "\nDiagnostics = "+ci.getDiagnostics()+
-                                "\nFree memory = "+Runtime.getRuntime().freeMemory());
+                                "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
+                                "\nDiagnostics = " + ci.getDiagnostics() +
+                                "\nFree memory = " + Runtime.getRuntime().freeMemory());
                         return;
                     }
                     Scope scope = ci.getTreeUtilities().scopeFor(offset);
                     Element method = scope.getEnclosingMethod();
                     if (method == null) {
-                        ops[0] = new Operation[] {};
-                        return ;
+                        ops[0] = new Operation[]{};
+                        return;
                     }
                     Tree methodTree = ci.getTrees().getTree(method);
                     CompilationUnitTree cu = ci.getCompilationUnit();
                     ExpressionScanner scanner = new ExpressionScanner(lineNumber, cu, ci.getTrees().getSourcePositions());
                     ExpressionScanner.ExpressionsInfo info = new ExpressionScanner.ExpressionsInfo();
                     List<Tree> expTrees = methodTree.accept(scanner, info);
-                    
+
                     //com.sun.source.tree.ExpressionTree expTree = scanner.getExpressionTree();
                     if (expTrees == null || expTrees.size() == 0) {
-                        ops[0] = new Operation[] {};
-                        return ;
+                        ops[0] = new Operation[]{};
+                        return;
                     }
                     //Tree[] expTrees = expTreeSet.toArray(new Tree[0]);
                     SourcePositions sp = ci.getTrees().getSourcePositions();
-                    int treeStartLine = 
+                    int treeStartLine =
                             (int) cu.getLineMap().getLineNumber(
-                                sp.getStartPosition(cu, expTrees.get(0)));
+                            sp.getStartPosition(cu, expTrees.get(0)));
                     int treeEndLine =
                             (int) cu.getLineMap().getLineNumber(
-                                sp.getEndPosition(cu, expTrees.get(expTrees.size() - 1)));
-                    
+                            sp.getEndPosition(cu, expTrees.get(expTrees.size() - 1)));
+
                     int[] indexes = bytecodeProvider.indexAtLines(treeStartLine, treeEndLine);
                     if (indexes == null) {
-                        return ;
+                        return;
                     }
                     Map<Tree, Operation> nodeOperations = new HashMap<Tree, Operation>();
                     ops[0] = AST2Bytecode.matchSourceTree2Bytecode(
@@ -1202,21 +1288,21 @@ public class EditorContextImpl extends EditorContext {
                         assignNextOperations(methodTree, cu, ci, bytecodeProvider, expTrees, info, nodeOperations);
                     }
                 }
-            },true);
+            }, true);
         } catch (IOException ioex) {
             ErrorManager.getDefault().notify(ioex);
             return null;
         }
         return ops[0];
     }
-    
+
     private void assignNextOperations(Tree methodTree,
-                                      CompilationUnitTree cu,
-                                      CompilationController ci,
-                                      BytecodeProvider bytecodeProvider,
-                                      List<Tree> treeNodes,
-                                      ExpressionScanner.ExpressionsInfo info,
-                                      Map<Tree, Operation> nodeOperations) {
+            CompilationUnitTree cu,
+            CompilationController ci,
+            BytecodeProvider bytecodeProvider,
+            List<Tree> treeNodes,
+            ExpressionScanner.ExpressionsInfo info,
+            Map<Tree, Operation> nodeOperations) {
         int length = treeNodes.size();
         for (int treeIndex = 0; treeIndex < length; treeIndex++) {
             Tree node = treeNodes.get(treeIndex);
@@ -1227,7 +1313,9 @@ public class EditorContextImpl extends EditorContext {
                     for (int backIndex = treeIndex - 1; backIndex >= 0; backIndex--) {
                         node = treeNodes.get(backIndex);
                         op = nodeOperations.get(node);
-                        if (op != null) break;
+                        if (op != null) {
+                            break;
+                        }
                     }
                 }
                 if (op != null) {
@@ -1235,18 +1323,18 @@ public class EditorContextImpl extends EditorContext {
                         EditorContext.Operation nextOp = nodeOperations.get(t);
                         if (nextOp == null) {
                             SourcePositions sp = ci.getTrees().getSourcePositions();
-                            int treeStartLine = 
+                            int treeStartLine =
                                     (int) cu.getLineMap().getLineNumber(
-                                        sp.getStartPosition(cu, t));
+                                    sp.getStartPosition(cu, t));
                             ExpressionScanner scanner = new ExpressionScanner(treeStartLine, cu, ci.getTrees().getSourcePositions());
                             ExpressionScanner.ExpressionsInfo newInfo = new ExpressionScanner.ExpressionsInfo();
                             List<Tree> newExpTrees = methodTree.accept(scanner, newInfo);
-                            treeStartLine = 
+                            treeStartLine =
                                     (int) cu.getLineMap().getLineNumber(
-                                        sp.getStartPosition(cu, newExpTrees.get(0)));
+                                    sp.getStartPosition(cu, newExpTrees.get(0)));
                             int treeEndLine =
                                     (int) cu.getLineMap().getLineNumber(
-                                        sp.getEndPosition(cu, newExpTrees.get(newExpTrees.size() - 1)));
+                                    sp.getEndPosition(cu, newExpTrees.get(newExpTrees.size() - 1)));
 
                             int[] indexes = bytecodeProvider.indexAtLines(treeStartLine, treeEndLine);
                             Map<Tree, Operation> newNodeOperations = new HashMap<Tree, Operation>();
@@ -1270,17 +1358,17 @@ public class EditorContextImpl extends EditorContext {
                 }
             }
         }
-        
+
     }
-    
+
     /** return the offset of the first non-whitespace character on the line,
-               or -1 when the line does not exist
+    or -1 when the line does not exist
      */
     private static int findLineOffset(StyledDocument doc, int lineNumber) {
         int offset;
         try {
-            offset = NbDocument.findLineOffset (doc, lineNumber - 1);
-            int offset2 = NbDocument.findLineOffset (doc, lineNumber);
+            offset = NbDocument.findLineOffset(doc, lineNumber - 1);
+            int offset2 = NbDocument.findLineOffset(doc, lineNumber);
             try {
                 String lineStr = doc.getText(offset, offset2 - offset);
                 for (int i = 0; i < lineStr.length(); i++) {
@@ -1297,56 +1385,68 @@ public class EditorContextImpl extends EditorContext {
         }
         return offset;
     }
-    
+
     @Override
     public MethodArgument[] getArguments(String url, final Operation operation) {
-        DataObject dataObject = getDataObject (url);
-        if (dataObject == null) return null;
+        DataObject dataObject = getDataObject(url);
+        if (dataObject == null) {
+            return null;
+        }
         JavaSource js = JavaSource.forFileObject(dataObject.getPrimaryFile());
-        if (js == null) return null;
+        if (js == null) {
+            return null;
+        }
         final MethodArgument args[][] = new MethodArgument[1][];
         try {
             js.runUserActionTask(new CancellableTask<CompilationController>() {
+
                 public void cancel() {
                 }
+
                 public void run(CompilationController ci) throws Exception {
                     if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
-                                "Unable to resolve "+ci.getFileObject()+" to phase "+Phase.RESOLVED+", current phase = "+ci.getPhase()+
-                                "\nDiagnostics = "+ci.getDiagnostics()+
-                                "\nFree memory = "+Runtime.getRuntime().freeMemory());
+                                "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
+                                "\nDiagnostics = " + ci.getDiagnostics() +
+                                "\nFree memory = " + Runtime.getRuntime().freeMemory());
                         return;
                     }
                     int offset = operation.getMethodEndPosition().getOffset();
                     Scope scope = ci.getTreeUtilities().scopeFor(offset);
                     Element method = scope.getEnclosingMethod();
                     if (method == null) {
-                        return ;
+                        return;
                     }
                     Tree methodTree = ci.getTrees().getTree(method);
                     CompilationUnitTree cu = ci.getCompilationUnit();
                     MethodArgumentsScanner scanner =
                             new MethodArgumentsScanner(offset, cu, ci.getTrees().getSourcePositions(), true,
-                                                       new OperationCreationDelegateImpl());
+                            new OperationCreationDelegateImpl());
                     args[0] = methodTree.accept(scanner, null);
                     args[0] = scanner.getArguments();
                 }
-            },true);
+            }, true);
         } catch (IOException ioex) {
             ErrorManager.getDefault().notify(ioex);
             return null;
         }
         return args[0];
     }
-    
+
     @Override
     public MethodArgument[] getArguments(String url, final int methodLineNumber) {
-        DataObject dataObject = getDataObject (url);
-        if (dataObject == null) return null;
+        DataObject dataObject = getDataObject(url);
+        if (dataObject == null) {
+            return null;
+        }
         JavaSource js = JavaSource.forFileObject(dataObject.getPrimaryFile());
-        if (js == null) return null;
+        if (js == null) {
+            return null;
+        }
         EditorCookie ec = (EditorCookie) dataObject.getCookie(EditorCookie.class);
-        if (ec == null) return null;
+        if (ec == null) {
+            return null;
+        }
         final StyledDocument doc;
         try {
             doc = ec.openDocument();
@@ -1358,37 +1458,39 @@ public class EditorContextImpl extends EditorContext {
         final MethodArgument args[][] = new MethodArgument[1][];
         try {
             js.runUserActionTask(new CancellableTask<CompilationController>() {
+
                 public void cancel() {
                 }
+
                 public void run(CompilationController ci) throws Exception {
                     if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
-                                "Unable to resolve "+ci.getFileObject()+" to phase "+Phase.RESOLVED+", current phase = "+ci.getPhase()+
-                                "\nDiagnostics = "+ci.getDiagnostics()+
-                                "\nFree memory = "+Runtime.getRuntime().freeMemory());
+                                "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
+                                "\nDiagnostics = " + ci.getDiagnostics() +
+                                "\nFree memory = " + Runtime.getRuntime().freeMemory());
                         return;
                     }
                     Scope scope = ci.getTreeUtilities().scopeFor(offset);
                     Element clazz = scope.getEnclosingClass();
                     if (clazz == null) {
-                        return ;
+                        return;
                     }
                     Tree methodTree = ci.getTrees().getTree(clazz);
                     CompilationUnitTree cu = ci.getCompilationUnit();
                     MethodArgumentsScanner scanner =
                             new MethodArgumentsScanner(methodLineNumber, cu, ci.getTrees().getSourcePositions(), false,
-                                                       new OperationCreationDelegateImpl());
+                            new OperationCreationDelegateImpl());
                     args[0] = methodTree.accept(scanner, null);
                     args[0] = scanner.getArguments();
                 }
-            },true);
+            }, true);
         } catch (IOException ioex) {
             ErrorManager.getDefault().notify(ioex);
             return null;
         }
         return args[0];
     }
-    
+
     /**
      * Returns list of imports for given source url.
      *
@@ -1396,24 +1498,29 @@ public class EditorContextImpl extends EditorContext {
      *
      * @return list of imports for given source url
      */
-    public String[] getImports (
-        String url
-    ) {
-        DataObject dataObject = getDataObject (url);
-        if (dataObject == null) return new String [0];
+    public String[] getImports(
+            String url) {
+        DataObject dataObject = getDataObject(url);
+        if (dataObject == null) {
+            return new String[0];
+        }
         JavaSource js = JavaSource.forFileObject(dataObject.getPrimaryFile());
-        if (js == null) return new String [0];
+        if (js == null) {
+            return new String[0];
+        }
         final List<String> imports = new ArrayList<String>();
         try {
             js.runUserActionTask(new CancellableTask<CompilationController>() {
+
                 public void cancel() {
                 }
+
                 public void run(CompilationController ci) throws Exception {
                     if (ci.toPhase(Phase.PARSED).compareTo(Phase.PARSED) < 0) {
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
-                                "Unable to resolve "+ci.getFileObject()+" to phase "+Phase.RESOLVED+", current phase = "+ci.getPhase()+
-                                "\nDiagnostics = "+ci.getDiagnostics()+
-                                "\nFree memory = "+Runtime.getRuntime().freeMemory());
+                                "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
+                                "\nDiagnostics = " + ci.getDiagnostics() +
+                                "\nFree memory = " + Runtime.getRuntime().freeMemory());
                         return;
                     }
                     List importDecl = ci.getCompilationUnit().getImports();
@@ -1427,46 +1534,46 @@ public class EditorContextImpl extends EditorContext {
             }, true);
         } catch (IOException ioex) {
             ErrorManager.getDefault().notify(ioex);
-            return new String [0];
+            return new String[0];
         }
         return imports.toArray(new String[0]);
-        /*
-        SourceCookie.Editor sc = (SourceCookie.Editor) dataObject.getCookie 
-            (SourceCookie.Editor.class);
-        if (sc == null) return new String [0];
-        Import[] is = sc.getSource ().getImports ();
-        int i, k = is.length;
-        String[] is2 = new String [k];
-        for (i = 0; i < k; i++)
-            is2 [i] = is [i].getIdentifier ().getFullName ();
-        return is2;
-         */
+    /*
+    SourceCookie.Editor sc = (SourceCookie.Editor) dataObject.getCookie 
+    (SourceCookie.Editor.class);
+    if (sc == null) return new String [0];
+    Import[] is = sc.getSource ().getImports ();
+    int i, k = is.length;
+    String[] is2 = new String [k];
+    for (i = 0; i < k; i++)
+    is2 [i] = is [i].getIdentifier ().getFullName ();
+    return is2;
+     */
     }
-    
+
     private JavaSource getJavaSource(SourcePathProvider sp) {
         String[] roots = sp.getOriginalSourceRoots();
         List<FileObject> sourcePathFiles = new ArrayList<FileObject>();
         for (String root : roots) {
-            FileObject fo = FileUtil.toFileObject (new java.io.File(root));
-            if (fo != null && FileUtil.isArchiveFile (fo)) {
-                fo = FileUtil.getArchiveRoot (fo);
+            FileObject fo = FileUtil.toFileObject(new java.io.File(root));
+            if (fo != null && FileUtil.isArchiveFile(fo)) {
+                fo = FileUtil.getArchiveRoot(fo);
             }
             sourcePathFiles.add(fo);
         }
-        ClassPath bootPath = ClassPathSupport.createClassPath(new FileObject[] {});
-        ClassPath classPath = ClassPathSupport.createClassPath(new FileObject[] {});
-        ClassPath sourcePath = ClassPathSupport.createClassPath(sourcePathFiles.toArray(new FileObject[] {}));
-        return JavaSource.create(ClasspathInfo.create(bootPath, classPath, sourcePath), new FileObject[] {});
+        ClassPath bootPath = ClassPathSupport.createClassPath(new FileObject[]{});
+        ClassPath classPath = ClassPathSupport.createClassPath(new FileObject[]{});
+        ClassPath sourcePath = ClassPathSupport.createClassPath(sourcePathFiles.toArray(new FileObject[]{}));
+        return JavaSource.create(ClasspathInfo.create(bootPath, classPath, sourcePath), new FileObject[]{});
     }
-    
+
     /**
      * Parse the expression into AST tree and traverse is via the provided visitor.
      *
      * @return the visitor value or <code>null</code>.
      */
-    public <R,D> R parseExpression(final String expression, String url, final int line,
-                                   final TreePathScanner<R,D> visitor, final D context,
-                                   final SourcePathProvider sp) {
+    public <R, D> R parseExpression(final String expression, String url, final int line,
+            final TreePathScanner<R, D> visitor, final D context,
+            final SourcePathProvider sp) {
         JavaSource js = null;
         try {
             FileObject fo = URLMapper.findFileObject(new URL(url));
@@ -1477,12 +1584,14 @@ public class EditorContextImpl extends EditorContext {
         if (js == null) {
             js = getJavaSource(sp);
         }
-        final R[] retValue = (R[]) new Object[] { null };
+        final R[] retValue = (R[]) new Object[]{null                };
         try {
             js.runUserActionTask(new Task<CompilationController>() {
+
                 public void run(CompilationController ci) throws Exception {
-                    if (ci.toPhase(Phase.PARSED).compareTo(Phase.PARSED) < 0)
+                    if (ci.toPhase(Phase.PARSED).compareTo(Phase.PARSED) < 0) {
                         return;
+                    }
                     Scope scope = null;
                     int offset = 0;
                     StyledDocument doc = (StyledDocument) ci.getDocument();
@@ -1490,37 +1599,40 @@ public class EditorContextImpl extends EditorContext {
                         offset = findLineOffset(doc, line);
                         scope = ci.getTreeUtilities().scopeFor(offset);
                     }
-                    SourcePositions[] sourcePtr = new SourcePositions[] { null };
+                    SourcePositions[] sourcePtr = new SourcePositions[]{null                    };
                     Tree tree = ci.getTreeUtilities().parseExpression(
                             expression,
-                            sourcePtr
-                    );
+                            sourcePtr);
                     if (scope != null) {
                         ci.getTreeUtilities().attributeTree(tree, scope);
                     }
                     try {
                         //context.setTrees(ci.getTrees());
                         java.lang.reflect.Method setTreesMethod =
-                                context.getClass().getMethod("setTrees", new Class[] { Trees.class });
+                                context.getClass().getMethod("setTrees", new Class[]{Trees.class                                });
                         setTreesMethod.invoke(context, ci.getTrees());
-                    } catch (Exception ex) {}
+                    } catch (Exception ex) {
+                    }
                     try {
                         //context.setCompilationUnit(ci.getCompilationUnit());
                         java.lang.reflect.Method setCompilationUnitMethod =
-                                context.getClass().getMethod("setCompilationUnit", new Class[] { CompilationUnitTree.class });
+                                context.getClass().getMethod("setCompilationUnit", new Class[]{CompilationUnitTree.class                                });
                         setCompilationUnitMethod.invoke(context, ci.getCompilationUnit());
-                    } catch (Exception ex) {}
+                    } catch (Exception ex) {
+                    }
                     TreePath treePath = null;
                     try {
                         //context.setTrees(ci.getTrees());
                         java.lang.reflect.Method setTreePathMethod =
-                                context.getClass().getMethod("setTreePath", new Class[] { TreePath.class });
+                                context.getClass().getMethod("setTreePath", new Class[]{TreePath.class                                });
                         if (doc != null) {
                             treePath = ci.getTreeUtilities().pathFor(offset);
                             treePath = new TreePath(treePath, tree);
                             setTreePathMethod.invoke(context, treePath);
                         }
-                    } catch (Exception ex) { return;}
+                    } catch (Exception ex) {
+                        return;
+                    }
                     if (treePath != null) {
                         retValue[0] = visitor.scan(treePath, context);
                     } else {
@@ -1530,25 +1642,25 @@ public class EditorContextImpl extends EditorContext {
             }, true);
             /*
             js.runModificationTask(new Task<WorkingCopy>() {
-                public void run(WorkingCopy wc) throws Exception {
-                    if (wc.toPhase(Phase.PARSED).compareTo(Phase.PARSED) < 0)
-                        return;
-                    int offset = findLineOffset((StyledDocument) wc.getDocument(), line);
-                    Scope scope = wc.getTreeUtilities().scopeFor(offset);
-                    Element clazz = scope.getEnclosingClass();
-                    if (clazz == null) {
-                        return ;
-                    }
-                    ExpressionTree expressionTree = wc.getTreeUtilities().parseExpression(
-                            expression,
-                            new SourcePositions[] { wc.getTrees().getSourcePositions() }
-                    );
-                    wc.getTreeUtilities().attributeTree(expressionTree, scope);
-                    TreeMaker tm = wc.getTreeMaker();
-                    ExpressionStatementTree est = tm.ExpressionStatement(expressionTree);
-                    addStatement(tm, wc.getTrees(), wc.getTreeUtilities().pathFor(offset), offset, est);
-                    //wc.rewrite(est, est);
-                }
+            public void run(WorkingCopy wc) throws Exception {
+            if (wc.toPhase(Phase.PARSED).compareTo(Phase.PARSED) < 0)
+            return;
+            int offset = findLineOffset((StyledDocument) wc.getDocument(), line);
+            Scope scope = wc.getTreeUtilities().scopeFor(offset);
+            Element clazz = scope.getEnclosingClass();
+            if (clazz == null) {
+            return ;
+            }
+            ExpressionTree expressionTree = wc.getTreeUtilities().parseExpression(
+            expression,
+            new SourcePositions[] { wc.getTrees().getSourcePositions() }
+            );
+            wc.getTreeUtilities().attributeTree(expressionTree, scope);
+            TreeMaker tm = wc.getTreeMaker();
+            ExpressionStatementTree est = tm.ExpressionStatement(expressionTree);
+            addStatement(tm, wc.getTrees(), wc.getTreeUtilities().pathFor(offset), offset, est);
+            //wc.rewrite(est, est);
+            }
             });
              */
             return retValue[0];
@@ -1559,75 +1671,72 @@ public class EditorContextImpl extends EditorContext {
     }
     /*
     private static void addStatement(TreeMaker tm, Trees trees, TreePath positionPath, int offset, StatementTree statement) {
-        SourcePositions sourcePositions = trees.getSourcePositions();
-        CompilationUnitTree root = positionPath.getCompilationUnit();
-        Tree newTree = null;
-        for (java.util.Iterator<Tree> it = positionPath.iterator(); it.hasNext(); ) {
-            Tree element = it.next();
-            if (element.getKind() == Tree.Kind.BLOCK && newTree == null) {
-                BlockTree block = (BlockTree) element;
-                List<? extends StatementTree> statements = block.getStatements();
-                int index = 0;
-                for (StatementTree st : statements) {
-                    if (sourcePositions.getStartPosition(root, st) >= offset) {
-                        break;
-                    }
-                    index++;
-                }
-                newTree = tm.insertBlockStatement(block, index, statement);
-            } else {
-                
-            }
-        }
+    SourcePositions sourcePositions = trees.getSourcePositions();
+    CompilationUnitTree root = positionPath.getCompilationUnit();
+    Tree newTree = null;
+    for (java.util.Iterator<Tree> it = positionPath.iterator(); it.hasNext(); ) {
+    Tree element = it.next();
+    if (element.getKind() == Tree.Kind.BLOCK && newTree == null) {
+    BlockTree block = (BlockTree) element;
+    List<? extends StatementTree> statements = block.getStatements();
+    int index = 0;
+    for (StatementTree st : statements) {
+    if (sourcePositions.getStartPosition(root, st) >= offset) {
+    break;
     }
-    */
+    index++;
+    }
+    newTree = tm.insertBlockStatement(block, index, statement);
+    } else {
+    
+    }
+    }
+    }
+     */
+
     /**
      * Adds a property change listener.
      *
      * @param l the listener to add
      */
-    public void addPropertyChangeListener (PropertyChangeListener l) {
-        pcs.addPropertyChangeListener (l);
-    }
-    
-    /**
-     * Removes a property change listener.
-     *
-     * @param l the listener to remove
-     */
-    public void removePropertyChangeListener (PropertyChangeListener l) {
-        pcs.removePropertyChangeListener (l);
-    }
-    
-    /**
-     * Adds a property change listener.
-     *
-     * @param propertyName the name of property
-     * @param l the listener to add
-     */
-    public void addPropertyChangeListener (
-        String propertyName,
-        PropertyChangeListener l
-    ) {
-        pcs.addPropertyChangeListener (propertyName, l);
-    }
-    
-    /**
-     * Removes a property change listener.
-     *
-     * @param propertyName the name of property
-     * @param l the listener to remove
-     */
-    public void removePropertyChangeListener (
-        String propertyName,
-        PropertyChangeListener l
-    ) {
-        pcs.removePropertyChangeListener (propertyName, l);
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+        pcs.addPropertyChangeListener(l);
     }
 
-    
+    /**
+     * Removes a property change listener.
+     *
+     * @param l the listener to remove
+     */
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        pcs.removePropertyChangeListener(l);
+    }
+
+    /**
+     * Adds a property change listener.
+     *
+     * @param propertyName the name of property
+     * @param l the listener to add
+     */
+    public void addPropertyChangeListener(
+            String propertyName,
+            PropertyChangeListener l) {
+        pcs.addPropertyChangeListener(propertyName, l);
+    }
+
+    /**
+     * Removes a property change listener.
+     *
+     * @param propertyName the name of property
+     * @param l the listener to remove
+     */
+    public void removePropertyChangeListener(
+            String propertyName,
+            PropertyChangeListener l) {
+        pcs.removePropertyChangeListener(propertyName, l);
+    }
+
     // private helper methods ..................................................
-    
 //    public void fileChanged (FileEvent fe) {
 //	pcs.firePropertyChange (PROP_LINE_NUMBER, null, null);
 //    }
@@ -1637,36 +1746,42 @@ public class EditorContextImpl extends EditorContext {
 //    public void fileDataCreated (FileEvent fe) {}
 //    public void fileFolderCreated (FileEvent fe) {}
 //    public void fileRenamed (org.openide.filesystems.FileRenameEvent fe) {}
-    
-    
     private String getCurrentElement(ElementKind kind) {
         return getCurrentElement(kind, null);
     }
-    
+
     /** throws IllegalComponentStateException when can not return the data in AWT. */
     private String getCurrentElement(final ElementKind kind, final Element[] elementPtr)
             throws java.awt.IllegalComponentStateException {
-        Node[] nodes = TopComponent.getRegistry ().getCurrentNodes ();
-        if (nodes == null) return null;
-        if (nodes.length != 1) return null;
+        Node[] nodes = TopComponent.getRegistry().getCurrentNodes();
+        if (nodes == null) {
+            return null;
+        }
+        if (nodes.length != 1) {
+            return null;
+        }
         DataObject dataObject = nodes[0].getCookie(DataObject.class);
-        if (dataObject == null) return null;
+        if (dataObject == null) {
+            return null;
+        }
         JavaSource js = JavaSource.forFileObject(dataObject.getPrimaryFile());
-        if (js == null) return null;
+        if (js == null) {
+            return null;
+        }
         // TODO: Can be called outside of AWT? Probably need invokeAndWait()
         EditorCookie ec = nodes[0].getCookie(EditorCookie.class);
         final int currentOffset;
-        
-        JEditorPane[] op = ec.getOpenedPanes ();
+
+        JEditorPane[] op = ec.getOpenedPanes();
         JEditorPane ep = (op != null && op.length >= 1) ? op[0] : null;
         final String selectedIdentifier;
         if (ep != null) {
-            String s = ep.getSelectedText ();
+            String s = ep.getSelectedText();
             currentOffset = ep.getCaretPosition();
             if (ep.getSelectionStart() > currentOffset || ep.getSelectionEnd() < currentOffset) {
                 s = null; // caret outside of the selection
             }
-            if (s != null && Utilities.isJavaIdentifier (s)) {
+            if (s != null && Utilities.isJavaIdentifier(s)) {
                 selectedIdentifier = s;
             } else {
                 selectedIdentifier = null;
@@ -1675,20 +1790,22 @@ public class EditorContextImpl extends EditorContext {
             selectedIdentifier = null;
             currentOffset = 0;
         }
-        
+
         //final int currentOffset = org.netbeans.editor.Registry.getMostActiveComponent().getCaretPosition();
-        final String[] currentElementPtr = new String[] { null };
+        final String[] currentElementPtr = new String[]{null        };
         final Future<Void> scanFinished;
         try {
             scanFinished = js.runWhenScanFinished(new CancellableTask<CompilationController>() {
+
                 public void cancel() {
                 }
+
                 public void run(CompilationController ci) throws Exception {
                     if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {//TODO: ELEMENTS_RESOLVED may be sufficient
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
-                                "Unable to resolve "+ci.getFileObject()+" to phase "+Phase.RESOLVED+", current phase = "+ci.getPhase()+
-                                "\nDiagnostics = "+ci.getDiagnostics()+
-                                "\nFree memory = "+Runtime.getRuntime().freeMemory());
+                                "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
+                                "\nDiagnostics = " + ci.getDiagnostics() +
+                                "\nFree memory = " + Runtime.getRuntime().freeMemory());
                         return;
                     }
                     Element el = null;
@@ -1705,7 +1822,7 @@ public class EditorContextImpl extends EditorContext {
                                     isMemberClass = true;
                                 }
                             }
-                        } 
+                        }
                         if (!isMemberClass) {
                             TreePath currentPath = ci.getTreeUtilities().pathFor(currentOffset);
                             Tree tree = currentPath.getLeaf();
@@ -1733,17 +1850,21 @@ public class EditorContextImpl extends EditorContext {
                         }
                     } else if (kind == ElementKind.FIELD) {
                         int offset = currentOffset;
-                        
+
                         if (selectedIdentifier == null) {
                             String text = ci.getText();
                             int l = text.length();
                             char c = 0; // Search for the end of the field declaration
-                            while (offset < l && (c = text.charAt(offset)) != ';' && c != ',' && c != '\n' && c != '\r') offset++;
+                            while (offset < l && (c = text.charAt(offset)) != ';' && c != ',' && c != '\n' && c != '\r') {
+                                offset++;
+                            }
                             if (offset < l && c == ';' || c == ',') { // we have it, but there might be '=' sign somewhere before
                                 int endOffset = --offset;
                                 int setOffset = -1;
-                                while(offset >= 0 && (c = text.charAt(offset)) != ';' && c != ',' && c != '\n' && c != '\r') {
-                                    if (c == '=') setOffset = offset;
+                                while (offset >= 0 && (c = text.charAt(offset)) != ';' && c != ',' && c != '\n' && c != '\r') {
+                                    if (c == '=') {
+                                        setOffset = offset;
+                                    }
                                     offset--;
                                 }
                                 if (setOffset > -1) {
@@ -1751,9 +1872,13 @@ public class EditorContextImpl extends EditorContext {
                                 } else {
                                     offset = endOffset;
                                 }
-                                while (offset >= 0 && Character.isWhitespace(text.charAt(offset))) offset--;
+                                while (offset >= 0 && Character.isWhitespace(text.charAt(offset))) {
+                                    offset--;
+                                }
                             }
-                            if (offset < 0) offset = 0;
+                            if (offset < 0) {
+                                offset = 0;
+                            }
                         }
                         Tree tree = ci.getTreeUtilities().pathFor(offset).getLeaf();
                         if (tree.getKind() == Tree.Kind.VARIABLE) {
@@ -1773,7 +1898,7 @@ public class EditorContextImpl extends EditorContext {
                                     break;
                                 }
                             }
-                            
+
                         } else if (tree.getKind() == Tree.Kind.MEMBER_SELECT && selectedIdentifier != null) {
                             MemberSelectTree mst = (MemberSelectTree) tree;
                             String fieldName = mst.getIdentifier().toString();
@@ -1800,7 +1925,7 @@ public class EditorContextImpl extends EditorContext {
                     //       Thus we throw IllegalComponentStateException,
                     //       which returns the data upon call to getMessage()
                     throw new java.awt.IllegalComponentStateException() {
-                        
+
                         private void waitScanFinished() {
                             try {
                                 scanFinished.get();
@@ -1809,12 +1934,11 @@ public class EditorContextImpl extends EditorContext {
                                 ErrorManager.getDefault().notify(eex);
                             }
                         }
-                        
+
                         public String getMessage() {
                             waitScanFinished();
                             return currentElementPtr[0];
                         }
-                        
                     };
                 } else {
                     try {
@@ -1833,17 +1957,21 @@ public class EditorContextImpl extends EditorContext {
         }
         return currentElementPtr[0];
     }
-    
-    private JEditorPane getCurrentEditor () {
-        EditorCookie e = getCurrentEditorCookie ();
-        if (e == null) return null;
-        JEditorPane[] op = e.getOpenedPanes ();
+
+    private JEditorPane getCurrentEditor() {
+        EditorCookie e = getCurrentEditorCookie();
+        if (e == null) {
+            return null;
+        }
+        JEditorPane[] op = e.getOpenedPanes();
         // We listen on open panes if e implements EditorCookie.Observable
-        if ((op == null) || (op.length < 1)) return null;
-        return op [0];
+        if ((op == null) || (op.length < 1)) {
+            return null;
+        }
+        return op[0];
     }
-    
-    private EditorCookie getCurrentEditorCookie () {
+
+    private EditorCookie getCurrentEditorCookie() {
         synchronized (currentLock) {
             if (currentEditorCookie == null) {
                 TopComponent tc = TopComponent.getRegistry().getActivated();
@@ -1861,72 +1989,71 @@ public class EditorContextImpl extends EditorContext {
             return currentEditorCookie;
         }
     }
-    
-    private static DataObject getDataObject (String url) {
+
+    private static DataObject getDataObject(String url) {
         FileObject file;
         try {
-            file = URLMapper.findFileObject (new URL (url));
+            file = URLMapper.findFileObject(new URL(url));
         } catch (MalformedURLException e) {
             return null;
         }
 
-        if (file == null) return null;
+        if (file == null) {
+            return null;
+        }
         try {
-            return DataObject.find (file);
+            return DataObject.find(file);
         } catch (DataObjectNotFoundException ex) {
             return null;
         }
     }
-    
+
     private class EditorLookupListener extends Object implements LookupListener, PropertyChangeListener {
-        
+
         private Class type;
-        
+
         public EditorLookupListener(Class type) {
             this.type = type;
         }
-        
+
         public void resultChanged(LookupEvent ev) {
             if (type == DataObject.class) {
                 synchronized (currentLock) {
                     currentURL = null;
                     //currentElement = null;
                     if (currentEditorCookie instanceof EditorCookie.Observable) {
-                        ((EditorCookie.Observable) currentEditorCookie).
-                                removePropertyChangeListener(editorObservableListener);
+                        ((EditorCookie.Observable) currentEditorCookie).removePropertyChangeListener(editorObservableListener);
                     }
                     currentEditorCookie = null;
                 }
-                pcs.firePropertyChange (TopComponent.Registry.PROP_CURRENT_NODES, null, null);
+                pcs.firePropertyChange(TopComponent.Registry.PROP_CURRENT_NODES, null, null);
             } else if (type == EditorCookie.class) {
                 synchronized (currentLock) {
                     currentURL = null;
                     //currentElement = null;
                     if (currentEditorCookie instanceof EditorCookie.Observable) {
-                        ((EditorCookie.Observable) currentEditorCookie).
-                                removePropertyChangeListener(editorObservableListener);
+                        ((EditorCookie.Observable) currentEditorCookie).removePropertyChangeListener(editorObservableListener);
                     }
                     currentEditorCookie = null;
                 }
-                pcs.firePropertyChange (TopComponent.Registry.PROP_CURRENT_NODES, null, null);
+                pcs.firePropertyChange(TopComponent.Registry.PROP_CURRENT_NODES, null, null);
             } else if (type == Node.class) {
                 synchronized (currentLock) {
                     //currentElement = null;
                 }
-                pcs.firePropertyChange (TopComponent.Registry.PROP_CURRENT_NODES, null, null);
+                pcs.firePropertyChange(TopComponent.Registry.PROP_CURRENT_NODES, null, null);
             }
         }
-        
+
         public void propertyChange(PropertyChangeEvent evt) {
             if (evt.getPropertyName().equals(EditorCookie.Observable.PROP_OPENED_PANES)) {
-                pcs.firePropertyChange (EditorCookie.Observable.PROP_OPENED_PANES, null, null);
+                pcs.firePropertyChange(EditorCookie.Observable.PROP_OPENED_PANES, null, null);
             }
         }
-        
     }
-    
+
     private static final class OperationHighlight implements Highlight {
-    
+
         private Coloring coloring;
         private int start;
         private int end;
@@ -1949,50 +2076,51 @@ public class EditorContextImpl extends EditorContext {
         public Coloring getColoring() {
             return coloring;
         }
-
     }
-    
+
     private class OperationCreationDelegateImpl implements AST2Bytecode.OperationCreationDelegate {
         /*
-         public Operation createOperation(
-                 Position startPosition,
-                 Position endPosition,
-                 int bytecodeIndex) {
-             return EditorContextImpl.this.createOperation(
-                     startPosition,
-                     endPosition,
-                     bytecodeIndex);
-         }
+        public Operation createOperation(
+        Position startPosition,
+        Position endPosition,
+        int bytecodeIndex) {
+        return EditorContextImpl.this.createOperation(
+        startPosition,
+        endPosition,
+        bytecodeIndex);
+        }
          */
-         public Operation createMethodOperation(
-                 Position startPosition,
-                 Position endPosition,
-                 Position methodStartPosition,
-                 Position methodEndPosition,
-                 String methodName,
-                 String methodClassType,
-                 int bytecodeIndex) {
-             return EditorContextImpl.this.createMethodOperation(
-                     startPosition,
-                     endPosition,
-                     methodStartPosition,
-                     methodEndPosition,
-                     methodName,
-                     methodClassType,
-                     bytecodeIndex);
-         }
-         public Position createPosition(
-                 int offset,
-                 int line,
-                 int column) {
-             return EditorContextImpl.this.createPosition(
-                     offset,
-                     line,
-                     column);
-         }
-         public void addNextOperationTo(Operation operation, Operation next) {
-             EditorContextImpl.this.addNextOperationTo(operation, next);
-         }
+
+        public Operation createMethodOperation(
+                Position startPosition,
+                Position endPosition,
+                Position methodStartPosition,
+                Position methodEndPosition,
+                String methodName,
+                String methodClassType,
+                int bytecodeIndex) {
+            return EditorContextImpl.this.createMethodOperation(
+                    startPosition,
+                    endPosition,
+                    methodStartPosition,
+                    methodEndPosition,
+                    methodName,
+                    methodClassType,
+                    bytecodeIndex);
+        }
+
+        public Position createPosition(
+                int offset,
+                int line,
+                int column) {
+            return EditorContextImpl.this.createPosition(
+                    offset,
+                    line,
+                    column);
+        }
+
+        public void addNextOperationTo(Operation operation, Operation next) {
+            EditorContextImpl.this.addNextOperationTo(operation, next);
+        }
     }
-    
 }
