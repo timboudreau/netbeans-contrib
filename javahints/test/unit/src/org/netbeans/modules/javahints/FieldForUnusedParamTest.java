@@ -93,6 +93,15 @@ public class FieldForUnusedParamTest extends TreeRuleTestBase {
                        "package test; public class Test { private int a; public Test(int a) { this.a = a; } } ");
     }
     
+    public void test125691() throws Exception {
+        performAnalysisTest("test/Test.java",
+                            "package test;\n" +
+                            "public class Test {\n" +
+                            "     private int a;\n" +
+                            "     public Test(int |a)\n" +
+                            "}\n");
+    }
+    
     @Override
     protected List<ErrorDescription> computeErrors(CompilationInfo info, TreePath path, int offset) {
         return new FieldForUnusedParam().run(info, path, offset);
