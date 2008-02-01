@@ -76,8 +76,14 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
         content.add(service);
         content.add(srcRoot);
         content.add(this);
-        setName(service.getNameAttr());
-        setDisplayName(service.getNameAttr());
+    }
+    
+    public String getName() {
+        return service.getNameAttr();
+    }
+    
+    public String getDisplayName() {
+        return service.getNameAttr();
     }
     
     @Override
@@ -139,6 +145,11 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
 
     @Override
     public void destroy() throws java.io.IOException {
+    }
+    
+    public void nameChanged(String oldName, String newName) {
+        fireNameChange(oldName, newName);
+        fireDisplayNameChange(oldName, newName);
     }
     
 }

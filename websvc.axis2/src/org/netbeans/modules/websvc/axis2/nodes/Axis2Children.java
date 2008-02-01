@@ -129,20 +129,22 @@ public class Axis2Children extends Children.Keys<Service> {
     
     class Axis2FileListener implements PropertyChangeListener {
         public void propertyChange(PropertyChangeEvent evt) {
-            if (evt.getNewValue() == null) {
-                Axis2Model oldModel = (Axis2Model)evt.getOldValue();
-                if (oldModel != null) {
-                    oldModel.getRootComponent().removePropertyChangeListener(axis2Listener);
-                    updateNodeTask.schedule(2000);
+            if (Axis2ModelProvider.PROP_AXIS2.equals(evt.getPropertyName())) {
+                if (evt.getNewValue() == null) {
+                    Axis2Model oldModel = (Axis2Model)evt.getOldValue();
+                    if (oldModel != null) {
+                        oldModel.getRootComponent().removePropertyChangeListener(axis2Listener);
+                        updateNodeTask.schedule(2000);
+                    }
+                } else {
+                    Axis2Model oldModel = (Axis2Model)evt.getOldValue();
+                    if (oldModel != null) {
+                        oldModel.getRootComponent().removePropertyChangeListener(axis2Listener);
+                    }
+                    Axis2Model newModel = (Axis2Model)evt.getNewValue();
+                    if (axis2Listener == null) axis2Listener = new Axis2Listener();
+                    newModel.getRootComponent().addPropertyChangeListener(axis2Listener);               
                 }
-            } else {
-                Axis2Model oldModel = (Axis2Model)evt.getOldValue();
-                if (oldModel != null) {
-                    oldModel.getRootComponent().removePropertyChangeListener(axis2Listener);
-                }
-                Axis2Model newModel = (Axis2Model)evt.getNewValue();
-                if (axis2Listener == null) axis2Listener = new Axis2Listener();
-                newModel.getRootComponent().addPropertyChangeListener(axis2Listener);               
             }
         }        
     }
