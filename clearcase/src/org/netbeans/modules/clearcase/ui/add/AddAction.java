@@ -208,7 +208,7 @@ public class AddAction extends AbstractAction {
                         FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
 
                         // refresh the cache first so we will
-                        // know all checkin candites
+                        // know all checkin candidates
                         cache.refreshRecursively(context);
                         
                         // get all files to be added
