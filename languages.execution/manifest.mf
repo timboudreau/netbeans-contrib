@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.languages.execution
-OpenIDE-Module-Layer: org/netbeans/modules/languages/execution/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/languages/execution/Bundle.properties
 OpenIDE-Module-Specification-Version: 0.10.0
 

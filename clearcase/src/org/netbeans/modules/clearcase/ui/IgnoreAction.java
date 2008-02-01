@@ -83,7 +83,7 @@ public class IgnoreAction extends AbstractAction {
                 }                
             }    
         } finally {
-            Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]));            
+            Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]), false);            
         }        
     }
 

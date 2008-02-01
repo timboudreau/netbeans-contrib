@@ -48,13 +48,14 @@ import org.openide.loaders.UniFileLoader;
 import org.openide.util.NbBundle;
 
 /**
- * 
+ *
  * @author Dongmei Cao
  */
 
 public class HibernateMappingDataLoader extends UniFileLoader {
 
     public static final String REQUIRED_MIME = "text/x-hibernate-mapping+xml";
+    private static final long serialVersionUID = 1L;
 
     public HibernateMappingDataLoader() {
         super("org.netbeans.modules.hibernate.loaders.mapping.HibernateMappingDataObject");
