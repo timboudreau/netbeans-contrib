@@ -111,41 +111,45 @@ made subject to such option by the copyright holder.
                 <xsl:variable name="wsname" select="/axis2:axis2/axis2:service/@name"/>
                 <target name="axis2-aar">
                     <xsl:attribute name="depends">
+                        <xsl:text>compile</xsl:text>
                         <xsl:for-each select="/axis2:axis2/axis2:service/axis2:generate-wsdl">
-                            <xsl:if test="position()!=1"><xsl:text>, </xsl:text></xsl:if>
-                            <xsl:text>java2wsdl-</xsl:text><xsl:value-of select="../@name"/>
+                            <xsl:text>, java2wsdl-</xsl:text><xsl:value-of select="../@name"/>
                         </xsl:for-each>
                     </xsl:attribute>
-                    <copy toDir="${{build.dir}}/classes" failonerror="false">
+                    <mkdir dir = "${{build.dir}}/axis2/WEB-INF/services"/>
+                    <jar destfile="${{build.dir}}/axis2/WEB-INF/services/{$wsname}.aar">
+                        <fileset excludes="**/Test.class" dir="${{build.dir}}/classes"/>
                         <fileset dir="${{basedir}}/xml-resources/axis2">
                             <include name="**/*.wsdl"/>
                             <include name="**/*.xml"/>
                         </fileset>
-                    </copy>
-                    <xsl:if test="/axis2:axis2/axis2:service/axis2:generate-wsdl">
-                        <xsl:attribute name="depends">
-                            <xsl:for-each select="/axis2:axis2/axis2:service/axis2:generate-wsdl">
-                                <xsl:if test="position()!=1"><xsl:text>, </xsl:text></xsl:if>
-                                <xsl:text>java2wsdl-</xsl:text><xsl:value-of select="../@name"/>
-                            </xsl:for-each>
-                        </xsl:attribute>
-                    </xsl:if>
-                    <jar destfile="${{build.dir}}/{$wsname}.aar">
-                        <fileset excludes="**/Test.class" dir="${{build.dir}}/classes"/>
                     </jar>
                 </target>
-                <target name="axis2-deploy-check" depends="axis2-aar">
-                    <condition property="axis2-deploy-required">
+                <target name="axis2-deploy-dir-check" depends="axis2-aar">
+                    <condition property="axis2-deploy-dir-required">
                         <isset property="axis2.deploy.dir"/>
                     </condition>
-                </target>    
-                <target name="axis2-deploy" depends="axis2-deploy-check" if="axis2-deploy-required">
+                </target>
+                <target name="axis2-deploy-dir" depends="axis2-deploy-dir-check" if="axis2-deploy-dir-required">
                     <copy toDir="${{axis2.deploy.dir}}/WEB-INF/services">
-                        <fileset dir="${{build.dir}}">
+                        <fileset dir="${{build.dir}}/axis2/WEB-INF/services">
                             <include name="*.aar"/>
                         </fileset>
-                    </copy> 
+                    </copy>
                 </target>
+                <target name="axis2-deploy-war-check" depends="axis2-aar">
+                    <condition property="axis2-deploy-war-required">
+                        <isset property="axis2.deploy.war"/>
+                    </condition>
+                </target>
+                <target name="axis2-deploy-war" depends="axis2-deploy-war-check" if="axis2-deploy-war-required">
+                    <jar destfile="${{axis2.deploy.war}}" update="true">
+                        <fileset dir="${{build.dir}}/axis2">
+                            <include name="**/*.aar"/>
+                        </fileset>
+                    </jar>
+                </target>
+                <target name="axis2-deploy" depends="axis2-deploy-dir, axis2-deploy-war"/>
             </xsl:if>
             
         </project>

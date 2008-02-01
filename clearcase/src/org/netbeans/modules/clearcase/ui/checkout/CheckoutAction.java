@@ -138,7 +138,7 @@ public class CheckoutAction extends AbstractAction {
             public void outputText(String line) { /* boring */ }
             public void errorText(String line)  { /* boring */ }
             public void commandFinished() {     
-                org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files);                
+                org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files, false);                
             }
         };
     }

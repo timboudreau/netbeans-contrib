@@ -38,9 +38,9 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.scala.editing.semantic;
 
+import java.util.Iterator;
 import java.util.List;
 import org.netbeans.api.languages.database.DatabaseContext;
 import org.netbeans.api.languages.database.DatabaseDefinition;
@@ -50,59 +50,84 @@ import org.netbeans.api.languages.database.DatabaseDefinition;
  * @author Caoyuan Deng
  */
 public class ScalaContext extends DatabaseContext {
-		    
+
     ScalaContext(int offset, int endOffset) {
         super(null, "", offset, endOffset);
     }
-    
+
+    public Template getEnclosingTemplate(int offset) {
+        Iterator<Template> itr = getDefinitions(Template.class).iterator();
+        Template curr = null;
+        Template next = null;
+        if (itr.hasNext()) {
+            curr = itr.next();
+            while (true) {
+                if (curr.getOffset() <= offset) {
+                    if (itr.hasNext()) {
+                        next = itr.next();
+                        if (next.getOffset() > offset) {
+                            return curr;
+                        } else {
+                            curr = next;
+                        }
+                    } else {
+                        return curr;
+                    }
+                } else {
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
     Function getFunctionInScope(String name, int arity) {
         return getFunctionInScope(null, name, arity);
     }
-    
+
     Function getFunctionInScope(String moduleName, String name, int arity) {
         Function result = null;
         List<DatabaseDefinition> definitions = getDefinitions();
-	if (definitions != null) {
-	    for (DatabaseDefinition definition : definitions) {
+        if (definitions != null) {
+            for (DatabaseDefinition definition : definitions) {
                 if (definition instanceof Function &&
-		        name.equals(((Function) definition).getName()) &&
+                        name.equals(((Function) definition).getName()) &&
                         arity == ((Function) definition).getArity()) {
-		    if (moduleName == null) {
+                    if (moduleName == null) {
                         result = (Function) definition;
-			break;	        
+                        break;
                     } else {
                         if (moduleName.equals(((Function) definition).getModuleName())) {
                             result = (Function) definition;
-			    break;	        
+                            break;
                         }
                     }
-		}
-	    }
-	}
-	if (result != null) {
+                }
+            }
+        }
+        if (result != null) {
             return result;
-	} else {
+        } else {
             ScalaContext parent = (ScalaContext) getParent();
             if (parent != null) {
                 return parent.getFunctionInScope(moduleName, name, arity);
-	    } else {
+            } else {
                 return null;
-	    }
-	} 
+            }
+        }
     }
-    
+
     Var getVariableInScope(String name) {
         return getDefinitionInScopeByName(Var.class, name);
     }
-    
+
     ErlRecord getRecordInScope(String name) {
         return getDefinitionInScopeByName(ErlRecord.class, name);
-    } 
-    
+    }
+
     ErlMacro getMacroInScope(String name) {
-	return getDefinitionInScopeByName(ErlMacro.class, name);
-    }    
-    
+        return getDefinitionInScopeByName(ErlMacro.class, name);
+    }
 }
 
 

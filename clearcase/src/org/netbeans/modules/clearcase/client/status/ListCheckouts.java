@@ -60,7 +60,7 @@ public class ListCheckouts extends StatusExecutionUnit {
     private static String RESERVED = "reserved";
     
     public ListCheckouts(File file, boolean handleChildren) {        
-        super(new LSCOCommand[] { new LSCOCommand(file, !handleChildren)});        
+        super(new LSCOCommand(file, handleChildren));        
     }        
     
     public List<LSCOOutput> getOutputList() {
@@ -109,10 +109,10 @@ public class ListCheckouts extends StatusExecutionUnit {
     }
     
     private static class LSCOCommand extends Command {
-        private boolean directory;
-        public LSCOCommand(File file, boolean directory) {
+        private boolean handleChildren;
+        public LSCOCommand(File file, boolean handleChildren) {
             super(file);            
-            this.directory = directory;
+            this.handleChildren = handleChildren;
         }        
 
         @Override
@@ -120,7 +120,7 @@ public class ListCheckouts extends StatusExecutionUnit {
             arguments.add("lsco");       
             arguments.add("-fmt");
             arguments.add("\"%En" + OUTPUT_DELIMITER + "%u" + OUTPUT_DELIMITER + "%Rf\\n\"");
-            if(directory) {
+            if(file.isDirectory() && !handleChildren) {
                 arguments.add("-directory");
             }
             arguments.add("-me");

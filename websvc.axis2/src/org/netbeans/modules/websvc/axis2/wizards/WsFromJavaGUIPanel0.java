@@ -264,6 +264,6 @@ public class WsFromJavaGUIPanel0 extends javax.swing.JPanel implements ItemListe
     }
     
     boolean generateWsdl() {
-        return jCheckBox1.isSelected();
+        return jCheckBox2.isSelected();
     }
 }

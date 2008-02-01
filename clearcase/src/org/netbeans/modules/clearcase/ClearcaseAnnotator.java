@@ -145,8 +145,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         boolean folderAnnotation = false;
         
         for (File file : context.getRootFiles()) {
-            FileInformation info = cache.getCachedInfo(file, true);
-            // XXX 
+            FileInformation info = getCachedInfo(file);
             if(info == null) {
                 return name;
             }
@@ -190,7 +189,11 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         boolean isVersioned = false;
         for (Iterator i = context.getRootFiles().iterator(); i.hasNext();) {
             File file = (File) i.next();
-            if ((cache.getCachedInfo(file, true).getStatus() & STATUS_BADGEABLE) != 0) {  
+            FileInformation info = getCachedInfo(file);
+            if(info == null) {
+                return null;
+            }
+            if ((info.getStatus() & STATUS_BADGEABLE) != 0) {  
                 isVersioned = true;
                 break;
             }
@@ -306,10 +309,10 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         return actions.toArray(new Action[actions.size()]);
     }    
     
-    private static boolean isNothingVersioned(VCSContext ctx) {
-        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
+    private static boolean isNothingVersioned(VCSContext ctx) {        
         for (File file : ctx.getFiles()) {
-            if ((cache.getCachedInfo(file, true).getStatus() & FileInformation.STATUS_MANAGED) != 0) return false;
+            FileInformation info = getCachedInfo(file);
+            if (info == null || (info.getStatus() & FileInformation.STATUS_MANAGED) != 0) return false;
         }
         return true;
     }
@@ -411,4 +414,14 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         // TODO
         return false;
     }        
+
+    private static FileInformation getCachedInfo(File file) {        
+        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
+        FileInformation info = cache.getCachedInfo(file);
+        if(info == null) {
+            cache.refreshLater(file);
+        }
+        return info;
+    }
+
 }

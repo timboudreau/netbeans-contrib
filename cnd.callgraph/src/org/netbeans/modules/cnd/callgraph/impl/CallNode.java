@@ -93,9 +93,10 @@ public class CallNode extends AbstractNode {
 
     private Image mergeBadge(Image original) {
         if (isCalls) {
-            return Utilities.mergeImages(original, callBadge, 8, 8);
+            return Utilities.mergeImages(original, downBadge, 0, 0);
         } else {
-            return Utilities.mergeImages(original, backcallBadge, 0, 0);
+            Image res = Utilities.mergeImages(emptyBadge, original, 4, 0);
+            return Utilities.mergeImages(res, upBadge, 0, 0);
         }
     }
 
@@ -125,6 +126,7 @@ public class CallNode extends AbstractNode {
         return actions.toArray(new Action[actions.size()]);
     }
 
-    public static Image callBadge = Utilities.loadImage( "org/netbeans/modules/cnd/callgraph/resources/call.gif" ); // NOI18N
-    private static Image backcallBadge = Utilities.loadImage( "org/netbeans/modules/cnd/callgraph/resources/backcall.gif" ); // NOI18N
+    /*package-local*/ static Image downBadge = Utilities.loadImage( "org/netbeans/modules/cnd/callgraph/resources/down_20.png" ); // NOI18N
+    private static Image upBadge = Utilities.loadImage( "org/netbeans/modules/cnd/callgraph/resources/up_8.png" ); // NOI18N
+    private static Image emptyBadge = Utilities.loadImage( "org/netbeans/modules/cnd/callgraph/resources/empty_20.png" ); // NOI18N
 }

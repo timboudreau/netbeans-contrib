@@ -86,6 +86,7 @@ made subject to such option by the copyright holder.
         </folder>
         
         <folder name="Scala">
+            <attr name="position" intvalue="911"/>
             <file name="Main.scala" url="Main.scala">
                 <attr name="template" boolvalue="true"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.project.ui.resources.Bundle"/>
