@@ -68,6 +68,7 @@ import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.FileStatusCache;
 import org.netbeans.modules.versioning.spi.VCSContext;
+import org.openide.util.Cancellable;
 
 /**
  * The main class of the Synchronize view, shows and acts on set of file roots. 
@@ -381,17 +382,36 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         refreshStatuses();
     }
 
+    private RequestProcessor.Task refreshStatusesTask;
     /* Async Connects to repository and gets recent status. */
     private void refreshStatuses() {        
         
-        // XXX - progress support & co.
-        rp.post(new Runnable() {
-            public void run() {
-                Clearcase.getInstance().getFileStatusCache().refreshRecursively(context);                
-                setupModels();
-                parentTopComponent.contentRefreshed();
+        // XXX HACK
+        final Cancellable c = new Cancellable() {
+            public boolean cancel() {
+                if(refreshStatusesTask != null) {
+                    return refreshStatusesTask.cancel();
+                }
+                return false;
             }
-        });
+        };
+        // XXX - progress support & co.                
+        if(refreshStatusesTask == null) {
+            refreshStatusesTask = rp.create(new Runnable() {
+                public void run() {                
+                    final ProgressHandle ph = ProgressHandleFactory.createHandle("Refreshing status...", c);            
+                    try {                    
+                        ph.start();
+                        Clearcase.getInstance().getFileStatusCache().refreshRecursively(context);                
+                        setupModels();
+                        parentTopComponent.contentRefreshed();
+                    } finally {
+                        ph.finish();
+                    }                
+                }
+            });
+        }
+        refreshStatusesTask.schedule(0);
         
 //        if(svnProgressSupport!=null) {
 //            svnProgressSupport.cancel();
