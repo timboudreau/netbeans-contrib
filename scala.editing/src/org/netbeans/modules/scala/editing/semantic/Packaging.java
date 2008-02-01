@@ -50,12 +50,12 @@ import org.netbeans.api.languages.database.DatabaseDefinition;
  *
  * @author Caoyuan Deng
  */
-public class Package extends DatabaseDefinition {
+public class Packaging extends DatabaseDefinition {
     
     private List<String> paths;
     
     
-    public Package(String name, int offset, int endOffset) {
+    public Packaging(String name, int offset, int endOffset) {
         super(name, null, offset, endOffset);
     }
     
@@ -71,6 +71,14 @@ public class Package extends DatabaseDefinition {
             return Collections.<String>emptyList();
         }
         return paths;
+    }
+    
+    public String getPackageName() {
+        StringBuilder sb = new StringBuilder();
+        for (String path : getPaths()) {
+            sb.append(path).append(".");
+        }
+        return sb.substring(0, sb.length() - 1);
     }
     
     @Override

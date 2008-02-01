@@ -255,6 +255,7 @@ public class ScalaSemanticAnalyser {
         }
     }
 
+    private Packaging currPackage = null;
     private void process(ScalaContext rootCtx, ASTItem n, ScalaContext currCtx) {
         if (isNode(n, "TopStats")) {
             /**
@@ -265,19 +266,19 @@ public class ScalaSemanticAnalyser {
             Collection<ASTItem> postProcessTopStats = new ArrayList<ASTItem>();
             for (ASTItem item : n.getChildren()) {
                 if (isNode(item, "TopStat")) {
-                    for (ASTItem child : item.getChildren()) {
-                        if (isNode(child, "Packaging")) {
-                            preProcessAttibuteDeclaration(rootCtx, child);
-                            for (ASTItem item1 : child.getChildren()) {
-                                if (isNode(item1, "TopStats")) {
-                                    ScalaContext ctx = new ScalaContext(child.getOffset(), child.getEndOffset());
+                    for (ASTItem item1 : item.getChildren()) {
+                        if (isNode(item1, "Packaging")) {
+                            currPackage = processPackaging(rootCtx, item1);
+                            for (ASTItem item2 : item1.getChildren()) {
+                                if (isNode(item2, "TopStats")) {
+                                    ScalaContext ctx = new ScalaContext(item1.getOffset(), item1.getEndOffset());
                                     currCtx.addContext(ctx);
-                                    process(rootCtx, item1, ctx);
+                                    process(rootCtx, item2, ctx);
                                 }
                             }
-                        } else if (isNode(child, "Import")) {
-                            processImportStat(rootCtx, child, rootCtx);
-                        } else if (isNode(child, "TopTmplDef")) {
+                        } else if (isNode(item1, "Import")) {
+                            processImportStat(rootCtx, item1, rootCtx);
+                        } else if (isNode(item1, "TopTmplDef")) {
 
                         }
                     }
@@ -377,7 +378,8 @@ public class ScalaSemanticAnalyser {
                 for (ASTItem item1 : defStat.getChildren()) {
                     if (isNode(item1, "NameId")) {
                         ASTToken nameToken = getIdTokenFromNameId(item1);
-                        tmplDfn = new Template(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), kind);
+                        tmplDfn = new Template(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), kind, currPackage);                        
+                        currCtx.setEnclosingTmplate(tmplDfn);
                         currCtx.addDefinition(tmplDfn);
                         currCtx.addUsage(nameToken, tmplDfn);
                         break;
@@ -642,19 +644,14 @@ public class ScalaSemanticAnalyser {
         }
     }
 
-    private void preProcessAttibuteDeclaration(ScalaContext ctxRoot, ASTItem attribute) {
-        ASTItem attributeName = attribute.getChildren().get(0);
-        if (attributeName != null) {
-            if (isNode(attributeName, "ModuleAttribute")) {
-                processModuleAttribute(ctxRoot, attribute);
-            } else if (isNode(attributeName, "ImportAttribute")) {
-                processImportStat(ctxRoot, attribute, ctxRoot);
-            } else if (isNode(attributeName, "IncludeAttribute")) {
-                processIncludeAttribute(ctxRoot, attribute);
-            } else if (isNode(attributeName, "IncludeLibAttribute")) {
-                processIncludeLibAttribute(ctxRoot, attribute);
-            }
+    private Packaging processPackaging(ScalaContext ctxRoot, ASTItem packaging) {
+        Packaging packageDfn = new Packaging("Packaging", packaging.getOffset(), packaging.getEndOffset());
+        List<ASTItem> paths = query(packaging, "QualId/NameId");
+        for (ASTItem path : paths) {
+            String pathStr = getIdTokenFromNameId(path).getIdentifier();
+            packageDfn.addPath(pathStr);        
         }
+        return packageDfn;
     }
 
     private void postProcessAttibuteDeclaration(ScalaContext ctxRoot, ASTItem attribute) {
@@ -680,7 +677,7 @@ public class ScalaSemanticAnalyser {
             /** remove last one, which is module name */
             packages.remove(packages.size() - 1);
         }
-        Package moduleDef = new Package(nameStr.toString(), attribute.getOffset(), attribute.getEndOffset());
+        Packaging moduleDef = new Packaging(nameStr.toString(), attribute.getOffset(), attribute.getEndOffset());
         for (String packageName : packages) {
             moduleDef.addPath(packageName);
         }

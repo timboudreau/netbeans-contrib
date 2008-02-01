@@ -112,19 +112,24 @@ public class WsFromJavaWizardIterator implements TemplateWizard.Iterator /*, Ite
     }
     
     private void generateConfigFile(FileObject serviceFo) throws IOException {
-        FileObject configFolder = AxisUtils.getAxisConfigFolder(project.getProjectDirectory(), true);
-        if (configFolder != null) {
-            FileObject servicesFo = configFolder.getFileObject("services.xml");
-            if (servicesFo == null) {
-                AxisUtils.retrieveServicesFromResource(configFolder, ((Boolean)wiz.getProperty(WizardProperties.PROP_SERVICE_GROUP)).booleanValue());
+        Axis2ModelProvider axis2ModelProvider = project.getLookup().lookup(Axis2ModelProvider.class);
+        ServicesModel servicesModel = axis2ModelProvider.getServicesModel();
+        if (servicesModel == null) {            
+            FileObject configFolder = AxisUtils.getAxisConfigFolder(project.getProjectDirectory(), true);
+            if (configFolder != null) {
+                FileObject servicesFo = configFolder.getFileObject("services.xml");
+                if (servicesFo == null) {
+                    AxisUtils.retrieveServicesFromResource(configFolder, ((Boolean)wiz.getProperty(WizardProperties.PROP_SERVICE_GROUP)).booleanValue());
+                }
+                servicesFo = configFolder.getFileObject("services.xml"); //NOI18N
+                servicesModel = ServicesUtils.getServicesModel(servicesFo, true);
+                axis2ModelProvider.setServicesModel(servicesModel);
             }
-            servicesFo = configFolder.getFileObject("services.xml"); //NOI18N
+        }
+        if (servicesModel != null) {
             ClassPath classPath = ClassPath.getClassPath(serviceFo, ClassPath.SOURCE);
             String serviceClass = classPath.getResourceName(serviceFo, '.', false);
-            ServicesModel servicesModel = ServicesUtils.getServicesModel(servicesFo, true);
-            if (servicesModel != null) {
-                WizardUtils.addService(servicesModel, serviceClass, serviceFo);
-            }
+            WizardUtils.addService(servicesModel, serviceClass, serviceFo);
         }
     }
     

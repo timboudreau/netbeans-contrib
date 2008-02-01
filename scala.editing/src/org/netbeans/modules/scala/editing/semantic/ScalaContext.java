@@ -50,36 +50,40 @@ import org.netbeans.api.languages.database.DatabaseDefinition;
  * @author Caoyuan Deng
  */
 public class ScalaContext extends DatabaseContext {
-
+    
+    public enum Kind {
+        Template,
+        Block,
+        ForLoop,
+        Function,
+        Other
+    }
+    
+    private Kind kind;
+    
+    Template enclosingTemplate;
+    
     ScalaContext(int offset, int endOffset) {
         super(null, "", offset, endOffset);
     }
-
-    public Template getEnclosingTemplate(int offset) {
-        Iterator<Template> itr = getDefinitions(Template.class).iterator();
-        Template curr = null;
-        Template next = null;
-        if (itr.hasNext()) {
-            curr = itr.next();
-            while (true) {
-                if (curr.getOffset() <= offset) {
-                    if (itr.hasNext()) {
-                        next = itr.next();
-                        if (next.getOffset() > offset) {
-                            return curr;
-                        } else {
-                            curr = next;
-                        }
-                    } else {
-                        return curr;
-                    }
-                } else {
-                    return null;
-                }
-            }
-        }
-        return null;
+    
+    void setEnclosingTmplate(Template enclosingTemplate) {
+        this.enclosingTemplate = enclosingTemplate;
     }
+    
+    public Template getEnclosingTemplate() {
+        if (enclosingTemplate != null) {
+            return enclosingTemplate;
+        } else {
+            ScalaContext parent = (ScalaContext) getParent();
+            return parent == null ? null : parent.getEnclosingTemplate();
+        }
+    }
+    
+     public Template getEnclosingTemplate(int offset) {
+         ScalaContext context = (ScalaContext) getClosestContext(offset);
+         return context.getEnclosingTemplate();
+     }
 
     Function getFunctionInScope(String name, int arity) {
         return getFunctionInScope(null, name, arity);
