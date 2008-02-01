@@ -87,7 +87,8 @@ public class ClearcaseInterceptor extends VCSInterceptor {
 
     @Override
     public void afterDelete(final File file) {
-        Clearcase.LOG.finer("afterDelete " + file);             
+        Clearcase.LOG.finer("afterDelete " + file);
+        cache.refreshLater(file); 
     }
 
     private void checkout(File parent) {
@@ -130,9 +131,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
             cr.waitFinished();
             
             // the file stays on the filessytem if it was checkedout eventually
-            file.delete();
-            
-            cache.refreshLater(file); 
+            file.delete();                        
         } else {
             // XXX what if VOB root ???
         }                                 

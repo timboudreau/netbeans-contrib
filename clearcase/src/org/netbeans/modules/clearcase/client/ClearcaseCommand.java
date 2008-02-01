@@ -56,6 +56,14 @@ public abstract class ClearcaseCommand implements NotificationListener {
 
     protected File commandWorkingDirectory;
     
+    private final List<String> cmdOutput = new ArrayList<String>(10);
+    private final List<String> cmdError = new ArrayList<String>(10);
+
+    /**
+     * If the command thrown an execption, this is it.
+     */
+    private Exception thrownException;
+
     protected ClearcaseCommand() {
     }
 
@@ -82,12 +90,14 @@ public abstract class ClearcaseCommand implements NotificationListener {
     }
 
     public void outputText(String line) {
+        cmdOutput.add(line);
         for (NotificationListener listener : listeners) {
             listener.outputText(line);
         }
     }
 
     public void errorText(String line) {
+        cmdError.add(line);
         for (NotificationListener listener : listeners) {
             listener.errorText(line);
         }
@@ -97,5 +107,25 @@ public abstract class ClearcaseCommand implements NotificationListener {
         for (NotificationListener listener : listeners) {
             listener.commandFinished();
         }
+    }
+    
+    public boolean hasFailed() {
+        return cmdError.size() > 0;
+    }
+
+    public List<String> getCmdOutput() {
+        return cmdOutput;
+    }
+
+    public List<String> getCmdError() {
+        return cmdError;
+    }
+
+    public void setException(Exception e) {
+        thrownException = e;
+    }
+
+    public Exception getThrownException() {
+        return thrownException;
     }
 }

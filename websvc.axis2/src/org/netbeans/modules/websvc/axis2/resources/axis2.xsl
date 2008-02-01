@@ -92,7 +92,9 @@ made subject to such option by the copyright holder.
                     <target name="java2wsdl-{$wsname}" depends="java2wsdl-check-{$wsname}, compile" unless="java2wsdl-check-{$wsname}.notRequired" >
                         <java2wsdl
                             className="{$service_class}"
+                            serviceName="{$wsname}"
                             outputLocation="${{basedir}}/xml-resources/axis2/META-INF"
+                            outputFileName="{$wsname}.wsdl"
                             targetNamespace="{$target_namespace}"
                             schemaTargetNamespace="{$schema_namespace}">
                                 <classpath>

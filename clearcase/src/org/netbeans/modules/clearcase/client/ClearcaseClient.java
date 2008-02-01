@@ -42,15 +42,19 @@ package org.netbeans.modules.clearcase.client;
 
 import org.netbeans.modules.clearcase.ClearcaseException;
 import org.netbeans.modules.versioning.util.Utils;
+import org.netbeans.modules.versioning.util.CommandReport;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.progress.ProgressHandle;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Cancellable;
+import org.openide.NotifyDescriptor;
+import org.openide.DialogDisplayer;
 
 import javax.swing.*;
 import java.io.IOException;
 import java.beans.PropertyChangeListener;
 import java.awt.event.ActionEvent;
+import java.util.*;
 
 /**
  * Interface to Clearcase functionality. 
@@ -151,7 +155,11 @@ public class ClearcaseClient {
         private final ExecutionUnit eu;
 
         private RequestProcessor.Task task;
-        private Throwable             commandError;
+
+        /**
+         * Set if a command fails - it producess an error output or throws an exception while executing.
+         */
+        private ClearcaseCommand      failedCommand;
         private boolean               canceled;
 
         public CommandRunnable(ExecutionUnit eu) {
@@ -162,27 +170,84 @@ public class ClearcaseClient {
             ProgressHandle ph = ProgressHandleFactory.createHandle(eu.getDisplayName(), this, this);
             ClearcaseCommand [] commands = eu.getCommands();
             ph.start(commands.length + 1);
+            if (canceled) return;
             try {
-                if (canceled) return;
                 ensureCleartool();
                 ph.progress(1);
                 for (ClearcaseCommand command : commands) {
                     if (canceled) break;
-                    ct.exec(command);
+                    try {
+                        ct.exec(command);
+                    } catch (Exception e) {
+                        failedCommand = command;
+                        failedCommand.setException(e);
+                        break;
+                    }
                     ph.progress(1);
+                    if (command.hasFailed()) {
+                        failedCommand = command;
+                        break;
+                    }
                 }
-            } catch (Exception e) {
-                commandError = e;
+            } catch (IOException e) {
                 Utils.logError(this, e);
             } finally {
                 ph.finish();
             }
+            if (eu.isNotifyErrors() && failedCommand != null) {
+                notifyCommandError();
+            }
         }
 
-        public Throwable getCommandError() {
-            return commandError;
+        /**
+         * Pops up a dialog that notifies the user that clearcase command failed.
+         * 
+         * @param eu
+         * @param error
+         */
+        private void notifyCommandError() {
+            final List<String> errors = new ArrayList<String>(100);
+            
+            Exception exception = failedCommand.getThrownException();
+            if (exception != null) {
+                errors.add(exception.getMessage());
+                Utils.logWarn(this, exception);
+            }
+            
+            errors.addAll(failedCommand.getCmdError());
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    report("Clearcase Command Failure", "Error executing", errors, NotifyDescriptor.ERROR_MESSAGE);        
+                }
+            });
         }
-
+        
+        private void report(String title, String prompt, List<String> messages, int type) {
+            boolean emptyReport = true;
+            for (String message : messages) {
+                if (message != null && message.length() > 0) {
+                    emptyReport = false;
+                    break;
+                }
+            }
+            if (emptyReport) return;
+            
+            CommandReport report = new CommandReport(prompt, messages);
+            JButton ok = new JButton("OK");
+            NotifyDescriptor descriptor = new NotifyDescriptor(
+                    report, 
+                    title, 
+                    NotifyDescriptor.DEFAULT_OPTION,
+                    type,
+                    new Object [] { ok },
+                    ok);
+            DialogDisplayer.getDefault().notify(descriptor);
+        }
+        
+        public ClearcaseCommand getFailedCommand() {
+            return failedCommand;
+        }
+        
         public boolean isCanceled() {
             return canceled;
         }
@@ -241,13 +306,9 @@ public class ClearcaseClient {
         }
     }
 
-    private void ensureCleartool() throws ClearcaseException {
+    private void ensureCleartool() throws IOException {
         if (ct == null || !ct.isValid()) {
-            try {
-                ct = new Cleartool();
-            } catch (IOException e) {
-                throw new ClearcaseException(e);
-            }
+            ct = new Cleartool();
         }
     }
 }
