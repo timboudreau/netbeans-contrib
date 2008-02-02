@@ -40,7 +40,6 @@
  */
 package org.netbeans.modules.scala.editing.semantic;
 
-import java.util.Iterator;
 import java.util.List;
 import org.netbeans.api.languages.database.DatabaseContext;
 import org.netbeans.api.languages.database.DatabaseDefinition;
@@ -50,40 +49,35 @@ import org.netbeans.api.languages.database.DatabaseDefinition;
  * @author Caoyuan Deng
  */
 public class ScalaContext extends DatabaseContext {
-    
+
     public enum Kind {
+
         Template,
         Block,
         ForLoop,
         Function,
         Other
     }
-    
     private Kind kind;
-    
-    Template enclosingTemplate;
-    
+
     ScalaContext(int offset, int endOffset) {
         super(null, "", offset, endOffset);
     }
-    
-    void setEnclosingTmplate(Template enclosingTemplate) {
-        this.enclosingTemplate = enclosingTemplate;
-    }
-    
-    public Template getEnclosingTemplate() {
-        if (enclosingTemplate != null) {
-            return enclosingTemplate;
+
+    public Packaging getEnclosingPackage() {
+        Template tmpl = getEnclosingDefinition(Template.class);
+        if (tmpl != null) {
+            return tmpl.getEnclosingPackage();
         } else {
-            ScalaContext parent = (ScalaContext) getParent();
-            return parent == null ? null : parent.getEnclosingTemplate();
+            /** return top packaging of this context */
+            for (DatabaseDefinition dfn : getDefinitions()) {
+                if (dfn instanceof Packaging) {
+                    return (Packaging) dfn;
+                }
+            }
+            return null;
         }
     }
-    
-     public Template getEnclosingTemplate(int offset) {
-         ScalaContext context = (ScalaContext) getClosestContext(offset);
-         return context.getEnclosingTemplate();
-     }
 
     Function getFunctionInScope(String name, int arity) {
         return getFunctionInScope(null, name, arity);

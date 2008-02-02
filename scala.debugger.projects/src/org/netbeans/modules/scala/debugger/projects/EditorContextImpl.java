@@ -1127,9 +1127,9 @@ public class EditorContextImpl extends EditorContext {
             ErrorManager.getDefault().notify(ex);
             return "";
         }
-        final int offset1 = NbDocument.findLineOffset(doc, lineNumber - 1);
+        final int offset = NbDocument.findLineOffset(doc, lineNumber - 1);
         ScalaContext rootCtx = ScalaSemanticAnalyser.getCurrentRootCtx(doc);
-        Template tmpl = rootCtx.getEnclosingTemplate(offset1);
+        Template tmpl = rootCtx.getEnclosingDefinition(Template.class, offset);
         String className = "";
         if (tmpl != null) {
             if (tmpl.getKind() == Template.Kind.OBJECT) {
