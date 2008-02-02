@@ -54,6 +54,8 @@ import java.util.logging.Logger;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
+import org.netbeans.modules.websvc.axis2.services.model.ServicesModel;
+import org.netbeans.modules.websvc.axis2.services.model.ServicesUtils;
 import org.netbeans.modules.xml.xam.ModelSource;
 import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.netbeans.spi.project.support.ant.GeneratedFilesHelper;
@@ -276,6 +278,20 @@ public class AxisUtils {
         } catch (MutexException e) {
             Logger.getLogger(AxisUtils.class.getName()).log(Level.FINE, "AxisUtils.runTargets", e);
         }       
+    }
+    
+    public static ServicesModel getServicesModelForProject(Project project) {
+        Axis2ModelProvider axis2ModelProvider = project.getLookup().lookup(Axis2ModelProvider.class);
+        ServicesModel servicesModel = axis2ModelProvider.getServicesModel();
+        if (servicesModel == null) {
+            FileObject configFolder = AxisUtils.getAxisConfigFolder(project.getProjectDirectory(), false);
+            if (configFolder != null) {
+                FileObject servicesFo = configFolder.getFileObject("services.xml"); //NOI18N
+                servicesModel = ServicesUtils.getServicesModel(servicesFo, true);
+                axis2ModelProvider.setServicesModel(servicesModel);
+            }
+        }
+        return servicesModel;
     }
     
 }

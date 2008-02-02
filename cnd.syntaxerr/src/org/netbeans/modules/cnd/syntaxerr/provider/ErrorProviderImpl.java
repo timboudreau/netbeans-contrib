@@ -324,12 +324,14 @@ class ErrorProviderImpl extends ErrorProvider {
     }
     
     private boolean isSun(DataObject dao, NativeFileItem item) {
-        for (String macro : item.getSystemMacroDefinitions()) {
-            if (macro.startsWith("__SUNPRO_C")) {
-                return true;
-            }
-            else if (macro.startsWith("__SUNPRO_CC")) {
-                return true;
+        if( item != null ) {
+            for (String macro : item.getSystemMacroDefinitions()) {
+                if (macro.startsWith("__SUNPRO_C")) {
+                    return true;
+                }
+                else if (macro.startsWith("__SUNPRO_CC")) {
+                    return true;
+                }
             }
         }
         return false;
@@ -348,7 +350,11 @@ class ErrorProviderImpl extends ErrorProvider {
     }
 
     private NativeFileItem getNativeFileItem(DataObject dao) {
-        Collection<NativeFileItem> items = dao.getLookup().lookup(NativeFileItemSet.class).getItems();
-        return items.isEmpty() ? null : items.iterator().next();
+        NativeFileItemSet itemSet = dao.getLookup().lookup(NativeFileItemSet.class);
+        if( itemSet != null ) {
+            Collection<NativeFileItem> items = itemSet.getItems();
+            return items.isEmpty() ? null : items.iterator().next();
+        }
+        return null;
     }
 }

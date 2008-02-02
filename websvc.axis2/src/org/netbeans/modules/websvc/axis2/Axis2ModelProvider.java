@@ -42,31 +42,42 @@ package org.netbeans.modules.websvc.axis2;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
+import org.netbeans.modules.websvc.axis2.services.model.ServicesModel;
 
 /**
  *
  * @author mkuchtiak
  */
 public class Axis2ModelProvider {
+    
+    public static final String PROP_SERVICES = "services"; //NOI18N
+    public static final String PROP_AXIS2 = "axis2"; //NOI18N
     private Axis2Model axis2Model;
+    private ServicesModel servicesModel;
     private PropertyChangeSupport propertyChangeSupport;
     
     Axis2ModelProvider() {
         propertyChangeSupport = new PropertyChangeSupport(this);
     }
     
-    Axis2ModelProvider(Axis2Model axis2Model) {
-        this.axis2Model = axis2Model;
-    }
-    
     public Axis2Model getAxis2Model() {
         return axis2Model;
+    }
+
+    public ServicesModel getServicesModel() {
+        return servicesModel;
+    }
+
+    public void setServicesModel(ServicesModel servicesModel) {
+        ServicesModel oldModel = this.servicesModel;      
+        this.servicesModel = servicesModel;
+        propertyChangeSupport.firePropertyChange(PROP_SERVICES, oldModel, servicesModel);
     }
     
     void setAxis2Model(Axis2Model axis2Model) {
         Axis2Model oldModel = this.axis2Model;      
         this.axis2Model = axis2Model;
-        propertyChangeSupport.firePropertyChange("axis2", oldModel, axis2Model); //NOI18N
+        propertyChangeSupport.firePropertyChange(PROP_AXIS2, oldModel, axis2Model);
     }
     
     public void addPropertyChangeListener(PropertyChangeListener pcl) {

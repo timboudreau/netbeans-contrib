@@ -110,7 +110,7 @@ public class FieldForUnusedParam implements TreeRule {
         MethodTree parent = (MethodTree) treePath.getParentPath().getLeaf();
         Element parentEl = info.getTrees().getElement(treePath.getParentPath());
         
-        if (parentEl == null || parentEl.getKind() != ElementKind.CONSTRUCTOR) {
+        if (parentEl == null || parentEl.getKind() != ElementKind.CONSTRUCTOR || parent.getBody() == null) {
             return null;
         }
         

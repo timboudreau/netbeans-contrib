@@ -160,8 +160,11 @@ public class ErrorHighlighter implements PropertyChangeListener {
 	Document doc = editor.getDocument();
         //if( DebugUtils.TRACE) System.err.printf("ErrorHighlighter.  tryGetDoc doc = %s\n", doc);
 	if (doc instanceof BaseDocument) {
-	    FileHighliter info = getOrCreateFileInfo(dao, (BaseDocument) doc);
-            return true;
+            String MIMEType = dao.getPrimaryFile().getMIMEType();
+            if( MIMEType.endsWith("/x-c++") || MIMEType.endsWith("/x-c") ) {
+                FileHighliter info = getOrCreateFileInfo(dao, (BaseDocument) doc);
+                return true;
+            }
 	}
         return false;
     }

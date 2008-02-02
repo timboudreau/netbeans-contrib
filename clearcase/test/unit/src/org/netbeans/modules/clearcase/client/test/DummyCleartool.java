@@ -38,69 +38,63 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.clearcase;
+package org.netbeans.modules.clearcase.client.test;
 
-import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.clearcase.client.*;
+import org.netbeans.modules.clearcase.ClearcaseException;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.logging.Logger;
+import java.io.*;
 
 /**
- * Now the 'cache' does not cache revisions of files, it fetches them everytime they are needed.
+ * Encapsulates Clearcase shell process. 
  * 
  * @author Maros Sandor
  */
-public class VersionsCache implements NotificationListener {
-    
-    private static final VersionsCache instance = new VersionsCache();
+public class DummyCleartool {
+    private CommandExecutor executor;
+        
+    /**
+     * Creates a new cleartool shell process.
+     */
+    public DummyCleartool(CommandExecutor executor) {
+        Logger.getLogger(DummyCleartool.class.getName()).fine("Cleartool: Dummy cleartool process...");        
+        this.executor = executor;
+    }
+            
+    public void exec(ClearcaseCommand command) throws IOException, ClearcaseException {
+        Arguments args = new Arguments();
+        command.prepareCommand(args);                                        
+        
+        StringBuilder cmd = toString(args);
+        Logger.getLogger(DummyCleartool.class.getName()).fine("Cleartool: Executing \"" + cmd + "\"");
+        
+        command.commandStarted();
+        executor.exec(command);
+        command.commandFinished();
+    }
 
-    public static final String REVISION_BASE = "BASE";
+    public interface CommandExecutor {    
+        void exec(ClearcaseCommand command);        
+    }    
+        
+//    private CommandExecutor createCommandExecutor(Arguments args) {
+//        for (String arg : args) {
+//            if(arg.equals("ls") || arg.equals("list") ) {
+//                return new ListCommandExecutor(args);
+//            }
+//            throw new IllegalStateException("No executor for commasd " + toString(args));
+//        }
+//        throw new IllegalStateException("Empty argument list");
+//    }
     
-    public static final String REVISION_CURRENT = "LOCAL"; // NOI18N
-    
-    public static final String REVISION_HEAD    = "HEAD"; // NOI18N
-    
-    private VersionsCache() {
-    }
-    
-    public static VersionsCache getInstance() {
-        return instance;
-    }
-
-    public File getFileRevision(File workingCopy, String revision) throws IOException {
-        return getRemoteFile(workingCopy, revision, false);
-    }
-    
-    public File getRemoteFile(File workingCopy, String revision, boolean beQuiet) throws IOException {
-        if (REVISION_CURRENT.equals(revision)) {
-            return workingCopy;
-        } else if (REVISION_BASE.equals(revision)) {
-            revision = Clearcase.getInstance().getFileStatusCache().getInfo(workingCopy).getStatus(workingCopy).getVersionSelector();
-            if (revision == null) return null;
+    public static StringBuilder toString(Arguments args) {
+        StringBuilder cmd = new StringBuilder(100);
+        for (String arg : args) {
+            cmd.append(arg);
+            cmd.append(' ');
         }
-        String revisionSpec = ClearcaseUtils.getExtendedName(workingCopy, revision);  
-                
-        File tempFile = File.createTempFile("nbclearcase-", "get");
-        tempFile.delete();
-        ClearcaseClient.CommandRunnable cr =Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Getting Clearcased File...",
-                new GetCommand(tempFile, revisionSpec, this)));
-        cr.waitFinished();
-        tempFile.deleteOnExit();
-        if (cr.getFailedCommand() == null && tempFile.isFile()) return tempFile;
-        return null;
-    }
-
-    public void commandStarted() {
-    }
-
-    public void outputText(String line) {
-    }
-
-    public void errorText(String line) {
-    }
-
-    public void commandFinished() {
-    }
+        cmd.delete(cmd.length() - 1, cmd.length());
+        return cmd;
+    }    
 }

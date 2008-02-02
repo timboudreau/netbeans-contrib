@@ -48,15 +48,25 @@ package org.netbeans.modules.clearcase.client;
 public class ExecutionUnit {
 
     private final String                displayName;
+    private final boolean               notifyErrors;
     private final ClearcaseCommand []   commands;
 
     public ExecutionUnit(String displayName, ClearcaseCommand ... commands) {
+        this(displayName, true, commands);
+    }
+    
+    public ExecutionUnit(String displayName, boolean notifyErrors, ClearcaseCommand ... commands) {
         this.displayName = displayName;
+        this.notifyErrors = notifyErrors;
         this.commands = commands;
     }
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    public boolean isNotifyErrors() {
+        return notifyErrors;
     }
 
     public ClearcaseCommand[] getCommands() {
