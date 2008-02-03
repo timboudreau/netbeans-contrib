@@ -1240,6 +1240,14 @@ public class EditorContextImpl extends EditorContext {
         if (dataObject == null) {
             return null;
         }
+        FileObject fileObject = dataObject.getPrimaryFile();
+        if (fileObject == null) {
+            return null;
+        }        
+        if (!"text/x-scala".equals(fileObject.getMIMEType())) {
+            return null;
+        }
+
         JavaSource js = JavaSource.forFileObject(dataObject.getPrimaryFile());
         if (js == null) {
             return null;
