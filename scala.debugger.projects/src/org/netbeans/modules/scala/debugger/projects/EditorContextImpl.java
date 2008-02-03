@@ -129,6 +129,18 @@ import org.openide.filesystems.FileUtil;
 /**
  *
  * @author Jan Jancura
+ * @author Caoyuan Deng
+ * 
+ * @todo This EditorContextImpl and the EditorContextImpl in debugger.jpda.projects
+ * should be instanced and get lookuped in org.netbeans.modules.debugger.jpda.EditorContextImpl#getContext,
+ * but, it seems org.netbeans.api.debugger.Lookup won't init the unloaded modules' META-INFO/debugger/
+ * services. We have to apply following ugly hacking:
+ *     1. Add debugger.jpda.projects module as run-dependency of this modules, so, 
+ *        when this module is loaded first, debugger.jpda.projects module will also
+ *        be loaded.
+ *     2. Set this module as eager, so, even debugger.jpda.projects is loaded first,
+ *        this module will also be loaded
+ * 
  */
 public class EditorContextImpl extends EditorContext {
 
@@ -1115,8 +1127,19 @@ public class EditorContextImpl extends EditorContext {
         if (dataObject == null) {
             return null;
         }
-//        JavaSource js = JavaSource.forFileObject(dataObject.getPrimaryFile());
-//        if (js == null) return "";
+        FileObject fileObject = dataObject.getPrimaryFile();
+        if (fileObject == null) {
+            return null;
+        }
+        //        JavaSource js = JavaSource.forFileObject(dataObject.getPrimaryFile());
+        //        if (js == null) return "";
+        if (!"text/x-scala".equals(fileObject.getMIMEType())) {
+            /** Should return null instead of "" here, 
+             * @see org.netbeans.modules.debugger.jpda.EditorContextBridge#CompoundContextProvider#getClassName
+             * @notice this has been fixed in main's rev: 30100e497ae4
+             */
+            return null;
+        }
         EditorCookie ec = (EditorCookie) dataObject.getCookie(EditorCookie.class);
         if (ec == null) {
             return "";
@@ -1129,7 +1152,7 @@ public class EditorContextImpl extends EditorContext {
             return "";
         }
         final int offset = NbDocument.findLineOffset(doc, lineNumber - 1);
-        
+
         /** @todo run in a thread */
         ScalaContext rootCtx = ScalaSemanticAnalyser.getCurrentRootCtx(doc);
         Template tmpl = rootCtx.getEnclosingDefinition(Template.class, offset);
