@@ -7,10 +7,6 @@
 
 package __PACKAGE_NAME__
 
-object __CLASS_NAME__ {
-
-  def main(args: Array[String]) = {
-    Console.println("Hello, world!")
-  }
+class __CLASS_NAME__ {
 
 }

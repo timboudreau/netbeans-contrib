@@ -88,7 +88,7 @@ public class VersionsCache implements NotificationListener {
                 new GetCommand(tempFile, revisionSpec, this)));
         cr.waitFinished();
         tempFile.deleteOnExit();
-        if (cr.getCommandError() == null && tempFile.isFile()) return tempFile;
+        if (cr.getFailedCommand() == null && tempFile.isFile()) return tempFile;
         return null;
     }
 

@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.clearcase.ui.checkin;
 
+import javax.swing.event.TableModelEvent;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.versioning.util.VersioningOutputManager;
 import org.netbeans.modules.versioning.util.Utils;
@@ -48,9 +49,13 @@ import org.netbeans.modules.versioning.util.DialogBoundsPreserver;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.Dialog;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.*;
 
+import javax.swing.event.TableModelListener;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.clearcase.*;
 import org.netbeans.modules.clearcase.ui.add.AddAction;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;
@@ -59,8 +64,10 @@ import org.netbeans.modules.clearcase.client.CheckinCommand;
 import org.netbeans.modules.clearcase.client.NotificationListener;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.util.Cancellable;
 import org.openide.util.NbBundle;
 import org.openide.util.HelpCtx;
+import org.openide.util.RequestProcessor;
 
 /**
  * Sample Update action.
@@ -78,6 +85,7 @@ public class CheckinAction extends AbstractAction implements NotificationListene
             FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY;
     
     private File[] files;
+    private RequestProcessor.Task prepareTask;
     
     public CheckinAction(String name, VCSContext context) {
         this.context = context;
@@ -88,41 +96,52 @@ public class CheckinAction extends AbstractAction implements NotificationListene
     @Override
     public boolean isEnabled() {
         FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
-        Set<File> roots = context.getRootFiles();
-        for (File file : roots) {
-            if( (cache.getInfo(file).getStatus() & ALLOW_CHECKIN) == 0 ) {
-                return false;
-            }                
+        Set<File> roots = context.getRootFiles();        
+        for (File root : roots) {
+            if(root.isDirectory()) {
+                return true;
+            }
+            FileInformation info = cache.getCachedInfo(root);            
+            if(info != null && ((info.getStatus() & ALLOW_CHECKIN) != 0)) {
+                return true;
+            }
         }
-        return true;
+        return false;
     }
 
     public void actionPerformed(ActionEvent ev) {
         String contextTitle = Utils.getContextDisplayName(context);
-        JButton addButton = new JButton(); 
+        final JButton addButton = new JButton(); 
+        addButton.setEnabled(false);
+        final JButton cancelButton = new JButton("Cancel");         
+        
         CheckinPanel panel = new CheckinPanel();
         
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(CheckinAction.class, "CTL_CheckinDialog_Title", contextTitle)); // NOI18N
         dd.setModal(true);        
         org.openide.awt.Mnemonics.setLocalizedText(addButton, org.openide.util.NbBundle.getMessage(CheckinAction.class, "CTL_CheckinDialog_Checkin"));
         
-        dd.setOptions(new Object[] {addButton, DialogDescriptor.CANCEL_OPTION}); // NOI18N
+        dd.setOptions(new Object[] {addButton, cancelButton}); // NOI18N
         dd.setHelpCtx(new HelpCtx(CheckinAction.class));
 
-        CheckinTable checkinTable = new CheckinTable(panel.jLabel2, CheckinTable.CHECKIN_COLUMNS, new String [] { CheckinTableModel.COLUMN_NAME_NAME });
-        ClearcaseFileNode[] nodes = computeNodes();
-        checkinTable.setNodes(nodes);
+        final CheckinTable checkinTable = new CheckinTable(panel.jLabel2, CheckinTable.CHECKIN_COLUMNS, new String [] { CheckinTableModel.COLUMN_NAME_NAME });        
         panel.setCheckinTable(checkinTable);
+        checkinTable.getTableModel().addTableModelListener(new TableModelListener() {
+            public void tableChanged(TableModelEvent e) {
+                addButton.setEnabled(checkinTable.getTableModel().getRowCount() > 0);
+            }
+        });
+        computeNodes(checkinTable, cancelButton);
         
         panel.putClientProperty("contentTitle", contextTitle);  // NOI18N
         panel.putClientProperty("DialogDescriptor", dd); // NOI18N
         final Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);        
         dialog.addWindowListener(new DialogBoundsPreserver(ClearcaseModuleConfig.getPreferences(), "add.dialog")); // NOI18N       
         dialog.pack();        
-        dialog.setVisible(true);
-        
+        dialog.setVisible(true);                
+                
         Object value = dd.getValue();
-        if (value != addButton) return;
+        if (value != addButton) return;                 
         
         String message = panel.taMessage.getText();
         boolean forceUnmodified = panel.cbForceUnmodified.isSelected();
@@ -146,13 +165,50 @@ public class CheckinAction extends AbstractAction implements NotificationListene
                                     preserveTime, new OutputWindowNotificationListener(), this)));
     }
 
-    private ClearcaseFileNode[] computeNodes() {
-        File [] files = Clearcase.getInstance().getFileStatusCache().listFiles(context, FileInformation.STATUS_LOCAL_CHANGE);
-        List<ClearcaseFileNode> nodes = new ArrayList<ClearcaseFileNode>(files.length);
-        for (File file : files) {
-            nodes.add(new ClearcaseFileNode(file));
+    // XXX temporary solution...
+    private void computeNodes(final CheckinTable checkinTable, JButton cancel) {
+        RequestProcessor rp = new RequestProcessor("Clearcase-Checkin");
+        final Cancellable c = new Cancellable() {            
+            public boolean cancel() {
+                // XXX doesn't realy work ...
+                if(prepareTask != null) {
+                    return prepareTask.cancel();
+                }
+                return false;
+            }
+        };                
+        cancel.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                c.cancel();
+            }
+        });
+        if(prepareTask == null) {
+            prepareTask = rp.create(new Runnable() {
+                public void run() {
+                    final ProgressHandle ph = ProgressHandleFactory.createHandle("Preparing checkin...", c);            
+                    try {
+                        ph.start();
+                        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
+
+                        // refresh the cache first so we will
+                        // know all checkin candidates
+                        cache.refreshRecursively(context);
+                        
+                        // get all files to be checked in
+                        File [] files = cache.listFiles(context, FileInformation.STATUS_LOCAL_CHANGE);
+                        List<ClearcaseFileNode> nodes = new ArrayList<ClearcaseFileNode>(files.length);
+                        for (File file : files) {
+                            nodes.add(new ClearcaseFileNode(file));
+                        }
+                        ClearcaseFileNode[] fileNodes = nodes.toArray(new ClearcaseFileNode[nodes.size()]);
+                        checkinTable.setNodes(fileNodes);
+                    } finally {
+                        ph.finish();
+                    }
+                }
+            });        
         }
-        return nodes.toArray(new ClearcaseFileNode[nodes.size()]);
+        prepareTask.schedule(0);
     }
     
     public void commandStarted()        { /* boring */ }
