@@ -51,14 +51,16 @@ made subject to such option by the copyright holder.
             </folder>
         </folder>
     </folder>
+    
     <folder name="Services">
         <folder name="MIMEResolver">
             <file name="ScalaResolver.xml" url="ScalaResolver.xml">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.Bundle"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.resources.Bundle"/>
                 <attr name="position" intvalue="1000"/>
             </file>
         </folder>
     </folder>
+    
     <folder name="Editors">
         <folder name="text">
             <folder name="x-scala">
@@ -66,7 +68,7 @@ made subject to such option by the copyright holder.
                     <folder name="NetBeans">
                         <folder name="Defaults">
                             <file name="FontAndColors.xml" url="FontAndColors.xml">
-                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.Bundle"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.resources.Bundle"/>
                             </file>
                         </folder>
                     </folder>
@@ -101,9 +103,9 @@ made subject to such option by the copyright holder.
                     <file name="org-netbeans-modules-languages-features-UpToDateStatusProviderFactoryImpl.instance"/>
                 </folder>
                 <file name="Settings.settings" url="LanguagesOptions.settings"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.Bundle"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.resources.Bundle"/>
                 <file name="language.nbs" url="Scala.nbs">
-                    <attr name="icon" stringvalue="org/netbeans/modules/scala/scala16x16.png"/>
+                    <attr name="icon" stringvalue="org/netbeans/modules/scala/editing/resources/scala16x16.png"/>
                 </file>
             </folder>
             <!--folder name="x-string">
@@ -132,20 +134,7 @@ made subject to such option by the copyright holder.
             </folder-->
         </folder>
     </folder>
-    <folder name="Templates">
-        <folder name="Scala">
-            <attr name="position" intvalue="911"/>
-            <file name="Class.scala" url="resources/ScalaTemplate.scala">
-                <attr name="position" intvalue="200"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/scala/editing/resources/class.png"/>
-                <attr name="instantiatingIterator" methodvalue="org.netbeans.spi.java.project.support.ui.templates.JavaTemplates.createJavaTemplateIterator"/>
-                <attr name="template" boolvalue="true"/>
-                <attr name="templateCategory" stringvalue="scala-classes"/>
-            </file>
-        </folder>
-    </folder>
-    
+        
     <!--folder name="OptionsDialog">
         <folder name="PreviewExamples">
             <folder name="text">
