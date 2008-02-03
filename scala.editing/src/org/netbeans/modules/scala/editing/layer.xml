@@ -136,6 +136,7 @@ made subject to such option by the copyright holder.
         <folder name="Scala">
             <attr name="position" intvalue="911"/>
             <file name="Class.scala" url="resources/ScalaTemplate.scala">
+                <attr name="position" intvalue="200"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/scala/editing/resources/class.png"/>
                 <attr name="instantiatingIterator" methodvalue="org.netbeans.spi.java.project.support.ui.templates.JavaTemplates.createJavaTemplateIterator"/>
