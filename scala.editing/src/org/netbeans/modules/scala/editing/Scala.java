@@ -169,8 +169,6 @@ public class Scala {
         AbstractDocument doc = (AbstractDocument) context.getDocument();
         doc.readLock();
         try {
-            ParserManager parserManager = ParserManager.get(doc);
-            waitingForParsingFinished(parserManager);
             ASTNode astRoot = ScalaSemanticAnalyser.getAstRoot(doc);
             ScalaContext rootCtx = ScalaSemanticAnalyser.getCurrentRootCtx(doc);
             Map<ASTItem, String> typeMap = ScalaSemanticAnalyser.getTypeMap(doc);
@@ -291,18 +289,6 @@ public class Scala {
             return result;
         } finally {
             doc.readUnlock();
-        }
-    }
-
-    private static void waitingForParsingFinished(ParserManager parserManager) {
-        int counter = 0;
-        try {
-            while (((parserManager.getState() == ParserManager.State.NOT_PARSED) ||
-                    (parserManager.getState() == ParserManager.State.PARSING)) && counter < 200) {
-                Thread.sleep(100);
-                counter++;
-            }
-        } catch (InterruptedException e) {
         }
     }
 

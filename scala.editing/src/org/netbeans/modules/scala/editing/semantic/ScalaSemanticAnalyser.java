@@ -228,7 +228,12 @@ public class ScalaSemanticAnalyser {
     }
 
     public static ScalaContext getCurrentRootCtx(Document doc) {
-        return getAnalyser(doc).rootCtx;
+        ScalaSemanticAnalyser analyser = getAnalyser(doc);
+        if (analyser.rootCtx == null) {
+             ParserManager parserManager = ParserManager.get(doc);
+             waitingForParsingFinished(parserManager);
+        }
+        return analyser.rootCtx;
     }
 
     public static Map<ASTItem, String> getTypeMap(Document doc) {
@@ -1409,4 +1414,18 @@ public class ScalaSemanticAnalyser {
             return query(result, fromDepth, pathNames, pathPositions);
         }
     }
+    
+    private static void waitingForParsingFinished(ParserManager parserManager) {
+        int counter = 0;
+        try {
+            while (((parserManager.getState() == ParserManager.State.NOT_PARSED) ||
+                    (parserManager.getState() == ParserManager.State.PARSING)) && counter < 200) {
+                Thread.sleep(100);
+                counter++;
+            }
+        } catch (InterruptedException e) {
+        }
+    }
+
+    
 }

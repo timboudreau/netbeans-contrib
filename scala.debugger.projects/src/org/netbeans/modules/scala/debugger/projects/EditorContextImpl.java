@@ -115,6 +115,7 @@ import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.Task;
 
+import org.netbeans.api.languages.ParserManager;
 import org.netbeans.editor.JumpList;
 import org.netbeans.modules.scala.editing.semantic.ScalaContext;
 import org.netbeans.modules.scala.editing.semantic.ScalaSemanticAnalyser;
@@ -1128,6 +1129,8 @@ public class EditorContextImpl extends EditorContext {
             return "";
         }
         final int offset = NbDocument.findLineOffset(doc, lineNumber - 1);
+        
+        /** @todo run in a thread */
         ScalaContext rootCtx = ScalaSemanticAnalyser.getCurrentRootCtx(doc);
         Template tmpl = rootCtx.getEnclosingDefinition(Template.class, offset);
         String className = "";
