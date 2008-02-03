@@ -107,12 +107,12 @@ is divided into following sections:
                     <isset property="env.SCALA_HOME"/>
                 </condition>
 <fail unless="scala.home">
-You must set SCALA_HOME or environment property or scala.home
-property in nbproject/private/private.properties to point to
+You must set SCALA_HOME or environment property and append "-J-Dscala.home=scalahomepath"
+property to the end of "netbeans_default_options" in NetBeansInstallationPath/etc/netbeans.conf to point to
 Scala installation directory.
 </fail>
-                <property name="scala.compiler" value="${scala.home}/lib/scala-compiler.jar"/>
-                <property name="scala.library"  value="${scala.home}/lib/scala-library.jar"/>
+                <property name="scala.compiler" value="${{scala.home}}/lib/scala-compiler.jar"/>
+                <property name="scala.library"  value="${{scala.home}}/lib/scala-library.jar"/>
                 <taskdef resource="scala/tools/ant/antlib.xml">
                     <classpath>
                         <pathelement location="${{scala.compiler}}"/>
