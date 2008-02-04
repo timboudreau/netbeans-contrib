@@ -101,7 +101,7 @@ public class ClearcaseClient {
                     // it happens (describe -graphical) that the
                     // cleartools magic prompt closes the external 
                     // commands window
-                    ctshell.setPromptFinnished(false); 
+                    ctshell.setFireAndForget(true); 
                     ctshell.exec(cmd);
                 } catch (Exception e) {
                     Utils.logError(this, e);
