@@ -96,16 +96,20 @@ public class Utils {
      */
     // XXX may be this should be somewere in the comand infrastructure
     public static void afterCommandRefresh(final File[] files, boolean includeParents) {    
-        Set<File> refreshList = new HashSet<File>();
-        for (File file : files) {
-            File parent = file.getParentFile();
-            if(parent != null) {
-                refreshList.add(parent);
+        org.netbeans.modules.versioning.util.Utils.post(new Runnable() {
+            public void run() {
+                Set<File> refreshList = new HashSet<File>();
+                for (File file : files) {
+                    File parent = file.getParentFile();
+                    if(parent != null) {
+                        refreshList.add(parent);
+                    }
+                    refreshList.add(file);
+                }                        
+                File[] refreshFiles = refreshList.toArray(new File[refreshList.size()]);
+                Clearcase.getInstance().getFileStatusCache().refreshLater(refreshFiles);
+                FileUtil.refreshFor(refreshFiles); 
             }
-            refreshList.add(file);
-        }                        
-        File[] refreshFiles = refreshList.toArray(new File[refreshList.size()]);
-        Clearcase.getInstance().getFileStatusCache().refreshLater(refreshFiles);
-        FileUtil.refreshFor(refreshFiles); 
+        });        
     }    
 }
