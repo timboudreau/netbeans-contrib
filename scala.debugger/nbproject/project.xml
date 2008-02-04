@@ -30,6 +30,13 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.modules.debugger.jpda</code-name-base>
+                    <run-dependency>
+                        <release-version>2</release-version>
+                        <specification-version>1.19</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.modules.java.source</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -63,7 +70,6 @@
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.scala.editing</code-name-base>
-                    <build-prerequisite/>
                     <run-dependency>
                         <specification-version>1.0.4</specification-version>
                     </run-dependency>
