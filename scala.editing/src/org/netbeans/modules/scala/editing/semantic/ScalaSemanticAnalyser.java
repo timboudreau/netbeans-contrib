@@ -103,7 +103,7 @@ public class ScalaSemanticAnalyser {
 
     private ScalaSemanticAnalyser(Document doc) {
         this.doc = doc;
-        //initParserManagerListener
+        initParserManagerListener();
     }
     
     private ScalaSemanticAnalyser(boolean forIndexing) {
@@ -111,7 +111,6 @@ public class ScalaSemanticAnalyser {
         this.forIndexing = forIndexing;
     }
 
-    @Deprecated
     private void initParserManagerListener() {
         parserManager = ParserManager.get(doc);
         parserManagerListener = new ParserManagerListener() {
@@ -178,6 +177,11 @@ public class ScalaSemanticAnalyser {
     }
 
     /**
+     * @Deprecated 
+     * Don't use AST feature to process semantic analysis, since AST feature will cause ContextASTEvalutor to set another 
+     * rootContext, @see org.netbeans.modules.languages.features.ContextASTEvalutor#afterEvaluation
+     * 
+     * @Doc
      * This is the method will be called by GLF feature as declared in Erlang.nbs:
      * AST {
      *   process:org.netbeans.modules.scala.editing.semantic.ScalaSemanticAnalyser.process
@@ -185,6 +189,7 @@ public class ScalaSemanticAnalyser {
      *
      * @Notice astRoot may be changed after this feature calling? if so, the doc <--> astRoot is useless to prevent redudant parsing.
      */
+    @Deprecated
     public static void process(SyntaxContext syntaxContext) {
         Document doc = syntaxContext.getDocument();
         ASTNode astRoot = (ASTNode) syntaxContext.getASTPath().getRoot();
