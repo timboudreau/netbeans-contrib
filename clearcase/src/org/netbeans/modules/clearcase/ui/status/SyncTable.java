@@ -46,8 +46,12 @@ import org.openide.nodes.*;
 import org.openide.nodes.PropertySupport.ReadOnly;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle;
+import org.openide.awt.Mnemonics;
+import org.openide.awt.MouseUtils;
 import org.netbeans.modules.versioning.util.FilePathCellRenderer;
 import org.netbeans.modules.versioning.util.TableSorter;
+import org.netbeans.modules.versioning.util.OpenInEditorAction;
+import org.netbeans.modules.versioning.spi.VCSContext;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -65,7 +69,17 @@ import java.awt.Color;
 import java.awt.Point;
 import java.util.*;
 import java.util.logging.Level;
+import java.io.File;
+
 import org.netbeans.modules.clearcase.Clearcase;
+import org.netbeans.modules.clearcase.ui.diff.DiffAction;
+import org.netbeans.modules.clearcase.ui.IgnoreAction;
+import org.netbeans.modules.clearcase.ui.add.AddAction;
+import org.netbeans.modules.clearcase.ui.history.BrowseHistoryAction;
+import org.netbeans.modules.clearcase.ui.history.BrowseVersionTreeAction;
+import org.netbeans.modules.clearcase.ui.checkin.CheckinAction;
+import org.netbeans.modules.clearcase.ui.checkout.UncheckoutAction;
+import org.netbeans.modules.clearcase.ui.update.UpdateAction;
 
 /**
  * Controls the {@link #getComponent() tsble} that displays nodes
@@ -258,135 +272,87 @@ class SyncTable implements MouseListener, ListSelectionListener, AncestorListene
     }
 
     private void showPopup(final MouseEvent e) {
-        // XXX
-//        int row = table.rowAtPoint(e.getPoint());
-//        if (row != -1) {
-//            boolean makeRowSelected = true;
-//            int [] selectedrows = table.getSelectedRows();
-//
-//            for (int i = 0; i < selectedrows.length; i++) {
-//                if (row == selectedrows[i]) {
-//                    makeRowSelected = false;
-//                    break;
-//                }
-//            }
-//            if (makeRowSelected) {
-//                table.getSelectionModel().setSelectionInterval(row, row);
-//            }
-//        }
-//        SwingUtilities.invokeLater(new Runnable() {
-//            public void run() {
-//                // invoke later so the selection on the table will be set first
-//                JPopupMenu menu = getPopup();         
-//                menu.show(table, e.getX(), e.getY());
-//            }
-//        });
+        int row = table.rowAtPoint(e.getPoint());
+        if (row != -1) {
+            boolean makeRowSelected = true;
+            int [] selectedrows = table.getSelectedRows();
+
+            for (int i = 0; i < selectedrows.length; i++) {
+                if (row == selectedrows[i]) {
+                    makeRowSelected = false;
+                    break;
+                }
+            }
+            if (makeRowSelected) {
+                table.getSelectionModel().setSelectionInterval(row, row);
+            }
+        }
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                // invoke later so the selection on the table will be set first
+                JPopupMenu menu = getPopup();         
+                menu.show(table, e.getX(), e.getY());
+            }
+        });
     }
 
     private void showPopup(Point p) {
-        // XXX
-//        JPopupMenu menu = getPopup();
-//        menu.show(table, p.x, p.y);
+        JPopupMenu menu = getPopup();
+        menu.show(table, p.x, p.y);
     }
     
-//    /**
-//     * Constructs contextual Menu: File Node
-//        <pre>
-//        Open
-//        -------------------
-//        Diff                 (default action)
-//        Update
-//        Commit...        
-//        --------------------
-//        Conflict Resolved    (on conflicting file)
-//        --------------------
-//        Blame
-//        Show History...
-//        --------------------        
-//        Revert Modifications  (Revert Delete)(Delete)
-//        Exclude from Commit   (Include in Commit)
-//        Ignore                (Unignore)
-//        </pre>
-//     */
-//    private JPopupMenu getPopup() {
-//
-//        JPopupMenu menu = new JPopupMenu();
-//        JMenuItem item;
-//        
-//        // XXX item = menu.add(new OpenInEditorAction());
-//        Mnemonics.setLocalizedText(item, item.getText());
-//        menu.addSeparator();
-//        item = menu.add(new SystemActionBridge(SystemAction.get(DiffAction.class), actionString("CTL_PopupMenuItem_Diff"))); // NOI18N
-//        Mnemonics.setLocalizedText(item, item.getText());
-//        item = menu.add(new SystemActionBridge(SystemAction.get(UpdateAction.class), actionString("CTL_PopupMenuItem_Update"))); // NOI18N
-//        Mnemonics.setLocalizedText(item, item.getText());
-//        item = menu.add(new SystemActionBridge(SystemAction.get(CommitAction.class), actionString("CTL_PopupMenuItem_Commit"))); // NOI18N
-//        Mnemonics.setLocalizedText(item, item.getText());
-//        
-//        menu.addSeparator();
-//        item = menu.add(new SystemActionBridge(SystemAction.get(ConflictResolvedAction.class), org.openide.util.NbBundle.getMessage(SyncTable.class, "CTL_PopupMenuItem_ConflictResolved"))); // NOI18N
-//        Mnemonics.setLocalizedText(item, item.getText());
-//                
-//        menu.addSeparator();
-//        item = menu.add(new SystemActionBridge(SystemAction.get(BlameAction.class),
-//                                               ((BlameAction)SystemAction.get(BlameAction.class)).visible(null) ?
-//                                               actionString("CTL_PopupMenuItem_HideBlame") : // NOI18N
-//                                               actionString("CTL_PopupMenuItem_Blame"))); // NOI18N
-//        Mnemonics.setLocalizedText(item, item.getText());
-//        
-//        item = menu.add(new SystemActionBridge(SystemAction.get(SearchHistoryAction.class), actionString("CTL_PopupMenuItem_SearchHistory"))); // NOI18N
-//        Mnemonics.setLocalizedText(item, item.getText());
-//
-//        menu.addSeparator();
-//        String label;
-//        ExcludeFromCommitAction exclude = (ExcludeFromCommitAction) SystemAction.get(ExcludeFromCommitAction.class);
-//        if (exclude.getActionStatus(null) == exclude.INCLUDING) {
-//            label = org.openide.util.NbBundle.getMessage(SyncTable.class, "CTL_PopupMenuItem_IncludeInCommit"); // NOI18N
-//        } else {
-//            label = org.openide.util.NbBundle.getMessage(SyncTable.class, "CTL_PopupMenuItem_ExcludeFromCommit"); // NOI18N
-//        }
-//        item = menu.add(new SystemActionBridge(exclude, label));
-//        Mnemonics.setLocalizedText(item, item.getText());
-//        
-//        Action revertAction;
-//        boolean allLocallyNew = true;
-//        boolean allLocallyDeleted = true;
-//        FileStatusCache cache = Subversion.getInstance().getStatusCache();
-//        File [] files = SvnUtils.getCurrentContext(null).getFiles();
-//        
-//        for (int i = 0; i < files.length; i++) {
-//            File file = files[i];
-//            FileInformation info = cache.getStatus(file);
-//            if ((info.getStatus() & DeleteLocalAction.LOCALLY_DELETABLE_MASK) == 0 ) {
-//                allLocallyNew = false;
-//            }
-//            if (info.getStatus() != FileInformation.STATUS_VERSIONED_DELETEDLOCALLY && info.getStatus() != FileInformation.STATUS_VERSIONED_REMOVEDLOCALLY) {
-//                allLocallyDeleted = false;
-//            }
-//        }
-//        if (allLocallyNew) {
-//            SystemAction systemAction = SystemAction.get(DeleteLocalAction.class);
-//            revertAction = new SystemActionBridge(systemAction, actionString("CTL_PopupMenuItem_Delete")); // NOI18N
-//        } else if (allLocallyDeleted) {
-//            revertAction = new SystemActionBridge(SystemAction.get(RevertModificationsAction.class), actionString("CTL_PopupMenuItem_RevertDelete")); // NOI18N
-//        } else {
-//            revertAction = new SystemActionBridge(SystemAction.get(RevertModificationsAction.class), actionString("CTL_PopupMenuItem_GetClean")); // NOI18N
-//        }
-//        item = menu.add(revertAction);
-//        Mnemonics.setLocalizedText(item, item.getText());
-//
-////        item = menu.add(new SystemActionBridge(SystemAction.get(ResolveConflictsAction.class), actionString("CTL_PopupMenuItem_ResolveConflicts"))); // NOI18N
-////        Mnemonics.setLocalizedText(item, item.getText());
-//        
-//        Action ignoreAction = new SystemActionBridge(SystemAction.get(IgnoreAction.class),
-//           ((IgnoreAction)SystemAction.get(IgnoreAction.class)).getActionStatus(files) == IgnoreAction.UNIGNORING ?
-//           actionString("CTL_PopupMenuItem_Unignore") : // NOI18N
-//           actionString("CTL_PopupMenuItem_Ignore")); // NOI18N
-//        item = menu.add(ignoreAction);
-//        Mnemonics.setLocalizedText(item, item.getText());
-//
-//        return menu;
-//    }
+    /**
+     * Constructs contextual Menu:
+     */
+    private JPopupMenu getPopup() {
+        File[] selectedFiles = getSelectedFiles();
+        VCSContext selectedContext = VCSContext.forNodes(TopComponent.getRegistry().getActivatedNodes());
+                
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem item;
+        
+        item = menu.add(new OpenInEditorAction(selectedFiles));
+        Mnemonics.setLocalizedText(item, item.getText());
+        menu.addSeparator();
+    
+        item = menu.add(new UncheckoutAction("Uncheckout...", selectedContext));
+        Mnemonics.setLocalizedText(item, item.getText());
+        item = menu.add(new AddAction("Add To Source Control...", selectedContext));
+        Mnemonics.setLocalizedText(item, item.getText());
+        menu.addSeparator();
+        
+        item = menu.add(new DiffAction("Diff", selectedContext));
+        Mnemonics.setLocalizedText(item, item.getText());
+        item = menu.add(new UpdateAction("Update", selectedContext));
+        Mnemonics.setLocalizedText(item, item.getText());
+        item = menu.add(new CheckinAction("Checkin...", selectedContext));
+        Mnemonics.setLocalizedText(item, item.getText());
+        
+        menu.addSeparator();
+    /*
+        item = menu.add(new AnnotateAction(selectedContext, Clearcase.getInstance().getAnnotationsProvider(selectedContext)));
+        Mnemonics.setLocalizedText(item, item.getText());
+    */
+        item = menu.add(new BrowseHistoryAction("Browse History", selectedContext));
+        Mnemonics.setLocalizedText(item, item.getText());
+        item = menu.add(new BrowseVersionTreeAction("Browse Version Tree", selectedContext));
+        Mnemonics.setLocalizedText(item, item.getText());
+    
+        menu.addSeparator();
+        item = menu.add(new IgnoreAction(selectedContext));
+        Mnemonics.setLocalizedText(item, item.getText());
+        item = menu.add(new ShowPropertiesAction("Show Properties", selectedContext));
+        Mnemonics.setLocalizedText(item, item.getText());
+        
+        return menu;
+    }
+    
+    private File [] getSelectedFiles() {
+        Node [] selectedNodes = TopComponent.getRegistry().getActivatedNodes();
+        File [] files = VCSContext.forNodes(selectedNodes).getFiles().toArray(new File[selectedNodes.length]);
+        return files;
+    }
+ 
 
 //    /** 
 //     * Workaround.
@@ -416,17 +382,16 @@ class SyncTable implements MouseListener, ListSelectionListener, AncestorListene
     }
 
     public void mouseClicked(MouseEvent e) {
-        // XXX
-//        if (SwingUtilities.isLeftMouseButton(e) && MouseUtils.isDoubleClick(e)) {
-//            int row = table.rowAtPoint(e.getPoint());
-//            if (row == -1) return;
-//            row = sorter.modelIndex(row);
-//            Action action = nodes[row].getPreferredAction();
-//            if (action == null || !action.isEnabled()) action = new OpenInEditorAction();
-//            if (action.isEnabled()) {
-//                action.actionPerformed(new ActionEvent(this, 0, "")); // NOI18N
-//            }
-//        } 
+        if (SwingUtilities.isLeftMouseButton(e) && MouseUtils.isDoubleClick(e)) {
+            int row = table.rowAtPoint(e.getPoint());
+            if (row == -1) return;
+            row = sorter.modelIndex(row);
+            Action action = nodes[row].getPreferredAction();
+            if (action == null || !action.isEnabled()) action = new OpenInEditorAction(getSelectedFiles());
+            if (action.isEnabled()) {
+                action.actionPerformed(new ActionEvent(this, 0, "")); // NOI18N
+            }
+        } 
     }
 
     public void valueChanged(ListSelectionEvent e) {
