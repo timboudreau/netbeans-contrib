@@ -41,35 +41,23 @@
 
 package org.netbeans.modules.scala.debugger.projects;
 
-import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.SwingUtilities;
 import org.netbeans.api.debugger.ActionsManager;
 
 
-import org.netbeans.api.debugger.Breakpoint;
 import org.netbeans.api.debugger.DebuggerEngine;
 
 import org.netbeans.api.debugger.DebuggerManager;
 import org.netbeans.api.debugger.DebuggerManagerAdapter;
 
-import org.netbeans.api.debugger.DebuggerManagerListener;
-import org.netbeans.spi.debugger.ContextProvider;
-import org.netbeans.api.debugger.Session;
-import org.netbeans.api.debugger.Watch;
 import org.netbeans.api.debugger.jpda.JPDADebugger;
 
 import org.netbeans.api.debugger.jpda.LineBreakpoint;
-import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
-import org.netbeans.spi.debugger.ActionsProvider;
-import org.netbeans.spi.debugger.ActionsProviderListener;
 import org.netbeans.spi.debugger.ActionsProviderSupport;
 import org.netbeans.spi.debugger.jpda.EditorContext;
 import org.netbeans.spi.project.ActionProvider;

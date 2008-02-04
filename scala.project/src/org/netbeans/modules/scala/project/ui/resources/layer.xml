@@ -87,15 +87,25 @@ made subject to such option by the copyright holder.
         
         <folder name="Scala">
             <attr name="position" intvalue="911"/>
+            
             <file name="Main.scala" url="Main.scala">
+                <attr name="position" intvalue="100"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.project.ui.resources.Bundle"/>
-                <attr name="position" intvalue="100"/>
-                <!-- This is a hack to allow Erlang files to show up in Java projects as well in case you want to mix in Erlang for scripting. -->
-                <attr name="templateCategory" stringvalue="scala,java-classes"/>
+                <!-- This is a hack to allow Scala files to show up in Java projects as well in case you want to mix in Java project. -->
+                <attr name="templateCategory" stringvalue="scala-classes,java-classes"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/project/ui/resources/scalaMain.html"/>
-                <!--attr name="instantiatingIterator" methodvalue="org.netbeans.modules.scala.project.templates.RubyTemplates.createRubyTemplateIterator"/-->
             </file>
+            
+            <file name="Class.scala" url="EmptyScalaClass.scala">
+                <attr name="position" intvalue="200"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.project.ui.resources.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/scala/project/ui/resources/class.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/scala/project/ui/resources/EmptyScalaClassFileDescription.html"/>
+                <attr name="templateCategory" stringvalue="scala-classes,,java-classes"/>
+            </file>
+
         </folder>
         
     </folder>

@@ -8,7 +8,7 @@
     <target name="init" depends="projectized.init">
         <mkdir dir="${cluster}/modules/ext/sapwsdlgenerator/"/>
         <copy todir="${cluster}/modules/ext/sapwsdlgenerator/">
-            <fileset dir="../sapwsdlgenerator/external">
+            <fileset dir="../c.s.jbi.sapbc.sapwsdlgenerator/external">
                 <include name="sapjco.jar"/>
                 <include name="sapidoc.jar"/>
                 <include name="sapidocjco.jar"/>
