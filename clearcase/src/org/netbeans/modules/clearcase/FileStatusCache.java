@@ -176,10 +176,17 @@ public class FileStatusCache {
         
         if (dir == null) {
             return FILE_INFORMATION_NOTMANAGED; // default for filesystem roots
-        }                 
+        }                         
         
-        Map<File, FileInformation> dirMap = get(dir); 
-        return dirMap != null ? dirMap.get(file) : null;
+        Map<File, FileInformation> dirMap = get(dir);         
+        FileInformation info = dirMap != null ? dirMap.get(file) : null;
+        if(info == null) {
+            if(!Clearcase.getInstance().isManaged(file)) {
+                // TODO what about children if dir?
+                return file.isDirectory() ? FILE_INFORMATION_NOTMANAGED_DIRECTORY : FILE_INFORMATION_NOTMANAGED;
+            }     
+        }        
+        return info;
     }
     
     /**
