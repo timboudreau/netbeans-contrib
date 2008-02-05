@@ -216,7 +216,7 @@ public class FileStatus {
                 sb.append(originVersion.getVersionNumber());
             }                        
             if(reserved) {
-                sb.append(",modified");
+                sb.append(",reserved");
             }            
             sb.append("]");        
             stringValue = sb.toString();
