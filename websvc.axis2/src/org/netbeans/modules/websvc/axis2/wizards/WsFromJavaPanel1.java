@@ -56,7 +56,7 @@ import org.openide.util.HelpCtx;
  *
  * @author mkuchtiak
  */
-public class WsFromJavaPanel1 implements  WizardDescriptor.FinishablePanel<WizardDescriptor>, ChangeListener {
+public class WsFromJavaPanel1 implements  WizardDescriptor.FinishablePanel<WizardDescriptor>, ChangeListener, WizardProperties {
 
     private WsFromJavaGUIPanel1 component;
     private WizardDescriptor wizardDescriptor;
@@ -84,6 +84,7 @@ public class WsFromJavaPanel1 implements  WizardDescriptor.FinishablePanel<Wizar
     }
 
     public void storeSettings(WizardDescriptor settings) {
+        settings.putProperty(PROP_GENERATE_SAMPLE_METHOD, Boolean.valueOf(component.generateSampleMethod()));
     }
 
     public boolean isValid() {
