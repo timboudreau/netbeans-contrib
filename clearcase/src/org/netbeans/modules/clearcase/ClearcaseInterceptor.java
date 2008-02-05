@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.clearcase;
 
+import org.netbeans.modules.clearcase.client.status.FileStatus.ClearcaseStatus;
 import org.netbeans.modules.versioning.spi.VCSInterceptor;
 import org.netbeans.modules.clearcase.ui.checkout.CheckoutAction;
 
@@ -51,6 +52,7 @@ import org.netbeans.modules.clearcase.client.ClearcaseClient;
 import org.netbeans.modules.clearcase.client.DeleteCommand;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.MoveCommand;
+import org.netbeans.modules.clearcase.client.UnCheckoutCommand;
 import org.netbeans.modules.clearcase.client.status.FileStatus;
 import org.netbeans.modules.clearcase.client.status.ListFiles;
 
@@ -119,19 +121,36 @@ public class ClearcaseInterceptor extends VCSInterceptor {
             // how is this possible ?
             return;
         }
+        
                 
         // XXX use execution unit
         if(Clearcase.getInstance().isManaged(parent)) {
             // 1. checkout parent if needed
             checkout(parent);
              
-            // 2. remove the file
+            // 2. uncheckout - even if the delete is invoked with the --force switch
+            // ct rm on a file which was checkedout causes that after ct unco on its parent 
+            // it becomes [checkedout but removed]. This actually is not what we want.
+            ClearcaseStatus status = cache.getClearcaseStatus(file);
+            if(status == ClearcaseStatus.REPOSITORY_STATUS_FILE_CHECKEDOUT_BUT_REMOVED || 
+               status == ClearcaseStatus.REPOSITORY_STATUS_FILE_CHECKEDOUT_RESERVED ||      
+               status == ClearcaseStatus.REPOSITORY_STATUS_FILE_CHECKEDOUT_UNRESERVED) 
+            {
+                ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit(
+                "Undoing checkout...", new UnCheckoutCommand(new File [] { file }, false)));
+                cr.waitFinished();
+            }      
+                    
+            // 3. remove the file
             ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit(
                 "Deleting ...", new DeleteCommand(new File [] { file })));
             cr.waitFinished();
             
             // the file stays on the filessytem if it was checkedout eventually
-            file.delete();                        
+            if(file.exists()) {
+                file.delete();
+            }                        
+            
         } else {
             // XXX what if VOB root ???
         }                                 

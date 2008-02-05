@@ -43,7 +43,6 @@ package org.netbeans.modules.clearcase;
 import org.netbeans.modules.clearcase.client.ClearcaseClient;
 import org.netbeans.modules.clearcase.client.status.FileStatus;
 import org.netbeans.modules.clearcase.client.status.ListCheckouts.LSCOOutput;
-import org.openide.filesystems.FileUtil;
 
 import java.util.*;
 import java.io.File;
@@ -353,10 +352,6 @@ public class FileStatusCache {
             isRoot = false;
             statusValues = getFileStatus(dir, true);
         }              
-                        
-        if(statusValues == null || statusValues.size() == 0) {
-            return FILE_INFORMATION_UNKNOWN;
-        }
                 
         Map<File, FileInformation> oldDirMap = get(dir); 
         Map<File, FileInformation> newDirMap;        
