@@ -85,19 +85,19 @@ public class FileStatus {
     final private FileVersionSelector originVersion;
     final private FileVersionSelector version;
     final private String annotation;
-    final boolean modified;
+    final private boolean reserved;
     
     private ClearcaseStatus status;
 
     
-    public FileStatus(String type, File file, FileVersionSelector originVersion, FileVersionSelector version, String annotation, boolean modified) {
+    public FileStatus(String type, File file, FileVersionSelector originVersion, FileVersionSelector version, String annotation, boolean reserved) {
         this.type = type;
         this.file = file;
         this.originVersion = originVersion;
         this.version = version;
         this.annotation = annotation;
-        this.modified = modified;
-        this.status = getRepositoryStatus(type, annotation, version, modified);
+        this.reserved = reserved;
+        this.status = getRepositoryStatus(type, annotation, version, reserved);
     }
 
     public FileStatus() { 
@@ -106,7 +106,7 @@ public class FileStatus {
         this.originVersion = null;
         this.version = null;
         this.annotation = null;  
-        this.modified = false;
+        this.reserved = false;
         status = ClearcaseStatus.REPOSITORY_STATUS_UNKNOWN;
     }
     
@@ -215,7 +215,7 @@ public class FileStatus {
                 sb.append(File.pathSeparator);
                 sb.append(originVersion.getVersionNumber());
             }                        
-            if(modified) {
+            if(reserved) {
                 sb.append(",modified");
             }            
             sb.append("]");        
