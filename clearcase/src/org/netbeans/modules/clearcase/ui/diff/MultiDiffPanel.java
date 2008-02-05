@@ -49,6 +49,7 @@ import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileStatusCache;
+import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
 import org.netbeans.modules.clearcase.ui.checkin.CheckinAction;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.api.diff.DiffController;
@@ -516,7 +517,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
         default:
             throw new IllegalStateException("Unknown DIFF type:" + currentType); // NOI18N
         }
-        files = ClearcaseUtils.getModifiedFiles(context, displayStatuses);
+        files = computeFilesToDiff();
         
         setups = computeSetups(files);
 
@@ -602,6 +603,26 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
         if (DiffController.PROP_DIFFERENCES.equals(evt.getPropertyName())) {
             refreshComponents();
         }
+    }
+
+    public File [] computeFilesToDiff() {
+        File [] all = Clearcase.getInstance().getFileStatusCache().listFiles(context, displayStatuses);
+        List<File> files = new ArrayList<File>();
+        for (int i = 0; i < all.length; i++) {
+            File file = all[i];
+            String path = file.getAbsolutePath();
+            if (!ClearcaseModuleConfig.isExcludedFromCommit(path)) {
+                files.add(file);
+            }
+        }
+        // ensure that command roots (files that were explicitly selected by user) are included in Diff
+        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
+        for (File file : context.getFiles()) {
+            if (file.isFile() && (cache.getInfo(file).getStatus() & displayStatuses) != 0 && !files.contains(file)) {
+                files.add(file);
+            }
+        }
+        return files.toArray(new File[files.size()]);
     }
 
     private class DiffPrepareTask implements Runnable {
