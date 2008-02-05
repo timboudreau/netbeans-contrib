@@ -128,7 +128,9 @@ public class ClearcaseInterceptor extends VCSInterceptor {
             // 1. checkout parent if needed
             checkout(parent);
              
-            // 2. uncheckout - even if the delete is invoked with the --force switch - 
+            // 2. uncheckout - even if the delete is invoked with the --force switch
+            // ct rm on a file which was checkedout causes that after ct unco on its parent 
+            // it becomes [checkedout but removed]. This actually is not what we want.
             ClearcaseStatus status = cache.getClearcaseStatus(file);
             if(status == ClearcaseStatus.REPOSITORY_STATUS_FILE_CHECKEDOUT_BUT_REMOVED || 
                status == ClearcaseStatus.REPOSITORY_STATUS_FILE_CHECKEDOUT_RESERVED ||      
