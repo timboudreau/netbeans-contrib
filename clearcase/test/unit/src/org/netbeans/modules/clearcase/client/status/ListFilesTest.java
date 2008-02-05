@@ -68,50 +68,146 @@ public class ListFilesTest extends TestCase {
         super.tearDown();
     }
 
-    public void testListStatus() throws IOException, ClearcaseException {
-        System.out.println("getOutputList");
+    public void testUptodate() throws IOException, ClearcaseException {
+        String rawOutput = "version                Main.java@@/main/1                     Rule: element * /main/LATEST";
+
+        List<ListOutput> outputList = execList(rawOutput);
+        assertEquals(1, outputList.size());
+        assertListOutput(outputList.get(0), null, new File("Main.java"), "/main", 1L, "/main/1", null, -1, null, false, "version");                
+    }
+        
+    public void testViewPrivate() throws IOException, ClearcaseException {
+        String rawOutput = "view private object    file0";
+        List<ListOutput> outputList = execList(rawOutput);
+        
+        assertEquals(1, outputList.size());
+        assertListOutput(outputList.get(0), null, new File("file0"), null, -1, null, null, -1, null, false, "view private object");        
+    }
+
+    public void testCheckedout() throws IOException, ClearcaseException {
+        String rawOutput = "version                README@@/main/CHECKEDOUT from /main/3  Rule: element * CHECKEDOUT";
+        List<ListOutput> outputList = execList(rawOutput);
+        
+        assertEquals(1, outputList.size());        
+        assertListOutput(outputList.get(0), null, new File("README"), "/main", FileVersionSelector.CHECKEDOUT_VERSION, "/main/CHECKEDOUT", "/main", 3L, "/main/3", true, "version");                
+    }
+
+    public void testCheckedoutButRemoved() throws IOException, ClearcaseException {
+        String[] rawOutput = new String[] {"version                README@@/main/CHECKEDOUT from /main/1 [checkedout but removed]",
+                                           "version                test1@@/main/CHECKEDOUT from /main/2 [not loaded, checkedout but removed]"};
+        List<ListOutput> outputList = execList(rawOutput);
+        
+        assertEquals(2, outputList.size());        
+        assertListOutput(outputList.get(0), "[checkedout but removed]", new File("README"), "/main", FileVersionSelector.CHECKEDOUT_VERSION, "/main/CHECKEDOUT", "/main", 1L, "/main/1", true, "version");                
+        assertListOutput(outputList.get(1), "[not loaded, checkedout but removed]", new File("test1"), "/main", FileVersionSelector.CHECKEDOUT_VERSION, "/main/CHECKEDOUT", "/main", 2L, "/main/2", true, "version");                        
+    }
+        
+    public void testLoadedButMissing() throws IOException, ClearcaseException {
+        String rawOutput = "version                test1@@/main/2 [loaded but missing]    Rule: element * /main/LATEST";
+        List<ListOutput> outputList = execList(rawOutput);
+        
+        assertEquals(1, outputList.size());        
+        assertListOutput(outputList.get(0), "[loaded but missing]", new File("test1"), "/main", 2L, "/main/2", null, -1, null, false, "version");                
+    }        
+
+    public void testHijacked() throws IOException, ClearcaseException {
+        String rawOutput = "version                test1@@/main/2 [hijacked]              Rule: element * /main/LATEST";
+        List<ListOutput> outputList = execList(rawOutput);
+        
+        assertEquals(1, outputList.size());        
+        assertListOutput(outputList.get(0), "[hijacked]", new File("test1"), "/main", 2L, "/main/2", null, -1, null, false, "version");                
+    }        
+
+    public void testEclipsed() throws IOException, ClearcaseException {
+        String[] rawOutput = new String[] {
+            "view private object    Makefile",
+            "file element           Makefile@@ [eclipsed]"
+        };
+        List<ListOutput> outputList = execList(rawOutput);
+        
+        assertEquals(2, outputList.size());        
+        assertListOutput(outputList.get(0), null, new File("Makefile"), null, -1, null, null, -1, null, false, "view private object");                
+        assertListOutput(outputList.get(1), "[eclipsed]", new File("Makefile"), null, -1, null, null, -1, null, false, "file element");                        
+    }        
+    
+    public void testCrap() throws IOException, ClearcaseException {
+        List<ListOutput> outputList = execList(null);
+        assertEquals(outputList.size(), 0);       
         
         String[] rawOutput = new String[] {
-            "version                Main.java@@/main/1                     Rule: element * /main/LATEST",
-            "view private object    file0"
+            "x",
+            "",
+            "crap crap crap",            
         };
+        
+        outputList = execList(rawOutput);        
+        assertEquals(0, outputList.size());               
+        
+        rawOutput = new String[] {            
+            "version                Main.java@@/main/1                     ",            
+            "version                Main.java@@/main/",
+            "version                Main.java@@/main/xxx",
+            "version                Main.java@@",
+            "version                Main.java@",
+            "version                Main.java",
+            "version       ",            
+        };
+        outputList = execList(rawOutput);   
+        assertEquals(7, outputList.size());               
+                
+    }        
+            
+    private void assertListOutput(ListOutput o, String annotation, File file, String versionPath, 
+                                  long version, String versionSelector, String originVersionPath, 
+                                  long originVersion, String originVersionSelector, boolean checkedout, String type) {         
+        assertEquals(annotation, o.getAnnotation());
+        assertEquals(file, o.getFile());
+        if(versionSelector != null) {
+            assertNotNull(o.getVersion());
+            assertEquals(versionPath,       o.getVersion().getPath());
+            assertEquals(version,           o.getVersion().getVersionNumber());
+            assertEquals(versionSelector,   o.getVersion().getVersionSelector());   
+            assertEquals(checkedout,        o.getVersion().isCheckedout());            
+        } else {
+            assertNull(o.getVersion());   
+        }        
+        if(originVersionSelector != null) {
+            assertNotNull(o.getOriginVersion());
+            assertEquals(originVersionPath,         o.getOriginVersion().getPath());
+            assertEquals(originVersion,             o.getOriginVersion().getVersionNumber());
+            assertEquals(originVersionSelector,     o.getOriginVersion().getVersionSelector());               
+        } else {
+            assertNull(o.getOriginVersion());
+        }                                
+        assertEquals(type, o.getType());
+    }
+    
+    private List<ListOutput> execList(String ...rawOutput) throws IOException, ClearcaseException {
+
         ListCommandExecutor executor = new ListCommandExecutor(rawOutput);
         DummyCleartool ct = new DummyCleartool(executor);
-        
+
         ListFiles lf = new ListFiles(new File(""), false);
         for (ClearcaseCommand c : lf.getCommands()) {
             ct.exec(c);
         }
 
         List<ListOutput> outputList = lf.getOutputList();
-        assertEquals(outputList.size(), 2);
-        
-        ListOutput o = outputList.get(0);
-        assertEquals(null, o.getAnnotation());
-        assertEquals(new File("Main.java"), o.getFile());
-        assertEquals("/main", o.getVersion().getPath());
-        assertEquals(1, o.getVersion().getVersionNumber());
-        assertEquals("/main/1", o.getVersion().getVersionSelector());
-        assertEquals(false, o.getVersion().isCheckedout());
-        assertEquals(null, o.getOriginVersion());
-        assertEquals("version", o.getType());
-        
-        o = outputList.get(1);
-        assertEquals(null, o.getAnnotation());
-        assertEquals(new File("file0"), o.getFile());
-        assertEquals(null, o.getVersion());        
-        assertEquals(null, o.getOriginVersion());
-        assertEquals("view private object", o.getType());        
+        return outputList;
     }
-    
+
     private class ListCommandExecutor implements DummyCleartool.CommandExecutor {
         final private String[] output;
 
-        public ListCommandExecutor(String[] output) {
+        public ListCommandExecutor(String ...output) {
             this.output = output;
         }
         
         public void exec(ClearcaseCommand command) {
+            if(output == null) {
+                command.outputText(null);
+                return;
+            }
             for (String string : output) {
                 command.outputText(string);                        
             }
