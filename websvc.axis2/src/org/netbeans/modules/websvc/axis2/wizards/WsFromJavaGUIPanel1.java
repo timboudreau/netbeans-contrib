@@ -90,4 +90,7 @@ public class WsFromJavaGUIPanel1 extends javax.swing.JPanel {
     private javax.swing.JCheckBox jCheckBox1;
     // End of variables declaration//GEN-END:variables
     
+    boolean generateSampleMethod() {
+        return jCheckBox1.isSelected();
+    }
 }
