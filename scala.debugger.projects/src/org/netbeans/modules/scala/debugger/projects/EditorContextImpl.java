@@ -1608,100 +1608,106 @@ public class EditorContextImpl extends EditorContext {
     public <R, D> R parseExpression(final String expression, String url, final int line,
             final TreePathScanner<R, D> visitor, final D context,
             final SourcePathProvider sp) {
-        JavaSource js = null;
+//        JavaSource js = null;
+        FileObject fo = null;
         try {
-            FileObject fo = URLMapper.findFileObject(new URL(url));
-            js = JavaSource.forFileObject(fo);
+            fo = URLMapper.findFileObject(new URL(url));
+            //js = JavaSource.forFileObject(fo);
         } catch (MalformedURLException ex) {
             ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
         }
-        if (js == null) {
-            js = getJavaSource(sp);
-        }
-        final R[] retValue = (R[]) new Object[]{null                };
-        try {
-            js.runUserActionTask(new Task<CompilationController>() {
-
-                public void run(CompilationController ci) throws Exception {
-                    if (ci.toPhase(Phase.PARSED).compareTo(Phase.PARSED) < 0) {
-                        return;
-                    }
-                    Scope scope = null;
-                    int offset = 0;
-                    StyledDocument doc = (StyledDocument) ci.getDocument();
-                    if (doc != null) {
-                        offset = findLineOffset(doc, line);
-                        scope = ci.getTreeUtilities().scopeFor(offset);
-                    }
-                    SourcePositions[] sourcePtr = new SourcePositions[]{null                    };
-                    Tree tree = ci.getTreeUtilities().parseExpression(
-                            expression,
-                            sourcePtr);
-                    if (scope != null) {
-                        ci.getTreeUtilities().attributeTree(tree, scope);
-                    }
-                    try {
-                        //context.setTrees(ci.getTrees());
-                        java.lang.reflect.Method setTreesMethod =
-                                context.getClass().getMethod("setTrees", new Class[]{Trees.class                                });
-                        setTreesMethod.invoke(context, ci.getTrees());
-                    } catch (Exception ex) {
-                    }
-                    try {
-                        //context.setCompilationUnit(ci.getCompilationUnit());
-                        java.lang.reflect.Method setCompilationUnitMethod =
-                                context.getClass().getMethod("setCompilationUnit", new Class[]{CompilationUnitTree.class                                });
-                        setCompilationUnitMethod.invoke(context, ci.getCompilationUnit());
-                    } catch (Exception ex) {
-                    }
-                    TreePath treePath = null;
-                    try {
-                        //context.setTrees(ci.getTrees());
-                        java.lang.reflect.Method setTreePathMethod =
-                                context.getClass().getMethod("setTreePath", new Class[]{TreePath.class                                });
-                        if (doc != null) {
-                            treePath = ci.getTreeUtilities().pathFor(offset);
-                            treePath = new TreePath(treePath, tree);
-                            setTreePathMethod.invoke(context, treePath);
-                        }
-                    } catch (Exception ex) {
-                        return;
-                    }
-                    if (treePath != null) {
-                        retValue[0] = visitor.scan(treePath, context);
-                    } else {
-                        retValue[0] = tree.accept(visitor, context);
-                    }
-                }
-            }, true);
-            /*
-            js.runModificationTask(new Task<WorkingCopy>() {
-            public void run(WorkingCopy wc) throws Exception {
-            if (wc.toPhase(Phase.PARSED).compareTo(Phase.PARSED) < 0)
-            return;
-            int offset = findLineOffset((StyledDocument) wc.getDocument(), line);
-            Scope scope = wc.getTreeUtilities().scopeFor(offset);
-            Element clazz = scope.getEnclosingClass();
-            if (clazz == null) {
-            return ;
-            }
-            ExpressionTree expressionTree = wc.getTreeUtilities().parseExpression(
-            expression,
-            new SourcePositions[] { wc.getTrees().getSourcePositions() }
-            );
-            wc.getTreeUtilities().attributeTree(expressionTree, scope);
-            TreeMaker tm = wc.getTreeMaker();
-            ExpressionStatementTree est = tm.ExpressionStatement(expressionTree);
-            addStatement(tm, wc.getTrees(), wc.getTreeUtilities().pathFor(offset), offset, est);
-            //wc.rewrite(est, est);
-            }
-            });
-             */
-            return retValue[0];
-        } catch (IOException ioex) {
-            ErrorManager.getDefault().notify(ioex);
+        if (!"text/x-scala".equals(fo.getMIMEType())) {
             return null;
         }
+        /** @todo*/
+        return null;
+//        if (js == null) {
+//            js = getJavaSource(sp);
+//        }
+//        final R[] retValue = (R[]) new Object[]{null                };
+//        try {
+//            js.runUserActionTask(new Task<CompilationController>() {
+//
+//                public void run(CompilationController ci) throws Exception {
+//                    if (ci.toPhase(Phase.PARSED).compareTo(Phase.PARSED) < 0) {
+//                        return;
+//                    }
+//                    Scope scope = null;
+//                    int offset = 0;
+//                    StyledDocument doc = (StyledDocument) ci.getDocument();
+//                    if (doc != null) {
+//                        offset = findLineOffset(doc, line);
+//                        scope = ci.getTreeUtilities().scopeFor(offset);
+//                    }
+//                    SourcePositions[] sourcePtr = new SourcePositions[]{null                    };
+//                    Tree tree = ci.getTreeUtilities().parseExpression(
+//                            expression,
+//                            sourcePtr);
+//                    if (scope != null) {
+//                        ci.getTreeUtilities().attributeTree(tree, scope);
+//                    }
+//                    try {
+//                        //context.setTrees(ci.getTrees());
+//                        java.lang.reflect.Method setTreesMethod =
+//                                context.getClass().getMethod("setTrees", new Class[]{Trees.class                                });
+//                        setTreesMethod.invoke(context, ci.getTrees());
+//                    } catch (Exception ex) {
+//                    }
+//                    try {
+//                        //context.setCompilationUnit(ci.getCompilationUnit());
+//                        java.lang.reflect.Method setCompilationUnitMethod =
+//                                context.getClass().getMethod("setCompilationUnit", new Class[]{CompilationUnitTree.class                                });
+//                        setCompilationUnitMethod.invoke(context, ci.getCompilationUnit());
+//                    } catch (Exception ex) {
+//                    }
+//                    TreePath treePath = null;
+//                    try {
+//                        //context.setTrees(ci.getTrees());
+//                        java.lang.reflect.Method setTreePathMethod =
+//                                context.getClass().getMethod("setTreePath", new Class[]{TreePath.class                                });
+//                        if (doc != null) {
+//                            treePath = ci.getTreeUtilities().pathFor(offset);
+//                            treePath = new TreePath(treePath, tree);
+//                            setTreePathMethod.invoke(context, treePath);
+//                        }
+//                    } catch (Exception ex) {
+//                        return;
+//                    }
+//                    if (treePath != null) {
+//                        retValue[0] = visitor.scan(treePath, context);
+//                    } else {
+//                        retValue[0] = tree.accept(visitor, context);
+//                    }
+//                }
+//            }, true);
+//            /*
+//            js.runModificationTask(new Task<WorkingCopy>() {
+//            public void run(WorkingCopy wc) throws Exception {
+//            if (wc.toPhase(Phase.PARSED).compareTo(Phase.PARSED) < 0)
+//            return;
+//            int offset = findLineOffset((StyledDocument) wc.getDocument(), line);
+//            Scope scope = wc.getTreeUtilities().scopeFor(offset);
+//            Element clazz = scope.getEnclosingClass();
+//            if (clazz == null) {
+//            return ;
+//            }
+//            ExpressionTree expressionTree = wc.getTreeUtilities().parseExpression(
+//            expression,
+//            new SourcePositions[] { wc.getTrees().getSourcePositions() }
+//            );
+//            wc.getTreeUtilities().attributeTree(expressionTree, scope);
+//            TreeMaker tm = wc.getTreeMaker();
+//            ExpressionStatementTree est = tm.ExpressionStatement(expressionTree);
+//            addStatement(tm, wc.getTrees(), wc.getTreeUtilities().pathFor(offset), offset, est);
+//            //wc.rewrite(est, est);
+//            }
+//            });
+//             */
+//            return retValue[0];
+//        } catch (IOException ioex) {
+//            ErrorManager.getDefault().notify(ioex);
+//            return null;
+//        }
     }
     /*
     private static void addStatement(TreeMaker tm, Trees trees, TreePath positionPath, int offset, StatementTree statement) {

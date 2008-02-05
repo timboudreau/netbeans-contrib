@@ -49,6 +49,8 @@ import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileStatusCache;
+import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
+import org.netbeans.modules.clearcase.ui.checkin.CheckinAction;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.api.diff.DiffController;
 import org.netbeans.api.diff.StreamSource;
@@ -251,7 +253,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
     public void addNotify() {
         super.addNotify();
         if (refreshTask != null) {
-//            Clearcase.getInstance().getFileStatusCache().addVersioningListener(this);
+            Clearcase.getInstance().getFileStatusCache().addVersioningListener(this);
         }
         JComponent parent = (JComponent) getParent();
         parent.getActionMap().put("jumpNext", nextAction);  // NOI18N
@@ -283,19 +285,17 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
     }
     
     public void removeNotify() {
-//        Clearcase.getInstance().getFileStatusCache().removeVersioningListener(this);
+        Clearcase.getInstance().getFileStatusCache().removeVersioningListener(this);
         super.removeNotify();
     }
     
     public void versioningEvent(VersioningEvent event) {
-/*
         if (event.getId() == FileStatusCache.EVENT_FILE_STATUS_CHANGED) {
             if (!affectsView(event)) {
                 return;
             }
             refreshTask.schedule(200);
         }
-*/
     }
     
     private boolean affectsView(VersioningEvent event) {
@@ -428,7 +428,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
     
     private void onCommitButton() {
         LifecycleManager.getDefault().saveAll();
-//        CommitAction.commit(contextName, context);
+        CheckinAction.checkin(context);
     }
 
     /** Next that is driven by visibility. It continues to next not yet visible difference. */
@@ -517,7 +517,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
         default:
             throw new IllegalStateException("Unknown DIFF type:" + currentType); // NOI18N
         }
-        files = ClearcaseUtils.getModifiedFiles(context, displayStatuses);
+        files = computeFilesToDiff();
         
         setups = computeSetups(files);
 
@@ -603,6 +603,26 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
         if (DiffController.PROP_DIFFERENCES.equals(evt.getPropertyName())) {
             refreshComponents();
         }
+    }
+
+    public File [] computeFilesToDiff() {
+        File [] all = Clearcase.getInstance().getFileStatusCache().listFiles(context, displayStatuses);
+        List<File> files = new ArrayList<File>();
+        for (int i = 0; i < all.length; i++) {
+            File file = all[i];
+            String path = file.getAbsolutePath();
+            if (!ClearcaseModuleConfig.isExcludedFromCommit(path)) {
+                files.add(file);
+            }
+        }
+        // ensure that command roots (files that were explicitly selected by user) are included in Diff
+        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
+        for (File file : context.getFiles()) {
+            if (file.isFile() && (cache.getInfo(file).getStatus() & displayStatuses) != 0 && !files.contains(file)) {
+                files.add(file);
+            }
+        }
+        return files.toArray(new File[files.size()]);
     }
 
     private class DiffPrepareTask implements Runnable {

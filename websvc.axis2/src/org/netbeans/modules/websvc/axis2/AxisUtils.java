@@ -269,10 +269,10 @@ public class AxisUtils {
         final FileObject buildImplFo = projectDir.getFileObject(GeneratedFilesHelper.BUILD_IMPL_XML_PATH);
         try {
             ProjectManager.mutex().readAccess(new Mutex.ExceptionAction<Boolean>() {
-                public Boolean run() throws IOException {
+                public Boolean run() throws IOException, InterruptedException {
                     ExecutorTask wsimportTask =
                             ActionUtils.runTarget(buildImplFo,targets,null); //NOI18N
-                    return Boolean.TRUE;
+                    return Boolean.valueOf(wsimportTask.waitFinished(5000));
                 }
             }).booleanValue();
         } catch (MutexException e) {
