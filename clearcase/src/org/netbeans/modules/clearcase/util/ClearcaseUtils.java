@@ -106,11 +106,6 @@ public class ClearcaseUtils {
         return "text/plain";
     }
 
-    public static File[] getModifiedFiles(VCSContext context, int statuses) {
-        // TODO: implement
-        return context.getRootFiles().toArray(new File[context.getRootFiles().size()]);
-    }
-    
     /**
      * @return true if the buffer is almost certainly binary.
      * Note: Non-ASCII based encoding encoded text is binary,

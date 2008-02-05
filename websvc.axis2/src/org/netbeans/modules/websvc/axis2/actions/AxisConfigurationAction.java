@@ -142,6 +142,24 @@ public class AxisConfigurationAction extends NodeAction  {
                 ex.printStackTrace();
         }
         
+        String axisUrl = configPanel.getAxisUrl();
+        String oldAxisUrl = preferences.get("AXIS_URL","");
+        if (axisUrl.length() > 0 && !axisUrl.equals(oldAxisUrl)) {
+            preferences.put("AXIS_URL", axisUrl);
+        } else if (axisUrl.length() == 0) {
+            preferences.remove("AXIS_URL");
+        }
+ 
+        String tomcatUser = configPanel.getTomcatManagerUsername();
+        String oldTomcatUser = preferences.get("TOMCAT_USER","");
+        if (tomcatUser != null && tomcatUser.length() > 0 && !tomcatUser.equals(oldTomcatUser)) {
+            preferences.put("TOMCAT_MANAGER_USER", tomcatUser);
+            preferences.put("TOMCAT_MANAGER_PASSWORD", configPanel.getTomcatManagerPassword());
+        } else if (tomcatUser == null || tomcatUser.length() == 0) {
+            preferences.remove("TOMCAT_MANAGER_USER");
+            preferences.remove("TOMCAT_MANAGER_PASSWORD");
+        }
+        
     }
 }
 

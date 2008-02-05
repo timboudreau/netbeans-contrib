@@ -493,7 +493,8 @@ Type = InfixType [<rarrow> (<nl>)* Type | ExistentialClause];
 
 ExistentialClause = <forSome> <lbrace> (<nl>)* ExistentialDcl (Semi ExistentialDcl)* <rbrace>;
 ExistentialDcl = <type> NameId [TypeParamClause] [<tupper> Type] [<tlower> Type]
-               | <val> Ids <colon> Type;
+               | <val> Ids <colon> Type
+               | ;
 
 InfixType = CompoundType (NameId [<nl>] CompoundType)*;
 CompoundType = AnnotType (<with> AnnotType)* [Refinement]
@@ -512,7 +513,8 @@ Type1 = Type
 TypeArgs = <lbracket> Types <rbracket>;
 
 Refinement = <lbrace> (<nl>)* [RefineStat (Semi RefineStat)*] <rbrace>;
-RefineStat = DclDef;
+RefineStat = DclDef 
+           | ;
 
 ## Here we have to do a mixed hacking for various Expr:
 ## 1. Hacking for: Expr = (Bindings | id) ‘=>’ Expr | Expr1
@@ -889,9 +891,9 @@ TopStat = TopTmplDef
 TopTmplDef = (Annotation)* (Modifier)* TmplDef;
 Packaging = <package> QualId [<lbrace> (<nl>)* TopStats <rbrace>];
 
-AST {
-    process:org.netbeans.modules.scala.editing.semantic.ScalaSemanticAnalyser.process;
-}
+#AST {
+#    process:org.netbeans.modules.scala.editing.semantic.ScalaSemanticAnalyser.process;
+#}
 
 
 #SYNTAX_ERROR:Expr: {
@@ -1028,7 +1030,7 @@ tview:
     foreground_color: "0x0000FE";
 }
 
-COLOR:Type,InfixType,AnnotType,SimpleType,TypeParam.NameId: {
+COLOR:SimpleType, TypeParam.NameId: {
 #    foreground_color: "0x2E92C7";
 #    foreground_color: "0xA020F0";
 #    foreground_color: "0xB8860B";

@@ -40,6 +40,12 @@
  */
 package org.netbeans.modules.websvc.axis2.actions;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.prefs.Preferences;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.websvc.axis2.AxisUtils;
@@ -47,6 +53,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.nodes.Node;
+import org.openide.util.NbPreferences;
 import org.openide.util.actions.NodeAction;
 
 public class DeployAction extends NodeAction  {
@@ -76,6 +83,32 @@ public class DeployAction extends NodeAction  {
             project = FileOwnerQuery.getOwner(srcRoot);
         }
         AxisUtils.runTargets(project.getProjectDirectory(), new String[]{"axis2-deploy"}); //NOI18N
+        Preferences preferences = NbPreferences.forModule(AxisConfigurationAction.class);
+        String tomcatUser = preferences.get("TOMCAT_MANAGER_USER", null);
+        if (tomcatUser != null) {
+            try {
+                String tomcatPassword = preferences.get("TOMCAT_MANAGER_PASSWORD", null);
+                URL reloadAxisUrl = new URL("http://localhost:8080/manager/html/reload?path=/axis2");
+                URLConnection conn = reloadAxisUrl.openConnection();
+                HttpURLConnection hconn = (HttpURLConnection) conn;
+                hconn.setAllowUserInteraction(false);
+                hconn.setRequestProperty("User-Agent", // NOI18N
+                         "NetBeansIDE-Tomcat-Manager/1.0"); // NOI18N
+                String input = tomcatUser + ":" + tomcatPassword;
+                String auth = new String(Base64.encode(input.getBytes()));                
+                //String auth = input;
+                hconn.setRequestProperty("Authorization", // NOI18N
+                                         "Basic " + auth); // NOI18N
+                hconn.connect();
+                int respCode = hconn.getResponseCode();
+                System.out.println("Server response = "+respCode);
+            } catch (MalformedURLException ex) {
+                ex.printStackTrace();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            
+        }
     }
 
 }

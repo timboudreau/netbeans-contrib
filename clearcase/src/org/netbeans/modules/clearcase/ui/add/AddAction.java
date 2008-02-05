@@ -157,14 +157,18 @@ public class AddAction extends AbstractAction {
      */
     public static ClearcaseClient.CommandRunnable addFiles(String message, boolean checkInAddedFiles, Map<ClearcaseFileNode, CheckinOptions> filesToAdd) {
         // TODO: process options
-        List<File> addFiles = new ArrayList<File>();
+        Set<File> tmpFiles = new HashSet<File>();
         for (Map.Entry<ClearcaseFileNode, CheckinOptions> entry : filesToAdd.entrySet()) {
             if (entry.getValue() == CheckinOptions.ADD_BINARY || entry.getValue() == CheckinOptions.ADD_TEXT || entry.getValue() == CheckinOptions.ADD_DIRECTORY) {
-                addFiles.add(entry.getKey().getFile());
+                tmpFiles.add(entry.getKey().getFile());
             }
         }
         
-        if (addFiles.size() == 0) return null;
+        if (tmpFiles.size() == 0) return null;
+        
+        // make sure that ancestors are also added if they are not already under source control
+        addAncestors(tmpFiles);
+        List<File> addFiles = new ArrayList<File>(tmpFiles);
         
         // sort files - parents first, to avoid unnecessary warnings
         Collections.sort(addFiles);
@@ -181,6 +185,25 @@ public class AddAction extends AbstractAction {
                         org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files, true);        
                     }    
                 })));
+    }
+
+    private static void addAncestors(Set<File> addFiles) {
+        Set<File> ancestorsToAdd = new HashSet<File>(10);
+        for (File file : addFiles) {
+            addAncestors(ancestorsToAdd, file);
+        }
+        addFiles.addAll(ancestorsToAdd);
+    }
+
+    private static void addAncestors(Set<File> ancestorsToAdd, File file) {
+        File parent = file.getParentFile();
+        if (parent != null) {
+            int status = Clearcase.getInstance().getFileStatusCache().getInfo(parent).getStatus();
+            if (status == FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY) {
+                ancestorsToAdd.add(parent);
+                addAncestors(ancestorsToAdd, parent);
+            }
+        }
     }
 
     // XXX temporary solution...

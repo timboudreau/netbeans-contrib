@@ -6,8 +6,12 @@
 
 package org.netbeans.modules.websvc.axis2.actions;
 
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
+import java.util.prefs.Preferences;
 import javax.swing.JFileChooser;
+import org.openide.util.NbPreferences;
 
 /**
  *
@@ -25,6 +29,31 @@ public class ConfigurationPanel extends javax.swing.JPanel {
         initComponents();
         axisHomeTf.setText(axisHome);
         axisDeployTf.setText(axisDeploy);
+        Preferences preferences = NbPreferences.forModule(AxisConfigurationAction.class);
+        String axisUrl = preferences.get("AXIS_URL","");
+        axisUrlTf.setText(axisUrl.length() == 0 ? "http://localhost:8080/axis2" : axisUrl); //NOI18N
+        String tomcatUser = preferences.get("TOMCAT_MANAGER_USER","");
+        if (tomcatUser.length() > 0) {
+            tfTomcatUser.setEditable(true);
+            tfTomcatPassword.setEditable(true);
+            cbTomcatManager.setSelected(true);
+            tfTomcatUser.setText(tomcatUser);
+        }
+        String tomcatPassword = preferences.get("TOMCAT_MANAGER_PASSWORD","");
+        if (tomcatPassword.length() > 0) tfTomcatPassword.setText(tomcatPassword);
+        cbTomcatManager.addItemListener(new ItemListener() {
+
+            public void itemStateChanged(ItemEvent e) {
+                if (cbTomcatManager.isSelected()) {
+                    tfTomcatUser.setEditable(true);
+                    tfTomcatPassword.setEditable(true);
+                } else {
+                    tfTomcatUser.setEditable(false);
+                    tfTomcatPassword.setEditable(false);                    
+                }
+            }
+            
+        });
     }
     
     /** This method is called from within the constructor to
@@ -35,18 +64,28 @@ public class ConfigurationPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        runtimePanel = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
         axisHomeLabel = new javax.swing.JLabel();
         axisHomeTf = new javax.swing.JTextField();
         browseButton = new javax.swing.JButton();
+        deploymentPanel = new javax.swing.JPanel();
         axisDeployTf = new javax.swing.JTextField();
         axisHomeLabel1 = new javax.swing.JLabel();
         browseButton1 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        axisUrlTf = new javax.swing.JTextField();
+        cbTomcatManager = new javax.swing.JCheckBox();
+        jLabel4 = new javax.swing.JLabel();
+        tfTomcatUser = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        tfTomcatPassword = new javax.swing.JPasswordField();
+
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.jLabel1.text")); // NOI18N
 
         axisHomeLabel.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.axisHomeLabel.text")); // NOI18N
-
-        axisHomeTf.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.axisHomeTf.text")); // NOI18N
 
         browseButton.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.browseButton.text")); // NOI18N
         browseButton.addActionListener(new java.awt.event.ActionListener() {
@@ -55,7 +94,40 @@ public class ConfigurationPanel extends javax.swing.JPanel {
             }
         });
 
-        axisDeployTf.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.axisDeployTf.text")); // NOI18N
+        org.jdesktop.layout.GroupLayout runtimePanelLayout = new org.jdesktop.layout.GroupLayout(runtimePanel);
+        runtimePanel.setLayout(runtimePanelLayout);
+        runtimePanelLayout.setHorizontalGroup(
+            runtimePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 591, Short.MAX_VALUE)
+            .add(runtimePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(runtimePanelLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .add(runtimePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(org.jdesktop.layout.GroupLayout.TRAILING, runtimePanelLayout.createSequentialGroup()
+                            .add(axisHomeTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(browseButton))
+                        .add(axisHomeLabel)
+                        .add(jLabel1))
+                    .addContainerGap()))
+        );
+        runtimePanelLayout.setVerticalGroup(
+            runtimePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 401, Short.MAX_VALUE)
+            .add(runtimePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(runtimePanelLayout.createSequentialGroup()
+                    .add(30, 30, 30)
+                    .add(axisHomeLabel)
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(runtimePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(browseButton)
+                        .add(axisHomeTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(jLabel1)
+                    .addContainerGap(30, Short.MAX_VALUE)))
+        );
+
+        jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.runtimePanel.TabConstraints.tabTitle"), runtimePanel); // NOI18N
 
         axisHomeLabel1.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.axisHomeLabel1.text")); // NOI18N
 
@@ -66,51 +138,98 @@ public class ConfigurationPanel extends javax.swing.JPanel {
             }
         });
 
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.jLabel1.text")); // NOI18N
-
         jLabel2.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.jLabel2.text")); // NOI18N
+
+        jLabel3.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.jLabel3.text")); // NOI18N
+
+        cbTomcatManager.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.cbTomcatManager.text")); // NOI18N
+
+        jLabel4.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.jLabel4.text")); // NOI18N
+
+        tfTomcatUser.setEditable(false);
+
+        jLabel5.setText(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.jLabel5.text")); // NOI18N
+
+        tfTomcatPassword.setEditable(false);
+
+        org.jdesktop.layout.GroupLayout deploymentPanelLayout = new org.jdesktop.layout.GroupLayout(deploymentPanel);
+        deploymentPanel.setLayout(deploymentPanelLayout);
+        deploymentPanelLayout.setHorizontalGroup(
+            deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(deploymentPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(cbTomcatManager)
+                    .add(deploymentPanelLayout.createSequentialGroup()
+                        .add(21, 21, 21)
+                        .add(deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(deploymentPanelLayout.createSequentialGroup()
+                                .add(jLabel5)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(tfTomcatPassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 180, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(deploymentPanelLayout.createSequentialGroup()
+                                .add(jLabel4)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(tfTomcatUser, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 180, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                    .add(deploymentPanelLayout.createSequentialGroup()
+                        .add(jLabel3)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                        .add(axisUrlTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 483, Short.MAX_VALUE)))
+                .addContainerGap())
+            .add(deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(deploymentPanelLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .add(deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(org.jdesktop.layout.GroupLayout.TRAILING, deploymentPanelLayout.createSequentialGroup()
+                            .add(axisDeployTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(browseButton1))
+                        .add(axisHomeLabel1)
+                        .add(jLabel2))
+                    .addContainerGap()))
+        );
+        deploymentPanelLayout.setVerticalGroup(
+            deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(deploymentPanelLayout.createSequentialGroup()
+                .add(133, 133, 133)
+                .add(deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel3)
+                    .add(axisUrlTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(68, 68, 68)
+                .add(cbTomcatManager)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel4)
+                    .add(tfTomcatUser, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(tfTomcatPassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel5))
+                .addContainerGap(112, Short.MAX_VALUE))
+            .add(deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(deploymentPanelLayout.createSequentialGroup()
+                    .add(30, 30, 30)
+                    .add(axisHomeLabel1)
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(browseButton1)
+                        .add(axisDeployTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(jLabel2)
+                    .addContainerGap(30, Short.MAX_VALUE)))
+        );
+
+        jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(ConfigurationPanel.class, "ConfigurationPanel.deploymentPanel.TabConstraints.tabTitle"), deploymentPanel); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(axisHomeTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 549, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(browseButton))
-                    .add(axisHomeLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(axisDeployTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 549, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(browseButton1))
-                    .add(axisHomeLabel1)
-                    .add(jLabel1)
-                    .add(jLabel2))
-                .addContainerGap())
+            .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 596, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(axisHomeLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(browseButton)
-                    .add(axisHomeTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jLabel1)
-                .add(40, 40, 40)
-                .add(axisHomeLabel1)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(browseButton1)
-                    .add(axisDeployTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jLabel2)
-                .addContainerGap(88, Short.MAX_VALUE))
+            .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -144,10 +263,20 @@ private void browseButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     private javax.swing.JLabel axisHomeLabel;
     private javax.swing.JLabel axisHomeLabel1;
     private javax.swing.JTextField axisHomeTf;
+    private javax.swing.JTextField axisUrlTf;
     private javax.swing.JButton browseButton;
     private javax.swing.JButton browseButton1;
+    private javax.swing.JCheckBox cbTomcatManager;
+    private javax.swing.JPanel deploymentPanel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JPanel runtimePanel;
+    private javax.swing.JPasswordField tfTomcatPassword;
+    private javax.swing.JTextField tfTomcatUser;
     // End of variables declaration//GEN-END:variables
     
     
@@ -158,4 +287,16 @@ private void browseButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     public String getAxisDeploy() {
         return axisDeployTf.getText().trim();
     }
+    
+    public String getAxisUrl() {
+        return axisUrlTf.getText().trim();
+    }
+    
+    public String getTomcatManagerUsername() {
+        return (cbTomcatManager.isSelected()?tfTomcatUser.getText():null);
+    }
+    public String getTomcatManagerPassword() {
+        return (cbTomcatManager.isSelected()?new String(tfTomcatPassword.getPassword()):null);
+    }
+    
 }

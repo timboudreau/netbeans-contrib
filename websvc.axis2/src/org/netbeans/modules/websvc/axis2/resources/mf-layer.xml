@@ -56,6 +56,10 @@ made subject to such option by the copyright holder.
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.websvc.axis2.wizards.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/websvc/axis2/resources/AxisWS.png"/> 
             </file>
+            <file name="EmptyWebService.java" url="nbres:/org/netbeans/modules/websvc/axis2/resources/EmptyWebService.template">
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="position" intvalue="200"/>
+            </file>
         </folder><!-- Axis2 -->
     </folder>
     <folder name="Projects">

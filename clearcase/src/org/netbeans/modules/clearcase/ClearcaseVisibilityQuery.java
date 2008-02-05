@@ -41,10 +41,13 @@
 package org.netbeans.modules.clearcase;
 
 import org.netbeans.spi.queries.VisibilityQueryImplementation;
+import org.netbeans.modules.versioning.spi.VersioningSupport;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 import javax.swing.event.ChangeListener;
 import java.util.regex.Pattern;
+import java.io.File;
 
 /**
  * Hides files that are known to clearcase and should not be visible.
@@ -53,6 +56,7 @@ import java.util.regex.Pattern;
  */
 public class ClearcaseVisibilityQuery implements VisibilityQueryImplementation {
 
+    private static final Pattern unloadedPattern = Pattern.compile(".*\\.unloaded(\\.\\d+)?");
     private static final Pattern keepPattern = Pattern.compile(".*\\.keep(\\.\\d+)?");
     private static final Pattern updtPattern = Pattern.compile("update\\..*?\\.updt");
 
@@ -68,18 +72,21 @@ public class ClearcaseVisibilityQuery implements VisibilityQueryImplementation {
      * @return visibility of the file
      */
     public boolean isVisible(FileObject file) {
-        if (!isManagedByClearcase()) return true;
+        File f = FileUtil.toFile(file);
+        if (f == null || !isManagedByClearcase(f)) return true;
         String name = file.getNameExt();
         if (file.isFolder()) {
             return !name.equals("lost+found");
         } else {
-            return !name.equals("view.dat") && !keepPattern.matcher(name).matches() && !updtPattern.matcher(name).matches();
+            return !name.equals("view.dat") && 
+                    !keepPattern.matcher(name).matches() && 
+                    !updtPattern.matcher(name).matches() && 
+                    !unloadedPattern.matcher(name).matches();
         }
     }
 
-    private boolean isManagedByClearcase() {
-        // TODO: implement
-        return true;
+    private boolean isManagedByClearcase(File file) {
+        return VersioningSupport.getOwner(file) instanceof ClearcaseVCS;
     }
 
     public void addChangeListener(ChangeListener l) {
