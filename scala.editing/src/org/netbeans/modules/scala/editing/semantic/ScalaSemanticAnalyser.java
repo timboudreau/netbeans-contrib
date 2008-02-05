@@ -1312,7 +1312,7 @@ public class ScalaSemanticAnalyser {
                 for (ASTItem item2 : item1.getChildren()) {
                     return (ASTToken) item2;
                 }
-            } else if (isToken(item1, "bquote_identifier")) {
+            } else if (isTokenTypeName(item1, "bquote_identifier")) {
                 return (ASTToken) item1;
 
             }
