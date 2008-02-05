@@ -1028,7 +1028,7 @@ tview:
     foreground_color: "0x0000FE";
 }
 
-COLOR:Type,InfixType,AnnotType,SimpleType,TypeParam.NameId: {
+COLOR:SimpleType, TypeParam.NameId: {
 #    foreground_color: "0x2E92C7";
 #    foreground_color: "0xA020F0";
 #    foreground_color: "0xB8860B";
