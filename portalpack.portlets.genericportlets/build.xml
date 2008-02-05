@@ -42,17 +42,17 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <target name="netbeans-extra" depends="release"/>
 
     <target name="release" depends="init">
-        <copy file="external/portlet/portlet-api-1.0.jar"
+        <copy file="external/portlet-api-1.0.jar"
         todir="${cluster}/modules/ext/portalpack/"/>
-        <copy file="external/portlet/portlet-api-2.0.jar"
+        <copy file="external/portlet-api-2.0.jar"
         todir="${cluster}/modules/ext/portalpack/"/>
         
         <copy file="build/portlettaglib.jar"
         todir="${cluster}/modules/ext/portalpack/"/>
         
-        <copy file="external/portlet/portlet-api-2.0-doc.jar"
+        <copy file="external/portlet-api-2.0-doc.jar"
         todir="${cluster}/modules/ext/portalpack/"/>
-        <copy file="external/portlet/portlet-api-1.0-doc.jar"
+        <copy file="external/portlet-api-1.0-doc.jar"
         todir="${cluster}/modules/ext/portalpack/"/>
         
     </target>
