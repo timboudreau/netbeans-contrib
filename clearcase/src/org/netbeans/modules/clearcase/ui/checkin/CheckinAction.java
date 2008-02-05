@@ -215,6 +215,15 @@ public class CheckinAction extends AbstractAction implements NotificationListene
         }
         prepareTask.schedule(0);
     }
+
+    /**
+     * Programmatically invoke the checkin action on some context.
+     * 
+     * @param context a context to check in
+     */
+    public static void checkin(VCSContext context) {
+        new CheckinAction("", context).actionPerformed(null);        
+    }
     
     public void commandStarted()        { /* boring */ }
     public void outputText(String line) { /* boring */ }
