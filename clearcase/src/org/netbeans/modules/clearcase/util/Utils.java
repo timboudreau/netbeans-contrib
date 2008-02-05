@@ -89,21 +89,23 @@ public class Utils {
     }
         
     /**
-     * Refreshes the status for files
+     * Refreshes the status for files and the relevent filesystems
      * 
-     * @param files
+     * @param files files to be refreshed
      * @param includeParents if true all parents for the given files will be refreshed too
      */
-    // XXX may be this should be somewere in the comand infrastructure
-    public static void afterCommandRefresh(final File[] files, boolean includeParents) {    
+    // XXX maybe this should be somewere in the comand infrastructure
+    public static void afterCommandRefresh(final File[] files, final boolean includeParents) {    
         org.netbeans.modules.versioning.util.Utils.post(new Runnable() {
             public void run() {
                 Set<File> refreshList = new HashSet<File>();
                 for (File file : files) {
-                    File parent = file.getParentFile();
-                    if(parent != null) {
-                        refreshList.add(parent);
-                    }
+                    if(includeParents) {
+                        File parent = file.getParentFile();
+                        if(parent != null) {
+                            refreshList.add(parent);
+                        }    
+                    }                    
                     refreshList.add(file);
                 }                        
                 File[] refreshFiles = refreshList.toArray(new File[refreshList.size()]);
