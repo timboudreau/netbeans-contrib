@@ -64,6 +64,7 @@ public class AnnotateCommand extends FilesCommand {
 
     public void prepareCommand(Arguments arguments) throws ClearcaseException {
         arguments.add("annotate");
+        arguments.add("-nco");
         arguments.add("-nheader");
         arguments.add("-force");
         arguments.add("-out");
