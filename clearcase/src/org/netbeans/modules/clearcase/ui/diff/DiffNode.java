@@ -47,6 +47,7 @@ import org.openide.nodes.PropertySupport;
 import org.openide.util.lookup.Lookups;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.Clearcase;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 
 import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
@@ -78,12 +79,6 @@ class DiffNode extends AbstractNode {
 
     private void refreshHtmlDisplayName() {
         FileInformation info = setup.getInfo(); 
-        int status = info.getStatus();
-        // Special treatment: Mergeable status should be annotated as Conflict in Versioning view according to UI spec
-        // XXX
-//        if (status == FileInformation.STATUS_VERSIONED_MERGE) {
-//            status = FileInformation.STATUS_VERSIONED_CONFLICT;
-//        }
         htmlDisplayName = Clearcase.getInstance().getAnnotator().annotateNameHtml(setup.getBaseFile().getName(), info, null);
         fireDisplayNameChange(htmlDisplayName, htmlDisplayName);
     }
@@ -113,15 +108,15 @@ class DiffNode extends AbstractNode {
         setSheet(sheet);        
     }
 
-    private abstract class DiffNodeProperty extends PropertySupport.ReadOnly {
+    private abstract class DiffNodeProperty extends PropertySupport.ReadOnly<String> {
 
-        protected DiffNodeProperty(String name, Class type, String displayName, String shortDescription) {
+        protected DiffNodeProperty(String name, Class<String> type, String displayName, String shortDescription) {
             super(name, type, displayName, shortDescription);
         }
 
         public String toString() {
             try {
-                return getValue().toString();
+                return getValue();
             } catch (Exception e) {
                 Clearcase.LOG.log(Level.INFO, null, e);
                 return e.getLocalizedMessage();
@@ -135,7 +130,7 @@ class DiffNode extends AbstractNode {
             super(DiffNode.COLUMN_NAME_NAME, String.class, DiffNode.COLUMN_NAME_NAME, DiffNode.COLUMN_NAME_NAME);
         }
 
-        public Object getValue() throws IllegalAccessException, InvocationTargetException {
+        public String getValue() throws IllegalAccessException, InvocationTargetException {
             return DiffNode.this.getName();
         }
     }
@@ -146,11 +141,11 @@ class DiffNode extends AbstractNode {
 
         public LocationProperty() {
             super(DiffNode.COLUMN_NAME_LOCATION, String.class, DiffNode.COLUMN_NAME_LOCATION, DiffNode.COLUMN_NAME_LOCATION);
-            location = "location"; // TODO: implement
+            location = ClearcaseUtils.getLocation(setup.getBaseFile());
             setValue("sortkey", location + "\t" + DiffNode.this.getName()); // NOI18N
         }
 
-        public Object getValue() throws IllegalAccessException, InvocationTargetException {
+        public String getValue() throws IllegalAccessException, InvocationTargetException {
             return location;
         }
     }
@@ -162,17 +157,14 @@ class DiffNode extends AbstractNode {
         public StatusProperty() {
             super(DiffNode.COLUMN_NAME_STATUS, String.class, DiffNode.COLUMN_NAME_STATUS, DiffNode.COLUMN_NAME_STATUS);
             String shortPath = null;
-            shortPath = "short path"; // TODO: implement
+            shortPath = ClearcaseUtils.getLocation(setup.getBaseFile());
             String sortable = "0";
             setValue("sortkey", DiffNode.zeros[sortable.length()] + sortable + "\t" + shortPath + "\t" + DiffNode.this.getName().toUpperCase()); // NOI18N
         }
 
-        public Object getValue() throws IllegalAccessException, InvocationTargetException {
-            // TODO: implement
-//            FileInformation finfo =  setup.getInfo();
-//            finfo.getEntry(setup.getBaseFile());
-//            return finfo.getStatusText(displayStatuses);            
-            return "STATUS";            
+        public String getValue() throws IllegalAccessException, InvocationTargetException {
+            FileInformation finfo =  setup.getInfo();
+            return finfo.getStatusText(displayStatuses);            
         }
     }
 }

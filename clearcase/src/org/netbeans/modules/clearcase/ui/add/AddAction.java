@@ -41,6 +41,7 @@
 
 package org.netbeans.modules.clearcase.ui.add;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.Dialog;
 import java.awt.event.ActionListener;
@@ -110,8 +111,8 @@ public class AddAction extends AbstractAction {
         final JButton addButton = new JButton(); 
         addButton.setEnabled(false);
         JButton cancelButton = new JButton("Cancel"); 
-        AddPanel panel = new AddPanel();
-        
+        AddPanel panel = new AddPanel();        
+                
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(AddAction.class, "CTL_AddDialog_Title", contextTitle)); // NOI18N
         dd.setModal(true);        
         org.openide.awt.Mnemonics.setLocalizedText(addButton, org.openide.util.NbBundle.getMessage(AddAction.class, "CTL_AddDialog_Add"));
@@ -125,7 +126,7 @@ public class AddAction extends AbstractAction {
                 addButton.setEnabled(addTable.getTableModel().getRowCount() > 0);
             }
         });
-        computeNodes(addTable, cancelButton);        
+        computeNodes(addTable, cancelButton, panel);        
         panel.setAddTable(addTable);
         
         panel.putClientProperty("contentTitle", contextTitle);  // NOI18N
@@ -183,7 +184,7 @@ public class AddAction extends AbstractAction {
     }
 
     // XXX temporary solution...
-    private void computeNodes(final AddTable table, JButton cancel) {
+    private void computeNodes(final AddTable table, JButton cancel, final AddPanel addPanel) {
         RequestProcessor rp = new RequestProcessor("Clearcase-AddTo");
         final Cancellable c = new Cancellable() {            
             public boolean cancel() {
@@ -200,10 +201,14 @@ public class AddAction extends AbstractAction {
             }
         });
         if(prepareTask == null) {
+            final ProgressHandle ph = ProgressHandleFactory.createHandle("Preparing add...", c);            
+            JComponent bar = ProgressHandleFactory.createProgressComponent(ph);                                        
+            addPanel.barPanel.add(bar, BorderLayout.CENTER);                                
             prepareTask = rp.create(new Runnable() {
                 public void run() {
-                    final ProgressHandle ph = ProgressHandleFactory.createHandle("Preparing add...", c);            
+
                     try {
+                        addPanel.progressPanel.setVisible(true);
                         ph.start();
                         FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
 
@@ -220,6 +225,7 @@ public class AddAction extends AbstractAction {
                         ClearcaseFileNode[] fileNodes = nodes.toArray(new ClearcaseFileNode[nodes.size()]);
                         table.setNodes(fileNodes);
                     } finally {
+                        addPanel.progressPanel.setVisible(false);
                         ph.finish();
                     }
                 }

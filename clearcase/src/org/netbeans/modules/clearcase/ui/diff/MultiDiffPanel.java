@@ -49,6 +49,7 @@ import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileStatusCache;
+import org.netbeans.modules.clearcase.ui.checkin.CheckinAction;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.api.diff.DiffController;
 import org.netbeans.api.diff.StreamSource;
@@ -251,7 +252,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
     public void addNotify() {
         super.addNotify();
         if (refreshTask != null) {
-//            Clearcase.getInstance().getFileStatusCache().addVersioningListener(this);
+            Clearcase.getInstance().getFileStatusCache().addVersioningListener(this);
         }
         JComponent parent = (JComponent) getParent();
         parent.getActionMap().put("jumpNext", nextAction);  // NOI18N
@@ -283,19 +284,17 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
     }
     
     public void removeNotify() {
-//        Clearcase.getInstance().getFileStatusCache().removeVersioningListener(this);
+        Clearcase.getInstance().getFileStatusCache().removeVersioningListener(this);
         super.removeNotify();
     }
     
     public void versioningEvent(VersioningEvent event) {
-/*
         if (event.getId() == FileStatusCache.EVENT_FILE_STATUS_CHANGED) {
             if (!affectsView(event)) {
                 return;
             }
             refreshTask.schedule(200);
         }
-*/
     }
     
     private boolean affectsView(VersioningEvent event) {
@@ -428,7 +427,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
     
     private void onCommitButton() {
         LifecycleManager.getDefault().saveAll();
-//        CommitAction.commit(contextName, context);
+        CheckinAction.checkin(context);
     }
 
     /** Next that is driven by visibility. It continues to next not yet visible difference. */

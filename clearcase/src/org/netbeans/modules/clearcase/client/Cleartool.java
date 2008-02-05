@@ -59,7 +59,7 @@ class Cleartool {
      */
     private static final int DEFAULT_TIMEOUT_MS = 30000;
     
-    private boolean promptFinnished = true;
+    private boolean fireAndForget;
    
     private final Process           ct;
     private final BufferedReader    ctOutput;
@@ -79,8 +79,8 @@ class Cleartool {
         Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: cleartool process created");
     }
 
-    public void setPromptFinnished(boolean promptFinnished) {
-        this.promptFinnished = promptFinnished;
+    public void setFireAndForget(boolean fireAndForget) {
+        this.fireAndForget = fireAndForget;
     }
     
     private synchronized void checkReady() throws IOException {
@@ -201,10 +201,10 @@ class Cleartool {
         Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: Executing \"" + cmd + "\"");
         
         ctInput.println(cmd);
-        if(promptFinnished) ctInput.println(MAGIC_PROMPT);
+        if (!fireAndForget) ctInput.println(MAGIC_PROMPT);
         ctInput.flush();
         
-        if (command == QuitCommand) return; // do not expect any response, return here
+        if (command == QuitCommand || fireAndForget) return; // do not expect any response, return here
         
         boolean isError = false;
         command.commandStarted();

@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.clearcase.ui.checkin;
 
+import java.awt.BorderLayout;
 import javax.swing.event.TableModelEvent;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.versioning.util.VersioningOutputManager;
@@ -115,7 +116,7 @@ public class CheckinAction extends AbstractAction implements NotificationListene
         addButton.setEnabled(false);
         final JButton cancelButton = new JButton("Cancel");         
         
-        CheckinPanel panel = new CheckinPanel();
+        CheckinPanel panel = new CheckinPanel();        
         
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(CheckinAction.class, "CTL_CheckinDialog_Title", contextTitle)); // NOI18N
         dd.setModal(true);        
@@ -131,7 +132,7 @@ public class CheckinAction extends AbstractAction implements NotificationListene
                 addButton.setEnabled(checkinTable.getTableModel().getRowCount() > 0);
             }
         });
-        computeNodes(checkinTable, cancelButton);
+        computeNodes(checkinTable, cancelButton, panel);
         
         panel.putClientProperty("contentTitle", contextTitle);  // NOI18N
         panel.putClientProperty("DialogDescriptor", dd); // NOI18N
@@ -166,7 +167,7 @@ public class CheckinAction extends AbstractAction implements NotificationListene
     }
 
     // XXX temporary solution...
-    private void computeNodes(final CheckinTable checkinTable, JButton cancel) {
+    private void computeNodes(final CheckinTable checkinTable, JButton cancel, final CheckinPanel checkinPanel) {
         RequestProcessor rp = new RequestProcessor("Clearcase-Checkin");
         final Cancellable c = new Cancellable() {            
             public boolean cancel() {
@@ -183,10 +184,13 @@ public class CheckinAction extends AbstractAction implements NotificationListene
             }
         });
         if(prepareTask == null) {
+            final ProgressHandle ph = ProgressHandleFactory.createHandle("Preparing checkin...", c);            
+            JComponent bar = ProgressHandleFactory.createProgressComponent(ph);                                        
+            checkinPanel.barPanel.add(bar, BorderLayout.CENTER);        
             prepareTask = rp.create(new Runnable() {
                 public void run() {
-                    final ProgressHandle ph = ProgressHandleFactory.createHandle("Preparing checkin...", c);            
                     try {
+                        checkinPanel.progressPanel.setVisible(true);
                         ph.start();
                         FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
 
@@ -204,11 +208,21 @@ public class CheckinAction extends AbstractAction implements NotificationListene
                         checkinTable.setNodes(fileNodes);
                     } finally {
                         ph.finish();
+                        checkinPanel.progressPanel.setVisible(false);
                     }
                 }
             });        
         }
         prepareTask.schedule(0);
+    }
+
+    /**
+     * Programmatically invoke the checkin action on some context.
+     * 
+     * @param context a context to check in
+     */
+    public static void checkin(VCSContext context) {
+        new CheckinAction("", context).actionPerformed(null);        
     }
     
     public void commandStarted()        { /* boring */ }

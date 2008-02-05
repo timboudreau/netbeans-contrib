@@ -40,6 +40,8 @@
  */
 package org.netbeans.modules.clearcase.ui.update;
 
+import org.netbeans.modules.clearcase.FileInformation;
+import org.netbeans.modules.clearcase.FileStatusCache;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.client.*;
@@ -67,11 +69,17 @@ public class UpdateAction extends AbstractAction implements NotificationListener
     @Override
     public boolean isEnabled() {
         Set<File> roots = context.getRootFiles();
+        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
         for (File file : roots) {
             // TODSO consider this as a HACK - cache the info if file in shapshot or not 
             if( Clearcase.getInstance().getTopmostSnapshotViewAncestor(file) == null ) {
                 return false;
             }                
+            FileInformation info = cache.getCachedInfo(file);
+            if(info != null && 
+               (info.getStatus() & FileInformation.STATUS_VERSIONED) == 0 ){
+                return false;
+            }            
         }
         return true;
     }    
