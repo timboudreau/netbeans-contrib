@@ -24,10 +24,7 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.Web
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import java.awt.*;
 import java.io.File;
-import java.util.HashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jdom.Element;
 
 /**
  * @author Satya

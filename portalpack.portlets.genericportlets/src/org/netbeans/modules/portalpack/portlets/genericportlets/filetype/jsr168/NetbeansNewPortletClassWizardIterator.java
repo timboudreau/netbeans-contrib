@@ -36,7 +36,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
-import org.jdom.Document;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.SourceGroup;
@@ -102,11 +101,7 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
            return panels;
         }else{
           
-            Document doc = WebDescriptorGenerator.createDocFromFile(portletXml.getAbsolutePath());
-            if(doc != null)
-            {    
-                availablePortlets = WebDescriptorGenerator.getPortlets(doc.getRootElement());
-            }
+           availablePortlets = WebDescriptorGenerator.getPortlets(portletXml);
         } 
         }
         Sources sources = (Sources)project.getLookup().lookup(Sources.class);

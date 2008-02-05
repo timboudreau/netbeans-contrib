@@ -22,12 +22,6 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.*;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
-import org.jdom.Document;
-import org.jdom.JDOMException;
-import org.jdom.Element;
-import org.jdom.Namespace;
-import org.jdom.output.XMLOutputter;
-import org.jdom.input.SAXBuilder;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jdom.output.Format;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.FilterContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.filetype.filters.InitParam;
 import org.openide.filesystems.FileObject;
@@ -46,6 +39,7 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.InitParamT
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletInfoType;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletType;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletXMLFactory;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.SupportsType;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject;
 import org.netbeans.modules.schema2beans.BaseBean;
@@ -102,7 +96,7 @@ public class WebDescriptorGenerator {
         TemplateHelper.mergeTemplateToWriter(template, writer, values);
     }
 
-    public void writeXmlDocument(Document doc, String filePath) {
+/*    public void writeXmlDocument(Document doc, String filePath) {
         XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
         try {
             OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(new File(filePath)), "UTF-8");
@@ -110,9 +104,9 @@ public class WebDescriptorGenerator {
         } catch (IOException e) {
             logger.log(Level.SEVERE, "error", e);
         }
-    }
+    }*/
 
-    public void writeXmlElement(Element elm, String filePath) {
+    /*public void writeXmlElement(Element elm, String filePath) {
         XMLOutputter outputter = new XMLOutputter();
         try {
             OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(new File(filePath)), "UTF-8");
@@ -120,9 +114,9 @@ public class WebDescriptorGenerator {
         } catch (IOException e) {
             logger.log(Level.SEVERE, "error", e);
         }
-    }
+    }*/
 
-    private static Element createElementFromReader(Reader reader) {
+    /*private static Element createElementFromReader(Reader reader) {
 
         SAXBuilder builder = new SAXBuilder();
         try {
@@ -133,9 +127,9 @@ public class WebDescriptorGenerator {
             logger.log(Level.SEVERE, "error", e);
         }
         return null;
-    }
+    }*/
 
-    public static Document createDocFromFile(String file) {
+    /*public static Document createDocFromFile(String file) {
 
         SAXBuilder builder = new SAXBuilder();
         try {
@@ -146,14 +140,15 @@ public class WebDescriptorGenerator {
             logger.log(Level.SEVERE, "error", e);
         }
         return null;
-    }
+    }*/
 
     public static String getPortletAppVersion(String portletXmlPath) {
         File f = new File(portletXmlPath);
         if (!f.exists()) {
             return null;
         }
-        Document root = createDocFromFile(portletXmlPath);
+        return PortletXMLFactory.getPortletSpecVersion(f);
+       /* Document root = createDocFromFile(portletXmlPath);
         if (root == null) {
             logger.log(Level.SEVERE, "Could not add portlet entry in portel.xml");
             return null;
@@ -163,7 +158,7 @@ public class WebDescriptorGenerator {
             return NetbeanConstants.PORTLET_2_0;
         } else {
             return NetbeanConstants.PORTLET_1_0;
-        }
+        }*/
     }
 
     public boolean addNewPortletEntry(String portletXmlPath, PortletContext portletContext) {
@@ -177,11 +172,11 @@ public class WebDescriptorGenerator {
             }
         }
 
-        Document root = createDocFromFile(portletXmlPath);
+      /*  Document root = createDocFromFile(portletXmlPath);
         if (root == null) {
             logger.log(Level.SEVERE, "Could not add portlet entry in portel.xml");
             return false;
-        }
+        }*/
         
         FileObject portletXmlObj = FileUtil.toFileObject(new File(portletXmlPath));
         PortletXMLDataObject portletXmlDataObject = null;
@@ -217,7 +212,7 @@ public class WebDescriptorGenerator {
                 logger.log(Level.SEVERE,"Error during addPortlet to portlet xml",e);
                 return false;
             }
-        }else {
+        }/*else {
             Namespace ns = root.getRootElement().getNamespace();
             if (ns.equals(Namespace.getNamespace(NetbeanConstants.PORTLET_2_0_NS))) {
                 portletContext.setPortletVersion(NetbeanConstants.PORTLET_2_0);
@@ -249,7 +244,7 @@ public class WebDescriptorGenerator {
             root.getRootElement().addContent(clone);
 
             writeXmlDocument(root, portletXmlPath);
-        }
+        }*/
         
         return true;
     }
@@ -293,39 +288,41 @@ public class WebDescriptorGenerator {
      */
     public static List getPortlets(File portletXml) {
 
-
         if (!portletXml.exists()) {
 
             logger.severe("Portlet XML Not Found");
             return Collections.EMPTY_LIST;
         }
 
-        Document root = createDocFromFile(portletXml.getAbsolutePath());
-        if (root == null) {
-            logger.log(Level.SEVERE, "Could not add portlet entry in portel.xml");
-            return Collections.EMPTY_LIST;
+        FileObject portletXmlObj = FileUtil.toFileObject(portletXml);
+        PortletXMLDataObject portletXmlDataObject = null;
+        
+        if(portletXmlObj != null)
+        {
+          try {
+                portletXmlDataObject = (PortletXMLDataObject) DataObject.find(portletXmlObj);
+          } catch (DataObjectNotFoundException ex) {
+              logger.log(Level.SEVERE, "Portlet XML DataObject Not found.", ex);
+          }
         }
-
-        Element rootElm = root.getRootElement();
-
-        return getPortlets(rootElm);
-    }
-
-    public static List getPortlets(Element rootElm) {
-        Namespace namespace = rootElm.getNamespace();
-
-        List portlets = rootElm.getChildren("portlet", namespace);
-        List list = new ArrayList();
-        for (int i = 0; i < portlets.size(); i++) {
-            Element portletName = ((Element) portlets.get(i)).getChild("portlet-name", namespace);
-            if (portletName != null) {
-                String name = portletName.getTextTrim();
-                if (name != null) {
-                    list.add(name);
+        try{
+             if(portletXmlDataObject != null)
+             {
+                PortletApp portletApp = portletXmlDataObject.getPortletApp();
+                PortletType[] portletTypes = portletApp.getPortlet();
+                ArrayList names = new ArrayList();
+                for(int i=0;i<portletTypes.length; i++)
+                {
+                    names.add(portletTypes[i].getPortletName());
                 }
-            }
+                return names;
+             }
+        }catch(IOException ex){
+            logger.log(Level.SEVERE, "Invalid portlet.xml.",ex);
         }
-        return list;
+        logger.log(Level.SEVERE, "Invalid portlet.xml.");
+        return Collections.EMPTY_LIST;
+       
     }
 
     public boolean addNewFilter(String portletXmlPath, FilterContext filterContext) {
@@ -371,57 +368,9 @@ public class WebDescriptorGenerator {
             }catch(IOException ex){
                 logger.log(Level.SEVERE,"Error getting portlet app from portlet xml",ex);
                 return false;
-            }
-            
-        }else{
-            
-            Document root = createDocFromFile(portletXmlPath);
-            if (root == null) {
-                logger.log(Level.SEVERE, "Could not add portlet entry in portel.xml");
-                return false;
-            }
-
-            Element filterElm = new Element("filter", root.getRootElement().getNamespace()); //,Namespace.getNamespace("http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd"));
-            Element filterName = new Element("filter-name", filterElm.getNamespace());
-            filterName.setText(filterContext.getFilterName());
-            filterElm.addContent(filterName);
-
-            Element filterClass = new Element("filter-class", filterElm.getNamespace());
-            filterClass.setText(filterContext.getFilterClassName());
-            filterElm.addContent(filterClass);
-
-            String[] lifeCyclePhases = filterContext.getLifeCyclePhase();
-            for (int i = 0; i < lifeCyclePhases.length; i++) {
-                Element lifeCycleElm = new Element("lifecycle", filterElm.getNamespace());
-                lifeCycleElm.setText(lifeCyclePhases[i]);
-                filterElm.addContent(lifeCycleElm);
-            }
-
-            InitParam[] initParams = filterContext.getInitParams();
-            for (int i = 0; i < initParams.length; i++) {
-                Element initParam = new Element("init-param", filterElm.getNamespace());
-                Element name = new Element("name", filterElm.getNamespace());
-                Element value = new Element("value", filterElm.getNamespace());
-                String paramName = initParams[i].getName();
-                String paramValue = initParams[i].getValue();
-                if (paramName == null || paramName.length() == 0) {
-                    continue;
-                }
-                name.setText(paramName);
-                value.setText(paramValue);
-                initParam.addContent(name);
-                initParam.addContent(value);
-                filterElm.addContent(initParam);
-            }
-            Element elm = (Element) filterElm.clone();
-
-            //  List clone = filterElm.cloneContent();
-            root.getRootElement().addContent(elm);
-            addFilterMappings(root.getRootElement(), filterContext);
-            writeXmlDocument(root, portletXmlPath);
-            
-            return true;
+            } 
         }
+        return false;
     }
     
     private void populateFilterType(FilterType filter,FilterContext fc)
@@ -476,33 +425,7 @@ public class WebDescriptorGenerator {
         }
     }
 
-    public void addFilterMappings(Element rootElm, FilterContext fc) {
-        List mappingList = new ArrayList();
-        FilterMappingData[] mappings = fc.getFilterMappingData();
-        for (int i = 0; i < mappings.length; i++) {
-            FilterMappingData mapping = mappings[i];
-            if (mappingList.contains(mapping.getName() + "::" + mapping.getPortlet())) {
-                continue; //no need to add again
-            }
-            if (mapping.getName() == null || mapping.getName().length() == 0 || mapping.getPortlet() == null || mapping.getPortlet().length() == 0) {
-                continue;
-            }
-            Element filterElm = new Element("filter-mapping", rootElm.getNamespace());
-
-            Element filterName = new Element("filter-name", rootElm.getNamespace());
-            filterName.setText(mapping.getName());
-            filterElm.addContent(filterName);
-
-            Element portletName = new Element("portlet-name", rootElm.getNamespace());
-            portletName.setText(mapping.getPortlet());
-            filterElm.addContent(portletName);
-            mappingList.add(mapping.getName() + "::" + mapping.getPortlet());
-            rootElm.addContent(filterElm);
-        }
-    }
-
     public static List getFilters(File portletXml) {
-
 
         if (!portletXml.exists()) {
 
@@ -510,32 +433,34 @@ public class WebDescriptorGenerator {
             return Collections.EMPTY_LIST;
         }
 
-        Document root = createDocFromFile(portletXml.getAbsolutePath());
-        if (root == null) {
-            logger.log(Level.SEVERE, "Could not add portlet entry in portel.xml");
-            return Collections.EMPTY_LIST;
+        FileObject portletXmlObj = FileUtil.toFileObject(portletXml);
+        PortletXMLDataObject portletXmlDataObject = null;
+        
+        if(portletXmlObj != null)
+        {
+          try {
+                portletXmlDataObject = (PortletXMLDataObject) DataObject.find(portletXmlObj);
+          } catch (DataObjectNotFoundException ex) {
+              logger.log(Level.SEVERE, "Portlet XML DataObject Not found.", ex);
+          }
         }
-
-        Element rootElm = root.getRootElement();
-        return getFilters(rootElm);
-    }
-
-    public static List getFilters(Element rootElm) {
-
-        Namespace namespace = rootElm.getNamespace();
-
-        List filters = rootElm.getChildren("filter", namespace);
-        List list = new ArrayList();
-        for (int i = 0; i < filters.size(); i++) {
-            Element filterName = ((Element) filters.get(i)).getChild("filter-name", namespace);
-            if (filterName != null) {
-                String name = filterName.getTextTrim();
-                if (name != null) {
-                    list.add(name);
+        try{
+            if(portletXmlDataObject != null)
+            {
+                PortletApp portletApp = portletXmlDataObject.getPortletApp();
+                FilterType[] filterTypes = portletApp.getFilter();
+                ArrayList names = new ArrayList();
+                for(int i=0;i<filterTypes.length; i++)
+                {
+                    names.add(filterTypes[i].getFilterName());
                 }
+                return names;
             }
+        }catch(IOException e){
+            logger.log(Level.SEVERE, "Invalid portlet.xml.",e);
         }
-        return list;
+        logger.log(Level.SEVERE, "Invalid portlet.xml.");
+        return Collections.EMPTY_LIST;
     }
     
     private void savePortletApp(PortletApp portletApp, FileObject portletXMLFileObject)

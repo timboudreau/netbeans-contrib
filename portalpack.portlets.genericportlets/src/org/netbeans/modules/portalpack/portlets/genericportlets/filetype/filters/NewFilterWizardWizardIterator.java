@@ -32,7 +32,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
-import org.jdom.Document;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.SourceGroup;
@@ -96,12 +95,10 @@ public final class NewFilterWizardWizardIterator implements WizardDescriptor.Ins
                 String[] steps = createSteps();
                 return panels;
             }
-            Document doc = WebDescriptorGenerator.createDocFromFile(portletXml.getAbsolutePath());
-            if(doc != null)
-            {    
-                availablePortlets = WebDescriptorGenerator.getPortlets(doc.getRootElement());
-                availableFilters = WebDescriptorGenerator.getFilters(doc.getRootElement());
-            }
+            
+            availablePortlets = WebDescriptorGenerator.getPortlets(portletXml);
+            availableFilters = WebDescriptorGenerator.getFilters(portletXml);
+            
         }
         }
         Sources sources = (Sources)project.getLookup().lookup(Sources.class);
