@@ -78,7 +78,7 @@ import org.netbeans.modules.clearcase.ui.add.AddAction;
 import org.netbeans.modules.clearcase.ui.history.BrowseHistoryAction;
 import org.netbeans.modules.clearcase.ui.history.BrowseVersionTreeAction;
 import org.netbeans.modules.clearcase.ui.checkin.CheckinAction;
-import org.netbeans.modules.clearcase.ui.checkout.UncheckoutAction;
+import org.netbeans.modules.clearcase.ui.checkout.CheckoutAction;
 import org.netbeans.modules.clearcase.ui.update.UpdateAction;
 
 /**
@@ -315,7 +315,7 @@ class SyncTable implements MouseListener, ListSelectionListener, AncestorListene
         Mnemonics.setLocalizedText(item, item.getText());
         menu.addSeparator();
     
-        item = menu.add(new UncheckoutAction("Uncheckout...", selectedContext));
+        item = menu.add(new CheckoutAction(selectedContext));
         Mnemonics.setLocalizedText(item, item.getText());
         item = menu.add(new AddAction("Add To Source Control...", selectedContext));
         Mnemonics.setLocalizedText(item, item.getText());
