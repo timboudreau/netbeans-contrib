@@ -86,6 +86,9 @@ public class ListFiles extends StatusExecutionUnit {
     }
     
     protected ListOutput parseOutput(String outputLine) {        
+        if(outputLine == null) {
+            return null;
+        }
         Matcher typeMatcher = typePattern.matcher(outputLine);
         if(typeMatcher.matches()) {
             String type = typeMatcher.group(1);
