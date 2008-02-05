@@ -59,7 +59,6 @@ import org.netbeans.api.project.SourceGroup;
 import org.netbeans.modules.websvc.axis2.Axis2ModelProvider;
 import org.netbeans.modules.websvc.axis2.AxisUtils;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
-import org.netbeans.modules.websvc.axis2.config.model.Axis2Utils;
 import org.netbeans.modules.websvc.axis2.services.model.ServicesModel;
 import org.netbeans.modules.websvc.axis2.services.model.ServicesUtils;
 import org.openide.WizardDescriptor;
@@ -98,6 +97,9 @@ public class WsFromJavaWizardIterator implements TemplateWizard.Iterator /*, Ite
             }
         } else {
             FileObject template = Templates.getTemplate( wiz );
+            if (!((Boolean)wiz.getProperty(WizardProperties.PROP_GENERATE_SAMPLE_METHOD)).booleanValue()) {
+                template = template.getParent().getFileObject("EmptyWebService","java"); //NOI18N
+            }
             DataObject dTemplate = DataObject.find( template );
             org.openide.filesystems.FileObject dir = Templates.getTargetFolder( wiz );
             DataFolder df = DataFolder.findFolder( dir );
