@@ -100,9 +100,9 @@ implements PropertyChangeListener {
         setEnabled (
             ActionsManager.ACTION_TOGGLE_BREAKPOINT,
             (EditorContextBridge.getContext().getCurrentLineNumber () >= 0) && 
-            (fo != null && (url.endsWith (".scala")))  // NOI18N
-            // MIMEType may not be assgined yet: "text/x-scala".equals(fo.getMIMEType())
-            //(EditorContextBridge.getCurrentURL ().endsWith (".java"))
+            // "text/x-scala" MIMEType will be resolved by scala.editing module, thus this module should run-dependency on scala.editing
+            (fo != null && "text/x-scala".equals(fo.getMIMEType()))  // NOI18N
+            //(fo != null && (url.endsWith (".scala")))  // NOI18N
         );
         if ( debugger != null && 
              debugger.getState () == JPDADebugger.STATE_DISCONNECTED
