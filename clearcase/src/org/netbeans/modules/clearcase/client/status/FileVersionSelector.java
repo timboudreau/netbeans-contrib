@@ -53,6 +53,7 @@ import org.netbeans.modules.clearcase.Clearcase;
 public class FileVersionSelector {   
     
     public static long CHECKEDOUT_VERSION = -2;
+    public static long INVALID_VERSION = -1;
     
     private String path;
     private long versionNumber;
@@ -63,8 +64,17 @@ public class FileVersionSelector {
         this.versionNumber = versionNumber;
         this.versionSelector = versionSelector;
     }   
-
+    
+    private FileVersionSelector(String versionSelector) {
+        this.path = null;
+        this.versionNumber = INVALID_VERSION;
+        this.versionSelector = versionSelector;
+    }   
+    
     static FileVersionSelector fromString(String versionSelector) {
+        if(versionSelector == null) {
+            return null;
+        }
         versionSelector = versionSelector.trim();
         if(versionSelector.equals("")) {
             return null;
@@ -72,7 +82,7 @@ public class FileVersionSelector {
         // rip of the version        
         int idxVer = versionSelector.lastIndexOf(File.separator); 
         if(idxVer < 0) {            
-            return null;
+            return new FileVersionSelector(versionSelector);
         }
         long versionNumber = -1;
         String path = null;
@@ -89,7 +99,7 @@ public class FileVersionSelector {
         } catch (Exception e) {
             // XXX warning?!
             Clearcase.LOG.log(Level.WARNING, "Problem parsing version from [" + versionSelector + "]", e);
-            return null;
+            return new FileVersionSelector(versionSelector);
         }                        
     }
     
