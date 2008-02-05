@@ -57,7 +57,7 @@ public class FileVersionSelector {
     
     private String path;
     private long versionNumber;
-    private String versionSelector;
+    private String versionSelector;    
 
     private FileVersionSelector(String path, long versionNumber, String versionSelector) {
         this.path = path;
@@ -99,7 +99,8 @@ public class FileVersionSelector {
         } catch (Exception e) {
             // XXX warning?!
             Clearcase.LOG.log(Level.WARNING, "Problem parsing version from [" + versionSelector + "]", e);
-            return new FileVersionSelector(versionSelector);
+            // hm, lets say the last segment in versionSelector was the LABEL
+            return new FileVersionSelector(path, INVALID_VERSION, versionSelector); 
         }                        
     }
     
