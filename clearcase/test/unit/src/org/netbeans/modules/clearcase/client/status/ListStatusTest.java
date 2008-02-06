@@ -87,7 +87,6 @@ public class ListStatusTest extends TestCase {
         assertListOutput(entry, null, new File("Main.java"), "/main", 1L, "/main/1", null, -1, null, false, "version");                
         
         FileInformation info = createFileInformation(entry);
-        //assert(info.getStatus() 
     }
         
     public void testViewPrivate() throws IOException, ClearcaseException {
