@@ -343,7 +343,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         
         if (info.getStatus() == FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY) {
             return newLocallyFormat.format(new Object [] { name, textAnnotation });
-        } else if (info.getStatus() == FileInformation.STATUS_VERSIONED_CHECKEDOUT) {
+        } else if ((info.getStatus() & FileInformation.STATUS_VERSIONED_CHECKEDOUT) != 0) {
             return checkedoutFormat.format(new Object [] { name, textAnnotation });
         } else if (info.getStatus() == FileInformation.STATUS_VERSIONED_HIJACKED) {
             return hijackedFormat.format(new Object [] { name, textAnnotation });

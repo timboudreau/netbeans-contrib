@@ -247,9 +247,9 @@ public class FileInformation implements Serializable {
             return loc.getString("CTL_FileInfoStatus_Ignored");
         } else if (FileInformation.match(status, FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY)) {
             return loc.getString("CTL_FileInfoStatus_NewLocally");
-        } else if (FileInformation.match(status, FileInformation.STATUS_VERSIONED_CHECKEDOUT)) {
+        } else if (status == FileInformation.STATUS_VERSIONED_CHECKEDOUT) {
             return loc.getString("CTL_FileInfoStatus_Checkedout_Reserved");            
-        } else if (FileInformation.match(status, FileInformation.STATUS_VERSIONED_CHECKEDOUT | FileInformation.STATUS_UNRESERVED)) {
+        } else if (status == (FileInformation.STATUS_VERSIONED_CHECKEDOUT | FileInformation.STATUS_UNRESERVED)) {
             return loc.getString("CTL_FileInfoStatus_Checkedout_Unreserved");                        
         } else if (FileInformation.match(status, FileInformation.STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED)) {
             return loc.getString("CTL_FileInfoStatus_Checkedout_But_Removed");                                    
@@ -277,9 +277,9 @@ public class FileInformation implements Serializable {
             return loc.getString("CTL_FileInfoStatus_Ignored");
         } else if (FileInformation.match(status, FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY)) {
             return loc.getString("CTL_FileInfoStatus_NewLocally");
-        } else if (FileInformation.match(status, FileInformation.STATUS_VERSIONED_CHECKEDOUT)) {
+        } else if (status == FileInformation.STATUS_VERSIONED_CHECKEDOUT) {
             return loc.getString("CTL_FileInfoStatus_Checkedout_Reserved");            
-        } else if (FileInformation.match(status, FileInformation.STATUS_VERSIONED_CHECKEDOUT | FileInformation.STATUS_UNRESERVED)) {
+        } else if (status == (FileInformation.STATUS_VERSIONED_CHECKEDOUT | FileInformation.STATUS_UNRESERVED)) {
             return loc.getString("CTL_FileInfoStatus_Checkedout_Unreserved");                        
         } else if (FileInformation.match(status, FileInformation.STATUS_VERSIONED_HIJACKED)) {
             return loc.getString("CTL_FileInfoStatus_Hijacked");                        
