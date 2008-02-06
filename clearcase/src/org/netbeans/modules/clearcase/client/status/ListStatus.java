@@ -130,7 +130,19 @@ public class ListStatus extends ExecutionUnit {
                 if(fe.isCheckedout()) {
                     listCheckouts();
                 }    
-                output.put(fe.getFile(), fe);
+                if(fe.isEclipsed()) {
+                    // there may be two entries for an eclipsed file
+                    // we wan't the one with the [eclipsed] annotation 
+                    output.put(fe.getFile(), fe);                       
+                } else {
+                    FileEntry oldEntry = output.get(fe.getFile());
+                    // don't store the entry if there is already one
+                    // for the same file and it is eclipsed,
+                    // as we know that eclipsed files may return two entries
+                    if(oldEntry == null || !oldEntry.isEclipsed() ) { 
+                        output.put(fe.getFile(), fe);                       
+                    }     
+                }                
             }            
         }        
         private FileEntry parseLSOutput(String outputLine) {        
