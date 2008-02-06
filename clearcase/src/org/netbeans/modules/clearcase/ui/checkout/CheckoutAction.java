@@ -49,7 +49,6 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.Dialog;
 import java.io.File;
-import java.io.FileFilter;
 import java.util.*;
 
 import org.netbeans.modules.clearcase.Clearcase;
@@ -59,6 +58,7 @@ import org.netbeans.modules.clearcase.client.*;
 
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.awt.Mnemonics;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 
@@ -68,35 +68,95 @@ import org.openide.util.NbBundle;
  * @author Maros Sandor
  */
 public class CheckoutAction extends AbstractAction {
+
+    private static final int STATUS_DISABLED    = 0;
+    private static final int STATUS_CHECKOUT    = 1;
+    private static final int STATUS_UNCHECKOUT  = 2;
     
     static final String RECENT_CHECKOUT_MESSAGES = "checkout.messages"; 
 
-    private static int ALLOW_CHECKOUT = 
-            FileInformation.STATUS_VERSIONED_UPTODATE | 
-            FileInformation.STATUS_VERSIONED_HIJACKED;
+    private static int ALLOW_CHECKOUT = FileInformation.STATUS_VERSIONED_UPTODATE | FileInformation.STATUS_VERSIONED_HIJACKED;
+    private static int ALLOW_UNCO = FileInformation.STATUS_VERSIONED_CHECKEDOUT_RESERVED | FileInformation.STATUS_VERSIONED_CHECKEDOUT_UNRESERVED;
     
     private final VCSContext    context;
+    private final int           status;
 
-    public CheckoutAction(String name, VCSContext context) {
-        super(name);
+    public CheckoutAction(VCSContext context) {
         this.context = context;
+        status = getActionStatus();
+        putValue(Action.NAME, status == STATUS_UNCHECKOUT ? "Uncheckout..." : "Checkout...");
     }
 
+    private int getActionStatus() {
+        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
+        int status = STATUS_DISABLED;
+        Set<File> files = context.getFiles();
+        for (File file : files) {
+            if ((cache.getInfo(file).getStatus() & ALLOW_CHECKOUT) != 0) {
+                if (status == STATUS_UNCHECKOUT) return STATUS_DISABLED;
+                status = STATUS_CHECKOUT;
+            }                
+            if ((cache.getInfo(file).getStatus() & ALLOW_UNCO) != 0) {
+                if (status == STATUS_CHECKOUT) return STATUS_DISABLED;
+                status = STATUS_UNCHECKOUT;
+            }
+        }
+        return status;
+    }
+    
     @Override
     public boolean isEnabled() {
-        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
-        Set<File> roots = context.getRootFiles();
-        for (File file : roots) {
-            if( (cache.getInfo(file).getStatus() & ALLOW_CHECKOUT) == 0 ) {
-                return false;
-            }                
-        }
-        return true;
+        return status != STATUS_DISABLED;
     }
     
     public void actionPerformed(ActionEvent ev) {
         Set<File> roots = context.getFiles();
-        performCheckout(roots.toArray(new File[roots.size()]), Utils.getContextDisplayName(context));
+        switch (status) {
+        case STATUS_CHECKOUT:
+            performCheckout(roots.toArray(new File[roots.size()]), Utils.getContextDisplayName(context));
+            break;
+        case STATUS_UNCHECKOUT:
+            performUncheckout(roots.toArray(new File[roots.size()]));
+            break;
+        }
+    }
+    
+    private void performUncheckout(File [] files) {
+        String contextTitle = Utils.getContextDisplayName(context);
+        JButton unCheckoutButton = new JButton(); 
+        UncheckoutPanel panel = new UncheckoutPanel();
+
+        panel.cbKeep.setEnabled(false);
+        for (File file : files) {
+            if(file.isFile()) {
+                panel.cbKeep.setEnabled(true);        
+                break;
+            }
+        }
+        
+        DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(CheckoutAction.class, "CTL_UncheckoutDialog_Title", contextTitle)); // NOI18N
+        dd.setModal(true);
+        dd.setMessageType(DialogDescriptor.WARNING_MESSAGE);
+        Mnemonics.setLocalizedText(unCheckoutButton, NbBundle.getMessage(CheckoutAction.class, "CTL_UncheckoutDialog_Unheckout"));
+        
+        dd.setOptions(new Object[] {unCheckoutButton, DialogDescriptor.CANCEL_OPTION}); // NOI18N
+        dd.setHelpCtx(new HelpCtx(CheckoutAction.class));
+                
+        panel.putClientProperty("contentTitle", contextTitle);  // NOI18N
+        panel.putClientProperty("DialogDescriptor", dd); // NOI18N
+        final Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);        
+        dialog.addWindowListener(new DialogBoundsPreserver(ClearcaseModuleConfig.getPreferences(), "uncheckout.dialog")); // NOI18N       
+        dialog.pack();        
+        dialog.setVisible(true);
+        
+        Object value = dd.getValue();
+        if (value != unCheckoutButton) return;
+        
+        boolean keepFiles = panel.cbKeep.isSelected();
+        
+        Clearcase.getInstance().getClient().post(new ExecutionUnit(
+                "Undoing Checkout...",
+                new UnCheckoutCommand(files, keepFiles, createNotificationListener(files), new OutputWindowNotificationListener())));
     }
 
     public static ClearcaseClient.CommandRunnable performCheckout(File[] files, String title) {        
@@ -154,10 +214,4 @@ public class CheckoutAction extends AbstractAction {
                 new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Default, true, createNotificationListener(file))));
         cr.waitFinished();
     }
-
-    private static final FileFilter checkoutFileFilter = new FileFilter() {
-        public boolean accept(File pathname) {
-            return true;
-        }
-    };
 }

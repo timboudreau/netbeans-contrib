@@ -74,7 +74,7 @@ public class VersionsCache implements NotificationListener {
     
     public File getRemoteFile(File workingCopy, String revision, boolean beQuiet) throws IOException {
         if (REVISION_CURRENT.equals(revision)) {
-            return workingCopy;
+            return workingCopy.exists() ? workingCopy : null;
         } else if (REVISION_BASE.equals(revision)) {
             revision = Clearcase.getInstance().getFileStatusCache().getInfo(workingCopy).getStatus(workingCopy).getVersionSelector();
             if (revision == null) return null;

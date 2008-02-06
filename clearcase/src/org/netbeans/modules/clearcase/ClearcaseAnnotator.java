@@ -51,7 +51,6 @@ import org.netbeans.modules.clearcase.ui.status.ShowPropertiesAction;
 import org.netbeans.modules.clearcase.ui.add.AddAction;
 import org.netbeans.modules.clearcase.ui.add.AddToRepositoryAction;
 import org.netbeans.modules.clearcase.ui.checkout.CheckoutAction;
-import org.netbeans.modules.clearcase.ui.checkout.UncheckoutAction;
 import org.netbeans.modules.clearcase.ui.update.UpdateAction;
 import org.netbeans.modules.clearcase.ui.update.MergeAction;
 import org.netbeans.modules.clearcase.ui.diff.DiffAction;
@@ -258,8 +257,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         Lookup context = ctx.getElements();
         List<Action> actions = new ArrayList<Action>(20);
         if (destination == VCSAnnotator.ActionDestination.MainMenu) {
-            actions.add(new CheckoutAction("Checkout...", ctx));
-            actions.add(new UncheckoutAction("Undo Checkout", ctx));
+            actions.add(new CheckoutAction(ctx));
             actions.add(new AddAction("Add To Source Control...", ctx));
             actions.add(null);
             //actions.add(SystemAction.get(RefreshAction.class));
@@ -285,8 +283,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
             if (noneVersioned) {
                 actions.add(new AddToRepositoryAction("Import into Clea&rcase Repository...", ctx));
             } else {
-                actions.add(new CheckoutAction("Checkout...", ctx));
-                actions.add(new UncheckoutAction("Undo Checkout", ctx));
+                actions.add(new CheckoutAction(ctx));
                 actions.add(new AddAction("Add To Source Control...", ctx));
                 actions.add(null);
                 actions.add(SystemActionBridge.createAction(SystemAction.get(RefreshAction.class), "Show Changes", context));

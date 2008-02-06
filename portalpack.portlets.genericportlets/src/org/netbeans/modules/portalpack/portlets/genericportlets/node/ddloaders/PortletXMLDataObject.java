@@ -39,7 +39,6 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.P
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.impl.PortletEventingHandlerImpl;
 //import org.netbeans.spi.xml.cookies.CheckXMLSupport;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.PortletXmlHelper;
-import org.netbeans.modules.schema2beans.BaseBean;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileUtil;

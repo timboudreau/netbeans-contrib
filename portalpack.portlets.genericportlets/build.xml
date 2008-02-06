@@ -42,30 +42,17 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <target name="netbeans-extra" depends="release"/>
 
     <target name="release" depends="init">
-        
-        <mkdir dir="${cluster}/modules/ext/portalpack/jdom"/>
-        
-        <copy file="../../external/jdom/jaxen-core.jar"
-        todir="${cluster}/modules/ext/portalpack/jdom"/>
-        <copy file="../../external/jdom/jaxen-jdom.jar"
-        todir="${cluster}/modules/ext/portalpack/jdom"/>
-        <copy file="../../external/jdom/jdom.jar"
-        todir="${cluster}/modules/ext/portalpack/jdom"/>
-        
-        <copy file="../../external/jdom/saxpath.jar"
-        todir="${cluster}/modules/ext/portalpack/jdom"/>
-
-        <copy file="../../external/portlet/portlet-api-1.0.jar"
+        <copy file="external/portlet-api-1.0.jar"
         todir="${cluster}/modules/ext/portalpack/"/>
-        <copy file="../../external/portlet/portlet-api-2.0.jar"
+        <copy file="external/portlet-api-2.0.jar"
         todir="${cluster}/modules/ext/portalpack/"/>
         
         <copy file="build/portlettaglib.jar"
         todir="${cluster}/modules/ext/portalpack/"/>
         
-        <copy file="../../external/portlet/portlet-api-2.0-doc.jar"
+        <copy file="external/portlet-api-2.0-doc.jar"
         todir="${cluster}/modules/ext/portalpack/"/>
-        <copy file="../../external/portlet/portlet-api-1.0-doc.jar"
+        <copy file="external/portlet-api-1.0-doc.jar"
         todir="${cluster}/modules/ext/portalpack/"/>
         
     </target>
@@ -91,7 +78,8 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  <target name="schema2beans">
     <ant dir="../../../schema2beans" target="build"/>
   </target>
-  <target name="s2binit" depends="schema2beans">
+  <!--
+  <target name="s2binit">
               <condition property="schema2beans.dir" value="${nb_all}/schema2beans" else="${nb_all}/schema2beans">
                  <available file="${nb_all}/schema2beans/dev/schema2beansdev.jar"/>
              </condition>
@@ -105,7 +93,18 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                     
 	        </classpath>
                </taskdef>
-  </target>
+  </target>-->
+  
+  <target name="s2binit" depends="build-init">
+        <taskdef name="schema2beans" classname="org.netbeans.modules.s2banttask.Schema2BeansAntTask">
+            <classpath>
+                <pathelement path="${schema2beans.dir}/modules/org-netbeans-modules-schema2beans.jar" />
+                <pathelement path="${nb_all}/schema2beans/dev/schema2beansdev.jar" />
+                <pathelement path="${nb_all}/schema2beans/anttask/s2banttask.jar"/>
+            </classpath>
+        </taskdef>
+    </target>
+
   
   <target name="dd2beans_gen" depends="s2binit">
       <echo message="generating bean graph for portlet xml configuration files" />
