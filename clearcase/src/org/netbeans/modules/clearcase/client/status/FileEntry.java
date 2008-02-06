@@ -48,7 +48,7 @@ import java.io.File;
  * 
  * @author Maros Sandor
  */
-public class FileEntry { // XXX rename me! vole!
+public class FileEntry { 
                        
     public static String ANNOTATION_ECLIPSED                = "eclipsed";           
     public static String ANNOTATION_HIJACKED                = "hijacked";        
