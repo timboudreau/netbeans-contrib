@@ -41,15 +41,10 @@ package org.netbeans.modules.clearcase.client.status;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import junit.framework.TestCase;
-import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.ClearcaseException;
-import org.netbeans.modules.clearcase.FileInformation;
-import org.netbeans.modules.clearcase.FileStatusCache;
 import org.netbeans.modules.clearcase.client.ClearcaseCommand;
 import org.netbeans.modules.clearcase.client.test.DummyCleartool;
 
@@ -57,20 +52,15 @@ import org.netbeans.modules.clearcase.client.test.DummyCleartool;
  *
  * @author Tomas Stupka
  */
-public class ListStatusTest extends TestCase {
+public class FileInformationTest extends TestCase {
     
-    private Method createFileInformation = null;
-    private FileStatusCache cache;
-    
-    public ListStatusTest(String testName) {
+    public FileInformationTest(String testName) {
         super(testName);
     }            
 
     @Override
     protected void setUp() throws Exception {
-        super.setUp();        
-        cache = Clearcase.getInstance().getFileStatusCache();
-        createFileInformation = cache.getClass().getMethod("createFileInformation", FileEntry.class);
+        super.setUp();
     }
 
     @Override
@@ -78,16 +68,12 @@ public class ListStatusTest extends TestCase {
         super.tearDown();
     }
 
-    public void testUptodate() throws IOException, ClearcaseException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    public void testUptodate() throws IOException, ClearcaseException {
         String rawOutput = "version                Main.java@@/main/1                     Rule: element * /main/LATEST";
 
-        List<FileEntry> entryList = execList(rawOutput);        
+        List<FileEntry> entryList = execList(rawOutput);
         assertEquals(1, entryList.size());
-        FileEntry entry = entryList.get(0);
-        assertListOutput(entry, null, new File("Main.java"), "/main", 1L, "/main/1", null, -1, null, false, "version");                
-        
-        FileInformation info = createFileInformation(entry);
-        //assert(info.getStatus() 
+        assertListOutput(entryList.get(0), null, new File("Main.java"), "/main", 1L, "/main/1", null, -1, null, false, "version");                
     }
         
     public void testViewPrivate() throws IOException, ClearcaseException {
@@ -236,8 +222,4 @@ public class ListStatusTest extends TestCase {
             }
         }        
     }    
-    
-    private FileInformation createFileInformation(FileEntry entry) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        return (FileInformation) createFileInformation.invoke(cache, new Object[] {entry});
-    }
 }
