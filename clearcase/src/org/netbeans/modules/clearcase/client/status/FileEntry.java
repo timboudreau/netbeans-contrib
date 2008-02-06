@@ -44,92 +44,62 @@ import java.io.File;
 
 
 /**
- * Holds detailed information about status of a managed file, ie repository URL, remote path, branch, etc.
+ * Holds detailed information about a managed file, ie VersionSelector-s, annotation, ...
  * 
  * @author Maros Sandor
  */
-public class FileStatus {
-   
-    private String stringValue;
+public class FileEntry { // XXX rename me! vole!
+                       
+    public static String ANNOTATION_ECLIPSED                = "eclipsed";           
+    public static String ANNOTATION_HIJACKED                = "hijacked";        
+    public static String ANNOTATION_LOADED_BUT_MISSING      = "loaded but missing";       
+    public static String ANNOTATION_CHECKEDOUT_BUT_REMOVED  = "checkedout but removed";       
     
-    static String TYPE_VERSION = "version";
-    static String TYPE_DIRECTORY_VERSION = "directory version";
-    static String TYPE_FILE_ELEMENT = "file element";
-    static String TYPE_DIRECTORY_ELEMENT = "directory element";
-    static String TYPE_VIEW_PRIVATE_OBJECT = "view private object";
-    static String TYPE_DERIVED_OBJECT = "derived object";
-    static String TYPE_DERIVED_OBJECT_VERSION = "derived object version";
-    static String TYPE_SYMBOLIC_LINK = "symbolic link";       
-    static String TYPE_UNKNOWN = null;
-    
-    private static String ANNOTATION_ECLIPSED = "eclipsed";           
-    private static String ANNOTATION_HIJACKED = "hijacked";        
-    private static String ANNOTATION_LOADED_BUT_MISSING = "loaded but missing";       
-    private static String ANNOTATION_CHECKEDOUT_BUT_REMOVED = "checkedout but removed";       
-    
-    static String CHECKEDOUT = "CHECKEDOUT";                   
-        
-    public enum ClearcaseStatus {        
-        REPOSITORY_STATUS_UNKNOWN,
-        REPOSITORY_STATUS_VIEW_PRIVATE,                      
-        REPOSITORY_STATUS_FILE_CHECKEDOUT_RESERVED,         
-        REPOSITORY_STATUS_FILE_CHECKEDOUT_UNRESERVED,                               
-        REPOSITORY_STATUS_FILE_CHECKEDOUT_BUT_REMOVED,                               
-        REPOSITORY_STATUS_FILE_LOADED_BUT_MISSING,                               
-        REPOSITORY_STATUS_FILE_HIJACKED,        
-        REPOSITORY_STATUS_FILE_ECLIPSED
-    } 
+    public static String TYPE_VERSION                  = "version";
+    public static String TYPE_DIRECTORY_VERSION        = "directory version";
+    public static String TYPE_FILE_ELEMENT             = "file element";
+    public static String TYPE_DIRECTORY_ELEMENT        = "directory element";
+    public static String TYPE_VIEW_PRIVATE_OBJECT      = "view private object";
+    public static String TYPE_DERIVED_OBJECT           = "derived object";
+    public static String TYPE_DERIVED_OBJECT_VERSION   = "derived object version";
+    public static String TYPE_SYMBOLIC_LINK            = "symbolic link";       
+    public static String TYPE_UNKNOWN                  = null;
     
     final private String type;    
     final private File file;    
     final private FileVersionSelector originVersion;
     final private FileVersionSelector version;
     final private String annotation;
-    final private boolean reserved;
+    final boolean reserved;
+    final String user;
     
-    private ClearcaseStatus status;
-
-    
-    public FileStatus(String type, File file, FileVersionSelector originVersion, FileVersionSelector version, String annotation, boolean reserved) {
+    private String stringValue;
+        
+    public FileEntry(
+           String type, 
+           File file, 
+           FileVersionSelector originVersion, 
+           FileVersionSelector version, 
+           String annotation, 
+           boolean reserved,
+           String user) 
+    {
+        assert file != null;
+        assert type != null : "null clearcase type for file " + file;
+        
         this.type = type;
         this.file = file;
         this.originVersion = originVersion;
         this.version = version;
-        this.annotation = annotation;
+        this.annotation = annotation;        
         this.reserved = reserved;
-        this.status = getRepositoryStatus(type, annotation, version, reserved);
+        this.user = user;
     }
 
-    public FileStatus() { 
-        this.type = null;
-        this.file = null;
-        this.originVersion = null;
-        this.version = null;
-        this.annotation = null;  
-        this.reserved = false;
-        status = ClearcaseStatus.REPOSITORY_STATUS_UNKNOWN;
+    public String getAnnotation() {
+        return annotation;
     }
-    
-    private ClearcaseStatus getRepositoryStatus(String type, String annotation, FileVersionSelector version, boolean reserved) {
-                
-        if(type.equals(TYPE_VIEW_PRIVATE_OBJECT)) {
-            return ClearcaseStatus.REPOSITORY_STATUS_VIEW_PRIVATE;
-        } else if (version != null && version.getVersionNumber() == FileVersionSelector.CHECKEDOUT_VERSION) {
-            if (annotation != null && annotation.indexOf(ANNOTATION_CHECKEDOUT_BUT_REMOVED) > -1) {            
-                return ClearcaseStatus.REPOSITORY_STATUS_FILE_CHECKEDOUT_BUT_REMOVED;                       
-            }
-            return reserved ? ClearcaseStatus.REPOSITORY_STATUS_FILE_CHECKEDOUT_RESERVED :                               ClearcaseStatus.REPOSITORY_STATUS_FILE_CHECKEDOUT_UNRESERVED;                        
-        } else if (annotation != null && annotation.indexOf(ANNOTATION_LOADED_BUT_MISSING) > -1) {  
-            // XXX now think carefully !!! - could it be there are more of the ANNOTATOIN_ string in one annotation? - e.g. [eclipsed, hijacked] ?            
-            return ClearcaseStatus.REPOSITORY_STATUS_FILE_LOADED_BUT_MISSING;                                               
-        } else if (annotation != null && annotation.indexOf(ANNOTATION_HIJACKED) > -1) {                                                
-            return ClearcaseStatus.REPOSITORY_STATUS_FILE_HIJACKED;                    
-        } else if (annotation != null && annotation.indexOf(ANNOTATION_ECLIPSED) > -1) {            
-            return ClearcaseStatus.REPOSITORY_STATUS_FILE_ECLIPSED;            
-        }
-        return ClearcaseStatus.REPOSITORY_STATUS_UNKNOWN;
-    }
-    
+        
     public File getFile() {
         return file;
     }
@@ -138,36 +108,30 @@ public class FileStatus {
         return type;
     }
 
-    // XXX do we need this?
-    public long getOriginVersionNumber() {
-        if(version == null) {
-            return -1;
-        }                
-        if(originVersion != null) {
-            return originVersion.getVersionNumber();   
-        } else {
-            return version.getVersionNumber();            
-        }        
+    public boolean isEclipsed() {
+        return annotation != null && annotation.indexOf(ANNOTATION_ECLIPSED) > -1;
     }
 
-    // XXX do we need this?
-    public String getOriginPath() {
-        if(version == null) {
-            return null;
-        }
-        if(originVersion != null) {
-            return originVersion.getPath();   
-        } else {
-            return version.getPath();            
-        }        
+    public boolean isHijacked() {
+        return annotation != null && annotation.indexOf(ANNOTATION_HIJACKED) > -1;
+    }
+
+    public boolean isLoadedButMissing() {
+        return annotation != null && annotation.indexOf(ANNOTATION_LOADED_BUT_MISSING) > -1;
+    }
+
+    public boolean isRemoved() {
+        return annotation != null && annotation.indexOf(ANNOTATION_CHECKEDOUT_BUT_REMOVED) > -1;
+    }
+
+    public boolean isReserved() {
+        return reserved;
     }
     
-    // XXX do we need this?    
     public FileVersionSelector getVersion() {
         return version;
     }    
 
-    // XXX do we need this?    
     public FileVersionSelector getOriginVersion() {
         return originVersion;
     }
@@ -180,6 +144,7 @@ public class FileStatus {
     }
     
     public String getVersionSelector() {
+        // XXX a bit strange. isn't it?
         if(version == null) {
             return null;
         }
@@ -189,13 +154,13 @@ public class FileStatus {
             return version.getVersionSelector();
         }
     }
-    
-    public ClearcaseStatus getStatus() {
-        return status;
+
+    public boolean isViewPrivate() {
+        return type.equals(TYPE_VIEW_PRIVATE_OBJECT);
     }
     
     @Override
-    public String toString() {
+    public String toString() { // XXX all fields if it please you!
         if(stringValue == null) {
             StringBuffer sb = new StringBuffer();
             sb.append("[");        
@@ -237,7 +202,7 @@ public class FileStatus {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final FileStatus other = (FileStatus) obj;
+        final FileEntry other = (FileEntry) obj;
         if (this.stringValue != other.stringValue && (this.stringValue == null || !this.stringValue.equals(other.stringValue))) {
             return false;
         }

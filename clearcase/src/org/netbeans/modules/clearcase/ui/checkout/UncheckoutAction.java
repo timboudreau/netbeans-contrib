@@ -76,9 +76,7 @@ public class UncheckoutAction extends AbstractAction implements NotificationList
     private final VCSContext    context;
     private File[]              files;
 
-    private static int ALLOW_UNCO = 
-            FileInformation.STATUS_VERSIONED_CHECKEDOUT_RESERVED | 
-            FileInformation.STATUS_VERSIONED_CHECKEDOUT_UNRESERVED;
+    private static int ALLOW_UNCO = FileInformation.STATUS_VERSIONED_CHECKEDOUT;
     
     public UncheckoutAction(String name, VCSContext context) {
         super(name);

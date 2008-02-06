@@ -55,6 +55,8 @@ public class FileVersionSelector {
     public static long CHECKEDOUT_VERSION = -2;
     public static long INVALID_VERSION = -1;
     
+    private static String CHECKEDOUT = "CHECKEDOUT";                   
+
     private String path;
     private long versionNumber;
     private String versionSelector;    
@@ -90,7 +92,7 @@ public class FileVersionSelector {
             String versionString = versionSelector.substring(idxVer + 1);
             path = versionSelector.substring(0, idxVer);
             
-            if(versionString.equals(FileStatus.CHECKEDOUT)) {
+            if(versionString.equals(CHECKEDOUT)) {
                 versionNumber = CHECKEDOUT_VERSION;
             } else {
                 versionNumber = Long.parseLong(versionString);   

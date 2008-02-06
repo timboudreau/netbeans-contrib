@@ -45,7 +45,7 @@ import java.util.List;
 import junit.framework.TestCase;
 import org.netbeans.modules.clearcase.ClearcaseException;
 import org.netbeans.modules.clearcase.client.ClearcaseCommand;
-import org.netbeans.modules.clearcase.client.status.ListFiles.ListOutput;
+import org.netbeans.modules.clearcase.client.status.ListExecutionUnit.ListOutput;
 import org.netbeans.modules.clearcase.client.test.DummyCleartool;
 
 /**
@@ -187,7 +187,7 @@ public class ListFilesTest extends TestCase {
         ListCommandExecutor executor = new ListCommandExecutor(rawOutput);
         DummyCleartool ct = new DummyCleartool(executor);
 
-        ListFiles lf = new ListFiles(new File(""), false);
+        ListExecutionUnit lf = new ListExecutionUnit(new File(""), false);
         for (ClearcaseCommand c : lf.getCommands()) {
             ct.exec(c);
         }

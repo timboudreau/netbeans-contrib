@@ -46,6 +46,10 @@ import org.netbeans.modules.versioning.spi.VCSContext;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.*;
+import java.util.logging.Level;
+import org.netbeans.modules.clearcase.client.ClearcaseClient;
+import org.netbeans.modules.clearcase.client.status.FileEntry;
+import org.netbeans.modules.clearcase.client.status.ListStatus;
 
 /**
  * Clearase specific utility methods.
@@ -159,4 +163,49 @@ public class ClearcaseUtils {
 //            throw new IllegalArgumentException("Uncomparable status: " + status); // NOI18N
 //        }
     }
+    
+    /**
+     * Returns the {@link FileEntry} for the given file or 
+     * null if the file does not exist.
+     * 
+     * This method synchronously accesses disk and may block for a longer period of time.
+     * 
+     * @param file the file to get the {@link FileEntry} for
+     * @return the {@link FileEntry}
+     */
+    public static FileEntry readEntry(File file) {
+        List<FileEntry> entries = readEntries(file, true);
+        if(entries == null || entries.size() == 0) {
+            return null;
+        }
+        return entries.get(0);
+    }
+    
+    /**
+     * Returns FileEntries for the given file.
+     * 
+     * This method synchronously accesses disk and may block for a longer period of time.
+     * 
+     * @param file the file
+     * @return {@link FileEntry}-s describing the files actuall status
+     * @see {@link FileEntry}
+     */   
+    public static List<FileEntry> readEntries(File file, boolean directory) {
+        if(file == null) {
+            return null;
+        }
+        final ClearcaseClient client = Clearcase.getInstance().getClient();
+        try {
+            // 1. list files ...
+            ListStatus ls = new ListStatus(file, directory);    
+            client.exec(ls);
+        
+            return new ArrayList<FileEntry>(ls.getOutput());
+                        
+        } catch (ClearcaseException ex) {
+            Clearcase.LOG.log(Level.SEVERE, "Exception in status command for file : " + file.getAbsolutePath() + "]", ex);            
+        }
+        return null;
+    }
+    
 }
