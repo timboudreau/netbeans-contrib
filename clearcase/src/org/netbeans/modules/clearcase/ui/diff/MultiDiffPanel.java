@@ -51,6 +51,7 @@ import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileStatusCache;
 import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
 import org.netbeans.modules.clearcase.ui.checkin.CheckinAction;
+import org.netbeans.modules.clearcase.ui.update.UpdateAction;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.api.diff.DiffController;
 import org.netbeans.api.diff.StreamSource;
@@ -236,6 +237,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
         };
         nextButton.setAction(nextAction);
         prevButton.setAction(prevAction);
+        updateButton.setEnabled(new UpdateAction("", context).isEnabled());
     }
     
     private void refreshComponents() {
@@ -423,7 +425,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
     }                    
 
     private void onUpdateButton() {
-//        UpdateAction.performUpdate(context, contextName);
+        UpdateAction.update(context);
     }
     
     private void onCommitButton() {

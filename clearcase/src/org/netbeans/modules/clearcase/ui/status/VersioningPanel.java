@@ -362,11 +362,6 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
      * Refreshes statuses of all files in the view. 
      */ 
     private void onRefreshAction() {
-        
-        // XXX
-//        if(!Subversion.getInstance().checkClientAvailable()) {            
-//            return;
-//        }          
         LifecycleManager.getDefault().saveAll();
         if(context.getRootFiles().size() < 1) {
             return;
