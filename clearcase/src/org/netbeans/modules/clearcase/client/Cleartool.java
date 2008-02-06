@@ -57,7 +57,7 @@ class Cleartool {
     /**
      * Default timeout between two output (or error) messages from a cleartool command.
      */
-    private static final int DEFAULT_TIMEOUT_MS = 30000;
+    private static final int DEFAULT_TIMEOUT_MS = 60000;
     
     private boolean fireAndForget;
    
@@ -206,7 +206,6 @@ class Cleartool {
         
         if (command == QuitCommand || fireAndForget) return; // do not expect any response, return here
         
-        boolean isError = false;
         command.commandStarted();
 
         long timeout = DEFAULT_TIMEOUT_MS;
@@ -217,12 +216,11 @@ class Cleartool {
                 String line = ctError.readLine();
                 if (line == null) throw new EOFException();
                 if (line.contains(MAGIC_PROMPT)) break;
-                isError = true;
                 command.errorText(line);
                 t0 = System.currentTimeMillis();
             } else {
                 // if there was an error and the error stream is no longer readable, return this error
-                if (isError) {
+                if (command.hasFailed()) {
                     // Sometimes it happens that ct commands throw errors and they are not readily available in the error
                     // stream thus we need to wait a while for error messages to appear
                     // if we do not wait for them it may happen that other thread invokes isValid() and it will return 'false'

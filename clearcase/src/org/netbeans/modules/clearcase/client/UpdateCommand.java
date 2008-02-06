@@ -66,4 +66,9 @@ public class UpdateCommand extends FilesCommand {
         arguments.add("-noverwrite");
         addFileArguments(arguments);
     }
+
+    public boolean isErrorMessage(String s) {
+        if (s.startsWith("Log has been written to")) return false;
+        return super.isErrorMessage(s);
+    }
 }

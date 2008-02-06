@@ -67,6 +67,10 @@ import java.util.prefs.PreferenceChangeListener;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.FileStatusCache;
+import org.netbeans.modules.clearcase.ui.diff.Setup;
+import org.netbeans.modules.clearcase.ui.diff.DiffAction;
+import org.netbeans.modules.clearcase.ui.checkin.CheckinAction;
+import org.netbeans.modules.clearcase.ui.update.UpdateAction;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.openide.util.Cancellable;
 
@@ -111,11 +115,6 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         jPanel2.setFloatable(false);
         jPanel2.putClientProperty("JToolBar.isRollover", Boolean.TRUE);  // NOI18N
         jPanel2.setLayout(new ToolbarLayout());
-        
-        // TODO temporary
-        btnDiff.setVisible(false);
-        btnCommit.setVisible(false);
-        btnUpdate.setVisible(false);
         
         parent.getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, InputEvent.SHIFT_MASK | InputEvent.ALT_MASK), "prevInnerView"); // NOI18N
         parent.getInputMap(WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, InputEvent.SHIFT_MASK | InputEvent.ALT_MASK), "prevInnerView"); // NOI18N
@@ -254,6 +253,9 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
             });
             return;
         }
+        // TODO: a little hacky
+        btnUpdate.setEnabled(new UpdateAction("", context).isEnabled());
+        
         // XXX attach Cancelable hook
         final ProgressHandle ph = ProgressHandleFactory.createHandle(NbBundle.getMessage(VersioningPanel.class, "MSG_Refreshing_Versioning_View")); // NOI18N
         try {
@@ -344,18 +346,16 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
      * @see CheckinAction // XXX do we have somthing like that
      */  
     private void onCommitAction() {
-        // XXX
-//        LifecycleManager.getDefault().saveAll();            
-//        CommitAction.commit(parentTopComponent.getContentTitle(), context);
+        LifecycleManager.getDefault().saveAll();            
+        CheckinAction.checkin(context);
     }
     
     /**
      * Performs the "cleartool update" command on all diplayed roots.
      */ 
     private void onUpdateAction() {      
-        // XXX
-//        UpdateAction.performUpdate(context, parentTopComponent.getContentTitle());
-//        parentTopComponent.contentRefreshed();
+        UpdateAction.update(context);
+        parentTopComponent.contentRefreshed();
     }
     
     /**
@@ -441,20 +441,16 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
      * In Local mode, the diff shows CURRENT <-> BASE differences. In Remote mode, it shows BASE<->HEAD differences. 
      */ 
     private void onDiffAction() {   
-        // XXX
-//        if(!Subversion.getInstance().checkClientAvailable()) {            
-//            return;
-//        }          
-//        String title = parentTopComponent.getContentTitle();
-//        if (displayStatuses == FileInformation.STATUS_LOCAL_CHANGE) {            
-//            LifecycleManager.getDefault().saveAll();
-//            DiffAction.diff(context, Setup.DIFFTYPE_LOCAL, title);
+        String title = parentTopComponent.getContentTitle();
+        if (displayStatuses == FileInformation.STATUS_LOCAL_CHANGE) {            
+            LifecycleManager.getDefault().saveAll();
+            DiffAction.diff(context, Setup.DIFFTYPE_LOCAL, title);
 //        } else if (displayStatuses == FileInformation.STATUS_REMOTE_CHANGE) {
 //            DiffAction.diff(context, Setup.DIFFTYPE_REMOTE, title);
-//        } else {
-//            LifecycleManager.getDefault().saveAll();
-//            DiffAction.diff(context, Setup.DIFFTYPE_ALL, title);
-//        }
+        } else {
+            LifecycleManager.getDefault().saveAll();
+            DiffAction.diff(context, Setup.DIFFTYPE_ALL, title);
+        }
     }
 
     

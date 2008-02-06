@@ -91,6 +91,10 @@ public class UpdateAction extends AbstractAction implements NotificationListener
                 new UpdateCommand(files.toArray(new File[files.size()]), this, new OutputWindowNotificationListener())));
     }
 
+    public static void update(VCSContext context) {
+        new UpdateAction("", context).actionPerformed(null);
+    }
+    
     private static final FileFilter updateFileFilter = new FileFilter() {
         public boolean accept(File pathname) {
             return true;
