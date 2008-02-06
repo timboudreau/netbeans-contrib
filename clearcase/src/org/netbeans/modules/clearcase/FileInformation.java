@@ -171,12 +171,12 @@ public class FileInformation implements Serializable {
     /**
      * For deserialization purposes only.
      */ 
-    public FileInformation() {
+    FileInformation() {
         status = 0;
         isDirectory = false;
     }
 
-    public FileInformation(int status, FileEntry fileStatus, boolean isDirectory) {
+    FileInformation(int status, FileEntry fileStatus, boolean isDirectory) {
         this.status = status;
         this.fileEntry = fileStatus;
         this.isDirectory = isDirectory;
