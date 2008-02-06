@@ -55,6 +55,8 @@ import org.netbeans.modules.clearcase.ui.update.UpdateAction;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.api.diff.DiffController;
 import org.netbeans.api.diff.StreamSource;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.Lookups;
@@ -119,6 +121,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
      * null for view that are not
      */
     private RequestProcessor.Task   refreshTask;
+    private RequestProcessor.Task   refreshContextStatusTask;
 
     private JComponent              diffView;
     private DiffFileTable           fileTable;
@@ -136,6 +139,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
         refreshSetups();
         refreshComponents();
         refreshTask = org.netbeans.modules.versioning.util.Utils.createTask(new RefreshViewTask());
+        refreshContextStatusTask = org.netbeans.modules.versioning.util.Utils.createTask(new RefreshContextStatusTask());
     }
 
     /**
@@ -390,38 +394,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
     }
 
     private void onRefreshButton() {
-/*
-        if (context == null || context.getRoots().size() == 0) {
-            return;
-        }
-
-        if(executeStatusSupport!=null) {
-            executeStatusSupport.cancel();
-            executeStatusSupport = null;
-        }
-        
-        LifecycleManager.getDefault().saveAll();
-        RequestProcessor rp = Subversion.getInstance().getRequestProcessor();
-        executeStatusSupport = new SvnProgressSupport() {
-            public void perform() {                                                
-                StatusAction.executeStatus(context, this);
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        refreshSetups();
-                    }
-                    
-                });
-            }
-        };
-        SVNUrl url;
-        try {
-            url = ContextAction.getSvnUrl(context); 
-        } catch(SVNClientException ex)  {
-            SvnClientExceptionHandler.notifyException(ex, true, true);     
-            return;             
-        }
-        executeStatusSupport.start(rp, url, NbBundle.getMessage(MultiDiffPanel.class, "MSG_Refresh_Progress"));
-*/
+        refreshContextStatusTask.schedule(0);
     }                    
 
     private void onUpdateButton() {
@@ -689,6 +662,18 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
                     refreshSetups();
                 }
             });
+        }
+    }
+
+    private class RefreshContextStatusTask implements Runnable {
+        public void run() {
+            ProgressHandle ph = ProgressHandleFactory.createHandle("Refreshing Status...");
+            try {
+                ph.start();
+                Clearcase.getInstance().getFileStatusCache().refreshRecursively(context);
+            } finally {
+                ph.finish();
+            }
         }
     }
     
