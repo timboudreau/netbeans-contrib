@@ -160,14 +160,13 @@ public class FileEntry { // XXX rename me! vole!
     }
     
     @Override
-    public String toString() { // XXX all fields if it please you!
+    public String toString() { 
         if(stringValue == null) {
             StringBuffer sb = new StringBuffer();
             sb.append("[");        
             sb.append(file.getAbsolutePath());
             sb.append(",");
             sb.append(type);
-            sb.append(",");
             if(version != null) {
                 sb.append(",");
                 sb.append(version.getPath());
@@ -179,12 +178,16 @@ public class FileEntry { // XXX rename me! vole!
                 sb.append(originVersion.getPath());
                 sb.append(File.pathSeparator);
                 sb.append(originVersion.getVersionNumber());
-            }                        
-            if(reserved) {
-                sb.append(",reserved");
-            }            
+            }               
+            sb.append(",");
+            sb.append(annotation);
+            sb.append(",");
+            sb.append(reserved ? ",reserved" : ",unreserved");            
+            sb.append(",");
+            sb.append(user);            
             sb.append("]");        
             stringValue = sb.toString();
+            
         }
         return stringValue;
     }
