@@ -103,7 +103,8 @@ is divided into following sections:
                 <property file="nbproject/private/config.properties"/>
                 <property file="nbproject/private/configs/${{config}}.properties"/>
                 <property file="nbproject/private/private.properties"/>
-                <condition property="scala.home" value="${env.SCALA_HOME}">
+                <property environment="env"/>
+                <condition property="scala.home" value="${{env.SCALA_HOME}}">
                     <isset property="env.SCALA_HOME"/>
                 </condition>
 <fail unless="scala.home">

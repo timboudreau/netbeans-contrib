@@ -38,41 +38,23 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.websvc.axis2.config.model.impl;
+package org.netbeans.modules.websvc.axis2.config.model;
 
-import org.netbeans.modules.xml.xam.dom.Attribute;
-
-public enum Axis2Attributes implements Attribute {
-    attrName("name"), //NOI18N
-    attrTargetNamespace("targetNamespace"), //NOI18N
-    attrSchemaNamespace("schemaNamespace"), //NOI18N
-    attrSEI("sei"), //NOI18N
-    attrDatabindingName("databindingName"), //NOI18N
-    attrPackageName("packageName"), //NOI18N
-    attrServiceName("serviceName"), //NOI18N
-    attrPortName("portName"); //NOI18N
-
-    private String name;
-    private Class type;
+public interface JavaGenerator extends Axis2Component {
     
-    Axis2Attributes(String name) {
-        this(name, String.class);
-    }
+    boolean isSEIAttr();
+    void setSEIAttr(boolean sei);
     
-    Axis2Attributes(String name, Class type) {
-        this.name = name;
-        this.type = type;
-    }
+    String getPackageNameAttr();
+    void setPackageNameAttr(String packageName);
     
-    public Class getType() {
-        return type;
-    }
+    String getDatabindingNameAttr();
+    void setDatabindingNameAttr(String databindingName);
 
-    public String getName() {
-        return name;
-    }
+    String getServiceNameAttr();
+    void setServiceNameAttr(String serviceName);
 
-    public Class getMemberType() {
-        return null;
-    }
+    String getPortNameAttr();
+    void setPortNameAttr(String portName);
+    
 }

@@ -38,41 +38,90 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.websvc.axis2.config.model.impl;
 
-import org.netbeans.modules.xml.xam.dom.Attribute;
+package org.netbeans.modules.websvc.axis2.wizards;
 
-public enum Axis2Attributes implements Attribute {
-    attrName("name"), //NOI18N
-    attrTargetNamespace("targetNamespace"), //NOI18N
-    attrSchemaNamespace("schemaNamespace"), //NOI18N
-    attrSEI("sei"), //NOI18N
-    attrDatabindingName("databindingName"), //NOI18N
-    attrPackageName("packageName"), //NOI18N
-    attrServiceName("serviceName"), //NOI18N
-    attrPortName("portName"); //NOI18N
+import java.awt.Component;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import org.netbeans.api.project.Project;
 
-    private String name;
-    private Class type;
+import org.openide.WizardDescriptor;
+import org.openide.util.HelpCtx;
+
+/**
+ *
+ * @author mkuchtiak
+ */
+public class WsFromWsdlPanel0 implements  WizardDescriptor.FinishablePanel<WizardDescriptor>, WizardProperties {
+
+    private WsFromWsdlGUIPanel0 component;
+    private WizardDescriptor wizardDescriptor;
+    private Project project;
     
-    Axis2Attributes(String name) {
-        this(name, String.class);
-    }
-    
-    Axis2Attributes(String name, Class type) {
-        this.name = name;
-        this.type = type;
-    }
-    
-    public Class getType() {
-        return type;
+    /** Creates a new instance of WebServiceType */
+    public WsFromWsdlPanel0(Project project, WizardDescriptor wizardDescriptor) {
+        this.project = project;
+        this.wizardDescriptor = wizardDescriptor;
     }
 
-    public String getName() {
-        return name;
+    public Component getComponent() {
+        if (component == null) {
+            component = new WsFromWsdlGUIPanel0(this);
+        }
+        
+        return component;
+    }
+    
+    Project getProject() {
+        return project;
     }
 
-    public Class getMemberType() {
-        return null;
+    public HelpCtx getHelp() {
+        return new HelpCtx(WsFromJavaPanel0.class);
     }
+
+    public void readSettings(WizardDescriptor settings) {
+    }
+
+    public void storeSettings(WizardDescriptor settings) {
+    }
+
+    public boolean isValid() {
+        return component.dataIsValid();
+    }
+
+    private final Set<ChangeListener> listeners = new HashSet<ChangeListener>(1);
+    
+    public void addChangeListener(ChangeListener l) {
+        synchronized (listeners) {
+            listeners.add(l);
+        }
+    }
+
+    public void removeChangeListener(ChangeListener l) {
+        synchronized (listeners) {
+            listeners.remove(l);
+        }
+    }
+
+    public boolean isFinishPanel() {
+        return false;
+    }
+
+//    public void stateChanged(ChangeEvent e) {
+//        fireChange();
+//    }
+    
+    void fireChange() {
+        ChangeEvent e = new ChangeEvent(this);
+        Iterator<ChangeListener> it = listeners.iterator();
+        while (it.hasNext()) {
+            it.next().stateChanged(e);
+        }
+    }
+
 }
