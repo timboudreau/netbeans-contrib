@@ -42,77 +42,72 @@ package org.netbeans.modules.websvc.axis2.config.model.impl;
 
 import org.netbeans.modules.websvc.axis2.config.model.Axis2QNames;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Visitor;
-import org.netbeans.modules.websvc.axis2.config.model.GenerateWsdl;
 import org.netbeans.modules.websvc.axis2.config.model.JavaGenerator;
-import org.netbeans.modules.websvc.axis2.config.model.Service;
 import org.w3c.dom.Element;
 
-public class ServiceImpl extends Axis2ComponentImpl implements Service {
+public class JavaGeneratorImpl extends Axis2ComponentImpl implements JavaGenerator {
     
-    private static String NAME_ATTR_PROP = Axis2Attributes.attrName.getName();
+    private static String SERVICE_NAME_ATTR_PROP = Axis2Attributes.attrServiceName.getName();
+    private static String PORT_NAME_ATTR_PROP = Axis2Attributes.attrPortName.getName();
+    private static String DATABINDING_NAME_ATTR_PROP = Axis2Attributes.attrDatabindingName.getName();
+    private static String PACKAGE_NAME_ATTR_PROP = Axis2Attributes.attrPackageName.getName();
+    private static String SEI_ATTR_PROP = Axis2Attributes.attrSEI.getName();
     
-    public ServiceImpl(Axis2ModelImpl model, Element e) {
+    public JavaGeneratorImpl(Axis2ModelImpl model, Element e) {
         super(model, e);
     }
     
-    public ServiceImpl(Axis2ModelImpl model) {
-        this(model, createElementNS(model, Axis2QNames.SERVICE));
+    public JavaGeneratorImpl(Axis2ModelImpl model) {
+        this(model, createElementNS(model, Axis2QNames.JAVA_GENERATOR));
     }
     
     public void accept(Axis2Visitor visitor) {
         visitor.visit(this);
     }
 
-    public String getServiceClass() {
-        return getChildElementText(Axis2QNames.SERVICE_CLASS.getQName());
+    public String getPackageNameAttr() {
+        return getAttribute(Axis2Attributes.attrPackageName);
     }
 
-    public void setServiceClass(String serviceClass) {
-        setChildElementText(SERVICE_CLASS_PROP, serviceClass, Axis2QNames.SERVICE_CLASS.getQName());
+    public void setPackageNameAttr(String packageName) {
+        super.setAttribute(PACKAGE_NAME_ATTR_PROP, Axis2Attributes.attrPackageName, packageName);
     }
 
-    public GenerateWsdl getGenerateWsdl() {
-        return super.getChild(GenerateWsdl.class);
+    public String getDatabindingNameAttr() {
+        return getAttribute(Axis2Attributes.attrDatabindingName);
     }
 
-    public void setGenerateWsdl(GenerateWsdl value) {
-        GenerateWsdl child = super.getChild(GenerateWsdl.class);
-        if (child != null) {
-            super.removeChild(GENERATE_WSDL_PROP, child);
+    public void setDatabindingNameAttr(String databindingName) {
+        super.setAttribute(DATABINDING_NAME_ATTR_PROP, Axis2Attributes.attrDatabindingName, databindingName);
+    }
+    
+    public boolean isSEIAttr() {
+        String sei = getAttribute(Axis2Attributes.attrName);
+        return (sei != null && "true".equals(sei) ? true:false);
+    }
+
+    public void setSEIAttr(boolean sei) {
+        if (sei) {
+            super.setAttribute(SEI_ATTR_PROP, Axis2Attributes.attrSEI, "true");
+        } else {
+            super.setAttribute(SEI_ATTR_PROP, Axis2Attributes.attrSEI, null);
         }
-        if (value != null) {
-            appendChild(GENERATE_WSDL_PROP, value);
-        }
     }
 
-    public String getNameAttr() {
-        return getAttribute(Axis2Attributes.attrName);
+    public String getServiceNameAttr() {
+        return getAttribute(Axis2Attributes.attrServiceName);
     }
 
-    public void setNameAttr(String name) {
-        super.setAttribute(NAME_ATTR_PROP, Axis2Attributes.attrName, name);
+    public void setServiceNameAttr(String serviceName) {
+        super.setAttribute(SERVICE_NAME_ATTR_PROP, Axis2Attributes.attrServiceName, serviceName);
+    }
+    
+    public String getPortNameAttr() {
+        return getAttribute(Axis2Attributes.attrPortName);
     }
 
-    public String getServiceUrl() {
-        return getChildElementText(Axis2QNames.SERVICE_URL.getQName());
-    }
-
-    public void setServiceUrl(String serviceUrl) {
-        setChildElementText(SERVICE_URL_PROP, serviceUrl, Axis2QNames.SERVICE_URL.getQName());
-    }
-
-    public JavaGenerator getJavaGenerator() {
-        return super.getChild(JavaGenerator.class);
-    }
-
-    public void setJavaGenerator(JavaGenerator javaGenerator) {
-        JavaGenerator child = super.getChild(JavaGenerator.class);
-        if (child != null) {
-            super.removeChild(JAVA_GENERATOR_PROP, child);
-        }
-        if (javaGenerator != null) {
-            appendChild(JAVA_GENERATOR_PROP, javaGenerator);
-        }
+    public void setPortNameAttr(String portName) {
+        super.setAttribute(PORT_NAME_ATTR_PROP, Axis2Attributes.attrPortName, portName);
     }
     
 }

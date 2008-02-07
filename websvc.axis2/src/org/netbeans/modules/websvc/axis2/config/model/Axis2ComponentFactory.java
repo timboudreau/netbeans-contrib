@@ -46,4 +46,5 @@ public interface Axis2ComponentFactory {
     Axis2Component create(Element element, Axis2Component context);    
     Service createService();
     GenerateWsdl createGenerateWsdl();
+    JavaGenerator createJavaGenerator();
 }

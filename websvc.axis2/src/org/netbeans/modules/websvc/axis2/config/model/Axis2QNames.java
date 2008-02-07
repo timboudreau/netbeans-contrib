@@ -49,6 +49,8 @@ public enum Axis2QNames {
     AXIS2("axis2"), //NOI18N
     SERVICE("service"), //NOI18N
     SERVICE_CLASS("service-class"), //NOI18N
+    SERVICE_URL("service-url"), //NOI18N
+    JAVA_GENERATOR("java-generator"), //NOI18N
     GENERATE_WSDL("generate-wsdl"); //NOI18N
 
     public static final String AXIS2_NS = "http://www.netbeans.org/ns/axis2/1";
