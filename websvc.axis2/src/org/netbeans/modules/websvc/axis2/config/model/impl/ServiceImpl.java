@@ -43,6 +43,7 @@ package org.netbeans.modules.websvc.axis2.config.model.impl;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2QNames;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Visitor;
 import org.netbeans.modules.websvc.axis2.config.model.GenerateWsdl;
+import org.netbeans.modules.websvc.axis2.config.model.JavaGenerator;
 import org.netbeans.modules.websvc.axis2.config.model.Service;
 import org.w3c.dom.Element;
 
@@ -66,8 +67,8 @@ public class ServiceImpl extends Axis2ComponentImpl implements Service {
         return getChildElementText(Axis2QNames.SERVICE_CLASS.getQName());
     }
 
-    public void setServiceClass(String descriptionsid) {
-        setChildElementText(SERVICE_CLASS_PROP, descriptionsid, Axis2QNames.SERVICE_CLASS.getQName());
+    public void setServiceClass(String serviceClass) {
+        setChildElementText(SERVICE_CLASS_PROP, serviceClass, Axis2QNames.SERVICE_CLASS.getQName());
     }
 
     public GenerateWsdl getGenerateWsdl() {
@@ -90,6 +91,28 @@ public class ServiceImpl extends Axis2ComponentImpl implements Service {
 
     public void setNameAttr(String name) {
         super.setAttribute(NAME_ATTR_PROP, Axis2Attributes.attrName, name);
+    }
+
+    public String getServiceUrl() {
+        return getChildElementText(Axis2QNames.SERVICE_URL.getQName());
+    }
+
+    public void setServiceUrl(String serviceUrl) {
+        setChildElementText(SERVICE_URL_PROP, serviceUrl, Axis2QNames.SERVICE_URL.getQName());
+    }
+
+    public JavaGenerator getJavaGenerator() {
+        return super.getChild(JavaGenerator.class);
+    }
+
+    public void setJavaGenerator(JavaGenerator javaGenerator) {
+        JavaGenerator child = super.getChild(JavaGenerator.class);
+        if (child != null) {
+            super.removeChild(JAVA_GENERATOR_PROP, child);
+        }
+        if (javaGenerator != null) {
+            appendChild(JAVA_GENERATOR_PROP, javaGenerator);
+        }
     }
     
 }

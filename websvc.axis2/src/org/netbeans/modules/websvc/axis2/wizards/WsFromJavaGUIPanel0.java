@@ -113,7 +113,6 @@ public class WsFromJavaGUIPanel0 extends javax.swing.JPanel implements ItemListe
         jRadioButton2.setText(org.openide.util.NbBundle.getMessage(WsFromJavaGUIPanel0.class, "WsFromJavaGUIPanel0.jRadioButton2.text")); // NOI18N
 
         jTextField1.setEditable(false);
-        jTextField1.setText(org.openide.util.NbBundle.getMessage(WsFromJavaGUIPanel0.class, "WsFromJavaGUIPanel0.jTextField1.text")); // NOI18N
 
         jButton1.setText(org.openide.util.NbBundle.getMessage(WsFromJavaGUIPanel0.class, "WsFromJavaGUIPanel0.jButton1.text")); // NOI18N
         jButton1.setEnabled(false);
@@ -154,14 +153,14 @@ public class WsFromJavaGUIPanel0 extends javax.swing.JPanel implements ItemListe
                                 .add(21, 21, 21)
                                 .add(jLabel3))
                             .add(jCheckBox2))
-                        .addContainerGap(144, Short.MAX_VALUE))
+                        .addContainerGap(148, Short.MAX_VALUE))
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(layout.createSequentialGroup()
                                 .add(21, 21, 21)
                                 .add(jLabel2))
                             .add(jCheckBox1))
-                        .addContainerGap(160, Short.MAX_VALUE))))
+                        .addContainerGap(164, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
