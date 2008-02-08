@@ -46,10 +46,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openide.util.Exceptions;
@@ -221,15 +218,19 @@ public class CleartoolMockup extends Process implements Runnable {
                 i++; // skip the next arg
                 continue;
             } else {
-                files.add(new File(arg));
+                files.add(new File(curPath + File.separator + arg));
             }
         }
         for (File file : files) {
-            // FileEntry fe = getFileEntry(file);
+            FileEntry fe = Repository.getInstance().getEntry(file);
             
-//            if(fe == null) {
-//                // ???
-//            }
+            if(fe == null) {
+                LOG.warning("No entry for to be checkedin file " + file);
+                continue;
+            }
+            
+            FileEntry newFe = new FileEntry(fe.getFile(), false, false, fe.getVersion() + 1);
+            Repository.getInstance().addEntry(newFe);
         }
 
     }
