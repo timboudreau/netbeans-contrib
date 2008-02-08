@@ -172,7 +172,6 @@ public class ClearcaseClient {
             ph.start();
             try {
                 ensureCleartool();
-                ph.progress(1);
                 for (ClearcaseCommand command : eu) {
                     if (canceled) break;
                     try {
