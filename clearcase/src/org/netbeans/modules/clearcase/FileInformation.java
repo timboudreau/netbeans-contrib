@@ -132,7 +132,8 @@ public class FileInformation implements Serializable {
     /** Is versioned by CC */
     public static final int STATUS_VERSIONED = 
             FileInformation.STATUS_VERSIONED_UPTODATE |
-            FileInformation.STATUS_VERSIONED_CHECKEDOUT |            
+            FileInformation.STATUS_VERSIONED_CHECKEDOUT |  
+            FileInformation.STATUS_UNRESERVED |            
             FileInformation.STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED |            
             FileInformation.STATUS_VERSIONED_LOADED_BUT_MISSING |            
             FileInformation.STATUS_VERSIONED_HIJACKED;
@@ -140,13 +141,15 @@ public class FileInformation implements Serializable {
     public static final int STATUS_LOCAL_CHANGE =
             FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY | 
             FileInformation.STATUS_VERSIONED_CHECKEDOUT |            
+            FileInformation.STATUS_UNRESERVED |            
             FileInformation.STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED |            
             FileInformation.STATUS_VERSIONED_LOADED_BUT_MISSING |            
             FileInformation.STATUS_VERSIONED_HIJACKED |
             FileInformation.STATUS_NOTVERSIONED_ECLIPSED;
     
     public static final int STATUS_DIFFABLE = 
-            FileInformation.STATUS_VERSIONED_CHECKEDOUT |            
+            FileInformation.STATUS_VERSIONED_CHECKEDOUT |  
+            FileInformation.STATUS_UNRESERVED |            
             FileInformation.STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED |            
             FileInformation.STATUS_VERSIONED_LOADED_BUT_MISSING |
             FileInformation.STATUS_VERSIONED_HIJACKED | 

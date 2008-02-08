@@ -239,7 +239,7 @@ class Cleartool {
             if (isStreamReady(ctError)) {
                 String line = ctError.readLine();
                 if (line == null) throw new EOFException();
-                Logger.getLogger(Cleartool.class.getName()).finer("Cleartool: ERROR \"" + line + "\"");
+                Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: ERROR \"" + line + "\"");
                 if (line.contains(MAGIC_PROMPT)) break;
                 command.errorText(line);
                 t0 = System.currentTimeMillis();
@@ -290,7 +290,7 @@ class Cleartool {
         while (isStreamReady(ctOutput)) {
             streamRead = true;
             String line = ctOutput.readLine();
-            Logger.getLogger(Cleartool.class.getName()).finer("Cleartool: OUTPUT \"" + line + "\"");
+            Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: OUTPUT \"" + line + "\"");
             listener.outputText(line);
         }
         return streamRead;

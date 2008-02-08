@@ -96,10 +96,6 @@ public class SyncFileNode extends AbstractNode {
         return node.getFile();
     }
 
-    public FileInformation getFileInformation() {
-        return node.getInformation();
-    }
-    
     public String getName() {
         return node.getName();
     }

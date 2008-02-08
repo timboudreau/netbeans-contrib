@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.ArrayList;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
+import org.netbeans.modules.clearcase.FileStatusCache;
 
 /**
  * Represents real or virtual (non-local) file.
@@ -67,8 +68,12 @@ public class FileNode {
         return file.getName();
     }
 
+    /**
+     * Returns the FileInformation for the file. May be null if not cahched yet.
+     * @return
+     */    
     public FileInformation getInformation() {
-        return Clearcase.getInstance().getFileStatusCache().getInfo(file); 
+        return getCachedInfo(file); 
     }
 
     public File getFile() {
@@ -99,4 +104,16 @@ public class FileNode {
         }
         return list.toArray(new Object[list.size()]);
     }
+    
+    // XXX sync with annotator
+    private static FileInformation getCachedInfo(File file) {        
+        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
+        FileInformation info = cache.getCachedInfo(file);
+        if(info == null) {
+            cache.refreshLater(file);
+            info = FileStatusCache.FILE_INFORMATION_UNKNOWN; // XXX HACK!
+        }
+        return info;
+    }
+
 }
