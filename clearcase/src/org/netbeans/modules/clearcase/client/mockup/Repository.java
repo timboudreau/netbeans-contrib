@@ -40,12 +40,10 @@
 package org.netbeans.modules.clearcase.client.mockup;
 
 import java.io.File;
-import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 
 /**
  *
@@ -54,7 +52,6 @@ import java.util.logging.Logger;
 class Repository {
     
     private static Repository instance;    
-    private static final Logger LOG = Logger.getLogger("org.netbeans.modules.clearcase");
     
     private Map<File, Set<FileEntry>> map = new HashMap<File, Set<FileEntry>>();
     
@@ -72,7 +69,7 @@ class Repository {
             entries = new HashSet<FileEntry>();            
             map.put(parent, entries);
         }
-        LOG.fine("Adding: " + fe);
+        CleartoolMockup.LOG.fine("Adding: " + fe);
         entries.remove(fe);
         entries.add(fe);
     }
