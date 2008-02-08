@@ -41,7 +41,6 @@
 package org.netbeans.modules.clearcase.client;
 
 import org.netbeans.modules.clearcase.ClearcaseException;
-import org.netbeans.modules.clearcase.VersionsCache;
 
 import java.io.File;
 
