@@ -42,6 +42,8 @@ package org.netbeans.modules.clearcase.client.mockup;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -49,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.modules.versioning.util.Utils;
 import org.openide.util.Exceptions;
 
 /**
@@ -119,6 +122,8 @@ public class CleartoolMockup extends Process implements Runnable {
              processLSCO(args);            
         } else if(ctCommand.equals("mkelem")) {
              processMkElem(args);            
+        } else if(ctCommand.equals("uncheckout")) {
+             processUNCO(args);            
         } else if (ctCommand.equals("quit")) {
             if(thread != null) {
                 //thread.destroy();
@@ -400,6 +405,37 @@ public class CleartoolMockup extends Process implements Runnable {
             FileEntry fe = new FileEntry(file, !checkin, false, 0);           
             Repository.getInstance().addEntry(fe);
         }            
+    }
+
+    private void processUNCO(String[] args) {
+        boolean keep = false;
+        List<File> files = new ArrayList<File>();
+        for (int i = 1; i < args.length; i++) {
+            String arg = args[i];
+            if(arg.equals("-rm")) {
+                // ignore
+            } else if(arg.equals("-keep")) {
+                keep = true;
+            } else {
+                files.add(new File(curPath + File.separator + arg));
+            }
+        }                
+        for (File file : files) {
+            FileEntry fe = Repository.getInstance().getEntry(file);
+            if(fe == null) {
+                LOG.warning("No entry for to be checkedout file " + file);
+                continue;
+            }
+            FileEntry newFe = new FileEntry(fe.getFile(), false, false, fe.getVersion());
+            Repository.getInstance().addEntry(newFe);
+            if(keep) {
+                try {
+                    Utils.copyStreamsCloseAll(new FileOutputStream(new File(file.getAbsolutePath() + ".keep")), new FileInputStream(file));
+                } catch (IOException ex) {
+                    CleartoolMockup.LOG.log(Level.WARNING, null, ex);
+                } 
+            }
+        }
     }
 
 }
