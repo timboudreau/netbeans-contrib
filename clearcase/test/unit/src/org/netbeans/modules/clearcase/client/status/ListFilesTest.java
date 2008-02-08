@@ -188,7 +188,7 @@ public class ListFilesTest extends TestCase {
         DummyCleartool ct = new DummyCleartool(executor);
 
         ListFiles lf = new ListFiles(new File(""), false);
-        for (ClearcaseCommand c : lf.getCommands()) {
+        for (ClearcaseCommand c : lf) {
             ct.exec(c);
         }
 
