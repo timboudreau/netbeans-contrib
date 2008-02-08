@@ -109,15 +109,16 @@ public class CleartoolMockup extends Process implements Runnable {
         
         if(ctCommand.equals("ls")) {
              processLS(args);            
-            //inputStream.setDelegate(new ByteArrayInputStream("\n".getBytes()));            
         } else if (ctCommand.equals("cd")) {
             processCD(args);    
         } else if(ctCommand.equals("checkin")) {
              processCI(args);            
-            //inputStream.setDelegate(new ByteArrayInputStream("\n".getBytes()));            
+        } else if(ctCommand.equals("checkout")) {
+             processCO(args);            
+        } else if(ctCommand.equals("lsco")) {
+             processLSCO(args);            
         } else if(ctCommand.equals("mkelem")) {
              processMkElem(args);            
-            //inputStream.setDelegate(new ByteArrayInputStream("\n".getBytes()));            
         } else if (ctCommand.equals("quit")) {
             if(thread != null) {
                 //thread.destroy();
@@ -223,16 +224,46 @@ public class CleartoolMockup extends Process implements Runnable {
         }
         for (File file : files) {
             FileEntry fe = Repository.getInstance().getEntry(file);
-            
             if(fe == null) {
                 LOG.warning("No entry for to be checkedin file " + file);
                 continue;
             }
-            
             FileEntry newFe = new FileEntry(fe.getFile(), false, false, fe.getVersion() + 1);
             Repository.getInstance().addEntry(newFe);
         }
+    }
 
+    private void processCO(String[] args) {
+        List<File> files = new ArrayList<File>();
+        boolean reserved = true;
+        for (int i = 1; i < args.length; i++) {
+            String arg = args[i];
+            if(arg.equals("-ptime") || 
+               arg.equals("-nquery") ||
+               arg.equals("-ncomment")) 
+            {
+                // ignore
+            } else if(arg.equals("-cfile") || arg.equals("-comment")) {
+                i++; // skip the next arg
+                continue;
+            } else if(arg.equals("-reserved")) {
+                reserved = true;
+            } else if(arg.equals("-unreserved")) {
+                reserved = false;
+            } else {
+                files.add(new File(curPath + File.separator + arg));
+            }
+        }
+        for (File file : files) {
+            FileEntry fe = Repository.getInstance().getEntry(file);
+            if(fe == null) {
+                LOG.warning("No entry for to be checkedout file " + file);
+                continue;
+            }
+            FileEntry newFe = new FileEntry(fe.getFile(), true, reserved, fe.getVersion());
+            Repository.getInstance().addEntry(newFe);
+        }
+                
     }
 
     private void processLS(String[] args) {
@@ -289,6 +320,60 @@ public class CleartoolMockup extends Process implements Runnable {
                 }                
             }            
         }               
+    }
+
+    private void processLSCO(String[] args) {
+        boolean directory = false;
+        File file = null;
+        for (int i = 1; i < args.length; i++) {
+            String arg = args[i];
+            if(arg.startsWith("-d")) {
+                directory = true;
+            } else if (arg.equals("-fmt") || arg.equals("-me") || arg.equals("-cview")) {
+                i++;
+                continue;
+            } else {
+                file = new File(arg);
+            }
+        }
+
+        if(!file.getAbsolutePath().startsWith(VOB_PATH)) {
+            errorStream.setDelegate(new ByteArrayInputStream(("cleartool: Error: Pathname is not within a VOB: \"" + file.getAbsolutePath() + "\"\n").getBytes()));    
+        } else {
+            if(!file.exists()) {
+                FileEntry entry = Repository.getInstance().getEntry(file);
+                if(entry == null) {
+                    inputStream.setDelegate(new ByteArrayInputStream(("\n").getBytes()));    
+                } 
+            } else {
+                StringBuffer sb = new StringBuffer();
+                FileEntry dirfe = Repository.getInstance().getEntry(file);
+                if(dirfe != null && dirfe.isCheckedout()) {
+                    sb.append(file.getAbsolutePath());
+                    sb.append("<~=~>amigo<~=~>");
+                    sb.append(dirfe.isReserved() ? "reserved\n" : "unreserved\n");    
+                }
+                
+                if(!directory && file.isDirectory()) {                    
+                    File[] files = file.listFiles();
+                    if(files != null) {
+                        for (File f : files) {
+                            FileEntry fe = Repository.getInstance().getEntry(f);
+                            if(fe != null && fe.isCheckedout()) {
+                                sb.append(f.getAbsolutePath());
+                                sb.append("<~=~>amigo<~=~>");
+                                sb.append(fe.isReserved() ? "reserved\n" : "unreserved\n");
+                            }   
+                        }
+                    }                    
+                }                
+                if(sb.length() > 0) {
+                    inputStream.setDelegate(new ByteArrayInputStream(sb.toString().getBytes()));            
+                } else {
+                    inputStream.setDelegate(new ByteArrayInputStream("\n".getBytes()));    
+                }                
+            }            
+        }
     }
 
     private void processMkElem(String[] args) {

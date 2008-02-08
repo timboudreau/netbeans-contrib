@@ -106,6 +106,8 @@ class FileEntry {
         sb.append(",");
         sb.append(checkedout ? "checkedout" : "uptodate");
         sb.append(",");
+        sb.append(reserved ? "reserved" : "unreserved");
+        sb.append(",");
         sb.append(version);
         sb.append("]");
         return sb.toString();
