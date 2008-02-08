@@ -74,14 +74,15 @@ public class CleartoolMockup extends Process implements Runnable {
     private Thread thread;
     
     static final Logger LOG = Logger.getLogger("org.netbeans.modules.clearcase");
-    private static String VOB_PATH = "/tmp/vob/";
+    private final String vobRoot;
     
     private String curPath = null;
     
-    public CleartoolMockup() {
+    public CleartoolMockup(String vobRoot) {
         outputStream = new ByteArrayOutputStream(200);            
         inputStream = new DelegateInputStream();        
         errorStream = new DelegateInputStream();
+        this.vobRoot = vobRoot;
     }
     
     public void start() {
@@ -283,7 +284,7 @@ public class CleartoolMockup extends Process implements Runnable {
             }
         }
 
-        if(!file.getAbsolutePath().startsWith(VOB_PATH)) {
+        if(!file.getAbsolutePath().startsWith(vobRoot)) {
             errorStream.setDelegate(new ByteArrayInputStream(("cleartool: Error: Pathname is not within a VOB: \"" + file.getAbsolutePath() + "\"\n").getBytes()));    
         } else {
             if(!file.exists()) {
@@ -346,7 +347,7 @@ public class CleartoolMockup extends Process implements Runnable {
             }
         }
 
-        if(!file.getAbsolutePath().startsWith(VOB_PATH)) {
+        if(!file.getAbsolutePath().startsWith(vobRoot)) {
             errorStream.setDelegate(new ByteArrayInputStream(("cleartool: Error: Pathname is not within a VOB: \"" + file.getAbsolutePath() + "\"\n").getBytes()));    
         } else {
             if(!file.exists()) {
