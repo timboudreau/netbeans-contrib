@@ -75,6 +75,30 @@ class FileEntry {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final FileEntry other = (FileEntry) obj;
+        if (this.file != other.file && (this.file == null || !this.file.equals(other.file))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 83 * hash + (this.file != null ? this.file.hashCode() : 0);
+        return hash;
+    }
+
+    
+    
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("[");

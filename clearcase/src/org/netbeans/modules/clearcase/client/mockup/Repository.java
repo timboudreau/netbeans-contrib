@@ -73,6 +73,7 @@ class Repository {
             map.put(parent, entries);
         }
         LOG.fine("Adding: " + fe);
+        entries.remove(fe);
         entries.add(fe);
     }
 
