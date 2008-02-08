@@ -87,5 +87,14 @@ class Repository {
         }
         return null;
     }
-    
+
+    void removeEntry(File file) {
+        File parent = file.getParentFile();
+        Set<FileEntry> entries = map.get(parent);
+        if(entries == null) {
+            return;
+        }
+        FileEntry fe = new FileEntry(file, false, false, 0);
+        entries.remove(fe);
+    }    
 }

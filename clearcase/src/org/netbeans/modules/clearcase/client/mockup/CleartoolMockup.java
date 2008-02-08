@@ -124,6 +124,8 @@ public class CleartoolMockup extends Process implements Runnable {
              processMkElem(args);            
         } else if(ctCommand.equals("uncheckout")) {
              processUNCO(args);            
+        } else if(ctCommand.equals("rm")) {
+             processRM(args);            
         } else if (ctCommand.equals("quit")) {
             if(thread != null) {
                 //thread.destroy();
@@ -296,37 +298,41 @@ public class CleartoolMockup extends Process implements Runnable {
                 }                
             } else {
                 if(!directory && file.isDirectory()) {
-                    File[] files = file.listFiles();
-                    StringBuffer sb = new StringBuffer();
+                    File[] files = file.listFiles();                    
                     if(files == null) {
                         inputStream.setDelegate(new ByteArrayInputStream(("\n").getBytes()));    
                     } else {
-                        for (File f : files) {
-                            FileEntry fe = Repository.getInstance().getEntry(f);
-                            if(fe == null) {
-                                sb.append("view private object    ");
-                                sb.append(f.getAbsolutePath());
-                                sb.append('\n');    
-                            } else {                                
-                                sb.append("version                ");
-                                sb.append(f.getAbsolutePath());
-                                sb.append("@@");
-                                sb.append(fe.isCheckedout() ? "/main/CHECKEDOUT from /main/" : "/main/");
-                                sb.append(fe.getVersion());
-                                sb.append("                     Rule: element * /main/LATEST");                                
-                                sb.append('\n');    
-                            }                            
-                            inputStream.setDelegate(new ByteArrayInputStream(sb.toString().getBytes()));        
+                        for (File f : files) {                                                        
+                            inputStream.setDelegate(new ByteArrayInputStream(lsFile(f).toString().getBytes()));        
                         }
                         
                     }                    
                 } else {
-                    inputStream.setDelegate(new ByteArrayInputStream(("view private object    " + file.getAbsolutePath() + "\n").getBytes()));    
+                    inputStream.setDelegate(new ByteArrayInputStream(lsFile(file).toString().getBytes()));    
                 }                
             }            
         }               
     }
 
+    private StringBuffer lsFile(File file) {
+        StringBuffer sb = new StringBuffer();
+        FileEntry fe = Repository.getInstance().getEntry(file);
+        if(fe == null) {
+            sb.append("view private object    ");
+            sb.append(file.getAbsolutePath());
+            sb.append('\n');    
+        } else {                                
+            sb.append("version                ");
+            sb.append(file.getAbsolutePath());
+            sb.append("@@");
+            sb.append(fe.isCheckedout() ? "/main/CHECKEDOUT from /main/" : "/main/");
+            sb.append(fe.getVersion());
+            sb.append("                     Rule: element * /main/LATEST");                                
+            sb.append('\n');    
+        }
+        return sb;
+    }
+    
     private void processLSCO(String[] args) {
         boolean directory = false;
         File file = null;
@@ -352,23 +358,13 @@ public class CleartoolMockup extends Process implements Runnable {
                 } 
             } else {
                 StringBuffer sb = new StringBuffer();
-                FileEntry dirfe = Repository.getInstance().getEntry(file);
-                if(dirfe != null && dirfe.isCheckedout()) {
-                    sb.append(file.getAbsolutePath());
-                    sb.append("<~=~>amigo<~=~>");
-                    sb.append(dirfe.isReserved() ? "reserved\n" : "unreserved\n");    
-                }
+                sb.append(lscoFile(file));
                 
                 if(!directory && file.isDirectory()) {                    
                     File[] files = file.listFiles();
                     if(files != null) {
                         for (File f : files) {
-                            FileEntry fe = Repository.getInstance().getEntry(f);
-                            if(fe != null && fe.isCheckedout()) {
-                                sb.append(f.getAbsolutePath());
-                                sb.append("<~=~>amigo<~=~>");
-                                sb.append(fe.isReserved() ? "reserved\n" : "unreserved\n");
-                            }   
+                            sb.append(lscoFile(f));                               
                         }
                     }                    
                 }                
@@ -381,6 +377,17 @@ public class CleartoolMockup extends Process implements Runnable {
         }
     }
 
+    private StringBuffer lscoFile(File file) {
+        StringBuffer sb = new StringBuffer();
+        FileEntry fe = Repository.getInstance().getEntry(file);
+        if(fe != null && fe.isCheckedout()) {
+            sb.append(file.getAbsolutePath());
+            sb.append("<~=~>amigo<~=~>");
+            sb.append(fe.isReserved() ? "reserved\n" : "unreserved\n");    
+        }
+        return sb;
+    }
+    
     private void processMkElem(String[] args) {
         boolean checkin = false;
         List<File> files = new ArrayList<File>();
@@ -405,6 +412,21 @@ public class CleartoolMockup extends Process implements Runnable {
             FileEntry fe = new FileEntry(file, !checkin, false, 0);           
             Repository.getInstance().addEntry(fe);
         }            
+    }
+
+    private void processRM(String[] args) {
+        List<File> files = new ArrayList<File>();
+        for (int i = 1; i < args.length; i++) {
+            String arg = args[i];
+            if(arg.equals("-forec")) {
+                // ignore
+            } else {
+                files.add(new File(curPath + File.separator + arg));
+            }
+        }                
+        for (File file : files) {
+            Repository.getInstance().removeEntry(file); // XXX is this how its supposd to work, or should we just delete-flag the entry 
+        }
     }
 
     private void processUNCO(String[] args) {
