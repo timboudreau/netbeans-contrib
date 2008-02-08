@@ -256,7 +256,7 @@ public class Clearcase {
                 }               
             }            
         } catch (ClearcaseException ex) {
-            Clearcase.LOG.log(Level.WARNING, ex.getMessage());
+            Clearcase.LOG.log(Level.WARNING, null, ex);
         }
         Clearcase.LOG.finest("getTopmostManagedParent no root for " + file);
         return null;       

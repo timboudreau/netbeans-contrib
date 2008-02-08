@@ -45,7 +45,6 @@ import org.netbeans.modules.clearcase.ui.checkout.CheckoutAction;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import org.netbeans.modules.clearcase.client.ClearcaseClient;
 import org.netbeans.modules.clearcase.client.DeleteCommand;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;

@@ -43,8 +43,6 @@ package org.netbeans.modules.clearcase.client;
 import org.netbeans.modules.clearcase.ClearcaseException;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.FileWriter;
 
 /**
  * A checkout command.
