@@ -44,6 +44,7 @@ import org.netbeans.modules.clearcase.ClearcaseException;
 
 import java.util.logging.Logger;
 import java.io.*;
+import org.netbeans.modules.clearcase.client.mockup.CleartoolMockup;
 
 /**
  * Encapsulates Clearcase shell process. 
@@ -71,7 +72,7 @@ class Cleartool {
      */
     public Cleartool() throws IOException {
         Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: Creating cleartool process...");
-        ct = Runtime.getRuntime().exec("cleartool");        
+        ct = createCleartoolProcess();        
         ctOutput = new BufferedReader(new InputStreamReader(ct.getInputStream()));
         ctError = new BufferedReader(new InputStreamReader(ct.getErrorStream()));
         ctInput = new PrintWriter(ct.getOutputStream());
@@ -133,6 +134,26 @@ class Cleartool {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Creates the runtime process with a started cleartool shell or the Cleartool mockup eventually
+     * 
+     * @return
+     * @throws java.io.IOException
+     */
+    private static Process createCleartoolProcess() throws IOException {
+        String mockup = System.getProperty("org.netbeans.modules.clearcase.client.mockup");
+        Process ct;
+        if (mockup == null || mockup.trim().equals("")) {
+            ct = Runtime.getRuntime().exec("cleartool");
+            Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: shell process running");
+        } else {
+            ct = new CleartoolMockup();
+            ((CleartoolMockup) ct).start();
+            Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: mockup process running");    
+        }
+        return ct;
     }
     
     /**
