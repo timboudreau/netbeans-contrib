@@ -540,7 +540,7 @@ public class FileStatusCache {
     
     private RequestProcessor getRequestProcessor() {        
         if(rp == null) {
-           rp = new RequestProcessor("ClearCase - status cache");    
+           rp = new RequestProcessor("ClearCase - FileStatusCache");    
         }        
         return rp;
     }
