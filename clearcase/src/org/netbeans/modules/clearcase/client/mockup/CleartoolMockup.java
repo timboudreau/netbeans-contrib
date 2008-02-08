@@ -95,7 +95,6 @@ public class CleartoolMockup extends Process implements Runnable {
                     Thread.sleep(10);
                 }
                 errorStream.setDelegate(new ByteArrayInputStream("cleartool: Error: Unrecognized command: \"i-am-finished-with-previous-command-sir\"\n".getBytes()));
-                //inputStream.setDelegate(new ByteArrayInputStream("\n".getBytes()));
                 return;
             } catch (InterruptedException ex) {
                 Exceptions.printStackTrace(ex);
@@ -128,6 +127,8 @@ public class CleartoolMockup extends Process implements Runnable {
              processRM(args);            
         } else if(ctCommand.equals("get")) {
              processGET(args);            
+        } else if(ctCommand.equals("mv")) {
+             processMV(args);            
         } else if (ctCommand.equals("quit")) {
             if(thread != null) {
                 //thread.destroy();
@@ -170,10 +171,8 @@ public class CleartoolMockup extends Process implements Runnable {
 
     public void run() {
         try {
-                
             while(true) {
                 try {                
-                                       
                     StringBuffer sb = null;
                     byte[] byteArray = outputStream.toByteArray();
                     boolean done = true;
@@ -182,7 +181,6 @@ public class CleartoolMockup extends Process implements Runnable {
                         if(done) {
                             sb = new StringBuffer(byteArray.length);
                         }
-                        
                         for (byte b : byteArray) {
                             if(b == '\n') {                                   
                                 process(sb.toString());                      
@@ -192,13 +190,9 @@ public class CleartoolMockup extends Process implements Runnable {
                                 sb.append(Character.toChars(b));
                                 done = false;    
                             }                        
-                            
                         }
-                        
                     }
-                    
                     Thread.sleep(10);
-
                 } catch (InterruptedException ex) {
                     break;
                 }
@@ -377,6 +371,27 @@ public class CleartoolMockup extends Process implements Runnable {
         }
         return sb;
     }
+
+    private void processMV(String[] args) {
+        List<File> files = new ArrayList<File>();
+        for (int i = 1; i < args.length; i++) {
+            String arg = args[i];
+            if(arg.equals("-nc")) {
+                // ignore
+            } else {
+                files.add(new File(curPath + File.separator + arg));
+            }
+        }
+        File from = files.get(0);
+        File to = files.get(1);
+        
+        from.renameTo(to);
+        
+        // XXX not sure if this is the way clearcase does. 
+        Repository.getInstance().removeEntry(from);
+        Repository.getInstance().add(to, false);   
+        
+    }
     
     private void processMkElem(String[] args) {
         boolean checkin = false;
@@ -407,7 +422,7 @@ public class CleartoolMockup extends Process implements Runnable {
         List<File> files = new ArrayList<File>();
         for (int i = 1; i < args.length; i++) {
             String arg = args[i];
-            if(arg.equals("-forec")) {
+            if(arg.equals("-force")) {
                 // ignore
             } else {
                 files.add(new File(curPath + File.separator + arg));
