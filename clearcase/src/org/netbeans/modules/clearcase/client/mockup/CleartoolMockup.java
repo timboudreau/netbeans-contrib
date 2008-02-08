@@ -39,16 +39,20 @@
 
 package org.netbeans.modules.clearcase.client.mockup;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.versioning.util.Utils;
@@ -131,6 +135,8 @@ public class CleartoolMockup extends Process implements Runnable {
              processGET(args);            
         } else if(ctCommand.equals("mv")) {
              processMV(args);            
+        } else if(ctCommand.equals("annotate")) {
+             processANNOTATE(args);            
         } else if(ctCommand.equals("lsvtree") ||
                 ctCommand.equals("describe")  ||
                 ctCommand.equals("merge")     ||
@@ -495,6 +501,60 @@ public class CleartoolMockup extends Process implements Runnable {
         }
     }
 
+    private void processANNOTATE(String[] args) {
+        String destination = "";
+        List<File> files = new ArrayList<File>();
+        for (int i = 1; i < args.length; i++) {
+            String arg = args[i];
+            if(arg.equals("-nco") ||
+               arg.equals("-nheader") ||
+               arg.equals("-force")) {
+                // ignore
+            } else if(arg.equals("-out")) {
+                destination = args[++i];
+            } else {
+                files.add(new File(curPath + File.separator + arg));
+            }
+        }
+        File file = files.get(0);
+        BufferedReader br = null;
+        FileWriter fw = null;
+        try {
+            br = new BufferedReader(new FileReader(file));
+            fw = new FileWriter(new File(destination));
+            
+            FileEntry fe = Repository.getInstance().getEntry(file);
+            int max = -1;
+            Random g = null;
+            if(fe != null) {
+                max = (int) fe.getVersion();
+                g = new Random();
+            }
+            
+            String line = null;
+            StringBuffer sb = new StringBuffer();
+            while((line = br.readLine()) != null) {
+                sb.append("####  2008-04-01 vajcak    ");
+                sb.append(File.separator);
+                sb.append("main");
+                sb.append(File.separator);
+                sb.append(g != null ? g.nextInt(max) : 1);
+                sb.append("              | ");
+                sb.append(line);                
+                sb.append('\n');                
+            }            
+            fw.write(sb.substring(0, sb.length() - 1));
+            fw.flush();
+        } catch (IOException ex) {
+            LOG.log(Level.WARNING, null, ex);
+        } finally {
+            if(br != null) try { br.close(); } catch (Exception e) {  }
+            if(fw != null) try { fw.close(); } catch (Exception e) {  }
+        }
+        
+    }
+
+    
     private void processUnsupported(String[] args) {
         NotifyDescriptor nd = new NotifyDescriptor("You are running with the mockup cleartool. Deal with it!", "Hey!", NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE, new Object[]{NotifyDescriptor.OK_OPTION}, null);        
         DialogDisplayer.getDefault().notify(nd);
