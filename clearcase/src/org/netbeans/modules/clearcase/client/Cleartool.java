@@ -71,14 +71,14 @@ class Cleartool {
      */
     public Cleartool() throws IOException {
         Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: Creating cleartool process...");
-        ct = Runtime.getRuntime().exec("cleartool");
+        ct = Runtime.getRuntime().exec("cleartool");        
         ctOutput = new BufferedReader(new InputStreamReader(ct.getInputStream()));
         ctError = new BufferedReader(new InputStreamReader(ct.getErrorStream()));
         ctInput = new PrintWriter(ct.getOutputStream());
         checkReady();
         Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: cleartool process created");
-    }
-
+    }    
+    
     public void setFireAndForget(boolean fireAndForget) {
         this.fireAndForget = fireAndForget;
     }
@@ -87,6 +87,7 @@ class Cleartool {
         ctInput.println(MAGIC_PROMPT);
         ctInput.flush();
         String ret = ctError.readLine();
+        Logger.getLogger(Cleartool.class.getName()).finer("Cleartool: ERROR \"" + ret + "\"");
         if (!ret.contains(MAGIC_PROMPT)) {
             throw new IOException("Invalid cleartool output: " + ret);
         }
@@ -122,7 +123,7 @@ class Cleartool {
             readAll(ctError);
             ctInput.println(MAGIC_PROMPT);
             ctInput.flush();
-            String line = readLine(ctError, 2000);
+            String line = readLine(ctError, 2000);                                    
             if (line == null || !line.contains(MAGIC_PROMPT)) {
                 Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: Process invalid: " + line);
                 return false;
@@ -146,7 +147,9 @@ class Cleartool {
         long t0 = System.currentTimeMillis();
         for (;;) {
             if (isStreamReady(reader)) {
-                return reader.readLine();
+                String line = reader.readLine();
+                Logger.getLogger(Cleartool.class.getName()).finer("Cleartool: LINE \"" + line + "\"");
+                return line;
             }
             if (System.currentTimeMillis() - t0 > timeoutMillis) {
                 Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: Reader timed out");
@@ -215,6 +218,7 @@ class Cleartool {
             if (isStreamReady(ctError)) {
                 String line = ctError.readLine();
                 if (line == null) throw new EOFException();
+                Logger.getLogger(Cleartool.class.getName()).finer("Cleartool: ERROR \"" + line + "\"");
                 if (line.contains(MAGIC_PROMPT)) break;
                 command.errorText(line);
                 t0 = System.currentTimeMillis();
@@ -227,6 +231,7 @@ class Cleartool {
                     // because isValid() method will not read expected response from the error stream (it will instead obtain these, unread, error responses)
                     while (isStreamReady(ctError)) {
                         String line = ctError.readLine();
+                        Logger.getLogger(Cleartool.class.getName()).finer("Cleartool: ERROR \"" + line + "\"");
                         if (line == null) throw new EOFException();
                         if (line.contains(MAGIC_PROMPT)) break;
                     }
@@ -264,6 +269,7 @@ class Cleartool {
         while (isStreamReady(ctOutput)) {
             streamRead = true;
             String line = ctOutput.readLine();
+            Logger.getLogger(Cleartool.class.getName()).finer("Cleartool: OUTPUT \"" + line + "\"");
             listener.outputText(line);
         }
         return streamRead;
