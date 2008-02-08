@@ -52,6 +52,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.versioning.util.Utils;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.util.Exceptions;
 
 /**
@@ -129,6 +131,12 @@ public class CleartoolMockup extends Process implements Runnable {
              processGET(args);            
         } else if(ctCommand.equals("mv")) {
              processMV(args);            
+        } else if(ctCommand.equals("lsvtree") ||
+                ctCommand.equals("describe")  ||
+                ctCommand.equals("merge")     ||
+                ctCommand.equals("lshistory")) 
+        {
+             processUnsupported(args);            
         } else if (ctCommand.equals("quit")) {
             if(thread != null) {
                 //thread.destroy();
@@ -485,6 +493,11 @@ public class CleartoolMockup extends Process implements Runnable {
                 } 
             }
         }
+    }
+
+    private void processUnsupported(String[] args) {
+        NotifyDescriptor nd = new NotifyDescriptor("You are running with the mockup cleartool. Deal with it!", "Hey!", NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE, new Object[]{NotifyDescriptor.OK_OPTION}, null);        
+        DialogDisplayer.getDefault().notify(nd);
     }
 
 }
