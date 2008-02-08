@@ -49,11 +49,11 @@ import org.netbeans.modules.web.api.webmodule.ExtenderController;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.modules.web.api.webmodule.WebFrameworks;
 import org.netbeans.modules.web.spi.webmodule.WebFrameworkProvider;
-import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 
-import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -67,25 +67,26 @@ import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.modules.web.spi.webmodule.WebModuleExtender;
 import org.netbeans.spi.project.ui.templates.support.Templates;
-import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
-import org.netbeans.api.project.Sources;
 import org.netbeans.api.project.libraries.Library;
 import org.netbeans.api.project.libraries.LibraryManager;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.InitParamType;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletInfoType;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletType;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletXMLFactory;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.SupportsType;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.NotifyDescriptor.Message;
 
 import org.openide.WizardDescriptor;
 import org.openide.cookies.OpenCookie;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.*;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
 /** A template wizard iterator for new JSF page action
@@ -203,6 +204,59 @@ public class PageIterator implements TemplateWizard.Iterator {
                         content = content.replace("${portlet_name}", ProjectUtils.getInformation(project).getDisplayName()); // NOI18N
                         FileObject target = FileUtil.createData(webModule.getWebInf(), "portlet.xml"); // NOI18N
                         JsfProjectUtils.createFile(target, content, "UTF-8"); //NOI18N
+                    }else{
+                        //If portlet.xml exists, may be created by PortletSupport framework.
+                        //Check if a JSF portlet entry is there in portlet.xml.
+                        //If yes, then do nothing in portlet.xml
+                        //If no then add an entry for JSF portlet
+                        PortletApp portletApp = getPortletApp(filePortlet);
+                        if(portletApp != null && !isJSFPortletEntryPresent(portletApp))
+                        {
+                            PortletType portletType = portletApp.newPortletType();
+                            portletType.addDescription("Created By Visual Web");
+                            portletType.setPortletName("Visual Web JSF");
+                            portletType.addDisplayName("Visual Web JSF Portlet");
+                            portletType.setPortletClass("com.sun.faces.portlet.FacesPortlet"); //NOI18N
+                            InitParamType initParam = portletType.newInitParamType();
+                            initParam.setDescription(new String[]{"Portlet Init View Page"});
+                            initParam.setName("com.sun.faces.portlet.INIT_VIEW"); //NOI18N
+                            initParam.setValue("/" + targetName + "." + template.getExt()); //NOI18N
+                            
+                            portletType.addInitParam(initParam);
+                            portletType.setExpirationCache(0);
+                            
+                            SupportsType support = portletType.newSupportsType();
+                            support.setMimeType("text/html"); //NOI18N
+                            support.addPortletMode("VIEW");   //NOI18N
+                            
+                            portletType.addSupports(support);
+                            portletType.setSupportedLocale(new String[]{"en"}); //NOI18N
+                            
+                            PortletInfoType portletInfo = portletType.newPortletInfoType();
+                            portletInfo.setTitle(ProjectUtils.getInformation(project).getDisplayName());
+                            portletInfo.setShortTitle(ProjectUtils.getInformation(project).getDisplayName());
+                            
+                            portletType.setPortletInfo(portletInfo);
+                            
+                            //add VisualJSFPortlet page as the first portlet entry in portlet.xml
+                            PortletType[] portletTypes = portletApp.getPortlet();
+                            if (portletTypes.length == 0)
+                                
+                                portletApp.addPortlet(portletType);
+                            
+                            else {
+                                
+                                PortletType firstPortlet = portletApp.getPortlet(0);
+                                portletApp.setPortlet(0, portletType);
+                                portletApp.addPortlet(firstPortlet);
+                                    
+                                
+                            }
+                            
+                            savePortletXML(portletApp, filePortlet);
+    
+                        }
+                        
                     }
 
                     // Add OpenPortal JSF Portlet Bridge Support library
@@ -273,6 +327,60 @@ public class PageIterator implements TemplateWizard.Iterator {
             open.open();
         }
         return result;
+    }
+    
+    private boolean isJSFPortletEntryPresent(PortletApp portletApp)
+    {
+            if (portletApp == null) {
+                return false;
+            }
+            PortletType[] portletTypes = portletApp.getPortlet();
+            for (PortletType portletType : portletTypes) {
+                if (portletType.getPortletClass().equals("com.sun.faces.portlet.FacesPortlet")) { //NOI18N
+                    return true;
+                }
+            }
+        return false;
+    }
+    
+    private PortletApp getPortletApp(File portletXml)
+    {
+        try {
+            if (!portletXml.exists()) {
+                return null;
+            }
+            PortletApp portletApp = PortletXMLFactory.createGraph(portletXml);
+            if (portletApp == null) {
+                return null;
+            }
+            return portletApp;
+            
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+    
+    private void savePortletXML(PortletApp portletApp,File portletXML)
+    {
+        try {
+            FileObject fileObject = FileUtil.toFileObject(portletXML);
+            FileLock lock = fileObject.lock();
+            OutputStream out = fileObject.getOutputStream(lock);
+          
+            portletApp.write(out);
+            try{
+                 out.flush();
+                 out.close();
+            }catch(Exception e){
+                
+            }
+            
+            lock.releaseLock();
+            
+        } catch (IOException ex) {  
+           DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(PageIterator.class, "TXT_CantUpdatePortletXML")));
+        }
+        
     }
 
     public void previousPanel() {
