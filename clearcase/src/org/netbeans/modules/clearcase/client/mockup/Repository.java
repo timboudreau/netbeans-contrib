@@ -40,10 +40,13 @@
 package org.netbeans.modules.clearcase.client.mockup;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.logging.Level;
+import org.netbeans.modules.versioning.util.Utils;
 
 /**
  *
@@ -53,48 +56,97 @@ class Repository {
     
     private static Repository instance;    
     
-    private Map<File, Set<FileEntry>> map = new HashMap<File, Set<FileEntry>>();
-    
+    private Map<File, Map<File, FileEntry>> map = new HashMap<File, Map<File, FileEntry>>();    
+            
     static Repository getInstance() {
         if(instance == null) {
             instance = new Repository();
         }
         return instance;
     }
-    
-    void addEntry(FileEntry fe) {
-        File parent = fe.getFile().getParentFile();
-        Set<FileEntry> entries = map.get(parent);
-        if(entries == null) {
-            entries = new HashSet<FileEntry>();            
-            map.put(parent, entries);
+
+    void add(File file, boolean checkout) {
+        File parent = file.getParentFile();
+        Map<File, FileEntry> entries = map.get(parent);
+        if (entries == null || entries.get(file) == null) {
+            CleartoolMockup.LOG.warning("No entry for to be checkedin file " + file);
         }
-        CleartoolMockup.LOG.fine("Adding: " + fe);
-        entries.remove(fe);
-        entries.add(fe);
+        ci(file);
+        if(checkout) {
+            co(file, true);
+        }
+    }
+    
+    void ci(File file) {
+        try {
+            File parent = file.getParentFile();
+            Map<File, FileEntry> entries = map.get(parent);
+            if (entries == null) {
+                entries = new HashMap<File, FileEntry>();
+                map.put(parent, entries);
+            }
+            FileEntry fe = entries.get(file);
+            if (fe == null) {
+                fe = new FileEntry(file);
+                entries.put(file, fe);
+            }
+            fe.setCheckedout(false);
+            fe.setReserved(false);
+            fe.setVersion(fe.getVersion() + 1);
+            if(file.isFile()) {
+                File data = File.createTempFile("clearcase-", ".data");
+                data.deleteOnExit();
+                fe.getVersions().add(data);
+                Utils.copyStreamsCloseAll(new FileOutputStream(data), new FileInputStream(file));
+            }
+        } catch (IOException ex) {
+            CleartoolMockup.LOG.log(Level.WARNING, null, ex);
+        }
+    }
+
+    void co(File file, boolean reserved) {
+        File parent = file.getParentFile();
+        Map<File, FileEntry> entries = map.get(parent);
+        if(entries == null) {
+            CleartoolMockup.LOG.warning("No entry for to be checkedout file " + file);
+        }
+        FileEntry fe = entries.get(file);
+        if(fe == null) {
+            CleartoolMockup.LOG.warning("No entry for to be checkedout file " + file);
+        }
+        fe.setCheckedout(true);
+        fe.setReserved(reserved);
     }
 
     FileEntry getEntry(File file) {
         File parent = file.getParentFile();
-        Set<FileEntry> entries = map.get(parent);
+        Map<File, FileEntry> entries = map.get(parent);
         if(entries == null) {
             return null;
         }
-        for (FileEntry fileEntry : entries) {
-            if(fileEntry.getFile().equals(file)) {
-                return fileEntry;
-            }
-        }
-        return null;
+        return entries.get(file);        
     }
 
     void removeEntry(File file) {
         File parent = file.getParentFile();
-        Set<FileEntry> entries = map.get(parent);
+        Map<File, FileEntry> entries = map.get(parent);
         if(entries == null) {
             return;
         }
-        FileEntry fe = new FileEntry(file, false, false, 0);
-        entries.remove(fe);
-    }    
+        entries.remove(file);
+    }
+
+    void unco(File file) {
+        File parent = file.getParentFile();
+        Map<File, FileEntry> entries = map.get(parent);
+        if(entries == null) {
+            CleartoolMockup.LOG.warning("No entry for to be uncheckedout file " + file);
+        }
+        FileEntry fe = entries.get(file);
+        if(fe == null) {
+            CleartoolMockup.LOG.warning("No entry for to be uncheckedout file " + file);
+        }
+        fe.setCheckedout(false);
+        fe.setReserved(false);        
+    }
 }

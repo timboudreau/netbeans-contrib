@@ -40,6 +40,8 @@
 package org.netbeans.modules.clearcase.client.mockup;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -47,15 +49,14 @@ import java.io.File;
  */
 class FileEntry {
     private final File file;
-    private final boolean checkedout;
-    private final boolean reserved;
-    private final long version;
-
-    FileEntry(File file, boolean checkedout, boolean reserved, long version) {
-        this.file = file;
-        this.checkedout = checkedout;
-        this.reserved = reserved;
-        this.version = version;
+    private boolean checkedout;
+    private boolean reserved;
+    private long version = -1;    
+    private final List<File> versions;
+            
+    FileEntry(File file) {
+        this.file = file;        
+        versions = new  ArrayList<File>();
     }
 
     boolean isCheckedout() {
@@ -89,6 +90,22 @@ class FileEntry {
         return true;
     }
 
+    public List<File> getVersions() {
+        return versions;
+    }
+
+    public void setCheckedout(boolean checkedout) {
+        this.checkedout = checkedout;
+    }
+
+    public void setReserved(boolean reserved) {
+        this.reserved = reserved;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
     @Override
     public int hashCode() {
         int hash = 3;
@@ -96,8 +113,6 @@ class FileEntry {
         return hash;
     }
 
-    
-    
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();

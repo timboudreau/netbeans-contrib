@@ -82,7 +82,7 @@ public class CleartoolMockup extends Process implements Runnable {
         thread = new Thread(this);
         thread.start();
     }
-    
+
     private void process(String cmd) {         
         LOG.fine("Processing: " + cmd);
         if(cmd == null) {
@@ -126,6 +126,8 @@ public class CleartoolMockup extends Process implements Runnable {
              processUNCO(args);            
         } else if(ctCommand.equals("rm")) {
              processRM(args);            
+        } else if(ctCommand.equals("get")) {
+             processGET(args);            
         } else if (ctCommand.equals("quit")) {
             if(thread != null) {
                 //thread.destroy();
@@ -230,13 +232,7 @@ public class CleartoolMockup extends Process implements Runnable {
             }
         }
         for (File file : files) {
-            FileEntry fe = Repository.getInstance().getEntry(file);
-            if(fe == null) {
-                LOG.warning("No entry for to be checkedin file " + file);
-                continue;
-            }
-            FileEntry newFe = new FileEntry(fe.getFile(), false, false, fe.getVersion() + 1);
-            Repository.getInstance().addEntry(newFe);
+            Repository.getInstance().ci(file);
         }
     }
 
@@ -262,13 +258,7 @@ public class CleartoolMockup extends Process implements Runnable {
             }
         }
         for (File file : files) {
-            FileEntry fe = Repository.getInstance().getEntry(file);
-            if(fe == null) {
-                LOG.warning("No entry for to be checkedout file " + file);
-                continue;
-            }
-            FileEntry newFe = new FileEntry(fe.getFile(), true, reserved, fe.getVersion());
-            Repository.getInstance().addEntry(newFe);
+            Repository.getInstance().co(file, reserved);
         }
                 
     }
@@ -409,8 +399,7 @@ public class CleartoolMockup extends Process implements Runnable {
             }
         }        
         for (File file : files) {
-            FileEntry fe = new FileEntry(file, !checkin, false, 0);           
-            Repository.getInstance().addEntry(fe);
+            Repository.getInstance().add(file, checkin);
         }            
     }
 
@@ -429,6 +418,30 @@ public class CleartoolMockup extends Process implements Runnable {
         }
     }
 
+    private void processGET(String[] args) {
+        String destination = "";
+        String revisionSpec = "";
+        for (int i = 1; i < args.length; i++) {
+            String arg = args[i];
+            if(arg.equals("-to")) {                
+                destination = args[++i];
+                revisionSpec = args[++i];
+            } 
+        }     
+        String[] revisionSpecArray = revisionSpec.split("@@") ;
+        File file = new File(revisionSpecArray[0]);
+        
+        int idx = revisionSpecArray[1].lastIndexOf(File.separator);
+        long version = Long.parseLong(revisionSpecArray[1].substring(idx + 1));
+        
+        FileEntry fe = Repository.getInstance().getEntry(file);        
+        try {            
+            Utils.copyStreamsCloseAll(new FileOutputStream(new File(destination)), new FileInputStream(fe.getVersions().get((int) version)));
+        } catch (IOException ex) {
+            CleartoolMockup.LOG.log(Level.WARNING, null, ex);
+        }
+    }
+    
     private void processUNCO(String[] args) {
         boolean keep = false;
         List<File> files = new ArrayList<File>();
@@ -448,9 +461,8 @@ public class CleartoolMockup extends Process implements Runnable {
                 LOG.warning("No entry for to be checkedout file " + file);
                 continue;
             }
-            FileEntry newFe = new FileEntry(fe.getFile(), false, false, fe.getVersion());
-            Repository.getInstance().addEntry(newFe);
-            if(keep) {
+            Repository.getInstance().unco(file);
+            if(keep && file.isFile()) {
                 try {
                     Utils.copyStreamsCloseAll(new FileOutputStream(new File(file.getAbsolutePath() + ".keep")), new FileInputStream(file));
                 } catch (IOException ex) {
