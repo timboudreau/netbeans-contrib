@@ -81,8 +81,7 @@ public class CheckinAction extends AbstractAction implements NotificationListene
     protected final VersioningOutputManager voutput;
     
     private static int ALLOW_CHECKIN = 
-            FileInformation.STATUS_VERSIONED_CHECKEDOUT_RESERVED | 
-            FileInformation.STATUS_VERSIONED_CHECKEDOUT_UNRESERVED | 
+            FileInformation.STATUS_VERSIONED_CHECKEDOUT |
             FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY;
     
     private File[] files;

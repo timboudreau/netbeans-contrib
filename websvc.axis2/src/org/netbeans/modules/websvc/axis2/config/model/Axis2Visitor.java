@@ -46,6 +46,8 @@ public interface Axis2Visitor {
     void visit(Axis2 component);
     void visit(Service service);
     void visit(GenerateWsdl generateWsdl);
+    void visit(JavaGenerator javaGenerator);
+ 
     
     /**
      * Default shallow visitor.
@@ -64,7 +66,10 @@ public interface Axis2Visitor {
         
         public void visit(GenerateWsdl generateWsdl) {
         }
-
+        
+        public void visit(JavaGenerator javaGenerator) {
+        }
+        
     }
     
     /**

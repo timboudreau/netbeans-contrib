@@ -40,25 +40,38 @@
  */
 package org.netbeans.modules.clearcase.client;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * Represents one logical, atomic, cancellable execution unit that may consist of several cc commands.
  * 
  * @author Maros Sandor
  */
-public class ExecutionUnit {
+public class ExecutionUnit implements Iterable<ClearcaseCommand>, Iterator<ClearcaseCommand> {
 
     private final String                displayName;
     private final boolean               notifyErrors;
-    private final ClearcaseCommand []   commands;
+    private final List<ClearcaseCommand>   commands;
 
     public ExecutionUnit(String displayName, ClearcaseCommand ... commands) {
         this(displayName, true, commands);
+    }
+
+    protected ExecutionUnit(String displayName) {
+        this(displayName, true, new ClearcaseCommand[0]);
     }
     
     public ExecutionUnit(String displayName, boolean notifyErrors, ClearcaseCommand ... commands) {
         this.displayName = displayName;
         this.notifyErrors = notifyErrors;
-        this.commands = commands;
+        this.commands = new  ArrayList<ClearcaseCommand>();
+        if(commands != null) {
+            for (ClearcaseCommand c : commands) {
+                this.commands.add(c);
+            }           
+        };
     }
 
     public String getDisplayName() {
@@ -69,7 +82,29 @@ public class ExecutionUnit {
         return notifyErrors;
     }
 
-    public ClearcaseCommand[] getCommands() {
-        return commands;
+    public synchronized  boolean hasNext() {
+        return commands.size() > 0;
     }
+
+    public synchronized ClearcaseCommand next() {
+        ClearcaseCommand c = commands.get(0);
+        commands.remove(c);
+        return c;
+    }
+
+    public synchronized void remove() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public Iterator<ClearcaseCommand> iterator() {
+        return this;
+    }
+
+    public synchronized int size() {
+        return commands.size();
+    }
+    
+    public synchronized void add(ClearcaseCommand c) {
+        commands.add(c);
+    }    
 }

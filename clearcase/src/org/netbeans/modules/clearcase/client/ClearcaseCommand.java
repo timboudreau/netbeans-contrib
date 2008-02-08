@@ -64,6 +64,16 @@ public abstract class ClearcaseCommand implements NotificationListener {
      */
     private Exception thrownException;
 
+    /**
+     * True if the command produced errors (messages in error stream), false otherwise.
+     */
+    private boolean hasFailed;
+
+    /**
+     * Internal check mechanism to prevent commands reuse.
+     */
+    private boolean commandExecuted;
+
     protected ClearcaseCommand() {
     }
 
@@ -84,6 +94,8 @@ public abstract class ClearcaseCommand implements NotificationListener {
     }
 
     public void commandStarted() {
+        assert !commandExecuted : "Command re-use is not supported";
+        commandExecuted = true;
         for (NotificationListener listener : listeners) {
             listener.commandStarted();
         }
@@ -98,6 +110,7 @@ public abstract class ClearcaseCommand implements NotificationListener {
 
     public void errorText(String line) {
         cmdError.add(line);
+        if (isErrorMessage(line)) hasFailed = true;
         for (NotificationListener listener : listeners) {
             listener.errorText(line);
         }
@@ -110,7 +123,7 @@ public abstract class ClearcaseCommand implements NotificationListener {
     }
     
     public boolean hasFailed() {
-        return cmdError.size() > 0;
+        return hasFailed;
     }
 
     public List<String> getCmdOutput() {
@@ -127,5 +140,16 @@ public abstract class ClearcaseCommand implements NotificationListener {
 
     public Exception getThrownException() {
         return thrownException;
+    }
+
+    /**
+     * Tests if the given message printed to the error stream indicates an actual command error.
+     * Commands sometimes print diagnostic messages to error stream which are not errors and should not be reported as such. 
+     * 
+     * @param s a message printed to the output stream
+     * @return true if the message is an error that should be reported, false otherwise
+     */
+    protected boolean isErrorMessage(String s) {
+        return true;
     }
 }

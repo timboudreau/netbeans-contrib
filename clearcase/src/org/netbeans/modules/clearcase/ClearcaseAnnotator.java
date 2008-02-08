@@ -67,7 +67,7 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.regex.Pattern;
-import org.netbeans.modules.clearcase.client.status.FileStatus;
+import org.netbeans.modules.clearcase.client.status.FileEntry;
 import org.netbeans.modules.clearcase.client.status.FileVersionSelector;
 import org.netbeans.modules.clearcase.ui.AnnotateAction;
 import org.netbeans.modules.versioning.util.SystemActionBridge;
@@ -111,13 +111,13 @@ public class ClearcaseAnnotator extends VCSAnnotator {
 
     private static final int STATUS_BADGEABLE =         
         FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY | FileInformation.STATUS_VERSIONED_UPTODATE |
-        FileInformation.STATUS_VERSIONED_CHECKEDOUT_RESERVED | FileInformation.STATUS_VERSIONED_CHECKEDOUT_UNRESERVED | 
-        FileInformation.STATUS_VERSIONED_HIJACKED | FileInformation.STATUS_NOTVERSIONED_ECLIPSED;;
+        FileInformation.STATUS_VERSIONED_CHECKEDOUT | FileInformation.STATUS_VERSIONED_HIJACKED | 
+        FileInformation.STATUS_NOTVERSIONED_ECLIPSED;
     
     private static final int STATUS_TEXT_ANNOTABLE = FileInformation.STATUS_NOTVERSIONED_IGNORED | 
             FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY | FileInformation.STATUS_VERSIONED_UPTODATE |
-            FileInformation.STATUS_VERSIONED_CHECKEDOUT_RESERVED | FileInformation.STATUS_VERSIONED_CHECKEDOUT_UNRESERVED | 
-            FileInformation.STATUS_VERSIONED_HIJACKED | FileInformation.STATUS_NOTVERSIONED_ECLIPSED;
+            FileInformation.STATUS_VERSIONED_CHECKEDOUT | FileInformation.STATUS_VERSIONED_HIJACKED | 
+            FileInformation.STATUS_NOTVERSIONED_ECLIPSED;
 
     private MessageFormat format;     
     private String emptyFormat;
@@ -136,8 +136,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
                 FileInformation.STATUS_LOCAL_CHANGE | 
                 FileInformation.STATUS_NOTVERSIONED_IGNORED | 
                 FileInformation.STATUS_NOTVERSIONED_ECLIPSED |                 
-                FileInformation.STATUS_VERSIONED_CHECKEDOUT_RESERVED | 
-                FileInformation.STATUS_VERSIONED_CHECKEDOUT_UNRESERVED;
+                FileInformation.STATUS_VERSIONED_CHECKEDOUT;
                 
         FileInformation mostImportantInfo = null;
         File mostImportantFile = null;
@@ -344,12 +343,9 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         
         if (info.getStatus() == FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY) {
             return newLocallyFormat.format(new Object [] { name, textAnnotation });
-        } else if (info.getStatus() == FileInformation.STATUS_VERSIONED_CHECKEDOUT_RESERVED | 
-                   info.getStatus() == FileInformation.STATUS_VERSIONED_CHECKEDOUT_UNRESERVED) 
-        {
+        } else if ((info.getStatus() & FileInformation.STATUS_VERSIONED_CHECKEDOUT) != 0) {
             return checkedoutFormat.format(new Object [] { name, textAnnotation });
-        } else if (info.getStatus() == FileInformation.STATUS_VERSIONED_HIJACKED) 
-        {
+        } else if (info.getStatus() == FileInformation.STATUS_VERSIONED_HIJACKED) {
             return hijackedFormat.format(new Object [] { name, textAnnotation });
         } else if (info.getStatus() == FileInformation.STATUS_NOTVERSIONED_IGNORED ) {
             return ignoredFormat.format(new Object [] { name, textAnnotation });
@@ -375,7 +371,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         }
 
         String revisionString = "";     // NOI18N
-        FileStatus fileStatus = info.getStatus(file);
+        FileEntry fileStatus = info.getStatus(file);
         if (fileStatus != null) {
             FileVersionSelector version = fileStatus.getOriginVersion();
             if(version != null) {

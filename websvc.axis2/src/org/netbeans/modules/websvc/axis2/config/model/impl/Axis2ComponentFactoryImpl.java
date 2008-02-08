@@ -46,6 +46,7 @@ import org.netbeans.modules.websvc.axis2.config.model.Axis2ComponentFactory;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2QNames;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Visitor;
 import org.netbeans.modules.websvc.axis2.config.model.GenerateWsdl;
+import org.netbeans.modules.websvc.axis2.config.model.JavaGenerator;
 import org.netbeans.modules.websvc.axis2.config.model.Service;
 import org.netbeans.modules.xml.xam.dom.AbstractDocumentComponent;
 import org.w3c.dom.Element;
@@ -97,6 +98,8 @@ public class Axis2ComponentFactoryImpl implements Axis2ComponentFactory {
         public void visit(Service context) {
             if (isElementQName(Axis2QNames.GENERATE_WSDL)) {
                 created = new GenerateWsdlImpl((Axis2ModelImpl)context.getModel(), element);
+            } else if (isElementQName(Axis2QNames.JAVA_GENERATOR)) {
+                created = new JavaGeneratorImpl((Axis2ModelImpl)context.getModel(), element);
             }
         }
         
@@ -110,5 +113,9 @@ public class Axis2ComponentFactoryImpl implements Axis2ComponentFactory {
     public GenerateWsdl createGenerateWsdl() {
         return new GenerateWsdlImpl(model);
     }
-
+    
+    public JavaGenerator createJavaGenerator() {
+        return new JavaGeneratorImpl(model);
+    }
+    
 }

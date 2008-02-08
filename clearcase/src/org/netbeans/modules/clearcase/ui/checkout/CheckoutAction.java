@@ -76,7 +76,7 @@ public class CheckoutAction extends AbstractAction {
     static final String RECENT_CHECKOUT_MESSAGES = "checkout.messages"; 
 
     private static int ALLOW_CHECKOUT = FileInformation.STATUS_VERSIONED_UPTODATE | FileInformation.STATUS_VERSIONED_HIJACKED;
-    private static int ALLOW_UNCO = FileInformation.STATUS_VERSIONED_CHECKEDOUT_RESERVED | FileInformation.STATUS_VERSIONED_CHECKEDOUT_UNRESERVED;
+    private static int ALLOW_UNCO = FileInformation.STATUS_VERSIONED_CHECKEDOUT;
     
     private final VCSContext    context;
     private final int           status;

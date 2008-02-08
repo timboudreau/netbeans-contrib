@@ -41,8 +41,6 @@
 
 package org.netbeans.modules.clearcase.util;
 
-import org.openide.*;
-import org.netbeans.api.project.*;
 import java.io.*;
 import java.util.*;
 /*
@@ -54,6 +52,7 @@ import org.netbeans.modules.versioning.spi.VCSContext;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Node;
 import org.openide.windows.TopComponent;
+
 public class Utils {
         
     /**
@@ -113,5 +112,6 @@ public class Utils {
                 FileUtil.refreshFor(refreshFiles); 
             }
         });        
-    }    
+    }       
+    
 }

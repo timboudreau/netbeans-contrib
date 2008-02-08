@@ -40,20 +40,16 @@
  */
 package org.netbeans.modules.clearcase;
 
-import org.netbeans.modules.clearcase.client.ClearcaseClient;
-import org.netbeans.modules.clearcase.client.status.FileStatus;
-import org.netbeans.modules.clearcase.client.status.ListCheckouts.LSCOOutput;
+import org.netbeans.modules.clearcase.client.status.FileEntry;
 
 import java.util.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level; 
 import org.netbeans.api.queries.SharabilityQuery;
-import org.netbeans.modules.clearcase.client.status.ListCheckouts;
-import org.netbeans.modules.clearcase.client.status.ListFiles;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.clearcase.util.Utils;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.versioning.spi.VersioningSupport;
@@ -256,25 +252,7 @@ public class FileStatusCache {
         }        
         return ret;
     }
-    
-    /**
-     * This method avoids the cached status storage and returns the {@link FileStatus.ClearcaseStatus} 
-     * retrieved from a synchronous clearcase command call. 
-     * 
-     * This method synchronously accesses disk and may block for a longer period of time.
-     * 
-     * @param file the file
-     * @return {@link FileStatus.ClearcaseStatus} describing the files actuall status
-     */
-    // XXX has nothing to do with the cache
-    FileStatus.ClearcaseStatus getClearcaseStatus(File file) {
-        List<FileStatus> status = getFileStatus(file, false);
-        if(status == null && status.size() == 0) {
-            return FileStatus.ClearcaseStatus.REPOSITORY_STATUS_UNKNOWN;
-        }
-        return status.get(0).getStatus();
-    }
-    
+        
     private void refresh(boolean recursivelly, File ...files) {        
         Set<File> parents = new HashSet<File>();        
         for (File file : files) {
@@ -342,15 +320,15 @@ public class FileStatusCache {
         }     
 
         boolean isRoot;
-        List<FileStatus> statusValues;
+        List<FileEntry> statusValues;
         
         if(!Clearcase.getInstance().isManaged(dir)) {                        
             isRoot = true;
             // file seems to be the vob root
-            statusValues = getFileStatus(file, false);
+            statusValues = ClearcaseUtils.readEntries(file, true);
         } else {
             isRoot = false;
-            statusValues = getFileStatus(dir, true);
+            statusValues = ClearcaseUtils.readEntries(dir, false);
         }              
                 
         Map<File, FileInformation> oldDirMap = get(dir); 
@@ -362,7 +340,7 @@ public class FileStatusCache {
             newDirMap = oldDirMap;
         }
                  
-        for(FileStatus fs : statusValues) {            
+        for(FileEntry fs : statusValues) {            
             FileInformation fiNew = createFileInformation(fs);
             try {
                 newDirMap.put(fs.getFile().getCanonicalFile(), fiNew);            
@@ -386,47 +364,7 @@ public class FileStatusCache {
             
         fireStatusEvents(newDirMap, oldDirMap, forceChangeEvent);                
         return fi;                
-    }
-    
-    private List<FileStatus> getFileStatus(File file, boolean handleChildren) {
-        
-        final ClearcaseClient client = Clearcase.getInstance().getClient();
-        List<FileStatus> statusValues = new ArrayList<FileStatus>();
-        try {
-            // 1. list files ...
-            ListFiles listedStatusUnit = new ListFiles(file, handleChildren);    
-            client.exec(listedStatusUnit);
-        
-            // 2. ... go throught the ct ls output ...
-            List<ListFiles.ListOutput> listOutput = listedStatusUnit.getOutputList();            
-            Map<File, ListFiles.ListOutput> checkedout = new HashMap<File, ListFiles.ListOutput>();
-            for(ListFiles.ListOutput o : listOutput) {        
-                if(o.getVersion() != null && o.getVersion().isCheckedout()) {
-                    checkedout.put(o.getFile(), o);
-                } else {
-                    statusValues.add(new FileStatus(o.getType(), o.getFile(), o.getOriginVersion(), o.getVersion(), o.getAnnotation(), false));   
-                }
-            }        
-
-            // 3. ... list checkouts if there were checkouted files in ct ls ...
-            if(checkedout.size() > 0) {            
-                ListCheckouts lsco = new ListCheckouts(file, handleChildren);   // TODO !!!            
-
-                client.exec(lsco);    
-                
-                List<LSCOOutput> checkouts = lsco.getOutputList();
-                for(LSCOOutput c : checkouts) {        
-                    ListFiles.ListOutput o = checkedout.get(c.getFile());
-                    statusValues.add(new FileStatus(o.getType(), o.getFile(), o.getOriginVersion(), o.getVersion(), o.getAnnotation(), c.isReserved()));               
-                }                
-            }      
-                        
-        } catch (ClearcaseException ex) {
-            Clearcase.LOG.log(Level.SEVERE, "Exception in status command ", ex);            
-        }
-
-        return statusValues;
-    }
+    }    
     
     /**
      * Examines a file or folder and computes its status. 
@@ -434,37 +372,47 @@ public class FileStatusCache {
      * @param status entry for this file or null if the file is unknown to subversion
      * @return FileInformation file/folder status bean
      */ 
-    private FileInformation createFileInformation(FileStatus status) { 
+    private FileInformation createFileInformation(FileEntry entry) { 
         FileInformation info;
         
-        if(status.getStatus() == FileStatus.ClearcaseStatus.REPOSITORY_STATUS_VIEW_PRIVATE) {
-            if(isIgnored(status.getFile())) {
+        if(entry.isViewPrivate()) {
+            if(isIgnored(entry.getFile())) {
                 info = FILE_INFORMATION_IGNORED; // XXX what if file does not exists -> isDir = false;   
             } else {
-                info = new FileInformation(FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY, status, status.getFile().isDirectory()); 
+                info = new FileInformation(FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY, entry, entry.getFile().isDirectory()); 
             }            
-        } else if(status.getStatus() == FileStatus.ClearcaseStatus.REPOSITORY_STATUS_FILE_CHECKEDOUT_RESERVED) {
-            info = new FileInformation(FileInformation.STATUS_VERSIONED_CHECKEDOUT_RESERVED, status, status.getFile().isDirectory());
-        } else if(status.getStatus() == FileStatus.ClearcaseStatus.REPOSITORY_STATUS_FILE_CHECKEDOUT_UNRESERVED) {
-            info = new FileInformation(FileInformation.STATUS_VERSIONED_CHECKEDOUT_UNRESERVED, status, status.getFile().isDirectory());            
-        } else if(status.getStatus() == FileStatus.ClearcaseStatus.REPOSITORY_STATUS_FILE_CHECKEDOUT_BUT_REMOVED) {
+        } else if(entry.isCheckedout()) {
+            if(entry.isRemoved()) {
+                
+                // XXX we don't know if directory but could be retrieved from ct ls -long or ct describe 
+                
+                if(entry.isReserved()) {
+                    info = new FileInformation(FileInformation.STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED, entry, entry.getFile().isDirectory());    
+                } else {
+                    info = new FileInformation(FileInformation.STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED | FileInformation.STATUS_UNRESERVED, entry, entry.getFile().isDirectory());            
+                }                   
+            } else {                
+                if(entry.isReserved()) {
+                    info = new FileInformation(FileInformation.STATUS_VERSIONED_CHECKEDOUT, entry, entry.getFile().isDirectory());    
+                } else {
+                    info = new FileInformation(FileInformation.STATUS_VERSIONED_CHECKEDOUT | FileInformation.STATUS_UNRESERVED, entry, entry.getFile().isDirectory());            
+                }   
+            }        
+        } else if(entry.isLoadedButMissing()) {
             // XXX we don't know if directory but could be retrieved from ct ls -long or ct describe 
-            info = new FileInformation(FileInformation.STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED, status, status.getFile().isDirectory());  
-        } else if(status.getStatus() == FileStatus.ClearcaseStatus.REPOSITORY_STATUS_FILE_LOADED_BUT_MISSING) {
-            // XXX we don't know if directory but could be retrieved from ct ls -long or ct describe 
-            info = new FileInformation(FileInformation.STATUS_VERSIONED_LOADED_BUT_MISSING, status, status.getFile().isDirectory());              
-        } else if(status.getStatus() == FileStatus.ClearcaseStatus.REPOSITORY_STATUS_FILE_HIJACKED) {
-            info = new FileInformation(FileInformation.STATUS_VERSIONED_HIJACKED, status, status.getFile().isDirectory());        
-        } else if(status.getStatus() == FileStatus.ClearcaseStatus.REPOSITORY_STATUS_FILE_ECLIPSED) {
-            info = new FileInformation(FileInformation.STATUS_NOTVERSIONED_ECLIPSED, status, status.getFile().isDirectory());
-        } else if(status.getVersion() != null) {
+            info = new FileInformation(FileInformation.STATUS_VERSIONED_LOADED_BUT_MISSING, entry, entry.getFile().isDirectory());              
+        } else if(entry.isHijacked()) {
+            info = new FileInformation(FileInformation.STATUS_VERSIONED_HIJACKED, entry, entry.getFile().isDirectory());        
+        } else if(entry.isEclipsed()) {
+            info = new FileInformation(FileInformation.STATUS_NOTVERSIONED_ECLIPSED, entry, entry.getFile().isDirectory());
+        } else if(entry.getVersion() != null) {
             // has predecesor (is versioned) and no other status value known ...
-            info = new FileInformation(FileInformation.STATUS_VERSIONED_UPTODATE, status, status.getFile().isDirectory());
+            info = new FileInformation(FileInformation.STATUS_VERSIONED_UPTODATE, entry, entry.getFile().isDirectory());
         } else {
-            info = new FileInformation(FileInformation.STATUS_UNKNOWN, status, status.getFile().isDirectory());   
+            info = new FileInformation(FileInformation.STATUS_UNKNOWN, entry, entry.getFile().isDirectory());   
         }        
         
-        Clearcase.LOG.finer("createFileInformation " + status + " : " + info);
+        Clearcase.LOG.finer("createFileInformation " + entry + " : " + info);
         return info;
         
     }

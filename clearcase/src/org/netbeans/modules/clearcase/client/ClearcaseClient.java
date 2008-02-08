@@ -142,7 +142,7 @@ public class ClearcaseClient {
         try {
             ensureCleartool();
             // XXX is not cancellable!
-            for (ClearcaseCommand command : eu.getCommands()) {                
+            for (ClearcaseCommand command : eu) {                
                 ct.exec(command);                
             }                                        
         } catch (Exception e) {
@@ -167,14 +167,13 @@ public class ClearcaseClient {
         }
 
         public void run() {
-            ProgressHandle ph = ProgressHandleFactory.createHandle(eu.getDisplayName(), this, this);
-            ClearcaseCommand [] commands = eu.getCommands();
-            ph.start(commands.length + 1);
+            ProgressHandle ph = ProgressHandleFactory.createHandle(eu.getDisplayName(), this, this);                        
             if (canceled) return;
+            ph.start();
             try {
                 ensureCleartool();
                 ph.progress(1);
-                for (ClearcaseCommand command : commands) {
+                for (ClearcaseCommand command : eu) {
                     if (canceled) break;
                     try {
                         ct.exec(command);
@@ -182,8 +181,7 @@ public class ClearcaseClient {
                         failedCommand = command;
                         failedCommand.setException(e);
                         break;
-                    }
-                    ph.progress(1);
+                    }                                        
                     if (command.hasFailed()) {
                         failedCommand = command;
                         break;

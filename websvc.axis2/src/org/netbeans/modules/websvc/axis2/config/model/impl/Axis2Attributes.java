@@ -45,7 +45,12 @@ import org.netbeans.modules.xml.xam.dom.Attribute;
 public enum Axis2Attributes implements Attribute {
     attrName("name"), //NOI18N
     attrTargetNamespace("targetNamespace"), //NOI18N
-    attrSchemaNamespace("schemaNamespace"); //NOI18N
+    attrSchemaNamespace("schemaNamespace"), //NOI18N
+    attrSEI("sei"), //NOI18N
+    attrDatabindingName("databindingName"), //NOI18N
+    attrPackageName("packageName"), //NOI18N
+    attrServiceName("serviceName"), //NOI18N
+    attrPortName("portName"); //NOI18N
 
     private String name;
     private Class type;

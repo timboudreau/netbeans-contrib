@@ -40,12 +40,13 @@
  */
 package org.netbeans.modules.clearcase;
 
-import org.netbeans.modules.clearcase.client.status.FileStatus;
+import org.netbeans.modules.clearcase.client.status.FileEntry;
 import org.openide.util.NbBundle;
 
 import java.io.Serializable;
 import java.io.File;
 import java.util.*;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 
 /**
  * Immutable class encapsulating status of a file.
@@ -77,7 +78,7 @@ public class FileInformation implements Serializable {
      * The file exists locally but is NOT under version control because it should not be (i.e. is has
      * the Ignore property set or resides under an excluded folder). The file itself IS under a versioned root.
      */ 
-    public static final int STATUS_NOTVERSIONED_IGNORED                = 4;
+    public static final int STATUS_NOTVERSIONED_IGNORED                 = 4;
         
     /**
      * The file is under version control and is in sync with repository.
@@ -85,19 +86,23 @@ public class FileInformation implements Serializable {
     public static final int STATUS_VERSIONED_UPTODATE                   = 8;
 
     /**
-     * The file is checkedout
+     * The file is checkedout (reserved). 
+     * Unreserved variant should be represented by STATUS_VERSIONED_CHECKEDOUT | STATUS_UNRESERVED
      */ 
-    public static final int STATUS_VERSIONED_CHECKEDOUT_RESERVED        = 16;
+    public static final int STATUS_VERSIONED_CHECKEDOUT                 = 16;
 
     /**
-     * The file is checkedout and modified
+     * The file is checkedout (reserved) but was localy removed without the cleartool rm command.
+     * Unreserved variant should be represented by STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED | STATUS_UNRESERVED
      */ 
-    public static final int STATUS_VERSIONED_CHECKEDOUT_UNRESERVED      = 32;
-
+    public static final int STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED     = 32; // XXX STATUS_REMOVED??? - not sure yet how to handle localy removed files
+    
     /**
-     * The file is checkedout but was localy removed without the cleartool rm command
-     */ 
-    public static final int STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED      = 64;
+     * No actuall meaning just by itself. Applies only with 
+     * {@link #STATUS_VERSIONED_CHECKEDOUT} and
+     * {@link #STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED}.
+     */
+    public static final int STATUS_UNRESERVED                           = 64;    
 
     /**
      * The file is loaded in a snapshot but was localy removed without the cleartool rm command
@@ -127,24 +132,21 @@ public class FileInformation implements Serializable {
     /** Is versioned by CC */
     public static final int STATUS_VERSIONED = 
             FileInformation.STATUS_VERSIONED_UPTODATE |
-            FileInformation.STATUS_VERSIONED_CHECKEDOUT_RESERVED |
-            FileInformation.STATUS_VERSIONED_CHECKEDOUT_UNRESERVED |            
+            FileInformation.STATUS_VERSIONED_CHECKEDOUT |            
             FileInformation.STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED |            
             FileInformation.STATUS_VERSIONED_LOADED_BUT_MISSING |            
             FileInformation.STATUS_VERSIONED_HIJACKED;
 
     public static final int STATUS_LOCAL_CHANGE =
             FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY | 
-            FileInformation.STATUS_VERSIONED_CHECKEDOUT_RESERVED |
-            FileInformation.STATUS_VERSIONED_CHECKEDOUT_UNRESERVED |
+            FileInformation.STATUS_VERSIONED_CHECKEDOUT |            
             FileInformation.STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED |            
             FileInformation.STATUS_VERSIONED_LOADED_BUT_MISSING |            
             FileInformation.STATUS_VERSIONED_HIJACKED |
             FileInformation.STATUS_NOTVERSIONED_ECLIPSED;
     
     public static final int STATUS_DIFFABLE = 
-            FileInformation.STATUS_VERSIONED_CHECKEDOUT_RESERVED |
-            FileInformation.STATUS_VERSIONED_CHECKEDOUT_UNRESERVED |
+            FileInformation.STATUS_VERSIONED_CHECKEDOUT |            
             FileInformation.STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED |            
             FileInformation.STATUS_VERSIONED_LOADED_BUT_MISSING |
             FileInformation.STATUS_VERSIONED_HIJACKED | 
@@ -159,24 +161,24 @@ public class FileInformation implements Serializable {
     /**
      * More detailed information about a file, you may disregard the field if not needed.
      */
-    private transient FileStatus fileStatus;
+    private transient FileEntry fileEntry;
 
     /**
      * Directory indicator, mainly because of files that may have been deleted so file.isDirectory() won't work.
      */ 
-    private final boolean   isDirectory;
+    private final boolean   isDirectory; // XXX isn't properly used yet
     
     /**
      * For deserialization purposes only.
      */ 
-    public FileInformation() {
+    FileInformation() {
         status = 0;
         isDirectory = false;
     }
 
-    public FileInformation(int status, FileStatus fileStatus, boolean isDirectory) {
+    FileInformation(int status, FileEntry fileStatus, boolean isDirectory) {
         this.status = status;
-        this.fileStatus = fileStatus;
+        this.fileEntry = fileStatus;
         this.isDirectory = isDirectory;
     }
 
@@ -193,28 +195,28 @@ public class FileInformation implements Serializable {
         return status;
     }
 
+    /**
+     * Returns true if directory
+     * 
+     * @return
+     */
     public boolean isDirectory() {
         return isDirectory;
     }
     
     /**
-     * Retrieves file's Status.
+     * Retrieves the files {@link FileEntry}
      *
      * @param file file this information belongs to or null if you do not want the entry to be read from disk 
-     * in case it is not loaded yet
+     * in case it is not loaded yet is not versioned or its entry is invalid
+     * 
      * @return Status parsed output from 'cleartool ls, diff, ...'
-     * is not versioned or its entry is invalid
      */
-    // XXX why do we need the file?
-    public FileStatus getStatus(File file) {
-        if (fileStatus == null && file != null) {
-            readEntry(file);
+    public FileEntry getStatus(File file) {
+        if (fileEntry == null && file != null) {
+            fileEntry = ClearcaseUtils.readEntry(file);
         }
-        return fileStatus;
-    }
-    
-    private void readEntry(File file) {
-        fileStatus = null;       // TODO: read your detailed information about the file here, or disregard the entry field
+        return fileEntry;
     }    
 
     /**
@@ -245,9 +247,9 @@ public class FileInformation implements Serializable {
             return loc.getString("CTL_FileInfoStatus_Ignored");
         } else if (FileInformation.match(status, FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY)) {
             return loc.getString("CTL_FileInfoStatus_NewLocally");
-        } else if (FileInformation.match(status, FileInformation.STATUS_VERSIONED_CHECKEDOUT_RESERVED)) {
+        } else if (status == FileInformation.STATUS_VERSIONED_CHECKEDOUT) {
             return loc.getString("CTL_FileInfoStatus_Checkedout_Reserved");            
-        } else if (FileInformation.match(status, FileInformation.STATUS_VERSIONED_CHECKEDOUT_UNRESERVED)) {
+        } else if (status == (FileInformation.STATUS_VERSIONED_CHECKEDOUT | FileInformation.STATUS_UNRESERVED)) {
             return loc.getString("CTL_FileInfoStatus_Checkedout_Unreserved");                        
         } else if (FileInformation.match(status, FileInformation.STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED)) {
             return loc.getString("CTL_FileInfoStatus_Checkedout_But_Removed");                                    
@@ -275,9 +277,9 @@ public class FileInformation implements Serializable {
             return loc.getString("CTL_FileInfoStatus_Ignored");
         } else if (FileInformation.match(status, FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY)) {
             return loc.getString("CTL_FileInfoStatus_NewLocally");
-        } else if (FileInformation.match(status, FileInformation.STATUS_VERSIONED_CHECKEDOUT_RESERVED)) {
+        } else if (status == FileInformation.STATUS_VERSIONED_CHECKEDOUT) {
             return loc.getString("CTL_FileInfoStatus_Checkedout_Reserved");            
-        } else if (FileInformation.match(status, FileInformation.STATUS_VERSIONED_CHECKEDOUT_UNRESERVED)) {
+        } else if (status == (FileInformation.STATUS_VERSIONED_CHECKEDOUT | FileInformation.STATUS_UNRESERVED)) {
             return loc.getString("CTL_FileInfoStatus_Checkedout_Unreserved");                        
         } else if (FileInformation.match(status, FileInformation.STATUS_VERSIONED_HIJACKED)) {
             return loc.getString("CTL_FileInfoStatus_Hijacked");                        
@@ -295,5 +297,5 @@ public class FileInformation implements Serializable {
     @Override
     public String toString() {
         return "Text: " + status + " " + getStatusText(status); // NOI18N
-    }
+    }    
 }

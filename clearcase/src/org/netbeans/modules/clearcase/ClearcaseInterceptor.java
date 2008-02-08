@@ -40,21 +40,19 @@
  */
 package org.netbeans.modules.clearcase;
 
-import org.netbeans.modules.clearcase.client.status.FileStatus.ClearcaseStatus;
 import org.netbeans.modules.versioning.spi.VCSInterceptor;
 import org.netbeans.modules.clearcase.ui.checkout.CheckoutAction;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Level;
 import org.netbeans.modules.clearcase.client.ClearcaseClient;
 import org.netbeans.modules.clearcase.client.DeleteCommand;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.MoveCommand;
 import org.netbeans.modules.clearcase.client.UnCheckoutCommand;
-import org.netbeans.modules.clearcase.client.status.FileStatus;
-import org.netbeans.modules.clearcase.client.status.ListFiles;
+import org.netbeans.modules.clearcase.client.status.FileEntry;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 
 /**
  * Listens on file system changes and reacts appropriately, mainly refreshing affected files' status.
@@ -74,7 +72,8 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         Clearcase.LOG.finer("beforeDelete " + file);        
                 
         // let the IDE take care for deletes of unversioned files        
-        return cache.getClearcaseStatus(file) != FileStatus.ClearcaseStatus.REPOSITORY_STATUS_VIEW_PRIVATE;            
+        FileEntry entry = ClearcaseUtils.readEntry(file);       
+        return entry != null && !entry.isViewPrivate();            
     }
 
     @Override
@@ -95,22 +94,10 @@ public class ClearcaseInterceptor extends VCSInterceptor {
 
     private void checkout(File parent) {
         // check if not already checkedout
-        ListFiles listedStatus = new ListFiles(parent, false);
-        try {
-            Clearcase.getInstance().getClient().exec(listedStatus);
-        } catch (ClearcaseException ex) {
-            Clearcase.LOG.log(Level.SEVERE, "Exception in status command ", ex);
-        }
-        List<ListFiles.ListOutput> outputList = listedStatus.getOutputList();
-        if (outputList.size() == 1) {
-            ListFiles.ListOutput output = outputList.get(0);
-            if (!output.getVersion().isCheckedout()) {
-                CheckoutAction.checkout(parent);
-            }
-        } else {
-            // something went wrong
-            // TOTO handle it!
-        }
+        FileEntry entry = ClearcaseUtils.readEntry(parent);                
+        if (!entry.isCheckedout()) {
+            CheckoutAction.checkout(parent);
+        }        
     }
     
     private void fileDeletedImpl(File file) {
@@ -131,11 +118,8 @@ public class ClearcaseInterceptor extends VCSInterceptor {
             // 2. uncheckout - even if the delete is invoked with the --force switch
             // ct rm on a file which was checkedout causes that after ct unco on its parent 
             // it becomes [checkedout but removed]. This actually is not what we want.
-            ClearcaseStatus status = cache.getClearcaseStatus(file);
-            if(status == ClearcaseStatus.REPOSITORY_STATUS_FILE_CHECKEDOUT_BUT_REMOVED || 
-               status == ClearcaseStatus.REPOSITORY_STATUS_FILE_CHECKEDOUT_RESERVED ||      
-               status == ClearcaseStatus.REPOSITORY_STATUS_FILE_CHECKEDOUT_UNRESERVED) 
-            {
+            FileEntry entry = ClearcaseUtils.readEntry(file);
+            if(entry != null &&  entry.isCheckedout()) {
                 ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit(
                 "Undoing checkout...", new UnCheckoutCommand(new File [] { file }, false)));
                 cr.waitFinished();
@@ -158,10 +142,11 @@ public class ClearcaseInterceptor extends VCSInterceptor {
 
     @Override
     public boolean beforeMove(File from, File to) {
-        Clearcase.LOG.finer("beforeMove " + from + " " + to);        
-        
-        // let the IDE take care for move of unversioned files        
-        return cache.getClearcaseStatus(from) != FileStatus.ClearcaseStatus.REPOSITORY_STATUS_VIEW_PRIVATE;
+        Clearcase.LOG.finer("beforeMove " + from + " " + to);
+
+        // let the IDE take care for move of unversioned files
+        FileEntry entry = ClearcaseUtils.readEntry(from);
+        return entry != null && !entry.isViewPrivate();
     }
 
     @Override
@@ -245,7 +230,5 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         if(!file.canWrite()) { // XXX HACK             
             CheckoutAction.checkout(file);   
         }
-    }
-    
-    
+    }    
 }

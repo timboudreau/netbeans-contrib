@@ -11,6 +11,7 @@ import java.awt.event.ItemListener;
 import java.io.File;
 import java.util.prefs.Preferences;
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 import org.openide.util.NbPreferences;
 
 /**
@@ -249,7 +250,21 @@ private void browseButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN
 // TODO add your handling code here:
         JFileChooser chooser = new JFileChooser(previousDeployDirectory);
         chooser.setMultiSelectionEnabled(false);
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        FileFilter fileFilter = new FileFilter() {
+
+            @Override
+            public boolean accept(File f) {
+                return f.isDirectory() || f.getName().toLowerCase().endsWith(".war"); //NOI18N
+            }
+
+            @Override
+            public String getDescription() {
+                return "Folder or War File";
+            }
+            
+        };
+        chooser.setFileFilter(fileFilter);
         if(chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             File axisDir = chooser.getSelectedFile();
             axisDeployTf.setText(axisDir.getAbsolutePath());
