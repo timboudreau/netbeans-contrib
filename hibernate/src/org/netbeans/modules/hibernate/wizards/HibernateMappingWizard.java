@@ -38,43 +38,44 @@
  */
 package org.netbeans.modules.hibernate.wizards;
 
-import java.awt.Component;
 import java.io.IOException;
-import java.util.Collections;
+
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.Collections;
+
 import javax.swing.JComponent;
+import java.awt.Component;
 import javax.swing.event.ChangeListener;
+import org.netbeans.api.project.Sources;
+
+
+import org.openide.WizardDescriptor;
+import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataFolder;
+import org.openide.util.NbBundle;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
-import org.netbeans.api.project.Sources;
+import org.netbeans.modules.hibernate.loaders.mapping.HibernateMappingDataObject;
+import org.netbeans.modules.hibernate.mapping.model.MyClass;
 import org.netbeans.spi.project.ui.templates.support.Templates;
-import org.netbeans.modules.hibernate.cfg.model.SessionFactory;
-import org.netbeans.modules.hibernate.loaders.cfg.HibernateCfgDataObject;
-import org.openide.WizardDescriptor;
-import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataObject;
-import org.openide.util.NbBundle;
 
 /**
  *
  * @author gowri
  */
-public class HibernateConfigurationWizard implements WizardDescriptor.InstantiatingIterator {
+public class HibernateMappingWizard implements WizardDescriptor.InstantiatingIterator {
 
     private int index;
     private Project project;
     private WizardDescriptor wizard;
-    private HibernateConfigurationWizardDescriptor descriptor;
-    private WizardDescriptor.Panel[] panels;
-    private final String dialect = "hibernate.dialect";
-    private final String driver = "hibernate.connection.driver_class";
-    private final String url = "hibernate.connection.url";
+    private HibernateMappingWizardDescriptor descriptor;
+    private transient WizardDescriptor.Panel[] panels;
 
-    public static HibernateConfigurationWizard create() {
-        return new HibernateConfigurationWizard();
+    public static HibernateMappingWizard create() {
+        return new HibernateMappingWizard();
     }
 
     /**
@@ -118,20 +119,39 @@ public class HibernateConfigurationWizard implements WizardDescriptor.Instantiat
         return panels;
     }
 
-    public String name() {
-        return NbBundle.getMessage(HibernateConfigurationWizard.class, "LBL_ConfWizardTitle");
+    public void initialize(WizardDescriptor wizard) {
+        this.wizard = wizard;
+        project = Templates.getProject(wizard);
+        descriptor = new HibernateMappingWizardDescriptor(project);
     }
 
-    public boolean hasPrevious() {
-        return index > 0;
+    public void uninitialize(WizardDescriptor wizard) {
+        panels = null;
     }
 
-    public boolean hasNext() {
-        return index < getPanels().length - 1;
-    }
+    public Set instantiate() throws IOException {
+        FileObject targetFolder = Templates.getTargetFolder(wizard);
+        DataFolder targetDataFolder = DataFolder.findFolder(targetFolder);
+        String targetName = Templates.getTargetName(wizard);
+        FileObject templateFileObject = Templates.getTemplate(wizard);
+        DataObject templateDataObject = DataObject.find(templateFileObject);
 
-    public WizardDescriptor.Panel current() {
-        return getPanels()[index];
+        DataObject newOne = templateDataObject.createFromTemplate(targetDataFolder, targetName);
+
+        MyClass myClass = new MyClass();
+        if (descriptor.getClassName() != null && !"".equals(descriptor.getClassName())) {            
+            myClass.setAttributeValue("name", descriptor.getClassName());
+        }
+        try {
+            HibernateMappingDataObject hmo = (HibernateMappingDataObject) newOne;
+            hmo.addMyClass(myClass);
+            hmo.save();
+            return Collections.singleton(hmo.getPrimaryFile());
+        } catch (Exception e) {
+            System.err.println("Error**************************" + e);
+            return Collections.EMPTY_SET;
+
+        }   
     }
 
     public void previousPanel() {
@@ -148,10 +168,26 @@ public class HibernateConfigurationWizard implements WizardDescriptor.Instantiat
         index++;
     }
 
-    public void removeChangeListener(ChangeListener l) {
+    public boolean hasPrevious() {
+        return index > 0;
     }
 
-    public void addChangeListener(ChangeListener l) {
+    public boolean hasNext() {
+        return index < getPanels().length - 1;
+    }
+
+    public String name() {
+        return NbBundle.getMessage(HibernateConfigurationWizard.class, "LBL_MappingWizardTitle");
+    }
+
+    public WizardDescriptor.Panel current() {
+        return getPanels()[index];
+    }
+    // If nothing unusual changes in the middle of the wizard, simply:
+    public final void addChangeListener(ChangeListener l) {
+    }
+
+    public final void removeChangeListener(ChangeListener l) {
     }
 
     private String[] createSteps() {
@@ -174,53 +210,5 @@ public class HibernateConfigurationWizard implements WizardDescriptor.Instantiat
             }
         }
         return res;
-    }
-
-    public void initialize(WizardDescriptor wizard) {
-        this.wizard = wizard;
-        project = Templates.getProject(wizard);
-        descriptor = new HibernateConfigurationWizardDescriptor(project);
-    }
-
-    public void uninitialize(WizardDescriptor wizard) {
-        panels = null;
-    }
-
-    public Set instantiate() throws IOException {
-        FileObject targetFolder = Templates.getTargetFolder(wizard);
-        DataFolder targetDataFolder = DataFolder.findFolder(targetFolder);
-        String targetName = Templates.getTargetName(wizard);
-        FileObject templateFileObject = Templates.getTemplate(wizard);
-        DataObject templateDataObject = DataObject.find(templateFileObject);
-        
-        
-        DataObject newOne = templateDataObject.createFromTemplate(targetDataFolder, targetName);
-
-        SessionFactory sFactory = new SessionFactory();
-        if (descriptor.getDialectName() != null && !"".equals(descriptor.getDialectName())) {
-            int row = sFactory.addProperty2(descriptor.getDialectName());
-            sFactory.setAttributeValue(SessionFactory.PROPERTY2, row, "name", dialect);
-        }
-
-        if (descriptor.getDriver() != null && !"".equals(descriptor.getDriver())) {
-            int row = sFactory.addProperty2(descriptor.getDriver());
-            sFactory.setAttributeValue(SessionFactory.PROPERTY2, row, "name", driver);
-        }
-        if (descriptor.getURL() != null && !"".equals(descriptor.getURL())) {
-            int row = sFactory.addProperty2(descriptor.getURL());
-            sFactory.setAttributeValue(SessionFactory.PROPERTY2, row, "name", url);
-        }
-        try {
-            HibernateCfgDataObject hdo = (HibernateCfgDataObject) newOne;
-            hdo.addSessionFactory(sFactory);
-            hdo.save();
-            return Collections.singleton(hdo.getPrimaryFile());
-
-        } catch (Exception e) {
-            System.err.println("Error**************************" + e);
-            return Collections.EMPTY_SET;
-        }
-
-
     }
 }
