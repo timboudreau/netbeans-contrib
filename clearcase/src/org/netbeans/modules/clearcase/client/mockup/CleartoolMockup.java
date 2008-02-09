@@ -326,6 +326,9 @@ public class CleartoolMockup extends Process implements Runnable {
             sb.append("@@");
             sb.append(fe.isCheckedout() ? "/main/CHECKEDOUT from /main/" : "/main/");
             sb.append(fe.getVersion());
+            if(file.canWrite() && !fe.isCheckedout()) {
+                sb.append("[hijacked]");
+            }
             sb.append("                     Rule: element * /main/LATEST");                                
             sb.append('\n');    
         }
@@ -551,8 +554,7 @@ public class CleartoolMockup extends Process implements Runnable {
         } finally {
             if(br != null) try { br.close(); } catch (Exception e) {  }
             if(fw != null) try { fw.close(); } catch (Exception e) {  }
-        }
-        
+        }        
     }
 
     
