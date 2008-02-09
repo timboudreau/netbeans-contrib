@@ -106,7 +106,7 @@ public final class GenerateXSDWizardAction extends NodeAction {
         DataObject dobj = activatedNodes[0].getCookie(DataObject.class);
         Set<FileObject> files = dobj.files();
         FileObject fileObj = files.iterator().next();
-        File cpyFile = new File(fileObj.getPath());
+        File cpyFile = new File(FileUtil.toFile(fileObj).getPath());
         wizardDescriptor.putProperty(PropertyKey.CURRENT_FOLDER, fileObj.getParent());
         wizardDescriptor.putProperty(PropertyKey.CURRENT_FILE_NAME, cpyFile.getName());
         Dialog dialog = DialogDisplayer.getDefault().createDialog(wizardDescriptor);

@@ -43,6 +43,7 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
@@ -342,7 +343,7 @@ public class ApplyCustomEncodingAction extends NodeAction {
                     return true;
                 }
                 String msg = NbBundle.getMessage(ApplyCustomEncodingAction.class,
-                        "apply_custom_enc.lbl.warn_read_only", fileObj.getPath()); //NOI18N
+                        "apply_custom_enc.lbl.warn_read_only", FileUtil.toFile(fileObj).getAbsolutePath()); //NOI18N
                 int option =
                         JOptionPane.showConfirmDialog(
                                 WindowManager.getDefault().getMainWindow(),
@@ -356,7 +357,7 @@ public class ApplyCustomEncodingAction extends NodeAction {
                 return true;
             }
             try {
-                ApplyCustomEncodingXmlBeans.applyDetailCustomEncoding(new File(fileObj.getPath()));
+                ApplyCustomEncodingXmlBeans.applyDetailCustomEncoding(FileUtil.toFile(fileObj));
             } catch (XmlException ex) {
                 throw new ModelVisitorException(ex);
             } catch (IOException ex) {
