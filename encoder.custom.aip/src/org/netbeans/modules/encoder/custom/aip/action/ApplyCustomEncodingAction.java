@@ -357,7 +357,7 @@ public class ApplyCustomEncodingAction extends NodeAction {
                 return true;
             }
             try {
-                ApplyCustomEncodingXmlBeans.applyDetailCustomEncoding(FileUtil.toFile(fileObj));
+                ApplyCustomEncodingXmlBeans.applyDetailCustomEncoding(new File(FileUtil.toFile(fileObj).getAbsolutePath()));
             } catch (XmlException ex) {
                 throw new ModelVisitorException(ex);
             } catch (IOException ex) {
