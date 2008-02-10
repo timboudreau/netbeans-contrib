@@ -143,13 +143,13 @@ class Cleartool {
      * @throws java.io.IOException
      */
     private static Process createCleartoolProcess() throws IOException {
-        String mockup = System.getProperty("org.netbeans.modules.clearcase.client.mockup");
+        String vobRoot = System.getProperty("org.netbeans.modules.clearcase.client.mockup.vobRoot");
         Process ct;
-        if (mockup == null || mockup.trim().equals("")) {
+        if (vobRoot == null || vobRoot.trim().equals("")) {
             ct = Runtime.getRuntime().exec("cleartool");
             Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: shell process running");
         } else {
-            ct = new CleartoolMockup();
+            ct = new CleartoolMockup(vobRoot);
             ((CleartoolMockup) ct).start();
             Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: mockup process running");    
         }

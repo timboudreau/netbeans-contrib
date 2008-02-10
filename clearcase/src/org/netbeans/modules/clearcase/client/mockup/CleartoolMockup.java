@@ -74,14 +74,15 @@ public class CleartoolMockup extends Process implements Runnable {
     private Thread thread;
     
     static final Logger LOG = Logger.getLogger("org.netbeans.modules.clearcase");
-    private static String VOB_PATH = "/tmp/vob/";
+    private final String vobRoot;
     
     private String curPath = null;
     
-    public CleartoolMockup() {
+    public CleartoolMockup(String vobRoot) {
         outputStream = new ByteArrayOutputStream(200);            
         inputStream = new DelegateInputStream();        
         errorStream = new DelegateInputStream();
+        this.vobRoot = vobRoot;
     }
     
     public void start() {
@@ -283,7 +284,7 @@ public class CleartoolMockup extends Process implements Runnable {
             }
         }
 
-        if(!file.getAbsolutePath().startsWith(VOB_PATH)) {
+        if(!file.getAbsolutePath().startsWith(vobRoot)) {
             errorStream.setDelegate(new ByteArrayInputStream(("cleartool: Error: Pathname is not within a VOB: \"" + file.getAbsolutePath() + "\"\n").getBytes()));    
         } else {
             if(!file.exists()) {
@@ -325,6 +326,9 @@ public class CleartoolMockup extends Process implements Runnable {
             sb.append("@@");
             sb.append(fe.isCheckedout() ? "/main/CHECKEDOUT from /main/" : "/main/");
             sb.append(fe.getVersion());
+            if(file.canWrite() && !fe.isCheckedout()) {
+                sb.append("[hijacked]");
+            }
             sb.append("                     Rule: element * /main/LATEST");                                
             sb.append('\n');    
         }
@@ -346,7 +350,7 @@ public class CleartoolMockup extends Process implements Runnable {
             }
         }
 
-        if(!file.getAbsolutePath().startsWith(VOB_PATH)) {
+        if(!file.getAbsolutePath().startsWith(vobRoot)) {
             errorStream.setDelegate(new ByteArrayInputStream(("cleartool: Error: Pathname is not within a VOB: \"" + file.getAbsolutePath() + "\"\n").getBytes()));    
         } else {
             if(!file.exists()) {
@@ -550,8 +554,7 @@ public class CleartoolMockup extends Process implements Runnable {
         } finally {
             if(br != null) try { br.close(); } catch (Exception e) {  }
             if(fw != null) try { fw.close(); } catch (Exception e) {  }
-        }
-        
+        }        
     }
 
     

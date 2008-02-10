@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import org.netbeans.modules.versioning.util.Utils;
+import org.openide.util.Utilities;
 
 /**
  *
@@ -72,6 +73,11 @@ class Repository {
             CleartoolMockup.LOG.warning("No entry for to be checkedin file " + file);
         }
         ci(file);
+        try {
+            setFileReadOnly(file, true);
+        } catch (IOException ex) {
+            CleartoolMockup.LOG.log(Level.WARNING, null, ex);
+        }
         if(checkout) {
             co(file, true);
         }
@@ -98,7 +104,8 @@ class Repository {
                 data.deleteOnExit();
                 fe.getVersions().add(data);
                 Utils.copyStreamsCloseAll(new FileOutputStream(data), new FileInputStream(file));
-            }
+                setFileReadOnly(file, true);
+            }            
         } catch (IOException ex) {
             CleartoolMockup.LOG.log(Level.WARNING, null, ex);
         }
@@ -116,6 +123,11 @@ class Repository {
         }
         fe.setCheckedout(true);
         fe.setReserved(reserved);
+        try {
+            setFileReadOnly(file, false);
+        } catch (IOException ex) {
+            CleartoolMockup.LOG.log(Level.WARNING, null, ex);
+        }
     }
 
     FileEntry getEntry(File file) {
@@ -148,5 +160,28 @@ class Repository {
         }
         fe.setCheckedout(false);
         fe.setReserved(false);        
+        try {
+            setFileReadOnly(file, true);
+        } catch (IOException ex) {
+            CleartoolMockup.LOG.log(Level.WARNING, null, ex);
+        }        
     }
+    
+    private void setFileReadOnly(File file, boolean readOnly) throws IOException {
+        String [] command = new String[3];
+        // TODO: update for JDK 6
+        if (Utilities.isWindows()) {
+            command[0] = "attrib";
+            command[1] = readOnly ? "+R" : "-R";
+        } else {
+            command[0] = "chmod";
+            command[1] = readOnly ? "u-w" : "u+w";
+        }
+        command[2] = file.getAbsolutePath();
+        try {
+            Runtime.getRuntime().exec(command);
+        } catch (Exception e) {
+            // probably does not work, ignore
+        }
+    }    
 }
