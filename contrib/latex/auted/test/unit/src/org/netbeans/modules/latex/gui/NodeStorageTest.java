@@ -43,86 +43,36 @@
  */
 package org.netbeans.modules.latex.gui;
 
-import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.geom.Line2D;
-import java.io.PrintWriter;
+import org.netbeans.junit.NbTestCase;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class LineEdgeNode extends CurveEdgeNode {
+public class NodeStorageTest extends NbTestCase {
+    
+    public NodeStorageTest(String testName) {
+        super(testName);
+    }            
 
-    /** Creates a new instance of LineEdgeNode */
-    public LineEdgeNode(StateNode source, StateNode target) {
-        super(source, target);
-        setName("");
+    public void testSelection() throws Exception {
+        StateNode sn1 = new StateNode( 5, 5);
+        StateNode sn2 = new StateNode(10, 5);
+        StateNode sn3 = new StateNode(15, 5);
+        LineEdgeNode len1 = new LineEdgeNode(sn1, sn2);
+        LineEdgeNode len2 = new LineEdgeNode(sn2, sn3);
+        
+        NodeStorage ns = new NodeStorage();
+        
+        ns.addObject(sn1);
+        ns.addObject(sn2);
+        ns.addObject(sn3);
+        ns.addObject(len1);
+        ns.addObject(len2);
+        
+        assertTrue(len1 == ns.findNearestPoint(new Point((int) ( 7.5 * UIProperties.getGridSize().getWidth()), (int) (4.5 * UIProperties.getGridSize().getHeight()))));
+        assertTrue(len2 == ns.findNearestPoint(new Point((int) (12.5 * UIProperties.getGridSize().getWidth()), (int) (4.5 * UIProperties.getGridSize().getHeight()))));
     }
 
-    private Line2D getLine() {
-        Dimension grid = UIProperties.getGridSize();
-
-        int xGrid = (int) grid.getWidth();
-        int yGrid = (int) grid.getHeight();
-        
-        int dx = getTarget().getX() - getSource().getX();
-        int dy = getTarget().getY() - getSource().getY();
-        
-        double sourceAngle = Math.atan2(-dy, dx);
-        double targetAngle = Math.atan2(dy, -dx);
-        
-        Point source = getSource().getContourPoint(Math.toDegrees(sourceAngle));
-        Point dest   = getTarget().getContourPoint(Math.toDegrees(targetAngle));
-        
-        return new Line2D.Double(source.getX(), source.getY(), dest.getX(), dest.getY());
-    }
-    
-//    public void draw(Graphics g) {
-//        Line2D line = getLine();
-//        
-//        g.drawLine((int) line.getX1(), (int) line.getY1(), (int) line.getX2(), (int) line.getY2());
-//        g.drawOval((int) line.getX2() - 1, (int) line.getY2() - 1, 2, 2);
-//    }
-    
-//    public Rectangle getOuterDimension() {
-//        Rectangle first = getSource().getOuterDimension();
-//        
-//        return first.union(getTarget().getOuterDimension());
-//    }
-
-    public double distance(Point pos) {
-        return getLine().ptSegDist(pos.getX(), pos.getY());
-    }
-    
-    public double getSourceAngle() {
-        int dx = getTarget().getX() - getSource().getX();
-        int dy = getTarget().getY() - getSource().getY();
-        
-        return Math.toDegrees(Math.atan2(-dy, dx));
-    }
-    
-    public double getSourceDistance() {
-        return 0.0;
-    }
-    
-    public double getTargetAngle() {
-        int dx = getTarget().getX() - getSource().getX();
-        int dy = getTarget().getY() - getSource().getY();
-        
-        return Math.toDegrees(Math.atan2(dy, -dx));
-    }
-    
-    public double getTargetDistance() {
-        return 0.0;
-    }
-    
-    protected String getCommandBase() {
-        return "\\Edge";
-    }
-    
-    protected String getSpecialArgument() {
-        return null;
-    }
-    
 }
