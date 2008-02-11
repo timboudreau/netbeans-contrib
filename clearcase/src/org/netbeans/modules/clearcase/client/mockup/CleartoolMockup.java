@@ -77,6 +77,9 @@ public class CleartoolMockup extends Process implements Runnable {
     private final String vobRoot;
     
     private String curPath = null;
+    private String SELECTOR_CHECKEDOUT_FROM_MAIN = File.separator + "main" + File.separator + "CHECKEDOUT from " + File.separator + "main"  + File.separator;
+    private String SELECTOR_MAIN = File.separator + "main" + File.separator;
+    private String RULE = "Rule: element * " + File.separator + "main" + File.separator + "LATEST";
     
     public CleartoolMockup(String vobRoot) {
         outputStream = new ByteArrayOutputStream(200);            
@@ -293,7 +296,12 @@ public class CleartoolMockup extends Process implements Runnable {
                     inputStream.setDelegate(new ByteArrayInputStream(("\n").getBytes()));    
                 } else {
                     // XXX could be something else than checkedout?
-                    inputStream.setDelegate(new ByteArrayInputStream(("version                " + file.getAbsolutePath() + "@@/main/CHECKEDOUT from /main/" + entry.getVersion() + " [checkedout but removed]\n").getBytes()));    
+                    inputStream.setDelegate(
+                            new ByteArrayInputStream(
+                                ("version                " + 
+                                 file.getAbsolutePath() + 
+                                 "@@" + SELECTOR_CHECKEDOUT_FROM_MAIN + entry.getVersion() + 
+                                 " [checkedout but removed]\n").getBytes()));    
                 }                
             } else {
                 if(!directory && file.isDirectory()) {
@@ -324,16 +332,16 @@ public class CleartoolMockup extends Process implements Runnable {
             sb.append("version                ");
             sb.append(file.getAbsolutePath());
             sb.append("@@");
-            sb.append(fe.isCheckedout() ? "/main/CHECKEDOUT from /main/" : "/main/");
+            sb.append(fe.isCheckedout() ? SELECTOR_CHECKEDOUT_FROM_MAIN : SELECTOR_MAIN);
             sb.append(fe.getVersion());
             if(file.canWrite() && !fe.isCheckedout()) {
                 sb.append("[hijacked]");
             }
-            sb.append("                     Rule: element * /main/LATEST");                                
+            sb.append("                     " + RULE);                                
             sb.append('\n');    
         }
         return sb;
-    }
+    }   
     
     private void processLSCO(String[] args) {
         boolean directory = false;
