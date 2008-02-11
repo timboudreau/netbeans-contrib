@@ -109,10 +109,13 @@ public class ClearcaseModuleConfig {
     }
 
     public static synchronized boolean isIgnored(File file) {
-        String path = file.getAbsolutePath();
-        for (Pattern pattern : ignoredFilePatterns) {
-            if (pattern.matcher(path).matches()) return true;
-        }
+        File parent = file;
+        do {
+            String path = parent.getAbsolutePath();        
+            for (Pattern pattern : ignoredFilePatterns) {
+                if (pattern.matcher(path).matches()) return true;
+            }    
+        } while ( (parent = parent.getParentFile()) != null );               
         return false;
     }
     
