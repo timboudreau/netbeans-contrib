@@ -202,4 +202,12 @@ public class WsFromWsdlGUIPanel1 extends javax.swing.JPanel {
         return tfPackageName.getText().trim();
     }
     
+    String getDatabindingName() {
+        String databindingName = (String)jComboBox3.getSelectedItem();
+        if (WsFromWsdlPanel1.BINDING_ADB.equals(databindingName)) return "adb"; //NOI18N
+        else if (WsFromWsdlPanel1.BINDING_XML_BEANS.equals(databindingName)) return "xmlbeans"; //NOI18N
+        else if (WsFromWsdlPanel1.BINDING_JIBX.equals(databindingName)) return "jibx"; //NOI18N
+        return "adb";
+    }
+    
 }

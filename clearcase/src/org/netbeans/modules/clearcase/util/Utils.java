@@ -43,16 +43,16 @@ package org.netbeans.modules.clearcase.util;
 
 import java.io.*;
 import java.util.*;
-/*
- *
- * @author Tomas Stupka
- */
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Node;
 import org.openide.windows.TopComponent;
 
+/*
+ *
+ * @author Tomas Stupka
+ */
 public class Utils {
         
     /**
