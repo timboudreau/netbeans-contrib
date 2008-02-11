@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -25,7 +25,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2008.
  * All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -61,6 +61,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JComponent;
 import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.Utilities;
@@ -71,6 +73,8 @@ import org.netbeans.modules.latex.model.command.SourcePosition;
  * @author Jan Lahoda
  */
 public class NodeStorage extends Node implements PropertyChangeListener {
+    
+    private static final Logger LOG = Logger.getLogger(NodeStorage.class.getName());
     
     private Map objects;
     
@@ -241,8 +245,8 @@ public class NodeStorage extends Node implements PropertyChangeListener {
             
             if (dist < nearest) {
                 node = n;
-                System.err.println("dist = " + dist );
-                System.err.println("nearest = " + nearest );
+                LOG.log(Level.FINE, "dist = {0}", dist);
+                LOG.log(Level.FINE, "nearest = {0}", nearest);
                 nearest = dist;
             }
         }
