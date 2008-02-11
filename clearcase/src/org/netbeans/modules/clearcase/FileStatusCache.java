@@ -444,12 +444,6 @@ public class FileStatusCache {
             ClearcaseModuleConfig.setIgnored(file);
             return true;
         } else {
-            // XXX do we still need this hack?!
-            // backward compatability #68124
-            if (".nbintdb".equals(name)) {  // NOI18N
-                return true;
-            }
-
             return false;
         }
     }            
