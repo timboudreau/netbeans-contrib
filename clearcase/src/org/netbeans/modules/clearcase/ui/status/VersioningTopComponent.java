@@ -42,7 +42,6 @@
 package org.netbeans.modules.clearcase.ui.status;
 
 import javax.swing.SwingUtilities;
-import org.openide.util.*;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.openide.util.NbBundle;
