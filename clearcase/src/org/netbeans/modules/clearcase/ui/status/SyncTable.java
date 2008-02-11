@@ -72,6 +72,7 @@ import java.util.logging.Level;
 import java.io.File;
 
 import org.netbeans.modules.clearcase.Clearcase;
+import org.netbeans.modules.clearcase.ui.AnnotateAction;
 import org.netbeans.modules.clearcase.ui.diff.DiffAction;
 import org.netbeans.modules.clearcase.ui.IgnoreAction;
 import org.netbeans.modules.clearcase.ui.add.AddAction;
@@ -329,10 +330,9 @@ class SyncTable implements MouseListener, ListSelectionListener, AncestorListene
         Mnemonics.setLocalizedText(item, item.getText());
         
         menu.addSeparator();
-    /*
         item = menu.add(new AnnotateAction(selectedContext, Clearcase.getInstance().getAnnotationsProvider(selectedContext)));
         Mnemonics.setLocalizedText(item, item.getText());
-    */
+        
         item = menu.add(new BrowseHistoryAction("Browse History", selectedContext));
         Mnemonics.setLocalizedText(item, item.getText());
         item = menu.add(new BrowseVersionTreeAction("Browse Version Tree", selectedContext));
@@ -352,16 +352,6 @@ class SyncTable implements MouseListener, ListSelectionListener, AncestorListene
         File [] files = VCSContext.forNodes(selectedNodes).getFiles().toArray(new File[selectedNodes.length]);
         return files;
     }
- 
-
-//    /** 
-//     * Workaround.
-//     * I18N Test Wizard searches for keys in syncview package Bundle.properties 
-//     */
-//    private String actionString(String key) {
-//        ResourceBundle actionsLoc = NbBundle.getBundle(Annotator.class);
-//        return actionsLoc.getString(key);
-//    }
     
     public void mouseEntered(MouseEvent e) {
     }
