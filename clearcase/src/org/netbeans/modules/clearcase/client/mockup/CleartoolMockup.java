@@ -244,7 +244,7 @@ public class CleartoolMockup extends Process implements Runnable {
             }
         }
         for (File file : files) {
-            Repository.getInstance().ci(file);
+            Repository.getInstance().ci(file, false);
         }
     }
 
@@ -497,11 +497,6 @@ public class CleartoolMockup extends Process implements Runnable {
             }
         }                
         for (File file : files) {
-            FileEntry fe = Repository.getInstance().getEntry(file);
-            if(fe == null) {
-                LOG.warning("No entry for to be checkedout file " + file);
-                continue;
-            }
             Repository.getInstance().unco(file);
             if(keep && file.isFile()) {
                 try {
