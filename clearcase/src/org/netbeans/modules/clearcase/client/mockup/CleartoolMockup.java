@@ -127,6 +127,10 @@ public class CleartoolMockup extends Process implements Runnable {
              processCI(args);            
         } else if(ctCommand.equals("checkout")) {
              processCO(args);            
+        } else if(ctCommand.equals("reserve")) {
+             processRESERVE(args, true);            
+        } else if(ctCommand.equals("unreserve")) {
+             processRESERVE(args, false);            
         } else if(ctCommand.equals("lsco")) {
              processLSCO(args);            
         } else if(ctCommand.equals("mkelem")) {
@@ -271,8 +275,7 @@ public class CleartoolMockup extends Process implements Runnable {
         }
         for (File file : files) {
             Repository.getInstance().co(file, reserved);
-        }
-                
+        }                
     }
 
     private void processLS(String[] args) {
@@ -444,6 +447,24 @@ public class CleartoolMockup extends Process implements Runnable {
         }            
     }
 
+    private void processRESERVE(String[] args, boolean value) {
+        List<File> files = new ArrayList<File>();
+        for (int i = 1; i < args.length; i++) {
+            String arg = args[i];
+            if(arg.equals("-ncomment")) {
+                // ignore
+            } else if(arg.equals("-cfile") || arg.equals("-comment")) {
+                i++; // skip the next arg
+                continue;
+            } else {
+                files.add(new File(curPath + File.separator + arg));
+            }
+        }
+        for (File file : files) {
+            Repository.getInstance().reserve(file, value);
+        }        
+    }                
+
     private void processRM(String[] args) {
         List<File> files = new ArrayList<File>();
         for (int i = 1; i < args.length; i++) {
@@ -559,7 +580,6 @@ public class CleartoolMockup extends Process implements Runnable {
             if(fw != null) try { fw.close(); } catch (Exception e) {  }
         }        
     }
-
     
     private void processUnsupported(String[] args) {
         NotifyDescriptor nd = new NotifyDescriptor("You are running with the mockup cleartool. Deal with it!", "Hey!", NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE, new Object[]{NotifyDescriptor.OK_OPTION}, null);        
