@@ -80,7 +80,7 @@ public class CheckinAction extends AbstractAction implements NotificationListene
     private final VCSContext context;
     protected final VersioningOutputManager voutput;
     
-    private static int ALLOW_CHECKIN = 
+    static int ALLOW_CHECKIN = 
             FileInformation.STATUS_VERSIONED_CHECKEDOUT |
             FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY;
     
@@ -108,7 +108,7 @@ public class CheckinAction extends AbstractAction implements NotificationListene
         }
         return false;
     }
-
+    
     public void actionPerformed(ActionEvent ev) {
         String contextTitle = Utils.getContextDisplayName(context);
         final JButton addButton = new JButton(); 
@@ -201,8 +201,8 @@ public class CheckinAction extends AbstractAction implements NotificationListene
                         File [] files = cache.listFiles(context, FileInformation.STATUS_LOCAL_CHANGE);
                         List<ClearcaseFileNode> nodes = new ArrayList<ClearcaseFileNode>(files.length);
                         for (File file : files) {
-                            nodes.add(new ClearcaseFileNode(file));
-                        }
+                            nodes.add(new ClearcaseFileNode(file));   
+                        }                            
                         ClearcaseFileNode[] fileNodes = nodes.toArray(new ClearcaseFileNode[nodes.size()]);
                         checkinTable.setNodes(fileNodes);
                     } finally {

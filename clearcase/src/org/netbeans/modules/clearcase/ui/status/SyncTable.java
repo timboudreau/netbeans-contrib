@@ -72,6 +72,7 @@ import java.util.logging.Level;
 import java.io.File;
 
 import org.netbeans.modules.clearcase.Clearcase;
+import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
 import org.netbeans.modules.clearcase.ui.AnnotateAction;
 import org.netbeans.modules.clearcase.ui.diff.DiffAction;
 import org.netbeans.modules.clearcase.ui.IgnoreAction;
@@ -79,6 +80,7 @@ import org.netbeans.modules.clearcase.ui.add.AddAction;
 import org.netbeans.modules.clearcase.ui.history.BrowseHistoryAction;
 import org.netbeans.modules.clearcase.ui.history.BrowseVersionTreeAction;
 import org.netbeans.modules.clearcase.ui.checkin.CheckinAction;
+import org.netbeans.modules.clearcase.ui.checkin.ExcludeAction;
 import org.netbeans.modules.clearcase.ui.checkout.CheckoutAction;
 import org.netbeans.modules.clearcase.ui.update.UpdateAction;
 
@@ -340,7 +342,11 @@ class SyncTable implements MouseListener, ListSelectionListener, AncestorListene
     
         menu.addSeparator();
         item = menu.add(new IgnoreAction(selectedContext));
-        Mnemonics.setLocalizedText(item, item.getText());
+        Mnemonics.setLocalizedText(item, item.getText());        
+        item = menu.add(new ExcludeAction(selectedContext));      
+        Mnemonics.setLocalizedText(item, item.getText());        
+        
+        menu.addSeparator();
         item = menu.add(new ShowPropertiesAction("Show Properties", selectedContext));
         Mnemonics.setLocalizedText(item, item.getText());
         
@@ -425,15 +431,14 @@ class SyncTable implements MouseListener, ListSelectionListener, AncestorListene
                 if (!isSelected) {
                     value = "<html>" + node.getHtmlDisplayName(); // NOI18N
                 }
-                // XXX
-//                if (SvnModuleConfig.getDefault().isExcludedFromCommit(node.getFile().getAbsolutePath())) {
-//                    String nodeName = node.getDisplayName();
-//                    if (isSelected) {
-//                        value = "<html><s>" + nodeName + "</s></html>"; // NOI18N
-//                    } else {
-//                        value = "<html><s>" + Subversion.getInstance().getAnnotator().annotateNameHtml(nodeName, node.getFileInformation(), null) + "</s>"; // NOI18N
-//                    }
-//                }
+                if (ClearcaseModuleConfig.isExcludedFromCommit(node.getFile().getAbsolutePath())) {
+                    String nodeName = node.getDisplayName();
+                    if (isSelected) {
+                        value = "<html><s>" + nodeName + "</s></html>"; // NOI18N
+                    } else {
+                        value = "<html><s>" + Clearcase.getInstance().getAnnotator().annotateNameHtml(nodeName, node.getInfo(), null) + "</s>"; // NOI18N
+                    }
+                }
             }
             if (modelColumnIndex == 2) {
                 renderer = pathRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);

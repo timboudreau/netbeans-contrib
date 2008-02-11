@@ -92,10 +92,14 @@ public class SyncFileNode extends AbstractNode {
         refreshHtmlDisplayName();
     }
     
-    public File getFile() {
+    File getFile() {
         return node.getFile();
     }
-
+    
+    FileInformation getInfo() {
+        return node.getInfo(); 
+    }
+    
     @Override
     public String getName() {
         return node.getName();
@@ -142,7 +146,7 @@ public class SyncFileNode extends AbstractNode {
     }
 
     private void refreshHtmlDisplayName() {
-        FileInformation info = node.getInformation(); 
+        FileInformation info = node.getInfo(); 
         htmlDisplayName = Clearcase.getInstance().getAnnotator().annotateNameHtml(node.getFile().getName(), info, null);
         fireDisplayNameChange(node.getName(), node.getName());
     }
@@ -152,7 +156,7 @@ public class SyncFileNode extends AbstractNode {
         return htmlDisplayName;
     }
 
-    public void refresh() {
+    void refresh() {
         refreshHtmlDisplayName();
     }
 
@@ -234,12 +238,12 @@ public class SyncFileNode extends AbstractNode {
         public StatusProperty() {
             super(COLUMN_NAME_STATUS, String.class, NbBundle.getMessage(SyncFileNode.class, "BK2007"), NbBundle.getMessage(SyncFileNode.class, "BK2008")); // NOI18N
             String shortPath = "path"; // NOI18N
-            String sortable = Integer.toString(ClearcaseUtils.getComparableStatus(node.getInformation().getStatus()));
+            String sortable = Integer.toString(ClearcaseUtils.getComparableStatus(node.getInfo().getStatus()));
             setValue("sortkey", zeros[sortable.length()] + sortable + "\t" + shortPath + "\t" + SyncFileNode.this.getName()); // NOI18N
         }
 
         public Object getValue() throws IllegalAccessException, InvocationTargetException {
-            FileInformation finfo =  node.getInformation();
+            FileInformation finfo =  node.getInfo();
             finfo.getStatus(node.getFile());  
             int mask = panel.getDisplayStatuses();
             return finfo.getStatusText(mask);
