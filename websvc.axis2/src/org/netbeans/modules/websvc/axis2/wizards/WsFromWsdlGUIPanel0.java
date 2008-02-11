@@ -179,7 +179,15 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     
     
     boolean dataIsValid() {
-        return tfWsdlUrl.getText().trim().length() > 0;
+        String wsdlUrl = tfWsdlUrl.getText().trim();
+        if (wsdlUrl.length() == 0) return false;
+        File wsdlFile = new File(wsdlUrl);
+        return (wsdlFile != null && wsdlFile.exists());
+    }
+    
+    File getWsdlFile() {
+        String wsdlUrl = tfWsdlUrl.getText().trim();
+        return new File(wsdlUrl);
     }
 
 }
