@@ -145,7 +145,26 @@ class Repository {
         }
         entries.remove(file);
     }
-                
+
+    void reserve(File file, boolean value) {
+        File parent = file.getParentFile();
+        Map<File, FileEntry> entries = map.get(parent);
+        if(entries == null) {
+            CleartoolMockup.LOG.warning("No entry for to be " + (value ? "reserved" : "unresered") + " file " + file);
+            return; 
+        }
+        FileEntry fe = entries.get(file);
+        if(fe == null) {
+            CleartoolMockup.LOG.warning("No entry for to be " + (value ? "reserved" : "unresered") + " file " + file);
+            return;            
+        } else if(fe.isReserved() && value) {
+            CleartoolMockup.LOG.warning("Trying to reserve already reserved file " + file);          
+        } else if(!fe.isReserved() && !value) {
+            CleartoolMockup.LOG.warning("Trying to unreserve already unreserved file " + file);
+        }
+        fe.setReserved(value);                
+    }    
+    
     void unco(File file) {
         File parent = file.getParentFile();
         Map<File, FileEntry> entries = map.get(parent);
