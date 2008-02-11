@@ -42,7 +42,7 @@ package org.netbeans.modules.websvc.axis2.config.model;
 
 public interface Service extends Axis2Component {
     public static String SERVICE_CLASS_PROP = Axis2QNames.SERVICE_CLASS.getLocalName();
-    public static String SERVICE_URL_PROP = Axis2QNames.SERVICE_URL.getLocalName();
+    public static String WSDL_URL_PROP = Axis2QNames.WSDL_URL.getLocalName();
     public static String GENERATE_WSDL_PROP = Axis2QNames.GENERATE_WSDL.getLocalName();
     public static String JAVA_GENERATOR_PROP = Axis2QNames.JAVA_GENERATOR.getLocalName();
     
@@ -55,8 +55,8 @@ public interface Service extends Axis2Component {
     GenerateWsdl getGenerateWsdl();
     void setGenerateWsdl(GenerateWsdl value);
     
-    String getServiceUrl();
-    void setServiceUrl(String serviceUrl);
+    String getWsdlUrl();
+    void setWsdlUrl(String serviceUrl);
     
     JavaGenerator getJavaGenerator();
     void setJavaGenerator(JavaGenerator javaGenerator);

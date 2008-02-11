@@ -66,33 +66,29 @@ class Repository {
         return instance;
     }
 
-    void add(File file, boolean checkout) {
-        File parent = file.getParentFile();
-        Map<File, FileEntry> entries = map.get(parent);
-        if (entries == null || entries.get(file) == null) {
-            CleartoolMockup.LOG.warning("No entry for to be checkedin file " + file);
-        }
-        ci(file);
-        try {
-            setFileReadOnly(file, true);
-        } catch (IOException ex) {
-            CleartoolMockup.LOG.log(Level.WARNING, null, ex);
-        }
+    void add(File file, boolean checkout) {        
+        ci(file, true);
         if(checkout) {
             co(file, true);
         }
     }
     
-    void ci(File file) {
+    void ci(File file, boolean add) {
         try {
             File parent = file.getParentFile();
             Map<File, FileEntry> entries = map.get(parent);
             if (entries == null) {
+                if(!add) {
+                    CleartoolMockup.LOG.warning("No entry for to be checkedin file " + file);
+                }
                 entries = new HashMap<File, FileEntry>();
                 map.put(parent, entries);
             }
             FileEntry fe = entries.get(file);
             if (fe == null) {
+                if(!add) {
+                    CleartoolMockup.LOG.warning("No entry for to be checkedin file " + file);
+                }                
                 fe = new FileEntry(file);
                 entries.put(file, fe);
             }
@@ -116,10 +112,12 @@ class Repository {
         Map<File, FileEntry> entries = map.get(parent);
         if(entries == null) {
             CleartoolMockup.LOG.warning("No entry for to be checkedout file " + file);
+            return; 
         }
         FileEntry fe = entries.get(file);
         if(fe == null) {
             CleartoolMockup.LOG.warning("No entry for to be checkedout file " + file);
+            return;            
         }
         fe.setCheckedout(true);
         fe.setReserved(reserved);
@@ -148,15 +146,36 @@ class Repository {
         entries.remove(file);
     }
 
+    void reserve(File file, boolean value) {
+        File parent = file.getParentFile();
+        Map<File, FileEntry> entries = map.get(parent);
+        if(entries == null) {
+            CleartoolMockup.LOG.warning("No entry for to be " + (value ? "reserved" : "unresered") + " file " + file);
+            return; 
+        }
+        FileEntry fe = entries.get(file);
+        if(fe == null) {
+            CleartoolMockup.LOG.warning("No entry for to be " + (value ? "reserved" : "unresered") + " file " + file);
+            return;            
+        } else if(fe.isReserved() && value) {
+            CleartoolMockup.LOG.warning("Trying to reserve already reserved file " + file);          
+        } else if(!fe.isReserved() && !value) {
+            CleartoolMockup.LOG.warning("Trying to unreserve already unreserved file " + file);
+        }
+        fe.setReserved(value);                
+    }    
+    
     void unco(File file) {
         File parent = file.getParentFile();
         Map<File, FileEntry> entries = map.get(parent);
         if(entries == null) {
             CleartoolMockup.LOG.warning("No entry for to be uncheckedout file " + file);
+            return; 
         }
         FileEntry fe = entries.get(file);
         if(fe == null) {
             CleartoolMockup.LOG.warning("No entry for to be uncheckedout file " + file);
+            return;            
         }
         fe.setCheckedout(false);
         fe.setReserved(false);        

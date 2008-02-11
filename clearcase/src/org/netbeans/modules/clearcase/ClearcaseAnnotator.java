@@ -70,6 +70,8 @@ import java.util.regex.Pattern;
 import org.netbeans.modules.clearcase.client.status.FileEntry;
 import org.netbeans.modules.clearcase.client.status.FileVersionSelector;
 import org.netbeans.modules.clearcase.ui.AnnotateAction;
+import org.netbeans.modules.clearcase.ui.checkin.ExcludeAction;
+import org.netbeans.modules.clearcase.ui.checkout.ReserveAction;
 import org.netbeans.modules.versioning.util.SystemActionBridge;
 import org.netbeans.modules.diff.PatchAction;
 import org.openide.util.Lookup;
@@ -258,6 +260,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         List<Action> actions = new ArrayList<Action>(20);
         if (destination == VCSAnnotator.ActionDestination.MainMenu) {
             actions.add(new CheckoutAction(ctx));
+            actions.add(new ReserveAction(ctx));
             actions.add(new AddAction("Add To Source Control...", ctx));
             actions.add(null);
             //actions.add(SystemAction.get(RefreshAction.class));
@@ -276,6 +279,8 @@ public class ClearcaseAnnotator extends VCSAnnotator {
             actions.add(new BrowseVersionTreeAction("Browse Version Tree", ctx));
             actions.add(null);
             actions.add(new IgnoreAction(ctx));
+            actions.add(new ExcludeAction(ctx));
+            actions.add(null);            
             actions.add(new ShowPropertiesAction("Show Properties", ctx));
 //            actions.add(new RemoveAction("Remove Name from Directory...", ctx));
         } else {
@@ -284,6 +289,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
                 actions.add(new AddToRepositoryAction("Import into Clea&rcase Repository...", ctx));
             } else {
                 actions.add(new CheckoutAction(ctx));
+                actions.add(new ReserveAction(ctx));
                 actions.add(new AddAction("Add To Source Control...", ctx));
                 actions.add(null);
                 actions.add(SystemActionBridge.createAction(SystemAction.get(RefreshAction.class), "Show Changes", context));
@@ -299,6 +305,8 @@ public class ClearcaseAnnotator extends VCSAnnotator {
                 actions.add(new BrowseVersionTreeAction("Browse Version Tree", ctx));
                 actions.add(null);
                 actions.add(new IgnoreAction(ctx));
+                actions.add(new ExcludeAction(ctx));
+                actions.add(null);                    
                 actions.add(new ShowPropertiesAction("Show Properties", ctx));
             }
         }

@@ -40,51 +40,47 @@
  */
 package org.netbeans.modules.clearcase.ui.checkout;
 
+import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.FileStatusCache;
-import org.netbeans.modules.versioning.spi.VCSContext;
-import org.netbeans.modules.versioning.util.DialogBoundsPreserver;
-import org.netbeans.modules.versioning.util.Utils;
-
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.Dialog;
-import java.io.File;
-import java.util.*;
-
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
-import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.client.*;
-
+import org.netbeans.modules.versioning.spi.VCSContext;
+import org.netbeans.modules.versioning.util.Utils;
+import org.netbeans.modules.versioning.util.DialogBoundsPreserver;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.awt.Mnemonics;
-import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.HelpCtx;
+
+import javax.swing.*;
+import java.io.File;
+import java.util.*;
+import java.awt.event.ActionEvent;
+import java.awt.Dialog;
 
 /**
  * Checks all files/folders in the context out, making them editable by the user.
  * 
  * @author Maros Sandor
  */
-public class CheckoutAction extends AbstractAction {
+public class ReserveAction extends AbstractAction {
 
     private static final int STATUS_DISABLED    = 0;
-    private static final int STATUS_CHECKOUT    = 1;
-    private static final int STATUS_UNCHECKOUT  = 2;
+    private static final int STATUS_RESERVE     = 1;
+    private static final int STATUS_UNRESERVE   = 2;
     
-    static final String RECENT_CHECKOUT_MESSAGES = "checkout.messages"; 
-
-    private static int ALLOW_CHECKOUT = FileInformation.STATUS_VERSIONED_UPTODATE | FileInformation.STATUS_VERSIONED_HIJACKED;
-    private static int ALLOW_UNCO = FileInformation.STATUS_VERSIONED_CHECKEDOUT;
+    private static int ALLOW_RESERVE = FileInformation.STATUS_VERSIONED_CHECKEDOUT | FileInformation.STATUS_UNRESERVED;
+    private static int ALLOW_UNRESERVE = FileInformation.STATUS_VERSIONED_CHECKEDOUT;
     
     private final VCSContext    context;
     private final int           status;
 
-    public CheckoutAction(VCSContext context) {
+    public ReserveAction(VCSContext context) {
         this.context = context;
         status = getActionStatus();
-        putValue(Action.NAME, status == STATUS_UNCHECKOUT ? "Uncheckout..." : "Checkout...");
+        putValue(Action.NAME, status == STATUS_UNRESERVE ? "Unreserve..." : "Reserve...");
     }
 
     private int getActionStatus() {
@@ -92,13 +88,13 @@ public class CheckoutAction extends AbstractAction {
         int status = STATUS_DISABLED;
         Set<File> files = context.getFiles();
         for (File file : files) {
-            if ((cache.getInfo(file).getStatus() & ALLOW_CHECKOUT) != 0) {
-                if (status == STATUS_UNCHECKOUT) return STATUS_DISABLED;
-                status = STATUS_CHECKOUT;
+            if (cache.getInfo(file).getStatus() == ALLOW_RESERVE) {
+                if (status == STATUS_UNRESERVE) return STATUS_DISABLED;
+                status = STATUS_RESERVE;
             }                
-            if ((cache.getInfo(file).getStatus() & ALLOW_UNCO) != 0) {
-                if (status == STATUS_CHECKOUT) return STATUS_DISABLED;
-                status = STATUS_UNCHECKOUT;
+            if (cache.getInfo(file).getStatus() == ALLOW_UNRESERVE) {
+                if (status == STATUS_RESERVE) return STATUS_DISABLED;
+                status = STATUS_UNRESERVE;
             }
         }
         return status;
@@ -112,63 +108,26 @@ public class CheckoutAction extends AbstractAction {
     public void actionPerformed(ActionEvent ev) {
         Set<File> roots = context.getFiles();
         switch (status) {
-        case STATUS_CHECKOUT:
-            performCheckout(roots.toArray(new File[roots.size()]), Utils.getContextDisplayName(context));
+        case STATUS_RESERVE:
+            performReserve(roots.toArray(new File[roots.size()]), Utils.getContextDisplayName(context));
             break;
-        case STATUS_UNCHECKOUT:
-            performUncheckout(roots.toArray(new File[roots.size()]));
+        case STATUS_UNRESERVE:
+            performUnreserve(roots.toArray(new File[roots.size()]), Utils.getContextDisplayName(context));
             break;
         }
     }
     
-    private void performUncheckout(File [] files) {
-        String contextTitle = Utils.getContextDisplayName(context);
-        JButton unCheckoutButton = new JButton(); 
-        UncheckoutPanel panel = new UncheckoutPanel();
-
-        panel.cbKeep.setEnabled(false);
-        for (File file : files) {
-            if(file.isFile()) {
-                panel.cbKeep.setEnabled(true);        
-                break;
-            }
-        }
-        
-        DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(CheckoutAction.class, "CTL_UncheckoutDialog_Title", contextTitle)); // NOI18N
-        dd.setModal(true);
-        dd.setMessageType(DialogDescriptor.WARNING_MESSAGE);
-        Mnemonics.setLocalizedText(unCheckoutButton, NbBundle.getMessage(CheckoutAction.class, "CTL_UncheckoutDialog_Unheckout"));
-        
-        dd.setOptions(new Object[] {unCheckoutButton, DialogDescriptor.CANCEL_OPTION}); // NOI18N
-        dd.setHelpCtx(new HelpCtx(CheckoutAction.class));
-                
-        panel.putClientProperty("contentTitle", contextTitle);  // NOI18N
-        panel.putClientProperty("DialogDescriptor", dd); // NOI18N
-        final Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);        
-        dialog.addWindowListener(new DialogBoundsPreserver(ClearcaseModuleConfig.getPreferences(), "uncheckout.dialog")); // NOI18N       
-        dialog.pack();        
-        dialog.setVisible(true);
-        
-        Object value = dd.getValue();
-        if (value != unCheckoutButton) return;
-        
-        boolean keepFiles = panel.cbKeep.isSelected();
-        
-        Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Undoing Checkout...",
-                new UnCheckoutCommand(files, keepFiles, createNotificationListener(files), new OutputWindowNotificationListener())));
-    }
-
-    public static ClearcaseClient.CommandRunnable performCheckout(File[] files, String title) {        
-        JButton checkoutButton = new JButton(); 
+    private void performUnreserve(File [] files, String title) {
+        JButton reserveButton = new JButton(); 
         CheckoutPanel panel = new CheckoutPanel();
+        panel.cbReserved.setVisible(false);
         
-        DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(CheckoutAction.class, "CTL_CheckoutDialog_Title", title)); // NOI18N
+        DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(ReserveAction.class, "CTL_UnreserveDialog_Title", title)); // NOI18N
         dd.setModal(true);        
-        org.openide.awt.Mnemonics.setLocalizedText(checkoutButton, org.openide.util.NbBundle.getMessage(CheckoutAction.class, "CTL_CheckoutDialog_Checkout"));
+        Mnemonics.setLocalizedText(reserveButton, NbBundle.getMessage(ReserveAction.class, "CTL_UnreserveDialog_Unreserve"));
         
-        dd.setOptions(new Object[] {checkoutButton, DialogDescriptor.CANCEL_OPTION}); // NOI18N
-        dd.setHelpCtx(new HelpCtx(CheckoutAction.class));
+        dd.setOptions(new Object[] {reserveButton, DialogDescriptor.CANCEL_OPTION}); // NOI18N
+        dd.setHelpCtx(new HelpCtx(ReserveAction.class));
                 
         panel.putClientProperty("contentTitle", title);  // NOI18N
         panel.putClientProperty("DialogDescriptor", dd); // NOI18N
@@ -178,18 +137,46 @@ public class CheckoutAction extends AbstractAction {
         dialog.setVisible(true);
         
         Object value = dd.getValue();
-        if (value != checkoutButton) return null;
+        if (value != reserveButton) return;
         
         String message = panel.taMessage.getText();
-        boolean doReserved = panel.cbReserved.isSelected();
 
-        Utils.insert(ClearcaseModuleConfig.getPreferences(), RECENT_CHECKOUT_MESSAGES, message, 20);
+        Utils.insert(ClearcaseModuleConfig.getPreferences(), CheckoutAction.RECENT_CHECKOUT_MESSAGES, message, 20);
                 
-        ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Checking out...",
-                new CheckoutCommand(files, message, doReserved ? CheckoutCommand.Reserved.Reserved : CheckoutCommand.Reserved.Unreserved, 
-                                    false, createNotificationListener(files), new OutputWindowNotificationListener())));        
-        return cr;
+        Clearcase.getInstance().getClient().post(new ExecutionUnit(
+                "Modifying Checkout...",
+                new UnreserveCommand(files, message, createNotificationListener(files), new OutputWindowNotificationListener())));
+    }
+
+    public static void performReserve(File[] files, String title) {        
+        JButton reserveButton = new JButton(); 
+        CheckoutPanel panel = new CheckoutPanel();
+        panel.cbReserved.setVisible(false);
+        
+        DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(ReserveAction.class, "CTL_ReserveDialog_Title", title)); // NOI18N
+        dd.setModal(true);        
+        Mnemonics.setLocalizedText(reserveButton, NbBundle.getMessage(ReserveAction.class, "CTL_ReserveDialog_Reserve"));
+        
+        dd.setOptions(new Object[] {reserveButton, DialogDescriptor.CANCEL_OPTION}); // NOI18N
+        dd.setHelpCtx(new HelpCtx(ReserveAction.class));
+                
+        panel.putClientProperty("contentTitle", title);  // NOI18N
+        panel.putClientProperty("DialogDescriptor", dd); // NOI18N
+        final Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);        
+        dialog.addWindowListener(new DialogBoundsPreserver(ClearcaseModuleConfig.getPreferences(), "checkout.dialog")); // NOI18N       
+        dialog.pack();        
+        dialog.setVisible(true);
+        
+        Object value = dd.getValue();
+        if (value != reserveButton) return;
+        
+        String message = panel.taMessage.getText();
+
+        Utils.insert(ClearcaseModuleConfig.getPreferences(), CheckoutAction.RECENT_CHECKOUT_MESSAGES, message, 20);
+                
+        Clearcase.getInstance().getClient().post(new ExecutionUnit(
+                "Modifying Checkout...",
+                new ReserveCommand(files, message, createNotificationListener(files), new OutputWindowNotificationListener())));
     }
     
     private static NotificationListener createNotificationListener(final File ...files) {
@@ -210,7 +197,7 @@ public class CheckoutAction extends AbstractAction {
      */
     public static void checkout(File file) {
         ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Checking out...",
+                "Modifying Checkout...",
                 new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Default, true, createNotificationListener(file))));
         cr.waitFinished();
     }

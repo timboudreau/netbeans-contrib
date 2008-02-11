@@ -38,7 +38,7 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.clearcase.ui;
+package org.netbeans.modules.clearcase.ui.checkin;
 
 import java.util.Set;
 import org.netbeans.modules.versioning.spi.VCSContext;
@@ -47,6 +47,8 @@ import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.FileStatusCache;
@@ -55,18 +57,39 @@ import org.netbeans.modules.clearcase.util.Utils;
 /**
  * @author Maros Sandor
  */
-public class IgnoreAction extends AbstractAction {
+public class ExcludeAction extends AbstractAction {
     
     private VCSContext context;    
     
-    public IgnoreAction(VCSContext context) {
-        super(getNameFromContext(context));
+    public ExcludeAction(VCSContext context) {        
         this.context = context;
+        putValue(Action.NAME, getNameFromContext(context));        
     }
 
     @Override
     public boolean isEnabled() {        
-        return getStatus(context) != -1;
+        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
+        Set<File> roots = context.getRootFiles();        
+        boolean include = false;
+        boolean exclude = false;
+        for (File root : roots) {            
+            FileInformation info = cache.getCachedInfo(root);            
+            if(info != null && ((info.getStatus() & CheckinAction.ALLOW_CHECKIN) == 0)) {
+                return false;
+            }
+            if(ClearcaseModuleConfig.isExcludedFromCommit(root.getAbsolutePath())) {
+                if(include) {
+                    return false;
+                }              
+                exclude = true;
+            } else {
+                if(exclude) {
+                    return false;
+                }         
+                include = true;
+            }
+        }
+        return true;
     }
     
     public void actionPerformed(ActionEvent e) {
@@ -75,47 +98,52 @@ public class IgnoreAction extends AbstractAction {
             return;
         }
         try {
-            for (File file : roots) {
-                if (ClearcaseModuleConfig.isIgnored(file)) {
-                    ClearcaseModuleConfig.setUnignored(file);
-                } else {
-                    ClearcaseModuleConfig.setIgnored(file);
-                }                
-            }    
-        } finally {            
-            Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]), false, true);            
-        }        
-    }
-
-    private static String getNameFromContext(VCSContext context) {
-        int status = getStatus(context);
-        if(status == FileInformation.STATUS_NOTVERSIONED_IGNORED) {
-            return "Unignore";    
-        } else {
-            return "Ignore";    
-        }        
-    }
-    
-    private static int getStatus(VCSContext context) {
-        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();        
-        File[] files = context.getRootFiles().toArray(new File[context.getRootFiles().size()]);        
-        int status = -1;
-        for (int i = 0 ; i < files.length; i++) {
-            File file = files[i];            
-            if(i == 0) {
-                status = cache.getInfo(file).getStatus();                
-                if( ( status & 
-                      (FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY | 
-                       FileInformation.STATUS_NOTVERSIONED_IGNORED) ) == 0 ) {
-                    return -1;
+            List<String> exclusions = new ArrayList<String>();
+            File file = null;            
+            for (File root : roots) {
+                if(file == null) {
+                    file = root;
                 }
+                exclusions.add(file.getAbsolutePath());
+            }                                
+            boolean excluded = ClearcaseModuleConfig.isExcludedFromCommit(file.getAbsolutePath());
+            if(excluded) {
+                ClearcaseModuleConfig.removeExclusionPaths(exclusions);   
             } else {
-                if( cache.getInfo(file).getStatus() != status ) {
-                    return -1;
-                }            
-            }                
-        }        
-        return status;
-    }
+                ClearcaseModuleConfig.addExclusionPaths(exclusions);                   
+            }         
+        } finally {
+            Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]), false, false);            
+        }
+    }    
     
+    private static String getNameFromContext(VCSContext context) {
+        Set<File> roots = context.getRootFiles();
+        if(roots.size() == 0 ) {
+            return "Exclude from Checkin";
+        }
+
+        String name = null;
+        boolean included = false;
+        boolean excluded = false;
+        for (File root : roots) {            
+            if(ClearcaseModuleConfig.isExcludedFromCommit(root.getAbsolutePath())) {
+                if(included) {
+                    break;
+                }              
+                excluded = true;
+            } else {
+                if(excluded) {
+                    break;
+                }         
+                included = true;
+            }            
+        }    
+        if(excluded) {
+            name = "Include to Checkin";            
+        } else {
+            name = "Exclude from Checkin";
+        }
+        return name;            
+    }    
 }

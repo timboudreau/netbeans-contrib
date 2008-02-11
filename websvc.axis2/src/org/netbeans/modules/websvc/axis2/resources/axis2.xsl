@@ -106,6 +106,50 @@ made subject to such option by the copyright holder.
                         <delete file="${{basedir}}/xml-resources/axis2/META-INF/{$wsname}.wsdl"/>
                     </target>
                 </xsl:if>
+                <xsl:if test="axis2:wsdl-url">
+                    <xsl:variable name="wsname" select="@name"/>
+                    <xsl:variable name="wsdlUrl" select="axis2:wsdl-url"/>
+                    <xsl:variable name="service_class" select="axis2:service-class"/>
+                    <xsl:variable name="serviceName" select="axis2:java-generator/@serviceName"/>
+                    <xsl:variable name="portName" select="axis2:java-generator/@portName"/>
+                    <xsl:variable name="packageName" select="axis2:java-generator/@packageName"/>
+                    <xsl:variable name="databindingName" select="axis2:java-generator/@databindingName"/>
+                  
+                    <target name="wsdl2java-{$wsname}" depends="init">
+                        <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
+                            <arg line="-uri {$wsdlUrl}"/>
+                            <arg line="-s"/>
+                            <arg line="-ss"/>
+                            <arg line="-sd"/>
+                            <arg line="-ssi"/>
+                            <arg line="-sn {$serviceName}"/>
+                            <arg line="-pn {$portName}"/>
+                            <arg line="-p {$packageName}"/>
+                            <arg line="-d {$databindingName}"/>
+                            <arg line="-o ${{build.dir}}/axis2"/>
+                            <classpath>
+                                <fileset dir="${{axis2.home}}/lib">
+                                    <include name="*.jar"/>
+                                </fileset>
+                            </classpath>
+                        </java>
+                        <copy toDir="${{src.dir}}">
+                            <fileset dir="${{build.dir}}/axis2/src">
+                                <include name="**/*.java"/>
+                            </fileset>
+                        </copy>
+                        <mkdir dir="${{basedir}}/xml-resources/axis2/META-INF"/>
+                        <copy toDir="${{basedir}}/xml-resources/axis2/META-INF/">
+                            <fileset dir="${{build.dir}}/axis2/resources">
+                                <include name="**/*.wsdl"/>
+                                <include name="**/*.xsd"/>
+                            </fileset>
+                        </copy>
+                    </target>
+                    <target name="wsdl2java-clean-{$wsname}" depends="init" >
+                        <delete file="${{basedir}}/xml-resources/axis2/META-INF/{$wsname}.wsdl"/>
+                    </target>
+                </xsl:if>
             </xsl:for-each>
             
             <!-- generate aar -->

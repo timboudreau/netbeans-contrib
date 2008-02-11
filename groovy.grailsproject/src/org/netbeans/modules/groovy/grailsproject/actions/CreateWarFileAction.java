@@ -32,6 +32,7 @@ import org.netbeans.modules.groovy.grails.api.GrailsServerState;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import java.io.BufferedReader;
+import java.io.File;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.groovy.grails.api.GrailsServer;
 import org.netbeans.modules.groovy.grails.api.GrailsServerFactory;
@@ -42,29 +43,29 @@ import org.openide.windows.OutputWriter;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.io.InputStreamReader;
-import java.net.URL;
+import java.util.Enumeration;
+import org.netbeans.modules.groovy.grails.api.GrailsProjectConfig;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.awt.HtmlBrowser;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
 import org.openide.windows.OutputListener;
 
 
-public class RunGrailsServerCommandAction extends AbstractAction implements OutputListener {
+public class CreateWarFileAction extends AbstractAction implements OutputListener {
 
     Project prj;
-    GrailsServerState serverState = null;
-    Logger LOG = Logger.getLogger(RunGrailsServerCommandAction.class.getName());
+    Logger LOG = Logger.getLogger(CreateWarFileAction.class.getName());
             
-    public RunGrailsServerCommandAction (Project prj){
-        super ("Run Application");
+    public CreateWarFileAction (Project prj){
+        super ("Create war file");
         this.prj = prj;
         
     }
 
     public boolean isEnabled(){
-            serverState = prj.getLookup().lookup(GrailsServerState.class);
-            return ! serverState.isRunning();
+            return true;
         }
             
     public void actionPerformed(ActionEvent e) {
@@ -77,9 +78,9 @@ public class RunGrailsServerCommandAction extends AbstractAction implements Outp
 
         BufferedReader procOutput;
         OutputWriter writer =  null;
-        RunGrailsServerCommandAction parent;
+        CreateWarFileAction parent;
 
-        public PrivateSwingWorker(RunGrailsServerCommandAction parent) {
+        public PrivateSwingWorker(CreateWarFileAction parent) {
             this.parent = parent;
         }
         
@@ -87,36 +88,66 @@ public class RunGrailsServerCommandAction extends AbstractAction implements Outp
 
         try {
             String lineString = null;
-            
+
             String tabName = "Grails Server for: " + prj.getProjectDirectory().getName();
             InputOutput io = IOProvider.getDefault().getIO(tabName, true);
-            
+
             io.select();
             writer = io.getOut();
-          
-            GrailsServer server = GrailsServerFactory.getServer();    
-            Process process = server.runCommand(prj, "run-app", io, null);
-            
-            if (process == null){
+
+            GrailsServer server = GrailsServerFactory.getServer();
+            Process process = server.runCommand(prj, "war", io, null);
+
+            if (process == null) {
                 displayGrailsProcessError(server.getLastError());
                 return;
-                }
-            
+            }
+
             procOutput = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            
+
             assert procOutput != null;
             assert writer != null;
+
+            GrailsProjectConfig prjConfig = new GrailsProjectConfig(prj);
             
-                while ((lineString = procOutput.readLine()) != null) {
-                    if (lineString.contains("Browse to http:/")) {
-                        writer.println(lineString, parent);
-                        startBrowserWithUrl(lineString);
-                    } else {
-                        writer.println(lineString);
+            while ((lineString = procOutput.readLine()) != null) {
+                writer.println(lineString);
+                
+                if(prjConfig.getAutoDeployFlag()) {    
+                    if (lineString.contains("Done creating WAR")) {
+                        LOG.log(Level.FINEST, "War file created, copy");
+                        FileObject prjDir = prj.getProjectDirectory();
+
+                        LOG.log(Level.FINEST, "Project Directory: " + prjDir.getPath());
+
+                        for (Enumeration e = prjDir.getChildren(false); e.hasMoreElements();) {
+                            FileObject fo = (FileObject) e.nextElement();
+                            if (fo != null) {
+                                if (fo.getExt().toUpperCase().startsWith("WAR")) {
+                                    LOG.log(Level.FINEST, "Extention is OK: " + fo.getExt());
+                                    String deployDir = prjConfig.getDeployDir();
+
+                                    LOG.log(Level.FINEST, "Target dir from config: " + deployDir);
+
+                                    if (deployDir != null && deployDir.length() > 0) {
+
+                                        File targetFile = new File(deployDir);
+                                        FileObject target = FileUtil.toFileObject(targetFile);
+                                        LOG.log(Level.FINEST, "Copy file (source)     :" + fo.getPath());
+                                        LOG.log(Level.FINEST, "Copy file (destination):" + target.getPath());
+                                        LOG.log(Level.FINEST, "Copy file (name)       :" + fo.getName());
+                                        FileUtil.copyFile(fo, target, fo.getName());
+                                    }
+                                }
+                            }
+                        }
                     }
-                }
+                }    
+            }
             } catch (Exception e) {
-                LOG.log(Level.WARNING, "Could not read Process output " + e);
+                LOG.log(Level.WARNING, "problem with process: " + e);
+                LOG.log(Level.WARNING, "message " + e.getLocalizedMessage());
+                e.printStackTrace();
             }
         }
     }
@@ -124,28 +155,15 @@ public class RunGrailsServerCommandAction extends AbstractAction implements Outp
     
     void displayGrailsProcessError(Exception reason) {
         DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
-            NbBundle.getMessage(RunGrailsServerCommandAction.class, "LBL_process_problem") + 
+            NbBundle.getMessage(CreateWarFileAction.class, "LBL_process_problem") + 
             " " + reason.getLocalizedMessage(),
             NotifyDescriptor.Message.WARNING_MESSAGE
             ));
         }
     
-    public void startBrowserWithUrl(String lineString){
-        String urlString = lineString.substring(lineString.indexOf("http://"));
-     
-        try {
-            HtmlBrowser.URLDisplayer.getDefault().showURL(new URL(urlString));
-
-        } catch (MalformedURLException ex) {
-            LOG.log(Level.WARNING, "Could not start browser " + ex.getMessage());
-
-        }
-    }
-
 
     public void outputLineAction(OutputEvent ev) {
         String lineString = ev.getLine();
-        startBrowserWithUrl(lineString);
     }
 
     public void outputLineSelected(OutputEvent ev) {
