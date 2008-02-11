@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level; 
+import java.util.regex.Pattern;
 import org.netbeans.api.queries.SharabilityQuery;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.clearcase.util.Utils;
@@ -89,6 +90,8 @@ public class FileStatusCache {
     
     private Set<File> filesToRefresh = new HashSet<File>();
     private RequestProcessor.Task filesToRefreshTask;
+
+    private static final Pattern keepPattern = Pattern.compile(".*\\.keep(\\.\\d+)?");
     
     FileStatusCache() {
         this.clearcase = Clearcase.getInstance();        
@@ -431,7 +434,11 @@ public class FileStatusCache {
         if(ClearcaseModuleConfig.isIgnored(file)) {
             return true;
         }
-
+        
+        if( keepPattern.matcher(file.getName()).matches()) {
+            return true;
+        }
+        
         if (SharabilityQuery.getSharability(file) == SharabilityQuery.NOT_SHARABLE) {
             // BEWARE: In NetBeans VISIBILTY == SHARABILITY                                 
             ClearcaseModuleConfig.setIgnored(file);
