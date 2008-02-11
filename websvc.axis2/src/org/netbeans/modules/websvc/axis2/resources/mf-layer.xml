@@ -60,9 +60,10 @@ made subject to such option by the copyright holder.
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="position" intvalue="101"/>
             </file>
-            <file name="AxisService.java">         
+            <file name="AxisService.java" url="nbres:/org/netbeans/modules/websvc/axis2/resources/EmptyWebService.template">         
                 <attr name="template" boolvalue="true"/>
                 <attr name="position" intvalue="200"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="templateWizardIterator" newvalue="org.netbeans.modules.websvc.axis2.wizards.WsFromWsdlWizardIterator"/>
                 <attr name="templateCategory" stringvalue="web-service-clients"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/websvc/axis2/resources/WebService.html"/>
