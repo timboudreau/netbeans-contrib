@@ -44,6 +44,7 @@ import org.netbeans.modules.websvc.axis2.config.model.Axis2;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2ComponentFactory;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
 import org.netbeans.modules.websvc.axis2.config.model.GenerateWsdl;
+import org.netbeans.modules.websvc.axis2.config.model.JavaGenerator;
 import org.netbeans.modules.websvc.axis2.services.model.MessageReceiver;
 import org.netbeans.modules.websvc.axis2.services.model.MessageReceivers;
 import org.netbeans.modules.websvc.axis2.services.model.Parameter;
@@ -120,6 +121,27 @@ public class WizardUtils {
                 genWsdl.setSchemaNamespaceAttr(defaultNs+"xsd");
                 service.setGenerateWsdl(genWsdl);
             }
+            axis2.addService(service);
+            axis2Model.endTransaction();
+        }
+    }
+    
+    static void addService(Axis2Model axis2Model, String wsdlUrl, String serviceClass, String serviceName, String portName, String packageName, String databinding ) {
+        Axis2ComponentFactory factory = axis2Model.getFactory();
+
+        Axis2 axis2 = axis2Model.getRootComponent();
+        if (axis2 != null) {            
+            axis2Model.startTransaction();
+            org.netbeans.modules.websvc.axis2.config.model.Service service = factory.createService();
+            service.setNameAttr(serviceName);factory.createService();
+            service.setServiceClass(serviceClass);
+            service.setWsdlUrl(wsdlUrl);
+            JavaGenerator javaGenerator = factory.createJavaGenerator();
+            javaGenerator.setDatabindingNameAttr(databinding);
+            javaGenerator.setServiceNameAttr(serviceName);
+            javaGenerator.setPortNameAttr(portName);
+            javaGenerator.setPackageNameAttr(packageName);
+            service.setJavaGenerator(javaGenerator);
             axis2.addService(service);
             axis2Model.endTransaction();
         }

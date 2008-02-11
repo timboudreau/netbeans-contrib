@@ -42,6 +42,8 @@
 package org.netbeans.modules.websvc.axis2.wizards;
 
 import java.awt.Component;
+import java.io.File;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -49,8 +51,14 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
 
+import org.netbeans.modules.websvc.axis2.WSDLUtils;
+import org.netbeans.modules.xml.wsdl.model.Service;
+import org.netbeans.modules.xml.wsdl.model.WSDLModel;
 import org.openide.WizardDescriptor;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.HelpCtx;
+import org.openide.util.RequestProcessor;
 
 /**
  *
@@ -82,6 +90,10 @@ public class WsFromWsdlPanel1 implements  WizardDescriptor.FinishablePanel<Wizar
         return component;
     }
     
+    WizardDescriptor getWizardDescriptor() {
+        return wizardDescriptor;
+    }
+    
     Project getProject() {
         return project;
     }
@@ -91,9 +103,31 @@ public class WsFromWsdlPanel1 implements  WizardDescriptor.FinishablePanel<Wizar
     }
 
     public void readSettings(WizardDescriptor settings) {
+        final File wsdlFile = (File)settings.getProperty(WizardProperties.PROP_WSDL_URL);
+        if (wsdlFile != null) {
+            RequestProcessor.getDefault().post(new Runnable() {
+                public void run() {
+                    FileObject wsdlFo = FileUtil.toFileObject(wsdlFile);
+                    WSDLModel wsdlModel = WSDLUtils.getWSDLModel(wsdlFo, true);
+                    if (wsdlModel != null) {
+                        Collection<Service> services = WSDLUtils.getServices(wsdlModel);
+                        component.setServices(services);
+                        if (services != null && services.size()>0) {
+                            component.setPorts(WSDLUtils.getPortsForService(services.iterator().next()));
+                        }
+                        component.setPackageName(WSDLUtils.getPackageNameFromNamespace(wsdlModel.getDefinitions().getTargetNamespace()));
+                    }
+                }
+                
+            });
+        }        
     }
 
     public void storeSettings(WizardDescriptor settings) {
+        settings.putProperty(WizardProperties.PROP_DATABINDING_NAME, component.getDatabindingName());
+        settings.putProperty(WizardProperties.PROP_SERVICE_NAME, component.getServiceName());
+        settings.putProperty(WizardProperties.PROP_PORT_NAME, component.getPortName());
+        settings.putProperty(WizardProperties.PROP_PACKAGE_NAME, component.getPackageName());
     }
 
     public boolean isValid() {
