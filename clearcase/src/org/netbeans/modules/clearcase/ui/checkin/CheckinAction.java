@@ -228,6 +228,6 @@ public class CheckinAction extends AbstractAction implements NotificationListene
     public void outputText(String line) { /* boring */ }
     public void errorText(String line)  { /* boring */ }
     public void commandFinished() {               
-        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files, false);        
+        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files, false, false);        
     }    
 }

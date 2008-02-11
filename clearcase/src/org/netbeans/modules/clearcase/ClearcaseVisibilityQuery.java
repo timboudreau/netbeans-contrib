@@ -56,8 +56,7 @@ import java.io.File;
  */
 public class ClearcaseVisibilityQuery implements VisibilityQueryImplementation {
 
-    private static final Pattern unloadedPattern = Pattern.compile(".*\\.unloaded(\\.\\d+)?");
-    private static final Pattern keepPattern = Pattern.compile(".*\\.keep(\\.\\d+)?");
+    private static final Pattern unloadedPattern = Pattern.compile(".*\\.unloaded(\\.\\d+)?");    
     private static final Pattern updtPattern = Pattern.compile("update\\..*?\\.updt");
 
     /**
@@ -78,8 +77,7 @@ public class ClearcaseVisibilityQuery implements VisibilityQueryImplementation {
         if (file.isFolder()) {
             return !name.equals("lost+found");
         } else {
-            return !name.equals("view.dat") && 
-                    !keepPattern.matcher(name).matches() && 
+            return !name.equals("view.dat") &&                     
                     !updtPattern.matcher(name).matches() && 
                     !unloadedPattern.matcher(name).matches();
         }

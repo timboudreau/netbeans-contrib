@@ -43,6 +43,7 @@ package org.netbeans.modules.clearcase.util;
 
 import java.io.*;
 import java.util.*;
+import java.util.ArrayList;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.openide.filesystems.FileUtil;
@@ -94,24 +95,43 @@ public class Utils {
      * @param includeParents if true all parents for the given files will be refreshed too
      */
     // XXX maybe this should be somewere in the comand infrastructure
-    public static void afterCommandRefresh(final File[] files, final boolean includeParents) {    
+    public static void afterCommandRefresh(final File[] files, final boolean includeParents, final boolean includeChildren) {    
         org.netbeans.modules.versioning.util.Utils.post(new Runnable() {
             public void run() {
-                Set<File> refreshList = new HashSet<File>();
+                Set<File> refreshSet = new HashSet<File>();
                 for (File file : files) {
                     if(includeParents) {
                         File parent = file.getParentFile();
                         if(parent != null) {
-                            refreshList.add(parent);
+                            refreshSet.add(parent);
                         }    
-                    }                    
-                    refreshList.add(file);
+                    }               
+                    if(includeChildren) {
+                        refreshSet.addAll(getFileTree(file));    
+                    } else {
+                        refreshSet.add(file);
+                    }
+                    
                 }                        
-                File[] refreshFiles = refreshList.toArray(new File[refreshList.size()]);
+                File[] refreshFiles = refreshSet.toArray(new File[refreshSet.size()]);
                 Clearcase.getInstance().getFileStatusCache().refreshLater(refreshFiles);
                 FileUtil.refreshFor(refreshFiles); 
             }
         });        
     }       
+    
+    private static List<File> getFileTree(File file) {
+        List<File> ret = new  ArrayList<File>();
+        ret.add(file);
+        if(file.isDirectory()) {
+            File[] files = file.listFiles();
+            if(files != null) {
+                for (File f : files) {
+                    ret.addAll(getFileTree(f));
+                }
+            }
+        }
+        return ret;
+    }
     
 }
