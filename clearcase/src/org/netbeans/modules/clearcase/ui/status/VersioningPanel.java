@@ -65,6 +65,7 @@ import java.io.File;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 import org.netbeans.modules.clearcase.Clearcase;
+import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.FileStatusCache;
 import org.netbeans.modules.clearcase.ui.diff.Setup;
@@ -155,11 +156,10 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         onDisplayedStatusChanged();
     }
     
-    public void preferenceChange(PreferenceChangeEvent evt) {
-        // XXX
-//        if (evt.getKey().startsWith(SvnModuleConfig.PROP_COMMIT_EXCLUSIONS)) {
-//            repaint();
-//        }
+    public void preferenceChange(PreferenceChangeEvent evt) {        
+        if (evt.getKey().startsWith(ClearcaseModuleConfig.PROP_COMMIT_EXCLUSIONS)) {
+            repaint();
+        }
     }
     
     public void propertyChange(PropertyChangeEvent evt) {
@@ -186,16 +186,14 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
     
     public void addNotify() {
         super.addNotify();
-        // XXX SvnModuleConfig.getDefault().getPreferences().addPreferenceChangeListener(this);
-        Clearcase.getInstance().getFileStatusCache().addVersioningListener(this);
-//        subversion.addVersioningListener(this);
+        ClearcaseModuleConfig.getPreferences().addPreferenceChangeListener(this);
+        Clearcase.getInstance().getFileStatusCache().addVersioningListener(this);        
         explorerManager.addPropertyChangeListener(this);
         reScheduleRefresh(0);   // the view does not listen for changes when it is not visible
     }
 
     public void removeNotify() {
-        // XXX SvnModuleConfig.getDefault().getPreferences().removePreferenceChangeListener(this);
-        // XXX Clearcase.getInstance().getFileStatusCache().removeVersioningListener(this);
+        ClearcaseModuleConfig.getPreferences().removePreferenceChangeListener(this);        
         Clearcase.getInstance().getFileStatusCache().removeVersioningListener(this);
         explorerManager.removePropertyChangeListener(this);
         super.removeNotify();
@@ -232,10 +230,6 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         if (displayStatuses == FileInformation.STATUS_LOCAL_CHANGE) {
             tgbLocal.setSelected(true);
         }
-        // TODO
-//        else if (displayStatuses == FileInformation.STATUS_REMOTE_CHANGE) { 
-//            tgbRemote.setSelected(true);
-//        }
         else { 
             tgbAll.setSelected(true);
         }
@@ -266,40 +260,17 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
                 // finally section
             }
 
-            final String [] tableColumns;
-            final String branchTitle;
-            if (nodes.length > 0) {
-                boolean stickyCommon = true;
-                // XXX boring sticky crap
-//                String currentSticky = SvnUtils.getCopy(nodes[0].getFile());
-//                for (int i = 1; i < nodes.length; i++) {
-//                    if (Thread.interrupted()) {
-//                        // TODO set model that displays that fact to user
-//                        return;
-//                    }
-//                    String sticky = SvnUtils.getCopy(nodes[i].getFile());
-//                    if (sticky != currentSticky && (sticky == null || currentSticky == null || !sticky.equals(currentSticky))) {
-//                        stickyCommon = false;
-//                        break;
-//                    }
-//                }
-                if (stickyCommon) {
-                    tableColumns = new String [] { SyncFileNode.COLUMN_NAME_NAME, SyncFileNode.COLUMN_NAME_STATUS, SyncFileNode.COLUMN_NAME_PATH };
-                    // XXX boring sticky crap branchTitle = currentSticky == null ? null : NbBundle.getMessage(VersioningPanel.class, "CTL_VersioningView_BranchTitle_Single", currentSticky); // NOI18N
-                } else {
-                    tableColumns = new String [] { SyncFileNode.COLUMN_NAME_NAME, SyncFileNode.COLUMN_NAME_BRANCH, SyncFileNode.COLUMN_NAME_STATUS, SyncFileNode.COLUMN_NAME_PATH };
-                    branchTitle = NbBundle.getMessage(VersioningPanel.class, "CTL_VersioningView_BranchTitle_Multi"); // NOI18N
-                }
+            final String [] tableColumns;            
+            if (nodes.length > 0) {                
+                tableColumns = new String [] { SyncFileNode.COLUMN_NAME_NAME, SyncFileNode.COLUMN_NAME_STATUS, SyncFileNode.COLUMN_NAME_PATH };                                    
             } else {
                 tableColumns = null;
-                branchTitle = null;
             }
 
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     if (nodes.length > 0) {
                         syncTable.setColumns(tableColumns);
-                        // XXX boring sticky crap parentTopComponent.setBranchTitle(branchTitle);
                         setVersioningComponent(syncTable.getComponent());
                     } else {
                         setVersioningComponent(noContentComponent);
@@ -407,28 +378,6 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
             });
         }
         refreshStatusesTask.schedule(0);
-        
-//        if(svnProgressSupport!=null) {
-//            svnProgressSupport.cancel();
-//            svnProgressSupport = null;
-//        }
-//
-//        SVNUrl repository;
-//        try {
-//            repository = CommitAction.getSvnUrl(context);
-//        } catch (SVNClientException ex) {
-//            SvnClientExceptionHandler.notifyException(ex, true, true);     
-//            return; 
-//        }                 
-//        RequestProcessor rp = Subversion.getInstance().getRequestProcessor(repository);
-//        svnProgressSupport = new SvnProgressSupport() {
-//            public void perform() {                
-//                StatusAction.executeStatus(context, this);
-//                setupModels();
-//            }            
-//        };
-//        parentTopComponent.contentRefreshed();
-//        svnProgressSupport.start(rp, repository, org.openide.util.NbBundle.getMessage(VersioningPanel.class, "LBL_Refresh_Progress")); // NOI18N
     }
 
     /**
@@ -440,16 +389,12 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         if (displayStatuses == FileInformation.STATUS_LOCAL_CHANGE) {            
             LifecycleManager.getDefault().saveAll();
             DiffAction.diff(context, Setup.DIFFTYPE_LOCAL, title);
-//        } else if (displayStatuses == FileInformation.STATUS_REMOTE_CHANGE) {
-//            DiffAction.diff(context, Setup.DIFFTYPE_REMOTE, title);
         } else {
             LifecycleManager.getDefault().saveAll();
             DiffAction.diff(context, Setup.DIFFTYPE_ALL, title);
         }
     }
 
-    
-    
     private void onDisplayedStatusChanged() {
         if (tgbLocal.isSelected()) {
             setDisplayStatuses(FileInformation.STATUS_LOCAL_CHANGE);
@@ -457,12 +402,10 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         }
         else if (tgbRemote.isSelected()) {
             setDisplayStatuses(FileInformation.STATUS_LOCAL_CHANGE);
-            // TODO setDisplayStatuses(FileInformation.STATUS_REMOTE_CHANGE);
             noContentComponent.setLabel(NbBundle.getMessage(VersioningPanel.class, "MSG_No_Changes_Remote")); // NOI18N
         }
         else if (tgbAll.isSelected()) {
             setDisplayStatuses(FileInformation.STATUS_LOCAL_CHANGE);
-            // TODO setDisplayStatuses(FileInformation.STATUS_REMOTE_CHANGE | FileInformation.STATUS_LOCAL_CHANGE);
             noContentComponent.setLabel(NbBundle.getMessage(VersioningPanel.class, "MSG_No_Changes_All")); // NOI18N
         }
     }
@@ -579,10 +522,6 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
                 if (comp instanceof JProgressBar && reminder > 0) {
                     width += reminder;
                 }
-//                if (comp == getMiniStatus()) {
-//                    width = reminder;
-//                }
-
                 // in column layout use taller toolbar
                 int height = getToolbarHeight(dim) -1;
                 comp.setSize(width, height);  // 1 verySoftBevel compensation

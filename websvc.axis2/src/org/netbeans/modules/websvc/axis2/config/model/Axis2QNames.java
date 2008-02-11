@@ -49,7 +49,7 @@ public enum Axis2QNames {
     AXIS2("axis2"), //NOI18N
     SERVICE("service"), //NOI18N
     SERVICE_CLASS("service-class"), //NOI18N
-    SERVICE_URL("service-url"), //NOI18N
+    WSDL_URL("wsdl-url"), //NOI18N
     JAVA_GENERATOR("java-generator"), //NOI18N
     GENERATE_WSDL("generate-wsdl"); //NOI18N
 

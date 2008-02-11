@@ -13,14 +13,12 @@
 	 <target name="netbeans-extra" depends="release"/>
 	 <target name="release" depends="init">
 	        
-	      <!--  <mkdir dir="${cluster}/modules/ext/portalpack/saw"/>	        
-	        <copy file="libs/usermanager-0.1.jar"
-	        todir="${cluster}/modules/ext/portalpack/saw"/> 
-	        <copy file="libs/saw-impl-jcaps-0.2.jar"
-	        todir="${cluster}/modules/ext/portalpack/saw"/> -->
-	        <copy file="libs/saw-api-0.2.jar"
-	        todir="${cluster}/modules/ext/portalpack/saw"/> 
-	      
+	       <mkdir dir="${cluster}/modules/ext/portalpack/saw"/>	        
+                <mkdir dir="libs"/>
+                <get src="${saw.api.download.url}" 
+                        dest="libs/${saw.api.jar}"/>
+                <copy file="libs/${saw.api.jar}"
+	        todir="${cluster}/modules/ext/portalpack/saw"/>
    	 </target>
    	 
    	 <target name="clean" depends="projectized-common.clean">

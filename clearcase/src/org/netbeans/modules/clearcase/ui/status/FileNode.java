@@ -72,7 +72,7 @@ public class FileNode {
      * Returns the FileInformation for the file. May be null if not cahched yet.
      * @return
      */    
-    public FileInformation getInformation() {
+    public FileInformation getInfo() {
         return getCachedInfo(file); 
     }
 

@@ -49,13 +49,14 @@ import org.netbeans.modules.versioning.spi.VCSInterceptor;
 import org.netbeans.modules.versioning.spi.VersioningSystem;
 import org.netbeans.modules.versioning.util.VersioningEvent;
 import org.netbeans.modules.versioning.util.VersioningListener;
+import org.netbeans.spi.queries.CollocationQueryImplementation;
 
 /**
  * Extends framework <code>VersioningSystem</code> to Clearcase module functionality.
  * 
  * @author Maros Sandor
  */
-public class ClearcaseVCS extends VersioningSystem implements PropertyChangeListener, VersioningListener {
+public class ClearcaseVCS extends VersioningSystem implements PropertyChangeListener, VersioningListener, CollocationQueryImplementation {
 
     public ClearcaseVCS() {
         putProperty(PROP_DISPLAY_NAME, "Clearcase");
@@ -93,6 +94,19 @@ public class ClearcaseVCS extends VersioningSystem implements PropertyChangeList
         return Clearcase.getInstance().getInterceptor();
     }
 
+    public boolean areCollocated(File a, File b) {
+        File fra = getTopmostManagedAncestor(a);
+        File frb = getTopmostManagedAncestor(b);
+        if (fra == null || !fra.equals(frb)) return false;
+        
+        // TODO: should we check that they come from the same view?
+        return true;
+    }
+
+    public File findRoot(File file) {
+        return getTopmostManagedAncestor(file);
+    }
+    
     public void propertyChange(PropertyChangeEvent event) {
         // TODO - doesn't look like we need this right now
 //        if (event.getPropertyName().equals(Clearcase.PROP_ANNOTATIONS_CHANGED)) {

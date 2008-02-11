@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import org.netbeans.modules.versioning.util.Utils;
+import org.openide.util.Utilities;
 
 /**
  *
@@ -65,28 +66,29 @@ class Repository {
         return instance;
     }
 
-    void add(File file, boolean checkout) {
-        File parent = file.getParentFile();
-        Map<File, FileEntry> entries = map.get(parent);
-        if (entries == null || entries.get(file) == null) {
-            CleartoolMockup.LOG.warning("No entry for to be checkedin file " + file);
-        }
-        ci(file);
+    void add(File file, boolean checkout) {        
+        ci(file, true);
         if(checkout) {
             co(file, true);
         }
     }
     
-    void ci(File file) {
+    void ci(File file, boolean add) {
         try {
             File parent = file.getParentFile();
             Map<File, FileEntry> entries = map.get(parent);
             if (entries == null) {
+                if(!add) {
+                    CleartoolMockup.LOG.warning("No entry for to be checkedin file " + file);
+                }
                 entries = new HashMap<File, FileEntry>();
                 map.put(parent, entries);
             }
             FileEntry fe = entries.get(file);
             if (fe == null) {
+                if(!add) {
+                    CleartoolMockup.LOG.warning("No entry for to be checkedin file " + file);
+                }                
                 fe = new FileEntry(file);
                 entries.put(file, fe);
             }
@@ -98,7 +100,8 @@ class Repository {
                 data.deleteOnExit();
                 fe.getVersions().add(data);
                 Utils.copyStreamsCloseAll(new FileOutputStream(data), new FileInputStream(file));
-            }
+                setFileReadOnly(file, true);
+            }            
         } catch (IOException ex) {
             CleartoolMockup.LOG.log(Level.WARNING, null, ex);
         }
@@ -109,13 +112,20 @@ class Repository {
         Map<File, FileEntry> entries = map.get(parent);
         if(entries == null) {
             CleartoolMockup.LOG.warning("No entry for to be checkedout file " + file);
+            return; 
         }
         FileEntry fe = entries.get(file);
         if(fe == null) {
             CleartoolMockup.LOG.warning("No entry for to be checkedout file " + file);
+            return;            
         }
         fe.setCheckedout(true);
         fe.setReserved(reserved);
+        try {
+            setFileReadOnly(file, false);
+        } catch (IOException ex) {
+            CleartoolMockup.LOG.log(Level.WARNING, null, ex);
+        }
     }
 
     FileEntry getEntry(File file) {
@@ -136,17 +146,61 @@ class Repository {
         entries.remove(file);
     }
 
+    void reserve(File file, boolean value) {
+        File parent = file.getParentFile();
+        Map<File, FileEntry> entries = map.get(parent);
+        if(entries == null) {
+            CleartoolMockup.LOG.warning("No entry for to be " + (value ? "reserved" : "unresered") + " file " + file);
+            return; 
+        }
+        FileEntry fe = entries.get(file);
+        if(fe == null) {
+            CleartoolMockup.LOG.warning("No entry for to be " + (value ? "reserved" : "unresered") + " file " + file);
+            return;            
+        } else if(fe.isReserved() && value) {
+            CleartoolMockup.LOG.warning("Trying to reserve already reserved file " + file);          
+        } else if(!fe.isReserved() && !value) {
+            CleartoolMockup.LOG.warning("Trying to unreserve already unreserved file " + file);
+        }
+        fe.setReserved(value);                
+    }    
+    
     void unco(File file) {
         File parent = file.getParentFile();
         Map<File, FileEntry> entries = map.get(parent);
         if(entries == null) {
             CleartoolMockup.LOG.warning("No entry for to be uncheckedout file " + file);
+            return; 
         }
         FileEntry fe = entries.get(file);
         if(fe == null) {
             CleartoolMockup.LOG.warning("No entry for to be uncheckedout file " + file);
+            return;            
         }
         fe.setCheckedout(false);
         fe.setReserved(false);        
+        try {
+            setFileReadOnly(file, true);
+        } catch (IOException ex) {
+            CleartoolMockup.LOG.log(Level.WARNING, null, ex);
+        }        
     }
+    
+    private void setFileReadOnly(File file, boolean readOnly) throws IOException {
+        String [] command = new String[3];
+        // TODO: update for JDK 6
+        if (Utilities.isWindows()) {
+            command[0] = "attrib";
+            command[1] = readOnly ? "+R" : "-R";
+        } else {
+            command[0] = "chmod";
+            command[1] = readOnly ? "u-w" : "u+w";
+        }
+        command[2] = file.getAbsolutePath();
+        try {
+            Runtime.getRuntime().exec(command);
+        } catch (Exception e) {
+            // probably does not work, ignore
+        }
+    }    
 }
