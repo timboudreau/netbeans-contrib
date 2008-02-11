@@ -18,6 +18,9 @@
 	        todir="${cluster}/modules/ext/portalpack/saw"/> 
 	        <copy file="libs/saw-impl-jcaps-0.2.jar"
 	        todir="${cluster}/modules/ext/portalpack/saw"/> -->
+                <mkdir dir="libs"/>
+                <get src="https://saw.dev.java.net/files/documents/7325/85240/saw-api-0.4.jar" 
+                        dest="libs/saw-api-0.4.jar"/>
 	        <copy file="libs/saw-api-0.2.jar"
 	        todir="${cluster}/modules/ext/portalpack/saw"/> 
 	      

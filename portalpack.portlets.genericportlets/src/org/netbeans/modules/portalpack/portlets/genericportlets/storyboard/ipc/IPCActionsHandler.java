@@ -36,15 +36,35 @@ public class IPCActionsHandler {
     public void removeEventPinFromNode(CustomPinWidget pin)
     {
         String nodeKey = pin.getNodeKey();
-        String evtName = pin.getEventName();
-        scene.removePin(pin.getKey());
         PortletNode node = (PortletNode)scene.getPortletNode(nodeKey);
         EventObject event = pin.getEvent();
         if(node != null)
         {
             try{
                 if(event != null)
+                {
                     node.getDataObject().getPortletEventingHandler().deleteProcessEvent(node.getName(),event);
+                    scene.removePin(pin.getKey());
+                }
+            }catch(Exception e){
+                System.out.println("Event could not be deleted  properly");
+            }
+        }
+    }
+    
+    public void removePublishEventPinFromNode(CustomPinWidget pin)
+    {
+        String nodeKey = pin.getNodeKey();
+        PortletNode node = (PortletNode)scene.getPortletNode(nodeKey);
+        EventObject event = pin.getEvent();
+        if(node != null)
+        {
+            try{
+                if(event != null)
+                {
+                    node.getDataObject().getPortletEventingHandler().deletePublishEvent(node.getName(),event);
+                    scene.removePin(pin.getKey());
+                }
             }catch(Exception e){
                 System.out.println("Event could not be deleted  properly");
             }
