@@ -70,7 +70,7 @@ public class VersioningTopComponent extends TopComponent implements Externalizab
     private long                    lastUpdateTimestamp;
     
     private static VersioningTopComponent instance;
-
+    private static final String PREFERRED_ID = "ClearcaseTopComponent";
     
     public VersioningTopComponent() {
         
@@ -104,15 +104,18 @@ public class VersioningTopComponent extends TopComponent implements Externalizab
         return getDefault();
     }
     
+    @Override    
     public HelpCtx getHelpCtx() {
         return new HelpCtx(getClass());
     }
 
+    @Override    
     protected void componentActivated() {
         updateTitle();
         syncPanel.focus();
     }
 
+    @Override    
     public void writeExternal(ObjectOutput out) throws IOException {
         super.writeExternal(out);
         out.writeObject(context);
@@ -120,6 +123,7 @@ public class VersioningTopComponent extends TopComponent implements Externalizab
         out.writeLong(lastUpdateTimestamp);
     }
 
+    @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         super.readExternal(in);
         context = (VCSContext) in.readObject();
@@ -276,25 +280,16 @@ public class VersioningTopComponent extends TopComponent implements Externalizab
         return context != null && context.getRootFiles().size() > 0;
     }
 
+    @Override    
     protected String preferredID() {
         return PREFERRED_ID;    // NOI18N       
     }
 
+    @Override    
     public int getPersistenceType() {
         return TopComponent.PERSISTENCE_ALWAYS;
     }
-    
-    
-    /** path to the icon used by the component and its open action */
-//    static final String ICON_PATH = "SET/PATH/TO/ICON/HERE";
-
-    private static final String PREFERRED_ID = "VersioningTopComponent";
-
-
-
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    // End of variables declaration//GEN-END:variables
+            
     /**
      * Gets default instance. Do not use directly: reserved for *.settings files only,
      * i.e. deserialization routines; otherwise you could get a non-deserialized instance.
@@ -306,13 +301,9 @@ public class VersioningTopComponent extends TopComponent implements Externalizab
         }
         return instance;
     }
-
-
-
+    
     final static class ResolvableHelper implements Serializable {
-
         private static final long serialVersionUID = 1L;
-
         public Object readResolve() {
             return VersioningTopComponent.getDefault();
         }
