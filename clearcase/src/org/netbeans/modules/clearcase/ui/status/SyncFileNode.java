@@ -42,7 +42,6 @@
 package org.netbeans.modules.clearcase.ui.status;
 
 import java.io.IOException;
-import org.openide.*;
 import org.openide.nodes.*;
 import org.openide.util.*;
 import org.openide.util.lookup.Lookups;
@@ -56,7 +55,9 @@ import java.io.File;
 import java.util.logging.Level;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
+import org.netbeans.modules.clearcase.ui.diff.DiffAction;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
+import org.netbeans.modules.versioning.spi.VCSContext;
 
 /**
  * The node that is rendered in the SyncTable view. It gets values to display from the
@@ -79,9 +80,8 @@ public class SyncFileNode extends AbstractNode {
     
     private final VersioningPanel panel;
 
-    public SyncFileNode(FileNode node, VersioningPanel _panel) {
-        this(Children.LEAF, node, _panel);
-        
+    SyncFileNode(FileNode node, VersioningPanel _panel) {
+        this(Children.LEAF, node, _panel);        
     }
 
     private SyncFileNode(Children children, FileNode node, VersioningPanel _panel) {
@@ -96,17 +96,14 @@ public class SyncFileNode extends AbstractNode {
         return node.getFile();
     }
 
+    @Override
     public String getName() {
         return node.getName();
     }
 
-    public Action getPreferredAction() {
-        // XXX
-//        if (node.getInformation().getStatus() == FileInformation.STATUS_VERSIONED_CONFLICT) {
-//            return SystemAction.get(ResolveConflictsAction.class);
-//        }
-//        return SystemAction.get(DiffAction.class);
-        return null;
+    @Override
+    public Action getPreferredAction() {        
+        return new DiffAction("Diff", VCSContext.forNodes(new Node[] {this}));
     }
 
     /**
@@ -114,6 +111,7 @@ public class SyncFileNode extends AbstractNode {
      * If a node represents primary file of a DataObject
      * it has respective DataObject cookies.
      */
+    @Override
     public Cookie getCookie(Class klass) {
         FileObject fo = FileUtil.toFileObject(getFile());
         if (fo != null) {
@@ -138,7 +136,6 @@ public class SyncFileNode extends AbstractNode {
         ps.put(new NameProperty());
         ps.put(new PathProperty());
         ps.put(new StatusProperty());
-        // ps.put(new BranchProperty()); XXX
         
         sheet.put(ps);
         setSheet(sheet);        
@@ -146,16 +143,11 @@ public class SyncFileNode extends AbstractNode {
 
     private void refreshHtmlDisplayName() {
         FileInformation info = node.getInformation(); 
-        int status = info.getStatus();
-        // Special treatment: Mergeable status should be annotated as Conflict in Versioning view according to UI spec
-        // XXX
-//        if (status == FileInformation.STATUS_VERSIONED_MERGE) {
-//            status = FileInformation.STATUS_VERSIONED_CONFLICT;
-//        }
         htmlDisplayName = Clearcase.getInstance().getAnnotator().annotateNameHtml(node.getFile().getName(), info, null);
         fireDisplayNameChange(node.getName(), node.getName());
     }
 
+    @Override
     public String getHtmlDisplayName() {
         return htmlDisplayName;
     }
@@ -170,6 +162,7 @@ public class SyncFileNode extends AbstractNode {
             super(name, type, displayName, shortDescription);
         }
 
+        @Override
         public String toString() {
             try {
                 return getValue().toString();
@@ -179,19 +172,6 @@ public class SyncFileNode extends AbstractNode {
             }
         }
     }
-  
-    // XXX
-//    private class BranchProperty extends SyncFileProperty {
-//
-//        public BranchProperty() {
-//            super(COLUMN_NAME_BRANCH, String.class, NbBundle.getMessage(SyncFileNode.class, "BK2001"), NbBundle.getMessage(SyncFileNode.class, "BK2002")); // NOI18N
-//        }
-//
-//        public Object getValue() {            
-//            String copyName = SvnUtils.getCopy(node.getFile());
-//            return copyName == null ? "" : copyName;
-//        }
-//    }
     
     private class PathProperty extends SyncFileProperty {
 
@@ -226,8 +206,8 @@ public class SyncFileNode extends AbstractNode {
             return shortPath;
         }
     }
-
-    // XXX it's not probably called, are there another Node lifecycle events
+    
+    @Override
     public void destroy() throws IOException {
         super.destroy();
         if (nodeload != null) {
