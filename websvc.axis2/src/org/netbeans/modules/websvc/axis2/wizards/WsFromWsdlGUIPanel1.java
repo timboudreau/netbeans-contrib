@@ -41,6 +41,13 @@
 
 package org.netbeans.modules.websvc.axis2.wizards;
 
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.Collection;
+import org.netbeans.modules.websvc.axis2.WSDLUtils;
+import org.netbeans.modules.xml.wsdl.model.Port;
+import org.netbeans.modules.xml.wsdl.model.Service;
+
 /**
  *
  * @author  mkuchtiak
@@ -55,6 +62,17 @@ public class WsFromWsdlGUIPanel1 extends javax.swing.JPanel {
         initComponents();
         setName("Code Generator Options");
         jComboBox3.setModel(new javax.swing.DefaultComboBoxModel(WsFromWsdlPanel1.DATA_BINDING));
+        jComboBox1.addItemListener(new ItemListener() {
+
+            public void itemStateChanged(ItemEvent e) {
+                Object[] objects = jCheckBox1.getSelectedObjects();
+                if (objects != null && objects.length > 0) {
+                    Collection<Port> ports = WSDLUtils.getPortsForService((Service)objects[0]);
+                    setPorts(ports);
+                }
+            }
+            
+        });
     }
 
     /** This method is called from within the constructor to
@@ -72,6 +90,8 @@ public class WsFromWsdlGUIPanel1 extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         jComboBox3 = new javax.swing.JComboBox();
         jCheckBox1 = new javax.swing.JCheckBox();
+        jLabel4 = new javax.swing.JLabel();
+        tfPackageName = new javax.swing.JTextField();
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(WsFromWsdlGUIPanel1.class, "WsFromWsdlGUIPanel1.jLabel1.text")); // NOI18N
 
@@ -80,6 +100,8 @@ public class WsFromWsdlGUIPanel1 extends javax.swing.JPanel {
         jLabel3.setText(org.openide.util.NbBundle.getMessage(WsFromWsdlGUIPanel1.class, "WsFromWsdlGUIPanel1.jLabel3.text")); // NOI18N
 
         jCheckBox1.setText(org.openide.util.NbBundle.getMessage(WsFromWsdlGUIPanel1.class, "WsFromWsdlGUIPanel1.jCheckBox1.text")); // NOI18N
+
+        jLabel4.setText(org.openide.util.NbBundle.getMessage(WsFromWsdlGUIPanel1.class, "WsFromWsdlGUIPanel1.jLabel4.text")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -93,14 +115,16 @@ public class WsFromWsdlGUIPanel1 extends javax.swing.JPanel {
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jLabel3)
                             .add(jLabel1)
-                            .add(jLabel2))
+                            .add(jLabel2)
+                            .add(jLabel4))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(jComboBox1, 0, 309, Short.MAX_VALUE))
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, jComboBox2, 0, 309, Short.MAX_VALUE)
-                            .add(jComboBox3, 0, 309, Short.MAX_VALUE))))
+                            .add(jComboBox3, 0, 309, Short.MAX_VALUE)
+                            .add(tfPackageName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 309, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -114,7 +138,11 @@ public class WsFromWsdlGUIPanel1 extends javax.swing.JPanel {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel2)
                     .add(jComboBox2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(60, 60, 60)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabel4)
+                    .add(tfPackageName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(35, 35, 35)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
                     .add(jComboBox3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -133,6 +161,8 @@ public class WsFromWsdlGUIPanel1 extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JTextField tfPackageName;
     // End of variables declaration//GEN-END:variables
     boolean isFinishable() {
         return true;
@@ -141,4 +171,35 @@ public class WsFromWsdlGUIPanel1 extends javax.swing.JPanel {
     boolean dataIsValid() {
         return true;
     }
+    
+    void setServices(Collection<Service> services) {
+        jComboBox1.removeAllItems();
+        for (Service service:services) {
+            jComboBox1.addItem(service.getName());
+        }
+    }
+    
+    void setPorts(Collection<Port> ports) {
+        jComboBox2.removeAllItems();
+        for (Port port:ports) {
+            jComboBox2.addItem(port.getName());
+        }
+    }
+    
+    void setPackageName(String packageName) {
+        tfPackageName.setText(packageName);
+    }
+
+    String getServiceName() {
+        return (String)jComboBox1.getSelectedItem();
+    }
+    
+    String getPortName() {
+        return (String)jComboBox2.getSelectedItem();
+    }
+
+    String getPackageName() {
+        return tfPackageName.getText().trim();
+    }
+    
 }

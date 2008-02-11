@@ -42,6 +42,7 @@
 package org.netbeans.modules.websvc.axis2.wizards;
 
 import java.awt.Component;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -88,6 +89,7 @@ public class WsFromWsdlPanel0 implements  WizardDescriptor.FinishablePanel<Wizar
     }
 
     public void storeSettings(WizardDescriptor settings) {
+        settings.putProperty(PROP_WSDL_FILE, component.getWsdlFile());
     }
 
     public boolean isValid() {
