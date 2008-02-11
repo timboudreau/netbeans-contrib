@@ -53,10 +53,13 @@ import java.io.File;
  */
 public class ClearcaseModuleConfig {
     
-    public static final String PROP_IGNORED_PATTERNS       = "ignoredPatterns";  // NOI18N
+    public static final String PROP_IGNORED_PATTERNS        = "ignoredPatterns";    // NOI18N
+    public static final String PROP_COMMIT_EXCLUSIONS       = "commitExclusions";   // NOI18N    
+    
+    private static Set<String> exclusions;
     
     /**
-     * Stores list of file patterns to be excluded from clearcase operations, this is analogous to .cvsignore list.
+     * Stores list of file patterns to be ignored (excluded) from clearcase operations, this is analogous to .cvsignore list.
      */
     private static final Set<Pattern> ignoredFilePatterns = new HashSet<Pattern>(1);
 
@@ -134,7 +137,37 @@ public class ClearcaseModuleConfig {
         return l;
     }
 
-    public static boolean isExcludedFromCommit(String path) {
-        return false;
+    /**
+     * @param paths collection of paths, of File.getAbsolutePath()
+     */
+    // XXX VCS candidate
+    public static void addExclusionPaths(Collection<String> paths) {
+        Set<String> exclusionsSet = getCommitExclusions();
+        if (exclusionsSet.addAll(paths)) {
+            Utils.put(getPreferences(), PROP_COMMIT_EXCLUSIONS, new ArrayList<String>(exclusionsSet));
+        }
     }
+
+    /**
+     * @param paths collection of paths, File.getAbsolutePath()
+     */
+    public static void removeExclusionPaths(Collection<String> paths) {
+        Set<String> exclusionsSet = getCommitExclusions();
+        if (exclusionsSet.removeAll(paths)) {
+            Utils.put(getPreferences(), PROP_COMMIT_EXCLUSIONS, new ArrayList<String>(exclusionsSet));
+        }
+    }
+    
+    public static boolean isExcludedFromCommit(String path) {
+        return getCommitExclusions().contains(path);
+    }
+    
+    // private methods ~~~~~~~~~~~~~~~~~~
+    
+    private static synchronized Set<String> getCommitExclusions() {
+        if (exclusions == null) {
+            exclusions = new HashSet<String>(Utils.getStringList(getPreferences(), PROP_COMMIT_EXCLUSIONS));
+        }
+        return exclusions;
+    }    
 }

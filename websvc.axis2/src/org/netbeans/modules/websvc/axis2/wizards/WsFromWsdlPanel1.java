@@ -103,7 +103,7 @@ public class WsFromWsdlPanel1 implements  WizardDescriptor.FinishablePanel<Wizar
     }
 
     public void readSettings(WizardDescriptor settings) {
-        final File wsdlFile = (File)settings.getProperty(WizardProperties.PROP_WSDL_FILE);
+        final File wsdlFile = (File)settings.getProperty(WizardProperties.PROP_WSDL_URL);
         if (wsdlFile != null) {
             RequestProcessor.getDefault().post(new Runnable() {
                 public void run() {
@@ -124,6 +124,10 @@ public class WsFromWsdlPanel1 implements  WizardDescriptor.FinishablePanel<Wizar
     }
 
     public void storeSettings(WizardDescriptor settings) {
+        settings.putProperty(WizardProperties.PROP_DATABINDING_NAME, component.getDatabindingName());
+        settings.putProperty(WizardProperties.PROP_SERVICE_NAME, component.getServiceName());
+        settings.putProperty(WizardProperties.PROP_PORT_NAME, component.getPortName());
+        settings.putProperty(WizardProperties.PROP_PACKAGE_NAME, component.getPackageName());
     }
 
     public boolean isValid() {

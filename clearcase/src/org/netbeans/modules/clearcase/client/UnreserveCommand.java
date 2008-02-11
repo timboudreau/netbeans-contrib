@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -38,82 +38,60 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
+package org.netbeans.modules.clearcase.client;
 
-package org.netbeans.modules.clearcase.ui.status;
-
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
+import org.netbeans.modules.clearcase.ClearcaseException;
 
 import java.io.File;
-import java.util.List;
-import java.util.ArrayList;
-import org.netbeans.modules.clearcase.Clearcase;
-import org.netbeans.modules.clearcase.FileInformation;
-import org.netbeans.modules.clearcase.FileStatusCache;
+import java.io.IOException;
+import java.io.FileWriter;
 
 /**
- * Represents real or virtual (non-local) file.
- *
- * @author Tomas Stupka
+ * An unreserve command.
+ * 
+ * @author Maros Sandor
  */
-public class FileNode {
-
-    private final File file;
-
-    public FileNode(File file) {
-        this.file = file;
-    }
-
-    public String getName() {
-        return file.getName();
-    }
+public class UnreserveCommand extends FilesCommand {
+    
+    private final String    message;
+    private File            checkoutMessageFile;
 
     /**
-     * Returns the FileInformation for the file. May be null if not cahched yet.
-     * @return
-     */    
-    public FileInformation getInfo() {
-        return getCachedInfo(file); 
+     * Creates an Unreserve command.
+     * 
+     * @param message null for no message
+     * @param files files to process
+     * @param listeners listeners for command events
+     */
+    public UnreserveCommand(File [] files, String message, NotificationListener... listeners) {
+        super(files, listeners);
+        this.message = message;
     }
 
-    public File getFile() {
-        return file;
+    public void prepareCommand(Arguments arguments) throws ClearcaseException {
+        arguments.add("unreserve");
+        if (message == null) {
+            arguments.add("-ncomment");
+        } else {
+            try {
+                checkoutMessageFile = File.createTempFile("clearcase-", ".txt");
+                checkoutMessageFile.deleteOnExit();
+                FileWriter fw = new FileWriter(checkoutMessageFile);
+                fw.write(message);
+                fw.close();
+                arguments.add("-cfile");
+                arguments.add(checkoutMessageFile);
+            } catch (IOException e) {
+                arguments.add("-comment");
+                arguments.add(message);
+            }
+        }
+        addFileArguments(arguments);
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        return o instanceof FileNode && file.equals(((FileNode) o).file);
+    public void commandFinished() {
+        super.commandFinished();
+        if (checkoutMessageFile != null) checkoutMessageFile.delete();
     }
-
-    @Override
-    public int hashCode() {
-        return file.hashCode();
-    }
-
-    public FileObject getFileObject() {
-        return FileUtil.toFileObject(file);
-    }
-
-    public Object[] getLookupObjects() {
-        List<Object> list = new ArrayList<Object>(2);
-        list.add(file);
-        FileObject fo = getFileObject();
-        if (fo != null) {
-            list.add(fo);
-        }
-        return list.toArray(new Object[list.size()]);
-    }
-    
-    // XXX sync with annotator
-    private static FileInformation getCachedInfo(File file) {        
-        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
-        FileInformation info = cache.getCachedInfo(file);
-        if(info == null) {
-            cache.refreshLater(file);
-            info = FileStatusCache.FILE_INFORMATION_UNKNOWN; // XXX HACK!
-        }
-        return info;
-    }
-
 }

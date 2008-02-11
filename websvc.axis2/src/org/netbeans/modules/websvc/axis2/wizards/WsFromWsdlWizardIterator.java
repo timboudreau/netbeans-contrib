@@ -50,15 +50,22 @@ import java.util.Set;
 
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 
+import org.netbeans.modules.websvc.axis2.Axis2ModelProvider;
+import org.netbeans.modules.websvc.axis2.AxisUtils;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
 import org.netbeans.spi.java.project.support.ui.templates.JavaTemplates;
 import org.openide.WizardDescriptor;
 
 import org.netbeans.spi.project.ui.templates.support.Templates;
+import org.openide.cookies.SaveCookie;
+import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.TemplateWizard;
 import org.openide.util.NbBundle;
@@ -80,9 +87,48 @@ public class WsFromWsdlWizardIterator implements TemplateWizard.Iterator /*, Ite
 //    }
 
     public Set<DataObject> instantiate(TemplateWizard wiz) throws IOException {
-        return Collections.<DataObject>emptySet();
+        FileObject template = Templates.getTemplate( wiz );
+        DataObject dTemplate = DataObject.find( template );
+        org.openide.filesystems.FileObject dir = Templates.getTargetFolder( wiz );
+        DataFolder df = DataFolder.findFolder( dir );
+        DataObject dObj = dTemplate.createFromTemplate( df, Templates.getTargetName( wiz )  );
+        
+        addService(dObj.getPrimaryFile());
+        return Collections.singleton(dObj);
     }
     
+    private void addService(FileObject serviceFo) throws IOException {
+        FileObject axis2Folder = AxisUtils.getNbprojectFolder(project.getProjectDirectory());
+        if (axis2Folder != null) {
+            FileObject axis2Fo = axis2Folder.getFileObject("axis2.xml"); //NOI18N
+            if (axis2Fo == null) {
+                AxisUtils.retrieveAxis2FromResource(axis2Folder);
+                axis2Fo = axis2Folder.getFileObject("axis2.xml"); //NOI18N
+            }
+            ClassPath classPath = ClassPath.getClassPath(serviceFo, ClassPath.SOURCE);
+            String serviceClass = classPath.getResourceName(serviceFo, '.', false);
+            
+            axis2Fo = axis2Folder.getFileObject("axis2.xml"); //NOI18N
+            //Axis2Model axis2Model = Axis2Utils.getAxis2Model(axis2Fo, true);
+            
+            Axis2ModelProvider axis2ModelProvider = project.getLookup().lookup(Axis2ModelProvider.class);
+            Axis2Model axis2Model = axis2ModelProvider.getAxis2Model();
+            if (axis2Model != null) {
+            WizardUtils.addService(axis2Model,
+                    ((java.io.File)wiz.getProperty(WizardProperties.PROP_WSDL_URL)).toURL().toExternalForm(),
+                    serviceClass,
+                    (String)wiz.getProperty(WizardProperties.PROP_SERVICE_NAME),
+                    (String)wiz.getProperty(WizardProperties.PROP_PORT_NAME),
+                    (String)wiz.getProperty(WizardProperties.PROP_PACKAGE_NAME),
+                    (String)wiz.getProperty(WizardProperties.PROP_DATABINDING_NAME));
+                DataObject dObj = DataObject.find(axis2Fo);
+                if (dObj != null) {
+                    SaveCookie save = dObj.getCookie(SaveCookie.class);
+                    if (save != null) save.save();
+                }
+            }
+        }
+    }  
     
     private transient int index;
     private transient WizardDescriptor.Panel<WizardDescriptor>[] panels;
