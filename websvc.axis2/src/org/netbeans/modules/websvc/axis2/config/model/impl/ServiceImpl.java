@@ -93,12 +93,12 @@ public class ServiceImpl extends Axis2ComponentImpl implements Service {
         super.setAttribute(NAME_ATTR_PROP, Axis2Attributes.attrName, name);
     }
 
-    public String getServiceUrl() {
-        return getChildElementText(Axis2QNames.SERVICE_URL.getQName());
+    public String getWsdlUrl() {
+        return getChildElementText(Axis2QNames.WSDL_URL.getQName());
     }
 
-    public void setServiceUrl(String serviceUrl) {
-        setChildElementText(SERVICE_URL_PROP, serviceUrl, Axis2QNames.SERVICE_URL.getQName());
+    public void setWsdlUrl(String serviceUrl) {
+        setChildElementText(WSDL_URL_PROP, serviceUrl, Axis2QNames.WSDL_URL.getQName());
     }
 
     public JavaGenerator getJavaGenerator() {

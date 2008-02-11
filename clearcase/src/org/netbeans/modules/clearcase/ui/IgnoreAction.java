@@ -82,8 +82,8 @@ public class IgnoreAction extends AbstractAction {
                     ClearcaseModuleConfig.setIgnored(file);
                 }                
             }    
-        } finally {
-            Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]), false);            
+        } finally {            
+            Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]), false, true);            
         }        
     }
 

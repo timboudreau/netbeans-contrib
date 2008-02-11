@@ -159,7 +159,7 @@ public class DelegateInputStream extends InputStream {
         return super.read(b, off, len);
     }
     @Override
-    public synchronized  void reset() throws IOException {
+    public synchronized void reset() throws IOException {
         InputStream is = getCurrent();
         if(is != null) {
             is.reset();

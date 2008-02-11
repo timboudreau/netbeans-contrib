@@ -74,14 +74,18 @@ public class CleartoolMockup extends Process implements Runnable {
     private Thread thread;
     
     static final Logger LOG = Logger.getLogger("org.netbeans.modules.clearcase");
-    private static String VOB_PATH = "/tmp/vob/";
+    private final String vobRoot;
     
     private String curPath = null;
+    private String SELECTOR_CHECKEDOUT_FROM_MAIN = File.separator + "main" + File.separator + "CHECKEDOUT from " + File.separator + "main"  + File.separator;
+    private String SELECTOR_MAIN = File.separator + "main" + File.separator;
+    private String RULE = "Rule: element * " + File.separator + "main" + File.separator + "LATEST";
     
-    public CleartoolMockup() {
+    public CleartoolMockup(String vobRoot) {
         outputStream = new ByteArrayOutputStream(200);            
         inputStream = new DelegateInputStream();        
         errorStream = new DelegateInputStream();
+        this.vobRoot = vobRoot;
     }
     
     public void start() {
@@ -123,6 +127,10 @@ public class CleartoolMockup extends Process implements Runnable {
              processCI(args);            
         } else if(ctCommand.equals("checkout")) {
              processCO(args);            
+        } else if(ctCommand.equals("reserve")) {
+             processRESERVE(args, true);            
+        } else if(ctCommand.equals("unreserve")) {
+             processRESERVE(args, false);            
         } else if(ctCommand.equals("lsco")) {
              processLSCO(args);            
         } else if(ctCommand.equals("mkelem")) {
@@ -240,7 +248,7 @@ public class CleartoolMockup extends Process implements Runnable {
             }
         }
         for (File file : files) {
-            Repository.getInstance().ci(file);
+            Repository.getInstance().ci(file, false);
         }
     }
 
@@ -267,8 +275,7 @@ public class CleartoolMockup extends Process implements Runnable {
         }
         for (File file : files) {
             Repository.getInstance().co(file, reserved);
-        }
-                
+        }                
     }
 
     private void processLS(String[] args) {
@@ -283,7 +290,7 @@ public class CleartoolMockup extends Process implements Runnable {
             }
         }
 
-        if(!file.getAbsolutePath().startsWith(VOB_PATH)) {
+        if(!file.getAbsolutePath().startsWith(vobRoot)) {
             errorStream.setDelegate(new ByteArrayInputStream(("cleartool: Error: Pathname is not within a VOB: \"" + file.getAbsolutePath() + "\"\n").getBytes()));    
         } else {
             if(!file.exists()) {
@@ -292,7 +299,12 @@ public class CleartoolMockup extends Process implements Runnable {
                     inputStream.setDelegate(new ByteArrayInputStream(("\n").getBytes()));    
                 } else {
                     // XXX could be something else than checkedout?
-                    inputStream.setDelegate(new ByteArrayInputStream(("version                " + file.getAbsolutePath() + "@@/main/CHECKEDOUT from /main/" + entry.getVersion() + " [checkedout but removed]\n").getBytes()));    
+                    inputStream.setDelegate(
+                            new ByteArrayInputStream(
+                                ("version                " + 
+                                 file.getAbsolutePath() + 
+                                 "@@" + SELECTOR_CHECKEDOUT_FROM_MAIN + entry.getVersion() + 
+                                 " [checkedout but removed]\n").getBytes()));    
                 }                
             } else {
                 if(!directory && file.isDirectory()) {
@@ -323,13 +335,16 @@ public class CleartoolMockup extends Process implements Runnable {
             sb.append("version                ");
             sb.append(file.getAbsolutePath());
             sb.append("@@");
-            sb.append(fe.isCheckedout() ? "/main/CHECKEDOUT from /main/" : "/main/");
+            sb.append(fe.isCheckedout() ? SELECTOR_CHECKEDOUT_FROM_MAIN : SELECTOR_MAIN);
             sb.append(fe.getVersion());
-            sb.append("                     Rule: element * /main/LATEST");                                
+            if(file.isFile() && file.canWrite() && !fe.isCheckedout()) {
+                sb.append("[hijacked]");
+            }
+            sb.append("                     " + RULE);                                
             sb.append('\n');    
         }
         return sb;
-    }
+    }   
     
     private void processLSCO(String[] args) {
         boolean directory = false;
@@ -346,7 +361,7 @@ public class CleartoolMockup extends Process implements Runnable {
             }
         }
 
-        if(!file.getAbsolutePath().startsWith(VOB_PATH)) {
+        if(!file.getAbsolutePath().startsWith(vobRoot)) {
             errorStream.setDelegate(new ByteArrayInputStream(("cleartool: Error: Pathname is not within a VOB: \"" + file.getAbsolutePath() + "\"\n").getBytes()));    
         } else {
             if(!file.exists()) {
@@ -432,6 +447,24 @@ public class CleartoolMockup extends Process implements Runnable {
         }            
     }
 
+    private void processRESERVE(String[] args, boolean value) {
+        List<File> files = new ArrayList<File>();
+        for (int i = 1; i < args.length; i++) {
+            String arg = args[i];
+            if(arg.equals("-ncomment")) {
+                // ignore
+            } else if(arg.equals("-cfile") || arg.equals("-comment")) {
+                i++; // skip the next arg
+                continue;
+            } else {
+                files.add(new File(curPath + File.separator + arg));
+            }
+        }
+        for (File file : files) {
+            Repository.getInstance().reserve(file, value);
+        }        
+    }                
+
     private void processRM(String[] args) {
         List<File> files = new ArrayList<File>();
         for (int i = 1; i < args.length; i++) {
@@ -485,11 +518,6 @@ public class CleartoolMockup extends Process implements Runnable {
             }
         }                
         for (File file : files) {
-            FileEntry fe = Repository.getInstance().getEntry(file);
-            if(fe == null) {
-                LOG.warning("No entry for to be checkedout file " + file);
-                continue;
-            }
             Repository.getInstance().unco(file);
             if(keep && file.isFile()) {
                 try {
@@ -550,10 +578,8 @@ public class CleartoolMockup extends Process implements Runnable {
         } finally {
             if(br != null) try { br.close(); } catch (Exception e) {  }
             if(fw != null) try { fw.close(); } catch (Exception e) {  }
-        }
-        
+        }        
     }
-
     
     private void processUnsupported(String[] args) {
         NotifyDescriptor nd = new NotifyDescriptor("You are running with the mockup cleartool. Deal with it!", "Hey!", NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE, new Object[]{NotifyDescriptor.OK_OPTION}, null);        
