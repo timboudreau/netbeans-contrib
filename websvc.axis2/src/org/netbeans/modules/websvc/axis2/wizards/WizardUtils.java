@@ -39,13 +39,36 @@
 
 package org.netbeans.modules.websvc.axis2.wizards;
 
+import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.ExpressionTree;
+import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.TypeParameterTree;
+import com.sun.source.tree.VariableTree;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
+import org.netbeans.api.java.source.CancellableTask;
+import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.ElementHandle;
+import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.JavaSource.Phase;
+import org.netbeans.api.java.source.TreeMaker;
+import org.netbeans.api.java.source.WorkingCopy;
 import org.netbeans.modules.websvc.axis2.AxisUtils;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2ComponentFactory;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
 import org.netbeans.modules.websvc.axis2.config.model.GenerateWsdl;
 import org.netbeans.modules.websvc.axis2.config.model.JavaGenerator;
+import org.netbeans.modules.websvc.axis2.java.GenerationUtils;
+import org.netbeans.modules.websvc.axis2.java.SourceUtils;
 import org.netbeans.modules.websvc.axis2.services.model.MessageReceiver;
 import org.netbeans.modules.websvc.axis2.services.model.MessageReceivers;
 import org.netbeans.modules.websvc.axis2.services.model.Parameter;
@@ -183,4 +206,91 @@ public class WizardUtils {
             axis2Model.endTransaction();
         }
     }
+    
+    static void generateSkeletonMethods(FileObject targetFile, final String sourceElement, final String interfaceName) 
+        throws IOException {
+        
+        JavaSource targetJavaSource = JavaSource.forFileObject(targetFile);
+        assert targetJavaSource != null && sourceElement != null;
+        
+        final List<ElementHandle> elementHandles = new ArrayList<ElementHandle>();
+
+        CancellableTask<CompilationController> introspectTask = new CancellableTask<CompilationController>() {
+
+            public void run(CompilationController controller) throws IOException {
+                controller.toPhase(Phase.ELEMENTS_RESOLVED);
+                TypeElement typeEl = controller.getElements().getTypeElement(sourceElement);
+                if (typeEl != null) {
+                    List<? extends Element> elements = typeEl.getEnclosedElements();
+                    for (Element el:elements) {
+                        elementHandles.add(ElementHandle.create(el));
+                    }
+                }
+            }
+
+            public void cancel() {
+            }
+        };       
+        
+        CancellableTask<WorkingCopy> task = new CancellableTask<WorkingCopy>() {
+            
+            public void run(WorkingCopy workingCopy) throws java.io.IOException {
+                workingCopy.toPhase(Phase.RESOLVED);
+                ClassTree targetClass = SourceUtils.getPublicTopLevelTree(workingCopy);
+                if (targetClass!=null) {
+                      
+                    TreeMaker make = workingCopy.getTreeMaker();
+                    GenerationUtils genUtils = GenerationUtils.newInstance(workingCopy);
+                    
+                    ClassTree modifiedClass = null;
+                    // add implementation clause
+                    if (interfaceName != null) {
+                        modifiedClass = genUtils.addImplementsClause(targetClass, interfaceName);
+                    }
+                    for (ElementHandle elementHandle: elementHandles) {
+                        Element element = elementHandle.resolve(workingCopy);
+                        ExecutableElement methodElement = (ExecutableElement)element;
+                        
+                        List<? extends VariableElement> parameterElements = methodElement.getParameters();
+                        List<VariableTree> parameters = new ArrayList<VariableTree>();
+                        for (VariableElement param:parameterElements) {
+                            parameters.add(make.Variable(param, null));
+                        }
+                        List<? extends TypeMirror> thrownTypes = methodElement.getThrownTypes();
+                        List<ExpressionTree> thrownTrees = new ArrayList<ExpressionTree>();
+                        for (TypeMirror thr:thrownTypes) {
+                            thrownTrees.add((ExpressionTree)make.Type(thr));
+                        }
+                        
+                        if (element.getKind() == ElementKind.METHOD) {
+                            MethodTree method = make.Method (
+                                    make.Modifiers(methodElement.getModifiers()),
+                                    methodElement.getSimpleName(), // operation name
+                                    make.Type(methodElement.getReturnType()), // return type
+                                    Collections.<TypeParameterTree>emptyList(), // type parameters - none
+                                    parameters,
+                                    thrownTrees, // throws
+                                    "{ //TODO implement this method\nthrow new UnsupportedOperationException(\"Please implement "+targetClass.getSimpleName()+"#"+methodElement.getSimpleName()+" method.\") }", // body text
+                                    null // default value - not applicable here, used by annotations
+                                    );
+
+                            if (modifiedClass == null) {
+                                modifiedClass =  make.addClassMember(targetClass, method);
+                            } else {
+                                modifiedClass =  make.addClassMember(modifiedClass, method);
+                            }
+                        }
+                    }
+                    if (modifiedClass != null) workingCopy.rewrite(targetClass, modifiedClass);
+                }
+            }
+            
+            public void cancel() {
+            }
+        };
+        targetJavaSource.runUserActionTask(introspectTask, true);
+        targetJavaSource.runModificationTask(task).commit();
+        
+    }
+
 }

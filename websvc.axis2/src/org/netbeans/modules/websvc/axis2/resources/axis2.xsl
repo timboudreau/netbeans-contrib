@@ -116,6 +116,7 @@ made subject to such option by the copyright holder.
                     <xsl:variable name="databindingName" select="axis2:java-generator/@databindingName"/>
                   
                     <target name="wsdl2java-{$wsname}" depends="init">
+                        <delete dir="${{build.dir}}/axis2"/>
                         <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
                             <arg line="-uri {$wsdlUrl}"/>
                             <arg line="-s"/>
