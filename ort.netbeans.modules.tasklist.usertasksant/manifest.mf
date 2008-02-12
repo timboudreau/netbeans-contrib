@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: ort.netbeans.modules.tasklist.usertasksant
-OpenIDE-Module-Layer: ort/netbeans/modules/tasklist/usertasksant/layer.xml
-OpenIDE-Module-Localizing-Bundle: ort/netbeans/modules/tasklist/usertasksant/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
-

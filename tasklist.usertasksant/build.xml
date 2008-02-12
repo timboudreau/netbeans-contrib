@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="netbeans" name="tasklist/usertasksant">
-    <description>Builds, tests, and runs the project ort.netbeans.modules.tasklist.usertasksant</description>
-    <import file="../../contrib/tasklist.usertasks/../nbbuild/templates/projectized.xml"/>
+<project basedir="." default="netbeans" name="tasklist.usertasksant">
+    <import file="../../nbbuild/templates/projectized.xml"/>
 
     <target name="nblib" depends="init">
         <mkdir dir="build/antclasses"/>
+        <!-- XXX antsrc does not even exist! This module cannot build. -->
         <javac srcdir="antsrc" destdir="build/antclasses" source="1.4" debug="true" deprecation="true">
             <classpath>
                 <path refid="cp"/>
-                <pathelement location="${ant.jar}"/>
+                <pathelement location="${ant.core.lib}"/>
                 <pathelement location="${tools.jar}"/>
-                  <fileset dir="../../contrib/tasklist.usertasks/external">
-                      <include name="*.jar"/>
-                  </fileset>
             </classpath>
         </javac>
         <copy todir="build/antclasses">
             <fileset dir="antsrc" excludes="${jar-excludes}"/>
         </copy>
         <mkdir dir="${cluster}/ant/nblib"/>
-        <jar jarfile="${cluster}/ant/nblib/org-netbeans-modules-j2ee-ant.jar" compress="false">
+        <jar jarfile="${cluster}/ant/nblib/org-netbeans-modules-tasklist-usertasksant.jar" compress="false">
             <fileset dir="build/antclasses"/>
         </jar>
     </target>

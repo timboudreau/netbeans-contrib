@@ -3,7 +3,7 @@
     <type>org.netbeans.modules.apisupport.project</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
-            <code-name-base>ort.netbeans.modules.tasklist.usertasksant</code-name-base>
+            <code-name-base>org.netbeans.modules.tasklist.usertasksant</code-name-base>
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.apache.tools.ant.module</code-name-base>
@@ -25,10 +25,6 @@
                 </dependency>
             </module-dependencies>
             <public-packages/>
-            <class-path-extension>
-                <runtime-relative-path>ext/ant.jar</runtime-relative-path>
-                <binary-origin>../../contrib/tasklist.usertasks/../ant/external/lib/ant.jar</binary-origin>
-            </class-path-extension>
         </data>
     </configuration>
 </project>

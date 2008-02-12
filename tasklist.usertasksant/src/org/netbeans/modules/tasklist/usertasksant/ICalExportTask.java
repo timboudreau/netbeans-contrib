@@ -39,7 +39,7 @@
  * made subject to such option by the copyright holder.
  */
 
-package ort.netbeans.modules.tasklist.usertasksant;
+package org.netbeans.modules.tasklist.usertasksant;
 
 import java.io.File;
 import org.apache.tools.ant.BuildException;
