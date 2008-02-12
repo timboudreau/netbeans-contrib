@@ -64,7 +64,6 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.java.j2seproject.J2SEProject;
-import org.netbeans.modules.java.j2seproject.SourceRoots;
 import org.netbeans.spi.project.ui.templates.support.Templates;
 
 import org.openide.ErrorManager;
@@ -80,6 +79,7 @@ import org.netbeans.modules.apisupport.project.NbModuleProject;
 import org.netbeans.modules.apisupport.project.NbModuleProjectType;
 import org.netbeans.modules.apisupport.project.spi.NbModuleProvider;
 import org.netbeans.modules.apisupport.project.Util;
+import org.netbeans.modules.java.api.common.SourceRoots;
 import org.w3c.dom.Element;
 
 /** Wizard iterator to create XTest testing infrastructure in J2SE project. It
