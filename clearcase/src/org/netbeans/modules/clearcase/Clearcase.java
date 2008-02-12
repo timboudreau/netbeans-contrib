@@ -364,7 +364,7 @@ public class Clearcase {
                 }
                 String author       = m.group(2).trim();
                 String revision     = m.group(3).trim();
-                String text         = m.group(4).trim();
+                String text         = m.group(4);
                 VcsAnnotation ann = new VcsAnnotation(idx, author, revision, date, text, "");
                 anns.add(ann);
             } else {
