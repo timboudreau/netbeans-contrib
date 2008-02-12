@@ -121,7 +121,8 @@ made subject to such option by the copyright holder.
                             <arg line="-s"/>
                             <arg line="-ss"/>
                             <arg line="-sd"/>
-                            <arg line="-ssi"/>
+                            <xsl:if test="axis2:java-generator/@sei"><arg line="-ssi"/></xsl:if>
+                            <xsl:if test="axis2:java-generator/@databindingName = 'jibx'"><arg line="-uw"/></xsl:if>
                             <arg line="-sn {$serviceName}"/>
                             <arg line="-pn {$portName}"/>
                             <arg line="-p {$packageName}"/>
@@ -133,13 +134,13 @@ made subject to such option by the copyright holder.
                                 </fileset>
                             </classpath>
                         </java>
-                        <copy toDir="${{src.dir}}">
+                        <copy toDir="${{src.dir}}" overwrite="true">
                             <fileset dir="${{build.dir}}/axis2/src">
                                 <include name="**/*.java"/>
                             </fileset>
                         </copy>
                         <mkdir dir="${{basedir}}/xml-resources/axis2/META-INF"/>
-                        <copy toDir="${{basedir}}/xml-resources/axis2/META-INF/">
+                        <copy toDir="${{basedir}}/xml-resources/axis2/META-INF/" overwrite="true">
                             <fileset dir="${{build.dir}}/axis2/resources">
                                 <include name="**/*.wsdl"/>
                                 <include name="**/*.xsd"/>
@@ -167,6 +168,7 @@ made subject to such option by the copyright holder.
                         <fileset excludes="**/Test.class" dir="${{build.dir}}/classes"/>
                         <fileset dir="${{basedir}}/xml-resources/axis2">
                             <include name="**/*.wsdl"/>
+                            <include name="**/*.xsd"/>
                             <include name="**/*.xml"/>
                         </fileset>
                     </jar>

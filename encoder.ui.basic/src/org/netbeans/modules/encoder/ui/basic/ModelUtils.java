@@ -40,6 +40,7 @@ import org.netbeans.modules.xml.xam.ModelSource;
 import org.netbeans.modules.xml.xam.locator.CatalogModelException;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
@@ -96,7 +97,7 @@ public class ModelUtils {
             ModelSource ms = model.getModelSource();
             FileObject fo = (FileObject) ms.getLookup().lookup(FileObject.class);
             if (fo != null) {
-                return fo.getPath();
+                return FileUtil.toFile(fo).getAbsolutePath();
             }
         }
         return null;

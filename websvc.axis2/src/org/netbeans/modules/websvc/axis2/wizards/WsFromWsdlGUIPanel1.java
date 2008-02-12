@@ -210,4 +210,8 @@ public class WsFromWsdlGUIPanel1 extends javax.swing.JPanel {
         return "adb";
     }
     
+    boolean isSEI() {
+        return jCheckBox1.isSelected();
+    }
+    
 }

@@ -36,10 +36,11 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.hibernate.completion;
 
 import javax.swing.text.Document;
+import javax.swing.text.JTextComponent;
+import org.netbeans.modules.hibernate.completion.CompletionContext.CompletionType;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
 
@@ -49,9 +50,49 @@ import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
  */
 public class HibernateMappingCompletionQuery extends AsyncCompletionQuery {
 
-    @Override
-    protected void query(CompletionResultSet resultSet, Document doc, int caretOffset) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    private int queryType;
+    private int caretOffset;
+    private JTextComponent component;
+
+    public HibernateMappingCompletionQuery(int queryType, int caretOffset) {
+        this.queryType = queryType;
+        this.caretOffset = caretOffset;
     }
 
+    @Override
+    protected void preQueryUpdate(JTextComponent component) {
+        //XXX: look for invalidation conditions
+        this.component = component;
+    }
+
+    @Override
+    protected void prepareQuery(JTextComponent component) {
+        this.component = component;
+    }
+
+    @Override
+    protected void query(CompletionResultSet resultSet, Document doc, int caretOffset) {
+        
+        CompletionContext context = new CompletionContext(doc, caretOffset);
+        
+        if (context.getCompletionType() == CompletionType.NONE) {
+            resultSet.finish();
+            return;
+        }
+
+        switch (context.getCompletionType()) {
+            case ATTRIBUTE_VALUE:
+                CompletionManager.getDefault().completeAttributeValues(resultSet, context);
+                break;
+            case ATTRIBUTE:
+                CompletionManager.getDefault().completeAttributes(resultSet, context);
+                break;
+            case TAG:
+                CompletionManager.getDefault().completeElements(resultSet, context);
+                break;
+            }
+
+        
+        resultSet.finish();
+    }
 }

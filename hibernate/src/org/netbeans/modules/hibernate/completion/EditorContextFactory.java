@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,13 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,30 +37,31 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
- * Contributor(s):
- * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.websvc.axis2.wizards;
+package org.netbeans.modules.hibernate.completion;
+
+import java.util.Map;
+import java.util.WeakHashMap;
+import javax.swing.text.Document;
 
 /**
  *
- * @author mkuchtiak
+ * @author Rohan Ranade
  */
-public interface WizardProperties {
-    public static final String PROP_FROM_JAVA_TYPE="prop_from_java_type"; //NOI18N
-    public static final String PROP_JAVA_CLASS="prop_java_class"; //NOI18N
-    public static final String PROP_SERVICE_GROUP="prop_service_group"; //NOI18N
-    public static final String PROP_GENERATE_WSDL="prop_generate_wsdl"; //NOI18N
-    public static final String PROP_GENERATE_SAMPLE_METHOD="prop_generate_sample_method"; //NOI18N
-    public static final String PROP_WSDL_URL="prop_wsdl_URL"; //NOI18N
-    public static final String PROP_SERVICE_NAME="prop_service_name"; //NOI18N
-    public static final String PROP_PORT_NAME="prop_port_name"; //NOI18N
-    public static final String PROP_PACKAGE_NAME="prop_package_name"; //NOI18N
-    public static final String PROP_DATABINDING_NAME="prop_databinding_name"; //NOI18N
-    public static final String PROP_SEI="prop_sei"; //NOI18N
-    public static final Boolean JAVA_TYPE_EMPTY=Boolean.TRUE;
-    public static final Boolean JAVA_TYPE_EXISTING=Boolean.FALSE;
+public final class EditorContextFactory {
+    private static Map<Document, DocumentContext> contextCache = 
+            new WeakHashMap<Document, DocumentContext>();
+
+    public static DocumentContext getDocumentContext(Document document, int caretOffset) {
+        DocumentContext context = contextCache.get(document);
+        if(context == null) {
+            context = new DocumentContext(document);
+            contextCache.put(document, context);
+        }
+        
+        context.reset(caretOffset);
+        
+        return context;
+    }
 }

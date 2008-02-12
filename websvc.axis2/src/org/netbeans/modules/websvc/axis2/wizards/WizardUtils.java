@@ -39,6 +39,7 @@
 
 package org.netbeans.modules.websvc.axis2.wizards;
 
+import java.util.List;
 import org.netbeans.modules.websvc.axis2.AxisUtils;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2ComponentFactory;
@@ -60,6 +61,7 @@ import org.openide.filesystems.FileObject;
  * @author mkuchtiak
  */
 public class WizardUtils {
+    
     static void addService(ServicesModel servicesModel, String serviceClass, FileObject serviceFo) {
         ServicesComponentFactory factory = servicesModel.getFactory();
         Parameter param = factory.createParameter();
@@ -103,6 +105,40 @@ public class WizardUtils {
         }
     }
     
+    static void addService(ServicesModel servicesModel, Service service, String serviceClass) {
+        ServicesComponentFactory factory = servicesModel.getFactory();
+        Services services = servicesModel.getRootComponent();
+        
+        if (servicesModel.isServicesGroup()) {
+            ServiceGroup serviceGroup = (ServiceGroup)services;
+            
+            servicesModel.startTransaction();
+            
+            Service newService = (Service)service.copy(serviceGroup);
+            List<Parameter> params = newService.getParameters();
+            for (Parameter param:newService.getParameters()) {
+                if ("ServiceClass".equals(param.getNameAttr())) {
+                    param.setValue(serviceClass);
+                    break;
+                }
+            }
+            serviceGroup.addService(newService);
+            
+            servicesModel.endTransaction();
+
+        } else {
+//            Service service = (Service)services;
+//            
+//            servicesModel.startTransaction();
+//            service.setNameAttr(serviceFo.getName());
+//            service.setScopeAttr("application"); //NOI18N
+//            service.setDescription(serviceFo.getName()+" service"); //NOI18N
+//            service.setMessageReceivers(receivers);
+//            service.addParameter(param);
+//            servicesModel.endTransaction();
+        }
+    }
+    
     static void addService(Axis2Model axis2Model, String serviceClass, FileObject serviceFo, boolean generateWsdl) {
         Axis2ComponentFactory factory = axis2Model.getFactory();
 
@@ -126,7 +162,7 @@ public class WizardUtils {
         }
     }
     
-    static void addService(Axis2Model axis2Model, String wsdlUrl, String serviceClass, String serviceName, String portName, String packageName, String databinding ) {
+    static void addService(Axis2Model axis2Model, String wsdlUrl, String serviceClass, String serviceName, String portName, String packageName, String databinding, boolean isSEI) {
         Axis2ComponentFactory factory = axis2Model.getFactory();
 
         Axis2 axis2 = axis2Model.getRootComponent();
@@ -141,6 +177,7 @@ public class WizardUtils {
             javaGenerator.setServiceNameAttr(serviceName);
             javaGenerator.setPortNameAttr(portName);
             javaGenerator.setPackageNameAttr(packageName);
+            javaGenerator.setSEIAttr(isSEI);
             service.setJavaGenerator(javaGenerator);
             axis2.addService(service);
             axis2Model.endTransaction();
