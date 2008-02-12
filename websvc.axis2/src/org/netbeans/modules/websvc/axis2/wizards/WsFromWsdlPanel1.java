@@ -125,6 +125,7 @@ public class WsFromWsdlPanel1 implements  WizardDescriptor.FinishablePanel<Wizar
 
     public void storeSettings(WizardDescriptor settings) {
         settings.putProperty(WizardProperties.PROP_DATABINDING_NAME, component.getDatabindingName());
+        settings.putProperty(WizardProperties.PROP_SEI, Boolean.valueOf(component.isSEI()));
         settings.putProperty(WizardProperties.PROP_SERVICE_NAME, component.getServiceName());
         settings.putProperty(WizardProperties.PROP_PORT_NAME, component.getPortName());
         settings.putProperty(WizardProperties.PROP_PACKAGE_NAME, component.getPackageName());
