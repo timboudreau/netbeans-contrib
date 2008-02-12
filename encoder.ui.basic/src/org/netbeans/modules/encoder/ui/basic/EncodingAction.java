@@ -114,6 +114,9 @@ public class EncodingAction extends NodeAction {
         }
 
         public JPopupMenu getPopupMenu() {
+            //TODO:
+            //Hack: always remove all items so sub menus can be recomputed.
+            removeAll();
             if (getItemCount() == 0) {
                 SystemAction[] grouped = grouped();
                 for (int i = 0; i < grouped.length; i++) {
@@ -121,6 +124,12 @@ public class EncodingAction extends NodeAction {
                     if (action == null) {
                         addSeparator();
                     } else if (action instanceof Presenter.Popup) {
+                        //TODO
+                        //Hack: always force the enabled to be refreshed no
+                        //matter the model has been changed or not.  The hack was
+                        //created because so far don't know in what condition
+                        //the resultchanged() event is fired.
+                        action.setEnabled(true);
                         add(((Presenter.Popup)action).getPopupPresenter());
                     } else {
                         assert false : _bundle.getString("encoding_action.exp.had_no_popup") + action; //NOI18N

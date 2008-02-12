@@ -27,6 +27,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 
@@ -61,7 +62,7 @@ public class RetrieveCopybookWizardPanel1 implements WizardDescriptor.Panel,
         FileObject fileObj = (FileObject)
                 mWizardDescriptor.getProperty(PropertyKey.CURRENT_FOLDER);
         if (fileObj != null) {
-            mVisualPanel.setTargetLocation(fileObj.getPath());
+            mVisualPanel.setTargetLocation(FileUtil.toFile(fileObj).getPath());
         }
     }
 
