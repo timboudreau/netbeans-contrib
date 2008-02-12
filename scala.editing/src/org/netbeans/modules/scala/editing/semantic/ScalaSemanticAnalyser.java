@@ -857,7 +857,7 @@ public class ScalaSemanticAnalyser {
                 // (Bindings | id)
                 ScalaContext newCtx = new ScalaContext(expr.getOffset(), expr.getEndOffset());
                 currCtx.addContext(newCtx);
-                List<ASTItem> nameIds = query(postfixExpr, "PrefixExpr/SimpleExpr/TypedPathId/PathId/NameId");
+                List<ASTItem> nameIds = query(postfixExpr, "PrefixExpr/SimpleExpr/PathIdWithTypeArgs/PathId/NameId");
                 if (nameIds.size() > 0) {
                     ASTToken varToken = getIdTokenFromNameId(nameIds.get(0));
                     Var varDfn = new Var(varToken.getIdentifier(), varToken.getOffset(), varToken.getEndOffset(), Var.Scope.LOCAL);
@@ -865,7 +865,7 @@ public class ScalaSemanticAnalyser {
                     newCtx.addUsage(varToken, varDfn);
                 } else {
                     // Bindings = "(" Binding ("," Binding)* ")"; Binding = NameId [":" Type]
-                    nameIds = query(postfixExpr, "PrefixExpr/SimpleExpr/TypedParenExpr/ParenExpr/ExprInParen/PostfixExpr/PrefixExpr/SimpleExpr/TypedPathId/PathId/NameId");
+                    nameIds = query(postfixExpr, "PrefixExpr/SimpleExpr/TupleExprWithTypeArgs/ParenExpr/ExprInParen/PostfixExpr/PrefixExpr/SimpleExpr/PathIdWithTypeArgs/PathId/NameId");
                     for (ASTItem nameId : nameIds) {
                         ASTToken varToken = getIdTokenFromNameId(nameId);
                         Var varDfn = new Var(varToken.getIdentifier(), varToken.getOffset(), varToken.getEndOffset(), Var.Scope.LOCAL);
@@ -1148,17 +1148,17 @@ public class ScalaSemanticAnalyser {
         boolean isLocalCall = false;
         boolean isNewExpr = false;
         boolean isVar = false;
-        List<ASTItem> typedPathIds = null;
+        List<ASTItem> pathIdsWithTypeArgs = null;
         List<ASTItem> argsChain = null;
         List<ASTItem> children = simpleExpr.getChildren();
         List<ASTItem> pendingItems = new ArrayList<ASTItem>();
         for (ASTItem item : children) {
-            if (isNode(item, "TypedPathId")) {
-                if (typedPathIds == null) {
-                    typedPathIds = new ArrayList<ASTItem>();
+            if (isNode(item, "PathIdWithTypeArgs")) {
+                if (pathIdsWithTypeArgs == null) {
+                    pathIdsWithTypeArgs = new ArrayList<ASTItem>();
                 }
-                typedPathIds.add(item);
-            } else if (isNode(item, "TypedArguments")) {
+                pathIdsWithTypeArgs.add(item);
+            } else if (isNode(item, "Arguments")) {
                 isFunCall = true;
                 if (argsChain == null) {
                     argsChain = new ArrayList<ASTItem>();
@@ -1173,8 +1173,8 @@ public class ScalaSemanticAnalyser {
             }
         }
 
-        isLocalCall = isFunCall && typedPathIds != null && typedPathIds.size() > 0 && isNode(children.get(0), "TypedPathId");
-        isVar = !isLocalCall && typedPathIds != null && typedPathIds.size() > 0 && isNode(children.get(0), "TypedPathId");
+        isLocalCall = isFunCall && pathIdsWithTypeArgs != null && pathIdsWithTypeArgs.size() > 0 && isNode(children.get(0), "PathIdWithTypeArgs");
+        isVar = !isLocalCall && pathIdsWithTypeArgs != null && pathIdsWithTypeArgs.size() > 0 && isNode(children.get(0), "PathIdWithTypeArgs");
         if (isLocalCall) {
             int arityInt = 0;
             if (argsChain != null && argsChain.size() > 0) {
@@ -1186,9 +1186,9 @@ public class ScalaSemanticAnalyser {
                 }
             }
 
-            ASTItem typedPathId = typedPathIds.get(0);
+            ASTItem PathIdWithTypeArgs = pathIdsWithTypeArgs.get(0);
             ASTItem nameId = null;
-            for (ASTItem item : typedPathId.getChildren()) {
+            for (ASTItem item : PathIdWithTypeArgs.getChildren()) {
                 if (isNode(item, "PathId")) {
                     for (ASTItem item1 : item.getChildren()) {
                         if (isNode(item1, "NameId")) {
@@ -1224,9 +1224,9 @@ public class ScalaSemanticAnalyser {
         }
 
         if (isVar) {
-            ASTItem typedPathId = typedPathIds.get(0);
+            ASTItem pathIdWithTypeArgs = pathIdsWithTypeArgs.get(0);
             ASTItem nameId = null;
-            for (ASTItem item : typedPathId.getChildren()) {
+            for (ASTItem item : pathIdWithTypeArgs.getChildren()) {
                 if (isNode(item, "PathId")) {
                     for (ASTItem item1 : item.getChildren()) {
                         if (isNode(item1, "NameId")) {
