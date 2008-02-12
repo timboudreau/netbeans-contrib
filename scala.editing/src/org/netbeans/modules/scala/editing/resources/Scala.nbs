@@ -401,9 +401,9 @@ TOKEN:char: (
 
 TOKEN:integer: (
     ["0"-"9"] ['l' 'L']? |
-      ["1"-"9"] ["0"-"9"]* ['l' 'L']? |
-      "0" ["0"-"7"]+ ['l' 'L']? |
-      "0" ["x" "X"] ["0"-"9" "a"-"f" "A"-"F"]+ ['l' 'L']? 
+    ["1"-"9"] ["0"-"9"]* ['l' 'L']? |
+    "0" ["0"-"7"]+ ['l' 'L']? |
+    "0" ["x" "X"] ["0"-"9" "a"-"f" "A"-"F"]+ ['l' 'L']? 
 )
 
 ## Hacking for: ["0"-"9"]+ "." ["0"-"9"]* ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
@@ -416,11 +416,11 @@ TOKEN:integer: (
 ## @TODO "9." followed by <nl>: a float or may be an integer that can be followed by operator? 
 TOKEN:float: (
     ["0"-"9"]+ "." [" " "\t"]+ |
-      ["0"-"9"]+ "." ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
-      ["0"-"9"]+ "." ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? |
-      "." ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
-      ["0"-"9"]+ ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? |
-      ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]
+    ["0"-"9"]+ "." ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
+    ["0"-"9"]+ "." ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? |
+    "." ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
+    ["0"-"9"]+ ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? |
+    ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]
 )
 
 
@@ -604,7 +604,7 @@ Arguments = ParenExpr
 ## ** Should combine them to one expr in semantic analyzer **
 ParenExpr = <lparen> (<nl>)* (ExprInParen)+ (<comma> (<nl>)* (ExprInParen)+)* (<nl>)* <rparen>;
 ExprInParen = CtrlExpr
-            | PostfixExpr [AscriptionInPrths [FunExprTail] | MatchExprTail | AssignExprTail | FunExprTail]
+            | PostfixExpr [AscriptionInParen [FunExprTail] | MatchExprTail | AssignExprTail | FunExprTail]
             | <nl>
             | ;
 ## Hacking for: Ascription and Binding;
@@ -614,7 +614,7 @@ ExprInParen = CtrlExpr
 ## Since (Bindings | id) ‘=>’ Expr also conflicts with (PostfixExpr Ascription "=>" Expr), 
 ## we have to combine them as: Ascription = ":" (Type | (Annotation)+);
 ## Hacking for: AscriptionInPrths = <colon> (Type | (Annotation)+); @see AnnotType
-AscriptionInPrths = <colon> (Type);
+AscriptionInParen = <colon> (Type);
 
 BlockExpr = <lbrace> (<nl>)* (BlockStats | CaseClauses) <rbrace>;
 Template = <lbrace> (<nl>)* TemplateStats <rbrace> [<with>];
@@ -759,14 +759,14 @@ Pattern1 = Pattern3;
 
 ## Hacking: used only by PatDef
 Pattern2 = <under> ["*"]
-         | Literal
+         | LiteralInPattern
          | StableId [<lparen> (<nl>)* Patterns (<nl>)* <rparen> | <at> Pattern3]
          | TuplePattern
          | XmlPattern;
 
 Pattern3 = SimplePattern (NameId [<nl>] SimplePattern)*;
 SimplePattern = <under> ["*"]
-              | Literal
+              | LiteralInPattern
               | StableId [<lparen> (<nl>)* Patterns (<nl>)* <rparen> | <at> Pattern3 | <colon> Type]
               | TuplePattern
               | XmlPattern;
