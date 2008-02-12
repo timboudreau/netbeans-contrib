@@ -314,7 +314,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
 
     /**
      * Performs the "checkin" command on all diplayed roots 
-     * @see CheckinAction // XXX do we have somthing like that
+     * @see CheckinAction 
      */  
     private void onCommitAction() {
         LifecycleManager.getDefault().saveAll();            
@@ -415,8 +415,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         reScheduleRefresh(0);
     }
 
-    public void versioningEvent(VersioningEvent event) {
-        // XXX
+    public void versioningEvent(VersioningEvent event) {      
         if (event.getId() == FileStatusCache.EVENT_FILE_STATUS_CHANGED) {
             if (!affectsView(event)) return;
             reScheduleRefresh(1000);

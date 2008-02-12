@@ -51,10 +51,10 @@ import java.util.logging.Level;
 import java.util.regex.Pattern;
 import org.netbeans.api.queries.SharabilityQuery;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
-import org.netbeans.modules.clearcase.util.Utils;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.versioning.spi.VersioningSupport;
 import org.netbeans.modules.versioning.util.ListenersSupport;
+import org.netbeans.modules.versioning.util.Utils;
 import org.netbeans.modules.versioning.util.VersioningListener;
 import org.openide.util.RequestProcessor;
 
@@ -136,7 +136,7 @@ public class FileStatusCache {
                             break;
                         }
                     } else {
-                        if (Utils.isParentOrEqual(root, file)) {
+                        if (Utils.isAncestorOrEqual(root, file)) {
                             set.add(file);
                             break;
                         }   
@@ -149,7 +149,7 @@ public class FileStatusCache {
                 File excluded = (File) i.next();
                 for (Iterator j = set.iterator(); j.hasNext();) {
                     File file = (File) j.next();
-                    if (Utils.isParentOrEqual(excluded, file)) {
+                    if (Utils.isAncestorOrEqual(excluded, file)) {
                         j.remove();
                     }
                 }
@@ -242,12 +242,12 @@ public class FileStatusCache {
         Map<File, FileInformation> ret = new HashMap<File, FileInformation>();
         
         for(File modifiedDir : statusMap.keySet()) {
-            if(Utils.isParentOrEqual(root, modifiedDir)) {                
+            if(Utils.isAncestorOrEqual(root, modifiedDir)) {                
                 Map<File, FileInformation> map = get(modifiedDir);
                 for(File file : map.keySet()) {
                     FileInformation info = map.get(file);
 
-                    if( (info.getStatus() & FileInformation.STATUS_LOCAL_CHANGE) != 0 ) { // XXX anything else
+                    if( (info.getStatus() & FileInformation.STATUS_LOCAL_CHANGE) != 0 ) { // XXX anything else?
                         ret.put(file, info);
                     }                
                 }                

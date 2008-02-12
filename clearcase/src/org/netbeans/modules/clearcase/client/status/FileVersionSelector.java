@@ -99,7 +99,6 @@ public class FileVersionSelector {
             }        
             return new FileVersionSelector(path, versionNumber, versionSelector);
         } catch (Exception e) {
-            // XXX warning?!
             Clearcase.LOG.log(Level.WARNING, "Problem parsing version from [" + versionSelector + "]", e);
             // hm, lets say the last segment in versionSelector was the LABEL
             return new FileVersionSelector(path, INVALID_VERSION, versionSelector); 
