@@ -49,6 +49,8 @@ import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ant.AntBuildExtender;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Utils;
+import org.netbeans.modules.websvc.axis2.services.model.ServicesModel;
+import org.netbeans.modules.websvc.axis2.services.model.ServicesUtils;
 import org.netbeans.spi.project.LookupProvider;
 import org.netbeans.spi.project.ui.ProjectOpenedHook;
 import org.openide.filesystems.FileChangeAdapter;
@@ -141,6 +143,11 @@ public class Axis2LookupProvider implements LookupProvider {
                         axis2ModelProvider.setAxis2Model(axis2Model);
                     }
                 }
+                FileObject servicesFo =  getServicesFileObject(prj);
+                if (servicesFo != null) {
+                    ServicesModel servicesModel = ServicesUtils.getServicesModel(servicesFo, true);
+                    if (servicesModel != null) axis2ModelProvider.setServicesModel(servicesModel);                    
+                }
                 
             }
             protected void projectClosed() {
@@ -170,7 +177,7 @@ public class Axis2LookupProvider implements LookupProvider {
                                      ex.printStackTrace();
                                  }   
                             }
-                        },1000);
+                        },500);
                     } else {
                         // re-generate nbproject/axis2-build.xml
                         // add axis2 extension, if needed
@@ -182,7 +189,7 @@ public class Axis2LookupProvider implements LookupProvider {
                                      ex.printStackTrace();
                                  }   
                             }
-                        },1000);
+                        },500);
                     }
                 }
             }
@@ -193,8 +200,17 @@ public class Axis2LookupProvider implements LookupProvider {
         });
     }
     
-    public FileObject getAxisConfigFileObject(Project prj) {
+    private FileObject getAxisConfigFileObject(Project prj) {
         return prj.getProjectDirectory().getFileObject(TransformerUtils.AXIS2_XML_PATH);
+    }
+    
+    private FileObject getServicesFileObject(Project prj) {
+        FileObject servicesFolder = AxisUtils.getServicesFolder(prj.getProjectDirectory(), false);
+        if (servicesFolder != null) {
+            return servicesFolder.getFileObject("services","xml");
+        } else {
+            return null;
+        }
     }
     
     private void addAxis2Extension(
