@@ -80,6 +80,7 @@ public class AxisUtils {
     
     private static final String DEFAULT_NAMESPACE="http://ws.apache.org/axis2"; //NOI18N
     private static final String DEFAULT_SCHEMA_NAMESPACE=DEFAULT_NAMESPACE+"/xsd"; //NOI18N
+    private static final String BUILD_SERVICES_PATH="build/axis2/resources/services.xml"; //NOI18N
     
     public static void retrieveServicesFromResource(final FileObject targetDir, boolean isWsGroup) throws IOException {
         final String handlerContent =
@@ -265,18 +266,23 @@ public class AxisUtils {
         }
     }
     
-    public static void runTargets(FileObject projectDir, final String[] targets) {
+    public static boolean runTargets(FileObject projectDir, final String[] targets) {
+        return runTargets(projectDir, targets, 5000L);
+    }
+    
+    public static boolean runTargets(FileObject projectDir, final String[] targets, final long timeLimit ) {
         final FileObject buildImplFo = projectDir.getFileObject(GeneratedFilesHelper.BUILD_IMPL_XML_PATH);
         try {
-            ProjectManager.mutex().readAccess(new Mutex.ExceptionAction<Boolean>() {
+            return ProjectManager.mutex().readAccess(new Mutex.ExceptionAction<Boolean>() {
                 public Boolean run() throws IOException, InterruptedException {
                     ExecutorTask wsimportTask =
                             ActionUtils.runTarget(buildImplFo,targets,null); //NOI18N
-                    return Boolean.valueOf(wsimportTask.waitFinished(5000));
+                    return Boolean.valueOf(wsimportTask.waitFinished(timeLimit));
                 }
             }).booleanValue();
         } catch (MutexException e) {
             Logger.getLogger(AxisUtils.class.getName()).log(Level.FINE, "AxisUtils.runTargets", e);
+            return false;
         }       
     }
     
@@ -292,6 +298,10 @@ public class AxisUtils {
             }
         }
         return servicesModel;
+    }
+    
+    public static FileObject getServicesFileObject(FileObject projectDir) {
+        return projectDir.getFileObject(BUILD_SERVICES_PATH);
     }
     
 }
