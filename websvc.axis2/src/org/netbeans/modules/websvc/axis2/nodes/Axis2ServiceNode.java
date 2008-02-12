@@ -41,17 +41,27 @@
 package org.netbeans.modules.websvc.axis2.nodes;
 
 import java.io.IOException;
+import java.util.List;
 import javax.swing.Action;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.websvc.axis2.Axis2ModelProvider;
+import org.netbeans.modules.websvc.axis2.AxisUtils;
 import org.netbeans.modules.websvc.axis2.actions.DeployAction;
 import org.netbeans.modules.websvc.axis2.actions.EditWsdlAction;
 import org.netbeans.modules.websvc.axis2.actions.GenerateWsdlAction;
 import org.netbeans.modules.websvc.axis2.actions.ServiceConfigurationAction;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
 import org.netbeans.modules.websvc.axis2.config.model.Service;
+import org.netbeans.modules.websvc.axis2.services.model.ServiceGroup;
+import org.netbeans.modules.websvc.axis2.services.model.ServicesModel;
 import org.openide.actions.DeleteAction;
 import org.openide.actions.OpenAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.cookies.EditCookie;
 import org.openide.cookies.OpenCookie;
+import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
@@ -145,6 +155,60 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
 
     @Override
     public void destroy() throws java.io.IOException {
+        Project prj = FileOwnerQuery.getOwner(srcRoot);
+        
+        Axis2ModelProvider axis2ModelProvider = prj.getLookup().lookup(Axis2ModelProvider.class);
+        if (axis2ModelProvider != null) {
+            ServicesModel servicesModel = axis2ModelProvider.getServicesModel();
+            String serviceName = service.getNameAttr();
+            
+            // remove entry from services.xml 
+            if (servicesModel.isServicesGroup()) {
+                org.netbeans.modules.websvc.axis2.services.model.Service serviceToRemove = null;
+                ServiceGroup serviceGroup = (ServiceGroup)servicesModel.getRootComponent();
+                List<org.netbeans.modules.websvc.axis2.services.model.Service> services = serviceGroup.getServices();
+                for (org.netbeans.modules.websvc.axis2.services.model.Service s:services) {
+                    if (serviceName.equals(s.getNameAttr())) {
+                        serviceToRemove = s;
+                        break;
+                    }
+                }
+                if (serviceToRemove != null) {
+                    servicesModel.startTransaction();
+                    serviceGroup.removeService(serviceToRemove);
+                    servicesModel.endTransaction();
+                } 
+            }
+            
+            // removing implementation class
+            FileObject fo = srcRoot.getFileObject(service.getServiceClass().replace('.', '/')+".java"); //NOI18N
+            if (fo != null) fo.delete();
+            
+            // call clean targets
+            if (service.getGenerateWsdl() != null) {
+                String targets[] = new String[] {"java2wsdl-clean-"+serviceName};
+                AxisUtils.runTargets(prj.getProjectDirectory(), targets);
+            } else if (service.getWsdlUrl() != null) {
+                String targets[] = new String[] {"wsdl2java-clean-"+serviceName};
+                AxisUtils.runTargets(prj.getProjectDirectory(), targets);
+            }
+            
+            // remove entry from axis2.xml
+            Axis2Model axis2Model = axis2ModelProvider.getAxis2Model();
+            Axis2 axis2 = axis2Model.getRootComponent();
+            axis2Model.startTransaction();
+            axis2.removeService(service);
+            axis2Model.endTransaction();
+            FileObject axis2Folder = AxisUtils.getNbprojectFolder(prj.getProjectDirectory());
+            FileObject axis2Fo = axis2Folder.getFileObject("axis2", "xml"); //NOI18N
+            if (axis2Fo != null) {
+                DataObject dObj = DataObject.find(axis2Fo);
+                if (dObj != null) {
+                    SaveCookie save = dObj.getCookie(SaveCookie.class);
+                    if (save != null) save.save();
+                }
+            }
+        }
     }
     
     public void nameChanged(String oldName, String newName) {
