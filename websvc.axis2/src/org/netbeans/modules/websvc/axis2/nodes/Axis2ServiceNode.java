@@ -42,6 +42,7 @@ package org.netbeans.modules.websvc.axis2.nodes;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.prefs.Preferences;
 import javax.swing.Action;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
@@ -67,6 +68,7 @@ import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.HelpCtx;
+import org.openide.util.NbPreferences;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
@@ -98,7 +100,13 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
     
     @Override
     public String getShortDescription() {
-        return service.getServiceClass();
+        Preferences preferences = NbPreferences.forModule(Axis2ServiceNode.class);
+        String axisURL = preferences.get("AXIS_URL",null); //NOI18N
+        if (axisURL!=null) {
+            return axisURL+"/"+service.getNameAttr()+"?wsdl"; //NOI18N
+        } else {
+            return service.getServiceClass();
+        }
     }
     
     public void open() {
