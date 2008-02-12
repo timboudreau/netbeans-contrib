@@ -97,10 +97,11 @@ public class WsFromWsdlWizardIterator implements TemplateWizard.Iterator /*, Ite
         org.openide.filesystems.FileObject dir = Templates.getTargetFolder( wiz );
         DataFolder df = DataFolder.findFolder( dir );
         final DataObject dObj = dTemplate.createFromTemplate( df, Templates.getTargetName( wiz )  );
-        
+        final String serviceName = (String)wiz.getProperty(WizardProperties.PROP_SERVICE_NAME);
+        final String packageName = (String)wiz.getProperty(WizardProperties.PROP_PACKAGE_NAME);
+        final boolean isSEI = ((Boolean)wiz.getProperty(WizardProperties.PROP_SEI)).booleanValue();        
         addService(dObj.getPrimaryFile());
 
-        String serviceName = (String)wiz.getProperty(WizardProperties.PROP_SERVICE_NAME);
         final String[] targets = new String[] {"wsdl2java-"+serviceName};
         RequestProcessor.getDefault().post(new Runnable() {
 
@@ -116,6 +117,8 @@ public class WsFromWsdlWizardIterator implements TemplateWizard.Iterator /*, Ite
                             Service service = serviceGroup.getServices().get(0);
                             try {
                                 generateConfigFile(dObj.getPrimaryFile(), service);
+
+                                generateSkeletonMethods(dObj.getPrimaryFile(), serviceName, packageName, isSEI);
                             } catch (IOException ex) {
                                 ex.printStackTrace();
                             }
@@ -149,6 +152,16 @@ public class WsFromWsdlWizardIterator implements TemplateWizard.Iterator /*, Ite
             ClassPath classPath = ClassPath.getClassPath(serviceFo, ClassPath.SOURCE);
             String serviceClass = classPath.getResourceName(serviceFo, '.', false);
             WizardUtils.addService(servicesModel, service, serviceClass); 
+        }
+    }
+    
+    private void generateSkeletonMethods(FileObject serviceFo, String serviceName, String packageName, boolean isSEI) throws IOException {
+        String sourcePackageName = packageName+"."+serviceName+"Skeleton"; //NOI18N
+        if (isSEI) {
+            String interfaceName = packageName+"."+serviceName+"SkeletonInterface"; //NOI18N
+            WizardUtils.generateSkeletonMethods(serviceFo, sourcePackageName, interfaceName);
+        } else {
+            WizardUtils.generateSkeletonMethods(serviceFo, sourcePackageName, null);
         }
     }
     
