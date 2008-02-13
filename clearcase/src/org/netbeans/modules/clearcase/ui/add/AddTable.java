@@ -58,7 +58,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableColumnModel;
 import java.awt.Component;
-import java.lang.String;
 import java.util.*;
 
 /**
