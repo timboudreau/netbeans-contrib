@@ -41,11 +41,9 @@
 
 package org.netbeans.modules.scala.project.ui.wizards;
 
-import java.awt.Dialog;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Enumeration;
 import javax.swing.JFileChooser;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;

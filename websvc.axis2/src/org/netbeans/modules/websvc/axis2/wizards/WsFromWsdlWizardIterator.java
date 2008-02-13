@@ -112,12 +112,11 @@ public class WsFromWsdlWizardIterator implements TemplateWizard.Iterator /*, Ite
                     FileObject generatedServicesFo = AxisUtils.getServicesFileObject(project.getProjectDirectory());
                     if (generatedServicesFo != null) {
                         ServicesModel servicesModel = ServicesUtils.getServicesModel(generatedServicesFo, false);
-                        if (servicesModel.isServicesGroup()) {
+                        if (servicesModel != null) {
                             ServiceGroup serviceGroup = (ServiceGroup)servicesModel.getRootComponent();
                             Service service = serviceGroup.getServices().get(0);
                             try {
                                 generateConfigFile(dObj.getPrimaryFile(), service);
-
                                 generateSkeletonMethods(dObj.getPrimaryFile(), serviceName, packageName, isSEI);
                             } catch (IOException ex) {
                                 ex.printStackTrace();
@@ -141,7 +140,7 @@ public class WsFromWsdlWizardIterator implements TemplateWizard.Iterator /*, Ite
             if (configFolder != null) {
                 FileObject servicesFo = configFolder.getFileObject("services.xml");
                 if (servicesFo == null) {
-                    AxisUtils.retrieveServicesFromResource(configFolder, true/*((Boolean)wiz.getProperty(WizardProperties.PROP_SERVICE_GROUP)).booleanValue()*/);
+                    AxisUtils.retrieveServicesFromResource(configFolder, true);
                 }
                 servicesFo = configFolder.getFileObject("services.xml"); //NOI18N
                 servicesModel = ServicesUtils.getServicesModel(servicesFo, true);

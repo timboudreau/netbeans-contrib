@@ -153,7 +153,8 @@ public class FileInformation implements Serializable {
             FileInformation.STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED |            
             FileInformation.STATUS_VERSIONED_LOADED_BUT_MISSING |
             FileInformation.STATUS_VERSIONED_HIJACKED | 
-            FileInformation.STATUS_NOTVERSIONED_ECLIPSED;
+            FileInformation.STATUS_NOTVERSIONED_ECLIPSED | 
+            FileInformation.STATUS_VERSIONED_UPTODATE;
         
     /**
      * 

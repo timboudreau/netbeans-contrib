@@ -51,6 +51,7 @@ import org.netbeans.modules.websvc.axis2.AxisUtils;
 import org.netbeans.modules.websvc.axis2.actions.DeployAction;
 import org.netbeans.modules.websvc.axis2.actions.EditWsdlAction;
 import org.netbeans.modules.websvc.axis2.actions.GenerateWsdlAction;
+import org.netbeans.modules.websvc.axis2.actions.RefreshServiceAction;
 import org.netbeans.modules.websvc.axis2.actions.ServiceConfigurationAction;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
@@ -103,7 +104,7 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
         Preferences preferences = NbPreferences.forModule(Axis2ServiceNode.class);
         String axisURL = preferences.get("AXIS_URL",null); //NOI18N
         if (axisURL!=null) {
-            return axisURL+"/"+service.getNameAttr()+"?wsdl"; //NOI18N
+            return axisURL+"/services/"+service.getNameAttr()+"?wsdl"; //NOI18N
         } else {
             return service.getServiceClass();
         }
@@ -143,6 +144,7 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
             SystemAction.get(ServiceConfigurationAction.class),
             SystemAction.get(GenerateWsdlAction.class),
             SystemAction.get(EditWsdlAction.class),
+            SystemAction.get(RefreshServiceAction.class),
             null,
             SystemAction.get(DeleteAction.class),
             null,
@@ -171,21 +173,19 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
             String serviceName = service.getNameAttr();
             
             // remove entry from services.xml 
-            if (servicesModel.isServicesGroup()) {
-                org.netbeans.modules.websvc.axis2.services.model.Service serviceToRemove = null;
-                ServiceGroup serviceGroup = (ServiceGroup)servicesModel.getRootComponent();
-                List<org.netbeans.modules.websvc.axis2.services.model.Service> services = serviceGroup.getServices();
-                for (org.netbeans.modules.websvc.axis2.services.model.Service s:services) {
-                    if (serviceName.equals(s.getNameAttr())) {
-                        serviceToRemove = s;
-                        break;
-                    }
+            org.netbeans.modules.websvc.axis2.services.model.Service serviceToRemove = null;
+            ServiceGroup serviceGroup = (ServiceGroup)servicesModel.getRootComponent();
+            List<org.netbeans.modules.websvc.axis2.services.model.Service> services = serviceGroup.getServices();
+            for (org.netbeans.modules.websvc.axis2.services.model.Service s:services) {
+                if (serviceName.equals(s.getNameAttr())) {
+                    serviceToRemove = s;
+                    break;
                 }
-                if (serviceToRemove != null) {
-                    servicesModel.startTransaction();
-                    serviceGroup.removeService(serviceToRemove);
-                    servicesModel.endTransaction();
-                } 
+            }
+            if (serviceToRemove != null) {
+                servicesModel.startTransaction();
+                serviceGroup.removeService(serviceToRemove);
+                servicesModel.endTransaction();
             }
             
             // removing implementation class

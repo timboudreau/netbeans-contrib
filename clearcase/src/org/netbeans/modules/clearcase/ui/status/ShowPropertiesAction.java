@@ -63,6 +63,7 @@ public class ShowPropertiesAction extends AbstractAction {
     public ShowPropertiesAction(String name, VCSContext ctx) {
         super(name);
         this.ctx = ctx;
+        setEnabled(ctx.getFiles().size() > 0);
     }
 
     public void actionPerformed(ActionEvent e) {

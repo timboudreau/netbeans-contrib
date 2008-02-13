@@ -31,9 +31,9 @@
                   <Component id="jButton1" alignment="1" max="32767" attributes="1"/>
               </Group>
           </Group>
-          <Component id="jLabelErrorMessage" alignment="0" pref="519" max="32767" attributes="2"/>
-          <Component id="jCheckBoxBuildSubprojects" alignment="0" pref="519" max="32767" attributes="1"/>
-          <Component id="jTabbedPane1" alignment="0" pref="519" max="32767" attributes="2"/>
+          <Component id="jLabelErrorMessage" alignment="0" pref="854" max="32767" attributes="2"/>
+          <Component id="jCheckBoxBuildSubprojects" alignment="0" pref="854" max="32767" attributes="1"/>
+          <Component id="jTabbedPane1" alignment="0" pref="854" max="32767" attributes="2"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -126,7 +126,7 @@
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-              <JTabbedPaneConstraints tabName="Compile">
+              <JTabbedPaneConstraints tabName="&lt;LBL_CustomizeLibraries_LibrariesTab&gt;">
                 <Property name="tabTitle" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
                   <ResourceString bundle="org/netbeans/modules/scala/project/ui/customizer/Bundle.properties" key="LBL_CustomizeLibraries_LibrariesTab" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
                 </Property>
@@ -337,7 +337,7 @@
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-              <JTabbedPaneConstraints tabName="Run">
+              <JTabbedPaneConstraints tabName="&lt;LBL_CustomizeLibraries_Run_Tab&gt;">
                 <Property name="tabTitle" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
                   <ResourceString bundle="org/netbeans/modules/scala/project/ui/customizer/Bundle.properties" key="LBL_CustomizeLibraries_Run_Tab" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
                 </Property>
@@ -533,7 +533,7 @@
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-              <JTabbedPaneConstraints tabName="Compile Tests">
+              <JTabbedPaneConstraints tabName="&lt;LBL_CustomizeLibraries_TestLibrariesTab&gt;">
                 <Property name="tabTitle" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
                   <ResourceString bundle="org/netbeans/modules/scala/project/ui/customizer/Bundle.properties" key="LBL_CustomizeLibraries_TestLibrariesTab" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
                 </Property>
@@ -729,7 +729,7 @@
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-              <JTabbedPaneConstraints tabName="Run Tests">
+              <JTabbedPaneConstraints tabName="&lt;LBL_CustomizeLibraries_RunTests_Tab&gt;">
                 <Property name="tabTitle" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
                   <ResourceString bundle="org/netbeans/modules/scala/project/ui/customizer/Bundle.properties" key="LBL_CustomizeLibraries_RunTests_Tab" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
                 </Property>

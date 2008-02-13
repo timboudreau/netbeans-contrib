@@ -63,6 +63,7 @@ public class BrowseHistoryAction extends AbstractAction {
     public BrowseHistoryAction(String name, VCSContext ctx) {
         super(name);
         this.ctx = ctx;
+        setEnabled(ctx.getFiles().size() > 0);
     }
 
     public void actionPerformed(ActionEvent e) {

@@ -38,48 +38,48 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.scala.project.queries;
+package org.netbeans.modules.websvc.axis2.actions;
 
-import org.netbeans.modules.scala.project.J2SEProjectUtil;
-import org.netbeans.spi.java.queries.SourceLevelQueryImplementation;
-import org.netbeans.spi.project.support.ant.AntProjectHelper;
-import org.netbeans.spi.project.support.ant.PropertyEvaluator;
-import org.netbeans.spi.project.support.ant.PropertyUtils;
-import org.netbeans.spi.project.support.ant.EditableProperties;
-import org.netbeans.api.java.platform.Specification;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.websvc.axis2.AxisUtils;
+import org.netbeans.modules.websvc.axis2.config.model.Service;
 import org.openide.filesystems.FileObject;
+import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
+import org.openide.nodes.Node;
+import org.openide.util.actions.NodeAction;
 
-/**
- * Returns source level of project sources.
- * @author David Konecny
- */
-public class SourceLevelQueryImpl implements SourceLevelQueryImplementation {
-
-    private final PropertyEvaluator evaluator;
-
-    public SourceLevelQueryImpl(PropertyEvaluator evaluator) {
-        this.evaluator = evaluator;
-    }
-
-    public String getSourceLevel(FileObject javaFile) {        
-        final String activePlatform = evaluator.getProperty ("platform.active");  //NOI18N        
-        if (J2SEProjectUtil.getActivePlatform(activePlatform) != null) {
-            String sl = evaluator.getProperty("javac.source");  //NOI18N
-            if (sl != null && sl.length() > 0) {
-                return sl;
-            } else {
-                return null;
-            }
-        }
-        else {
-            EditableProperties props = PropertyUtils.getGlobalProperties();
-            String sl = (String) props.get("default.javac.source"); //NOI18N
-            if (sl != null && sl.length() > 0) {
-                return sl;
-            } else {
-                return null;
-            }
-        }
+public class RefreshServiceAction extends NodeAction  {
+    
+    public String getName() {
+        return NbBundle.getMessage(RefreshServiceAction.class, "LBL_RefreshServiceAction");
     }
     
+    public HelpCtx getHelpCtx() {
+        return HelpCtx.DEFAULT_HELP;
+    }
+        
+    @Override
+    protected boolean asynchronous() {
+        return true;
+    }
+    
+    protected boolean enable(Node[] activatedNodes) {
+        if (activatedNodes==null || activatedNodes.length != 1) return false;
+        Service service = activatedNodes[0].getLookup().lookup(Service.class);        
+        if (service == null || service.getJavaGenerator() == null) return false;
+        else return true;
+    }
+    
+    protected void performAction(Node[] activatedNodes) {
+        Service service = activatedNodes[0].getLookup().lookup(Service.class);
+        FileObject srcRoot = activatedNodes[0].getLookup().lookup(FileObject.class);
+        Project prj = FileOwnerQuery.getOwner(srcRoot);
+        FileObject projectDir = prj.getProjectDirectory();
+        String[] targets = new String[]{"wsdl2java-refresh-"+service.getNameAttr()}; //NOI18N
+        AxisUtils.runTargets(projectDir, targets);
+        // PENDING: implement refreshing implementation clas, and, potentially, services.xml, 
+    }
+
 }

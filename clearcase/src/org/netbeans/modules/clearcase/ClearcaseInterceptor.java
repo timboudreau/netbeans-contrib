@@ -107,8 +107,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
             // how is this possible ?
             return;
         }
-        
-                
+                        
         // XXX use execution unit
         if(Clearcase.getInstance().isManaged(parent)) {
             // 1. checkout parent if needed

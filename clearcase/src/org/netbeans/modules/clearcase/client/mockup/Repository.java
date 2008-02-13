@@ -188,7 +188,6 @@ class Repository {
     
     private void setFileReadOnly(File file, boolean readOnly) throws IOException {
         String [] command = new String[3];
-        // TODO: update for JDK 6
         if (Utilities.isWindows()) {
             command[0] = "attrib";
             command[1] = readOnly ? "+R" : "-R";

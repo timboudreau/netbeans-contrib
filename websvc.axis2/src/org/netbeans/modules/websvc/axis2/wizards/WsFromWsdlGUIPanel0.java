@@ -89,8 +89,6 @@ public class WsFromWsdlGUIPanel0 extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         tfWsdlUrl = new javax.swing.JTextField();
         browseButton = new javax.swing.JButton();
-        jCheckBox1 = new javax.swing.JCheckBox();
-        jLabel2 = new javax.swing.JLabel();
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(WsFromWsdlGUIPanel0.class, "WsFromWsdlGUIPanel0.jLabel1.text")); // NOI18N
 
@@ -101,10 +99,6 @@ public class WsFromWsdlGUIPanel0 extends javax.swing.JPanel {
             }
         });
 
-        jCheckBox1.setText(org.openide.util.NbBundle.getMessage(WsFromWsdlGUIPanel0.class, "WsFromJavaGUIPanel0.jCheckBox1.text")); // NOI18N
-
-        jLabel2.setText(org.openide.util.NbBundle.getMessage(WsFromWsdlGUIPanel0.class, "WsFromJavaGUIPanel0.jLabel2.text")); // NOI18N
-
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -112,10 +106,6 @@ public class WsFromWsdlGUIPanel0 extends javax.swing.JPanel {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(21, 21, 21)
-                        .add(jLabel2))
-                    .add(jCheckBox1)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(tfWsdlUrl, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 534, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -132,11 +122,7 @@ public class WsFromWsdlGUIPanel0 extends javax.swing.JPanel {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(browseButton)
                     .add(tfWsdlUrl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(18, 18, 18)
-                .add(jCheckBox1)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jLabel2)
-                .addContainerGap(196, Short.MAX_VALUE))
+                .addContainerGap(254, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -171,9 +157,7 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton browseButton;
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField tfWsdlUrl;
     // End of variables declaration//GEN-END:variables
     
