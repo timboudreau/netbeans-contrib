@@ -759,14 +759,15 @@ Pattern1 = Pattern3;
 
 ## Hacking: used only by PatDef
 Pattern2 = <under> ["*"]
-         | LiteralInPattern
+         | Literal
          | StableId [<lparen> (<nl>)* Patterns (<nl>)* <rparen> | <at> Pattern3]
          | TuplePattern
          | XmlPattern;
 
-Pattern3 = SimplePattern (NameId [<nl>] SimplePattern)*;
+## Hacking for neg number in Literal
+Pattern3 = ["-"] SimplePattern (NameId [<nl>] ["-"] SimplePattern)*;
 SimplePattern = <under> ["*"]
-              | LiteralInPattern
+              | Literal
               | StableId [<lparen> (<nl>)* Patterns (<nl>)* <rparen> | <at> Pattern3 | <colon> Type]
               | TuplePattern
               | XmlPattern;
@@ -778,7 +779,8 @@ SimplePattern = <under> ["*"]
 ## where, (List[TemplateHolder] => rw) which is behind ":", may be parsed as a 
 ## function type rather then a (Type => Expr), so we here have to limit the Type to InfixType
 CasePattern = CasePattern1 ("|" CasePattern1)*;
-CasePattern1 = CasePattern0 (NameId [<nl>] CasePattern0)*;
+## Hacking for neg number in Literal
+CasePattern1 = ["-"] CasePattern0 (NameId [<nl>] ["-"] CasePattern0)*;
 CasePattern0 = <under> ["*"]
              | Literal
              | StableId [<lparen> (<nl>)* Patterns (<nl>)* <rparen> | <at> Pattern3 | <colon> InfixType]
