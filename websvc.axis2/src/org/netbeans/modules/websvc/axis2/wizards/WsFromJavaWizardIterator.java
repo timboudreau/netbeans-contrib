@@ -117,7 +117,7 @@ public class WsFromJavaWizardIterator implements TemplateWizard.Iterator /*, Ite
         Axis2ModelProvider axis2ModelProvider = project.getLookup().lookup(Axis2ModelProvider.class);
         ServicesModel servicesModel = axis2ModelProvider.getServicesModel();
         if (servicesModel == null) {            
-            FileObject configFolder = AxisUtils.getAxisConfigFolder(project.getProjectDirectory(), true);
+            FileObject configFolder = AxisUtils.getServicesFolder(project.getProjectDirectory(), true);
             if (configFolder != null) {
                 FileObject servicesFo = configFolder.getFileObject("services.xml");
                 if (servicesFo == null) {

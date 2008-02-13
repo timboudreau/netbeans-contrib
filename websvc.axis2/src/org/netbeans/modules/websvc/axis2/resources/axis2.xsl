@@ -116,6 +116,7 @@ made subject to such option by the copyright holder.
                     <xsl:variable name="databindingName" select="axis2:java-generator/@databindingName"/>
                   
                     <target name="wsdl2java-{$wsname}" depends="init">
+                        <delete dir="${{build.dir}}/axis2"/>
                         <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
                             <arg line="-uri {$wsdlUrl}"/>
                             <arg line="-s"/>
@@ -144,6 +145,32 @@ made subject to such option by the copyright holder.
                             <fileset dir="${{build.dir}}/axis2/resources">
                                 <include name="**/*.wsdl"/>
                                 <include name="**/*.xsd"/>
+                            </fileset>
+                        </copy>
+                    </target>
+                    <target name="wsdl2java-refresh-{$wsname}" depends="init">
+                        <delete dir="${{build.dir}}/axis2"/>
+                        <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
+                            <arg line="-uri ${{basedir}}/xml-resources/axis2/META-INF/{$serviceName}.wsdl"/>
+                            <arg line="-s"/>
+                            <arg line="-ss"/>
+                            <arg line="-sd"/>
+                            <xsl:if test="axis2:java-generator/@sei"><arg line="-ssi"/></xsl:if>
+                            <xsl:if test="axis2:java-generator/@databindingName = 'jibx'"><arg line="-uw"/></xsl:if>
+                            <arg line="-sn {$serviceName}"/>
+                            <arg line="-pn {$portName}"/>
+                            <arg line="-p {$packageName}"/>
+                            <arg line="-d {$databindingName}"/>
+                            <arg line="-o ${{build.dir}}/axis2"/>
+                            <classpath>
+                                <fileset dir="${{axis2.home}}/lib">
+                                    <include name="*.jar"/>
+                                </fileset>
+                            </classpath>
+                        </java>
+                        <copy toDir="${{src.dir}}" overwrite="true">
+                            <fileset dir="${{build.dir}}/axis2/src">
+                                <include name="**/*.java"/>
                             </fileset>
                         </copy>
                     </target>
