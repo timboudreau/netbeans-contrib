@@ -59,6 +59,7 @@ public class DiffAction extends AbstractAction {
     public DiffAction(String name, VCSContext context) {
         super(name);
         this.context = context;
+        setEnabled(context.getFiles().size() > 0);
     }
     
     public void actionPerformed(ActionEvent ev) {

@@ -269,7 +269,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
             actions.add(null);
             actions.add(new AnnotateAction(ctx, Clearcase.getInstance().getAnnotationsProvider(ctx)));
             actions.add(new ViewRevisionAction("View Revision...", ctx));
-            actions.add(new TextHistoryAction("List History", ctx));
+//            actions.add(new TextHistoryAction("List History", ctx));
             actions.add(new BrowseHistoryAction("Browse History", ctx));
             actions.add(new BrowseVersionTreeAction("Browse Version Tree", ctx));
             actions.add(null);
@@ -295,7 +295,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
                 actions.add(null);
                 actions.add(new AnnotateAction(ctx, Clearcase.getInstance().getAnnotationsProvider(ctx)));
                 actions.add(new ViewRevisionAction("View Revision...", ctx));
-                actions.add(new TextHistoryAction("List History", ctx));
+//                actions.add(new TextHistoryAction("List History", ctx));
                 actions.add(new BrowseHistoryAction("Browse History", ctx));
                 actions.add(new BrowseVersionTreeAction("Browse Version Tree", ctx));
                 actions.add(null);

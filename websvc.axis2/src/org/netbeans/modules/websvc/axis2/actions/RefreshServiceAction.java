@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -38,41 +38,48 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.clearcase.ui.status;
+package org.netbeans.modules.websvc.axis2.actions;
 
-import org.netbeans.modules.versioning.spi.VCSContext;
-import org.netbeans.modules.versioning.util.Utils;
-import org.netbeans.modules.clearcase.client.ShowPropertiesCommand;
-import org.netbeans.modules.clearcase.Clearcase;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.websvc.axis2.AxisUtils;
+import org.netbeans.modules.websvc.axis2.config.model.Service;
+import org.openide.filesystems.FileObject;
+import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
+import org.openide.nodes.Node;
+import org.openide.util.actions.NodeAction;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-
-/**
- * Launches external Describe (properties) dialog.  
- * 
- * @author Maros Sandor
- */
-public class ShowPropertiesAction extends AbstractAction {
+public class RefreshServiceAction extends NodeAction  {
     
-    private final VCSContext ctx;
-
-    public ShowPropertiesAction(String name, VCSContext ctx) {
-        super(name);
-        this.ctx = ctx;
-        setEnabled(ctx.getFiles().size() > 0);
+    public String getName() {
+        return NbBundle.getMessage(RefreshServiceAction.class, "LBL_RefreshServiceAction");
+    }
+    
+    public HelpCtx getHelpCtx() {
+        return HelpCtx.DEFAULT_HELP;
+    }
+        
+    @Override
+    protected boolean asynchronous() {
+        return true;
+    }
+    
+    protected boolean enable(Node[] activatedNodes) {
+        if (activatedNodes==null || activatedNodes.length != 1) return false;
+        Service service = activatedNodes[0].getLookup().lookup(Service.class);        
+        if (service == null || service.getJavaGenerator() == null) return false;
+        else return true;
+    }
+    
+    protected void performAction(Node[] activatedNodes) {
+        Service service = activatedNodes[0].getLookup().lookup(Service.class);
+        FileObject srcRoot = activatedNodes[0].getLookup().lookup(FileObject.class);
+        Project prj = FileOwnerQuery.getOwner(srcRoot);
+        FileObject projectDir = prj.getProjectDirectory();
+        String[] targets = new String[]{"wsdl2java-refresh-"+service.getNameAttr()}; //NOI18N
+        AxisUtils.runTargets(projectDir, targets);
+        // PENDING: implement refreshing implementation clas, and, potentially, services.xml, 
     }
 
-    public void actionPerformed(ActionEvent e) {
-        Set<File> files = ctx.getRootFiles();
-        ShowPropertiesCommand cmd = new ShowPropertiesCommand(files.toArray(new File[files.size()]));
-        try {
-            Clearcase.getInstance().getClient().execAsync(cmd);
-        } catch (IOException ex) {
-            Utils.logError(this, ex);
-        }
-    }
 }

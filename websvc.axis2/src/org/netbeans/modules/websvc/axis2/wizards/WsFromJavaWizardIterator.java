@@ -121,7 +121,7 @@ public class WsFromJavaWizardIterator implements TemplateWizard.Iterator /*, Ite
             if (configFolder != null) {
                 FileObject servicesFo = configFolder.getFileObject("services.xml");
                 if (servicesFo == null) {
-                    AxisUtils.retrieveServicesFromResource(configFolder, ((Boolean)wiz.getProperty(WizardProperties.PROP_SERVICE_GROUP)).booleanValue());
+                    AxisUtils.retrieveServicesFromResource(configFolder, true);
                 }
                 servicesFo = configFolder.getFileObject("services.xml"); //NOI18N
                 servicesModel = ServicesUtils.getServicesModel(servicesFo, true);
