@@ -401,9 +401,9 @@ TOKEN:char: (
 
 TOKEN:integer: (
     ["0"-"9"] ['l' 'L']? |
-      ["1"-"9"] ["0"-"9"]* ['l' 'L']? |
-      "0" ["0"-"7"]+ ['l' 'L']? |
-      "0" ["x" "X"] ["0"-"9" "a"-"f" "A"-"F"]+ ['l' 'L']? 
+    ["1"-"9"] ["0"-"9"]* ['l' 'L']? |
+    "0" ["0"-"7"]+ ['l' 'L']? |
+    "0" ["x" "X"] ["0"-"9" "a"-"f" "A"-"F"]+ ['l' 'L']? 
 )
 
 ## Hacking for: ["0"-"9"]+ "." ["0"-"9"]* ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
@@ -416,11 +416,11 @@ TOKEN:integer: (
 ## @TODO "9." followed by <nl>: a float or may be an integer that can be followed by operator? 
 TOKEN:float: (
     ["0"-"9"]+ "." [" " "\t"]+ |
-      ["0"-"9"]+ "." ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
-      ["0"-"9"]+ "." ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? |
-      "." ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
-      ["0"-"9"]+ ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? |
-      ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]
+    ["0"-"9"]+ "." ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
+    ["0"-"9"]+ "." ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? |
+    "." ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
+    ["0"-"9"]+ ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? |
+    ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]
 )
 
 
@@ -556,7 +556,8 @@ ReturnExpr = <return> [Expr];
 ## Hacking for:
 ##     PostfixExpr = InfixExpr [NameId [<nl>]];
 ##     InfixExpr = PrefixExpr  (NameId [<nl>] InfixExpr)*;
-PostfixExpr = PrefixExpr (NameId [<nl>] [PrefixExpr])*;
+## Should connect two exprs separated by <nl> to one expr when possible in semantic analyzer
+PostfixExpr = PrefixExpr (NameId [PrefixExpr])*;
 PrefixExpr = [PrefixOp] SimpleExpr;
 PrefixOp = "-" 
          | "+" 
@@ -602,9 +603,9 @@ Arguments = ParenExpr
 ## Although "," is used to separator one expr, but, all <nl> in parenthsis should be ignor,
 ## so, we use (ExprInParen)+ here, and let ExprInParen include <nl>.
 ## ** Should combine them to one expr in semantic analyzer **
-ParenExpr = <lparen> (<nl>)* (ExprInParen)+ (<comma> (<nl>)* (ExprInParen)+)* (<nl>)* <rparen>;
+ParenExpr = <lparen> (<nl>)* ExprInParen (<comma> (<nl>)* ExprInParen)* (<nl>)* <rparen>;
 ExprInParen = CtrlExpr
-            | PostfixExpr [AscriptionInPrths [FunExprTail] | MatchExprTail | AssignExprTail | FunExprTail]
+            | PostfixExpr [AscriptionInParen [FunExprTail] | MatchExprTail | AssignExprTail | FunExprTail]
             | <nl>
             | ;
 ## Hacking for: Ascription and Binding;
@@ -614,7 +615,7 @@ ExprInParen = CtrlExpr
 ## Since (Bindings | id) ‘=>’ Expr also conflicts with (PostfixExpr Ascription "=>" Expr), 
 ## we have to combine them as: Ascription = ":" (Type | (Annotation)+);
 ## Hacking for: AscriptionInPrths = <colon> (Type | (Annotation)+); @see AnnotType
-AscriptionInPrths = <colon> (Type);
+AscriptionInParen = <colon> (Type);
 
 BlockExpr = <lbrace> (<nl>)* (BlockStats | CaseClauses) <rbrace>;
 Template = <lbrace> (<nl>)* TemplateStats <rbrace> [<with>];
@@ -764,7 +765,8 @@ Pattern2 = <under> ["*"]
          | TuplePattern
          | XmlPattern;
 
-Pattern3 = SimplePattern (NameId [<nl>] SimplePattern)*;
+## Hacking for neg number in Literal
+Pattern3 = ["-"] SimplePattern (NameId [<nl>] ["-"] SimplePattern)*;
 SimplePattern = <under> ["*"]
               | Literal
               | StableId [<lparen> (<nl>)* Patterns (<nl>)* <rparen> | <at> Pattern3 | <colon> Type]
@@ -778,7 +780,8 @@ SimplePattern = <under> ["*"]
 ## where, (List[TemplateHolder] => rw) which is behind ":", may be parsed as a 
 ## function type rather then a (Type => Expr), so we here have to limit the Type to InfixType
 CasePattern = CasePattern1 ("|" CasePattern1)*;
-CasePattern1 = CasePattern0 (NameId [<nl>] CasePattern0)*;
+## Hacking for neg number in Literal
+CasePattern1 = ["-"] CasePattern0 (NameId [<nl>] ["-"] CasePattern0)*;
 CasePattern0 = <under> ["*"]
              | Literal
              | StableId [<lparen> (<nl>)* Patterns (<nl>)* <rparen> | <at> Pattern3 | <colon> InfixType]
@@ -870,9 +873,12 @@ ClassDef  = [<case>] <class> NameId [TypeParamClause] (Annotation)* [AccessModif
 ObjectDef = [<case>] <object> NameId [ClassTemplateOpt];
 TraitDef  = <trait> NameId [TypeParamClause] [<requires> AnnotType] [TraitTemplateOpt];
 
-ClassParamClauses = (<lparen> (<nl>)* [ClassParams] (<nl>)* <rparen>)* [<lparen> (<nl>)* <implicit> ClassParams (<nl>)* <rparen>];
+## Hacking for ClassParamClauses = (<lparen> (<nl>)* [ClassParams] (<nl>)* <rparen>)* [<lparen> (<nl>)* <implicit> ClassParams (<nl>)* <rparen>];
+## Where:
+##     ClassParam = (Annotation)* [(Modifier)* (<val> | <var>)] NameId [<colon> ParamType];
+ClassParamClauses = (<lparen> (<nl>)* [ClassParams] (<nl>)* <rparen>)*;
 ClassParams = ClassParam (<comma> (<nl>)* ClassParam)*;
-ClassParam = (Annotation)* [(Modifier)* (<val> | <var>)] NameId [<colon> ParamType];
+ClassParam = (Annotation)* (Modifier)* [(<val> | <var>)] NameId [<colon> ParamType];
 
 ClassTemplateOpt = <extends> (ClassParents [Template] | Template [ClassParents [Template]])
                  | Template;
