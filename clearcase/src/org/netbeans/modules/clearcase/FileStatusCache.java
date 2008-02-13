@@ -50,11 +50,12 @@ import java.util.Map.Entry;
 import java.util.logging.Level; 
 import java.util.regex.Pattern;
 import org.netbeans.api.queries.SharabilityQuery;
+import org.netbeans.modules.clearcase.util.ProgressSupport;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
-import org.netbeans.modules.clearcase.util.Utils;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.versioning.spi.VersioningSupport;
 import org.netbeans.modules.versioning.util.ListenersSupport;
+import org.netbeans.modules.versioning.util.Utils;
 import org.netbeans.modules.versioning.util.VersioningListener;
 import org.openide.util.RequestProcessor;
 
@@ -136,7 +137,7 @@ public class FileStatusCache {
                             break;
                         }
                     } else {
-                        if (Utils.isParentOrEqual(root, file)) {
+                        if (Utils.isAncestorOrEqual(root, file)) {
                             set.add(file);
                             break;
                         }   
@@ -149,7 +150,7 @@ public class FileStatusCache {
                 File excluded = (File) i.next();
                 for (Iterator j = set.iterator(); j.hasNext();) {
                     File file = (File) j.next();
-                    if (Utils.isParentOrEqual(excluded, file)) {
+                    if (Utils.isAncestorOrEqual(excluded, file)) {
                         j.remove();
                     }
                 }
@@ -210,9 +211,9 @@ public class FileStatusCache {
      * 
      * @param ctx the context to be refreshed
      */
-    public void refreshRecursively(VCSContext ctx) {
+    public void refreshRecursively(VCSContext ctx, ProgressSupport ps) {
         Set<File> files = ctx.getRootFiles();
-        refresh(true, files.toArray(new File[files.size()]));
+        refresh(true, ps, false, files.toArray(new File[files.size()]));
     }            
     
     /**
@@ -242,12 +243,12 @@ public class FileStatusCache {
         Map<File, FileInformation> ret = new HashMap<File, FileInformation>();
         
         for(File modifiedDir : statusMap.keySet()) {
-            if(Utils.isParentOrEqual(root, modifiedDir)) {                
+            if(Utils.isAncestorOrEqual(root, modifiedDir)) {                
                 Map<File, FileInformation> map = get(modifiedDir);
                 for(File file : map.keySet()) {
                     FileInformation info = map.get(file);
 
-                    if( (info.getStatus() & FileInformation.STATUS_LOCAL_CHANGE) != 0 ) { // XXX anything else
+                    if( (info.getStatus() & FileInformation.STATUS_LOCAL_CHANGE) != 0 ) { // XXX anything else?
                         ret.put(file, info);
                     }                
                 }                
@@ -256,12 +257,12 @@ public class FileStatusCache {
         return ret;
     }
         
-    private void refresh(boolean recursivelly, File ...files) {        
+    private void refresh(boolean recursivelly, ProgressSupport ps,boolean fireEvents, File ...files) {        
         Set<File> parents = new HashSet<File>();        
         for (File file : files) {
             File parent = file.getParentFile();         
             if(recursivelly && file.isDirectory()) {
-                refreshRecursively(file);
+                refreshRecursively(file, ps, fireEvents);
             } else {
                 if(!parents.contains(parent)) {
                     // refresh the file, all its siblings and the parent (dir)
@@ -278,24 +279,27 @@ public class FileStatusCache {
      * Refreshes recursively all files in the given directory.
      * @param dir
      */
-    private void refreshRecursively(File dir) {        
+    private void refreshRecursively(File dir, ProgressSupport ps, boolean fireEvents) {        
         File[] files = dir.listFiles();
         if(files == null || files.length == 0) {
             return;
         }
         boolean kidsRefreshed = false; 
         for(File file : files) {
+            if(ps.isCanceled()) {
+                return;
+            }
             if(!kidsRefreshed) {
                 // refresh the file, all its siblings and the parent (dir)
-                refresh(file, true); 
+                refresh(file, fireEvents); 
                 // files parent directory (dir) and all it's children are refreshed
                 // so skip for the next child
                 kidsRefreshed = true; 
                
             } 
             if (file.isDirectory()) {
-                refreshRecursively(file);                
-            }            
+                refreshRecursively(file, ps, fireEvents);
+            }
         }
     }        
     
@@ -457,7 +461,7 @@ public class FileStatusCache {
                         files = filesToRefresh.toArray(new File[filesToRefresh.size()]);
                         filesToRefresh.clear();
                     }                        
-                    refresh(false, files);
+                    refresh(false, null, true, files);
                 }
             });
         }
@@ -521,8 +525,7 @@ public class FileStatusCache {
                     fireFileStatusChanged(file, oldInfo, newInfo, force);    
                 } catch (IOException ex) {
                     Clearcase.LOG.log(Level.SEVERE, null, ex);
-                }
-                                        
+                }                                        
             }
         }                                        
     }

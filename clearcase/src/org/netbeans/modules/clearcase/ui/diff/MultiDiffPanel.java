@@ -55,8 +55,6 @@ import org.netbeans.modules.clearcase.ui.update.UpdateAction;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.api.diff.DiffController;
 import org.netbeans.api.diff.StreamSource;
-import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.Lookups;
@@ -80,6 +78,7 @@ import java.util.List;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.util.logging.Level;
+import org.netbeans.modules.clearcase.util.ProgressSupport;
 
 /**
  *
@@ -121,8 +120,8 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
      * null for view that are not
      */
     private RequestProcessor.Task   refreshTask;
-    private RequestProcessor.Task   refreshContextStatusTask;
-
+    private ProgressSupport         refreshSupport;
+    
     private JComponent              diffView;
     private DiffFileTable           fileTable;
     private boolean                 dividerSet;
@@ -138,8 +137,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
         setupComponents();
         refreshSetups();
         refreshComponents();
-        refreshTask = org.netbeans.modules.versioning.util.Utils.createTask(new RefreshViewTask());
-        refreshContextStatusTask = org.netbeans.modules.versioning.util.Utils.createTask(new RefreshContextStatusTask());
+        refreshTask = org.netbeans.modules.versioning.util.Utils.createTask(new RefreshViewTask());        
     }
 
     /**
@@ -372,9 +370,6 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
         delegatingUndoRedo.setDiffView(diffView);
 
         refreshComponents();
-//        if (focus) {
-//            diffView.requestFocusInWindow();
-//        }
     }
 
     private boolean showingFileTable() {
@@ -394,7 +389,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
     }
 
     private void onRefreshButton() {
-        refreshContextStatusTask.schedule(0);
+        getProgressSupport().schedule(0);
     }                    
 
     private void onUpdateButton() {
@@ -665,16 +660,23 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
         }
     }
 
-    private class RefreshContextStatusTask implements Runnable {
-        public void run() {
-            ProgressHandle ph = ProgressHandleFactory.createHandle("Refreshing Status...");
-            try {
-                ph.start();
-                Clearcase.getInstance().getFileStatusCache().refreshRecursively(context);
-            } finally {
-                ph.finish();
-            }
+    private class RefreshProgressSupport extends ProgressSupport {
+
+        public RefreshProgressSupport() {
+            super(new RequestProcessor("Clearcase-diff-refresh", 1), "Refreshing Status...");
         }
+        
+        @Override
+        protected void perform() {
+            Clearcase.getInstance().getFileStatusCache().refreshRecursively(context, this);
+        }
+    }
+    
+    private ProgressSupport getProgressSupport() {
+        if(refreshSupport == null) {
+            refreshSupport = new RefreshProgressSupport();
+        }
+        return refreshSupport;
     }
     
     /** This method is called from within the constructor to

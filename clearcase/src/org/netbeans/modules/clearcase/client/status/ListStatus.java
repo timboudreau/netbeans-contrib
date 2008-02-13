@@ -60,7 +60,7 @@ import org.netbeans.modules.clearcase.client.ExecutionUnit;
  */
 public class ListStatus extends ExecutionUnit {
 
-    private static String EXTENDED_NAMING_SYMBOL = "@@"; // XXX this is the defualt value. could be also somthing else.
+    private static String EXTENDED_NAMING_SYMBOL = Clearcase.getInstance().getExtendedNamingSymbol();
     private static String RULE_PREFIX = "Rule:"; 
            
     private static Pattern typePattern = Pattern.compile("(" + 
@@ -90,7 +90,7 @@ public class ListStatus extends ExecutionUnit {
      * @param directory Sets the --directory switch for the cleartool commands
      */
     public ListStatus(File file, boolean directory) {        
-        super(""); // XXX
+        super(""); // XXX need a name?
         
         this.file = file;
         this.directory = directory;
@@ -199,7 +199,7 @@ public class ListStatus extends ExecutionUnit {
                     return new FileEntry(type, new File(filePath), originVersion, version, annotation, false, null);
                 } else {
                     Clearcase.LOG.warning("Unknownn file classification: \"" + outputLine + "\"");                    
-                    return null; // XXX do we need to do this?
+                    return null; 
                 }
             } catch (Exception e) {
                 Clearcase.LOG.log(Level.SEVERE, "Error while parsing[" + outputLine + "]", e);                

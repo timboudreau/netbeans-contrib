@@ -128,7 +128,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
 
     public ClearcaseAnnotator() {
         cache = Clearcase.getInstance().getFileStatusCache();
-        format = new MessageFormat("[{0}; {1}]"); // TODO {0} - label, {1} - version
+        format = new MessageFormat("[{0}; {1}]"); 
         emptyFormat = format.format(new String[] {"", ""} , new StringBuffer(), null).toString().trim();
     }
 
@@ -221,26 +221,21 @@ public class ClearcaseAnnotator extends VCSAnnotator {
                         FileInformation info = (FileInformation) modifiedFiles.get(file);
                         if (info.isDirectory()) continue;
                         modified = true;
-                        allExcluded &= isExcludedFromCommit(file.getAbsolutePath());
+                        allExcluded &= ClearcaseModuleConfig.isExcludedFromCommit(file.getAbsolutePath());
                     }
                 }
                 
             } else {
                 // TODO should go recursive!
-                for (File file : modifiedFiles.keySet()) {
+                for (File mf : modifiedFiles.keySet()) {
                     
-                    if (Utils.isAncestorOrEqual(root, file)) {
-                        FileInformation info = (FileInformation) modifiedFiles.get(file);
-                        // XXX
-//                        if ((status == FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY || status == FileInformation.STATUS_VERSIONED_ADDEDLOCALLY) && file.equals(mf)) {
-//                            continue;
-//                        }
-//                        if (status == FileInformation.STATUS_VERSIONED_CONFLICT) {
-//                            Image badge = Utilities.loadImage("org/netbeans/modules/clearcase/resources/icons/conflicts-badge.png", true); // NOI18N
-//                            return Utilities.mergeImages(icon, badge, 16, 9);
-//                        }
+                    if (Utils.isAncestorOrEqual(root, mf)) {
+                        FileInformation info = (FileInformation) modifiedFiles.get(mf);
+                        if ((info.getStatus() == FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY) && mf.equals(root)) {
+                            continue;
+                        }
                         modified = true;
-                        allExcluded &= isExcludedFromCommit(file.getAbsolutePath());
+                        allExcluded &= ClearcaseModuleConfig.isExcludedFromCommit(mf.getAbsolutePath());
                     }
                     
                 }
@@ -409,11 +404,6 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         if (b == null) return true;
         if (a == null) return false;
         return ClearcaseUtils.getComparableStatus(a.getStatus()) < ClearcaseUtils.getComparableStatus(b.getStatus());
-    }        
-    
-    private boolean isExcludedFromCommit(String absolutePath) {
-        // TODO
-        return false;
     }        
 
     private static FileInformation getCachedInfo(File file) {        
