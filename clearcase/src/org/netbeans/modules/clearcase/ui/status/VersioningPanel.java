@@ -44,8 +44,6 @@ package org.netbeans.modules.clearcase.ui.status;
 import org.netbeans.modules.versioning.util.VersioningListener;
 import org.netbeans.modules.versioning.util.VersioningEvent;
 import org.netbeans.modules.versioning.util.NoContentPanel;
-import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.*;
 import org.openide.windows.TopComponent;
@@ -68,12 +66,12 @@ import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.FileStatusCache;
+import org.netbeans.modules.clearcase.util.ProgressSupport;
 import org.netbeans.modules.clearcase.ui.diff.Setup;
 import org.netbeans.modules.clearcase.ui.diff.DiffAction;
 import org.netbeans.modules.clearcase.ui.checkin.CheckinAction;
 import org.netbeans.modules.clearcase.ui.update.UpdateAction;
 import org.netbeans.modules.versioning.spi.VCSContext;
-import org.openide.util.Cancellable;
 
 /**
  * The main class of the Synchronize view, shows and acts on set of file roots. 
@@ -88,12 +86,13 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
     private int                             displayStatuses;
     
     private SyncTable                       syncTable;
-    private RequestProcessor.Task           refreshViewTask;
-
-    private static final RequestProcessor   rp = new RequestProcessor("ClearCaseView", 1, true);  // NOI18N
-
+    
+    private static final RequestProcessor   rp = new RequestProcessor("ClearCaseView", 1, true);  // NOI18N    
+    private ProgressSupport                 refreshSupport; 
     private final NoContentPanel            noContentComponent = new NoContentPanel();
-
+    private RequestProcessor.Task           refreshViewTask;
+    
+        
     /**
      * Creates a new Synchronize Panel managed by the given versioning system.
      *  
@@ -101,7 +100,6 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
      */ 
     public VersioningPanel(VersioningTopComponent parent) {
         this.parentTopComponent = parent;
-        refreshViewTask = rp.create(new RefreshViewTask());
         explorerManager = new ExplorerManager ();
         displayStatuses = FileInformation.STATUS_LOCAL_CHANGE;
         noContentComponent.setLabel(NbBundle.getMessage(VersioningPanel.class, "MSG_No_Changes_All")); // NOI18N
@@ -235,79 +233,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         }
     }
 
-    /**
-     * Must NOT be run from AWT.
-     */
-    private void setupModels() {
-        if (context == null) {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    syncTable.setTableModel(new SyncFileNode[0]);
-                }
-            });
-            return;
-        }
-        // TODO: a little hacky
-        btnUpdate.setEnabled(new UpdateAction("", context).isEnabled());
-        
-        // XXX attach Cancelable hook
-        final ProgressHandle ph = ProgressHandleFactory.createHandle(NbBundle.getMessage(VersioningPanel.class, "MSG_Refreshing_Versioning_View")); // NOI18N
-        try {
-            ph.start();
-            final SyncFileNode [] nodes = getNodes(context, displayStatuses);  // takes long
-            if (nodes == null) {
-                return;
-                // finally section
-            }
 
-            final String [] tableColumns;            
-            if (nodes.length > 0) {                
-                tableColumns = new String [] { SyncFileNode.COLUMN_NAME_NAME, SyncFileNode.COLUMN_NAME_STATUS, SyncFileNode.COLUMN_NAME_PATH };                                    
-            } else {
-                tableColumns = null;
-            }
-
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    if (nodes.length > 0) {
-                        syncTable.setColumns(tableColumns);
-                        setVersioningComponent(syncTable.getComponent());
-                    } else {
-                        setVersioningComponent(noContentComponent);
-                    }
-                    syncTable.setTableModel(nodes);
-                    // finally section, it's enqueued after this request
-                }
-            });
-        } finally {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    ph.finish();
-                }
-            });
-        }
-    }
-    
-    private SyncFileNode [] getNodes(VCSContext context, int includeStatus) {
-        FileNode [] fnodes = getFileNodes(context, includeStatus);
-        SyncFileNode [] nodes = new SyncFileNode[fnodes.length];
-        for (int i = 0; i < fnodes.length; i++) {
-            if (Thread.interrupted()) return null;
-            FileNode fnode = fnodes[i];
-            nodes[i] = new SyncFileNode(fnode, this);
-        }
-        return nodes;
-    }
-
-    public FileNode [] getFileNodes(VCSContext context, int includeStatus) {
-        File [] files = Clearcase.getInstance().getFileStatusCache().listFiles(context, includeStatus);
-        FileNode [] nodes = new FileNode[files.length];
-        for (int i = 0; i < files.length; i++) {
-            nodes[i] = new FileNode(files[i]);
-        }
-        return nodes;
-    }
-    
     public int getDisplayStatuses() {
         return displayStatuses;
     }
@@ -351,35 +277,17 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
     private RequestProcessor.Task refreshStatusesTask;
     /* Async Connects to repository and gets recent status. */
     private void refreshStatuses() {        
-        
-        // XXX HACK
-        final Cancellable c = new Cancellable() {
-            public boolean cancel() {
-                if(refreshStatusesTask != null) {
-                    return refreshStatusesTask.cancel();
-                }
-                return false;
-            }
-        };
-        // XXX - progress support & co.                
-        if(refreshStatusesTask == null) {
-            refreshStatusesTask = rp.create(new Runnable() {
-                public void run() {                
-                    final ProgressHandle ph = ProgressHandleFactory.createHandle("Refreshing status...", c);            
-                    try {                    
-                        ph.start();
-                        Clearcase.getInstance().getFileStatusCache().refreshRecursively(context);                
-                        setupModels();
-                        parentTopComponent.contentRefreshed();
-                    } finally {
-                        ph.finish();
-                    }                
-                }
-            });
-        }
-        refreshStatusesTask.schedule(0);
+        getProgressSupport().schedule(0);
     }
 
+
+    private ProgressSupport getProgressSupport() {
+        if(refreshSupport == null) {
+            refreshSupport = new RefreshProgressSupport(); 
+        }    
+        return refreshSupport;
+    }
+    
     /**
      * Shows Diff panel for all files in the view. The initial type of diff depends on the sync mode: Local, Remote, All.
      * In Local mode, the diff shows CURRENT <-> BASE differences. In Remote mode, it shows BASE<->HEAD differences. 
@@ -439,7 +347,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
 
     /** Reloads data from cache */
     private void reScheduleRefresh(int delayMillis) {
-        refreshViewTask.schedule(delayMillis);
+        getProgressSupport().schedule(delayMillis);
     }
 
     // HACK copy&paste HACK, replace by save/restore of column width/position
@@ -464,13 +372,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
      * </ul>
      */
     public void cancelRefresh() {
-        refreshViewTask.cancel();
-    }
-
-    private class RefreshViewTask implements Runnable {
-        public void run() {
-            setupModels();
-        }
+        getProgressSupport().cancel();
     }
 
     /**
@@ -808,4 +710,83 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
     private javax.swing.JToggleButton tgbRemote;
     // End of variables declaration//GEN-END:variables
 
+    private class RefreshProgressSupport extends ProgressSupport {
+
+        public RefreshProgressSupport() {
+            super(rp, "Refreshing status...");
+        }
+        
+        @Override
+        protected void perform() {
+            if(context == null) {
+                return;
+            }
+            Clearcase.getInstance().getFileStatusCache().refreshRecursively(context, this);                
+            setupModels();
+            parentTopComponent.contentRefreshed();                
+        }
+                
+        /**
+         * Must NOT be run from AWT.
+         */
+        private void setupModels() {
+            if (context == null) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        syncTable.setTableModel(new SyncFileNode[0]);
+                    }
+                });
+                return;
+            }
+            // TODO: a little hacky
+            btnUpdate.setEnabled(new UpdateAction("", context).isEnabled());
+
+            final SyncFileNode [] nodes = getNodes(context, displayStatuses);  // takes long
+            if (nodes == null) {
+                return;
+                // finally section
+            }
+
+            final String [] tableColumns;            
+            if (nodes.length > 0) {                
+                tableColumns = new String [] { SyncFileNode.COLUMN_NAME_NAME, SyncFileNode.COLUMN_NAME_STATUS, SyncFileNode.COLUMN_NAME_PATH };                                    
+            } else {
+                tableColumns = null;
+            }
+
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    if (nodes.length > 0) {
+                        syncTable.setColumns(tableColumns);
+                        setVersioningComponent(syncTable.getComponent());
+                    } else {
+                        setVersioningComponent(noContentComponent);
+                    }
+                    syncTable.setTableModel(nodes);
+                    // finally section, it's enqueued after this request
+                }
+            });
+        }
+
+        private SyncFileNode [] getNodes(VCSContext context, int includeStatus) {
+            FileNode [] fnodes = getFileNodes(context, includeStatus);
+            SyncFileNode [] nodes = new SyncFileNode[fnodes.length];
+            for (int i = 0; i < fnodes.length; i++) {
+                if (isCanceled()) return null;
+                FileNode fnode = fnodes[i];
+                nodes[i] = new SyncFileNode(fnode, VersioningPanel.this);
+            }
+            return nodes;
+        }
+
+        public FileNode [] getFileNodes(VCSContext context, int includeStatus) {
+            File [] files = Clearcase.getInstance().getFileStatusCache().listFiles(context, includeStatus);
+            FileNode [] nodes = new FileNode[files.length];
+            for (int i = 0; i < files.length; i++) {
+                nodes[i] = new FileNode(files[i]);
+            }
+            return nodes;
+        }
+
+    }
 }

@@ -41,6 +41,7 @@
 
 package org.netbeans.modules.clearcase.ui.add;
 
+import org.netbeans.modules.clearcase.util.ProgressSupport;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.Dialog;
@@ -66,7 +67,6 @@ import org.netbeans.modules.clearcase.ui.checkin.CheckinOptions;
 import org.netbeans.modules.clearcase.client.*;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
-import org.openide.util.Cancellable;
 import org.openide.util.NbBundle;
 import org.openide.util.HelpCtx;
 import org.openide.util.RequestProcessor;
@@ -82,7 +82,6 @@ public class AddAction extends AbstractAction {
 
     private final VCSContext context;
     protected final VersioningOutputManager voutput;
-    private RequestProcessor.Task prepareTask;
 
     public AddAction(String name, VCSContext context) {
         this.context = context;
@@ -208,53 +207,33 @@ public class AddAction extends AbstractAction {
 
     // XXX temporary solution...
     private void computeNodes(final AddTable table, JButton cancel, final AddPanel addPanel) {
-        RequestProcessor rp = new RequestProcessor("Clearcase-AddTo");
-        final Cancellable c = new Cancellable() {            
-            public boolean cancel() {
-                // XXX doesn't realy work ...
-                if(prepareTask != null) {
-                    return prepareTask.cancel();
-                }
-                return false;
-            }
-        };                
-        cancel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                c.cancel();
-            }
-        });
-        if(prepareTask == null) {
-            final ProgressHandle ph = ProgressHandleFactory.createHandle("Preparing add...", c);            
-            JComponent bar = ProgressHandleFactory.createProgressComponent(ph);                                        
-            addPanel.barPanel.add(bar, BorderLayout.CENTER);                                
-            prepareTask = rp.create(new Runnable() {
-                public void run() {
+        final ProgressSupport ps = new ProgressSupport(new RequestProcessor("Clearcase-AddTo"), "Preparing Add To...", cancel) {
+            @Override
+            protected void perform() {
+                try {
+                    addPanel.progressPanel.setVisible(true);
+                    
+                    FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
 
-                    try {
-                        addPanel.progressPanel.setVisible(true);
-                        ph.start();
-                        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
+                    // refresh the cache first so we will
+                    // know all checkin candidates
+                    cache.refreshRecursively(context, this);
 
-                        // refresh the cache first so we will
-                        // know all checkin candidates
-                        cache.refreshRecursively(context);
-                        
-                        // get all files to be added
-                        File [] files = cache.listFiles(context, FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY);
-                        List<ClearcaseFileNode> nodes = new ArrayList<ClearcaseFileNode>(files.length);
-                        for (File file : files) {
-                            nodes.add(new ClearcaseFileNode(file));
-                        }                        
-                        ClearcaseFileNode[] fileNodes = nodes.toArray(new ClearcaseFileNode[nodes.size()]);
-                        table.setNodes(fileNodes);
-                    } finally {
-                        addPanel.progressPanel.setVisible(false);
-                        ph.finish();
-                    }
+                    // get all files to be added
+                    File [] files = cache.listFiles(context, FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY);
+                    List<ClearcaseFileNode> nodes = new ArrayList<ClearcaseFileNode>(files.length);
+                    for (File file : files) {
+                        nodes.add(new ClearcaseFileNode(file));
+                    }                        
+                    ClearcaseFileNode[] fileNodes = nodes.toArray(new ClearcaseFileNode[nodes.size()]);
+                    table.setNodes(fileNodes);
+                } finally {
+                    addPanel.progressPanel.setVisible(false);                    
                 }
-            });        
-        }
-        prepareTask.schedule(0);
+            }
+        };
+        addPanel.barPanel.add(ps.getProgressComponent(), BorderLayout.CENTER);                                
+        ps.start();        
     }
     
 }
