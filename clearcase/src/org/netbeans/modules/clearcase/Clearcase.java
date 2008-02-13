@@ -109,7 +109,6 @@ public class Clearcase {
 
     private void init() {
         fileStatusCache = new FileStatusCache();
-        // XXX fileStatusCache.cleanUp();
         clearcaseAnnotator = new ClearcaseAnnotator();
         clearcaseInterceptor = new ClearcaseInterceptor();
         client = new ClearcaseClient();        
@@ -127,9 +126,8 @@ public class Clearcase {
     private void openLog() {
         if (log == null || log.isClosed()) {
             log = IOProvider.getDefault().getIO("Clearcase", false);
-            try {
-                // XXX workaround, otherwise it writes to nowhere
-                log.getOut().reset();
+            try {                
+                log.getOut().reset();   // workaround, otherwise it writes to nowhere
             } catch (IOException e) {
                 Utils.logError(this, e);
             }
@@ -185,7 +183,6 @@ public class Clearcase {
     // XXX - this is more a short term solution. 
     private Set<File> managedRoots = new HashSet<File>(10);
     
-    // XXX 
     //  - lsvob returns the topmost folder for dynamic views on *nix
     //  - lsview -properties -full returns some usefull info about views (snapshot dynamic etc.)
     // 
@@ -280,9 +277,8 @@ public class Clearcase {
     }
     
     public void getOriginalFile(File workingCopy, File originalFile) {
-        FileInformation info = Clearcase.getInstance().getFileStatusCache().getInfo(workingCopy);
-        // TODO: Hotfix: remove test for UNKNOWN
-        if (info.getStatus() != FileInformation.STATUS_UNKNOWN && (info.getStatus() & FileInformation.STATUS_DIFFABLE) == 0) return;
+        FileInformation info = Clearcase.getInstance().getFileStatusCache().getInfo(workingCopy);        
+        if ((info.getStatus() & FileInformation.STATUS_DIFFABLE) == 0) return;
         try {
             File original = VersionsCache.getInstance().getRemoteFile(workingCopy, VersionsCache.REVISION_BASE, true);
             if (original == null) {

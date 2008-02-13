@@ -58,7 +58,7 @@ import org.openide.util.actions.NodeAction;
 public class EditWsdlAction extends NodeAction  {
     
     public String getName() {
-        return NbBundle.getMessage(ServiceConfigurationAction.class, "LBL_EditWsdlAction");
+        return NbBundle.getMessage(EditWsdlAction.class, "LBL_EditWsdlAction");
     }
     
     public HelpCtx getHelpCtx() {
@@ -72,9 +72,12 @@ public class EditWsdlAction extends NodeAction  {
     
     protected boolean enable(Node[] activatedNodes) {
         if (activatedNodes==null || activatedNodes.length != 1) return false;
-        Service service = activatedNodes[0].getLookup().lookup(Service.class);        
-        if (service == null || service.getGenerateWsdl() == null) return false;
-        else return true;
+        Service service = activatedNodes[0].getLookup().lookup(Service.class);  
+        if (service != null && (service.getGenerateWsdl() != null || service.getWsdlUrl() != null)) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
     protected void performAction(Node[] activatedNodes) {

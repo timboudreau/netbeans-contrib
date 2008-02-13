@@ -153,7 +153,7 @@ class CheckoutPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void cbReservedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbReservedActionPerformed
-    // TODO add your handling code here:
+        // ignore
     }//GEN-LAST:event_cbReservedActionPerformed
 
     private void bRecentMessagesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bRecentMessagesActionPerformed

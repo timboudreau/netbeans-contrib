@@ -50,22 +50,19 @@ import org.netbeans.modules.versioning.util.DialogBoundsPreserver;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.Dialog;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.*;
 
 import javax.swing.event.TableModelListener;
-import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.clearcase.*;
 import org.netbeans.modules.clearcase.ui.add.AddAction;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
 import org.netbeans.modules.clearcase.client.CheckinCommand;
 import org.netbeans.modules.clearcase.client.NotificationListener;
+import org.netbeans.modules.clearcase.util.ProgressSupport;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
-import org.openide.util.Cancellable;
 import org.openide.util.NbBundle;
 import org.openide.util.HelpCtx;
 import org.openide.util.RequestProcessor;
@@ -167,52 +164,32 @@ public class CheckinAction extends AbstractAction implements NotificationListene
 
     // XXX temporary solution...
     private void computeNodes(final CheckinTable checkinTable, JButton cancel, final CheckinPanel checkinPanel) {
-        RequestProcessor rp = new RequestProcessor("Clearcase-Checkin");
-        final Cancellable c = new Cancellable() {            
-            public boolean cancel() {
-                // XXX doesn't realy work ...
-                if(prepareTask != null) {
-                    return prepareTask.cancel();
-                }
-                return false;
-            }
-        };                
-        cancel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                c.cancel();
-            }
-        });
-        if(prepareTask == null) {
-            final ProgressHandle ph = ProgressHandleFactory.createHandle("Preparing checkin...", c);            
-            JComponent bar = ProgressHandleFactory.createProgressComponent(ph);                                        
-            checkinPanel.barPanel.add(bar, BorderLayout.CENTER);        
-            prepareTask = rp.create(new Runnable() {
-                public void run() {
-                    try {
-                        checkinPanel.progressPanel.setVisible(true);
-                        ph.start();
-                        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
+        final ProgressSupport ps = new ProgressSupport(new RequestProcessor("Clearcase-AddTo"), "Preparing Add To...", cancel) {
+            @Override
+            protected void perform() {
+                try {
+                    checkinPanel.progressPanel.setVisible(true);
+                    FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
 
-                        // refresh the cache first so we will
-                        // know all checkin candidates
-                        cache.refreshRecursively(context);
-                        
-                        // get all files to be checked in
-                        File [] files = cache.listFiles(context, FileInformation.STATUS_LOCAL_CHANGE);
-                        List<ClearcaseFileNode> nodes = new ArrayList<ClearcaseFileNode>(files.length);
-                        for (File file : files) {
-                            nodes.add(new ClearcaseFileNode(file));   
-                        }                            
-                        ClearcaseFileNode[] fileNodes = nodes.toArray(new ClearcaseFileNode[nodes.size()]);
-                        checkinTable.setNodes(fileNodes);
-                    } finally {
-                        ph.finish();
-                        checkinPanel.progressPanel.setVisible(false);
-                    }
+                    // refresh the cache first so we will
+                    // know all checkin candidates
+                    cache.refreshRecursively(context, this);
+
+                    // get all files to be checked in
+                    File [] files = cache.listFiles(context, FileInformation.STATUS_LOCAL_CHANGE);
+                    List<ClearcaseFileNode> nodes = new ArrayList<ClearcaseFileNode>(files.length);
+                    for (File file : files) {
+                        nodes.add(new ClearcaseFileNode(file));   
+                    }                            
+                    ClearcaseFileNode[] fileNodes = nodes.toArray(new ClearcaseFileNode[nodes.size()]);
+                    checkinTable.setNodes(fileNodes);
+                } finally {
+                    checkinPanel.progressPanel.setVisible(false);                    
                 }
-            });        
-        }
-        prepareTask.schedule(0);
+            }
+        };
+        checkinPanel.barPanel.add(ps.getProgressComponent(), BorderLayout.CENTER);                                
+        ps.start();        
     }
 
     /**

@@ -94,12 +94,12 @@ public class CleartoolMockup extends Process implements Runnable {
     }
 
     private void process(String cmd) {         
-        LOG.fine("Processing: " + cmd);
         if(cmd == null) {
             return;
         }
         cmd = cmd.trim();
         if (cmd.indexOf("i-am-finished-with-previous-command-sir") > -1) {                        
+            LOG.finer("Processing: " + cmd);
             try {
                 while (inputStream.available() > 0) {
                     Thread.sleep(10);
@@ -116,8 +116,13 @@ public class CleartoolMockup extends Process implements Runnable {
         if(cmd.equals("")) {
             return;
         }
+        
+        LOG.fine("Processing: " + cmd);
+                        
         String[] args = cmd.split(" ");        
         String ctCommand = args[0];
+        
+        slowDown(500);
         
         if(ctCommand.equals("ls")) {
              processLS(args);            
@@ -312,10 +317,10 @@ public class CleartoolMockup extends Process implements Runnable {
                     if(files == null) {
                         inputStream.setDelegate(new ByteArrayInputStream(("\n").getBytes()));    
                     } else {
-                        for (File f : files) {                                                        
+                        for (File f : files) {       
+                            slowDown(50);
                             inputStream.setDelegate(new ByteArrayInputStream(lsFile(f).toString().getBytes()));        
-                        }
-                        
+                        }                        
                     }                    
                 } else {
                     inputStream.setDelegate(new ByteArrayInputStream(lsFile(file).toString().getBytes()));    
@@ -377,6 +382,7 @@ public class CleartoolMockup extends Process implements Runnable {
                     File[] files = file.listFiles();
                     if(files != null) {
                         for (File f : files) {
+                            slowDown(20);
                             sb.append(lscoFile(f));                               
                         }
                     }                    
@@ -584,6 +590,14 @@ public class CleartoolMockup extends Process implements Runnable {
     private void processUnsupported(String[] args) {
         NotifyDescriptor nd = new NotifyDescriptor("You are running with the mockup cleartool. Deal with it!", "Hey!", NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE, new Object[]{NotifyDescriptor.OK_OPTION}, null);        
         DialogDisplayer.getDefault().notify(nd);
+    }
+
+    private void slowDown(long l) {
+        try {
+            Thread.sleep(l);    // this is so slow ...
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 
 }

@@ -123,25 +123,14 @@ public final class Setup {
         String secondTitle;
 
         // the first source
-
         switch (type) {
             case Setup.DIFFTYPE_LOCAL:           
             case Setup.DIFFTYPE_REMOTE:
 
                 // from-BASE
-
                 if (Setup.match(status, FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY)) {
                     firstRevision = VersionsCache.REVISION_BASE;
                     firstTitle = loc.getString("MSG_DiffPanel_LocalNew");
-//                } 
-                  // XXX
-//                else if (Setup.match(status, FileInformation.STATUS_VERSIONED_NEWINREPOSITORY)) {
-//                    firstRevision = null;
-//                    firstTitle = NbBundle.getMessage(Setup.class, "LBL_Diff_NoLocalFile"); // NOI18N
-//                } else if (Setup.match(status, FileInformation.STATUS_VERSIONED_DELETEDLOCALLY
-//                | FileInformation.STATUS_VERSIONED_REMOVEDLOCALLY)) {
-//                    firstRevision = VersionsCache.REVISION_BASE;
-//                    firstTitle = MessageFormat.format(loc.getString("MSG_DiffPanel_BaseRevision"), firstRevision);
                 } else {
                     firstRevision = VersionsCache.REVISION_BASE;
                     firstTitle = MessageFormat.format(loc.getString("MSG_DiffPanel_BaseRevision"), firstRevision);
@@ -150,19 +139,9 @@ public final class Setup {
                 break;
 
             case Setup.DIFFTYPE_ALL:
-
-                // from-HEAD
-                // XXX        
-//                if (Setup.match(status, FileInformation.STATUS_VERSIONED_NEWINREPOSITORY)) {
-//                    firstRevision = VersionsCache.REVISION_HEAD;
-//                    firstTitle = loc.getString("MSG_DiffPanel_RemoteNew");
-//                } 
                 if (Setup.match(status, FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY)) {
                     firstRevision = null;
                     firstTitle = loc.getString("MSG_DiffPanel_NoBaseRevision");
-//                } else if (Setup.match(status, FileInformation.STATUS_VERSIONED_REMOVEDINREPOSITORY)) {
-//                    firstRevision = null;
-//                    firstTitle = loc.getString("MSG_DiffPanel_RemoteDeleted");
                 } 
                 else {
                     firstRevision = VersionsCache.REVISION_HEAD;
@@ -174,30 +153,15 @@ public final class Setup {
                 throw new IllegalArgumentException("Unknow diff type: " + type); // NOI18N
         }
 
-
         // the second source
-
         switch (type) {
             case Setup.DIFFTYPE_LOCAL:
             case Setup.DIFFTYPE_ALL:
 
                 // to-LOCAL
-
-//                if (Setup.match(status, FileInformation.STATUS_VERSIONED_CONFLICT)) {
-//                    secondRevision = VersionsCache.REVISION_CURRENT;
-//                    secondTitle = MessageFormat.format(loc.getString("MSG_DiffPanel_LocalConflict"), secondRevision);
-//                } 
                 if (Setup.match(status, FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY)) {
                     secondRevision = VersionsCache.REVISION_CURRENT;
                     secondTitle = loc.getString("MSG_DiffPanel_LocalNew");
-//                }
-//                else if (Setup.match(status, FileInformation.STATUS_VERSIONED_NEWINREPOSITORY)) {
-//                    secondRevision = null;
-//                    secondTitle = NbBundle.getMessage(Setup.class, "LBL_Diff_NoLocalFile"); // NOI18N
-//                } else if (Setup.match(status, FileInformation.STATUS_VERSIONED_DELETEDLOCALLY
-//                | FileInformation.STATUS_VERSIONED_REMOVEDLOCALLY)) {
-//                    secondRevision = null;
-//                    secondTitle = loc.getString("MSG_DiffPanel_LocalDeleted");
                 } else {
                     secondRevision = VersionsCache.REVISION_CURRENT;
                     secondTitle = MessageFormat.format(loc.getString("MSG_DiffPanel_LocalModified"), secondRevision);
@@ -207,18 +171,10 @@ public final class Setup {
             case Setup.DIFFTYPE_REMOTE:
 
                 // to-HEAD
-
                 if (Setup.match(status, FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY)) {
                     secondRevision = null;
                     secondTitle = loc.getString("MSG_DiffPanel_LocalNew");
                 } 
-//                else if (Setup.match(status, FileInformation.STATUS_VERSIONED_NEWINREPOSITORY)) {
-//                    secondRevision = VersionsCache.REVISION_HEAD;
-//                    secondTitle = loc.getString("MSG_DiffPanel_RemoteNew");
-//                } else if (Setup.match(status, FileInformation.STATUS_VERSIONED_REMOVEDINREPOSITORY)) {
-//                    secondRevision = null;
-//                    secondTitle = loc.getString("MSG_DiffPanel_RemoteDeleted");
-//                } 
                 else {
                     secondRevision = VersionsCache.REVISION_HEAD;
                     secondTitle = MessageFormat.format(loc.getString("MSG_DiffPanel_RemoteModified"), secondRevision);

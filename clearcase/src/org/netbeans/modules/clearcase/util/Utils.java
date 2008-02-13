@@ -57,21 +57,6 @@ import org.openide.windows.TopComponent;
 public class Utils {
         
     /**
-     * Tests parent/child relationship of files.
-     *
-     * @param parent file to be parent of the second parameter
-     * @param file file to be a child of the first parameter
-     * @return true if the second parameter represents the same file as the first parameter OR is its descendant (child)
-     */
-    // XXX versioning? - YES isAncestorOrEqual
-    public static boolean isParentOrEqual(File parent, File file) {
-        for (; file != null; file = file.getParentFile()) {
-            if (file.equals(parent)) return true;
-        }
-        return false;
-    }
-
-    /**
      * Semantics is similar to {@link org.openide.windows.TopComponent#getActivatedNodes()} except that this
      * method returns File objects instead od Nodes. Every node is examined for Files it represents. File and Folder
      * nodes represent their underlying files or folders. Project nodes are represented by their source groups. Other
@@ -80,7 +65,6 @@ public class Utils {
      * @return File [] array of activated files
      * @param nodes or null (then taken from windowsystem, it may be wrong on editor tabs #66700).
      */
-    // XXX context vs VCSContext
     public static VCSContext getCurrentContext(Node[] nodes) {
         if (nodes == null) {
             nodes = TopComponent.getRegistry().getActivatedNodes();

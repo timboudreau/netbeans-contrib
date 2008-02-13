@@ -56,7 +56,6 @@ public final class Arguments implements Iterable<String> {
         if (argument.indexOf(' ') == -1) {
             args.add(argument);
         } else {
-            // TODO: escape ' characters?
             args.add("'" + argument + "'");
         }
     }

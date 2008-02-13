@@ -51,6 +51,7 @@ import org.netbeans.modules.websvc.axis2.AxisUtils;
 import org.netbeans.modules.websvc.axis2.actions.DeployAction;
 import org.netbeans.modules.websvc.axis2.actions.EditWsdlAction;
 import org.netbeans.modules.websvc.axis2.actions.GenerateWsdlAction;
+import org.netbeans.modules.websvc.axis2.actions.RefreshServiceAction;
 import org.netbeans.modules.websvc.axis2.actions.ServiceConfigurationAction;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
@@ -143,6 +144,7 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
             SystemAction.get(ServiceConfigurationAction.class),
             SystemAction.get(GenerateWsdlAction.class),
             SystemAction.get(EditWsdlAction.class),
+            SystemAction.get(RefreshServiceAction.class),
             null,
             SystemAction.get(DeleteAction.class),
             null,
