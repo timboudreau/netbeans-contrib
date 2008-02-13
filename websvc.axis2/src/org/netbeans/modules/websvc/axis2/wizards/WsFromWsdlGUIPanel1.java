@@ -99,6 +99,7 @@ public class WsFromWsdlGUIPanel1 extends javax.swing.JPanel {
 
         jLabel3.setText(org.openide.util.NbBundle.getMessage(WsFromWsdlGUIPanel1.class, "WsFromWsdlGUIPanel1.jLabel3.text")); // NOI18N
 
+        jCheckBox1.setSelected(true);
         jCheckBox1.setText(org.openide.util.NbBundle.getMessage(WsFromWsdlGUIPanel1.class, "WsFromWsdlGUIPanel1.jCheckBox1.text")); // NOI18N
 
         jLabel4.setText(org.openide.util.NbBundle.getMessage(WsFromWsdlGUIPanel1.class, "WsFromWsdlGUIPanel1.jLabel4.text")); // NOI18N

@@ -43,12 +43,12 @@ made subject to such option by the copyright holder.
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
     <folder name="Templates">
-        <folder name="Axis2">
+        <folder name="WebServices">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.websvc.axis2.wizards.Bundle"/>
-            <attr name="position" intvalue="1525"/>
-            <file name="WebService.java" url="nbres:/org/netbeans/modules/websvc/axis2/resources/WebService.template">         
+            <!--<attr name="position" intvalue="1500"/>-->
+            <file name="AxisFromJava.java" url="nbres:/org/netbeans/modules/websvc/axis2/resources/WebService.template">         
                 <attr name="template" boolvalue="true"/>
-                <attr name="position" intvalue="100"/>
+                <attr name="position" intvalue="3100"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="templateWizardIterator" newvalue="org.netbeans.modules.websvc.axis2.wizards.WsFromJavaWizardIterator"/>
                 <attr name="templateCategory" stringvalue="web-service-clients"/>
@@ -56,13 +56,13 @@ made subject to such option by the copyright holder.
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.websvc.axis2.wizards.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/websvc/axis2/resources/AxisWS.png"/> 
             </file>
-            <file name="EmptyWebService.java" url="nbres:/org/netbeans/modules/websvc/axis2/resources/EmptyWebService.template">
+            <file name="AxisFromJavaEmpty.java" url="nbres:/org/netbeans/modules/websvc/axis2/resources/EmptyWebService.template">
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
-                <attr name="position" intvalue="101"/>
+                <attr name="position" intvalue="3101"/>
             </file>
-            <file name="AxisService.java" url="nbres:/org/netbeans/modules/websvc/axis2/resources/EmptyWebService.template">         
+            <file name="AxisFromWsdl.java" url="nbres:/org/netbeans/modules/websvc/axis2/resources/EmptyWebService.template">         
                 <attr name="template" boolvalue="true"/>
-                <attr name="position" intvalue="200"/>
+                <attr name="position" intvalue="3200"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="templateWizardIterator" newvalue="org.netbeans.modules.websvc.axis2.wizards.WsFromWsdlWizardIterator"/>
                 <attr name="templateCategory" stringvalue="web-service-clients"/>

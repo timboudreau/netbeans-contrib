@@ -75,6 +75,7 @@ public class Axis2Node extends AbstractNode {
     public Axis2Node(Project project) {
         super(new Axis2Children(project), createLookup(project));
         setDisplayName(NbBundle.getBundle(Axis2Node.class).getString("LBL_Axis2"));
+        setName("Axis2"); //NOI18N
     }
     
     @Override
