@@ -98,9 +98,7 @@ public class WsFromJavaGUIPanel0 extends javax.swing.JPanel implements ItemListe
         jTextField1 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         jCheckBox1 = new javax.swing.JCheckBox();
-        jCheckBox2 = new javax.swing.JCheckBox();
         jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(WsFromJavaGUIPanel0.class, "WsFromJavaGUIPanel0.jLabel1.text")); // NOI18N
         jLabel1.setEnabled(false);
@@ -124,11 +122,7 @@ public class WsFromJavaGUIPanel0 extends javax.swing.JPanel implements ItemListe
 
         jCheckBox1.setText(org.openide.util.NbBundle.getMessage(WsFromJavaGUIPanel0.class, "WsFromJavaGUIPanel0.jCheckBox1.text")); // NOI18N
 
-        jCheckBox2.setText(org.openide.util.NbBundle.getMessage(WsFromJavaGUIPanel0.class, "WsFromJavaGUIPanel0.jCheckBox2.text")); // NOI18N
-
         jLabel2.setText(org.openide.util.NbBundle.getMessage(WsFromJavaGUIPanel0.class, "WsFromJavaGUIPanel0.jLabel2.text")); // NOI18N
-
-        jLabel3.setText(org.openide.util.NbBundle.getMessage(WsFromJavaGUIPanel0.class, "WsFromJavaGUIPanel0.jLabel3.text")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -151,16 +145,9 @@ public class WsFromJavaGUIPanel0 extends javax.swing.JPanel implements ItemListe
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(layout.createSequentialGroup()
                                 .add(21, 21, 21)
-                                .add(jLabel3))
-                            .add(jCheckBox2))
-                        .addContainerGap(148, Short.MAX_VALUE))
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(21, 21, 21)
                                 .add(jLabel2))
                             .add(jCheckBox1))
-                        .addContainerGap(164, Short.MAX_VALUE))))
+                        .addContainerGap(148, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -174,15 +161,11 @@ public class WsFromJavaGUIPanel0 extends javax.swing.JPanel implements ItemListe
                     .add(jLabel1)
                     .add(jTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jButton1))
-                .add(30, 30, 30)
+                .add(29, 29, 29)
                 .add(jCheckBox1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jLabel2)
-                .add(18, 18, 18)
-                .add(jCheckBox2)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jLabel3)
-                .addContainerGap(99, Short.MAX_VALUE))
+                .addContainerGap(158, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -210,10 +193,8 @@ public class WsFromJavaGUIPanel0 extends javax.swing.JPanel implements ItemListe
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButton1;
     private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JTextField jTextField1;
@@ -258,11 +239,7 @@ public class WsFromJavaGUIPanel0 extends javax.swing.JPanel implements ItemListe
         return javaClass;
     }
     
-    boolean isServiceGroup() {
-        return jCheckBox1.isSelected();
-    }
-    
     boolean generateWsdl() {
-        return jCheckBox2.isSelected();
+        return jCheckBox1.isSelected();
     }
 }

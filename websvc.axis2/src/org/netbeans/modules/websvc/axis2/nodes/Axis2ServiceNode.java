@@ -103,7 +103,7 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
         Preferences preferences = NbPreferences.forModule(Axis2ServiceNode.class);
         String axisURL = preferences.get("AXIS_URL",null); //NOI18N
         if (axisURL!=null) {
-            return axisURL+"/"+service.getNameAttr()+"?wsdl"; //NOI18N
+            return axisURL+"/services/"+service.getNameAttr()+"?wsdl"; //NOI18N
         } else {
             return service.getServiceClass();
         }
@@ -171,21 +171,19 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
             String serviceName = service.getNameAttr();
             
             // remove entry from services.xml 
-            if (servicesModel.isServicesGroup()) {
-                org.netbeans.modules.websvc.axis2.services.model.Service serviceToRemove = null;
-                ServiceGroup serviceGroup = (ServiceGroup)servicesModel.getRootComponent();
-                List<org.netbeans.modules.websvc.axis2.services.model.Service> services = serviceGroup.getServices();
-                for (org.netbeans.modules.websvc.axis2.services.model.Service s:services) {
-                    if (serviceName.equals(s.getNameAttr())) {
-                        serviceToRemove = s;
-                        break;
-                    }
+            org.netbeans.modules.websvc.axis2.services.model.Service serviceToRemove = null;
+            ServiceGroup serviceGroup = (ServiceGroup)servicesModel.getRootComponent();
+            List<org.netbeans.modules.websvc.axis2.services.model.Service> services = serviceGroup.getServices();
+            for (org.netbeans.modules.websvc.axis2.services.model.Service s:services) {
+                if (serviceName.equals(s.getNameAttr())) {
+                    serviceToRemove = s;
+                    break;
                 }
-                if (serviceToRemove != null) {
-                    servicesModel.startTransaction();
-                    serviceGroup.removeService(serviceToRemove);
-                    servicesModel.endTransaction();
-                } 
+            }
+            if (serviceToRemove != null) {
+                servicesModel.startTransaction();
+                serviceGroup.removeService(serviceToRemove);
+                servicesModel.endTransaction();
             }
             
             // removing implementation class

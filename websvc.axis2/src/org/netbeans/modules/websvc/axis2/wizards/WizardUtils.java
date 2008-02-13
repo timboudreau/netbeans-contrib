@@ -84,7 +84,12 @@ import org.openide.filesystems.FileObject;
  * @author mkuchtiak
  */
 public class WizardUtils {
-    
+    /** add service element to service group. used in "from java case"
+     * 
+     * @param servicesModel
+     * @param serviceClass
+     * @param serviceFo
+     */
     static void addService(ServicesModel servicesModel, String serviceClass, FileObject serviceFo) {
         ServicesComponentFactory factory = servicesModel.getFactory();
         Parameter param = factory.createParameter();
@@ -101,67 +106,52 @@ public class WizardUtils {
         receivers.addMessageReceiver(receiver2);
 
         Services services = servicesModel.getRootComponent();
-        
-        if (servicesModel.isServicesGroup()) {
-            ServiceGroup serviceGroup = (ServiceGroup)services;
-            
-            servicesModel.startTransaction();
-            Service service = factory.createService();
-            service.setNameAttr(serviceFo.getName());
-            service.setScopeAttr("application"); //NOI18N
-            service.setDescription(serviceFo.getName()+" service"); //NOI18N
-            service.setMessageReceivers(receivers);
-            service.addParameter(param);
-            serviceGroup.addService(service);
-            servicesModel.endTransaction();
+        ServiceGroup serviceGroup = (ServiceGroup)services;
 
-        } else {
-            Service service = (Service)services;
-            
-            servicesModel.startTransaction();
-            service.setNameAttr(serviceFo.getName());
-            service.setScopeAttr("application"); //NOI18N
-            service.setDescription(serviceFo.getName()+" service"); //NOI18N
-            service.setMessageReceivers(receivers);
-            service.addParameter(param);
-            servicesModel.endTransaction();
-        }
+        servicesModel.startTransaction();
+        Service service = factory.createService();
+        service.setNameAttr(serviceFo.getName());
+        service.setScopeAttr("application"); //NOI18N
+        service.setDescription(serviceFo.getName()+" service"); //NOI18N
+        service.setMessageReceivers(receivers);
+        service.addParameter(param);
+        serviceGroup.addService(service);
+        servicesModel.endTransaction();
+
     }
-    
+    /** add the clone of service element to serviceGroup, replace the serviceClass value
+     * 
+     * @param servicesModel
+     * @param service
+     * @param serviceClass
+     */ 
     static void addService(ServicesModel servicesModel, Service service, String serviceClass) {
         ServicesComponentFactory factory = servicesModel.getFactory();
         Services services = servicesModel.getRootComponent();
-        
-        if (servicesModel.isServicesGroup()) {
-            ServiceGroup serviceGroup = (ServiceGroup)services;
-            
-            servicesModel.startTransaction();
-            
-            Service newService = (Service)service.copy(serviceGroup);
-            List<Parameter> params = newService.getParameters();
-            for (Parameter param:newService.getParameters()) {
-                if ("ServiceClass".equals(param.getNameAttr())) {
-                    param.setValue(serviceClass);
-                    break;
-                }
-            }
-            serviceGroup.addService(newService);
-            
-            servicesModel.endTransaction();
 
-        } else {
-//            Service service = (Service)services;
-//            
-//            servicesModel.startTransaction();
-//            service.setNameAttr(serviceFo.getName());
-//            service.setScopeAttr("application"); //NOI18N
-//            service.setDescription(serviceFo.getName()+" service"); //NOI18N
-//            service.setMessageReceivers(receivers);
-//            service.addParameter(param);
-//            servicesModel.endTransaction();
+        ServiceGroup serviceGroup = (ServiceGroup)services;
+
+        servicesModel.startTransaction();
+
+        Service newService = (Service)service.copy(serviceGroup);
+        List<Parameter> params = newService.getParameters();
+        for (Parameter param:newService.getParameters()) {
+            if ("ServiceClass".equals(param.getNameAttr())) {
+                param.setValue(serviceClass);
+                break;
+            }
         }
+        serviceGroup.addService(newService);
+
+        servicesModel.endTransaction();
     }
-    
+    /** add service element to axis2.xml, used in "from java" case
+     * 
+     * @param axis2Model
+     * @param serviceClass
+     * @param serviceFo
+     * @param generateWsdl
+     */
     static void addService(Axis2Model axis2Model, String serviceClass, FileObject serviceFo, boolean generateWsdl) {
         Axis2ComponentFactory factory = axis2Model.getFactory();
 
@@ -184,7 +174,17 @@ public class WizardUtils {
             axis2Model.endTransaction();
         }
     }
-    
+    /** add service element to axis2.xml, used in "from wsdl" case
+     * 
+     * @param axis2Model
+     * @param wsdlUrl
+     * @param serviceClass
+     * @param serviceName
+     * @param portName
+     * @param packageName
+     * @param databinding
+     * @param isSEI
+     */
     static void addService(Axis2Model axis2Model, String wsdlUrl, String serviceClass, String serviceName, String portName, String packageName, String databinding, boolean isSEI) {
         Axis2ComponentFactory factory = axis2Model.getFactory();
 
