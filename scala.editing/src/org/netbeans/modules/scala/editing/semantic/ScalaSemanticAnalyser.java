@@ -1362,16 +1362,15 @@ public class ScalaSemanticAnalyser {
      * will also check if item is null
      */
     public static final boolean isTokenTypeName(ASTItem item, String type) {
-        return item != null && item instanceof ASTToken && ((ASTToken) item).getTypeName().equals(type);
-    }
-
-    private static ASTToken getAtomTokenFromPrimaryExpr(ASTItem primaryExpr) {
-        for (ASTItem item : primaryExpr.getChildren()) {
-            if (isTokenTypeName(item, "atom")) {
-                return (ASTToken) item;
+        if (item != null && item instanceof ASTToken) {
+            String typeName = ((ASTToken) item).getTypeName();
+            if (typeName != null) {
+                return typeName.equals(type);
+            } else {
+                return false;
             }
         }
-        return null;
+        return false;
     }
 
     //private static final String xpathRegrex = "((\\.)?(([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])*(\\[([0-9]+)\\])?))+";
