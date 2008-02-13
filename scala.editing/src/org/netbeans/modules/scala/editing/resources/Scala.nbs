@@ -602,7 +602,7 @@ Arguments = ParenExpr
 ## Although "," is used to separator one expr, but, all <nl> in parenthsis should be ignor,
 ## so, we use (ExprInParen)+ here, and let ExprInParen include <nl>.
 ## ** Should combine them to one expr in semantic analyzer **
-ParenExpr = <lparen> (<nl>)* (ExprInParen)+ (<comma> (<nl>)* (ExprInParen)+)* (<nl>)* <rparen>;
+ParenExpr = <lparen> (<nl>)* ExprInParen (<comma> (<nl>)* ExprInParen)* (<nl>)* <rparen>;
 ExprInParen = CtrlExpr
             | PostfixExpr [AscriptionInParen [FunExprTail] | MatchExprTail | AssignExprTail | FunExprTail]
             | <nl>
