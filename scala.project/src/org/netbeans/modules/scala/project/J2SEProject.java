@@ -142,6 +142,7 @@ public final class J2SEProject implements Project, AntProjectListener {
     private SourceRoots sourceRoots;
     private SourceRoots testRoots;
     private final ClassPathProviderImpl cpProvider;
+    private final J2SEProjectClassPathModifier cpMod;    
 
     private AntBuildExtender buildExtender;
 
@@ -163,6 +164,7 @@ public final class J2SEProject implements Project, AntProjectListener {
         this.updateHelper = new UpdateHelper(updateProject, helper);
 
         this.cpProvider = new ClassPathProviderImpl(this.helper, evaluator(), getSourceRoots(),getTestSourceRoots()); //Does not use APH to get/put properties/cfgdata
+        this.cpMod = new J2SEProjectClassPathModifier(this, this.updateHelper, eval, refHelper);
         lookup = createLookup(aux);
         helper.addAntProjectListener(this);
     }
@@ -247,7 +249,6 @@ public final class J2SEProject implements Project, AntProjectListener {
 
     private Lookup createLookup(AuxiliaryConfiguration aux) {
         SubprojectProvider spp = refHelper.createSubprojectProvider();
-        final J2SEProjectClassPathModifier cpMod = new J2SEProjectClassPathModifier(this, this.updateHelper, eval, refHelper);
         Lookup base = Lookups.fixed(new Object[] {
             J2SEProject.this,
             new Info(),
@@ -296,6 +297,10 @@ public final class J2SEProject implements Project, AntProjectListener {
         return this.cpProvider;
     }
 
+    public J2SEProjectClassPathModifier getProjectClassPathModifier () {
+        return this.cpMod;
+    }
+    
     public void configurationXmlChanged(AntProjectEvent ev) {
         if (ev.getPath().equals(AntProjectHelper.PROJECT_XML_PATH)) {
             // Could be various kinds of changes, but name & displayName might have changed.
