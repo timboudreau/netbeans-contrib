@@ -40,25 +40,20 @@
  */
 package org.netbeans.modules.websvc.axis2.actions;
 
-import java.io.IOException;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.websvc.axis2.AxisUtils;
 import org.netbeans.modules.websvc.axis2.config.model.Service;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-import org.openide.cookies.EditCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataObject;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.nodes.Node;
 import org.openide.util.actions.NodeAction;
 
-public class EditWsdlAction extends NodeAction  {
+public class RefreshServiceAction extends NodeAction  {
     
     public String getName() {
-        return NbBundle.getMessage(EditWsdlAction.class, "LBL_EditWsdlAction");
+        return NbBundle.getMessage(RefreshServiceAction.class, "LBL_RefreshServiceAction");
     }
     
     public HelpCtx getHelpCtx() {
@@ -72,12 +67,9 @@ public class EditWsdlAction extends NodeAction  {
     
     protected boolean enable(Node[] activatedNodes) {
         if (activatedNodes==null || activatedNodes.length != 1) return false;
-        Service service = activatedNodes[0].getLookup().lookup(Service.class);  
-        if (service != null && (service.getGenerateWsdl() != null || service.getWsdlUrl() != null)) {
-            return true;
-        } else {
-            return false;
-        }
+        Service service = activatedNodes[0].getLookup().lookup(Service.class);        
+        if (service == null || service.getJavaGenerator() == null) return false;
+        else return true;
     }
     
     protected void performAction(Node[] activatedNodes) {
@@ -85,25 +77,9 @@ public class EditWsdlAction extends NodeAction  {
         FileObject srcRoot = activatedNodes[0].getLookup().lookup(FileObject.class);
         Project prj = FileOwnerQuery.getOwner(srcRoot);
         FileObject projectDir = prj.getProjectDirectory();
-        String serviceName = service.getNameAttr();
-        FileObject wsdlFo = projectDir.getFileObject("xml-resources/axis2/META-INF/"+serviceName+".wsdl"); //NOI18N
-        if (wsdlFo != null) {
-            try {
-                DataObject dObj = DataObject.find(wsdlFo);
-                if (dObj!=null) {
-                    EditCookie ec = dObj.getCookie(EditCookie.class);
-                    if (ec != null) {
-                        ec.edit();
-                    }
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        } else {
-            String message = NbBundle.getMessage(EditWsdlAction.class, "TXT_WsdlNotGenerated");
-            NotifyDescriptor dialog = new NotifyDescriptor.Message(message);
-            DialogDisplayer.getDefault().notify(dialog);
-        }
+        String[] targets = new String[]{"wsdl2java-refresh-"+service.getNameAttr()}; //NOI18N
+        AxisUtils.runTargets(projectDir, targets);
+        // PENDING: implement refreshing implementation clas, and, potentially, services.xml, 
     }
 
 }

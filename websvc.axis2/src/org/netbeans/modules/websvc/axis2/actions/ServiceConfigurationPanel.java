@@ -28,32 +28,39 @@ public class ServiceConfigurationPanel extends javax.swing.JPanel implements jav
         jTextField1.setText(service.getNameAttr());
         String serviceClass = service.getServiceClass();
         jTextField2.setText(serviceClass);
-        defaultNs = AxisUtils.getNamespaceFromClassName(serviceClass);
-        jTextField3.setText(defaultNs);
-        defaultSchemaNs = defaultNs+"xsd"; //NOI18N
-        jTextField4.setText(defaultSchemaNs);
-        if (service.getGenerateWsdl() != null) {
-            cbDefault1.setEnabled(true);
-            cbDefault2.setEnabled(true);
-            GenerateWsdl genWsdl = service.getGenerateWsdl();
-            cbGenerateWsdl.setSelected(true);
-            String ns = genWsdl.getTargetNamespaceAttr();
-            if (!defaultNs.equals(ns)) {
-                cbDefault1.setSelected(false);
-                jTextField3.setEditable(true);
-                if (ns != null) jTextField3.setText(ns);
+        if (service.getWsdlUrl() != null) {
+            jTextField1.setEditable(false);
+            jTextField2.setEditable(false);
+            cbGenerateWsdl.setEnabled(false);
+        } else {
+            defaultNs = AxisUtils.getNamespaceFromClassName(serviceClass);
+            jTextField3.setText(defaultNs);
+            defaultSchemaNs = defaultNs+"xsd"; //NOI18N
+            jTextField4.setText(defaultSchemaNs);
+            if (service.getGenerateWsdl() != null) {
+                cbDefault1.setEnabled(true);
+                cbDefault2.setEnabled(true);
+                GenerateWsdl genWsdl = service.getGenerateWsdl();
+                cbGenerateWsdl.setSelected(true);
+                String ns = genWsdl.getTargetNamespaceAttr();
+                if (!defaultNs.equals(ns)) {
+                    cbDefault1.setSelected(false);
+                    jTextField3.setEditable(true);
+                    if (ns != null) jTextField3.setText(ns);
+                }
+                jTextField3.setText(ns == null?defaultNs:ns);
+                String schemaNs = genWsdl.getSchemaNamespaceAttr();
+                if (!defaultSchemaNs.equals(schemaNs)) {
+                    cbDefault2.setSelected(false);
+                    jTextField4.setEditable(true);
+                    if (schemaNs != null) jTextField4.setText(schemaNs);
+                }
             }
-            jTextField3.setText(ns == null?defaultNs:ns);
-            String schemaNs = genWsdl.getSchemaNamespaceAttr();
-            if (!defaultSchemaNs.equals(schemaNs)) {
-                cbDefault2.setSelected(false);
-                jTextField4.setEditable(true);
-                if (schemaNs != null) jTextField4.setText(schemaNs);
-            }
+            cbGenerateWsdl.addItemListener(this);
+            cbDefault1.addItemListener(this);
+            cbDefault2.addItemListener(this);
         }
-        cbGenerateWsdl.addItemListener(this);
-        cbDefault1.addItemListener(this);
-        cbDefault2.addItemListener(this);
+        
     }
     
     
