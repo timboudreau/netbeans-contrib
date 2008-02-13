@@ -69,6 +69,7 @@ public class UpdateAction extends AbstractAction implements NotificationListener
     @Override
     public boolean isEnabled() {
         Set<File> roots = context.getRootFiles();
+        if (roots.size() == 0) return false;
         FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
         for (File file : roots) {
             // TODSO consider this as a HACK - cache the info if file in shapshot or not 
