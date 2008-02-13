@@ -63,6 +63,7 @@ import org.netbeans.modules.clearcase.client.NotificationListener;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.util.Cancellable;
 import org.openide.util.NbBundle;
 import org.openide.util.HelpCtx;
 import org.openide.util.RequestProcessor;
@@ -173,8 +174,9 @@ public class CheckinAction extends AbstractAction implements NotificationListene
 
                     // refresh the cache first so we will
                     // know all checkin candidates
-                    cache.refreshRecursively(context, this);
-
+                    Cancellable c = cache.refreshRecursively(context);
+                    setCancellableDelegate(c);
+                            
                     // get all files to be checked in
                     File [] files = cache.listFiles(context, FileInformation.STATUS_LOCAL_CHANGE);
                     List<ClearcaseFileNode> nodes = new ArrayList<ClearcaseFileNode>(files.length);

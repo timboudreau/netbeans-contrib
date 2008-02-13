@@ -79,6 +79,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.util.logging.Level;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
+import org.openide.util.Cancellable;
 
 /**
  *
@@ -668,7 +669,8 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
         
         @Override
         protected void perform() {
-            Clearcase.getInstance().getFileStatusCache().refreshRecursively(context, this);
+            Cancellable c = Clearcase.getInstance().getFileStatusCache().refreshRecursively(context);
+            setCancellableDelegate(c);
         }
     }
     

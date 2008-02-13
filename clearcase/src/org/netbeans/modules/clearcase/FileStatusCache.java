@@ -50,6 +50,7 @@ import java.util.Map.Entry;
 import java.util.logging.Level; 
 import java.util.regex.Pattern;
 import org.netbeans.api.queries.SharabilityQuery;
+import org.netbeans.modules.clearcase.ui.status.RefreshAction;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.versioning.spi.VCSContext;
@@ -57,6 +58,7 @@ import org.netbeans.modules.versioning.spi.VersioningSupport;
 import org.netbeans.modules.versioning.util.ListenersSupport;
 import org.netbeans.modules.versioning.util.Utils;
 import org.netbeans.modules.versioning.util.VersioningListener;
+import org.openide.util.Cancellable;
 import org.openide.util.RequestProcessor;
 
 /**
@@ -211,9 +213,9 @@ public class FileStatusCache {
      * 
      * @param ctx the context to be refreshed
      */
-    public void refreshRecursively(VCSContext ctx, ProgressSupport ps) {
+    public Cancellable refreshRecursively(VCSContext ctx) {
         Set<File> files = ctx.getRootFiles();
-        refresh(true, ps, false, files.toArray(new File[files.size()]));
+        return refresh(true, false, files.toArray(new File[files.size()]));
     }            
     
     /**
@@ -257,36 +259,43 @@ public class FileStatusCache {
         return ret;
     }
         
-    private void refresh(boolean recursivelly, ProgressSupport ps,boolean fireEvents, File ...files) {        
-        Set<File> parents = new HashSet<File>();        
-        for (File file : files) {
-            File parent = file.getParentFile();         
-            if(recursivelly && file.isDirectory()) {
-                refreshRecursively(file, ps, fireEvents);
-            } else {
-                if(!parents.contains(parent)) {
-                    // refresh the file, all its siblings and the parent (dir)
-                    refresh(file, true); 
-                    // all following kids from this files parent should be be skipped
-                    // as they were already refreshed
-                    parents.add(parent);                
+    private Cancellable refresh(final boolean recursivelly, final boolean fireEvents, final File ...files) {        
+        RefreshCancellable c = new RefreshCancellable() {
+            @Override
+            protected void refresh() {
+                Set<File> parents = new HashSet<File>();        
+                for (File file : files) {
+                    File parent = file.getParentFile();         
+                    if(recursivelly && file.isDirectory()) {
+                        refreshRecursively(file, this, fireEvents);
+                    } else {
+                        if(!parents.contains(parent)) {
+                            // refresh the file, all its siblings and the parent (dir)
+                            FileStatusCache.this.refresh(file, true); 
+                            // all following kids from this files parent should be be skipped
+                            // as they were already refreshed
+                            parents.add(parent);                
+                        }
+                    }
                 }
-            }                                        
-        }                       
+            }
+        };
+        c.refresh();
+        return c;
     }
     
     /**
      * Refreshes recursively all files in the given directory.
      * @param dir
      */
-    private void refreshRecursively(File dir, ProgressSupport ps, boolean fireEvents) {        
+    private void refreshRecursively(File dir, RefreshCancellable c, boolean fireEvents) {        
         File[] files = dir.listFiles();
         if(files == null || files.length == 0) {
             return;
         }
         boolean kidsRefreshed = false; 
         for(File file : files) {
-            if(ps.isCanceled()) {
+            if(c.isCanceled()) {
                 return;
             }
             if(!kidsRefreshed) {
@@ -294,11 +303,10 @@ public class FileStatusCache {
                 refresh(file, fireEvents); 
                 // files parent directory (dir) and all it's children are refreshed
                 // so skip for the next child
-                kidsRefreshed = true; 
-               
+                kidsRefreshed = true;                
             } 
             if (file.isDirectory()) {
-                refreshRecursively(file, ps, fireEvents);
+                refreshRecursively(file, c, fireEvents);
             }
         }
     }        
@@ -461,7 +469,7 @@ public class FileStatusCache {
                         files = filesToRefresh.toArray(new File[filesToRefresh.size()]);
                         filesToRefresh.clear();
                     }                        
-                    refresh(false, null, true, files);
+                    refresh(false, true, files);
                 }
             });
         }
@@ -547,6 +555,20 @@ public class FileStatusCache {
            rp = new RequestProcessor("ClearCase - FileStatusCache");    
         }        
         return rp;
+    }
+
+    private abstract class RefreshCancellable implements  Cancellable {
+        private boolean cancel = false;
+        public boolean cancel() {
+            cancel = true;
+            return true;
+        }               
+        
+        private boolean isCanceled() {
+            return cancel;
+        }
+        
+        protected abstract void refresh();
     }
     
 }

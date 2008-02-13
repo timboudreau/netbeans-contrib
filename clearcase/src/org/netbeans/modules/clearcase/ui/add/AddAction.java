@@ -67,6 +67,7 @@ import org.netbeans.modules.clearcase.ui.checkin.CheckinOptions;
 import org.netbeans.modules.clearcase.client.*;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.util.Cancellable;
 import org.openide.util.NbBundle;
 import org.openide.util.HelpCtx;
 import org.openide.util.RequestProcessor;
@@ -217,8 +218,9 @@ public class AddAction extends AbstractAction {
 
                     // refresh the cache first so we will
                     // know all checkin candidates
-                    cache.refreshRecursively(context, this);
-
+                    Cancellable c = cache.refreshRecursively(context);
+                    setCancellableDelegate(c);
+                    
                     // get all files to be added
                     File [] files = cache.listFiles(context, FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY);
                     List<ClearcaseFileNode> nodes = new ArrayList<ClearcaseFileNode>(files.length);
@@ -230,7 +232,7 @@ public class AddAction extends AbstractAction {
                 } finally {
                     addPanel.progressPanel.setVisible(false);                    
                 }
-            }
+            }           
         };
         addPanel.barPanel.add(ps.getProgressComponent(), BorderLayout.CENTER);                                
         ps.start();        
