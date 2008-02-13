@@ -556,7 +556,8 @@ ReturnExpr = <return> [Expr];
 ## Hacking for:
 ##     PostfixExpr = InfixExpr [NameId [<nl>]];
 ##     InfixExpr = PrefixExpr  (NameId [<nl>] InfixExpr)*;
-PostfixExpr = PrefixExpr (NameId [<nl>] [PrefixExpr])*;
+## Should connect two exprs separated by <nl> to one expr when possible in semantic analyzer
+PostfixExpr = PrefixExpr (NameId [PrefixExpr])*;
 PrefixExpr = [PrefixOp] SimpleExpr;
 PrefixOp = "-" 
          | "+" 
@@ -872,9 +873,12 @@ ClassDef  = [<case>] <class> NameId [TypeParamClause] (Annotation)* [AccessModif
 ObjectDef = [<case>] <object> NameId [ClassTemplateOpt];
 TraitDef  = <trait> NameId [TypeParamClause] [<requires> AnnotType] [TraitTemplateOpt];
 
-ClassParamClauses = (<lparen> (<nl>)* [ClassParams] (<nl>)* <rparen>)* [<lparen> (<nl>)* <implicit> ClassParams (<nl>)* <rparen>];
+## Hacking for ClassParamClauses = (<lparen> (<nl>)* [ClassParams] (<nl>)* <rparen>)* [<lparen> (<nl>)* <implicit> ClassParams (<nl>)* <rparen>];
+## Where:
+##     ClassParam = (Annotation)* [(Modifier)* (<val> | <var>)] NameId [<colon> ParamType];
+ClassParamClauses = (<lparen> (<nl>)* [ClassParams] (<nl>)* <rparen>)*;
 ClassParams = ClassParam (<comma> (<nl>)* ClassParam)*;
-ClassParam = (Annotation)* [(Modifier)* (<val> | <var>)] NameId [<colon> ParamType];
+ClassParam = (Annotation)* (Modifier)* [(<val> | <var>)] NameId [<colon> ParamType];
 
 ClassTemplateOpt = <extends> (ClassParents [Template] | Template [ClassParents [Template]])
                  | Template;
