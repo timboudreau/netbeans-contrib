@@ -63,6 +63,7 @@ public class BrowseVersionTreeAction extends AbstractAction {
     public BrowseVersionTreeAction(String name, VCSContext ctx) {
         super(name);
         this.ctx = ctx;
+        setEnabled(ctx.getFiles().size() > 0);
     }
 
     public void actionPerformed(ActionEvent e) {

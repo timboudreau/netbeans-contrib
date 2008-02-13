@@ -70,6 +70,7 @@ public class ExcludeAction extends AbstractAction {
     public boolean isEnabled() {        
         FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
         Set<File> roots = context.getRootFiles();        
+        if (roots.size() == 0) return false;
         boolean include = false;
         boolean exclude = false;
         for (File root : roots) {            
