@@ -156,8 +156,15 @@ public class AxisConfigurationAction extends NodeAction  {
             EditableProperties ep = AxisUtils.getEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH);
             if (ep != null) {
                 ep.setProperty("axis2.home",axisHome); //NOI18N
-                if (axisDeploy.length() > 0)
-                    ep.setProperty("axis2.deploy.dir",axisDeploy); //NOI18N
+                if (axisDeploy.length() > 0) {
+                    if (axisDeploy.endsWith(".war")) { //NOI18N
+                        ep.setProperty("axis2.deploy.war",axisDeploy); //NOI18N
+                        ep.remove("axis2.deploy.dir");
+                    } else {
+                        ep.setProperty("axis2.deploy.dir",axisDeploy); //NOI18N
+                        ep.remove("axis2.deploy.war"); //NOI18N                       
+                    }
+                }
             }
             AxisUtils.storeEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH, ep);
         } catch (IOException ex) {
