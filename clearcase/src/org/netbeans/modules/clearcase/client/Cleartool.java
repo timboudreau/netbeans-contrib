@@ -87,10 +87,12 @@ class Cleartool {
     private synchronized void checkReady() throws IOException {
         ctInput.println(MAGIC_PROMPT);
         ctInput.flush();
-        String ret = ctError.readLine();
-        Logger.getLogger(Cleartool.class.getName()).finer("Cleartool: ERROR \"" + ret + "\"");
+        String ret = ctError.readLine();        
         if (!ret.contains(MAGIC_PROMPT)) {
+            Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: ERROR \"" + ret + "\"");
             throw new IOException("Invalid cleartool output: " + ret);
+        } else {
+            Logger.getLogger(Cleartool.class.getName()).finer("Cleartool: ERROR \"" + ret + "\"");
         }
     }
 
@@ -238,9 +240,12 @@ class Cleartool {
         for (;;) {
             if (isStreamReady(ctError)) {
                 String line = ctError.readLine();
-                if (line == null) throw new EOFException();
+                if (line == null) throw new EOFException();                
+                if (line.contains(MAGIC_PROMPT)) {
+                    Logger.getLogger(Cleartool.class.getName()).finer("Cleartool: ERROR \"" + line + "\"");
+                    break;
+                }
                 Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: ERROR \"" + line + "\"");
-                if (line.contains(MAGIC_PROMPT)) break;
                 command.errorText(line);
                 t0 = System.currentTimeMillis();
             } else {
@@ -251,10 +256,13 @@ class Cleartool {
                     // if we do not wait for them it may happen that other thread invokes isValid() and it will return 'false'
                     // because isValid() method will not read expected response from the error stream (it will instead obtain these, unread, error responses)
                     while (isStreamReady(ctError)) {
-                        String line = ctError.readLine();
-                        Logger.getLogger(Cleartool.class.getName()).finer("Cleartool: ERROR \"" + line + "\"");
+                        String line = ctError.readLine();                        
                         if (line == null) throw new EOFException();
-                        if (line.contains(MAGIC_PROMPT)) break;
+                        if (line.contains(MAGIC_PROMPT)) {
+                            Logger.getLogger(Cleartool.class.getName()).finer("Cleartool: ERROR \"" + line + "\"");
+                            break;
+                        }
+                        Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: ERROR \"" + line + "\"");
                     }
                     break;
                 }
