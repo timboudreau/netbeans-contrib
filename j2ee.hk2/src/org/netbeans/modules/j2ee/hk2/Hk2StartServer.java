@@ -94,8 +94,11 @@ public class Hk2StartServer extends StartServer implements ProgressObject {
         serverName = ip.getProperty(InstanceProperties.DISPLAY_NAME_ATTR);
         serverHome = ip.getProperty(Hk2PluginProperties.PROPERTY_HK2_HOME);
         url = ip.getProperty(InstanceProperties.URL_ATTR);
+        deploymentStatus = new Hk2DeploymentStatus(ActionType.EXECUTE, CommandType.START, StateType.RUNNING, 
+                NbBundle.getMessage(Hk2StartServer.class, "MSG_START_SERVER_IN_PROGRESS", serverName));
     }
     
+    @Override
     public boolean supportsStartDebugging(Target target) {
         return true;
     }
@@ -106,9 +109,6 @@ public class Hk2StartServer extends StartServer implements ProgressObject {
     
     public ProgressObject startDebugging(Target target) {
         mode = MODE.DEBUG;
-      
-
-        
         RequestProcessor.getDefault().post(new Hk2StartRunnable(dm, this), 0, Thread.NORM_PRIORITY);
         addDebugModeUri();
         return this;
@@ -159,12 +159,8 @@ public class Hk2StartServer extends StartServer implements ProgressObject {
     // start server
     public ProgressObject startDeploymentManager() {
         mode = MODE.RUN;
-        String serverName = ip.getProperty(InstanceProperties.DISPLAY_NAME_ATTR);
         fireHandleProgressEvent(null, new Hk2DeploymentStatus(ActionType.EXECUTE, CommandType.START, StateType.RUNNING,
                 NbBundle.getMessage(Hk2StartServer.class, "MSG_START_SERVER_IN_PROGRESS", serverName)));//NOI18N
-        
-
-        
         RequestProcessor.getDefault().post(new Hk2StartRunnable(dm, this), 0, Thread.NORM_PRIORITY);
         removeDebugModeUri();
         return this;
