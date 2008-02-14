@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.featureondemand.test
+OpenIDE-Module-Layer: org/netbeans/modules/featureondemand/api/test-layer.xml
+OpenIDE-Module-Specification-Version: 1.0
