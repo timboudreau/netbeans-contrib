@@ -62,6 +62,7 @@ import org.openide.nodes.Node.Property;
  * Action that invokes custom property editor for the given property.
  * XXX remove whole class and its Bundle entries
  * @author Jan Stola
+ * @author Max Sauer
  */
 public class PropertyAction extends AbstractAction {
     private static final String OK_COMMAND = "OK"; // NOI18N
@@ -107,10 +108,10 @@ public class PropertyAction extends AbstractAction {
                             String action = e.getActionCommand();
                             if (OK_COMMAND.equals(action)) {
                                 //josh: this is a hack until we find the right place to put the veto code
-                                if(((FormProperty) property).getCurrentEditor() instanceof VetoableChangeListener && "action".equals(property.getName())) {
+                                if(((FormProperty) property).getCurrentEditor() instanceof VetoableChangeListener && "action".equals(property.getName())) {	// NOI18N
                                     // do the veto
                                     ((VetoableChangeListener) ((FormProperty) property).getCurrentEditor()).vetoableChange(
-                                            new PropertyChangeEvent(this,PropertyEnv.PROP_STATE,null,"dummytext"));
+                                            new PropertyChangeEvent(this,PropertyEnv.PROP_STATE,null,"dummytext"));	// NOI18N
                                 }
                                 Object value = ((EnhancedCustomPropertyEditor)custEditor).getPropertyValue();
                                 property.setValue(value);                                

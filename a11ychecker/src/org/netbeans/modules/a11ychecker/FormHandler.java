@@ -65,9 +65,11 @@ import javax.swing.JPasswordField;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
@@ -94,464 +96,464 @@ import org.openide.windows.CloneableTopComponent;
 /**
  * This class finds out current form intace and provides handlers
  * @author Max Sauer
+ * @author Martin Novak
  */
 public class FormHandler {
 
-	/**
-	 * The embracing multiview TopComponent (holds the form designer and
-	 * java editor) - we remeber just one TopComponent (not all clones)
-	 */
-	private CloneableTopComponent multiviewTC;
-	private FormEditorSupport fes;
-	private static LinkedList<RADComponent> unboundLabels;
-	public static final String MNEMONIC_CAT = "Mnemonic";		// NOI18N
-	public static final String A11Y_NAME_CAT = "Name";			// NOI18N
-	public static final String A11Y_DESC_CAT = "Description";		// NOI18N
-	public static final String LABEL_FOR_CAT = "Label for";		// NOI18N
-	public static final String TAB_TRAV_CAT = "Tab traversal";		// NOI18N
-	public static final String TRAVERSAL_PROP = "focusTraversalPolicy";	// NOI18N
-	public static final String A11Y_NAME_PROP = "AccessibleContext.accessibleDescription";	// NOI18N
-	public static final String TOOLTIP_PROP = "toolTipText";	// NOI18N
-	public static final String A11Y_DESC_PROP = "AccessibleContext.accessibleName";	// NOI18N
-	public static final String LABELFOR_PROP = "labelFor";	// NOI18N
-	public static final String DISP_MNEMONIC_PROP = "displayedMnemonic";	// NOI18N
-	public static final String MNEMONIC_PROP = "mnemonic";	// NOI18N
-	public static final String TEXT_PROP = "text";	// NOI18N
-	public static final String WINDOWS_OS = "windows";	// NOI18N
+    /**
+     * The embracing multiview TopComponent (holds the form designer and
+     * java editor) - we remeber just one TopComponent (not all clones)
+     */
+    private CloneableTopComponent multiviewTC;
+    private FormEditorSupport fes;
+    private static LinkedList<RADComponent> unboundLabels;
+    public static final String MNEMONIC_CAT = "Mnemonic";		// NOI18N
+    public static final String A11Y_NAME_CAT = "Name";			// NOI18N
+    public static final String A11Y_NAME_PROP = "AccessibleContext.accessibleName";	// NOI18N        
+    public static final String A11Y_DESC_CAT = "Description";		// NOI18N
+    public static final String A11Y_DESC_PROP = "AccessibleContext.accessibleDescription";	// NOI18N        
+    public static final String LABEL_FOR_CAT = "Label for";		// NOI18N
+    public static final String LABEL_FOR_PROP = "labelFor";	// NOI18N
+    public static final String TAB_TRAV_CAT = "Tab traversal";		// NOI18N
+    public static final String TAB_TRAV_PROP = "focusTraversalPolicy";	// NOI18N
+    public static final String TOOLTIP_PROP = "toolTipText";	// NOI18N
+    public static final String DISP_MNEMONIC_PROP = "displayedMnemonic";	// NOI18N
+    public static final String MNEMONIC_PROP = "mnemonic";	// NOI18N
+    public static final String TEXT_PROP = "text";	// NOI18N
+    public static final String WINDOWS_OS = "windows";	// NOI18N
+    public static final String FORM_NAME = "Form";	// NOI18N
 
-	public FormHandler(TopComponent tc) {
+    public FormHandler(TopComponent tc) {
 
-		//online scanning
-		if (MultiViews.findMultiViewHandler(tc) != null) {
-			multiviewTC = (CloneableTopComponent) tc;
-			//get an FormEditorSupprot instance
-			fes = FormEditorSupport.getFormEditor(tc);
-			if (unboundLabels == null) {
-				unboundLabels = new LinkedList<RADComponent>();
-			}
-		}
-	}
+        //online scanning
+        if (MultiViews.findMultiViewHandler(tc) != null) {
+            multiviewTC = (CloneableTopComponent) tc;
+            //get an FormEditorSupprot instance
+            fes = FormEditorSupport.getFormEditor(tc);
+            if (unboundLabels == null) {
+                unboundLabels = new LinkedList<RADComponent>();
+            }
+        }
+    }
 
-	/**
-	 * Returns formdesigner for this instance
-	 */
-	public FormDesigner getFormDesigner() {
-		if (fes != null) {
-			FormEditor formEditor = fes.getFormEditor();
-			return formEditor.getFormDesigner(fes.getFormModel());
-		} else {
-			return null;
-		}
-	}
+    /**
+     * Returns formdesigner for this instance
+     */
+    public FormDesigner getFormDesigner() {
+        if (fes != null) {
+            FormEditor formEditor = fes.getFormEditor();
+            return formEditor.getFormDesigner(fes.getFormModel());
+        } else {
+            return null;
+        }
+    }
 
-	//    /**
-	//     * Returns formeditorsuppor for this instance
-	//     */
-	//    public FormEditorSupport getFormEditorSupport() {
-	//        return fes;
-	//    }
-	/**
-	 * Returns linked list of unbounded Labels
-	 */
-	public LinkedList<RADComponent> getUnboundLabels() {
-		return unboundLabels;
-	}
+    //    /**
+    //     * Returns formeditorsuppor for this instance
+    //     */
+    //    public FormEditorSupport getFormEditorSupport() {
+    //        return fes;
+    //    }
+    /**
+     * Returns linked list of unbounded Labels
+     */
+    public LinkedList<RADComponent> getUnboundLabels() {
+        return unboundLabels;
+    }
 
-	public void addA11YCheckToFormToolbar() {
-		FormEditor formEditor = fes.getFormEditor();
-		FormDesigner formDesigner = formEditor.getFormDesigner(fes.getFormModel());
-		//	JToolBar frmToolBar = formDesigner.getFormToolBar();
-		JButton a11yResultButton = new JButton(new ImageIcon(getClass().getResource("output/a11yIcon.png")));	// NOI18N
-		initButton(a11yResultButton);
-	//	frmToolBar.add(a11yResultButton);
-	}
+    public void addA11YCheckToFormToolbar() {
+        FormEditor formEditor = fes.getFormEditor();
+        FormDesigner formDesigner = formEditor.getFormDesigner(fes.getFormModel());
+        //	JToolBar frmToolBar = formDesigner.getFormToolBar();
+        JButton a11yResultButton = new JButton(new ImageIcon(getClass().getResource("output/a11yIcon.png")));	// NOI18N
+        initButton(a11yResultButton);
+    //	frmToolBar.add(a11yResultButton);
+    }
 
-	public void printListOfComponents() {
-		//component list
-		FormModel model = fes.getFormModel();
-		List<RADComponent> list = model.getComponentList();
-		Iterator<RADComponent> compIterator = list.iterator();
-		while (compIterator.hasNext()) {
-			RADComponent curr = compIterator.next();
-		}
-	}
+    public void printListOfComponents() {
+        //component list
+        FormModel model = fes.getFormModel();
+        List<RADComponent> list = model.getComponentList();
+        Iterator<RADComponent> compIterator = list.iterator();
+        while (compIterator.hasNext()) {
+            RADComponent curr = compIterator.next();
+        }
+    }
 
-	/**
-	 * Add an error entry to the resultpanel
-	 * @param rule sec. column
-	 * @param recomm third column
-	 * @param component fourth coloumn
-	 */
-	private void addError(String rule, String recomm, String component) {
-		ResultWindowTopComponent win = ResultWindowTopComponent.findInstance();
-		ResultPanel rp = win.getResultPanel();
-		URL imageUrl = rp.getClass().getResource("icon/aerror.png");	// NOI18N
-		Vector newElem = new Vector();
-		newElem.add(new ImageIcon(imageUrl));
-		newElem.add(rule);
-		newElem.add(recomm);
-		newElem.add(component);
-		rp.addNewError(newElem);
-	}
+    /**
+     * Add an error entry to the resultpanel
+     * @param rule sec. column
+     * @param recomm third column
+     * @param component fourth coloumn
+     */
+    private void addError(String rule, String recomm, String component) {
+        ResultWindowTopComponent win = ResultWindowTopComponent.findInstance();
+        ResultPanel rp = win.getResultPanel();
+        URL imageUrl = rp.getClass().getResource("icon/aerror.png");	// NOI18N
+        Vector newElem = new Vector();
+        newElem.add(new ImageIcon(imageUrl));
+        newElem.add(rule);
+        newElem.add(recomm);
+        newElem.add(component);
+        rp.addNewError(newElem);
+    }
 
-	/**
-	 * Add an warning entry to the resultpanel
-	 * @param rule sec. column
-	 * @param recomm third column
-	 * @param component fourth coloumn
-	 */
-	private void addWarning(String rule, String recomm, String component) {
-		ResultWindowTopComponent win = ResultWindowTopComponent.findInstance();
-		ResultPanel rp = win.getResultPanel();
-		URL imageUrl = rp.getClass().getResource("icon/bwarning.png");	// NOI18N
-		Vector newElem = new Vector();
-		newElem.add(new ImageIcon(imageUrl));
-		newElem.add(rule);
-		newElem.add(recomm);
-		newElem.add(component);
-		rp.addNewWarning(newElem);
-	}
+    /**
+     * Add an warning entry to the resultpanel
+     * @param rule sec. column
+     * @param recomm third column
+     * @param component fourth coloumn
+     */
+    private void addWarning(String rule, String recomm, String component) {
+        ResultWindowTopComponent win = ResultWindowTopComponent.findInstance();
+        ResultPanel rp = win.getResultPanel();
+        URL imageUrl = rp.getClass().getResource("icon/bwarning.png");	// NOI18N
+        Vector newElem = new Vector();
+        newElem.add(new ImageIcon(imageUrl));
+        newElem.add(rule);
+        newElem.add(recomm);
+        newElem.add(component);
+        rp.addNewWarning(newElem);
+    }
 
-	/**
-	 * Add an info entry to the resultpanel
-	 * @param rule sec. column
-	 * @param recomm third column
-	 * @param component fourth coloumn
-	 */
-	private void addInfo(String rule, String recomm, String component) {
-		ResultWindowTopComponent win = ResultWindowTopComponent.findInstance();
-		ResultPanel rp = win.getResultPanel();
-		URL imageUrl = rp.getClass().getResource("icon/cinfo.png");	// NOI18N
-		Vector newElem = new Vector();
-		newElem.add(new ImageIcon(imageUrl));
-		newElem.add(rule);
-		newElem.add(recomm);
-		newElem.add(component);
-		rp.addNewInfo(newElem);
-	}
+    /**
+     * Add an info entry to the resultpanel
+     * @param rule sec. column
+     * @param recomm third column
+     * @param component fourth coloumn
+     */
+    private void addInfo(String rule, String recomm, String component) {
+        ResultWindowTopComponent win = ResultWindowTopComponent.findInstance();
+        ResultPanel rp = win.getResultPanel();
+        URL imageUrl = rp.getClass().getResource("icon/cinfo.png");	// NOI18N
+        Vector newElem = new Vector();
+        newElem.add(new ImageIcon(imageUrl));
+        newElem.add(rule);
+        newElem.add(recomm);
+        newElem.add(component);
+        rp.addNewInfo(newElem);
+    }
 
-	/**
-	 * Checks current component state, adds errors to the list
-	 * Checks:
-	 * - AccessibleContext.accessibleDescription
-	 * - AccessibleContext.accessibleName
-	 * - mnemonic
-	 * - labelFor
-	 * - unreachability by tab traversal
-	 */
-	public synchronized void check() {
-		HashMap<String, PossibleDuplicateItem> mnemonicMap = new HashMap<String, PossibleDuplicateItem>();
-		HashMap<String, PossibleDuplicateItem> labelForMap = new HashMap<String, PossibleDuplicateItem>();
-		HashMap<String, HashMap<String, PossibleDuplicateItem>> menuMnemonics = new HashMap<String, HashMap<String, PossibleDuplicateItem>>();
-		ResultWindowTopComponent win = ResultWindowTopComponent.findInstance();
-		unboundLabels.clear();
-		win.getResultPanel().eraseAllEntries();
-		win.setName(NbBundle.getMessage(FormHandler.class, "Win_no_form_name"));
-		if (FormBroker.getDefault().isMVCTopComponent(multiviewTC)) {
-			if (fes == null) {
-				return;
-			}
-			//get all components
-			FormModel model = fes.getFormModel();
-			if (model == null) {
-				return;
-			}
+    /**
+     * Checks current component state, adds errors to the list
+     * Checks:
+     * - AccessibleContext.accessibleDescription
+     * - AccessibleContext.accessibleName
+     * - mnemonic
+     * - labelFor
+     * - unreachability by tab traversal
+     */
+    public synchronized void check() {
+        HashMap<String, PossibleDuplicateItem> mnemonicMap = new HashMap<String, PossibleDuplicateItem>();
+        HashMap<String, PossibleDuplicateItem> labelForMap = new HashMap<String, PossibleDuplicateItem>();
+        HashMap<String, HashMap<String, PossibleDuplicateItem>> menuMnemonics = new HashMap<String, HashMap<String, PossibleDuplicateItem>>();
+        ResultWindowTopComponent win = ResultWindowTopComponent.findInstance();
+        // HACK to prevent exception when no file was opened yet and action invoked (although I don't get why it is null...)
+        if (unboundLabels == null) {
+            return;
+        }
+        unboundLabels.clear();
+        win.getResultPanel().eraseAllEntries();
+        win.setName(NbBundle.getMessage(FormHandler.class, "Win_no_form_name"));    	// NOI18N
+        if (FormBroker.getDefault().isMVCTopComponent(multiviewTC)) {
+            if (fes == null) {
+                return;
+            }
+            //get all components
+            FormModel model = fes.getFormModel();
+            if (model == null) {
+                return;
+            }
 
-			//---setUp autoi18n CheckBox --
-			Integer autoMode = A11YFormUtils.getResourceAutoMode(model);
-			win.getResultPanel().setAutoI18nCBSelected((autoMode == null || autoMode == 0) ? false : true);
-			//---setup i18n checkbock end --
+            //---setUp autoi18n CheckBox --
+            Integer autoMode = A11YFormUtils.getResourceAutoMode(model);
+            win.getResultPanel().setAutoI18nCBSelected((autoMode == null || autoMode == 0) ? false : true);
+            //---setup i18n checkbock end --
 
-			win.setName(NbBundle.getMessage(FormHandler.class, "Win_form_name", model.getName()));
-			List<RADComponent> list = model.getComponentList();
-			Iterator<RADComponent> compIterator = list.iterator();
-			while (compIterator.hasNext()) {
-				RADComponent curr = compIterator.next();
-				if (curr instanceof org.netbeans.modules.form.RADVisualComponent) {
-					Class bc = curr.getBeanClass();
+            win.setName(NbBundle.getMessage(FormHandler.class, "Win_form_name", model.getName()));  	// NOI18N
+            List<RADComponent> list = model.getComponentList();
+            Iterator<RADComponent> compIterator = list.iterator();
+            while (compIterator.hasNext()) {
+                RADComponent curr = compIterator.next();
+                if (curr instanceof org.netbeans.modules.form.RADVisualComponent) {
+                    Class bc = curr.getBeanClass();
 //                    check traversal
-					if (bc.equals(JFrame.class)) {
-						try {
-							Property traversalPolicy = curr.getPropertyByName(TRAVERSAL_PROP);
+                    if (curr.getName().equals(FORM_NAME)) {
+                        try {
+                            Property traversalPolicy = curr.getPropertyByName(TAB_TRAV_PROP);
 //							if (traversalPolicy == null) {
 //								addInfo(TAB_TRAV_CAT, "This won't most probably happen", curr.getName());
 //								continue;
 //							}
-							Object v = traversalPolicy.getValue();
-							if (!(v instanceof org.netbeans.modules.a11ychecker.traverse.MyTraversalPolicy)) {
-								addInfo(TAB_TRAV_CAT, NbBundle.getMessage(FormHandler.class, "Not_our_tabTraversal"), curr.getName());
-							} else {
-								MyTraversalPolicy mtp = (MyTraversalPolicy) v;
-								List<String> s = mtp.checkTabTraversalState();
-								String compList = "";
-								for (int i = 0; i < s.size(); i++) {
-									compList += " " + s.get(i);
-									if (i < s.size() - 1) {
-										compList += ",";
-									}
-								}
-								if (!s.isEmpty()) {
-									addError(TAB_TRAV_CAT, NbBundle.getMessage(FormHandler.class, "Unreachable_components", compList), curr.getName());
-								}
+                            Object v = traversalPolicy.getValue();
+                            if (!(v instanceof org.netbeans.modules.a11ychecker.traverse.MyTraversalPolicy)) {
+                                addInfo(TAB_TRAV_CAT, NbBundle.getMessage(FormHandler.class, "Not_our_tabTraversal"), curr.getName());  	// NOI18N
+                            } else {
+                                MyTraversalPolicy mtp = (MyTraversalPolicy) v;
+                                List<String> s = mtp.checkTabTraversalState();
+                                String compList = "";
+                                for (int i = 0; i < s.size(); i++) {
+                                    compList += " " + s.get(i);
+                                    if (i < s.size() - 1) {
+                                        compList += ",";
+                                    }
+                                }
+                                if (!s.isEmpty()) {
+                                    addError(TAB_TRAV_CAT, NbBundle.getMessage(FormHandler.class, "Unreachable_components", compList), curr.getName());	// NOI18N
+                                }
 
 
-							}
-						} catch (IllegalAccessException ex) {
-							Exceptions.printStackTrace(ex);
-						} catch (InvocationTargetException ex) {
-							Exceptions.printStackTrace(ex);
-						}
-					}
-					//check a11y description
-					Property a11yDesc = curr.getPropertyByName(A11Y_NAME_PROP); //NOI18N
-					if (getPropertyString(a11yDesc) == null || getPropertyString(a11yDesc).equals("")) {
-						addError(A11Y_DESC_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_desc_needed"), curr.getName());
-					} else {
-						Property ttt = curr.getPropertyByName(TOOLTIP_PROP);
-						if (getPropertyString(a11yDesc).equals(getPropertyString(ttt))) {
-							addInfo(A11Y_DESC_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_desc_copied"), curr.getName());
-						}
-					}
-					//check a11y name
-					Property a11yName = curr.getPropertyByName(A11Y_DESC_PROP); //NOI18N
-					if (getPropertyString(a11yName) == null || getPropertyString(a11yName).equals("")) {
-						addError(A11Y_NAME_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_name_needed"), curr.getName());
-					} else {
-						Property text = curr.getPropertyByName(TEXT_PROP);
-						if (text != null) {
-							//  if it actualy has some text, check whether it is the same as a11y name
-							if (getPropertyString(a11yName).equals(getPropertyString(text))) {
-								addInfo(A11Y_NAME_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_name_copied"), curr.getName());
-							}
-						}
-					}
+                            }
+                        } catch (IllegalAccessException ex) {
+                            Exceptions.printStackTrace(ex);
+                        } catch (InvocationTargetException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                    }
+                    //check a11y description
+                    Property a11yDesc = curr.getPropertyByName(A11Y_DESC_PROP);
+                    if (getPropertyString(a11yDesc) == null || getPropertyString(a11yDesc).equals("")) {
+                        addError(A11Y_DESC_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_desc_needed"), curr.getName());	// NOI18N
+                    } else {
+                        Property ttt = curr.getPropertyByName(TOOLTIP_PROP);
+                        if (getPropertyString(a11yDesc).equals(getPropertyString(ttt))) {
+                            addInfo(A11Y_DESC_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_desc_copied"), curr.getName());	// NOI18N
+                        }
+                    }
+                    //check a11y name
+                    Property a11yName = curr.getPropertyByName(A11Y_NAME_PROP);
+                    if (getPropertyString(a11yName) == null || getPropertyString(a11yName).equals("")) {
+                        addError(A11Y_NAME_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_name_needed"), curr.getName());	// NOI18N
+                    } else {
+                        Property text = curr.getPropertyByName(TEXT_PROP);
+                        if (text != null) {
+                            //  if it actualy has some text, check whether it is the same as a11y name
+                            if (getPropertyString(a11yName).equals(getPropertyString(text))) {
+                                addInfo(A11Y_NAME_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_name_copied"), curr.getName());	// NOI18N
+                            }
+                        }
+                    }
 
 
-					//check label for
-					if (bc.equals(JLabel.class)) {
-						//only if this comp is a JLabel
-						Property labelFor = curr.getPropertyByName(LABELFOR_PROP); //NOI18N
-						try {
-							if (labelFor.getValue() == null) {
-								addError(LABEL_FOR_CAT, NbBundle.getMessage(FormHandler.class, "LabelFor_needed"), curr.getName());
-								unboundLabels.add(curr);
-							} else {
-								// write down what components are bound with labels
-								Object v = labelFor.getValue();
-								if (v instanceof FormDesignValue) {
-									//                                    v = ((FormDesignValue)v).getDesignValue();
-									FormDesignValue fdv = (FormDesignValue) v;
-									if (labelForMap.containsKey(fdv.getDescription())) {
-										PossibleDuplicateItem pdi = labelForMap.get(fdv.getDescription());
-										pdi.incrementOccurenceCount();
-										addWarning(LABEL_FOR_CAT, NbBundle.getMessage(FormHandler.class, "Label_colliding", pdi.getComp().getName(), fdv.getDescription()), curr.getName());
-										if (pdi.getOccurenceCount() == 2) {
-											addWarning(LABEL_FOR_CAT, NbBundle.getMessage(FormHandler.class, "Label_colliding", curr.getName(), fdv.getDescription()), pdi.getComp().getName());
-										}
-									} else {
-										labelForMap.put(fdv.getDescription(), new PossibleDuplicateItem(curr));
-									}
-								}
-							}
-						} catch (IllegalAccessException ex) {
-							ex.printStackTrace();
-						} catch (InvocationTargetException ex) {
-							ex.printStackTrace();
-						}
-					}
+                    //check label for
+                    if (bc.equals(JLabel.class)) {
+                        //only if this comp is a JLabel
+                        Property labelFor = curr.getPropertyByName(LABEL_FOR_PROP); //NOI18N
+                        try {
+                            if (labelFor.getValue() == null) {
+                                addError(LABEL_FOR_CAT, NbBundle.getMessage(FormHandler.class, "LabelFor_needed"), curr.getName());	// NOI18N
+                                unboundLabels.add(curr);
+                            } else {
+                                // write down what components are bound with labels
+                                Object v = labelFor.getValue();
+                                if (v instanceof FormDesignValue) {
+                                    //                                    v = ((FormDesignValue)v).getDesignValue();
+                                    FormDesignValue fdv = (FormDesignValue) v;
+                                    if (labelForMap.containsKey(fdv.getDescription())) {
+                                        PossibleDuplicateItem pdi = labelForMap.get(fdv.getDescription());
+                                        pdi.incrementOccurenceCount();
+                                        addWarning(LABEL_FOR_CAT, NbBundle.getMessage(FormHandler.class, "Label_colliding", pdi.getComp().getName(), fdv.getDescription()), curr.getName());	// NOI18N
+                                        if (pdi.getOccurenceCount() == 2) {
+                                            addWarning(LABEL_FOR_CAT, NbBundle.getMessage(FormHandler.class, "Label_colliding", curr.getName(), fdv.getDescription()), pdi.getComp().getName());	// NOI18N
+                                        }
+                                    } else {
+                                        labelForMap.put(fdv.getDescription(), new PossibleDuplicateItem(curr));
+                                    }
+                                }
+                            }
+                        } catch (IllegalAccessException ex) {
+                            ex.printStackTrace();
+                        } catch (InvocationTargetException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
 
-					//check mnemonics presence and correctness
-					Property mnemonic;
-					if (bc.equals(JLabel.class)) {
-						mnemonic = curr.getPropertyByName(DISP_MNEMONIC_PROP);
-					} else {
-						mnemonic = curr.getPropertyByName(MNEMONIC_PROP);
-					}
-					if (mnemonic != null) {
-						if (getPropertyInteger(mnemonic) == null || getPropertyInteger(mnemonic).equals(0)) {
-							addError(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_needed"), curr.getName());
-						} else {
-							int code = getPropertyInteger(mnemonic);
-							if (!((code >= 97 && code <= 122) || (code >= 65 && code <= 90))) {
-								addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_suspicious"), curr.getName());
-							}
-							Property text = curr.getPropertyByName(TEXT_PROP);
-							String t = getPropertyString(text);
-							String s = "" + (char) code;
-							s = s.toLowerCase();
-							//check whether component has some text at all
-							if (t == null || t.equals("")) {
-								//                                TODO pridat mozna novou kategorii text a ten pak umoznit nastavit v dialogu?
-								addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_for_no_text"), curr.getName());
+                    //check mnemonics presence and correctness
+                    Property mnemonic;
+                    if (bc.equals(JLabel.class)) {
+                        mnemonic = curr.getPropertyByName(DISP_MNEMONIC_PROP);
+                    } else {
+                        mnemonic = curr.getPropertyByName(MNEMONIC_PROP);
+                    }
+                    if (mnemonic != null) {
+                        if (getPropertyInteger(mnemonic) == null || getPropertyInteger(mnemonic).equals(0)) {
+                            addError(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_needed"), curr.getName());	// NOI18N
+                        } else {
+                            int code = getPropertyInteger(mnemonic);
+                            if (!((code >= 97 && code <= 122) || (code >= 65 && code <= 90))) {
+                                addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_suspicious"), curr.getName());	// NOI18N
+                            }
+                            Property text = curr.getPropertyByName(TEXT_PROP);
+                            String t = getPropertyString(text);
+                            String s = "" + (char) code;
+                            s = s.toLowerCase();
+                            //check whether component has some text at all
+                            if (t == null || t.equals("")) {
+                                //                                TODO pridat mozna novou kategorii text a ten pak umoznit nastavit v dialogu?
+                                addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_for_no_text"), curr.getName());	// NOI18N
 //                                continue; //takhle to odhali i duplikaty mnemonik
-							} else {
-								if (!t.toLowerCase().contains(s) || s.equals("")) {
-									addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_not_present", s), curr.getName());
-								}
-							}
+                            } else {
+                                if (!t.toLowerCase().contains(s) || s.equals("")) {
+                                    addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_not_present", s), curr.getName());	// NOI18N
+                                }
+                            }
 
 
-							if (bc.equals(JMenu.class)) {
-								//                            only top level menus mnemonics to be checked
-								if (!curr.getParentComponent().getBeanClass().equals(JMenuBar.class)) {
-									String parentName = curr.getParentComponent().getName();
-									if (!menuMnemonics.containsKey(parentName)) {
-										menuMnemonics.put(parentName, new HashMap<String, PossibleDuplicateItem>());
-									}
-									HashMap<String, PossibleDuplicateItem> parentMenu = menuMnemonics.get(parentName);
-									if (parentMenu.containsKey(s)) {
-										PossibleDuplicateItem pdi = parentMenu.get(s);
-										pdi.incrementOccurenceCount();
-										//                                        addWarning(MNEMONIC_CAT, "Mnemonic '" + s + "' collides with mnemonic of " + pdi.getComp().getName() + " in " + parentName, curr.getName());
-										addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_collision", s, parentName), curr.getName());
-										if (pdi.getOccurenceCount() == 2) {
-											//                                            addWarning(MNEMONIC_CAT, "Mnemonic '" + s + "' collides with mnemonic of " + curr.getName() + " in " + parentName, pdi.getComp().getName());
-											addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_collision", parentName, s), curr.getName());
-										}
-									} else {
-										menuMnemonics.get(parentName).put(s, new PossibleDuplicateItem(curr));
-									}
-									continue;
-								}
-							}
-							//                            ignore menu items for the main check, but add them to their menu hashmap
-							if (bc.equals(JMenuItem.class) || bc.equals(JCheckBoxMenuItem.class) || bc.equals(JRadioButtonMenuItem.class)) {
-								// create new hashmap for parent if it doesn't exist
-								String parentName = curr.getParentComponent().getName();
-								if (!menuMnemonics.containsKey(parentName)) {
-									menuMnemonics.put(parentName, new HashMap<String, PossibleDuplicateItem>());
-								}
-								HashMap<String, PossibleDuplicateItem> parentMenu = menuMnemonics.get(parentName);
-								if (parentMenu.containsKey(s)) {
-									PossibleDuplicateItem pdi = parentMenu.get(s);
-									pdi.incrementOccurenceCount();
-									//                                    addWarning(MNEMONIC_CAT, "Mnemonic '" + s + "' collides with mnemonic of " + pdi.getComp().getName() + " in " + parentName, curr.getName());
-									addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_menu_collision", s, parentName), curr.getName());
-									if (pdi.getOccurenceCount() == 2) {
-										//                                        addWarning(MNEMONIC_CAT, "Mnemonic '" + s + "' collides with mnemonic of " + curr.getName() + " in " + parentName, pdi.getComp().getName());
-										addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_menu_collision", s, parentName), pdi.getComp().getName());
-									}
-								} else {
-									menuMnemonics.get(parentName).put(s, new PossibleDuplicateItem(curr));
-								}
-								continue;
-							}
-							if (mnemonicMap.containsKey(s)) {
-								PossibleDuplicateItem pdi = mnemonicMap.get(s);
-								pdi.incrementOccurenceCount();
-								//                                addWarning(MNEMONIC_CAT, "Mnemonic '" + s + "' collides with mnemonic of " + pdi.getComp().getName(), curr.getName());
-								addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_collision", s), curr.getName());
-								if (pdi.getOccurenceCount() == 2) {
-									//                                    addWarning(MNEMONIC_CAT, "Mnemonic '" + s + "' collides with mnemonic of " + curr.getName(), pdi.getComp().getName());
-									addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_collision", s), pdi.getComp().getName());
-								}
-							} else {
-								mnemonicMap.put(s, new PossibleDuplicateItem(curr));
-							}
-						}
-					}
-				}
-			}
+                            if (bc.equals(JMenu.class)) {
+                                //                            only top level menus mnemonics to be checked
+                                if (!curr.getParentComponent().getBeanClass().equals(JMenuBar.class)) {
+                                    String parentName = curr.getParentComponent().getName();
+                                    if (!menuMnemonics.containsKey(parentName)) {
+                                        menuMnemonics.put(parentName, new HashMap<String, PossibleDuplicateItem>());
+                                    }
+                                    HashMap<String, PossibleDuplicateItem> parentMenu = menuMnemonics.get(parentName);
+                                    if (parentMenu.containsKey(s)) {
+                                        PossibleDuplicateItem pdi = parentMenu.get(s);
+                                        pdi.incrementOccurenceCount();
+                                        addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_collision", s, parentName), curr.getName());	// NOI18N
+                                        if (pdi.getOccurenceCount() == 2) {
+                                            addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_collision", parentName, s), curr.getName());	// NOI18N
+                                        }
+                                    } else {
+                                        menuMnemonics.get(parentName).put(s, new PossibleDuplicateItem(curr));
+                                    }
+                                    continue;
+                                }
+                            }
+                            //                            ignore menu items for the main check, but add them to their menu hashmap
+                            if (bc.equals(JMenuItem.class) || bc.equals(JCheckBoxMenuItem.class) || bc.equals(JRadioButtonMenuItem.class)) {
+                                // create new hashmap for parent if it doesn't exist
+                                String parentName = curr.getParentComponent().getName();
+                                if (!menuMnemonics.containsKey(parentName)) {
+                                    menuMnemonics.put(parentName, new HashMap<String, PossibleDuplicateItem>());
+                                }
+                                HashMap<String, PossibleDuplicateItem> parentMenu = menuMnemonics.get(parentName);
+                                if (parentMenu.containsKey(s)) {
+                                    PossibleDuplicateItem pdi = parentMenu.get(s);
+                                    pdi.incrementOccurenceCount();
+                                    addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_menu_collision", s, parentName), curr.getName());	// NOI18N
+                                    if (pdi.getOccurenceCount() == 2) {
+                                        addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_menu_collision", s, parentName), pdi.getComp().getName());	// NOI18N
+                                    }
+                                } else {
+                                    menuMnemonics.get(parentName).put(s, new PossibleDuplicateItem(curr));
+                                }
+                                continue;
+                            }
+                            if (mnemonicMap.containsKey(s)) {
+                                PossibleDuplicateItem pdi = mnemonicMap.get(s);
+                                pdi.incrementOccurenceCount();
+                                addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_collision", s), curr.getName());	// NOI18N
+                                if (pdi.getOccurenceCount() == 2) {
+                                    addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_collision", s), pdi.getComp().getName());	// NOI18N
+                                }
+                            } else {
+                                mnemonicMap.put(s, new PossibleDuplicateItem(curr));
+                            }
+                        }
+                    }
+                }
+            }
 
-			//  go through components again because of label for
-			list = model.getComponentList();
-			compIterator = list.iterator();
-			while (compIterator.hasNext()) {
-				RADComponent curr = compIterator.next();
-				if (curr instanceof org.netbeans.modules.form.RADVisualComponent) {
-					Class bc = curr.getBeanClass();
-					if (isComponentClassToCheck(bc)) {
-						if (!labelForMap.containsKey(curr.getName())) {
-							if (bc.equals(JTextField.class) || bc.equals(JTextArea.class) || bc.equals(JFormattedTextField.class) || bc.equals(JPasswordField.class) || bc.equals(JTextPane.class) || bc.equals(JEditorPane.class)) {
-								//                                these should be listed as error
-								addError(LABEL_FOR_CAT, NbBundle.getMessage(FormHandler.class, "No_label_bound"), curr.getName());
-							} else {
-								//                            the other as warning only
-								addError(LABEL_FOR_CAT, NbBundle.getMessage(FormHandler.class, "No_label_bound"), curr.getName());
-							}
-						}
-					}
-				}
-			}
-			win.getResultPanel().showSelectedData();
-		//win.getResultPanel().setSelectedRow();
-		} else {
-			ResultWindowTopComponent.findInstance().getResultPanel().eraseAllEntries();
-		}
-	}
+            //  go through components again because of label for
+            list = model.getComponentList();
+            compIterator = list.iterator();
+            while (compIterator.hasNext()) {
+                RADComponent curr = compIterator.next();
+                if (curr instanceof org.netbeans.modules.form.RADVisualComponent) {
+                    Class bc = curr.getBeanClass();
+                    if (isComponentClassToCheck(bc)) {
+                        if (!labelForMap.containsKey(curr.getName())) {
+                            if (bc.equals(JTextField.class) || bc.equals(JTextArea.class) || bc.equals(JFormattedTextField.class) || bc.equals(JPasswordField.class) || bc.equals(JTextPane.class) || bc.equals(JEditorPane.class)) {
+                                //                                these should be listed as error
+                                addError(LABEL_FOR_CAT, NbBundle.getMessage(FormHandler.class, "No_label_bound"), curr.getName());	// NOI18N
+                            } else {
+                                //                            the other as warning only
+                                addError(LABEL_FOR_CAT, NbBundle.getMessage(FormHandler.class, "No_label_bound"), curr.getName());	// NOI18N
+                            }
+                        }
+                    }
+                }
+            }
+            win.getResultPanel().showSelectedData();
+        //win.getResultPanel().setSelectedRow();
+        } else {
+            ResultWindowTopComponent.findInstance().getResultPanel().eraseAllEntries();
+        }
+    }
 
-	/**
-	 *  Decides whether this component should be checked for label pointing at it.
-	 *  It is omitting all menu related, button related and JSeparator components and
-	 *  the JFrame, JTabbedPane, JSplitPane, JForm, JPanel components
-	 *  @return true if it does, false otherwise
-	 */
-	private static boolean isComponentClassToCheck(Class bc) {
-		if (!bc.equals(JLabel.class) && !bc.equals(JButton.class) && !bc.equals(JToggleButton.class) && !bc.equals(JCheckBox.class) && !bc.equals(JRadioButton.class) && !bc.equals(JFrame.class) && !bc.equals(JSeparator.class) && !bc.equals(JSplitPane.class) && !bc.equals(JTabbedPane.class) && !bc.equals(JMenuBar.class) && !bc.equals(JMenu.class) && !bc.equals(JMenuItem.class) && !bc.equals(JCheckBoxMenuItem.class) && !bc.equals(JPopupMenu.class) && !bc.equals(JRadioButtonMenuItem.class) && !bc.equals(JFrame.class) && !bc.equals(JPanel.class)) {
-			return true;
-		}
-		return false;
-	}
+    /**
+     *  Decides whether this component should be checked for label pointing at it.
+     *  It is omitting all menu related, button related and JSeparator components and
+     *  the JFrame, JTabbedPane, JSplitPane, JForm, JPanel components
+     *  @return true if it does, false otherwise
+     */
+    private static boolean isComponentClassToCheck(Class bc) {
+        if (!bc.equals(JLabel.class) && !bc.equals(JButton.class) && !bc.equals(JToggleButton.class) && !bc.equals(JCheckBox.class) && !bc.equals(JRadioButton.class) && !bc.equals(JFrame.class) && !bc.equals(JSeparator.class) && !bc.equals(JSplitPane.class) && !bc.equals(JTabbedPane.class) && !bc.equals(JMenuBar.class) && !bc.equals(JMenu.class) && !bc.equals(JMenuItem.class) && !bc.equals(JCheckBoxMenuItem.class) && !bc.equals(JPopupMenu.class) && !bc.equals(JRadioButtonMenuItem.class) && !bc.equals(JFrame.class) && !bc.equals(JPanel.class) && !bc.equals(JScrollPane.class) && !bc.equals(JTable.class)) {
+            return true;
+        }
+        return false;
+    }
 
-	/**
-	 * Gets value of bean property as String.
-	 */
-	public static String getPropertyString(Property property) {
-		if (property != null) {
-			try {
-				if (property.getValueType() == String.class && property.getValue() != null) {
-					Object value = property.getValue();
+    /**
+     * Gets value of bean property as String.
+     */
+    public static String getPropertyString(Property property) {
+        if (property != null) {
+            try {
+                if (property.getValueType() == String.class && property.getValue() != null) {
+                    Object value = property.getValue();
 
-					if (value instanceof FormDesignValue) {
-						value = ((FormDesignValue) value).getDesignValue();
-					}
-					return (String) value;
-				}
-			} catch (IllegalAccessException ex) {
-				Exceptions.printStackTrace(ex);
-			} catch (InvocationTargetException ex) {
-				Exceptions.printStackTrace(ex);
-			}
-		}
-		return null;
-	}
+                    if (value instanceof FormDesignValue) {
+                        value = ((FormDesignValue) value).getDesignValue();
+                    }
+                    return (String) value;
+                }
+            } catch (IllegalAccessException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (InvocationTargetException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        return null;
+    }
 
-	/**
-	 * Returns given property Integer Value
-	 */
-	public static Integer getPropertyInteger(Property property) {
-		if (property != null) {
-			if (property.getValueType() == int.class) {
-				try {
-					return (Integer) property.getValue();
-				} catch (InvocationTargetException ex) {
-				//ex.printStackTrace();
-				} catch (IllegalAccessException ex) {
-				//ex.printStackTrace();
-				}
-			}
-		}
-		return null;
-	}
+    /**
+     * Returns given property Integer Value
+     */
+    public static Integer getPropertyInteger(Property property) {
+        if (property != null) {
+            if (property.getValueType() == int.class) {
+                try {
+                    return (Integer) property.getValue();
+                } catch (InvocationTargetException ex) {
+                    //ex.printStackTrace();
+                } catch (IllegalAccessException ex) {
+                    //ex.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
 
-	/**
-	 * returns FormEditorSupport
-	 * @return FormEditorSupport
-	 */
-	public FormEditorSupport getFes() {
-		return fes;
-	}
+    /**
+     * returns FormEditorSupport
+     * @return FormEditorSupport
+     */
+    public FormEditorSupport getFes() {
+        return fes;
+    }
 
-	/**
-	 * setup an form editor toolbar button
-	 */
-	private void initButton(AbstractButton button) {
-		if (!(WINDOWS_OS.equals(UIManager.getLookAndFeel().getID()) && (button instanceof JToggleButton))) {	// NOI18N
-			button.setBorderPainted(false);
-		}
-		button.setOpaque(false);
-		button.setFocusPainted(false);
-		button.setMargin(new Insets(0, 0, 0, 0));
-	}
+    /**
+     * setup an form editor toolbar button
+     */
+    private void initButton(AbstractButton button) {
+        if (!(WINDOWS_OS.equals(UIManager.getLookAndFeel().getID()) && (button instanceof JToggleButton))) {	// NOI18N
+            button.setBorderPainted(false);
+        }
+        button.setOpaque(false);
+        button.setFocusPainted(false);
+        button.setMargin(new Insets(0, 0, 0, 0));
+    }
 }
 
