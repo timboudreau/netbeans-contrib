@@ -56,7 +56,7 @@ import org.openide.windows.TopComponent;
 public class ResultWindowAction extends AbstractAction {
     
     public ResultWindowAction() {
-	super(NbBundle.getMessage(ResultWindowAction.class, "CTL_ResultWindowAction"));
+	super(NbBundle.getMessage(ResultWindowAction.class, "CTL_ResultWindowAction"));	// NOI18N
 	putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(ResultWindowTopComponent.ICON_PATH, true)));
     }
     

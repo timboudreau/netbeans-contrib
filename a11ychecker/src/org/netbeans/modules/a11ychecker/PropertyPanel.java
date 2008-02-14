@@ -43,6 +43,7 @@ package org.netbeans.modules.a11ychecker;
 /**
  *
  * @author Max Sauer
+ * @author Martin Novak
  */
 public class PropertyPanel extends javax.swing.JPanel {
 

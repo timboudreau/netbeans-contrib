@@ -44,7 +44,7 @@ import org.netbeans.modules.form.RADComponent;
 
 /**
  * This class allows to implement detection of multiple duplicates
- * @author novakm
+ * @author Martin Novak
  */
 public class PossibleDuplicateItem {
 

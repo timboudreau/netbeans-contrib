@@ -214,7 +214,7 @@ public class PageIterator implements TemplateWizard.Iterator {
                         {
                             PortletType portletType = portletApp.newPortletType();
                             portletType.addDescription("Created By Visual Web");
-                            portletType.setPortletName("Visual Web JSF");
+                            portletType.setPortletName("VisualWebJSF");
                             portletType.addDisplayName("Visual Web JSF Portlet");
                             portletType.setPortletClass("com.sun.faces.portlet.FacesPortlet"); //NOI18N
                             InitParamType initParam = portletType.newInitParamType();

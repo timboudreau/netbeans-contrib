@@ -1,6 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
 Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
@@ -36,18 +33,4 @@ made subject to such option by the copyright holder.
 
 Contributor(s):
 
-Portions Copyrighted 2007 Sun Microsystems, Inc.
--->
-
-<project name="contrib/java.api.common/test" basedir="." default="all" >
-
-    <!-- Name of tested module -->
-    <property name="xtest.module" value="contrib/java.api.common"/>
-
-    <import file="../../../nbbuild/templates/xtest.xml"/>
-
-    <!-- default testtypes, attributes used when no value is supplied from command line -->
-    <property name="xtest.testtype" value="unit"/>
-    <property name="xtest.attribs" value="stable"/>
-
-</project>
+Portions Copyrighted 2008 Sun Microsystems, Inc.
