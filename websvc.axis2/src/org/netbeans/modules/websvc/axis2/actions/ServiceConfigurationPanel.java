@@ -7,7 +7,6 @@
 package org.netbeans.modules.websvc.axis2.actions;
 
 import java.awt.event.ItemEvent;
-import javax.swing.event.ChangeEvent;
 import org.netbeans.modules.websvc.axis2.AxisUtils;
 import org.netbeans.modules.websvc.axis2.config.model.GenerateWsdl;
 import org.netbeans.modules.websvc.axis2.config.model.Service;
@@ -31,6 +30,7 @@ public class ServiceConfigurationPanel extends javax.swing.JPanel implements jav
         if (service.getWsdlUrl() != null) {
             jTextField1.setEditable(false);
             jTextField2.setEditable(false);
+            browseButton.setEnabled(false);
             cbGenerateWsdl.setEnabled(false);
         } else {
             defaultNs = AxisUtils.getNamespaceFromClassName(serviceClass);
