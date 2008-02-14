@@ -243,9 +243,9 @@ public class TableSorter extends AbstractTableModel {
             return null;
         }
         if (directive.direction == DESCENDING) {
-            return new ImageIcon(getClass().getResource("/org/netbeans/modules/a11ychecker/output/icon/columnsSortedDesc.png"));
+            return new ImageIcon(getClass().getResource("/org/netbeans/modules/a11ychecker/output/icon/columnsSortedDesc.png"));	// NOI18N
         } else {
-            return new ImageIcon(getClass().getResource("/org/netbeans/modules/a11ychecker/output/icon/columnsSortedAsc.png"));
+            return new ImageIcon(getClass().getResource("/org/netbeans/modules/a11ychecker/output/icon/columnsSortedAsc.png"));	// NOI18N
         }
     }
 

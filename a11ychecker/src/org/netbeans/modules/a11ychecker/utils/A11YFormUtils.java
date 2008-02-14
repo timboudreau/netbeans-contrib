@@ -56,7 +56,7 @@ public class A11YFormUtils {
         FormSettings fs = fm.getSettings();
         
         try {
-            Method getResourceAutoModeMethod = FormSettings.class.getDeclaredMethod("getResourceAutoMode");
+            Method getResourceAutoModeMethod = FormSettings.class.getDeclaredMethod("getResourceAutoMode"); //NOI18N
 
             assert getResourceAutoModeMethod != null;
             if (getResourceAutoModeMethod != null) {

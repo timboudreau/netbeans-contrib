@@ -56,6 +56,7 @@ import org.netbeans.modules.form.RADComponent;
 /**
  * Panel used for selecting LabelFor property
  * @author  Max Sauer
+ * @author Martin Novak
  */
 public class LabelForPropertyPanel extends javax.swing.JPanel {
     private List<RADComponent> compList;

@@ -57,18 +57,18 @@ public final class ResultWindowTopComponent extends TopComponent {
     
     private static ResultWindowTopComponent instance;
     /** path to the icon used by the component and its open action */
-    static final String ICON_PATH = "org/netbeans/modules/a11ychecker/output/a11yIcon.png";
+    static final String ICON_PATH = "org/netbeans/modules/a11ychecker/output/a11yIcon.png";	// NOI18N
     private ResultPanel resultPanel;
 
     public ResultPanel getResultPanel() {
         return resultPanel;
     }
-    private static final String PREFERRED_ID = "ResultWindowTopComponent";
+    private static final String PREFERRED_ID = "ResultWindowTopComponent";	// NOI18N
     
     private ResultWindowTopComponent() {
 	initComponents2();
-	setName(NbBundle.getMessage(ResultWindowTopComponent.class, "CTL_ResultWindowTopComponent"));
-	setToolTipText(NbBundle.getMessage(ResultWindowTopComponent.class, "HINT_ResultWindowTopComponent"));
+	setName(NbBundle.getMessage(ResultWindowTopComponent.class, "CTL_ResultWindowTopComponent"));	// NOI18N
+	setToolTipText(NbBundle.getMessage(ResultWindowTopComponent.class, "HINT_ResultWindowTopComponent"));	// NOI18N
 	setIcon(Utilities.loadImage(ICON_PATH, true));
     }
     
@@ -133,15 +133,15 @@ public final class ResultWindowTopComponent extends TopComponent {
 	TopComponent win = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
 	if (win == null) {
 	    ErrorManager.getDefault().log(ErrorManager.WARNING,
-		    "Cannot find ResultWindowTopComponent. It will not be located properly in the window system.");
+		    "Cannot find ResultWindowTopComponent. It will not be located properly in the window system.");	// NOI18N
 	    return getDefault();
 	}
 	if (win instanceof ResultWindowTopComponent) {
 	    return (ResultWindowTopComponent)win;
 	}
 	ErrorManager.getDefault().log(ErrorManager.WARNING,
-		"There seem to be multiple components with the '" + PREFERRED_ID +
-		"' ID. That is a potential source of errors and unexpected behavior.");
+		"There seem to be multiple components with the '" + PREFERRED_ID +	// NOI18N
+		"' ID. That is a potential source of errors and unexpected behavior.");	// NOI18N
 	return getDefault();
     }
     

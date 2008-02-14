@@ -115,7 +115,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
     TableSorter sorter;
     Property property;
     /** Customized table model */
-    public DefaultTableModel model = new DefaultTableModel(new String[]{"Type", "Rule", "Recommendation / Description", "Component"}, 0) {
+    public DefaultTableModel model = new DefaultTableModel(new String[]{java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/output/Bundle").getString("column1_header"), java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/output/Bundle").getString("column2_header"), java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/output/Bundle").getString("column3_header"), java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/output/Bundle").getString("column4_header")}, 0) {	// NOI18N
 
         @Override
         public Class getColumnClass(int columnIndex) {
@@ -134,7 +134,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         initComponents();
         setColumnWidths();
         messageTable.setRowHeight(19);
-        messageTable.setToolTipText("Double click/Enter to fix");
+        messageTable.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/output/Bundle").getString("table_tooltip"));	// NOI18N
         sorter.setTableHeader(messageTable.getTableHeader());
         sorter.getTableHeader().setReorderingAllowed(false);
         messageTable.getModel().addTableModelListener(this); //addingchengelistener
@@ -158,7 +158,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
                     String compName = (String) messageTable.getModel().getValueAt(selectedRow, 3); //fourth column is component name
                     FormDesigner formDesigner = new FormHandler(FormBroker.getDefault().findActiveEditor()).getFormDesigner();
                     try {
-                        Method method = FormDesigner.class.getDeclaredMethod("setSelectedComponent", RADComponent.class);
+                        Method method = FormDesigner.class.getDeclaredMethod("setSelectedComponent", RADComponent.class);   //NOI18N
                         if (method != null) {
                             method.setAccessible(true);
                             method.invoke(formDesigner, getComponetByName(compName, formDesigner));
@@ -205,28 +205,28 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         String propertyName = null;
         if (tableValue.equals(FormHandler.MNEMONIC_CAT)) {
             if (bc.equals(JLabel.class)) {
-                propertyName = "displayedMnemonic";
+                propertyName = FormHandler.DISP_MNEMONIC_PROP;
             } else {
-                propertyName = "mnemonic";
+                propertyName = FormHandler.MNEMONIC_PROP;
             }
         }
         if (tableValue.equals(FormHandler.A11Y_DESC_CAT)) {
-            propertyName = "AccessibleContext.accessibleDescription";
+            propertyName = FormHandler.A11Y_DESC_PROP;
         }
         if (tableValue.equals(FormHandler.A11Y_NAME_CAT)) {
-            propertyName = "AccessibleContext.accessibleName";
+            propertyName = FormHandler.A11Y_NAME_PROP;
         }
         if (tableValue.equals(FormHandler.LABEL_FOR_CAT)) {
-            propertyName = "labelFor";
+            propertyName = FormHandler.LABEL_FOR_PROP;
         }
         if (tableValue.equals(FormHandler.TAB_TRAV_CAT)) {
-            propertyName = "focusTraversalPolicy";
+            propertyName = FormHandler.TAB_TRAV_PROP;
         }
         DialogDescriptor descriptor = null;
         final JPanel panel;
         Property prop;
 
-        if (propertyName.equals("labelFor") && !bc.equals(JLabel.class)) {
+        if (propertyName.equals(FormHandler.LABEL_FOR_PROP) && !bc.equals(JLabel.class)) {
             // components that no label is bound with
             FormHandler fh = new FormHandler(FormBroker.getDefault().findActiveEditor());
             LinkedList<RADComponent> ll = fh.getUnboundLabels();
@@ -236,7 +236,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
                 DialogDisplayer.getDefault().notify(emptyLabelDescriptor);
             } else {
                 panel = new LabelForPropertyPanel(ll);
-                descriptor = createLabelForEditorDescriptor(formDesigner, (LabelForPropertyPanel) panel, "Choose label that should be bound with " + comp.getName(), comp);
+                descriptor = createLabelForEditorDescriptor(formDesigner, (LabelForPropertyPanel) panel, NbBundle.getMessage(ResultPanel.class, "label_choosing", comp.getName()), comp);	// NOI18N
                 dialog = DialogDisplayer.getDefault().createDialog(descriptor);
                 //                            TODO predvyplnit puvodni hodnotou pokud nejaka je
                 dialog.setVisible(true);
@@ -248,33 +248,34 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         }
 
 
-        if (propertyName.equals("focusTraversalPolicy")) {
+        if (propertyName.equals(FormHandler.TAB_TRAV_PROP)) {
             // FIXME vyvolat ten traversal editor
 
-            property = comp.getPropertyByName("focusTraversalPolicy", comp.getPropertyByName("focusTraversalPolicy").getClass(), true);
+            property = comp.getPropertyByName(FormHandler.TAB_TRAV_PROP, comp.getPropertyByName(FormHandler.TAB_TRAV_PROP).getClass(), true);
 
             try {
                 final PropertyEditor propEd = property.getPropertyEditor();
                 propEd.setValue(new FormHandler(FormBroker.getDefault().findActiveEditor()).getFes().getFormModel().getTopRADComponent());
-                propEd.setValue(property.getValue());                
-               
+                propEd.setValue(property.getValue());
+
                 final Component custEditor = propEd.getCustomEditor();
 
                 Object[] options = buttons2();
                 DialogDescriptor descriptor2 = new DialogDescriptor(
                         custEditor,
-                        "FocusTraversalPolicy",
+                        FormHandler.TAB_TRAV_PROP,
                         true,
                         options,
                         DialogDescriptor.CANCEL_OPTION,
                         DialogDescriptor.DEFAULT_ALIGN,
                         HelpCtx.DEFAULT_HELP,
                         new ActionListener() {
+
                             public void actionPerformed(ActionEvent e) {
                                 try {
                                     String action = e.getActionCommand();
                                     if (OK_COMMAND.equals(action)) {
-                                        property.setValue(property.getPropertyEditor().getValue()); 
+                                        property.setValue(property.getPropertyEditor().getValue());
                                     } else if (RESTORE_COMMAND.equals(action)) {
                                         property.restoreDefaultValue();
                                     }
@@ -307,19 +308,19 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         //showEditor(comp, propertyName);
 
         //construct different property editor for labelFor and others
-        if (!propertyName.equals("labelFor")) {
+        if (!propertyName.equals(FormHandler.LABEL_FOR_PROP)) {
             panel = new PropertyPanel();
-            if (propertyName.toLowerCase().contains("mnemonic")) {
+            if (propertyName.toLowerCase().contains(FormHandler.MNEMONIC_PROP)) {
                 Property mnemonic;
                 if (bc.equals(JLabel.class)) {
-                    mnemonic = comp.getPropertyByName("displayedMnemonic");
+                    mnemonic = comp.getPropertyByName(FormHandler.DISP_MNEMONIC_PROP);
                 } else {
-                    mnemonic = comp.getPropertyByName("mnemonic");
+                    mnemonic = comp.getPropertyByName(FormHandler.MNEMONIC_PROP);
                 }
                 if (mnemonic != null) {
-                    Property text = comp.getPropertyByName("text");
+                    Property text = comp.getPropertyByName(FormHandler.TEXT_PROP);
                     String t = FormHandler.getPropertyString(text);
-                    descriptor = createPropertyEditorDescriptor((PropertyPanel) panel, "Set " + tableValue + " property value for " + comp.getName() + " with text '" + t + "'", prop);
+                    descriptor = createPropertyEditorDescriptor((PropertyPanel) panel, NbBundle.getMessage(ResultPanel.class, "mnemonic_dialog", propertyName, comp.getName(), t), prop);     //NOI18N
                     int code = FormHandler.getPropertyInteger(mnemonic);
                     if (code != 0) {
                         String s = "" + (char) code;
@@ -330,16 +331,16 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
             } else {
                 ((PropertyPanel) panel).setValueText(FormHandler.getPropertyString(comp.getPropertyByName(propertyName)));
                 ((PropertyPanel) panel).selectWholeText();
-                descriptor = createPropertyEditorDescriptor((PropertyPanel) panel, "Set " + tableValue + " property value for " + comp.getName(), prop);
+                descriptor = createPropertyEditorDescriptor((PropertyPanel) panel, NbBundle.getMessage(ResultPanel.class, "setting_value", propertyName, comp.getName()), prop);	// NOI18N
             }
         } else {
             panel = new LabelForPropertyPanel(formDesigner.getFormModel().getComponentList());
-            descriptor = createLabelForEditorDescriptor(formDesigner, (LabelForPropertyPanel) panel, "Choose component " + comp.getName() + " should be bound with", prop);
+            descriptor = createLabelForEditorDescriptor(formDesigner, (LabelForPropertyPanel) panel, NbBundle.getMessage(ResultPanel.class, "binding_components", comp.getName()), prop);	// NOI18N
         }
 
         dialog = DialogDisplayer.getDefault().createDialog(descriptor);
         //                            TODO predvyplnit puvodni hodnotou pokud nejaka je
-//                            if (!propertyName.equals("labelFor")) {
+//                            if (!propertyName.equals(FormHandler.LABEL_FOR_PROP)) {
 //                                System.out.println(dialog.getComponents().length);
 //                                prop = comp.getPropertyByName("text");
 //                                String t = FormHandler.getPropertyString(prop);
@@ -385,7 +386,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
     private void showEditor(RADComponent comp, String beanPropertyName) {
         try {
             RADProperty props[] = comp.getAllBeanProperties();
-            RADProperty rProp = comp.getBeanProperty("icon");
+            RADProperty rProp = comp.getBeanProperty("icon");   //NOI18N
             //java.util.List actionProps = comp.getActionProperties();
 //            RADComponentNode rNode = new RADComponentNode(comp);
 //            FormProperty fProp = rNode.getProperty(beanPropertyName);
@@ -436,7 +437,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
                     //                    todo
                     if (OK_COMMAND.equals(action)) {
                         RADVisualComponent comp = (RADVisualComponent) getComponetByName(panel.getSelectedComponentName(), formDesigner);
-                        Property prop = comp.getPropertyByName("labelFor", comp.getPropertyByName("labelFor").getClass(), true);
+                        Property prop = comp.getPropertyByName(FormHandler.LABEL_FOR_PROP, comp.getPropertyByName(FormHandler.LABEL_FOR_PROP).getClass(), true);
                         ComponentChooserEditor editor = (ComponentChooserEditor) ((FormProperty) prop).getCurrentEditor();
                         editor.setValue(rvc);
                         prop.setValue(editor.getValue());
@@ -491,11 +492,11 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
                     if (OK_COMMAND.equals(action)) {
                         if (!panel.getValueText().equals("")) {
                             String value = panel.getValueText();
-                            if (!header.toLowerCase().contains("mnemonic property")) {
+                            if (!header.toLowerCase().contains("mnemonic property")) {  //NOI18N hack
                                 prop.setValue(value);
                             } else {
                                 if (value.length() > 1) {
-                                    throw new IllegalArgumentException("Mnemonic > 1 char");
+                                    throw new IllegalArgumentException("Mnemonic > 1 char");    //NOI18N
                                 } //NOI18N
                                 char mnemonic = value.charAt(0);
                                 prop.setValue((int) mnemonic);
@@ -534,12 +535,9 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
      */
     public void tableChanged(TableModelEvent e) {
         setColumnWidths();
-        errorCheckBox.setText("Errors: " + errors.size());
-        warningCheckBox.setText("Warnings: " + warnings.size());
-        infoCheckBox.setText("Infos: " + infos.size());
-//        errorsCountLabel.setText("" + errors.size());
-//        warnigsCountLabel.setText("" + warnings.size());
-//        infosCountLabel.setText("" + infos.size());
+        errorCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/output/Bundle").getString("err_checkbox") + errors.size());	// NOI18N
+        warningCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/output/Bundle").getString("warn_checkbox") + warnings.size());	// NOI18N
+        infoCheckBox.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/output/Bundle").getString("info_checkbox")+ infos.size());	// NOI18N
     }
 
     /**
@@ -592,6 +590,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         infoCheckBox = new javax.swing.JCheckBox();
         checkButton = new javax.swing.JButton();
         autoI18nCheckBox = new javax.swing.JCheckBox();
+        TraversalEditorButton = new javax.swing.JButton();
 
         messageTable.setModel(sorter);
         messageTable.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -657,46 +656,73 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
             }
         });
 
+        TraversalEditorButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/a11ychecker/output/traversalPolicyIcon.png"))); // NOI18N
+        TraversalEditorButton.setMnemonic('t');
+        TraversalEditorButton.setText(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.TraversalEditorButton.text")); // NOI18N
+        TraversalEditorButton.setToolTipText(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.TraversalEditorButton.toolTipText")); // NOI18N
+        TraversalEditorButton.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        TraversalEditorButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                TraversalEditorButtonActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 971, Short.MAX_VALUE)
+            .add(layout.createSequentialGroup()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 1058, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(13, 13, 13)
                         .add(errorCheckBox)
                         .add(34, 34, 34)
                         .add(warningCheckBox)
                         .add(34, 34, 34)
                         .add(infoCheckBox)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 540, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 645, Short.MAX_VALUE)
                         .add(autoI18nCheckBox)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(TraversalEditorButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(checkButton)))
                 .addContainerGap())
         );
+
+        layout.linkSize(new java.awt.Component[] {TraversalEditorButton, checkButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(errorCheckBox)
-                        .add(warningCheckBox)
-                        .add(infoCheckBox)
-                        .add(checkButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 20, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(autoI18nCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(8, 8, 8)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(infoCheckBox)
+                            .add(warningCheckBox)
+                            .add(errorCheckBox)))
+                    .add(layout.createSequentialGroup()
+                        .add(6, 6, 6)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(checkButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 20, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                .add(TraversalEditorButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 19, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(autoI18nCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
+                .add(7, 7, 7)
+                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
                 .addContainerGap())
         );
+
+        layout.linkSize(new java.awt.Component[] {TraversalEditorButton, checkButton}, org.jdesktop.layout.GroupLayout.VERTICAL);
 
         jScrollPane1.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.jScrollPane1.AccessibleContext.accessibleName")); // NOI18N
         jScrollPane1.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.jScrollPane1.AccessibleContext.accessibleDescription")); // NOI18N
         checkButton.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.checkButton.AccessibleContext.accessibleName")); // NOI18N
         autoI18nCheckBox.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.autoI18nCheckBox.AccessibleContext.accessibleDescription")); // NOI18N
+        TraversalEditorButton.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.TraversalEditorButton.AccessibleContext.accessibleName")); // NOI18N
 
         getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.AccessibleContext.accessibleName")); // NOI18N
         getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.AccessibleContext.accessibleDescription")); // NOI18N
@@ -808,8 +834,14 @@ public synchronized void setSelectedRow() {
     private void autoI18nCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoI18nCheckBoxActionPerformed
         FormHandler fh = new FormHandler(FormBroker.getDefault().findActiveEditor());
         //FormEditor fe = fh.getFormDesigner().getFormEditor();
-        
-        FormModel formModel = fh.getFormDesigner().getFormModel();
+        // HACK to prevent exception when no file is opened and action invoked
+        if (fh == null)
+            return;
+        FormDesigner fd = fh.getFormDesigner();
+        // HACK to prevent exception when no file is opened and action invoked
+        if (fd == null)
+            return;
+        FormModel formModel = fd.getFormModel();
         FormSettings fs = formModel.getSettings();
 
         //setter for auto mode
@@ -850,16 +882,68 @@ public synchronized void setSelectedRow() {
         }
 }//GEN-LAST:event_messageTableKeyPressed
 
+    private void TraversalEditorButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TraversalEditorButtonActionPerformed
+        FormDesigner formDesigner = new FormHandler(FormBroker.getDefault().findActiveEditor()).getFormDesigner();
+        // HACK to prevent exception when no file is opened and action invoked        
+        if (formDesigner==null)
+            return;
+        RADVisualComponent comp = (RADVisualComponent) getComponetByName("Form", formDesigner);
+        property = comp.getPropertyByName(FormHandler.TAB_TRAV_PROP, comp.getPropertyByName(FormHandler.TAB_TRAV_PROP).getClass(), true);
+        try {
+                final PropertyEditor propEd = property.getPropertyEditor();
+                propEd.setValue(new FormHandler(FormBroker.getDefault().findActiveEditor()).getFes().getFormModel().getTopRADComponent());
+                propEd.setValue(property.getValue());
+
+                final Component custEditor = propEd.getCustomEditor();
+
+                Object[] options = buttons2();
+                DialogDescriptor descriptor2 = new DialogDescriptor(
+                        custEditor,
+                        FormHandler.TAB_TRAV_PROP,
+                        true,
+                        options,
+                        DialogDescriptor.CANCEL_OPTION,
+                        DialogDescriptor.DEFAULT_ALIGN,
+                        HelpCtx.DEFAULT_HELP,
+                        new ActionListener() {
+
+                            public void actionPerformed(ActionEvent e) {
+                                try {
+                                    String action = e.getActionCommand();
+                                    if (OK_COMMAND.equals(action)) {
+                                        property.setValue(property.getPropertyEditor().getValue());
+                                    } else if (RESTORE_COMMAND.equals(action)) {
+                                        property.restoreDefaultValue();
+                                    }
+                                    dialog.dispose();
+                                } catch (Exception ex) {
+                                    NotifyDescriptor descriptor = new NotifyDescriptor.Message(
+                                            NbBundle.getBundle(PropertyAction.class).getString("MSG_InvalidValue")); // NOI18N
+                                    DialogDisplayer.getDefault().notify(descriptor);
+                                }
+                            }
+                        });
+                descriptor2.setClosingOptions(new Object[0]);
+                dialog = DialogDisplayer.getDefault().createDialog(descriptor2);
+                dialog.setVisible(true);
+                dialog = null;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            new FormHandler(FormBroker.getDefault().findActiveEditor()).check();
+            return;        
+}//GEN-LAST:event_TraversalEditorButtonActionPerformed
+
     /**
      * Inits buttons for property dialog
      */
     private Object[] buttons() {
         JButton okButton = new JButton();
         okButton.setActionCommand(OK_COMMAND);
-        okButton.setText("OK");
+        okButton.setText(OK_COMMAND);
         JButton cancelButton = new JButton();
         cancelButton.setActionCommand(CANCEL_COMMAND);
-        cancelButton.setText("Cancel");
+        cancelButton.setText(CANCEL_COMMAND);
         return new Object[]{okButton, cancelButton};
     }
     
@@ -879,12 +963,13 @@ public synchronized void setSelectedRow() {
         
     }
         
-    private static final String OK_COMMAND = "OK"; // NOI18N
+    private static final String OK_COMMAND = NbBundle.getBundle(PropertyAction.class).getString("CTL_OK"); // NOI18N
 
-    private static final String CANCEL_COMMAND = "Cancel"; // NOI18N
+    private static final String CANCEL_COMMAND = NbBundle.getBundle(PropertyAction.class).getString("CTL_Cancel"); // NOI18N
     
-    private static final String RESTORE_COMMAND = "Restore"; // NOI18N
+    private static final String RESTORE_COMMAND = NbBundle.getBundle(PropertyAction.class).getString("CTL_RestoreDefault"); // NOI18N
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton TraversalEditorButton;
     private javax.swing.JCheckBox autoI18nCheckBox;
     private javax.swing.JButton checkButton;
     private javax.swing.JCheckBox errorCheckBox;

@@ -126,6 +126,6 @@ public class MyTraversalPolicy extends FocusTraversalPolicy implements Serializa
 
     @Override
     public String toString() {
-        return "customFocusTraversalPolicy";
+        return "customFocusTraversalPolicy"; //NOI18N
     }
 }
