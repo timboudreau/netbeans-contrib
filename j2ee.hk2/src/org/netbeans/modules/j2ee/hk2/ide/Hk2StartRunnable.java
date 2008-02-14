@@ -139,22 +139,12 @@ public class Hk2StartRunnable implements Runnable {
     }
     
     private String[] createEnvironment() {
-        StringBuilder javaOpts = new StringBuilder();
         List<String> envp = new ArrayList<String>(3);
         String rootDir = ip.getProperty(Hk2PluginProperties.PROPERTY_HK2_HOME);
         JavaPlatform platform = dm.getProperties().getJavaPlatform();
         FileObject fo = (FileObject) platform.getInstallFolders().iterator().next();
         String javaHome = FileUtil.toFile(fo).getAbsolutePath();
-        
-        if(startServer.getMode() == Hk2StartServer.MODE.DEBUG) {
-            javaOpts.append(" -classic -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,address="). // NOI18N
-                    append(dm.getProperties().getDebugPort()).
-                    append(",server=y,suspend=n"); // NOI18N
-        }
-        
-
         envp.add("JAVA_HOME=" + javaHome); // NOI18N
-        
         return (String[]) envp.toArray(new String[envp.size()]);
     }
     
@@ -172,14 +162,22 @@ public class Hk2StartRunnable implements Runnable {
             }
         }
         
-        return new NbProcessDescriptor(startScript, " -jar \"" + jarLocation + "\""); //NOI18N
+        StringBuilder javaOpts = new StringBuilder();
+        if(startServer.getMode() == Hk2StartServer.MODE.DEBUG) {
+            javaOpts.append(" -classic -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,address="). // NOI18N
+                    append(dm.getProperties().getDebugPort()).
+                    append(",server=y,suspend=n"); // NOI18N
+        }
+        
+        return new NbProcessDescriptor(startScript, javaOpts.toString() + " -jar \"" + jarLocation + "\""); //NOI18N
     }
     
     private Process createProcess() {
         NbProcessDescriptor pd = createProcessDescriptor();
         
-        if (pd == null)
+        if (pd == null){
             return null;
+        }
         
         try {
             return pd.exec(null, createEnvironment(), true, new File(ip.getProperty(Hk2PluginProperties.PROPERTY_HK2_HOME)));
