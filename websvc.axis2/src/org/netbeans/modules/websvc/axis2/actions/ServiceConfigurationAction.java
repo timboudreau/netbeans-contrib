@@ -156,37 +156,21 @@ public class ServiceConfigurationAction extends NodeAction  {
                    ServicesModel servicesModel = AxisUtils.getServicesModelForProject(prj);
                    if (servicesModel != null) {
                        servicesModel.startTransaction();
-                       if (servicesModel.isServicesGroup()) {
-                           ServiceGroup serviceGroup = (ServiceGroup) servicesModel.getRootComponent();
-                           for (org.netbeans.modules.websvc.axis2.services.model.Service serv:serviceGroup.getServices()) {
-                               if (oldServiceName.equals(serv.getNameAttr())) {
-                                   if (serviceNameChanged) {
-                                       serv.setNameAttr(newServiceName);
-                                   }
-                                   if (serviceClassChanged) {
-                                       for (Parameter param:serv.getParameters()) {
-                                           if ("ServiceClass".equals(param.getNameAttr())) {
-                                               param.setValue(newServiceClass);
-                                               break;
-                                           }
+                       ServiceGroup serviceGroup = (ServiceGroup) servicesModel.getRootComponent();
+                       for (org.netbeans.modules.websvc.axis2.services.model.Service serv:serviceGroup.getServices()) {
+                           if (oldServiceName.equals(serv.getNameAttr())) {
+                               if (serviceNameChanged) {
+                                   serv.setNameAttr(newServiceName);
+                               }
+                               if (serviceClassChanged) {
+                                   for (Parameter param:serv.getParameters()) {
+                                       if ("ServiceClass".equals(param.getNameAttr())) {
+                                           param.setValue(newServiceClass);
+                                           break;
                                        }
                                    }
-                                   break;
                                }
-                           }
-                       } else {
-                           org.netbeans.modules.websvc.axis2.services.model.Service serv =
-                               (org.netbeans.modules.websvc.axis2.services.model.Service)servicesModel.getRootComponent();
-                           if (serviceNameChanged) {
-                               serv.setNameAttr(newServiceName);
-                           }
-                           if (serviceClassChanged) {
-                               for (Parameter param:serv.getParameters()) {
-                                   if ("ServiceClass".equals(param.getNameAttr())) {
-                                       param.setValue(newServiceClass);
-                                       break;
-                                   }
-                               }
+                               break;
                            }
                        }
                        servicesModel.endTransaction();

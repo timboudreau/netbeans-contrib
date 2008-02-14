@@ -92,7 +92,6 @@ public class WsFromJavaPanel0 implements  WizardDescriptor.FinishablePanel<Wizar
         if (component.getJavaClass() != null) {
             settings.putProperty(PROP_JAVA_CLASS, component.getJavaClass());
         }
-        settings.putProperty(PROP_SERVICE_GROUP, Boolean.valueOf(component.isServiceGroup()));
         settings.putProperty(PROP_GENERATE_WSDL, Boolean.valueOf(component.generateWsdl()));
     }
 

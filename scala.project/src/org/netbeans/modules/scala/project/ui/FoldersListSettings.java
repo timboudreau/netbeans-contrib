@@ -46,7 +46,6 @@ import org.openide.util.NbBundle;
 
 import java.io.File;
 import java.util.prefs.Preferences;
-import org.netbeans.modules.scala.project.ui.FoldersListSettings;
 import org.openide.util.NbPreferences;
 
 /**

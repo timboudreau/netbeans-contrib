@@ -38,7 +38,6 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.a11ychecker.traverse;
 
 import java.awt.BorderLayout;
@@ -67,22 +66,21 @@ import org.netbeans.modules.form.VisualReplicator;
  */
 public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements FormAwareEditor, ExPropertyEditor {
 
+    public static final String CYCLEROOT_PROP = "focusCycleRoot";		// NOI18N
+    
     FormModel myFormModel;
     MyGlassPane myGlassPane;
     PropertyEnv myEnv;
     VisualReplicator myReplicator;
-    
     Vector<MySavingButton> savedBtns;
     String startName;
     String endName;
-    
     RADVisualContainer formContainer;
     JButton checkButton;
     RADComponent topComponent;
-    
-    public RADComponent getMetaComponent(Component comp)
-    {
-        return myFormModel.getMetaComponent( myReplicator.getClonedComponentId(comp) );
+
+    public RADComponent getMetaComponent(Component comp) {
+        return myFormModel.getMetaComponent(myReplicator.getClonedComponentId(comp));
     }
 
     /**
@@ -115,7 +113,7 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
 
     public void saveOk() {
         if (formContainer != null) {
-            Property property = formContainer.getPropertyByName("focusCycleRoot");
+            Property property = formContainer.getPropertyByName(CYCLEROOT_PROP);
             try {
                 property.setValue(Boolean.TRUE);
             } catch (Exception ex) {
@@ -123,7 +121,7 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
             }
         }
     }
-    
+
     @Override
     public Object getValue() {
         if (formContainer != null) {
@@ -132,11 +130,10 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
             return null;
         }
     }
-    
 
     @Override
     public void setValue(Object value) {
-        if(value instanceof RADComponent) {
+        if (value instanceof RADComponent) {
             setTopComponent((RADComponent) value);
         }
         if (value instanceof MyTraversalPolicy) {
@@ -155,7 +152,7 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
      */
     public String generateTraversalClass() {
         if (myFormModel == null || myReplicator == null) {
-            return "null";
+            return "null";	// NOI18N
         }
 
         FocusTraversalPolicyGenerator myGenerator = new FocusTraversalPolicyGenerator(myFormModel, myReplicator);
@@ -178,7 +175,7 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
         if (formContainer != null) {
             return generateTraversalClass();
         }
-        return "null";
+        return "null";	// NOI18N
     }
 
     /**
@@ -228,6 +225,7 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
         }
         if (arrSel != null) {
             if (arrSel.length == 1) {
+                //FIXME - tady lita CCE, kdyz neni selectla zadna komponenta a zavola se editor pres button u nas
                 actComp = (RADVisualComponent) ((RADComponentNode) arrSel[0]).getRADComponent();
             }
         } else {
@@ -236,7 +234,7 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
         if (actComp != null) {
             formContainer = actComp instanceof RADVisualContainer ? (RADVisualContainer) actComp : null;
 
-            if (formContainer != null) {
+            if (formContainer != null && actComp.getParentComponent() == null) {
                 try {
                     myReplicator = new VisualReplicator(false, new ViewConverter[]{new MyConverter()}, null);
                     myReplicator.setTopMetaComponent(actComp);
@@ -269,9 +267,8 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
                         //Show the window.
                         focusEditorPanel.setPreferredSize(new Dimension(formPanel.getWidth(), formPanel.getHeight() + 50));
                         focusEditorPanel.add(myRootPane, BorderLayout.CENTER);
-                    } 
-                    // JPANEL
-                    else if(formPanel instanceof JPanel) {
+                    } // JPANEL
+                    else if (formPanel instanceof JPanel) {
                         FormDesigner designer = FormEditor.getFormDesigner(myFormModel);
                         formPanel.setSize(((Component) designer.getComponent(actComp)).getPreferredSize());
                         JRootPane myRootPane = new JRootPane();
@@ -284,26 +281,28 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
                         focusEditorPanel.setGlassPane(myGlassPane);
                         myRootPane.setGlassPane(myGlassPane);
 
-                       // for (Component aComp : formPanel.getComponents()) {
-                           // if (aComp instanceof JLayeredPane) {
-                               // for (Component aaComp : ((Container) aComp).getComponents()) {
-                                    //if (aComp instanceof JPanel) {
-                                        traverseFormPanel(formPanel);
-                                    //}
-                               // }
-                          //  }
-                       // }
+                        // for (Component aComp : formPanel.getComponents()) {
+                        // if (aComp instanceof JLayeredPane) {
+                        // for (Component aaComp : ((Container) aComp).getComponents()) {
+                        //if (aComp instanceof JPanel) {
+                        traverseFormPanel(formPanel);
+                        //}
+                        // }
+                        //  }
+                        // }
 
                         //Show the window.
                         focusEditorPanel.setPreferredSize(new Dimension(formPanel.getWidth(), formPanel.getHeight() + 50));
                         focusEditorPanel.add(myRootPane, BorderLayout.CENTER);
-                    }
-                    else {
-                        focusEditorPanel.add(new JLabel(java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/Bundle").getString("STRING_NOJFRAME")), BorderLayout.CENTER);
+                    } else {
+                        focusEditorPanel.add(new JLabel(java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/Bundle").getString("STRING_NOJFRAME")), BorderLayout.CENTER);	// NOI18N
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
+            } else {
+                focusEditorPanel.setLayout(new BorderLayout());
+                focusEditorPanel.add(new JLabel(java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/Bundle").getString("STRING_NOTSUPPORTED")), BorderLayout.CENTER);	// NOI18N
             }
         }
         return focusEditorPanel;
@@ -316,6 +315,20 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
 
     public void setContext(FormModel formModel, FormProperty formProperty) {
         this.myFormModel = formModel;
+        formProperty.setValue("canEditAsText", Boolean.FALSE); // NOI18N
+    }
+
+    public String getAsText() {
+        // pridat check savedbuttons
+        Object v = getValue();
+        if (!(v instanceof org.netbeans.modules.a11ychecker.traverse.MyTraversalPolicy)) {
+            return super.getAsText();
+        } else {
+//            return ("");
+            return java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/Bundle").getString("OUR_POLICY");
+        // vratit komponenty
+        }
+
     }
 
     public void attachEnv(PropertyEnv env) {

@@ -117,11 +117,11 @@ public class WsFromJavaWizardIterator implements TemplateWizard.Iterator /*, Ite
         Axis2ModelProvider axis2ModelProvider = project.getLookup().lookup(Axis2ModelProvider.class);
         ServicesModel servicesModel = axis2ModelProvider.getServicesModel();
         if (servicesModel == null) {            
-            FileObject configFolder = AxisUtils.getAxisConfigFolder(project.getProjectDirectory(), true);
+            FileObject configFolder = AxisUtils.getServicesFolder(project.getProjectDirectory(), true);
             if (configFolder != null) {
                 FileObject servicesFo = configFolder.getFileObject("services.xml");
                 if (servicesFo == null) {
-                    AxisUtils.retrieveServicesFromResource(configFolder, ((Boolean)wiz.getProperty(WizardProperties.PROP_SERVICE_GROUP)).booleanValue());
+                    AxisUtils.retrieveServicesFromResource(configFolder, true);
                 }
                 servicesFo = configFolder.getFileObject("services.xml"); //NOI18N
                 servicesModel = ServicesUtils.getServicesModel(servicesFo, true);

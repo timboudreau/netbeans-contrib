@@ -56,7 +56,7 @@ public class TextHistoryAction extends AbstractAction {
     }
     
     public void actionPerformed(ActionEvent ev) {
-        NotifyDescriptor nd = new NotifyDescriptor("Not implemeted yet!", "ClearCase", NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE, new Object[]{}, null);        
+        NotifyDescriptor nd = new NotifyDescriptor("Not implemeted yet!", "ClearCase", NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE, new Object[]{NotifyDescriptor.OK_OPTION}, null);        
         DialogDisplayer.getDefault().notify(nd);
     }
 }

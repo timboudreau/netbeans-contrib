@@ -41,6 +41,11 @@ public class GrailsServerCommandAction extends AbstractAction implements Present
     public GrailsServerCommandAction (Project project){
         grailsCommandMenu.add(new RunGrailsServerCommandAction(project));
         grailsCommandMenu.add(new StopGrailsServerCommandAction(project));
+        grailsCommandMenu.add(new CreateWarFileAction(project));
+        grailsCommandMenu.add(new GrailsTargetAction(project, "Compile", "compile"));
+        grailsCommandMenu.add(new GrailsTargetAction(project, "Statistics", "stats"));
+        grailsCommandMenu.add(new GrailsTargetAction(project, "Upgrade", "upgrade"));
+        grailsCommandMenu.add(new GrailsTargetAction(project, "Help", "help"));
         grailsCommandMenu.add(new ShellAction(project));
     }
     
@@ -53,7 +58,4 @@ public class GrailsServerCommandAction extends AbstractAction implements Present
         return grailsCommandMenu;
     }
 
-    }
-
-
-
+}

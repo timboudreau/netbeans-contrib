@@ -43,8 +43,6 @@ package org.netbeans.modules.clearcase.client;
 import org.netbeans.modules.clearcase.ClearcaseException;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.FileWriter;
 
 /**
  * A checkout command.
@@ -86,7 +84,7 @@ public class MkElemCommand extends FilesCommand {
         if (message == null || message.equals("")) {
             arguments.add("-ncomment");
         } else {
-/*            XXX this is a mess - the following code returns:
+/*          WARNING: this is a mess - the following code returns:
             
             cleartool: Error: Unable to open (null): Bad address
             cleartool: Error: Unable to access "prd3": No such file or directory.

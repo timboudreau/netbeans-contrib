@@ -46,9 +46,14 @@ package org.netbeans.modules.websvc.axis2.wizards;
 public interface WizardProperties {
     public static final String PROP_FROM_JAVA_TYPE="prop_from_java_type"; //NOI18N
     public static final String PROP_JAVA_CLASS="prop_java_class"; //NOI18N
-    public static final String PROP_SERVICE_GROUP="prop_service_group"; //NOI18N
     public static final String PROP_GENERATE_WSDL="prop_generate_wsdl"; //NOI18N
     public static final String PROP_GENERATE_SAMPLE_METHOD="prop_generate_sample_method"; //NOI18N
+    public static final String PROP_WSDL_URL="prop_wsdl_URL"; //NOI18N
+    public static final String PROP_SERVICE_NAME="prop_service_name"; //NOI18N
+    public static final String PROP_PORT_NAME="prop_port_name"; //NOI18N
+    public static final String PROP_PACKAGE_NAME="prop_package_name"; //NOI18N
+    public static final String PROP_DATABINDING_NAME="prop_databinding_name"; //NOI18N
+    public static final String PROP_SEI="prop_sei"; //NOI18N
     public static final Boolean JAVA_TYPE_EMPTY=Boolean.TRUE;
     public static final Boolean JAVA_TYPE_EXISTING=Boolean.FALSE;
 }

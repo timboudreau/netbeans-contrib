@@ -197,15 +197,15 @@ class CheckinPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
 private void cbForceUnmodifiedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbForceUnmodifiedActionPerformed
-// TODO add your handling code here:
+    // ignore
 }//GEN-LAST:event_cbForceUnmodifiedActionPerformed
 
 private void bRecentMessagesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bRecentMessagesActionPerformed
-// TODO add your handling code here:
+    // ignore
 }//GEN-LAST:event_bRecentMessagesActionPerformed
 
 private void cbPreserveTimeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbPreserveTimeActionPerformed
-// TODO add your handling code here:
+    // ignore
 }//GEN-LAST:event_cbPreserveTimeActionPerformed
 
 

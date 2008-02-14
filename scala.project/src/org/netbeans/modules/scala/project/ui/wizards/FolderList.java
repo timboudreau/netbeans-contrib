@@ -42,18 +42,12 @@
 package org.netbeans.modules.scala.project.ui.wizards;
 
 
-import java.awt.Color;
 import java.awt.Component;
-import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.Icon;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.event.ListSelectionListener;
@@ -61,14 +55,11 @@ import javax.swing.event.ListSelectionEvent;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
-import org.netbeans.modules.scala.project.ui.customizer.J2SESourceRootsUi;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.NbBundle;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectInformation;
-import org.netbeans.modules.scala.project.ui.FoldersListSettings;
+import org.netbeans.modules.scala.project.ui.customizer.J2SESourceRootsUi;
 
 
 /**

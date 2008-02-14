@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="netbeans" name="tasklist.usertasksant">
+    <import file="../../nbbuild/templates/projectized.xml"/>
+
+    <target name="nblib" depends="init">
+        <mkdir dir="build/antclasses"/>
+        <!-- XXX antsrc does not even exist! This module cannot build. -->
+        <javac srcdir="antsrc" destdir="build/antclasses" source="1.4" debug="true" deprecation="true">
+            <classpath>
+                <path refid="cp"/>
+                <pathelement location="${ant.core.lib}"/>
+                <pathelement location="${tools.jar}"/>
+            </classpath>
+        </javac>
+        <copy todir="build/antclasses">
+            <fileset dir="antsrc" excludes="${jar-excludes}"/>
+        </copy>
+        <mkdir dir="${cluster}/ant/nblib"/>
+        <jar jarfile="${cluster}/ant/nblib/org-netbeans-modules-tasklist-usertasksant.jar" compress="false">
+            <fileset dir="build/antclasses"/>
+        </jar>
+    </target>
+
+    <target name="netbeans-extra" depends="nblib"/>
+</project>

@@ -556,30 +556,34 @@ ReturnExpr = <return> [Expr];
 ## Hacking for:
 ##     PostfixExpr = InfixExpr [NameId [<nl>]];
 ##     InfixExpr = PrefixExpr  (NameId [<nl>] InfixExpr)*;
-PostfixExpr = PrefixExpr (NameId [<nl>] [PrefixExpr])*;
+## Should connect two exprs separated by <nl> to one expr when possible in semantic analyzer
+PostfixExpr = PrefixExpr (NameId [PrefixExpr])*;
 PrefixExpr = [PrefixOp] SimpleExpr;
 PrefixOp = "-" 
          | "+" 
          | "~" 
          | "!";
 
-SimpleExpr = TypedPathId    (<dot> (<nl>)* TypedPathId | TypedArguments)*
-           | TypedLiteral   (<dot> (<nl>)* TypedPathId | TypedArguments)*
-           | TypedWildCard  (<dot> (<nl>)* TypedPathId | TypedArguments)*
-           | TypedParenExpr (<dot> (<nl>)* TypedPathId | TypedArguments)*
-           | TypedBlockExpr (<dot> (<nl>)* TypedPathId [TypedArguments])*
-           | NewExpr        (<dot> (<nl>)* TypedPathId | TypedArguments)*
+SimpleExpr = PathIdWithTypeArgs    (<dot> (<nl>)* PathIdWithTypeArgs | Arguments | <under>)*
+           | LiteralWithTypeArgs   (<dot> (<nl>)* PathIdWithTypeArgs | Arguments | <under>)*
+           | WildCardWithTypeArgs  (<dot> (<nl>)* PathIdWithTypeArgs | Arguments | <under>)*
+           | TupleExprWithTypeArgs (<dot> (<nl>)* PathIdWithTypeArgs | Arguments | <under>)*
+           | BlockExprWithTypeArgs (<dot> (<nl>)* PathIdWithTypeArgs [Arguments])*
+           | NewExpr               (<dot> (<nl>)* PathIdWithTypeArgs | Arguments |  <under>)*
            | XmlExpr;
 
-TypedPathId    = PathId    (TypeArgs)*;
-TypedLiteral   = Literal   (TypeArgs)*;
-TypedWildCard  = <under>   (TypeArgs)*;
-TypedParenExpr = ParenExpr (TypeArgs)*;
-TypedBlockExpr = BlockExpr (TypeArgs)*;
+PathIdWithTypeArgs    = PathId    (TypeArgs)*;
+LiteralWithTypeArgs   = Literal   (TypeArgs)*;
+WildCardWithTypeArgs  = <under>   (TypeArgs)*;
+TupleExprWithTypeArgs = TupleExpr (TypeArgs)*;
+BlockExprWithTypeArgs = BlockExpr (TypeArgs)*;
 
-TypedArguments = TypedWildCard
-               | TypedParenExpr
-               | TypedBlockExpr;
+TupleExpr = ParenExpr;
+
+#TypedArguments = TypedWildCard
+#               | TypedParenExpr
+#               | TypedBlockExpr;
+
 
 ## Hacking for: "new" ([EarlyDef] ClassParents [Template] | Template)
 ## Since EalyBody and Template all start with "{" and Template is super set of EarlyBody,
@@ -599,9 +603,9 @@ Arguments = ParenExpr
 ## Although "," is used to separator one expr, but, all <nl> in parenthsis should be ignor,
 ## so, we use (ExprInParen)+ here, and let ExprInParen include <nl>.
 ## ** Should combine them to one expr in semantic analyzer **
-ParenExpr = <lparen> (<nl>)* (ExprInParen)+ (<comma> (<nl>)* (ExprInParen)+)* (<nl>)* <rparen>;
+ParenExpr = <lparen> (<nl>)* ExprInParen (<comma> (<nl>)* ExprInParen)* (<nl>)* <rparen>;
 ExprInParen = CtrlExpr
-            | PostfixExpr [AscriptionInPrths [FunExprTail] | MatchExprTail | AssignExprTail | FunExprTail]
+            | PostfixExpr [AscriptionInParen [FunExprTail] | MatchExprTail | AssignExprTail | FunExprTail]
             | <nl>
             | ;
 ## Hacking for: Ascription and Binding;
@@ -611,7 +615,7 @@ ExprInParen = CtrlExpr
 ## Since (Bindings | id) ‘=>’ Expr also conflicts with (PostfixExpr Ascription "=>" Expr), 
 ## we have to combine them as: Ascription = ":" (Type | (Annotation)+);
 ## Hacking for: AscriptionInPrths = <colon> (Type | (Annotation)+); @see AnnotType
-AscriptionInPrths = <colon> (Type);
+AscriptionInParen = <colon> (Type);
 
 BlockExpr = <lbrace> (<nl>)* (BlockStats | CaseClauses) <rbrace>;
 Template = <lbrace> (<nl>)* TemplateStats <rbrace> [<with>];
@@ -761,7 +765,8 @@ Pattern2 = <under> ["*"]
          | TuplePattern
          | XmlPattern;
 
-Pattern3 = SimplePattern (NameId [<nl>] SimplePattern)*;
+## Hacking for neg number in Literal
+Pattern3 = ["-"] SimplePattern (NameId [<nl>] ["-"] SimplePattern)*;
 SimplePattern = <under> ["*"]
               | Literal
               | StableId [<lparen> (<nl>)* Patterns (<nl>)* <rparen> | <at> Pattern3 | <colon> Type]
@@ -775,7 +780,8 @@ SimplePattern = <under> ["*"]
 ## where, (List[TemplateHolder] => rw) which is behind ":", may be parsed as a 
 ## function type rather then a (Type => Expr), so we here have to limit the Type to InfixType
 CasePattern = CasePattern1 ("|" CasePattern1)*;
-CasePattern1 = CasePattern0 (NameId [<nl>] CasePattern0)*;
+## Hacking for neg number in Literal
+CasePattern1 = ["-"] CasePattern0 (NameId [<nl>] ["-"] CasePattern0)*;
 CasePattern0 = <under> ["*"]
              | Literal
              | StableId [<lparen> (<nl>)* Patterns (<nl>)* <rparen> | <at> Pattern3 | <colon> InfixType]
@@ -867,9 +873,12 @@ ClassDef  = [<case>] <class> NameId [TypeParamClause] (Annotation)* [AccessModif
 ObjectDef = [<case>] <object> NameId [ClassTemplateOpt];
 TraitDef  = <trait> NameId [TypeParamClause] [<requires> AnnotType] [TraitTemplateOpt];
 
-ClassParamClauses = (<lparen> (<nl>)* [ClassParams] (<nl>)* <rparen>)* [<lparen> (<nl>)* <implicit> ClassParams (<nl>)* <rparen>];
+## Hacking for ClassParamClauses = (<lparen> (<nl>)* [ClassParams] (<nl>)* <rparen>)* [<lparen> (<nl>)* <implicit> ClassParams (<nl>)* <rparen>];
+## Where:
+##     ClassParam = (Annotation)* [(Modifier)* (<val> | <var>)] NameId [<colon> ParamType];
+ClassParamClauses = (<lparen> (<nl>)* [ClassParams] (<nl>)* <rparen>)*;
 ClassParams = ClassParam (<comma> (<nl>)* ClassParam)*;
-ClassParam = (Annotation)* [(Modifier)* (<val> | <var>)] NameId [<colon> ParamType];
+ClassParam = (Annotation)* (Modifier)* [(<val> | <var>)] NameId [<colon> ParamType];
 
 ClassTemplateOpt = <extends> (ClassParents [Template] | Template [ClassParents [Template]])
                  | Template;

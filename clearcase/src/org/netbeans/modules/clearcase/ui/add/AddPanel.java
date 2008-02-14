@@ -184,11 +184,11 @@ class AddPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
 private void cbSuppressCheckoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbSuppressCheckoutActionPerformed
-// TODO add your handling code here:
+    // ignore
 }//GEN-LAST:event_cbSuppressCheckoutActionPerformed
 
 private void bRecentMessagesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bRecentMessagesActionPerformed
-// TODO add your handling code here:
+    // ignore
 }//GEN-LAST:event_bRecentMessagesActionPerformed
 
 

@@ -70,6 +70,8 @@ import java.util.regex.Pattern;
 import org.netbeans.modules.clearcase.client.status.FileEntry;
 import org.netbeans.modules.clearcase.client.status.FileVersionSelector;
 import org.netbeans.modules.clearcase.ui.AnnotateAction;
+import org.netbeans.modules.clearcase.ui.checkin.ExcludeAction;
+import org.netbeans.modules.clearcase.ui.checkout.ReserveAction;
 import org.netbeans.modules.versioning.util.SystemActionBridge;
 import org.netbeans.modules.diff.PatchAction;
 import org.openide.util.Lookup;
@@ -126,7 +128,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
 
     public ClearcaseAnnotator() {
         cache = Clearcase.getInstance().getFileStatusCache();
-        format = new MessageFormat("[{0}; {1}]"); // TODO {0} - label, {1} - version
+        format = new MessageFormat("[{0}; {1}]"); 
         emptyFormat = format.format(new String[] {"", ""} , new StringBuffer(), null).toString().trim();
     }
 
@@ -219,26 +221,21 @@ public class ClearcaseAnnotator extends VCSAnnotator {
                         FileInformation info = (FileInformation) modifiedFiles.get(file);
                         if (info.isDirectory()) continue;
                         modified = true;
-                        allExcluded &= isExcludedFromCommit(file.getAbsolutePath());
+                        allExcluded &= ClearcaseModuleConfig.isExcludedFromCommit(file.getAbsolutePath());
                     }
                 }
                 
             } else {
                 // TODO should go recursive!
-                for (File file : modifiedFiles.keySet()) {
+                for (File mf : modifiedFiles.keySet()) {
                     
-                    if (Utils.isAncestorOrEqual(root, file)) {
-                        FileInformation info = (FileInformation) modifiedFiles.get(file);
-                        // XXX
-//                        if ((status == FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY || status == FileInformation.STATUS_VERSIONED_ADDEDLOCALLY) && file.equals(mf)) {
-//                            continue;
-//                        }
-//                        if (status == FileInformation.STATUS_VERSIONED_CONFLICT) {
-//                            Image badge = Utilities.loadImage("org/netbeans/modules/clearcase/resources/icons/conflicts-badge.png", true); // NOI18N
-//                            return Utilities.mergeImages(icon, badge, 16, 9);
-//                        }
+                    if (Utils.isAncestorOrEqual(root, mf)) {
+                        FileInformation info = (FileInformation) modifiedFiles.get(mf);
+                        if ((info.getStatus() == FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY) && mf.equals(root)) {
+                            continue;
+                        }
                         modified = true;
-                        allExcluded &= isExcludedFromCommit(file.getAbsolutePath());
+                        allExcluded &= ClearcaseModuleConfig.isExcludedFromCommit(mf.getAbsolutePath());
                     }
                     
                 }
@@ -258,6 +255,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         List<Action> actions = new ArrayList<Action>(20);
         if (destination == VCSAnnotator.ActionDestination.MainMenu) {
             actions.add(new CheckoutAction(ctx));
+            actions.add(new ReserveAction(ctx));
             actions.add(new AddAction("Add To Source Control...", ctx));
             actions.add(null);
             //actions.add(SystemAction.get(RefreshAction.class));
@@ -271,11 +269,13 @@ public class ClearcaseAnnotator extends VCSAnnotator {
             actions.add(null);
             actions.add(new AnnotateAction(ctx, Clearcase.getInstance().getAnnotationsProvider(ctx)));
             actions.add(new ViewRevisionAction("View Revision...", ctx));
-            actions.add(new TextHistoryAction("List History", ctx));
+//            actions.add(new TextHistoryAction("List History", ctx));
             actions.add(new BrowseHistoryAction("Browse History", ctx));
             actions.add(new BrowseVersionTreeAction("Browse Version Tree", ctx));
             actions.add(null);
             actions.add(new IgnoreAction(ctx));
+            actions.add(new ExcludeAction(ctx));
+            actions.add(null);            
             actions.add(new ShowPropertiesAction("Show Properties", ctx));
 //            actions.add(new RemoveAction("Remove Name from Directory...", ctx));
         } else {
@@ -284,6 +284,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
                 actions.add(new AddToRepositoryAction("Import into Clea&rcase Repository...", ctx));
             } else {
                 actions.add(new CheckoutAction(ctx));
+                actions.add(new ReserveAction(ctx));
                 actions.add(new AddAction("Add To Source Control...", ctx));
                 actions.add(null);
                 actions.add(SystemActionBridge.createAction(SystemAction.get(RefreshAction.class), "Show Changes", context));
@@ -294,11 +295,13 @@ public class ClearcaseAnnotator extends VCSAnnotator {
                 actions.add(null);
                 actions.add(new AnnotateAction(ctx, Clearcase.getInstance().getAnnotationsProvider(ctx)));
                 actions.add(new ViewRevisionAction("View Revision...", ctx));
-                actions.add(new TextHistoryAction("List History", ctx));
+//                actions.add(new TextHistoryAction("List History", ctx));
                 actions.add(new BrowseHistoryAction("Browse History", ctx));
                 actions.add(new BrowseVersionTreeAction("Browse Version Tree", ctx));
                 actions.add(null);
                 actions.add(new IgnoreAction(ctx));
+                actions.add(new ExcludeAction(ctx));
+                actions.add(null);                    
                 actions.add(new ShowPropertiesAction("Show Properties", ctx));
             }
         }
@@ -401,11 +404,6 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         if (b == null) return true;
         if (a == null) return false;
         return ClearcaseUtils.getComparableStatus(a.getStatus()) < ClearcaseUtils.getComparableStatus(b.getStatus());
-    }        
-    
-    private boolean isExcludedFromCommit(String absolutePath) {
-        // TODO
-        return false;
     }        
 
     private static FileInformation getCachedInfo(File file) {        

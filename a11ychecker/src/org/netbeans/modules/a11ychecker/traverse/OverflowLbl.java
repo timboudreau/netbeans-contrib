@@ -88,15 +88,15 @@ public class OverflowLbl extends JLabel {
     
     String getMyCompName()
     {
-        if(mycomp == null) return "errorCOMP";
-        if(glass.getMetaComponent(mycomp) == null) return "errorMETA";
+        if(mycomp == null) return "errorCOMP"; //NOI18N
+        if(glass.getMetaComponent(mycomp) == null) return "errorMETA"; //NOI18N
         return glass.getMetaComponent(mycomp).getName();
     }
     
     String getNextCompName()
     {
-        if(nextcomp == null) return "errorCOMP";
-        if(glass.getMetaComponent(nextcomp) == null) return "errorMETA";
+        if(nextcomp == null) return "errorCOMP"; //NOI18N
+        if(glass.getMetaComponent(nextcomp) == null) return "errorMETA"; //NOI18N
         return glass.getMetaComponent(nextcomp).getName();
     }
 

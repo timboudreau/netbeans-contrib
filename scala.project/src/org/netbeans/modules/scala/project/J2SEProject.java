@@ -67,20 +67,20 @@ import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ant.AntArtifact;
 import org.netbeans.api.project.ant.AntBuildExtender;
+import org.netbeans.modules.java.api.common.SourceRoots;
+import org.netbeans.modules.java.api.common.ant.UpdateHelper;
+import org.netbeans.modules.java.api.common.ant.UpdateImplementation;
+import org.netbeans.modules.java.api.common.queries.QuerySupport;
 import org.netbeans.modules.scala.project.api.J2SEPropertyEvaluator;
 import org.netbeans.modules.scala.project.classpath.ClassPathProviderImpl;
 import org.netbeans.modules.scala.project.classpath.J2SEProjectClassPathExtender;
 import org.netbeans.modules.scala.project.classpath.J2SEProjectClassPathModifier;
-import org.netbeans.modules.scala.project.queries.CompiledSourceForBinaryQuery;
-import org.netbeans.modules.scala.project.queries.JavadocForBinaryQueryImpl;
-import org.netbeans.modules.scala.project.queries.SourceLevelQueryImpl;
-import org.netbeans.modules.scala.project.queries.UnitTestForSourceQueryImpl;
+import org.netbeans.modules.scala.project.queries.BinaryForSourceQueryImpl;
 import org.netbeans.modules.scala.project.ui.J2SELogicalViewProvider;
 import org.netbeans.modules.scala.project.ui.customizer.CustomizerProviderImpl;
 import org.netbeans.modules.scala.project.ui.customizer.J2SEProjectProperties;
-import org.netbeans.modules.scala.project.queries.J2SEProjectEncodingQueryImpl;
-import org.netbeans.modules.scala.project.queries.BinaryForSourceQueryImpl;
 import org.netbeans.spi.java.project.support.ExtraSourceJavadocSupport;
+import org.netbeans.spi.java.project.support.LookupMergerSupport;
 import org.netbeans.spi.java.project.support.ui.BrokenReferencesSupport;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.SubprojectProvider;
@@ -142,6 +142,7 @@ public final class J2SEProject implements Project, AntProjectListener {
     private SourceRoots sourceRoots;
     private SourceRoots testRoots;
     private final ClassPathProviderImpl cpProvider;
+    private final J2SEProjectClassPathModifier cpMod;    
 
     private AntBuildExtender buildExtender;
 
@@ -159,10 +160,11 @@ public final class J2SEProject implements Project, AntProjectListener {
         buildExtender = AntBuildExtenderFactory.createAntExtender(new J2SEExtenderImplementation());
     /// TODO replace this GeneratedFilesHelper with the default one when fixing #101710
         genFilesHelper = new GeneratedFilesHelper(helper, buildExtender);
-        this.updateHelper = new UpdateHelper (this, this.helper, this.aux, this.genFilesHelper,
-            UpdateHelper.createDefaultNotifier());
+        UpdateImplementation updateProject = new UpdateProjectImpl(this, helper, aux);
+        this.updateHelper = new UpdateHelper(updateProject, helper);
 
         this.cpProvider = new ClassPathProviderImpl(this.helper, evaluator(), getSourceRoots(),getTestSourceRoots()); //Does not use APH to get/put properties/cfgdata
+        this.cpMod = new J2SEProjectClassPathModifier(this, this.updateHelper, eval, refHelper);
         lookup = createLookup(aux);
         helper.addAntProjectListener(this);
     }
@@ -247,7 +249,6 @@ public final class J2SEProject implements Project, AntProjectListener {
 
     private Lookup createLookup(AuxiliaryConfiguration aux) {
         SubprojectProvider spp = refHelper.createSubprojectProvider();
-        final J2SEProjectClassPathModifier cpMod = new J2SEProjectClassPathModifier(this, this.updateHelper, eval, refHelper);
         Lookup base = Lookups.fixed(new Object[] {
             J2SEProject.this,
             new Info(),
@@ -259,16 +260,16 @@ public final class J2SEProject implements Project, AntProjectListener {
             // new J2SECustomizerProvider(this, this.updateHelper, evaluator(), refHelper),
             new CustomizerProviderImpl(this, this.updateHelper, evaluator(), refHelper, this.genFilesHelper),        
             new ClassPathProviderMerger(cpProvider),
-            new CompiledSourceForBinaryQuery(this.helper, evaluator(),getSourceRoots(),getTestSourceRoots()), //Does not use APH to get/put properties/cfgdata
-            new JavadocForBinaryQueryImpl(this.helper, evaluator()), //Does not use APH to get/put properties/cfgdata
+            QuerySupport.createCompiledSourceForBinaryQuery(helper, evaluator(), getSourceRoots(), getTestSourceRoots()),
+            QuerySupport.createJavadocForBinaryQuery(helper, evaluator()),
             new AntArtifactProviderImpl(),
             new ProjectXmlSavedHookImpl(),
             UILookupMergerSupport.createProjectOpenHookMerger(new ProjectOpenedHookImpl()),
-            new UnitTestForSourceQueryImpl(getSourceRoots(),getTestSourceRoots()),
-            new SourceLevelQueryImpl(evaluator()),
+            QuerySupport.createUnitTestForSourceQuery(getSourceRoots(), getTestSourceRoots()),
+            QuerySupport.createSourceLevelQuery(evaluator()),
             new J2SESources (this.helper, evaluator(), getSourceRoots(), getTestSourceRoots()),
-            new J2SESharabilityQuery (this.helper, evaluator(), getSourceRoots(), getTestSourceRoots()), //Does not use APH to get/put properties/cfgdata
-            new J2SEFileBuiltQuery (this.helper, evaluator(),getSourceRoots(),getTestSourceRoots()), //Does not use APH to get/put properties/cfgdata
+            QuerySupport.createSharabilityQuery(helper, evaluator(), getSourceRoots(), getTestSourceRoots()),
+            QuerySupport.createFileBuiltQuery(helper, evaluator(), getSourceRoots(), getTestSourceRoots()),
             new RecommendedTemplatesImpl (this.updateHelper),
             new J2SEProjectClassPathExtender(cpMod),
             buildExtender,
@@ -276,15 +277,17 @@ public final class J2SEProject implements Project, AntProjectListener {
             this, // never cast an externally obtained Project to J2SEProject - use lookup instead
             new J2SEProjectOperations(this),
             new J2SEConfigurationProvider(this),
-            //new J2SEPersistenceProvider(this, cpProvider),
+            new J2SEPersistenceProvider(this, cpProvider),
             UILookupMergerSupport.createPrivilegedTemplatesMerger(),
             UILookupMergerSupport.createRecommendedTemplatesMerger(),
             LookupProviderSupport.createSourcesMerger(),
-            new J2SEProjectEncodingQueryImpl (evaluator()),
+            QuerySupport.createFileEncodingQuery(evaluator(), J2SEProjectProperties.SOURCE_ENCODING),
             new J2SEPropertyEvaluatorImpl(evaluator()),
             new J2SETemplateAttributesProvider(this.helper),
-            //ExtraSourceJavadocSupport.createExtraSourceQueryImplementation(helper, eval),
-            //ExtraSourceJavadocSupport.createExtraJavadocQueryImplementation(helper, eval),
+            ExtraSourceJavadocSupport.createExtraSourceQueryImplementation(this, helper, eval),
+            LookupMergerSupport.createSFBLookupMerger(),
+            ExtraSourceJavadocSupport.createExtraJavadocQueryImplementation(this, helper, eval),
+            LookupMergerSupport.createJFBLookupMerger(),
             new BinaryForSourceQueryImpl(this.sourceRoots, this.testRoots, this.helper, this.eval) //Does not use APH to get/put properties/cfgdata
         });
         return LookupProviderSupport.createCompositeLookup(base, "Projects/org-netbeans-modules-scala-project/Lookup"); //NOI18N
@@ -294,6 +297,10 @@ public final class J2SEProject implements Project, AntProjectListener {
         return this.cpProvider;
     }
 
+    public J2SEProjectClassPathModifier getProjectClassPathModifier () {
+        return this.cpMod;
+    }
+    
     public void configurationXmlChanged(AntProjectEvent ev) {
         if (ev.getPath().equals(AntProjectHelper.PROJECT_XML_PATH)) {
             // Could be various kinds of changes, but name & displayName might have changed.
@@ -315,14 +322,16 @@ public final class J2SEProject implements Project, AntProjectListener {
      */
     public synchronized SourceRoots getSourceRoots() {        
         if (this.sourceRoots == null) { //Local caching, no project metadata access
-            this.sourceRoots = new SourceRoots(this.updateHelper, evaluator(), getReferenceHelper(), "source-roots", false, "src.{0}{1}.dir"); //NOI18N
-        }
+            this.sourceRoots = SourceRoots.create(updateHelper, evaluator(), getReferenceHelper(),
+                    J2SEProjectType.PROJECT_CONFIGURATION_NAMESPACE, "source-roots", false, "src.{0}{1}.dir"); //NOI18N
+       }
         return this.sourceRoots;
     }
     
     public synchronized SourceRoots getTestSourceRoots() {
         if (this.testRoots == null) { //Local caching, no project metadata access
-            this.testRoots = new SourceRoots(this.updateHelper, evaluator(), getReferenceHelper(), "test-roots", true, "test.{0}{1}.dir"); //NOI18N
+            this.testRoots = SourceRoots.create(updateHelper, evaluator(), getReferenceHelper(),
+                    J2SEProjectType.PROJECT_CONFIGURATION_NAMESPACE, "test-roots", true, "test.{0}{1}.dir"); //NOI18N
         }
         return this.testRoots;
     }
@@ -456,7 +465,7 @@ public final class J2SEProject implements Project, AntProjectListener {
     private final class ProjectOpenedHookImpl extends ProjectOpenedHook {
         
         ProjectOpenedHookImpl() {}
-        private static final String JAX_RPC_NAMESPACE="http://www.netbeans.org/ns/scala-project/jax-rpc"; //NOI18N
+        private static final String JAX_RPC_NAMESPACE="http://www.netbeans.org/ns/j2se-project/jax-rpc"; //NOI18N
         private static final String JAX_RPC_CLIENTS="web-service-clients"; //NOI18N
         private static final String JAX_RPC_CLIENT="web-service-client"; //NOI18N
         

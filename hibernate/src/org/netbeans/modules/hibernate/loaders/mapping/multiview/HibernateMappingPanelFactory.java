@@ -41,7 +41,11 @@ package org.netbeans.modules.hibernate.loaders.mapping.multiview;
 import org.netbeans.modules.hibernate.loaders.cfg.multiview.*;
 import org.netbeans.modules.hibernate.loaders.cfg.*;
 import org.netbeans.modules.hibernate.loaders.mapping.HibernateMappingDataObject;
+import org.netbeans.modules.hibernate.mapping.model.Id;
 import org.netbeans.modules.hibernate.mapping.model.MyClass;
+import org.netbeans.modules.hibernate.mapping.model.Resultset;
+import org.netbeans.modules.hibernate.mapping.model.Return;
+import org.netbeans.modules.hibernate.mapping.model.Typedef;
 import org.netbeans.modules.xml.multiview.ui.InnerPanelFactory;
 import org.netbeans.modules.xml.multiview.ui.SectionInnerPanel;
 import org.netbeans.modules.xml.multiview.ui.SectionView;
@@ -64,40 +68,26 @@ public class HibernateMappingPanelFactory implements InnerPanelFactory {
     }
 
     public SectionInnerPanel createInnerPanel(Object key) {
-        
-        if( key instanceof MyClass ) {
-            return new ClassPanel((SectionView)editor.getContentView(), dObj, (MyClass)key);
-        }
-        // Two types of key object: Event and String for the rest
-        /*if( key instanceof Event ) {
-            return new EventPanel((SectionView) editor.getContentView(), dObj, (Event)key );
-        } else if( key instanceof String ) {
 
-            String keyStr = (String) key;
-            if (keyStr.equals(HibernateCfgToolBarMVElement.JDBC_PROPS) ||
-                keyStr.equals(HibernateCfgToolBarMVElement.DATASOURCE_PROPS) ||
-                keyStr.equals(HibernateCfgToolBarMVElement.CONFIGURATION_PROPS) ||
-                keyStr.equals(HibernateCfgToolBarMVElement.JDBC_CONNECTION_PROPS) ||
-                keyStr.equals(HibernateCfgToolBarMVElement.TRANSACTION_PROPS) ||
-                keyStr.equals(HibernateCfgToolBarMVElement.CACHE_PROPS) ||
-                keyStr.equals(HibernateCfgToolBarMVElement.MISCELLANEOUS_PROPS)) {
-                return new PropertiesPanel((SectionView) editor.getContentView(), dObj, (String)key);
-            } else if (keyStr.equals(HibernateCfgToolBarMVElement.MAPPINGS)) {
-                return new MappingsPanel((SectionView) editor.getContentView(), dObj );
-            }else if( keyStr.equals( HibernateCfgToolBarMVElement.CLASS_CACHE)) {
-                return new ClassCachesPanel((SectionView) editor.getContentView(), dObj );
-            }else if( keyStr.equals( HibernateCfgToolBarMVElement.COLLECTION_CACHE)) {
-                return new CollectionCachesPanel((SectionView) editor.getContentView(), dObj );
-            }else if(keyStr.equals(HibernateCfgToolBarMVElement.SECURITY)) {
-                return new SecurityPanel((SectionView) editor.getContentView(), dObj );
-            } else // Should never get here {
-            {
+        if (key instanceof Typedef) {
+            return new TypedefPanel((SectionView) editor.getContentView(), dObj, (Typedef) key);
+        } else if (key instanceof Resultset) {
+            return new ReturnScalarElementsPanel((SectionView) editor.getContentView(), dObj, (Resultset)key);
+        } else if (key instanceof Return) {
+            return new ReturnElementPanel((SectionView) editor.getContentView(), dObj, (Return)key);
+        } else if (key instanceof Id) {
+            return new IdElementPanel((SectionView) editor.getContentView(), dObj, (Id)key);
+        } 
+        else if (key instanceof String) {
+            if (((String) key).equals(HibernateMappingToolBarMVElement.META_DATA)) {
+                return new MetaDataPanel((SectionView) editor.getContentView(), dObj);
+            } else if (((String) key).equals(HibernateMappingToolBarMVElement.IMPORT_ELEMENT)) {
+                return new ImportElementsPanel((SectionView) editor.getContentView(), dObj);
+            } else {
                 return null;
             }
-        } else // Should never be here
-            return null; */
-        
-        return null;
-    } 
-
+        } else {
+            return null;
+        }
+    }
 }

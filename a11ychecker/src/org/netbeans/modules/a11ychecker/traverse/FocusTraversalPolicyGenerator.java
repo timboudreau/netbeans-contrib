@@ -77,22 +77,22 @@ public class FocusTraversalPolicyGenerator {
         StringWriter myWriter = new StringWriter();
         OverflowLbl rFirst = first;
         OverflowLbl rLast = last;
-        myWriter.append("new java.awt.FocusTraversalPolicy() {\n");
+        myWriter.append("new java.awt.FocusTraversalPolicy() {\n"); //NOI18N
         
-        myWriter.append("public java.awt.Component getDefaultComponent(java.awt.Container focusCycleRoot){\n");
+        myWriter.append("public java.awt.Component getDefaultComponent(java.awt.Container focusCycleRoot){\n"); //NOI18N
         
-        myWriter.append("return "+ getMetaComponent(rFirst.mycomp).getName() +";\n");
-        myWriter.append("}//end getDefaultComponent\n\n");
+        myWriter.append("return "+ getMetaComponent(rFirst.mycomp).getName() +";\n"); //NOI18N
+        myWriter.append("}//end getDefaultComponent\n\n"); //NOI18N
         
-        myWriter.append("public java.awt.Component getFirstComponent(java.awt.Container focusCycleRoot){\n");
-        myWriter.append("return "+ getMetaComponent(rFirst.mycomp).getName() +";\n");
-        myWriter.append("}//end getFirstComponent\n\n");
+        myWriter.append("public java.awt.Component getFirstComponent(java.awt.Container focusCycleRoot){\n"); //NOI18N
+        myWriter.append("return "+ getMetaComponent(rFirst.mycomp).getName() +";\n"); //NOI18N
+        myWriter.append("}//end getFirstComponent\n\n"); //NOI18N
         
-        myWriter.append("public java.awt.Component getLastComponent(java.awt.Container focusCycleRoot){\n");
-        myWriter.append("return "+ getMetaComponent(rLast.mycomp).getName() +";\n");
-        myWriter.append("}//end getLastComponent\n\n");
+        myWriter.append("public java.awt.Component getLastComponent(java.awt.Container focusCycleRoot){\n"); //NOI18N
+        myWriter.append("return "+ getMetaComponent(rLast.mycomp).getName() +";\n"); //NOI18N
+        myWriter.append("}//end getLastComponent\n\n"); //NOI18N
         
-        myWriter.append("public java.awt.Component getComponentAfter(java.awt.Container focusCycleRoot, java.awt.Component aComponent){\n");
+        myWriter.append("public java.awt.Component getComponentAfter(java.awt.Container focusCycleRoot, java.awt.Component aComponent){\n"); //NOI18N
         for (int i = 0; i < vecButtons.size(); i++) {
             OverflowLbl r = ((OverflowLbl)vecButtons.get(i));
             if(r.nextcomp == null) continue;
@@ -101,14 +101,14 @@ public class FocusTraversalPolicyGenerator {
             RADComponent metamy = getMetaComponent( r.mycomp );
             if(metanext == null || metamy == null) continue;
             
-            myWriter.append("if(aComponent ==  "+ metamy.getName() +"){\n");
-            myWriter.append("return "+ metanext.getName() +";\n");
-            myWriter.append("}\n");
+            myWriter.append("if(aComponent ==  "+ metamy.getName() +"){\n"); //NOI18N
+            myWriter.append("return "+ metanext.getName() +";\n"); //NOI18N
+            myWriter.append("}\n"); //NOI18N
         }
-        myWriter.append("return "+ getMetaComponent(rFirst.mycomp).getName() +";//end getComponentAfter\n");
-        myWriter.append("}\n");
+        myWriter.append("return "+ getMetaComponent(rFirst.mycomp).getName() +";//end getComponentAfter\n"); //NOI18N
+        myWriter.append("}\n"); //NOI18N
         
-        myWriter.append("public java.awt.Component getComponentBefore(java.awt.Container focusCycleRoot, java.awt.Component aComponent){\n");
+        myWriter.append("public java.awt.Component getComponentBefore(java.awt.Container focusCycleRoot, java.awt.Component aComponent){\n"); //NOI18N
         for (int i = 0; i < vecButtons.size(); i++) {
             OverflowLbl r = ((OverflowLbl)vecButtons.get(i));
             if(r.nextcomp == null) continue;
@@ -117,14 +117,14 @@ public class FocusTraversalPolicyGenerator {
             RADComponent metamy = getMetaComponent( r.mycomp );
             if(metanext == null || metamy == null) continue;
             
-            myWriter.append("if(aComponent ==  "+ metanext.getName() +"){\n");
-            myWriter.append("return "+ metamy.getName() +";\n");
-            myWriter.append("}\n");
+            myWriter.append("if(aComponent ==  "+ metanext.getName() +"){\n"); //NOI18N
+            myWriter.append("return "+ metamy.getName() +";\n"); //NOI18N
+            myWriter.append("}\n"); //NOI18N
         }
-        myWriter.append("return "+ getMetaComponent(rLast.mycomp).getName() +";//end getComponentBefore\n\n");
-        myWriter.append("}");
+        myWriter.append("return "+ getMetaComponent(rLast.mycomp).getName() +";//end getComponentBefore\n\n"); //NOI18N
+        myWriter.append("}"); //NOI18N
         
-        myWriter.append("}\n");
+        myWriter.append("}\n"); //NOI18N
         return myWriter.toString();
     }
 }

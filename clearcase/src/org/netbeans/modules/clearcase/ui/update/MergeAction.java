@@ -59,10 +59,11 @@ public class MergeAction extends AbstractAction {
     public MergeAction(String name, VCSContext ctx) {
         super(name);
         this.ctx = ctx;
+        setEnabled(ctx.getFiles().size() > 0);
     }
 
     public void actionPerformed(ActionEvent e) {
-        NotifyDescriptor nd = new NotifyDescriptor("Not implemeted yet!", "ClearCase", NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE, new Object[]{}, null);        
+        NotifyDescriptor nd = new NotifyDescriptor("Not implemeted yet!", "ClearCase", NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE, new Object[]{NotifyDescriptor.OK_OPTION}, null);        
         DialogDisplayer.getDefault().notify(nd);
 //        Set<File> files = ctx.getRootFiles();
 //        MergeGraphicalCommand cmd = new MergeGraphicalCommand(files.toArray(new File[files.size()]));

@@ -37,7 +37,8 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widge
 public class EventPinPopUpMenuProvider implements PopupMenuProvider, ActionListener{
     
      private IPCGraphScene scene;
-     private static final String ACTION_GENERATE_SOURCE = "Generate Source";
+     private static final String ACTION_GENERATE_SOURCE = "Generate_Source";
+     private static final String ACTION_REMOVE_EVENT = "Remove_Event";
      private JPopupMenu menu;
      private CustomPinWidget widget;
      /** Creates a new instance of NodePopUpMenuProvider */
@@ -50,7 +51,14 @@ public class EventPinPopUpMenuProvider implements PopupMenuProvider, ActionListe
         item.setActionCommand(ACTION_GENERATE_SOURCE);
         item.addActionListener(this);
         item.setBackground(Color.WHITE);
-        //TODO menu.add(item);
+        menu.add(item);
+        
+        JMenuItem removeEventItem;
+        removeEventItem = new JMenuItem("Remove Event");
+        removeEventItem.setActionCommand(ACTION_GENERATE_SOURCE);
+        removeEventItem.addActionListener(this);
+        removeEventItem.setBackground(Color.WHITE);
+        menu.add(removeEventItem);
         
         //menu.setBorder(Border);
     }
@@ -65,7 +73,10 @@ public class EventPinPopUpMenuProvider implements PopupMenuProvider, ActionListe
     public void actionPerformed(ActionEvent e) {
         if(e.getActionCommand().equals(ACTION_GENERATE_SOURCE)){
             if(widget == null) return;
-            scene.getTaskHandler().generatePublishEventSource(widget.getNodeKey(),widget.getEvent());
+                scene.getTaskHandler().generatePublishEventSource(widget.getNodeKey(),widget.getEvent());
+        } else if(e.getActionCommand().equals(ACTION_REMOVE_EVENT)){
+            if(widget == null) return;
+                scene.getTaskHandler().removePublishEventPinFromNode(widget);
         }
     }
     

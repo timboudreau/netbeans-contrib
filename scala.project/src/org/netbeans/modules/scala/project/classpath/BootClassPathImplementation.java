@@ -41,7 +41,6 @@
 package org.netbeans.modules.scala.project.classpath;
 
 import java.beans.PropertyChangeEvent;
-import org.netbeans.modules.scala.project.J2SEProjectUtil;
 import org.netbeans.spi.java.classpath.ClassPathImplementation;
 import org.netbeans.spi.java.classpath.PathResourceImplementation;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
@@ -53,6 +52,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import org.netbeans.modules.scala.project.J2SEProjectUtil;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.openide.util.WeakListeners;
 

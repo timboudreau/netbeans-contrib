@@ -107,11 +107,33 @@ public class AxisConfigurationAction extends NodeAction  {
                 
                 
                 // PENDING : Need to add all jars
-                final URL[] roots = new URL[2];
+                final URL[] roots = new URL[13];
                 File f = new File(file,"lib/axis2-saaj-1.3.jar");
                 if (f.exists()) roots[0] = FileUtil.getArchiveRoot(f.toURL());
                 f = new File(file,"lib/axis2-saaj-api-1.3.jar");
                 if (f.exists()) roots[1] = FileUtil.getArchiveRoot(f.toURL());
+                f = new File(file,"lib/axis2-adb-1.3.jar");
+                if (f.exists()) roots[2] = FileUtil.getArchiveRoot(f.toURL());
+                f = new File(file,"lib/axis2-jibx-1.3.jar");
+                if (f.exists()) roots[3] = FileUtil.getArchiveRoot(f.toURL());
+                f = new File(file,"lib/axis2-xmlbeans-1.3.jar");
+                if (f.exists()) roots[4] = FileUtil.getArchiveRoot(f.toURL());
+                f = new File(file,"lib/axis2-codegen-1.3.jar");
+                if (f.exists()) roots[5] = FileUtil.getArchiveRoot(f.toURL());
+                f = new File(file,"lib/axis2-kernel-1.3.jar");
+                if (f.exists()) roots[6] = FileUtil.getArchiveRoot(f.toURL());
+                f = new File(file,"lib/stax-api-1.0.1.jar");
+                if (f.exists()) roots[7] = FileUtil.getArchiveRoot(f.toURL());
+                f = new File(file,"lib/axiom-api-1.2.5.jar");
+                if (f.exists()) roots[8] = FileUtil.getArchiveRoot(f.toURL());
+                f = new File(file,"lib/axiom-impl-1.2.5.jar");
+                if (f.exists()) roots[9] = FileUtil.getArchiveRoot(f.toURL());
+                f = new File(file,"lib/jibx-run-1.1.5.jar");
+                if (f.exists()) roots[10] = FileUtil.getArchiveRoot(f.toURL());
+                f = new File(file,"lib/xbean-2.2.0.jar");
+                if (f.exists()) roots[11] = FileUtil.getArchiveRoot(f.toURL());
+                f = new File(file,"lib/activation-1.1.jar");
+                if (f.exists()) roots[12] = FileUtil.getArchiveRoot(f.toURL());
                 
                 final SourceGroup[] srcGroup = ProjectUtils.getSources(prj).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
                 ProjectManager.mutex().writeAccess(new Runnable(){
@@ -134,8 +156,15 @@ public class AxisConfigurationAction extends NodeAction  {
             EditableProperties ep = AxisUtils.getEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH);
             if (ep != null) {
                 ep.setProperty("axis2.home",axisHome); //NOI18N
-                if (axisDeploy.length() > 0)
-                    ep.setProperty("axis2.deploy.dir",axisDeploy); //NOI18N
+                if (axisDeploy.length() > 0) {
+                    if (axisDeploy.endsWith(".war")) { //NOI18N
+                        ep.setProperty("axis2.deploy.war",axisDeploy); //NOI18N
+                        ep.remove("axis2.deploy.dir");
+                    } else {
+                        ep.setProperty("axis2.deploy.dir",axisDeploy); //NOI18N
+                        ep.remove("axis2.deploy.war"); //NOI18N                       
+                    }
+                }
             }
             AxisUtils.storeEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH, ep);
         } catch (IOException ex) {
