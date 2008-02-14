@@ -44,7 +44,6 @@ package org.netbeans.modules.websvc.axis2.wizards;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Collection;
-import java.util.List;
 import org.netbeans.modules.websvc.axis2.WSDLUtils;
 import org.netbeans.modules.xml.wsdl.model.Port;
 import org.netbeans.modules.xml.wsdl.model.Service;
