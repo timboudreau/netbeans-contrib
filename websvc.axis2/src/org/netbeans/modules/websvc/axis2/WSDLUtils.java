@@ -41,6 +41,7 @@ package org.netbeans.modules.websvc.axis2;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 import org.netbeans.modules.xml.wsdl.model.Port;
@@ -67,6 +68,15 @@ public class WSDLUtils {
         return wsdlModel.getDefinitions().getServices();
     }
     
+    public static Collection<Port> getPortsForService(Collection<Service> services, String serviceName) {
+        List<Port> ports = new ArrayList<Port>();
+        for (Service service:services) {
+            if (serviceName.equals(service.getName())) {
+                return service.getPorts();
+            }
+        }
+        return Collections.<Port>emptyList();
+    }
     public static Collection<Port> getPortsForService(Service service) {
         return service.getPorts();
     }
