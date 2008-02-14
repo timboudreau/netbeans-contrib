@@ -44,6 +44,7 @@ package org.netbeans.modules.websvc.axis2.wizards;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Collection;
+import java.util.List;
 import org.netbeans.modules.websvc.axis2.WSDLUtils;
 import org.netbeans.modules.xml.wsdl.model.Port;
 import org.netbeans.modules.xml.wsdl.model.Service;
@@ -54,6 +55,7 @@ import org.netbeans.modules.xml.wsdl.model.Service;
  */
 public class WsFromWsdlGUIPanel1 extends javax.swing.JPanel {
     WsFromWsdlPanel1 wizardPanel;
+    Collection<Service> services;
     /** Creates new form WsFromWsdlGUIPanel1 */
     
     /** Creates new form WsFromJavaGUIPanel1 */
@@ -65,9 +67,9 @@ public class WsFromWsdlGUIPanel1 extends javax.swing.JPanel {
         jComboBox1.addItemListener(new ItemListener() {
 
             public void itemStateChanged(ItemEvent e) {
-                Object[] objects = jCheckBox1.getSelectedObjects();
-                if (objects != null && objects.length > 0) {
-                    Collection<Port> ports = WSDLUtils.getPortsForService((Service)objects[0]);
+                Object serviceName = jComboBox1.getSelectedItem();
+                if (serviceName != null) {
+                    Collection<Port> ports = WSDLUtils.getPortsForService(services, (String)serviceName);
                     setPorts(ports);
                 }
             }
@@ -174,6 +176,7 @@ public class WsFromWsdlGUIPanel1 extends javax.swing.JPanel {
     }
     
     void setServices(Collection<Service> services) {
+        this.services = services;
         jComboBox1.removeAllItems();
         for (Service service:services) {
             jComboBox1.addItem(service.getName());
