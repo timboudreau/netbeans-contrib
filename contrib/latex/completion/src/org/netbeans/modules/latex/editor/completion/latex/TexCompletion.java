@@ -143,7 +143,7 @@ public class TexCompletion implements CompletionProvider {
             if (node instanceof ArgumentNode) {
                 ArgumentNode anode = (ArgumentNode) node;
 
-                Iterator tokens = anode.getDeepNodeTokens().iterator();
+                Iterator tokens = anode.getDeepNodeTokensCopy().iterator();
 
                 if (   node.getStartingPosition().getOffsetValue() >= offset
                     && tokens.hasNext()

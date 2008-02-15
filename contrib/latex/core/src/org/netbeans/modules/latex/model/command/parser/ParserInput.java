@@ -62,6 +62,7 @@ import org.netbeans.modules.latex.editor.TexLanguage;
 import org.netbeans.modules.latex.model.Utilities;
 
 import org.netbeans.modules.latex.model.command.SourcePosition;
+import org.netbeans.modules.latex.model.command.impl.NBDocumentNodeImpl;
 import org.openide.util.Exceptions;
 
 /**
@@ -77,24 +78,22 @@ public class ParserInput {
     private Set usedFiles;
     private final boolean firstMoveNextSucceeded;
     
-    private Document getDocument(FileObject fo, Collection documents) throws IOException {
+    private Document getDocument(FileObject fo) throws IOException {
         Document ad = (Document) Utilities.getDefault().openDocument(fo);
         
         if (ad == null) {
             throw new IOException("Cannot open document for file: " + FileUtil.getFileDisplayName(fo));
         }
         
-        documents.add(ad);
-        
         return ad;
     }
     
     /** Creates a new instance of ParserInput */
-    public ParserInput(FileObject file, Collection documents) throws IOException {
+    public ParserInput(FileObject file, NBDocumentNodeImpl dnode) throws IOException {
         Logger.getLogger("TIMER").log(Level.FINE, "ParserInput", new Object[] {file, this});
         assert file != null;
         this.file = file;
-        document = getDocument(this.file, documents);
+        document = getDocument(this.file);
         
         if (document == null)
             throw new IOException("The document cannot be opened.");
@@ -112,6 +111,8 @@ public class ParserInput {
         });
         
         TokenHierarchy h = TokenHierarchy.create(text[0], TexLanguage.description());
+        
+        dnode.addUsedFile(file, h);
         
         ts = h.tokenSequence();
         firstMoveNextSucceeded = ts.moveNext();

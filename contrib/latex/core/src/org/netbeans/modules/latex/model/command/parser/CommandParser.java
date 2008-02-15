@@ -107,88 +107,31 @@ public final class CommandParser {
     private Map<Environment, FileObject> env2BeginText = new HashMap<Environment, FileObject>();
     private Map<Environment, FileObject> env2EndText   = new HashMap<Environment, FileObject>();
     
-//    public synchronized DocumentNode parseAndLeaveLocked(LaTeXSourceImpl source, Collection coll, Collection/*<ParseError>*/ errors) throws IOException {
-//        this.errors    = errors;
-//        this.usedFiles = new ArrayList();
-//        this.documents = coll;
-//        this.mainFile  = (FileObject) source.getMainFile();
-//        this.labels    = new HashSet/*<String>*/();
-//        this.currentCommandDefiningNode = null;
-//        
-//        ParserInput input = openFile(mainFile);
-//        
-//        NBDocumentNodeImpl result = parseDocument(input, source);
-//        
-//        result.setFiles(usedFiles.toArray());
-//        
-//        closeFile(input);
-//        
-//        this.errors = null;
-//        this.usedFiles = null;
-//        this.documents = null;
-//        this.mainFile = null;
-//        this.labels   = null;
-//        this.currentCommandDefiningNode = null;
-//        
-//        return result;
-//    }
-
-    /*public*/private synchronized DocumentNode parseImpl(FileObject mainFile, Collection documents, Collection<ParseError> errors) throws IOException {
+    public synchronized DocumentNode parse(FileObject mainFile, Collection documents, Collection<ParseError> errors) throws IOException {
         this.errors    = errors;
-        this.documents = documents;
-//        this.usedFiles = new ArrayList();
         this.mainFile  = mainFile;
         this.labels    = new HashSet/*<String>*/();
         this.currentCommandDefiningNode = null;
         
+        NBDocumentNodeImpl result = topLevelNode = new NBDocumentNodeImpl();
         ParserInput input = openFile(mainFile);
         
-        NBDocumentNodeImpl result = parseDocument(input);
+        currentCommandDefiningNode = topLevelNode;
         
-        result.addUsedFile(mainFile);
+        parseTextNode(input, topLevelNode);
         
         closeFile(input);
         
         this.errors = null;
-//        this.usedFiles = null;
         this.mainFile = null;
-        this.documents = null;
+        this.topLevelNode = null;
         this.labels   = null;
         this.currentCommandDefiningNode = null;
         
         return result;
     }
-
-    /*public*/private DocumentNode parse(FileObject mainFile) throws IOException {
-        return parse(mainFile, new ArrayList());
-    }
     
-    /*public*/private DocumentNode parse(FileObject mainFile, Collection<ParseError> errors) throws IOException {
-        return parse(mainFile, new HashSet(), errors);
-    }
-    
-    public synchronized DocumentNode parse(FileObject mainFile, Collection documents, Collection<ParseError> errors) throws IOException {
-//        Collection coll = new HashSet();
-//        
-//        try {
-            DocumentNode result = parseImpl(mainFile, documents, errors);
-            
-            return result;
-//        } finally {
-//            Iterator it = coll.iterator();
-//            
-//            while (it.hasNext()) {
-//                try {
-//                    ((AbstractDocument )it.next()).readUnlock();
-//                } catch (Throwable t) {
-//                    ErrorManager.getDefault().notify(t);
-//                }
-//            }
-//        }
-    }
-    
-//    private Collection usedFiles;
-    private Collection documents;
+    private NBDocumentNodeImpl topLevelNode;
     private FileObject mainFile;
     private NodeImpl   currentCommandDefiningNode;
     
@@ -229,8 +172,7 @@ public final class CommandParser {
     }
     
     private ParserInput openFile(FileObject file) throws IOException {
-//        usedFiles.add(file);
-        return new ParserInput(file, documents);
+        return new ParserInput(file, topLevelNode);
     }
     
     private void closeFile(ParserInput input) throws IOException {
@@ -342,16 +284,6 @@ public final class CommandParser {
         return node;
     }
     
-    private NBDocumentNodeImpl parseDocument(ParserInput input) throws IOException {
-        NBDocumentNodeImpl node = new NBDocumentNodeImpl();
-        
-        currentCommandDefiningNode = node;
-        
-        parseTextNode(input, node);
-        
-        return node;
-    }
-    
     private Token getTokenWithoutWhiteSpace(ParserInput input) throws IOException {
         while (input.hasNext() && ParserUtilities.isWhitespace(input.getToken()))
             input.next();
@@ -397,7 +329,7 @@ public final class CommandParser {
                 FileObject file = findFile(fileNamesArray[cntr], extensionsString);
                 
                 if (file != null) {
-                    ((NBDocumentNodeImpl) ani.getDocumentNode()).addUsedFile(file);
+                    ((NBDocumentNodeImpl) ani.getDocumentNode()).addUsedFile(file, null);
                 }
             }
         }
@@ -555,7 +487,7 @@ public final class CommandParser {
         if ("\\newcommand".equals(cni.getCommand().getCommand()) || "\\renewcommand".equals(cni.getCommand().getCommand())) {//TODO: this is quite obsolette way :-)
             if (cni.getArgumentCount() == 4) {//TODO: this is quite obsolette way :-)
                 String name = ParserUtilities.getArgumentValue(cni.getArgument(0)).toString(); //!!!Check that it has exactly one argument of type command!
-                Iterator argTokens = cni.getArgument(1).getDeepNodeTokens().iterator(); if (argTokens.hasNext()) argTokens.next();
+                Iterator argTokens = cni.getArgument(1).getDeepNodeTokensCopy().iterator(); if (argTokens.hasNext()) argTokens.next();
                 String argCountString = argTokens.hasNext() ? ((Token) argTokens.next()).text().toString() : ""; //!!!Check that it has exact one argument of type number!
 //                System.err.println(cni.getCommand().getCommand() + "{" + name + "}[" + argCountString + "]{" + cni.getArgument(2).getText() + "}");
                 boolean isFirstNonMandatory = cni.getArgument(2).isPresent();

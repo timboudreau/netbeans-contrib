@@ -102,7 +102,7 @@ public class AddItemHint implements HintProvider {
         
         boolean hasFirstArgument = ((CommandNode) n).getArgument(0).isPresent();
         ArgumentNode secondArgument = ((CommandNode) n).getArgument(1);
-        Iterator<? extends Token<TexTokenId>> tokens = secondArgument.getDeepNodeTokens().iterator();
+        Iterator<? extends Token<TexTokenId>> tokens = secondArgument.getDeepNodeTokensCopy().iterator();
         boolean hasBracketsInTheSecondArgument = tokens.hasNext() && tokens.next().id() == TexTokenId.COMP_BRACKET_LEFT;
         int start = secondArgument.getStartingPosition().getOffsetValue();
         int end = secondArgument.getEndingPosition().getOffsetValue();

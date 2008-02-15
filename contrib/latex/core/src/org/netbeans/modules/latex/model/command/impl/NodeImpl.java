@@ -74,6 +74,7 @@ import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.netbeans.modules.latex.model.command.TraverseHandler;
 import org.netbeans.modules.latex.model.lexer.TexTokenId;
 import org.netbeans.modules.latex.test.TestCertificate;
+import org.openide.filesystems.FileObject;
 
 /**
  *
@@ -92,7 +93,7 @@ public abstract class NodeImpl implements Node, Element {
     
     private Node parent;
     
-    private DocumentNode document;
+    private NBDocumentNodeImpl document;
     
     private NodeImpl previousCommandDefiningNode;
     private CommandCollection commandCollection;
@@ -105,7 +106,7 @@ public abstract class NodeImpl implements Node, Element {
         this.parent = parent;
         
         if (parent != null)
-            document = parent.getDocumentNode();
+            document = (NBDocumentNodeImpl) parent.getDocumentNode();
         
         this.previousCommandDefiningNode = previousCommandDefiningNode;
         this.commandCollection = null;
@@ -164,46 +165,73 @@ public abstract class NodeImpl implements Node, Element {
         return false;
     }
 
-    public Iterable<? extends Token<TexTokenId>> getNodeTokens() throws IOException {
-        try {
-            SourcePosition start = getStartingPosition();
-            SourcePosition end   = getEndingPosition();
-            
-//            System.err.println("start = " + start );
-//            System.err.println("end = " + end );
-            
-            if (!Utilities.getDefault().compareFiles(start.getFile(), end.getFile()))
-                throw new IllegalStateException("Whole Node should be in one file, but this condition is not fullfilled now. Start file=" + start.getFile() + ", end file=" + end.getFile() + ".");
-            
-            Document doc = Utilities.getDefault().openDocument(start.getFile());
-            
-            if (doc == null)
+    private TokenSequence<TexTokenId> getTS(Object file, boolean copy) throws IOException {
+        TokenHierarchy h;
+        
+        if (copy) {
+            h = document.findTokenHierarchy((FileObject) file);
+        } else {
+            Document doc = Utilities.getDefault().openDocument(file);
+
+            if (doc == null) {
                 throw new IllegalStateException();
-            
-            TokenHierarchy h = TokenHierarchy.get(doc);
-            TokenSequence  ts = h.tokenSequence();
-            List<Token<TexTokenId>> result = new LinkedList<Token<TexTokenId>>();
-            
-            ts.move(start.getOffsetValue());
+            }
+
+            h = TokenHierarchy.get(doc);
+        }
+        
+        @SuppressWarnings("unchecked")
+        TokenSequence<TexTokenId> ts = h.tokenSequence();
+
+        return ts;
+    }
+    
+    public Iterable<? extends Token<TexTokenId>> getNodeTokens() throws IOException {
+        return getNodeTokens(false);
+    }
+    
+    public Iterable<? extends Token<TexTokenId>> getNodeTokensCopy() throws IOException {
+        return getNodeTokens(true);
+    }
+    
+    private Iterable<? extends Token<TexTokenId>> getNodeTokens(boolean copy) throws IOException {
+        SourcePosition start = getStartingPosition();
+        SourcePosition end   = getEndingPosition();
+
+//        System.err.println("start = " + start );
+//        System.err.println("end = " + end );
+
+        if (!Utilities.getDefault().compareFiles(start.getFile(), end.getFile()))
+            throw new IllegalStateException("Whole Node should be in one file, but this condition is not fullfilled now. Start file=" + start.getFile() + ", end file=" + end.getFile() + ".");
+
+        TokenSequence<TexTokenId> ts = getTS(start.getFile(), copy);
+        List<Token<TexTokenId>> result = new LinkedList<Token<TexTokenId>>();
+
+        ts.move(start.getOffsetValue());
+
+        if (!ts.moveNext())
+            return result;
+
+        while (ts.offset() < end.getOffsetValue()) {
+            if (!isInChild(start.getFile(), new FakePosition(ts.offset())))
+                result.add(ts.token());
 
             if (!ts.moveNext())
-                return result;
-            
-            while (ts.offset() < end.getOffsetValue()) {
-                if (!isInChild(start.getFile(), doc.createPosition(ts.offset())))
-                    result.add((Token) ts.token());
-                
-                if (!ts.moveNext())
-                    break;
-            }
-            
-            return result;
-        } catch (BadLocationException e) {
-            throw new IOException(e.getMessage());
+                break;
         }
+
+        return result;
     }
     
     public Iterable<? extends Token<TexTokenId>> getDeepNodeTokens() throws IOException {
+        return getDeepNodeTokens(false);
+    }
+    
+    public Iterable<? extends Token<TexTokenId>> getDeepNodeTokensCopy() throws IOException {
+        return getDeepNodeTokens(true);
+    }
+    
+    private Iterable<? extends Token<TexTokenId>> getDeepNodeTokens(boolean copy) throws IOException {
         SourcePosition start = getStartingPosition();
         SourcePosition end   = getEndingPosition();
         
@@ -213,16 +241,10 @@ public abstract class NodeImpl implements Node, Element {
         if (!Utilities.getDefault().compareFiles(start.getFile(), end.getFile()))
             throw new IllegalStateException("Whole Node should be in one file, but this condition is not fullfilled now. Start file=" + start.getFile() + ", end file=" + end.getFile() + ".");
         
-        Document doc = Utilities.getDefault().openDocument(start.getFile());
-        
-        if (doc == null)
-            throw new IllegalStateException();
-        
         if (start.getOffset().getOffset() == end.getOffset().getOffset()) //the node is empty
             return Collections.emptyList();
         
-        TokenHierarchy h = TokenHierarchy.get(doc);
-        TokenSequence  ts = h.tokenSequence();
+        TokenSequence<TexTokenId> ts = getTS(start.getFile(), copy);
         List<Token<TexTokenId>> result = new LinkedList<Token<TexTokenId>>();
         
         ts.move(start.getOffsetValue());
@@ -232,7 +254,7 @@ public abstract class NodeImpl implements Node, Element {
         
         //TODO: this will work only for one file, not sure whether this is problem now.
         while (ts.offset() < end.getOffsetValue()) {
-            result.add((Token) ts.token());
+            result.add(ts.token());
             
             if (!ts.moveNext())
                 break;
@@ -247,7 +269,7 @@ public abstract class NodeImpl implements Node, Element {
         try {
             StringBuffer  result = new StringBuffer();
             
-            for (Token<TexTokenId> token : getNodeTokens()) {
+            for (Token<TexTokenId> token : getNodeTokensCopy()) {
                 if (token.id() == TexTokenId.WORD || token.id() == TexTokenId.WHITESPACE || token.id() == TexTokenId.UNKNOWN_CHARACTER) {
                     CharSequence s = token.text();
                     
@@ -401,7 +423,7 @@ public abstract class NodeImpl implements Node, Element {
         try {
             StringBuffer  result = new StringBuffer();
             
-            for (Token<TexTokenId> token : getDeepNodeTokens()) {
+            for (Token<TexTokenId> token : getDeepNodeTokensCopy()) {
                 CharSequence s = token.text();
                 
                 result.append(s);
@@ -425,6 +447,19 @@ public abstract class NodeImpl implements Node, Element {
         return false;
     }
     
+    private static final class FakePosition implements Position {
+
+        private final int offset;
+
+        public FakePosition(int offset) {
+            this.offset = offset;
+        }
+        
+        public int getOffset() {
+            return this.offset;
+        }
+        
+    }
 
     //XXX: from element:
     public String getName() {

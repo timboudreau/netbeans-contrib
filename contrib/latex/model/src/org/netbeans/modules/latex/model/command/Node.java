@@ -114,6 +114,25 @@ public interface Node extends Attributable {
      */
     public abstract Iterable<? extends Token<TexTokenId>> getDeepNodeTokens() throws IOException;
     
+    /** Returns an Iterator over all Tokens that are between this.getStartingPosition() and
+     *  this.getEndingPosition(), excluding tokens for children of this.
+     *
+     *  Returns a read-only copy of the tokens that were used to construct this node.
+     * 
+     *  @return Iterator of Tokens of the node.
+     */
+    public abstract Iterable<? extends Token<TexTokenId>> getNodeTokensCopy() throws IOException;
+    
+    /** Returns an Iterator over all Tokens that are between this.getStartingPosition() and
+     *  this.getEndingPosition(), including tokens for children of this.
+     *
+     *  Returns a read-only copy of the tokens that were used to construct this node.
+     * 
+     *  @param n Node we produce tokens for.
+     *  @return Iterator of Tokens of the node.
+     */
+    public abstract Iterable<? extends Token<TexTokenId>> getDeepNodeTokensCopy() throws IOException;
+    
     /** Check whether this node contains given position. The children of the node are
      *  not considered when computing.
      *

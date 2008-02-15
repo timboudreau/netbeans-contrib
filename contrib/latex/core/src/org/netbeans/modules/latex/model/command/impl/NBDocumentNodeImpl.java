@@ -47,8 +47,11 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.latex.model.command.Command;
 import org.netbeans.modules.latex.model.command.CommandCollection;
 import org.netbeans.modules.latex.model.command.DocumentNode;
@@ -64,7 +67,7 @@ import org.openide.filesystems.FileUtil;
  */
 public class NBDocumentNodeImpl extends TextNodeImpl implements DocumentNode {
     
-    private List/*<FileObject>*/ files;
+    private Map<FileObject, TokenHierarchy<Void>> file2Text;
     private boolean      uptoDate;
     
     private FileSystem  memoryFS;
@@ -76,7 +79,7 @@ public class NBDocumentNodeImpl extends TextNodeImpl implements DocumentNode {
         super(null, null);
         
         this.uptoDate = true;
-        this.files    = new ArrayList();
+        this.file2Text = new HashMap<FileObject, TokenHierarchy<Void>>();
         
         CommandCollection coll = new CommandCollection();
         
@@ -85,11 +88,11 @@ public class NBDocumentNodeImpl extends TextNodeImpl implements DocumentNode {
     }
     
     public Collection getFiles() {
-        return Collections.unmodifiableCollection(files);
+        return Collections.unmodifiableCollection(file2Text.keySet());
     }
     
-    public void addUsedFile(FileObject file) {
-        files.add(file);
+    public void addUsedFile(FileObject file, TokenHierarchy<Void> th) {
+        file2Text.put(file, th);
     }
     
     public synchronized FileSystem getTemporaryFS() {
@@ -144,6 +147,10 @@ public class NBDocumentNodeImpl extends TextNodeImpl implements DocumentNode {
     
     public void setDocumentClass(String documentClass) {
         this.documentClass = documentClass;
+    }
+    
+    public TokenHierarchy<Void> findTokenHierarchy(FileObject file) {
+        return file2Text.get(file);
     }
     
 }
