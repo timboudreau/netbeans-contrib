@@ -41,11 +41,13 @@ package org.netbeans.modules.websvc.axis2;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -53,8 +55,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import org.apache.tools.ant.module.api.support.ActionUtils;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
+import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.project.SourceGroup;
 import org.netbeans.modules.websvc.axis2.services.model.ServicesModel;
 import org.netbeans.modules.websvc.axis2.services.model.ServicesUtils;
 import org.netbeans.modules.xml.xam.ModelSource;
@@ -368,6 +375,50 @@ public class AxisUtils {
         }
         if (needStore) AxisUtils.storeEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH, ep);
          
-    }    
+    }
+    
+    public static void addAxis2Libraries(Project project, File  axisHome) throws IOException {
+
+        final URL[] roots = new URL[13];
+        File f = new File(axisHome,"lib/axis2-saaj-1.3.jar");
+        if (f.exists()) roots[0] = FileUtil.getArchiveRoot(f.toURL());
+        f = new File(axisHome,"lib/axis2-saaj-api-1.3.jar");
+        if (f.exists()) roots[1] = FileUtil.getArchiveRoot(f.toURL());
+        f = new File(axisHome,"lib/axis2-adb-1.3.jar");
+        if (f.exists()) roots[2] = FileUtil.getArchiveRoot(f.toURL());
+        f = new File(axisHome,"lib/axis2-jibx-1.3.jar");
+        if (f.exists()) roots[3] = FileUtil.getArchiveRoot(f.toURL());
+        f = new File(axisHome,"lib/axis2-xmlbeans-1.3.jar");
+        if (f.exists()) roots[4] = FileUtil.getArchiveRoot(f.toURL());
+        f = new File(axisHome,"lib/axis2-codegen-1.3.jar");
+        if (f.exists()) roots[5] = FileUtil.getArchiveRoot(f.toURL());
+        f = new File(axisHome,"lib/axis2-kernel-1.3.jar");
+        if (f.exists()) roots[6] = FileUtil.getArchiveRoot(f.toURL());
+        f = new File(axisHome,"lib/stax-api-1.0.1.jar");
+        if (f.exists()) roots[7] = FileUtil.getArchiveRoot(f.toURL());
+        f = new File(axisHome,"lib/axiom-api-1.2.5.jar");
+        if (f.exists()) roots[8] = FileUtil.getArchiveRoot(f.toURL());
+        f = new File(axisHome,"lib/axiom-impl-1.2.5.jar");
+        if (f.exists()) roots[9] = FileUtil.getArchiveRoot(f.toURL());
+        f = new File(axisHome,"lib/jibx-run-1.1.5.jar");
+        if (f.exists()) roots[10] = FileUtil.getArchiveRoot(f.toURL());
+        f = new File(axisHome,"lib/xbean-2.2.0.jar");
+        if (f.exists()) roots[11] = FileUtil.getArchiveRoot(f.toURL());
+        f = new File(axisHome,"lib/activation-1.1.jar");
+        if (f.exists()) roots[12] = FileUtil.getArchiveRoot(f.toURL());
+
+        final SourceGroup[] srcGroup = ProjectUtils.getSources(project).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
+        ProjectManager.mutex().writeAccess(new Runnable(){
+
+            public void run() {
+                try {
+                    ProjectClassPathModifier.addRoots(roots, srcGroup[0].getRootFolder(), ClassPath.COMPILE);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+        });        
+    }
     
 }
