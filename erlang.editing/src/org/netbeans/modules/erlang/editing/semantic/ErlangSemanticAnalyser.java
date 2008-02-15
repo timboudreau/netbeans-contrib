@@ -51,6 +51,7 @@ import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.ASTToken;
 import org.netbeans.api.languages.ParserManager;
 import org.netbeans.api.languages.ParserManager.State;
+import org.netbeans.api.languages.ParserManagerListener;
 import org.netbeans.api.languages.SyntaxContext;
 import org.netbeans.api.languages.database.DatabaseManager;
 import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider;
@@ -61,7 +62,7 @@ import org.openide.loaders.DataObject;
  *
  * @author Caoyuan Deng
  */
-public class ErlangSemanticParser {
+public class ErlangSemanticAnalyser {
 
     /**
      * JavaScript module use doc as the key, so, if the doc is modified, it do not
@@ -78,13 +79,13 @@ public class ErlangSemanticParser {
      * astRoot of each doc exists in Erlang.java's context.
      */
 
-    private static Map<Document, ErlangSemanticParser> docToParser = new WeakHashMap<Document, ErlangSemanticParser>();
+    private static Map<Document, ErlangSemanticAnalyser> docToAnalyser = new WeakHashMap<Document, ErlangSemanticAnalyser>();
 
-    private static ErlangSemanticParser PARSER_FOR_INDEXING = new ErlangSemanticParser(true);
+    private static ErlangSemanticAnalyser ANALYSER_FOR_INDEXING = new ErlangSemanticAnalyser(true);
 
     private Document doc;
-    private ASTNode astRoot; // syntax ast root
-    private ErlRoot erlRoot; // semantic root
+    private ASTNode astRoot;
+    private ErlContext rootCtx;    
     /**
      * @NOTICE we should avoid re-entrant of parse. There is a case may cause that:
      * When document is modified, it will be setDirty in PersistentClassIndex, and request
@@ -96,60 +97,86 @@ public class ErlangSemanticParser {
      */
     private boolean forIndexing;
 
-    private ErlangSemanticParser(Document doc) {
+    private ParserManager parserManager;
+    private ParserManagerListener parserManagerListener;
+    
+    
+    private ErlangSemanticAnalyser(Document doc) {
         this.doc = doc;
+        initParserManagerListener();
     }
 
-    private ErlangSemanticParser(boolean forIndexing) {
+    private ErlangSemanticAnalyser(boolean forIndexing) {
         this.doc = null;
         this.forIndexing = forIndexing;
     }
 
+    private void initParserManagerListener() {
+        parserManager = ParserManager.get(doc);
+        parserManagerListener = new ParserManagerListener() {
+
+            public void parsed(State state, ASTNode root) {
+                if (state == State.PARSING) {
+                    return;
+                } else {
+                    analyse(root);
+                }
+            }
+        };
+        parserManager.addListener(parserManagerListener);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        if (parserManager != null && parserManagerListener != null) {
+            parserManager.removeListener(parserManagerListener);
+        }
+    }    
+    
     public ASTNode getAstRoot() {
         return astRoot;
     }
 
-    public ErlRoot getErlRoot() {
-        return erlRoot;
+    public ErlContext getRootContext() {
+        return rootCtx;
+    }
+    
+    public static ErlangSemanticAnalyser getAnalyserForIndexing() {
+        return ANALYSER_FOR_INDEXING;
     }
 
-    public State getState() {
-        ParserManager parserManager = ParserManager.get(doc);
-        assert parserManager != null;
-        return parserManager.getState();
-    }
-
-    public static ErlangSemanticParser getParserForIndexing() {
-        return PARSER_FOR_INDEXING;
-    }
-
-    public static ErlangSemanticParser getParser(FileObject fo) {
-        for (Document doc : docToParser.keySet()) {
+    public static ErlangSemanticAnalyser getAnalyser(FileObject fo) {
+        for (Document doc : docToAnalyser.keySet()) {
             DataObject dobj = (DataObject) doc.getProperty(Document.StreamDescriptionProperty);
             if (dobj != null && dobj.getPrimaryFile() == fo) {
-                return docToParser.get(doc);
+                return docToAnalyser.get(doc);
             }
         }
 
         return null;
     }
 
-    public static ErlangSemanticParser getParser(final Document doc) {
+    public static ErlangSemanticAnalyser getAnalyser(final Document doc) {
         if (doc == null) {
-            return PARSER_FOR_INDEXING;
+            return ANALYSER_FOR_INDEXING;
         }
 
-        ErlangSemanticParser parser = docToParser.get(doc);
-        if (parser == null) {
-            parser = new ErlangSemanticParser(doc);
-            docToParser.put(doc, parser);
+        ErlangSemanticAnalyser analyser = docToAnalyser.get(doc);
+        if (analyser == null) {
+            analyser = new ErlangSemanticAnalyser(doc);
+            docToAnalyser.put(doc, analyser);
         }
 
-        return parser;
+        return analyser;
     }
 
 
     /**
+     * @Deprecated 
+     * Don't use AST feature to process semantic analysis, since AST feature will cause ContextASTEvalutor to set another 
+     * rootContext, @see org.netbeans.modules.languages.features.ContextASTEvalutor#afterEvaluation
+     *
      * This is the method will be called by GLF feature as declared in Erlang.nbs:
      * AST {
      *   process:org.netbeans.modules.languages.erlang.semantic.ErlangSemanticParser.process
@@ -157,6 +184,7 @@ public class ErlangSemanticParser {
      *
      * @Notice astRoot may be changed after this feature calling? if so, the doc <--> astRoot is useless to prevent redudant parsing.
      */
+    @Deprecated
     public static void process(SyntaxContext syntaxContext) {
         Document doc = syntaxContext.getDocument();
         ASTNode astRoot = (ASTNode) syntaxContext.getASTPath().getRoot();
@@ -164,8 +192,8 @@ public class ErlangSemanticParser {
          * if our process also changed AST, then we should return it,
          * and, we should process semantic according to the changed astRoot.
          */
-        ErlangSemanticParser parser = getParser(doc);
-        parser.parse(astRoot);
+        ErlangSemanticAnalyser analyser = getAnalyser(doc);
+        analyser.analyse(astRoot);
 
         /** this feature call may be void return or ASTNode return, if later,
          * Language engine will accept the ASTNode, otherwise, should keep the
@@ -173,10 +201,11 @@ public class ErlangSemanticParser {
          */
     }
 
-    public static ErlRoot getErlRoot(Document doc, ASTNode astRoot) {
-        ErlangSemanticParser parser = getParser(doc);
-        ErlRoot erlRoot = parser.getErlRoot();
-        if (erlRoot != null) {
+
+    public static ErlContext getRootContext(Document doc, ASTNode astRoot) {
+        ErlangSemanticAnalyser analyser = getAnalyser(doc);
+        ErlContext rootCtx = analyser.getRootContext();
+        if (rootCtx != null) {
             /**
              * although we have a syntax parser listener which will redo semantic
              * parser when new syntax happened, but SemanticHilightingsLayer may
@@ -185,19 +214,24 @@ public class ErlangSemanticParser {
              * check if the AstRoot has been re-parsed, if so, we should
              * remove oldAstRoot and redo semantic parsing
              */
-            if (parser.getAstRoot() != astRoot) {
-                erlRoot = parser.parse(astRoot);
+            if (analyser.getAstRoot() != astRoot) {
+                rootCtx = analyser.analyse(astRoot);
             }
         } else {
-            erlRoot = parser.parse(astRoot);
+            rootCtx = analyser.analyse(astRoot);
         }
 
-        return erlRoot;
+        return rootCtx;
     }
     
-    public static ErlRoot getCurrentErlRoot(Document doc) {
-        ErlangSemanticParser parser = getParser(doc);
-        return parser.getErlRoot();
+    
+    public static ErlContext getCurrentRootCtx(Document doc) {
+        ErlangSemanticAnalyser analyser = getAnalyser(doc);
+        if (analyser.rootCtx == null) {
+             ParserManager parserManager = ParserManager.get(doc);
+             waitingForParsingFinished(parserManager);
+        }
+        return analyser.rootCtx;
     }
 
     /**
@@ -207,20 +241,20 @@ public class ErlangSemanticParser {
      * parseFiles -> semanticParser.parse -> getDeclaration ->
      * index.gsfSearch -> index.updateDirty -> parseFiles -> semanticParser.parse.
      */
-    public ErlRoot parse(ASTNode astRoot) {
+    public ErlContext analyse(ASTNode astRoot) {
         if (this.astRoot != astRoot) {
             this.astRoot = astRoot;
-            ErlRoot erlRootInParsing = new ErlRoot(astRoot);
-            process(erlRootInParsing, astRoot, erlRootInParsing.getRootContext());
-            erlRoot = erlRootInParsing;
-            DatabaseManager.setRoot(astRoot, erlRoot.getRootContext());
-            return erlRoot;
+            ErlContext rootCtxInParsing = new ErlContext(astRoot.getOffset(), astRoot.getEndOffset());
+            process(rootCtxInParsing, astRoot, rootCtxInParsing);
+            rootCtx = rootCtxInParsing;
+            DatabaseManager.setRoot(astRoot, rootCtx);
+            return rootCtx;
         } else {
-            return erlRoot;
+            return rootCtx;
         }
     }
 
-    private void process(ErlRoot erlRoot, ASTItem n, ErlContext currentContext) {
+    private void process(ErlContext rootCtx, ASTItem n, ErlContext currCtx) {
         if (isNode(n, "S")) {
             /**
              * pre-process
@@ -232,9 +266,9 @@ public class ErlangSemanticParser {
                 if (isNode(item, "Form")) {
                     for (ASTItem child : item.getChildren()) {
                         if (isNode(child, "AttributeDeclaration")) {
-                            preProcessAttibuteDeclaration(erlRoot, child);
+                            preProcessAttibuteDeclaration(rootCtx, child);
                         } else if (isNode(child, "FunctionDeclaration")) {
-                            preProcessFunctionDeclaration(erlRoot, child);
+                            preProcessFunctionDeclaration(rootCtx, child);
                         }
                     }
                     /** add all forms for post-precessing */
@@ -247,7 +281,7 @@ public class ErlangSemanticParser {
             for (ASTItem form : postProcessForms) {
                 for (ASTItem item : form.getChildren()) {
                     if (isNode(item, "AttributeDeclaration")) {
-                        postProcessAttibuteDeclaration(erlRoot, item);
+                        postProcessAttibuteDeclaration(rootCtx, item);
                         processedForms.add(form);
                     }
                 }
@@ -256,7 +290,7 @@ public class ErlangSemanticParser {
 
             /** normal process */
             for (ASTItem form : postProcessForms) {
-                process(erlRoot, form, currentContext);
+                process(rootCtx, form, currCtx);
             }
         } else {
             for (ASTItem item : n.getChildren()) {
@@ -265,27 +299,27 @@ public class ErlangSemanticParser {
                      * only forms that are kind of function declaration are needed
                      * to detailed process now
                      */
-                    postProcessFunctionDeclaration(erlRoot, item, currentContext);
+                    postProcessFunctionDeclaration(rootCtx, item, currCtx);
                 } else if (item instanceof ASTNode) {
-                    process(erlRoot, item, currentContext);
+                    process(rootCtx, item, currCtx);
                 }
             }
         }
     }
 
-    private void preProcessFunctionDeclaration(ErlRoot erlRoot, ASTItem functionDeclaration) {
+    private void preProcessFunctionDeclaration(ErlContext rootCtx, ASTItem functionDeclaration) {
         for (ASTItem item : functionDeclaration.getChildren()) {
             if (isNode(item, "FunctionClauses")) {
                 for (ASTItem child : item.getChildren()) {
                     if (isNode(child, "FunctionClause")) {
-                        preProcessFunctionClause(erlRoot, child);
+                        preProcessFunctionClause(rootCtx, child);
                     }
                 }
             }
         }
     }
 
-    private void preProcessFunctionClause(ErlRoot erlRoot, ASTItem function) {
+    private void preProcessFunctionClause(ErlContext rootCtx, ASTItem function) {
         String nameStr = "";
         String argumentsStr = "";
         int arityInt = 0;
@@ -304,13 +338,13 @@ public class ErlangSemanticParser {
             }
         }
         if (functionName != null) {
-            ErlFunction functionDef = erlRoot.getRootContext().getFunctionInScope(functionName.getIdentifier(), arityInt);
+            ErlFunction functionDef = rootCtx.getFunctionInScope(functionName.getIdentifier(), arityInt);
             if (functionDef == null) {
                 nameStr = functionName.getIdentifier().trim();
                 functionDef = new ErlFunction(nameStr, function.getOffset(), function.getEndOffset(), arityInt);
-                erlRoot.getRootContext().addDefinition(functionDef);
+                rootCtx.addDefinition(functionDef);
             }
-            erlRoot.getRootContext().addUsage(functionName, functionDef);
+            rootCtx.addUsage(functionName, functionDef);
             if (!argumentsStr.equals("")) {
                 functionDef.addArgumentsOpt(argumentsStr);
             }
@@ -318,21 +352,21 @@ public class ErlangSemanticParser {
     }
 
 
-    private void postProcessFunctionDeclaration(ErlRoot erlRoot, ASTItem functionDeclaration, ErlContext currentContext) {
+    private void postProcessFunctionDeclaration(ErlContext rootCtx, ASTItem functionDeclaration, ErlContext currCtx) {
         for (ASTItem item : functionDeclaration.getChildren()) {
             if (isNode(item, "FunctionClauses")) {
                 for (ASTItem child : item.getChildren()) {
                     if (isNode(child, "FunctionClause")) {
-                        processFunctionClause(erlRoot, child, currentContext);
+                        processFunctionClause(rootCtx, child, currCtx);
                     }
                 }
             }
         }
     }
 
-    private void processFunctionClause(ErlRoot erlRoot, ASTItem functionClause, ErlContext currentContext) {
+    private void processFunctionClause(ErlContext rootCtx, ASTItem functionClause, ErlContext currCtx) {
         ErlContext functionContext = new ErlContext(functionClause.getOffset(), functionClause.getEndOffset());
-        currentContext.addContext(functionContext);
+        currCtx.addContext(functionContext);
 
         for (ASTItem item : functionClause.getChildren()) {
             if (isNode(item, "Exprs")) {
@@ -358,7 +392,7 @@ public class ErlangSemanticParser {
             } else if (isNode(item, "ClauseGuard")) {
                 for (ASTItem child : item.getChildren()) {
                     if (isNode(child, "Guard")) {
-                        processGuard(erlRoot, child, functionContext);
+                        processGuard(rootCtx, child, functionContext);
                     }
                 }
             } else if (isNode(item, "FunctionRuleClauseBody")) {
@@ -366,7 +400,7 @@ public class ErlangSemanticParser {
                     if (isNode(child, "ClauseBody")) {
                         for (ASTItem child1 : child.getChildren()) {
                             if (isNode(child1, "Exprs")) {
-                                processExprs(erlRoot, child1, functionContext);
+                                processExprs(rootCtx, child1, functionContext);
                             }
                         }
                     }
@@ -375,36 +409,36 @@ public class ErlangSemanticParser {
         }
     }
 
-    private void preProcessAttibuteDeclaration(ErlRoot erlRoot, ASTItem attribute) {
+    private void preProcessAttibuteDeclaration(ErlContext rootCtx, ASTItem attribute) {
         ASTItem attributeName = attribute.getChildren().get(0);
         if (attributeName != null) {
             if (isNode(attributeName, "ModuleAttribute")) {
-                processModuleAttribute(erlRoot, attribute);
+                processModuleAttribute(rootCtx, attribute);
             } else if (isNode(attributeName, "ImportAttribute")) {
-                processImportAttribute(erlRoot, attribute);
+                processImportAttribute(rootCtx, attribute);
             } else if (isNode(attributeName, "RecordAttribute")) {
-                processRecordAttribute(erlRoot, attribute);
+                processRecordAttribute(rootCtx, attribute);
             } else if (isNode(attributeName, "DefineAttribute")) {
-                processMacroAttribute(erlRoot, attribute);
+                processMacroAttribute(rootCtx, attribute);
             } else if (isNode(attributeName, "IncludeAttribute")) {
-                processIncludeAttribute(erlRoot, attribute);
+                processIncludeAttribute(rootCtx, attribute);
             } else if (isNode(attributeName, "IncludeLibAttribute")) {
-                processIncludeLibAttribute(erlRoot, attribute);
+                processIncludeLibAttribute(rootCtx, attribute);
             }
         }
     }
 
-    private void postProcessAttibuteDeclaration(ErlRoot erlRoot, ASTItem attribute) {
+    private void postProcessAttibuteDeclaration(ErlContext rootCtx, ASTItem attribute) {
         ASTItem attributeName = attribute.getChildren().get(0);
         if (attributeName != null) {
             if (isNode(attributeName, "ExportAttribute")) {
-                processExportAttribute(erlRoot, attribute);
+                processExportAttribute(rootCtx, attribute);
             }
         }
     }
 
 
-    private void processModuleAttribute(ErlRoot erlRoot, ASTItem attribute) {
+    private void processModuleAttribute(ErlContext rootCtx, ASTItem attribute) {
         List<String> packages = new ArrayList<String>();
         String nameStr = "";
         for (ASTItem item : attribute.getChildren()) {
@@ -422,15 +456,15 @@ public class ErlangSemanticParser {
         for (String packageName : packages) {
             moduleDef.addPackage(packageName);
         }
-        erlRoot.getRootContext().addDefinition(moduleDef);
+        rootCtx.addDefinition(moduleDef);
     }
 
 
-    private void processExportAttribute(ErlRoot erlRoot, ASTItem attribute) {
+    private void processExportAttribute(ErlContext rootCtx, ASTItem attribute) {
         for (ASTItem item : attribute.getChildren()) {
             if (isNode(item, "FunctionNames")) {
                 ErlExport exportDef = new ErlExport(attribute.getOffset(), attribute.getEndOffset());
-                erlRoot.getRootContext().addDefinition(exportDef);
+                rootCtx.addDefinition(exportDef);
                 for (ASTItem child : item.getChildren()) {
                     if (isNode(child, "FunctionName")) {
                         ASTItem functionName = child;
@@ -445,10 +479,10 @@ public class ErlangSemanticParser {
                         }
                         if (name != null && arity != null) {
                             int arityInt = Integer.parseInt(arity.getIdentifier());
-                            ErlFunction functionDef = erlRoot.getRootContext().getFunctionInScope(name.getIdentifier(), arityInt);
+                            ErlFunction functionDef = rootCtx.getFunctionInScope(name.getIdentifier(), arityInt);
                             if (functionDef != null) {
                                 exportDef.addFunction(functionDef);
-                                erlRoot.getRootContext().addUsage(name, functionDef);
+                                rootCtx.addUsage(name, functionDef);
                             } else {
                                 /** don't know offset of this function, just add it as 0 offset */
                                 exportDef.addFunction(new ErlFunction(name.getIdentifier(), arityInt));
@@ -460,11 +494,11 @@ public class ErlangSemanticParser {
         }
     }
 
-    private void processImportAttribute(ErlRoot erlRoot, ASTItem attribute) {
+    private void processImportAttribute(ErlContext rootCtx, ASTItem attribute) {
         for (ASTItem item : attribute.getChildren()) {
             if (isNode(item, "FunctionNames")) {
                 ErlImport importDef = new ErlImport(attribute.getOffset(), attribute.getEndOffset());
-                erlRoot.getRootContext().addDefinition(importDef);
+                rootCtx.addDefinition(importDef);
                 for (ASTItem child : item.getChildren()) {
                     if (isNode(child, "FunctionName")) {
                         ASTItem functionName = child;
@@ -481,7 +515,7 @@ public class ErlangSemanticParser {
                             String nameStr = name.getIdentifier();
                             int arityInt = Integer.parseInt(arity.getIdentifier());
                             /** @TODO add item to erlImport instead of context */
-                            erlRoot.getRootContext().addDefinition(new ErlFunction(nameStr, functionName.getOffset(), functionName.getEndOffset(), arityInt));
+                            rootCtx.addDefinition(new ErlFunction(nameStr, functionName.getOffset(), functionName.getEndOffset(), arityInt));
                         }
                     }
                 }
@@ -489,13 +523,13 @@ public class ErlangSemanticParser {
         }
     }
 
-    private void processRecordAttribute(ErlRoot erlRoot, ASTItem attribute) {
+    private void processRecordAttribute(ErlContext rootCtx, ASTItem attribute) {
         ErlRecord recordDef = null;
         for (ASTItem item : attribute.getChildren()) {
             if (isNode(item, "RecordName")) {
                 String nameStr = ((ASTNode) item).getAsText();
                 recordDef = new ErlRecord(nameStr, attribute.getOffset(), attribute.getEndOffset());
-                erlRoot.getRootContext().addDefinition(recordDef);
+                rootCtx.addDefinition(recordDef);
             } else if (isNode(item, "RecordFieldNames") && recordDef != null) {
                 for (ASTItem child : item.getChildren()) {
                     if (isNode(child, "RecordFieldName")) {
@@ -511,16 +545,16 @@ public class ErlangSemanticParser {
         }
     }
 
-    private void processMacroAttribute(ErlRoot erlRoot, ASTItem attribute) {
+    private void processMacroAttribute(ErlContext rootCtx, ASTItem attribute) {
         ErlMacro macroDef = null;
         for (ASTItem item : attribute.getChildren()) {
             if (isNode(item, "MacroName")) {
                 String nameStr = ((ASTNode) item).getAsText();
                 macroDef = new ErlMacro(nameStr, attribute.getOffset(), attribute.getEndOffset());
-                erlRoot.getRootContext().addDefinition(macroDef);
+                rootCtx.addDefinition(macroDef);
                 for (ASTItem child : item.getChildren()) {
                     if (isTokenTypeName(child, "var")) {
-                        erlRoot.getRootContext().addUsage((ASTToken) child, macroDef);
+                        rootCtx.addUsage((ASTToken) child, macroDef);
                     }
                 }
             } else if (isNode(item, "MacroParams") && macroDef != null) {
@@ -539,12 +573,12 @@ public class ErlangSemanticParser {
         }
     }
 
-    private void processIncludeAttribute(ErlRoot erlRoot, ASTItem attribute) {
+    private void processIncludeAttribute(ErlContext rootCtx, ASTItem attribute) {
         ErlInclude includeDef = null;
         for (ASTItem item : attribute.getChildren()) {
             if (isTokenTypeName(item, "string")) {
                 includeDef = new ErlInclude(attribute.getOffset(), attribute.getEndOffset());
-                erlRoot.getRootContext().addDefinition(includeDef);
+                rootCtx.addDefinition(includeDef);
                 ASTToken path = (ASTToken) item;
                 String pathStr = path.getIdentifier();
                 int strLength = pathStr.length();
@@ -556,18 +590,18 @@ public class ErlangSemanticParser {
                 includeDef.setPath(pathStr);
 
                 /** add this usage to enable go to declartion */
-                erlRoot.getRootContext().addUsage(path, includeDef);
+                rootCtx.addUsage(path, includeDef);
             }
         }
     }
 
-    private void processIncludeLibAttribute(ErlRoot erlRoot, ASTItem attribute) {
+    private void processIncludeLibAttribute(ErlContext rootCtx, ASTItem attribute) {
         ErlInclude includeDef = null;
         for (ASTItem item : attribute.getChildren()) {
             if (isTokenTypeName(item, "string")) {
                 includeDef = new ErlInclude(attribute.getOffset(), attribute.getEndOffset());
                 includeDef.setLib(true);
-                erlRoot.getRootContext().addDefinition(includeDef);
+                rootCtx.addDefinition(includeDef);
                 ASTToken path = (ASTToken) item;
                 String pathStr = path.getIdentifier();
                 int strLength = pathStr.length();
@@ -579,66 +613,66 @@ public class ErlangSemanticParser {
                 includeDef.setPath(pathStr);
 
                 /** add this usage to enable go to declartion */
-                erlRoot.getRootContext().addUsage(path, includeDef);
+                rootCtx.addUsage(path, includeDef);
             }
         }
     }
 
-    private void processGuard(ErlRoot erlRoot, ASTItem guard, ErlContext currentContext) {
+    private void processGuard(ErlContext rootCtx, ASTItem guard, ErlContext currCtx) {
         for (ASTItem child : guard.getChildren()) {
             if (isNode(child, "Exprs")) {
-                processExprs(erlRoot, child, currentContext);
+                processExprs(rootCtx, child, currCtx);
             }
         }
     }
 
-    private void processClauseGuard(ErlRoot erlRoot, ASTItem clauseGuard, ErlContext currentContext) {
+    private void processClauseGuard(ErlContext rootCtx, ASTItem clauseGuard, ErlContext currCtx) {
         for (ASTItem child : clauseGuard.getChildren()) {
             if (isNode(child, "Guard")) {
-                processGuard(erlRoot, child, currentContext);
+                processGuard(rootCtx, child, currCtx);
             }
         }
     }
 
-    private void processClauseBody(ErlRoot erlRoot, ASTItem clauseBody, ErlContext currentContext) {
+    private void processClauseBody(ErlContext rootCtx, ASTItem clauseBody, ErlContext currCtx) {
         for (ASTItem child : clauseBody.getChildren()) {
             if (isNode(child, "Exprs")) {
-                processExprs(erlRoot, child, currentContext);
+                processExprs(rootCtx, child, currCtx);
             }
         }
     }
 
-    private void processCrClauses(ErlRoot erlRoot, ASTItem crClauses, ErlContext currentContext) {
+    private void processCrClauses(ErlContext rootCtx, ASTItem crClauses, ErlContext currCtx) {
         for (ASTItem child : crClauses.getChildren()) {
             if (isNode(child, "CrClause")) {
                 ErlContext crClauseContext = new ErlContext(child.getOffset(), child.getEndOffset());
-                currentContext.addContext(crClauseContext);
+                currCtx.addContext(crClauseContext);
 
                 for (ASTItem child1 : child.getChildren()) {
                     if (isNode(child1, "Expr")) {
                         /** case match expr */
-                        processAnyExpr(erlRoot, child1, crClauseContext, true);
+                        processAnyExpr(rootCtx, child1, crClauseContext, true);
                     } else if (isNode(child1, "ClauseGuard")) {
-                        processClauseGuard(erlRoot, child1, crClauseContext);
+                        processClauseGuard(rootCtx, child1, crClauseContext);
                     } else if (isNode(child1, "ClauseBody")) {
-                        processClauseBody(erlRoot, child1, crClauseContext);
+                        processClauseBody(rootCtx, child1, crClauseContext);
                     }
                 }
             }
         }
     }
 
-    private void processExprs(ErlRoot erlRoot, ASTItem exprs, ErlContext currentContext) {
+    private void processExprs(ErlContext rootCtx, ASTItem exprs, ErlContext currCtx) {
         for (ASTItem child : exprs.getChildren()) {
             if (isNode(child, "Expr")) {
-                processAnyExpr(erlRoot, child, currentContext, false);
+                processAnyExpr(rootCtx, child, currCtx, false);
             }
         }
     }
 
-    private void processAnyExpr(ErlRoot erlRoot, ASTItem expr, ErlContext currentContext, boolean containsVarDef) {
+    private void processAnyExpr(ErlContext rootCtx, ASTItem expr, ErlContext currCtx, boolean containsVarDef) {
         if (isNode(expr, "FunctionCallExpr")) {
-            processFunctionCallExpr(erlRoot, expr, currentContext);
+            processFunctionCallExpr(rootCtx, expr, currCtx);
         }
 
         if (isNode(expr, "MatchSendExpr")) {
@@ -664,7 +698,7 @@ public class ErlangSemanticParser {
                     /** This has been in a match expr, and left hand, new scoped Var declaration occurs */
                     containsVarDef = true;
                 }
-                processAnyExpr(erlRoot, leftExpr, currentContext, containsVarDef);
+                processAnyExpr(rootCtx, leftExpr, currCtx, containsVarDef);
             }
             /** right hand */
             if (rightExpr != null) {
@@ -672,21 +706,21 @@ public class ErlangSemanticParser {
                     /** This is in a match expr, and right hand, new scoped Var declaration may also occurs */
                     containsVarDef = true;
                 }
-                processAnyExpr(erlRoot, rightExpr, currentContext, containsVarDef);
+                processAnyExpr(rootCtx, rightExpr, currCtx, containsVarDef);
             }
         } else if (isNode(expr, "IfExpr")) {
             for (ASTItem item : expr.getChildren()) {
                 if (isNode(item, "IfClauses")) {
                     ErlContext ifContext = new ErlContext(expr.getOffset(), expr.getEndOffset());
-                    currentContext.addContext(ifContext);
+                    currCtx.addContext(ifContext);
 
                     for (ASTItem child : item.getChildren()) {
                         if (isNode(child, "IfClause")) {
                             for (ASTItem child1 : child.getChildren()) {
                                 if (isNode(child1, "Guard")) {
-                                    processGuard(erlRoot, child1, ifContext);
+                                    processGuard(rootCtx, child1, ifContext);
                                 } else if (isNode(child1, "ClauseBody")) {
-                                    processClauseBody(erlRoot, child1, ifContext);
+                                    processClauseBody(rootCtx, child1, ifContext);
                                 }
                             }
                         }
@@ -698,11 +732,11 @@ public class ErlangSemanticParser {
             for (ASTItem item : expr.getChildren()) {
                 if (isNode(item, "Expr")) {
                     caseContext = new ErlContext(expr.getOffset(), expr.getEndOffset());
-                    currentContext.addContext(caseContext);
+                    currCtx.addContext(caseContext);
 
-                    processAnyExpr(erlRoot, item, caseContext, containsVarDef);
+                    processAnyExpr(rootCtx, item, caseContext, containsVarDef);
                 } else if (isNode(item, "CrClauses") && caseContext != null) {
-                    processCrClauses(erlRoot, item, caseContext);
+                    processCrClauses(rootCtx, item, caseContext);
                 }
             }
         } else if (isNode(expr, "ReceiveExpr")) {
@@ -710,7 +744,7 @@ public class ErlangSemanticParser {
             ASTItem afterClauseBody = null;
             for (ASTItem item : expr.getChildren()) {
                 if (isNode(item, "CrClauses")) {
-                    processCrClauses(erlRoot, item, currentContext);
+                    processCrClauses(rootCtx, item, currCtx);
                 } else if (isNode(item, "Expr")) {
                     afterExpr = item;
                 } else if (isNode(item, "ClauseBody")) {
@@ -720,10 +754,10 @@ public class ErlangSemanticParser {
 
             if (afterExpr != null && afterClauseBody != null) {
                 ErlContext afterContext = new ErlContext(afterExpr.getOffset(), afterClauseBody.getEndOffset());
-                currentContext.addContext(afterContext);
+                currCtx.addContext(afterContext);
 
-                processAnyExpr(erlRoot, afterExpr, afterContext, true);
-                processClauseBody(erlRoot, afterClauseBody, afterContext);
+                processAnyExpr(rootCtx, afterExpr, afterContext, true);
+                processClauseBody(rootCtx, afterClauseBody, afterContext);
             }
         } else if (isNode(expr, "FunExpr")) {
             boolean remoteFun = false;
@@ -733,7 +767,7 @@ public class ErlangSemanticParser {
             for (ASTItem item : expr.getChildren()) {
                 if (isNode(item, "FunClauses")) {
                     ErlContext funContext = new ErlContext(expr.getOffset(), expr.getEndOffset());
-                    currentContext.addContext(funContext);
+                    currCtx.addContext(funContext);
 
                     for (ASTItem child : item.getChildren()) {
                         if (isNode(child, "FunClause")) {
@@ -742,13 +776,13 @@ public class ErlangSemanticParser {
                                     /** arguments */
                                     for (ASTItem child2 : child1.getChildren()) {
                                         if (isNode(child2, "Expr")) {
-                                            processAnyExpr(erlRoot, child2, funContext, true);
+                                            processAnyExpr(rootCtx, child2, funContext, true);
                                         }
                                     }
                                 } else if (isNode(child1, "ClauseGuard")) {
-                                    processClauseGuard(erlRoot, child1, funContext);
+                                    processClauseGuard(rootCtx, child1, funContext);
                                 } else if (isNode(child1, "ClauseBody")) {
-                                    processClauseBody(erlRoot, child1, funContext);
+                                    processClauseBody(rootCtx, child1, funContext);
                                 }
                             }
                         }
@@ -769,30 +803,30 @@ public class ErlangSemanticParser {
                     if (arity != null) {
                         int arityInt = Integer.parseInt(arity.getIdentifier());
                         if (remoteFun && remoteName != null && funName != null) {
-                            ErlFunction functionDef = erlRoot.getRootContext().getFunctionInScope(remoteName.getIdentifier(), funName.getIdentifier(), arityInt);
+                            ErlFunction functionDef = rootCtx.getFunctionInScope(remoteName.getIdentifier(), funName.getIdentifier(), arityInt);
                             if (functionDef == null) {
                                 if (!forIndexing) {
                                     functionDef = ErlangIndexProvider.getDefault().getFunction(remoteName.getIdentifier(), funName.getIdentifier(), arityInt);
                                     if (functionDef != null) {
-                                        erlRoot.getRootContext().addDefinition(functionDef);
-                                        currentContext.addUsage(funName, functionDef);
+                                        rootCtx.addDefinition(functionDef);
+                                        currCtx.addUsage(funName, functionDef);
                                     }
                                 }
                             } else {
-                                currentContext.addUsage(funName, functionDef);
+                                currCtx.addUsage(funName, functionDef);
                             }
                         } else if (remoteName != null) {
                             funName = remoteName;
-                            ErlFunction functionDef = erlRoot.getRootContext().getFunctionInScope(funName.getIdentifier(), arityInt);
+                            ErlFunction functionDef = rootCtx.getFunctionInScope(funName.getIdentifier(), arityInt);
                             if (functionDef == null) {
                                 /** this is a built-in function call? */
                                 functionDef = ErlBuiltIn.getBuiltInFunction(funName.getIdentifier(), arityInt);
                                 if (functionDef != null) {
-                                    erlRoot.getRootContext().addDefinition(functionDef);
-                                    currentContext.addUsage(funName, functionDef);
+                                    rootCtx.addDefinition(functionDef);
+                                    currCtx.addUsage(funName, functionDef);
                                 }
                             } else {
-                                currentContext.addUsage(funName, functionDef);
+                                currCtx.addUsage(funName, functionDef);
                             }
                         }
                     }
@@ -804,7 +838,7 @@ public class ErlangSemanticParser {
                 /** test if it's listComprehensionExprsNode, and got the Var declarations first */
                 if (isNode(item, "ListComprehensionExprs")) {
                     listCompContext = new ErlContext(expr.getOffset(), expr.getEndOffset());
-                    currentContext.addContext(listCompContext);
+                    currCtx.addContext(listCompContext);
 
                     for (ASTItem child : item.getChildren()) {
                         if (isNode(child, "ListComprehensionExpr")) {
@@ -812,7 +846,7 @@ public class ErlangSemanticParser {
                             for (ASTItem child1 : child.getChildren()) {
                                 if (isNode(child1, "Expr")) {
                                     boolean containsVarDecls1 = i == 0;
-                                    processAnyExpr(erlRoot, child1, listCompContext, containsVarDecls1);
+                                    processAnyExpr(rootCtx, child1, listCompContext, containsVarDecls1);
                                     i++;
                                 }
                             }
@@ -821,7 +855,7 @@ public class ErlangSemanticParser {
                 } else if (isNode(item, "ListTail")) {
                     for (ASTItem child : item.getChildren()) {
                         if (isNode(child, "Expr")) {
-                            processAnyExpr(erlRoot, child, currentContext, containsVarDef);
+                            processAnyExpr(rootCtx, child, currCtx, containsVarDef);
                         }
                     }
                 }
@@ -832,22 +866,22 @@ public class ErlangSemanticParser {
                 if (isNode(item, "Expr") || isNode(item, "BinElement")) {
                     if (listCompContext != null) {
                         /** List Comprehension */
-                        processAnyExpr(erlRoot, item, listCompContext, false);
+                        processAnyExpr(rootCtx, item, listCompContext, false);
                     } else {
                         /** List */
-                        processAnyExpr(erlRoot, item, currentContext, containsVarDef);
+                        processAnyExpr(rootCtx, item, currCtx, containsVarDef);
                     }
                 }
             }
         } else if (isNode(expr, "TryExpr")) {
             ErlContext tryContext = new ErlContext(expr.getOffset(), expr.getEndOffset());
-            currentContext.addContext(tryContext);
+            currCtx.addContext(tryContext);
 
             for (ASTItem item : expr.getChildren()) {
                 if (isNode(item, "Exprs")) {
-                    processExprs(erlRoot, item, tryContext);
+                    processExprs(rootCtx, item, tryContext);
                 } else if (isNode(item, "CrClauses")) {
-                    processCrClauses(erlRoot, item, tryContext);
+                    processCrClauses(rootCtx, item, tryContext);
                 } else if (isNode(item, "TryCatch")) {
                     for (ASTItem child : item.getChildren()) {
                         if (isNode(child, "TryClauses")) {
@@ -858,17 +892,17 @@ public class ErlangSemanticParser {
 
                                     for (ASTItem child2 : child1.getChildren()) {
                                         if (isNode(child2, "Expr")) {
-                                            processAnyExpr(erlRoot, child2, tryClauseContext, true);
+                                            processAnyExpr(rootCtx, child2, tryClauseContext, true);
                                         } else if (isNode(child2, "ClauseGuard")) {
-                                            processClauseGuard(erlRoot, child2, tryClauseContext);
+                                            processClauseGuard(rootCtx, child2, tryClauseContext);
                                         } else if (isNode(child2, "ClauseBody")) {
-                                            processClauseBody(erlRoot, child2, tryClauseContext);
+                                            processClauseBody(rootCtx, child2, tryClauseContext);
                                         }
                                     }
                                 }
                             }
                         } else if (isNode(child, "Exprs")) {
-                            processExprs(erlRoot, child, tryContext);
+                            processExprs(rootCtx, child, tryContext);
                         }
                     }
                 }
@@ -878,15 +912,15 @@ public class ErlangSemanticParser {
                 if (isTokenTypeName(item, "var") || isTokenTypeName(item, "atom")) {
                     ASTToken macroName = (ASTToken) item;
                     String macroNameStr = macroName.getIdentifier();
-                    ErlMacro macroDef = currentContext.getMacroInScope(macroNameStr);
+                    ErlMacro macroDef = currCtx.getMacroInScope(macroNameStr);
                     if (macroDef == null) {
                         macroDef = ErlMacro.getPreDefined(macroNameStr);
                         if (macroDef != null) {
-                            erlRoot.getRootContext().addDefinition(macroDef);
-                            currentContext.addUsage(macroName, macroDef);
+                            rootCtx.addDefinition(macroDef);
+                            currCtx.addUsage(macroName, macroDef);
                         }
                     } else {
-                        currentContext.addUsage(macroName, macroDef);
+                        currCtx.addUsage(macroName, macroDef);
                     }
                 }
             }
@@ -895,25 +929,25 @@ public class ErlangSemanticParser {
                 if (isTokenTypeName(item, "var")) {
                     ASTToken var = (ASTToken) item;
                     if (!(var.getIdentifier().equals("_"))) {
-                        ErlVariable variableDef = currentContext.getVariableInScope(var.getIdentifier());
+                        ErlVariable variableDef = currCtx.getVariableInScope(var.getIdentifier());
                         if (variableDef == null) {
                             if (containsVarDef) {
                                 variableDef = new ErlVariable(var.getIdentifier(), expr.getOffset(), expr.getEndOffset(), ErlVariable.Scope.LOCAL);
-                                currentContext.addDefinition(variableDef);
-                                currentContext.addUsage(var, variableDef);
+                                currCtx.addDefinition(variableDef);
+                                currCtx.addUsage(var, variableDef);
                             }
                         } else {
-                            currentContext.addUsage(var, variableDef);
+                            currCtx.addUsage(var, variableDef);
                         }
                     }
                 } else if (item instanceof ASTNode) {
-                    processAnyExpr(erlRoot, item, currentContext, containsVarDef);
+                    processAnyExpr(rootCtx, item, currCtx, containsVarDef);
                 }
             }
         }
     }
 
-    private void processFunctionCallExpr(ErlRoot erlRoot, ASTItem functionCallExpr, ErlContext currentContext) {
+    private void processFunctionCallExpr(ErlContext rootCtx, ASTItem functionCallExpr, ErlContext currCtx) {
         boolean isFunctionCall = false;
         ASTItem remoteExpr = null;
         ASTItem arguments = null;
@@ -965,17 +999,17 @@ public class ErlangSemanticParser {
                     ASTToken functionCallName = getAtomTokenFromPrimaryExpr(callPrimaryExpr);
                     if (remoteName != null && functionCallName != null) {
                         /** @TODO use actaul arity instead of 0 */
-                        ErlFunction functionDef = erlRoot.getRootContext().getFunctionInScope(remoteName.getIdentifier(), functionCallName.getIdentifier(), arityInt);
+                        ErlFunction functionDef = rootCtx.getFunctionInScope(remoteName.getIdentifier(), functionCallName.getIdentifier(), arityInt);
                         if (functionDef == null) {
                             if (!forIndexing) {
                                 functionDef = ErlangIndexProvider.getDefault().getFunction(remoteName.getIdentifier(), functionCallName.getIdentifier(), arityInt);
                                 if (functionDef != null) {
-                                    erlRoot.getRootContext().addDefinition(functionDef);
-                                    currentContext.addUsage(functionCallName, functionDef);
+                                    rootCtx.addDefinition(functionDef);
+                                    currCtx.addUsage(functionCallName, functionDef);
                                 }
                             }
                         } else {
-                            currentContext.addUsage(functionCallName, functionDef);
+                            currCtx.addUsage(functionCallName, functionDef);
                         }
                     }
                 } else {
@@ -983,16 +1017,16 @@ public class ErlangSemanticParser {
 
                     ASTToken functionCallName = getAtomTokenFromPrimaryExpr(callPrimaryExpr);
                     if (functionCallName != null) {
-                        ErlFunction functionDef = erlRoot.getRootContext().getFunctionInScope(functionCallName.getIdentifier(), arityInt);
+                        ErlFunction functionDef = rootCtx.getFunctionInScope(functionCallName.getIdentifier(), arityInt);
                         if (functionDef == null) {
                             /** Is it a built-in function call? */
                             functionDef = ErlBuiltIn.getBuiltInFunction(functionCallName.getIdentifier(), arityInt);
                             if (functionDef != null) {
-                                erlRoot.getRootContext().addDefinition(functionDef);
-                                currentContext.addUsage(functionCallName, functionDef);
+                                rootCtx.addDefinition(functionDef);
+                                currCtx.addUsage(functionCallName, functionDef);
                             }
                         } else {
-                            currentContext.addUsage(functionCallName, functionDef);
+                            currCtx.addUsage(functionCallName, functionDef);
                         }
                     }
                 }
@@ -1094,4 +1128,17 @@ public class ErlangSemanticParser {
         }
         return null;
     }
+
+    private static void waitingForParsingFinished(ParserManager parserManager) {
+        int counter = 0;
+        try {
+            while (((parserManager.getState() == ParserManager.State.NOT_PARSED) ||
+                    (parserManager.getState() == ParserManager.State.PARSING)) && counter < 200) {
+                Thread.sleep(100);
+                counter++;
+            }
+        } catch (InterruptedException e) {
+        }
+    }
+    
 }

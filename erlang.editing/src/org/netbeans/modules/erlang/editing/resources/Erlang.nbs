@@ -502,9 +502,9 @@ CompOp = "=="
 #RegularExpression = "/";
 #PARSE:RegularExpression:org.netbeans.modules.erlang.editing.Erlang.parseRegularExpression
 
-AST {
-    process:org.netbeans.modules.erlang.editing.semantic.ErlangSemanticParser.process;
-}
+#AST {
+#    process:org.netbeans.modules.erlang.editing.semantic.ErlangSemanticParser.process;
+#}
 
 ########### colors #############################################################
 ## Notice: it's always better to put these condition COLOR head than others, so 

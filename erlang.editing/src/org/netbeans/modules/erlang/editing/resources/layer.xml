@@ -22,7 +22,7 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="Navigator">
         <folder name="Panels">
             <folder name="text">
-                <folder name="erlang">
+                <folder name="x-erlang">
                     <file name="org-netbeans-modules-languages-features-LanguagesNavigator.instance"/>
                 </folder>
             </folder>
@@ -35,15 +35,15 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="position" intvalue="400"/>
                 <attr name="template" boolvalue="true" />
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.editing.Bundle"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/editing/EmptyErlangFileDescription.html"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/erlang/editing/Erlang.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/editing/resources/EmptyErlangFileDescription.html"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/erlang/editing/resources/Erlang.png"/>
                 <attr name="templateCategory" stringvalue="simple-files"/>
             </file>            
         </folder>
     </folder>
     <folder name="Services">
         <folder name="MIMEResolver">
-            <file name="Erlang.xml" url="Erlang.xml">
+            <file name="ErlangResolve.xml" url="ErlangResolve.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.editing.Bundle"/>
                 <attr name="position" intvalue="190"/>
             </file>
@@ -56,7 +56,7 @@ Microsystems, Inc. All Rights Reserved.
         </folder>
         
         <folder name="text">
-            <folder name="erlang">
+            <folder name="x-erlang">
                 <folder name="FontsColors">
                     <folder name="NetBeans">
                         <folder name="Defaults">
@@ -106,7 +106,7 @@ Microsystems, Inc. All Rights Reserved.
                 </folder>
                 <file name="Settings.settings" url="LanguagesOptions.settings"/>
                 <file name="language.nbs" url="Erlang.nbs">
-                    <attr name="icon" stringvalue="org/netbeans/modules/erlang/editing/Erlang.png"/>
+                    <attr name="icon" stringvalue="org/netbeans/modules/erlang/editing/resources/Erlang.png"/>
                 </file>
             </folder>
             <folder name="x-string">
@@ -145,7 +145,7 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="OptionsDialog">
         <folder name="PreviewExamples">
             <folder name="text">
-                <file name="erlang" url="erlang_example.erl"/>
+                <file name="x-erlang" url="erlang_example.erl"/>
             </folder>
         </folder>
     </folder>
