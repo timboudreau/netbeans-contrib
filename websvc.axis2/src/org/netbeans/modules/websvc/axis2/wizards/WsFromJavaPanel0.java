@@ -45,12 +45,15 @@ import java.awt.Component;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.prefs.Preferences;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
 
+import org.netbeans.modules.websvc.axis2.AxisUtils;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -96,6 +99,14 @@ public class WsFromJavaPanel0 implements  WizardDescriptor.FinishablePanel<Wizar
     }
 
     public boolean isValid() {
+        Preferences prefs = AxisUtils.getPreferences();
+        String axisHome = prefs.get("AXIS_HOME",null); //NOI18N
+        if (axisHome == null || axisHome.length() == 0) {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(WsFromJavaPanel0.class, "MSG_NoAxisHome")); // NOI18N
+            return false;
+        } else {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage", ""); //NOI18N
+        }
         return component.dataIsValid();
     }
     

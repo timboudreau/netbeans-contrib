@@ -43,7 +43,6 @@ package org.netbeans.modules.erlang.editing;
 import java.io.File;
 import java.util.HashSet;
 import java.util.ListIterator;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.io.IOException;
@@ -64,7 +63,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.StyledDocument;
-import javax.swing.text.StyledDocument;
 import org.netbeans.api.languages.CompletionItem;
 import org.netbeans.api.languages.Language;
 import org.netbeans.api.languages.LanguageDefinitionNotFoundException;
@@ -73,10 +71,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.api.languages.ASTItem;
 import org.netbeans.api.languages.CharInput;
-import org.netbeans.api.languages.LibrarySupport;
-import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.ASTPath;
-import org.netbeans.api.languages.SyntaxContext;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
@@ -85,19 +80,22 @@ import org.netbeans.api.languages.LibrarySupport;
 import org.netbeans.api.languages.SyntaxContext;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.ASTToken;
+import org.netbeans.api.languages.database.DatabaseContext;
+import org.netbeans.api.languages.database.DatabaseDefinition;
+import org.netbeans.api.languages.database.DatabaseItem;
+import org.netbeans.api.languages.database.DatabaseUsage;
 import org.netbeans.modules.editor.NbEditorDocument;
 import org.netbeans.modules.editor.NbEditorUtilities;
-import org.netbeans.modules.erlang.editing.semantic.ErlDefinition;
+import org.netbeans.modules.erlang.editing.semantic.ErlContext;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
 import org.netbeans.modules.erlang.editing.semantic.ErlInclude;
 import org.netbeans.modules.erlang.editing.semantic.ErlMacro;
+import org.netbeans.modules.erlang.editing.semantic.ErlModule;
 import org.netbeans.modules.erlang.editing.semantic.ErlRecord;
-import org.netbeans.modules.erlang.editing.semantic.ErlRoot;
-import org.netbeans.modules.erlang.editing.semantic.ErlangSemanticParser;
+import org.netbeans.modules.erlang.editing.semantic.ErlangSemanticAnalyser;
 import org.netbeans.modules.erlang.editing.semantic.ErlVariable;
 import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.cookies.EditorCookie;
@@ -122,7 +120,7 @@ import org.openide.nodes.Node;
 public class Erlang {
 
     private static final String DOC = "org/netbeans/modules/languages/erlang/Documentation.xml";
-    private static final String MIME_TYPE = "text/erlang";
+    private static final String MIME_TYPE = "text/x-erlang";
 
     private static Set<Integer> regExp = new HashSet<Integer> ();
     static {
@@ -304,11 +302,11 @@ public class Erlang {
         ASTItem name = null;
         ASTItem arguments = null;
         for (ASTItem item : functionClauses.getChildren()) {
-            if (ErlangSemanticParser.isNode(item, "FunctionClause")) {
+            if (ErlangSemanticAnalyser.isNode(item, "FunctionClause")) {
                 for (ASTItem item1 : item.getChildren()) {
-                    if (ErlangSemanticParser.isTokenTypeName(item1, "atom")) {
+                    if (ErlangSemanticAnalyser.isTokenTypeName(item1, "atom")) {
                         name = item1;
-                    } else if (ErlangSemanticParser.isNode(item1, "Exprs")) {
+                    } else if (ErlangSemanticAnalyser.isNode(item1, "Exprs")) {
                         arguments = (ASTNode) item1;
                     }
                 }
@@ -321,7 +319,7 @@ public class Erlang {
             int arityInt = 0;
             if (arguments != null) {
                 for (ASTItem item : arguments.getChildren()) {
-                    if (ErlangSemanticParser.isNode(item, "Expr")) {
+                    if (ErlangSemanticAnalyser.isNode(item, "Expr")) {
                         arityInt++;
                     }
                 }
@@ -337,9 +335,9 @@ public class Erlang {
         ASTItem name = null;
         ASTItem arguments = null;
         for (ASTItem item : functionClause.getChildren()) {
-            if (ErlangSemanticParser.isTokenTypeName(item, "atom")) {
+            if (ErlangSemanticAnalyser.isTokenTypeName(item, "atom")) {
                 name = item;
-            } else if (ErlangSemanticParser.isNode(item, "Exprs")) {
+            } else if (ErlangSemanticAnalyser.isNode(item, "Exprs")) {
                 arguments = (ASTNode) item;
             }
         }
@@ -350,7 +348,7 @@ public class Erlang {
             if (arguments != null) {
                 argumentsStr = ((ASTNode) arguments).getAsText();
                 for (ASTItem item : arguments.getChildren()) {
-                    if (ErlangSemanticParser.isNode(item, "Expr")) {
+                    if (ErlangSemanticAnalyser.isNode(item, "Expr")) {
                         arityInt++;
                     }
                 }
@@ -371,12 +369,12 @@ public class Erlang {
         document.readLock();
         try {
             Document doc = context.getDocument();
-            ErlRoot erlRoot = ErlangSemanticParser.getCurrentErlRoot(doc);
-            if (erlRoot == null) {
+            ErlContext rootCtx = ErlangSemanticAnalyser.getCurrentRootCtx(doc);
+            if (rootCtx == null) {
                 return Collections.<CompletionItem>emptyList();
             }
             
-            String module = erlRoot.getModule().getName();
+            String module = rootCtx.getFirstDefinition(ErlModule.class).getName();
 
             List<CompletionItem> result = new ArrayList<CompletionItem>();
             TokenSequence tokenSequence = getTokenSequence(context);
@@ -590,7 +588,7 @@ public class Erlang {
             Class managerClass = cl.loadClass("javax.script.ScriptEngineManager");
             Object manager = managerClass.newInstance();
             Method getEngineByMimeType = managerClass.getMethod("getEngineByMimeType", new Class[]{String.class});
-            Object engine = getEngineByMimeType.invoke(manager, new Object[]{"text/erlang"});
+            Object engine = getEngineByMimeType.invoke(manager, new Object[]{"text/x-erlang"});
 
             Document doc = comp.getDocument();
             DataObject dob = NbEditorUtilities.getDataObject(doc);
@@ -700,12 +698,12 @@ public class Erlang {
         NbEditorDocument doc = (NbEditorDocument) comp.getDocument();
         int position = comp.getCaretPosition();
         ASTPath path = node.findPath(position);
-        ErlDefinition definition = getDefinition(doc, path);
+        DatabaseDefinition definition = getDefinition(doc, path);
         return definition != null;
     }
 
     public static boolean isUnusedVariable(Context context) {
-        ErlDefinition definition = getDefinition(context);
+        DatabaseDefinition definition = getDefinition(context);
         if (definition == null) {
             return true;
         }
@@ -714,7 +712,7 @@ public class Erlang {
     }
 
     public static boolean isFunctionParameter(Context context) {
-        ErlDefinition definition = getDefinition(context);
+        DatabaseDefinition definition = getDefinition(context);
         if (definition == null || !(definition instanceof ErlVariable)) {
             return false;
         }
@@ -723,7 +721,7 @@ public class Erlang {
     }
 
     public static boolean isLocalVariable(Context context) {
-        ErlDefinition definition = getDefinition(context);
+        DatabaseDefinition definition = getDefinition(context);
         if (definition == null || !(definition instanceof ErlVariable)) {
             return false;
         }
@@ -731,7 +729,7 @@ public class Erlang {
         return variable.getContextType() == ErlVariable.Scope.LOCAL && variable.getUsages().size() > 1;
     }
 
-    private static ErlDefinition getDefinition(Context context) {
+    private static DatabaseDefinition getDefinition(Context context) {
         if (!(context instanceof SyntaxContext)) {
             return null;
         }
@@ -741,7 +739,7 @@ public class Erlang {
     }
 
     // helper methods ..........................................................
-    public static ErlDefinition getDefinition(Document doc, ASTPath path) {
+    public static DatabaseDefinition getDefinition(Document doc, ASTPath path) {
         /**
          * per GLF design, some ASTPath will contain embeded path, for example:
          * a <string> token's path may looks like:
@@ -773,8 +771,16 @@ public class Erlang {
         }
         ASTToken token = (ASTToken) leaf;
         ASTNode astRoot = (ASTNode) path.getRoot();
-        ErlRoot erlRoot = ErlangSemanticParser.getErlRoot(doc, astRoot);
-        return erlRoot.getDefinition(token);
+        ErlContext rootCtx = ErlangSemanticAnalyser.getRootContext(doc, astRoot);        
+        DatabaseItem dbItem = rootCtx.getDatabaseItem(token.getOffset());
+        if (dbItem != null) {
+            if (dbItem instanceof DatabaseDefinition) {
+                return (DatabaseDefinition) dbItem;
+            } else if (dbItem instanceof DatabaseUsage) {
+                return ((DatabaseUsage) dbItem).getDefinition();
+            }
+        }
+        return null;
     }
 
     private static Collection<CompletionItem> membersBuf = new ArrayList<CompletionItem>();
@@ -782,13 +788,13 @@ public class Erlang {
     private static Collection<CompletionItem> getMembers(Document doc, int offset) {
         membersBuf.clear();
         String title = getDocumentName(doc);
-        ErlRoot erlRoot = ErlangSemanticParser.getCurrentErlRoot(doc);
-        if (erlRoot == null) {
+        ErlContext rootCtx = ErlangSemanticAnalyser.getCurrentRootCtx(doc);
+        if (rootCtx == null) {
             return membersBuf;
         }
 
-        Collection<ErlDefinition> definitions = erlRoot.getDefinitionsInScope(offset);
-        for (ErlDefinition definition : definitions) {
+        Collection<DatabaseDefinition> definitions = getDefinitionsInScope(rootCtx, offset);
+        for (DatabaseDefinition definition : definitions) {
             CompletionItem item = toCompletionItem(definition, title);
             if (item != null) {
                 membersBuf.add(item);
@@ -797,7 +803,14 @@ public class Erlang {
         return membersBuf;
     }
 
-    static CompletionItem toCompletionItem(ErlDefinition definition, String title) {
+    public static Collection<DatabaseDefinition> getDefinitionsInScope(ErlContext rootCtx, int offset) {
+        DatabaseContext closestCtx = rootCtx.getClosestContext(offset);
+        Collection<DatabaseDefinition> scopeDefinitions = new ArrayList<DatabaseDefinition>();
+        closestCtx.collectDefinitionsInScope(scopeDefinitions);
+        return scopeDefinitions;
+    }
+    
+    static CompletionItem toCompletionItem(DatabaseDefinition definition, String title) {
         if (definition instanceof ErlVariable) {
             ErlVariable v = (ErlVariable) definition;
             CompletionItem.Type type = null;
@@ -855,12 +868,12 @@ public class Erlang {
         }
         SyntaxContext scontext = (SyntaxContext) context;
         ASTPath path = scontext.getASTPath();
-        ErlDefinition definition = getDefinition(context.getDocument(), path);
+        DatabaseDefinition definition = getDefinition(context.getDocument(), path);
         return definition != null && definition instanceof ErlFunction;
     }
 
     private static Runnable getGotoDeclarationTask(ASTPath path, StyledDocument doc) {
-        ErlDefinition definition = getDefinition(doc, path);
+        DatabaseDefinition definition = getDefinition(doc, path);
         if (definition == null) {
             return null;
         }

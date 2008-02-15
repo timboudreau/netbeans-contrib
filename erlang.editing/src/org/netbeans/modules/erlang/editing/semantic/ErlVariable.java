@@ -40,13 +40,14 @@
  */
 package org.netbeans.modules.erlang.editing.semantic;
 
+import org.netbeans.api.languages.database.DatabaseDefinition;
 import org.netbeans.modules.erlang.editing.semantic.ErlVariable.Scope;
 
 /**
  *
  * @author Jan Jancura
  */
-public class ErlVariable extends ErlDefinition {
+public class ErlVariable extends DatabaseDefinition {
 
     public static enum Scope {
         GLOBAL,
@@ -66,6 +67,7 @@ public class ErlVariable extends ErlDefinition {
         return scope;
     }
     
+    @Override
     public String toString () {
         switch (scope) {
             case LOCAL:

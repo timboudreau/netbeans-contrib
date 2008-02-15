@@ -44,6 +44,7 @@ package org.netbeans.modules.websvc.axis2;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.prefs.Preferences;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ant.AntBuildExtender;
@@ -52,6 +53,8 @@ import org.netbeans.modules.websvc.axis2.config.model.Axis2Utils;
 import org.netbeans.modules.websvc.axis2.services.model.ServicesModel;
 import org.netbeans.modules.websvc.axis2.services.model.ServicesUtils;
 import org.netbeans.spi.project.LookupProvider;
+import org.netbeans.spi.project.support.ant.AntProjectHelper;
+import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.netbeans.spi.project.ui.ProjectOpenedHook;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileChangeListener;
@@ -148,7 +151,17 @@ public class Axis2LookupProvider implements LookupProvider {
                     ServicesModel servicesModel = ServicesUtils.getServicesModel(servicesFo, true);
                     if (servicesModel != null) axis2ModelProvider.setServicesModel(servicesModel);                    
                 }
-                
+                // setting axis properties
+                final Preferences preferences = AxisUtils.getPreferences();
+                try {
+                    String axisHome = preferences.get("AXIS_HOME",null); //NOI18N
+                    String axisDeploy = preferences.get("AXIS_DEPLOY",null); //NOI18N
+                    if (axisHome != null || axisDeploy != null) {
+                        AxisUtils.updateAxisProperties(prj, axisHome, axisDeploy);
+                    }
+                } catch (IOException ex) {
+                        ex.printStackTrace();
+                }                
             }
             protected void projectClosed() {
                 FileObject nbprojectDir = prj.getProjectDirectory().getFileObject("nbproject"); //NOI18N
@@ -159,7 +172,6 @@ public class Axis2LookupProvider implements LookupProvider {
                         axis2Model.getRootComponent().removePropertyChangeListener(axis2Listener);
                     }
                 }
-                
             }
             
             private void handleAxis2BuildScript(Axis2Model axis2Model) {
@@ -193,7 +205,33 @@ public class Axis2LookupProvider implements LookupProvider {
                     }
                 }
             }
+            private void updateAxisProperties(String axisHome, String axisDeploy) throws IOException {
+                System.out.println("updating properties");
+                EditableProperties ep = AxisUtils.getEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH);
+                boolean needToStore = false;
+                if (ep != null) {
+                    String oldAxisHome = ep.getProperty("axis2.home");
+                    if (axisHome != null && !axisHome.equals(oldAxisHome)) {
+                        ep.setProperty("axis2.home",axisHome); //NOI18N
+                        needToStore = true;
+                    }
+                    String oldAxisDeploy = ep.getProperty("axis2.deploy.war");
+                    if (oldAxisDeploy == null) oldAxisDeploy = ep.getProperty("axis2.deploy.dir");
+                    if (axisDeploy != null && !axisDeploy.equals(oldAxisDeploy)) {
+                        if (axisDeploy.endsWith(".war")) { //NOI18N
+                            ep.setProperty("axis2.deploy.war",axisDeploy); //NOI18N
+                            ep.remove("axis2.deploy.dir");
+                        } else {
+                            ep.setProperty("axis2.deploy.dir",axisDeploy); //NOI18N
+                            ep.remove("axis2.deploy.war"); //NOI18N                       
+                        }
+                    }
+                }
+                AxisUtils.storeEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH, ep);
+            }
         };
+        
+
         return Lookups.fixed(new Object[] {
             openhook,
             axis2ModelProvider

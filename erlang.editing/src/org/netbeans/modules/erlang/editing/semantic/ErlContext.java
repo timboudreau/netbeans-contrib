@@ -40,132 +40,29 @@
  */
 package org.netbeans.modules.erlang.editing.semantic;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import org.netbeans.api.languages.database.DatabaseContext;
+import org.netbeans.api.languages.database.DatabaseDefinition;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class ErlContext extends ErlItem {
-	
-    private String name;
-    private ErlContext parent;
-    private List<ErlContext> contexts;
-    private List<ErlDefinition> definitions;
-	    
+public class ErlContext extends DatabaseContext {
+		    
     ErlContext(int offset, int endOffset) {
-        super(offset, endOffset);
+        super(null, "", offset, endOffset);;
     }
-
-    private void setParent(ErlContext parent) {
-        this.parent = parent;
-    }
-    
-    protected ErlContext getParent() {
-        return parent;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public String getName() {
-        return name;
-    }
-
-    public List<ErlContext> getContexts() {
-        if (contexts == null) {
-            return Collections.<ErlContext>emptyList();
-        }
-        return contexts;
-    }
-    
-    public void addContext(ErlContext context) {
-        if (contexts == null) {
-            contexts = new ArrayList<ErlContext>();
-	}
-        context.setParent(this);
-	contexts.add(context);
-    }
-
-    public void addDefinition(ErlDefinition definition) {
-        if (definitions == null) {
-            definitions = new ArrayList<ErlDefinition>();
-	} 
-        definitions.add(definition);
-    }
-
-    public ErlContext getBestContextAt(int offset) {
-        ErlContext result = null;
-        if (contexts != null) {
-            /** search children first */
-            for (ErlContext context : contexts) {
-                if (context.contains(offset)) {
-                    result = context.getBestContextAt(offset);
-		    break;
-		}
-	    }  
-	}
-	if (result != null) {
-            return result;
-	} else {
-            if (this.contains(offset)) {
-                return this;
-	    } else {
-                /* we should return null here, since it may under a parent context's call, 
-		 * we shall tell the parent there is none in this and children of this
-		 */
-                return null; 
-	    } 
-	}
-    }
-
-    private boolean contains(int offset) {
-        return offset >= getOffset() && offset < getEndOffset();
-    }
-
-
-    protected <T extends ErlDefinition> T getFirstDefinition(Class<T> type) {
-        if (definitions == null) return null;
-        for (ErlDefinition definition : definitions) {
-            if (type.isInstance(definition)) {
-                return (T)definition;
-            }
-        }
-        return null;
-    }
-    
-    protected <T extends ErlDefinition> Collection<T> getDefinitions(Class<T> type) {
-        if (definitions == null) return Collections.<T>emptyList();
-        Collection<T> result = new ArrayList<T>();
-        for (ErlDefinition definition: definitions) {
-            if (type.isInstance(definition)) {
-                result.add((T)definition);
-            }
-        }
-        return result;
-    }
-    
-    protected void collectDefinitionsInScopeTo(Collection<ErlDefinition> scopeDefinitions) {
-        if (definitions != null) {
-            scopeDefinitions.addAll(definitions);
-        } 
-	if (parent != null) {
-	    parent.collectDefinitionsInScopeTo(scopeDefinitions);
-	}
-    }
-    
+        
     ErlFunction getFunctionInScope(String name, int arity) {
         return getFunctionInScope(null, name, arity);
     }
     
     ErlFunction getFunctionInScope(String moduleName, String name, int arity) {
         ErlFunction result = null;
+        List<DatabaseDefinition> definitions = getDefinitions();
 	if (definitions != null) {
-	    for (ErlDefinition definition : definitions) {
+	    for (DatabaseDefinition definition : definitions) {
                 if (definition instanceof ErlFunction &&
 		        name.equals(((ErlFunction) definition).getName()) &&
                         arity == ((ErlFunction) definition).getArity()) {
@@ -184,6 +81,7 @@ public class ErlContext extends ErlItem {
 	if (result != null) {
             return result;
 	} else {
+            ErlContext parent = (ErlContext) getParent();
             if (parent != null) {
                 return parent.getFunctionInScope(moduleName, name, arity);
 	    } else {
@@ -203,27 +101,6 @@ public class ErlContext extends ErlItem {
     ErlMacro getMacroInScope(String name) {
 	return getDefinitionInScopeByName(ErlMacro.class, name);
     }    
-
-    private <T extends ErlDefinition> T getDefinitionInScopeByName(Class<T> type, String name) {
-        T result = null;
-	if (definitions != null) {
-	    for (ErlDefinition definition : definitions) {
-                if (type.isInstance(definition) && name.equals(definition.getName())) {
-                    result = (T) definition;
-		    break;
-	        }
-	    }
-	}
-	if (result != null) {
-            return result;
-	} else {
-            if (parent != null) {
-                return parent.getDefinitionInScopeByName(type, name);
-	    } else {
-                return null;
-	    }
-	} 
-    }
     
 }
 

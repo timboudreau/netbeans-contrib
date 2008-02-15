@@ -49,11 +49,12 @@ import java.util.prefs.Preferences;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.websvc.axis2.AxisUtils;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.nodes.Node;
-import org.openide.util.NbPreferences;
 import org.openide.util.actions.NodeAction;
 
 public class DeployAction extends NodeAction  {
@@ -82,8 +83,28 @@ public class DeployAction extends NodeAction  {
             FileObject srcRoot = activatedNodes[0].getLookup().lookup(FileObject.class);
             project = FileOwnerQuery.getOwner(srcRoot);
         }
+        
+        // updating axis deploy
+        final Preferences preferences = AxisUtils.getPreferences();
+        String axisDeploy = preferences.get("AXIS_DEPLOY",null); //NOI18N
+        if (axisDeploy == null || axisDeploy.length() == 0) {
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
+                    NbBundle.getMessage(DeployAction.class, "TXT_NO_DEPLOYMENT_DIR")));
+            return;
+        }
+        String axisHome = preferences.get("AXIS_HOME",null); //NOI18N
+        if (axisHome == null || axisHome.length() == 0) {
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
+                    NbBundle.getMessage(DeployAction.class, "TXT_NO_HOME_DIR")));
+            return;
+        }
+        try {
+            AxisUtils.updateAxisProperties(project, axisHome, axisDeploy);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }     
+        
         AxisUtils.runTargets(project.getProjectDirectory(), new String[]{"axis2-deploy"}); //NOI18N
-        Preferences preferences = NbPreferences.forModule(AxisConfigurationAction.class);
         String tomcatUser = preferences.get("TOMCAT_MANAGER_USER", null);
         if (tomcatUser != null) {
             try {

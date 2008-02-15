@@ -42,27 +42,28 @@ package org.netbeans.modules.erlang.editing.semantic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import org.netbeans.api.languages.database.DatabaseDefinition;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class ErlExport extends ErlDefinition {
-    
+public class ErlExport extends DatabaseDefinition {
+
     private Collection<ErlFunction> functions = new ArrayList<ErlFunction>();
-    
+
     public ErlExport(int offset, int endOffset) {
         super("export", null, offset, endOffset);
     }
-    
+
     public void addFunction(ErlFunction function) {
         functions.add(function);
     }
-    
+
     public Collection<ErlFunction> getFunctions() {
         return functions;
     }
-    
+
     public String toString() {
         return "Export " + functions.toString();
     }

@@ -255,7 +255,7 @@ public class ScalaSemanticAnalyser {
     public ScalaContext analyse(ASTNode astRoot) {
         if (this.astRoot != astRoot) {
             this.astRoot = astRoot;
-            ScalaContext rootCtxInParsing = new ScalaContext(astRoot.getOffset(), astRoot.getEndOffset());
+            ScalaContext rootCtxInParsing = new ScalaContext(ScalaContext.ROOT, astRoot.getOffset(), astRoot.getEndOffset());
             process(rootCtxInParsing, astRoot, rootCtxInParsing);
             rootCtx = rootCtxInParsing;
             DatabaseManager.setRoot(astRoot, rootCtx);
@@ -282,9 +282,9 @@ public class ScalaSemanticAnalyser {
                             currCtx.addDefinition(currPackage);
                             for (ASTItem item2 : item1.getChildren()) {
                                 if (isNode(item2, "TopStats")) {
-                                    ScalaContext ctx = new ScalaContext(item1.getOffset(), item1.getEndOffset());
-                                    currCtx.addContext(ctx);
-                                    process(rootCtx, item2, ctx);
+                                    ScalaContext newCtx = new ScalaContext(ScalaContext.BLOCK, item1.getOffset(), item1.getEndOffset());
+                                    currCtx.addContext(newCtx);
+                                    process(rootCtx, item2, newCtx);
                                 }
                             }
                         } else if (isNode(item1, "Import")) {
@@ -318,7 +318,7 @@ public class ScalaSemanticAnalyser {
             for (ASTItem item : n.getChildren()) {
                 if (isNode(item, "TopTmplDef")) {
                     Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
-                    ScalaContext newCtx = new ScalaContext(item.getOffset(), item.getEndOffset());
+                    ScalaContext newCtx = new ScalaContext(ScalaContext.TEMPLATE, item.getOffset(), item.getEndOffset());
                     currCtx.addContext(newCtx);
                     pendingItems.putAll(processDclDef(rootCtx, item, newCtx));
                     processPendingItems(rootCtx, pendingItems);
@@ -332,7 +332,7 @@ public class ScalaSemanticAnalyser {
     /** process TemplateStats || BlockStats || CaseBlockStats */
     private void processBlockStates(ScalaContext rootCtx, ASTItem blockStats, ScalaContext currCtx) {
         Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
-        ScalaContext newCtx = new ScalaContext(blockStats.getOffset(), blockStats.getEndOffset());
+        ScalaContext newCtx = new ScalaContext(ScalaContext.BLOCK, blockStats.getOffset(), blockStats.getEndOffset());
         currCtx.addContext(newCtx);
         for (ASTItem item1 : blockStats.getChildren()) {
             if (isNode(item1, "TemplateStat") || isNode(item1, "BlockStat") || isNode(item1, "CaseBlockStat")) {
@@ -417,7 +417,8 @@ public class ScalaSemanticAnalyser {
 
     private Map<ASTItem, ScalaContext> processTmplDef(ScalaContext rootCtx, ASTItem defStat, ScalaContext currCtx, Template tmplDfn) {
         Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
-        ScalaContext newCtx = new ScalaContext(defStat.getOffset(), defStat.getEndOffset());
+        ScalaContext newCtx = new ScalaContext(ScalaContext.TEMPLATE, defStat.getOffset(), defStat.getEndOffset());
+        tmplDfn.setContext(newCtx);
         currCtx.addContext(newCtx);
 
         Kind kind = tmplDfn.getKind();
@@ -571,7 +572,8 @@ public class ScalaSemanticAnalyser {
 
     private Map<ASTItem, ScalaContext> processFunDclDef(ScalaContext rootCtx, ASTItem funDclDef, ScalaContext currCtx, Function funDfn) {
         Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
-        ScalaContext newCtx = new ScalaContext(funDclDef.getOffset(), funDclDef.getEndOffset());
+        ScalaContext newCtx = new ScalaContext(ScalaContext.FUNCTION, funDclDef.getOffset(), funDclDef.getEndOffset());
+        funDfn.setContext(newCtx);
         currCtx.addContext(newCtx);
         for (ASTItem item : funDclDef.getChildren()) {
             if (isNode(item, "FunTypeParamClause")) {
@@ -613,6 +615,9 @@ public class ScalaSemanticAnalyser {
 
     private Map<ASTItem, ScalaContext> processTypeDclDef(ScalaContext rootCtx, ASTItem typeDclDef, ScalaContext currCtx, Type typeDfn) {
         Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
+        ScalaContext newCtx = new ScalaContext(ScalaContext.FUNCTION, typeDclDef.getOffset(), typeDclDef.getEndOffset());
+        typeDfn.setContext(newCtx);
+        currCtx.addContext(newCtx);
         for (ASTItem item : typeDclDef.getChildren()) {
             if (isNode(item, "TypeParamClause")) {
                 List<ASTItem> nameIds = query(item, "VariantTypeParam/TypeParam/NameId");
@@ -624,9 +629,9 @@ public class ScalaSemanticAnalyser {
 //                    ctx.addUsage(nameToken, varDfn);
                 }
             } else if (isNode(item, "Type")) {
-                processAnyType(rootCtx, item, currCtx);
+                processAnyType(rootCtx, item, newCtx);
             } else {
-                pendingItems.put(item, currCtx);
+                pendingItems.put(item, newCtx);
             }
         }
         return pendingItems;
@@ -855,7 +860,7 @@ public class ScalaSemanticAnalyser {
             if (postfixExpr != null && funExprTail != null) {
                 // This is an anonymous function expr, the postfixExpt should be only in form of:
                 // (Bindings | id)
-                ScalaContext newCtx = new ScalaContext(expr.getOffset(), expr.getEndOffset());
+                ScalaContext newCtx = new ScalaContext(ScalaContext.FUNCTION, expr.getOffset(), expr.getEndOffset());
                 currCtx.addContext(newCtx);
                 List<ASTItem> nameIds = query(postfixExpr, "PrefixExpr/SimpleExpr/PathIdWithTypeArgs/PathId/NameId");
                 if (nameIds.size() > 0) {
@@ -885,7 +890,7 @@ public class ScalaSemanticAnalyser {
             processPendingItems(rootCtx, pendingItems);
         } else if (isNode(expr, "ForExpr")) {
             Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
-            ScalaContext ctx = new ScalaContext(expr.getOffset(), expr.getEndOffset());
+            ScalaContext ctx = new ScalaContext(ScalaContext.FOR_LOOP, expr.getOffset(), expr.getEndOffset());
             currCtx.addContext(ctx);
             for (ASTItem item : expr.getChildren()) {
                 if (isNode(item, "Enumerators")) {
@@ -926,7 +931,7 @@ public class ScalaSemanticAnalyser {
                 }
             }
             if (casePattern != null && caseBlockStats != null) {
-                newCtx = new ScalaContext(expr.getOffset(), expr.getEndOffset());
+                newCtx = new ScalaContext(ScalaContext.BLOCK, expr.getOffset(), expr.getEndOffset());
                 currCtx.addContext(newCtx);
                 List<ASTItem> casePattern0s = query(casePattern, "CasePattern1/CasePattern0");
                 for (ASTItem casePattern0 : casePattern0s) {
@@ -985,7 +990,7 @@ public class ScalaSemanticAnalyser {
             ASTToken arity = null;
             for (ASTItem item : expr.getChildren()) {
                 if (isNode(item, "FunClauses")) {
-                    ScalaContext funContext = new ScalaContext(expr.getOffset(), expr.getEndOffset());
+                    ScalaContext funContext = new ScalaContext(ScalaContext.FUNCTION, expr.getOffset(), expr.getEndOffset());
                     currCtx.addContext(funContext);
 
                     for (ASTItem child : item.getChildren()) {
@@ -1052,7 +1057,7 @@ public class ScalaSemanticAnalyser {
                 }
             }
         } else if (isNode(expr, "TryExpr")) {
-            ScalaContext newCtx = new ScalaContext(expr.getOffset(), expr.getEndOffset());
+            ScalaContext newCtx = new ScalaContext(ScalaContext.BLOCK, expr.getOffset(), expr.getEndOffset());
             currCtx.addContext(newCtx);
 
             ASTItem tryBlockStats = null;

@@ -38,45 +38,32 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.erlang.editing.semantic;
 
-import org.netbeans.api.languages.database.DatabaseDefinition;
+package org.netbeans.modules.websvc.axis2.options;
 
-/**
- *
- * @author Caoyuan Deng
- */
-public class ErlInclude extends DatabaseDefinition {
-    
-    private String path;
-    private boolean lib;
-    
-    public ErlInclude(int offset, int endOffset) {
-        super("include", null, offset, endOffset);
-    }
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import org.netbeans.spi.options.OptionsCategory;
+import org.netbeans.spi.options.OptionsPanelController;
+import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 
-    public void setPath(String path) {
-	this.path = path;
-    }
+public final class Axis2OptionsCategory extends OptionsCategory {
 
-    public String getPath() {
-	return path;
-    }
-
-    public void setLib(boolean lib) {
-	this.lib = lib;
-    }
-
-    public boolean isLib() {
-	return lib;
-    }
-    
     @Override
-    public String toString() {
-        return "Include " + path;
+    public Icon getIcon() {
+        return new ImageIcon(Utilities.loadImage("org/netbeans/modules/websvc/axis2/resources/AxisWS.png")); // NOI18N
+    }
+
+    public String getCategoryName() {
+        return NbBundle.getMessage(Axis2OptionsCategory.class, "OptionsCategory_Name_Axis2");
+    }
+
+    public String getTitle() {
+        return NbBundle.getMessage(Axis2OptionsCategory.class, "OptionsCategory_Title_Axis2");
+    }
+
+    public OptionsPanelController create() {
+        return new Axis2PanelController();
     }
 }
-
-
-
-

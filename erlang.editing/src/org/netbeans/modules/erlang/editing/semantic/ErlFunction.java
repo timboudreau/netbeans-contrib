@@ -43,18 +43,20 @@ package org.netbeans.modules.erlang.editing.semantic;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.netbeans.api.languages.database.DatabaseDefinition;
 
 /**
  *
- * @author Jan Jancura
  * @author Caoyuan Deng
  */
-public class ErlFunction extends ErlDefinition {
+public class ErlFunction extends DatabaseDefinition {
     
     private int line;
     private String moduleName;
     private int arity;
     private Set<String> argumentsOpts; // use Set here to avoid reduntant.
+    
+    private String fileName;
     
     /** For Built-In functions */
     public ErlFunction(String name, int arity) {
@@ -70,6 +72,14 @@ public class ErlFunction extends ErlDefinition {
     public ErlFunction(String moduleName, String name, int offset, int endOffset, int arity) {
         this(name, offset, endOffset, arity);
 	this.moduleName = moduleName;
+    }
+    
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+    
+    public String getFileName() {
+        return fileName;
     }
 
     public String getModuleName() {
@@ -112,6 +122,7 @@ public class ErlFunction extends ErlDefinition {
         return line;
     }
     
+    @Override
     public String toString() {
         return "Function " + getName() + "/" + arity;
     }
