@@ -223,6 +223,9 @@ public class Clearcase {
                     Clearcase.LOG.finest("getTopmostManagedParent found snapshot root " + ancestor +  " for " + file);
                     return ancestor;
                 }
+            } catch (ClearcaseUnavailableException ex) {
+                // clearcase is not installed
+                Clearcase.LOG.finest("getTopmostManagedParent - clearcase not installed: " + ex.getMessage());
             } catch (ClearcaseException ex) {
                 Clearcase.LOG.log(Level.WARNING, ex.getMessage());
             }
@@ -252,6 +255,9 @@ public class Clearcase {
                     return file;
                 }               
             }            
+        } catch (ClearcaseUnavailableException ex) {
+            // clearcase is not installed
+            Clearcase.LOG.finest("getTopmostManagedParent - clearcase not installed: " + ex.getMessage());
         } catch (ClearcaseException ex) {
             Clearcase.LOG.log(Level.WARNING, null, ex);
         }

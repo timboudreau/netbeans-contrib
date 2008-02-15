@@ -41,6 +41,7 @@
 package org.netbeans.modules.clearcase.client;
 
 import org.netbeans.modules.clearcase.ClearcaseException;
+import org.netbeans.modules.clearcase.ClearcaseUnavailableException;
 import org.netbeans.modules.versioning.util.Utils;
 import org.netbeans.modules.versioning.util.CommandReport;
 import org.netbeans.api.progress.ProgressHandleFactory;
@@ -127,7 +128,7 @@ public class ClearcaseClient {
         try {
             ensureCleartool(); 
             ct.exec(command);                               
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new ClearcaseException(e);
         }            
     }
@@ -145,7 +146,7 @@ public class ClearcaseClient {
             for (ClearcaseCommand command : eu) {                
                 ct.exec(command);                
             }                                        
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new ClearcaseException(e);
         }            
     }        
@@ -186,7 +187,7 @@ public class ClearcaseClient {
                         break;
                     }
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 Utils.logError(this, e);
             } finally {
                 ph.finish();
@@ -303,9 +304,13 @@ public class ClearcaseClient {
         }
     }
 
-    private void ensureCleartool() throws IOException {
+    private void ensureCleartool() throws ClearcaseException, IOException {
         if (ct == null || !ct.isValid()) {
-            ct = new Cleartool();
+            try {
+                ct = new Cleartool();
+            } catch (IOException e) {
+                throw new ClearcaseUnavailableException(e);
+            }
         }
     }
 }
