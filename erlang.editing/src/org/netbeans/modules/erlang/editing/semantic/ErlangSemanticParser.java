@@ -52,7 +52,7 @@ import org.netbeans.api.languages.ASTToken;
 import org.netbeans.api.languages.ParserManager;
 import org.netbeans.api.languages.ParserManager.State;
 import org.netbeans.api.languages.SyntaxContext;
-import org.netbeans.modules.erlang.editing.features.MarkOccurrencesSupport;
+import org.netbeans.api.languages.database.DatabaseManager;
 import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -143,9 +143,6 @@ public class ErlangSemanticParser {
         if (parser == null) {
             parser = new ErlangSemanticParser(doc);
             docToParser.put(doc, parser);
-
-            /** ugly hacking to add MarkOccurrencesSupport */
-            MarkOccurrencesSupport.checkInstallation(doc);
         }
 
         return parser;
@@ -216,6 +213,7 @@ public class ErlangSemanticParser {
             ErlRoot erlRootInParsing = new ErlRoot(astRoot);
             process(erlRootInParsing, astRoot, erlRootInParsing.getRootContext());
             erlRoot = erlRootInParsing;
+            DatabaseManager.setRoot(astRoot, erlRoot.getRootContext());
             return erlRoot;
         } else {
             return erlRoot;
@@ -312,7 +310,7 @@ public class ErlangSemanticParser {
                 functionDef = new ErlFunction(nameStr, function.getOffset(), function.getEndOffset(), arityInt);
                 erlRoot.getRootContext().addDefinition(functionDef);
             }
-            erlRoot.registerUsage(functionName, functionDef);
+            erlRoot.getRootContext().addUsage(functionName, functionDef);
             if (!argumentsStr.equals("")) {
                 functionDef.addArgumentsOpt(argumentsStr);
             }
@@ -334,7 +332,6 @@ public class ErlangSemanticParser {
 
     private void processFunctionClause(ErlRoot erlRoot, ASTItem functionClause, ErlContext currentContext) {
         ErlContext functionContext = new ErlContext(functionClause.getOffset(), functionClause.getEndOffset());
-        functionContext.setName("FunctionClause");
         currentContext.addContext(functionContext);
 
         for (ASTItem item : functionClause.getChildren()) {
@@ -353,7 +350,7 @@ public class ErlangSemanticParser {
                                     variableDef = new ErlVariable(varNameStr, varToken.getOffset(), varToken.getEndOffset(), ErlVariable.Scope.PARAMETER);
                                     functionContext.addDefinition(variableDef);
                                 }
-                                erlRoot.registerUsage(varToken, variableDef);
+                                functionContext.addUsage(varToken, variableDef);
                             }
                         }
                     }
@@ -451,7 +448,7 @@ public class ErlangSemanticParser {
                             ErlFunction functionDef = erlRoot.getRootContext().getFunctionInScope(name.getIdentifier(), arityInt);
                             if (functionDef != null) {
                                 exportDef.addFunction(functionDef);
-                                erlRoot.registerUsage(name, functionDef);
+                                erlRoot.getRootContext().addUsage(name, functionDef);
                             } else {
                                 /** don't know offset of this function, just add it as 0 offset */
                                 exportDef.addFunction(new ErlFunction(name.getIdentifier(), arityInt));
@@ -523,7 +520,7 @@ public class ErlangSemanticParser {
                 erlRoot.getRootContext().addDefinition(macroDef);
                 for (ASTItem child : item.getChildren()) {
                     if (isTokenTypeName(child, "var")) {
-                        erlRoot.registerUsage((ASTToken) child, macroDef);
+                        erlRoot.getRootContext().addUsage((ASTToken) child, macroDef);
                     }
                 }
             } else if (isNode(item, "MacroParams") && macroDef != null) {
@@ -559,7 +556,7 @@ public class ErlangSemanticParser {
                 includeDef.setPath(pathStr);
 
                 /** add this usage to enable go to declartion */
-                erlRoot.registerUsage(path, includeDef);
+                erlRoot.getRootContext().addUsage(path, includeDef);
             }
         }
     }
@@ -582,7 +579,7 @@ public class ErlangSemanticParser {
                 includeDef.setPath(pathStr);
 
                 /** add this usage to enable go to declartion */
-                erlRoot.registerUsage(path, includeDef);
+                erlRoot.getRootContext().addUsage(path, includeDef);
             }
         }
     }
@@ -615,7 +612,6 @@ public class ErlangSemanticParser {
         for (ASTItem child : crClauses.getChildren()) {
             if (isNode(child, "CrClause")) {
                 ErlContext crClauseContext = new ErlContext(child.getOffset(), child.getEndOffset());
-                crClauseContext.setName("CrClause");
                 currentContext.addContext(crClauseContext);
 
                 for (ASTItem child1 : child.getChildren()) {
@@ -682,7 +678,6 @@ public class ErlangSemanticParser {
             for (ASTItem item : expr.getChildren()) {
                 if (isNode(item, "IfClauses")) {
                     ErlContext ifContext = new ErlContext(expr.getOffset(), expr.getEndOffset());
-                    ifContext.setName("IfExpr");
                     currentContext.addContext(ifContext);
 
                     for (ASTItem child : item.getChildren()) {
@@ -703,7 +698,6 @@ public class ErlangSemanticParser {
             for (ASTItem item : expr.getChildren()) {
                 if (isNode(item, "Expr")) {
                     caseContext = new ErlContext(expr.getOffset(), expr.getEndOffset());
-                    caseContext.setName("CaseExpr");
                     currentContext.addContext(caseContext);
 
                     processAnyExpr(erlRoot, item, caseContext, containsVarDef);
@@ -727,7 +721,6 @@ public class ErlangSemanticParser {
             if (afterExpr != null && afterClauseBody != null) {
                 ErlContext afterContext = new ErlContext(afterExpr.getOffset(), afterClauseBody.getEndOffset());
                 currentContext.addContext(afterContext);
-                afterContext.setName("AfterClause");
 
                 processAnyExpr(erlRoot, afterExpr, afterContext, true);
                 processClauseBody(erlRoot, afterClauseBody, afterContext);
@@ -740,7 +733,6 @@ public class ErlangSemanticParser {
             for (ASTItem item : expr.getChildren()) {
                 if (isNode(item, "FunClauses")) {
                     ErlContext funContext = new ErlContext(expr.getOffset(), expr.getEndOffset());
-                    funContext.setName("FunExpr");
                     currentContext.addContext(funContext);
 
                     for (ASTItem child : item.getChildren()) {
@@ -783,11 +775,11 @@ public class ErlangSemanticParser {
                                     functionDef = ErlangIndexProvider.getDefault().getFunction(remoteName.getIdentifier(), funName.getIdentifier(), arityInt);
                                     if (functionDef != null) {
                                         erlRoot.getRootContext().addDefinition(functionDef);
-                                        erlRoot.registerUsage(funName, functionDef);
+                                        currentContext.addUsage(funName, functionDef);
                                     }
                                 }
                             } else {
-                                erlRoot.registerUsage(funName, functionDef);
+                                currentContext.addUsage(funName, functionDef);
                             }
                         } else if (remoteName != null) {
                             funName = remoteName;
@@ -797,10 +789,10 @@ public class ErlangSemanticParser {
                                 functionDef = ErlBuiltIn.getBuiltInFunction(funName.getIdentifier(), arityInt);
                                 if (functionDef != null) {
                                     erlRoot.getRootContext().addDefinition(functionDef);
-                                    erlRoot.registerUsage(funName, functionDef);
+                                    currentContext.addUsage(funName, functionDef);
                                 }
                             } else {
-                                erlRoot.registerUsage(funName, functionDef);
+                                currentContext.addUsage(funName, functionDef);
                             }
                         }
                     }
@@ -812,7 +804,6 @@ public class ErlangSemanticParser {
                 /** test if it's listComprehensionExprsNode, and got the Var declarations first */
                 if (isNode(item, "ListComprehensionExprs")) {
                     listCompContext = new ErlContext(expr.getOffset(), expr.getEndOffset());
-                    listCompContext.setName("ListComp");
                     currentContext.addContext(listCompContext);
 
                     for (ASTItem child : item.getChildren()) {
@@ -850,7 +841,6 @@ public class ErlangSemanticParser {
             }
         } else if (isNode(expr, "TryExpr")) {
             ErlContext tryContext = new ErlContext(expr.getOffset(), expr.getEndOffset());
-            tryContext.setName("TryExpr");
             currentContext.addContext(tryContext);
 
             for (ASTItem item : expr.getChildren()) {
@@ -864,7 +854,6 @@ public class ErlangSemanticParser {
                             for (ASTItem child1 : child.getChildren()) {
                                 if (isNode(child1, "TryClause")) {
                                     ErlContext tryClauseContext = new ErlContext(child1.getOffset(), child1.getEndOffset());
-                                    tryClauseContext.setName("TryClause");
                                     tryContext.addContext(tryClauseContext);
 
                                     for (ASTItem child2 : child1.getChildren()) {
@@ -894,10 +883,10 @@ public class ErlangSemanticParser {
                         macroDef = ErlMacro.getPreDefined(macroNameStr);
                         if (macroDef != null) {
                             erlRoot.getRootContext().addDefinition(macroDef);
-                            erlRoot.registerUsage(macroName, macroDef);
+                            currentContext.addUsage(macroName, macroDef);
                         }
                     } else {
-                        erlRoot.registerUsage(macroName, macroDef);
+                        currentContext.addUsage(macroName, macroDef);
                     }
                 }
             }
@@ -911,10 +900,10 @@ public class ErlangSemanticParser {
                             if (containsVarDef) {
                                 variableDef = new ErlVariable(var.getIdentifier(), expr.getOffset(), expr.getEndOffset(), ErlVariable.Scope.LOCAL);
                                 currentContext.addDefinition(variableDef);
-                                erlRoot.registerUsage(var, variableDef);
+                                currentContext.addUsage(var, variableDef);
                             }
                         } else {
-                            erlRoot.registerUsage(var, variableDef);
+                            currentContext.addUsage(var, variableDef);
                         }
                     }
                 } else if (item instanceof ASTNode) {
@@ -982,11 +971,11 @@ public class ErlangSemanticParser {
                                 functionDef = ErlangIndexProvider.getDefault().getFunction(remoteName.getIdentifier(), functionCallName.getIdentifier(), arityInt);
                                 if (functionDef != null) {
                                     erlRoot.getRootContext().addDefinition(functionDef);
-                                    erlRoot.registerUsage(functionCallName, functionDef);
+                                    currentContext.addUsage(functionCallName, functionDef);
                                 }
                             }
                         } else {
-                            erlRoot.registerUsage(functionCallName, functionDef);
+                            currentContext.addUsage(functionCallName, functionDef);
                         }
                     }
                 } else {
@@ -1000,10 +989,10 @@ public class ErlangSemanticParser {
                             functionDef = ErlBuiltIn.getBuiltInFunction(functionCallName.getIdentifier(), arityInt);
                             if (functionDef != null) {
                                 erlRoot.getRootContext().addDefinition(functionDef);
-                                erlRoot.registerUsage(functionCallName, functionDef);
+                                currentContext.addUsage(functionCallName, functionDef);
                             }
                         } else {
-                            erlRoot.registerUsage(functionCallName, functionDef);
+                            currentContext.addUsage(functionCallName, functionDef);
                         }
                     }
                 }

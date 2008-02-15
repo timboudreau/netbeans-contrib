@@ -43,11 +43,14 @@ package org.netbeans.modules.erlang.editing.semantic;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.ASTToken;
+import org.netbeans.api.languages.database.DatabaseContext;
+import org.netbeans.api.languages.database.DatabaseDefinition;
 
 /**
  * It's acutally a rootContext wrapper.
@@ -58,43 +61,29 @@ import org.netbeans.api.languages.ASTToken;
 public class ErlRoot {
     
     private ErlContext rootContext;
-    private Map<ASTToken, ErlDefinition> usedTokenToDefinition = new WeakHashMap<ASTToken, ErlDefinition>();
+    private Map<ASTToken, DatabaseDefinition> usedTokenToDefinition = new WeakHashMap<ASTToken, DatabaseDefinition>();
     
     ErlRoot(ASTNode AstRoot) {
         if (AstRoot == null) {
 	    throw new NullPointerException();
 	}
 	rootContext = new ErlContext(AstRoot.getOffset(), AstRoot.getEndOffset());
-        rootContext.setName("S");
     }
     
     public ErlContext getRootContext() {
         return rootContext;
     }
-
-    protected void registerUsage(ASTToken token, ErlDefinition definition) {
-        definition._addUsage(token);
-        usedTokenToDefinition.put(token, definition);
-    }
     
-    public Collection<ErlDefinition> getDefinitionsInScope(int offset) {
-        ErlContext bestContext = rootContext.getBestContextAt(offset);
-        Collection<ErlDefinition> scopeDefinitions = new ArrayList<ErlDefinition>();
-        bestContext.collectDefinitionsInScopeTo(scopeDefinitions);
+    public Collection<DatabaseDefinition> getDefinitionsInScope(int offset) {
+        DatabaseContext bestContext = rootContext.getClosestContext(offset);
+        List<DatabaseDefinition> scopeDefinitions = new ArrayList<DatabaseDefinition>();
+        bestContext.collectDefinitionsInScope(scopeDefinitions);
 	return scopeDefinitions;
     }
 
-    public Set<ASTToken> getOccurrentUsages(int offset) {
-	ErlDefinition definition = getDefinitionOfTokenAt(offset);
-	if (definition != null) {
-	    return definition.getUsages();
-	} else {
-            return Collections.<ASTToken>emptySet();
-	}
-    }
 
-    public ErlDefinition getDefinitionOfTokenAt(int offset) {
-	for (Map.Entry<ASTToken, ErlDefinition> entry : usedTokenToDefinition.entrySet()) {
+    public DatabaseDefinition getDefinitionOfTokenAt(int offset) {
+	for (Map.Entry<ASTToken, DatabaseDefinition> entry : usedTokenToDefinition.entrySet()) {
 	    ASTToken token = entry.getKey();
             if (token.getOffset() <= offset && offset <= token.getEndOffset()) {
 		return entry.getValue();
@@ -103,8 +92,8 @@ public class ErlRoot {
         return null;
     }
 
-    public ErlDefinition getDefinitionAt(int offset) {
-	for (ErlDefinition definition : usedTokenToDefinition.values()) {
+    public DatabaseDefinition getDefinitionAt(int offset) {
+	for (DatabaseDefinition definition : usedTokenToDefinition.values()) {
             if (definition.getOffset() <= offset && offset <= definition.getEndOffset()) {
 		return definition;
 	    }
@@ -112,7 +101,7 @@ public class ErlRoot {
         return null;
     }
         
-    public ErlDefinition getDefinition(ASTToken token) {
+    public DatabaseDefinition getDefinition(ASTToken token) {
         return usedTokenToDefinition.get(token);
     }
     
