@@ -51,12 +51,14 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.websvc.axis2.services.model.ServicesModel;
 import org.netbeans.modules.websvc.axis2.services.model.ServicesUtils;
 import org.netbeans.modules.xml.xam.ModelSource;
+import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.netbeans.spi.project.support.ant.GeneratedFilesHelper;
 import org.openide.cookies.EditorCookie;
@@ -70,6 +72,7 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Lookup;
 import org.openide.util.Mutex;
 import org.openide.util.MutexException;
+import org.openide.util.NbPreferences;
 import org.openide.util.lookup.Lookups;
 
 /**
@@ -303,5 +306,68 @@ public class AxisUtils {
     public static FileObject getServicesFileObject(FileObject projectDir) {
         return projectDir.getFileObject(BUILD_SERVICES_PATH);
     }
+    
+    public static Preferences getPreferences() {
+        return NbPreferences.forModule(AxisUtils.class);
+    }
+    
+    public static void updateAxisProperties(Project prj, String axisHome, String axisDeploy) throws IOException {
+        EditableProperties ep = AxisUtils.getEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH);
+        boolean needStore = false;
+        if (ep != null) {
+            String oldAxisHome = ep.getProperty("axis2.home");
+            if (axisHome != null && !axisHome.equals(oldAxisHome)) {
+                ep.setProperty("axis2.home",axisHome); //NOI18N
+                needStore = true;
+            }
+            String oldAxisDeploy = ep.getProperty("axis2.deploy.war");
+            if (oldAxisDeploy == null) oldAxisDeploy = ep.getProperty("axis2.deploy.dir");
+            if (axisDeploy != null && !axisDeploy.equals(oldAxisDeploy)) {
+                if (axisDeploy.endsWith(".war")) { //NOI18N
+                    ep.setProperty("axis2.deploy.war",axisDeploy); //NOI18N
+                    ep.remove("axis2.deploy.dir");
+                } else {
+                    ep.setProperty("axis2.deploy.dir",axisDeploy); //NOI18N
+                    ep.remove("axis2.deploy.war"); //NOI18N                       
+                }
+                needStore = true;
+            }
+        }
+        if (needStore) AxisUtils.storeEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH, ep);
+    }
+
+    public static void updateAxisHomeProperty(Project prj, String axisHome) throws IOException {
+        EditableProperties ep = AxisUtils.getEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH);
+        boolean needStore = false;
+        if (ep != null) {
+            String oldAxisHome = ep.getProperty("axis2.home");
+            if (axisHome != null && !axisHome.equals(oldAxisHome)) {
+                ep.setProperty("axis2.home",axisHome); //NOI18N
+                needStore = true;
+            }
+        }
+        if (needStore) AxisUtils.storeEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH, ep);
+    }
+    
+    public static void updateAxisDeployProperty(Project prj, String axisDeploy) throws IOException {
+        EditableProperties ep = AxisUtils.getEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH);
+        boolean needStore = false;
+        if (ep != null) {
+            String oldAxisDeploy = ep.getProperty("axis2.deploy.war");
+            if (oldAxisDeploy == null) oldAxisDeploy = ep.getProperty("axis2.deploy.dir");
+            if (axisDeploy != null && !axisDeploy.equals(oldAxisDeploy)) {
+                if (axisDeploy.endsWith(".war")) { //NOI18N
+                    ep.setProperty("axis2.deploy.war",axisDeploy); //NOI18N
+                    ep.remove("axis2.deploy.dir");
+                } else {
+                    ep.setProperty("axis2.deploy.dir",axisDeploy); //NOI18N
+                    ep.remove("axis2.deploy.war"); //NOI18N                       
+                }
+                needStore = true;
+            }
+        }
+        if (needStore) AxisUtils.storeEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH, ep);
+         
+    }    
     
 }
