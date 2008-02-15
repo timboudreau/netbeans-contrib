@@ -390,7 +390,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
     }
 
     private void onRefreshButton() {
-        getProgressSupport().schedule(0);
+        getProgressSupport().start();
     }                    
 
     private void onUpdateButton() {
@@ -660,23 +660,15 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
             });
         }
     }
-
-    private class RefreshProgressSupport extends ProgressSupport {
-
-        public RefreshProgressSupport() {
-            super(new RequestProcessor("Clearcase-diff-refresh", 1), "Refreshing Status...");
-        }
-        
-        @Override
-        protected void perform() {
-            Cancellable c = Clearcase.getInstance().getFileStatusCache().refreshRecursively(context);
-            setCancellableDelegate(c);
-        }
-    }
     
     private ProgressSupport getProgressSupport() {
         if(refreshSupport == null) {
-            refreshSupport = new RefreshProgressSupport();
+            refreshSupport = new FileStatusCache.RefreshSupport(new RequestProcessor("Clearcase-diff-refresh", 1), context, contextName) {
+                @Override
+                protected void perform() {
+                    refresh();
+                }
+            };
         }
         return refreshSupport;
     }

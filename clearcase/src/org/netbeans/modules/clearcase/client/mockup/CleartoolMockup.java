@@ -593,11 +593,11 @@ public class CleartoolMockup extends Process implements Runnable {
     }
 
     private void slowDown(long l) {
-//        try {
-//            Thread.sleep(l);    // this is so slow ...
-//        } catch (InterruptedException ex) {
-//            Exceptions.printStackTrace(ex);
-//        }
+        try {
+            Thread.sleep(l);    // this is so slow ...
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 
 }

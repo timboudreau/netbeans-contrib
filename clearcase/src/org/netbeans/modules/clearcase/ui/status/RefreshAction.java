@@ -73,8 +73,7 @@ public class RefreshAction extends NodeAction {
                 vtc.requestActive();                
                 vtc.performRefreshAction();
             }
-        });
-        
+        });        
     }
 
     @Override

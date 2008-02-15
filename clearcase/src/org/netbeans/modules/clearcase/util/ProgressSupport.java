@@ -118,10 +118,11 @@ public abstract class ProgressSupport implements Runnable, Cancellable {
     
     public void run() {                
         try {            
+            canceled = false;
             startProgress();
             perform();               
         } finally {            
-            finnishProgress();                 
+            finnishProgress();
         }
     }
 
@@ -142,6 +143,6 @@ public abstract class ProgressSupport implements Runnable, Cancellable {
         if(cancellableDelegate != null) {
             cancellableDelegate.cancel();
         }
-        return task.cancel();
+        return task != null ?  task.cancel() : true;
     }
 }

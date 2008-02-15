@@ -63,7 +63,6 @@ import org.netbeans.modules.clearcase.client.NotificationListener;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
-import org.openide.util.Cancellable;
 import org.openide.util.NbBundle;
 import org.openide.util.HelpCtx;
 import org.openide.util.RequestProcessor;
@@ -165,7 +164,7 @@ public class CheckinAction extends AbstractAction implements NotificationListene
 
     // XXX temporary solution...
     private void computeNodes(final CheckinTable checkinTable, JButton cancel, final CheckinPanel checkinPanel) {
-        final ProgressSupport ps = new ProgressSupport(new RequestProcessor("Clearcase-AddTo"), "Preparing Add To...", cancel) {
+        final ProgressSupport ps = new FileStatusCache.RefreshSupport(new RequestProcessor("Clearcase-AddTo"), context, "Preparing Add To...", cancel) {
             @Override
             protected void perform() {
                 try {
@@ -174,8 +173,7 @@ public class CheckinAction extends AbstractAction implements NotificationListene
 
                     // refresh the cache first so we will
                     // know all checkin candidates
-                    Cancellable c = cache.refreshRecursively(context);
-                    setCancellableDelegate(c);
+                    refresh();
                             
                     // get all files to be checked in
                     File [] files = cache.listFiles(context, FileInformation.STATUS_LOCAL_CHANGE);
