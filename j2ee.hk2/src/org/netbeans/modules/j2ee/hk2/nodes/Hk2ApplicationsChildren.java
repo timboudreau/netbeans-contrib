@@ -68,20 +68,21 @@ public class Hk2ApplicationsChildren extends Children.Keys implements Refreshabl
     }
     
     public void updateKeys(){
-        setKeys(new Object[] {WAIT_NODE});
+        setKeys(new Object[] { WAIT_NODE });
         
         RequestProcessor.getDefault().post(new Runnable() {
-            Vector keys = new Vector();
-            Hk2DeploymentManager dm = (Hk2DeploymentManager)lookup.lookup(Hk2DeploymentManager.class);
+            
+            private final Vector keys = new Vector();
+            private final Hk2DeploymentManager dm = lookup.lookup(Hk2DeploymentManager.class);
             
             public void run() {
-                
                 try {
-                    for(TargetModuleID id:dm.getRunningModules(ModuleType.EAR, dm.getTargets())) {
-                        String name = ((Hk2TargetModuleID)id).getModuleID();
-                        
-                        keys.add(new Hk2ItemNode(lookup, id, Hk2ItemNode.ItemType.J2EE_APPLICATION));
-                        
+                    TargetModuleID [] modules = dm.getRunningModules(ModuleType.EAR, dm.getTargets());
+                    if(modules != null && modules.length > 0) {
+                        for(TargetModuleID id : modules) {
+                            String name = ((Hk2TargetModuleID) id).getModuleID();
+                            keys.add(new Hk2ItemNode(lookup, id, Hk2ItemNode.ItemType.J2EE_APPLICATION));
+                        }
                     }
                 } catch (Exception ex) {
                     ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);

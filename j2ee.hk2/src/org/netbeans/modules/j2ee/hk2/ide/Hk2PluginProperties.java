@@ -174,20 +174,17 @@ public class Hk2PluginProperties {
             if (!ee5lib.exists()) {//should not happen
                 return list;
             }
+            
             Manifest m = new JarFile(ee5lib).getManifest();
-
             String dependantJars = m.getMainAttributes().getValue("Class-Path");
-
             StringTokenizer token = new StringTokenizer(dependantJars, " ");
             while (token.hasMoreTokens()) {
                 String jar = token.nextToken();
 //                System.out.println("dependantJars : " + jar);
                 File j = new File(jarDir,  jar);
                 list.add(CustomizerSupport.fileToUrl(j));
-
             }
-
-        } catch (Exception ex) {
+        } catch(Exception ex) {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
         }
         return list;
@@ -355,9 +352,9 @@ public class Hk2PluginProperties {
      * @return
      */
     public static boolean isRunning(String host, int port) {
-        if(null == host)
+        if(null == host) {
             return false;
-        
+        }
         try {
             InetSocketAddress isa = new InetSocketAddress(host, port);
             Socket socket = new Socket();
@@ -379,7 +376,6 @@ public class Hk2PluginProperties {
         try {
             return isRunning(host, Integer.parseInt(port));
         } catch(NumberFormatException e) {
-            
             return false;
         }
     }

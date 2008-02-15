@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="org.netbeans.modules.cnd.classview-ClassViewAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/View/org.netbeans.modules.cnd.classview-ClassViewAction.instance"/>
+                <attr name="position" intvalue="300"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="D-9.shadow">
+            <attr name="originalFile" stringvalue="Actions/View/org.netbeans.modules.cnd.classview-ClassViewAction.instance"/>
+        </file>
+    </folder>
+    <folder name="Actions">
+        <folder name="View">
+            <file name="org.netbeans.modules.cnd.classview-ClassViewAction.instance">
+                <attr name='instanceCreate' methodvalue='org.netbeans.spi.actions.support.Factory.delegate'/>
+                <attr name='delegate' methodvalue='org.netbeans.modules.featureondemand.api.Factory.newAction'/>
+                <attr name='SystemFileSystem.localizingBundle' stringvalue='org.netbeans.modules.featureentries.resources.Bundle'/>
+                <attr name='iconBase' stringvalue='org/netbeans/modules/featureentries/resources/class_view.png'/>
+                <attr name='noIconInMenu' boolvalue="false"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Templates">
+        <folder name="Project">
+            <folder name="Native">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/desktop.html"/>
+                
+                <file name="makefile.xml">
+                    <attr name="position" intvalue="100"/>
+                    <attr name="template" boolvalue="true"/>
+                    <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.featureondemand.api.Factory.newProject"/>
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/makeProject.gif"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/makefile.html"/>
+                </file>
+                
+                <file name="newApplication.xml">
+                    <attr name="position" intvalue="200"/>
+                    <attr name="template" boolvalue="true"/>
+                    <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.featureondemand.api.Factory.newProject"/>
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/makeProject.gif"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/newApplication.html"/>
+                </file>
+                
+                <file name="newDynamicLibrary.xml">
+                    <attr name="position" intvalue="300"/>
+                    <attr name="template" boolvalue="true"/>
+                    <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.featureondemand.api.Factory.newProject"/>
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/makeProject.gif"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/newDynamicLibrary.html"/>
+                </file>                
+                
+                <file name="newStaticLibrary.xml">
+                    <attr name="position" intvalue="400"/>
+                    <attr name="template" boolvalue="true"/>
+                    <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.featureondemand.api.Factory.newProject"/>
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/makeProject.gif"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/newStaticLibrary.html"/>
+                </file>
+                
+            </folder>
+            
+            <!--<folder name="Samples">
+                <folder name="Native">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                    <attr name="position" intvalue="650"/>
+                    
+                    <folder name="Applications">
+                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                        
+                        <file name="helloapp.zip" url="samples/helloapp.zip">
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                            <attr name="template" boolvalue="true"/>
+                            <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/samples/helloapp.html"/>
+                            <attr name="mainProjectLocation" stringvalue="helloapp"/>
+                            <attr name="subProjectLocations" stringvalue="hello1lib,hello2lib,hello3lib,hello4lib"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/makeProject.gif"/>
+                            <attr name="instantiatingIterator" newvalue="org.netbeans.modules.featureentries.MakeSampleProjectIterator"/>
+                        </file>
+                        
+                        <file name="quote.zip" url="samples/quote.zip">
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                            <attr name="template" boolvalue="true"/>
+                            <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/samples/quote.html"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/makeProject.gif"/>
+                            <attr name="instantiatingIterator" newvalue="org.netbeans.modules.featureentries.MakeSampleProjectIterator"/>
+                        </file>
+                    </folder>
+                    
+                    <folder name="CCPP">
+                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                        
+                        <file name="args.zip" url="samples/args.zip">
+                            <attr name="position" intvalue="100"/>
+                            <attr name="template" boolvalue="true"/>
+                            <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/samples/args.html"/>
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/makeProject.gif"/>
+                            <attr name="instantiatingIterator" newvalue="org.netbeans.modules.featureentries.MakeSampleProjectIterator"/>
+                        </file>
+                        
+                        <file name="mp.zip" url="samples/mp.zip">
+                            <attr name="position" intvalue="200"/>
+                            <attr name="template" boolvalue="true"/>
+                            <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/samples/mp.html"/>
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/makeProject.gif"/>
+                            <attr name="instantiatingIterator" newvalue="org.netbeans.modules.featureentries.MakeSampleProjectIterator"/>
+                        </file>
+                        
+                        <file name="welcome.zip" url="samples/welcome.zip">
+                            <attr name="position" intvalue="300"/>
+                            <attr name="template" boolvalue="true"/>
+                            <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/samples/welcome.html"/>
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/makeProject.gif"/>
+                            <attr name="instantiatingIterator" newvalue="org.netbeans.modules.featureentries.MakeSampleProjectIterator"/>
+                        </file>
+                        
+                        <file name="io.zip" url="samples/io.zip">
+                            <attr name="position" intvalue="400"/>
+                            <attr name="template" boolvalue="true"/>
+                            <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/samples/io.html"/>
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/makeProject.gif"/>
+                            <attr name="instantiatingIterator" newvalue="org.netbeans.modules.featureentries.MakeSampleProjectIterator"/>
+                        </file>
+                        
+                    </folder>
+                </folder>
+            </folder>-->
+        </folder>
+    </folder>
+    
+</filesystem>
