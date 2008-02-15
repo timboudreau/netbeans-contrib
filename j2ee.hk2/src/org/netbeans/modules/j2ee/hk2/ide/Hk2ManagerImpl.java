@@ -212,6 +212,13 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
         return ret;
     }
     
+    public boolean isV3Running() {
+        command = "get-server-id";
+        cmdType = CommandType.DISTRIBUTE;
+        run();
+        return "SUCCESS".equals(outputCode);
+    }
+    
     public void undeploy(Hk2TargetModuleID tmId) {
         
         this.tmId = tmId;
@@ -361,7 +368,7 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
         outputMessage = "";
         authorized = true;
         
-        int retries = 4;
+        int retries = command.startsWith("get-server-id") ? 1 : 4;
         
         URLConnection conn = null;
         InputStreamReader reader = null;

@@ -62,6 +62,7 @@ import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.j2ee.deployment.plugins.api.ServerDebugInfo;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.StartServer;
 import org.netbeans.modules.j2ee.hk2.ide.Hk2DeploymentStatus;
+import org.netbeans.modules.j2ee.hk2.ide.Hk2ManagerImpl;
 import org.netbeans.modules.j2ee.hk2.ide.Hk2PluginProperties;
 import org.netbeans.modules.j2ee.hk2.ide.Hk2StartRunnable;
 import org.netbeans.modules.j2ee.hk2.ide.Hk2StopRunnable;
@@ -179,8 +180,14 @@ public class Hk2StartServer extends StartServer implements ProgressObject {
     }
     
     public boolean isRunning() {
-        return Hk2PluginProperties.isRunning(ip.getProperty(Hk2PluginProperties.PROPERTY_HOST),
+        boolean result = Hk2PluginProperties.isRunning(
+                ip.getProperty(Hk2PluginProperties.PROPERTY_HOST),
                 ip.getProperty(InstanceProperties.HTTP_PORT_NUMBER));
+        if(result) {
+            Hk2ManagerImpl mgr = new Hk2ManagerImpl(dm);
+            result = mgr.isV3Running();
+        }
+        return result;
     }
     
     public DeploymentStatus getDeploymentStatus() {
