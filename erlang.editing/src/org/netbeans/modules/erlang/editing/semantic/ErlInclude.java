@@ -40,11 +40,13 @@
  */
 package org.netbeans.modules.erlang.editing.semantic;
 
+import org.netbeans.api.languages.database.DatabaseDefinition;
+
 /**
  *
  * @author Caoyuan Deng
  */
-public class ErlInclude extends ErlDefinition {
+public class ErlInclude extends DatabaseDefinition {
     
     private String path;
     private boolean lib;
@@ -69,6 +71,7 @@ public class ErlInclude extends ErlDefinition {
 	return lib;
     }
     
+    @Override
     public String toString() {
         return "Include " + path;
     }

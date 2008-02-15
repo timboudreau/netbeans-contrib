@@ -43,12 +43,13 @@ package org.netbeans.modules.erlang.editing.semantic;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.netbeans.api.languages.database.DatabaseDefinition;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class ErlModule extends ErlDefinition {
+public class ErlModule extends DatabaseDefinition {
     
     private List<String> packages;
     
