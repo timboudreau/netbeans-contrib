@@ -50,8 +50,6 @@ import java.util.Map.Entry;
 import java.util.logging.Level; 
 import java.util.regex.Pattern;
 import org.netbeans.api.queries.SharabilityQuery;
-import org.netbeans.modules.clearcase.ui.status.RefreshAction;
-import org.netbeans.modules.clearcase.util.ProgressSupport;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.versioning.spi.VersioningSupport;
@@ -539,6 +537,7 @@ public class FileStatusCache {
     }
     
     private void fireFileStatusChanged(File file, FileInformation oldInfo, FileInformation newInfo, boolean force) {        
+        force = false;
         if(!force) {            
            if (oldInfo == null && newInfo == null) {
                return;

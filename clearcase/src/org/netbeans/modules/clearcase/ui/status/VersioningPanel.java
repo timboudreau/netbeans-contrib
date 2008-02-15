@@ -103,6 +103,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         this.parentTopComponent = parent;
         explorerManager = new ExplorerManager ();
         displayStatuses = FileInformation.STATUS_LOCAL_CHANGE;
+        //refreshViewTask = rp.create(new RefreshViewTask());
         noContentComponent.setLabel(NbBundle.getMessage(VersioningPanel.class, "MSG_No_Changes_All")); // NOI18N
         syncTable = new SyncTable();
 
