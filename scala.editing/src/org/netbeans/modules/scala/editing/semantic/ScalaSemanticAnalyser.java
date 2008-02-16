@@ -208,8 +208,8 @@ public class ScalaSemanticAnalyser {
 
     public static ScalaContext getRootContext(Document doc, ASTNode astRoot) {
         ScalaSemanticAnalyser analyser = getAnalyser(doc);
-        ScalaContext ctxRoot = analyser.getRootContext();
-        if (ctxRoot != null) {
+        ScalaContext rootCtx = analyser.getRootContext();
+        if (rootCtx != null) {
             /**
              * although we have a syntax parser listener which will redo semantic
              * parser when new syntax happened, but SemanticHilightingsLayer may
@@ -219,13 +219,13 @@ public class ScalaSemanticAnalyser {
              * remove oldAstRoot and redo semantic parsing
              */
             if (analyser.getAstRoot() != astRoot) {
-                ctxRoot = analyser.analyse(astRoot);
+                rootCtx = analyser.analyse(astRoot);
             }
         } else {
-            ctxRoot = analyser.analyse(astRoot);
+            rootCtx = analyser.analyse(astRoot);
         }
 
-        return ctxRoot;
+        return rootCtx;
     }
 
     public static ASTNode getAstRoot(Document doc) {
