@@ -211,7 +211,7 @@ public final class ActionsFactory {
         }
         
         public void actionPerformed(ActionEvent actionEvent, JTextComponent target) {
-            int[] span = LaTeXGoToImpl.getDefault().getGoToNode(target.getDocument(), target.getCaretPosition(), true);
+            int[] span = LaTeXGoToImpl.getDefault().getGoToNode(target.getDocument(), target.getCaretPosition(), true, null);
             
             if (span == null) {
                 Toolkit.getDefaultToolkit().beep();

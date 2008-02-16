@@ -84,7 +84,7 @@ public final class LaTeXGoToImpl {
         return instance;
     }
     
-    public int[] getGoToNode(final Document doc, final int offset, final boolean  doOpen) {
+    public int[] getGoToNode(final Document doc, final int offset, final boolean  doOpen, final String[] tooltip) {
         Source source = Source.forDocument(doc);
         final int[][] result = new int[1][];
         
@@ -108,7 +108,18 @@ public final class LaTeXGoToImpl {
                         if (doOpen)
                             openRef(lpr, anode);
 
+                        if (tooltip != null) {
+                            LabelInfo ref = findRef(lpr, anode);
+                            
+                            if (ref == null) {
+                                return ;
+                            }
+                            
+                            tooltip[0] = ref.getCaption();
+                        }
+                        
                         result[0] = getSpanForNode(anode);
+
                         return ;
                     } else {
                         if (cnode instanceof CommandNode && ((CommandNode) cnode).getCommand().isInputLike()) {
@@ -119,7 +130,7 @@ public final class LaTeXGoToImpl {
                             return ;
                         } else {
                             if (anode.hasAttribute("#cite")) {
-                                result[0] = handleCite(lpr, anode, offset, doOpen);
+                                result[0] = handleCite(lpr, anode, offset, doOpen, tooltip);
                                 return ;
                             }
                         }
@@ -161,15 +172,26 @@ public final class LaTeXGoToImpl {
         return result[0];
     }
     
-    private void openRef(LaTeXParserResult lpr, ArgumentNode anode) {
-        String       label  = anode.getText().toString();
-        List         labels = Utilities.getDefault().getLabels(lpr);
-        
-        for (Iterator i = labels.iterator(); i.hasNext(); ) {
+    private LabelInfo findRef(LaTeXParserResult lpr, ArgumentNode anode) {
+        String label = anode.getText().toString();
+        List labels = Utilities.getDefault().getLabels(lpr);
+
+        for (Iterator i = labels.iterator(); i.hasNext();) {
             LabelInfo info = (LabelInfo) i.next();
-            
-            if (label.equals(info.getLabel()))
-                Utilities.getDefault().openPosition(info.getStartingPosition());
+
+            if (label.equals(info.getLabel())) {
+                return info;
+            }
+        }
+        
+        return null;
+    }
+    
+    private void openRef(LaTeXParserResult lpr, ArgumentNode anode) {
+        LabelInfo ref = findRef(lpr, anode);
+        
+        if (ref != null) {
+            Utilities.getDefault().openPosition(ref.getStartingPosition());
         }
     }
     
@@ -184,7 +206,7 @@ public final class LaTeXGoToImpl {
         Utilities.getDefault().openPosition(cnode.getStartingPosition());
     }
     
-    private int[] handleCite(LaTeXParserResult lpr, ArgumentNode anode, int offset, boolean  doOpen) {
+    private int[] handleCite(LaTeXParserResult lpr, ArgumentNode anode, int offset, boolean  doOpen, String[] tooltip) {
         int start = anode.getStartingPosition().getOffsetValue();
         int end   = anode.getEndingPosition().getOffsetValue();
 //                            int[] fullArgSpan = getSpanForNode(anode);
@@ -201,13 +223,20 @@ public final class LaTeXGoToImpl {
         
         for (int cntr = 0; cntr < parts.length; cntr++) {
             if (currentStart <= offset && offset <= currentStart + parts[cntr].length()) {
-                if (doOpen) {
+                if (doOpen || tooltip != null) {
                     List<? extends PublicationEntry> references = Utilities.getDefault().getAllBibReferences(lpr);
                     boolean     found = false;
                     
                     for (PublicationEntry entry : references) {
                         if (parts[cntr].equals(entry.getTag())) {
-                            Utilities.getDefault().openPosition(entry.getStartPosition());
+                            if (doOpen) {
+                                Utilities.getDefault().openPosition(entry.getStartPosition());
+                            }
+                            
+                            if (tooltip != null) {
+                                tooltip[0] = entry.getAuthor() + ":" + entry.getTitle();
+                            }
+                            
                             found = true;
                             
                             break;

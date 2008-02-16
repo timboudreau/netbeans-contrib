@@ -44,14 +44,17 @@
 package org.netbeans.modules.latex.editor;
 
 import java.awt.Toolkit;
+import java.util.EnumSet;
+import java.util.Set;
 import javax.swing.text.Document;
-import org.netbeans.lib.editor.hyperlink.spi.HyperlinkProvider;
+import org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt;
+import org.netbeans.lib.editor.hyperlink.spi.HyperlinkType;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class LaTeXHyperlinkProvider implements HyperlinkProvider {
+public class LaTeXHyperlinkProvider implements HyperlinkProviderExt {
 
     /**
      * Creates a new instance of LaTeXHyperlinkProvider 
@@ -59,24 +62,34 @@ public class LaTeXHyperlinkProvider implements HyperlinkProvider {
     public LaTeXHyperlinkProvider() {
     }
     
-    public void performClickAction(Document doc, int offset) {
-        int[] span = LaTeXGoToImpl.getDefault().getGoToNode(doc, offset, true);
+    public Set<HyperlinkType> getSupportedHyperlinkTypes() {
+        return EnumSet.of(HyperlinkType.GO_TO_DECLARATION);
+    }
+
+    public void performClickAction(Document doc, int offset, HyperlinkType type) {
+        int[] span = LaTeXGoToImpl.getDefault().getGoToNode(doc, offset, true, null);
         
         if (span == null) {
             Toolkit.getDefaultToolkit().beep();
         }
     }
     
-    public boolean isHyperlinkPoint(Document doc, int offset) {
-        return getHyperlinkSpan(doc, offset) != null;
+    public boolean isHyperlinkPoint(Document doc, int offset, HyperlinkType type) {
+        return getHyperlinkSpan(doc, offset, type) != null;
     }
     
-    public int[] getHyperlinkSpan(Document doc, int offset) {
-        return LaTeXGoToImpl.getDefault().getGoToNode(doc, offset, false);
+    public int[] getHyperlinkSpan(Document doc, int offset, HyperlinkType type) {
+        return LaTeXGoToImpl.getDefault().getGoToNode(doc, offset, false, null);
     }
 
-    public String getShortDescription(Document document, int i) {
-        return null;
+    public String getTooltipText(Document doc, int offset, HyperlinkType type) {
+        String[] tooltip = new String[1];
+        
+        if (LaTeXGoToImpl.getDefault().getGoToNode(doc, offset, false, tooltip) != null) {
+            return tooltip[0];
+        } else {
+            return null;
+        }
     }
 
 }

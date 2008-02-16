@@ -86,7 +86,7 @@ Contributor(s): Jan Lahoda
             <folder name="HyperlinkProviders">
                 <file name="LaTeXHyperlinkProvider.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.editor.LaTeXHyperlinkProvider"/>
-                    <attr name="instanceOf" stringvalue="org.netbeans.lib.editor.hyperlink.spi.HyperlinkProvider"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt"/>
                 </file>
             </folder>
             
