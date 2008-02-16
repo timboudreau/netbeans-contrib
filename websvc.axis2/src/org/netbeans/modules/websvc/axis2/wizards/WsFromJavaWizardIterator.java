@@ -48,6 +48,7 @@ import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import java.util.prefs.Preferences;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.classpath.ClassPath;
@@ -90,6 +91,12 @@ public class WsFromJavaWizardIterator implements TemplateWizard.Iterator /*, Ite
 
     public Set<DataObject> instantiate(TemplateWizard wiz) throws IOException {
         DataObject dObj = null;
+        // updating axis home
+        final Preferences preferences = AxisUtils.getPreferences();
+        String axisHome = preferences.get("AXIS_HOME",null); //NOI18N
+        if (axisHome != null) {
+            AxisUtils.updateAxisHomeProperty(project, axisHome);
+        }
         if (WizardProperties.JAVA_TYPE_EXISTING.equals(wiz.getProperty(WizardProperties.PROP_FROM_JAVA_TYPE))) {
             FileObject fo = (FileObject)wiz.getProperty(WizardProperties.PROP_JAVA_CLASS);
             if (fo != null) {

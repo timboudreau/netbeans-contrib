@@ -38,31 +38,32 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.erlang.editing.semantic;
 
-/**
- * @author Jan Jancura
- * @author Caoyuan Deng
- */
-public abstract class ErlItem {
+package org.netbeans.modules.websvc.axis2.options;
 
-    private int offset;
-    private int endOffset;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import org.netbeans.spi.options.OptionsCategory;
+import org.netbeans.spi.options.OptionsPanelController;
+import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 
+public final class Axis2OptionsCategory extends OptionsCategory {
 
-
-    public ErlItem(int offset, int endOffset) {
-        this.offset = offset;
-        this.endOffset = endOffset;
+    @Override
+    public Icon getIcon() {
+        return new ImageIcon(Utilities.loadImage("org/netbeans/modules/websvc/axis2/resources/AxisWS.png")); // NOI18N
     }
 
-    public int getOffset() {
-        return offset;
+    public String getCategoryName() {
+        return NbBundle.getMessage(Axis2OptionsCategory.class, "OptionsCategory_Name_Axis2");
     }
 
-    public int getEndOffset() {
-        return endOffset;
+    public String getTitle() {
+        return NbBundle.getMessage(Axis2OptionsCategory.class, "OptionsCategory_Title_Axis2");
     }
 
-
+    public OptionsPanelController create() {
+        return new Axis2PanelController();
+    }
 }

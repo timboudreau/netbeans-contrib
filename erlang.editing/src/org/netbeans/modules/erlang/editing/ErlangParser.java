@@ -60,7 +60,7 @@ import org.openide.util.Exceptions;
 public class ErlangParser implements ParserManagerListener {
 
     private static ErlangParser parser;
-    private static String mimeType = "text/erlang";
+    private static String mimeType = "text/x-erlang";
     
     public static ErlangParser get() throws LanguageDefinitionNotFoundException {
         if (parser == null) {

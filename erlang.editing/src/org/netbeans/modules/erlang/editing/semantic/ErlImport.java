@@ -42,12 +42,13 @@ package org.netbeans.modules.erlang.editing.semantic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import org.netbeans.api.languages.database.DatabaseDefinition;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class ErlImport extends ErlDefinition {
+public class ErlImport extends DatabaseDefinition {
     
     private Collection<ErlFunction> functions = new ArrayList<ErlFunction>();
     
@@ -63,6 +64,7 @@ public class ErlImport extends ErlDefinition {
         return functions;
     }
     
+    @Override
     public String toString() {
         return "Import " + functions.toString();
     }

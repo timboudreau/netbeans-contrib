@@ -45,15 +45,12 @@ import org.netbeans.modules.clearcase.util.ProgressSupport;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.Dialog;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.*;
 import javax.swing.*;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.clearcase.FileStatusCache;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.versioning.util.VersioningOutputManager;
@@ -207,7 +204,7 @@ public class AddAction extends AbstractAction {
 
     // XXX temporary solution...
     private void computeNodes(final AddTable table, JButton cancel, final AddPanel addPanel) {
-        final ProgressSupport ps = new ProgressSupport(new RequestProcessor("Clearcase-AddTo"), "Preparing Add To...", cancel) {
+        final ProgressSupport ps = new FileStatusCache.RefreshSupport(new RequestProcessor("Clearcase-AddTo"), context, "Preparing Add To...", cancel) {
             @Override
             protected void perform() {
                 try {
@@ -217,8 +214,8 @@ public class AddAction extends AbstractAction {
 
                     // refresh the cache first so we will
                     // know all checkin candidates
-                    cache.refreshRecursively(context, this);
-
+                    refresh();
+                    
                     // get all files to be added
                     File [] files = cache.listFiles(context, FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY);
                     List<ClearcaseFileNode> nodes = new ArrayList<ClearcaseFileNode>(files.length);
@@ -230,7 +227,7 @@ public class AddAction extends AbstractAction {
                 } finally {
                     addPanel.progressPanel.setVisible(false);                    
                 }
-            }
+            }           
         };
         addPanel.barPanel.add(ps.getProgressComponent(), BorderLayout.CENTER);                                
         ps.start();        

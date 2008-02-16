@@ -1156,14 +1156,17 @@ public class EditorContextImpl extends EditorContext {
         /** @todo run in a thread */
         ScalaContext rootCtx = ScalaSemanticAnalyser.getCurrentRootCtx(doc);
         Template tmpl = rootCtx.getEnclosingDefinition(Template.class, offset);
-        String className = "";
-        if (tmpl != null) {
-            if (tmpl.getKind() == Template.Kind.OBJECT) {
-                className = tmpl.getName() + "$";
-            } else {
-                className = tmpl.getName();
-            }
+        if (tmpl == null) {
+            return "";
         }
+
+        String className = "";
+        if (tmpl.getKind() == Template.Kind.OBJECT) {
+            className = tmpl.getName() + "$";
+        } else {
+            className = tmpl.getName();
+        }
+        
         Packaging enclosingPackge = tmpl.getEnclosingPackage();
         if (enclosingPackge == null) {
             return className;
@@ -1243,7 +1246,7 @@ public class EditorContextImpl extends EditorContext {
         FileObject fileObject = dataObject.getPrimaryFile();
         if (fileObject == null) {
             return null;
-        }        
+        }
         if (!"text/x-scala".equals(fileObject.getMIMEType())) {
             return null;
         }
@@ -1612,7 +1615,7 @@ public class EditorContextImpl extends EditorContext {
         FileObject fo = null;
         try {
             fo = URLMapper.findFileObject(new URL(url));
-            //js = JavaSource.forFileObject(fo);
+        //js = JavaSource.forFileObject(fo);
         } catch (MalformedURLException ex) {
             ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
         }

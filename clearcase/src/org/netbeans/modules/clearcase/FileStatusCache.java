@@ -49,9 +49,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level; 
 import java.util.regex.Pattern;
+import javax.swing.JButton;
 import org.netbeans.api.queries.SharabilityQuery;
-import org.netbeans.modules.clearcase.util.ProgressSupport;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
+import org.netbeans.modules.clearcase.util.ProgressSupport;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.versioning.spi.VersioningSupport;
 import org.netbeans.modules.versioning.util.ListenersSupport;
@@ -204,17 +205,17 @@ public class FileStatusCache {
         return fi;               
     }
     
-    /**
-     * Refreshes recursively all files in the given context.
-     * This method synchronously accesses disk and may block for a long period of time.
-     * Status change events will be fired to notify all registered listeners.
-     * 
-     * @param ctx the context to be refreshed
-     */
-    public void refreshRecursively(VCSContext ctx, ProgressSupport ps) {
-        Set<File> files = ctx.getRootFiles();
-        refresh(true, ps, false, files.toArray(new File[files.size()]));
-    }            
+//    /**
+//     * Refreshes recursively all files in the given context.
+//     * This method synchronously accesses disk and may block for a long period of time.
+//     * Status change events will be fired to notify all registered listeners.
+//     * 
+//     * @param ctx the context to be refreshed
+//     */
+//    public ProgressSupport createRefreshSupport(VCSContext ctx) {        
+//        Set<File> files = ctx.getRootFiles();
+//        return new RefreshSupport(true, false, files.toArray(new File[files.size()]));
+//    }            
     
     /**
      * Asynchronously refreshes the status for the given files.
@@ -257,52 +258,6 @@ public class FileStatusCache {
         return ret;
     }
         
-    private void refresh(boolean recursivelly, ProgressSupport ps,boolean fireEvents, File ...files) {        
-        Set<File> parents = new HashSet<File>();        
-        for (File file : files) {
-            File parent = file.getParentFile();         
-            if(recursivelly && file.isDirectory()) {
-                refreshRecursively(file, ps, fireEvents);
-            } else {
-                if(!parents.contains(parent)) {
-                    // refresh the file, all its siblings and the parent (dir)
-                    refresh(file, true); 
-                    // all following kids from this files parent should be be skipped
-                    // as they were already refreshed
-                    parents.add(parent);                
-                }
-            }                                        
-        }                       
-    }
-    
-    /**
-     * Refreshes recursively all files in the given directory.
-     * @param dir
-     */
-    private void refreshRecursively(File dir, ProgressSupport ps, boolean fireEvents) {        
-        File[] files = dir.listFiles();
-        if(files == null || files.length == 0) {
-            return;
-        }
-        boolean kidsRefreshed = false; 
-        for(File file : files) {
-            if(ps.isCanceled()) {
-                return;
-            }
-            if(!kidsRefreshed) {
-                // refresh the file, all its siblings and the parent (dir)
-                refresh(file, fireEvents); 
-                // files parent directory (dir) and all it's children are refreshed
-                // so skip for the next child
-                kidsRefreshed = true; 
-               
-            } 
-            if (file.isDirectory()) {
-                refreshRecursively(file, ps, fireEvents);
-            }
-        }
-    }        
-    
     /**
      * Refreshes the status value for the given file, all its siblings and its parent folder. 
      * Status change events will be eventually thrown for the file, all its siblings and its parent folder. 
@@ -432,9 +387,7 @@ public class FileStatusCache {
      * @return true if file is listed in parent's ignore list
      * or IDE thinks it should be.
      */
-    private boolean isIgnored(final File file) {
-        String name = file.getName();
-
+    private boolean isIgnored(final File file) {        
         if(ClearcaseModuleConfig.isIgnored(file)) {
             return true;
         }
@@ -461,7 +414,7 @@ public class FileStatusCache {
                         files = filesToRefresh.toArray(new File[filesToRefresh.size()]);
                         filesToRefresh.clear();
                     }                        
-                    refresh(false, null, true, files);
+                    new RefreshSupport(getRequestProcessor(), false, true, files).refresh();
                 }
             });
         }
@@ -531,6 +484,7 @@ public class FileStatusCache {
     }
     
     private void fireFileStatusChanged(File file, FileInformation oldInfo, FileInformation newInfo, boolean force) {        
+        force = false;
         if(!force) {            
            if (oldInfo == null && newInfo == null) {
                return;
@@ -548,5 +502,89 @@ public class FileStatusCache {
         }        
         return rp;
     }
+
+    public static class RefreshSupport extends ProgressSupport {
+        private final boolean recursivelly;
+        private final boolean fireEvents;
+        private final File[] files;
+
+        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
+
+        public RefreshSupport(RequestProcessor rp, VCSContext ctx, String displayName) {                                
+            super(rp, displayName); 
+            this.recursivelly = true;
+            this.fireEvents = false;
+            this.files = getRootFiles(ctx);
+        }
+        
+        public RefreshSupport(RequestProcessor rp, VCSContext ctx, String displayName, JButton cancel) {                                
+            super(rp, displayName, cancel); 
+            this.recursivelly = true;
+            this.fireEvents = false;
+            this.files = getRootFiles(ctx);
+        }
+
+        public RefreshSupport(RequestProcessor rp, boolean recursivelly, boolean fireEvents, File[] files) {
+            super(rp, "Refreshing status..."); 
+            this.recursivelly = recursivelly;
+            this.fireEvents = fireEvents;
+            this.files = files;
+        }
+        
+        private File[] getRootFiles(VCSContext ctx) {
+            Set<File> roots = ctx.getRootFiles();
+            return roots.toArray(new File[roots.size()]);
+        }
+
+        @Override
+        protected void perform() {
+            // do nothing
+        }        
+        
+        protected void refresh() {            
+            Set<File> parents = new HashSet<File>();
+            for (File file : files) {
+                File parent = file.getParentFile();
+                if (recursivelly && file.isDirectory()) {
+                    refreshRecursively(file, fireEvents);
+                } else {
+                    if (!parents.contains(parent)) {
+                        // refresh the file, all its siblings and the parent (dir)
+                        cache.refresh(file, true);
+                        // all following kids from this files parent should be be skipped
+                        // as they were already refreshed
+                        parents.add(parent);
+                    }
+                }
+            }
+        }
+        
+        /**
+         * Refreshes recursively all files in the given directory.
+         * @param dir
+         */
+        private void refreshRecursively(File dir, boolean fireEvents) {        
+            File[] dirFiles = dir.listFiles();
+            if(dirFiles == null || dirFiles.length == 0) {
+                return;
+            }
+            boolean kidsRefreshed = false; 
+            for(File file : dirFiles) {
+                if(isCanceled()) {
+                    return;
+                }
+                if(!kidsRefreshed) {
+                    // refresh the file, all its siblings and the parent (dir)
+                    cache.refresh(file, fireEvents); 
+                    // files parent directory (dir) and all it's children are refreshed
+                    // so skip for the next child
+                    kidsRefreshed = true;                
+                } 
+                if (file.isDirectory()) {
+                    refreshRecursively(file, fireEvents);
+                }
+            }
+        }                
+    }    
     
 }

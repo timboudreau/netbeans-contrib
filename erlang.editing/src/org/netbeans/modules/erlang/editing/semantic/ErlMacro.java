@@ -44,12 +44,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import org.netbeans.api.languages.database.DatabaseDefinition;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class ErlMacro extends ErlDefinition {
+public class ErlMacro extends DatabaseDefinition {
 
     private static Set<String> preDefineds;
 
@@ -92,6 +93,7 @@ public class ErlMacro extends ErlDefinition {
         return body;
     }
 
+    @Override
     public String toString() {
         return "Define " + params.toString() + " " + body;
     }

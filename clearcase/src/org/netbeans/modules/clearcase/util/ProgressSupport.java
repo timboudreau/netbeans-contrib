@@ -60,6 +60,7 @@ public abstract class ProgressSupport implements Runnable, Cancellable {
     private ProgressHandle progressHandle;
     private boolean canceled = false;
     private RequestProcessor rp;
+    private Cancellable cancellableDelegate;
     
     public ProgressSupport(RequestProcessor rp, String displayName) {
         this(rp, displayName, null);
@@ -74,6 +75,13 @@ public abstract class ProgressSupport implements Runnable, Cancellable {
                     cancel();
                 }
             });
+        }
+    }
+
+    protected void setCancellableDelegate(Cancellable c) {
+        cancellableDelegate = c;
+        if(canceled) {
+            c.cancel();
         }
     }
 
@@ -110,10 +118,11 @@ public abstract class ProgressSupport implements Runnable, Cancellable {
     
     public void run() {                
         try {            
+            canceled = false;
             startProgress();
             perform();               
         } finally {            
-            finnishProgress();                 
+            finnishProgress();
         }
     }
 
@@ -131,6 +140,9 @@ public abstract class ProgressSupport implements Runnable, Cancellable {
     
     public boolean cancel() {
         canceled = true;
-        return task.cancel();
+        if(cancellableDelegate != null) {
+            cancellableDelegate.cancel();
+        }
+        return task != null ?  task.cancel() : true;
     }
 }

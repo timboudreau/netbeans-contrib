@@ -21,10 +21,10 @@ Microsystems, Inc. All Rights Reserved.
 <MIME-resolver>
     <file>
         <ext name="erl"/>
-        <resolver mime="text/erlang"/>
+        <resolver mime="text/x-erlang"/>
     </file>
     <file>
         <ext name="hrl"/>
-        <resolver mime="text/erlang"/>
+        <resolver mime="text/x-erlang"/>
     </file>
 </MIME-resolver>

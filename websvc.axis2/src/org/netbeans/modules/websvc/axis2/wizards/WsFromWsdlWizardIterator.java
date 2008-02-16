@@ -42,12 +42,14 @@
 package org.netbeans.modules.websvc.axis2.wizards;
 
 import java.awt.Component;
+import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import java.util.prefs.Preferences;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.classpath.ClassPath;
@@ -96,10 +98,25 @@ public class WsFromWsdlWizardIterator implements TemplateWizard.Iterator /*, Ite
         DataObject dTemplate = DataObject.find( template );
         org.openide.filesystems.FileObject dir = Templates.getTargetFolder( wiz );
         DataFolder df = DataFolder.findFolder( dir );
+        
+        Preferences preferences = AxisUtils.getPreferences();
+        String axisHome = preferences.get("AXIS_HOME",null); //NOI18N
+        if (axisHome != null) {
+            AxisUtils.updateAxisHomeProperty(project, axisHome);
+        }
+        // adding Axis libraries to project
+        File axisDir = new File(axisHome);
+        if (axisDir.exists()) {
+            try {
+                AxisUtils.addAxis2Libraries(project, axisDir);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }        
         final DataObject dObj = dTemplate.createFromTemplate( df, Templates.getTargetName( wiz )  );
         final String serviceName = (String)wiz.getProperty(WizardProperties.PROP_SERVICE_NAME);
         final String packageName = (String)wiz.getProperty(WizardProperties.PROP_PACKAGE_NAME);
-        final boolean isSEI = ((Boolean)wiz.getProperty(WizardProperties.PROP_SEI)).booleanValue();        
+        final boolean isSEI = ((Boolean)wiz.getProperty(WizardProperties.PROP_SEI)).booleanValue();      
         addService(dObj.getPrimaryFile());
 
         final String[] targets = new String[] {"wsdl2java-"+serviceName};

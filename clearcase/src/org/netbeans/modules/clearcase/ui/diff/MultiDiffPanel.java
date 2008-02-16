@@ -79,6 +79,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.util.logging.Level;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
+import org.openide.util.Cancellable;
 
 /**
  *
@@ -389,7 +390,7 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
     }
 
     private void onRefreshButton() {
-        getProgressSupport().schedule(0);
+        getProgressSupport().start();
     }                    
 
     private void onUpdateButton() {
@@ -659,22 +660,15 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
             });
         }
     }
-
-    private class RefreshProgressSupport extends ProgressSupport {
-
-        public RefreshProgressSupport() {
-            super(new RequestProcessor("Clearcase-diff-refresh", 1), "Refreshing Status...");
-        }
-        
-        @Override
-        protected void perform() {
-            Clearcase.getInstance().getFileStatusCache().refreshRecursively(context, this);
-        }
-    }
     
     private ProgressSupport getProgressSupport() {
         if(refreshSupport == null) {
-            refreshSupport = new RefreshProgressSupport();
+            refreshSupport = new FileStatusCache.RefreshSupport(new RequestProcessor("Clearcase-diff-refresh", 1), context, contextName) {
+                @Override
+                protected void perform() {
+                    refresh();
+                }
+            };
         }
         return refreshSupport;
     }

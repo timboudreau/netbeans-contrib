@@ -85,4 +85,9 @@ made subject to such option by the copyright holder.
             </folder>
         </folder>
     </folder>
+    <folder name="OptionsDialog">
+        <file name="org-netbeans-modules-websvc-axis2-options-Axis2OptionsCategory.instance">
+            <attr name="position" intvalue="3300"/>
+        </file>
+    </folder>
 </filesystem>

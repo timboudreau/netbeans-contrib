@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -38,40 +38,20 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.erlang.editing.semantic;
-
-import org.netbeans.api.languages.ASTToken;
+package org.netbeans.modules.clearcase;
 
 /**
- * Schelimann store String name rather than token here, but for Erlang, we cannot
- * Identidy a usage by name, we should store token for easier findUsage
- * @NOTICE currently this class is not used anywhere, since we can build relations
- * between token and definition in a map, a better approach
- * 
+ * Indicates that clearcase is not installed.
+ *
+ * @author Maros Sandor
  */
-public class ErlUsage extends ErlItem {
+public class ClearcaseUnavailableException extends ClearcaseException {
 
-    private ASTToken       token;
-    private ErlDefinition  definition;
-    
-    public ErlUsage (
-        ASTToken    token,
-        int         offset, 
-        int         endOffset
-    ) {
-        super (offset, endOffset);
-        this.token = token;
+    public ClearcaseUnavailableException(Exception e) {
+        super(e);
     }
     
-    public ASTToken getToken () {
-        return token;
-    }
-
-    public ErlDefinition getDefinition() {
-        return definition;
-    }
-    
-    public void setDefinition (ErlDefinition definition) {
-        this.definition = definition;
+    public ClearcaseUnavailableException(String msg) {
+        super(msg);
     }
 }

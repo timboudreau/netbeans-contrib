@@ -1130,7 +1130,7 @@ INDENT "\\s*(((if|while)\\s*\\(|else\\s*|else\\s+if\\s*\\()[^{;]*)"
 #INDENT ".*(((object|=)\\s*)[^;,]*)"
 #INDENT "\\s*(((if|while)\\s*\\(|else\\s*|else\\s+if\\s*\\(|for\\s*\\(.*\\))[^{;]*)"
 
-BUNDLE "org.netbeans.modules.scala.editing.Bundle"
+BUNDLE "org.netbeans.modules.scala.editing.resources.Bundle"
 
 SELECTION ( ["a"-"z" "A"-"Z" "0"-"9" "_" "$"] )
 

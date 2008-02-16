@@ -42,12 +42,13 @@ package org.netbeans.modules.erlang.editing.semantic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import org.netbeans.api.languages.database.DatabaseDefinition;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class ErlRecord extends ErlDefinition {
+public class ErlRecord extends DatabaseDefinition {
     
     private Collection<String> fields = new ArrayList<String>();
     
@@ -64,6 +65,7 @@ public class ErlRecord extends ErlDefinition {
         return fields;
     }
     
+    @Override
     public String toString() {
         return "-record(" + getName() + ", " + fields.toString() + ")";
     }

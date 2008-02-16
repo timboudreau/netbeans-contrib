@@ -164,7 +164,7 @@ public class CheckinAction extends AbstractAction implements NotificationListene
 
     // XXX temporary solution...
     private void computeNodes(final CheckinTable checkinTable, JButton cancel, final CheckinPanel checkinPanel) {
-        final ProgressSupport ps = new ProgressSupport(new RequestProcessor("Clearcase-AddTo"), "Preparing Add To...", cancel) {
+        final ProgressSupport ps = new FileStatusCache.RefreshSupport(new RequestProcessor("Clearcase-AddTo"), context, "Preparing Add To...", cancel) {
             @Override
             protected void perform() {
                 try {
@@ -173,8 +173,8 @@ public class CheckinAction extends AbstractAction implements NotificationListene
 
                     // refresh the cache first so we will
                     // know all checkin candidates
-                    cache.refreshRecursively(context, this);
-
+                    refresh();
+                            
                     // get all files to be checked in
                     File [] files = cache.listFiles(context, FileInformation.STATUS_LOCAL_CHANGE);
                     List<ClearcaseFileNode> nodes = new ArrayList<ClearcaseFileNode>(files.length);

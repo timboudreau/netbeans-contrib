@@ -50,18 +50,15 @@ import org.netbeans.api.languages.database.DatabaseDefinition;
  */
 public class ScalaContext extends DatabaseContext {
 
-    public enum Kind {
+    public final static String ROOT     = "Root";
+    public final static String PACKAGE  = "Package";
+    public final static String TEMPLATE = "Template";
+    public final static String FUNCTION = "Function";
+    public final static String BLOCK    = "Block";
+    public final static String FOR_LOOP = "ForLoop";
 
-        Template,
-        Block,
-        ForLoop,
-        Function,
-        Other
-    }
-    private Kind kind;
-
-    ScalaContext(int offset, int endOffset) {
-        super(null, "", offset, endOffset);
+    ScalaContext(String type, int offset, int endOffset) {
+        super(null, type, offset, endOffset);
     }
 
     public Packaging getEnclosingPackage() {
