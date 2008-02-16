@@ -341,7 +341,7 @@ public class ErlangSemanticAnalyser {
             ErlFunction functionDef = rootCtx.getFunctionInScope(functionName.getIdentifier(), arityInt);
             if (functionDef == null) {
                 nameStr = functionName.getIdentifier().trim();
-                functionDef = new ErlFunction(nameStr, function.getOffset(), function.getEndOffset(), arityInt);
+                functionDef = new ErlFunction(nameStr, functionName.getOffset(), functionName.getEndOffset(), arityInt);
                 rootCtx.addDefinition(functionDef);
             }
             rootCtx.addUsage(functionName, functionDef);
