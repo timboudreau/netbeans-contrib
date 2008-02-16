@@ -9,8 +9,8 @@
     <!-- custom build target -->
     <target name="build" depends="suite.build">
         <!-- this was necessary only because the three projects were not registered in project.xml of this suite
-        <ant antfile="../projectimport/bluej/build.xml" target="netbeans" inheritAll="false"/>
-        <ant antfile="../bluej-ui/build.xml" target="netbeans" inheritAll="false"/>
+        <ant antfile="bluej/build.xml" target="netbeans" inheritAll="false"/>
+        <ant antfile="bluej-ui/build.xml" target="netbeans" inheritAll="false"/>
         <ant antfile="bluej-welcome/build.xml" target="netbeans" inheritAll="false"/>
         -->
         <!--copy todir="${cluster}">
@@ -61,8 +61,8 @@
     <!-- custom clean target -->
     <!-- this was necessary only because the three projects were not registered in project.xml of this suite
     <target name="clean" depends="suite.clean">
-    <ant antfile="../projectimport/bluej/build.xml" target="clean" inheritAll="false"/>
-    <ant antfile="../bluej-ui/build.xml" target="clean" inheritAll="false"/>
+    <ant antfile="bluej/build.xml" target="clean" inheritAll="false"/>
+    <ant antfile="bluej-ui/build.xml" target="clean" inheritAll="false"/>
     <ant antfile="bluej-welcome/build.xml" target="clean" inheritAll="false"/>
     </target>
     -->
