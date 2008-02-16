@@ -52,6 +52,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -66,9 +68,12 @@ import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
 import org.openide.LifecycleManager;
 import org.openide.awt.StatusDisplayer;
 import org.openide.execution.ExecutionEngine;
+import org.openide.filesystems.FileUtil;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.RequestProcessor;
+import org.openide.util.RequestProcessor.Task;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 
@@ -234,6 +239,8 @@ public class ActionsFactory implements ActionProvider {
                             inout.getOut().println("Build failed, more info should be provided above.");
                             StatusDisplayer.getDefault().setStatusText("Build failed.");
                         }
+                        
+                        REFRESH_FS.schedule(0);
                     } catch (IOException ex) {
                         Exceptions.printStackTrace(ex);
                     } finally {
@@ -274,5 +281,12 @@ public class ActionsFactory implements ActionProvider {
         }
         
     }
+    
+    private static final Task REFRESH_FS = new RequestProcessor(ActionsFactory.class.getName() + " FS Refresh").create(new Runnable() {
+        public void run() {
+            Logger.getLogger(ActionsFactory.class.getName()).log(Level.FINE, "Refreshing filesystems");
+            FileUtil.refreshFor(File.listRoots()); 
+        }
+    });
     
 }
