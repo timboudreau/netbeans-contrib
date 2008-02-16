@@ -64,6 +64,7 @@ import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.ui.support.MainProjectSensitiveActions;
 import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
 import org.openide.LifecycleManager;
+import org.openide.awt.StatusDisplayer;
 import org.openide.execution.ExecutionEngine;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
@@ -228,8 +229,10 @@ public class ActionsFactory implements ActionProvider {
 
                         if (succeeded) {
                             inout.getOut().println("Build passed.");
+                            StatusDisplayer.getDefault().setStatusText("Build passed.");
                         } else {
                             inout.getOut().println("Build failed, more info should be provided above.");
+                            StatusDisplayer.getDefault().setStatusText("Build failed.");
                         }
                     } catch (IOException ex) {
                         Exceptions.printStackTrace(ex);
