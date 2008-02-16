@@ -3,5 +3,5 @@ OpenIDE-Module: org.netbeans.modules.erlang.editing
 OpenIDE-Module-Layer: org/netbeans/modules/erlang/editing/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/erlang/editing/Bundle.properties
 OpenIDE-Module-Install: org/netbeans/modules/erlang/editing/ModuleInstall.class
-OpenIDE-Module-Specification-Version: 0.15.4.0
+OpenIDE-Module-Specification-Version: 0.15.5
 
