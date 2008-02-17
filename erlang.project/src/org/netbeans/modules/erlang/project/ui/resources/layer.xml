@@ -27,10 +27,10 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="Menu">
         <folder name="Tools">
             <attr name="JavaPlatformsCustomizerAction.instance/org-netbeans-modules-erlang-project-gems-GemAction.shadow" boolvalue="true"/>
-            <file name="org-netbeans-modules-languages-erlang-project-gems-GemAction.shadow">
+            <file name="org-netbeans-modules-erlang-project-gems-GemAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Ruby/org-netbeans-modules-erlang-project-gems-GemAction.instance"/>
             </file>
-            <attr name="org-netbeans-modules-languages-erlang-project-gems-GemAction.shadow/ServerManagerAction.instance" boolvalue="true"/>
+            <attr name="org-netbeans-modules-erlang-project-gems-GemAction.shadow/ServerManagerAction.instance" boolvalue="true"/>
         </folder>
     </folder>
 
@@ -130,7 +130,7 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
 
     <folder name="Projects">
-        <folder name="org-netbeans-modules-languages-erlang-project">
+        <folder name="org-netbeans-modules-erlang-project">
             <folder name="Customizer">
                 <file name="Sources.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.modules.erlang.project.ui.customizer.RubyCompositePanelProvider.createSources"/>
@@ -151,7 +151,7 @@ Microsystems, Inc. All Rights Reserved.
             </folder>
             
             <folder name="Nodes">
-                <file name="org-netbeans-modules-languages-erlang-project-ui-SourceNodeFactory.instance"/>
+                <file name="org-netbeans-modules-erlang-project-ui-SourceNodeFactory.instance"/>
             </folder>
             
             <folder name="Lookup"/>

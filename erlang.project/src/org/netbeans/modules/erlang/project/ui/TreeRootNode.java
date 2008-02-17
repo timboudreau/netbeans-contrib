@@ -83,7 +83,7 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
         g.addPropertyChangeListener(WeakListeners.propertyChange(this, g));
     }
 
-    static Image PACKAGE_BADGE = Utilities.loadImage( "org/netbeans/modules/languages/erlang/project/ui/packageBadge.gif" ); // NOI18N
+    static Image PACKAGE_BADGE = Utilities.loadImage( "org/netbeans/modules/erlang/project/ui/packageBadge.gif" ); // NOI18N
     
     /** Copied from PackageRootNode with modifications. */
     private Image computeIcon(boolean opened, int type) {

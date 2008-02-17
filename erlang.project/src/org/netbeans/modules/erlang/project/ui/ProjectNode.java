@@ -55,7 +55,7 @@ import org.netbeans.modules.erlang.project.UpdateHelper;
  */
 class ProjectNode extends AbstractNode {
 
-    private static final String PROJECT_ICON = "org/netbeans/modules/languages/erlang/project/ui/resources/projectDependencies.gif";    //NOI18N
+    private static final String PROJECT_ICON = "org/netbeans/modules/erlang/project/ui/resources/projectDependencies.gif";    //NOI18N
 
     private final RakeArtifact antArtifact;
     private final URI artifactLocation;

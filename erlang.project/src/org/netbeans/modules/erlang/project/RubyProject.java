@@ -76,7 +76,7 @@ public final class RubyProject implements Project, RakeProjectListener {
      */
     public static final String SOURCES_TYPE_RUBY = "erlang"; // NOI18N
     
-    private static final Icon Ruby_PROJECT_ICON = new ImageIcon(Utilities.loadImage("org/netbeans/modules/languages/erlang/project/ui/resources/jruby.png")); // NOI18N
+    private static final Icon Ruby_PROJECT_ICON = new ImageIcon(Utilities.loadImage("org/netbeans/modules/erlang/project/ui/resources/jruby.png")); // NOI18N
 
     private final AuxiliaryConfiguration aux;
     private final RakeProjectHelper helper;
@@ -205,7 +205,7 @@ public final class RubyProject implements Project, RakeProjectListener {
             UILookupMergerSupport.createRecommendedTemplatesMerger(),
             LookupProviderSupport.createSourcesMerger()
         });
-        return LookupProviderSupport.createCompositeLookup(base, "Projects/org-netbeans-modules-languages-erlang-project/Lookup"); //NOI18N
+        return LookupProviderSupport.createCompositeLookup(base, "Projects/org-netbeans-modules-erlang-project/Lookup"); //NOI18N
     }
 
     public void configurationXmlChanged(RakeProjectEvent ev) {

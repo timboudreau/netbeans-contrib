@@ -163,7 +163,7 @@ public final class FolderList extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
         add(jScrollPane1, gridBagConstraints);
 
-        addButton.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/languages/erlang/project/ui/wizards/Bundle").getString("CTL_AddFolder"));
+        addButton.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/erlang/project/ui/wizards/Bundle").getString("CTL_AddFolder"));
         addButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addButtonActionPerformed(evt);
@@ -176,7 +176,7 @@ public final class FolderList extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         add(addButton, gridBagConstraints);
 
-        removeButton.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/languages/erlang/project/ui/wizards/Bundle").getString("CTL_RemoveFolder"));
+        removeButton.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/erlang/project/ui/wizards/Bundle").getString("CTL_RemoveFolder"));
         removeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 removeButtonActionPerformed(evt);

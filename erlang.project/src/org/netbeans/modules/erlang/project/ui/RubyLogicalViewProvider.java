@@ -251,7 +251,7 @@ public class RubyLogicalViewProvider implements LogicalViewProvider {
 //        return result;
 //    }
     
-    private static Image brokenProjectBadge = Utilities.loadImage("org/netbeans/modules/languages/erlang/project/ui/resources/brokenProjectBadge.gif", true);
+    private static Image brokenProjectBadge = Utilities.loadImage("org/netbeans/modules/erlang/project/ui/resources/brokenProjectBadge.gif", true);
     
     /** Filter node containin additional features for the Ruby physical
      */
@@ -276,9 +276,9 @@ public class RubyLogicalViewProvider implements LogicalViewProvider {
         // icon badging <<<
         
         public RubyLogicalViewRootNode() {
-            super(NodeFactorySupport.createCompositeChildren(project, "Projects/org-netbeans-modules-languages-erlang-project/Nodes"), 
+            super(NodeFactorySupport.createCompositeChildren(project, "Projects/org-netbeans-modules-erlang-project/Nodes"), 
                   Lookups.singleton(project));
-            setIconBaseWithExtension("org/netbeans/modules/languages/erlang/project/ui/resources/jruby.png");
+            setIconBaseWithExtension("org/netbeans/modules/erlang/project/ui/resources/jruby.png");
             super.setName( ProjectUtils.getInformation( project ).getDisplayName() );
             if (hasBrokenLinks()) {
                 broken = true;
