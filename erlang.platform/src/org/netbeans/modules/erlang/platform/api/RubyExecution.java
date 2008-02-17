@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.netbeans.api.queries.FileEncodingQuery;
@@ -43,6 +44,9 @@ import org.openide.util.Utilities;
  * @author Tor Norbye
  */
 public class RubyExecution extends ExecutionService {
+    
+    private static List<RegexpOutputRecognizer> stdRubyRecognizers;
+    
     // JRuby 0.9.1:
     // main.rb:6 warning: parenthesize argument(s) for future version
     // :[-1,-1]:[0,0]: main.rb:7: unterminated string meets end of file (SyntaxError)
@@ -95,11 +99,24 @@ public class RubyExecution extends ExecutionService {
         this(descriptor);
         this.charsetName = charsetName;
     }
+    
+    public synchronized static List<? extends RegexpOutputRecognizer> getStandardRubyRecognizers() {
+        if (stdRubyRecognizers == null) {
+            stdRubyRecognizers = new LinkedList<RegexpOutputRecognizer>();
+            stdRubyRecognizers.add(RubyExecution.RUBY_COMPILER);
+        }
+        return stdRubyRecognizers;
+    }
+    
 
     /**
      * Returns the basic Ruby interpreter command and associated flags (not
      * application arguments)
      */
+    public static List<? extends String> getRubyArgs(final RubyPlatform platform) {
+        return new RubyExecution(new ExecutionDescriptor(platform.getLabel(), null)).getRubyArgs(platform.getHome().getAbsolutePath(),
+                platform.getInterpreterFile().getName(), null);
+    }
     public static List<? extends String> getRubyArgs(String rubyHome, String cmdName) {
         return new RubyExecution(null).getRubyArgs(rubyHome, cmdName, null);
     }

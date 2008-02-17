@@ -1,41 +1,54 @@
 /*
- * The contents of this file are subject to the terms of the Common Development
- * and Distribution License (the License). You may not use this file except in
- * compliance with the License.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
- * or http://www.netbeans.org/cddl.txt.
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
  *
- * When distributing Covered Code, include this CDDL Header Notice in each file
- * and include the License file at http://www.netbeans.org/cddl.txt.
- * If applicable, add the following below the CDDL Header, with the fields
- * enclosed by brackets [] replaced by your own identifying information:
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
+ *
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
  */
 package org.netbeans.modules.erlang.project;
 
 import java.io.File;
-
-import javax.swing.JEditorPane;
-import javax.swing.SwingUtilities;
-
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.erlang.platform.api.RubyInstallation;
 import org.netbeans.modules.erlang.platform.api.RubyExecution;
+import org.netbeans.modules.erlang.platform.api.RubyPlatform;
+import org.netbeans.modules.erlang.platform.gems.GemManager;
 import org.netbeans.modules.languages.execution.ExecutionDescriptor;
-import org.netbeans.modules.languages.execution.OutputRecognizer;
-import org.netbeans.modules.languages.execution.OutputRecognizer.FileLocation;
-import org.openide.awt.StatusDisplayer;
-import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.windows.TopComponent;
-
 
 /**
  * Various methods for supporting AutoTest execution
@@ -43,25 +56,36 @@ import org.openide.windows.TopComponent;
  * @author Tor Norbye
  */
 public class AutoTestSupport {
+    
     private Project project;
     private Lookup context;
+    private String charsetName;
+    private String classPath;
 
-    public AutoTestSupport(Lookup context, Project project) {
+    public AutoTestSupport(Lookup context, Project project, String charsetName) {
         this.context = context;
         this.project = project;
+        this.charsetName = charsetName;
     }
 
-    public static boolean isInstalled() {
-        return RubyInstallation.getInstance().isValidAutoTest(false);
+    /** Extra class path to be used in case the execution process is a VM */
+    public void setClassPath(String classPath) {
+        this.classPath = classPath;
+    }
+    
+    public static boolean isInstalled(final Project project) {
+        GemManager gemManager = RubyPlatform.gemManagerFor(project);
+        return gemManager == null ? false : gemManager.isValidAutoTest(false);
     }
 
     public void start() {
-        if (!RubyInstallation.getInstance().isValidAutoTest(true)) {
+        RubyPlatform platform = RubyPlatform.platformFor(project);
+        GemManager gemManager = platform.getGemManager();
+        if (!gemManager.isValidAutoTest(true)) {
             return;
         }
 
         // TODO - the output here should emit into the Tasklist!
-
         // TODO - if you select this a second time, I've gotta front an existing
         // one if it's already running
         // I can store the existing autotest input window from execution service's
@@ -71,75 +95,14 @@ public class AutoTestSupport {
         File pwd = FileUtil.toFile(project.getProjectDirectory());
 
         RubyFileLocator fileLocator = new RubyFileLocator(context, project);
-        String displayName = "AutoTest";
-        new RubyExecution(new ExecutionDescriptor(displayName, pwd,
-                RubyInstallation.getInstance().getAutoTest()).additionalArgs("-v") // NOI18N
-                .fileLocator(fileLocator).showProgress(false)
-                .addOutputRecognizer(new AutoTestNotifier()).addOutputRecognizer(RubyExecution.RUBY_COMPILER)).run();
-    }
-
-    private static class AutoTestNotifier extends OutputRecognizer implements Runnable {
-        private String message;
-
-        @Override
-        public FileLocation processLine(String line) {
-            if (line.matches("\\d+ tests, \\d+ assertions, \\d+ failures, \\d+ errors")) { // NOI18N
-                                                                                           // TODO: I18N
-                StatusDisplayer.getDefault()
-                               .setStatusText(NbBundle.getMessage(AutoTestSupport.class,
-                        "AutoTestCompleted", line));
-
-                // Extra attention on failures
-                if ((line.indexOf(" 0 failures") == -1) || (line.indexOf(" 0 errors") == -1)) { // NOI18N
-                                                                                                // What now?
-                    message = NbBundle.getMessage(AutoTestSupport.class, "AutoTestFailure", line);
-                    run(); // might redispatch to event thread
-                }
-            }
-
-            return null;
-        }
-
-        public void run() {
-            if (message == null) {
-                return;
-            }
-
-            if (!SwingUtilities.isEventDispatchThread()) {
-                // getOpenedPanes on the EditorCookie requires it
-                SwingUtilities.invokeLater(this);
-
-                return;
-            }
-
-            org.openide.nodes.Node[] nodes = TopComponent.getRegistry().getActivatedNodes();
-
-            if (nodes == null) {
-                return;
-            }
-
-            for (org.openide.nodes.Node node : nodes) {
-                EditorCookie ec = node.getCookie(EditorCookie.class);
-
-                if (ec == null) {
-                    continue;
-                }
-
-                JEditorPane[] panes = ec.getOpenedPanes();
-
-                if (panes == null) {
-                    continue;
-                }
-
-                for (JEditorPane pane : panes) {
-                    if (pane.isShowing()) {
-                        //org.netbeans.editor.Utilities.setStatusText(pane, message, coloring);
-                        org.netbeans.editor.Utilities.setStatusBoldText(pane, message);
-
-                        return;
-                    }
-                }
-            }
-        }
+        String displayName = NbBundle.getMessage(AutoTestSupport.class, "AutoTest");
+        ExecutionDescriptor desc = new ExecutionDescriptor(displayName, pwd, gemManager.getAutoTest());
+        desc.additionalArgs("-v"); // NOI18N
+        desc.fileLocator(fileLocator);
+        desc.classPath(classPath); // Applies only to JRuby
+        desc.showProgress(false);
+        desc.addOutputRecognizer(new TestNotifier(false, false));
+        desc.addStandardRecognizers(RubyExecution.getStandardRubyRecognizers());
+        new RubyExecution(desc, charsetName).run();
     }
 }

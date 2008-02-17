@@ -41,10 +41,13 @@ import org.netbeans.modules.erlang.makeproject.spi.support.RakeProjectHelper;
 import org.netbeans.modules.erlang.makeproject.spi.support.EditableProperties;
 import org.netbeans.modules.erlang.platform.api.RubyExecution;
 import org.netbeans.modules.erlang.platform.api.RubyInstallation;
+import org.netbeans.modules.erlang.platform.api.RubyPlatform;
+import org.netbeans.modules.erlang.platform.gems.GemManager;
 import org.netbeans.modules.erlang.project.ui.customizer.RubyProjectProperties;
 import org.netbeans.modules.erlang.project.ui.customizer.MainClassChooser;
 import org.netbeans.modules.erlang.project.ui.customizer.MainClassWarning;
 import org.netbeans.modules.languages.execution.ExecutionDescriptor;
+import org.netbeans.modules.languages.execution.OutputRecognizer;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.ui.support.DefaultProjectOperations;
 import org.openide.DialogDescriptor;
@@ -78,6 +81,11 @@ public class RubyActionProvider implements ActionProvider {
      * Command for running auto test on this project (if installed)
      */
     public static final String COMMAND_AUTOTEST = "autotest"; // NOI18N
+
+    /**
+     * Standard command for running the IRB console on a project
+     */
+    public static final String COMMAND_IRB_CONSOLE = "irb-console"; // NOI18N
 
     // Commands available from Ruby project
     private static final String[] supportedActions = {
@@ -126,7 +134,111 @@ public class RubyActionProvider implements ActionProvider {
     public String[] getSupportedActions() {
         return supportedActions;
     }
+    
+     private void runRubyScript(FileObject fileObject, String target, 
+            String displayName, final Lookup context, final boolean debug,
+            OutputRecognizer[] extraRecognizers) {
+        ExecutionDescriptor desc = getScriptDescriptor(null, fileObject, target, displayName, context, debug, extraRecognizers);
+
+        RubyExecution service = new RubyExecution(desc,
+                project.evaluator().getProperty(RubyProjectProperties.SOURCE_ENCODING));
+        service.run();
+    }
+    
+    public ExecutionDescriptor getScriptDescriptor(File pwd, FileObject fileObject, String target, 
+            String displayName, final Lookup context, final boolean debug,
+            OutputRecognizer[] extraRecognizers) {
+    
+        String options = project.evaluator().getProperty(RubyProjectProperties.RUN_JVM_ARGS);
+
+        if (options != null && options.trim().length() == 0) {
+            options = null;
+        }
+
+        // Set the load path from the source and test folders.
+        // Load paths are additive so users can add their own in the
+        // options field as well.
+        FileObject[] srcPath = project.getSourceRoots().getRoots();
+        FileObject[] testPath = project.getTestSourceRoots().getRoots();
+        StringBuilder sb = new StringBuilder();
+        if (srcPath != null && srcPath.length > 0) {
+            for (FileObject root : srcPath) {
+                if (sb.length() > 0) {
+                    sb.append(' ');
+                }
+                sb.append("-I\""); // NOI18N
+                sb.append(FileUtil.toFile(root).getAbsoluteFile());
+                sb.append("\""); // NOI18N
+            }
+        }
+        if (testPath != null && testPath.length > 0) {
+            for (FileObject root : testPath) {
+                if (sb.length() > 0) {
+                    sb.append(' ');
+                }
+                sb.append("-I\""); // NOI18N
+                sb.append(FileUtil.toFile(root).getAbsoluteFile());
+                sb.append("\""); // NOI18N
+            }
+        }
+        String includePath = sb.toString();
+        if (options != null) {
+            options = includePath + " " + options; // NOI18N
+        } else {
+            options = includePath;
+        }
         
+        target = locate(target, srcPath, testPath);
+        
+        if (pwd == null) {
+            String runDir = project.evaluator().getProperty(RubyProjectProperties.RUN_WORK_DIR);
+            pwd = getSourceFolder();
+            if (runDir != null && runDir.length() > 0) {
+                File dir = new File(runDir);                
+                if (!dir.exists()) {
+                    // Is it relative to the project directory?
+                    dir = new File(FileUtil.toFile(project.getProjectDirectory()), runDir);
+                    if (!dir.exists()) {
+                        // Could it be relative to one of the source folders?
+                        if (srcPath != null && srcPath.length > 0) {
+                            for (FileObject root : srcPath) {
+                                dir = new File(FileUtil.toFile(root), runDir);
+                                if (dir.exists()) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (dir.exists()) {
+                    pwd = dir;
+                }
+            }
+        }
+        
+        String classPath = project.evaluator().getProperty(RubyProjectProperties.JAVAC_CLASSPATH);
+
+        ExecutionDescriptor desc = new ExecutionDescriptor(displayName, pwd, target);
+        desc.debug(debug);
+        desc.showSuspended(true);
+        desc.allowInput();
+        desc.fileObject(fileObject);
+        desc.initialArgs(options);
+        desc.classPath(classPath);
+        desc.additionalArgs(getApplicationArguments());
+        desc.fileLocator(new RubyFileLocator(context, project));
+        desc.addStandardRecognizers(RubyExecution.getStandardRubyRecognizers());
+        desc.addOutputRecognizer(RubyExecution.RUBY_TEST_OUTPUT);
+        
+        if (extraRecognizers != null) {
+            for (OutputRecognizer recognizer : extraRecognizers) {
+                desc.addOutputRecognizer(recognizer);
+            }
+        }
+
+        return desc;
+    }
+       
     private String locate(String target, final FileObject[] srcPath, final FileObject[] testPath) {
         // Locate the target and specify it by full path. This is necessary
         // because JRuby and Ruby don't locate the script from the load path it
@@ -155,6 +267,42 @@ public class RubyActionProvider implements ActionProvider {
         }
         return target;
     }
+
+    private FileObject getCurrentFile(Lookup context) {
+        FileObject[] fos = findSources(context);
+        if (fos == null) {
+            fos = findTestSources(context, false);
+        }
+        if (fos == null || fos.length == 0) {
+            for (DataObject d : context.lookupAll(DataObject.class)) {
+                FileObject fo = d.getPrimaryFile();
+                if (fo.getMIMEType().equals(RubyInstallation.RUBY_MIME_TYPE)) {
+                    return fo;
+                }
+            }
+            return null;
+        }
+        
+        return fos[0];
+    }
+    
+    private void saveFile(FileObject file) {
+        // Save the file
+        try {
+            DataObject dobj = DataObject.find(file);
+            if (dobj != null) {
+                SaveCookie saveCookie = dobj.getCookie(SaveCookie.class);
+                if (saveCookie != null) {
+                    saveCookie.save();
+                }
+            }
+        } catch (DataObjectNotFoundException donfe) {
+            ErrorManager.getDefault().notify(donfe);
+        } catch (IOException ioe) {
+            ErrorManager.getDefault().notify(ioe);
+        }
+    }
+    
     
     public void invokeAction(final String command, final Lookup context) throws IllegalArgumentException {
         // Initialize the configuration: find a way to pass this to the launched child process!
@@ -172,6 +320,9 @@ public class RubyActionProvider implements ActionProvider {
         //    TODO: Somehow pass the properties to the launched process, and have it digest it
         //}
         
+        RubyPlatform platform = RubyPlatform.platformFor(project);
+        assert platform != null : "Action '" + command + "' should be disabled when platform is invalid";
+        GemManager gemManager = platform.getGemManager();
         
         // TODO Check for valid installation of Ruby and Rake
         if (COMMAND_RUN.equals(command) || COMMAND_DEBUG.equals(command)) {
@@ -243,70 +394,58 @@ public class RubyActionProvider implements ActionProvider {
             }
             
             // Default to running rake
-            if (!RubyInstallation.getInstance().isValidRake(true)) {
+            if (!gemManager.isValidRake(true)) {
                 return;
             }
             
             RubyFileLocator fileLocator = new RubyFileLocator(context, project);
             File pwd = getSourceFolder(); // Or project directory?
-            new RubyExecution(new ExecutionDescriptor(displayName, pwd, RubyInstallation.getInstance().getRake()).
+            String classPath = project.evaluator().getProperty(RubyProjectProperties.JAVAC_CLASSPATH);
+            new RubyExecution(new ExecutionDescriptor(displayName, pwd, gemManager.getRake()).
                     fileLocator(fileLocator).
                     allowInput().
-                    addOutputRecognizer(RubyExecution.RUBY_COMPILER)).
+                    classPath(classPath).
+                    appendJdkToPath(platform.isJRuby()).
+                    addStandardRecognizers(RubyExecution.getStandardRubyRecognizers()).
+                    addOutputRecognizer(RubyExecution.RUBY_TEST_OUTPUT),
+                    project.evaluator().getProperty(RubyProjectProperties.SOURCE_ENCODING)
+                    ).
                     run();
             
             return;
         } else if (COMMAND_RUN_SINGLE.equals(command) || COMMAND_DEBUG_SINGLE.equals(command)) {
-            if (!RubyInstallation.getInstance().isValidRuby(true)) {
+            if (!platform.isValidRuby(true)) {
                 return;
             }
-            
-            FileObject[] fos = findSources(context);
-            if (fos == null) {
-                fos = findTestSources(context, false);
-            }
-            if (fos == null || fos.length == 0) {
-                return;
-            }
-            FileObject file = fos[0];
-            
+
+            FileObject file = getCurrentFile(context);
+
             if (RakeSupport.isRakeFile(file)) {
-                if (!RubyInstallation.getInstance().isValidRake(true)) {
+                if (!gemManager.isValidRake(true)) {
                     return;
                 }
-                
+
                 // Save all files first - this rake file could be accessing other files
                 LifecycleManager.getDefault().saveAll();
-                RakeSupport.runRake(null, file, file.getName(), new RubyFileLocator(context, project), true);
+                RakeSupport rake = new RakeSupport(project);
+                rake.runRake(null, file, file.getName(), new RubyFileLocator(context, project), true, COMMAND_DEBUG_SINGLE.equals(command));
                 return;
             }
             
-            RSpecSupport rspec = new RSpecSupport(project.getProjectDirectory());
-            if (rspec.isRSpecInstalled() && rspec.isSpecFile(file)) {
+            RSpecSupport rspec = new RSpecSupport(project);
+            if (rspec.isRSpecInstalled() && RSpecSupport.isSpecFile(file)) {
                 // Save all files first - this rake file could be accessing other files
                 LifecycleManager.getDefault().saveAll();
-                rspec.runRSpec(null, file, file.getName(), new RubyFileLocator(context, project), true);
+                rspec.runRSpec(null, file, file.getName(), new RubyFileLocator(context, project), true,
+                        COMMAND_DEBUG_SINGLE.equals(command));
                 return;
             }
             
-            // Save the file
-            try {
-                DataObject dobj = DataObject.find(file);
-                if (dobj != null) {
-                    SaveCookie saveCookie = dobj.getCookie(SaveCookie.class);
-                    if (saveCookie != null) {
-                        saveCookie.save();
-                    }
-                }
-            } catch (DataObjectNotFoundException donfe) {
-                ErrorManager.getDefault().notify(donfe);
-            } catch (IOException ioe) {
-                ErrorManager.getDefault().notify(ioe);
-            }
+            saveFile(file);
             
             //String target = FileUtil.getRelativePath(getRoot(project.getSourceRoots().getRoots(),file), file);
-            runErlangApplication(file, FileUtil.toFile(file).getAbsolutePath(),
-                    file.getNameExt(), context, COMMAND_DEBUG_SINGLE.equals(command));
+            runRubyScript(file, FileUtil.toFile(file).getAbsolutePath(),
+                    file.getNameExt(), context, COMMAND_DEBUG_SINGLE.equals(command), null);
             return;
         } else if (COMMAND_BUILD.equals(command)) {
             if (!RubyInstallation.getInstance().isValidRuby(true)) { /** modified by @Caoyuan*/
@@ -330,17 +469,25 @@ public class RubyActionProvider implements ActionProvider {
             return; 
             */
         } else if (COMMAND_CLEAN.equals(command)) {
-            if (!RubyInstallation.getInstance().isValidRake(true)) {
+            if (!gemManager.isValidRake(true)) {
                 return;
             }
-            
+
             //RubyFileLocator fileLocator = new RubyFileLocator(context);
-            String displayName = "Rake"; // TODO - internationalize
+            String displayName = 
+                NbBundle.getMessage(RubyActionProvider.class, "Rake");
+
             File pwd = getSourceFolder(); // Or project directory?
-            new RubyExecution(new ExecutionDescriptor(displayName, pwd, RubyInstallation.getInstance().getRake()).
-                    additionalArgs("clean").allowInput().
+            String classPath = project.evaluator().getProperty(RubyProjectProperties.JAVAC_CLASSPATH);
+            new RubyExecution(new ExecutionDescriptor(displayName, pwd, gemManager.getRake()).
+                    additionalArgs("clean"). // NOI18N
+                    allowInput().
+                    classPath(classPath).
+                    appendJdkToPath(platform.isJRuby()).
                     fileLocator(new RubyFileLocator(context, project)).
-                    addOutputRecognizer(RubyExecution.RUBY_COMPILER)).
+                    addStandardRecognizers(RubyExecution.getStandardRubyRecognizers()),
+                    project.evaluator().getProperty(RubyProjectProperties.SOURCE_ENCODING)
+                    ).
                     run();
             return;
         }
@@ -386,8 +533,11 @@ public class RubyActionProvider implements ActionProvider {
         }
         
         if (COMMAND_AUTOTEST.equals(command)) {
-            if (AutoTestSupport.isInstalled()) {
-                new AutoTestSupport(context, project).start();
+            if (AutoTestSupport.isInstalled(project)) {
+                AutoTestSupport support = new AutoTestSupport(context, project, 
+                        project.evaluator().getProperty(RubyProjectProperties.SOURCE_ENCODING));
+                support.setClassPath(project.evaluator().getProperty(RubyProjectProperties.JAVAC_CLASSPATH));
+                support.start();
             }
             
             return;
@@ -401,21 +551,8 @@ public class RubyActionProvider implements ActionProvider {
             
             FileObject file = findSources(context)[0];
             
-            // Save the file
-            try {
-                DataObject dobj = DataObject.find(file);
-                if (dobj != null) {
-                    SaveCookie saveCookie = dobj.getCookie(SaveCookie.class);
-                    if (saveCookie != null) {
-                        saveCookie.save();
-                    }
-                }
-            } catch (DataObjectNotFoundException donfe) {
-                ErrorManager.getDefault().notify(donfe);
-            } catch (IOException ioe) {
-                ErrorManager.getDefault().notify(ioe);
-            }
-            
+            saveFile(file);
+
             String target = FileUtil.getRelativePath(getRoot(project.getSourceRoots().getRoots(),file), file);
             String displayName = file.getNameExt();
             File pwd = getSourceFolder();

@@ -1,82 +1,121 @@
 /*
- * The contents of this file are subject to the terms of the Common Development
- * and Distribution License (the License). You may not use this file except in
- * compliance with the License.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
- * or http://www.netbeans.org/cddl.txt.
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
  *
- * When distributing Covered Code, include this CDDL Header Notice in each file
- * and include the License file at http://www.netbeans.org/cddl.txt.
- * If applicable, add the following below the CDDL Header, with the fields
- * enclosed by brackets [] replaced by your own identifying information:
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
  */
 package org.netbeans.modules.erlang.project;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import org.netbeans.api.project.Project;
 
+import org.netbeans.modules.erlang.makeproject.spi.support.PropertyEvaluator;
 import org.netbeans.modules.erlang.platform.api.RubyExecution;
 import org.netbeans.modules.erlang.platform.api.RubyInstallation;
+import org.netbeans.modules.erlang.platform.api.RubyPlatform;
+import org.netbeans.modules.erlang.platform.gems.GemManager;
 import org.netbeans.modules.languages.execution.ExecutionDescriptor;
 import org.netbeans.modules.languages.execution.FileLocator;
+import org.netbeans.modules.languages.execution.OutputRecognizer;
+import org.netbeans.spi.project.ActionProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
-
 /**
  * Various methods for supporting RSpec execution
+ * 
+ * @todo Use an output recognizer which munges the output... Can it recognize the
+ *   colors and do something to make that happen in the output window?
+ * 
  * @author Tor Norbye
  */
 public class RSpecSupport {
+    
     private static final String PLUGIN_SPEC_PATH = "vendor/plugins/rspec/bin/spec"; // NOI18N
     private static final String SPEC_OPTS = "spec/spec.opts"; // NOI18N
     private static final String NETBEANS_SPEC_OPTS = SPEC_OPTS + ".netbeans"; // NOI18N
     private static final String RSPEC_GEM_NAME = "rspec"; // NOI18N
-    private FileObject projectDir;
+    private final Project project;
 
-    public RSpecSupport(FileObject projectDir) {
-        this.projectDir = projectDir;
+    public RSpecSupport(final Project project) {
+        this.project = project;
     }
 
+    private String getVersion(final String gemName) {
+        GemManager gemManager = RubyPlatform.gemManagerFor(project);
+        return gemManager == null ? null : gemManager.getVersion(gemName);
+    }
+    
     public boolean isRSpecInstalled() {
-        RubyInstallation install = RubyInstallation.getInstance();
-
-        if (install.getVersion(RSPEC_GEM_NAME) != null) { // NOI18N
-
+        if (getVersion(RSPEC_GEM_NAME) != null) {
             return true;
         }
 
         // Rails plugin
-        if ((projectDir != null) && (projectDir.getFileObject(PLUGIN_SPEC_PATH) != null)) { // NOI18N
+        if (project != null) {
+            FileObject projectDir = project.getProjectDirectory();
+            if ((projectDir != null) && (projectDir.getFileObject(PLUGIN_SPEC_PATH) != null)) {
 
-            return true;
+                return true;
+            }
         }
 
         return false;
     }
 
-    public boolean isSpecFile(FileObject fo) {
+    public static boolean isSpecFile(FileObject fo) {
         if (!fo.getMIMEType().equals(RubyInstallation.RUBY_MIME_TYPE)) {
             return false;
         }
 
         return fo.getName().endsWith("_spec"); // NOI18N
     }
-    
+
     private String getSpecBinary() {
         assert isRSpecInstalled();
 
-        RubyInstallation install = RubyInstallation.getInstance();
-        String version = install.getVersion(RSPEC_GEM_NAME); // NOI18N
+        GemManager gemManager = RubyPlatform.gemManagerFor(project);
+
+        String version = getVersion(RSPEC_GEM_NAME);
 
         if (version != null) {
-            String libGemDir = install.getRubyLibGemDir();
+            String libGemDir = gemManager.getGemHome();
 
             if (libGemDir != null) {
                 File gemDir = new File(libGemDir, "gems"); // NOI18N
@@ -92,13 +131,16 @@ public class RSpecSupport {
                 }
             }
         }
-        
-        // Rails plugin
-        if (projectDir != null) {
-            FileObject rspec = projectDir.getFileObject(PLUGIN_SPEC_PATH); // NOI18N
 
-            if (rspec != null) {
-                return FileUtil.toFile(rspec).getAbsolutePath();
+        // Rails plugin
+        if (project != null) {
+            FileObject projectDir = project.getProjectDirectory();
+            if (projectDir != null) {
+                FileObject rspec = projectDir.getFileObject(PLUGIN_SPEC_PATH);
+
+                if (rspec != null) {
+                    return FileUtil.toFile(rspec).getAbsolutePath();
+                }
             }
         }
 
@@ -113,13 +155,31 @@ public class RSpecSupport {
      *  correctly.
      */
     public void runRSpec(File pwd, FileObject specFile, String displayName,
-        FileLocator fileLocator, boolean warn, String... parameters) {
+        FileLocator fileLocator, boolean warn, boolean debug, String... parameters) {
+        runRSpec(pwd, specFile, -1, displayName, fileLocator, warn, debug, parameters);
+    }
+
+    /**
+     * Run rspec on the given specfile.
+     * (If you pass null as the directory, the project directory will be used, and if not set,
+     * the directory containing the spec file.)
+     * @param lineNumber if not -1, run the spec at the given line
+     * @param warn If true, produce popups if Ruby or RSpec are not configured
+     *  correctly.
+     */
+    public void runRSpec(File pwd, FileObject specFile, int lineNumber, String displayName,
+        FileLocator fileLocator, boolean warn, boolean debug, String... parameters) {
+        FileObject projectDir = null;
+        if (project != null) {
+            projectDir = project.getProjectDirectory();
+        }
         if (pwd == null) {
             FileObject pfo = (projectDir != null) ? projectDir : specFile.getParent();
             pwd = FileUtil.toFile(pfo);
         }
 
-        if (!RubyInstallation.getInstance().isValidRuby(warn)) {
+        RubyPlatform platform = RubyPlatform.platformFor(project);
+        if (!platform.isValidRuby(warn)) {
             return;
         }
 
@@ -129,8 +189,6 @@ public class RSpecSupport {
             return;
         }
 
-        ExecutionDescriptor desc;
-
         List<String> additionalArgs = new ArrayList<String>();
 
         // See if there's a spec.opts to be included
@@ -138,16 +196,21 @@ public class RSpecSupport {
             // First look for a NetBeans-specific options file, in case you want different
             // options when running under the IDE (for example, no --color since the 
             // color escape codes don't work under our terminal)
-            FileObject specOpts = projectDir.getFileObject(NETBEANS_SPEC_OPTS); // NOI18N
+            FileObject specOpts = projectDir.getFileObject(NETBEANS_SPEC_OPTS);
 
             if (specOpts == null) {
-                specOpts = projectDir.getFileObject(SPEC_OPTS); // NOI18N
+                specOpts = projectDir.getFileObject(SPEC_OPTS);
             }
 
             if (specOpts != null) {
                 additionalArgs.add("--options"); // NOI18N
                 additionalArgs.add(FileUtil.toFile(specOpts).getAbsolutePath());
             }
+        }
+        
+        if (lineNumber != -1) {
+            additionalArgs.add("--line");
+            additionalArgs.add(Integer.toString(lineNumber));
         }
 
         if ((parameters != null) && (parameters.length > 0)) {
@@ -158,12 +221,38 @@ public class RSpecSupport {
 
         additionalArgs.add(FileUtil.toFile(specFile).getAbsolutePath());
 
-        desc = new ExecutionDescriptor(displayName, pwd, spec).additionalArgs(additionalArgs.toArray(
-                        new String[additionalArgs.size()])); // NOI18N
+        ExecutionDescriptor desc = null;
+        String charsetName = null;
+        if (project != null) {
+            PropertyEvaluator evaluator = project.getLookup().lookup(PropertyEvaluator.class);
+            if (evaluator != null) {
+                charsetName = evaluator.getProperty(SharedRubyProjectProperties.SOURCE_ENCODING);
+            }
 
-        desc.allowInput();
-        desc.fileLocator(fileLocator);
-        desc.addOutputRecognizer(RubyExecution.RUBY_COMPILER);
-        new RubyExecution(desc).run();
+            ActionProvider provider = project.getLookup().lookup(ActionProvider.class);
+            if (provider instanceof ScriptDescProvider) { // Lookup ScriptDescProvider directly?
+                ScriptDescProvider descProvider = (ScriptDescProvider)provider;
+                OutputRecognizer[] extraRecognizers = new OutputRecognizer[] { new TestNotifier(true, true) };
+                String target = spec;
+                desc = descProvider.getScriptDescriptor(pwd, null/*specFile?*/, target, displayName, project.getLookup(), debug, extraRecognizers);
+                
+                // Override args
+                desc.additionalArgs(additionalArgs.toArray(new String[additionalArgs.size()]));
+            }
+        } else {
+            desc = new ExecutionDescriptor(displayName, pwd, spec);
+
+            desc. additionalArgs(additionalArgs.toArray(new String[additionalArgs.size()]));
+            desc.debug(debug);
+            desc.allowInput();
+            desc.fileLocator(fileLocator);
+            desc.addStandardRecognizers(RubyExecution.getStandardRubyRecognizers());
+            desc.addOutputRecognizer(new TestNotifier(true, true));
+
+        }
+        
+        if (desc != null) {
+            new RubyExecution(desc, charsetName).run();
+        }
     }
 }

@@ -41,6 +41,7 @@ import org.netbeans.modules.erlang.makeproject.spi.support.ReferenceHelper;
 import org.netbeans.modules.erlang.makeproject.spi.support.ui.StoreGroup;
 import org.netbeans.modules.erlang.project.RubyProject;
 import org.netbeans.modules.erlang.project.RubyProjectUtil;
+import org.netbeans.modules.erlang.project.SharedRubyProjectProperties;
 import org.netbeans.modules.erlang.project.SourceRoots;
 import org.netbeans.modules.erlang.project.UpdateHelper;
 import org.openide.DialogDisplayer;
@@ -56,7 +57,7 @@ import org.openide.util.Utilities;
 /**
  * @author Petr Hrebejk
  */
-public class RubyProjectProperties {
+public class RubyProjectProperties extends SharedRubyProjectProperties {
     // Special properties of the project
     public static final String Ruby_PROJECT_NAME = "j2se.project.name"; // NOI18N
     public static final String JAVA_PLATFORM = "platform.active"; // NOI18N
