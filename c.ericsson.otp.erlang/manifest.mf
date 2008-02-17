@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: com.ericsson.otp.erlang
+OpenIDE-Module-Localizing-Bundle: com/ericsson/otp/erlang/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.3
+
