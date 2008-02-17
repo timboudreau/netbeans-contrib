@@ -69,6 +69,17 @@ public class ErlRecord extends DatabaseDefinition {
     public String toString() {
         return "-record(" + getName() + ", " + fields.toString() + ")";
     }
+
+    private String url;
+    public void setUrl(String url) {
+        this.url = url;
+    }
+    
+    public String getUrl() {
+        return url;
+    }
+
+    
 }
 
 
