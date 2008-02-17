@@ -20,12 +20,8 @@
 package org.netbeans.modules.erlang.project.templates;
 
 import org.netbeans.api.project.Project;
-//import org.netbeans.modules.languages.erlang.project.templates.RubyTargetChooserPanel;
-//import org.netbeans.modules.languages.erlang.project.templates.NewJavaFileWizardIterator;
 import org.netbeans.api.project.SourceGroup;
-import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.WizardDescriptor;
-import org.openide.filesystems.FileObject;
 
 /**
  * Default implementations of Java-specific template UI.
