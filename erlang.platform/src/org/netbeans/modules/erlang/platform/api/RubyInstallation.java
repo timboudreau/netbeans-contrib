@@ -28,10 +28,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.List;
@@ -50,17 +48,11 @@ import javax.swing.SwingUtilities;
 
 import org.netbeans.api.gsfpath.classpath.ClassPath;
 import org.netbeans.api.options.OptionsDisplayer;
-import org.netbeans.modules.gsfret.source.usages.ClassIndexManager;
-import org.netbeans.spi.gsfpath.classpath.ClassPathFactory;
-import org.netbeans.spi.gsfpath.classpath.ClassPathImplementation;
-import org.netbeans.spi.gsfpath.classpath.PathResourceImplementation;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
-import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -91,11 +83,9 @@ public class RubyInstallation {
      * that cannot reference this value directly, as well as RUBY_MIME_TYPE in the editing plugin
      */
     public static final String RUBY_MIME_TYPE = "text/x-erlang"; // NOI18N
-	public static final String RHTML_MIME_TYPE = "application/x-httpd-eruby"; // NOI18N
-    private static final String KEY_RUBY = "erl"; //NOI18N
+    public static final String RHTML_MIME_TYPE = "application/x-httpd-eruby"; // NOI18N
+    private static final String KEY_ERL = "erlang.interpreter"; //NOI18N
     private static final RubyInstallation INSTANCE = new RubyInstallation();
-    private static boolean SKIP_INDEX_LIBS = System.getProperty("ruby.index.nolibs") != null; // NOI18N
-    private static boolean SKIP_INDEX_GEMS = System.getProperty("ruby.index.nogems") != null; // NOI18N
     
     // TODO Allow callers to decide if they want rails+dependencies included or not
     static ClassPath cp;
@@ -156,15 +146,15 @@ public class RubyInstallation {
     public String getRuby() {
         if (ruby == null) {
             // Test and preindexing hook
-            ruby = System.getProperty("erlang.interpreter");
+            ruby = System.getProperty(KEY_ERL);
             
             if (ruby == null) { // Usually the case
-               ruby = getPreferences().get(KEY_RUBY, null);
+               ruby = getPreferences().get(KEY_ERL, null);
                 
                 if (ruby == null) {
                     ruby = chooseRuby();
                     if (ruby != null) {
-                        getPreferences().put(KEY_RUBY, ruby);
+                        getPreferences().put(KEY_ERL, ruby);
                     }
                 }
 
@@ -183,22 +173,23 @@ public class RubyInstallation {
     }
 
     public String getJRuby() {
-        String binDir = getJRubyBin();
-        if (binDir == null) {
-            return null;
-        }
-
-        String binary = Utilities.isWindows() ? "erl.exe" : "erl"; // NOI18N
-        String jruby = binDir + File.separator + binary;
-
-        // Normalize path
-        try {
-            jruby = new File(jruby).getCanonicalFile().getAbsolutePath();
-        } catch (IOException ioe) {
-            Exceptions.printStackTrace(ioe);
-        }
-        
-        return jruby;
+        return getRuby();
+//        String binDir = getJRubyBin();
+//        if (binDir == null) {
+//            return null;
+//        }
+//
+//        String binary = Utilities.isWindows() ? "erl.exe" : "erl"; // NOI18N
+//        String jruby = binDir + File.separator + binary;
+//
+//        // Normalize path
+//        try {
+//            jruby = new File(jruby).getCanonicalFile().getAbsolutePath();
+//        } catch (IOException ioe) {
+//            Exceptions.printStackTrace(ioe);
+//        }
+//        
+//        return jruby;
     }
             
     private String chooseRuby() {
@@ -675,58 +666,7 @@ public class RubyInstallation {
     private String getJRubyLib() {
         return getJRubyHome() + File.separator + "lib";
     }
-    
-    /** Return the lib directory for the currently chosen Ruby interpreter */
-    public String getRubyLib() {
-        File rubyLib = new File(new File(getRuby()).getParentFile().getParent(), "lib"); // NOI18N
-        
-        if (rubyLib.exists() /** @Caoyuan Commented && new File(rubyLib, "ruby").exists() */) { // NOI18N
-            
-            try {
-                return rubyLib.getCanonicalPath();
-            } catch (IOException ioe) {
-                Exceptions.printStackTrace(ioe);
-            }
-        }
-        
-        return getJRubyLib();
-    }
-    
-    public FileObject getRubyLibFo() {
-        if (rubylibFo == null) {
-            String rubylib = getRubyLib();
-            
-            if (rubylib != null) {
-                rubylibFo = FileUtil.toFileObject(new File(rubylib));
-            }
-        }
-        
-        return rubylibFo;
-    }
-    
-    public FileObject getRubyStubs() {
-        return null;
-        /* @commented by caoyuan
-        if (rubyStubsFo == null) {
-            // Core classes: Stubs generated for the "builtin" Ruby libraries.
-            File clusterFile =
-                    InstalledFileLocator.getDefault()
-                    .locate("modules/org-netbeans-modules-ruby-project.jar", null,
-                    false); // NOI18N
-            
-            if (clusterFile != null) {
-                File rubyStubs =
-                        new File(clusterFile.getParentFile().getParentFile().getAbsoluteFile(),
-                        // JRUBY_RELEASEDIR + File.separator +
-                    "rubystubs" + File.separator + RUBYSTUBS_VERSION); // NOI18N
-                assert rubyStubs.exists() && rubyStubs.isDirectory();
-                rubyStubsFo = FileUtil.toFileObject(rubyStubs);
-            }
-        }
-        
-        return rubyStubsFo; */
-    }
-    
+                
     public String getRDoc() {
         if (rdoc == null) {
             rdoc = findGemExecutable("rdoc");
@@ -782,7 +722,7 @@ public class RubyInstallation {
         }
         
         if (!ruby.equals(getRuby())) {
-            getPreferences().put(KEY_RUBY, ruby);
+            getPreferences().put(KEY_ERL, ruby);
             this.ruby = ruby;
             // Recompute lazily:
             this.gem = null;

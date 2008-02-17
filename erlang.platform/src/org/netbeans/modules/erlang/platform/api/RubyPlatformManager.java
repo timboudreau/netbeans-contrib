@@ -75,12 +75,12 @@ import org.openide.util.Utilities;
  */
 public final class RubyPlatformManager {
     
-    private static final String[] RUBY_EXECUTABLE_NAMES = { "ruby", "jruby" }; // NOI18N
+    private static final String[] RUBY_EXECUTABLE_NAMES = { "erl" }; // NOI18N
     
     /** For unit tests. */
     static Properties TEST_RUBY_PROPS;
 
-    private static final String PLATFORM_PREFIX = "rubyplatform."; // NOI18N
+    private static final String PLATFORM_PREFIX = "erlangplatform."; // NOI18N
     private static final String PLATFORM_INTEPRETER = ".interpreter"; // NOI18N
     private static final String PLATFORM_ID_DEFAULT = "default"; // NOI18N
 
@@ -154,12 +154,12 @@ public final class RubyPlatformManager {
             // do nothing, vetoing not implemented yet
         }
     }
-    private static File findPlatform(final String dir, final String ruby) {
+    private static File findPlatform(final String dir, final String erl) {
         File f = null;
         if (Utilities.isWindows()) {
-            f = new File(dir, ruby + ".exe"); // NOI18N
+            f = new File(dir, erl + ".exe"); // NOI18N
         } else {
-            f = new File(dir, ruby); // NOI18N
+            f = new File(dir, erl); // NOI18N
             // Don't include /usr/bin/ruby on the Mac - it's no good
             // Source: http://developer.apple.com/tools/rubyonrails.html
             //   "The version of Ruby that shipped on Mac OS X Tiger prior to 
@@ -167,7 +167,7 @@ public final class RubyPlatformManager {
             //    an earlier version of Tiger, you'll need to either upgrade 
             //    to 10.4.6 or upgrade your copy of Ruby to version 1.8.4 or 
             //    later using the open source distribution."
-            if (ruby.equals("ruby") && Utilities.isMac() && "/usr/bin/ruby".equals(f.getPath())) { // NOI18N
+            if (erl.equals("erl") && Utilities.isMac() && "/usr/bin/erl".equals(f.getPath())) { // NOI18N
                 String version = System.getProperty("os.version"); // NOI18N
                 if (version == null || version.startsWith("10.4")) { // Only a problem on Tiger // NOI18N
                     return null;
@@ -185,14 +185,14 @@ public final class RubyPlatformManager {
             platforms = new HashSet<RubyPlatform>();
 
             // Test and preindexing hook
-            String hardcodedRuby = System.getProperty("ruby.interpreter");
+            String hardcodedRuby = System.getProperty("erlang.interpreter");
             if (hardcodedRuby != null) {
-                Info info = new Info("User-specified Ruby", "0.1");
+                Info info = new Info("User-specified Erlang", "0.1");
 
                 FileObject gems = FileUtil.toFileObject(new File(hardcodedRuby)).getParent().getParent().getFileObject("lib/ruby/gems/1.8");
                 if (gems != null) {
                     Properties props = new Properties();
-                    props.setProperty(Info.RUBY_KIND, "User-specified Ruby");
+                    props.setProperty(Info.RUBY_KIND, "User-specified Erlang");
                     props.setProperty(Info.RUBY_VERSION, "0.1");
                     String gemHome = FileUtil.toFile(gems).getAbsolutePath();
                     props.setProperty(Info.GEM_HOME, gemHome);
@@ -248,12 +248,12 @@ public final class RubyPlatformManager {
                 }
             }
             if (!foundDefault) {
-                String loc = RubyInstallation.getInstance().getJRuby();
+                String loc = RubyInstallation.getInstance().getRuby();
                 if (loc != null) {
                     platforms.add(new RubyPlatform(PLATFORM_ID_DEFAULT, loc, Info.forDefaultPlatform()));
                 }
             }
-            LOGGER.fine("RubyPlatform initial list: " + platforms);
+            LOGGER.fine("ErlangPlatform initial list: " + platforms);
         }
 
         return platforms;
@@ -326,7 +326,7 @@ public final class RubyPlatformManager {
             getPlatformsInternal().add(plaf);
         }
         firePlatformsChanged();
-        LOGGER.fine("RubyPlatform added: " + plaf);
+        LOGGER.fine("ErlangPlatform added: " + plaf);
         return plaf;
     }
 
@@ -347,7 +347,7 @@ public final class RubyPlatformManager {
             getPlatformsInternal().remove(plaf);
         }
         firePlatformsChanged();
-        LOGGER.fine("RubyPlatform removed: " + plaf);
+        LOGGER.fine("ErlangPlatform removed: " + plaf);
     }
 
     public static void storePlatform(final RubyPlatform plaf) throws IOException {
@@ -364,7 +364,7 @@ public final class RubyPlatformManager {
         } catch (MutexException e) {
             throw (IOException) e.getException();
         }
-        LOGGER.fine("RubyPlatform stored: " + plaf);
+        LOGGER.fine("ErlangPlatform stored: " + plaf);
     }
 
     private static void clearProperties(RubyPlatform plaf, EditableProperties props) {
@@ -455,7 +455,7 @@ public final class RubyPlatformManager {
                 }
             }
         } catch (IOException e) {
-            LOGGER.log(Level.INFO, "Not a ruby platform: " + interpreter.getAbsolutePath()); // NOI18N
+            LOGGER.log(Level.INFO, "Not a erlang platform: " + interpreter.getAbsolutePath()); // NOI18N
         } catch (InterruptedException e) {
             LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
         }

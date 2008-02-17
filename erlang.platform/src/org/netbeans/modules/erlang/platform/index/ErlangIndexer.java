@@ -34,7 +34,6 @@ import org.netbeans.api.gsf.ParserResult;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.erlang.editing.semantic.ErlContext;
-import org.netbeans.modules.erlang.platform.api.RubyInstallation;
 import org.netbeans.modules.erlang.editing.semantic.ErlMacro;
 import org.netbeans.modules.erlang.editing.semantic.ErlExport;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
@@ -42,6 +41,7 @@ import org.netbeans.modules.erlang.editing.semantic.ErlInclude;
 import org.netbeans.modules.erlang.editing.semantic.ErlModule;
 import org.netbeans.modules.erlang.editing.semantic.ErlRecord;
 import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider;
+import org.netbeans.modules.erlang.platform.api.RubyPlatformManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -217,7 +217,7 @@ public class ErlangIndexer implements Indexer {
             } else {
                 if (fo != null) {
                     if (file.isPlatform()) {
-                        String libFolder = RubyInstallation.getInstance().getRubyLib();
+                        String libFolder = RubyPlatformManager.getDefaultPlatform().getLib();
                         File libFolderFile = new File(libFolder);
                         if (libFolderFile != null && libFolderFile.exists()) {
                             FileObject libFolderObj = FileUtil.createData(libFolderFile);
