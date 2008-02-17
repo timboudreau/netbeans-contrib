@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Erlang">
+            <file name="org-netbeans-modules-erlang-project-gems-GemAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Tools">
+            <attr name="JavaPlatformsCustomizerAction.instance/org-netbeans-modules-erlang-project-gems-GemAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-erlang-project-gems-GemAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Ruby/org-netbeans-modules-erlang-project-gems-GemAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-erlang-project-gems-GemAction.shadow/ServerManagerAction.instance" boolvalue="true"/>
+        </folder>
+    </folder>
+
+    <folder name="Templates">
+        <folder name="Erlang">
+            <file name="main.erl" url="main.erl">
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
+                <!-- This is a hack to allow Erlang files to show up in Java projects as well in case you want to mix in Erlang for scripting. -->
+                <attr name="templateCategory" stringvalue="erlang,java-classes"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangfile.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
+            </file>
+            <file name="module.erl" url="module.erl">
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
+                <attr name="templateCategory" stringvalue="erlang"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangmodule.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
+            </file>
+	    <file name="header.hrl" url="header.hrl">
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
+                <attr name="templateCategory" stringvalue="erlang"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangheader.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
+            </file>
+            <file name="escript.erl" url="escript.erl">
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
+                <attr name="templateCategory" stringvalue="erlang"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangescript.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
+            </file>
+            <file name="test.erl" url="test.erl">
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
+                <attr name="templateCategory" stringvalue="erlang"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangtest.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
+                <!-- Pending attribute, not yet supported - see #91580 -->
+                <attr name="templateNamePrefix" stringvalue="tc_"/>
+            </file>
+            <file name="suite.erl" url="suite.erl">
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
+                <attr name="templateCategory" stringvalue="erlang"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangtestsuite.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
+                <!-- Pending attribute, not yet supported - see #91580 -->
+                <attr name="templateNamePrefix" stringvalue="ts_"/>
+            </file>
+            <file name="Makefile" url="Makefile">
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
+                <attr name="templateCategory" stringvalue="erlang"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/makefile.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
+            </file>
+            <file name="Emakefile" url="Emakefile">
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
+                <attr name="templateCategory" stringvalue="erlang"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/emakefile.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
+            </file>
+        </folder>
+
+        <folder name="Project">
+            <attr name="Standard/Erlang" boolvalue="true"/>
+            <attr name="Erlang/Samples" boolvalue="true"/>
+
+            <folder name="Erlang">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.wizards.Bundle"/>
+                <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/desktop.html"/>
+
+                <file name="emptyErlang.xml">
+                    <attr name="template" boolvalue="true"/>
+                    <attr name="instantiatingIterator" newvalue="org.netbeans.modules.erlang.project.ui.wizards.NewRubyProjectWizardIterator"/>
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.wizards.Bundle"/>
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/jruby.png"/>
+
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/application.html"/>
+                </file>
+        
+                <attr name="emptyErlang.xml/existingErlang.xml" boolvalue="true"/>
+
+                <file name="existingErlang.xml">
+                    <attr name="template" boolvalue="true"/>
+                    <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.erlang.project.ui.wizards.NewRubyProjectWizardIterator.existing"/>
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.wizards.Bundle"/>
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/jruby.png"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/existingProject.html"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="Projects">
+        <folder name="org-netbeans-modules-erlang-project">
+            <folder name="Customizer">
+                <file name="Sources.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.erlang.project.ui.customizer.RubyCompositePanelProvider.createSources"/>
+                </file>
+                <attr name="Sources.instance/BuildCategory" boolvalue="true"/>
+                <!--
+                <folder name="BuildCategory">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.customizer.Bundle"/>
+                    <file name="Build.instance">
+                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.erlang.project.ui.customizer.RubyCompositePanelProvider.createBuild"/>
+                    </file>
+                </folder>
+                -->
+                <attr name="BuildCategory/Run.instance" boolvalue="true"/>
+                <file name="Run.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.erlang.project.ui.customizer.RubyCompositePanelProvider.createRun"/>
+                </file>
+            </folder>
+            
+            <folder name="Nodes">
+                <file name="org-netbeans-modules-erlang-project-ui-SourceNodeFactory.instance"/>
+            </folder>
+            
+            <folder name="Lookup"/>
+            
+        </folder>
+    </folder>
+
+    <!--
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="erlang"> 
+                <folder name="Popup">
+                    <attr name="format/org-netbeans-modules-project-ui-RunSingle.shadow" boolvalue="true"/>
+                    <attr name="SeparatorAfterFormat.instance/org-netbeans-modules-project-ui-RunSingle.shadow" boolvalue="true"/>
+                    <file name="org-netbeans-modules-project-ui-RunSingle.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-project-ui-RunSingle.instance"/>
+                    </file>
+                    
+                    <attr name="org-netbeans-modules-project-ui-RunSingle.shadow/org-netbeans-modules-project-ui-DebugSingle.shadow" boolvalue="true"/>
+                    <file name="org-netbeans-modules-project-ui-DebugSingle.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-project-ui-DebugSingle.instance"/>
+                    </file>
+                    <attr name="org-netbeans-modules-project-ui-DebugSingle.shadow/SeparatorBeforeCut.instance" boolvalue="true"/>
+                    <attr name="org-netbeans-modules-project-ui-DebugSingle.shadow/org-netbeans-modules-debugger-ui-actions-AddWatchAction.instance" boolvalue="true"/>
+                    
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    -->
+
+
+
+    <!-- To get index works, we need not register loaders here, but we will get DataLoarder NPE, if we regisger it, the editor
+         will be caught by org.netbeans.modules.gsf.MimeLookupInitializerImpl and delegated to GSF's EditorKit.
+         To resolve this, we need lightly modify Common Scripting Language Support - project folder: scripting/gsf/:
+         delete 'src/META-INF/services/org.netbeans.spi.editor.mimelookup.MimeLookupInitializer'
+         So the default NbEditorKit will be from GLF's src/META-INF/services/org.netbeans.spi.editor.mimelookup.MimeLookupInitializer
+    -->
+    <!-- These actions should already be registered in GLF module, @see Loaders/Languages/Actions 
+         in org/netbeans/modules/languages/resource/layer.xml, but we it seems after under GLF, we
+         these registered actions are all disabled, we have to register them here
+    -->
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="erlang">
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangdoc.png"/>
+                <attr name="iconBase" stringvalue="/org/netbeans/modules/erlang/project/ui/resources/erlangdoc.png"/>
+                <folder name="Actions">
+                    <file name="OpenAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.OpenAction"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="Separator1.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="CutAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.CutAction"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>     
+                    <file name="CopyAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.CopyAction"/>
+                        <attr name="position" intvalue="400"/>
+                    </file>
+                    <file name="PasteAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.PasteAction"/>
+                        <attr name="position" intvalue="500"/>
+                    </file>
+                    <file name="Separator2.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="600"/>
+                    </file>
+                    <file name="NewAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.NewAction"/>
+                        <attr name="position" intvalue="700"/>
+                    </file>
+                    <file name="DeleteAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.DeleteAction"/>
+                        <attr name="position" intvalue="800"/>
+                    </file>
+                    <file name="RenameAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.RenameAction"/>
+                        <attr name="position" intvalue="900"/>
+                    </file>
+                    <file name="Separator3.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1000"/>
+                    </file>
+                    <file name="SaveAsTemplateAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.SaveAsTemplateAction"/>
+                        <attr name="position" intvalue="1100"/>
+                    </file>
+                    <file name="Separator4.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1200"/>
+                    </file>
+                    <file name="FileSystemAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.FileSystemAction"/>
+                        <attr name="position" intvalue="1300"/>
+                    </file>
+                    <file name="Separator5.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1400"/>
+                    </file> 
+                    <file name="ToolsAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.ToolsAction"/>
+                        <attr name="position" intvalue="1500"/>
+                    </file> 
+                    <file name="PropertiesAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.PropertiesAction"/>
+                        <attr name="position" intvalue="1600"/>
+                    </file> 
+                    <file name="Separator6.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1700"/>
+                    </file> 
+                    <file name="org-netbeans-modules-languages-features-TokensBrowserAction.instance">
+                        <attr name="position" intvalue="1800"/>
+                    </file>
+                    <file name="org-netbeans-modules-languages-features-ASTBrowserAction.instance">
+                        <attr name="position" intvalue="1900"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+
+</filesystem>

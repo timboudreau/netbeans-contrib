@@ -179,7 +179,7 @@ public class ErlangSemanticAnalyser {
      *
      * This is the method will be called by GLF feature as declared in Erlang.nbs:
      * AST {
-     *   process:org.netbeans.modules.languages.erlang.semantic.ErlangSemanticParser.process
+     *   process:org.netbeans.modules.erlang.semantic.ErlangSemanticParser.process
      * }
      *
      * @Notice astRoot may be changed after this feature calling? if so, the doc <--> astRoot is useless to prevent redudant parsing.

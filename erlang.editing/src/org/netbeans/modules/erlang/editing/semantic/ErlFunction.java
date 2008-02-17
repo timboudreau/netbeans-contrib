@@ -56,7 +56,6 @@ public class ErlFunction extends DatabaseDefinition {
     private int arity;
     private Set<String> argumentsOpts; // use Set here to avoid reduntant.
     
-    private String fileName;
     
     /** For Built-In functions */
     public ErlFunction(String name, int arity) {
@@ -74,14 +73,6 @@ public class ErlFunction extends DatabaseDefinition {
 	this.moduleName = moduleName;
     }
     
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-    
-    public String getFileName() {
-        return fileName;
-    }
-
     public String getModuleName() {
         return moduleName;
     }
@@ -126,4 +117,15 @@ public class ErlFunction extends DatabaseDefinition {
     public String toString() {
         return "Function " + getName() + "/" + arity;
     }
+    
+    private String url;
+    public void setUrl(String url) {
+        this.url = url;
+    }
+    
+    public String getUrl() {
+        return url;
+    }
+
+    
 }

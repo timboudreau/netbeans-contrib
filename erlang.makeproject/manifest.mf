@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.erlang.makeproject
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/erlang/makeproject/Bundle.properties
+OpenIDE-Module-Specification-Version: 0.16.0
+

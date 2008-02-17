@@ -119,7 +119,7 @@ public class ExecutionDescriptor {
         return this;
     }
 
-    public ExecutionDescriptor addStandardRecognizers(List<OutputRecognizer> recognizers) {
+    public ExecutionDescriptor addStandardRecognizers(List<? extends OutputRecognizer> recognizers) {
         outputRecognizers.addAll(recognizers);
         return this;
     }

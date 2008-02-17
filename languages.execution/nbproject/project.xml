@@ -72,6 +72,9 @@
                 </dependency>
             </module-dependencies>
             <friend-packages>
+                <friend>org.netbeans.modules.erlang.console</friend>
+                <friend>org.netbeans.modules.erlang.platform</friend>
+                <friend>org.netbeans.modules.erlang.project</friend>
                 <friend>org.netbeans.modules.scala.console</friend>
                 <package>org.netbeans.modules.languages.execution</package>
                 <package>org.netbeans.modules.languages.execution.console</package>

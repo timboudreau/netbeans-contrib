@@ -97,4 +97,15 @@ public class ErlMacro extends DatabaseDefinition {
     public String toString() {
         return "Define " + params.toString() + " " + body;
     }
+
+    private String url;
+    public void setUrl(String url) {
+        this.url = url;
+    }
+    
+    public String getUrl() {
+        return url;
+    }
+
+    
 }

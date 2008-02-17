@@ -119,7 +119,7 @@ import org.openide.nodes.Node;
  */
 public class Erlang {
 
-    private static final String DOC = "org/netbeans/modules/languages/erlang/Documentation.xml";
+    private static final String DOC = "org/netbeans/modules/erlang/resources/Documentation.xml";
     private static final String MIME_TYPE = "text/x-erlang";
 
     private static Set<Integer> regExp = new HashSet<Integer> ();
@@ -882,10 +882,10 @@ public class Erlang {
 
         DataObject dobj = null;
         StyledDocument docToGo = null;
-        if ((definition instanceof ErlFunction && ((ErlFunction) definition).getFileName() != null) || definition instanceof ErlInclude) {
+        if ((definition instanceof ErlFunction && ((ErlFunction) definition).getUrl() != null) || definition instanceof ErlInclude) {
             File file = null;
-            if (definition instanceof ErlFunction && ((ErlFunction) definition).getFileName() != null) {
-                String module = ((ErlFunction) definition).getFileName();
+            if (definition instanceof ErlFunction && ((ErlFunction) definition).getUrl() != null) {
+                String module = ((ErlFunction) definition).getUrl();
                 URL url = ErlangIndexProvider.getDefault().getModuleFileUrl(ErlangIndexProvider.Type.Module, module);
                 if (url == null) {
                     return null;
