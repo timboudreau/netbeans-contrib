@@ -260,10 +260,11 @@
                 </dependency>
             </module-dependencies>
             <public-packages>
-                <package>org.netbeans.modules.erlang.editing</package>
-                <package>org.netbeans.modules.erlang.editing.semantic</package>
-                <package>org.netbeans.modules.erlang.editing.spi</package>
-                <package>org.netbeans.modules.erlang.editing.util</package>
+                <package>org.netbeans.modules.erlang.platform</package>
+                <package>org.netbeans.modules.erlang.platform.api</package>
+                <package>org.netbeans.modules.erlang.platform.gems</package>
+                <package>org.netbeans.modules.erlang.platform.gsf</package>
+                <package>org.netbeans.modules.erlang.platform.spi</package>
             </public-packages>
         </data>
     </configuration>
