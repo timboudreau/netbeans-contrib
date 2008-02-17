@@ -88,7 +88,11 @@ public abstract class AbstractRubyTokenList implements TokenList {
 
     private int[] findNextSpellSpan() throws BadLocationException {
         TokenHierarchy<Document> h = TokenHierarchy.get((Document)doc);
-        TokenSequence<? extends TokenId> ts = h.tokenSequence();
+        @SuppressWarnings("unchecked")
+        //the cast below should be safe (and not necessary),
+        //but JDK5 compiler fails to compile the class without it and complains about the cast.
+        //likely a compiler bug
+        TokenSequence<? extends TokenId> ts = (TokenSequence<? extends TokenId>) h.tokenSequence();
 
         return findNextSpellSpan(ts, nextBlockStart);
     }
