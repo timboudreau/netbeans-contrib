@@ -1,0 +1,6 @@
+org.netbeans.modules.languages.erlang.project.ProjectClassPathProvider
+#position=100
+org.netbeans.modules.languages.erlang.project.BootClassPathProvider
+#position=10005
+
+
