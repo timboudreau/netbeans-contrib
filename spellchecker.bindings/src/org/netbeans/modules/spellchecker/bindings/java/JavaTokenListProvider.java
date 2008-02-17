@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -55,7 +55,8 @@ import org.openide.loaders.DataObject;
  */
 public class JavaTokenListProvider implements TokenListProvider {
 
-    /** Creates a new instance of JavaTokenListProvider */
+    private static final boolean ENABLE_SEMANTIC_TOKEN_LIST = Boolean.getBoolean(JavaSemanticTokenList.class.getName() + "-enable");
+    
     public JavaTokenListProvider() {
     }
 
@@ -66,13 +67,15 @@ public class JavaTokenListProvider implements TokenListProvider {
             lists.add(new JavaTokenList((BaseDocument) doc));
         }
 
-        Object o = doc.getProperty(Document.StreamDescriptionProperty);
+        if (ENABLE_SEMANTIC_TOKEN_LIST) {
+            Object o = doc.getProperty(Document.StreamDescriptionProperty);
 
-        if (o instanceof DataObject) {
-            TokenList l = JavaSemanticTokenList.get(((DataObject) o).getPrimaryFile());
+            if (o instanceof DataObject) {
+                TokenList l = JavaSemanticTokenList.get(((DataObject) o).getPrimaryFile());
 
-            if (l != null) {
-                lists.add(l);
+                if (l != null) {
+                    lists.add(l);
+                }
             }
         }
 
