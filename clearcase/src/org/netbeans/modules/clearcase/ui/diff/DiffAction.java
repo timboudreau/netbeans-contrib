@@ -42,6 +42,7 @@ package org.netbeans.modules.clearcase.ui.diff;
 
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.versioning.util.Utils;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.openide.util.NbBundle;
 
 import javax.swing.*;
@@ -62,6 +63,11 @@ public class DiffAction extends AbstractAction {
         setEnabled(context.getFiles().size() > 0);
     }
     
+    @Override
+    public boolean isEnabled() {
+        return ClearcaseUtils.containsVersionedFiles(context);
+    }
+
     public void actionPerformed(ActionEvent ev) {
         diff(context, Setup.DIFFTYPE_LOCAL, Utils.getContextDisplayName(context));        
     }
