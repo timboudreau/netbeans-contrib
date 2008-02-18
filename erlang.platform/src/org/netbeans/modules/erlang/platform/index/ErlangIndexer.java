@@ -34,7 +34,6 @@ import org.netbeans.api.gsf.ParserResult;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.erlang.editing.semantic.ErlContext;
-import org.netbeans.modules.erlang.platform.api.RubyInstallation;
 import org.netbeans.modules.erlang.editing.semantic.ErlMacro;
 import org.netbeans.modules.erlang.editing.semantic.ErlExport;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
@@ -42,6 +41,7 @@ import org.netbeans.modules.erlang.editing.semantic.ErlInclude;
 import org.netbeans.modules.erlang.editing.semantic.ErlModule;
 import org.netbeans.modules.erlang.editing.semantic.ErlRecord;
 import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider;
+import org.netbeans.modules.erlang.platform.api.RubyPlatformManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -51,6 +51,18 @@ import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 
 /**
+ * GSF Indexex will index project resources and resources of boot classess
+ * Where boot classes usally will be get from org.netbeans.spi.gsfpath.classpath.ClassPathProvider
+ * Project manager should provide an implementation of ClassPathProvider under META-INFO.services
+ * for example:
+ *     org.netbeans.modules.erlang.project.ProjectClassPathProvider
+ *     org.netbeans.modules.erlang.project.BootClassPathProvider
+ * The later one will init BootClassPathImplementation, which implemented infterface:
+ *     org.netbeans.modules.erlang.project.classpath.BootClassPathImplementation#getResources
+ * Since each project may use different platform, so the BootClassPathImplementation will be
+ * put in project module, and will get active.platform from project.properties, thus know which
+ * boot classes will be used.
+ * 
  * @author Caoyuan Deng
  */
 public class ErlangIndexer implements Indexer {
@@ -217,7 +229,7 @@ public class ErlangIndexer implements Indexer {
             } else {
                 if (fo != null) {
                     if (file.isPlatform()) {
-                        String libFolder = RubyInstallation.getInstance().getRubyLib();
+                        String libFolder = RubyPlatformManager.getDefaultPlatform().getLib();
                         File libFolderFile = new File(libFolder);
                         if (libFolderFile != null && libFolderFile.exists()) {
                             FileObject libFolderObj = FileUtil.createData(libFolderFile);

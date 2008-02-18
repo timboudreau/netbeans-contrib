@@ -42,10 +42,12 @@ import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.beans.VetoableChangeSupport;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -66,6 +68,7 @@ import org.netbeans.modules.languages.execution.ExecutionService;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.InstalledFileLocator;
+import org.openide.util.Exceptions;
 import org.openide.util.Mutex;
 import org.openide.util.MutexException;
 import org.openide.util.Utilities;
@@ -75,12 +78,12 @@ import org.openide.util.Utilities;
  */
 public final class RubyPlatformManager {
     
-    private static final String[] RUBY_EXECUTABLE_NAMES = { "ruby", "jruby" }; // NOI18N
+    private static final String[] RUBY_EXECUTABLE_NAMES = { "erl" }; // NOI18N
     
     /** For unit tests. */
     static Properties TEST_RUBY_PROPS;
 
-    private static final String PLATFORM_PREFIX = "rubyplatform."; // NOI18N
+    private static final String PLATFORM_PREFIX = "erlangplatform."; // NOI18N
     private static final String PLATFORM_INTEPRETER = ".interpreter"; // NOI18N
     private static final String PLATFORM_ID_DEFAULT = "default"; // NOI18N
 
@@ -154,12 +157,12 @@ public final class RubyPlatformManager {
             // do nothing, vetoing not implemented yet
         }
     }
-    private static File findPlatform(final String dir, final String ruby) {
+    private static File findPlatform(final String dir, final String erl) {
         File f = null;
         if (Utilities.isWindows()) {
-            f = new File(dir, ruby + ".exe"); // NOI18N
+            f = new File(dir, erl + ".exe"); // NOI18N
         } else {
-            f = new File(dir, ruby); // NOI18N
+            f = new File(dir, erl); // NOI18N
             // Don't include /usr/bin/ruby on the Mac - it's no good
             // Source: http://developer.apple.com/tools/rubyonrails.html
             //   "The version of Ruby that shipped on Mac OS X Tiger prior to 
@@ -167,7 +170,7 @@ public final class RubyPlatformManager {
             //    an earlier version of Tiger, you'll need to either upgrade 
             //    to 10.4.6 or upgrade your copy of Ruby to version 1.8.4 or 
             //    later using the open source distribution."
-            if (ruby.equals("ruby") && Utilities.isMac() && "/usr/bin/ruby".equals(f.getPath())) { // NOI18N
+            if (erl.equals("erl") && Utilities.isMac() && "/usr/bin/erl".equals(f.getPath())) { // NOI18N
                 String version = System.getProperty("os.version"); // NOI18N
                 if (version == null || version.startsWith("10.4")) { // Only a problem on Tiger // NOI18N
                     return null;
@@ -185,14 +188,14 @@ public final class RubyPlatformManager {
             platforms = new HashSet<RubyPlatform>();
 
             // Test and preindexing hook
-            String hardcodedRuby = System.getProperty("ruby.interpreter");
+            String hardcodedRuby = System.getProperty("erlang.interpreter");
             if (hardcodedRuby != null) {
-                Info info = new Info("User-specified Ruby", "0.1");
+                Info info = new Info("User-specified Erlang", "0.1");
 
                 FileObject gems = FileUtil.toFileObject(new File(hardcodedRuby)).getParent().getParent().getFileObject("lib/ruby/gems/1.8");
                 if (gems != null) {
                     Properties props = new Properties();
-                    props.setProperty(Info.RUBY_KIND, "User-specified Ruby");
+                    props.setProperty(Info.RUBY_KIND, "User-specified Erlang");
                     props.setProperty(Info.RUBY_VERSION, "0.1");
                     String gemHome = FileUtil.toFile(gems).getAbsolutePath();
                     props.setProperty(Info.GEM_HOME, gemHome);
@@ -232,9 +235,15 @@ public final class RubyPlatformManager {
                     if (patchLevel != null){
                         props.put(Info.RUBY_PATCHLEVEL, patchLevel);
                     }
-                    props.put(Info.RUBY_RELEASE_DATE, p.get(PLATFORM_PREFIX + idDot + Info.RUBY_RELEASE_DATE));
+                    String releaseDate = p.get(PLATFORM_PREFIX + idDot + Info.RUBY_RELEASE_DATE);
+                    if (releaseDate != null) {
+                        props.put(Info.RUBY_RELEASE_DATE, releaseDate);
+                    }
 //                    props.put(Info.RUBY_EXECUTABLE, p.get(PLATFORM_PREFIX + idDot + Info.RUBY_EXECUTABLE));
-                    props.put(Info.RUBY_PLATFORM, p.get(PLATFORM_PREFIX + idDot + Info.RUBY_PLATFORM));
+                    String platform = p.get(PLATFORM_PREFIX + idDot + Info.RUBY_PLATFORM);
+                    if (platform != null) {
+                        props.put(Info.RUBY_PLATFORM, platform);
+                    }
                     String gemHome = p.get(PLATFORM_PREFIX + idDot + Info.GEM_HOME);
                     if (gemHome != null) {
                         props.put(Info.GEM_HOME, gemHome);
@@ -248,12 +257,12 @@ public final class RubyPlatformManager {
                 }
             }
             if (!foundDefault) {
-                String loc = RubyInstallation.getInstance().getJRuby();
+                String loc = RubyInstallation.getInstance().getInterpreterInEnv();
                 if (loc != null) {
                     platforms.add(new RubyPlatform(PLATFORM_ID_DEFAULT, loc, Info.forDefaultPlatform()));
                 }
             }
-            LOGGER.fine("RubyPlatform initial list: " + platforms);
+            LOGGER.fine("ErlangPlatform initial list: " + platforms);
         }
 
         return platforms;
@@ -326,7 +335,7 @@ public final class RubyPlatformManager {
             getPlatformsInternal().add(plaf);
         }
         firePlatformsChanged();
-        LOGGER.fine("RubyPlatform added: " + plaf);
+        LOGGER.fine("ErlangPlatform added: " + plaf);
         return plaf;
     }
 
@@ -347,7 +356,7 @@ public final class RubyPlatformManager {
             getPlatformsInternal().remove(plaf);
         }
         firePlatformsChanged();
-        LOGGER.fine("RubyPlatform removed: " + plaf);
+        LOGGER.fine("ErlangPlatform removed: " + plaf);
     }
 
     public static void storePlatform(final RubyPlatform plaf) throws IOException {
@@ -364,7 +373,7 @@ public final class RubyPlatformManager {
         } catch (MutexException e) {
             throw (IOException) e.getException();
         }
-        LOGGER.fine("RubyPlatform stored: " + plaf);
+        LOGGER.fine("ErlangPlatform stored: " + plaf);
     }
 
     private static void clearProperties(RubyPlatform plaf, EditableProperties props) {
@@ -399,9 +408,13 @@ public final class RubyPlatformManager {
         if (info.getPatchlevel() != null) {
             props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_PATCHLEVEL, info.getPatchlevel());
         }
-        props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_RELEASE_DATE, info.getReleaseDate());
-//                    props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_EXECUTABLE, info.getExecutable());
-        props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_PLATFORM, info.getPlatform());
+        if (info.getReleaseDate() != null) {
+            props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_RELEASE_DATE, info.getReleaseDate());
+        }
+        //                    props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_EXECUTABLE, info.getExecutable());
+        if (info.getPlatform() != null) {
+            props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_PLATFORM, info.getPlatform());
+        }
         if (info.getGemHome() != null) {
             props.setProperty(PLATFORM_PREFIX + idDot + Info.GEM_HOME, info.getGemHome());
             props.setProperty(PLATFORM_PREFIX + idDot + Info.GEM_PATH, info.getGemPath());
@@ -427,38 +440,74 @@ public final class RubyPlatformManager {
             return new Info(TEST_RUBY_PROPS);
         }
         Info info = null;
+
+        BufferedWriter stdWriter = null;
+        BufferedReader stdReader = null;
+        BufferedReader errReader = null;
         try {
-            File platformInfoScript = InstalledFileLocator.getDefault().locate(
-                    "platform_info.rb", "org.netbeans.modules.ruby.platform", false);  // NOI18N
-            if (platformInfoScript == null) {
-                throw new IllegalStateException("Cannot locate platform_info.rb script");
-            }
-            ProcessBuilder pb = new ProcessBuilder(interpreter.getAbsolutePath(), platformInfoScript.getAbsolutePath()); // NOI18N
-            // be sure that JRUBY_HOME is not set during configuration
-            // autodetection, otherwise interpreter under JRUBY_HOME would be
-            // effectively used
-            pb.environment().remove("JRUBY_HOME"); // NOI18N
-            ExecutionService.logProcess(pb);
-            Process start = pb.start();
-            // FIXME: set timeout
-            start.waitFor();
-            if (start.exitValue() == 0) {
-                Properties props = new Properties();
-                props.load(start.getInputStream());
-                info = new Info(props);
-            } else {
-                LOGGER.severe(interpreter.getAbsolutePath() + " does not seems to be a valid interpreter"); // TODO localize me
-                BufferedReader errors = new BufferedReader(new InputStreamReader(start.getErrorStream()));
-                String line;
-                while ((line = errors.readLine()) != null) {
-                    LOGGER.severe(line);
+            Process process = Runtime.getRuntime().exec("erl");
+
+            stdWriter = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+            stdReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            stdWriter.append("code:root_dir().");
+            stdWriter.newLine();
+            stdWriter.append("init:stop().");
+            stdWriter.newLine();
+            stdWriter.flush();
+
+            try {
+                int sucessed = process.waitFor();
+                if (sucessed != 0) {
+                    //ErrorManager.().notify(new Exception(
+                    //        "Erlang installation may not be set, or is invalid.\n" +
+                    //        "Please set Erlang installation via [Tools]->[Options]->[Miscellanous]"));
+                } else {
+                    String line = null;
+                    while ((line = errReader.readLine()) != null) {
+                        System.out.println(line);
+                    }
+                    String id = null;
+                    String version = "1.0";
+                    while ((line = stdReader.readLine()) != null) {
+                        System.out.println(line);
+                        if (line.toLowerCase().contains("eshell")) {
+                            id = line;
+                        }
+                        String[] groups = line.split(">");
+                        if (groups.length >= 2 && groups[0].trim().equals("1")) {
+                            String basePath = groups[1].trim();
+                            basePath = basePath.replace("\"", "");
+                            String erlExeFileName = Utilities.isWindows() ? "erl.exe" : "erl";
+                            String erlPath = basePath + File.separator + "bin" + File.separator + erlExeFileName;                  
+                            break;
+                        }
+                    }
+                    if (id == null) {
+                        id = "Erlang";
+                    }
+                    info = new Info(id, version);
                 }
+            } catch (InterruptedException e) {
+                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
             }
         } catch (IOException e) {
-            LOGGER.log(Level.INFO, "Not a ruby platform: " + interpreter.getAbsolutePath()); // NOI18N
-        } catch (InterruptedException e) {
-            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+            LOGGER.log(Level.INFO, "Not a erlang platform: " + interpreter.getAbsolutePath()); // NOI18N
+        } finally {
+            try {
+                if (stdWriter != null) {
+                    stdWriter.close();
+                }
+                if (stdReader != null) {
+                    stdReader.close();
+                }
+                if (errReader != null) {
+                    errReader.close();
+                }
+            } catch (IOException ex) {
+            }
         }
+            
         return info;
     }
     

@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import javax.swing.JPanel;
 import org.netbeans.modules.erlang.platform.api.RubyInstallation;
+import org.netbeans.modules.erlang.platform.api.RubyPlatformManager;
 import org.openide.ErrorManager;
 
 import org.openide.util.HelpCtx;
@@ -48,7 +49,7 @@ public class CustomizerCompile extends JPanel implements HelpCtx.Provider {
         RequestProcessor.getDefault().post(new Runnable() {
 
             public void run() {
-                String path = RubyInstallation.getInstance().getRuby();
+                String path = RubyPlatformManager.getDefaultPlatform().getInterpreter();
                 ProcessBuilder pb = new ProcessBuilder(path, "-help");
                 Map<String,String> env = pb.environment();
                 String currentPath = env.get("PATH");
@@ -56,7 +57,7 @@ public class CustomizerCompile extends JPanel implements HelpCtx.Provider {
                 if (currentPath == null) {
                     currentPath = "";
                 }
-                currentPath = new File(RubyInstallation.getInstance().getRuby()).getParent() +
+                currentPath = RubyPlatformManager.getDefaultPlatform().getInterpreterFile().getParent() +
                               File.pathSeparator + currentPath;
                 env.put("PATH", currentPath);
                 StringBuilder sb = new StringBuilder();

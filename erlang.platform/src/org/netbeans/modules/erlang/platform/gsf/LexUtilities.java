@@ -51,7 +51,7 @@ import org.openide.util.Exceptions;
  * @author Caoyuan Deng
  */
 public class LexUtilities {
-    private static final String mimeType = "text/erlang";
+    private static final String mimeType = "text/x-erlang";
     
     /** Tokens that match a corresponding END statement. Even though while, unless etc.
      * can be statement modifiers, those luckily have different token ids so are not a problem

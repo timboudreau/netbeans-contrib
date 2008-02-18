@@ -326,7 +326,7 @@ public class RubyActionProvider implements ActionProvider {
         
         // TODO Check for valid installation of Ruby and Rake
         if (COMMAND_RUN.equals(command) || COMMAND_DEBUG.equals(command)) {
-            if (!RubyInstallation.getInstance().isValidRuby(true)) {
+            if (!platform.isValidRuby(true)) {
                 return;
             }
             
@@ -448,7 +448,7 @@ public class RubyActionProvider implements ActionProvider {
                     file.getNameExt(), context, COMMAND_DEBUG_SINGLE.equals(command), null);
             return;
         } else if (COMMAND_BUILD.equals(command)) {
-            if (!RubyInstallation.getInstance().isValidRuby(true)) { /** modified by @Caoyuan*/
+            if (!platform.isValidRuby(true)) {
                 return;
             }
             
@@ -493,40 +493,41 @@ public class RubyActionProvider implements ActionProvider {
         }
         
         if (COMMAND_RDOC.equals(command)) {
-            if (!RubyInstallation.getInstance().isValidRDoc(true)) {
-                return;
-            }
-            
             LifecycleManager.getDefault().saveAll();
             File pwd = FileUtil.toFile(project.getProjectDirectory());
-            
+
             Runnable showBrowser = new Runnable() {
                 public void run() {
                     // TODO - wait for the file to be created
                     // Open brower on the doc directory
-                    FileObject doc = project.getProjectDirectory().getFileObject("doc");
+                    FileObject doc = project.getProjectDirectory().getFileObject("doc"); // NOI18N
                     if (doc != null) {
-                        FileObject index = doc.getFileObject("index.html");
+                        FileObject index = doc.getFileObject("index.html"); // NOI18N
                         if (index != null) {
                             try {
                                 URL url = FileUtil.toFile(index).toURI().toURL();
-                                
+
                                 HtmlBrowser.URLDisplayer.getDefault().showURL(url);
                             }
                             catch (MalformedURLException ex) {
                                 ErrorManager.getDefault().notify(ex);
-                            };
+                            }
                         }
                     }
                 }
             };
             
             RubyFileLocator fileLocator = new RubyFileLocator(context, project);
-            String displayName = "Ruby Documentation"; // TODO - internationalize
-            new RubyExecution(new ExecutionDescriptor(displayName, pwd, RubyInstallation.getInstance().getRDoc()).
+            String displayName = NbBundle.getMessage(RubyActionProvider.class, "RubyDocumentation");
+
+            new RubyExecution(new ExecutionDescriptor(displayName, pwd).
+                    //gemManager.getRDoc()).
+                    additionalArgs("-r", "rdoc/rdoc", "-e", "begin; r = RDoc::RDoc.new; r.document(ARGV); end").
                     fileLocator(fileLocator).
                     postBuild(showBrowser).
-                    addOutputRecognizer(RubyExecution.RUBY_COMPILER)).
+                    addStandardRecognizers(RubyExecution.getStandardRubyRecognizers()),
+                    project.evaluator().getProperty(RubyProjectProperties.SOURCE_ENCODING)
+                    ).
                     run();
             
             return;
@@ -544,10 +545,9 @@ public class RubyActionProvider implements ActionProvider {
         }
         
         if (COMMAND_TEST_SINGLE.equals(command)) {
-            if (!RubyInstallation.getInstance().isValidRuby(true)) {
+            if (!platform.isValidRuby(true)) {
                 return;
             }
-            FileObject[] files = findTestSourcesForSources(context);
             
             FileObject file = findSources(context)[0];
             
@@ -568,7 +568,7 @@ public class RubyActionProvider implements ActionProvider {
         
         // XXX TODO
         if (COMMAND_TEST.equals(command)) {
-            if (!RubyInstallation.getInstance().isValidRuby(true)) {
+            if (!platform.isValidRuby(true)) {
                 return;
             }
             
@@ -1015,9 +1015,6 @@ public class RubyActionProvider implements ActionProvider {
     }
     
     private void buildAll(final Lookup context) {
-        if (!RubyInstallation.getInstance().isValidRuby(true)) {
-            return;
-        }
         
         // Save all files first
         LifecycleManager.getDefault().saveAll();

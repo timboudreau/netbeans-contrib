@@ -32,7 +32,7 @@ import org.openide.util.Utilities;
 public final class ErlangOptionsCategory extends OptionsCategory {
 
     public Icon getIcon() {
-	return new ImageIcon(Utilities.loadImage("org/netbeans/modules/languages/erlang/platform/resources/ErlangOptions_32.png"));
+	return new ImageIcon(Utilities.loadImage("org/netbeans/modules/erlang/platform/resources/ErlangOptions_32.png"));
     }
     
     public String getCategoryName() {

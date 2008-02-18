@@ -245,7 +245,7 @@ public final class RubyPlatform {
 
         return homeUrl;
     }
-
+        
     /** Return the lib directory for this interprerter. */
     public String getLib() {
         File home = getHome();
@@ -253,15 +253,15 @@ public final class RubyPlatform {
             return null;
         }
         File lib = new File(home, "lib"); // NOI18N
-
-        if (lib.exists() && new File(lib, "ruby").exists()) { // NOI18N
+        
+        if (lib.exists() /** @Caoyuan Commented: && new File(lib, "ruby").exists() */) { // NOI18N
             try {
                 return lib.getCanonicalPath();
             } catch (IOException ioe) {
                 Exceptions.printStackTrace(ioe);
             }
         }
-        throw new AssertionError("'lib/ruby' cannot be resolved for '" + interpreter + "' interpreter");
+        throw new AssertionError("'lib' cannot be resolved for '" + interpreter + "' interpreter");
     }
 
     public FileObject getLibFO() {
@@ -287,13 +287,14 @@ public final class RubyPlatform {
             File home = getHome();
             assert home != null : "home not null";
 
-            File lib = new File(home, "lib" + File.separator + "ruby"); // NOI18N
+            File lib = new File(home, "lib" /** @Caoyuan Commented: + File.separator + "ruby" */); // NOI18N
 
             if (!lib.exists()) {
                 return null;
             }
 
-            File f = new File(lib, DEFAULT_RUBY_RELEASE); // NOI18N
+            //File f = new File(lib, DEFAULT_RUBY_RELEASE); // NOI18N
+            File f = lib; // NOI18N
 
             if (f.exists()) {
                 rubylib = f.getAbsolutePath();
@@ -316,7 +317,7 @@ public final class RubyPlatform {
                 }
             }
 
-            assert rubylib != null : "rubylib not null";
+            assert rubylib != null : "erlanglib not null";
         }
 
         return rubylib;
@@ -654,7 +655,7 @@ public final class RubyPlatform {
                 FileObject gemFo = getGemManager().getGemHomeFO();
                 org.netbeans.modules.gsfret.source.usages.Index.addPreindexRoot(gemFo);
             }
-
+            
         }
     }
     
@@ -742,7 +743,7 @@ public final class RubyPlatform {
     }
 
     public @Override String toString() {
-        return "RubyPlatform[id:" + getID() + ", label:" + getLabel() + ", " + getInterpreter() + "]"; // NOI18N
+        return "ErlangPlatform[id:" + getID() + ", label:" + getLabel() + ", " + getInterpreter() + "]"; // NOI18N
     }
 
     public static class Info {

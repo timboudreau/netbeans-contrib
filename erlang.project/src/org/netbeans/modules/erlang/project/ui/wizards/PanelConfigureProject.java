@@ -27,6 +27,7 @@ import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.modules.erlang.platform.api.RubyInstallation;
+import org.netbeans.modules.erlang.platform.api.RubyPlatformManager;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
 import org.openide.util.HelpCtx;
@@ -49,7 +50,7 @@ public final class PanelConfigureProject implements WizardDescriptor.Panel, Wiza
     public Component getComponent() {
         if (component == null) {
             // Force initialization fo the Ruby interpreter
-            RubyInstallation.getInstance().getRuby();
+            RubyPlatformManager.getDefaultPlatform().getInterpreterFile();
             component = new PanelConfigureProjectVisual(this, this.type);
         }
         return component;

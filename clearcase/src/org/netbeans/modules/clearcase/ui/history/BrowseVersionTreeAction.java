@@ -44,6 +44,7 @@ import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.versioning.util.Utils;
 import org.netbeans.modules.clearcase.client.VersionTreeGraphicalCommand;
 import org.netbeans.modules.clearcase.Clearcase;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -66,6 +67,11 @@ public class BrowseVersionTreeAction extends AbstractAction {
         setEnabled(ctx.getFiles().size() > 0);
     }
 
+    @Override
+    public boolean isEnabled() {        
+        return ClearcaseUtils.containsVersionedFiles(ctx);
+    }
+    
     public void actionPerformed(ActionEvent e) {
         Set<File> files = ctx.getRootFiles();
         VersionTreeGraphicalCommand cmd = new VersionTreeGraphicalCommand(files.toArray(new File[files.size()]));

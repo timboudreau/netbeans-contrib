@@ -36,6 +36,7 @@ import java.util.List;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.ParseException;
 import org.netbeans.modules.erlang.platform.api.RubyInstallation;
+import org.netbeans.modules.erlang.platform.api.RubyPlatformManager;
 import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
 
@@ -98,7 +99,7 @@ public class ErlyBirdNode {
             return;
         }
         
-        File exeFile = new File(RubyInstallation.getInstance().getRuby());
+        File exeFile = RubyPlatformManager.getDefaultPlatform().getInterpreterFile();
         if (! exeFile.exists()) {
             /** erl installation path is not set properly */
             return;

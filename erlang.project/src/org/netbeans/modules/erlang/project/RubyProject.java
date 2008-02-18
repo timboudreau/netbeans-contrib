@@ -76,7 +76,7 @@ public final class RubyProject implements Project, RakeProjectListener {
      */
     public static final String SOURCES_TYPE_RUBY = "erlang"; // NOI18N
     
-    private static final Icon Ruby_PROJECT_ICON = new ImageIcon(Utilities.loadImage("org/netbeans/modules/erlang/project/ui/resources/jruby.png")); // NOI18N
+    private static final Icon Ruby_PROJECT_ICON = new ImageIcon(Utilities.loadImage("org/netbeans/modules/erlang/project/ui/resources/erlang.png")); // NOI18N
 
     private final AuxiliaryConfiguration aux;
     private final RakeProjectHelper helper;

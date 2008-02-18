@@ -18,7 +18,6 @@
  */
 package org.netbeans.modules.erlang.platform;
 
-import org.netbeans.modules.erlang.platform.api.RubyInstallation;
 import org.netbeans.modules.erlang.platform.node.ErlyBirdNode;
 
 
@@ -38,7 +37,7 @@ public class ModuleInstall extends org.openide.modules.ModuleInstall {
      */
     public void restored() {
         // On install, ensure that the Erlang installation are set
-        RubyInstallation.getInstance().ensureInstallation();
+        //RubyInstallation.getInstance().ensureInstallation();
     }
     
     public void uninstalled() {

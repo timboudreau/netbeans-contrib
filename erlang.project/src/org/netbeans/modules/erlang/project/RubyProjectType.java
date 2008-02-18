@@ -30,7 +30,7 @@ import org.netbeans.modules.erlang.makeproject.spi.support.RakeProjectHelper;
  */
 public final class RubyProjectType implements RakeBasedProjectType {
 
-    public static final String TYPE = "org.netbeans.modules.languages.erlang.project"; // NOI18N
+    public static final String TYPE = "org.netbeans.modules.erlang.project"; // NOI18N
     private static final String PROJECT_CONFIGURATION_NAME = "data"; // NOI18N
     public static final String PROJECT_CONFIGURATION_NAMESPACE = "http://www.netbeans.org/ns/erlang-project/1"; // NOI18N
     private static final String PRIVATE_CONFIGURATION_NAME = "data"; // NOI18N
