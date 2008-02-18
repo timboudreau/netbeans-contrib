@@ -23,6 +23,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JComponent;
 import org.netbeans.modules.erlang.platform.api.RubyInstallation;
 
+import org.netbeans.modules.erlang.platform.api.RubyPlatformManager;
 import org.netbeans.spi.options.AdvancedOption;
 import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.HelpCtx;
@@ -69,7 +70,7 @@ public class RubyOptionsAdvancedPanel extends AdvancedOption {
         public void update() {
             Mutex.EVENT.readAccess(new Runnable() {
                     public void run() {
-                        component.setRuby(RubyInstallation.getInstance().getRuby());
+                        component.setRuby(RubyPlatformManager.getDefaultPlatform().getInterpreter());
                     }
                 });
         }

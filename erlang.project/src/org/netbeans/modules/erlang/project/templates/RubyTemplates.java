@@ -76,7 +76,7 @@ public class RubyTemplates {
      * @param validPackageRequired indicates whether a only a valid (non-empty) package is accepted
      * @return a wizard panel prompting the user to choose a name and package
      * @throws IllegalArgumentException if folders is empty
-     * @since org.netbeans.modules.ruby.rubyproject.templates/1 1.3 
+     * @since org.netbeans.modules.erlang.project.templates/1 1.3 
      */
     public static WizardDescriptor.Panel createPackageChooser(Project project, SourceGroup[] folders, 
         WizardDescriptor.Panel bottomPanel, boolean validPackageRequired) throws IllegalArgumentException {

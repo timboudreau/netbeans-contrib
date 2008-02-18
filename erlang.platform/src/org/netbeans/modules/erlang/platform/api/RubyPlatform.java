@@ -655,7 +655,7 @@ public final class RubyPlatform {
                 FileObject gemFo = getGemManager().getGemHomeFO();
                 org.netbeans.modules.gsfret.source.usages.Index.addPreindexRoot(gemFo);
             }
-
+            
         }
     }
     
@@ -743,7 +743,7 @@ public final class RubyPlatform {
     }
 
     public @Override String toString() {
-        return "RubyPlatform[id:" + getID() + ", label:" + getLabel() + ", " + getInterpreter() + "]"; // NOI18N
+        return "ErlangPlatform[id:" + getID() + ", label:" + getLabel() + ", " + getInterpreter() + "]"; // NOI18N
     }
 
     public static class Info {

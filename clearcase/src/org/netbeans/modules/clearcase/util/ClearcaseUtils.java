@@ -62,6 +62,23 @@ public class ClearcaseUtils {
     }
 
     /**
+     * Determines whether the supplied context contains something managed by Clearcase.s
+     * 
+     * @param context context to examine
+     * @return true if the context contains some files that are managed by Clearcase, false otherwise
+     */
+    public static boolean containsVersionedFiles(VCSContext context) {
+        FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
+        Set<File> roots = context.getRootFiles();
+        for (File file : roots) {
+            if ((cache.getInfo(file).getStatus() & FileInformation.STATUS_VERSIONED) != 0 ) {
+                return true;
+            }                
+        }
+        return false;
+    }
+    
+    /**
      * Returns path of the file in VOB.
      * 
      * @param file a versioned file 

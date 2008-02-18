@@ -562,7 +562,7 @@ public class RubyPlatformCustomizer extends JPanel {
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setFileFilter(new FileFilter() {
             public boolean accept(File f)  {
-                return f.isDirectory() || (f.isFile() && f.getName().toLowerCase(Locale.US).contains("ruby")); // NOI18N
+                return f.isDirectory() || (f.isFile() && f.getName().toLowerCase(Locale.US).contains("erl")); // NOI18N
             }
             public String getDescription() {
                 return getMessage("RubyPlatformCustomizer.rubyPlatform");
