@@ -788,19 +788,22 @@ public final class RubyPlatform {
             this.version = version;
         }
         
-        static Info forDefaultPlatform() {
+        static Info forDefaultPlatform(String pathToInterpreter) {
             // NbBundle.getMessage(RubyPlatformManager.class, "CTL_BundledJRubyLabel")
-            Info info = new Info("JRuby", "1.8.6"); // NOI18N
+            Info info = new Info("Erlang under environment path", "1.8.6"); // NOI18N
             info.jversion = "1.1RC1"; // NOI18N
             info.patchlevel = "5512"; // NOI18N
             info.releaseDate = "2008-01-12"; // NOI18N
             info.executable = null;
-            info.platform = "java"; // NOI18N
-            File jrubyHome = InstalledFileLocator.getDefault().locate(
-                    "jruby-1.1RC1", "org.netbeans.modules.ruby.platform", false);  // NOI18N
-            // XXX handle valid case when it is not available, see #124534
-            assert (jrubyHome != null && jrubyHome.isDirectory()) : "Default platform available";
-            info.gemHome = FileUtil.toFile(FileUtil.toFileObject(jrubyHome).getFileObject("/lib/ruby/gems/1.8")).getAbsolutePath(); // NOI18N
+            info.platform = "native"; // NOI18N
+//            File jrubyHome = InstalledFileLocator.getDefault().locate(
+//                    "jruby-1.1RC1", "org.netbeans.modules.ruby.platform", false);  // NOI18N
+//            // XXX handle valid case when it is not available, see #124534
+//            assert (jrubyHome != null && jrubyHome.isDirectory()) : "Default platform available";
+//            info.gemHome = FileUtil.toFile(FileUtil.toFileObject(jrubyHome).getFileObject("/lib/ruby/gems/1.8")).getAbsolutePath(); // NOI18N
+            File home = new File(pathToInterpreter).getParentFile();
+            assert (home != null && home.isDirectory()) : "Default platform available";
+            info.gemHome = home.getAbsolutePath(); // NOI18N
             info.gemPath = info.gemHome;
             info.gemVersion = "1.0.1 (1.0.1)"; // NOI18N
             return info;
