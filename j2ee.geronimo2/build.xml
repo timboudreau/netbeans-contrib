@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
+<!-- for some information on what you could do (e.g. targets to override). -->
+<!-- If you delete this file and reopen the project it will be recreated. -->
+
+<project name="org.netbeans.modules.j2ee.geronimo2" default="netbeans" basedir=".">
+    <description>Builds, tests, and runs the project org.netbeans.modules.j2ee.geronimo2.</description>
+<!--
+    <import file="nbproject/build-impl.xml"/>
+-->
+    <import file="../../nbbuild/templates/projectized.xml"/>
+
+    <!-- Sources directory -->
+    <property name="ge_dir" location="src/org/netbeans/modules/j2ee/geronimo2"/>
+    
+    <target name="s2binit" depends="build-init">
+	<taskdef name="schema2beans" classname="org.netbeans.modules.s2banttask.Schema2BeansAntTask">
+	    <classpath>
+		<pathelement path="${schema2beans.dir}/modules/org-netbeans-modules-schema2beans.jar" />
+		<pathelement path="${nb_all}/schema2beans/dev/schema2beansdev.jar" />
+		
+		<pathelement path="${nb_all}/schema2beans/anttask/s2banttask.jar"/>
+	    </classpath>
+	</taskdef>
+    </target>
+    
+    <!-- Generation -->
+    <target name="dd2beans_gen" depends="s2binit">
+	<echo message="generating bean graph for Geronimo2 Server configuration files" />
+	<schema2beans schema="${ge_dir}/resources/geronimo-web-2.0.xsd"
+	       package="org.netbeans.modules.j2ee.geronimo2.config.gen"
+	       schemaType="xmlschema"
+	       validate="false"
+	       attrProp="true"
+	       removeUnreferencedNodes="true"
+	       docroot="web-app"
+	       rootDir="src"/>
+        <echo message="GeDir: ${ge_dir}"/>
+        <schema2beans schema="${ge_dir}/resources/geronimo-openejb-2.0.xsd"
+	  package="org.netbeans.modules.j2ee.geronimo2.config.gen"
+	  schemaType="xmlschema"
+	  validate="false"
+	  attrProp="true"
+	  removeUnreferencedNodes="true"
+          docroot="ejb-jar"
+	  rootDir="src"/>       
+    </target>
+    
+    <target name="clean-ddgen-check">
+	<available property="have-config" file="${ge_dir}/config/gen"/>
+    </target>
+    
+    <target name="clean-ddgen-src" if="have-config" depends="clean-ddgen-check">
+	<delete>
+	    <fileset dir="${ge_dir}/config/gen">
+		<include name="*.java"/>
+	    </fileset>
+	</delete>
+	<delete dir="${ge_dir}/config/gen"/>
+    </target>
+    
+</project>
