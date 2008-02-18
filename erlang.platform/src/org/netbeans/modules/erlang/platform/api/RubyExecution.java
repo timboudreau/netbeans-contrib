@@ -87,7 +87,7 @@ public class RubyExecution extends ExecutionService {
 
         if (descriptor != null) {
         if (descriptor.getCmd() == null) {
-            descriptor.cmd(new File(RubyInstallation.getInstance().getRuby()));
+            descriptor.cmd(RubyPlatformManager.getDefaultPlatform().getInterpreterFile());
         }
 
         descriptor.addBinPath(true);

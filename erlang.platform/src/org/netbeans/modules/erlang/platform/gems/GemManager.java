@@ -99,8 +99,10 @@ public final class GemManager {
     
     private static final boolean PREINDEXING = Boolean.getBoolean("gsf.preindexing");
 
-    private static boolean SKIP_INDEX_LIBS = System.getProperty("ruby.index.nolibs") != null; // NOI18N
-    private static boolean SKIP_INDEX_GEMS = System.getProperty("ruby.index.nogems") != null; // NOI18N
+    private static boolean SKIP_INDEX_LIBS = System.getProperty("erlang.index.nolibs") != null; // NOI18N
+    /** @Caoyuan commented */
+    //private static boolean SKIP_INDEX_GEMS = System.getProperty("erlang.index.nogems") != null; // NOI18N
+    private static boolean SKIP_INDEX_GEMS = true; // NOI18N
 
     /**
      * Extension of files containing gems specification residing in {@link
@@ -989,15 +991,16 @@ public final class GemManager {
             gemVersions = new HashMap<String, String>(60);
             nonGemUrls = new HashSet<URL>(12);
 
-            FileObject rubyStubs = platform.getRubyStubs();
-
-            if (rubyStubs != null) {
-                try {
-                    nonGemUrls.add(rubyStubs.getURL());
-                } catch (FileStateInvalidException fsie) {
-                    Exceptions.printStackTrace(fsie);
-                }
-            }
+            /** @Caoyuan commented */
+//            FileObject rubyStubs = platform.getRubyStubs();
+//
+//            if (rubyStubs != null) {
+//                try {
+//                    nonGemUrls.add(rubyStubs.getURL());
+//                } catch (FileStateInvalidException fsie) {
+//                    Exceptions.printStackTrace(fsie);
+//                }
+//            }
 
             // Install standard libraries
             // lib/ruby/1.8/ 

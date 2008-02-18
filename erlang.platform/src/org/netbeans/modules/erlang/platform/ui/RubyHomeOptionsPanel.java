@@ -19,14 +19,12 @@
 
 package org.netbeans.modules.erlang.platform.ui;
 
-import org.netbeans.modules.erlang.platform.api.RubyInstallation;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.File;
 import org.openide.filesystems.FileUtil;
 
 import javax.swing.JFileChooser;
-import org.netbeans.modules.erlang.platform.api.RubyInstallation;
+import org.netbeans.modules.erlang.platform.api.RubyPlatformManager;
 import org.openide.util.NbBundle;
 
 /**
@@ -114,7 +112,7 @@ public class RubyHomeOptionsPanel extends javax.swing.JPanel implements ActionLi
 
         String workDir = rubyField.getText();
         if (workDir.equals("")) {
-            workDir = new File(RubyInstallation.getInstance().getRuby()).getParent();
+            workDir = RubyPlatformManager.getDefaultPlatform().getInterpreterFile().getParent();
         }
         chooser.setSelectedFile(new File(workDir));
         chooser.setDialogTitle(NbBundle.getMessage(RubyHomeOptionsPanel.class, "LBL_BrowseConfiguration"));

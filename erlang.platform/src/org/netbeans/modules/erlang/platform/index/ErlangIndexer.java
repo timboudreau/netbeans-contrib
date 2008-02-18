@@ -51,6 +51,18 @@ import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 
 /**
+ * GSF Indexex will index project resources and resources of boot classess
+ * Where boot classes usally will be get from org.netbeans.spi.gsfpath.classpath.ClassPathProvider
+ * Project manager should provide an implementation of ClassPathProvider under META-INFO.services
+ * for example:
+ *     org.netbeans.modules.erlang.project.ProjectClassPathProvider
+ *     org.netbeans.modules.erlang.project.BootClassPathProvider
+ * The later one will init BootClassPathImplementation, which implemented infterface:
+ *     org.netbeans.modules.erlang.project.classpath.BootClassPathImplementation#getResources
+ * Since each project may use different platform, so the BootClassPathImplementation will be
+ * put in project module, and will get active.platform from project.properties, thus know which
+ * boot classes will be used.
+ * 
  * @author Caoyuan Deng
  */
 public class ErlangIndexer implements Indexer {
