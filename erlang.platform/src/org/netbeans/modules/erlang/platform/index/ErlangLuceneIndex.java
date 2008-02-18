@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -126,13 +127,14 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
 
 
     public ErlFunction getFunction(String moduleName, String functionName, int arity) {
+        URL url = getModuleFileUrl(ErlangIndexProvider.Type.Module, moduleName);
         for (SearchResult map : searchFile(ErlangIndexProvider.Type.Module, moduleName, NameKind.EXACT_NAME)) {
             String[] signatures = map.getValues(ErlangIndexer.FIELD_FUNCTION);
             if (signatures == null) {
                 continue;
             }
             for (String signature : signatures) {
-                ErlFunction function = createFuntion(moduleName, signature);
+                ErlFunction function = createFuntion(url, signature);
                 if (function.getName().equals(functionName) && function.getArity() == arity) {
                     return function;
                 }
@@ -157,8 +159,12 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
         return null;
     }
 
+    Map<String, URL> moduleToUrlBuf = new HashMap<String, URL>();
     public URL getModuleFileUrl(ErlangIndexProvider.Type type, String moduleName) {
-        URL url = null;
+        URL url = moduleToUrlBuf.get(moduleName);
+        if (url != null) {
+            return url;
+        }
         for (SearchResult map : searchFile(type, moduleName, NameKind.EXACT_NAME)) {
             String urlStr = map.getValue(ErlangIndexer.FIELD_FILEURL);
             if (urlStr == null) {
@@ -177,6 +183,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
     private static List<ErlFunction> functionsBuf = new ArrayList<ErlFunction>();
 
     private List<ErlFunction> getFunctions(String moduleName) {
+        URL url = getModuleFileUrl(ErlangIndexProvider.Type.Module, moduleName);        
         functionsBuf.clear();
         for (SearchResult map : searchFile(ErlangIndexProvider.Type.Module, moduleName, NameKind.EXACT_NAME)) {
             String[] signatures = map.getValues(ErlangIndexer.FIELD_FUNCTION);
@@ -184,7 +191,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
                 continue;
             }
             for (String signature : signatures) {
-                ErlFunction function = createFuntion(moduleName, signature);
+                ErlFunction function = createFuntion(url, signature);
                 functionsBuf.add(function);
             }
         }
@@ -344,7 +351,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
         return completionItemsBuf;
     }
 
-    private ErlFunction createFuntion(String fileName, String signature) {
+    private ErlFunction createFuntion(URL url, String signature) {
         String[] groups = signature.split(":");
         String name = groups[0];
         int arity = 0;
@@ -356,7 +363,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
             endOffset = Integer.parseInt(groups[4]);
         }
         ErlFunction function = new ErlFunction(name, offset, endOffset, arity);
-        function.setUrl(fileName);
+        function.setSourceFileUrl(url);
         for (int i = 5; i < groups.length; i++) {
             function.addArgumentsOpt(groups[i]);
         }
