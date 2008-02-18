@@ -19,20 +19,6 @@ Microsystems, Inc. All Rights Reserved.
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-    <folder name="Actions">
-        <folder name="Erlang">
-            <file name="org-netbeans-modules-erlang-project-gems-GemAction.instance"/>
-        </folder>
-    </folder>
-    <folder name="Menu">
-        <folder name="Tools">
-            <attr name="JavaPlatformsCustomizerAction.instance/org-netbeans-modules-erlang-project-gems-GemAction.shadow" boolvalue="true"/>
-            <file name="org-netbeans-modules-erlang-project-gems-GemAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Ruby/org-netbeans-modules-erlang-project-gems-GemAction.instance"/>
-            </file>
-            <attr name="org-netbeans-modules-erlang-project-gems-GemAction.shadow/ServerManagerAction.instance" boolvalue="true"/>
-        </folder>
-    </folder>
 
     <folder name="Templates">
         <folder name="Erlang">
@@ -111,7 +97,7 @@ Microsystems, Inc. All Rights Reserved.
                     <attr name="template" boolvalue="true"/>
                     <attr name="instantiatingIterator" newvalue="org.netbeans.modules.erlang.project.ui.wizards.NewRubyProjectWizardIterator"/>
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.wizards.Bundle"/>
-                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/jruby.png"/>
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlang.png"/>
 
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/application.html"/>
                 </file>
@@ -122,7 +108,7 @@ Microsystems, Inc. All Rights Reserved.
                     <attr name="template" boolvalue="true"/>
                     <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.erlang.project.ui.wizards.NewRubyProjectWizardIterator.existing"/>
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.wizards.Bundle"/>
-                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/jruby.png"/>
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlang.png"/>
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/existingProject.html"/>
                 </file>
             </folder>
@@ -162,7 +148,7 @@ Microsystems, Inc. All Rights Reserved.
     <!--
     <folder name="Editors">
         <folder name="text">
-            <folder name="erlang"> 
+            <folder name="x-erlang"> 
                 <folder name="Popup">
                     <attr name="format/org-netbeans-modules-project-ui-RunSingle.shadow" boolvalue="true"/>
                     <attr name="SeparatorAfterFormat.instance/org-netbeans-modules-project-ui-RunSingle.shadow" boolvalue="true"/>
@@ -197,7 +183,7 @@ Microsystems, Inc. All Rights Reserved.
     -->
     <folder name="Loaders">
         <folder name="text">
-            <folder name="erlang">
+            <folder name="x-erlang">
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangdoc.png"/>
                 <attr name="iconBase" stringvalue="/org/netbeans/modules/erlang/project/ui/resources/erlangdoc.png"/>
                 <folder name="Actions">

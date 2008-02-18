@@ -23,7 +23,6 @@ import java.awt.Component;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.swing.JComponent;
@@ -38,7 +37,6 @@ import org.netbeans.api.project.Sources;
 import org.netbeans.modules.erlang.project.RubyProject;
 import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.WizardDescriptor;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
@@ -46,7 +44,7 @@ import org.openide.loaders.DataObject;
 
 /**
  * Wizard to create a new Java file.
- * Based on org.netbeans.modules.ruby.rubyproject.templates.*.
+ * Based on org.netbeans.modules.erlang.project.templates.*.
  *
  */
 public class NewRubyFileWizardIterator implements WizardDescriptor.InstantiatingIterator {
