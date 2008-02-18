@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    
+    <folder name="J2EE">
+        <folder name="DeploymentPlugins">
+            <folder name="GeServer">
+                <file name="Descriptor" url="nbdep.xml"/>
+                <file name="Factory.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.j2ee.geronimo2.GeDeploymentFactory.create"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.geronimo2.GeDeploymentFactory"/>
+                    <attr name="instanceOf" stringvalue="javax.enterprise.deploy.spi.factories.DeploymentFactory"/>
+                </file>
+                <file name="RegistryNodeFactory.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.j2ee.geronimo2.nodes.GeRegistryNodeFactory"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.geronimo2.nodes.GeRegistryNodeFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.RegistryNodeFactory"/>
+                </file>
+                <file name="J2eePlatformFactory.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.j2ee.geronimo2.GeJ2eePlatformFactory"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.geronimo2.GeJ2eePlatformFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformFactory"/>
+                </file>
+                <file name="OptionalFactory.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.j2ee.geronimo2.GeOptionalFactory"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.geronimo2.GeOptionalFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.OptionalDeploymentManagerFactory"/>
+                </file>
+		<file name="GeModuleConfigurationFactory.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.j2ee.geronimo2.config.GeModuleConfigurationFactory"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.geronimo2.config.GeModuleConfigurationFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfigurationFactory"/>
+                </file>
+                
+                <!-- deployment descriptor name for Apache Geronimo -->
+                <folder name="DeploymentFileNames">
+                    <folder name="WAR">
+                        <file name="WEB-INF\geronimo-web.xml"/>
+                    </folder>
+                </folder>
+                
+                
+            </folder>
+        </folder>
+        
+        
+    </folder>
+</filesystem>

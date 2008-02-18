@@ -259,7 +259,7 @@ public final class RubyPlatformManager {
             if (!foundDefault) {
                 String loc = RubyInstallation.getInstance().getInterpreterInEnv();
                 if (loc != null) {
-                    platforms.add(new RubyPlatform(PLATFORM_ID_DEFAULT, loc, Info.forDefaultPlatform()));
+                    platforms.add(new RubyPlatform(PLATFORM_ID_DEFAULT, loc, Info.forDefaultPlatform(loc)));
                 }
             }
             LOGGER.fine("ErlangPlatform initial list: " + platforms);
