@@ -1,20 +1,42 @@
 /*
- * The contents of this file are subject to the terms of the Common Development
- * and Distribution License (the License). You may not use this file except in
- * compliance with the License.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
- * or http://www.netbeans.org/cddl.txt.
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
  *
- * When distributing Covered Code, include this CDDL Header Notice in each file
- * and include the License file at http://www.netbeans.org/cddl.txt.
- * If applicable, add the following below the CDDL Header, with the fields
- * enclosed by brackets [] replaced by your own identifying information:
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
+ *
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
  */
 
 package org.netbeans.modules.erlang.project.ui.customizer;
@@ -23,22 +45,33 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.project.ProjectManager;
+import org.netbeans.api.queries.FileEncodingQuery;
 import org.netbeans.modules.erlang.makeproject.spi.support.EditableProperties;
 import org.netbeans.modules.erlang.makeproject.spi.support.GeneratedFilesHelper;
 import org.netbeans.modules.erlang.makeproject.spi.support.PropertyEvaluator;
 import org.netbeans.modules.erlang.makeproject.spi.support.RakeProjectHelper;
 import org.netbeans.modules.erlang.makeproject.spi.support.ReferenceHelper;
 import org.netbeans.modules.erlang.makeproject.spi.support.ui.StoreGroup;
+import org.netbeans.modules.erlang.platform.api.RubyPlatform;
+import org.netbeans.modules.erlang.project.JavaClassPathUi;
+import org.netbeans.modules.erlang.project.ProjectPropertyExtender;
+import org.netbeans.modules.erlang.project.ProjectPropertyExtender.Item;
 import org.netbeans.modules.erlang.project.RubyProject;
 import org.netbeans.modules.erlang.project.RubyProjectUtil;
 import org.netbeans.modules.erlang.project.SharedRubyProjectProperties;
@@ -58,9 +91,10 @@ import org.openide.util.Utilities;
  * @author Petr Hrebejk
  */
 public class RubyProjectProperties extends SharedRubyProjectProperties {
+
     // Special properties of the project
-    public static final String Ruby_PROJECT_NAME = "j2se.project.name"; // NOI18N
-    public static final String JAVA_PLATFORM = "platform.active"; // NOI18N
+    //public static final String Ruby_PROJECT_NAME = "ruby.project.name"; // NOI18N
+    //public static final String RUBY_PLATFORM = "platform.active"; // NOI18N
     
     // Properties stored in the PROJECT.PROPERTIES    
     // TODO - nuke me!
@@ -70,7 +104,6 @@ public class RubyProjectProperties extends SharedRubyProjectProperties {
     public static final String RUN_WORK_DIR = "work.dir"; // NOI18N
     public static final String DIST_DIR = "dist.dir"; // NOI18N
     public static final String DIST_JAR = "dist.jar"; // NOI18N
-    public static final String JAVAC_CLASSPATH = "javac.classpath"; // NOI18N
     public static final String RUN_CLASSPATH = "run.classpath"; // NOI18N
     public static final String DEBUG_CLASSPATH = "debug.classpath"; // NOI18N
     public static final String JAR_COMPRESS = "jar.compress"; // NOI18N
@@ -119,20 +152,17 @@ public class RubyProjectProperties extends SharedRubyProjectProperties {
     DefaultTableModel TEST_ROOTS_MODEL;
      
 //    // CustomizerLibraries
-//    DefaultListModel JAVAC_CLASSPATH_MODEL;
-//    DefaultListModel JAVAC_TEST_CLASSPATH_MODEL;
+
+    //    DefaultListModel JAVAC_TEST_CLASSPATH_MODEL;
 //    DefaultListModel RUN_CLASSPATH_MODEL;
 //    DefaultListModel RUN_TEST_CLASSPATH_MODEL;
 //    ComboBoxModel PLATFORM_MODEL;
-//    ListCellRenderer CLASS_PATH_LIST_RENDERER;
 //    ListCellRenderer PLATFORM_LIST_RENDERER;
     
-    // CustomizerCompile
 //    ButtonModel NO_DEPENDENCIES_MODEL;
     Document JAVAC_COMPILER_ARG_MODEL;
+
     
-    // CustomizerCompileTest
-                
 //    // CustomizerJar
 //    Document DIST_JAR_MODEL; 
 //    Document BUILD_CLASSES_EXCLUDES_MODEL; 
@@ -141,6 +171,7 @@ public class RubyProjectProperties extends SharedRubyProjectProperties {
     // CustomizerRun
     Map<String/*|null*/,Map<String,String/*|null*/>/*|null*/> RUN_CONFIGS;
     String activeConfig;
+    private Map<String,String> additionalProperties;
 
     // CustomizerRunTest
 
@@ -151,13 +182,25 @@ public class RubyProjectProperties extends SharedRubyProjectProperties {
     private PropertyEvaluator evaluator;
     private ReferenceHelper refHelper;
     private GeneratedFilesHelper genFileHelper;
+    private ProjectPropertyExtender cs;
     
     private StoreGroup privateGroup; 
     private StoreGroup projectGroup;
+    private RubyPlatform platform;
     
-    RubyProject getProject() {
+    public RubyProject getProject() {
         return project;
     }
+    
+   // Well known paths
+    public static final String[] WELL_KNOWN_PATHS = new String[] {
+            "${" + JAVAC_CLASSPATH + "}", // NOI18N
+    };
+    public static final String LIBRARY_PREFIX = "${libs."; // NOI18N
+    public static final String LIBRARY_SUFFIX = ".classpath}"; // NOI18N
+    // XXX looks like there is some kind of API missing in ReferenceHelper?
+    public static final String ANT_ARTIFACT_PREFIX = "${reference."; // NOI18N
+
     
     /** Creates a new instance of RubyUIProperties and initializes them */
     public RubyProjectProperties( RubyProject project, UpdateHelper updateHelper, PropertyEvaluator evaluator, ReferenceHelper refHelper, GeneratedFilesHelper genFileHelper ) {
@@ -167,16 +210,26 @@ public class RubyProjectProperties extends SharedRubyProjectProperties {
         this.refHelper = refHelper;
         this.genFileHelper = genFileHelper;
         //this.cs = new ClassPathSupport( evaluator, refHelper, updateHelper.getRakeProjectHelper(), WELL_KNOWN_PATHS, LIBRARY_PREFIX, LIBRARY_SUFFIX, ANT_ARTIFACT_PREFIX );
+        this.cs = new ProjectPropertyExtender( evaluator, refHelper, updateHelper.getRakeProjectHelper(), WELL_KNOWN_PATHS, LIBRARY_PREFIX, LIBRARY_SUFFIX, ANT_ARTIFACT_PREFIX );
                 
         privateGroup = new StoreGroup();
         projectGroup = new StoreGroup();
         
+        additionalProperties = new HashMap<String,String>();
+        
         init(); // Load known properties        
     }
 
-    /** Initializes the visual models 
-     */
+    /** Initializes the visual models/ */
     private void init() {        
+        CLASS_PATH_LIST_RENDERER = new JavaClassPathUi.ClassPathListCellRenderer( evaluator );
+
+        EditableProperties projectProperties = updateHelper.getProperties( RakeProjectHelper.PROJECT_PROPERTIES_PATH );         
+        String cp = projectProperties.get(JAVAC_CLASSPATH)  ;
+        JAVAC_CLASSPATH_MODEL = /*ClassPathUiSupport.*/createListModel(cs.itemsIterator(cp) );
+
+        INCLUDE_JAVA_MODEL = projectGroup.createToggleButtonModel( evaluator, INCLUDE_JAVA );
+
         // CustomizerSources
         SOURCE_ROOTS_MODEL = RubySourceRootsUi.createModel( project.getSourceRoots() );
         INCLUDE_ROOTS_MODEL = RubySourceRootsUi.createModel( project.getIncludeRoots() );
@@ -189,24 +242,47 @@ public class RubyProjectProperties extends SharedRubyProjectProperties {
                 
     }
     
+    // From ClassPathUiSupport:
+    public static DefaultListModel createListModel( Iterator it ) {
+        
+        DefaultListModel model = new DefaultListModel();
+        
+        while( it.hasNext() ) {
+            model.addElement( it.next() );
+        }
+        
+        return model;
+    }
+
+    // From ClassPathUiSupport:
+    public static Iterator<Item> getIterator( DefaultListModel model ) {        
+        // XXX Better performing impl. would be nice
+        return getList( model ).iterator();        
+    }
+    
+    // From ClassPathUiSupport:
+    @SuppressWarnings("unchecked")
+    public static List<Item> getList( DefaultListModel model ) {
+        return (List<Item>) Collections.list( model.elements() );
+    }
+    
     public void save() {
         try {                        
             // Store properties 
-            Boolean result = (Boolean) ProjectManager.mutex().writeAccess(new Mutex.ExceptionAction() {
+            Boolean result = ProjectManager.mutex().writeAccess(new Mutex.ExceptionAction<Boolean>() {
                 final FileObject projectDir = updateHelper.getRakeProjectHelper().getProjectDirectory();
-                public Object run() throws IOException {
+                public Boolean run() throws IOException {
                     if ((genFileHelper.getBuildScriptState(GeneratedFilesHelper.BUILD_IMPL_XML_PATH,
-                        RubyProject.class.getResource("resources/build-impl.xsl") //NOI18N
-                        )
-                        & GeneratedFilesHelper.FLAG_MODIFIED) == GeneratedFilesHelper.FLAG_MODIFIED) {  //NOI18N
-                        if (showModifiedMessage (NbBundle.getMessage(RubyProjectProperties.class,"TXT_ModifiedTitle"))) {
+                            RubyProject.class.getResource("resources/build-impl.xsl")) // NOI18N
+                            & GeneratedFilesHelper.FLAG_MODIFIED) == GeneratedFilesHelper.FLAG_MODIFIED) {
+                        if (showModifiedMessage(NbBundle.getMessage(RubyProjectProperties.class,
+                                "TXT_ModifiedTitle"))) {
                             //Delete user modified build-impl.xml
                             FileObject fo = projectDir.getFileObject(GeneratedFilesHelper.BUILD_IMPL_XML_PATH);
                             if (fo != null) {
                                 fo.delete();
                             }
-                        }
-                        else {
+                        } else {
                             return Boolean.FALSE;
                         }
                     }
@@ -230,6 +306,9 @@ public class RubyProjectProperties extends SharedRubyProjectProperties {
     
         
     private void storeProperties() throws IOException {
+        // Encode all paths (this may change the project properties)
+        String[] javac_cp = cs.encodeToStrings(/*ClassPathUiSupport.*/getIterator( JAVAC_CLASSPATH_MODEL ) );
+
         // Store source roots
         storeRoots( project.getSourceRoots(), SOURCE_ROOTS_MODEL );
         storeRoots( project.getIncludeRoots(), INCLUDE_ROOTS_MODEL );
@@ -238,24 +317,40 @@ public class RubyProjectProperties extends SharedRubyProjectProperties {
         // Store standard properties
         EditableProperties projectProperties = updateHelper.getProperties( RakeProjectHelper.PROJECT_PROPERTIES_PATH );        
         EditableProperties privateProperties = updateHelper.getProperties( RakeProjectHelper.PRIVATE_PROPERTIES_PATH );
-        
+
+        RubyProjectProperties.storePlatform(privateProperties, getPlatform());
+
         // Standard store of the properties
         projectGroup.store( projectProperties );        
         privateGroup.store( privateProperties );
         
         storeRunConfigs(RUN_CONFIGS, projectProperties, privateProperties);
-        EditableProperties ep = updateHelper.getProperties("nbproject/private/config.properties");
+        EditableProperties ep = updateHelper.getProperties("nbproject/private/config.properties"); // NOI18N
         if (activeConfig == null) {
-            ep.remove("config");
+            ep.remove("config"); // NOI18N
         } else {
-            ep.setProperty("config", activeConfig);
+            ep.setProperty("config", activeConfig); // NOI18N
         }
-        updateHelper.putProperties("nbproject/private/config.properties", ep);
+        updateHelper.putProperties("nbproject/private/config.properties", ep); // NOI18N
 
+        // Save all paths
+        projectProperties.setProperty( JAVAC_CLASSPATH, javac_cp );
+
+        projectProperties.putAll(additionalProperties);
+        
         // Store the property changes into the project
         updateHelper.putProperties( RakeProjectHelper.PROJECT_PROPERTIES_PATH, projectProperties );
         updateHelper.putProperties( RakeProjectHelper.PRIVATE_PROPERTIES_PATH, privateProperties );        
         
+        // Ugh - this looks like global clobbering!
+        String value = additionalProperties.get(SOURCE_ENCODING);
+        if (value != null) {
+            try {
+                FileEncodingQuery.setDefaultEncoding(Charset.forName(value));
+            } catch (UnsupportedCharsetException e) {
+                //When the encoding is not supported by JVM do not set it as default
+            }
+        }
     }
   
     private static String getDocumentText( Document document ) {
@@ -278,6 +373,11 @@ public class RubyProjectProperties extends SharedRubyProjectProperties {
         }
         roots.putRoots(rootURLs,rootLabels);
     }
+
+    /* This is used by CustomizerWSServiceHost */
+    public void putAdditionalProperty(String propertyName, String propertyValue) {
+        additionalProperties.put(propertyName, propertyValue);
+    }
     
     private static boolean showModifiedMessage (String title) {
         String message = NbBundle.getMessage(RubyProjectProperties.class,"TXT_Regenerate");
@@ -290,7 +390,22 @@ public class RubyProjectProperties extends SharedRubyProjectProperties {
         d.setOptions(new Object[] {regenerateButton, NotifyDescriptor.CANCEL_OPTION});        
         return DialogDisplayer.getDefault().notify(d) == regenerateButton;
     }
-        
+    
+    RubyPlatform getPlatform() {
+        if (platform == null) {
+            platform = RubyPlatform.platformFor(project);
+        }
+        return platform;
+    }
+    
+    void setPlatform(final RubyPlatform platform) {
+        this.platform = platform;
+    }
+    
+    public static void storePlatform(final EditableProperties ep, final RubyPlatform platform) {
+        ep.setProperty("platform.active", platform.getID()); // NOI18N
+    }
+
     /**
      * A mess.
      */
@@ -301,7 +416,7 @@ public class RubyProjectProperties extends SharedRubyProjectProperties {
             }
         });
         Map<String,String> def = new TreeMap<String,String>();
-        for (String prop : new String[] {MAIN_CLASS, APPLICATION_ARGS, RUN_JVM_ARGS, RUN_WORK_DIR}) {
+        for (String prop : new String[] {MAIN_CLASS, APPLICATION_ARGS, RUN_JVM_ARGS, RUN_WORK_DIR, RAKE_ARGS}) {
             String v = updateHelper.getProperties(RakeProjectHelper.PRIVATE_PROPERTIES_PATH).getProperty(prop);
             if (v == null) {
                 v = updateHelper.getProperties(RakeProjectHelper.PROJECT_PROPERTIES_PATH).getProperty(prop);
@@ -311,19 +426,19 @@ public class RubyProjectProperties extends SharedRubyProjectProperties {
             }
         }
         m.put(null, def);
-        FileObject configs = project.getProjectDirectory().getFileObject("nbproject/configs");
+        FileObject configs = project.getProjectDirectory().getFileObject("nbproject/configs"); // NOI18N
         if (configs != null) {
             for (FileObject kid : configs.getChildren()) {
-                if (!kid.hasExt("properties")) {
+                if (!kid.hasExt("properties")) { // NOI18N
                     continue;
                 }
                 m.put(kid.getName(), new TreeMap<String,String>(updateHelper.getProperties(FileUtil.getRelativePath(project.getProjectDirectory(), kid))));
             }
         }
-        configs = project.getProjectDirectory().getFileObject("nbproject/private/configs");
+        configs = project.getProjectDirectory().getFileObject("nbproject/private/configs"); // NOI18N
         if (configs != null) {
             for (FileObject kid : configs.getChildren()) {
-                if (!kid.hasExt("properties")) {
+                if (!kid.hasExt("properties")) { // NOI18N
                     continue;
                 }
                 Map<String,String> c = m.get(kid.getName());
@@ -344,9 +459,9 @@ public class RubyProjectProperties extends SharedRubyProjectProperties {
             EditableProperties projectProperties, EditableProperties privateProperties) throws IOException {
         //System.err.println("storeRunConfigs: " + configs);
         Map<String,String> def = configs.get(null);
-        for (String prop : new String[] {MAIN_CLASS, APPLICATION_ARGS, RUN_JVM_ARGS, RUN_WORK_DIR}) {
+        for (String prop : new String[] {MAIN_CLASS, APPLICATION_ARGS, RUN_JVM_ARGS, RUN_WORK_DIR, RAKE_ARGS}) {
             String v = def.get(prop);
-            EditableProperties ep = (prop.equals(APPLICATION_ARGS) || prop.equals(RUN_WORK_DIR)) ?
+            EditableProperties ep = (prop.equals(APPLICATION_ARGS) || prop.equals(RUN_WORK_DIR) || prop.equals(RAKE_ARGS)) ?
                 privateProperties : projectProperties;
             if (!Utilities.compareObjects(v, ep.getProperty(prop))) {
                 if (v != null && v.length() > 0) {
@@ -372,7 +487,7 @@ public class RubyProjectProperties extends SharedRubyProjectProperties {
             for (Map.Entry<String,String> entry2 : c.entrySet()) {
                 String prop = entry2.getKey();
                 String v = entry2.getValue();
-                String path = (prop.equals(APPLICATION_ARGS) || prop.equals(RUN_WORK_DIR)) ?
+                String path = (prop.equals(APPLICATION_ARGS) || prop.equals(RUN_WORK_DIR) || prop.equals(RAKE_ARGS)) ?
                     privatePath : sharedPath;
                 EditableProperties ep = updateHelper.getProperties(path);
                 if (!Utilities.compareObjects(v, ep.getProperty(prop))) {
