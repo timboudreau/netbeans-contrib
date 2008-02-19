@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="netbeans" name="contrib/erlang.kit">
+    <description>Builds, tests, and runs the project org.netbeans.modules.erlang.kit</description>
+    <import file="../../nbbuild/templates/projectized.xml"/>
+    
+    <target name="erlang-build">
+        <ant dir="../../contrib/languages.execution"/>
+        <ant dir="../../contrib/c.ericsson.otp.erlang"/>
+        <ant dir="../../contrib/erlang.editing"/>
+        <ant dir="../../contrib/erlang.makeproject"/>
+        <ant dir="../../contrib/erlang.platform"/>
+        <ant dir="../../contrib/erlang.project"/>
+        <ant dir="../../contrib/erlang.console"/>
+        <antcall target="netbeans"/>
+    </target>
+
+    <target name="erlang-clean">
+        <ant dir="../../contrib/erlang.console" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/erlang.project" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/erlang.platform" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/erlang.makeproject" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/erlang.editing" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/c.ericsson.otp.erlang" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/languages.execution" inheritAll="false" target="clean"/>
+        <ant target="clean"/>
+    </target>
+
+</project>
