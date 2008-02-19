@@ -336,7 +336,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
     public List<CompletionItem> getRecordCompletionItems(String moduleName) {
         completionItemsBuf.clear();
         for (ErlRecord record : getRecords(moduleName)) {
-            completionItemsBuf.add(CompletionItem.create(record.getName(), "record", record.getUrl(), CompletionItem.Type.CONSTANT, 1));
+            completionItemsBuf.add(CompletionItem.create(record.getName(), "record", "", CompletionItem.Type.CONSTANT, 1));
         }
         return completionItemsBuf;
     }
@@ -344,7 +344,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
     public List<CompletionItem> getMacroCompletionItems(String moduleName) {
         completionItemsBuf.clear();
         for (ErlMacro macro : getMacros(moduleName)) {
-            completionItemsBuf.add(CompletionItem.create(macro.getName(), macro.getBody(), macro.getUrl(), CompletionItem.Type.CONSTANT, 1));
+            completionItemsBuf.add(CompletionItem.create(macro.getName(), macro.getBody(), "", CompletionItem.Type.CONSTANT, 1));
         }
         return completionItemsBuf;
     }
