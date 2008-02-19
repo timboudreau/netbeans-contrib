@@ -81,11 +81,35 @@ public class CleartoolMockup extends Process implements Runnable {
     private String SELECTOR_MAIN = File.separator + "main" + File.separator;
     private String RULE = "Rule: element * " + File.separator + "main" + File.separator + "LATEST";
     
+    private static int counter = 0;
+    
     public CleartoolMockup(String vobRoot) {
         outputStream = new ByteArrayOutputStream(200);            
         inputStream = new DelegateInputStream();        
         errorStream = new DelegateInputStream();
         this.vobRoot = vobRoot;
+        if(counter++ == 0) {
+            init();
+        }
+    }
+    
+    private void init() {
+        fixWritable(new File(vobRoot));
+    }
+
+    private void fixWritable(File file) {
+        if(!file.canWrite()) {
+            Repository.setFileReadOnly(file, false);
+        }
+        if(!file.isDirectory()) {
+            return;
+        }
+        File[] files = file.listFiles();
+        if(file != null) {
+            for (File f : files) {
+                fixWritable(f);
+            }
+        }
     }
     
     public void start() {
@@ -294,7 +318,7 @@ public class CleartoolMockup extends Process implements Runnable {
                 file = new File(arg);
             }
         }
-
+                
         if(!file.getAbsolutePath().startsWith(vobRoot)) {
             errorStream.setDelegate(new ByteArrayInputStream(("cleartool: Error: Pathname is not within a VOB: \"" + file.getAbsolutePath() + "\"\n").getBytes()));    
         } else {
@@ -346,7 +370,7 @@ public class CleartoolMockup extends Process implements Runnable {
                 sb.append("[hijacked]");
             }
             sb.append("                     " + RULE);                                
-            sb.append('\n');    
+            sb.append('\n');                                                    
         }
         return sb;
     }   
