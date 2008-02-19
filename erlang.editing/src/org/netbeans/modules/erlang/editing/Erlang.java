@@ -882,11 +882,10 @@ public class Erlang {
 
         DataObject dobj = null;
         StyledDocument docToGo = null;
-        if ((definition instanceof ErlFunction && ((ErlFunction) definition).getUrl() != null) || definition instanceof ErlInclude) {
+        if ((definition instanceof ErlFunction && ((ErlFunction) definition).getSourceFileUrl() != null) || definition instanceof ErlInclude) {
             File file = null;
-            if (definition instanceof ErlFunction && ((ErlFunction) definition).getUrl() != null) {
-                String module = ((ErlFunction) definition).getUrl();
-                URL url = ErlangIndexProvider.getDefault().getModuleFileUrl(ErlangIndexProvider.Type.Module, module);
+            if (definition instanceof ErlFunction && ((ErlFunction) definition).getSourceFileUrl() != null) {
+                URL url = ((ErlFunction) definition).getSourceFileUrl();
                 if (url == null) {
                     return null;
                 }

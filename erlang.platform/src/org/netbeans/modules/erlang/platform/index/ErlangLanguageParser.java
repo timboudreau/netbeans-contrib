@@ -152,7 +152,7 @@ public class ErlangLanguageParser implements Parser {
                      * ask semanticParser do its parse(...) again, just fetch erlRoot directly 
                      * please see Erlang.nbs#AST
                      */
-                    rootCtx = semanticAnalyser.getRootContext();
+                    rootCtx = semanticAnalyser.analyse(astRoot);
                     if (file.isPlatform()) io.getOut().println((System.currentTimeMillis() - start) + "ms");
                 }
 

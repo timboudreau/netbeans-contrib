@@ -231,7 +231,7 @@ Form = AttributeDeclaration <stop>
 AttributeDeclaration = DefineAttribute     "(" MacroName ["(" [MacroParams] ")"] "," MacroBody
                      | ModuleAttribute     "(" <atom> ("." <atom>)* ")"
                      | ExportAttribute     "(" "[" [FunctionNames] "]" ")" 
-                     | ImportAttribute     "(" <atom> ["," "[" [FunctionNames] "]"] ")"
+                     | ImportAttribute     "(" <atom> ("." <atom>)* ["," "[" [FunctionNames] "]"] ")"
                      | RecordAttribute     "(" RecordName "," "{" RecordFieldNames "}" ")"
                      | IncludeAttribute    "(" <string> ")" 
                      | IncludeLibAttribute "(" <string> ")"
@@ -239,7 +239,8 @@ AttributeDeclaration = DefineAttribute     "(" MacroName ["(" [MacroParams] ")"]
                      | FileAttribute       "(" <string> "," <integer> ")"
                      | SpecAttribute       "(" FunctionName "::" TypeSig ")"
                      | TypeAttribute       "(" TypedAttrVal ")"
-                     | WildAttribute       ["(" [Exprs | TypedAttrVal] ")"];
+                     | WildAttribute       ["(" [WildAttributeContent] ")"];
+
             
 DefineAttribute     = "-define";
 ModuleAttribute     = "-module";
@@ -253,6 +254,9 @@ FileAttribute       = "-file";
 SpecAttribute       = "-spec";
 TypeAttribute       = "-type";
 WildAttribute       = "-" <atom>;
+
+## Hacking for: Exprs | TypedAttrVal
+WildAttributeContent = Expr [("," Expr)+ | "," TypedRecordFields | "::" [TypeSigs | TopType]];
 
 MacroName = <atom> 
           | <var>;

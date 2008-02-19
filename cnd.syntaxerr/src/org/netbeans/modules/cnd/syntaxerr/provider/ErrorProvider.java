@@ -29,6 +29,7 @@ package org.netbeans.modules.cnd.syntaxerr.provider;
 
 import java.util.Collection;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.cnd.syntaxerr.provider.impl.ErrorProviderImpl;
 import org.openide.loaders.DataObject;
 
 /**

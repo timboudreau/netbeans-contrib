@@ -443,8 +443,8 @@ public class ErlangSemanticAnalyser {
         String nameStr = "";
         for (ASTItem item : attribute.getChildren()) {
             if (isTokenTypeName(item, "atom")) {
-                ASTToken moduleName = (ASTToken) item;
-                nameStr = moduleName.getIdentifier();
+                ASTToken nameToken = (ASTToken) item;
+                nameStr = nameToken.getIdentifier();
                 packages.add(nameStr);
             }
         }
@@ -495,9 +495,13 @@ public class ErlangSemanticAnalyser {
     }
 
     private void processImportAttribute(ErlContext rootCtx, ASTItem attribute) {
+        ErlImport importDef = new ErlImport(attribute.getOffset(), attribute.getEndOffset());
         for (ASTItem item : attribute.getChildren()) {
-            if (isNode(item, "FunctionNames")) {
-                ErlImport importDef = new ErlImport(attribute.getOffset(), attribute.getEndOffset());
+            if (isTokenTypeName(item, "atom")) {
+                ASTToken nameToken = (ASTToken) item;
+                String nameStr = nameToken.getIdentifier();
+                importDef.addPackage(nameStr);
+            } else if (isNode(item, "FunctionNames")) {
                 rootCtx.addDefinition(importDef);
                 for (ASTItem child : item.getChildren()) {
                     if (isNode(child, "FunctionName")) {

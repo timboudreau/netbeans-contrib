@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.net.URL;
+import java.util.Arrays;
 import org.netbeans.modules.erlang.makeproject.spi.support.PropertyEvaluator;
 import org.netbeans.modules.erlang.makeproject.spi.support.RakeProjectHelper;
 import org.netbeans.modules.erlang.project.SourceRoots;
@@ -44,7 +45,7 @@ final class SourcePathImplementation implements ClassPathImplementation, Propert
     
     private final PropertyChangeSupport support = new PropertyChangeSupport(this);
     private List<PathResourceImplementation> resources;
-    private final SourceRoots sourceRoots;
+    private final SourceRoots[] sourceRoots;
     private final RakeProjectHelper projectHelper;
     private final PropertyEvaluator evaluator;
     
@@ -52,12 +53,14 @@ final class SourcePathImplementation implements ClassPathImplementation, Propert
      * Construct the implementation.
      * @param sourceRoots used to get the roots information and events
      */
-    public SourcePathImplementation(SourceRoots sourceRoots) {
+    public SourcePathImplementation(SourceRoots[] sourceRoots) {
         assert sourceRoots != null;
         this.sourceRoots = sourceRoots;
         this.projectHelper = null;
         this.evaluator = null;
-        sourceRoots.addPropertyChangeListener (this);
+        for (SourceRoots oneSourceRoots : sourceRoots) {
+            oneSourceRoots.addPropertyChangeListener (this);
+        }
     }
     
     /**
@@ -65,10 +68,12 @@ final class SourcePathImplementation implements ClassPathImplementation, Propert
      * @param sourceRoots used to get the roots information and events
      * @param projectHelper used to obtain the project root
      */
-    public SourcePathImplementation(SourceRoots sourceRoots, RakeProjectHelper projectHelper, PropertyEvaluator evaluator) {
+    public SourcePathImplementation(SourceRoots[] sourceRoots, RakeProjectHelper projectHelper, PropertyEvaluator evaluator) {
         assert sourceRoots != null && projectHelper != null && evaluator != null;
         this.sourceRoots = sourceRoots;
-        sourceRoots.addPropertyChangeListener (this);
+        for (SourceRoots oneSourceRoots : sourceRoots) {
+            oneSourceRoots.addPropertyChangeListener (this);
+        }
         this.projectHelper = projectHelper;
         this.evaluator = evaluator;
         evaluator.addPropertyChangeListener (this);
@@ -79,11 +84,14 @@ final class SourcePathImplementation implements ClassPathImplementation, Propert
             if (this.resources != null) {
                 return this.resources;
             }
-        }                                
-        URL[] roots = sourceRoots.getRootURLs();                                
+        }
+        List<URL> roots = new ArrayList<URL>();
+        for (SourceRoots oneSourceRoots : sourceRoots) {
+            roots.addAll(Arrays.asList(oneSourceRoots.getRootURLs()));
+        }
         synchronized (this) {
             if (this.resources == null) {
-                List<PathResourceImplementation> result = new ArrayList<PathResourceImplementation>(roots.length);
+                List<PathResourceImplementation> result = new ArrayList<PathResourceImplementation>(roots.size());
                 for (URL root : roots) {
                     result.add(ClassPathSupport.createResource(root));
                 }
