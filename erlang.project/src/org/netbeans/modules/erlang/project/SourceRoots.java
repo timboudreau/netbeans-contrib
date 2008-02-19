@@ -83,6 +83,7 @@ public final class SourceRoots {
     public static final String PROP_ROOTS = "roots";   //NOI18N
 
     public static final String DEFAULT_SOURCE_LABEL = NbBundle.getMessage(SourceRoots.class, "NAME_src.dir");
+    public static final String DEFAULT_INCLUDE_LABEL = NbBundle.getMessage(SourceRoots.class, "NAME_include.dir");
     public static final String DEFAULT_TEST_LABEL = NbBundle.getMessage(SourceRoots.class, "NAME_test.src.dir");
 
     private final UpdateHelper helper;
@@ -337,6 +338,9 @@ public final class SourceRoots {
             }
             else if (!isTest && RubyProjectGenerator.DEFAULT_SRC_NAME.equals(propName)) {   //NOI18N
                 rootName = DEFAULT_SOURCE_LABEL;
+            }
+            else if (RubyProjectGenerator.DEFAULT_INCLUDE_NAME.equals(propName)) {   //NOI18N
+                rootName = DEFAULT_INCLUDE_LABEL;
             }
             else {
                 //If the name is not given, it should be either a relative path in the project dir
