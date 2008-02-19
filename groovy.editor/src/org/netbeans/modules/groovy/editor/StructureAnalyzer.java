@@ -222,6 +222,8 @@ public class StructureAnalyzer implements StructureScanner {
         try {
             BaseDocument doc = (BaseDocument)info.getDocument();
             
+            List<OffsetRange> commentfolds = new ArrayList<OffsetRange>();
+            
             TokenSequence<?> ts = LexUtilities.getGroovyTokenSequence(doc, 1);
             
             int importStart = 0;
@@ -235,6 +237,16 @@ public class StructureAnalyzer implements StructureScanner {
                         importStart = offset;
                     }
                     importEnd = offset;
+                } else if (t.id() == GroovyTokenId.BLOCK_COMMENT) {
+                    // does this Block comment (GSF_BLOCK_COMMENT) span
+                    // multiple lines? E.g. includes \n ?
+                    StringBuffer sb = new StringBuffer(t.text());
+                    
+                    if(sb.indexOf("\n") != -1) {
+                        int offset = ts.offset();
+                        OffsetRange blockRange = new OffsetRange(offset, offset + t.length());
+                        commentfolds.add(blockRange);
+                    }
                 }
             }
             
@@ -245,7 +257,9 @@ public class StructureAnalyzer implements StructureScanner {
             List<OffsetRange> importfolds = new ArrayList<OffsetRange>();
             OffsetRange range = new OffsetRange(importStart, importEnd);
             importfolds.add(range);
+            
             folds.put("imports", importfolds); // NOI18N
+            folds.put("comments", commentfolds); // NOI18N
 
             addFolds(doc, analysisResult.getElements(), folds, codefolds);
         } catch (Exception ex) {
