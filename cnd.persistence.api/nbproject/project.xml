@@ -14,7 +14,10 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <public-packages/>
+            <public-packages>
+                <package>org.netbeans.modules.cnd.persistence.api</package>
+                <package>org.netbeans.modules.cnd.persistence.spi</package>
+            </public-packages>
         </data>
     </configuration>
 </project>
