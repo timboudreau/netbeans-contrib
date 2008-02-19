@@ -14,10 +14,11 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <public-packages>
+            <friend-packages>
+                <friend>org.netbeans.modules.cnd.persistence</friend>
                 <package>org.netbeans.modules.cnd.persistence.api</package>
                 <package>org.netbeans.modules.cnd.persistence.spi</package>
-            </public-packages>
+            </friend-packages>
         </data>
     </configuration>
 </project>
