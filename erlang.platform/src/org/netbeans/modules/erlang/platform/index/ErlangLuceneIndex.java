@@ -111,7 +111,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
                         field = ErlangIndexer.FIELD_MODULE_NAME;
                         break;
                     case Header:
-                        field = ErlangIndexer.FIELD_HEADERFILE_NAME;
+                        field = ErlangIndexer.FIELD_HEADER_NAME;
                         break;
                 }
 
