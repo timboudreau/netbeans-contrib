@@ -21,78 +21,12 @@ Microsystems, Inc. All Rights Reserved.
 <filesystem>
 
     <folder name="Templates">
-        <folder name="Erlang">
-            <file name="main.erl" url="main.erl">
-                <attr name="template" boolvalue="true"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
-                <!-- This is a hack to allow Erlang files to show up in Java projects as well in case you want to mix in Erlang for scripting. -->
-                <attr name="templateCategory" stringvalue="erlang,java-classes"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangfile.html"/>
-                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
-            </file>
-            <file name="module.erl" url="module.erl">
-                <attr name="template" boolvalue="true"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
-                <attr name="templateCategory" stringvalue="erlang"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangmodule.html"/>
-                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
-            </file>
-	    <file name="header.hrl" url="header.hrl">
-                <attr name="template" boolvalue="true"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
-                <attr name="templateCategory" stringvalue="erlang"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangheader.html"/>
-                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
-            </file>
-            <file name="escript.erl" url="escript.erl">
-                <attr name="template" boolvalue="true"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
-                <attr name="templateCategory" stringvalue="erlang"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangescript.html"/>
-                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
-            </file>
-            <file name="test.erl" url="test.erl">
-                <attr name="template" boolvalue="true"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
-                <attr name="templateCategory" stringvalue="erlang"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangtest.html"/>
-                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
-                <!-- Pending attribute, not yet supported - see #91580 -->
-                <attr name="templateNamePrefix" stringvalue="tc_"/>
-            </file>
-            <file name="suite.erl" url="suite.erl">
-                <attr name="template" boolvalue="true"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
-                <attr name="templateCategory" stringvalue="erlang"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangtestsuite.html"/>
-                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
-                <!-- Pending attribute, not yet supported - see #91580 -->
-                <attr name="templateNamePrefix" stringvalue="ts_"/>
-            </file>
-            <file name="Makefile" url="Makefile">
-                <attr name="template" boolvalue="true"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
-                <attr name="templateCategory" stringvalue="erlang"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/makefile.html"/>
-                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
-            </file>
-            <file name="Emakefile" url="Emakefile">
-                <attr name="template" boolvalue="true"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
-                <attr name="templateCategory" stringvalue="erlang"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/emakefile.html"/>
-                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
-            </file>
-        </folder>
-
+        
         <folder name="Project">
-            <attr name="Standard/Erlang" boolvalue="true"/>
-            <attr name="Erlang/Samples" boolvalue="true"/>
-
             <folder name="Erlang">
+                <attr name="position" intvalue="735"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.wizards.Bundle"/>
                 <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/desktop.html"/>
-                <attr name="position" intvalue="735"/>
 
                 <file name="emptyErlang.xml">
                     <attr name="position" intvalue="100"/>
@@ -116,6 +50,81 @@ Microsystems, Inc. All Rights Reserved.
                 </file>
             </folder>
         </folder>
+
+        <folder name="Erlang">
+            <attr name="position" intvalue="912"/>
+            
+            <file name="main.erl" url="main.erl">
+                <attr name="position" intvalue="100"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
+                <!-- This is a hack to allow Erlang files to show up in Java projects as well in case you want to mix in Erlang for scripting. -->
+                <attr name="templateCategory" stringvalue="erlang,java-classes"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangfile.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
+            </file>
+            <file name="module.erl" url="module.erl">
+                <attr name="position" intvalue="200"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
+                <attr name="templateCategory" stringvalue="erlang"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangmodule.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
+            </file>
+	    <file name="header.hrl" url="header.hrl">
+                <attr name="position" intvalue="300"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
+                <attr name="templateCategory" stringvalue="erlang"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangheader.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
+            </file>
+            <file name="escript.erl" url="escript.erl">
+                <attr name="position" intvalue="400"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
+                <attr name="templateCategory" stringvalue="erlang"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangescript.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
+            </file>
+            <file name="test.erl" url="test.erl">
+                <attr name="position" intvalue="500"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
+                <attr name="templateCategory" stringvalue="erlang"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangtest.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
+                <!-- Pending attribute, not yet supported - see #91580 -->
+                <attr name="templateNamePrefix" stringvalue="tc_"/>
+            </file>
+            <file name="suite.erl" url="suite.erl">
+                <attr name="position" intvalue="600"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
+                <attr name="templateCategory" stringvalue="erlang"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlangtestsuite.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
+                <!-- Pending attribute, not yet supported - see #91580 -->
+                <attr name="templateNamePrefix" stringvalue="ts_"/>
+            </file>
+            <file name="Makefile" url="Makefile">
+                <attr name="position" intvalue="700"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
+                <attr name="templateCategory" stringvalue="erlang"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/makefile.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
+            </file>
+            <file name="Emakefile" url="Emakefile">
+                <attr name="position" intvalue="800"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.resources.Bundle"/>
+                <attr name="templateCategory" stringvalue="erlang"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/emakefile.html"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.erlang.project.templates.RubyTemplates.createRubyTemplateIterator"/>
+            </file>
+        </folder>
+
     </folder>
 
     <folder name="Projects">

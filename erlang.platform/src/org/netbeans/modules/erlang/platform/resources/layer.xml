@@ -26,7 +26,7 @@
     <folder name="OptionsDialog">
         <file name="ErlangOptions.instance">
             <attr name="instanceClass" stringvalue="org.netbeans.modules.erlang.platform.options.ErlangOptionsCategory"/>
-            <attr name="position" intvalue="305"/>
+            <attr name="position" intvalue="308"/>
         </file>     
     </folder>
 
