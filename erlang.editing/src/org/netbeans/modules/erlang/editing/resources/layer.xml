@@ -45,7 +45,7 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="MIMEResolver">
             <file name="ErlangResolve.xml" url="ErlangResolve.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.editing.resources.Bundle"/>
-                <attr name="position" intvalue="190"/>
+                <attr name="position" intvalue="1005"/>
             </file>
         </folder>
     </folder>
@@ -114,6 +114,7 @@ Microsystems, Inc. All Rights Reserved.
                     <attr name="icon" stringvalue="org/netbeans/modules/erlang/editing/resources/Erlang.png"/>
                 </file>
             </folder>
+            <!--
             <folder name="x-string">
                 <folder name="FontsColors">
                     <folder name="NetBeans">
@@ -145,6 +146,7 @@ Microsystems, Inc. All Rights Reserved.
                     <file name="org-netbeans-modules-languages-features-UpToDateStatusProviderFactoryImpl.instance"/>
                 </folder>
             </folder>
+            -->
         </folder>
     </folder>
     <folder name="OptionsDialog">
