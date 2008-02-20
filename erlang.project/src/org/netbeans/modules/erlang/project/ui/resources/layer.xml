@@ -34,12 +34,9 @@ Microsystems, Inc. All Rights Reserved.
                     <attr name="instantiatingIterator" newvalue="org.netbeans.modules.erlang.project.ui.wizards.NewRubyProjectWizardIterator"/>
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.wizards.Bundle"/>
                     <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/erlang.png"/>
-
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/application.html"/>
                 </file>
         
-                <attr name="emptyErlang.xml/existingErlang.xml" boolvalue="true"/>
-
                 <file name="existingErlang.xml">
                     <attr name="position" intvalue="300"/>
                     <attr name="template" boolvalue="true"/>
