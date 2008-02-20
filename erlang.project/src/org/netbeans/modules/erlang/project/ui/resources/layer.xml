@@ -92,8 +92,10 @@ Microsystems, Inc. All Rights Reserved.
             <folder name="Erlang">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.wizards.Bundle"/>
                 <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erlang/project/ui/resources/desktop.html"/>
+                <attr name="position" intvalue="735"/>
 
                 <file name="emptyErlang.xml">
+                    <attr name="position" intvalue="100"/>
                     <attr name="template" boolvalue="true"/>
                     <attr name="instantiatingIterator" newvalue="org.netbeans.modules.erlang.project.ui.wizards.NewRubyProjectWizardIterator"/>
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.wizards.Bundle"/>
@@ -105,6 +107,7 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="emptyErlang.xml/existingErlang.xml" boolvalue="true"/>
 
                 <file name="existingErlang.xml">
+                    <attr name="position" intvalue="300"/>
                     <attr name="template" boolvalue="true"/>
                     <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.erlang.project.ui.wizards.NewRubyProjectWizardIterator.existing"/>
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.wizards.Bundle"/>
@@ -120,8 +123,8 @@ Microsystems, Inc. All Rights Reserved.
             <folder name="Customizer">
                 <file name="Sources.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.modules.erlang.project.ui.customizer.RubyCompositePanelProvider.createSources"/>
+                    <attr name="position" intvalue="100"/>
                 </file>
-                <attr name="Sources.instance/BuildCategory" boolvalue="true"/>
                 <!--
                 <folder name="BuildCategory">
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erlang.project.ui.customizer.Bundle"/>
@@ -130,14 +133,16 @@ Microsystems, Inc. All Rights Reserved.
                     </file>
                 </folder>
                 -->
-                <attr name="BuildCategory/Run.instance" boolvalue="true"/>
                 <file name="Run.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.modules.erlang.project.ui.customizer.RubyCompositePanelProvider.createRun"/>
+                    <attr name="position" intvalue="400"/>
                 </file>
             </folder>
             
             <folder name="Nodes">
-                <file name="org-netbeans-modules-erlang-project-ui-SourceNodeFactory.instance"/>
+                <file name="org-netbeans-modules-erlang-project-ui-SourceNodeFactory.instance">
+                    <attr name="position" intvalue="200"/>
+                </file>
             </folder>
             
             <folder name="Lookup"/>

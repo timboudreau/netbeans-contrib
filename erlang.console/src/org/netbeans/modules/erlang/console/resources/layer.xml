@@ -10,9 +10,12 @@
 
     <folder name="Menu">
         <folder name="Window">
-            <file name="ErlangConsoleAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-erlang-console-ErlangConsoleAction.instance"/>
-            </file>
+            <folder name="Other">
+                <file name="ErlangConsoleAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-erlang-console-ErlangConsoleAction.instance"/>
+                    <attr name="position" intvalue="915"/>
+                </file>
+            </folder>
         </folder>
     </folder>
         
@@ -23,6 +26,7 @@
         <folder name="Modes">
             <folder name="output">
                 <file name="ErlangConsoleTopComponent.wstcref" url="ErlangConsoleTopComponentWstcref.xml"/>
+                    <attr name="position" intvalue="315"/>
             </folder>
         </folder>
     </folder>
