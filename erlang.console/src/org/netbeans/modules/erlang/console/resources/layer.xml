@@ -25,11 +25,11 @@
         </folder>
         <folder name="Modes">
             <folder name="output">
-                <file name="ErlangConsoleTopComponent.wstcref" url="ErlangConsoleTopComponentWstcref.xml"/>
+                <file name="ErlangConsoleTopComponent.wstcref" url="ErlangConsoleTopComponentWstcref.xml">
                     <attr name="position" intvalue="315"/>
+                </file>
             </folder>
         </folder>
     </folder>
     
-
 </filesystem>
