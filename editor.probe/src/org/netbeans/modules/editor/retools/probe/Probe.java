@@ -87,8 +87,8 @@ public class Probe {
                 addGeneralStatus(ps);
 
                 List<? extends JTextComponent> editors = EditorRegistry.componentList();
-                for(JTextComponent editor : editors) {
-                    addSingleEditorStatus(editor, ps);
+                for(int i = 0; i < editors.size(); i++) {
+                    addSingleEditorStatus(editors.get(i), i, ps);
                 }
                 
                 ps.println("Editor probe dump finished!"); //NOI18N
@@ -138,8 +138,8 @@ public class Probe {
         addSeparator(ps);
     }
     
-    private void addSingleEditorStatus(JTextComponent editor, PrintStream ps) {
-        ps.println("Editor: " + editorId(editor));
+    private void addSingleEditorStatus(JTextComponent editor, int index, PrintStream ps) {
+        ps.println("Editor[" + index + "]: " + editorId(editor));
 
         // Dump component info
         ps.println("JTextComponent: " + s2s(editor));

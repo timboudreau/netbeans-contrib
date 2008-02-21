@@ -10,7 +10,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JFileChooser;
@@ -18,6 +20,8 @@ import javax.swing.JFileChooser;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
+import org.netbeans.modules.gsf.Language;
+import org.netbeans.modules.gsf.LanguageRegistry;
 import org.netbeans.modules.gsfret.source.usages.ClassIndexImpl;
 import org.netbeans.modules.gsfret.source.usages.ClassIndexManager;
 import org.netbeans.modules.gsfret.source.usages.PersistentClassIndex;
@@ -51,14 +55,31 @@ public final class DumpIndex extends CallableSystemAction {
             //Map<URL, ClassIndexImpl> map = ClassIndexManager.getDefault().getAllIndices();
             //for (URL url : map.keySet()) {
             //    ClassIndexImpl index = map.get(url);
-            Set<ClassIndexImpl> set = ClassIndexManager.getDefault().getBootIndices();
-            for (ClassIndexImpl index : set) {
-                if (index instanceof PersistentClassIndex) {
-                    IndexReader reader = ((PersistentClassIndex)index).getDumpIndexReader();
-                    if (reader != null) {
-                        writeDocument(writer, reader);
+            Map<String,Language> map = new HashMap<String,Language>();
+            for (Language language : LanguageRegistry.getInstance()) {
+                if (language.getIndexer() != null) {
+                    map.put(language.getDisplayName(), language);
+                }
+            }
+            List<String> names = new ArrayList<String>(map.keySet());
+            Collections.sort(names);
+            for (String name : names) {
+                Language language = map.get(name);
+                assert language != null;
+                
+                writer.write("Language: " + name + " of mimetype = " + language.getMimeType() + "\n");
+            
+                Set<ClassIndexImpl> set = ClassIndexManager.get(language).getBootIndices();
+                for (ClassIndexImpl index : set) {
+                    if (index instanceof PersistentClassIndex) {
+                        IndexReader reader = ((PersistentClassIndex)index).getDumpIndexReader();
+                        if (reader != null) {
+                            writeDocument(writer, reader);
+                        }
                     }
                 }
+                
+                writer.write("\n\n");
             }
         } catch (IOException ioe) {
             Exceptions.printStackTrace(ioe);

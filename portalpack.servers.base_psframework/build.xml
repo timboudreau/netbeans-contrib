@@ -27,18 +27,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
      <property name="base.nbm.target.dir" value="build"/>
 <target name="netbeans-extra" depends="release"/>
 
-    <target name="release" depends="init">
-        <mkdir dir="${cluster}/modules/ext/portalpack/jdom"/>
-        
-        <copy file="../../external/jdom/jaxen-core.jar"
-        todir="${cluster}/modules/ext/portalpack/jdom"/>
-        <copy file="../../external/jdom/jaxen-jdom.jar"
-        todir="${cluster}/modules/ext/portalpack/jdom"/>
-        <copy file="../../external/jdom/jdom.jar"
-        todir="${cluster}/modules/ext/portalpack/jdom"/>
-        
-        <copy file="../../external/jdom/saxpath.jar"
-        todir="${cluster}/modules/ext/portalpack/jdom"/>
+<target name="release" depends="init">
         
 </target>
 

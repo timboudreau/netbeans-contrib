@@ -52,7 +52,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 
-import org.netbeans.api.gsf.ParserResult;
+import org.netbeans.fpi.gsf.ParserResult;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Coloring;
 import org.netbeans.editor.DrawContext;
