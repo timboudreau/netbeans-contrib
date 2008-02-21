@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,29 +34,35 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.gsfret.hints.infrastructure;
+package org.netbeans.modules.gsfret.source.usages;
 
-import org.netbeans.fpi.gsf.CancellableTask;
-import org.netbeans.napi.gsfret.source.CompilationInfo;
-import org.netbeans.napi.gsfret.source.Phase;
-import org.netbeans.napi.gsfret.source.Source.Priority;
-import org.netbeans.napi.gsfret.source.support.SelectionAwareSourceTaskFactory;
-import org.openide.filesystems.FileObject;
+import java.util.ArrayList;
+import java.util.List;
+import org.netbeans.fpi.gsf.IndexDocument;
 
-/**
- *
- * @author Tor Norbye
- */
-public class SelectionHintsTaskFactory extends SelectionAwareSourceTaskFactory {
-    
-    public SelectionHintsTaskFactory() {
-        super(Phase.UP_TO_DATE, Priority.MIN);
+class IndexDocumentImpl implements IndexDocument {
+    final List<String> indexedKeys;
+    final List<String> indexedValues;
+    final List<String> unindexedKeys;
+    final List<String> unindexedValues;
+
+    public IndexDocumentImpl(int initialCapacity) {
+        indexedKeys = new ArrayList<String>(initialCapacity);
+        indexedValues = new ArrayList<String>(initialCapacity);
+        unindexedKeys = new ArrayList<String>(6); // Right? Or pass in?
+        unindexedValues = new ArrayList<String>(6);
     }
-    
-    protected CancellableTask<CompilationInfo> createTask(FileObject file) {
-        return new SelectionHintsTask();
+
+    public void addPair(String key, String value, boolean indexed) {
+        if (indexed) {
+            indexedKeys.add(key);
+            indexedValues.add(value);
+        } else {
+            unindexedKeys.add(key);
+            unindexedValues.add(value);
+        }
     }
 }
