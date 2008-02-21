@@ -42,7 +42,9 @@
 package org.netbeans.modules.cnd.syntaxerr.provider.impl;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -51,7 +53,12 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.cnd.api.model.CsmFile;
 import org.netbeans.modules.cnd.api.model.CsmUID;
 import org.netbeans.modules.cnd.api.model.xref.CsmIncludeHierarchyResolver;
+import org.netbeans.modules.cnd.api.project.NativeFileItem;
+import org.netbeans.modules.cnd.api.project.NativeProject;
 import org.netbeans.modules.cnd.modelutil.CsmUtilities;
+import org.netbeans.modules.cnd.syntaxerr.DebugUtils;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 
 /**
@@ -60,8 +67,72 @@ import org.openide.loaders.DataObject;
  */
 class HeaderProxy extends SourceProxy {
 
-    public HeaderProxy(DataObject dao, BaseDocument doc, File tmpDir) {
+    private final File fileToCompile;
+    private final File headerCopy;
+    private final String topFile;
+    private final NativeFileItem topNativeItem;
+    
+    public HeaderProxy(DataObject dao, BaseDocument doc, File tmpDir) throws IOException {
 	super(dao, doc, tmpDir);
+        headerCopy = new File(tmpDir, fo.getNameExt());
+        fileToCompile = File.createTempFile("tmp_source_", ".cpp", tmpDir);
+        CsmFile topCsmFile = getTopIncludingFile(dao);
+        if( topCsmFile != null ) {
+            if( DebugUtils.TRACE ) System.err.printf("\t\tfound top file: %s", topCsmFile.getAbsolutePath());
+            topFile = topCsmFile.getAbsolutePath().toString();
+            topNativeItem = findTopNativeItem(topFile, fileItem);
+        } else {
+            topFile = null;
+            topNativeItem = null;
+        }
+    }
+    
+    private static NativeFileItem findTopNativeItem(String topFile, NativeFileItem fileItem) {
+        NativeProject topNativeProject = fileItem.getNativeProject();
+        if( topNativeProject != null ) {
+            try {
+                return topNativeProject.findFileItem(new File(topFile).getCanonicalFile());
+            } catch( IOException e ) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+    
+    @Override
+    public File getFileToCompile() {
+//        if( topNativeItem  != null ) {
+//            return topNativeItem.getFile();
+//        }
+//        else {
+//            return fileToCompile;
+//        }
+        return fileToCompile;
+    }
+    
+    @Override
+    public void copyFiles() throws IOException, BadLocationException {
+	ErrorProviderUtils.WriteDocument(doc, headerCopy);
+	PrintWriter writer = new PrintWriter(new FileWriter(fileToCompile));
+        writer.printf("#include \"%s\"%s", fo.getNameExt(), System.getProperty("line.separator"));
+	writer.close();	
+    }
+    
+    public String getInterestingFileAbsoluteName() {
+        return headerCopy.getAbsolutePath();
+    }
+
+    @Override
+    public File getCompilerRunDirectory() {
+        return (topFile == null) ? super.getCompilerRunDirectory() : new File(topFile).getParentFile();
+    }
+    
+    @Override
+    public String getCompilerOptions() {
+        if( topNativeItem  != null ) {
+            return " -I " + tmpDir.getAbsolutePath() + ' ' +  getCompilerOptions(topNativeItem);
+        }
+        return super.getCompilerOptions();
     }
     
     private CsmFile getTopIncludingFile(DataObject dao) {
@@ -94,13 +165,6 @@ class HeaderProxy extends SourceProxy {
 	return null;
     }    
     
-    public File getFileToCompile() {
-	return new File(tmpDir, fo.getNameExt());
-    }
-    
-    public void copyFiles() throws IOException, BadLocationException {
-	ErrorProviderUtils.WriteDocument(doc, getFileToCompile());
-    }
     
 
 }

@@ -49,6 +49,7 @@ import javax.swing.text.BadLocationException;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.cnd.api.project.NativeFileItem;
 import org.netbeans.modules.cnd.api.project.NativeFileItemSet;
+import org.netbeans.modules.cnd.api.project.NativeProject;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
@@ -63,7 +64,7 @@ class SourceProxy implements FileProxy {
     protected final BaseDocument doc;
     protected final File tmpDir;
     protected final FileObject fo;
-    private final NativeFileItem fileItem;
+    protected final NativeFileItem fileItem;
 
     public SourceProxy(DataObject dao, BaseDocument doc, File tmpDir) {
         this.dao = dao;
@@ -93,10 +94,12 @@ class SourceProxy implements FileProxy {
     }
 
     public String getCompilerOptions() {
-        // FIXUP: a temporary varyant that allows to get *something*
-        // TODO: think over, what if there are several items?
+        return getCompilerOptions(dao);
+    }
+    
+    public String getCompilerOptions(DataObject aDao) {
         StringBuilder sb = new StringBuilder(" -I . ");
-        NativeFileItemSet itemSet = dao.getLookup().lookup(NativeFileItemSet.class);
+        NativeFileItemSet itemSet = aDao.getLookup().lookup(NativeFileItemSet.class);
         if( itemSet != null ) {
             for( NativeFileItem item : itemSet.getItems() ) {
                 for( String path : item.getUserIncludePaths() ) {
@@ -113,6 +116,21 @@ class SourceProxy implements FileProxy {
         }
         return sb.toString();
     }
+    
+    public String getCompilerOptions(NativeFileItem item) {
+        StringBuilder sb = new StringBuilder(" -I . ");
+        if( item != null ) {
+            for( String path : item.getUserIncludePaths() ) {
+                sb.append(" -I "); // NOI18N
+                sb.append(path);
+            }
+            for( String def : item.getUserMacroDefinitions() ) {
+                sb.append(" -D"); // NOI18N
+                sb.append(def);
+            }
+        }
+        return sb.toString();
+    }
  
     public File getCompilerRunDirectory() {
         return FileUtil.toFile(fo.getParent());
@@ -126,6 +144,10 @@ class SourceProxy implements FileProxy {
 	ErrorProviderUtils.WriteDocument(doc, getFileToCompile());
     }
 
+    public String getInterestingFileAbsoluteName() {
+        return getFileToCompile().getAbsolutePath();
+    }
+    
     private static boolean isSun(DataObject dao, NativeFileItem item) {
         if( item != null ) {
             for (String macro : item.getSystemMacroDefinitions()) {
