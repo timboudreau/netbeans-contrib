@@ -42,47 +42,65 @@
 package org.netbeans.modules.cnd.syntaxerr.provider.impl;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Random;
-import java.util.StringTokenizer;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import javax.swing.text.BadLocationException;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.cnd.api.model.CsmFile;
+import org.netbeans.modules.cnd.api.model.CsmUID;
+import org.netbeans.modules.cnd.api.model.xref.CsmIncludeHierarchyResolver;
+import org.netbeans.modules.cnd.modelutil.CsmUtilities;
+import org.openide.loaders.DataObject;
 
 /**
  *
- * @author vk155633
+ * @author Vladimir Kvashin
  */
-public class ErrorProviderUtils {
+class HeaderProxy extends SourceProxy {
 
-    public static String findInPath(String baseName) {
-        String path = System.getenv("PATH"); // NOI18N
-        for (StringTokenizer tokenizer = new StringTokenizer(path, File.pathSeparator); tokenizer.hasMoreTokens();) {
-            String pathElement = tokenizer.nextToken();
-            File file = new File(pathElement, baseName);
-            if( file.exists() ) {
-                return file.getAbsolutePath();
+    public HeaderProxy(DataObject dao, BaseDocument doc, File tmpDir) {
+	super(dao, doc, tmpDir);
+    }
+    
+    private CsmFile getTopIncludingFile(DataObject dao) {
+	// TODO: change to getTopParentFiles() as soon as it is added to CsmIncludeHierarchyResolver
+	// (now we have to stay 6.0 compliant)
+	CsmFile header = CsmUtilities.getCsmFile(dao, false);
+	if( header != null ) {
+	    return getTopIncludingFile(header, new HashSet<CsmUID<CsmFile>>());
+	}
+	return null;
+    }
+    
+    private CsmFile getTopIncludingFile(CsmFile header, Set<CsmUID<CsmFile>> processedFiles) {
+        Collection<CsmFile> files = CsmIncludeHierarchyResolver.getDefault().getFiles(header);
+        for( CsmFile file : files ) {
+            if( file.isSourceFile() ) {
+                return file;
             }
         }
-        return null;
-    }
-   
-    public static File createTmpDir(File base, String prefix) {
-	int counter = new Random().nextInt(4096);
-	File file = null;
-	do {
-	    file = new File(base, prefix + "_" +  counter);
-	} while( file.exists() );
-	file.mkdirs();
-	file.deleteOnExit();
-	return file;
+        for( CsmFile file : files ) {
+	    CsmUID<CsmFile> uid = file.getUID();
+            if( ! processedFiles.contains(uid) ) {
+		processedFiles.add(uid);
+                CsmFile top = getTopIncludingFile(file, processedFiles);
+                if( file.isSourceFile() ) {
+                    return file;
+                }
+	    }
+        }
+	return null;
+    }    
+    
+    public File getFileToCompile() {
+	return new File(tmpDir, fo.getNameExt());
     }
     
-    public static void WriteDocument(BaseDocument doc, File file) throws IOException, BadLocationException {
-	FileWriter writer = new FileWriter(file);
-	doc.write(writer, 0, doc.getLength());
-	writer.write(System.getProperty("line.separator"));
-	writer.close();	
+    public void copyFiles() throws IOException, BadLocationException {
+	ErrorProviderUtils.WriteDocument(doc, getFileToCompile());
     }
     
+
 }

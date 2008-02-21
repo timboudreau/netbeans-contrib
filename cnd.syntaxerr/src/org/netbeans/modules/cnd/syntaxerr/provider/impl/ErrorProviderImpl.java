@@ -49,12 +49,8 @@ import java.io.InputStream;
 import java.util.*;
 import javax.swing.text.BadLocationException;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.cnd.api.model.CsmFile;
-import org.netbeans.modules.cnd.api.model.CsmUID;
-import org.netbeans.modules.cnd.api.model.xref.CsmIncludeHierarchyResolver;
 import org.netbeans.modules.cnd.api.project.NativeFileItem;
 import org.netbeans.modules.cnd.api.project.NativeFileItemSet;
-import org.netbeans.modules.cnd.modelutil.CsmUtilities;
 import org.netbeans.modules.cnd.syntaxerr.DebugUtils;
 import org.openide.loaders.DataObject;
 
@@ -69,6 +65,12 @@ import org.openide.loaders.DataObject;
  * @author Vladimir Kvashin
  */
 public class ErrorProviderImpl extends ErrorProvider {
+    
+    private final File tmpDir;
+
+    public ErrorProviderImpl() throws IOException {
+	tmpDir = ErrorProviderUtils.createTmpDir(new File(System.getProperty("java.io.tmpdir")), "syntaxerr");
+    }
     
     /**
      * ErrorProvider implementation.
@@ -86,9 +88,12 @@ public class ErrorProviderImpl extends ErrorProvider {
             e.printStackTrace();
             return Collections.emptyList();
         }
+        catch( Exception e ) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
     }
 
-    
     private boolean isHeader(DataObject dao) {
         NativeFileItemSet itemSet = dao.getLookup().lookup(NativeFileItemSet.class);
         if( itemSet != null ) {
@@ -110,47 +115,15 @@ public class ErrorProviderImpl extends ErrorProvider {
 	return false;
     }
     
-    private CsmFile getTopIncludingFile(DataObject dao) {
-	// TODO: change to getTopParentFiles() as soon as it is added to CsmIncludeHierarchyResolver
-	// (now we have to stay 6.0 compliant)
-	CsmFile header = CsmUtilities.getCsmFile(dao, false);
-	if( header != null ) {
-	    return getTopIncludingFile(header, new HashSet<CsmUID<CsmFile>>());
-	}
-	return null;
-    }
-    
-    private CsmFile getTopIncludingFile(CsmFile header, Set<CsmUID<CsmFile>> processedFiles) {
-        Collection<CsmFile> files = CsmIncludeHierarchyResolver.getDefault().getFiles(header);
-        for( CsmFile file : files ) {
-            if( file.isSourceFile() ) {
-                return file;
-            }
-        }
-        for( CsmFile file : files ) {
-	    CsmUID<CsmFile> uid = file.getUID();
-            if( ! processedFiles.contains(uid) ) {
-		processedFiles.add(uid);
-                CsmFile top = getTopIncludingFile(file, processedFiles);
-                if( file.isSourceFile() ) {
-                    return file;
-                }
-	    }
-        }
-	return null;
-    }
-    
-
-        
-	    
     private Collection<ErrorInfo> getErrorsImpl(DataObject dao, BaseDocument doc) throws IOException, BadLocationException {
 	//System.err.printf("File %s MIME type %s\n", dao.getPrimaryFile().getNameExt(), dao.getPrimaryFile().getMIMEType());
 	FileProxy fileProxy;
         if( isHeader(dao) ) {
-            return Collections.<ErrorInfo>emptyList();		    
+	    fileProxy = new HeaderProxy(dao, doc, tmpDir);
+            //return Collections.<ErrorInfo>emptyList();		    
 	}
 	else {
-	    fileProxy = new DaoAndDocProxy(dao, doc);
+	    fileProxy = new SourceProxy(dao, doc, tmpDir);
 	}
 	return fileProxy == null ?   Collections.<ErrorInfo>emptyList() : getErrorsImpl(fileProxy);
     }
@@ -161,62 +134,25 @@ public class ErrorProviderImpl extends ErrorProvider {
         if( compilerInfo != null && compilerInfo.getPath() != null &&  compilerInfo.getPath().length() > 0 ) {
 	    
             ErrorBag result = new ErrorBag();
-            File tmpDir = new File(System.getProperty("java.io.tmpdir"));
     
-	    // ensure prefix is not less than 3, otherwise createTempFile throws
-	    String prefix = fileProxy.getName();
-	    switch( prefix.length() ) { 
-	    // it can't be 0
-	    case 1: prefix += "__"; break; // NOI18N
-	    case 2: prefix += '_'; break;
-	    default:
-	    }
-
-            File tmpFile = File.createTempFile(prefix, "." + fileProxy.getExt(), tmpDir); // NOI18N
-            FileWriter writer = new FileWriter(tmpFile);
-            fileProxy.write(writer);
-            writer.write(System.getProperty("line.separator"));
-            writer.close();
+            fileProxy.copyFiles();
+	    File fileToCompile = fileProxy.getFileToCompile();
 	    
             // TODO: set correct options
-            String command = compilerInfo.getPath() + " -c -o /dev/null -I . " + fileProxy.getCompilerOptions() + ' ' + tmpFile.getAbsolutePath(); // NOI18N
+            String command = compilerInfo.getPath() + " -c -o /dev/null " + fileProxy.getCompilerOptions() + ' ' + fileToCompile.getAbsolutePath(); // NOI18N
             if( DebugUtils.SLEEP_ON_PARSE ) DebugUtils.sleep(3000);
             if( DebugUtils.TRACE ) System.err.printf("\n\nRUNNING %s\n", command);
-            Process compilerProcess = Runtime.getRuntime().exec(command, null, fileProxy.getParent());
+            Process compilerProcess = Runtime.getRuntime().exec(command, null, fileProxy.getCompilerRunDirectory());
             InputStream stream = compilerProcess.getErrorStream();
-            compilerInfo.getParser().parseCompilerOutput(stream, tmpFile.getAbsolutePath(), result);
+            compilerInfo.getParser().parseCompilerOutput(stream, fileToCompile.getAbsolutePath(), result);
 //	    result = merge(result);
             stream.close();
             if( DebugUtils.CLEAN_TMP ) {
-                tmpFile.delete();
+                fileToCompile.delete();
             }
             if( DebugUtils.TRACE ) System.err.printf("DONE %s\n", command);
             return result.getResult();
         }
         return Collections.emptyList();
     }
-
-    private String getOptions(DataObject dao) {
-        // FIXUP: a temporary varyant that allows to get *something*
-        // TODO: think over, what if there are several items?
-        StringBuilder sb = new StringBuilder();
-        NativeFileItemSet itemSet = dao.getLookup().lookup(NativeFileItemSet.class);
-        if( itemSet != null ) {
-            for( NativeFileItem item : itemSet.getItems() ) {
-                for( String path : item.getUserIncludePaths() ) {
-                    sb.append(" -I "); // NOI18N
-                    sb.append(path);
-                }
-		for( String def : item.getUserMacroDefinitions() ) {
-		    sb.append(" -D"); // NOI18N
-		    sb.append(def);
-		}
-                break;
-            }
-            sb.append(' ');
-        }
-        return sb.toString();
-    }
-
-
 }

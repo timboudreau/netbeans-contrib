@@ -42,8 +42,8 @@
 package org.netbeans.modules.cnd.syntaxerr.provider.impl;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Collection;
 import javax.swing.text.BadLocationException;
 import org.netbeans.editor.BaseDocument;
@@ -54,19 +54,21 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 
 /**
- *
- * @author vk155633
+ * 
+ * @author Vladimir Kvashin
  */
-class DaoAndDocProxy implements FileProxy {
+class SourceProxy implements FileProxy {
 
-    private final DataObject dao;
-    private final BaseDocument doc;
-    private final FileObject fo;
+    protected final DataObject dao;
+    protected final BaseDocument doc;
+    protected final File tmpDir;
+    protected final FileObject fo;
     private final NativeFileItem fileItem;
 
-    public DaoAndDocProxy(DataObject dao, BaseDocument doc) {
+    public SourceProxy(DataObject dao, BaseDocument doc, File tmpDir) {
         this.dao = dao;
         this.doc = doc;
+	this.tmpDir = tmpDir;		
         fo = dao.getPrimaryFile();
         NativeFileItemSet itemSet = dao.getLookup().lookup(NativeFileItemSet.class);
         if( itemSet != null ) {
@@ -93,7 +95,7 @@ class DaoAndDocProxy implements FileProxy {
     public String getCompilerOptions() {
         // FIXUP: a temporary varyant that allows to get *something*
         // TODO: think over, what if there are several items?
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(" -I . ");
         NativeFileItemSet itemSet = dao.getLookup().lookup(NativeFileItemSet.class);
         if( itemSet != null ) {
             for( NativeFileItem item : itemSet.getItems() ) {
@@ -111,21 +113,17 @@ class DaoAndDocProxy implements FileProxy {
         }
         return sb.toString();
     }
-
-    public String getExt() {
-        return fo.getExt();
-    }
-
-    public String getName() {
-        return fo.getName();
-    }
-
-    public File getParent() {
+ 
+    public File getCompilerRunDirectory() {
         return FileUtil.toFile(fo.getParent());
     }
-
-    public void write(Writer writer) throws IOException, BadLocationException {
-        doc.write(writer, 0, doc.getLength());
+    
+    public File getFileToCompile() {
+	return new File(tmpDir, fo.getNameExt());
+    }
+    
+    public void copyFiles() throws IOException, BadLocationException {
+	ErrorProviderUtils.WriteDocument(doc, getFileToCompile());
     }
 
     private static boolean isSun(DataObject dao, NativeFileItem item) {
