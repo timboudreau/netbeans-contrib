@@ -46,6 +46,8 @@ public class ErlangGsfLanguage implements GsfLanguage {
     
     public final static String MIME_TYPE = "text/x-erlang";
     
+    private Language lexerLanguage;
+    
     public ErlangGsfLanguage() {
     }
 
@@ -65,13 +67,28 @@ public class ErlangGsfLanguage implements GsfLanguage {
     }
 
     public Language getLexerLanguage() {
-        return null;
+        /** 
+         * Ugly hacking for waiting for GLF language inited 
+         * @see org.netbeans.modules.languages.LanguageImpl#read 
+         */
+        if (lexerLanguage == null) {
+            int counter = 0;
+            try {
+                while (lexerLanguage == null && counter < 200) {
+                    Thread.sleep(100);
+                    lexerLanguage = org.netbeans.api.lexer.Language.find(MIME_TYPE);
+                    counter++;
+                }
+            } catch (InterruptedException e) {
+            }
+        }
+        return lexerLanguage;
     }
 
     public Collection<FileObject> getCoreLibraries() {
         return Collections.emptyList();
     }
-
+    
 }
 
 

@@ -245,7 +245,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
         for (ErlInclude include : getIncludes(moduleName)) {
             String path = include.getPath();
             try {
-                url = new URL(path);
+                url = new URL("file://" + path);
             } catch (MalformedURLException ex) {
                 Exceptions.printStackTrace(ex);
             }
@@ -284,7 +284,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
         for (ErlInclude include : getIncludes(moduleName)) {
             String path = include.getPath();
             try {
-                url = new URL(path);
+                url = new URL("file://" + path);
             } catch (MalformedURLException ex) {
                 Exceptions.printStackTrace(ex);
             }

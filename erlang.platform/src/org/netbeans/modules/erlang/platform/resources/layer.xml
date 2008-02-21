@@ -60,7 +60,7 @@
                 </folder>
                 <file name="language.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.fpi.gsf.GsfLanguage"/>
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.erlang.platform.ErlangGsfLanguage"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.erlang.platform.index.ErlangGsfLanguage"/>
                 </file>
                 <file name="parser.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.fpi.gsf.Parser"/>

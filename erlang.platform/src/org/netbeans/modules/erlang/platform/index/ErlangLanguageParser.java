@@ -88,7 +88,7 @@ public class ErlangLanguageParser implements Parser {
 
             if (language == null) {
                 try {
-                    language = LanguagesManager.get().getLanguage("text/x-erlang");
+                    language = LanguagesManager.get().getLanguage(ErlangGsfLanguage.MIME_TYPE);
                 } catch (LanguageDefinitionNotFoundException ex) {
                     listener.exception(ex);
                 }
