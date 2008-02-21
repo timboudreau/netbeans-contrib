@@ -17,7 +17,7 @@
         <ant dir="../../contrib/scala.debugger" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/scala.debugger.projects" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/scala.console" inheritAll="false" target="clean"/>
-        <ant dir="../../contrib/scala.projects" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/scala.project" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/scala.editing" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/languages.execution" inheritAll="false" target="clean"/>
         <ant target="clean"/>

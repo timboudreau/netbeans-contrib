@@ -28,13 +28,18 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import org.netbeans.api.gsf.Index.SearchResult;
-import org.netbeans.api.gsf.Index.SearchScope;
-import org.netbeans.api.gsf.NameKind;
+import org.netbeans.fpi.gsf.Index.SearchResult;
+import org.netbeans.fpi.gsf.Index.SearchScope;
+import org.netbeans.fpi.gsf.IndexDocument;
+import org.netbeans.fpi.gsf.NameKind;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
+import org.netbeans.modules.erlang.platform.index.ErlangGsfLanguage;
+import org.netbeans.modules.gsf.Language;
+import org.netbeans.modules.gsf.LanguageRegistry;
 import org.openide.filesystems.FileUtil;
 
 
@@ -63,12 +68,14 @@ public class SqlIndexEngine extends org.netbeans.modules.gsfret.source.usages.In
     private static SqlIndexEngine sqlIndexengine;
     public static SqlIndexEngine create() {
         if (sqlIndexengine == null) {
-            sqlIndexengine = new SqlIndexEngine();
+            Language language = LanguageRegistry.getInstance().getLanguageByMimeType(ErlangGsfLanguage.MIME_TYPE);
+            sqlIndexengine = new SqlIndexEngine(language);
         }
         return sqlIndexengine;
     }
     
-    private SqlIndexEngine() {
+    private SqlIndexEngine(Language language) {
+        super(language);
         init();
     }
     
@@ -662,19 +669,21 @@ public class SqlIndexEngine extends org.netbeans.modules.gsfret.source.usages.In
         /** @TODO */
         return true;
     }
-    
-    public void gsfSearch(String primaryField, String name, NameKind kind,
-            Set<SearchScope> scope,
-            Set<SearchResult> result) throws IOException {
-        /** @TODO */
+
+    @Override
+    public void search(String key, String name, NameKind kind, Set<SearchScope> scope, Set<SearchResult> result, Set<String> includeKeys) throws IOException {
+        /** @TODO */;
     }
     
-    public void gsfStore(Set<Map<String, String>> fieldToData,
-            Set<Map<String, String>> noIndexData,
-            Map<String, String> toDelete) throws IOException {
+    
+    public void store(String fileUrl, List<IndexDocument> documents) throws IOException {
         /** @TODO */
     }
-    
+
+    @Override
+    public Map<String, String> getTimeStamps() throws IOException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }    
     
 }
 

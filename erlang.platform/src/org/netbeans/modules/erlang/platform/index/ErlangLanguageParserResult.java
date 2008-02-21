@@ -19,11 +19,11 @@
 package org.netbeans.modules.erlang.platform.index;
 
 
-import org.netbeans.api.gsf.Element;
-import org.netbeans.api.gsf.OffsetRange;
-import org.netbeans.api.gsf.ParserFile;
-import org.netbeans.api.gsf.ParserResult;
+import org.netbeans.fpi.gsf.OffsetRange;
+import org.netbeans.fpi.gsf.ParserFile;
+import org.netbeans.fpi.gsf.ParserResult;
 import org.netbeans.api.languages.ASTNode;
+import org.netbeans.fpi.gsf.ElementHandle;
 import org.netbeans.modules.erlang.editing.semantic.ErlContext;
 
 /**
@@ -37,22 +37,14 @@ public class ErlangLanguageParserResult extends ParserResult {
  
     private ASTNode rootNode;
     private ErlContext rootContext;
-    /** Result used for failed compilation
-     * @todo Provide errors too?
-     */
-    public ErlangLanguageParserResult(ParserFile file) {
-        super(file);
-    }
 
-    /**
-     * Result used for successful compilation
-     */
     public ErlangLanguageParserResult(
+            ErlangLanguageParser parser,
             ParserFile file, 
             AstRootElement rootElement, 
             ASTNode rootNode,
 	    ErlContext rootCtx) {
-        super(file);
+        super(parser, file, "text/x-erlang");
         this.rootElement = rootElement;
         this.rootNode = rootNode;
         this.rootContext = rootCtx;
@@ -63,8 +55,8 @@ public class ErlangLanguageParserResult extends ParserResult {
     }
 
     @Override
-    public Element getRoot() {
-        return rootElement;
+    public ElementHandle getRoot() {
+        return ErlangLanguageParser.createHandle(this, rootElement);
     }
 
     /** 

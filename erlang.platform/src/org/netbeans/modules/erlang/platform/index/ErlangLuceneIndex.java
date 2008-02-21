@@ -28,15 +28,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.netbeans.api.gsf.Index.SearchResult;
-import org.netbeans.api.gsf.Index.SearchScope;
-import org.netbeans.api.gsf.NameKind;
+import org.netbeans.fpi.gsf.Index.SearchResult;
+import org.netbeans.fpi.gsf.Index.SearchScope;
+import org.netbeans.fpi.gsf.NameKind;
 import org.netbeans.api.languages.CompletionItem;
 import org.netbeans.modules.erlang.editing.semantic.ErlMacro;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
 import org.netbeans.modules.erlang.editing.semantic.ErlInclude;
 import org.netbeans.modules.erlang.editing.semantic.ErlRecord;
 import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider;
+import org.netbeans.modules.gsf.Language;
+import org.netbeans.modules.gsf.LanguageRegistry;
 import org.netbeans.modules.gsfret.source.usages.ClassIndexImpl;
 import org.netbeans.modules.gsfret.source.usages.ClassIndexManager;
 import org.openide.util.Exceptions;
@@ -49,18 +51,22 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
 
     private static final Set<SearchScope> ALL_SCOPE = EnumSet.allOf(SearchScope.class);
 
+    private Language language;
+
     /** @TODO Only use Erlang lib and project sources indexEngine */
     private final Collection<ClassIndexImpl> getAllIndexEngines() {
-        final Map<URL, ClassIndexImpl> urlToClassIndexImpl = ClassIndexManager.getDefault().getAllIndices();
+        if (language == null) {
+            language = LanguageRegistry.getInstance().getLanguageByMimeType(ErlangGsfLanguage.MIME_TYPE);
+        }
+        final Map<URL, ClassIndexImpl> urlToClassIndexImpl = ClassIndexManager.get(language).getAllIndices();
         return urlToClassIndexImpl.values();
     }
 
     private boolean search(String key, String name, NameKind kind, Set<SearchResult> result) {
         try {
-            for (ClassIndexImpl indexEngine : getAllIndexEngines()) {
-                indexEngine.gsfSearch(key, name, kind, ALL_SCOPE, result);
+            for (ClassIndexImpl index : getAllIndexEngines()) {
+                index.search(key, name, kind, ALL_SCOPE, result, null);
             }
-
             return true;
         } catch (IOException ioe) {
             Exceptions.printStackTrace(ioe);
@@ -69,10 +75,11 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
         }
     }
 
-    private boolean search(String key, String name, NameKind kind, Set<SearchResult> result, Set<SearchScope> scope) {
+    private boolean search(String key, String name, NameKind kind, Set<SearchResult> result,
+        Set<SearchScope> scope) {
         try {
-            for (ClassIndexImpl indexEngine : getAllIndexEngines()) {
-                indexEngine.gsfSearch(key, name, kind, ALL_SCOPE, result);
+            for (ClassIndexImpl index : getAllIndexEngines()) {
+                index.search(key, name, kind, scope, result, null);
             }
 
             return true;
@@ -82,7 +89,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
             return false;
         }
     }
-
+        
     private Set<SearchResult> searchFile(ErlangIndexProvider.Type type, String module, NameKind kind) {
         final Set<SearchResult> result = new HashSet<SearchResult>();
 

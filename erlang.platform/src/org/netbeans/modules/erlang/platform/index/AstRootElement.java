@@ -21,9 +21,9 @@ package org.netbeans.modules.erlang.platform.index;
 
 import java.util.Collections;
 import java.util.Set;
-import org.netbeans.api.gsf.Element;
-import org.netbeans.api.gsf.ElementKind;
-import org.netbeans.api.gsf.Modifier;
+import org.netbeans.fpi.gsf.Element;
+import org.netbeans.fpi.gsf.ElementKind;
+import org.netbeans.fpi.gsf.Modifier;
 import org.netbeans.api.languages.ASTNode;
 import org.openide.filesystems.FileObject;
 
