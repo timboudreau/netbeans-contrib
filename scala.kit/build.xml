@@ -4,9 +4,10 @@
     <import file="../../nbbuild/templates/projectized.xml"/>
     
     <target name="scala-build">
-        <ant dir="../../contrib/scala.console"/>
+        <ant dir="../../contrib/languages.execution"/>
         <ant dir="../../contrib/scala.editing"/>
         <ant dir="../../contrib/scala.project"/>
+        <ant dir="../../contrib/scala.console"/>
         <ant dir="../../contrib/scala.debugger.projects"/>
         <ant dir="../../contrib/scala.debugger"/>
         <antcall target="netbeans"/>
@@ -15,9 +16,10 @@
     <target name="scala-clean">
         <ant dir="../../contrib/scala.debugger" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/scala.debugger.projects" inheritAll="false" target="clean"/>
-        <ant dir="../../contrib/scala.projects" inheritAll="false" target="clean"/>
-        <ant dir="../../contrib/scala.editing" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/scala.console" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/scala.project" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/scala.editing" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/languages.execution" inheritAll="false" target="clean"/>
         <ant target="clean"/>
     </target>
 

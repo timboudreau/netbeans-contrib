@@ -28,15 +28,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.netbeans.api.gsf.Index.SearchResult;
-import org.netbeans.api.gsf.Index.SearchScope;
-import org.netbeans.api.gsf.NameKind;
+import org.netbeans.fpi.gsf.Index.SearchResult;
+import org.netbeans.fpi.gsf.Index.SearchScope;
+import org.netbeans.fpi.gsf.NameKind;
 import org.netbeans.api.languages.CompletionItem;
 import org.netbeans.modules.erlang.editing.semantic.ErlMacro;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
 import org.netbeans.modules.erlang.editing.semantic.ErlInclude;
 import org.netbeans.modules.erlang.editing.semantic.ErlRecord;
 import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider;
+import org.netbeans.modules.gsf.Language;
+import org.netbeans.modules.gsf.LanguageRegistry;
 import org.netbeans.modules.gsfret.source.usages.ClassIndexImpl;
 import org.netbeans.modules.gsfret.source.usages.ClassIndexManager;
 import org.openide.util.Exceptions;
@@ -49,18 +51,22 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
 
     private static final Set<SearchScope> ALL_SCOPE = EnumSet.allOf(SearchScope.class);
 
+    private Language language;
+
     /** @TODO Only use Erlang lib and project sources indexEngine */
     private final Collection<ClassIndexImpl> getAllIndexEngines() {
-        final Map<URL, ClassIndexImpl> urlToClassIndexImpl = ClassIndexManager.getDefault().getAllIndices();
+        if (language == null) {
+            language = LanguageRegistry.getInstance().getLanguageByMimeType(ErlangGsfLanguage.MIME_TYPE);
+        }
+        final Map<URL, ClassIndexImpl> urlToClassIndexImpl = ClassIndexManager.get(language).getAllIndices();
         return urlToClassIndexImpl.values();
     }
 
     private boolean search(String key, String name, NameKind kind, Set<SearchResult> result) {
         try {
-            for (ClassIndexImpl indexEngine : getAllIndexEngines()) {
-                indexEngine.gsfSearch(key, name, kind, ALL_SCOPE, result);
+            for (ClassIndexImpl index : getAllIndexEngines()) {
+                index.search(key, name, kind, ALL_SCOPE, result, null);
             }
-
             return true;
         } catch (IOException ioe) {
             Exceptions.printStackTrace(ioe);
@@ -69,10 +75,11 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
         }
     }
 
-    private boolean search(String key, String name, NameKind kind, Set<SearchResult> result, Set<SearchScope> scope) {
+    private boolean search(String key, String name, NameKind kind, Set<SearchResult> result,
+        Set<SearchScope> scope) {
         try {
-            for (ClassIndexImpl indexEngine : getAllIndexEngines()) {
-                indexEngine.gsfSearch(key, name, kind, ALL_SCOPE, result);
+            for (ClassIndexImpl index : getAllIndexEngines()) {
+                index.search(key, name, kind, scope, result, null);
             }
 
             return true;
@@ -82,7 +89,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
             return false;
         }
     }
-
+        
     private Set<SearchResult> searchFile(ErlangIndexProvider.Type type, String module, NameKind kind) {
         final Set<SearchResult> result = new HashSet<SearchResult>();
 
@@ -111,7 +118,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
                         field = ErlangIndexer.FIELD_MODULE_NAME;
                         break;
                     case Header:
-                        field = ErlangIndexer.FIELD_HEADERFILE_NAME;
+                        field = ErlangIndexer.FIELD_HEADER_NAME;
                         break;
                 }
 
@@ -144,13 +151,14 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
     }
 
     public ErlMacro getDefine(String moduleName, String defineName) {
+        URL url = getModuleFileUrl(ErlangIndexProvider.Type.Module, moduleName);
         for (SearchResult map : searchFile(ErlangIndexProvider.Type.Module, moduleName, NameKind.EXACT_NAME)) {
             String[] signatures = map.getValues(ErlangIndexer.FIELD_MACRO);
             if (signatures == null) {
                 continue;
             }
             for (String signature : signatures) {
-                ErlMacro define = createMacro(moduleName, signature);
+                ErlMacro define = createMacro(url, signature);
                 if (define.getName().equals(defineName)) {
                     return define;
                 }
@@ -183,8 +191,8 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
     private static List<ErlFunction> functionsBuf = new ArrayList<ErlFunction>();
 
     private List<ErlFunction> getFunctions(String moduleName) {
-        URL url = getModuleFileUrl(ErlangIndexProvider.Type.Module, moduleName);        
         functionsBuf.clear();
+        URL url = getModuleFileUrl(ErlangIndexProvider.Type.Module, moduleName);        
         for (SearchResult map : searchFile(ErlangIndexProvider.Type.Module, moduleName, NameKind.EXACT_NAME)) {
             String[] signatures = map.getValues(ErlangIndexer.FIELD_FUNCTION);
             if (signatures == null) {
@@ -203,13 +211,14 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
 
     public List<ErlInclude> getIncludes(String moduleName) {
         includesBuf.clear();
+        URL url = getModuleFileUrl(ErlangIndexProvider.Type.Module, moduleName);        
         for (SearchResult map : searchFile(ErlangIndexProvider.Type.Module, moduleName, NameKind.EXACT_NAME)) {
             String[] signatures = map.getValues(ErlangIndexer.FIELD_INCLUDE);
             if (signatures == null) {
                 continue;
             }
             for (String signature : signatures) {
-                ErlInclude include = createInclude(moduleName, signature);
+                ErlInclude include = createInclude(url, signature);
                 includesBuf.add(include);
             }
         }
@@ -220,6 +229,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
 
     private List<ErlRecord> getRecords(String moduleName) {
         recordsBuf.clear();
+        URL url = getModuleFileUrl(ErlangIndexProvider.Type.Module, moduleName);
         /** search my module first */
         for (SearchResult map : searchFile(ErlangIndexProvider.Type.Module, moduleName, NameKind.EXACT_NAME)) {
             String[] signatures = map.getValues(ErlangIndexer.FIELD_RECORD);
@@ -227,20 +237,25 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
                 continue;
             }
             for (String signature : signatures) {
-                ErlRecord record = createRecord(moduleName, signature);
+                ErlRecord record = createRecord(url, signature);
                 recordsBuf.add(record);
             }
         }
         /** search including headfiles */
         for (ErlInclude include : getIncludes(moduleName)) {
             String path = include.getPath();
+            try {
+                url = new URL(path);
+            } catch (MalformedURLException ex) {
+                Exceptions.printStackTrace(ex);
+            }
             for (SearchResult map : searchFile(ErlangIndexProvider.Type.Header, path, NameKind.EXACT_NAME)) {
                 String[] signatures = map.getValues(ErlangIndexer.FIELD_RECORD);
                 if (signatures == null) {
                     continue;
                 }
                 for (String signature : signatures) {
-                    ErlRecord record = createRecord(path, signature);
+                    ErlRecord record = createRecord(url, signature);
                     recordsBuf.add(record);
                 }
             }
@@ -252,6 +267,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
 
     private List<ErlMacro> getMacros(String moduleName) {
         definesBuf.clear();
+        URL url = getModuleFileUrl(ErlangIndexProvider.Type.Module, moduleName);
         /** search my module first */
         for (SearchResult map : searchFile(ErlangIndexProvider.Type.Module, moduleName, NameKind.EXACT_NAME)) {
             String[] signatures = map.getValues(ErlangIndexer.FIELD_MACRO);
@@ -259,7 +275,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
                 continue;
             }
             for (String signature : signatures) {
-                ErlMacro define = createMacro(moduleName, signature);
+                ErlMacro define = createMacro(url, signature);
                 definesBuf.add(define);
             }
         }
@@ -267,13 +283,19 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
         /** search including headfiles */
         for (ErlInclude include : getIncludes(moduleName)) {
             String path = include.getPath();
+            try {
+                url = new URL(path);
+            } catch (MalformedURLException ex) {
+                Exceptions.printStackTrace(ex);
+            }
             for (SearchResult map : searchFile(ErlangIndexProvider.Type.Header, path, NameKind.EXACT_NAME)) {
                 String[] signatures = map.getValues(ErlangIndexer.FIELD_MACRO);
                 if (signatures == null) {
                     continue;
                 }
                 for (String signature : signatures) {
-                    ErlMacro define = createMacro(path, signature);
+                    
+                    ErlMacro define = createMacro(url, signature);
                     definesBuf.add(define);
                 }
             }
@@ -308,10 +330,10 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
         for (ErlFunction function : getFunctions(moduleName)) {
             Collection<String> argumentsOpts = function.getArgumentsOpts();
             if (argumentsOpts.size() == 0) {
-                completionItemsBuf.add(CompletionItem.create(function.getName() + "()", "/" + function.getArity(), function.getUrl(), CompletionItem.Type.METHOD, 1));
+                completionItemsBuf.add(CompletionItem.create(function.getName() + "()", "/" + function.getArity(), "", CompletionItem.Type.METHOD, 1));
             } else {
                 for (String argumentsOpt : argumentsOpts) {
-                    completionItemsBuf.add(CompletionItem.create(function.getName() + "(" + argumentsOpt + ")", "/" + function.getArity(), function.getUrl(), CompletionItem.Type.METHOD, 1));
+                    completionItemsBuf.add(CompletionItem.create(function.getName() + "(" + argumentsOpt + ")", "/" + function.getArity(), "", CompletionItem.Type.METHOD, 1));
                 }
             }
         }
@@ -321,7 +343,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
     public List<CompletionItem> getRecordCompletionItems(String moduleName) {
         completionItemsBuf.clear();
         for (ErlRecord record : getRecords(moduleName)) {
-            completionItemsBuf.add(CompletionItem.create(record.getName(), "record", record.getUrl(), CompletionItem.Type.CONSTANT, 1));
+            completionItemsBuf.add(CompletionItem.create(record.getName(), "record", "", CompletionItem.Type.CONSTANT, 1));
         }
         return completionItemsBuf;
     }
@@ -329,7 +351,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
     public List<CompletionItem> getMacroCompletionItems(String moduleName) {
         completionItemsBuf.clear();
         for (ErlMacro macro : getMacros(moduleName)) {
-            completionItemsBuf.add(CompletionItem.create(macro.getName(), macro.getBody(), macro.getUrl(), CompletionItem.Type.CONSTANT, 1));
+            completionItemsBuf.add(CompletionItem.create(macro.getName(), macro.getBody(), "", CompletionItem.Type.CONSTANT, 1));
         }
         return completionItemsBuf;
     }
@@ -370,7 +392,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
         return function;
     }
 
-    private ErlInclude createInclude(String fileName, String signature) {
+    private ErlInclude createInclude(URL url, String signature) {
         String[] groups = signature.split(":");
         String path = groups[0];
         boolean isLib = false;
@@ -382,12 +404,12 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
             endOffset = Integer.parseInt(groups[4]);
         }
         ErlInclude include = new ErlInclude(offset, endOffset);
-        include.setUrl(fileName);
+        include.setSourceFileUrl(url);
         include.setPath(path);
         return include;
     }
 
-    private ErlRecord createRecord(String fileName, String signature) {
+    private ErlRecord createRecord(URL url, String signature) {
         String[] groups = signature.split(":");
         String name = groups[0];
         int arity = 0;
@@ -399,14 +421,14 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
             endOffset = Integer.parseInt(groups[4]);
         }
         ErlRecord record = new ErlRecord(name, offset, endOffset);
-        record.setUrl(fileName);
+        record.setSourceFileUrl(url);
         for (int i = 5; i < groups.length; i++) {
             record.addField(groups[i]);
         }
         return record;
     }
 
-    private ErlMacro createMacro(String fileName, String signature) {
+    private ErlMacro createMacro(URL url, String signature) {
         String[] groups = signature.split(":");
         String name = groups[0];
         int arity = 0;
@@ -418,7 +440,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
             endOffset = Integer.parseInt(groups[4]);
         }
         ErlMacro macro = new ErlMacro(name, offset, endOffset);
-        macro.setUrl(fileName);
+        macro.setSourceFileUrl(url);
         for (int i = 5; i < groups.length - 1; i++) {
             macro.addParam(groups[i]);
         }

@@ -47,6 +47,12 @@ made subject to such option by the copyright holder.
             <code-name-base>org.netbeans.modules.visualweb.samples.postrel</code-name-base>
             <module-dependencies>
                 <dependency>
+                    <code-name-base>org.netbeans.modules.visualweb.complib</code-name-base>
+                    <run-dependency>
+                        <specification-version>2.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.modules.visualweb.complib.api</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
