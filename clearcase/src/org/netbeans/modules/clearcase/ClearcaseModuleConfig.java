@@ -105,7 +105,7 @@ public class ClearcaseModuleConfig {
 
     private static Pattern toPattern(File file) {
         String filePath = file.getAbsolutePath();
-        return Pattern.compile("\\Q" + filePath + "\\E");
+        return Pattern.compile(Pattern.quote(filePath));
     }
 
     public static synchronized boolean isIgnored(File file) {
