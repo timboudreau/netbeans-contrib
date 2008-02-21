@@ -249,7 +249,7 @@ public class ErlangLanguageParser implements Parser {
         //        return null;
     }
 
-     private static class RubyElementHandle extends ElementHandle {
+     private static class RubyElementHandle implements ElementHandle {
         private final Node root;
         private final Element object;
         private final FileObject fileObject;
@@ -273,27 +273,22 @@ public class ErlangLanguageParser implements Parser {
             return fileObject;
         }
         
-        @Override
         public String getMimeType() {
             return "text/x-erlang";
         }
 
-        @Override
         public String getName() {
             return object.getName();
         }
 
-        @Override
         public String getIn() {
             return object.getIn();
         }
 
-        @Override
         public ElementKind getKind() {
             return object.getKind();
         }
 
-        @Override
         public Set<Modifier> getModifiers() {
             return object.getModifiers();
         }

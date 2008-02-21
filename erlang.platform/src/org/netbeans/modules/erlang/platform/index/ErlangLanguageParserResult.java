@@ -54,11 +54,6 @@ public class ErlangLanguageParserResult extends ParserResult {
         return null;
     }
 
-    @Override
-    public ElementHandle getRoot() {
-        return ErlangLanguageParser.createHandle(this, rootElement);
-    }
-
     /** 
      * The root node of the AST produced by the parser.
      * Later, rip out the getAst part etc.
