@@ -102,7 +102,7 @@ import org.openide.text.NbDocument;
  */
 public class Scala {
 
-    private static final String DOC = "org/netbeans/modules/scala/editing/Documentation.xml";
+    private static final String DOC = "org/netbeans/modules/scala/editing/resources/Documentation.xml";
     private static final String MIME_TYPE = "text/x-scala";
 
     public static Object[] parseXmlStart(CharInput input) {
