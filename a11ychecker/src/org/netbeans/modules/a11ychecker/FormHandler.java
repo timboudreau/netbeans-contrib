@@ -78,7 +78,6 @@ import javax.swing.UIManager;
 import org.netbeans.core.api.multiview.MultiViews;
 import org.netbeans.modules.a11ychecker.output.ResultPanel;
 import org.netbeans.modules.a11ychecker.output.ResultWindowTopComponent;
-import org.netbeans.modules.a11ychecker.traverse.FocusTraversalPolicyEditor;
 import org.netbeans.modules.a11ychecker.traverse.MyTraversalPolicy;
 import org.netbeans.modules.a11ychecker.utils.A11YFormUtils;
 import org.netbeans.modules.form.FormDesignValue;
@@ -89,6 +88,7 @@ import org.openide.windows.TopComponent;
 import org.netbeans.modules.form.FormEditorSupport;
 import org.netbeans.modules.form.FormModel;
 import org.netbeans.modules.form.RADComponent;
+import org.netbeans.modules.form.RADConnectionPropertyEditor.RADConnectionDesignValue;
 import org.openide.nodes.Node.Property;
 import org.openide.util.NbBundle;
 import org.openide.windows.CloneableTopComponent;
@@ -504,15 +504,24 @@ public class FormHandler {
                 if (property.getValueType() == String.class && property.getValue() != null) {
                     Object value = property.getValue();
 
+                    if (value instanceof RADConnectionDesignValue) {
+                        value = ((RADConnectionDesignValue) value).getDesignValue();
+                    }
+                    
                     if (value instanceof FormDesignValue) {
                         value = ((FormDesignValue) value).getDesignValue();
                     }
+                    
                     return (String) value;
                 }
             } catch (IllegalAccessException ex) {
                 Exceptions.printStackTrace(ex);
             } catch (InvocationTargetException ex) {
                 Exceptions.printStackTrace(ex);
+            } catch (ClassCastException cce) {
+                //not much to do
+                //TODO: detect why this happens
+                
             }
         }
         return null;
@@ -525,11 +534,19 @@ public class FormHandler {
         if (property != null) {
             if (property.getValueType() == int.class) {
                 try {
-                    return (Integer) property.getValue();
+                    Object value = property.getValue();
+                    
+                    if (value instanceof FormDesignValue) {
+                        value = ((FormDesignValue) value).getDesignValue();
+                    }
+                    
+                    return (Integer) value;
                 } catch (InvocationTargetException ex) {
                     //ex.printStackTrace();
                 } catch (IllegalAccessException ex) {
                     //ex.printStackTrace();
+                } catch (ClassCastException cce) {
+                    //TODO: not much to do -- we must detect when this happens
                 }
             }
         }
