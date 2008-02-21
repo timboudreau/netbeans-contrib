@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
+<!-- for some information on what you could do (e.g. targets to override). -->
+<!-- If you delete this file and reopen the project it will be recreated. -->
+<project name="org.netbeans.modules.fortran" default="netbeans" basedir=".">
+    <description>Builds, tests, and runs the project org.netbeans.modules.fortran.</description>
+    <import file="nbproject/build-impl.xml"/>
+    <target name="compile" depends="antlr,projectized-common.compile">
+       <chmod file="tracemodel.sh" perm="ugo+rx" /> 
+    </target>
+    <target name="antlr" depends="init-antlr" unless="up-to-date">
+       <mkdir dir="${antlr.output.dir}" /> 
+       <property name="antlr.jar" location="${netbeans.dest.dir}/enterprise3/modules/ext/struts/antlr.jar" /> 
+       <property name="antlr-other.jar" location="${netbeans.dest.dir}/enterprise4/modules/ext/struts/antlr.jar" /> 
+       <antlr target="${antlr.folding.dir}/f77-antlr2.g" outputdirectory="${antlr.output.dir}">
+       <classpath path="${antlr.jar}:${antlr-other.jar}" /> 
+       </antlr>
+    </target>
+    <target name="init-antlr">
+       <property name="antlr.folding.dir" location="src/org/netbeans/modules/fortran" /> 
+       <property name="antlr.output.dir" location="src/org/netbeans/modules/fortran/generated" /> 
+    </target>
+    <target name="clean" depends="projectized-common.clean, init-antlr">
+       <delete dir="${antlr.output.dir}" /> 
+    </target>
+
+</project>
