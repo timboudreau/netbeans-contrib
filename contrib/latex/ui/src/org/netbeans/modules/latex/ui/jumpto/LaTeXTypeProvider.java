@@ -52,7 +52,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
@@ -118,7 +118,7 @@ public class LaTeXTypeProvider implements TypeProvider {
                 public void run(CompilationController parameter) throws Exception {
                     parameter.toPhase(Phase.RESOLVED);
                     
-                    LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                    LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                     
                     for (StructuralElement e : lpr.getStructuralRoot().getSubElements()) {
                         gatherStructuralDescriptions(file, e, r, null, context.getText());

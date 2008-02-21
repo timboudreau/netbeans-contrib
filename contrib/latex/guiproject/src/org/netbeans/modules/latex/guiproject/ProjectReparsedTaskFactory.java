@@ -45,7 +45,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationInfo;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source.Priority;
@@ -68,7 +68,7 @@ public class ProjectReparsedTaskFactory extends SourceTaskFactory {
         return new CancellableTask<CompilationInfo>() {
             public void cancel() {}
             public void run(CompilationInfo parameter) throws Exception {
-                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                 
                 LaTeXGUIProject p = (LaTeXGUIProject) LaTeXGUIProjectFactorySourceFactory.get().mainFile2Project.get(file);
                 

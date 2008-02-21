@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.text.Document;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationInfo;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source.Priority;
@@ -113,7 +113,7 @@ public class ToolbarUpdater extends CaretAwareSourceTaskFactory {
         }
         
         public void run(CompilationInfo parameter) throws Exception {
-            LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+            LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
             Document doc = getDocument();
             Node node = lpr.getCommandUtilities().findNode(doc, CaretAwareSourceTaskFactory.getLastPosition(file));
             

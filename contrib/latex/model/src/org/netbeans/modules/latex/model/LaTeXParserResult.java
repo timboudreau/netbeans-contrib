@@ -44,9 +44,11 @@ package org.netbeans.modules.latex.model;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
-import org.netbeans.api.gsf.Element;
-import org.netbeans.api.gsf.ParserFile;
-import org.netbeans.api.gsf.ParserResult;
+import org.netbeans.fpi.gsf.CompilationInfo;
+import org.netbeans.fpi.gsf.ElementHandle;
+import org.netbeans.fpi.gsf.Parser;
+import org.netbeans.fpi.gsf.ParserFile;
+import org.netbeans.fpi.gsf.ParserResult;
 import org.netbeans.modules.latex.model.command.CommandUtilities;
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
@@ -64,8 +66,8 @@ public final class LaTeXParserResult extends ParserResult {
     private FileObject mainFile;
     private Collection<ParseError> errors;
             
-    public LaTeXParserResult(ParserFile file, FileObject mainFile, DocumentNode root, StructuralElement structuralRoot, CommandUtilities utils, Collection<ParseError> errors) {
-        super(file);
+    public LaTeXParserResult(Parser p, ParserFile file, FileObject mainFile, DocumentNode root, StructuralElement structuralRoot, CommandUtilities utils, Collection<ParseError> errors) {
+        super(p, file, "text/x-tex");
         this.root = root;
         this.structuralRoot = structuralRoot;
         this.utils = utils;
@@ -73,7 +75,7 @@ public final class LaTeXParserResult extends ParserResult {
         this.errors = Collections.unmodifiableCollection(new LinkedList<ParseError>(errors));
     }
 
-    public Element getRoot() {
+    public ElementHandle getRoot() {
         return null;
     }
 
@@ -101,4 +103,7 @@ public final class LaTeXParserResult extends ParserResult {
         return errors;
     }
 
+    public static final LaTeXParserResult get(CompilationInfo info) {
+        return (LaTeXParserResult) info.getEmbeddedResult("text/x-tex", 0);
+    }
 }

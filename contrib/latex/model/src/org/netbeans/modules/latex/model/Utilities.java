@@ -53,7 +53,7 @@ import java.util.StringTokenizer;
 import java.util.WeakHashMap;
 import javax.swing.JEditorPane;
 import javax.swing.text.Document;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Source;
 import org.netbeans.modules.latex.model.bibtex.BiBTeXModel;

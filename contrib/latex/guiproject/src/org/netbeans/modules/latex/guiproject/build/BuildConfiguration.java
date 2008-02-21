@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.text.Document;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.modules.latex.model.LaTeXParserResult;
@@ -208,7 +208,7 @@ public final class BuildConfiguration implements Builder {
                         public void cancel() {}
                         public void run(CompilationController parameter) throws Exception {
                             parameter.toPhase(Phase.RESOLVED);
-                            ((LaTeXParserResult) parameter.getParserResult()).getDocument().traverse(new DefaultTraverseHandler() {
+                            LaTeXParserResult.get(parameter).getDocument().traverse(new DefaultTraverseHandler() {
                                 public boolean commandStart(CommandNode node) {
                                     if ("\\bibliography".equals(node.getCommand().getCommand())) {
                                         result[0] = true;

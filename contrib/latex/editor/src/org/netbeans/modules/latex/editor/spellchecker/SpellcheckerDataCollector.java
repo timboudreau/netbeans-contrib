@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.text.Document;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.napi.gsfret.source.CompilationInfo;
 import org.netbeans.napi.gsfret.source.Phase;
@@ -82,7 +82,7 @@ public class SpellcheckerDataCollector implements CancellableTask<CompilationInf
         long startTime = System.currentTimeMillis();
         
         try {
-        LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+        LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
         Document doc = parameter.getDocument();
         VisitorImpl vi = new VisitorImpl(cancel, doc);
         

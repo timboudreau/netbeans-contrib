@@ -47,7 +47,7 @@ import javax.swing.ActionMap;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationInfo;
 import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.command.DebuggingSupport;
@@ -135,7 +135,7 @@ public class DebugNavigatorProviderImpl implements NavigatorPanel {
         public void cancel() {}
 
         public void run(CompilationInfo ci) throws Exception {
-            LaTeXParserResult lpr = (LaTeXParserResult) ci.getParserResult();
+            LaTeXParserResult lpr = LaTeXParserResult.get(ci);
             manager.setRootContext(NodeNode.constructRootNodeFor(lpr.getDocument()));
         }
         

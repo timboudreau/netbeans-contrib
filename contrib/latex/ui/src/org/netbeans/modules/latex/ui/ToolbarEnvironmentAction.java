@@ -51,7 +51,7 @@ import javax.swing.JEditorPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source;
@@ -104,7 +104,7 @@ public abstract class ToolbarEnvironmentAction extends AbstractAction {
 
                 public void run(CompilationController cc) throws Exception {
                     cc.toPhase(Phase.RESOLVED);
-                    LaTeXParserResult lpr = (LaTeXParserResult) cc.getParserResult();
+                    LaTeXParserResult lpr = LaTeXParserResult.get(cc);
                 Node node = lpr.getCommandUtilities().findNode(doc, pane.getCaret().getDot());
 
                 BlockNode bn = findCorrespondingNode(node); //TODO: CommandNode?

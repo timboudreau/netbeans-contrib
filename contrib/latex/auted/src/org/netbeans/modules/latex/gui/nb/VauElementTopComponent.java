@@ -63,7 +63,7 @@ import javax.swing.JScrollPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source;
@@ -120,7 +120,7 @@ public class VauElementTopComponent extends TopComponent implements PropertyChan
 
                 Queue q = new Queue();
 
-                q.put(((LaTeXParserResult) parameter.getParserResult()).getStructuralRoot());
+                q.put(LaTeXParserResult.get(parameter).getStructuralRoot());
 
                 Logger.getLogger(VauElementTopComponent.class.getName()).log(Level.FINE, "start={0}", start);
 

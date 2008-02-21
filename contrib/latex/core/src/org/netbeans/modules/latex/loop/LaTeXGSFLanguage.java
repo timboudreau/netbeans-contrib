@@ -41,9 +41,12 @@
 
 package org.netbeans.modules.latex.loop;
 
-import org.netbeans.api.gsf.GsfLanguage;
+import java.util.Collection;
+import java.util.Collections;
+import org.netbeans.fpi.gsf.GsfLanguage;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.latex.editor.TexLanguage;
+import org.openide.filesystems.FileObject;
 
 /**
  *
@@ -62,6 +65,10 @@ public class LaTeXGSFLanguage implements GsfLanguage {
 
     public Language getLexerLanguage() {
         return TexLanguage.description();
+    }
+
+    public Collection<FileObject> getCoreLibraries() {
+        return Collections.emptyList();
     }
 
 }

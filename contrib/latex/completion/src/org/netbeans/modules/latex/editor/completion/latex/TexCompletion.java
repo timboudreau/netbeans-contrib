@@ -53,7 +53,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Position;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
@@ -541,7 +541,7 @@ public class TexCompletion implements CompletionProvider {
                     public void run(CompilationController parameter) throws Exception {
                         parameter.toPhase(Phase.RESOLVED);
                         
-                        LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                        LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                                 
                         int type;
                         

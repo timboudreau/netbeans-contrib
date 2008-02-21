@@ -54,7 +54,7 @@ import javax.swing.text.StyledDocument;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source;
@@ -232,7 +232,7 @@ public class CommandParserTest extends NbTestCase {
             public void run(CompilationController parameter) throws Exception {
                 parameter.toPhase(Phase.RESOLVED);
                 
-                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                 
                 DataObject od = DataObject.find(testFileObject);
                 EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
@@ -268,7 +268,7 @@ public class CommandParserTest extends NbTestCase {
             public void run(CompilationController parameter) throws Exception {
                 parameter.toPhase(Phase.RESOLVED);
                 
-                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                 DataObject od = DataObject.find(testFileObject);
                 EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
                 StyledDocument doc = ec.openDocument();
@@ -315,7 +315,7 @@ public class CommandParserTest extends NbTestCase {
             public void run(CompilationController parameter) throws Exception {
                 parameter.toPhase(Phase.RESOLVED);
                 
-                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                 DataObject od = DataObject.find(testFileObject);
                 EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
                 StyledDocument doc = ec.openDocument();
@@ -341,7 +341,7 @@ public class CommandParserTest extends NbTestCase {
             public void run(CompilationController parameter) throws Exception {
                 parameter.toPhase(Phase.RESOLVED);
                 
-                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                 DataObject od = DataObject.find(testFileObject);
                 EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
                 StyledDocument doc = ec.openDocument();
@@ -367,7 +367,7 @@ public class CommandParserTest extends NbTestCase {
             public void run(CompilationController parameter) throws Exception {
                 parameter.toPhase(Phase.RESOLVED);
                 
-                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                 DataObject od = DataObject.find(testFileObject);
                 EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
                 StyledDocument doc = ec.openDocument();
@@ -393,7 +393,7 @@ public class CommandParserTest extends NbTestCase {
             public void run(CompilationController parameter) throws Exception {
                 parameter.toPhase(Phase.RESOLVED);
                 
-                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                 DataObject od = DataObject.find(testFileObject);
                 EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
                 StyledDocument doc = ec.openDocument();
@@ -417,7 +417,7 @@ public class CommandParserTest extends NbTestCase {
             public void run(CompilationController parameter) throws Exception {
                 parameter.toPhase(Phase.RESOLVED);
                 
-                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
             
                 lpr.getDocument().traverse(new TraverseHandler() {
                     public void argumentEnd(ArgumentNode node) {
@@ -452,7 +452,7 @@ public class CommandParserTest extends NbTestCase {
             public void run(CompilationController parameter) throws Exception {
                 parameter.toPhase(Phase.RESOLVED);
                 
-                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                 
                 assertTrue(lpr.getErrors().toString(), lpr.getErrors().isEmpty());
             }
@@ -469,7 +469,7 @@ public class CommandParserTest extends NbTestCase {
             public void run(CompilationController parameter) throws Exception {
                 parameter.toPhase(Phase.RESOLVED);
                 
-                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                 
                 assertTrue(lpr.getErrors().toString(), lpr.getErrors().isEmpty());
             }
@@ -486,7 +486,7 @@ public class CommandParserTest extends NbTestCase {
             public void run(CompilationController parameter) throws Exception {
                 parameter.toPhase(Phase.RESOLVED);
                 
-                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                 
                 assertTrue(lpr.getErrors().toString(), lpr.getErrors().isEmpty());
             }

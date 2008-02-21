@@ -42,7 +42,7 @@ package org.netbeans.modules.latex.ui.navigator;
 
 import java.util.Collections;
 import java.util.List;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationInfo;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source.Priority;

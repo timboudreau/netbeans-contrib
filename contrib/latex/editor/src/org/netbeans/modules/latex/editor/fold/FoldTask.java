@@ -51,7 +51,7 @@ import java.util.LinkedList;
 import java.util.Stack;
 import javax.swing.text.Document;
 import org.netbeans.api.editor.fold.FoldType;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationInfo;
 import org.netbeans.napi.gsfret.source.support.EditorAwareSourceTaskFactory;
 import org.netbeans.modules.latex.editor.fold.FoldMaintainerImpl.FoldInfo;
@@ -120,7 +120,7 @@ public final class FoldTask implements CancellableTask<CompilationInfo> {
         if (doc == null)
             return ;
         
-        LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+        LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
         Collection<FoldInfo> folds = new LinkedList<FoldInfo>();
         
         BlockFoldMaintainerSourceTraverseHandler blockHandler = new BlockFoldMaintainerSourceTraverseHandler();

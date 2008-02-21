@@ -45,7 +45,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.text.Document;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.napi.gsfret.source.CompilationInfo;
@@ -82,7 +82,7 @@ public class SuggestionsProcessor implements CancellableTask<CompilationInfo> {
             return null;
         }
 
-        LaTeXParserResult lpr = (LaTeXParserResult) info.getParserResult();
+        LaTeXParserResult lpr = LaTeXParserResult.get(info);
         
         Node n = lpr.getCommandUtilities().findNode(doc, CaretAwareSourceTaskFactory.getLastPosition(info.getFileObject()));
         

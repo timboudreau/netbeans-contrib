@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.modules.latex.model.IconsStorage.ChangeableIcon;
 import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.command.Node;
@@ -75,7 +75,7 @@ public class PreviewTask implements CancellableTask<CompilationInfo> {
         long startTime = System.currentTimeMillis();
         
         try {
-            LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+            LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
             int pos = CaretAwareSourceTaskFactory.getLastPosition(parameter.getFileObject());
 
             Node n = lpr.getCommandUtilities().findNode(parameter.getDocument(), pos); //XXX: getDocument() == null;

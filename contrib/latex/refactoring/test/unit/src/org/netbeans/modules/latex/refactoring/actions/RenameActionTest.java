@@ -48,7 +48,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.napi.gsfret.source.CompilationController;
@@ -165,7 +165,7 @@ public class RenameActionTest extends NbTestCase {
             public void run(CompilationController parameter) throws Exception {
                 parameter.toPhase(Phase.UP_TO_DATE);
                 
-                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                 
                 for (Iterator i = lpr.getDocument().getFiles().iterator(); i.hasNext();) {
                     FileObject file = (FileObject) i.next();

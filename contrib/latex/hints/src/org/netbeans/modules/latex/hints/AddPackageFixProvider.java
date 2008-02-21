@@ -46,7 +46,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.swing.text.Position;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
@@ -80,7 +80,7 @@ public class AddPackageFixProvider implements FixProvider {
     
     public List<Fix> resolveFixes(CompilationInfo info, ParseError error) {
         List<Fix> result = new LinkedList<Fix>();
-        LaTeXParserResult lpr = (LaTeXParserResult) info.getParserResult();
+        LaTeXParserResult lpr = LaTeXParserResult.get(info);
         Source s = Source.forFileObject(lpr.getMainFile());
         
         if (s == null) {
@@ -123,7 +123,7 @@ public class AddPackageFixProvider implements FixProvider {
                 public void run(WorkingCopy parameter) throws Exception {
                     parameter.toPhase(Phase.RESOLVED);
                     
-                    LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                    LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
 
                     final CommandNode[] documentClass = new CommandNode[1];
                     final List<CommandNode> usePackage = new LinkedList<CommandNode>();

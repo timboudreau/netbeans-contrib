@@ -50,19 +50,19 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.gsf.CompilationInfo;
-import org.netbeans.api.gsf.Element;
-import org.netbeans.api.gsf.ElementHandle;
-import org.netbeans.api.gsf.OccurrencesFinder;
-import org.netbeans.api.gsf.OffsetRange;
-import org.netbeans.api.gsf.ParseEvent;
-import org.netbeans.api.gsf.ParseListener;
-import org.netbeans.api.gsf.Parser;
-import org.netbeans.api.gsf.ParserFile;
-import org.netbeans.api.gsf.ParserResult;
-import org.netbeans.api.gsf.PositionManager;
-import org.netbeans.api.gsf.SemanticAnalyzer;
-import org.netbeans.api.gsf.SourceFileReader;
+import org.netbeans.fpi.gsf.CompilationInfo;
+import org.netbeans.fpi.gsf.Element;
+import org.netbeans.fpi.gsf.ElementHandle;
+import org.netbeans.fpi.gsf.OccurrencesFinder;
+import org.netbeans.fpi.gsf.OffsetRange;
+import org.netbeans.fpi.gsf.ParseEvent;
+import org.netbeans.fpi.gsf.ParseListener;
+import org.netbeans.fpi.gsf.Parser;
+import org.netbeans.fpi.gsf.ParserFile;
+import org.netbeans.fpi.gsf.ParserResult;
+import org.netbeans.fpi.gsf.PositionManager;
+import org.netbeans.fpi.gsf.SemanticAnalyzer;
+import org.netbeans.fpi.gsf.SourceFileReader;
 import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.command.DocumentNode;
@@ -87,12 +87,12 @@ public class LaTeXGSFParser implements Parser {
     public LaTeXGSFParser() {
     }
 
-    public void parseFiles(List<ParserFile> files, ParseListener listener, SourceFileReader reader) {
-        assert files.size() == 1;
+    public void parseFiles(Job job) {
+        assert job.files.size() == 1;
         
         try {
             List<ParseError> errors = new LinkedList<ParseError>();
-            FileObject file = files.get(0).getFileObject();
+            FileObject file = job.files.get(0).getFileObject();
             FileObject main = null;
             
             for (LaTeXSourceFactory f : Lookup.getDefault().lookupAll(LaTeXSourceFactory.class)) {
@@ -115,7 +115,7 @@ public class LaTeXGSFParser implements Parser {
             
             StructuralElement structuralRoot = p.parse(dn, errors);
             
-            listener.finished(new ParseEvent(ParseEvent.Kind.PARSE, files.get(0), new LaTeXParserResult(files.get(0), main, dn, structuralRoot, new CommandUtilitiesImpl(dn), errors)));
+            job.listener.finished(new ParseEvent(ParseEvent.Kind.PARSE, job.files.get(0), new LaTeXParserResult(this, job.files.get(0), main, dn, structuralRoot, new CommandUtilitiesImpl(dn), errors)));
         } catch (IOException e) {
             Exceptions.printStackTrace(e);
         }
@@ -123,22 +123,23 @@ public class LaTeXGSFParser implements Parser {
 
     public PositionManager getPositionManager() {
         return new PositionManager() {
-            public OffsetRange getOffsetRange(Element file, Element object) {
-                assert object instanceof Node;
-                
-                return new OffsetRange(((Node) object).getStartingPosition().getOffsetValue(), ((Node) object).getEndingPosition().getOffsetValue());
-            }
-
-            public boolean isTranslatingSource() {
-                return false;
-            }
-
-            public int getLexicalOffset(ParserResult result, int astOffset) {
-                return astOffset;
-            }
-
-            public int getAstOffset(ParserResult result, int lexicalOffset) {
-                return lexicalOffset;
+//            public boolean isTranslatingSource() {
+//                return false;
+//            }
+//
+//            public int getLexicalOffset(ParserResult result, int astOffset) {
+//                return astOffset;
+//            }
+//
+//            public int getAstOffset(ParserResult result, int lexicalOffset) {
+//                return lexicalOffset;
+//            }
+//
+            public OffsetRange getOffsetRange(CompilationInfo info, ElementHandle eh) {
+                throw new UnsupportedOperationException();
+//                assert eh instanceof Node;
+//
+//                return new OffsetRange(((Node) eh).getStartingPosition().getOffsetValue(), ((Node) eh).getEndingPosition().getOffsetValue());
             }
         };
     }
@@ -151,11 +152,11 @@ public class LaTeXGSFParser implements Parser {
         return null;
     }
 
-    public <T extends Element> ElementHandle<T> createHandle(CompilationInfo info, T element) {
+    public ElementHandle createHandle(CompilationInfo info, Element element) {
         return null;
     }
 
-    public <T extends Element> T resolveHandle(CompilationInfo info, ElementHandle<T> handle) {
+    public Element resolveHandle(CompilationInfo info, ElementHandle handle) {
         return null;
     }
 
@@ -216,4 +217,5 @@ public class LaTeXGSFParser implements Parser {
         
         return document;
     }
+
 }

@@ -63,7 +63,7 @@ import org.netbeans.api.editor.mimelookup.MimeLookup;
 import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.api.editor.settings.AttributesUtilities;
 import org.netbeans.api.editor.settings.FontColorSettings;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.napi.gsfret.source.CompilationInfo;
 import org.netbeans.modules.latex.editor.ColoringEvaluator;
@@ -128,7 +128,7 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
             return ;
         }
         
-        DocumentNode dn = ((LaTeXParserResult) parameter.getParserResult()).getDocument();
+        DocumentNode dn = LaTeXParserResult.get(parameter).getDocument();
         final Map<Token, List<AttributeSet>> token2Attributes = new HashMap<Token, List<AttributeSet>>();
         final Map<String, List<Token>> possiblyUnusedLabel2Tokens = new HashMap<String, List<Token>>();
         final Set<String> seenLabels = new HashSet<String>();

@@ -51,7 +51,7 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.swing.text.StyledDocument;
 import junit.framework.Assert;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.core.startup.Main;
 import org.netbeans.junit.NbTestCase;
@@ -341,7 +341,7 @@ public class AddItemHintTest extends NbTestCase {
     private ErrorDescription computeHint(CompilationInfo info, int offset) throws Exception {
         AddItemHint provider = new AddItemHint();
         
-        LaTeXParserResult lpr = (LaTeXParserResult) info.getParserResult();
+        LaTeXParserResult lpr = LaTeXParserResult.get(info);
 
         Node n = lpr.getCommandUtilities().findNode(info.getDocument(), offset);
 

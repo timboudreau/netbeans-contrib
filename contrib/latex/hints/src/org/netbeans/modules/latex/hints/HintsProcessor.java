@@ -46,7 +46,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.text.Document;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
@@ -93,7 +93,7 @@ public class HintsProcessor implements CancellableTask<CompilationInfo> {
         }
 
         final List<ErrorDescription> hints = new LinkedList<ErrorDescription>();
-        LaTeXParserResult lpr = (LaTeXParserResult) info.getParserResult();
+        LaTeXParserResult lpr = LaTeXParserResult.get(info);
         
         lpr.getDocument().traverse(new DefaultTraverseHandler() {
             @Override

@@ -8,7 +8,7 @@ import java.io.OutputStream;
 import java.util.List;
 import javax.swing.JEditorPane;
 import javax.swing.text.StyledDocument;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.core.startup.Main;
 import org.netbeans.junit.NbTestCase;
@@ -133,7 +133,7 @@ public class AddPackageFixProviderTest extends NbTestCase {
             public void run(CompilationController parameter) throws Exception {
                 parameter.toPhase(Phase.RESOLVED);
 
-                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                 
                 for (ParseError e : lpr.getErrors()) {
                     if (e.getStart().getLine() == line) {

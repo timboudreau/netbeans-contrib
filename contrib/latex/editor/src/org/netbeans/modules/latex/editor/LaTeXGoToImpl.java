@@ -47,7 +47,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.text.Document;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source;
@@ -94,7 +94,7 @@ public final class LaTeXGoToImpl {
             public void run(CompilationController parameter) throws Exception {
                 parameter.toPhase(Phase.RESOLVED);
                 
-                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                 Node        node     = lpr.getCommandUtilities().findNode(doc, offset);
 
                 if (node == null)

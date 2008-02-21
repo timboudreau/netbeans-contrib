@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.text.Document;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationInfo;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source.Priority;
@@ -80,7 +80,7 @@ public class ErrorHints implements CancellableTask<CompilationInfo> {
         
         if (doc == null) return ;
         
-        LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+        LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
         
         Map<FileObject, List<ParseError>> sortedErrors = sortErrors(lpr.getErrors());
         List<ParseError> errors = sortedErrors.get(parameter.getFileObject());

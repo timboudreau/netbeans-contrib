@@ -44,7 +44,7 @@ package org.netbeans.modules.latex.refactoring.actions;
 import java.io.IOException;
 import javax.swing.JEditorPane;
 import javax.swing.text.Document;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source;
@@ -142,7 +142,7 @@ public class ActionsImplementationProviderImpl extends ActionsImplementationProv
                 public void run(CompilationController parameter) throws Exception {
                     parameter.toPhase(Phase.RESOLVED);
                     
-                    LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                    LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                     Document doc = parameter.getDocument();
                     
                     if (doc == null)

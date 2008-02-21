@@ -59,7 +59,7 @@ import javax.swing.JPanel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import org.netbeans.napi.gsfret.source.CompilationController;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source;
 import org.netbeans.editor.BaseAction;
@@ -150,7 +150,7 @@ public final class ActionsFactory {
                     public void cancel() {}
                     public void run(CompilationController parameter) throws Exception {
                         parameter.toPhase(Phase.RESOLVED);
-                        LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                        LaTeXParserResult lpr = LaTeXParserResult.get(parameter);
                         if (type == CITE) {
                             references.addAll(Utilities.getDefault().getAllBibReferences(lpr));
                         } else {
