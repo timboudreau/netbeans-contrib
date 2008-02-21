@@ -649,13 +649,14 @@ public final class RubyPlatform {
             // This should be done in a cleaner way.
             //org.netbeans.modules.gsfret.source.usages.Index.setPreindexRootUrl(getHomeUrl());
 
+            /** @Caoyuan commented: There is none PreindexRoot for Erlang 
             org.netbeans.modules.gsfret.source.usages.Index.addPreindexRoot(FileUtil.toFileObject(getHome(true)));
 
             if (hasRubyGemsInstalled()) {
                 FileObject gemFo = getGemManager().getGemHomeFO();
                 org.netbeans.modules.gsfret.source.usages.Index.addPreindexRoot(gemFo);
             }
-            
+            */
         }
     }
     

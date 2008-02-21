@@ -76,8 +76,8 @@ public class ErlangIndexer implements Indexer {
     static final String FIELD_FILEURL = "source"; // NOI18N
     static final String FIELD_MODULE_NAME = "module"; //NOI18N
     static final String FIELD_CASE_INSENSITIVE_MODULE_NAME = "module-ig"; //NOI18N
-    static final String FIELD_HEADERFILE_NAME = "headerfile";
-    static final String FIELD_CASE_INSENSITIVE_HEADFILE_NAME = "headfile-ig"; //NOI18N
+    static final String FIELD_HEADER_NAME = "header";
+    static final String FIELD_CASE_INSENSITIVE_HEADER_NAME = "header-ig"; //NOI18N
     static final String FIELD_EXPORT = "export"; //NOI18N
     static final String FIELD_EXPORTS = "exports"; //NOI18N
     static final String FIELD_IMPORT = "import"; //NOI18N
@@ -200,15 +200,15 @@ public class ErlangIndexer implements Indexer {
         }
 
         public void analyze() throws IOException {
-            // Delete old contents of this file - iff we're dealing with a user source file
+            // Delete old contents of this file - if we're dealing with a user source file
             if (!file.isPlatform()) {
-                Set<Map<String, String>> indexedList = Collections.emptySet();
-                Set<Map<String, String>> notIndexedList = Collections.emptySet();
+                Set<Map<String, String>> indexedSet    = Collections.emptySet();
+                Set<Map<String, String>> notIndexedSet = Collections.emptySet();
                 Map<String, String> toDelete = new HashMap<String, String>();
                 toDelete.put(FIELD_FILEURL, url);
 
                 try {
-                    index.gsfStore(indexedList, notIndexedList, toDelete);
+                    index.gsfStore(indexedSet, notIndexedSet, toDelete);
                 } catch (IOException ioe) {
                     Exceptions.printStackTrace(ioe);
                 }
@@ -277,15 +277,16 @@ public class ErlangIndexer implements Indexer {
 
         private void analyzeModule(ErlangIndexProvider.Type type, String name, Collection<ErlInclude> includes, Collection<ErlExport> exports, Collection<ErlRecord> records, Collection<ErlMacro> macros) {
             /** Add a Lucene document */
-            Set<Map<String, String>> indexedList = new HashSet<Map<String, String>>();
-            Set<Map<String, String>> notIndexedList = new HashSet<Map<String, String>>();
+            Set<Map<String, String>> indexedSet   = new HashSet<Map<String, String>>();
+            Set<Map<String, String>> noIndexedSet = new HashSet<Map<String, String>>();
 
             // Add indexed info
             Map<String, String> indexed = new HashMap<String, String>();
-            indexedList.add(indexed);
+            indexedSet.add(indexed);
 
+            // Add noIndexed info
             Map<String, String> notIndexed = new HashMap<String, String>();
-            notIndexedList.add(notIndexed);
+            noIndexedSet.add(notIndexed);
 
             String attributes = type == ErlangIndexProvider.Type.Module ? "m" : "h";
 
@@ -304,8 +305,8 @@ public class ErlangIndexer implements Indexer {
                     indexed.put(FIELD_CASE_INSENSITIVE_MODULE_NAME, name.toLowerCase());
                     break;
                 case Header:
-                    indexed.put(FIELD_HEADERFILE_NAME, name);
-                    indexed.put(FIELD_CASE_INSENSITIVE_HEADFILE_NAME, name.toLowerCase());
+                    indexed.put(FIELD_HEADER_NAME, name);
+                    indexed.put(FIELD_CASE_INSENSITIVE_HEADER_NAME, name.toLowerCase());
                     break;
             }
 
@@ -318,43 +319,40 @@ public class ErlangIndexer implements Indexer {
             indexed.put(FIELD_FILEURL, url);
 
             for (ErlInclude include : includes) {
-                indexInclude(include, indexedList, notIndexedList);
+                indexInclude(include, indexedSet, noIndexedSet);
             }
 
             /** we only index exported functions */
             for (ErlExport export : exports) {
                 for (ErlFunction function : export.getFunctions()) {
-                    indexFunction(function, indexedList, notIndexedList);
+                    indexFunction(function, indexedSet, noIndexedSet);
                 }
             }
 
             for (ErlRecord record : records) {
-                indexRecord(record, indexedList, notIndexedList);
+                indexRecord(record, indexedSet, noIndexedSet);
             }
 
             for (ErlMacro define : macros) {
-                indexMacro(define, indexedList, notIndexedList);
+                indexMacro(define, indexedSet, noIndexedSet);
             }
 
             try {
                 Map<String, String> toDelete = Collections.emptyMap();
-                index.gsfStore(indexedList, notIndexedList, toDelete);
+                index.gsfStore(indexedSet, noIndexedSet, toDelete);
             } catch (IOException ioe) {
                 Exceptions.printStackTrace(ioe);
             }
         }
 
-        private void indexFunction(ErlFunction function, Set<Map<String, String>> indexedList, Set<Map<String, String>> notIndexedList) {
-            Map<String, String> functionFields;
-            functionFields = new HashMap<String, String>();
-            indexedList.add(functionFields);
+        private void indexFunction(ErlFunction function, Set<Map<String, String>> indexedSet, Set<Map<String, String>> noIndexedSet) {
+            Map<String, String> indexed = new HashMap<String, String>();
+            indexedSet.add(indexed);
+
+            Map<String, String> noIndexed = new HashMap<String, String>();
+            noIndexedSet.add(noIndexed);
 
             StringBuilder sb = new StringBuilder();
-
-            Map<String, String> aritys;
-            aritys = new HashMap<String, String>();
-            notIndexedList.add(aritys);
-
             sb.append(function.getName());
 
             boolean isDocumented = false; // @TODO isDocumented(childNode);
@@ -372,7 +370,7 @@ public class ErlangIndexer implements Indexer {
                 sb.append(":").append(argumentsOpt);
             }
 
-            functionFields.put(FIELD_FUNCTION, sb.toString());
+            indexed.put(FIELD_FUNCTION, sb.toString());
 
 
             // Storing a lowercase method name is kinda pointless in
@@ -382,17 +380,14 @@ public class ErlangIndexer implements Indexer {
             //ru.put(FIELD_CASE_INSENSITIVE_METHOD_NAME, name.toLowerCase());
         }
 
-        private void indexInclude(ErlInclude include, Set<Map<String, String>> indexedList, Set<Map<String, String>> notIndexedList) {
-            Map<String, String> includeFields;
-            includeFields = new HashMap<String, String>();
-            indexedList.add(includeFields);
+        private void indexInclude(ErlInclude include, Set<Map<String, String>> indexedSet, Set<Map<String, String>> noIndexedSet) {
+            Map<String, String> indexed = new HashMap<String, String>();
+            indexedSet.add(indexed);
+
+            Map<String, String> noIndexed = new HashMap<String, String>();
+            noIndexedSet.add(noIndexed);
 
             StringBuilder sb = new StringBuilder();
-
-            Map<String, String> aritys;
-            aritys = new HashMap<String, String>();
-            notIndexedList.add(aritys);
-
             sb.append(include.getPath());
 
             boolean isDocumented = false; // @TODO isDocumented(childNode);
@@ -406,7 +401,7 @@ public class ErlangIndexer implements Indexer {
 
             sb.append(":").append(include.getOffset() + ":" + include.getEndOffset());
 
-            includeFields.put(FIELD_INCLUDE, sb.toString());
+            indexed.put(FIELD_INCLUDE, sb.toString());
 
 
             // Storing a lowercase method name is kinda pointless in
@@ -416,17 +411,14 @@ public class ErlangIndexer implements Indexer {
             //ru.put(FIELD_CASE_INSENSITIVE_METHOD_NAME, name.toLowerCase());
         }
 
-        private void indexRecord(ErlRecord record, Set<Map<String, String>> indexedList, Set<Map<String, String>> notIndexedList) {
-            Map<String, String> recordFields;
-            recordFields = new HashMap<String, String>();
-            indexedList.add(recordFields);
+        private void indexRecord(ErlRecord record, Set<Map<String, String>> indexedSet, Set<Map<String, String>> noIndexedData) {
+            Map<String, String> indexed = new HashMap<String, String>();
+            indexedSet.add(indexed);
+            
+            Map<String, String> noIndexed = new HashMap<String, String>();
+            noIndexedData.add(noIndexed);
 
             StringBuilder sb = new StringBuilder();
-
-            Map<String, String> aritys;
-            aritys = new HashMap<String, String>();
-            notIndexedList.add(aritys);
-
             sb.append(record.getName());
 
             boolean isDocumented = false; // @TODO isDocumented(childNode);
@@ -444,7 +436,7 @@ public class ErlangIndexer implements Indexer {
                 sb.append(":").append(field);
             }
 
-            recordFields.put(FIELD_RECORD, sb.toString());
+            indexed.put(FIELD_RECORD, sb.toString());
 
 
             // Storing a lowercase method name is kinda pointless in
@@ -454,17 +446,14 @@ public class ErlangIndexer implements Indexer {
             //ru.put(FIELD_CASE_INSENSITIVE_METHOD_NAME, name.toLowerCase());
         }
 
-        private void indexMacro(ErlMacro macro, Set<Map<String, String>> indexedList, Set<Map<String, String>> notIndexedList) {
-            Map<String, String> macroFields;
-            macroFields = new HashMap<String, String>();
-            indexedList.add(macroFields);
+        private void indexMacro(ErlMacro macro, Set<Map<String, String>> indexedSet, Set<Map<String, String>> noIndexedSet) {
+            Map<String, String> indexed = new HashMap<String, String>();
+            indexedSet.add(indexed);
+
+            Map<String, String> noIndexed = new HashMap<String, String>();
+            noIndexedSet.add(noIndexed);
 
             StringBuilder sb = new StringBuilder();
-
-            Map<String, String> aritys;
-            aritys = new HashMap<String, String>();
-            notIndexedList.add(aritys);
-
             sb.append(macro.getName());
 
             boolean isDocumented = false; // @TODO isDocumented(childNode);
@@ -484,7 +473,7 @@ public class ErlangIndexer implements Indexer {
 
             sb.append(":").append(macro.getBody());
 
-            macroFields.put(FIELD_MACRO, sb.toString());
+            indexed.put(FIELD_MACRO, sb.toString());
 
 
             // Storing a lowercase method name is kinda pointless in
