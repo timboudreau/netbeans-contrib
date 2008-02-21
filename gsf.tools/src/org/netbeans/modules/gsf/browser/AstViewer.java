@@ -59,20 +59,21 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import org.netbeans.api.gsf.CompilationInfo;
-import org.netbeans.api.gsf.Error;
-import org.netbeans.api.gsf.ParseEvent;
-import org.netbeans.api.gsf.ParseListener;
-import org.netbeans.api.gsf.Parser;
-import org.netbeans.api.gsf.ParserFile;
-import org.netbeans.api.gsf.ParserResult;
-import org.netbeans.api.gsf.SourceFileReader;
+import org.netbeans.fpi.gsf.CompilationInfo;
+import org.netbeans.fpi.gsf.Error;
+import org.netbeans.fpi.gsf.ParseEvent;
+import org.netbeans.fpi.gsf.ParseListener;
+import org.netbeans.fpi.gsf.Parser;
+import org.netbeans.fpi.gsf.ParserFile;
+import org.netbeans.fpi.gsf.ParserResult;
+import org.netbeans.fpi.gsf.SourceFileReader;
+import org.netbeans.fpi.gsf.TranslatedSource;
 import org.netbeans.editor.ext.ExtSyntaxSupport;
 import org.netbeans.modules.editor.NbEditorDocument;
 import org.netbeans.modules.gsf.Language;
 import org.netbeans.modules.gsf.LanguageRegistry;
 import org.netbeans.modules.ruby.AstUtilities;
-import org.netbeans.spi.gsf.DefaultParserFile;
+import org.netbeans.sfpi.gsf.DefaultParserFile;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
@@ -318,7 +319,7 @@ public class AstViewer extends TopComponent {
         int pos = pane.getCaret().getDot();
         String mimeType = (String)pane.getDocument().getProperty("mimeType");
         Language l = LanguageRegistry.getInstance().getLanguageByMimeType(mimeType);
-        pos = l.getParser().getPositionManager().getAstOffset(result, pos);
+//        pos = l.getParser().getPositionManager().getAstOffset(result, pos);
         showPosition(pos);
     }
 
@@ -428,7 +429,10 @@ public class AstViewer extends TopComponent {
                 }
             };
 
-            parser.parseFiles(sourceFiles, listener, reader);
+System.err.println("Fix error in AstViewer.java");
+TranslatedSource translatedSource = null; // TODO - determine this here?                
+            Parser.Job job = new Parser.Job(sourceFiles, listener, reader, translatedSource);
+            parser.parseFiles(job);
 
             ParserResult result = resultHolder[0];
             lastResult = result;
@@ -586,7 +590,7 @@ public class AstViewer extends TopComponent {
             int position = e.getDot();
             String mimeType = (String)lastPane.getDocument().getProperty("mimeType");
             Language l = LanguageRegistry.getInstance().getLanguageByMimeType(mimeType);
-            position = l.getParser().getPositionManager().getAstOffset(lastResult, position);
+//            position = l.getParser().getPositionManager().getAstOffset(lastResult, position);
             showPosition(position);
         }
     }
