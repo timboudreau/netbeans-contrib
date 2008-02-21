@@ -20,29 +20,30 @@ package org.netbeans.modules.erlang.platform.index;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import org.netbeans.api.gsf.CompilationInfo;
-import org.netbeans.api.gsf.Element;
-import org.netbeans.api.gsf.ElementHandle;
-import org.netbeans.api.gsf.Error;
-import org.netbeans.api.gsf.ParseEvent;
-import org.netbeans.api.gsf.ParseListener;
-import org.netbeans.api.gsf.Parser;
-import org.netbeans.api.gsf.ParserFile;
-import org.netbeans.api.gsf.ParserResult;
-import org.netbeans.api.gsf.PositionManager;
-import org.netbeans.api.gsf.SemanticAnalyzer;
-import org.netbeans.api.gsf.Severity;
-import org.netbeans.api.gsf.SourceFileReader;
+import java.util.Set;
+import org.netbeans.fpi.gsf.CompilationInfo;
+import org.netbeans.fpi.gsf.Element;
+import org.netbeans.fpi.gsf.ElementHandle;
+import org.netbeans.fpi.gsf.Error;
+import org.netbeans.fpi.gsf.ParseEvent;
+import org.netbeans.fpi.gsf.ParseListener;
+import org.netbeans.fpi.gsf.Parser;
+import org.netbeans.fpi.gsf.ParserFile;
+import org.netbeans.fpi.gsf.ParserResult;
+import org.netbeans.fpi.gsf.PositionManager;
+import org.netbeans.fpi.gsf.SemanticAnalyzer;
+import org.netbeans.fpi.gsf.Severity;
+import org.netbeans.fpi.gsf.SourceFileReader;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.Language;
 import org.netbeans.api.languages.LanguageDefinitionNotFoundException;
 import org.netbeans.api.languages.LanguagesManager;
 import org.netbeans.api.languages.ParseException;
+import org.netbeans.fpi.gsf.ElementKind;
+import org.netbeans.fpi.gsf.Modifier;
 import org.netbeans.modules.erlang.editing.semantic.ErlContext;
 import org.netbeans.modules.erlang.editing.semantic.ErlangSemanticAnalyser;
-import org.netbeans.spi.gsf.DefaultError;
-import org.netbeans.spi.gsf.DefaultPosition;
+import org.netbeans.sfpi.gsf.DefaultError;
 import org.openide.filesystems.FileObject;
 import org.openide.nodes.Node;
 import org.openide.windows.IOProvider;
@@ -77,8 +78,11 @@ public class ErlangLanguageParser implements Parser {
     /** Parse the given set of files, and notify the parse listener for each transition
      * (compilation results are attached to the events )
      */
-    public void parseFiles(List<ParserFile> files, ParseListener listener, SourceFileReader reader) {
-        for (ParserFile file : files) {
+    public void parseFiles(Parser.Job job) {
+        ParseListener listener = job.listener;
+        SourceFileReader reader = job.reader;
+
+        for (ParserFile file : job.files) {
             ParseEvent beginEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, null);
             listener.started(beginEvent);
 
@@ -160,7 +164,7 @@ public class ErlangLanguageParser implements Parser {
                 semanticAnalyser = null;
 
                 AstRootElement rootElement = new AstRootElement(fo, astRoot);
-                result = new ErlangLanguageParserResult(file, rootElement, astRoot, rootCtx);
+                result = new ErlangLanguageParserResult(this, file, rootElement, astRoot, rootCtx);
             } catch (IOException ex) {
                 listener.exception(ex);
             } catch (ParseException ex) {
@@ -182,7 +186,9 @@ public class ErlangLanguageParser implements Parser {
 
 
     private void notifyError(ParseListener listener, ParserFile file, String key, Severity severity, String description, String details, int offset) {
-        Error error = new DefaultError(key, description, details, file.getFileObject(), new DefaultPosition(offset), new DefaultPosition(offset), severity);
+        Error error =
+            new DefaultError(key, description, details, file.getFileObject(),
+                offset, offset, severity);
         listener.error(error);
     }
 
@@ -194,7 +200,7 @@ public class ErlangLanguageParser implements Parser {
         return null;
     }
 
-    public org.netbeans.api.gsf.OccurrencesFinder getMarkOccurrencesTask(int caretPosition) {
+    public org.netbeans.fpi.gsf.OccurrencesFinder getMarkOccurrencesTask(int caretPosition) {
         //        OccurrencesFinder finder = new OccurrencesFinder();
         //        finder.setCaretPosition(caretPosition);
         //        return finder;
@@ -202,45 +208,16 @@ public class ErlangLanguageParser implements Parser {
         return null;
     }
 
-    @SuppressWarnings(value = "unchecked")
-    public <T extends Element> ElementHandle<T> createHandle(CompilationInfo info, final T object) {
-        /** @TODO */
+    @SuppressWarnings("unchecked")
+    public static ElementHandle createHandle(ParserResult result, final Element object) {
         return null;
-        //        if (object instanceof KeywordElement) {
-        //            // Not tied to an AST - just pass it around
-        //            return new RubyElementHandle(null, object);
-        //        }
-        //
-        //        // TODO - check for Ruby
-        //        if (object instanceof IndexedElement) {
-        //            // Probably a function in a "foreign" file (not parsed from AST),
-        //            // such as a signature returned from the index of the Ruby libraries.
-        //            return new RubyElementHandle(null, object);
-        //        }
-        //
-        //        if (!(object instanceof AstElement)) {
-        //            return null;
-        //        }
-        //
-        //        ParserResult result = info.getParserResult();
-        //
-        //        if (result == null) {
-        //            return null;
-        //        }
-        //
-        //        ParserResult.AstTreeNode ast = result.getAst();
-        //
-        //        if (ast == null) {
-        //            return null;
-        //        }
-        //
-        //        Node root = AstUtilities.getRoot(info);
-        //
-        //        return new RubyElementHandle(root, object);
+//        Node root = AstUtilities.getRoot(result);
+//
+//        return new RubyElementHandle(root, object, result.getFile().getFileObject());
     }
 
     @SuppressWarnings(value = "unchecked")
-    public <T extends Element> T resolveHandle(CompilationInfo info, ElementHandle<T> handle) {
+    public static Element resolveHandle(CompilationInfo info, ElementHandle handle) {
         /** @TODO */
         return null;
         //        RubyElementHandle h = (RubyElementHandle)handle;
@@ -272,14 +249,15 @@ public class ErlangLanguageParser implements Parser {
         //        return null;
     }
 
-    private class RubyElementHandle<T extends Element> extends ElementHandle<T> {
+     private static class RubyElementHandle extends ElementHandle {
+        private final Node root;
+        private final Element object;
+        private final FileObject fileObject;
 
-        private Node root;
-        private T object;
-
-        private RubyElementHandle(Node root, T object) {
+        private RubyElementHandle(Node root, Element object, FileObject fileObject) {
             this.root = root;
             this.object = object;
+            this.fileObject = fileObject;
         }
 
         public boolean signatureEquals(ElementHandle handle) {
@@ -288,10 +266,36 @@ public class ErlangLanguageParser implements Parser {
         }
 
         public FileObject getFileObject() {
-            //            if (object instanceof IndexedElement) {
-            //                return ((IndexedElement)object).getFileObject();
-            //            }
-            return null;
+//            if (object instanceof IndexedElement) {
+//                return ((IndexedElement)object).getFileObject();
+//            }
+
+            return fileObject;
+        }
+        
+        @Override
+        public String getMimeType() {
+            return "text/x-erlang";
+        }
+
+        @Override
+        public String getName() {
+            return object.getName();
+        }
+
+        @Override
+        public String getIn() {
+            return object.getIn();
+        }
+
+        @Override
+        public ElementKind getKind() {
+            return object.getKind();
+        }
+
+        @Override
+        public Set<Modifier> getModifiers() {
+            return object.getModifiers();
         }
     }
 }

@@ -20,19 +20,24 @@ package org.netbeans.modules.erlang.platform.index;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.text.Document;
-import org.netbeans.api.gsf.Index;
-import org.netbeans.api.gsf.Indexer;
-import org.netbeans.api.gsf.ParserFile;
-import org.netbeans.api.gsf.ParserResult;
+import org.netbeans.fpi.gsf.Index;
+import org.netbeans.fpi.gsf.Indexer;
+import org.netbeans.fpi.gsf.ParserFile;
+import org.netbeans.fpi.gsf.ParserResult;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.fpi.gsf.IndexDocument;
+import org.netbeans.fpi.gsf.IndexDocumentFactory;
 import org.netbeans.modules.erlang.editing.semantic.ErlContext;
 import org.netbeans.modules.erlang.editing.semantic.ErlMacro;
 import org.netbeans.modules.erlang.editing.semantic.ErlExport;
@@ -93,11 +98,29 @@ public class ErlangIndexer implements Indexer {
 
     private static InputOutput io = IOProvider.getDefault().getIO("Info", false);
     
+    
+    private IndexDocumentFactory factory;
+    private List<IndexDocument> documents = new ArrayList<IndexDocument>();
+    
+    
     public ErlangIndexer() {
     }
 
-    public void updateIndex(Index index, ParserResult result) throws IOException {
+    public String getPersistentUrl(File file) {
+        String url;
+        try {
+            url = file.toURI().toURL().toExternalForm();
+            // Make relative URLs for urls in the libraries
+            //return RubyIndex.getPreindexUrl(url);
+            return file.getPath();
+        } catch (MalformedURLException ex) {
+            Exceptions.printStackTrace(ex);
+            return file.getPath();
+        }
 
+    }
+
+    public List<IndexDocument> index(ParserResult result, IndexDocumentFactory factory) throws IOException {
         ParserFile file = result.getFile();
 	long start = System.currentTimeMillis();
         if (file.isPlatform()) io.getOut().print("Indexing: ");
@@ -106,7 +129,7 @@ public class ErlangIndexer implements Indexer {
         ASTNode root = r.getRootNode();
 
         if (root == null) {
-            return;
+            return null;
         }
 
         // I used to suppress indexing files that have had automatic cleanup to
@@ -118,11 +141,14 @@ public class ErlangIndexer implements Indexer {
         //  if (r.getSanitizedRange() != OffsetRange.NONE) {
         //     return;
         //  }
-        TreeAnalyzer analyzer = new TreeAnalyzer(index, r);
+
+        TreeAnalyzer analyzer = new TreeAnalyzer(r, factory);
         analyzer.analyze();
 	if (file.isPlatform()) io.getOut().println((System.currentTimeMillis() - start) + "ms");
+        
+        return analyzer.getDocuments();
     }
-
+    
     public static final String[] INDEXABLE_FOLDERS = new String[]{"src", "include", "test"};
 
     public boolean isIndexable(ParserFile file) {
@@ -163,6 +189,15 @@ public class ErlangIndexer implements Indexer {
         }
     }
 
+    public String getIndexVersion() {
+        return "6.102"; // NOI18N
+    }
+
+    public String getIndexerName() {
+        return "erlang"; // NOI18N
+    }
+    
+    
     /** Travel through parsed result (ErlRoot), and index meta-data */
     private static class TreeAnalyzer {
 
@@ -173,11 +208,13 @@ public class ErlangIndexer implements Indexer {
         private BaseDocument doc;
         private Index index;
         private ErlangIndexProvider.Type type = ErlangIndexProvider.Type.Header;
+        private IndexDocumentFactory factory;
+        private List<IndexDocument> documents = new ArrayList<IndexDocument>();
 
-        private TreeAnalyzer(Index index, ErlangLanguageParserResult result) {
-            this.index = index;
+        private TreeAnalyzer(ErlangLanguageParserResult result, IndexDocumentFactory factory) {
             this.result = result;
             this.file = result.getFile();
+            this.factory = factory;
 
             FileObject fo = file.getFileObject();
             try {
@@ -199,19 +236,23 @@ public class ErlangIndexer implements Indexer {
             }
         }
 
+        List<IndexDocument> getDocuments() {
+            return documents;
+        }
+
         public void analyze() throws IOException {
             // Delete old contents of this file - if we're dealing with a user source file
             if (!file.isPlatform()) {
-                Set<Map<String, String>> indexedSet    = Collections.emptySet();
-                Set<Map<String, String>> notIndexedSet = Collections.emptySet();
-                Map<String, String> toDelete = new HashMap<String, String>();
-                toDelete.put(FIELD_FILEURL, url);
-
-                try {
-                    index.gsfStore(indexedSet, notIndexedSet, toDelete);
-                } catch (IOException ioe) {
-                    Exceptions.printStackTrace(ioe);
-                }
+//                Set<Map<String, String>> indexedSet    = Collections.emptySet();
+//                Set<Map<String, String>> notIndexedSet = Collections.emptySet();
+//                Map<String, String> toDelete = new HashMap<String, String>();
+//                toDelete.put(FIELD_FILEURL, url);
+//
+//                try {
+//                    index.gsfStore(indexedSet, notIndexedSet, toDelete);
+//                } catch (IOException ioe) {
+//                    Exceptions.printStackTrace(ioe);
+//                }
             }
 
             ErlContext rootCtx = result.getRootContext();
@@ -277,16 +318,8 @@ public class ErlangIndexer implements Indexer {
 
         private void analyzeModule(ErlangIndexProvider.Type type, String name, Collection<ErlInclude> includes, Collection<ErlExport> exports, Collection<ErlRecord> records, Collection<ErlMacro> macros) {
             /** Add a Lucene document */
-            Set<Map<String, String>> indexedSet   = new HashSet<Map<String, String>>();
-            Set<Map<String, String>> noIndexedSet = new HashSet<Map<String, String>>();
-
-            // Add indexed info
-            Map<String, String> indexed = new HashMap<String, String>();
-            indexedSet.add(indexed);
-
-            // Add noIndexed info
-            Map<String, String> notIndexed = new HashMap<String, String>();
-            noIndexedSet.add(notIndexed);
+            IndexDocument document = factory.createDocument(40); // TODO - measure!
+            documents.add(document);
 
             String attributes = type == ErlangIndexProvider.Type.Module ? "m" : "h";
 
@@ -297,61 +330,48 @@ public class ErlangIndexer implements Indexer {
             //if (documentSize > 0) {
             //    attributes = attributes + "d(" + documentSize + ")";
             //}
-            notIndexed.put(FIELD_ATTRS, attributes);
+            document.addPair(FIELD_ATTRS, attributes, false);
 
             switch (type) {
                 case Module:
-                    indexed.put(FIELD_MODULE_NAME, name);
-                    indexed.put(FIELD_CASE_INSENSITIVE_MODULE_NAME, name.toLowerCase());
+                    document.addPair(FIELD_MODULE_NAME, name, true);
+                    document.addPair(FIELD_CASE_INSENSITIVE_MODULE_NAME, name.toLowerCase(), true);
                     break;
                 case Header:
-                    indexed.put(FIELD_HEADER_NAME, name);
-                    indexed.put(FIELD_CASE_INSENSITIVE_HEADER_NAME, name.toLowerCase());
+                    document.addPair(FIELD_HEADER_NAME, name, true);
+                    document.addPair(FIELD_CASE_INSENSITIVE_HEADER_NAME, name.toLowerCase(), true);
                     break;
             }
 
             // TODO:
             //addIncluded(indexed);
             //if (requires != null) {
-            //    notIndexed.put(FIELD_INCLUDES, incudles);
+            //    document.addPair(FIELD_INCLUDES, incudles, false);
             //}
             // Indexed so we can locate these documents when deleting/updating
-            indexed.put(FIELD_FILEURL, url);
+            document.addPair(FIELD_FILEURL, url, true);
 
             for (ErlInclude include : includes) {
-                indexInclude(include, indexedSet, noIndexedSet);
+                indexInclude(include, document);
             }
 
             /** we only index exported functions */
             for (ErlExport export : exports) {
                 for (ErlFunction function : export.getFunctions()) {
-                    indexFunction(function, indexedSet, noIndexedSet);
+                    indexFunction(function, document);
                 }
             }
 
             for (ErlRecord record : records) {
-                indexRecord(record, indexedSet, noIndexedSet);
+                indexRecord(record, document);
             }
 
             for (ErlMacro define : macros) {
-                indexMacro(define, indexedSet, noIndexedSet);
-            }
-
-            try {
-                Map<String, String> toDelete = Collections.emptyMap();
-                index.gsfStore(indexedSet, noIndexedSet, toDelete);
-            } catch (IOException ioe) {
-                Exceptions.printStackTrace(ioe);
+                indexMacro(define, document);
             }
         }
 
-        private void indexFunction(ErlFunction function, Set<Map<String, String>> indexedSet, Set<Map<String, String>> noIndexedSet) {
-            Map<String, String> indexed = new HashMap<String, String>();
-            indexedSet.add(indexed);
-
-            Map<String, String> noIndexed = new HashMap<String, String>();
-            noIndexedSet.add(noIndexed);
-
+        private void indexFunction(ErlFunction function, IndexDocument document) {
             StringBuilder sb = new StringBuilder();
             sb.append(function.getName());
 
@@ -370,7 +390,7 @@ public class ErlangIndexer implements Indexer {
                 sb.append(":").append(argumentsOpt);
             }
 
-            indexed.put(FIELD_FUNCTION, sb.toString());
+            document.addPair(FIELD_FUNCTION, sb.toString(), true);
 
 
             // Storing a lowercase method name is kinda pointless in
@@ -380,13 +400,7 @@ public class ErlangIndexer implements Indexer {
             //ru.put(FIELD_CASE_INSENSITIVE_METHOD_NAME, name.toLowerCase());
         }
 
-        private void indexInclude(ErlInclude include, Set<Map<String, String>> indexedSet, Set<Map<String, String>> noIndexedSet) {
-            Map<String, String> indexed = new HashMap<String, String>();
-            indexedSet.add(indexed);
-
-            Map<String, String> noIndexed = new HashMap<String, String>();
-            noIndexedSet.add(noIndexed);
-
+        private void indexInclude(ErlInclude include, IndexDocument document) {
             StringBuilder sb = new StringBuilder();
             sb.append(include.getPath());
 
@@ -401,7 +415,7 @@ public class ErlangIndexer implements Indexer {
 
             sb.append(":").append(include.getOffset() + ":" + include.getEndOffset());
 
-            indexed.put(FIELD_INCLUDE, sb.toString());
+            document.addPair(FIELD_INCLUDE, sb.toString(), true);
 
 
             // Storing a lowercase method name is kinda pointless in
@@ -411,13 +425,7 @@ public class ErlangIndexer implements Indexer {
             //ru.put(FIELD_CASE_INSENSITIVE_METHOD_NAME, name.toLowerCase());
         }
 
-        private void indexRecord(ErlRecord record, Set<Map<String, String>> indexedSet, Set<Map<String, String>> noIndexedData) {
-            Map<String, String> indexed = new HashMap<String, String>();
-            indexedSet.add(indexed);
-            
-            Map<String, String> noIndexed = new HashMap<String, String>();
-            noIndexedData.add(noIndexed);
-
+        private void indexRecord(ErlRecord record, IndexDocument document) {
             StringBuilder sb = new StringBuilder();
             sb.append(record.getName());
 
@@ -436,7 +444,7 @@ public class ErlangIndexer implements Indexer {
                 sb.append(":").append(field);
             }
 
-            indexed.put(FIELD_RECORD, sb.toString());
+            document.addPair(FIELD_RECORD, sb.toString(), true);
 
 
             // Storing a lowercase method name is kinda pointless in
@@ -446,13 +454,7 @@ public class ErlangIndexer implements Indexer {
             //ru.put(FIELD_CASE_INSENSITIVE_METHOD_NAME, name.toLowerCase());
         }
 
-        private void indexMacro(ErlMacro macro, Set<Map<String, String>> indexedSet, Set<Map<String, String>> noIndexedSet) {
-            Map<String, String> indexed = new HashMap<String, String>();
-            indexedSet.add(indexed);
-
-            Map<String, String> noIndexed = new HashMap<String, String>();
-            noIndexedSet.add(noIndexed);
-
+        private void indexMacro(ErlMacro macro, IndexDocument document) {
             StringBuilder sb = new StringBuilder();
             sb.append(macro.getName());
 
@@ -473,7 +475,7 @@ public class ErlangIndexer implements Indexer {
 
             sb.append(":").append(macro.getBody());
 
-            indexed.put(FIELD_MACRO, sb.toString());
+            document.addPair(FIELD_MACRO, sb.toString(), true);
 
 
             // Storing a lowercase method name is kinda pointless in
@@ -484,6 +486,28 @@ public class ErlangIndexer implements Indexer {
         }
     } // end of inner class TreeAnalyzer
 
+    private static FileObject preindexedDb;
+
+    
+    /** For testing only */
+    public static void setPreindexedDb(FileObject preindexedDb) {
+        ErlangIndexer.preindexedDb = preindexedDb;
+    }
+    
+    public FileObject getPreindexedDb() {
+        return null;
+//        if (preindexedDb == null) {
+//            File preindexed = InstalledFileLocator.getDefault().locate(
+//                    "preindexed", "org.netbeans.modules.ruby", false); // NOI18N
+//            if (preindexed == null || !preindexed.isDirectory()) {
+//                throw new RuntimeException("Can't locate preindexed directory. Installation might be damaged"); // NOI18N
+//            }
+//            preindexedDb = FileUtil.toFileObject(preindexed);
+//        }
+//        return preindexedDb;
+    }    
+    
+    
     /**
      * @Caoyuan moved from ruby's AstUtilities#getBaseDocument
      */

@@ -19,9 +19,11 @@
 package org.netbeans.modules.erlang.platform.index;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-import org.netbeans.api.gsf.GsfLanguage;
+import org.netbeans.fpi.gsf.GsfLanguage;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.TokenId;
 
@@ -31,7 +33,6 @@ import org.netbeans.api.lexer.TokenId;
  *
  * @author Tor Norbye
  */
-import org.netbeans.api.lexer.TokenId;
 
 
 /*
@@ -39,15 +40,13 @@ import org.netbeans.api.lexer.TokenId;
  *
  * @author Tor Norbye
  */
+import org.openide.filesystems.FileObject;
 
-
-/*
- * Language/lexing configuration for Ruby
- *
- * @author Tor Norbye
- */
-public class ErlangLexerLanguage implements GsfLanguage {
-    public ErlangLexerLanguage() {
+public class ErlangGsfLanguage implements GsfLanguage {
+    
+    public final static String MIME_TYPE = "text/x-erlang";
+    
+    public ErlangGsfLanguage() {
     }
 
     public List<?extends TokenId> getRelevantTokenTypes() {
@@ -68,6 +67,11 @@ public class ErlangLexerLanguage implements GsfLanguage {
     public Language getLexerLanguage() {
         return null;
     }
+
+    public Collection<FileObject> getCoreLibraries() {
+        return Collections.emptyList();
+    }
+
 }
 
 
