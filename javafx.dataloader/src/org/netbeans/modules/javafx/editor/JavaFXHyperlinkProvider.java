@@ -49,7 +49,7 @@ import org.netbeans.lib.editor.hyperlink.spi.HyperlinkType;
 
 import javax.swing.text.Document;
 
-import org.netbeans.api.gsf.OffsetRange;
+import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;

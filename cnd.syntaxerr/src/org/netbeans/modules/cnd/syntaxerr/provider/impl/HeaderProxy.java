@@ -51,14 +51,13 @@ import java.util.Set;
 import javax.swing.text.BadLocationException;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.cnd.api.model.CsmFile;
+import org.netbeans.modules.cnd.api.model.CsmInclude;
 import org.netbeans.modules.cnd.api.model.CsmUID;
 import org.netbeans.modules.cnd.api.model.xref.CsmIncludeHierarchyResolver;
 import org.netbeans.modules.cnd.api.project.NativeFileItem;
 import org.netbeans.modules.cnd.api.project.NativeProject;
 import org.netbeans.modules.cnd.modelutil.CsmUtilities;
 import org.netbeans.modules.cnd.syntaxerr.DebugUtils;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 
 /**
@@ -71,20 +70,31 @@ class HeaderProxy extends SourceProxy {
     private final File headerCopy;
     private final String topFile;
     private final NativeFileItem topNativeItem;
+    private final String includeDirectiveText;
     
     public HeaderProxy(DataObject dao, BaseDocument doc, File tmpDir) throws IOException {
-	super(dao, doc, tmpDir);
-        headerCopy = new File(tmpDir, fo.getNameExt());
-        fileToCompile = File.createTempFile("tmp_source_", ".cpp", tmpDir);
-        CsmFile topCsmFile = getTopIncludingFile(dao);
-        if( topCsmFile != null ) {
-            if( DebugUtils.TRACE ) System.err.printf("\t\tfound top file: %s", topCsmFile.getAbsolutePath());
-            topFile = topCsmFile.getAbsolutePath().toString();
+	super(dao, doc, tmpDir);        
+	TopIncludingFileAndDirective fad = getTopIncludingFile(dao);
+	if( fad != null && fad.topFile != null ) {
+            if( DebugUtils.TRACE ) System.err.printf("\t\tfound top file: %s", fad.topFile.getAbsolutePath());
+            topFile = fad.topFile.getAbsolutePath().toString();
+	    includeDirectiveText = fad.includeDirectiveText;
             topNativeItem = findTopNativeItem(topFile, fileItem);
+	    fileToCompile = new File(fad.topFile.getAbsolutePath().toString());
         } else {
             topFile = null;
             topNativeItem = null;
+	    includeDirectiveText = null;
+	    fileToCompile = File.createTempFile("tmp_source_", ".cpp", tmpDir);
         }
+	String subDir = getSubDir(); //"/CLucene";
+        headerCopy = new File(tmpDir.getAbsolutePath() + subDir, fo.getNameExt());
+    }
+    
+    private String getSubDir() {
+//	if( includeDirectiveText != null && includeDirectiveText.endsWith(fo.getNameExt())  ) {	    
+//	}
+	return "";
     }
     
     private static NativeFileItem findTopNativeItem(String topFile, NativeFileItem fileItem) {
@@ -101,19 +111,13 @@ class HeaderProxy extends SourceProxy {
     
     @Override
     public File getFileToCompile() {
-//        if( topNativeItem  != null ) {
-//            return topNativeItem.getFile();
-//        }
-//        else {
-//            return fileToCompile;
-//        }
-        return fileToCompile;
+	return fileToCompile;
     }
     
     @Override
     public void copyFiles() throws IOException, BadLocationException {
 	ErrorProviderUtils.WriteDocument(doc, headerCopy);
-	PrintWriter writer = new PrintWriter(new FileWriter(fileToCompile));
+	PrintWriter writer = ErrorProviderUtils.createPrintWriter(fileToCompile);
         writer.printf("#include \"%s\"%s", fo.getNameExt(), System.getProperty("line.separator"));
 	writer.close();	
     }
@@ -135,17 +139,44 @@ class HeaderProxy extends SourceProxy {
         return super.getCompilerOptions();
     }
     
-    private CsmFile getTopIncludingFile(DataObject dao) {
+    private static class TopIncludingFileAndDirective {
+	public CsmFile topFile;
+	public String includeDirectiveText;
+    }
+	    
+    private TopIncludingFileAndDirective getTopIncludingFile(DataObject dao) {
 	// TODO: change to getTopParentFiles() as soon as it is added to CsmIncludeHierarchyResolver
 	// (now we have to stay 6.0 compliant)
 	CsmFile header = CsmUtilities.getCsmFile(dao, false);
 	if( header != null ) {
-	    return getTopIncludingFile(header, new HashSet<CsmUID<CsmFile>>());
+	    return getTopIncludingFile(header);
 	}
 	return null;
     }
     
-    private CsmFile getTopIncludingFile(CsmFile header, Set<CsmUID<CsmFile>> processedFiles) {
+    private TopIncludingFileAndDirective getTopIncludingFile(CsmFile header) {
+        Collection<CsmFile> files = CsmIncludeHierarchyResolver.getDefault().getFiles(header);
+	Set<CsmUID<CsmFile>> processedFiles = new HashSet<CsmUID<CsmFile>>();
+        for( CsmFile file : files ) {
+	    TopIncludingFileAndDirective fad = new TopIncludingFileAndDirective();
+	    processedFiles.add(file.getUID());
+            if( file.isSourceFile() ) {
+		fad.topFile = file;
+		fad.includeDirectiveText = findInclude(file, header);
+                return fad;
+            } else {
+		CsmFile top = getTopIncludingFile(file, processedFiles);
+		if( top != null ) {
+		    fad.topFile = top;
+		    fad.includeDirectiveText = findInclude(file, header);
+		    return fad;
+		}
+	    }
+        }
+	return null;
+    }
+	    
+    private CsmFile getTopIncludingFile(CsmFile header,  Set<CsmUID<CsmFile>> processedFiles) {
         Collection<CsmFile> files = CsmIncludeHierarchyResolver.getDefault().getFiles(header);
         for( CsmFile file : files ) {
             if( file.isSourceFile() ) {
@@ -157,14 +188,26 @@ class HeaderProxy extends SourceProxy {
             if( ! processedFiles.contains(uid) ) {
 		processedFiles.add(uid);
                 CsmFile top = getTopIncludingFile(file, processedFiles);
-                if( file.isSourceFile() ) {
-                    return file;
+                if( top.isSourceFile() ) {
+                    return top;
                 }
 	    }
         }
 	return null;
-    }    
-    
-    
+    }
+	    
+    private String findInclude(CsmFile file, CsmFile header) {
+	if( file != null ) {
+	    for( CsmInclude include : file.getIncludes() ) {
+		if( file.equals(include.getIncludeFile() )) {
+		    CharSequence cs = include.getIncludeName();
+		    if (cs != null) {
+			return cs.toString();
+		    }
+		}
+	    }
+	}
+	return null;
+    }
 
 }

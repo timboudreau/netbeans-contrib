@@ -19,9 +19,9 @@
 package org.netbeans.modules.erlang.platform.index;
 
 
-import org.netbeans.fpi.gsf.OffsetRange;
-import org.netbeans.fpi.gsf.ParserFile;
-import org.netbeans.fpi.gsf.ParserResult;
+import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.gsf.api.ParserFile;
+import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.modules.erlang.editing.semantic.ErlContext;
 
