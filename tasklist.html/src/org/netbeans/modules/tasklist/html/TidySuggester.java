@@ -42,16 +42,10 @@
 package org.netbeans.modules.tasklist.html;
 
 
-import javax.swing.text.*;
-import javax.swing.event.*;
 import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
 import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
-import org.openide.ErrorManager;
-import org.openide.explorer.view.*;
 import org.openide.util.Utilities;
 
 import org.openide.loaders.DataObject;
@@ -63,7 +57,6 @@ import org.netbeans.modules.html.*;
 import org.w3c.tidy.*;
 
 import org.netbeans.modules.tasklist.core.TLUtils;
-import org.netbeans.modules.tasklist.client.Suggestion;
 import org.netbeans.modules.tasklist.client.SuggestionManager;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
 import org.netbeans.modules.tasklist.client.SuggestionAgent;

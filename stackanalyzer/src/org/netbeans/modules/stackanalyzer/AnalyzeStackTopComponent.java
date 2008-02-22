@@ -169,7 +169,8 @@ final class AnalyzeStackTopComponent extends TopComponent {
 
     private void analyzePaneValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_analyzePaneValueChanged
         String line = (String) analyzePane.getSelectedValue();
-        select(line);
+        if (line!=null)
+            select(line);
     }//GEN-LAST:event_analyzePaneValueChanged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
