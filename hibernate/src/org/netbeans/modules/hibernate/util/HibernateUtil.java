@@ -43,7 +43,13 @@ package org.netbeans.modules.hibernate.util;
 import java.util.ArrayList;
 
 import java.util.Enumeration;
-import org.hibernate.cfg.Configuration;
+import org.hibernate.HibernateException;
+
+import org.netbeans.api.db.explorer.ConnectionManager;
+import org.netbeans.api.db.explorer.DatabaseConnection;
+import org.netbeans.api.db.explorer.DatabaseException;
+import org.netbeans.api.db.explorer.JDBCDriver;
+import org.netbeans.api.db.explorer.JDBCDriverManager;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
@@ -51,7 +57,12 @@ import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.modules.hibernate.cfg.model.HibernateConfiguration;
 import org.netbeans.modules.hibernate.cfg.model.SessionFactory;
+import org.netbeans.modules.hibernate.loaders.cfg.HibernateCfgDataObject;
 import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.util.Exceptions;
+import org.openide.util.Mutex;
 
 /**
  * This class provides utility methods using Hibernate API to query database
@@ -70,53 +81,104 @@ public class HibernateUtil {
      * @throws java.sql.SQLException
      */
     public static ArrayList<String> getAllDatabaseTables(HibernateConfiguration... configurations)
-    throws java.sql.SQLException{
+    throws java.sql.SQLException, HibernateException{
         ArrayList<String> allTables = new ArrayList<String>();
         for(HibernateConfiguration configuration : configurations) {
-            Configuration hibConfiguration = getHibConfiguration(configuration);
-            org.hibernate.SessionFactory hibSessionFactory = hibConfiguration.buildSessionFactory();
-            org.hibernate.Session hibSession = hibSessionFactory.openSession();
-            java.sql.Connection jdbcConnection = hibSession.connection();
+            java.sql.Connection jdbcConnection = getJDBCConnection(configuration); 
             java.sql.DatabaseMetaData dbMetadata = jdbcConnection.getMetaData();
+            java.sql.ResultSet rsSchema = dbMetadata.getSchemas();
+            while(rsSchema.next()) {
             java.sql.ResultSet rs = dbMetadata.getTables(null,
-                    getDatabaseSchema(configuration),
+                    rsSchema.getString("TABLE_SCHEM"),
                     null, new String[]{"TABLE"}); //NOI18N
             while(rs.next()) {
-                allTables.add(rs.getString(3)); // COLUMN 3 stores the table names.
+                allTables.add(rs.getString("TABLE_NAME")); // COLUMN 3 stores the table names.
+            }
             }
         }
         return allTables;
     }
     
-    public static ArrayList<FileObject> getAllHibernateConfigurations(Project project) {
-        ArrayList<FileObject> configFiles = new ArrayList<FileObject>();
+    public static ArrayList<HibernateConfiguration> getAllHibernateConfigurations(Project project) {
+        ArrayList<HibernateConfiguration> configFiles = new ArrayList<HibernateConfiguration>();
         Sources projectSources = ProjectUtils.getSources(project);
         SourceGroup[] javaSourceGroup = projectSources.getSourceGroups(
                 JavaProjectConstants.SOURCES_TYPE_JAVA
                 );
+        
         for(SourceGroup sourceGroup : javaSourceGroup) {
             FileObject root = sourceGroup.getRootFolder();
             Enumeration<? extends FileObject> enumeration = root.getChildren(true);
             while(enumeration.hasMoreElements()) {
                 FileObject fo = enumeration.nextElement();
-                System.out.println("File object name " + fo.getNameExt());
+                if(fo.getNameExt() != null && fo.getNameExt().endsWith("cfg.xml")) {
+                    try {
+                        configFiles.add(
+                                (
+                                (HibernateCfgDataObject) DataObject.find(fo)
+                                ).getHibernateConfiguration()
+                                );
+                    } catch (DataObjectNotFoundException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
             }
         }
         return configFiles;
     }
 
-    private static Configuration getHibConfiguration(HibernateConfiguration configuration) {
-        Configuration hibConfiguration = new Configuration();
-
+    public static ArrayList<FileObject> getAllHibernateConfigFileObjects(Project project) {
+        ArrayList<FileObject> configFiles = new ArrayList<FileObject>();
+        Sources projectSources = ProjectUtils.getSources(project);
+        SourceGroup[] javaSourceGroup = projectSources.getSourceGroups(
+                JavaProjectConstants.SOURCES_TYPE_JAVA
+                );
+        
+        for(SourceGroup sourceGroup : javaSourceGroup) {
+            FileObject root = sourceGroup.getRootFolder();
+            Enumeration<? extends FileObject> enumeration = root.getChildren(false);
+            while(enumeration.hasMoreElements()) {
+                FileObject fo = enumeration.nextElement();
+                if(fo.getNameExt() != null && fo.getNameExt().endsWith("cfg.xml")) {
+                        configFiles.add(fo);
+                }
+            }
+        }
+        return configFiles;
+    }
+    
+    public static ArrayList<FileObject> getAllHibernateMappingFileObjects(Project project) {
+        ArrayList<FileObject> mappingFiles = new ArrayList<FileObject>();
+        Sources projectSources = ProjectUtils.getSources(project);
+        SourceGroup[] javaSourceGroup = projectSources.getSourceGroups(
+                JavaProjectConstants.SOURCES_TYPE_JAVA
+                );
+        
+        for(SourceGroup sourceGroup : javaSourceGroup) {
+            FileObject root = sourceGroup.getRootFolder();
+            Enumeration<? extends FileObject> enumeration = root.getChildren(true);
+            while(enumeration.hasMoreElements()) {
+                FileObject fo = enumeration.nextElement();
+                if(fo.getNameExt() != null && fo.getNameExt().endsWith("hbm.xml")) {
+                        mappingFiles.add(fo);
+                }
+            }
+        }
+        return mappingFiles;
+    }
+    
+    
+    private static String getDbConnectionDetails(HibernateConfiguration configuration, String property) {
         SessionFactory fact = configuration.getSessionFactory();
         int count = 0;
-        for(String val : fact.getProperty2()) {
-            String propName = fact.getAttributeValue(fact.PROPERTY2,
-                    count++, "name"); //NOI18N
-            hibConfiguration.setProperty(propName, val);
+        for (String val : fact.getProperty2()) {
+            String propName = fact.getAttributeValue(fact.PROPERTY2, count++, "name"); 
+            if(propName.equals(property)) {
+                return val;
+            }
         }
 
-        return hibConfiguration;
+        return "";
     }
 
     private static String getDatabaseSchema(HibernateConfiguration configuration) {
@@ -136,4 +198,52 @@ public class HibernateUtil {
         }
         return dbSchema;
     }
+    
+     private static java.sql.Connection getJDBCConnection(HibernateConfiguration configuration) {
+        try {
+
+            String driverClassName = getDbConnectionDetails(configuration, "hibernate.connection.driver_class");
+            String driverURL = getDbConnectionDetails(configuration, "hibernate.connection.url");
+            String username = getDbConnectionDetails(configuration, "hibernate.connection.username");
+            String password = getDbConnectionDetails(configuration, "hibernate.connection.password");
+            //Hibernate allows abbrivated properties
+            if (driverClassName == null) {
+                driverClassName = getDbConnectionDetails(configuration, "connection.driver_class");
+            }
+            if (driverURL == null) {
+                driverURL = getDbConnectionDetails(configuration, "connection.url");
+            }
+            if (username == null) {
+                username = getDbConnectionDetails(configuration, "connection.username");
+            }
+            if (password == null) {
+                password = getDbConnectionDetails(configuration, "connection.password");
+            }
+
+            JDBCDriver[] drivers = JDBCDriverManager.getDefault().getDrivers(driverClassName);
+
+            final DatabaseConnection dbConnection = DatabaseConnection.create(drivers[0], driverURL, username, null, password, true);
+            ConnectionManager.getDefault().addConnection(dbConnection);
+            if(dbConnection.getJDBCConnection() == null ) {
+                return (java.sql.Connection)Mutex.EVENT.readAccess(new Mutex.Action/*<Void>*/() {
+//                    public /*Void*/  run() {
+//                        ConnectionManager.getDefault().showConnectionDialog(dbConnection);
+//                        //return dbConnection.getJDBCConnection();
+//                       // return Void.TYPE;
+//                    }
+
+                    public Object run() {
+                        ConnectionManager.getDefault().showConnectionDialog(dbConnection);
+                        return dbConnection.getJDBCConnection();
+                    }
+                });
+                
+            }
+            return dbConnection.getJDBCConnection();
+        } catch (DatabaseException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return null;
+    }
+
 }

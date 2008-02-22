@@ -51,6 +51,7 @@ import org.netbeans.modules.xml.text.syntax.SyntaxElement;
 import org.netbeans.modules.xml.text.syntax.dom.StartTag;
 import org.netbeans.modules.xml.text.syntax.dom.Tag;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
+import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;
 import org.w3c.dom.Text;
 
@@ -65,6 +66,7 @@ public final class HibernateCfgCompletionManager {
     private static final String MAPPING_TAG = "mapping";
     private static final String RESOURCE_ATTRIB = "resource";
     private static final String NAME_ATTRIB = "name";
+    
     private static Map<String, Completor> completors = new HashMap<String, Completor>();
 
     private HibernateCfgCompletionManager() {
@@ -192,22 +194,29 @@ public final class HibernateCfgCompletionManager {
         } else {
             return;
         }
-
+        
         String propName = HibernateCompletionEditorUtil.getHbPropertyName(propTag);
-        if (propName.equals(Environment.DIALECT)) {
-            int caretOffset = context.getCaretOffset();
-            String typedChars = context.getTypedPrefix();
-
-            for (int i = 0; i < HibernateCfgProperties.dialects.length; i++) {
-                if (HibernateCfgProperties.dialects[i].startsWith(typedChars.trim())) {
-                    HibernateCompletionItem item = HibernateCompletionItem.createAttribValueItem(caretOffset - typedChars.length(),
-                            HibernateCfgProperties.dialects[i], null);
+        int caretOffset = context.getCaretOffset();
+        String typedChars = context.getTypedPrefix();
+        
+        Object possibleValue = HibernateCfgProperties.getPossiblePropertyValue(propName);
+        
+        if (possibleValue instanceof String[]) {
+            
+            // Add the values in the String[] as completion items
+            String[] values = (String[])possibleValue;
+            
+            for (int i = 0; i < values.length; i++) {
+                if (values[i].startsWith(typedChars.trim())
+                        || values[i].startsWith( "org.hibernate.dialect." + typedChars.trim()) ) { // NOI18N
+                    HibernateCompletionItem item = 
+                            HibernateCompletionItem.createHbPropertyValueItem(caretOffset, values[i]);
                     resultSet.addItem(item);
                 }
             }
 
-            resultSet.setAnchorOffset(context.getCurrentToken().getOffset() + 1);
-        }
+            resultSet.setAnchorOffset(context.getCurrentToken().getPrevious().getOffset() + 1);
+        } 
     }
 
     public void completeAttributes(CompletionResultSet resultSet, CompletionContext context) {
@@ -287,9 +296,10 @@ public final class HibernateCfgCompletionManager {
             List<HibernateCompletionItem> results = new ArrayList<HibernateCompletionItem>();
             int caretOffset = context.getCaretOffset();
             String typedChars = context.getTypedPrefix();
-
+            
             for (int i = 0; i < itemTextAndDocs.length; i += 2) {
-                if (itemTextAndDocs[i].startsWith(typedChars.trim())) {
+                if (itemTextAndDocs[i].startsWith(typedChars.trim()) 
+                        || itemTextAndDocs[i].startsWith( "hibernate." + typedChars.trim()) ) { // NOI18N
                     HibernateCompletionItem item = HibernateCompletionItem.createAttribValueItem(caretOffset - typedChars.length(),
                             itemTextAndDocs[i], itemTextAndDocs[i + 1]);
                     results.add(item);
@@ -311,11 +321,7 @@ public final class HibernateCfgCompletionManager {
             int caretOffset = context.getCaretOffset();
             String typedChars = context.getTypedPrefix();
 
-            // TODO: hard-code some mapping files here for testing code-completion
-            String[] mappingFiles = new String[]{
-                "travel/Person.hbm.xml",
-                "travel/Trip.hbm.xml"
-            };
+            String[] mappingFiles = getMappingFilesFromProject(context);
 
             for (int i = 0; i < mappingFiles.length; i++) {
                 if (mappingFiles[i].startsWith(typedChars.trim())) {
@@ -328,6 +334,20 @@ public final class HibernateCfgCompletionManager {
 
             setAnchorOffset(context.getCurrentToken().getOffset() + 1);
             return results;
+        }
+        
+        // Gets the list of mapping files from HibernateEnvironment.
+        private String[] getMappingFilesFromProject(CompletionContext context) {
+            ArrayList<String> mappingFiles = new ArrayList<String>();
+            org.netbeans.api.project.Project enclosingProject = org.netbeans.api.project.FileOwnerQuery.getOwner(
+                    org.netbeans.modules.editor.NbEditorUtilities.getFileObject(context.getDocument())
+                    );
+            org.netbeans.modules.hibernate.service.HibernateEnvironment env = enclosingProject.getLookup().lookup(org.netbeans.modules.hibernate.service.HibernateEnvironment.class);
+            ArrayList<FileObject> mappingFileObjects = env.getAllHibernateMappingFileObjects(enclosingProject);
+            for(FileObject fo : mappingFileObjects) {
+                mappingFiles.add(fo.getPath());
+            }
+            return mappingFiles.toArray(new String[]{});
         }
     }
 }
