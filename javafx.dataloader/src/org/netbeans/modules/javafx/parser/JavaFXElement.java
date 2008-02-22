@@ -41,14 +41,14 @@
 
 package org.netbeans.modules.javafx.parser;
 
-import org.netbeans.api.gsf.Element;
-import org.netbeans.api.gsf.ElementKind;
+import org.netbeans.modules.gsf.api.Element;
+import org.netbeans.modules.gsf.api.ElementKind;
 import java.util.TreeSet;
-import org.netbeans.api.gsf.Modifier;
+import org.netbeans.modules.gsf.api.Modifier;
 import java.util.Set;
 import java.util.List;
 import java.util.LinkedList;
-import org.netbeans.api.gsf.OffsetRange;
+import org.netbeans.modules.gsf.api.OffsetRange;
 
 public class JavaFXElement implements Element {
     private List <JavaFXElement>    nestedList = new LinkedList <JavaFXElement>();

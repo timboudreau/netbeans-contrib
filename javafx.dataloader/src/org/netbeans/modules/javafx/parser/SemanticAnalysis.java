@@ -46,10 +46,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.netbeans.api.gsf.ColoringAttributes;
-import org.netbeans.api.gsf.CompilationInfo;
-import org.netbeans.api.gsf.OffsetRange;
-import org.netbeans.api.gsf.SemanticAnalyzer;
+import org.netbeans.modules.gsf.api.ColoringAttributes;
+import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.gsf.api.SemanticAnalyzer;
 import net.java.javafx.typeImpl.Compilation;
 import java.io.StringReader;
 import net.java.javafx.type.expr.CompilationUnit;

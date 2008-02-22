@@ -21,29 +21,29 @@ package org.netbeans.modules.erlang.platform.index;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
-import org.netbeans.fpi.gsf.CompilationInfo;
-import org.netbeans.fpi.gsf.Element;
-import org.netbeans.fpi.gsf.ElementHandle;
-import org.netbeans.fpi.gsf.Error;
-import org.netbeans.fpi.gsf.ParseEvent;
-import org.netbeans.fpi.gsf.ParseListener;
-import org.netbeans.fpi.gsf.Parser;
-import org.netbeans.fpi.gsf.ParserFile;
-import org.netbeans.fpi.gsf.ParserResult;
-import org.netbeans.fpi.gsf.PositionManager;
-import org.netbeans.fpi.gsf.SemanticAnalyzer;
-import org.netbeans.fpi.gsf.Severity;
-import org.netbeans.fpi.gsf.SourceFileReader;
+import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.api.Element;
+import org.netbeans.modules.gsf.api.ElementHandle;
+import org.netbeans.modules.gsf.api.Error;
+import org.netbeans.modules.gsf.api.ParseEvent;
+import org.netbeans.modules.gsf.api.ParseListener;
+import org.netbeans.modules.gsf.api.Parser;
+import org.netbeans.modules.gsf.api.ParserFile;
+import org.netbeans.modules.gsf.api.ParserResult;
+import org.netbeans.modules.gsf.api.PositionManager;
+import org.netbeans.modules.gsf.api.SemanticAnalyzer;
+import org.netbeans.modules.gsf.api.Severity;
+import org.netbeans.modules.gsf.api.SourceFileReader;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.Language;
 import org.netbeans.api.languages.LanguageDefinitionNotFoundException;
 import org.netbeans.api.languages.LanguagesManager;
 import org.netbeans.api.languages.ParseException;
-import org.netbeans.fpi.gsf.ElementKind;
-import org.netbeans.fpi.gsf.Modifier;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.erlang.editing.semantic.ErlContext;
 import org.netbeans.modules.erlang.editing.semantic.ErlangSemanticAnalyser;
-import org.netbeans.sfpi.gsf.DefaultError;
+import org.netbeans.modules.gsf.spi.DefaultError;
 import org.openide.filesystems.FileObject;
 import org.openide.nodes.Node;
 import org.openide.windows.IOProvider;
@@ -200,7 +200,7 @@ public class ErlangLanguageParser implements Parser {
         return null;
     }
 
-    public org.netbeans.fpi.gsf.OccurrencesFinder getMarkOccurrencesTask(int caretPosition) {
+    public org.netbeans.modules.gsf.api.OccurrencesFinder getMarkOccurrencesTask(int caretPosition) {
         //        OccurrencesFinder finder = new OccurrencesFinder();
         //        finder.setCaretPosition(caretPosition);
         //        return finder;
