@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -42,6 +42,7 @@
 package org.netbeans.modules.jemmysupport.runinternally;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
@@ -67,12 +68,10 @@ import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.queries.FileBuiltQuery;
 import org.netbeans.modules.apisupport.project.NbModuleProject;
 import org.netbeans.spi.project.ActionProvider;
-import org.openide.ErrorManager;
 import org.openide.awt.StatusDisplayer;
 import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.actions.NodeAction;
@@ -87,6 +86,7 @@ import org.openide.util.Utilities;
  */
 public class RunInternallyAction extends NodeAction {
     
+    private static final Logger LOGGER = Logger.getLogger(RunInternallyAction.class.getName());
     private final String scriptFilename = "build"+System.currentTimeMillis(); // NOI18N
     
     
@@ -120,7 +120,7 @@ public class RunInternallyAction extends NodeAction {
                     try {
                         executeSelectedMainClass();
                     } catch (Exception ex) {
-                        ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+                        LOGGER.log(Level.WARNING, null, ex);
                     }
                 }
             });
@@ -160,6 +160,7 @@ public class RunInternallyAction extends NodeAction {
     /** method returning icon for the action
      * @return String path to action icon
      */
+    @Override
     protected String iconResource() {
         return "org/netbeans/modules/jemmysupport/resources/runInternally.png"; // NOI18N
     }
@@ -172,6 +173,7 @@ public class RunInternallyAction extends NodeAction {
     }
     
     /** Always return false - no need to run asynchronously. */
+    @Override
     protected boolean asynchronous() {
         return false;
     }
@@ -221,7 +223,7 @@ public class RunInternallyAction extends NodeAction {
                     compileLock.wait(30000);
                 }
             } catch (Exception e) {
-                ErrorManager.getDefault().notify(e);
+                LOGGER.log(Level.WARNING, null, e);
             } finally {
                 builtStatus.removeChangeListener(listener);
                 StatusDisplayer.getDefault().removeChangeListener(statusListener);
@@ -302,19 +304,18 @@ public class RunInternallyAction extends NodeAction {
     
     /** Returns build script with run-internally target. */
     private FileObject getScript() {
-        FileObject tmpFolderFO = FileUtil.toFileObject(FileUtil.normalizeFile(
-                new File(System.getProperty("java.io.tmpdir"))));
-        FileObject scriptFO = tmpFolderFO.getFileObject(scriptFilename+".xml");
+        File scriptFile = FileUtil.normalizeFile(new File(System.getProperty("java.io.tmpdir"), scriptFilename+".xml")); // NOI18N
+        FileObject scriptFO = FileUtil.toFileObject(scriptFile);
         if(scriptFO == null || !scriptFO.isValid()) {
-            URL url = this.getClass().getResource("build.xml"); // NOI18N
-            FileObject templateScriptFO = URLMapper.findFileObject(url);
             try {
-                FileUtil.copyFile(templateScriptFO, tmpFolderFO, scriptFilename);
+                FileOutputStream fos = new FileOutputStream(scriptFile);
+                FileUtil.copy(this.getClass().getResourceAsStream("build.xml"), fos); // NOI18N
+                fos.close();
             } catch (IOException ex) {
-                ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+                LOGGER.log(Level.WARNING, null, ex);
             }
-            scriptFO = tmpFolderFO.getFileObject(scriptFilename+".xml"); // NOI18N
-            FileUtil.toFile(scriptFO).deleteOnExit();
+            scriptFO = FileUtil.toFileObject(scriptFile);
+            scriptFile.deleteOnExit();
         }
         return scriptFO;
     }
@@ -347,9 +348,9 @@ public class RunInternallyAction extends NodeAction {
             props.setProperty("run-internally.cp", getClasspath(fObj)); // NOI18N
             ExecutorTask task = ActionUtils.runTarget(getScript(), targets, props);
         } catch (IllegalArgumentException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+            LOGGER.log(Level.WARNING, null, ex);
         } catch (IOException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+            LOGGER.log(Level.WARNING, null, ex);
         }
     }
     
@@ -362,9 +363,9 @@ public class RunInternallyAction extends NodeAction {
             props.setProperty("classname", classname); // NOI18N
             ActionUtils.runTarget(findTestBuildXml(FileOwnerQuery.getOwner(fObj)), targets, props);
         } catch (IllegalArgumentException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+            LOGGER.log(Level.WARNING, null, ex);
         } catch (IOException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+            LOGGER.log(Level.WARNING, null, ex);
         }
     }
     

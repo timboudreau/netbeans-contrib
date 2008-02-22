@@ -555,13 +555,17 @@ public class EncodingOption {
             delimiters = delimLevel.getDelimiterArray();
             delim = ""; //NOI18N
             for (int i = 0; i < delimiters.length; i++) {
-                if (!delimiters[i].getBytes().isSetConstant()) {
+                if (!delimiters[i].isSetBytes()
+                        || !delimiters[i].getBytes().isSetConstant()) {
                     continue;
                 }
                 if (delim.length() > 0) {
                     delim += ", "; //NOI18N
                 }
                 delim += delimiters[i].getBytes().getConstant();
+            }
+            if (delim.length() == 0) {
+                delim = null;
             }
         }
         if (delim != null) {
@@ -609,6 +613,9 @@ public class EncodingOption {
             delimiters = delimLevel.getDelimiterArray();
             delim = ""; //NOI18N
             for (int j = 0; j < delimiters.length; j++) {
+                if (!delimiters[j].isSetBytes()) {
+                    continue;
+                }
                 if (delimiters[j].getBytes().isSetEmbedded()) {
                     if (delim.length() > 0) {
                         delim += ", "; //NOI18N
@@ -626,6 +633,9 @@ public class EncodingOption {
                     }
                     delim += delimiters[j].getBytes().getConstant();
                 }
+            }
+            if (delim.length() == 0) {
+                delim = null;
             }
             break;
         }

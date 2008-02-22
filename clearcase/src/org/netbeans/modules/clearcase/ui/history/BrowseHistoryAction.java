@@ -43,6 +43,7 @@ package org.netbeans.modules.clearcase.ui.history;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.versioning.util.Utils;
 import org.netbeans.modules.clearcase.Clearcase;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.clearcase.client.HistoryGraphicalCommand;
 
 import javax.swing.*;
@@ -66,6 +67,11 @@ public class BrowseHistoryAction extends AbstractAction {
         setEnabled(ctx.getFiles().size() > 0);
     }
 
+    @Override
+    public boolean isEnabled() {        
+        return ClearcaseUtils.containsVersionedFiles(ctx);
+    }
+    
     public void actionPerformed(ActionEvent e) {
         Set<File> files = ctx.getRootFiles();
         HistoryGraphicalCommand cmd = new HistoryGraphicalCommand(files.toArray(new File[files.size()]));

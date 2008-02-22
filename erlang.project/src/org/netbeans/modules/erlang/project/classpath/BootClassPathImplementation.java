@@ -19,9 +19,9 @@
 package org.netbeans.modules.erlang.project.classpath;
 
 import java.beans.PropertyChangeEvent;
-import org.netbeans.spi.gsfpath.classpath.ClassPathImplementation;
-import org.netbeans.spi.gsfpath.classpath.PathResourceImplementation;
-import org.netbeans.spi.gsfpath.classpath.support.ClassPathSupport;
+import org.netbeans.sfpi.gsfpath.classpath.ClassPathImplementation;
+import org.netbeans.sfpi.gsfpath.classpath.PathResourceImplementation;
+import org.netbeans.sfpi.gsfpath.classpath.support.ClassPathSupport;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.net.URL;

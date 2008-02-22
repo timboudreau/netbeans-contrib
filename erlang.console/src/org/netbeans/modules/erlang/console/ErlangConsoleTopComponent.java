@@ -60,7 +60,7 @@ final class ErlangConsoleTopComponent extends TopComponent {
     
     private static ErlangConsoleTopComponent instance;
     /** path to the icon used by the component and its open action */
-    static final String ICON_PATH = "org/netbeans/modules/languages/erlang/console/resources/erlang.png"; // NOI18N
+    static final String ICON_PATH = "org/netbeans/modules/erlang/console/resources/erlang.png"; // NOI18N
     
     private static final String PREFERRED_ID = "ErlangConsoleTopComponent"; // NOI18N
     

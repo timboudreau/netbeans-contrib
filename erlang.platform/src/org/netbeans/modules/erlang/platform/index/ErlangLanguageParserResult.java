@@ -19,10 +19,9 @@
 package org.netbeans.modules.erlang.platform.index;
 
 
-import org.netbeans.api.gsf.Element;
-import org.netbeans.api.gsf.OffsetRange;
-import org.netbeans.api.gsf.ParserFile;
-import org.netbeans.api.gsf.ParserResult;
+import org.netbeans.fpi.gsf.OffsetRange;
+import org.netbeans.fpi.gsf.ParserFile;
+import org.netbeans.fpi.gsf.ParserResult;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.modules.erlang.editing.semantic.ErlContext;
 
@@ -31,30 +30,21 @@ import org.netbeans.modules.erlang.editing.semantic.ErlContext;
  * @author Caoyuan Deng
  */
 public class ErlangLanguageParserResult extends ParserResult {
-    private AstTreeNode ast;
     private AstRootElement rootElement;
     private OffsetRange sanitizedRange = OffsetRange.NONE;
  
-    private ASTNode rootNode;
+    private ASTNode astRoot;
     private ErlContext rootContext;
-    /** Result used for failed compilation
-     * @todo Provide errors too?
-     */
-    public ErlangLanguageParserResult(ParserFile file) {
-        super(file);
-    }
 
-    /**
-     * Result used for successful compilation
-     */
     public ErlangLanguageParserResult(
+            ErlangLanguageParser parser,
             ParserFile file, 
             AstRootElement rootElement, 
-            ASTNode rootNode,
+            ASTNode astRoot,
 	    ErlContext rootCtx) {
-        super(file);
+        super(parser, file, ErlangGsfLanguage.MIME_TYPE);
         this.rootElement = rootElement;
-        this.rootNode = rootNode;
+        this.astRoot = astRoot;
         this.rootContext = rootCtx;
     }
 
@@ -62,17 +52,12 @@ public class ErlangLanguageParserResult extends ParserResult {
         return null;
     }
 
-    @Override
-    public Element getRoot() {
-        return rootElement;
-    }
-
     /** 
      * The root node of the AST produced by the parser.
      * Later, rip out the getAst part etc.
      */
     public ASTNode getRootNode() {
-        return rootNode;
+        return astRoot;
     }
 
     public void setRootContext(ErlContext rootCtx) {

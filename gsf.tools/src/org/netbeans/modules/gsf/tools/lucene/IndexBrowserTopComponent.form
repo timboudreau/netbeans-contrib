@@ -10,9 +10,6 @@
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
           </Border>
         </Property>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
       </Properties>
     </Component>
     <Component class="javax.swing.ButtonGroup" name="indexGroup">
@@ -35,7 +32,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="jSplitPane1" pref="751" max="32767" attributes="0"/>
+                      <Component id="jSplitPane1" pref="763" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
@@ -68,7 +65,7 @@
                                   <Component id="indexLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="segmentLabel" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace pref="584" max="32767" attributes="0"/>
+                                      <EmptySpace pref="591" max="32767" attributes="0"/>
                                       <Component id="lukeButton" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
@@ -144,18 +141,19 @@
     <Component class="javax.swing.JComboBox" name="keyCombo">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="11">
-            <StringItem index="0" value="class"/>
-            <StringItem index="1" value="method"/>
-            <StringItem index="2" value="field"/>
-            <StringItem index="3" value="attribute"/>
-            <StringItem index="4" value="constant"/>
-            <StringItem index="5" value="fqn"/>
-            <StringItem index="6" value="file"/>
-            <StringItem index="7" value="module"/>
-            <StringItem index="8" value="extends"/>
-            <StringItem index="9" value="require"/>
-            <StringItem index="10" value="dbtable"/>
+          <StringArray count="12">
+            <StringItem index="0" value="func"/>
+            <StringItem index="1" value="class"/>
+            <StringItem index="2" value="method"/>
+            <StringItem index="3" value="field"/>
+            <StringItem index="4" value="attribute"/>
+            <StringItem index="5" value="constant"/>
+            <StringItem index="6" value="fqn"/>
+            <StringItem index="7" value="file"/>
+            <StringItem index="8" value="module"/>
+            <StringItem index="9" value="extends"/>
+            <StringItem index="10" value="require"/>
+            <StringItem index="11" value="dbtable"/>
           </StringArray>
         </Property>
       </Properties>
@@ -243,11 +241,11 @@
                       <Component id="prevButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
                       <Component id="nextButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="223" max="32767" attributes="0"/>
+                      <EmptySpace pref="225" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <EmptySpace min="20" pref="20" max="20" attributes="0"/>
-                      <Component id="jScrollPane2" pref="488" max="32767" attributes="0"/>
+                      <Component id="jScrollPane2" pref="496" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -261,7 +259,7 @@
                           <Component id="nextButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane2" pref="374" max="32767" attributes="0"/>
+                      <Component id="jScrollPane2" pref="369" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -319,25 +317,13 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
-                  <EmptySpace min="-2" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="1" attributes="0">
-                      <Group type="102" attributes="0">
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="indexForButton" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <EmptySpace min="22" pref="22" max="22" attributes="0"/>
-                                  <Component id="indexFileField" min="-2" pref="82" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
-                                  <Component id="indexFileButton" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <Component id="allIndexButton" alignment="0" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                      </Group>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="jLabel8" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="languageCombo" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Component id="jButton1" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
-                  <Component id="jScrollPane3" pref="427" max="32767" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="jScrollPane3" pref="493" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -346,18 +332,13 @@
               <Group type="102" attributes="0">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
-                          <Component id="allIndexButton" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="indexForButton" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="indexFileButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="indexFileField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="languageCombo" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="jButton1" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="jScrollPane3" alignment="0" pref="110" max="32767" attributes="0"/>
+                      <Component id="jScrollPane3" alignment="0" pref="116" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -365,52 +346,6 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JRadioButton" name="allIndexButton">
-          <Properties>
-            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-              <ComponentRef name="indexGroup"/>
-            </Property>
-            <Property name="selected" type="boolean" value="true"/>
-            <Property name="text" type="java.lang.String" value="All Indices"/>
-            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-              <Insets value="[0, 0, 0, 0]"/>
-            </Property>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="changeIndex"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JRadioButton" name="indexForButton">
-          <Properties>
-            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-              <ComponentRef name="indexGroup"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Indices for:"/>
-            <Property name="enabled" type="boolean" value="false"/>
-            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-              <Insets value="[0, 0, 0, 0]"/>
-            </Property>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="changeIndex"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JTextField" name="indexFileField">
-          <Properties>
-            <Property name="columns" type="int" value="8"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="changeIndex"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JButton" name="indexFileButton">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="..."/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="browseIndexFile"/>
-          </Events>
-        </Component>
         <Container class="javax.swing.JScrollPane" name="jScrollPane3">
           <AuxValues>
             <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
@@ -433,6 +368,26 @@
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="updateIndices"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel8">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Language:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JComboBox" name="languageCombo">
+          <Properties>
+            <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+              <StringArray count="4">
+                <StringItem index="0" value="Item 1"/>
+                <StringItem index="1" value="Item 2"/>
+                <StringItem index="2" value="Item 3"/>
+                <StringItem index="3" value="Item 4"/>
+              </StringArray>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="updateIndexList"/>
           </Events>
         </Component>
       </SubComponents>

@@ -42,10 +42,12 @@ import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.beans.VetoableChangeSupport;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -66,6 +68,7 @@ import org.netbeans.modules.languages.execution.ExecutionService;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.InstalledFileLocator;
+import org.openide.util.Exceptions;
 import org.openide.util.Mutex;
 import org.openide.util.MutexException;
 import org.openide.util.Utilities;
@@ -232,9 +235,15 @@ public final class RubyPlatformManager {
                     if (patchLevel != null){
                         props.put(Info.RUBY_PATCHLEVEL, patchLevel);
                     }
-                    props.put(Info.RUBY_RELEASE_DATE, p.get(PLATFORM_PREFIX + idDot + Info.RUBY_RELEASE_DATE));
+                    String releaseDate = p.get(PLATFORM_PREFIX + idDot + Info.RUBY_RELEASE_DATE);
+                    if (releaseDate != null) {
+                        props.put(Info.RUBY_RELEASE_DATE, releaseDate);
+                    }
 //                    props.put(Info.RUBY_EXECUTABLE, p.get(PLATFORM_PREFIX + idDot + Info.RUBY_EXECUTABLE));
-                    props.put(Info.RUBY_PLATFORM, p.get(PLATFORM_PREFIX + idDot + Info.RUBY_PLATFORM));
+                    String platform = p.get(PLATFORM_PREFIX + idDot + Info.RUBY_PLATFORM);
+                    if (platform != null) {
+                        props.put(Info.RUBY_PLATFORM, platform);
+                    }
                     String gemHome = p.get(PLATFORM_PREFIX + idDot + Info.GEM_HOME);
                     if (gemHome != null) {
                         props.put(Info.GEM_HOME, gemHome);
@@ -248,9 +257,9 @@ public final class RubyPlatformManager {
                 }
             }
             if (!foundDefault) {
-                String loc = RubyInstallation.getInstance().getRuby();
+                String loc = RubyInstallation.getInstance().getInterpreterInEnv();
                 if (loc != null) {
-                    platforms.add(new RubyPlatform(PLATFORM_ID_DEFAULT, loc, Info.forDefaultPlatform()));
+                    platforms.add(new RubyPlatform(PLATFORM_ID_DEFAULT, loc, Info.forDefaultPlatform(loc)));
                 }
             }
             LOGGER.fine("ErlangPlatform initial list: " + platforms);
@@ -399,9 +408,13 @@ public final class RubyPlatformManager {
         if (info.getPatchlevel() != null) {
             props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_PATCHLEVEL, info.getPatchlevel());
         }
-        props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_RELEASE_DATE, info.getReleaseDate());
-//                    props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_EXECUTABLE, info.getExecutable());
-        props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_PLATFORM, info.getPlatform());
+        if (info.getReleaseDate() != null) {
+            props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_RELEASE_DATE, info.getReleaseDate());
+        }
+        //                    props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_EXECUTABLE, info.getExecutable());
+        if (info.getPlatform() != null) {
+            props.setProperty(PLATFORM_PREFIX + idDot + Info.RUBY_PLATFORM, info.getPlatform());
+        }
         if (info.getGemHome() != null) {
             props.setProperty(PLATFORM_PREFIX + idDot + Info.GEM_HOME, info.getGemHome());
             props.setProperty(PLATFORM_PREFIX + idDot + Info.GEM_PATH, info.getGemPath());
@@ -427,38 +440,74 @@ public final class RubyPlatformManager {
             return new Info(TEST_RUBY_PROPS);
         }
         Info info = null;
+
+        BufferedWriter stdWriter = null;
+        BufferedReader stdReader = null;
+        BufferedReader errReader = null;
         try {
-            File platformInfoScript = InstalledFileLocator.getDefault().locate(
-                    "platform_info.rb", "org.netbeans.modules.ruby.platform", false);  // NOI18N
-            if (platformInfoScript == null) {
-                throw new IllegalStateException("Cannot locate platform_info.rb script");
-            }
-            ProcessBuilder pb = new ProcessBuilder(interpreter.getAbsolutePath(), platformInfoScript.getAbsolutePath()); // NOI18N
-            // be sure that JRUBY_HOME is not set during configuration
-            // autodetection, otherwise interpreter under JRUBY_HOME would be
-            // effectively used
-            pb.environment().remove("JRUBY_HOME"); // NOI18N
-            ExecutionService.logProcess(pb);
-            Process start = pb.start();
-            // FIXME: set timeout
-            start.waitFor();
-            if (start.exitValue() == 0) {
-                Properties props = new Properties();
-                props.load(start.getInputStream());
-                info = new Info(props);
-            } else {
-                LOGGER.severe(interpreter.getAbsolutePath() + " does not seems to be a valid interpreter"); // TODO localize me
-                BufferedReader errors = new BufferedReader(new InputStreamReader(start.getErrorStream()));
-                String line;
-                while ((line = errors.readLine()) != null) {
-                    LOGGER.severe(line);
+            Process process = Runtime.getRuntime().exec("erl");
+
+            stdWriter = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+            stdReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            stdWriter.append("code:root_dir().");
+            stdWriter.newLine();
+            stdWriter.append("init:stop().");
+            stdWriter.newLine();
+            stdWriter.flush();
+
+            try {
+                int sucessed = process.waitFor();
+                if (sucessed != 0) {
+                    //ErrorManager.().notify(new Exception(
+                    //        "Erlang installation may not be set, or is invalid.\n" +
+                    //        "Please set Erlang installation via [Tools]->[Options]->[Miscellanous]"));
+                } else {
+                    String line = null;
+                    while ((line = errReader.readLine()) != null) {
+                        System.out.println(line);
+                    }
+                    String id = null;
+                    String version = "1.0";
+                    while ((line = stdReader.readLine()) != null) {
+                        System.out.println(line);
+                        if (line.toLowerCase().contains("eshell")) {
+                            id = line;
+                        }
+                        String[] groups = line.split(">");
+                        if (groups.length >= 2 && groups[0].trim().equals("1")) {
+                            String basePath = groups[1].trim();
+                            basePath = basePath.replace("\"", "");
+                            String erlExeFileName = Utilities.isWindows() ? "erl.exe" : "erl";
+                            String erlPath = basePath + File.separator + "bin" + File.separator + erlExeFileName;                  
+                            break;
+                        }
+                    }
+                    if (id == null) {
+                        id = "Erlang";
+                    }
+                    info = new Info(id, version);
                 }
+            } catch (InterruptedException e) {
+                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
             }
         } catch (IOException e) {
             LOGGER.log(Level.INFO, "Not a erlang platform: " + interpreter.getAbsolutePath()); // NOI18N
-        } catch (InterruptedException e) {
-            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+        } finally {
+            try {
+                if (stdWriter != null) {
+                    stdWriter.close();
+                }
+                if (stdReader != null) {
+                    stdReader.close();
+                }
+                if (errReader != null) {
+                    errReader.close();
+                }
+            } catch (IOException ex) {
+            }
         }
+            
         return info;
     }
     

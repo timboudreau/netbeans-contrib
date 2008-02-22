@@ -60,13 +60,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.netbeans.modules.erlang.platform.DebuggerPreferences;
 import org.netbeans.modules.erlang.platform.Util;
+import org.netbeans.modules.erlang.platform.api.RubyInstallation;
 import org.netbeans.modules.erlang.platform.api.RubyPlatform;
 import org.netbeans.modules.erlang.platform.api.RubyPlatformManager;
+import org.netbeans.modules.gsf.Language;
+import org.netbeans.modules.gsf.LanguageRegistry;
 import org.netbeans.modules.gsfret.source.usages.ClassIndexManager;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
@@ -99,8 +101,10 @@ public final class GemManager {
     
     private static final boolean PREINDEXING = Boolean.getBoolean("gsf.preindexing");
 
-    private static boolean SKIP_INDEX_LIBS = System.getProperty("ruby.index.nolibs") != null; // NOI18N
-    private static boolean SKIP_INDEX_GEMS = System.getProperty("ruby.index.nogems") != null; // NOI18N
+    private static boolean SKIP_INDEX_LIBS = System.getProperty("erlang.index.nolibs") != null; // NOI18N
+    /** @Caoyuan commented */
+    //private static boolean SKIP_INDEX_GEMS = System.getProperty("erlang.index.nogems") != null; // NOI18N
+    private static boolean SKIP_INDEX_GEMS = true; // NOI18N
 
     /**
      * Extension of files containing gems specification residing in {@link
@@ -989,15 +993,16 @@ public final class GemManager {
             gemVersions = new HashMap<String, String>(60);
             nonGemUrls = new HashSet<URL>(12);
 
-            FileObject rubyStubs = platform.getRubyStubs();
-
-            if (rubyStubs != null) {
-                try {
-                    nonGemUrls.add(rubyStubs.getURL());
-                } catch (FileStateInvalidException fsie) {
-                    Exceptions.printStackTrace(fsie);
-                }
-            }
+            /** @Caoyuan commented */
+//            FileObject rubyStubs = platform.getRubyStubs();
+//
+//            if (rubyStubs != null) {
+//                try {
+//                    nonGemUrls.add(rubyStubs.getURL());
+//                } catch (FileStateInvalidException fsie) {
+//                    Exceptions.printStackTrace(fsie);
+//                }
+//            }
 
             // Install standard libraries
             // lib/ruby/1.8/ 
@@ -1074,7 +1079,8 @@ public final class GemManager {
             // Register boot roots. This is a bit of a hack.
             // I need to find a better way to distinguish source directories
             // from boot (library, gems, etc.) directories at the scanning and indexing end.
-            ClassIndexManager mgr = ClassIndexManager.getDefault();
+            Language language = LanguageRegistry.getInstance().getLanguageByMimeType(RubyInstallation.RUBY_MIME_TYPE);
+            ClassIndexManager mgr = ClassIndexManager.get(language);
             List<URL> roots = new ArrayList<URL>(gemUrls.size() + nonGemUrls.size());
             roots.addAll(gemUrls.values());
             roots.addAll(nonGemUrls);

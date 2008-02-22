@@ -91,7 +91,7 @@
     <Component class="javax.swing.JButton" name="addButton">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.addButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.addButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Events>
@@ -104,7 +104,7 @@
     <Component class="javax.swing.JButton" name="removeButton">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.removeButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.removeButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Events>
@@ -114,7 +114,7 @@
     <Component class="javax.swing.JButton" name="autoDetectButton">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.autoDetectButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.autoDetectButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Events>
@@ -220,7 +220,7 @@
               <ComponentRef name="gemToolValue"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.gemTool.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.gemTool.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
@@ -235,7 +235,7 @@
               <ComponentRef name="gemHomeValue"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.gemHome.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.gemHome.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
@@ -247,7 +247,7 @@
         <Component class="javax.swing.JButton" name="browseGemHome">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.browseGemHome.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.browseGemHome.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Events>
@@ -257,7 +257,7 @@
         <Component class="javax.swing.JLabel" name="gemPath">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.gemPath.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.gemPath.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
@@ -267,7 +267,7 @@
               <ComponentRef name="plfInterpreterValue"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.plfInterpreter.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.plfInterpreter.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
@@ -282,7 +282,7 @@
               <ComponentRef name="plfNameValue"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.plfName.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.plfName.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
@@ -305,7 +305,7 @@
         <Component class="javax.swing.JButton" name="addGemPath">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.addGemPath.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.addGemPath.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Events>
@@ -315,7 +315,7 @@
         <Component class="javax.swing.JButton" name="removeGemPath">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.removeGemPath.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.removeGemPath.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Events>
@@ -331,7 +331,7 @@
         <Component class="javax.swing.JLabel" name="autoDetectLabel">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.autoDetectLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.autoDetectLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
@@ -393,7 +393,7 @@
         <Component class="javax.swing.JLabel" name="rubyDebuggerLabel">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.rubyDebuggerLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.rubyDebuggerLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
@@ -402,7 +402,7 @@
         <Component class="javax.swing.JLabel" name="engineLabel">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.engineLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.engineLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </Component>
@@ -413,7 +413,7 @@
             </Property>
             <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.classicDebuggerEngine.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.classicDebuggerEngine.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
             <Property name="opaque" type="boolean" value="false"/>
           </Properties>
@@ -427,7 +427,7 @@
               <ComponentRef name="debuggerEngineGroup"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.rubyDebugEngine.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.rubyDebugEngine.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
             <Property name="opaque" type="boolean" value="false"/>
           </Properties>
@@ -438,7 +438,7 @@
         <Component class="javax.swing.JButton" name="installFastDebugger">
           <Properties>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/ruby/platform/Bundle.properties" key="RubyPlatformCustomizer.installFastDebugger.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="org/netbeans/modules/erlang/platform/Bundle.properties" key="RubyPlatformCustomizer.installFastDebugger.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
           <Events>

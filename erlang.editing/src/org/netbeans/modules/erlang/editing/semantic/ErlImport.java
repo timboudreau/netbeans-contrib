@@ -42,6 +42,8 @@ package org.netbeans.modules.erlang.editing.semantic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import org.netbeans.api.languages.database.DatabaseDefinition;
 
 /**
@@ -49,11 +51,26 @@ import org.netbeans.api.languages.database.DatabaseDefinition;
  * @author Caoyuan Deng
  */
 public class ErlImport extends DatabaseDefinition {
+    private List<String> packages;
     
     private Collection<ErlFunction> functions = new ArrayList<ErlFunction>();
     
     public ErlImport(int offset, int endOffset) {
         super("import", null, offset, endOffset);
+    }
+        
+    public void addPackage(String packageName) {
+        if (packages == null) {
+            packages = new ArrayList<String>();
+        }
+        packages.add(packageName);
+    }
+    
+    public List<String> getPackages() {
+        if (packages == null) {
+            return Collections.<String>emptyList();
+        }
+        return packages;
     }
     
     public void addFunction(ErlFunction function) {

@@ -23,12 +23,12 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Map;
 import java.util.HashMap;
-import org.netbeans.api.gsfpath.classpath.ClassPath;
+import org.netbeans.fpi.gsfpath.classpath.ClassPath;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.modules.erlang.makeproject.spi.support.PropertyEvaluator;
 import org.netbeans.modules.erlang.makeproject.spi.support.RakeProjectHelper;
-import org.netbeans.spi.gsfpath.classpath.ClassPathFactory;
-import org.netbeans.spi.gsfpath.classpath.ClassPathProvider;
+import org.netbeans.sfpi.gsfpath.classpath.ClassPathFactory;
+import org.netbeans.sfpi.gsfpath.classpath.ClassPathProvider;
 import org.netbeans.modules.erlang.project.SourceRoots;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -233,10 +233,10 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         if (cp == null) {
             switch (type) {
                 case 0:
-                    cp = ClassPathFactory.createClassPath(new SourcePathImplementation (this.sourceRoots, helper, evaluator));
+                    cp = ClassPathFactory.createClassPath(new SourcePathImplementation (new SourceRoots[] {this.sourceRoots, this.includeRoots}, helper, evaluator));
                     break;
                 case 1:
-                    cp = ClassPathFactory.createClassPath(new SourcePathImplementation (this.testSourceRoots));
+                    cp = ClassPathFactory.createClassPath(new SourcePathImplementation (new SourceRoots[] {this.testSourceRoots, this.includeRoots}));
                     break;
             }
         }
