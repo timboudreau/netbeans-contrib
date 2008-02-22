@@ -274,7 +274,7 @@ public class ErlangLanguageParser implements Parser {
         }
         
         public String getMimeType() {
-            return "text/x-erlang";
+            return ErlangGsfLanguage.MIME_TYPE;
         }
 
         public String getName() {
