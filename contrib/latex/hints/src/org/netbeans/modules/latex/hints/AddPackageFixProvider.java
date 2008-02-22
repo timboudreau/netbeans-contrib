@@ -46,7 +46,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.swing.text.Position;
-import org.netbeans.fpi.gsf.CancellableTask;
+import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.command.ArgumentNode;

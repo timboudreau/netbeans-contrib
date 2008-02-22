@@ -45,7 +45,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import org.netbeans.fpi.gsf.CancellableTask;
+import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationInfo;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source.Priority;

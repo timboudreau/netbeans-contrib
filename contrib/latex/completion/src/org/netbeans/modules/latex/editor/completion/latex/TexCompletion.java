@@ -53,7 +53,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Position;
-import org.netbeans.fpi.gsf.CancellableTask;
+import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;

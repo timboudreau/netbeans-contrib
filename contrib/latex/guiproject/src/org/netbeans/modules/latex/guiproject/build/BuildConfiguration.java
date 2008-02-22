@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.text.Document;
-import org.netbeans.fpi.gsf.CancellableTask;
+import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.modules.latex.model.LaTeXParserResult;

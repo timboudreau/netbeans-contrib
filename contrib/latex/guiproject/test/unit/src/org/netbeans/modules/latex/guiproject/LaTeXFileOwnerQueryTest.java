@@ -44,7 +44,7 @@
 package org.netbeans.modules.latex.guiproject;
 
 import java.io.IOException;
-import org.netbeans.fpi.gsf.CancellableTask;
+import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.napi.gsfret.source.CompilationController;

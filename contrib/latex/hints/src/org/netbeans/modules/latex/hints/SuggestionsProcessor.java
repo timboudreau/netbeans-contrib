@@ -45,7 +45,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import javax.swing.text.Document;
-import org.netbeans.fpi.gsf.CancellableTask;
+import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.napi.gsfret.source.CompilationInfo;

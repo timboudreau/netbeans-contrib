@@ -43,7 +43,7 @@ package org.netbeans.modules.latex.loop;
 
 import java.util.Collection;
 import java.util.Collections;
-import org.netbeans.fpi.gsf.GsfLanguage;
+import org.netbeans.modules.gsf.api.GsfLanguage;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.latex.editor.TexLanguage;
 import org.openide.filesystems.FileObject;

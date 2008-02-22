@@ -51,7 +51,7 @@ import java.util.LinkedList;
 import java.util.Stack;
 import javax.swing.text.Document;
 import org.netbeans.api.editor.fold.FoldType;
-import org.netbeans.fpi.gsf.CancellableTask;
+import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationInfo;
 import org.netbeans.napi.gsfret.source.support.EditorAwareSourceTaskFactory;
 import org.netbeans.modules.latex.editor.fold.FoldMaintainerImpl.FoldInfo;

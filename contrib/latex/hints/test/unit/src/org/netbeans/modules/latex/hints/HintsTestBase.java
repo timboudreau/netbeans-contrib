@@ -53,7 +53,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.text.StyledDocument;
 import junit.framework.Assert;
-import org.netbeans.fpi.gsf.CancellableTask;
+import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.core.startup.Main;
 import org.netbeans.junit.NbTestCase;

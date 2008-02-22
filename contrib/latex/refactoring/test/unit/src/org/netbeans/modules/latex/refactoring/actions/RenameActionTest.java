@@ -48,7 +48,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
-import org.netbeans.fpi.gsf.CancellableTask;
+import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.napi.gsfret.source.CompilationController;

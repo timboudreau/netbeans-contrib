@@ -63,7 +63,7 @@ import org.netbeans.api.editor.mimelookup.MimeLookup;
 import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.api.editor.settings.AttributesUtilities;
 import org.netbeans.api.editor.settings.FontColorSettings;
-import org.netbeans.fpi.gsf.CancellableTask;
+import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.napi.gsfret.source.CompilationInfo;
 import org.netbeans.modules.latex.editor.ColoringEvaluator;

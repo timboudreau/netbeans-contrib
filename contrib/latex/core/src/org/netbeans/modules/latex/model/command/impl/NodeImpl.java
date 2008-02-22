@@ -57,9 +57,9 @@ import java.util.Set;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Position;
-import org.netbeans.fpi.gsf.Element;
-import org.netbeans.fpi.gsf.ElementKind;
-import org.netbeans.fpi.gsf.Modifier;
+import org.netbeans.modules.gsf.api.Element;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.Modifier;
 
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;

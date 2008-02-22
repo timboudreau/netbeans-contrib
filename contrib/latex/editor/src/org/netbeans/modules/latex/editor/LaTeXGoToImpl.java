@@ -47,7 +47,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.text.Document;
-import org.netbeans.fpi.gsf.CancellableTask;
+import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source;
