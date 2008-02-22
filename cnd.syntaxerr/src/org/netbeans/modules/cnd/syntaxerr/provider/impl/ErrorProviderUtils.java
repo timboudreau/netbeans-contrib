@@ -44,6 +44,7 @@ package org.netbeans.modules.cnd.syntaxerr.provider.impl;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Random;
 import java.util.StringTokenizer;
 import javax.swing.text.BadLocationException;
@@ -79,10 +80,21 @@ public class ErrorProviderUtils {
     }
     
     public static void WriteDocument(BaseDocument doc, File file) throws IOException, BadLocationException {
+	File dir = file.getParentFile();
+	if( ! dir.exists() ) {
+	    dir.mkdirs();
+	}
 	FileWriter writer = new FileWriter(file);
 	doc.write(writer, 0, doc.getLength());
 	writer.write(System.getProperty("line.separator"));
 	writer.close();	
     }
     
+    public static PrintWriter createPrintWriter(File file) throws IOException {
+	File dir = file.getParentFile();
+	if( ! dir.exists() ) {
+	    dir.mkdirs();
+	}
+	return new PrintWriter(new  FileWriter(file));
+    }
 }
