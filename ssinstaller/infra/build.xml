@@ -375,7 +375,7 @@ cvs.timestamp=${cvs.timestamp}
 cvs.branch=${cvs.branch}
 
 checkout.sources=false
-sources.dir=${nbi.all.dir}/..
+sources.dir=${nbi.all.dir}
 
 release.to.server=false
 release.registry.dir=${output.dir}/registry-temp
@@ -1839,10 +1839,12 @@ jarsigner.storepass=${jarsigner.storepass}
             <property 
                 name="basedir" 
                 value="${nbi.core.dir}/infra/build/engine"/>
+           <property 
+                name="sources.dir" 
+                value="${nbi.all.dir}/.."/>
             <property 
                 name="environment.properties" 
-                value="${environment.properties}"/>
-            
+                value="${environment.properties}"/>            
             <property
                 name="build.native"
                 value="false"/>
@@ -1855,11 +1857,10 @@ jarsigner.storepass=${jarsigner.storepass}
         <ant dir="${nbi.netbeans.dir}/infra/engine" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/engine"/>
+                value="${nbi.netbeans.dir}/infra/engine"/>                          
             <property 
                 name="environment.properties" 
-                value="${environment.properties}"/>
-            
+                value="${environment.properties}"/>            
             <property 
                 name="core.engine.dist.file" 
                 value="${nbi.core.dir}/infra/build/engine/dist/${engine.dist.file.name}"/>
