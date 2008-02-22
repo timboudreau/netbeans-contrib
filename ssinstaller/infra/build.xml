@@ -192,7 +192,7 @@
             destdir="${custom.tasks.cls}"
             classpath="${custom.tasks.cls}"
             debug="true"/>
-        
+        <!--
         <taskdef 
             name="glassfish-buildnumber" 
             classpath="${custom.tasks.cls}" 
@@ -225,7 +225,7 @@
             name="wsrp-buildnumber" 
             classpath="${custom.tasks.cls}" 
             classname="org.netbeans.installer.infra.build.ant.BuildNumberWsrp"/>
-
+-->
         <taskdef 
             name="for-each"
             classname="org.netbeans.installer.infra.build.ant.ForEach"
@@ -299,13 +299,14 @@
         <!--
         <set property="openesb.build.number" value="2008012302"/>                       
         <set property="openesb.build.number.real" value="080123_2"/>
-	-->
+
         <get
             src="${openesb.builds.host}/kits/ojc/main/latest/log/"
             dest="${temp.file}"/>
         <openesb-buildnumber 
             file="${temp.file}" 
             prefix="openesb"/>
+	-->
         <!--        
         <get
             src="${glassfish.builds.host}/java/re/swdp/1.0/promoted/fcs/latest/bundles/"
@@ -386,7 +387,7 @@ custom.tasks.cls=${custom.tasks.cls}
 build.engine=false
 
 engine.dist.file.name=nbi-engine.jar
-engine.dist.file=${nbi.netbeans.dir}/infra/build/engine/dist/nbi-engine.jar
+engine.dist.file=${nbi.netbeans.dir}/infra/engine/dist/nbi-engine.jar
 
 release.url=http://${glassfish.host}:${glassfish.http.port}${context.path}/admin
 release.registry=NetBeans
@@ -413,8 +414,8 @@ sjsas.milestone.number.real=${sjsas.milestone.number.real}
 sjsas.build.type=${sjsas.build.type}
 sjsas.build.number=${sjsas.build.number}
 
-openesb.build.number=${openesb.build.number}
-openesb.build.number.real=${openesb.build.number.real}
+#openesb.build.number=${openesb.build.number}
+#openesb.build.number.real=${openesb.build.number.real}
 
 nb.full.version=${nb.full.version}
 nb.build.suffix=${nb.build.suffix}
@@ -564,10 +565,10 @@ jarsigner.storepass=${jarsigner.storepass}
     <target name="build-netbeans">
         <echo message="BUILDING NB-IDE-GROUP ====================================="/>
         <!--
-        <ant dir="${nbi.netbeans.dir}/infra/build/groups/nb-ide-group" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/groups/nb-ide-group" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/groups/nb-ide-group"/>
+                value="${nbi.netbeans.dir}/infra/groups/nb-ide-group"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -585,10 +586,10 @@ jarsigner.storepass=${jarsigner.storepass}
         -->
         
         <echo message="BUILDING NB-BASE =========================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/nb-base" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/nb-base"/>
+                value="${nbi.netbeans.dir}/infra/products/nb-base"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -609,10 +610,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
        <!-- 
         <echo message="BUILDING NB-JAVASE ========================================"/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/nb-javase" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/nb-javase" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/nb-javase"/>
+                value="${nbi.netbeans.dir}/infra/products/nb-javase"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -634,10 +635,10 @@ jarsigner.storepass=${jarsigner.storepass}
         -->
         <echo message="BUILDING NB-ADDONS-GROUP =================================="/>
         <!--
-        <ant dir="${nbi.netbeans.dir}/infra/build/groups/nb-addons-group" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/groups/nb-addons-group" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/groups/nb-addons-group"/>
+                value="${nbi.netbeans.dir}/infra/groups/nb-addons-group"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -655,10 +656,10 @@ jarsigner.storepass=${jarsigner.storepass}
         -->
         <!--
         <echo message="BUILDING NB-JAVA-EE ======================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/nb-javaee" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/nb-javaee" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/nb-javaee"/>
+                value="${nbi.netbeans.dir}/infra/products/nb-javaee"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -679,10 +680,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
         
         <echo message="BUILDING NB-JAVA-ME ======================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/nb-javame" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/nb-javame" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/nb-javame"/>
+                value="${nbi.netbeans.dir}/infra/products/nb-javame"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -703,10 +704,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
         
         <echo message="BUILDING NB-SOA ==========================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/nb-soa" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/nb-soa" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/nb-soa"/>
+                value="${nbi.netbeans.dir}/infra/products/nb-soa"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -727,10 +728,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
         
         <echo message="BUILDING NB-UML ==========================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/nb-uml" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/nb-uml" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/nb-uml"/>
+                value="${nbi.netbeans.dir}/infra/products/nb-uml"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -751,10 +752,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
         
         <echo message="BUILDING NB-RUBY =========================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/nb-ruby" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/nb-ruby" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/nb-ruby"/>
+                value="${nbi.netbeans.dir}/infra/products/nb-ruby"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -775,10 +776,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
 -->
 	<echo message="BUILDING NB-CND =========================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/nb-cnd" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/nb-cnd" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/nb-cnd"/>
+                value="${nbi.netbeans.dir}/infra/products/nb-cnd"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -799,10 +800,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
          
         
-         <ant dir="${nbi.netbeans.dir}/infra/build/products/sample" target="release-all">
+         <ant dir="${nbi.netbeans.dir}/infra/products/sample" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/sample"/>
+                value="${nbi.netbeans.dir}/infra/products/sample"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -823,10 +824,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
 <!--	
         <echo message="BUILDING NB-PHP =========================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/nb-php" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/nb-php" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/nb-php"/>
+                value="${nbi.netbeans.dir}/infra/products/nb-php"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -849,10 +850,10 @@ jarsigner.storepass=${jarsigner.storepass}
 
      <target name="build-runtimes">
         <echo message="BUILDING RUNTIMES-GROUP ==================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/groups/runtimes-group" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/groups/runtimes-group" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/groups/runtimes-group"/>
+                value="${nbi.netbeans.dir}/infra/groups/runtimes-group"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -869,10 +870,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
         
         <echo message="BUILDING GLASSFISH ========================================"/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/glassfish" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/glassfish" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/glassfish"/>
+                value="${nbi.netbeans.dir}/infra/products/glassfish"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -895,10 +896,10 @@ jarsigner.storepass=${jarsigner.storepass}
         
         <!--
 	<echo message="BUILDING SJSAS ============================================"/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/sjsas" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/sjsas" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/sjsas"/>
+                value="${nbi.netbeans.dir}/infra/products/sjsas"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -920,10 +921,10 @@ jarsigner.storepass=${jarsigner.storepass}
         -->
        
         <echo message="BUILDING TOMCAT ==========================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/tomcat" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/tomcat" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/tomcat"/>
+                value="${nbi.netbeans.dir}/infra/products/tomcat"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -944,10 +945,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
         
         <echo message="BUILDING OPENESB =========================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/openesb" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/openesb" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/openesb"/>
+                value="${nbi.netbeans.dir}/infra/products/openesb"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -970,10 +971,10 @@ jarsigner.storepass=${jarsigner.storepass}
 
     <target name="build-javaeesdk">        
 	<echo message="BUILDING SJSAM ============================================"/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/sjsam" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/sjsam" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/sjsam"/>
+                value="${nbi.netbeans.dir}/infra/products/sjsam"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -995,10 +996,10 @@ jarsigner.storepass=${jarsigner.storepass}
         
         <!--
 	<echo message="BUILDING SWDP ============================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/swdp" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/swdp" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/swdp"/>
+                value="${nbi.netbeans.dir}/infra/products/swdp"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -1020,10 +1021,10 @@ jarsigner.storepass=${jarsigner.storepass}
         -->
 
         <echo message="BUILDING JAVAEESDK: FIRSTCUP =============================="/>        
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/javaeesdk-firstcup" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/javaeesdk-firstcup" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/javaeesdk-firstcup"/>
+                value="${nbi.netbeans.dir}/infra/products/javaeesdk-firstcup"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -1044,10 +1045,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
 
         <echo message="BUILDING JAVAEESDK: BLUEPRINTS ============================"/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/javaeesdk-blueprints" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/javaeesdk-blueprints" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/javaeesdk-blueprints"/>
+                value="${nbi.netbeans.dir}/infra/products/javaeesdk-blueprints"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -1068,10 +1069,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
 
         <echo message="BUILDING JAVAEESDK: SAMPLES ==============================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/javaeesdk-samples" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/javaeesdk-samples" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/javaeesdk-samples"/>
+                value="${nbi.netbeans.dir}/infra/products/javaeesdk-samples"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -1092,10 +1093,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
 
         <echo message="BUILDING JAVAEESDK: JAVADOCS =============================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/javaeesdk-javadocs" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/javaeesdk-javadocs" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/javaeesdk-javadocs"/>
+                value="${nbi.netbeans.dir}/infra/products/javaeesdk-javadocs"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -1116,10 +1117,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
 
         <echo message="BUILDING PORTLET CONTAINER ================================"/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/portletcontainer" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/portletcontainer" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/portletcontainer"/>
+                value="${nbi.netbeans.dir}/infra/products/portletcontainer"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -1140,10 +1141,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
 
         <echo message="BUILDING WSRP ================================"/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/wsrp" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/wsrp" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/wsrp"/>
+                value="${nbi.netbeans.dir}/infra/products/wsrp"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -1164,10 +1165,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
 
 	<echo message="BUILDING PORTAL PACK PLUGIN ================================"/>        
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/nb-portalpack" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/nb-portalpack" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/nb-portalpack"/>
+                value="${nbi.netbeans.dir}/infra/products/nb-portalpack"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -1190,10 +1191,10 @@ jarsigner.storepass=${jarsigner.storepass}
 
      <target name="build-wtk">
 	<echo message="BUILDING WTK ======================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/wtk" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/wtk" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/wtk"/>
+                value="${nbi.netbeans.dir}/infra/products/wtk"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -1216,10 +1217,10 @@ jarsigner.storepass=${jarsigner.storepass}
 
      <target name="build-jdk">
         <echo message="BUILDING JDK5 ========================================"/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/jdk" antfile="build_jdk5.xml" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/jdk" antfile="build_jdk5.xml" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/jdk"/>
+                value="${nbi.netbeans.dir}/infra/products/jdk"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -1239,10 +1240,10 @@ jarsigner.storepass=${jarsigner.storepass}
                 value=""/>
         </ant>
         <echo message="BUILDING JDK6 ========================================"/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/products/jdk" antfile="build_jdk6.xml" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/products/jdk" antfile="build_jdk6.xml" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/products/jdk"/>
+                value="${nbi.netbeans.dir}/infra/products/jdk"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -1851,10 +1852,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
         
         <echo message="BUILDING NETBEANS ENGINE =================================="/>
-        <ant dir="${nbi.netbeans.dir}/infra/build/engine" target="release-all">
+        <ant dir="${nbi.netbeans.dir}/infra/engine" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/build/engine"/>
+                value="${nbi.netbeans.dir}/infra/engine"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
