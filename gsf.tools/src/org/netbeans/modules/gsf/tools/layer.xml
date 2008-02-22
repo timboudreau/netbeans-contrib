@@ -15,7 +15,7 @@
 
     <folder name="Menu">
         <folder name="Window">
-            <folder name="Ruby Development">
+            <folder name="GSF Development">
                 <attr name="position" intvalue="1640"/>
                 <file name="org-netbeans-modules-gsf-browser-DumpIndex.shadow">
                     <attr name="originalFile" stringvalue="Actions/Ruby/org-netbeans-modules-gsf-browser-DumpIndex.instance"/>

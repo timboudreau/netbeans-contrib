@@ -27,7 +27,9 @@
  */
 package org.netbeans.modules.cnd.syntaxerr.provider;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.cnd.syntaxerr.provider.impl.ErrorProviderImpl;
 import org.openide.loaders.DataObject;
@@ -38,9 +40,26 @@ import org.openide.loaders.DataObject;
  */
 public abstract class ErrorProvider {
     
-    private static final ErrorProvider DEFAULT = new ErrorProviderImpl();
+    private static ErrorProvider DEFAULT = null;
     
-    public static final ErrorProvider getDefault() {
+    private static class Empty extends ErrorProvider {
+	@Override
+	public Collection<ErrorInfo> getErrors(DataObject dao, BaseDocument document) {
+	    return Collections.<ErrorInfo>emptyList();
+	}	
+    }
+    
+    public static final synchronized  ErrorProvider getDefault() {
+	if( DEFAULT == null ) {
+	    try {
+		DEFAULT = new ErrorProviderImpl();
+	    }
+	    catch( IOException e ) {
+		e.printStackTrace();
+		DEFAULT = new Empty();
+	    }
+			
+	}
         return DEFAULT;
     }
 

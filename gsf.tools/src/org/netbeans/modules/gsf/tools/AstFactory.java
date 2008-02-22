@@ -41,14 +41,16 @@
 package org.netbeans.modules.gsf.tools;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
 import javax.swing.text.Document;
 
-import org.netbeans.api.gsf.ParserResult;
-import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.fpi.gsf.ParserResult;
+import org.netbeans.fpi.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationInfo;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.RescheduleListener;
@@ -102,7 +104,17 @@ public class AstFactory extends EditorAwareSourceTaskFactory {
         public void run(CompilationInfo info) {
             resume();
 
-            final ParserResult result = info.getParserResult();
+            ParserResult r = null;
+            Set<String> embeddedMimeTypes = info.getEmbeddedMimeTypes();
+            if (embeddedMimeTypes != null && embeddedMimeTypes.size() > 0) {
+                String mimeType = embeddedMimeTypes.iterator().next();
+                Collection<? extends ParserResult> embeddedResults = info.getEmbeddedResults(mimeType);
+                for (ParserResult p : embeddedResults) {
+                    r = p;
+                    break;
+                }
+            }
+            final ParserResult result = r;
             SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         AstViewer viewer = AstViewer.findInstance();

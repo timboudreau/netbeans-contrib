@@ -14,9 +14,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map;
 import java.util.Set;
-import javax.swing.JFileChooser;
+import java.util.Vector;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListDataListener;
@@ -27,10 +27,10 @@ import javax.swing.table.TableModel;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
-import org.netbeans.api.gsf.NameKind;
-import org.netbeans.api.gsf.Index.SearchResult;
-import org.netbeans.api.gsfpath.classpath.ClassPath;
-import org.netbeans.napi.gsfret.source.ClassIndex;
+import org.netbeans.fpi.gsf.NameKind;
+import org.netbeans.fpi.gsf.Index.SearchResult;
+import org.netbeans.modules.gsf.Language;
+import org.netbeans.modules.gsf.LanguageRegistry;
 import org.netbeans.modules.gsfret.source.usages.ClassIndexImpl;
 import org.netbeans.modules.gsfret.source.usages.ClassIndexManager;
 import org.netbeans.modules.gsfret.source.usages.Index;
@@ -40,8 +40,6 @@ import org.netbeans.modules.ruby.elements.IndexedField;
 import org.netbeans.modules.ruby.elements.IndexedMethod;
 import org.openide.ErrorManager;
 import org.openide.awt.StatusDisplayer;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
@@ -74,6 +72,15 @@ final class IndexBrowserTopComponent extends TopComponent {
         setToolTipText(NbBundle.getMessage(IndexBrowserTopComponent.class, "HINT_IndexBrowserTopComponent"));
         //        setIcon(Utilities.loadImage(ICON_PATH, true));
 
+
+        Vector<String> languageNames = new Vector<String>();
+        for (Language language : LanguageRegistry.getInstance()) {
+            if (language.getIndexer() == null) {
+                continue;
+            }
+            languageNames.add(language.getDisplayName());
+        }
+        languageCombo.setModel(new DefaultComboBoxModel(languageNames));
         
         matchTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         //Ask to be notified of selection changes.
@@ -133,47 +140,59 @@ final class IndexBrowserTopComponent extends TopComponent {
         return TopComponent.PERSISTENCE_NEVER;
     }
     
+    private Language getLanguage() {
+        String name = languageCombo.getSelectedItem().toString();
+        for (Language language : LanguageRegistry.getInstance()) {
+            if (language.getDisplayName().equals(name)) {
+                return language;
+            }
+        }
+        
+        return null;
+    }
+    
     private void updateIndices() {
         List<IndexEntry> list = new ArrayList<IndexEntry>();
-        if (allIndexButton.isSelected()) {
+//        if (allIndexButton.isSelected()) {
             // Show all indices
             // Initialize indices
-            Map<URL, ClassIndexImpl> map = ClassIndexManager.getDefault().getAllIndices();
+            Language language = getLanguage();
+            Map<URL, ClassIndexImpl> map = ClassIndexManager.get(language).getAllIndices();
             for (URL url : map.keySet()) {
                 ClassIndexImpl index = map.get(url);
                 File segment = index.getSegment();
                 list.add(new IndexEntry(url, index, segment));
             }
-        } else {
-            assert indexForButton.isSelected();
-            
-            File file = getCurrentFile();
-            if (file == null) {
-                Toolkit.getDefaultToolkit().beep();
-                return;
-            }
-            
-            FileObject fo = FileUtil.toFileObject(file);
-            if (fo == null) {
-                Toolkit.getDefaultToolkit().beep();
-                return;
-            }
-            
-//            Project p = FileOwnerQuery.getOwner(fo);
-//            if (p == null) {
+//        } else {
+//            assert indexForButton.isSelected();
+//            
+//            File file = getCurrentFile();
+//            if (file == null) {
 //                Toolkit.getDefaultToolkit().beep();
 //                return;
 //            }
-            
-            final ClassPath cp = ClassPath.getClassPath(fo, ClassPath.SOURCE);
-            Set<ClassIndexImpl> indices = new HashSet<ClassIndexImpl>();
-            ClassIndex.createQueriesForRoots(cp, true, indices);
-            for (ClassIndexImpl index : indices) {
-                URL url = index.getRoot();
-                File segment = index.getSegment();
-                list.add(new IndexEntry(url, index, segment));
-            }
-        }
+//            
+//            FileObject fo = FileUtil.toFileObject(file);
+//            if (fo == null) {
+//                Toolkit.getDefaultToolkit().beep();
+//                return;
+//            }
+//            
+////            Project p = FileOwnerQuery.getOwner(fo);
+////            if (p == null) {
+////                Toolkit.getDefaultToolkit().beep();
+////                return;
+////            }
+//            
+//            final ClassPath cp = ClassPath.getClassPath(fo, ClassPath.SOURCE);
+//            Set<ClassIndexImpl> indices = new HashSet<ClassIndexImpl>();
+//            ClassIndex.createQueriesForRoots(cp, true, indices);
+//            for (ClassIndexImpl index : indices) {
+//                URL url = index.getRoot();
+//                File segment = index.getSegment();
+//                list.add(new IndexEntry(url, index, segment));
+//            }
+//        }
         indexList.setModel(new IndexListModel(list));
     }
     
@@ -292,13 +311,11 @@ final class IndexBrowserTopComponent extends TopComponent {
         prevButton = new javax.swing.JButton();
         nextButton = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
-        allIndexButton = new javax.swing.JRadioButton();
-        indexForButton = new javax.swing.JRadioButton();
-        indexFileField = new javax.swing.JTextField();
-        indexFileButton = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         indexList = new javax.swing.JList();
         jButton1 = new javax.swing.JButton();
+        jLabel8 = new javax.swing.JLabel();
+        languageCombo = new javax.swing.JComboBox();
         indexLabel = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
@@ -309,11 +326,10 @@ final class IndexBrowserTopComponent extends TopComponent {
 
         org.openide.awt.Mnemonics.setLocalizedText(jRadioButton3, "jRadioButton3");
         jRadioButton3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jRadioButton3.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, "Key:");
 
-        keyCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "class", "method", "field", "attribute", "constant", "fqn", "file", "module", "extends", "require", "dbtable" }));
+        keyCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "func", "class", "method", "field", "attribute", "constant", "fqn", "file", "module", "extends", "require", "dbtable" }));
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, "Name:");
 
@@ -380,10 +396,10 @@ final class IndexBrowserTopComponent extends TopComponent {
                 .add(prevButton)
                 .add(6, 6, 6)
                 .add(nextButton)
-                .addContainerGap(203, Short.MAX_VALUE))
+                .addContainerGap(225, Short.MAX_VALUE))
             .add(jPanel2Layout.createSequentialGroup()
                 .add(20, 20, 20)
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE))
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -394,44 +410,10 @@ final class IndexBrowserTopComponent extends TopComponent {
                     .add(prevButton)
                     .add(nextButton))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE))
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE))
         );
 
         jSplitPane1.setRightComponent(jPanel2);
-
-        indexGroup.add(allIndexButton);
-        allIndexButton.setSelected(true);
-        org.openide.awt.Mnemonics.setLocalizedText(allIndexButton, "All Indices");
-        allIndexButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        allIndexButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                changeIndex(evt);
-            }
-        });
-
-        indexGroup.add(indexForButton);
-        org.openide.awt.Mnemonics.setLocalizedText(indexForButton, "Indices for:");
-        indexForButton.setEnabled(false);
-        indexForButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        indexForButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                changeIndex(evt);
-            }
-        });
-
-        indexFileField.setColumns(8);
-        indexFileField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                changeIndex(evt);
-            }
-        });
-
-        org.openide.awt.Mnemonics.setLocalizedText(indexFileButton, "...");
-        indexFileButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                browseIndexFile(evt);
-            }
-        });
 
         indexList.setModel(getIndexList());
         jScrollPane3.setViewportView(indexList);
@@ -443,42 +425,38 @@ final class IndexBrowserTopComponent extends TopComponent {
             }
         });
 
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel8, "Language:");
+
+        languageCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        languageCombo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                updateIndexList(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(indexForButton)
-                            .add(jPanel1Layout.createSequentialGroup()
-                                .add(22, 22, 22)
-                                .add(indexFileField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 82, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(1, 1, 1)
-                                .add(indexFileButton))
-                            .add(allIndexButton))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jButton1))
-                .add(8, 8, 8)
-                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE))
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabel8)
+                    .add(languageCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jButton1))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 493, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel1Layout.createSequentialGroup()
-                        .add(allIndexButton)
+                        .add(jLabel8)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(indexForButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(indexFileButton)
-                            .add(indexFileField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(languageCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(18, 18, 18)
                         .add(jButton1))
-                    .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE))
+                    .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -511,7 +489,7 @@ final class IndexBrowserTopComponent extends TopComponent {
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 751, Short.MAX_VALUE)
+                        .add(jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 763, Short.MAX_VALUE)
                         .addContainerGap())
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
@@ -538,14 +516,14 @@ final class IndexBrowserTopComponent extends TopComponent {
                                     .add(indexLabel)
                                     .add(layout.createSequentialGroup()
                                         .add(segmentLabel)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 574, Short.MAX_VALUE)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 591, Short.MAX_VALUE)
                                         .add(lukeButton))))
                             .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel4))
                         .add(20, 20, 20))
                     .add(layout.createSequentialGroup()
                         .add(jLabel7)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(selectedElementField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 687, Short.MAX_VALUE)
+                        .add(selectedElementField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 694, Short.MAX_VALUE)
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -626,48 +604,18 @@ private void updateIndices(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_up
 }//GEN-LAST:event_updateIndices
 
 
-    private File getCurrentFile() {
-        String name = indexFileField.getText();
-
-        File f = new File(name);
-
-        if (f.exists()) {
-            return f;
-        }
-
-        return null;
-    }
+//    private File getCurrentFile() {
+//        String name = indexFileField.getText();
+//
+//        File f = new File(name);
+//
+//        if (f.exists()) {
+//            return f;
+//        }
+//
+//        return null;
+//    }
     
-private void browseIndexFile(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseIndexFile
-    JFileChooser chooser = new JFileChooser();
-    chooser.setDialogTitle("Choose a source file");
-    chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-    chooser.setMultiSelectionEnabled(false);
-
-    File currentFile = getCurrentFile();
-
-    if (currentFile != null) {
-        if (!currentFile.isDirectory()) {
-            currentFile = currentFile.getParentFile();
-        }
-
-        if (currentFile.exists()) {
-            chooser.setCurrentDirectory(currentFile);
-        }
-    }
-
-    int returnVal = chooser.showOpenDialog(this);
-
-    if (returnVal == JFileChooser.APPROVE_OPTION) {
-        indexFileField.setText(chooser.getSelectedFile().getParent() + File.separator +
-            chooser.getSelectedFile().getName());
-    }    
-}//GEN-LAST:event_browseIndexFile
-
-private void changeIndex(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_changeIndex
-    updateIndices();
-}//GEN-LAST:event_changeIndex
-
 private void docIdFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_docIdFieldActionPerformed
     int doc = Integer.parseInt(docIdField.getText().trim());
     showDocument(doc);
@@ -740,12 +688,13 @@ private void search(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_search
     } else if (type.equals("Regexp (IC)")) {
         kind = NameKind.CASE_INSENSITIVE_REGEXP;
     }
-    Map<URL, ClassIndexImpl> map = ClassIndexManager.getDefault().getAllIndices();
+    Language language = getLanguage();
+    Map<URL, ClassIndexImpl> map = ClassIndexManager.get(language).getAllIndices();
     Set<SearchResult> result = new HashSet<SearchResult>();
 
     try {
         for (ClassIndexImpl index : map.values()) {
-            index.gsfSearch(field, name, kind, scope, result);
+            index.search(field, name, kind, scope, result, null);
         }
         
         TableModel model = new SearchMatchModel(result, field);
@@ -762,16 +711,16 @@ private void selectedElementFieldActionPerformed(java.awt.event.ActionEvent evt)
     // TODO add your handling code here:
 }//GEN-LAST:event_selectedElementFieldActionPerformed
 
+private void updateIndexList(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateIndexList
+    updateIndices();
+}//GEN-LAST:event_updateIndexList
+
 private IndexReader indexReader;
 
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JRadioButton allIndexButton;
     private javax.swing.JTextField docIdField;
     private javax.swing.JTable documentTable;
-    private javax.swing.JButton indexFileButton;
-    private javax.swing.JTextField indexFileField;
-    private javax.swing.JRadioButton indexForButton;
     private javax.swing.ButtonGroup indexGroup;
     private javax.swing.JLabel indexLabel;
     private javax.swing.JList indexList;
@@ -783,6 +732,7 @@ private IndexReader indexReader;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JRadioButton jRadioButton3;
@@ -791,6 +741,7 @@ private IndexReader indexReader;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JComboBox keyCombo;
+    private javax.swing.JComboBox languageCombo;
     private javax.swing.JButton lukeButton;
     private javax.swing.JTable matchTable;
     private javax.swing.JTextField nameField;

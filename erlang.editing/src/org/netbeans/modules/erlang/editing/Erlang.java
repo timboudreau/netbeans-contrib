@@ -119,7 +119,7 @@ import org.openide.nodes.Node;
  */
 public class Erlang {
 
-    private static final String DOC = "org/netbeans/modules/erlang/resources/Documentation.xml";
+    private static final String DOC = "org/netbeans/modules/erlang/editing/resources/Documentation.xml";
     private static final String MIME_TYPE = "text/x-erlang";
 
     private static Set<Integer> regExp = new HashSet<Integer> ();

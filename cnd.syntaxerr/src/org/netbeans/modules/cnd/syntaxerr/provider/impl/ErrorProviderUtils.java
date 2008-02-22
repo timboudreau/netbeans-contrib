@@ -42,7 +42,12 @@
 package org.netbeans.modules.cnd.syntaxerr.provider.impl;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Random;
 import java.util.StringTokenizer;
+import javax.swing.text.BadLocationException;
+import org.netbeans.editor.BaseDocument;
 
 /**
  *
@@ -60,6 +65,24 @@ public class ErrorProviderUtils {
             }
         }
         return null;
+    }
+   
+    public static File createTmpDir(File base, String prefix) {
+	int counter = new Random().nextInt(4096);
+	File file = null;
+	do {
+	    file = new File(base, prefix + "_" +  counter);
+	} while( file.exists() );
+	file.mkdirs();
+	file.deleteOnExit();
+	return file;
+    }
+    
+    public static void WriteDocument(BaseDocument doc, File file) throws IOException, BadLocationException {
+	FileWriter writer = new FileWriter(file);
+	doc.write(writer, 0, doc.getLength());
+	writer.write(System.getProperty("line.separator"));
+	writer.close();	
     }
     
 }

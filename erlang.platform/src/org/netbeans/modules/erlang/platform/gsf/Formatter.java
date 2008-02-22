@@ -26,11 +26,12 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.netbeans.api.gsf.ParserResult;
+import org.netbeans.fpi.gsf.ParserResult;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
+import org.netbeans.fpi.gsf.CompilationInfo;
 import org.netbeans.modules.erlang.platform.options.CodeStyle;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
@@ -64,7 +65,7 @@ end
  * @author Tor Norbye
  * @author Caoyuan Deng
  */
-public class Formatter implements org.netbeans.api.gsf.Formatter {
+public class Formatter implements org.netbeans.fpi.gsf.Formatter {
 
     private CodeStyle codeStyle;
     private int rightMarginOverride = -1;
@@ -79,12 +80,16 @@ public class Formatter implements org.netbeans.api.gsf.Formatter {
         this.rightMarginOverride = rightMarginOverride;
     }
 
-    public void reindent(Document document, int startOffset, int endOffset, ParserResult result) {
-        reindent(document, startOffset, endOffset, result, true);
+    public boolean needsParserResult() {
+        return false;
+    }
+    
+    public void reindent(Document document, int startOffset, int endOffset) {
+        reindent(document, startOffset, endOffset, null, true);
     }        
     
-    public void reformat(Document document, int startOffset, int endOffset, ParserResult result) {
-        reindent(document, startOffset, endOffset, result, false);
+    public void reformat(Document document, int startOffset, int endOffset, CompilationInfo info) {
+        reindent(document, startOffset, endOffset, info, false);
     }
     
     public int indentSize() {
@@ -151,7 +156,8 @@ public class Formatter implements org.netbeans.api.gsf.Formatter {
     }
 
     
-    private void reindent(Document document, int startOffset, int endOffset, ParserResult result, boolean indentOnly) {
+    private void reindent(Document document, int startOffset, int endOffset, CompilationInfo info, boolean indentOnly) {
+        
 
         try {
             BaseDocument doc = (BaseDocument) document; // document.getText(0, document.getLength())
@@ -189,7 +195,7 @@ public class Formatter implements org.netbeans.api.gsf.Formatter {
             boolean includeEnd = endOffset == doc.getLength();
 
             // TODO - remove initialbalance etc.
-            computeIndents(doc, initialIndent, initialOffset, endOffset, result, offsets, indents, indentEmptyLines, includeEnd);
+            computeIndents(doc, initialIndent, initialOffset, endOffset, info, offsets, indents, indentEmptyLines, includeEnd);
 
             try {
                 doc.atomicLock();
@@ -247,7 +253,7 @@ public class Formatter implements org.netbeans.api.gsf.Formatter {
         }
     }
 
-    public void computeIndents(BaseDocument doc, int initialIndent, int startOffset, int endOffset, ParserResult result, List<Integer> offsets, List<Integer> indents, boolean indentEmptyLines, boolean includeEnd) {
+    public void computeIndents(BaseDocument doc, int initialIndent, int startOffset, int endOffset, CompilationInfo info, List<Integer> offsets, List<Integer> indents, boolean indentEmptyLines, boolean includeEnd) {
         // PENDING:
         // The reformatting APIs in NetBeans should be lexer based. They are still
         // based on the old TokenID apis. Once we get a lexer version, convert this over.

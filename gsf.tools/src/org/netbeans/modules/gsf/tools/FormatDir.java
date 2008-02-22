@@ -122,7 +122,7 @@ public final class FormatDir extends CallableSystemAction {
         int indentSize = language.getFormatter().indentSize();
         int startOffset = 0;
         int endOffset = doc.getLength();
-        language.getFormatter().reindent(doc, startOffset, endOffset, null);
+        language.getFormatter().reindent(doc, startOffset, endOffset);
 
         // Save
         SaveCookie sc = dobj.getCookie(SaveCookie.class);

@@ -19,12 +19,14 @@
 package org.netbeans.modules.erlang.platform.index;
 
 import java.util.List;
-import org.netbeans.api.gsf.Element;
-import org.netbeans.api.gsf.OffsetRange;
-import org.netbeans.api.gsf.ParserResult;
-import org.netbeans.api.gsf.PositionManager;
+import org.netbeans.fpi.gsf.Element;
+import org.netbeans.fpi.gsf.OffsetRange;
+import org.netbeans.fpi.gsf.ParserResult;
+import org.netbeans.fpi.gsf.PositionManager;
 import org.netbeans.api.languages.ASTItem;
 import org.netbeans.api.languages.ASTNode;
+import org.netbeans.fpi.gsf.CompilationInfo;
+import org.netbeans.fpi.gsf.ElementHandle;
 
 
 /**
@@ -36,7 +38,8 @@ public class ErlangPositionManager implements PositionManager {
     public ErlangPositionManager() {
     }
 
-    public OffsetRange getOffsetRange(Element file, Element object) {
+    public OffsetRange getOffsetRange(CompilationInfo info, ElementHandle objectHandle) {
+        Element object = ErlangLanguageParser.resolveHandle(info, objectHandle);
         if (object instanceof AstRootElement) {
             ASTNode target = ((AstRootElement)object).getNode();
 
@@ -46,8 +49,7 @@ public class ErlangPositionManager implements PositionManager {
                 object) != null) ? object.getClass().getName() : "null");
         }
     }
-    
-        
+
     /**
      * Find the position closest to the given offset in the AST. Place the path from the leaf up to the path in the
      * passed in path list.

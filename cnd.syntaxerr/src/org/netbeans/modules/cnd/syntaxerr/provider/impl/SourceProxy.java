@@ -42,31 +42,34 @@
 package org.netbeans.modules.cnd.syntaxerr.provider.impl;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Collection;
 import javax.swing.text.BadLocationException;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.cnd.api.project.NativeFileItem;
 import org.netbeans.modules.cnd.api.project.NativeFileItemSet;
+import org.netbeans.modules.cnd.api.project.NativeProject;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 
 /**
- *
- * @author vk155633
+ * 
+ * @author Vladimir Kvashin
  */
-class DaoAndDocProxy implements FileProxy {
+class SourceProxy implements FileProxy {
 
-    private final DataObject dao;
-    private final BaseDocument doc;
-    private final FileObject fo;
-    private final NativeFileItem fileItem;
+    protected final DataObject dao;
+    protected final BaseDocument doc;
+    protected final File tmpDir;
+    protected final FileObject fo;
+    protected final NativeFileItem fileItem;
 
-    public DaoAndDocProxy(DataObject dao, BaseDocument doc) {
+    public SourceProxy(DataObject dao, BaseDocument doc, File tmpDir) {
         this.dao = dao;
         this.doc = doc;
+	this.tmpDir = tmpDir;		
         fo = dao.getPrimaryFile();
         NativeFileItemSet itemSet = dao.getLookup().lookup(NativeFileItemSet.class);
         if( itemSet != null ) {
@@ -91,10 +94,12 @@ class DaoAndDocProxy implements FileProxy {
     }
 
     public String getCompilerOptions() {
-        // FIXUP: a temporary varyant that allows to get *something*
-        // TODO: think over, what if there are several items?
-        StringBuilder sb = new StringBuilder();
-        NativeFileItemSet itemSet = dao.getLookup().lookup(NativeFileItemSet.class);
+        return getCompilerOptions(dao);
+    }
+    
+    public String getCompilerOptions(DataObject aDao) {
+        StringBuilder sb = new StringBuilder(" -I . ");
+        NativeFileItemSet itemSet = aDao.getLookup().lookup(NativeFileItemSet.class);
         if( itemSet != null ) {
             for( NativeFileItem item : itemSet.getItems() ) {
                 for( String path : item.getUserIncludePaths() ) {
@@ -111,23 +116,38 @@ class DaoAndDocProxy implements FileProxy {
         }
         return sb.toString();
     }
-
-    public String getExt() {
-        return fo.getExt();
+    
+    public String getCompilerOptions(NativeFileItem item) {
+        StringBuilder sb = new StringBuilder(" -I . ");
+        if( item != null ) {
+            for( String path : item.getUserIncludePaths() ) {
+                sb.append(" -I "); // NOI18N
+                sb.append(path);
+            }
+            for( String def : item.getUserMacroDefinitions() ) {
+                sb.append(" -D"); // NOI18N
+                sb.append(def);
+            }
+        }
+        return sb.toString();
     }
-
-    public String getName() {
-        return fo.getName();
-    }
-
-    public File getParent() {
+ 
+    public File getCompilerRunDirectory() {
         return FileUtil.toFile(fo.getParent());
     }
-
-    public void write(Writer writer) throws IOException, BadLocationException {
-        doc.write(writer, 0, doc.getLength());
+    
+    public File getFileToCompile() {
+	return new File(tmpDir, fo.getNameExt());
+    }
+    
+    public void copyFiles() throws IOException, BadLocationException {
+	ErrorProviderUtils.WriteDocument(doc, getFileToCompile());
     }
 
+    public String getInterestingFileAbsoluteName() {
+        return getFileToCompile().getAbsolutePath();
+    }
+    
     private static boolean isSun(DataObject dao, NativeFileItem item) {
         if( item != null ) {
             for (String macro : item.getSystemMacroDefinitions()) {

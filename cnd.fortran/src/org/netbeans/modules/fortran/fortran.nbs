@@ -1,0 +1,932 @@
+#
+#  Fixed-form Fortran support for NetBeans
+#  @author Arkady Galyash
+# TODO
+# 1) "end" is not highlight
+# 2) "format" statement problem
+# 3) "do" problems
+# definition of tokens
+
+<FIRST_WORD> {
+TOKEN:THEN:('T' ' '* 'H' ' '* 'E' ' '* 'N' ' '*):<LAST>
+TOKEN:ERR:([^ 'A' - 'Z' ' '])
+TOKEN:PROGRAM:('P' ' '* 'R' ' '* 'O' ' '* 'G' ' '* 'R' ' '* 'A' ' '* 'M' ' '*):<LAST>
+TOKEN:SUBROUTINE:('S' ' '* 'U' ' '* 'B' ' '* 'R' ' '* 'O' ' '*
+                  'U' ' '* 'T' ' '* 'I' ' '* 'N' ' '* 'E' ' '*):<LAST>
+TOKEN:END:('E' ' '* 'N' ' '* 'D' ' '*):<LAST>
+TOKEN:DIMENSION:('D' ' '* 'I' ' '* 'M' ' '* 'E' ' '* 'N' ' '*
+                 'S' ' '* 'I' ' '* 'O' ' '* 'N' ' '*):<LAST>
+TOKEN:EQUIVALENCE:('E' ' '* 'Q' ' '* 'U' ' '* 'I' ' '* 'V' ' '*
+                   'A' ' '* 'L' ' '* 'E' ' '* 'N' ' '* 'C' ' '* 'E' ' '*):<LAST>
+TOKEN:COMMON:('C' ' '* 'O' ' '* 'M' ' '* 'M' ' '* 'O' ' '* 'N' ' '*):<LAST>
+TOKEN:REAL:('R' ' '* 'E' ' '* 'A' ' '* 'L' ' '*):<AFTER_TYPE>     
+TOKEN:COMPLEX:('C' ' '* 'O' ' '* 'M' ' '* 'P' ' '* 'L' ' '* 'E' ' '* 'X' ' '*):<AFTER_TYPE>
+TOKEN:DOUBLEPRECISION:('D' ' '* 'O' ' '* 'U' ' '* 'B' ' '* 'L' ' '*
+                       'E' ' '* 'P' ' '* 'R' ' '* 'E' ' '* 'C' ' '* 
+                       'I' ' '* 'S' ' '* 'I' ' '* 'O' ' '* 'N' ' '*):<AFTER_TYPE>   
+TOKEN:INTEGER:('I' ' '* 'N' ' '* 'T' ' '* 'E' ' '* 'G' ' '* 'E' ' '* 'R' ' '*):<AFTER_TYPE>
+TOKEN:LOGICAL:('L' ' '* 'O' ' '* 'G' ' '* 'I' ' '* 'C' ' '* 'A' ' '* 'L' ' '*):<AFTER_TYPE>
+TOKEN:POINTER:('P' ' '* 'O' ' '* 'I' ' '* 'N' ' '* 'T' ' '* 'E' ' '* 'R' ' '*):<LAST>
+TOKEN:IMPLICIT:('I' ' '* 'M' ' '* 'P' ' '* 'L' ' '* 'I' ' '* 'C' ' '* 'I' ' '* 'T' ' '*):<AFTER_IMPLICIT>
+TOKEN:CHARACTER:('C' ' '* 'H' ' '* 'A' ' '* 'R' ' '* 'A' ' '* 'C' ' '* 'T' ' '*
+                 'E' ' '* 'R' ' '*):<AFTER_TYPE>
+#TOKEN:KEYWORD:('K' ' '* 'E' ' '* 'Y' ' '* 'W' ' '* 'O' ' '* 'R' ' '* 'D')      
+TOKEN:INTRINSIC:('I' ' '* 'N' ' '* 'T' ' '* 'R' ' '* 'I' ' '* 'N' ' '*
+                  'S' ' '* 'I' ' '* 'C' ' '*):<LAST>
+TOKEN:SAVE:('S' ' '* 'A' ' '* 'V' ' '* 'E' ' '*):<LAST>
+TOKEN:DATA:('D'' '* 'A' ' '* 'T' ' '* 'A' ' '*):<LAST>
+TOKEN:LET:('L' ' '* 'E' ' '* 'T' ' '*):<LAST>
+TOKEN:ASSIGN:('A' ' '* 'S' ' '* 'S' ' '* 'I' ' '* 'G' ' '* 'N' ' '*):<LAST>
+TOKEN:GOTO:('G' ' '* 'O' ' '* 'T' ' '* 'O' ' '*):<LAST>
+TOKEN:IF:('I' ' '* 'F' ' '*):<AFTER_IF>
+TOKEN:ELSEIF:('E' ' '* 'L' ' '* 'S' ' '* 'E' ' '* 'I' ' '* 'F' ' '*):<AFTER_IF>
+TOKEN:ELSE:('E' ' '* 'L' ' '* 'S' ' '* 'E' ' '*):<LAST>
+TOKEN:ENDIF:('E' ' '* 'N' ' '* 'D' ' '* 'I' ' '* 'F'):<LAST>
+TOKEN:DOWHILE:('D' ' '* 'O' ' '*  'W' ' '* 'H' ' '* 'I' ' '* 'L' ' '* 'E' ' '*):<LAST>
+TOKEN:ENDDO:('E' ' '* 'N' ' '* 'D' ' '* 'D' ' '* 'O' ' '*):<LAST>
+TOKEN:CONTINUE:('C' ' '* 'O' ' '* 'N' ' '* 'T' ' '* 'I' ' '* 'N' ' '*
+                'U' ' '* 'E' ' '*):<LAST>
+TOKEN:STOP:('S' ' '* 'T' ' '* 'O' ' '* 'P' ' '*):<LAST>     
+TOKEN:PAUSE:('P' ' '* 'A' ' '* 'U' ' '* 'S' ' '* 'E' ' '*):<LAST>
+TOKEN:READ:('R' ' '* 'E' ' '* 'A' ' '* 'D' ' '*):<LAST>
+TOKEN:WRITE:('W' ' '* 'R' ' '* 'I' ' '* 'T' ' '* 'E' ' '*):<LAST>
+TOKEN:PRINT:('P' ' '* 'R' ' '* 'I' ' '* 'N' ' '* 'T' ' '*):<LAST>
+TOKEN:OPEN:('O' ' '* 'P' ' '* 'E' ' '* 'N' ' '*):<LAST>
+TOKEN:CLOSE:('C' ' '* 'L' ' '* 'O' ' '* 'S' ' '* 'E' ' '*):<LAST>
+TOKEN:INQUIRE:('I' ' '* 'N' ' '* 'Q' ' '* 'U' ' '* 'I' ' '* 'R' ' '* 'E' ' '*):<LAST>
+TOKEN:BACKSPACE:('B' ' '* 'A' ' '* 'C' ' '* 'K' ' '* 'S' ' '* 'P' ' '*
+                 'A' ' '* 'C' ' '* 'E' ' '*):<LAST>
+TOKEN:ENDFILE:('E' ' '* 'N' ' '* 'D' ' '* 'F' ' '* 'I' ' '* 'L' ' '* 'E' ' '*):<LAST>
+TOKEN:format:('F' ' '* 'O' ' '* 'R' ' '* 'M' ' '* 'A' ' '* 'T' ' '*):<LAST>
+TOKEN:CALL:('C' ' '* 'A' ' '* 'L' ' '* 'L' ' '*):<LAST>
+TOKEN:RETURN:('R' ' '* 'E' ' '* 'T' ' '* 'U' ' '* 'R' ' '* 'N'  ' '*):<LAST>
+TOKEN:PARAMETER:('P' ' '* 'A' ' '* 'R' ' '* 'A' ' '* 'M' ' '* 'E' ' '* 'T' ' '*
+                 'E' ' '* 'R' ' '*):<LAST>
+TOKEN:ENTRY:('E' ' '* 'N' ' '* 'T' ' '* 'R' ' '* 'Y' ' '*):<LAST>
+TOKEN:BLOCK:('B' ' '* 'L' ' '* 'O' ' '* 'C' ' '* 'K' ' '*):<LAST>
+TOKEN:FUNCTION:('F' ' '* 'U' ' '* 'N' ' '* 'C' ' '* 'T' ' '* 'I' ' '* 'O' ' '* 'N' ' '*):<LAST>
+TOKEN:EXTERNAL:('E' ' '* 'X' ' '* 'T' ' '* 'E' ' '* 'R' ' '* 'N' ' '* 'A' ' '* 'L' ' '*):<LAST>
+TOKEN:whitespace:( [' ' '\t']+)
+}
+
+<AFTER_IMPLICIT>{
+TOKEN:NONE:('N' ' '* 'O' ' '* 'N' ' '* 'E' ' '*):<LAST>
+TOKEN:identifier:(['a'-'z' 'A'-'Z'] ['a'-'z' ' ' 'A'-'Z' '0'-'9']*)
+TOKEN:ERR:(.)
+}
+
+<AFTER_IF>{
+TOKEN:whitespace:( [' ' '\t']+)
+TOKEN:ERR:([^ 'A' - 'Z' '0'-'9' '*' ',' ' ' '\t' '\r' '\n' ':' '(' ')' '+' '-' '/' '=' '.'])
+TOKEN:NEWLINE:(['\n' '\r']+):<DEFAULT>
+TOKEN:string:('\'' [^ '\'' '\n' '\r']+ '\'') 
+TOKEN:string:('\"' [^ '\"' '\n' '\r']+ '\"')
+TOKEN:STAR:('*')
+TOKEN:SLASH:('/')
+TOKEN:COMMA:(',')
+TOKEN:ICON:( ['0'-'9']+ '.' ['0'-'9']+ ['E' 'D'] ['+' '-'] ['0'-'9']+ )
+TOKEN:ICON:( ['0'-'9']+ '.' ['0'-'9']+ ['E' 'D'] ['0'-'9']+ )
+TOKEN:ICON:( ['0'-'9']+ '.' ['0'-'9']+)
+TOKEN:ICON:( ['0'-'9']+ '.')
+TOKEN:ICON:( ['0'-'9']+)
+TOKEN:RCON:( '.' ['0'-'9']* ['E' 'D'] ['+' '-'] ['0'-'9']+ )
+TOKEN:RCON:( '.' ['0'-'9']* ['E' 'D'] ['0'-'9']+ )
+TOKEN:RCON:( '.' ['0'-'9']+)
+TOKEN:operator:( ":" | "//"|"+"|"-"|"/"|"="|"**"|".NOT."|".AND."|".OR."|
+                  ".EQV."|".NEQV."|".LT."|".LE."|".GT."|".GE."|".EQ."|".NE." | ".TRUE."|
+                   ".FALSE."|".")              
+TOKEN:identifier:(['a'-'z' 'A'-'Z'] ['a'-'z' ' ' 'A'-'Z' '0'-'9']*)
+TOKEN:ERR:( '\'' [^ '\r' '\n' '\'']* ['\r' '\n']* ):<DEFAULT>
+TOKEN:ERR:( '\"' [^ '\r' '\n' '\"']* ['\r' '\n']* ):<DEFAULT>
+}
+TOKEN:special_token:{
+    start_state: "AFTER_IF";
+    end_state: "LAST";
+    call: org.netbeans.modules.fortran.HighlightingSupport.lexIf;
+}
+
+<ERR>{
+TOKEN:DO:(.)
+}
+
+<AFTER_TYPE>{
+TOKEN:FUNCTION:('F' ' '* 'U' ' '* 'N' ' '* 'C' ' '* 'T' ' '* 'I' ' '* 'O' ' '* 'N' ' '*):<LAST>
+TOKEN:whitespace:( [' ' '\t']+)
+TOKEN:ERR:(.)
+}
+
+<LAST>{
+TOKEN:whitespace:( [' ' '\t']+)
+TOKEN:ERR:([^ 'A' - 'Z' '0'-'9' '*' ',' ' ' '\t' '\r' '\n' ':' '(' ')' '+' '-' '/' '=' '.'])
+TOKEN:NEWLINE:(['\n' '\r']+):<DEFAULT>
+TOKEN:string:('\'' [^ '\'' '\n' '\r']+ '\'') 
+TOKEN:string:('\"' [^ '\"' '\n' '\r']+ '\"')
+TOKEN:STAR:('*')
+TOKEN:SLASH:('/')
+TOKEN:COMMA:(',')
+TOKEN:ICON:( ['0'-'9']+ '.' ['0'-'9']+ ['E' 'D'] ['+' '-'] ['0'-'9']+ )
+TOKEN:ICON:( ['0'-'9']+ '.' ['0'-'9']+ ['E' 'D'] ['0'-'9']+ )
+TOKEN:ICON:( ['0'-'9']+ '.' ['0'-'9']+)
+TOKEN:ICON:( ['0'-'9']+ '.')
+TOKEN:ICON:( ['0'-'9']+)
+TOKEN:RCON:( '.' ['0'-'9']* ['E' 'D'] ['+' '-'] ['0'-'9']+ )
+TOKEN:RCON:( '.' ['0'-'9']* ['E' 'D'] ['0'-'9']+ )
+TOKEN:RCON:( '.' ['0'-'9']+)
+TOKEN:operator:( ":"| "(" | ")" |"//"|"+"|"-"|"/"|"="|"**"|".NOT."|".AND."|".OR."|
+                  ".EQV."|".NEQV."|".LT."|".LE."|".GT."|".GE."|".EQ."|".NE." | ".TRUE."|
+                   ".FALSE."|".")              
+TOKEN:identifier:(['a'-'z' 'A'-'Z'] ['a'-'z' ' ' 'A'-'Z' '0'-'9']*)
+TOKEN:ERR:( '\'' [^ '\r' '\n' '\'']* ['\r' '\n']* ):<DEFAULT>
+TOKEN:ERR:( '\"' [^ '\r' '\n' '\"']* ['\r' '\n']* ):<DEFAULT>
+}
+SKIP:comment
+TOKEN:special_token:{
+    start_state: "FIRST_WORD";
+    end_state: "LAST";
+    call: org.netbeans.modules.fortran.HighlightingSupport.test;
+}
+
+<DEFAULT>{
+    TOKEN:comment:(['C' '*'] [^ '\r' '\n']*)
+    TOKEN:TAB:([' ' '0'-'9'][' ''0'-'9'][' ''0'-'9'][' ' '0'-'9'][' ' '0'-'9']
+                [' ' '+']):<FIRST_WORD>
+    TOKEN:SKIP_NEWLINE:(['\n' '\r']+)
+    TOKEN:ERR:([^ 'C' '*' '\r' '\n' ' ' '0'-'9'])
+}
+
+SKIP:whitespace
+SKIP:special_token
+SKIP:SKIP_NEWLINE
+SKIP:comment
+#SKIP:ERR
+SKIP:TAB
+COLOR:ERR:{ wave_underline_color:"red";}
+COLOR:ICON:{foreground_color:"yellow";}
+COLOR:RCON:{foreground_color:"yellow";}
+COLOR:operator:{ background_color:"blue";}
+COLOR:IF:{background:"red";}
+
+# definition of grammar
+S = executableUnit;
+executableUnit =
+        mainProgram|	
+	subroutineSubprogram |
+        functionSubprogram |
+	blockdataSubprogram;
+mainProgram = [programStatement] subprogramBody;
+
+
+functionSubprogram =
+	functionStatement subprogramBody ;
+
+
+subroutineSubprogram =
+    subroutineStatement	subprogramBody ;
+
+blockdataSubprogram =
+    blockdataStatement subprogramBody ;
+
+
+otherSpecificationStatement =
+    dimensionStatement |
+    equivalenceStatement |
+    intrinsicStatement |
+    saveStatement
+    ;
+
+
+executableStatement =
+    (assignmentStatement |
+	gotoStatement |
+        ( 
+          ((ifKeyword|elseifKeyword) <operator,"("> logicalExpression <ERR,")">)
+          ( arithmeticIfStatement |
+	    logicalIfStatement |
+            blockIfStatement
+          )
+        ) |
+#(elseifKeyword <operator,"("> logicalExpression <ERR,")"> (thenKeyword|))  |#elseIfStatement )|
+	elseStatement |
+	endIfStatement |
+	doStatement |
+	whileStatement |
+	enddoStatement |
+	continueStatement |
+	stopStatement |
+	pauseStatement |
+	readStatement |
+	writeStatement |
+	printStatement |
+	rewindStatement |
+	backspaceStatement |
+	endfileStatement |
+	openStatement |
+	closeStatement |
+	inquireStatement |
+	callStatement |
+	returnStatement )
+	;
+entryStatement = 
+	entryKeyword identifier [<operator,"("> namelist <operator,")">] ;
+
+programStatement =
+	programKeyword identifier <NEWLINE>;
+        
+subroutineStatement =
+	subroutineKeyword identifier [<operator,"("> [namelist] <operator,")"> ] <NEWLINE> ;
+
+blockdataStatement =
+	blockKeyword identifier <NEWLINE>;
+
+functionStatement =
+	[typename | characterWithLen] 
+	functionKeyword identifier <operator,"("> [namelist] <operator,")">;
+
+
+namelist =
+	identifier ( <COMMA> identifier )* ;
+
+
+statement = 
+	formatStatement |
+	entryStatement |
+	implicitStatement |
+	parameterStatement |
+	typeStatement |
+	commonStatement |
+	pointerStatement |
+	externalStatement |
+	otherSpecificationStatement |
+	dataStatement |
+	executableStatement
+	;
+
+subprogramBody = 
+	(optlabel wholeStatement)*
+	optlabel endStatement
+	;
+
+optlabel=
+;	#[label];
+
+wholeStatement =
+     statement <NEWLINE>;
+
+endStatement =
+	 endKeyword;
+
+dimensionStatement =
+	dimensionKeyword arrayDeclarators ;
+        
+arrayDeclarator =
+	identifier <operator,"("> arrayDeclaratorExtents <operator,")">
+		[ typeStatementLenSpec ]
+	;
+
+arrayDeclarators = 
+	arrayDeclarator (<COMMA> arrayDeclarator)* ;
+
+arrayDeclaratorExtents =
+	arrayDeclaratorExtent (<COMMA> arrayDeclaratorExtent)* ;
+
+arrayDeclaratorExtent = 
+	iexprCode [<operator,":"> (iexprCode | <STAR> ) ] |
+	<STAR>
+	;
+
+equivalenceStatement = 
+	equivalenceKeyword equivEntityGroup (<COMMA> equivEntityGroup)* ;
+
+equivEntityGroup=
+         <operator,"("> equivEntity (<COMMA> equivEntity)* <operator,")"> ;
+
+equivEntity = varRef ;
+
+commonStatement =
+	commonKeyword (commonBlock (<COMMA> commonBlock)* | commonItems)	;
+commonName =  
+	<SLASH> identifier <SLASH> |
+	<SLASH> <SLASH>
+	;
+commonItem =
+	identifier |
+	arrayDeclarator
+	;
+commonItems = commonItem (<COMMA> commonItem)* ;
+commonBlock = commonName commonItems ;
+
+
+typeStatement=
+	(typename typeStatementNameList |
+	characterWithLen typeStatementNameCharList)
+	;
+
+typeStatementNameList =
+	typeStatementName (<COMMA> typeStatementName)*
+	;
+typeStatementName =
+	identifier | arrayDeclarator ;       
+
+typeStatementNameCharList =
+	typeStatementNameChar (<COMMA> typeStatementNameChar)* ;
+
+typeStatementNameChar =
+	identifier [typeStatementLenSpec] |
+	arrayDeclarator
+	;
+
+typeStatementLenSpec =
+	  <STAR> lenSpecification ;
+
+typename =
+	(realKeyword |
+	 complexKeyword |
+	 doubleprecisionKeyword |
+	 integerKeyword |
+	 logicalKeyword);
+
+pointerStatement =
+	pointerKeyword pointerDecl (<COMMA> pointerDecl)* ;
+
+pointerDecl =
+	<operator,"(">
+	identifier <COMMA> identifier
+	<operator,")">
+	;
+        
+implicitStatement = 
+	implicitKeyword (implicitNone | implicitSpecs) ;
+
+implicitSpec = 
+	identifier [implicitLen] <operator,"("> implicitLetters <operator,")"> ;
+
+implicitLen = <STAR> lenSpecification ;
+
+implicitSpecs = implicitSpec (<COMMA> implicitSpec)* ;
+
+implicitNone = noneKeyword ;
+
+implicitLetter = identifier ;
+
+implicitRange = implicitLetter [<operator,"-"> implicitLetter];
+
+implicitLetters = 
+	implicitRange (<COMMA> implicitRange)* ;
+
+
+lenSpecification = 
+	<ICON> |
+	<operator,"("> intConstantExpr <operator,")"> ;
+
+characterWithLen = characterKeyword [cwlLen] ; 
+
+cwlLen =
+	<STAR> lenSpecification
+	;
+
+parameterStatement = 
+	parameterKeyword <operator,"("> paramlist <operator,")"> ;
+
+paramlist = paramassign ( <COMMA> paramassign )* ;
+paramassign = identifier <operator,"="> constantExpr ;
+
+
+
+externalStatement =
+	externalKeyword namelist ;
+        
+        
+intrinsicStatement =
+	intrinsicKeyword namelist ;
+
+
+saveStatement = saveKeyword saveEntity (<COMMA> saveEntity)* ;
+saveEntity = ( identifier | <SLASH> identifier <SLASH> ) ;
+
+#-----------------------------
+dataStatement = 
+	dataKeyword dataStatementEntity ([<COMMA>] dataStatementEntity)* ;
+dataStatementItem = 
+	varRef | dataImpliedDo ;
+
+dataStatementMultiple = 
+	[(<ICON> | identifier) <STAR>] (constant | identifier) ;
+
+dataStatementEntity =
+	dse1 dse2 ;
+
+dse1 =   dataStatementItem (<COMMA> dataStatementItem)* <SLASH> ;
+dse2 =   dataStatementMultiple (<COMMA> dataStatementMultiple)* <SLASH> ;
+
+#-------------------------
+dataImpliedDo = 
+	<operator,"(">
+	dataImpliedDoList <COMMA>
+	identifier <operator,"="> intConstantExpr
+	<COMMA> intConstantExpr (<COMMA> intConstantExpr)?
+	<operator,")">
+
+	;
+
+
+
+dataImpliedDoList =
+	(dataImpliedDoListWhat <COMMA> dataImpliedDoList) |
+	dataImpliedDoListWhat ;
+
+dataImpliedDoListWhat = 
+	(varRef | dataImpliedDo ) ;
+
+#--------------------------------
+assignmentStatement = 
+	[letKeyword] varRef <operator,"="> expression |
+	assignKeyword <ICON> TO variableName 
+	;
+#--------------------------------
+
+gotoStatement = 
+	(unconditionalGoto | computedGoto | assignedGoto) ;
+
+#-------------------------------
+unconditionalGoto = 
+	gotoKeyword <ICON> ;
+
+#------------------------------
+computedGoto =
+	gotoKeyword <operator,"("> labelList <operator,")"> [<COMMA>] integerExpr ;
+
+#------------------------------
+assignedGoto = 
+	gotoKeyword identifier [ [<COMMA>] <operator,"("> labelList <operator,")"> ] ;
+
+labelList = <ICON> (<COMMA> <ICON>)* ;
+
+#------------------------------
+arithmeticIfStatement = 
+	<ICON> <COMMA> <ICON> <COMMA> <ICON> ;
+
+#-----------------------------
+logicalIfStatement = 
+	 executableStatement;
+
+#-----------------------------
+blockIfStatement = 
+	thenKeyword ;
+#-----------------------------
+
+elseIfStatement =
+	 #<operator,"("> logicalExpression <operator,")"> 
+         thenKeyword ;
+
+#-----------------------------
+elseStatement = elseKeyword ;
+
+#-----------------------------
+endIfStatement = endifKeyword ;
+
+#-----------------------------
+doStatement = 
+	doKeyword [<ICON> [<COMMA>] ]
+	variableName <operator,"="> intRealDpExpr
+	<COMMA> intRealDpExpr [ <COMMA> intRealDpExpr ]
+	;
+
+whileStatement = #logicalExpression <operator,")"> ;
+	dowhileKeyword <operator,"("> logicalExpression <operator,")"> ;
+
+enddoStatement = enddoKeyword ;
+
+#-----------------------------
+continueStatement = continueKeyword ;
+
+#-----------------------------
+stopStatement = stopKeyword (<ICON>|HOLLERITH|) ;
+
+#-----------------------------
+
+pauseStatement = pauseKeyword (<ICON>|HOLLERITH) ;
+
+
+writeStatement =
+	 writeKeyword <operator,"("> controlInfoList <operator,")"> [ ioList ] ;
+
+#-----------------------------
+
+readStatement = 
+	readKeyword 
+	(
+		<operator,"("> controlInfoList <operator,")"> [ ioList ]
+	)
+        | readKeyword formatIdentifier [<COMMA> ioList]
+	;
+
+#-----------------------------
+printStatement = 
+	printKeyword formatIdentifier [<COMMA> ioList] ;
+
+#-----------------------------
+controlInfoList = 
+	controlInfoListItem (<COMMA> controlInfoListItem)* ;
+
+controlErrSpec =
+	controlErr  <operator,"="> (<ICON> | identifier) ;
+
+controlInfoListItem =	
+	unitIdentifier | HOLLERITH |
+	controlFmt <operator,"="> formatIdentifier |
+	controlUnit <operator,"="> unitIdentifier |
+	controlRec <operator,"="> integerExpr |
+	controlEnd <operator,"="> <ICON> |
+	controlErrSpec |
+	controlIostat <operator,"="> varRef
+	;
+
+#-------------------------------
+ioList = 
+	ioListItem (<COMMA> ioListItem)* ;
+
+
+
+ioListItem = 
+	expression;
+
+#-------------------------------
+ioImpliedDoList = 
+	<operator,"(">
+	ioList <COMMA> variableName <operator,"=">
+	intRealDpExpr <COMMA> intRealDpExpr
+	[ <COMMA> intRealDpExpr ]
+	<operator,")">
+	;
+
+#-------------------------------
+openStatement = 
+	openKeyword <operator,"("> openControl (<COMMA> openControl)* <operator,")"> ;
+
+openControl = 
+	unitIdentifier |
+	controlUnit <operator,"="> unitIdentifier |
+	controlErrSpec |
+	controlFile <operator,"="> characterExpression |
+	controlStatus <operator,"="> characterExpression |
+	(controlAccess|controlPosition) <operator,"="> characterExpression|
+	controlForm <operator,"="> characterExpression |
+	controlRecl <operator,"="> integerExpr |
+	controlBlank <operator,"="> characterExpression |
+	controlIostat <operator,"="> varRef ;
+
+controlFmt = "fmt" | "FMT";
+controlUnit = "unit" | "UNIT";
+controlRec = "rec" | "REC";
+controlEnd = "end" | "END";
+controlErr = "err" | "ERR";
+controlIostat = "iostat" | "IOSTAT";
+controlFile = "file" | "FILE";
+controlStatus = "status" | "STATUS";
+controlAccess = "access" | "ACCESS";
+controlPosition = "position" | "POSITION";
+controlForm = "form" | "FORM";
+controlRecl = "recl" | "RECL";
+controlBlank = "blank" | "BLANK";
+controlExist = "exist" | "EXIST";
+controlOpened = "opened" | "OPENED";
+controlNumber = "number" | "NUMBER";
+controlNamed = "named" | "NAMED";
+controlName = "name" | "NAME";
+controlSequential = "sequential" | "SEQUENTIAL";
+controlDirect = "direct" | "DIRECT";
+controlFormatted = "formatted" | "FORMATTED";
+controlUnformatted = "unformatted" | "UNFORMATTED";
+controlNextrec = "nextrec" | "NEXTREC";
+
+#----------------------------
+closeStatement = 
+	closeKeyword <operator,"("> closeControl (<COMMA> closeControl)* <operator,")">;
+
+closeControl = 
+	unitIdentifier |
+	controlUnit <operator,"="> unitIdentifier |
+	controlErrSpec |
+	controlStatus <operator,"="> characterExpression |
+	controlIostat <operator,"="> varRef ;
+
+#---------------------------
+inquireStatement = 
+	inquireKeyword <operator,"("> inquireControl (<COMMA> inquireControl)* <operator,")"> ;
+
+inquireControl = 
+	controlUnit <operator,"="> unitIdentifier|
+	controlFile <operator,"="> characterExpression |
+	controlErrSpec |
+	(controlIostat|controlExist|controlOpened|
+	 controlNumber|controlNamed|controlName|
+	 controlAccess|controlSequential|controlDirect|
+	 controlForm|controlFormatted|controlUnformatted|
+	 controlRecl|controlNextrec|controlBlank) 
+	  <operator,"="> varRef  |
+	unitIdentifier
+	;
+
+#---------------------------------
+backspaceStatement = backspaceKeyword berFinish ;
+
+#---------------------------------
+endfileStatement = endfileKeyword berFinish ;
+
+#---------------------------------
+rewindStatement = <identifier, "rewind"> berFinish ;
+
+
+
+berFinish = 
+	  <operator,"(">
+	  berFinishItem (<COMMA> berFinishItem)*
+	  <operator,")">
+	 ;
+
+berFinishItem = 
+	unitIdentifier | 
+	controlUnit <operator,"="> unitIdentifier |
+	controlErrSpec |
+	controlIostat <operator,"="> varRef;
+
+
+#----------------------------------
+unitIdentifier = 
+	iexpr | <STAR> ;
+
+#----------------------------------
+formatIdentifier = 
+	 HOLLERITH | iexpr | <STAR> ;
+
+
+
+formatStatement = formatKeyword <operator,"("> expression <operator,")"> ;
+
+
+
+#---------------------------------
+statementFunctionStatement = 
+	letKeyword sfArgs <operator,"="> expression ;
+
+sfArgs =
+	identifier <operator,"("> namelist <operator,")"> ;
+
+#--------------------------------
+callStatement = 
+	callKeyword subroutineName [ <operator,"("> [callArgumentList] <operator,")"> ] ;
+
+callArgumentList = 
+	callArgument (<COMMA> callArgument)* ;
+callArgument = 
+	variableName | expression | <STAR> <ICON> ;
+
+#--------------------------------
+returnStatement = returnKeyword [ integerExpr ] ;
+
+#--------------------------------
+expression = (ncExpr [<operator,":"> ncExpr]) | <string> ;
+ncExpr = lexpr0 (<operator,"//"> lexpr0)* ;
+lexpr0 = lexpr1 ((<operator,".neqv.">|<operator,".eqv.">) lexpr1)* ;
+lexpr1 = lexpr2 (<operator,".or."> lexpr2)* ;
+lexpr2 = lexpr3 (<operator,".and."> lexpr3)* ;
+lexpr3 = <operator,".not."> lexpr3 | lexpr4 ;
+lexpr4 = aexpr0 [ (<operator,".lt.">|<operator,".le.">|
+                    <operator,".eq.">|<operator,".ne.">|
+                    <operator,".gt.">|<operator,".ge.">) aexpr0 ] ;
+aexpr0 = aexpr1 ((<operator,"+">|<operator,"-">) aexpr1)* ;
+aexpr1 = aexpr2 ((<STAR>|<operator,"/">) aexpr2)* ;
+aexpr2 = (<operator,"+">|<operator,"-">) aexpr2 | aexpr3 ;
+aexpr3 = aexpr4 [ <operator,"**"> aexpr3 ] ;
+
+
+aexpr4 = unsignedArithmeticConstant| 
+		  HOLLERITH |
+		  logicalConstant |
+		  varRef |
+		  <operator,"("> expression <operator,")"> ;
+
+
+iexpr =
+	iexpr1 ((<operator,"+"> | <operator,"-">) iexpr1)* ;
+
+
+iexprCode=
+	iexpr1 ((<operator,"+"> | <operator,"-">) iexpr1)* ;
+iexpr1=
+	iexpr2 ((<STAR> | <SLASH>) iexpr2)* ;
+iexpr2=
+	 (<operator,"+"> | <operator,"-">) iexpr2 | iexpr3 ;
+iexpr3=
+	iexpr4 [<operator,"**"> iexpr3] ;
+iexpr4=
+	<ICON> | varRefCode | <operator,"("> iexprCode <operator,")"> ;
+
+#-------------------------
+constantExpr = expression ;
+
+#--------------------------
+arithmeticExpression = expression ;
+
+#-------------------------
+integerExpr = iexpr ;
+
+#----------------------------
+intRealDpExpr = expression ;
+
+#---------------------------
+arithmeticConstExpr = expression ;
+
+#---------------------------
+intConstantExpr =  expression ;
+
+#-----------------------------
+characterExpression = expression ;
+
+#------------------------------
+logicalExpression = expression ;
+
+#------------------------------
+logicalConstExpr = expression ;
+	
+#------------------------------
+arrayElementName = 
+	identifier <operator,"("> integerExpr (<COMMA> integerExpr)* <operator,")"> ;
+
+subscripts=
+	<operator,"("> ( expression (<COMMA> expression)* )? <operator,")"> ;
+
+varRef =
+	new_identifier [subscripts [ substringApp ] ] ;
+
+varRefCode =
+	identifier [subscripts [ substringApp ] ] ;
+
+substringApp =
+	<operator,"("> [ncExpr] <operator,":"> [ncExpr] <operator,")"> ;
+
+
+variableName = identifier ;
+
+arrayName =identifier;
+
+
+subroutineName =identifier ;
+
+
+functionName =identifier ;
+
+
+constant = 
+	[ (<operator,"+">|<operator,"-">) ] unsignedArithmeticConstant |	
+	HOLLERITH | logicalConstant ;
+
+
+unsignedArithmeticConstant =
+	<ICON> | <RCON> | complexConstant ;
+
+
+complexConstant =
+	<operator,"(">
+	  ([(<operator,"+">|<operator,"-">)] (<ICON>|<RCON>) <COMMA>
+	  [(<operator,"+">|<operator,"-">)] (<ICON>|<RCON>))
+	<operator,")"> ;
+# gark87 
+programKeyword = <PROGRAM>;
+COLOR:programKeyword: { default_coloring:"keyword"; foreground_color:"red";}
+subroutineKeyword = <SUBROUTINE>;
+COLOR:subroutineKeyword: { default_coloring:"keyword"; foreground_color:"red";}
+endKeyword = <END>;
+COLOR:endKeyword: { default_coloring:"keyword";foreground_color:"red";}
+dimensionKeyword = <DIMENSION>;
+COLOR:dimensionKeyword: { default_coloring:"keyword";foreground_color:"red";}
+equivalenceKeyword = <EQUIVALENCE>;
+COLOR:equivalenceKeyword: { default_coloring:"keyword";foreground_color:"red";}
+commonKeyword = <COMMON>;
+COLOR:commonKeyword: { default_coloring:"keyword";foreground_color:"red";}
+realKeyword = <REAL>;
+COLOR:realKeyword: { default_coloring:"keyword";foreground_color:"red";}
+complexKeyword = <COMPLEX>;
+COLOR:complexKeyword:{ default_coloring:"keyword";foreground_color:"red";}
+doubleprecisionKeyword = <DOUBLEPRECISION>;
+COLOR:doubleprecisionKeyword:{ default_coloring:"keyword";foreground_color:"red";}
+integerKeyword = <INTEGER>;
+COLOR:integerKeyword: { default_coloring:"keyword";foreground_color:"red";}
+logicalKeyword = <LOGICAL>;
+COLOR:logicalKeyword: { default_coloring:"keyword";foreground_color:"red";}
+pointerKeyword = <POINTER>;
+COLOR:pointerKeyword: { default_coloring:"keyword";foreground_color:"red";}
+implicitKeyword = <IMPLICIT>;
+COLOR:implicitKeyword: { default_coloring:"keyword";foreground_color:"red";}
+noneKeyword = <NONE>;
+COLOR:noneKeyword: { default_coloring:"keyword";foreground_color:"red";}
+characterKeyword = <CHARACTER>;
+COLOR:characterKeyword: { default_coloring:"keyword";foreground_color:"red";}
+keywordKeyword = <KEYWORD>;
+COLOR:keywordKeyword: { default_coloring:"keyword";foreground_color:"red";}
+intrinsicKeyword = <INTSRINSIC>;
+COLOR:intrinsicKeyword: { default_coloring:"keyword";foreground_color:"red";}
+saveKeyword = <SAVE>;
+COLOR:saveKeyword: { default_coloring:"keyword";foreground_color:"red";}
+dataKeyword = <DATA>;
+COLOR:dataKeyword: { default_coloring:"keyword";foreground_color:"red";}
+COLOR:identifier:{ background_color:"green";}
+letKeyword = <LET>;
+COLOR:letKeyword: { default_coloring:"keyword";foreground_color:"red";}
+assignKeyword = <ASSIGN>;
+COLOR:assignKeyword: { default_coloring:"keyword";foreground_color:"red";}
+gotoKeyword = <GOTO>;
+COLOR:gotoKeyword: { default_coloring:"keyword";foreground_color:"red";}
+ifKeyword = <IF>;
+COLOR:ifKeyword: { default_coloring:"keyword";foreground_color:"red";}
+thenKeyword = <THEN>;
+COLOR:thenKeyword: { default_coloring:"keyword";foreground_color:"red";}
+elseifKeyword = <ELSEIF>;
+COLOR:elseifKeyword: { default_coloring:"keyword";foreground_color:"red";}
+elseKeyword = <ELSE>;
+COLOR:elseKeyword: { default_coloring:"keyword";foreground_color:"red";}
+endifKeyword = <ENDIF>;
+COLOR:endifKeyword: { default_coloring:"keyword";foreground_color:"red";}
+doKeyword = <DO>;
+COLOR:doKeyword: { default_coloring:"keyword";background_color:"red";}
+enddoKeyword = <ENDDO>;
+COLOR:enddoKeyword: { default_coloring:"keyword";foreground_color:"red";}
+continueKeyword = <CONTINUE>;
+COLOR:continueKeyword: { default_coloring:"keyword";foreground_color:"red";}
+dowhileKeyword = <DOWHILE>;
+COLOR:dowhileKeyword: { default_coloring:"keyword";foreground_color:"red";}
+stopKeyword = <STOP>;
+COLOR:stopKeyword: { default_coloring:"keyword";foreground_color:"red";}
+pauseKeyword = <PAUSE>;
+COLOR:pauseKeyword: { default_coloring:"keyword";foreground_color:"red";}
+readKeyword = <READ>;
+COLOR:readKeyword: { default_coloring:"keyword";foreground_color:"red";}
+writeKeyword = <WRITE>;
+COLOR:writeKeyword: { default_coloring:"keyword";foreground_color:"red";}
+printKeyword = <PRINT>;
+COLOR:printKeyword: { default_coloring:"keyword";foreground_color:"red";}
+openKeyword = <OPEN>;
+COLOR:openKeyword: { default_coloring:"keyword";foreground_color:"red";}
+closeKeyword = <CLOSE>;
+COLOR:closeKeyword: { default_coloring:"keyword";foreground_color:"red";}
+inquireKeyword = <INQUIRE>;
+COLOR:inquireKeyword: { default_coloring:"keyword";foreground_color:"red";}
+backspaceKeyword = <BACKSPACE>;
+COLOR:backspaceKeyword: { default_coloring:"keyword";foreground_color:"red";}
+endfileKeyword = <ENDFILE>;
+COLOR:endfileKeyword: { default_coloring:"keyword";foreground_color:"red";}
+formatKeyword = <format>;
+COLOR:formatKeyword: { default_coloring:"keyword";foreground_color:"red";}
+callKeyword = <CALL>;
+COLOR:callKeyword: { default_coloring:"keyword";foreground_color:"red";}
+returnKeyword = <RETURN>;
+COLOR:returnKeyword: { default_coloring:"keyword";foreground_color:"red";}
+parameterKeyword = <PARAMETER>;
+COLOR:parameterKeyword: { default_coloring:"keyword";foreground_color:"red";}
+entryKeyword = <ENTRY>;
+COLOR:entryKeyword: { default_coloring:"keyword";foreground_color:"red";}
+blockKeyword = <BLOCK>;
+COLOR:blockKeyword: { default_coloring:"keyword";foreground_color:"red";}
+functionKeyword = <FUNCTION>;
+COLOR:functionKeyword: { default_coloring:"keyword";foreground_color:"red";}
+externalKeyword = <EXTERNAL>;
+COLOR:externalKeyword: { default_coloring:"keyword";foreground_color:"red";}
+
+logicalConstant = (<operator,".true."> | <operator,".false.">);
+label= <ICON> ;
+
+new_identifier = ((( <PROGRAM> | <SUBROUTINE> | <END> | <DIMENSION> | <EQUIVALENCE> | <COMMON>
+             | <REAL> | <COMPLEX> | <DOUBLEPRECISION> | <INTEGER> | <LOGICAL> | <POINTER>
+             | <IMPLICIT> | <CHARACTER> | <INTSRINSIC> | <SAVE> | <DATA> | <LET>
+             | <ASSIGN> | <GOTO> | <THEN> | <ELSEIF> | <ELSE> | <ENDIF> | <DOWHILE>
+             | <ENDDO> | <CONTINUE> | <STOP> | <PAUSE> | <READ> | <WRITE> | <PRINT>
+             | <OPEN> | <CLOSE> | <INQUIRE> | <BACKSPACE> | <ENDFILE> | <format> | <CALL>
+             | <RETURN> | <PARAMETER> | <ENTRY> | <BLOCK> | <FUNCTION> | <EXTERNAL>) (<identifier> | ))
+             | <identifier>);
+identifier = <identifier>;         
+
+#EXPON=("e"|"d")[SIGN] <NUM>;
+
+#SIGN = ("+" | "-") ;
+
+#INTVAL = <NUM> ;
+
+#<ICON> = INTVAL ["." <NUM> [EXPON]];
+#<RCON> = "." <NUM> [EXPON];
+
+#TODO - FIX HOLLERITH
+TO="";
+HOLLERITH="";
+
+
+# code folding
+FOLD:wholeStatement
+
+
+
+
+# brace completion
+COMPLETE "(:)"
+
+# indentation support
+INDENT "(:)"
