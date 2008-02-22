@@ -43,14 +43,14 @@ package org.netbeans.modules.javafx.parser;
 
 import java.util.Set;
 
-import org.netbeans.api.gsf.Element;
-import org.netbeans.api.gsf.ElementKind;
-import org.netbeans.api.gsf.Modifier;
-import org.netbeans.api.gsf.ParserFile;
-import org.netbeans.api.gsf.ParserResult;
+import org.netbeans.modules.gsf.api.Element;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.Modifier;
+import org.netbeans.modules.gsf.api.ParserFile;
+import org.netbeans.modules.gsf.api.ParserResult;
 import java.util.ArrayList;
 import java.util.List;
-import org.netbeans.api.gsf.Element;
+import org.netbeans.modules.gsf.api.Element;
 
 
 /**
@@ -73,7 +73,7 @@ public class FXParserResult extends ParserResult {
     }
     
     /* (non-Javadoc)
-     * @see org.netbeans.api.gsf.ParserResult#getAst()
+     * @see org.netbeans.modules.gsf.api.ParserResult#getAst()
      */
     @Override
     public AstTreeNode getAst()
@@ -83,7 +83,7 @@ public class FXParserResult extends ParserResult {
     }
 
     /* (non-Javadoc)
-     * @see org.netbeans.api.gsf.ParserResult#getRoot()
+     * @see org.netbeans.modules.gsf.api.ParserResult#getRoot()
      */
     @Override
     public Element getRoot()

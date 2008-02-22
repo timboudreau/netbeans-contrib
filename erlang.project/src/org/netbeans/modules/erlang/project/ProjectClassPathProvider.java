@@ -19,10 +19,10 @@
 
 package org.netbeans.modules.erlang.project;
 
-import org.netbeans.fpi.gsfpath.classpath.ClassPath;
+import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.sfpi.gsfpath.classpath.ClassPathProvider;
+import org.netbeans.modules.gsfpath.spi.classpath.ClassPathProvider;
 import org.openide.filesystems.FileObject;
 
 /**

@@ -177,22 +177,22 @@ made subject to such option by the copyright holder.
                 </folder>
                 
                 <file name="parser.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.api.gsf.Parser"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Parser"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.parser.FXParser"/>
                 </file>
                 
                 <file name="structure.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.api.gsf.StructureScanner"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.StructureScanner"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.JavaFXStructureAnalyzer"/>
                 </file>
                 
                 <file name="language.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.api.gsf.GsfLanguage"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.GsfLanguage"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.JavaFXLanguage"/>
                 </file>
                 
                 <file name="formatter.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.api.gsf.Formatter"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Formatter"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.editor.JavaFXFormatter"/>
                 </file>
                 

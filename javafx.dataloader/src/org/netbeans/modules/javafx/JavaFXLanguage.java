@@ -43,7 +43,7 @@ package org.netbeans.modules.javafx;
  *
  * @author answer
  */
-import org.netbeans.api.gsf.GsfLanguage;
+import org.netbeans.modules.gsf.api.GsfLanguage;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.javafx.lexer.JavaFXTokenId;
 
