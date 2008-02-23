@@ -55,6 +55,7 @@ import org.netbeans.api.languages.ParserManager.State;
 import org.netbeans.api.languages.ParserManagerListener;
 import org.netbeans.api.languages.SyntaxContext;
 import org.netbeans.api.languages.database.DatabaseManager;
+import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -85,6 +86,7 @@ public class ErlangSemanticAnalyser {
     private static ErlangSemanticAnalyser ANALYSER_FOR_INDEXING = new ErlangSemanticAnalyser(true);
 
     private Document doc;
+    private FileObject fo;
     private ASTNode astRoot;
     private ErlContext rootCtx;    
     /**
@@ -104,6 +106,7 @@ public class ErlangSemanticAnalyser {
     
     private ErlangSemanticAnalyser(Document doc) {
         this.doc = doc;
+        this.fo = NbEditorUtilities.getFileObject(doc);
         initParserManagerListener();
     }
 
@@ -596,7 +599,7 @@ public class ErlangSemanticAnalyser {
                 includeDef.setPath(pathStr);
                 if (!forIndexing) {
                     /** @TODO search in project's -i paths and search in these include paths */
-                    URL url = ErlangIndexProvider.getDefault().getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
+                    URL url = ErlangIndexProvider.getDefault().get(fo).getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
                     includeDef.setSourceFileUrl(url);
                 }
                 /** add this usage to enable go to declartion */
@@ -622,8 +625,8 @@ public class ErlangSemanticAnalyser {
                 }
                 includeDef.setPath(pathStr);
                 if (! forIndexing) {
-                    /** @TODO search in project's -i paths and search in these include paths */
-                    URL url = ErlangIndexProvider.getDefault().getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
+                    //URL url = ErlangIndexProvider.getDefault().getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
+                    URL url = ErlangIndexProvider.getDefault().get(fo).getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
                     includeDef.setSourceFileUrl(url);
                 }
 
@@ -820,8 +823,8 @@ public class ErlangSemanticAnalyser {
                         if (remoteFun && remoteName != null && funName != null) {
                             ErlFunction functionDef = rootCtx.getFunctionInScope(remoteName.getIdentifier(), funName.getIdentifier(), arityInt);
                             if (functionDef == null) {
-                                if (!forIndexing) {
-                                    functionDef = ErlangIndexProvider.getDefault().getFunction(remoteName.getIdentifier(), funName.getIdentifier(), arityInt);
+                                if (! forIndexing) {
+                                    functionDef = ErlangIndexProvider.getDefault().get(fo).getFunction(remoteName.getIdentifier(), funName.getIdentifier(), arityInt);
                                     if (functionDef != null) {
                                         rootCtx.addDefinition(functionDef);
                                         currCtx.addUsage(funName, functionDef);
@@ -1016,8 +1019,8 @@ public class ErlangSemanticAnalyser {
                         /** @TODO use actaul arity instead of 0 */
                         ErlFunction functionDef = rootCtx.getFunctionInScope(remoteName.getIdentifier(), functionCallName.getIdentifier(), arityInt);
                         if (functionDef == null) {
-                            if (!forIndexing) {
-                                functionDef = ErlangIndexProvider.getDefault().getFunction(remoteName.getIdentifier(), functionCallName.getIdentifier(), arityInt);
+                            if (! forIndexing) {
+                                functionDef = ErlangIndexProvider.getDefault().get(fo).getFunction(remoteName.getIdentifier(), functionCallName.getIdentifier(), arityInt);
                                 if (functionDef != null) {
                                     rootCtx.addDefinition(functionDef);
                                     currCtx.addUsage(functionCallName, functionDef);
