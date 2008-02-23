@@ -59,19 +59,10 @@ made subject to such option by the copyright holder.
             
             <!-- java2wsdl task initialization -->
             <xsl:if test="/axis2:axis2/axis2:service/axis2:generate-wsdl">
-                <path id="axis2.classpath">
-                    <fileset dir="${{axis2.home}}/lib">
-                        <include name="*.jar"/>
-                    </fileset>
-                </path>
                 <target name="java2wsdl-init" depends="init">
                     <mkdir dir="${{basedir}}/xml-resources/axis2/META-INF"/>
                     <taskdef name="java2wsdl" classname="org.apache.ws.java2wsdl.Java2WSDLTask">
-                         <classpath>
-                            <fileset dir="${{axis2.home}}/lib">
-                                <include name="*.jar"/>
-                            </fileset>
-                         </classpath>
+                         <classpath path="${{libs.axis2.classpath}}"/>
                     </taskdef>
                 </target>
             </xsl:if>
@@ -129,11 +120,7 @@ made subject to such option by the copyright holder.
                             <arg line="-p {$packageName}"/>
                             <arg line="-d {$databindingName}"/>
                             <arg line="-o ${{build.dir}}/axis2"/>
-                            <classpath>
-                                <fileset dir="${{axis2.home}}/lib">
-                                    <include name="*.jar"/>
-                                </fileset>
-                            </classpath>
+                            <classpath path="${{libs.axis2.classpath}}"/>
                         </java>
                         <copy toDir="${{src.dir}}" overwrite="true">
                             <fileset dir="${{build.dir}}/axis2/src">
@@ -162,11 +149,7 @@ made subject to such option by the copyright holder.
                             <arg line="-p {$packageName}"/>
                             <arg line="-d {$databindingName}"/>
                             <arg line="-o ${{build.dir}}/axis2"/>
-                            <classpath>
-                                <fileset dir="${{axis2.home}}/lib">
-                                    <include name="*.jar"/>
-                                </fileset>
-                            </classpath>
+                            <classpath path="${{libs.axis2.classpath}}"/>
                         </java>
                         <copy toDir="${{src.dir}}" overwrite="true">
                             <fileset dir="${{build.dir}}/axis2/src">
