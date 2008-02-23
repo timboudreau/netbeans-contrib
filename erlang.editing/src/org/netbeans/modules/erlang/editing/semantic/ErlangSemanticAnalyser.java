@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.erlang.editing.semantic;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -583,6 +584,7 @@ public class ErlangSemanticAnalyser {
             if (isTokenTypeName(item, "string")) {
                 includeDef = new ErlInclude(attribute.getOffset(), attribute.getEndOffset());
                 rootCtx.addDefinition(includeDef);
+
                 ASTToken path = (ASTToken) item;
                 String pathStr = path.getIdentifier();
                 int strLength = pathStr.length();
@@ -591,6 +593,10 @@ public class ErlangSemanticAnalyser {
                         pathStr = pathStr.substring(1, strLength - 1);
                     }
                 }
+                /** @TODO search in project's -i paths and search in these include paths */
+                URL url = ErlangIndexProvider.getDefault().getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
+                
+                includeDef.setSourceFileUrl(url);
                 includeDef.setPath(pathStr);
 
                 /** add this usage to enable go to declartion */
@@ -614,7 +620,10 @@ public class ErlangSemanticAnalyser {
                         pathStr = pathStr.substring(1, strLength - 1);
                     }
                 }
+                URL url = ErlangIndexProvider.getDefault().getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
+
                 includeDef.setPath(pathStr);
+                includeDef.setSourceFileUrl(url);
 
                 /** add this usage to enable go to declartion */
                 rootCtx.addUsage(path, includeDef);
