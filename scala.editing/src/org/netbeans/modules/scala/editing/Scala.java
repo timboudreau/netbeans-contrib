@@ -364,6 +364,9 @@ public class Scala {
         ASTToken token = (ASTToken) leaf;
         ASTNode astRoot = (ASTNode) path.getRoot();
         ScalaContext rootCtx = ScalaSemanticAnalyser.getRootContext(doc, astRoot);
+        if (rootCtx == null) {
+            return null;
+        }
         DatabaseItem dbItem = rootCtx.getDatabaseItem(token.getOffset());
         if (dbItem != null) {
             if (dbItem instanceof DatabaseDefinition) {
