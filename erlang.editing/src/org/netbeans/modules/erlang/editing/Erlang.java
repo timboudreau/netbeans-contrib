@@ -772,7 +772,10 @@ public class Erlang {
         }
         ASTToken token = (ASTToken) leaf;
         ASTNode astRoot = (ASTNode) path.getRoot();
-        ErlContext rootCtx = ErlangSemanticAnalyser.getRootContext(doc, astRoot);        
+        ErlContext rootCtx = ErlangSemanticAnalyser.getRootContext(doc, astRoot); 
+        if (rootCtx == null) {
+            return null;
+        }
         DatabaseItem dbItem = rootCtx.getDatabaseItem(token.getOffset());
         if (dbItem != null) {
             if (dbItem instanceof DatabaseDefinition) {
