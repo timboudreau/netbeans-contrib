@@ -233,10 +233,11 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         if (cp == null) {
             switch (type) {
                 case 0:
-                    cp = ClassPathFactory.createClassPath(new SourcePathImplementation (new SourceRoots[] {this.sourceRoots, this.includeRoots}, helper, evaluator));
+                    /** @Note: this will also get the indexer to index these source files, so, make sure includeRoots always be indexed first */
+                    cp = ClassPathFactory.createClassPath(new SourcePathImplementation (new SourceRoots[] {this.includeRoots, this.sourceRoots}, helper, evaluator));
                     break;
                 case 1:
-                    cp = ClassPathFactory.createClassPath(new SourcePathImplementation (new SourceRoots[] {this.testSourceRoots, this.includeRoots}));
+                    cp = ClassPathFactory.createClassPath(new SourcePathImplementation (new SourceRoots[] {this.includeRoots, this.testSourceRoots}));
                     break;
             }
         }

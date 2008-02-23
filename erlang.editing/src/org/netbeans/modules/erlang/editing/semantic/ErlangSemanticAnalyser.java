@@ -593,12 +593,12 @@ public class ErlangSemanticAnalyser {
                         pathStr = pathStr.substring(1, strLength - 1);
                     }
                 }
-                /** @TODO search in project's -i paths and search in these include paths */
-                URL url = ErlangIndexProvider.getDefault().getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
-                
-                includeDef.setSourceFileUrl(url);
                 includeDef.setPath(pathStr);
-
+                if (!forIndexing) {
+                    /** @TODO search in project's -i paths and search in these include paths */
+                    URL url = ErlangIndexProvider.getDefault().getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
+                    includeDef.setSourceFileUrl(url);
+                }
                 /** add this usage to enable go to declartion */
                 rootCtx.addUsage(path, includeDef);
             }
@@ -620,10 +620,12 @@ public class ErlangSemanticAnalyser {
                         pathStr = pathStr.substring(1, strLength - 1);
                     }
                 }
-                URL url = ErlangIndexProvider.getDefault().getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
-
                 includeDef.setPath(pathStr);
-                includeDef.setSourceFileUrl(url);
+                if (! forIndexing) {
+                    /** @TODO search in project's -i paths and search in these include paths */
+                    URL url = ErlangIndexProvider.getDefault().getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
+                    includeDef.setSourceFileUrl(url);
+                }
 
                 /** add this usage to enable go to declartion */
                 rootCtx.addUsage(path, includeDef);
