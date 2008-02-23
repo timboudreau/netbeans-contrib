@@ -32,6 +32,7 @@ import org.netbeans.modules.gsf.api.Index.SearchResult;
 import org.netbeans.modules.gsf.api.Index.SearchScope;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.api.languages.CompletionItem;
+import org.netbeans.modules.erlang.editing.Erlang;
 import org.netbeans.modules.erlang.editing.semantic.ErlMacro;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
 import org.netbeans.modules.erlang.editing.semantic.ErlInclude;
@@ -56,7 +57,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
     /** @TODO Only use Erlang lib and project sources indexEngine */
     private final Collection<ClassIndexImpl> getAllIndexEngines() {
         if (language == null) {
-            language = LanguageRegistry.getInstance().getLanguageByMimeType(ErlangGsfLanguage.MIME_TYPE);
+            language = LanguageRegistry.getInstance().getLanguageByMimeType(Erlang.MIME_TYPE);
         }
         final Map<URL, ClassIndexImpl> urlToClassIndexImpl = ClassIndexManager.get(language).getAllIndices();
         return urlToClassIndexImpl.values();
