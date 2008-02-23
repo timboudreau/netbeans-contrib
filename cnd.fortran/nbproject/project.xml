@@ -3,7 +3,7 @@
     <type>org.netbeans.modules.apisupport.project</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
-            <code-name-base>org.netbeans.modules.fortran</code-name-base>
+            <code-name-base>org.netbeans.modules.cnd.fortran</code-name-base>
             <standalone/>
             <module-dependencies>
                 <dependency>
