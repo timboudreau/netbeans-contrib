@@ -103,6 +103,7 @@ public class ErlangSemanticAnalyser {
     private ParserManager parserManager;
     private ParserManagerListener parserManagerListener;
     
+    private static ErlVariable WILD_VAR = new ErlVariable("_", 0, 0, ErlVariable.Scope.LOCAL);
     
     private ErlangSemanticAnalyser(Document doc) {
         this.doc = doc;
@@ -951,7 +952,7 @@ public class ErlangSemanticAnalyser {
             for (ASTItem item : expr.getChildren()) {
                 if (isTokenTypeName(item, "var")) {
                     ASTToken var = (ASTToken) item;
-                    if (!(var.getIdentifier().equals("_"))) {
+                    if (! var.getIdentifier().equals("_")) {
                         ErlVariable variableDef = currCtx.getVariableInScope(var.getIdentifier());
                         if (variableDef == null) {
                             if (containsVarDef) {
@@ -962,6 +963,8 @@ public class ErlangSemanticAnalyser {
                         } else {
                             currCtx.addUsage(var, variableDef);
                         }
+                    } else {
+                         currCtx.addUsage(var, WILD_VAR);
                     }
                 } else if (item instanceof ASTNode) {
                     processAnyExpr(rootCtx, item, currCtx, containsVarDef);
