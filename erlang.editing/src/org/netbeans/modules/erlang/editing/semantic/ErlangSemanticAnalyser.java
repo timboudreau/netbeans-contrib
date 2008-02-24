@@ -343,15 +343,15 @@ public class ErlangSemanticAnalyser {
             }
         }
         if (functionName != null) {
-            ErlFunction functionDef = rootCtx.getFunctionInScope(functionName.getIdentifier(), arityInt);
-            if (functionDef == null) {
+            ErlFunction functionDfn = rootCtx.getFunctionInScope(functionName.getIdentifier(), arityInt);
+            if (functionDfn == null) {
                 nameStr = functionName.getIdentifier().trim();
-                functionDef = new ErlFunction(nameStr, functionName.getOffset(), functionName.getEndOffset(), arityInt);
-                rootCtx.addDefinition(functionDef);
+                functionDfn = new ErlFunction(nameStr, functionName.getOffset(), functionName.getEndOffset(), arityInt);
+                rootCtx.addDefinition(functionDfn);
             }
-            rootCtx.addUsage(functionName, functionDef);
+            rootCtx.addUsage(functionName, functionDfn);
             if (!argumentsStr.equals("")) {
-                functionDef.addArgumentsOpt(argumentsStr);
+                functionDfn.addArgumentsOpt(argumentsStr);
             }
         }
     }
@@ -384,12 +384,12 @@ public class ErlangSemanticAnalyser {
                         for (ASTToken varToken : tokensCollector) {
                             String varNameStr = varToken.getIdentifier();
                             if (!varNameStr.equals("_")) {                                
-                                ErlVariable variableDef = functionContext.getVariableInScope(varNameStr);
-                                if (variableDef == null) {
-                                    variableDef = new ErlVariable(varNameStr, varToken.getOffset(), varToken.getEndOffset(), ErlVariable.Scope.PARAMETER);
-                                    functionContext.addDefinition(variableDef);
+                                ErlVariable variableDfn = functionContext.getVariableInScope(varNameStr);
+                                if (variableDfn == null) {
+                                    variableDfn = new ErlVariable(varNameStr, varToken.getOffset(), varToken.getEndOffset(), ErlVariable.Scope.PARAMETER);
+                                    functionContext.addDefinition(variableDfn);
                                 }
-                                functionContext.addUsage(varToken, variableDef);
+                                functionContext.addUsage(varToken, variableDfn);
                             }
                         }
                     }
@@ -457,20 +457,20 @@ public class ErlangSemanticAnalyser {
             /** remove last one, which is module name */
             packages.remove(packages.size() - 1);
         }
-        ErlModule moduleDef = new ErlModule(nameStr.toString(), attribute.getOffset(), attribute.getEndOffset());
+        ErlModule moduleDfn = new ErlModule(nameStr.toString(), attribute.getOffset(), attribute.getEndOffset());
         for (String packageName : packages) {
-            moduleDef.addPackage(packageName);
+            moduleDfn.addPackage(packageName);
         }
-        rootCtx.addDefinition(moduleDef);
+        rootCtx.addDefinition(moduleDfn);
     }
 
 
     private void processExportAttribute(ErlContext rootCtx, ASTItem attribute) {
-        ErlExport exportDef = null;
+        ErlExport exportDfn = null;
         for (ASTItem item : attribute.getChildren()) {
             if (isNode(item, "ExportAttribute")) {
-                exportDef = new ErlExport(item.getOffset(), item.getEndOffset());
-                rootCtx.addDefinition(exportDef);                
+                exportDfn = new ErlExport(item.getOffset(), item.getEndOffset());
+                rootCtx.addDefinition(exportDfn);                
             } else if (isNode(item, "FunctionNames")) {
                 for (ASTItem child : item.getChildren()) {
                     if (isNode(child, "FunctionName")) {
@@ -488,11 +488,11 @@ public class ErlangSemanticAnalyser {
                             int arityInt = Integer.parseInt(arity.getIdentifier());
                             ErlFunction functionDef = rootCtx.getFunctionInScope(name.getIdentifier(), arityInt);
                             if (functionDef != null) {
-                                exportDef.addFunction(functionDef);
+                                exportDfn.addFunction(functionDef);
                                 rootCtx.addUsage(name, functionDef);
                             } else {
                                 /** don't know offset of this function, just add it as 0 offset */
-                                exportDef.addFunction(new ErlFunction(name.getIdentifier(), arityInt));
+                                exportDfn.addFunction(new ErlFunction(name.getIdentifier(), arityInt));
                             }
                         }
                     }
@@ -502,17 +502,17 @@ public class ErlangSemanticAnalyser {
     }
 
     private void processImportAttribute(ErlContext rootCtx, ASTItem attribute) {
-        ErlImport importDef = null;
+        ErlImport importDfn = null;
         for (ASTItem item : attribute.getChildren()) {
             if (isNode(item, "ImportAttribute")) {
-                importDef = new ErlImport(item.getOffset(), item.getEndOffset());
-                rootCtx.addDefinition(importDef);
+                importDfn = new ErlImport(item.getOffset(), item.getEndOffset());
+                rootCtx.addDefinition(importDfn);
             } else if (isTokenTypeName(item, "atom")) {
                 ASTToken nameToken = (ASTToken) item;
                 String nameStr = nameToken.getIdentifier();
-                importDef.addPackage(nameStr);
+                importDfn.addPackage(nameStr);
             } else if (isNode(item, "FunctionNames")) {
-                rootCtx.addDefinition(importDef);
+                rootCtx.addDefinition(importDfn);
                 for (ASTItem child : item.getChildren()) {
                     if (isNode(child, "FunctionName")) {
                         ASTItem functionName = child;
@@ -538,19 +538,19 @@ public class ErlangSemanticAnalyser {
     }
 
     private void processRecordAttribute(ErlContext rootCtx, ASTItem attribute) {
-        ErlRecord recordDef = null;
+        ErlRecord recordDfn = null;
         for (ASTItem item : attribute.getChildren()) {
             if (isNode(item, "RecordName")) {
                 String nameStr = ((ASTNode) item).getAsText();
-                recordDef = new ErlRecord(nameStr, item.getOffset(), item.getEndOffset());
-                rootCtx.addDefinition(recordDef);
-            } else if (isNode(item, "RecordFieldNames") && recordDef != null) {
+                recordDfn = new ErlRecord(nameStr, item.getOffset(), item.getEndOffset());
+                rootCtx.addDefinition(recordDfn);
+            } else if (isNode(item, "RecordFieldNames") && recordDfn != null) {
                 for (ASTItem child : item.getChildren()) {
                     if (isNode(child, "RecordFieldName")) {
                         for (ASTItem child1 : child.getChildren()) {
                             if (isTokenTypeName(child1, "atom")) {
                                 String field = ((ASTToken) child1).getIdentifier();
-                                recordDef.addField(field);
+                                recordDfn.addField(field);
                             }
                         }
                     }
@@ -560,35 +560,35 @@ public class ErlangSemanticAnalyser {
     }
 
     private void processMacroAttribute(ErlContext rootCtx, ASTItem attribute) {
-        ErlMacro macroDef = null;
+        ErlMacro macroDfn = null;
         for (ASTItem item : attribute.getChildren()) {
             if (isNode(item, "MacroName")) {
                 String nameStr = ((ASTNode) item).getAsText();
-                macroDef = new ErlMacro(nameStr, item.getOffset(), item.getEndOffset());
-                rootCtx.addDefinition(macroDef);
+                macroDfn = new ErlMacro(nameStr, item.getOffset(), item.getEndOffset());
+                rootCtx.addDefinition(macroDfn);
                 for (ASTItem child : item.getChildren()) {
                     if (isTokenTypeName(child, "var")) {
-                        rootCtx.addUsage((ASTToken) child, macroDef);
+                        rootCtx.addUsage((ASTToken) child, macroDfn);
                     }
                 }
-            } else if (isNode(item, "MacroParams") && macroDef != null) {
+            } else if (isNode(item, "MacroParams") && macroDfn != null) {
                 for (ASTItem child : item.getChildren()) {
                     if (isTokenTypeName(child, "var")) {
                         String paramNameStr = ((ASTToken) child).getIdentifier();
-                        macroDef.addParam(paramNameStr);
+                        macroDfn.addParam(paramNameStr);
                     }
                 }
-            } else if (isNode(item, "MacroBody") && macroDef != null) {
+            } else if (isNode(item, "MacroBody") && macroDfn != null) {
                 String bodyStr = ((ASTNode) item).getAsText();
                 /** strip last ")", @see definition of Macro in Erlang.nbs */
                 bodyStr = bodyStr.substring(0, bodyStr.length() - 1);
-                macroDef.setBody(bodyStr);
+                macroDfn.setBody(bodyStr);
             }
         }
     }
 
     private void processIncludeAttribute(ErlContext rootCtx, ASTItem attribute) {
-        ErlInclude includeDef = null;
+        ErlInclude includeDfn = null;
         for (ASTItem item : attribute.getChildren()) {
             if (isTokenTypeName(item, "string")) {
                 ASTToken path = (ASTToken) item;
@@ -600,23 +600,23 @@ public class ErlangSemanticAnalyser {
                     }
                 }
                 /** includeDef point to a remote file, so, set offset to 0 */
-                includeDef = new ErlInclude(0, 0);
-                rootCtx.addDefinition(includeDef);
+                includeDfn = new ErlInclude(0, 0);
+                rootCtx.addDefinition(includeDfn);
 
-                includeDef.setPath(pathStr);
+                includeDfn.setPath(pathStr);
                 if (! forIndexing) {
                     /** @TODO search in project's -i paths and search in these include paths */
                     URL url = ErlangIndexProvider.getDefault().get(fo).getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
-                    includeDef.setSourceFileUrl(url);
+                    includeDfn.setSourceFileUrl(url);
                 }
                 /** add this usage to enable go to declartion */
-                rootCtx.addUsage(path, includeDef);
+                rootCtx.addUsage(path, includeDfn);
             }
         }
     }
 
     private void processIncludeLibAttribute(ErlContext rootCtx, ASTItem attribute) {
-        ErlInclude includeDef = null;
+        ErlInclude includeDfn = null;
         for (ASTItem item : attribute.getChildren()) {
             if (isTokenTypeName(item, "string")) {
                 ASTToken path = (ASTToken) item;
@@ -628,18 +628,18 @@ public class ErlangSemanticAnalyser {
                     }
                 }
                 /** includeDef point to a remote file, so, set offset to 0 */
-                includeDef = new ErlInclude(0, 0);
-                rootCtx.addDefinition(includeDef);
+                includeDfn = new ErlInclude(0, 0);
+                rootCtx.addDefinition(includeDfn);
                 
-                includeDef.setLib(true);
-                includeDef.setPath(pathStr);
+                includeDfn.setLib(true);
+                includeDfn.setPath(pathStr);
                 if (! forIndexing) {
                     //URL url = ErlangIndexProvider.getDefault().getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
                     URL url = ErlangIndexProvider.getDefault().get(fo).getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
-                    includeDef.setSourceFileUrl(url);
+                    includeDfn.setSourceFileUrl(url);
                 }
                 /** add this usage to enable go to declartion */
-                rootCtx.addUsage(path, includeDef);
+                rootCtx.addUsage(path, includeDfn);
             }
         }
     }
@@ -696,7 +696,7 @@ public class ErlangSemanticAnalyser {
         }
     }
 
-    private void processAnyExpr(ErlContext rootCtx, ASTItem expr, ErlContext currCtx, boolean containsVarDef) {
+    private void processAnyExpr(ErlContext rootCtx, ASTItem expr, ErlContext currCtx, boolean containsVarDfn) {
         if (isNode(expr, "FunctionCallExpr")) {
             processFunctionCallExpr(rootCtx, expr, currCtx);
         }
@@ -722,17 +722,17 @@ public class ErlangSemanticAnalyser {
             if (leftExpr != null) {
                 if (isMatchExpr) {
                     /** This has been in a match expr, and left hand, new scoped Var declaration occurs */
-                    containsVarDef = true;
+                    containsVarDfn = true;
                 }
-                processAnyExpr(rootCtx, leftExpr, currCtx, containsVarDef);
+                processAnyExpr(rootCtx, leftExpr, currCtx, containsVarDfn);
             }
             /** right hand */
             if (rightExpr != null) {
                 if (isMatchExpr) {
                     /** This is in a match expr, and right hand, new scoped Var declaration may also occurs */
-                    containsVarDef = true;
+                    containsVarDfn = true;
                 }
-                processAnyExpr(rootCtx, rightExpr, currCtx, containsVarDef);
+                processAnyExpr(rootCtx, rightExpr, currCtx, containsVarDfn);
             }
         } else if (isNode(expr, "IfExpr")) {
             for (ASTItem item : expr.getChildren()) {
@@ -760,7 +760,7 @@ public class ErlangSemanticAnalyser {
                     caseContext = new ErlContext(expr.getOffset(), expr.getEndOffset());
                     currCtx.addContext(caseContext);
 
-                    processAnyExpr(rootCtx, item, caseContext, containsVarDef);
+                    processAnyExpr(rootCtx, item, caseContext, containsVarDfn);
                 } else if (isNode(item, "CrClauses") && caseContext != null) {
                     processCrClauses(rootCtx, item, caseContext);
                 }
@@ -829,30 +829,30 @@ public class ErlangSemanticAnalyser {
                     if (arity != null) {
                         int arityInt = Integer.parseInt(arity.getIdentifier());
                         if (remoteFun && remoteName != null && funName != null) {
-                            ErlFunction functionDef = rootCtx.getFunctionInScope(remoteName.getIdentifier(), funName.getIdentifier(), arityInt);
-                            if (functionDef == null) {
+                            ErlFunction functionDfn = rootCtx.getFunctionInScope(remoteName.getIdentifier(), funName.getIdentifier(), arityInt);
+                            if (functionDfn == null) {
                                 if (! forIndexing) {
-                                    functionDef = ErlangIndexProvider.getDefault().get(fo).getFunction(remoteName.getIdentifier(), funName.getIdentifier(), arityInt);
-                                    if (functionDef != null) {
-                                        rootCtx.addDefinition(functionDef);
-                                        currCtx.addUsage(funName, functionDef);
+                                    functionDfn = ErlangIndexProvider.getDefault().get(fo).getFunction(remoteName.getIdentifier(), funName.getIdentifier(), arityInt);
+                                    if (functionDfn != null) {
+                                        rootCtx.addDefinition(functionDfn);
+                                        currCtx.addUsage(funName, functionDfn);
                                     }
                                 }
                             } else {
-                                currCtx.addUsage(funName, functionDef);
+                                currCtx.addUsage(funName, functionDfn);
                             }
                         } else if (remoteName != null) {
                             funName = remoteName;
-                            ErlFunction functionDef = rootCtx.getFunctionInScope(funName.getIdentifier(), arityInt);
-                            if (functionDef == null) {
+                            ErlFunction functionDfn = rootCtx.getFunctionInScope(funName.getIdentifier(), arityInt);
+                            if (functionDfn == null) {
                                 /** this is a built-in function call? */
-                                functionDef = ErlBuiltIn.getBuiltInFunction(funName.getIdentifier(), arityInt);
-                                if (functionDef != null) {
-                                    rootCtx.addDefinition(functionDef);
-                                    currCtx.addUsage(funName, functionDef);
+                                functionDfn = ErlBuiltIn.getBuiltInFunction(funName.getIdentifier(), arityInt);
+                                if (functionDfn != null) {
+                                    rootCtx.addDefinition(functionDfn);
+                                    currCtx.addUsage(funName, functionDfn);
                                 }
                             } else {
-                                currCtx.addUsage(funName, functionDef);
+                                currCtx.addUsage(funName, functionDfn);
                             }
                         }
                     }
@@ -881,7 +881,7 @@ public class ErlangSemanticAnalyser {
                 } else if (isNode(item, "ListTail")) {
                     for (ASTItem child : item.getChildren()) {
                         if (isNode(child, "Expr")) {
-                            processAnyExpr(rootCtx, child, currCtx, containsVarDef);
+                            processAnyExpr(rootCtx, child, currCtx, containsVarDfn);
                         }
                     }
                 }
@@ -895,7 +895,7 @@ public class ErlangSemanticAnalyser {
                         processAnyExpr(rootCtx, item, listCompContext, false);
                     } else {
                         /** List */
-                        processAnyExpr(rootCtx, item, currCtx, containsVarDef);
+                        processAnyExpr(rootCtx, item, currCtx, containsVarDfn);
                     }
                 }
             }
@@ -938,15 +938,15 @@ public class ErlangSemanticAnalyser {
                 if (isTokenTypeName(item, "var") || isTokenTypeName(item, "atom")) {
                     ASTToken macroName = (ASTToken) item;
                     String macroNameStr = macroName.getIdentifier();
-                    ErlMacro macroDef = currCtx.getMacroInScope(macroNameStr);
-                    if (macroDef == null) {
-                        macroDef = ErlMacro.getPreDefined(macroNameStr);
-                        if (macroDef != null) {
-                            rootCtx.addDefinition(macroDef);
-                            currCtx.addUsage(macroName, macroDef);
+                    ErlMacro macroDfn = currCtx.getMacroInScope(macroNameStr);
+                    if (macroDfn == null) {
+                        macroDfn = ErlMacro.getPreDefined(macroNameStr);
+                        if (macroDfn != null) {
+                            rootCtx.addDefinition(macroDfn);
+                            currCtx.addUsage(macroName, macroDfn);
                         }
                     } else {
-                        currCtx.addUsage(macroName, macroDef);
+                        currCtx.addUsage(macroName, macroDfn);
                     }
                 }
             }
@@ -955,21 +955,21 @@ public class ErlangSemanticAnalyser {
                 if (isTokenTypeName(item, "var")) {
                     ASTToken var = (ASTToken) item;
                     if (! var.getIdentifier().equals("_")) {
-                        ErlVariable variableDef = currCtx.getVariableInScope(var.getIdentifier());
-                        if (variableDef == null) {
-                            if (containsVarDef) {
-                                variableDef = new ErlVariable(var.getIdentifier(), expr.getOffset(), expr.getEndOffset(), ErlVariable.Scope.LOCAL);
-                                currCtx.addDefinition(variableDef);
-                                currCtx.addUsage(var, variableDef);
+                        ErlVariable variableDfn = currCtx.getVariableInScope(var.getIdentifier());
+                        if (variableDfn == null) {
+                            if (containsVarDfn) {
+                                variableDfn = new ErlVariable(var.getIdentifier(), expr.getOffset(), expr.getEndOffset(), ErlVariable.Scope.LOCAL);
+                                currCtx.addDefinition(variableDfn);
+                                currCtx.addUsage(var, variableDfn);
                             }
                         } else {
-                            currCtx.addUsage(var, variableDef);
+                            currCtx.addUsage(var, variableDfn);
                         }
                     } else {
                          currCtx.addUsage(var, WILD_VAR);
                     }
                 } else if (item instanceof ASTNode) {
-                    processAnyExpr(rootCtx, item, currCtx, containsVarDef);
+                    processAnyExpr(rootCtx, item, currCtx, containsVarDfn);
                 }
             }
         }
@@ -1027,17 +1027,17 @@ public class ErlangSemanticAnalyser {
                     ASTToken functionCallName = getAtomTokenFromPrimaryExpr(callPrimaryExpr);
                     if (remoteName != null && functionCallName != null) {
                         /** @TODO use actaul arity instead of 0 */
-                        ErlFunction functionDef = rootCtx.getFunctionInScope(remoteName.getIdentifier(), functionCallName.getIdentifier(), arityInt);
-                        if (functionDef == null) {
+                        ErlFunction functionDfn = rootCtx.getFunctionInScope(remoteName.getIdentifier(), functionCallName.getIdentifier(), arityInt);
+                        if (functionDfn == null) {
                             if (! forIndexing) {
-                                functionDef = ErlangIndexProvider.getDefault().get(fo).getFunction(remoteName.getIdentifier(), functionCallName.getIdentifier(), arityInt);
-                                if (functionDef != null) {
-                                    rootCtx.addDefinition(functionDef);
-                                    currCtx.addUsage(functionCallName, functionDef);
+                                functionDfn = ErlangIndexProvider.getDefault().get(fo).getFunction(remoteName.getIdentifier(), functionCallName.getIdentifier(), arityInt);
+                                if (functionDfn != null) {
+                                    rootCtx.addDefinition(functionDfn);
+                                    currCtx.addUsage(functionCallName, functionDfn);
                                 }
                             }
                         } else {
-                            currCtx.addUsage(functionCallName, functionDef);
+                            currCtx.addUsage(functionCallName, functionDfn);
                         }
                     }
                 } else {
@@ -1045,16 +1045,16 @@ public class ErlangSemanticAnalyser {
 
                     ASTToken functionCallName = getAtomTokenFromPrimaryExpr(callPrimaryExpr);
                     if (functionCallName != null) {
-                        ErlFunction functionDef = rootCtx.getFunctionInScope(functionCallName.getIdentifier(), arityInt);
-                        if (functionDef == null) {
+                        ErlFunction functionDfn = rootCtx.getFunctionInScope(functionCallName.getIdentifier(), arityInt);
+                        if (functionDfn == null) {
                             /** Is it a built-in function call? */
-                            functionDef = ErlBuiltIn.getBuiltInFunction(functionCallName.getIdentifier(), arityInt);
-                            if (functionDef != null) {
-                                rootCtx.addDefinition(functionDef);
-                                currCtx.addUsage(functionCallName, functionDef);
+                            functionDfn = ErlBuiltIn.getBuiltInFunction(functionCallName.getIdentifier(), arityInt);
+                            if (functionDfn != null) {
+                                rootCtx.addDefinition(functionDfn);
+                                currCtx.addUsage(functionCallName, functionDfn);
                             }
                         } else {
-                            currCtx.addUsage(functionCallName, functionDef);
+                            currCtx.addUsage(functionCallName, functionDfn);
                         }
                     }
                 }
