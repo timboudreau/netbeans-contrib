@@ -564,7 +564,7 @@ public class ErlangSemanticAnalyser {
         for (ASTItem item : attribute.getChildren()) {
             if (isNode(item, "MacroName")) {
                 String nameStr = ((ASTNode) item).getAsText();
-                macroDef = new ErlMacro(nameStr, attribute.getOffset(), attribute.getEndOffset());
+                macroDef = new ErlMacro(nameStr, item.getOffset(), item.getEndOffset());
                 rootCtx.addDefinition(macroDef);
                 for (ASTItem child : item.getChildren()) {
                     if (isTokenTypeName(child, "var")) {
@@ -599,7 +599,8 @@ public class ErlangSemanticAnalyser {
                         pathStr = pathStr.substring(1, strLength - 1);
                     }
                 }
-                includeDef = new ErlInclude(item.getOffset(), item.getEndOffset());
+                /** includeDef point to a remote file, so, set offset to 0 */
+                includeDef = new ErlInclude(0, 0);
                 rootCtx.addDefinition(includeDef);
 
                 includeDef.setPath(pathStr);
@@ -626,8 +627,10 @@ public class ErlangSemanticAnalyser {
                         pathStr = pathStr.substring(1, strLength - 1);
                     }
                 }
-                includeDef = new ErlInclude(item.getOffset(), item.getEndOffset());
+                /** includeDef point to a remote file, so, set offset to 0 */
+                includeDef = new ErlInclude(0, 0);
                 rootCtx.addDefinition(includeDef);
+                
                 includeDef.setLib(true);
                 includeDef.setPath(pathStr);
                 if (! forIndexing) {
@@ -635,7 +638,6 @@ public class ErlangSemanticAnalyser {
                     URL url = ErlangIndexProvider.getDefault().get(fo).getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
                     includeDef.setSourceFileUrl(url);
                 }
-
                 /** add this usage to enable go to declartion */
                 rootCtx.addUsage(path, includeDef);
             }
