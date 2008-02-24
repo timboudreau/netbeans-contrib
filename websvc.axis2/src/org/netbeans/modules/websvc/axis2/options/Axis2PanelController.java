@@ -136,10 +136,8 @@ public final class Axis2PanelController extends OptionsPanelController {
     private Axis2ConfigurationPanel getAdvancedPanel () {
 //        if (advancedPanel == null) {
             Preferences preferences = AxisUtils.getPreferences();
-//            String oldAxisHome = preferences.get("AXIS_HOME",""); //NOI18N
             String oldAxisDeploy = preferences.get("AXIS_DEPLOY",""); //NOI18N
-//            advancedPanel = new Axis2ConfigurationPanel(oldAxisHome, oldAxisDeploy);
-            advancedPanel = new Axis2ConfigurationPanel("", oldAxisDeploy);
+            advancedPanel = new Axis2ConfigurationPanel(oldAxisDeploy);
             return advancedPanel;
 //        }
 //        return advancedPanel;
