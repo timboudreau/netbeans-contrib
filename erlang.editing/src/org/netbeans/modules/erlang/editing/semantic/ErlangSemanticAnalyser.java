@@ -465,10 +465,12 @@ public class ErlangSemanticAnalyser {
 
 
     private void processExportAttribute(ErlContext rootCtx, ASTItem attribute) {
+        ErlExport exportDef = null;
         for (ASTItem item : attribute.getChildren()) {
-            if (isNode(item, "FunctionNames")) {
-                ErlExport exportDef = new ErlExport(attribute.getOffset(), attribute.getEndOffset());
-                rootCtx.addDefinition(exportDef);
+            if (isNode(item, "ExportAttribute")) {
+                exportDef = new ErlExport(item.getOffset(), item.getEndOffset());
+                rootCtx.addDefinition(exportDef);                
+            } else if (isNode(item, "FunctionNames")) {
                 for (ASTItem child : item.getChildren()) {
                     if (isNode(child, "FunctionName")) {
                         ASTItem functionName = child;
@@ -499,9 +501,12 @@ public class ErlangSemanticAnalyser {
     }
 
     private void processImportAttribute(ErlContext rootCtx, ASTItem attribute) {
-        ErlImport importDef = new ErlImport(attribute.getOffset(), attribute.getEndOffset());
+        ErlImport importDef = null;
         for (ASTItem item : attribute.getChildren()) {
-            if (isTokenTypeName(item, "atom")) {
+            if (isNode(item, "ImportAttribute")) {
+                importDef = new ErlImport(item.getOffset(), item.getEndOffset());
+                rootCtx.addDefinition(importDef);
+            } else if (isTokenTypeName(item, "atom")) {
                 ASTToken nameToken = (ASTToken) item;
                 String nameStr = nameToken.getIdentifier();
                 importDef.addPackage(nameStr);
@@ -536,7 +541,7 @@ public class ErlangSemanticAnalyser {
         for (ASTItem item : attribute.getChildren()) {
             if (isNode(item, "RecordName")) {
                 String nameStr = ((ASTNode) item).getAsText();
-                recordDef = new ErlRecord(nameStr, attribute.getOffset(), attribute.getEndOffset());
+                recordDef = new ErlRecord(nameStr, item.getOffset(), item.getEndOffset());
                 rootCtx.addDefinition(recordDef);
             } else if (isNode(item, "RecordFieldNames") && recordDef != null) {
                 for (ASTItem child : item.getChildren()) {
@@ -585,9 +590,6 @@ public class ErlangSemanticAnalyser {
         ErlInclude includeDef = null;
         for (ASTItem item : attribute.getChildren()) {
             if (isTokenTypeName(item, "string")) {
-                includeDef = new ErlInclude(attribute.getOffset(), attribute.getEndOffset());
-                rootCtx.addDefinition(includeDef);
-
                 ASTToken path = (ASTToken) item;
                 String pathStr = path.getIdentifier();
                 int strLength = pathStr.length();
@@ -596,8 +598,11 @@ public class ErlangSemanticAnalyser {
                         pathStr = pathStr.substring(1, strLength - 1);
                     }
                 }
+                includeDef = new ErlInclude(item.getOffset(), item.getEndOffset());
+                rootCtx.addDefinition(includeDef);
+
                 includeDef.setPath(pathStr);
-                if (!forIndexing) {
+                if (! forIndexing) {
                     /** @TODO search in project's -i paths and search in these include paths */
                     URL url = ErlangIndexProvider.getDefault().get(fo).getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
                     includeDef.setSourceFileUrl(url);
@@ -612,9 +617,6 @@ public class ErlangSemanticAnalyser {
         ErlInclude includeDef = null;
         for (ASTItem item : attribute.getChildren()) {
             if (isTokenTypeName(item, "string")) {
-                includeDef = new ErlInclude(attribute.getOffset(), attribute.getEndOffset());
-                includeDef.setLib(true);
-                rootCtx.addDefinition(includeDef);
                 ASTToken path = (ASTToken) item;
                 String pathStr = path.getIdentifier();
                 int strLength = pathStr.length();
@@ -623,6 +625,9 @@ public class ErlangSemanticAnalyser {
                         pathStr = pathStr.substring(1, strLength - 1);
                     }
                 }
+                includeDef = new ErlInclude(item.getOffset(), item.getEndOffset());
+                rootCtx.addDefinition(includeDef);
+                includeDef.setLib(true);
                 includeDef.setPath(pathStr);
                 if (! forIndexing) {
                     //URL url = ErlangIndexProvider.getDefault().getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
