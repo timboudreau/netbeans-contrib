@@ -150,7 +150,7 @@ public final class EJSLexer implements Lexer<EJSTokenId> {
                                 state = ISI_EXPR_SCRIPTLET;
                                 return token(EJSTokenId.DELIMITER);
                             } else {
-                                // RHTML symbol, but we also have content language in the buffer
+                                // EJS symbol, but we also have content language in the buffer
                                 input.backup(3); //backup <%=
                                 state = INIT;
                                 return token(EJSTokenId.HTML); //return CL token
@@ -166,14 +166,14 @@ public final class EJSLexer implements Lexer<EJSTokenId> {
                                 state = INIT;
                                 return token(EJSTokenId.HTML); //return CL token
                             }
-                        default:  // RHTML scriptlet delimiter '<%'
+                        default:  // EJS scriptlet delimiter '<%'
                             if(input.readLength() == 3) {
                                 // just <% + something != [=,#] read
                                 state = ISI_SCRIPTLET;
                                 input.backup(1); //backup the third character, it is a part of the java scriptlet
                                 return token(EJSTokenId.DELIMITER);
                             } else {
-                                // RHTML symbol, but we also have content language in the buffer
+                                // EJS symbol, but we also have content language in the buffer
                                 input.backup(3); //backup <%@
                                 state = INIT;
                                 return token(EJSTokenId.HTML); //return CL token
@@ -305,7 +305,7 @@ public final class EJSLexer implements Lexer<EJSTokenId> {
                 
                 
             default:
-                System.out.println("RhtmlLexer - unhandled state : " + state);   // NOI18N
+                System.out.println("EJSLexer - unhandled state : " + state);   // NOI18N
         }
         
         return null;

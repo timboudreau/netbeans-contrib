@@ -712,7 +712,7 @@ public class Erlang {
             return true;
         }
         // each Variable at least is used by itself once.
-        return definition instanceof ErlVariable && definition.getUsages().size() <= 1 && !definition.getName().startsWith("_");
+        return definition instanceof ErlVariable && definition.getUsages().size() <= 1 && !definition.getName().startsWith("_") && !definition.getName().equals("_");
     }
 
     public static boolean isFunctionParameter(Context context) {

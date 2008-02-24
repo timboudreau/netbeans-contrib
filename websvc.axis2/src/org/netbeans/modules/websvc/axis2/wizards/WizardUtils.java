@@ -54,6 +54,9 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.ElementHandle;
@@ -61,6 +64,11 @@ import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.TreeMaker;
 import org.netbeans.api.java.source.WorkingCopy;
+import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.project.SourceGroup;
+import org.netbeans.api.project.libraries.Library;
+import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.websvc.axis2.AxisUtils;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2ComponentFactory;
@@ -291,6 +299,32 @@ public class WizardUtils {
         targetJavaSource.runUserActionTask(introspectTask, true);
         targetJavaSource.runModificationTask(task).commit();
         
+    }
+    
+    public static void addAxis2Library(Project project) {
+        ClassPath classPath = null;
+        FileObject srcRoot = null;
+        SourceGroup[] sourceGroups = ProjectUtils.getSources(project).getSourceGroups(
+                JavaProjectConstants.SOURCES_TYPE_JAVA);
+        if (sourceGroups!=null && sourceGroups.length>0) {
+            srcRoot = sourceGroups[0].getRootFolder();
+            classPath = ClassPath.getClassPath(srcRoot,ClassPath.COMPILE);
+        }
+        FileObject wsdl2Java=null;
+        if (classPath!=null) {
+            wsdl2Java = classPath.findResource("org/apache/axis2/wsdl/WSDL2Javajava.class"); // NOI18N
+        }
+        if (wsdl2Java==null) {
+            // add axis2 library
+            Library axis2lib = LibraryManager.getDefault().getLibrary("axis2"); //NOI18N
+            if (axis2lib != null) {
+                try {
+                    ProjectClassPathModifier.addLibraries(new Library[]{axis2lib}, srcRoot, ClassPath.COMPILE);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
     }
 
 }
