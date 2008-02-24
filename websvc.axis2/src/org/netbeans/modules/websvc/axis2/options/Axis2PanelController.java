@@ -67,13 +67,13 @@ public final class Axis2PanelController extends OptionsPanelController {
         if (advancedPanel.isChanged()) {
             System.out.println("apply changes");
             Preferences preferences = AxisUtils.getPreferences();
-            String oldAxisHome = preferences.get("AXIS_HOME",""); //NOI18N
+//            String oldAxisHome = preferences.get("AXIS_HOME",""); //NOI18N
             String oldAxisDeploy = preferences.get("AXIS_DEPLOY",""); //NOI18N
             
-            String axisHome = advancedPanel.getAxisHome();
-            if (!axisHome.equals(oldAxisHome)) {
-                preferences.put("AXIS_HOME", axisHome);
-            }
+//            String axisHome = advancedPanel.getAxisHome();
+//            if (!axisHome.equals(oldAxisHome)) {
+//                preferences.put("AXIS_HOME", axisHome);
+//            }
             String axisDeploy = advancedPanel.getAxisDeploy();
             System.out.println("changing AXIS_DEPLOY "+oldAxisDeploy+":"+axisDeploy);
             if (!axisDeploy.equals(oldAxisDeploy)) {
@@ -136,9 +136,10 @@ public final class Axis2PanelController extends OptionsPanelController {
     private Axis2ConfigurationPanel getAdvancedPanel () {
 //        if (advancedPanel == null) {
             Preferences preferences = AxisUtils.getPreferences();
-            String oldAxisHome = preferences.get("AXIS_HOME",""); //NOI18N
+//            String oldAxisHome = preferences.get("AXIS_HOME",""); //NOI18N
             String oldAxisDeploy = preferences.get("AXIS_DEPLOY",""); //NOI18N
-            advancedPanel = new Axis2ConfigurationPanel(oldAxisHome, oldAxisDeploy);
+//            advancedPanel = new Axis2ConfigurationPanel(oldAxisHome, oldAxisDeploy);
+            advancedPanel = new Axis2ConfigurationPanel("", oldAxisDeploy);
             return advancedPanel;
 //        }
 //        return advancedPanel;

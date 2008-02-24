@@ -40,27 +40,22 @@
  */
 package org.netbeans.modules.websvc.axis2.actions;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.util.List;
 import java.util.prefs.Preferences;
-import org.netbeans.api.project.FileOwnerQuery;
-import org.netbeans.api.project.Project;
 import org.netbeans.modules.websvc.axis2.AxisUtils;
+import org.netbeans.modules.websvc.axis2.config.model.Service;
+import org.netbeans.modules.websvc.axis2.nodes.OperationInfo;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.filesystems.FileObject;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.nodes.Node;
 import org.openide.util.actions.NodeAction;
 
-public class DeployAction extends NodeAction  {
+public class TestOperationAction extends NodeAction  {
     
     public String getName() {
-        return NbBundle.getMessage(DeployAction.class, "LBL_DeployAction");
+        return NbBundle.getMessage(TestOperationAction.class, "LBL_TestWsOperation");
     }
     
     public HelpCtx getHelpCtx() {
@@ -73,58 +68,45 @@ public class DeployAction extends NodeAction  {
     }
     
     protected boolean enable(Node[] activatedNodes) {
-        if (activatedNodes==null || activatedNodes.length != 1) return false;      
-        else return true;
+        if (activatedNodes==null || activatedNodes.length != 1) return false;
+        Service service = activatedNodes[0].getLookup().lookup(Service.class);  
+        if (service != null && service.getWsdlUrl() == null) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
     protected void performAction(Node[] activatedNodes) {
-        Project project = activatedNodes[0].getLookup().lookup(Project.class);
-        if (project == null) {
-            FileObject srcRoot = activatedNodes[0].getLookup().lookup(FileObject.class);
-            project = FileOwnerQuery.getOwner(srcRoot);
-        }
-        
-        // updating axis deploy
-        final Preferences preferences = AxisUtils.getPreferences();
-        String axisDeploy = preferences.get("AXIS_DEPLOY",null); //NOI18N
-        if (axisDeploy == null || axisDeploy.length() == 0) {
-            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
-                    NbBundle.getMessage(DeployAction.class, "TXT_NO_DEPLOYMENT_DIR")));
-            return;
-        }
-        try {
-            AxisUtils.updateAxisDeployProperty(project, axisDeploy);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }     
-        
-        AxisUtils.runTargets(project.getProjectDirectory(), new String[]{"axis2-deploy"}); //NOI18N
-        String tomcatUser = preferences.get("TOMCAT_MANAGER_USER", null);
-        if (tomcatUser != null) {
-            try {
-                String tomcatPassword = preferences.get("TOMCAT_MANAGER_PASSWORD", null);
-                URL reloadAxisUrl = new URL("http://localhost:8080/manager/html/reload?path=/axis2");
-                URLConnection conn = reloadAxisUrl.openConnection();
-                HttpURLConnection hconn = (HttpURLConnection) conn;
-                hconn.setAllowUserInteraction(false);
-                hconn.setRequestProperty("User-Agent", // NOI18N
-                         "NetBeansIDE-Tomcat-Manager/1.0"); // NOI18N
-                String input = tomcatUser + ":" + tomcatPassword;
-                String auth = new String(Base64.encode(input.getBytes()));                
-                //String auth = input;
-                hconn.setRequestProperty("Authorization", // NOI18N
-                                         "Basic " + auth); // NOI18N
-                hconn.connect();
-                int respCode = hconn.getResponseCode();
-                System.out.println("Server response = "+respCode);
-            } catch (MalformedURLException ex) {
-                ex.printStackTrace();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            
+        OperationInfo operationInfo = activatedNodes[0].getLookup().lookup(OperationInfo.class);
+        Service service = activatedNodes[0].getLookup().lookup(Service.class);
+        Preferences prefs = AxisUtils.getPreferences();
+        String axisUrl = prefs.get("AXIS_URL", "").trim();
+        if (axisUrl.length() > 0) {
+            // open tester page in browser
+            AxisUtils.openInBrowser(getOperationQueryString(axisUrl, service, operationInfo));
+        } else {
+            String message = NbBundle.getMessage(TestOperationAction.class, "TXT_AxisUrlMissing");
+            NotifyDescriptor dialog = new NotifyDescriptor.Message(message);
+            DialogDisplayer.getDefault().notify(dialog);
         }
     }
+    
+    private String getOperationQueryString(String axisUrl, Service service, OperationInfo operation) {
+        StringBuffer buf = new StringBuffer();
+        List<String> paramNames = operation.getParamNames();
+        List<String> paramTypes = operation.getParamTypes();
+        for (int i = 0;i<paramNames.size();i++) {
+            if (i>0) buf.append('&'); //NOI18N
+            buf.append(paramNames.get(i)+"="+getSampleValue(paramTypes.get(i))); //NOI18N
+        }
+        String queries = buf.toString();
+        return axisUrl+"/services/"+service.getNameAttr()+"/"+operation.getOperationName()+(queries.length() == 0 ? "":"?"+queries); //NOI18N
+    }
+    
+    private String getSampleValue(String paramType) {
+        return "XYZ";
+    }
+
 
 }
-
