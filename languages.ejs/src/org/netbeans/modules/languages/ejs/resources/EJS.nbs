@@ -37,6 +37,7 @@
 # Version 2 license, then the option applies only if the new code is
 # made subject to such option by the copyright holder.
 
+SELECTION ( [":" "$" "@" "&"]* ["a"-"z" "A"-"Z" "0"-"9" "_" ]* ["!" "?" "="]? )
 
 
 ######### grammar
@@ -45,17 +46,15 @@ S = content;
 content = (javascript | html)*;
 
 html = <HTML>;
-javascript = <DELIMITER> <JAVASCRIPT> (<DELIMITER, "%>">);
+javascript = <DELIMITER> (<JAVASCRIPT> | <JAVASCRIPT_EXPRESSION>)(<DELIMITER, "%>">);
 
-# AST generator
-#AST {
-#    process:org.netbeans.modules.web.core.syntax.JSP.process;
-#}
+
+
 
 ######### navigator
 
 NAVIGATOR:javascript: {
-    display_name: "<% $JAVASCRIPT$ %>";
+    display_name: org.netbeans.modules.languages.ejs.EJSHelper.navigatorName;
     tooltip: "$$";
     icon: "org/netbeans/modules/languages/ejs/resources/js.png";
 }
@@ -67,3 +66,4 @@ FOLD:javascript: {
     expand_type_action_name:"Expand JavaScript Code";
     collapse_type_action_name:"Collapse JavaScript Code";
 }
+

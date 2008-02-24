@@ -78,6 +78,13 @@
              a language.nbs file in the layer -->
         <folder name="text">
             <folder name="x-ejs">
+
+                <file name="org-netbeans-modules-languages-ejs-EJSIndentTaskFactory.instance"/>
+                <file name="org-netbeans-modules-languages-ejs-EmbeddedSectionsHighlighting$Factory.instance"/>
+
+
+
+
                 <folder name="Popup">
                     <file name="SeparatorBeforeWhereUsedAction.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
@@ -117,10 +124,25 @@
                 <file name="language.nbs" url="EJS.nbs">
                     <attr name="icon" stringvalue="org/netbeans/modules/languages/ejs/resources/ejs16.gif"/>
                 </file>
-
                 <folder name="CompletionProviders">
                     <file name="org-netbeans-modules-editor-html-HTMLCompletionProvider.instance"/>
+                    <file name="org-netbeans-modules-gsfret-editor-completion-GsfCompletionProvider.instance"/>
+                    <!-- This doesn't work right because most of the templates don't start with characters
+                         that are identifiers
+                    <file name="org-netbeans-lib-editor-codetemplates-CodeTemplateCompletionProvider.instance"/>
+                    -->
                 </folder>
+   
+
+
+                <folder name="HyperlinkProviders">
+                    <file name="GsfHyperlinkProvider.instance">
+                        <attr name="instanceClass" stringvalue="org.netbeans.modules.gsfret.editor.hyperlink.GsfHyperlinkProvider"/>
+                        <attr name="instanceOf" stringvalue="org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt"/>
+                    </file>
+                </folder>
+                
+
 
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.ejs.resources.Bundle"/>
                 <folder name="FontsColors">
@@ -165,5 +187,26 @@
             </folder>
         </folder>
     </folder>
-
+    <folder name="Navigator">
+        <folder name="Panels">
+            <folder name="text">
+                <folder name="x-ejs">
+                    <file name="org-netbeans-modules-languages-features-LanguagesNavigator.instance"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="GsfPlugins">
+        <folder name="text">
+            <folder name="x-ejs">
+                <attr name="displayName" stringvalue="EJS"/>
+                <attr name="useCustomEditorKit" boolvalue="true"/>
+                
+                <file name="language.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.fpi.gsf.GsfLanguage"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.languages.ejs.EJSLanguage"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
 </filesystem>
