@@ -634,7 +634,6 @@ public class ErlangSemanticAnalyser {
                 includeDfn.setLib(true);
                 includeDfn.setPath(pathStr);
                 if (! forIndexing) {
-                    //URL url = ErlangIndexProvider.getDefault().getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
                     URL url = ErlangIndexProvider.getDefault().get(fo).getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
                     includeDfn.setSourceFileUrl(url);
                 }
