@@ -39,6 +39,7 @@ import org.netbeans.api.languages.Language;
 import org.netbeans.api.languages.LanguageDefinitionNotFoundException;
 import org.netbeans.api.languages.LanguagesManager;
 import org.netbeans.api.languages.ParseException;
+import org.netbeans.modules.erlang.editing.Erlang;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.erlang.editing.semantic.ErlContext;
@@ -88,7 +89,7 @@ public class ErlangLanguageParser implements Parser {
 
             if (language == null) {
                 try {
-                    language = LanguagesManager.get().getLanguage(ErlangGsfLanguage.MIME_TYPE);
+                    language = LanguagesManager.get().getLanguage(Erlang.MIME_TYPE);
                 } catch (LanguageDefinitionNotFoundException ex) {
                     listener.exception(ex);
                 }
@@ -274,7 +275,7 @@ public class ErlangLanguageParser implements Parser {
         }
         
         public String getMimeType() {
-            return ErlangGsfLanguage.MIME_TYPE;
+            return Erlang.MIME_TYPE;
         }
 
         public String getName() {

@@ -40,12 +40,11 @@ import org.netbeans.api.lexer.TokenId;
  *
  * @author Tor Norbye
  */
+import org.netbeans.modules.erlang.editing.Erlang;
 import org.openide.filesystems.FileObject;
 
 public class ErlangGsfLanguage implements GsfLanguage {
-    
-    public final static String MIME_TYPE = "text/x-erlang";
-    
+        
     private Language lexerLanguage;
     
     public ErlangGsfLanguage() {
@@ -76,7 +75,7 @@ public class ErlangGsfLanguage implements GsfLanguage {
             try {
                 while (lexerLanguage == null && counter < 200) {
                     Thread.sleep(100);
-                    lexerLanguage = org.netbeans.api.lexer.Language.find(MIME_TYPE);
+                    lexerLanguage = org.netbeans.api.lexer.Language.find(Erlang.MIME_TYPE);
                     counter++;
                 }
             } catch (InterruptedException e) {

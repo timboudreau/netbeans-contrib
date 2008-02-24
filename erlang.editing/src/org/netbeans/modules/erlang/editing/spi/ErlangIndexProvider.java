@@ -46,6 +46,7 @@ import java.util.List;
 import org.netbeans.api.languages.CompletionItem;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
 import org.netbeans.modules.erlang.editing.util.ServiceLoader;
+import org.openide.filesystems.FileObject;
 
 /**
  *
@@ -59,7 +60,10 @@ public class ErlangIndexProvider {
 	Header 
     }
 
-    
+    /**
+     * return a implementation of I, but do not use it directly, 
+     * always use getDefault().get(fo) instead 
+     */
     public static I getDefault() {
         if (i == null) {
             Iterator<I> itr = ServiceLoader.load(I.class).iterator();
@@ -74,6 +78,8 @@ public class ErlangIndexProvider {
     }
     
     public static interface I {
+        ErlangIndexProvider.I get(FileObject fo);
+        
         ErlFunction getFunction(String moduleName, String functionName, int arity);
 	
         URL getModuleFileUrl(Type type, String moduleName);

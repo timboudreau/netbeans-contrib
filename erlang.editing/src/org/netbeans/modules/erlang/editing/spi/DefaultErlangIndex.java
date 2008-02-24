@@ -45,6 +45,8 @@ import java.util.Collections;
 import java.util.List;
 import org.netbeans.api.languages.CompletionItem;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
+import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider.I;
+import org.openide.filesystems.FileObject;
 
 /**
  * DefaultErlangIndex just return null results.
@@ -52,6 +54,10 @@ import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
  * @author Caoyuan Deng
  */
 public class DefaultErlangIndex implements ErlangIndexProvider.I {
+
+    public I get(FileObject fo) {
+        return this;
+    }
     
     public ErlFunction getFunction(String moduleName, String functionName, int arity) {
         return null;

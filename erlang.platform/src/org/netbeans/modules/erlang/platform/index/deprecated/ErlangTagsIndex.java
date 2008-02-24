@@ -35,6 +35,8 @@ import java.util.regex.Pattern;
 import org.netbeans.api.languages.CompletionItem;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
 import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider;
+import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider.I;
+import org.openide.filesystems.FileObject;
 
 /**
  *
@@ -59,6 +61,11 @@ public class ErlangTagsIndex implements ErlangIndexProvider.I {
      */
     private static final String formRegrex = "^((\\-define)|(\\w+))\\((\\w+)?.([0-9]+)\\,([0-9]+).*";
     private static final Pattern formPattern = Pattern.compile(formRegrex);
+
+    public I get(FileObject fo) {
+        return this;
+    }
+
     
     public ErlFunction getFunction(String module, String functionName, int arity) {
         if (moduleToFunctions == null) {
