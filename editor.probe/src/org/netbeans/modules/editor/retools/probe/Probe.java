@@ -42,6 +42,7 @@ package org.netbeans.modules.editor.retools.probe;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.KeyboardFocusManager;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
@@ -50,6 +51,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.FocusManager;
 import javax.swing.SwingUtilities;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
@@ -60,6 +62,7 @@ import org.openide.loaders.DataObject;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 /**
  *
@@ -79,7 +82,7 @@ public class Probe {
             PrintStream ps = new PrintStream(baos, true, "utf-8"); //NOI18N
 
             try {
-                ps.println("Editor probe dumping info..."); //NOI18N
+                ps.println("Editor Probe " + getVersion() + " dumping info..."); //NOI18N
                 
                 addEnvironmentInfo(ps);
                 addAllMopdules(ps);
@@ -91,7 +94,7 @@ public class Probe {
                     addSingleEditorStatus(editors.get(i), i, ps);
                 }
                 
-                ps.println("Editor probe dump finished!"); //NOI18N
+                ps.println("Editor Probe " + getVersion() + " dump finished!"); //NOI18N
             } finally {
                 ps.flush();
                 ps.close();
@@ -135,6 +138,17 @@ public class Probe {
         ps.println("Registered editors: " + editors.size()); //NOI18N
         ps.println("Last focused editor: " + editorId(EditorRegistry.lastFocusedComponent())); //NOI18N
         ps.println("Currently focused editor: " + editorId(EditorRegistry.focusedComponent())); //NOI18N
+        ps.println();
+        
+        // Dump focus info:
+        KeyboardFocusManager kfm = FocusManager.getCurrentKeyboardFocusManager();
+        ps.println("Focus manager: " + s2s(kfm));
+        ps.println("Active window: " + s2s(kfm.getActiveWindow()));
+        ps.println("Focused window: " + s2s(kfm.getFocusedWindow()));
+        ps.println("Netbeans main window: " + s2s(WindowManager.getDefault().getMainWindow()));
+        ps.println("Permanent focus owner: " + s2s(kfm.getPermanentFocusOwner()));
+        ps.print("Focus owner: ");
+        dumpAncestors(kfm.getFocusOwner(), ps, "");
         addSeparator(ps);
     }
     
@@ -188,8 +202,21 @@ public class Probe {
         ps.println("-------------------------------------------------------------------------------"); // NOI18N
     }
     
-    private static String s2s(Object o) {
-        return o == null ? "null" : o.getClass().getName() + "@" + Integer.toHexString(System.identityHashCode(o)); //NOI18N
+    public static String s2s(Object o) {
+        if (o == null) {
+            return "null"; //NOI18N
+        } else {
+            String classAndHash = o.getClass().getName() + "@" + Integer.toHexString(System.identityHashCode(o)); //NOI18N
+            if (o instanceof Component) {
+                return classAndHash 
+                    + "; name='" + ((Component) o).getName() + "'" //NOI18N
+                    + "; isFocusable=" + ((Component) o).isFocusable() //NOI18N
+                    + "; isFocusOwner=" + ((Component) o).isFocusOwner() //NOI18N
+                ;
+            } else {
+                return classAndHash;
+            }
+        }
     }
     
     private static String editorId(JTextComponent c) {
@@ -226,9 +253,6 @@ public class Probe {
 
             ps.print(indent);
             ps.print(s2s(c));
-            ps.print(": name=" + c.getName()); //NOI18N
-            ps.print("; isFocusable=" + c.isFocusable()); //NOI18N
-            ps.print("; isFocusOwner=" + c.isFocusOwner()); //NOI18N
             ps.println();
 
             if (c instanceof Container) {
@@ -243,4 +267,21 @@ public class Probe {
         }
     }
 
+    private static void dumpAncestors(Component c, PrintStream ps, String indent) {
+        ps.print(indent);
+        ps.println(s2s(c));
+        if (c.getParent() != null) {
+            dumpAncestors(c.getParent(), ps, indent + "  "); //NOI18N
+        }
+    }
+    
+    public static String getVersion() {
+        Collection<? extends ModuleInfo> modules = Lookup.getDefault().lookupAll(ModuleInfo.class);
+        for(ModuleInfo m : modules) {
+            if (m.getCodeNameBase().equals("org.netbeans.modules.editor.probe")) { //NOI18N
+                return m.getSpecificationVersion().toString();
+            }
+        }
+        return "?"; //NOI18N
+    }
 }

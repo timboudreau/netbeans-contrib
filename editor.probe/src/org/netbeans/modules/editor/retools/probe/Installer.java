@@ -40,10 +40,13 @@
  */
 package org.netbeans.modules.editor.retools.probe;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.FocusManager;
 import javax.swing.SwingUtilities;
 import org.openide.modules.ModuleInstall;
 import org.openide.windows.WindowManager;
@@ -57,6 +60,7 @@ public class Installer extends ModuleInstall {
     private static final Logger LOG = Logger.getLogger(Installer.class.getName());
     
     private static HttpServer server = null;
+    private static FocusLog focusLog = null;
     
     @Override
     public void restored() {
@@ -72,22 +76,35 @@ public class Installer extends ModuleInstall {
                 // try another port
             }
         }
+        
+        assert focusLog == null;
+        focusLog = new FocusLog();
+        FocusManager.getCurrentManager().addPropertyChangeListener(focusLog);
     }
 
     @Override
     public void close() {
-        shuttdownServer();
+        shutdownServer();
+        shutdownLogging();
     }
 
     @Override
     public void uninstalled() {
-        shuttdownServer();
+        shutdownServer();
+        shutdownLogging();
     }
 
-    private void shuttdownServer() {
+    private void shutdownServer() {
         if (server != null) {
             server.kill();
             server = null;
+        }
+    }
+
+    private void shutdownLogging() {
+        if (focusLog != null) {
+            FocusManager.getCurrentManager().removePropertyChangeListener(focusLog);
+            focusLog = null;
         }
     }
 
@@ -98,6 +115,7 @@ public class Installer extends ModuleInstall {
             + "<META HTTP-EQUIV=\"Refresh\" CONTENT=\"5; URL=/\" />" //NOI18N
             + "</head>" //NOI18N
             + "<body>" //NOI18N
+            + "<p>Editor Probe " + Probe.getVersion() + " is running...</p>" //NOI18N
             + "<p>Please Alt+Tab back to Netbeans and wait for at least 5 seconds, you can than come back here.</p>" //NOI18N
             + "</body>" //NOI18N
             + "</html>"; //NOI18N
@@ -135,4 +153,15 @@ public class Installer extends ModuleInstall {
             }
         }
     } // End of HttpServer class
+    
+    private static final class FocusLog implements PropertyChangeListener {
+        
+        private static final Logger FLOG = Logger.getLogger("nbeditor.focus"); //NOI18N
+        
+        public void propertyChange(PropertyChangeEvent evt) {
+            FLOG.info("FM pchng: '" + evt.getPropertyName()
+                    + "' old=[" + Probe.s2s(evt.getOldValue())
+                    + "] new=[" + Probe.s2s(evt.getNewValue()) + "]"); //NOI18N
+        }
+    } // End of FocusLog class
 }
