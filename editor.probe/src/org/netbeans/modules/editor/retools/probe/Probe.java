@@ -107,7 +107,7 @@ public class Probe {
     private void addEnvironmentInfo(PrintStream ps) {
         try {
             ClassLoader cl = Lookup.getDefault().lookup(ClassLoader.class);
-            Class topLoggingClass = cl.loadClass("org.netbeans.core.startup.TopLogging"); //NOI18N
+            Class<?> topLoggingClass = cl.loadClass("org.netbeans.core.startup.TopLogging"); //NOI18N
             Method printSystemInfoMethod = topLoggingClass.getDeclaredMethod("printSystemInfo", PrintStream.class); //NOI18N
             printSystemInfoMethod.setAccessible(true);
             printSystemInfoMethod.invoke(null, ps);
