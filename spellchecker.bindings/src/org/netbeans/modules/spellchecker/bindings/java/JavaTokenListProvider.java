@@ -55,7 +55,7 @@ import org.openide.loaders.DataObject;
  */
 public class JavaTokenListProvider implements TokenListProvider {
 
-    private static final boolean ENABLE_SEMANTIC_TOKEN_LIST = Boolean.getBoolean(JavaSemanticTokenList.class.getName() + "-enable");
+    static final boolean ENABLE_SEMANTIC_TOKEN_LIST = Boolean.getBoolean(JavaSemanticTokenList.class.getName() + "-enable");
     
     public JavaTokenListProvider() {
     }

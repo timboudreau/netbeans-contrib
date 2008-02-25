@@ -92,14 +92,8 @@ public class DeployAction extends NodeAction  {
                     NbBundle.getMessage(DeployAction.class, "TXT_NO_DEPLOYMENT_DIR")));
             return;
         }
-        String axisHome = preferences.get("AXIS_HOME",null); //NOI18N
-        if (axisHome == null || axisHome.length() == 0) {
-            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
-                    NbBundle.getMessage(DeployAction.class, "TXT_NO_HOME_DIR")));
-            return;
-        }
         try {
-            AxisUtils.updateAxisProperties(project, axisHome, axisDeploy);
+            AxisUtils.updateAxisDeployProperty(project, axisDeploy);
         } catch (IOException ex) {
             ex.printStackTrace();
         }     

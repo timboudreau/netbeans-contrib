@@ -48,6 +48,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.websvc.axis2.actions.DeployAction;
+import org.netbeans.modules.websvc.axis2.actions.ShowServicesAction;
 import org.openide.actions.FindAction;
 import org.openide.actions.PasteAction;
 import org.openide.actions.PropertiesAction;
@@ -123,8 +124,8 @@ public class Axis2Node extends AbstractNode {
     @Override
     public Action[] getActions(boolean context) {
         return new Action[]{
-            //SystemAction.get(AxisConfigurationAction.class),
             SystemAction.get(DeployAction.class),
+            SystemAction.get(ShowServicesAction.class),
             null,
             SystemAction.get(FindAction.class),
             null,
