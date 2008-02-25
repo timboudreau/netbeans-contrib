@@ -51,6 +51,7 @@ class GnuParser extends BaseParser {
 	}
 	findErrorOrWarning(line, ": error: ", true, interestingFileName, errorBag);
 	findErrorOrWarning(line, ": warning: ", false, interestingFileName, errorBag);
+	findErrorOrWarning(line, " #error ", true, interestingFileName, errorBag);
     }
 
     private void findErrorOrWarning(String line, String keyword, boolean error, String interestingFileName, ErrorBag errorBag) {
@@ -70,7 +71,12 @@ class GnuParser extends BaseParser {
 			lineNum = Integer.parseInt(strPosition);
 		    } else {
 			lineNum = Integer.parseInt(strPosition.substring(0, colonPos));
-			colNum = Integer.parseInt(strPosition.substring(colonPos + 1));
+			try {
+			    int endPos = strPosition.endsWith(":") ? strPosition.length()-1 : strPosition.length();
+			    colNum = Integer.parseInt(strPosition.substring(colonPos + 1, endPos));
+			} catch( NumberFormatException e ) {
+			    e.printStackTrace();
+			}
 		    }
 		    String message = line.substring(afterErrPos);
 		    if (DebugUtils.TRACE) {

@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.modules.editor.retools.probe/0
+OpenIDE-Module: org.netbeans.modules.editor.probe/0
 OpenIDE-Module-Install: org/netbeans/modules/editor/retools/probe/Installer.class
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/editor/retools/probe/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.2.0
+OpenIDE-Module-Specification-Version: 1.4.0
 
