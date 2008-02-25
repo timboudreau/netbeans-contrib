@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.netbeans.fpi.gsf.GsfLanguage;
+import org.netbeans.modules.gsf.api.GsfLanguage;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.TokenId;
 
@@ -40,11 +40,12 @@ import org.netbeans.api.lexer.TokenId;
  *
  * @author Tor Norbye
  */
+import org.netbeans.modules.erlang.editing.Erlang;
 import org.openide.filesystems.FileObject;
 
 public class ErlangGsfLanguage implements GsfLanguage {
-    
-    public final static String MIME_TYPE = "text/x-erlang";
+        
+    private Language lexerLanguage;
     
     public ErlangGsfLanguage() {
     }
@@ -65,13 +66,28 @@ public class ErlangGsfLanguage implements GsfLanguage {
     }
 
     public Language getLexerLanguage() {
-        return null;
+        /** 
+         * Ugly hacking for waiting for GLF language inited 
+         * @see org.netbeans.modules.languages.LanguageImpl#read 
+         */
+        if (lexerLanguage == null) {
+            int counter = 0;
+            try {
+                while (lexerLanguage == null && counter < 200) {
+                    Thread.sleep(100);
+                    lexerLanguage = org.netbeans.api.lexer.Language.find(Erlang.MIME_TYPE);
+                    counter++;
+                }
+            } catch (InterruptedException e) {
+            }
+        }
+        return lexerLanguage;
     }
 
     public Collection<FileObject> getCoreLibraries() {
         return Collections.emptyList();
     }
-
+    
 }
 
 

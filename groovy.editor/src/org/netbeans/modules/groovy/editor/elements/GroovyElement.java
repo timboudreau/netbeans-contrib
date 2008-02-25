@@ -40,9 +40,7 @@
  */
 package org.netbeans.modules.groovy.editor.elements;
 
-import org.netbeans.api.gsf.Element;
-import org.netbeans.api.gsf.Element;
-
+import org.netbeans.modules.gsf.api.Element;
 
 /**
  * A logical program element, such as a Class, Method, Attribute, etc.

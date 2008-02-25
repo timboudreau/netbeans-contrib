@@ -41,8 +41,8 @@
 
 package org.netbeans.modules.javafx;
 
-import org.netbeans.api.gsf.Element;
-import org.netbeans.api.gsf.ElementHandle;
+import org.netbeans.modules.gsf.api.Element;
+import org.netbeans.modules.gsf.api.ElementHandle;
 import org.openide.filesystems.FileObject;
 
 public class JavaFXElementHandleImpl<T extends Element> extends ElementHandle<T> {

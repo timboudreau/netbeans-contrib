@@ -76,6 +76,9 @@ public enum EJSTokenId implements TokenId {
     
     private final String primaryCategory;
 
+    public static boolean isJavascript(TokenId id) {
+        return id == JAVASCRIPT || id == JAVASCRIPT_EXPRESSION ;
+    }
     EJSTokenId(String primaryCategory) {
         this.primaryCategory = primaryCategory;
     }

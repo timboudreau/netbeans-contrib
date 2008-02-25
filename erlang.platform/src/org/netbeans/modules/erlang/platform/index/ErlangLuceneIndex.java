@@ -28,10 +28,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.netbeans.fpi.gsf.Index.SearchResult;
-import org.netbeans.fpi.gsf.Index.SearchScope;
-import org.netbeans.fpi.gsf.NameKind;
+import org.netbeans.modules.gsf.api.Index.SearchResult;
+import org.netbeans.modules.gsf.api.Index.SearchScope;
+import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.api.languages.CompletionItem;
+import org.netbeans.modules.erlang.editing.Erlang;
 import org.netbeans.modules.erlang.editing.semantic.ErlMacro;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
 import org.netbeans.modules.erlang.editing.semantic.ErlInclude;
@@ -39,8 +40,12 @@ import org.netbeans.modules.erlang.editing.semantic.ErlRecord;
 import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider;
 import org.netbeans.modules.gsf.Language;
 import org.netbeans.modules.gsf.LanguageRegistry;
+import org.netbeans.modules.gsf.api.Index;
 import org.netbeans.modules.gsfret.source.usages.ClassIndexImpl;
 import org.netbeans.modules.gsfret.source.usages.ClassIndexManager;
+import org.netbeans.napi.gsfret.source.ClassIndex;
+import org.netbeans.napi.gsfret.source.Source;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
 /**
@@ -52,25 +57,32 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
     private static final Set<SearchScope> ALL_SCOPE = EnumSet.allOf(SearchScope.class);
 
     private Language language;
-
-    /** @TODO Only use Erlang lib and project sources indexEngine */
-    private final Collection<ClassIndexImpl> getAllIndexEngines() {
-        if (language == null) {
-            language = LanguageRegistry.getInstance().getLanguageByMimeType(ErlangGsfLanguage.MIME_TYPE);
-        }
-        final Map<URL, ClassIndexImpl> urlToClassIndexImpl = ClassIndexManager.get(language).getAllIndices();
-        return urlToClassIndexImpl.values();
+    
+    private Index index;
+    
+    /** For service load */
+    public ErlangLuceneIndex() {        
     }
 
+    /** Creates a new instance of ErlangLuceneIndex */
+    private ErlangLuceneIndex(Index index) {
+        this.index = index;
+    }
+    
+    public ErlangIndexProvider.I get(FileObject fo) {
+        /** Source.forFileObject(fo) is cached and efficient */
+        Source source = Source.forFileObject(fo);
+        Index indexEngine = source.getClasspathInfo().getClassIndex(Erlang.MIME_TYPE);
+        return new ErlangLuceneIndex(indexEngine);
+    }
+        
     private boolean search(String key, String name, NameKind kind, Set<SearchResult> result) {
         try {
-            for (ClassIndexImpl index : getAllIndexEngines()) {
-                index.search(key, name, kind, ALL_SCOPE, result, null);
-            }
+            assert index != null : "index is null, are you using ErlangIndexPrivider.getDefault() ?, if so, use ErlangIndexPrivider.getDefault().get(fo) instead!";
+            index.search(key, name, kind, ALL_SCOPE, result, null);
             return true;
         } catch (IOException ioe) {
             Exceptions.printStackTrace(ioe);
-
             return false;
         }
     }
@@ -78,10 +90,8 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
     private boolean search(String key, String name, NameKind kind, Set<SearchResult> result,
         Set<SearchScope> scope) {
         try {
-            for (ClassIndexImpl index : getAllIndexEngines()) {
-                index.search(key, name, kind, scope, result, null);
-            }
-
+            assert index != null : "index is null, are you using ErlangIndexPrivider.getDefault() ?, if so, use ErlangIndexPrivider.getDefault().get(fo) instead!";
+            index.search(key, name, kind, scope, result, null);
             return true;
         } catch (IOException ioe) {
             Exceptions.printStackTrace(ioe);
@@ -167,7 +177,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
         return null;
     }
 
-    Map<String, URL> moduleToUrlBuf = new HashMap<String, URL>();
+    private static Map<String, URL> moduleToUrlBuf = new HashMap<String, URL>();
     public URL getModuleFileUrl(ErlangIndexProvider.Type type, String moduleName) {
         URL url = moduleToUrlBuf.get(moduleName);
         if (url != null) {
@@ -180,6 +190,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
             }
             try {
                 url = new URL(urlStr);
+                moduleToUrlBuf.put(moduleName, url);
                 break;
             } catch (MalformedURLException ex) {
                 ex.printStackTrace();
@@ -245,7 +256,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
         for (ErlInclude include : getIncludes(moduleName)) {
             String path = include.getPath();
             try {
-                url = new URL(path);
+                url = new URL("file://" + path);
             } catch (MalformedURLException ex) {
                 Exceptions.printStackTrace(ex);
             }
@@ -284,7 +295,7 @@ public class ErlangLuceneIndex implements ErlangIndexProvider.I {
         for (ErlInclude include : getIncludes(moduleName)) {
             String path = include.getPath();
             try {
-                url = new URL(path);
+                url = new URL("file://" + path);
             } catch (MalformedURLException ex) {
                 Exceptions.printStackTrace(ex);
             }

@@ -24,18 +24,18 @@ import java.util.Set;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.netbeans.fpi.gsf.CompilationInfo;
-import org.netbeans.fpi.gsf.OffsetRange;
+import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
-import org.netbeans.fpi.gsf.ParserResult;
-import org.netbeans.fpi.gsf.TranslatedSource;
+import org.netbeans.modules.erlang.editing.Erlang;
+import org.netbeans.modules.gsf.api.ParserResult;
+import org.netbeans.modules.gsf.api.TranslatedSource;
 import org.netbeans.modules.erlang.platform.api.RubyInstallation;
-import org.netbeans.modules.erlang.platform.index.ErlangGsfLanguage;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
@@ -90,7 +90,7 @@ public class LexUtilities {
     
     /** For a possibly generated offset in an AST, return the corresponding lexing/true document offset */
     public static int getLexerOffset(CompilationInfo info, int astOffset) {
-        ParserResult result = info.getEmbeddedResult(ErlangGsfLanguage.MIME_TYPE, 0);
+        ParserResult result = info.getEmbeddedResult(Erlang.MIME_TYPE, 0);
         if (result != null) {
             TranslatedSource ts = result.getTranslatedSource();
             if (ts != null) {
@@ -102,7 +102,7 @@ public class LexUtilities {
     }
     
     public static OffsetRange getLexerOffsets(CompilationInfo info, OffsetRange astRange) {
-        ParserResult result = info.getEmbeddedResult(ErlangGsfLanguage.MIME_TYPE, 0);
+        ParserResult result = info.getEmbeddedResult(Erlang.MIME_TYPE, 0);
         if (result != null) {
             TranslatedSource ts = result.getTranslatedSource();
             if (ts != null) {

@@ -26,12 +26,12 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.netbeans.fpi.gsf.ParserResult;
+import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
-import org.netbeans.fpi.gsf.CompilationInfo;
+import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.erlang.platform.options.CodeStyle;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
@@ -65,7 +65,7 @@ end
  * @author Tor Norbye
  * @author Caoyuan Deng
  */
-public class Formatter implements org.netbeans.fpi.gsf.Formatter {
+public class Formatter implements org.netbeans.modules.gsf.api.Formatter {
 
     private CodeStyle codeStyle;
     private int rightMarginOverride = -1;

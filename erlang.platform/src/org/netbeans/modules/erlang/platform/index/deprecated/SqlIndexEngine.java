@@ -32,12 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import org.netbeans.fpi.gsf.Index.SearchResult;
-import org.netbeans.fpi.gsf.Index.SearchScope;
-import org.netbeans.fpi.gsf.IndexDocument;
-import org.netbeans.fpi.gsf.NameKind;
+import org.netbeans.modules.erlang.editing.Erlang;
+import org.netbeans.modules.gsf.api.Index.SearchResult;
+import org.netbeans.modules.gsf.api.Index.SearchScope;
+import org.netbeans.modules.gsf.api.IndexDocument;
+import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
-import org.netbeans.modules.erlang.platform.index.ErlangGsfLanguage;
 import org.netbeans.modules.gsf.Language;
 import org.netbeans.modules.gsf.LanguageRegistry;
 import org.openide.filesystems.FileUtil;
@@ -68,7 +68,7 @@ public class SqlIndexEngine extends org.netbeans.modules.gsfret.source.usages.In
     private static SqlIndexEngine sqlIndexengine;
     public static SqlIndexEngine create() {
         if (sqlIndexengine == null) {
-            Language language = LanguageRegistry.getInstance().getLanguageByMimeType(ErlangGsfLanguage.MIME_TYPE);
+            Language language = LanguageRegistry.getInstance().getLanguageByMimeType(Erlang.MIME_TYPE);
             sqlIndexengine = new SqlIndexEngine(language);
         }
         return sqlIndexengine;

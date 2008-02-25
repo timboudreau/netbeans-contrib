@@ -19,11 +19,11 @@
 package org.netbeans.modules.erlang.platform.index;
 
 
-import org.netbeans.fpi.gsf.OffsetRange;
-import org.netbeans.fpi.gsf.ParserFile;
-import org.netbeans.fpi.gsf.ParserResult;
+import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.gsf.api.ParserFile;
+import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.api.languages.ASTNode;
-import org.netbeans.fpi.gsf.ElementHandle;
+import org.netbeans.modules.erlang.editing.Erlang;
 import org.netbeans.modules.erlang.editing.semantic.ErlContext;
 
 /**
@@ -31,22 +31,21 @@ import org.netbeans.modules.erlang.editing.semantic.ErlContext;
  * @author Caoyuan Deng
  */
 public class ErlangLanguageParserResult extends ParserResult {
-    private AstTreeNode ast;
     private AstRootElement rootElement;
     private OffsetRange sanitizedRange = OffsetRange.NONE;
  
-    private ASTNode rootNode;
+    private ASTNode astRoot;
     private ErlContext rootContext;
 
     public ErlangLanguageParserResult(
             ErlangLanguageParser parser,
             ParserFile file, 
             AstRootElement rootElement, 
-            ASTNode rootNode,
+            ASTNode astRoot,
 	    ErlContext rootCtx) {
-        super(parser, file, "text/x-erlang");
+        super(parser, file, Erlang.MIME_TYPE);
         this.rootElement = rootElement;
-        this.rootNode = rootNode;
+        this.astRoot = astRoot;
         this.rootContext = rootCtx;
     }
 
@@ -54,17 +53,12 @@ public class ErlangLanguageParserResult extends ParserResult {
         return null;
     }
 
-    @Override
-    public ElementHandle getRoot() {
-        return ErlangLanguageParser.createHandle(this, rootElement);
-    }
-
     /** 
      * The root node of the AST produced by the parser.
      * Later, rip out the getAst part etc.
      */
     public ASTNode getRootNode() {
-        return rootNode;
+        return astRoot;
     }
 
     public void setRootContext(ErlContext rootCtx) {

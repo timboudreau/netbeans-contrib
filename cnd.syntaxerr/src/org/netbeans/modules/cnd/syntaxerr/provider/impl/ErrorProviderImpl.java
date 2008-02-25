@@ -141,10 +141,10 @@ public class ErrorProviderImpl extends ErrorProvider {
             // TODO: set correct options
             String command = compilerInfo.getPath() + " -c -o /dev/null " + fileProxy.getCompilerOptions() + ' ' + fileToCompile.getAbsolutePath(); // NOI18N
             if( DebugUtils.SLEEP_ON_PARSE ) DebugUtils.sleep(3000);
-            if( DebugUtils.TRACE ) System.err.printf("\n\nRUNNING %s\n", command);
+            if( DebugUtils.TRACE ) System.err.printf("\n\nRUNNING %s\n\tin directory %s\n", command, fileProxy.getCompilerRunDirectory().getAbsolutePath());
             Process compilerProcess = Runtime.getRuntime().exec(command, null, fileProxy.getCompilerRunDirectory());
             InputStream stream = compilerProcess.getErrorStream();
-            compilerInfo.getParser().parseCompilerOutput(stream, fileToCompile.getAbsolutePath(), result);
+            compilerInfo.getParser().parseCompilerOutput(stream, fileProxy.getInterestingFileAbsoluteName(), result);
 //	    result = merge(result);
             stream.close();
             if( DebugUtils.CLEAN_TMP ) {

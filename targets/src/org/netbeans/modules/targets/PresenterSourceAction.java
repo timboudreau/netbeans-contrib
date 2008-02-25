@@ -45,10 +45,6 @@ import java.awt.Component;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
-import org.openide.windows.Mode;
-import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
-import org.openide.windows.Workspace;
 
 /**
  * A standin system action which really just serves to provide a toolbar

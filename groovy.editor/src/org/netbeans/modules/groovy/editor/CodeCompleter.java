@@ -50,19 +50,21 @@ import javax.swing.ImageIcon;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.codehaus.groovy.ast.ASTNode;
-import org.netbeans.api.gsf.CompilationInfo;
-import org.netbeans.api.gsf.Completable;
-import org.netbeans.api.gsf.CompletionProposal;
-import org.netbeans.api.gsf.Element;
-import org.netbeans.api.gsf.ElementHandle;
-import org.netbeans.api.gsf.ElementKind;
-import org.netbeans.api.gsf.HtmlFormatter;
-import org.netbeans.api.gsf.Modifier;
-import org.netbeans.api.gsf.NameKind;
-import org.netbeans.api.gsf.ParameterInfo;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.api.Completable;
+import org.netbeans.modules.gsf.api.Completable.QueryType;
+import org.netbeans.modules.gsf.api.CompletionProposal;
+import org.netbeans.modules.gsf.api.Element;
+import org.netbeans.modules.gsf.api.ElementHandle;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.gsf.api.Modifier;
+import org.netbeans.modules.gsf.api.NameKind;
+import org.netbeans.modules.gsf.api.ParameterInfo;
 import org.netbeans.modules.groovy.editor.elements.KeywordElement;
+import org.netbeans.modules.groovy.editor.parser.GroovyParser;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
@@ -180,7 +182,7 @@ public class CodeCompleter implements Completable {
         //return proposals;
     }
 
-    public String document(CompilationInfo info, Element element) {
+    public String document(CompilationInfo info, ElementHandle element) {
         return "";
     }
 
@@ -261,8 +263,8 @@ public class CodeCompleter implements Completable {
             return getName();
         }
 
-        public Element getElement() {
-            return element;
+        public ElementHandle getElement() {
+            return GroovyParser.createHandle(request.info, element);
         }
 
         public ElementKind getKind() {
@@ -371,9 +373,10 @@ public class CodeCompleter implements Completable {
         }
         
         @Override
-        public Element getElement() {
+        public ElementHandle getElement() {
             // For completion documentation
-            return new KeywordElement(keyword);
+            return GroovyParser.createHandle(request.info, new KeywordElement(keyword));
         }
-    }    
+    }
+
 }

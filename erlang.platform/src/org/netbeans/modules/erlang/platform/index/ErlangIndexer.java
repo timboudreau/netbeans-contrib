@@ -30,14 +30,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.text.Document;
-import org.netbeans.fpi.gsf.Index;
-import org.netbeans.fpi.gsf.Indexer;
-import org.netbeans.fpi.gsf.ParserFile;
-import org.netbeans.fpi.gsf.ParserResult;
+import org.netbeans.modules.gsf.api.Index;
+import org.netbeans.modules.gsf.api.Indexer;
+import org.netbeans.modules.gsf.api.ParserFile;
+import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.fpi.gsf.IndexDocument;
-import org.netbeans.fpi.gsf.IndexDocumentFactory;
+import org.netbeans.modules.gsf.api.IndexDocument;
+import org.netbeans.modules.gsf.api.IndexDocumentFactory;
 import org.netbeans.modules.erlang.editing.semantic.ErlContext;
 import org.netbeans.modules.erlang.editing.semantic.ErlMacro;
 import org.netbeans.modules.erlang.editing.semantic.ErlExport;
@@ -269,6 +269,7 @@ public class ErlangIndexer implements Indexer {
                 }
             } else {
                 if (fo != null) {
+                    // header file name will contains ext(such as ".hrl")
                     if (file.isPlatform()) {
                         String libFolder = RubyPlatformManager.getDefaultPlatform().getLib();
                         File libFolderFile = new File(libFolder);
@@ -277,6 +278,7 @@ public class ErlangIndexer implements Indexer {
                             String relativePath = FileUtil.getRelativePath(libFolderObj, fo);
                             String[] groups = relativePath.split(File.separator);
                             String packageNameWithVersion = groups.length >= 1 ? groups[0] : relativePath;
+                            // Remove version number:
                             int dashIdx = packageNameWithVersion.lastIndexOf('-');
                             String packageName = dashIdx != -1 ? packageNameWithVersion.substring(0, dashIdx) : packageNameWithVersion;
                             name = packageName;

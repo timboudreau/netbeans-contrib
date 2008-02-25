@@ -57,4 +57,6 @@ interface FileProxy {
     CompilerInfo getCompilerInfo();
 
     String getCompilerOptions();
+    
+    String getInterestingFileAbsoluteName();
 }

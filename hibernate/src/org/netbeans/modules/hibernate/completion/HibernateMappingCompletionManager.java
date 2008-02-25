@@ -63,7 +63,9 @@ import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.Task;
 import org.netbeans.editor.TokenItem;
+import org.netbeans.modules.hibernate.service.TableColumn;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
@@ -615,17 +617,8 @@ public final class HibernateMappingCompletionManager {
             int caretOffset = context.getCaretOffset();
             String typedChars = context.getTypedPrefix();
 
-            // TODO: call Vadiraj's API to get the database tables
-            // For now: hard code them so that I can test my completor
-            List<String> tableNames = new ArrayList<String>();
-            tableNames.add("PERSON");
-            tableNames.add("TRIP");
-            tableNames.add("TRIPTYPE");
-            tableNames.add("FLIGHT");
-            tableNames.add("HOTEL");
-            tableNames.add("CARRENTAL");
-            tableNames.add("VALIDATION_TABLE");
-
+            List<String> tableNames = getDatabaseTableNamesFromProject(context);
+            
             for (String tableName : tableNames) {
                 HibernateCompletionItem item = HibernateCompletionItem.createDatabaseTableItem(
                         caretOffset - typedChars.length(), tableName);
@@ -635,6 +628,16 @@ public final class HibernateMappingCompletionManager {
             setAnchorOffset(context.getCurrentToken().getOffset() + 1);
 
             return results;
+        }
+
+        private List<String> getDatabaseTableNamesFromProject(CompletionContext context) {
+            List<String> tableNames = new ArrayList<String>();
+            org.netbeans.api.project.Project enclosingProject = org.netbeans.api.project.FileOwnerQuery.getOwner(
+                    org.netbeans.modules.editor.NbEditorUtilities.getFileObject(context.getDocument())
+                    );
+            org.netbeans.modules.hibernate.service.HibernateEnvironment env = enclosingProject.getLookup().lookup(org.netbeans.modules.hibernate.service.HibernateEnvironment.class);
+            tableNames = env.getAllDatabaseTablesForProject();
+            return tableNames;
         }
     }
 
@@ -656,39 +659,11 @@ public final class HibernateMappingCompletionManager {
                 return Collections.emptyList();
             }
 
-            // For now: hard code them for the PERSON table so that I can test my completor
-            List<String> columnNamesPerson = new ArrayList<String>();
-            columnNamesPerson.add("PERSONID");
-            columnNamesPerson.add("NAME");
-            columnNamesPerson.add("JOBTITLE");
-            columnNamesPerson.add("FREQUENTFLYER");
-            columnNamesPerson.add("LASTUPDATED");
+            List<TableColumn> tableColumns = getColumnsForTable(context, tableName);
 
-            List<String> columnNamesTrip = new ArrayList<String>();
-            columnNamesTrip.add("TRIPID");
-            columnNamesTrip.add("PERSONID");
-            columnNamesTrip.add("DEPDATE");
-            columnNamesTrip.add("DEPCITY");
-            columnNamesTrip.add("DESTCITY");
-            columnNamesTrip.add("TRIPTYPEID");
-            columnNamesTrip.add("LASTUPDATED");
-
-            List<String> columnNames = null;
-            if (tableName.equalsIgnoreCase("PERSON")) {
-                columnNames = columnNamesPerson;
-            } else {
-                columnNames = columnNamesTrip;
-            }
-
-            for (String columnName : columnNames) {
-                boolean pk = false;
-                if ((tableName.equalsIgnoreCase("PERSON") && columnName.equals("PERSONID")) ||
-                        (tableName.equalsIgnoreCase("TRIP") && columnName.equals("TRIPID"))) {
-                    pk = true;
-                }
-
-                HibernateCompletionItem item = HibernateCompletionItem.createDatabaseColumnItem(
-                        caretOffset - typedChars.length(), columnName, pk);
+            for (TableColumn tableColumn : tableColumns) {
+                  HibernateCompletionItem item = HibernateCompletionItem.createDatabaseColumnItem(
+                        caretOffset - typedChars.length(), tableColumn.getColumnName(), tableColumn.isPrimaryKey());
                 results.add(item);
             }
 
@@ -697,5 +672,18 @@ public final class HibernateMappingCompletionManager {
 
             return results;
         }
+
+        private List<TableColumn> getColumnsForTable(CompletionContext context, String tableName) {
+            List<TableColumn> tableColumns = new ArrayList<TableColumn>();
+            FileObject currentFileObject = org.netbeans.modules.editor.NbEditorUtilities.getFileObject(context.getDocument());
+            org.netbeans.api.project.Project enclosingProject = org.netbeans.api.project.FileOwnerQuery.getOwner(
+                    currentFileObject
+                    );
+            org.netbeans.modules.hibernate.service.HibernateEnvironment env = enclosingProject.getLookup().lookup(org.netbeans.modules.hibernate.service.HibernateEnvironment.class);
+            tableColumns = env.getColumnsForTable(tableName, currentFileObject);
+            return tableColumns;
+        }
+        
+        
     }
 }
