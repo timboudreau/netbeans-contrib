@@ -63,7 +63,9 @@ import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.Task;
 import org.netbeans.editor.TokenItem;
+import org.netbeans.modules.hibernate.service.TableColumn;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
@@ -115,6 +117,8 @@ public final class HibernateMappingCompletionManager {
     private static final String EXTENDS_ATTRIB = "extends";
     private static final String PERSISTER_ATTRIB = "persister";
     private static final String CASCADE_ATTRIB = "cascade";
+    private static final String ID_TYPE_ATTRIB = "id-type";
+    
     private static Map<String, Completor> completors = new HashMap<String, Completor>();
 
     private HibernateMappingCompletionManager() {
@@ -211,6 +215,7 @@ public final class HibernateMappingCompletionManager {
         registerCompletor(ELEMENT_TAG, TYPE_ATTRIB, typeCompletor);
         registerCompletor(MAP_KEY_TAG, TYPE_ATTRIB, typeCompletor);
         registerCompletor(INDEX_TAG, TYPE_ATTRIB, typeCompletor);
+        registerCompletor(ANY_TAG, ID_TYPE_ATTRIB, typeCompletor);
 
         // Items for classes to be mapped
         JavaClassCompletor javaClassCompletor = new JavaClassCompletor(false);
@@ -314,7 +319,7 @@ public final class HibernateMappingCompletionManager {
 
         private int anchorOffset = -1;
 
-        public abstract List<HibernateMappingCompletionItem> doCompletion(CompletionContext context);
+        public abstract List<HibernateCompletionItem> doCompletion(CompletionContext context);
 
         protected void setAnchorOffset(int anchorOffset) {
             this.anchorOffset = anchorOffset;
@@ -377,14 +382,14 @@ public final class HibernateMappingCompletionManager {
             this.itemTextAndDocs = itemTextAndDocs;
         }
 
-        public List<HibernateMappingCompletionItem> doCompletion(CompletionContext context) {
-            List<HibernateMappingCompletionItem> results = new ArrayList<HibernateMappingCompletionItem>();
+        public List<HibernateCompletionItem> doCompletion(CompletionContext context) {
+            List<HibernateCompletionItem> results = new ArrayList<HibernateCompletionItem>();
             int caretOffset = context.getCaretOffset();
             String typedChars = context.getTypedPrefix();
 
             for (int i = 0; i < itemTextAndDocs.length; i += 2) {
                 if (itemTextAndDocs[i].startsWith(typedChars.trim())) {
-                    HibernateMappingCompletionItem item = HibernateMappingCompletionItem.createAttribValueItem(caretOffset - typedChars.length(),
+                    HibernateCompletionItem item = HibernateCompletionItem.createAttribValueItem(caretOffset - typedChars.length(),
                             itemTextAndDocs[i], itemTextAndDocs[i + 1]);
                     results.add(item);
                 }
@@ -407,8 +412,8 @@ public final class HibernateMappingCompletionManager {
             this.itemTextAndDocs = itemTextAndDocs;
         }
 
-        public List<HibernateMappingCompletionItem> doCompletion(CompletionContext context) {
-            List<HibernateMappingCompletionItem> results = new ArrayList<HibernateMappingCompletionItem>();
+        public List<HibernateCompletionItem> doCompletion(CompletionContext context) {
+            List<HibernateCompletionItem> results = new ArrayList<HibernateCompletionItem>();
             int caretOffset = context.getCaretOffset();
             String typedChars = context.getTypedPrefix();
 
@@ -422,7 +427,7 @@ public final class HibernateMappingCompletionManager {
 
             for (int i = 0; i < itemTextAndDocs.length; i += 2) {
                 if (itemTextAndDocs[i].startsWith(styleName.trim())) {
-                    HibernateMappingCompletionItem item = HibernateMappingCompletionItem.createCascadeStyleItem(caretOffset - styleName.length(),
+                    HibernateCompletionItem item = HibernateCompletionItem.createCascadeStyleItem(caretOffset - styleName.length(),
                             itemTextAndDocs[i], itemTextAndDocs[i + 1]);
                     results.add(item);
                 }
@@ -444,8 +449,8 @@ public final class HibernateMappingCompletionManager {
             this.packageOnly = packageOnly;
         }
 
-        public List<HibernateMappingCompletionItem> doCompletion(final CompletionContext context) {
-            final List<HibernateMappingCompletionItem> results = new ArrayList<HibernateMappingCompletionItem>();
+        public List<HibernateCompletionItem> doCompletion(final CompletionContext context) {
+            final List<HibernateCompletionItem> results = new ArrayList<HibernateCompletionItem>();
             try {
                 Document doc = context.getDocument();
                 final String typedChars = context.getTypedPrefix();
@@ -467,7 +472,7 @@ public final class HibernateMappingCompletionManager {
             return results;
         }
 
-        private void doNormalJavaCompletion(JavaSource js, final List<HibernateMappingCompletionItem> results,
+        private void doNormalJavaCompletion(JavaSource js, final List<HibernateCompletionItem> results,
                 final String typedPrefix, final int substitutionOffset) throws IOException {
             js.runUserActionTask(new Task<CompilationController>() {
 
@@ -495,7 +500,7 @@ public final class HibernateMappingCompletionManager {
                         for (Element pkgChild : pkgChildren) {
                             if ((pkgChild.getKind() == ElementKind.CLASS) && pkgChild.getSimpleName().toString().startsWith(classPrefix)) {
                                 TypeElement typeElement = (TypeElement) pkgChild;
-                                HibernateMappingCompletionItem item = HibernateMappingCompletionItem.createTypeItem(substitutionOffset,
+                                HibernateCompletionItem item = HibernateCompletionItem.createTypeItem(substitutionOffset,
                                         typeElement, ElementHandle.create(typeElement),
                                         cc.getElements().isDeprecated(pkgChild), false);
                                 results.add(item);
@@ -508,7 +513,7 @@ public final class HibernateMappingCompletionManager {
             }, true);
         }
 
-        private void doSmartJavaCompletion(final JavaSource js, final List<HibernateMappingCompletionItem> results,
+        private void doSmartJavaCompletion(final JavaSource js, final List<HibernateCompletionItem> results,
                 final String typedPrefix, final int substitutionOffset) throws IOException {
             js.runUserActionTask(new Task<CompilationController>() {
 
@@ -537,11 +542,11 @@ public final class HibernateMappingCompletionManager {
             setAnchorOffset(substitutionOffset);
         }
 
-        private void addPackages(ClassIndex ci, List<HibernateMappingCompletionItem> results, String typedPrefix, int substitutionOffset) {
+        private void addPackages(ClassIndex ci, List<HibernateCompletionItem> results, String typedPrefix, int substitutionOffset) {
             Set<String> packages = ci.getPackageNames(typedPrefix, true, EnumSet.allOf(SearchScope.class));
             for (String pkg : packages) {
                 if (pkg.length() > 0) {
-                    HibernateMappingCompletionItem item = HibernateMappingCompletionItem.createPackageItem(substitutionOffset, pkg, false);
+                    HibernateCompletionItem item = HibernateCompletionItem.createPackageItem(substitutionOffset, pkg, false);
                     results.add(item);
                 }
             }
@@ -554,9 +559,9 @@ public final class HibernateMappingCompletionManager {
         }
 
         @Override
-        public List<HibernateMappingCompletionItem> doCompletion(final CompletionContext context) {
+        public List<HibernateCompletionItem> doCompletion(final CompletionContext context) {
 
-            final List<HibernateMappingCompletionItem> results = new ArrayList<HibernateMappingCompletionItem>();
+            final List<HibernateCompletionItem> results = new ArrayList<HibernateCompletionItem>();
             final int caretOffset = context.getCaretOffset();
             final String typedChars = context.getTypedPrefix();
 
@@ -582,7 +587,7 @@ public final class HibernateMappingCompletionManager {
                         for (Element clsChild : clsChildren) {
                             if (clsChild.getKind() == ElementKind.FIELD) {
                                 VariableElement elem = (VariableElement) clsChild;
-                                HibernateMappingCompletionItem item = HibernateMappingCompletionItem.createClassPropertyItem(caretOffset - typedChars.length(), elem, ElementHandle.create(elem), cc.getElements().isDeprecated(clsChild));
+                                HibernateCompletionItem item = HibernateCompletionItem.createClassPropertyItem(caretOffset - typedChars.length(), elem, ElementHandle.create(elem), cc.getElements().isDeprecated(clsChild));
                                 results.add(item);
                             }
                         }
@@ -607,24 +612,15 @@ public final class HibernateMappingCompletionManager {
         }
 
         @Override
-        public List<HibernateMappingCompletionItem> doCompletion(CompletionContext context) {
-            List<HibernateMappingCompletionItem> results = new ArrayList<HibernateMappingCompletionItem>();
+        public List<HibernateCompletionItem> doCompletion(CompletionContext context) {
+            List<HibernateCompletionItem> results = new ArrayList<HibernateCompletionItem>();
             int caretOffset = context.getCaretOffset();
             String typedChars = context.getTypedPrefix();
 
-            // TODO: call Vadiraj's API to get the database tables
-            // For now: hard code them so that I can test my completor
-            List<String> tableNames = new ArrayList<String>();
-            tableNames.add("PERSON");
-            tableNames.add("TRIP");
-            tableNames.add("TRIPTYPE");
-            tableNames.add("FLIGHT");
-            tableNames.add("HOTEL");
-            tableNames.add("CARRENTAL");
-            tableNames.add("VALIDATION_TABLE");
-
+            List<String> tableNames = getDatabaseTableNamesFromProject(context);
+            
             for (String tableName : tableNames) {
-                HibernateMappingCompletionItem item = HibernateMappingCompletionItem.createDatabaseTableItem(
+                HibernateCompletionItem item = HibernateCompletionItem.createDatabaseTableItem(
                         caretOffset - typedChars.length(), tableName);
                 results.add(item);
             }
@@ -632,6 +628,16 @@ public final class HibernateMappingCompletionManager {
             setAnchorOffset(context.getCurrentToken().getOffset() + 1);
 
             return results;
+        }
+
+        private List<String> getDatabaseTableNamesFromProject(CompletionContext context) {
+            List<String> tableNames = new ArrayList<String>();
+            org.netbeans.api.project.Project enclosingProject = org.netbeans.api.project.FileOwnerQuery.getOwner(
+                    org.netbeans.modules.editor.NbEditorUtilities.getFileObject(context.getDocument())
+                    );
+            org.netbeans.modules.hibernate.service.HibernateEnvironment env = enclosingProject.getLookup().lookup(org.netbeans.modules.hibernate.service.HibernateEnvironment.class);
+            tableNames = env.getAllDatabaseTablesForProject();
+            return tableNames;
         }
     }
 
@@ -642,8 +648,8 @@ public final class HibernateMappingCompletionManager {
         }
 
         @Override
-        public List<HibernateMappingCompletionItem> doCompletion(CompletionContext context) {
-            List<HibernateMappingCompletionItem> results = new ArrayList<HibernateMappingCompletionItem>();
+        public List<HibernateCompletionItem> doCompletion(CompletionContext context) {
+            List<HibernateCompletionItem> results = new ArrayList<HibernateCompletionItem>();
             int caretOffset = context.getCaretOffset();
             String typedChars = context.getTypedPrefix();
 
@@ -653,39 +659,11 @@ public final class HibernateMappingCompletionManager {
                 return Collections.emptyList();
             }
 
-            // For now: hard code them for the PERSON table so that I can test my completor
-            List<String> columnNamesPerson = new ArrayList<String>();
-            columnNamesPerson.add("PERSONID");
-            columnNamesPerson.add("NAME");
-            columnNamesPerson.add("JOBTITLE");
-            columnNamesPerson.add("FREQUENTFLYER");
-            columnNamesPerson.add("LASTUPDATED");
+            List<TableColumn> tableColumns = getColumnsForTable(context, tableName);
 
-            List<String> columnNamesTrip = new ArrayList<String>();
-            columnNamesTrip.add("TRIPID");
-            columnNamesTrip.add("PERSONID");
-            columnNamesTrip.add("DEPDATE");
-            columnNamesTrip.add("DEPCITY");
-            columnNamesTrip.add("DESTCITY");
-            columnNamesTrip.add("TRIPTYPEID");
-            columnNamesTrip.add("LASTUPDATED");
-
-            List<String> columnNames = null;
-            if (tableName.equalsIgnoreCase("PERSON")) {
-                columnNames = columnNamesPerson;
-            } else {
-                columnNames = columnNamesTrip;
-            }
-
-            for (String columnName : columnNames) {
-                boolean pk = false;
-                if ((tableName.equalsIgnoreCase("PERSON") && columnName.equals("PERSONID")) ||
-                        (tableName.equalsIgnoreCase("TRIP") && columnName.equals("TRIPID"))) {
-                    pk = true;
-                }
-
-                HibernateMappingCompletionItem item = HibernateMappingCompletionItem.createDatabaseColumnItem(
-                        caretOffset - typedChars.length(), columnName, pk);
+            for (TableColumn tableColumn : tableColumns) {
+                  HibernateCompletionItem item = HibernateCompletionItem.createDatabaseColumnItem(
+                        caretOffset - typedChars.length(), tableColumn.getColumnName(), tableColumn.isPrimaryKey());
                 results.add(item);
             }
 
@@ -694,5 +672,18 @@ public final class HibernateMappingCompletionManager {
 
             return results;
         }
+
+        private List<TableColumn> getColumnsForTable(CompletionContext context, String tableName) {
+            List<TableColumn> tableColumns = new ArrayList<TableColumn>();
+            FileObject currentFileObject = org.netbeans.modules.editor.NbEditorUtilities.getFileObject(context.getDocument());
+            org.netbeans.api.project.Project enclosingProject = org.netbeans.api.project.FileOwnerQuery.getOwner(
+                    currentFileObject
+                    );
+            org.netbeans.modules.hibernate.service.HibernateEnvironment env = enclosingProject.getLookup().lookup(org.netbeans.modules.hibernate.service.HibernateEnvironment.class);
+            tableColumns = env.getColumnsForTable(tableName, currentFileObject);
+            return tableColumns;
+        }
+        
+        
     }
 }

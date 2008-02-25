@@ -58,27 +58,57 @@ import org.openide.util.NbPreferences;
  * that are delivered post-release of the IDE via the update center.
  */
 public class PostReleaseModuleInstaller extends ModuleInstall {
+
     private static final String SAMPLES_POSTREL_COMPLIBS = "samples.postrel.complibs";
-    private static final String INSTALLED                = "installed";
+    private static final String INSTALLED = "installed";
+    private static final String UNINSTALLED = "uninstalled";
 
     public void restored() {
-        Preferences preferences = NbPreferences.forModule( PostReleaseModuleInstaller.class );
-        try {
-            if ( preferences.get(SAMPLES_POSTREL_COMPLIBS, null) == null ) {
-                File samplesComplibsDir = InstalledFileLocator.getDefault().locate("samples/complibs", null, false ); // NOI18N
-                Logger.getLogger("org.netbeans.modules.visualweb.samples.postrel").log(Level.WARNING, samplesComplibsDir.toString());
-                ComplibService complibService = (ComplibService) Lookup.getDefault().lookup( ComplibService.class );
-                for ( File complibFile : samplesComplibsDir.listFiles() ) {
-                    complibService.installComplibFile( complibFile, false );
-                }
-                preferences.put(SAMPLES_POSTREL_COMPLIBS, INSTALLED);
+        Logger.getLogger("org.netbeans.modules.visualweb.samples.postrel").log(Level.INFO, "In restored()...");
+        Preferences preferences = NbPreferences.forModule(PostReleaseModuleInstaller.class);
+
+        String pref = preferences.get(SAMPLES_POSTREL_COMPLIBS, null);
+
+        if (pref == null || pref.equals(UNINSTALLED)) {
+            Logger.getLogger("org.netbeans.modules.visualweb.samples.postrel").log(Level.INFO, "pref = " + pref);
+
+            File samplesComplibsDir = InstalledFileLocator.getDefault().locate("samples/complibs", null, false); // NOI18N
+            Logger.getLogger("org.netbeans.modules.visualweb.samples.postrel").log(Level.INFO, "installing & registering the new complib");
+
+            if (samplesComplibsDir == null) {
+                // Nothing to do here
+                Logger.getLogger("org.netbeans.modules.visualweb.samples.postrel").log(Level.WARNING, "samples/complibs directory is null!");
+                return;
             }
-        } catch (ComplibException ce) {
-            Logger.getLogger("org.netbeans.modules.visualweb.samples.postrel").log(Level.WARNING, ce.getMessage());
+
+            ComplibService complibService = (ComplibService) Lookup.getDefault().lookup(ComplibService.class);
+
+            // If cannot get the complibService, just return
+            if (complibService == null) {
+                Logger.getLogger("org.netbeans.modules.visualweb.samples.postrel").log(Level.WARNING, "complibService is null!");
+                return;
+            }
+
+            for (File complibFile : samplesComplibsDir.listFiles()) {
+                try {
+                    complibService.installComplibFile(complibFile, false);
+                } catch (ComplibException ce) {
+                    Logger.getLogger("org.netbeans.modules.visualweb.samples.postrel").log(Level.WARNING, ce.getMessage());
+                }
+            }
+            preferences.put(SAMPLES_POSTREL_COMPLIBS, INSTALLED);
         }
     }
-    
+
     public void close() {
+        Logger.getLogger("org.netbeans.modules.visualweb.samples.postrel").log(Level.INFO, "In close() do nothing here...");
+
+    }
+
+    public void uninstalled() {
+        Logger.getLogger("org.netbeans.modules.visualweb.samples.postrel").log(Level.INFO, "In uninstalled()...");
+        Preferences preferences = NbPreferences.forModule(PostReleaseModuleInstaller.class);
+        preferences.put(SAMPLES_POSTREL_COMPLIBS, UNINSTALLED);
     }
 }
 

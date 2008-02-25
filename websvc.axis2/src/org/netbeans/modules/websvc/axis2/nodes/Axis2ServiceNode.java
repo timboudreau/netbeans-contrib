@@ -67,7 +67,6 @@ import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbPreferences;
 import org.openide.util.actions.SystemAction;
@@ -83,7 +82,7 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
     }
     
     private Axis2ServiceNode(Service service, FileObject srcRoot, InstanceContent content) {
-        super(Children.LEAF,new AbstractLookup(content));
+        super(new Axis2ServiceChildren(service, srcRoot),new AbstractLookup(content));
         this.service=service;
         this.srcRoot = srcRoot;
         content.add(service);

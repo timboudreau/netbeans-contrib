@@ -49,13 +49,13 @@ import java.util.regex.Pattern;
 
 import javax.swing.text.BadLocationException;
 
-import org.netbeans.api.gsf.CancellableTask;
-import org.netbeans.api.gsf.CompilationInfo;
-import org.netbeans.api.gsf.DeclarationFinder.DeclarationLocation;
-import org.netbeans.api.gsf.Index.SearchScope;
-import org.netbeans.api.gsf.NameKind;
-import org.netbeans.api.gsf.SourceModel;
-import org.netbeans.api.gsf.SourceModelFactory;
+import org.netbeans.modules.gsf.api.CancellableTask;
+import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.api.DeclarationFinder.DeclarationLocation;
+import org.netbeans.modules.gsf.api.Index.SearchScope;
+import org.netbeans.modules.gsf.api.NameKind;
+import org.netbeans.modules.gsf.api.SourceModel;
+import org.netbeans.modules.gsf.api.SourceModelFactory;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.editor.BaseDocument;

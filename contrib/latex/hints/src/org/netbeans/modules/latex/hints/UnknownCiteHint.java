@@ -64,7 +64,7 @@ public class UnknownCiteHint implements HintProvider {
     }
 
     public List<ErrorDescription> computeHints(CompilationInfo info, Node n) throws Exception {
-        LaTeXParserResult lpr = (LaTeXParserResult) info.getParserResult();
+        LaTeXParserResult lpr = LaTeXParserResult.get(info);
         ArgumentNode anode = (ArgumentNode) n;
         String       nodeValue = lpr.getCommandUtilities().getArgumentValue(anode).toString();
         List<ErrorDescription> res = new  LinkedList<ErrorDescription>();
@@ -75,7 +75,7 @@ public class UnknownCiteHint implements HintProvider {
         for (String citation : nodeValue.split(",")) {
             boolean found = false;
 
-            for (PublicationEntry entry : Utilities.getDefault().getAllBibReferences((LaTeXParserResult) info.getParserResult())) {
+            for (PublicationEntry entry : Utilities.getDefault().getAllBibReferences(lpr)) {
                 if (citation.equals(entry.getTag())) {
                     found = true;
                     break;

@@ -48,15 +48,15 @@ import javax.swing.text.BadLocationException;
 
 interface FileProxy {
 
-    String getName();
+    File getFileToCompile();
 
-    String getExt();
+    File getCompilerRunDirectory();
 
-    File getParent();
-
-    void write(Writer writer) throws IOException, BadLocationException;
+    void copyFiles() throws IOException, BadLocationException;
 
     CompilerInfo getCompilerInfo();
 
     String getCompilerOptions();
+    
+    String getInterestingFileAbsoluteName();
 }

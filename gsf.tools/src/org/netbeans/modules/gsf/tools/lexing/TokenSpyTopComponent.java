@@ -365,6 +365,9 @@ final class TokenSpyTopComponent extends TopComponent {
                 idLabel.setText(id.name() + " : " + id.primaryCategory());
                 lengthLabel.setText(Integer.toString(token.length()));
                 String text = token.text().toString();
+                if (text.length() > 15) {
+                    text = text.substring(0, 12) + "...";
+                }
                 textLabel.setText(text);
                 offsetLabel.setText(Integer.toString(ts.offset()));
                 languageLabel.setText(ts.language().toString());
@@ -378,6 +381,9 @@ final class TokenSpyTopComponent extends TopComponent {
                         parentId.setText(id.name() + " : " + id.primaryCategory());
                         parentLength.setText(Integer.toString(token.length()));
                         text = token.text().toString();
+                        if (text.length() > 15) {
+                            text = text.substring(0, 12) + "...";
+                        }
                         parentText.setText(text);
                         parentOffset.setText(Integer.toString(ts.offset()));
                         parentLanguage.setText(ts.language().toString());

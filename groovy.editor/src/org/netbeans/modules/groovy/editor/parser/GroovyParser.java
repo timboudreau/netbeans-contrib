@@ -42,12 +42,12 @@
 package org.netbeans.modules.groovy.editor.parser;
 
 import groovy.lang.GroovyClassLoader;
-import groovy.lang.GroovyClassLoader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.swing.text.BadLocationException;
 import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.CompileUnit;
@@ -55,29 +55,31 @@ import org.codehaus.groovy.ast.ModuleNode;
 import org.codehaus.groovy.control.CompilationUnit;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.ErrorCollector;
-import org.codehaus.groovy.control.MultipleCompilationErrorsException;
 import org.codehaus.groovy.control.Phases;
 import org.codehaus.groovy.control.messages.Message;
 import org.codehaus.groovy.control.messages.SimpleMessage;
 import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
 import org.codehaus.groovy.syntax.SyntaxException;
-import org.netbeans.api.gsf.CompilationInfo;
-import org.netbeans.api.gsf.Element;
-import org.netbeans.api.gsf.ElementHandle;
-import org.netbeans.api.gsf.OccurrencesFinder;
-import org.netbeans.api.gsf.OffsetRange;
-import org.netbeans.api.gsf.ParseEvent;
-import org.netbeans.api.gsf.ParseListener;
-import org.netbeans.api.gsf.Parser;
-import org.netbeans.api.gsf.ParserFile;
-import org.netbeans.api.gsf.ParserResult;
-import org.netbeans.api.gsf.ParserResult.AstTreeNode;
-import org.netbeans.api.gsf.PositionManager;
-import org.netbeans.api.gsf.SemanticAnalyzer;
-import org.netbeans.api.gsf.Severity;
-import org.netbeans.api.gsf.SourceFileReader;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.api.Element;
+import org.netbeans.modules.gsf.api.ElementHandle;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.Error;
+import org.netbeans.modules.gsf.api.Modifier;
+import org.netbeans.modules.gsf.api.OccurrencesFinder;
+import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.gsf.api.ParseEvent;
+import org.netbeans.modules.gsf.api.ParseListener;
+import org.netbeans.modules.gsf.api.Parser;
+import org.netbeans.modules.gsf.api.ParserFile;
+import org.netbeans.modules.gsf.api.ParserResult;
+import org.netbeans.modules.gsf.api.ParserResult.AstTreeNode;
+import org.netbeans.modules.gsf.api.PositionManager;
+import org.netbeans.modules.gsf.api.SemanticAnalyzer;
+import org.netbeans.modules.gsf.api.Severity;
+import org.netbeans.modules.gsf.api.SourceFileReader;
 import org.netbeans.modules.groovy.editor.AstNodeAdapter;
 import org.netbeans.modules.groovy.editor.AstUtilities;
 import org.netbeans.modules.groovy.editor.GroovyUtils;
@@ -86,8 +88,7 @@ import org.netbeans.modules.groovy.editor.elements.AstRootElement;
 import org.netbeans.modules.groovy.editor.elements.CommentElement;
 import org.netbeans.modules.groovy.editor.elements.IndexedElement;
 import org.netbeans.modules.groovy.editor.elements.KeywordElement;
-import org.netbeans.spi.gsf.DefaultError;
-import org.netbeans.spi.gsf.DefaultPosition;
+import org.netbeans.modules.gsf.spi.DefaultError;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
@@ -102,8 +103,10 @@ public class GroovyParser implements Parser {
 
     private final PositionManager positions = createPositionManager();
 
-    public void parseFiles(List<ParserFile> files, ParseListener listener, SourceFileReader reader) {
-        for (ParserFile file : files) {
+    public void parseFiles(Job job) {
+        ParseListener listener = job.listener;
+        SourceFileReader reader = job.reader;
+        for (ParserFile file : job.files) {
             ParseEvent beginEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, null);
             listener.started(beginEvent);
             
@@ -129,7 +132,7 @@ public class GroovyParser implements Parser {
     }
 
     protected GroovyParserResult createParseResult(ParserFile file, AstRootElement rootElement, AstTreeNode ast) {
-        return new GroovyParserResult(file, rootElement, ast);
+        return new GroovyParserResult(this, file, rootElement, ast);
     }
     
     private boolean sanitizeSource(Context context, Sanitize sanitizing) {
@@ -385,18 +388,7 @@ public class GroovyParser implements Parser {
         }
     }
 
-    public SemanticAnalyzer getSemanticAnalysisTask() {
-        return new GroovySemanticAnalyzer();
-    }
-
-    public OccurrencesFinder getMarkOccurrencesTask(int caretPosition) {
-        GroovyOccurrencesFinder finder = new GroovyOccurrencesFinder();
-        finder.setCaretPosition(caretPosition);
-
-        return finder;
-    }
-
-    public <T extends Element> ElementHandle<T> createHandle(CompilationInfo info, T object) {
+    public static ElementHandle createHandle(CompilationInfo info, final Element object) {
         if (object instanceof KeywordElement || object instanceof CommentElement) {
             // Not tied to an AST - just pass it around
             return new GroovyElementHandle(null, object, info.getFileObject());
@@ -416,15 +408,14 @@ public class GroovyParser implements Parser {
             return null;
         }
 
-        ParserResult result = info.getParserResult();
-
-        if (result == null) {
+        // XXX Gotta fix this
+        if (info == null) {
             return null;
         }
+        
+        ParserResult result = AstUtilities.getParseResult(info);
 
-        ParserResult.AstTreeNode ast = result.getAst();
-
-        if (ast == null) {
+        if (result == null) {
             return null;
         }
 
@@ -433,18 +424,21 @@ public class GroovyParser implements Parser {
         return new GroovyElementHandle(root, object, info.getFileObject());
     }
 
-    public <T extends Element> T resolveHandle(CompilationInfo info, ElementHandle<T> handle) {
-        if (handle instanceof ElementHandle.UrlHandle) {
-            return (T)handle;
-        }
+    @SuppressWarnings("unchecked")
+    public static ElementHandle createHandle(ParserResult result, final AstElement object) {
+        ASTNode root = AstUtilities.getRoot(result);
 
+        return new GroovyElementHandle(root, object, result.getFile().getFileObject());
+    }
+    
+    public static Element resolveHandle(CompilationInfo info, ElementHandle handle) {
         GroovyElementHandle h = (GroovyElementHandle)handle;
         ASTNode oldRoot = h.root;
         ASTNode oldNode;
 
         if (h.object instanceof KeywordElement || h.object instanceof IndexedElement || h.object instanceof CommentElement) {
             // Not tied to a tree
-            return (T)h.object;
+            return h.object;
         }
 
         if (h.object instanceof AstElement) {
@@ -464,7 +458,7 @@ public class GroovyParser implements Parser {
         if (newNode != null) {
             Element co = AstElement.create(newNode);
 
-            return (T)co;
+            return co;
         }
 
         return null;
@@ -594,9 +588,9 @@ public class GroovyParser implements Parser {
             key = description;
         }
         
-        org.netbeans.api.gsf.Error error =
+        Error error =
             new DefaultError(key, description, details, context.file.getFileObject(),
-                new DefaultPosition(startOffset), new DefaultPosition(endOffset), severity);
+                startOffset, endOffset, severity);
         context.listener.error(error);
 
         context.errorOffset = startOffset;
@@ -631,7 +625,7 @@ public class GroovyParser implements Parser {
         }
     }
     
-    private ASTNode find(ASTNode oldRoot, ASTNode oldObject, ASTNode newRoot) {
+    private static ASTNode find(ASTNode oldRoot, ASTNode oldObject, ASTNode newRoot) {
         // Walk down the tree to locate oldObject, and in the process, pick the same child for newRoot
         @SuppressWarnings("unchecked")
         List<?extends ASTNode> oldChildren = AstUtilities.children(oldRoot);
@@ -668,12 +662,12 @@ public class GroovyParser implements Parser {
         return null;
     }
 
-    private static class GroovyElementHandle<T extends Element> extends ElementHandle<T> {
+    private static class GroovyElementHandle implements ElementHandle {
         private final ASTNode root;
-        private final T object;
+        private final Element object;
         private final FileObject fileObject;
 
-        private GroovyElementHandle(ASTNode root, T object, FileObject fileObject) {
+        private GroovyElementHandle(ASTNode root, Element object, FileObject fileObject) {
             this.root = root;
             this.object = object;
             this.fileObject = fileObject;
@@ -690,6 +684,26 @@ public class GroovyParser implements Parser {
             }
 
             return fileObject;
+        }
+
+        public String getMimeType() {
+            return "text/x-groovy";
+        }
+
+        public String getName() {
+            return object.getName();
+        }
+
+        public String getIn() {
+            return object.getIn();
+        }
+
+        public ElementKind getKind() {
+            return object.getKind();
+        }
+
+        public Set<Modifier> getModifiers() {
+            return object.getModifiers();
         }
     }
 

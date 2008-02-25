@@ -140,9 +140,8 @@ public class Hk2StartRunnable implements Runnable {
     
     private String[] createEnvironment() {
         List<String> envp = new ArrayList<String>(3);
-        String rootDir = ip.getProperty(Hk2PluginProperties.PROPERTY_HK2_HOME);
         JavaPlatform platform = dm.getProperties().getJavaPlatform();
-        FileObject fo = (FileObject) platform.getInstallFolders().iterator().next();
+        FileObject fo = platform.getInstallFolders().iterator().next();
         String javaHome = FileUtil.toFile(fo).getAbsolutePath();
         envp.add("JAVA_HOME=" + javaHome); // NOI18N
         return (String[]) envp.toArray(new String[envp.size()]);

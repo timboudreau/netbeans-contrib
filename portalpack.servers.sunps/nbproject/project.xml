@@ -21,7 +21,7 @@ Microsystems, Inc. All Rights Reserved.
     <type>org.netbeans.modules.apisupport.project</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
-            <code-name-base>org.netbeans.modules.portals.sunps7</code-name-base>
+            <code-name-base>org.netbeans.modules.portalpack.servers.sunps</code-name-base>
             <class-path-extension>
                 <runtime-relative-path>ext/portalpack/jmxremote_optional.jar</runtime-relative-path>
                 <binary-origin>../../external/jmxremote_optional.jar</binary-origin>

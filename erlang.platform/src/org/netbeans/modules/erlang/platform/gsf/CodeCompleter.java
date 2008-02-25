@@ -44,16 +44,16 @@ import javax.swing.text.JTextComponent;
 //import org.jruby.ast.Node;
 //import org.jruby.ast.types.INameNode;
 //import org.jruby.lexer.yacc.ISourcePosition;
-import org.netbeans.api.gsf.CompilationInfo;
-import org.netbeans.api.gsf.Completable;
-import org.netbeans.api.gsf.CompletionProposal;
-import org.netbeans.api.gsf.Element;
-import org.netbeans.api.gsf.ElementHandle;
-import org.netbeans.api.gsf.ElementKind;
-import org.netbeans.api.gsf.HtmlFormatter;
-import static org.netbeans.api.gsf.Index.*;
-import org.netbeans.api.gsf.NameKind;
-import org.netbeans.api.gsf.ParameterInfo;
+import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.api.Completable;
+import org.netbeans.modules.gsf.api.CompletionProposal;
+import org.netbeans.modules.gsf.api.Element;
+import org.netbeans.modules.gsf.api.ElementHandle;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
+import static org.netbeans.modules.gsf.api.Index.*;
+import org.netbeans.modules.gsf.api.NameKind;
+import org.netbeans.modules.gsf.api.ParameterInfo;
 //import org.netbeans.editor.Utilities;
 //import org.netbeans.editor.Utilities;
 //import org.netbeans.modules.ruby.elements.AstClassElement;
@@ -2607,6 +2607,10 @@ public class CodeCompleter implements Completable {
 //            return new ElementHandle.UrlHandle(link);
 //        }
         
+        return null;
+    }
+
+    public String document(CompilationInfo info, ElementHandle element) {
         return null;
     }
 

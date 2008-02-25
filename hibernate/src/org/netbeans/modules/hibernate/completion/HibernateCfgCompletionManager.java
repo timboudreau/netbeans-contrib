@@ -46,8 +46,14 @@ import java.util.List;
 import java.util.Map;
 import org.hibernate.cfg.Environment;
 import org.netbeans.editor.TokenItem;
+import org.netbeans.modules.hibernate.HibernateCfgProperties;
+import org.netbeans.modules.xml.text.syntax.SyntaxElement;
+import org.netbeans.modules.xml.text.syntax.dom.StartTag;
+import org.netbeans.modules.xml.text.syntax.dom.Tag;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
+import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;
+import org.w3c.dom.Text;
 
 /**
  * This class figures out the completion items for various attributes
@@ -57,7 +63,10 @@ import org.openide.util.NbBundle;
 public final class HibernateCfgCompletionManager {
 
     private static final String PROPERTY_TAG = "property";
+    private static final String MAPPING_TAG = "mapping";
+    private static final String RESOURCE_ATTRIB = "resource";
     private static final String NAME_ATTRIB = "name";
+    
     private static Map<String, Completor> completors = new HashMap<String, Completor>();
 
     private HibernateCfgCompletionManager() {
@@ -66,7 +75,7 @@ public final class HibernateCfgCompletionManager {
 
     private void setupCompletors() {
 
-        // Completion items for id generator
+        // Completion items for configuration properties
         String[] propertyNames = new String[]{
             Environment.AUTOCOMMIT, NbBundle.getMessage(HibernateCfgCompletionManager.class, "AUTOCOMMIT_DESC"), // NOI18N
             Environment.AUTO_CLOSE_SESSION, NbBundle.getMessage(HibernateCfgCompletionManager.class, "AUTO_CLOSE_SESSION_DESC"), // NOI18N
@@ -94,7 +103,7 @@ public final class HibernateCfgCompletionManager {
             Environment.DIALECT, NbBundle.getMessage(HibernateCfgCompletionManager.class, "DIALECT_DESC"), // NOI18N
             Environment.DRIVER, NbBundle.getMessage(HibernateCfgCompletionManager.class, "DRIVER_DESC"), // NOI18N
             Environment.FLUSH_BEFORE_COMPLETION, NbBundle.getMessage(HibernateCfgCompletionManager.class, "FLUSH_BEFORE_COMPLETION_DESC"), // NOI18N
-            Environment.FORMAT_SQL,NbBundle.getMessage(HibernateCfgCompletionManager.class, "FORMAT_SQL_DESC"), // NOI18N
+            Environment.FORMAT_SQL, NbBundle.getMessage(HibernateCfgCompletionManager.class, "FORMAT_SQL_DESC"), // NOI18N
             Environment.GENERATE_STATISTICS, NbBundle.getMessage(HibernateCfgCompletionManager.class, "GENERATE_STATISTICS_DESC"), // NOI18N
             Environment.HBM2DDL_AUTO, NbBundle.getMessage(HibernateCfgCompletionManager.class, "HBM2DDL_AUTO_DESC"), // NOI18N
             Environment.ISOLATION, NbBundle.getMessage(HibernateCfgCompletionManager.class, "ISOLATION_DESC"), // NOI18N
@@ -138,12 +147,15 @@ public final class HibernateCfgCompletionManager {
             Environment.USER_TRANSACTION, NbBundle.getMessage(HibernateCfgCompletionManager.class, "USER_TRANSACTION_DESC"), // NOI18N
             Environment.USE_REFLECTION_OPTIMIZER, NbBundle.getMessage(HibernateCfgCompletionManager.class, "USE_REFLECTION_OPTIMIZER_DESC"), // NOI18N
             Environment.WRAP_RESULT_SETS, NbBundle.getMessage(HibernateCfgCompletionManager.class, "WRAP_RESULT_SETS_DESC") // NOI18N
-                    
         };
 
         // Items for property names 
         AttributeValueCompletor propertyNamesCompletor = new AttributeValueCompletor(propertyNames);
         registerCompletor(PROPERTY_TAG, NAME_ATTRIB, propertyNamesCompletor);
+
+        // Items for mapping xml files
+        HbMappingFileCompletor mappingFilesCompletor = new HbMappingFileCompletor();
+        registerCompletor(MAPPING_TAG, RESOURCE_ATTRIB, mappingFilesCompletor);
     }
     private static HibernateCfgCompletionManager INSTANCE = new HibernateCfgCompletionManager();
 
@@ -165,6 +177,48 @@ public final class HibernateCfgCompletionManager {
         }
     }
 
+    public void completeValues(CompletionResultSet resultSet, CompletionContext context) {
+        DocumentContext docContext = context.getDocumentContext();
+        SyntaxElement curElem = docContext.getCurrentElement();
+        SyntaxElement prevElem = docContext.getCurrentElement().getPrevious();
+        Tag propTag = null;
+
+        // If current element is a start tag and its tag is <property>
+        // or the current element is text and its prev is a start <property> tag,
+        // then do the code completion
+        if ((curElem instanceof StartTag) && ((StartTag) curElem).getTagName().equalsIgnoreCase(PROPERTY_TAG)) {
+            propTag = (StartTag) curElem;
+        } else if ((curElem instanceof Text) && (prevElem instanceof StartTag) &&
+                ((StartTag) prevElem).getTagName().equalsIgnoreCase(PROPERTY_TAG)) {
+            propTag = (StartTag) prevElem;
+        } else {
+            return;
+        }
+        
+        String propName = HibernateCompletionEditorUtil.getHbPropertyName(propTag);
+        int caretOffset = context.getCaretOffset();
+        String typedChars = context.getTypedPrefix();
+        
+        Object possibleValue = HibernateCfgProperties.getPossiblePropertyValue(propName);
+        
+        if (possibleValue instanceof String[]) {
+            
+            // Add the values in the String[] as completion items
+            String[] values = (String[])possibleValue;
+            
+            for (int i = 0; i < values.length; i++) {
+                if (values[i].startsWith(typedChars.trim())
+                        || values[i].startsWith( "org.hibernate.dialect." + typedChars.trim()) ) { // NOI18N
+                    HibernateCompletionItem item = 
+                            HibernateCompletionItem.createHbPropertyValueItem(caretOffset-typedChars.length(), values[i]);
+                    resultSet.addItem(item);
+                }
+            }
+
+            resultSet.setAnchorOffset(context.getCurrentToken().getPrevious().getOffset() + 1);
+        } 
+    }
+
     public void completeAttributes(CompletionResultSet resultSet, CompletionContext context) {
     }
 
@@ -175,7 +229,7 @@ public final class HibernateCfgCompletionManager {
 
         private int anchorOffset = -1;
 
-        public abstract List<HibernateMappingCompletionItem> doCompletion(CompletionContext context);
+        public abstract List<HibernateCompletionItem> doCompletion(CompletionContext context);
 
         protected void setAnchorOffset(int anchorOffset) {
             this.anchorOffset = anchorOffset;
@@ -238,14 +292,15 @@ public final class HibernateCfgCompletionManager {
             this.itemTextAndDocs = itemTextAndDocs;
         }
 
-        public List<HibernateMappingCompletionItem> doCompletion(CompletionContext context) {
-            List<HibernateMappingCompletionItem> results = new ArrayList<HibernateMappingCompletionItem>();
+        public List<HibernateCompletionItem> doCompletion(CompletionContext context) {
+            List<HibernateCompletionItem> results = new ArrayList<HibernateCompletionItem>();
             int caretOffset = context.getCaretOffset();
             String typedChars = context.getTypedPrefix();
-
+            
             for (int i = 0; i < itemTextAndDocs.length; i += 2) {
-                if (itemTextAndDocs[i].startsWith(typedChars.trim())) {
-                    HibernateMappingCompletionItem item = HibernateMappingCompletionItem.createAttribValueItem(caretOffset - typedChars.length(),
+                if (itemTextAndDocs[i].startsWith(typedChars.trim()) 
+                        || itemTextAndDocs[i].startsWith( "hibernate." + typedChars.trim()) ) { // NOI18N
+                    HibernateCompletionItem item = HibernateCompletionItem.createAttribValueItem(caretOffset - typedChars.length(),
                             itemTextAndDocs[i], itemTextAndDocs[i + 1]);
                     results.add(item);
                 }
@@ -253,6 +308,46 @@ public final class HibernateCfgCompletionManager {
 
             setAnchorOffset(context.getCurrentToken().getOffset() + 1);
             return results;
+        }
+    }
+
+    private static class HbMappingFileCompletor extends Completor {
+
+        public HbMappingFileCompletor() {
+        }
+
+        public List<HibernateCompletionItem> doCompletion(CompletionContext context) {
+            List<HibernateCompletionItem> results = new ArrayList<HibernateCompletionItem>();
+            int caretOffset = context.getCaretOffset();
+            String typedChars = context.getTypedPrefix();
+
+            String[] mappingFiles = getMappingFilesFromProject(context);
+
+            for (int i = 0; i < mappingFiles.length; i++) {
+                if (mappingFiles[i].startsWith(typedChars.trim())) {
+                    HibernateCompletionItem item =
+                            HibernateCompletionItem.createHbMappingFileItem(caretOffset - typedChars.length(),
+                            mappingFiles[i]);
+                    results.add(item);
+                }
+            }
+
+            setAnchorOffset(context.getCurrentToken().getOffset() + 1);
+            return results;
+        }
+        
+        // Gets the list of mapping files from HibernateEnvironment.
+        private String[] getMappingFilesFromProject(CompletionContext context) {
+            ArrayList<String> mappingFiles = new ArrayList<String>();
+            org.netbeans.api.project.Project enclosingProject = org.netbeans.api.project.FileOwnerQuery.getOwner(
+                    org.netbeans.modules.editor.NbEditorUtilities.getFileObject(context.getDocument())
+                    );
+            org.netbeans.modules.hibernate.service.HibernateEnvironment env = enclosingProject.getLookup().lookup(org.netbeans.modules.hibernate.service.HibernateEnvironment.class);
+            ArrayList<FileObject> mappingFileObjects = env.getAllHibernateMappingFileObjects(enclosingProject);
+            for(FileObject fo : mappingFileObjects) {
+                mappingFiles.add(fo.getPath());
+            }
+            return mappingFiles.toArray(new String[]{});
         }
     }
 }

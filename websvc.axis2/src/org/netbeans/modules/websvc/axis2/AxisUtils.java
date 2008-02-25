@@ -41,13 +41,15 @@ package org.netbeans.modules.websvc.axis2;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -55,19 +57,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import org.apache.tools.ant.module.api.support.ActionUtils;
-import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.java.project.JavaProjectConstants;
-import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
-import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.api.project.SourceGroup;
 import org.netbeans.modules.websvc.axis2.services.model.ServicesModel;
 import org.netbeans.modules.websvc.axis2.services.model.ServicesUtils;
 import org.netbeans.modules.xml.xam.ModelSource;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.netbeans.spi.project.support.ant.GeneratedFilesHelper;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.awt.HtmlBrowser;
+import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.EditorCookie;
 import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileLock;
@@ -79,7 +80,9 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Lookup;
 import org.openide.util.Mutex;
 import org.openide.util.MutexException;
+import org.openide.util.NbBundle;
 import org.openide.util.NbPreferences;
+import org.openide.util.RequestProcessor;
 import org.openide.util.lookup.Lookups;
 
 /**
@@ -318,44 +321,6 @@ public class AxisUtils {
         return NbPreferences.forModule(AxisUtils.class);
     }
     
-    public static void updateAxisProperties(Project prj, String axisHome, String axisDeploy) throws IOException {
-        EditableProperties ep = AxisUtils.getEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH);
-        boolean needStore = false;
-        if (ep != null) {
-            String oldAxisHome = ep.getProperty("axis2.home");
-            if (axisHome != null && !axisHome.equals(oldAxisHome)) {
-                ep.setProperty("axis2.home",axisHome); //NOI18N
-                needStore = true;
-            }
-            String oldAxisDeploy = ep.getProperty("axis2.deploy.war");
-            if (oldAxisDeploy == null) oldAxisDeploy = ep.getProperty("axis2.deploy.dir");
-            if (axisDeploy != null && !axisDeploy.equals(oldAxisDeploy)) {
-                if (axisDeploy.endsWith(".war")) { //NOI18N
-                    ep.setProperty("axis2.deploy.war",axisDeploy); //NOI18N
-                    ep.remove("axis2.deploy.dir");
-                } else {
-                    ep.setProperty("axis2.deploy.dir",axisDeploy); //NOI18N
-                    ep.remove("axis2.deploy.war"); //NOI18N                       
-                }
-                needStore = true;
-            }
-        }
-        if (needStore) AxisUtils.storeEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH, ep);
-    }
-
-    public static void updateAxisHomeProperty(Project prj, String axisHome) throws IOException {
-        EditableProperties ep = AxisUtils.getEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH);
-        boolean needStore = false;
-        if (ep != null) {
-            String oldAxisHome = ep.getProperty("axis2.home");
-            if (axisHome != null && !axisHome.equals(oldAxisHome)) {
-                ep.setProperty("axis2.home",axisHome); //NOI18N
-                needStore = true;
-            }
-        }
-        if (needStore) AxisUtils.storeEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH, ep);
-    }
-    
     public static void updateAxisDeployProperty(Project prj, String axisDeploy) throws IOException {
         EditableProperties ep = AxisUtils.getEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH);
         boolean needStore = false;
@@ -373,52 +338,53 @@ public class AxisUtils {
                 needStore = true;
             }
         }
-        if (needStore) AxisUtils.storeEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH, ep);
-         
+        if (needStore) AxisUtils.storeEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH, ep);         
     }
     
-    public static void addAxis2Libraries(Project project, File  axisHome) throws IOException {
+    public static void openInBrowser(String urlString) {
+        try {
+            final URL url = new URL(urlString);
+            if (url!=null) {  
+                RequestProcessor.getDefault().post(new Runnable() {
+                    public void run() {
+                        boolean connectionOK=false;
+                        try {
+                            URLConnection connection = url.openConnection();
+                            if (connection instanceof HttpURLConnection) {
+                                HttpURLConnection httpConnection = (HttpURLConnection)connection;
+                                try {
+                                    httpConnection.setRequestMethod("GET"); //NOI18N
+                                    httpConnection.connect();
+                                    int responseCode = httpConnection.getResponseCode();
+                                    // for secured web services the response code is 405: we should allow to show the response
+                                    if (HttpURLConnection.HTTP_OK == responseCode || HttpURLConnection.HTTP_BAD_METHOD == responseCode)
+                                        connectionOK=true;
+                                } catch (java.net.ConnectException ex) {
+                                    // doing nothing - display warning
+                                } finally {
+                                    if (httpConnection!=null) 
+                                    httpConnection.disconnect();
+                                }
+                            }
 
-        final URL[] roots = new URL[13];
-        File f = new File(axisHome,"lib/axis2-saaj-1.3.jar");
-        if (f.exists()) roots[0] = FileUtil.getArchiveRoot(f.toURL());
-        f = new File(axisHome,"lib/axis2-saaj-api-1.3.jar");
-        if (f.exists()) roots[1] = FileUtil.getArchiveRoot(f.toURL());
-        f = new File(axisHome,"lib/axis2-adb-1.3.jar");
-        if (f.exists()) roots[2] = FileUtil.getArchiveRoot(f.toURL());
-        f = new File(axisHome,"lib/axis2-jibx-1.3.jar");
-        if (f.exists()) roots[3] = FileUtil.getArchiveRoot(f.toURL());
-        f = new File(axisHome,"lib/axis2-xmlbeans-1.3.jar");
-        if (f.exists()) roots[4] = FileUtil.getArchiveRoot(f.toURL());
-        f = new File(axisHome,"lib/axis2-codegen-1.3.jar");
-        if (f.exists()) roots[5] = FileUtil.getArchiveRoot(f.toURL());
-        f = new File(axisHome,"lib/axis2-kernel-1.3.jar");
-        if (f.exists()) roots[6] = FileUtil.getArchiveRoot(f.toURL());
-        f = new File(axisHome,"lib/stax-api-1.0.1.jar");
-        if (f.exists()) roots[7] = FileUtil.getArchiveRoot(f.toURL());
-        f = new File(axisHome,"lib/axiom-api-1.2.5.jar");
-        if (f.exists()) roots[8] = FileUtil.getArchiveRoot(f.toURL());
-        f = new File(axisHome,"lib/axiom-impl-1.2.5.jar");
-        if (f.exists()) roots[9] = FileUtil.getArchiveRoot(f.toURL());
-        f = new File(axisHome,"lib/jibx-run-1.1.5.jar");
-        if (f.exists()) roots[10] = FileUtil.getArchiveRoot(f.toURL());
-        f = new File(axisHome,"lib/xbean-2.2.0.jar");
-        if (f.exists()) roots[11] = FileUtil.getArchiveRoot(f.toURL());
-        f = new File(axisHome,"lib/activation-1.1.jar");
-        if (f.exists()) roots[12] = FileUtil.getArchiveRoot(f.toURL());
-
-        final SourceGroup[] srcGroup = ProjectUtils.getSources(project).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
-        ProjectManager.mutex().writeAccess(new Runnable(){
-
-            public void run() {
-                try {
-                    ProjectClassPathModifier.addRoots(roots, srcGroup[0].getRootFolder(), ClassPath.COMPILE);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                        if (connectionOK) {
+                            HtmlBrowser.URLDisplayer.getDefault().showURL(url);
+                        } else {
+                            DialogDisplayer.getDefault().notify(
+                                    new NotifyDescriptor.Message(
+                                        NbBundle.getMessage(AxisUtils.class,"MSG_UNABLE_TO_OPEN_TEST_PAGE",url),
+                                        NotifyDescriptor.WARNING_MESSAGE));
+                        }
+                    }
+                    
+                });
             }
-
-        });        
+        } catch (MalformedURLException ex) {
+            StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(AxisUtils.class,
+                    "TXT_TesterPageUrl", urlString));   //NOI18N
+        }
     }
-    
 }

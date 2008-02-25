@@ -84,6 +84,7 @@ import org.netbeans.api.languages.database.DatabaseContext;
 import org.netbeans.api.languages.database.DatabaseDefinition;
 import org.netbeans.api.languages.database.DatabaseItem;
 import org.netbeans.api.languages.database.DatabaseUsage;
+import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.modules.editor.NbEditorDocument;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.erlang.editing.semantic.ErlContext;
@@ -119,8 +120,9 @@ import org.openide.nodes.Node;
  */
 public class Erlang {
 
-    private static final String DOC = "org/netbeans/modules/erlang/resources/Documentation.xml";
-    private static final String MIME_TYPE = "text/x-erlang";
+    public static final String MIME_TYPE = "text/x-erlang";
+    
+    private static final String DOC = "org/netbeans/modules/erlang/editing/resources/Documentation.xml";
 
     private static Set<Integer> regExp = new HashSet<Integer> ();
     static {
@@ -369,6 +371,8 @@ public class Erlang {
         document.readLock();
         try {
             Document doc = context.getDocument();
+            FileObject fo = NbEditorUtilities.getFileObject(doc);
+            ErlangIndexProvider.I index = ErlangIndexProvider.getDefault().get(fo);
             ErlContext rootCtx = ErlangSemanticAnalyser.getCurrentRootCtx(doc);
             if (rootCtx == null) {
                 return Collections.<CompletionItem>emptyList();
@@ -388,21 +392,21 @@ public class Erlang {
                 Token prevToken = previousToken(tokenSequence);
                 if (prevToken.id().name().equals("atom")) {
                     String remoteModule = prevToken.text().toString().trim();
-                    result.addAll(ErlangIndexProvider.getDefault().getFunctionCompletionItems(remoteModule));
+                    result.addAll(index.getFunctionCompletionItems(remoteModule));
                     libraryContext = "remote";
                 }
             } else if (tokenText.equals(".")) {
                 Token prevToken = previousToken(tokenSequence);
                 if (prevToken.id().name().equals("atom")) {
                     String recordName = prevToken.text().toString().trim();
-                    result.addAll(ErlangIndexProvider.getDefault().getRecordFieldsCompletionItems(module, recordName));
+                    result.addAll(index.getRecordFieldsCompletionItems(module, recordName));
                     libraryContext = "record_field";
                 }
             } else if (tokenText.equals("?")) {
-                result.addAll(ErlangIndexProvider.getDefault().getMacroCompletionItems(module));
+                result.addAll(index.getMacroCompletionItems(module));
                 libraryContext = "macro";
             } else if (tokenText.equals("#")) {
-                result.addAll(ErlangIndexProvider.getDefault().getRecordCompletionItems(module));
+                result.addAll(index.getRecordCompletionItems(module));
                 libraryContext = "record";
             } else if (token.id().name().equals("atom")) {
                 Token prevToken = previousToken(tokenSequence);
@@ -416,35 +420,35 @@ public class Erlang {
                         if (remoteModule.equals("erlang")) {
                             libraryContext = "erlang";
                         } else {
-                            result.addAll(ErlangIndexProvider.getDefault().getFunctionCompletionItems(remoteModule));
+                            result.addAll(index.getFunctionCompletionItems(remoteModule));
                             libraryContext = "remote";
                         }
                     }
                 } else if (prevTokenText.equals("?")) {
-                    result.addAll(ErlangIndexProvider.getDefault().getMacroCompletionItems(module));
+                    result.addAll(index.getMacroCompletionItems(module));
                     libraryContext = "macro";
                 } else if (prevTokenText.equals("#")) {
-                    result.addAll(ErlangIndexProvider.getDefault().getRecordCompletionItems(module));
+                    result.addAll(index.getRecordCompletionItems(module));
                     libraryContext = "record";
                 } else if (prevTokenText.equals(".")) {
                     prevToken = previousToken(tokenSequence);
                     if (prevToken.id().name().equals("atom")) {
                         String recordName = prevToken.text().toString().trim();
-                        result.addAll(ErlangIndexProvider.getDefault().getRecordFieldsCompletionItems(module, recordName));
+                        result.addAll(index.getRecordFieldsCompletionItems(module, recordName));
                         libraryContext = "record_field";
                     }
                 } else {
-                    result.addAll(ErlangIndexProvider.getDefault().getModuleCompletionItems(tokenText));
+                    result.addAll(index.getModuleCompletionItems(tokenText));
                     libraryContext = "member";
                 }
             } else if (token.id().name().equals("var")) {
                 Token prevToken = previousToken(tokenSequence);
                 String prevTokenText = prevToken.text().toString();
                 if (prevTokenText.equals("?")) {
-                    result.addAll(ErlangIndexProvider.getDefault().getMacroCompletionItems(module));
+                    result.addAll(index.getMacroCompletionItems(module));
                     libraryContext = "macro";
                 } else if (prevTokenText.equals("#")) {
-                    result.addAll(ErlangIndexProvider.getDefault().getRecordCompletionItems(module));
+                    result.addAll(index.getRecordCompletionItems(module));
                     libraryContext = "record";
                 }
             }
@@ -771,7 +775,10 @@ public class Erlang {
         }
         ASTToken token = (ASTToken) leaf;
         ASTNode astRoot = (ASTNode) path.getRoot();
-        ErlContext rootCtx = ErlangSemanticAnalyser.getRootContext(doc, astRoot);        
+        ErlContext rootCtx = ErlangSemanticAnalyser.getRootContext(doc, astRoot); 
+        if (rootCtx == null) {
+            return null;
+        }
         DatabaseItem dbItem = rootCtx.getDatabaseItem(token.getOffset());
         if (dbItem != null) {
             if (dbItem instanceof DatabaseDefinition) {
@@ -966,7 +973,12 @@ public class Erlang {
             }
         };
     }
-
+    
+    private Project getProject(FileObject fo) {
+         return FileOwnerQuery.getOwner(fo);
+    }
+    
+    
     private static File getMainProjectWorkPath() {
         File pwd = null;
         Project mainProject = OpenProjects.getDefault().getMainProject();
