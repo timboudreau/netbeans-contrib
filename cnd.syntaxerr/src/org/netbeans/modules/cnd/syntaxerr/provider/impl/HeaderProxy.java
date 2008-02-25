@@ -42,7 +42,6 @@
 package org.netbeans.modules.cnd.syntaxerr.provider.impl;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
@@ -58,6 +57,7 @@ import org.netbeans.modules.cnd.api.project.NativeFileItem;
 import org.netbeans.modules.cnd.api.project.NativeProject;
 import org.netbeans.modules.cnd.modelutil.CsmUtilities;
 import org.netbeans.modules.cnd.syntaxerr.DebugUtils;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 
 /**
@@ -66,35 +66,92 @@ import org.openide.loaders.DataObject;
  */
 class HeaderProxy extends SourceProxy {
 
-    private final File fileToCompile;
-    private final File headerCopy;
-    private final String topFile;
-    private final NativeFileItem topNativeItem;
-    private final String includeDirectiveText;
-    
+    private File fileToCompile;
+    private File interestingFile;
+    private String compilerOptions;
+    private File compilerRunDirectory;
+	    
     public HeaderProxy(DataObject dao, BaseDocument doc, File tmpDir) throws IOException {
-	super(dao, doc, tmpDir);        
-	TopIncludingFileAndDirective fad = getTopIncludingFile(dao);
-	if( fad != null && fad.topFile != null ) {
-            if( DebugUtils.TRACE ) System.err.printf("\t\tfound top file: %s", fad.topFile.getAbsolutePath());
-            topFile = fad.topFile.getAbsolutePath().toString();
-	    includeDirectiveText = fad.includeDirectiveText;
-            topNativeItem = findTopNativeItem(topFile, fileItem);
-	    fileToCompile = new File(fad.topFile.getAbsolutePath().toString());
-        } else {
-            topFile = null;
-            topNativeItem = null;
-	    includeDirectiveText = null;
-	    fileToCompile = File.createTempFile("tmp_source_", ".cpp", tmpDir);
-        }
-	String subDir = getSubDir(); //"/CLucene";
-        headerCopy = new File(tmpDir.getAbsolutePath() + subDir, fo.getNameExt());
+	super(dao, doc, tmpDir);
     }
     
-    private String getSubDir() {
-//	if( includeDirectiveText != null && includeDirectiveText.endsWith(fo.getNameExt())  ) {	    
-//	}
-	return "";
+    @Override
+    public File getFileToCompile() {
+	return fileToCompile;
+    }
+    
+    public String getInterestingFileAbsoluteName() {
+        return interestingFile.getAbsolutePath();
+    }
+
+    @Override
+    public File getCompilerRunDirectory() {
+	return compilerRunDirectory;
+    }
+    
+    @Override
+    public String getCompilerOptions() {
+	return compilerOptions;
+    }    
+    
+    @Override
+    public void init() throws IOException, BadLocationException {
+	
+	tmpDir.mkdirs();
+	
+	TopIncludingFileAndDirective fad = getTopIncludingFile(dao);
+	
+	if( fad != null && fad.topFile != null ) {
+            if( DebugUtils.TRACE ) System.err.printf("\t\tfound top file: %s", fad.topFile.getAbsolutePath());
+	    
+	    String includeDirectiveText = fad.includeDirectiveText;
+            NativeFileItem topNativeItem = findTopNativeItem(fad.topFile.getAbsolutePath().toString(), fileItem);
+	    if( topNativeItem  != null ) {
+		String origPath = new File(fad.topFile.getAbsolutePath().toString()).getParent();
+		compilerOptions = " -I " + tmpDir.getAbsolutePath() + " -I " + origPath + getCompilerOptions(topNativeItem);
+	    } else {
+		// TODO: be more smart when getting options: try get them from folder & project
+		compilerOptions = super.getCompilerOptions();
+	    }
+	    
+	    String subDir = ""; //"/CLucene";
+	    {
+		String nameExt = fo.getNameExt();
+		if( includeDirectiveText != null && includeDirectiveText.endsWith(nameExt)  ) {	
+		    String s = includeDirectiveText.substring(0, includeDirectiveText.length() - nameExt.length());
+		    if( s.length() > 0 && ! s.startsWith("..") ) {
+			subDir = "/" + s + "/";
+		    }
+		}
+	    }
+	    
+	    if( DebugUtils.TRACE ) System.err.printf("\t\tincText: %s subdir: %s", includeDirectiveText, subDir);
+	    
+	    fileToCompile = new File(tmpDir, fad.topFile.getName().toString());
+	    ErrorProviderUtils.copyFile(fad.topFile, fileToCompile);
+	    
+	    interestingFile = new File(tmpDir.getAbsolutePath() + subDir, fo.getNameExt());	
+	    ErrorProviderUtils.WriteDocument(doc, interestingFile);
+	    
+        } else {
+	    if( DebugUtils.TRACE ) System.err.printf("\t\ttop file not found");
+	    // create a dummy source that includes this file
+	    fileToCompile = File.createTempFile("tmp_source_", ".cpp", tmpDir);
+	    PrintWriter writer = ErrorProviderUtils.createPrintWriter(fileToCompile);
+	    writer.printf("#include \"%s\"%s", fo.getNameExt(), System.getProperty("line.separator"));
+	    writer.close();	
+
+	    // TODO: be more smart when getting options: try get them from folder & project
+	    compilerOptions = super.getCompilerOptions();
+	    
+	    interestingFile = new File(tmpDir.getAbsolutePath(), fo.getNameExt());	
+	    ErrorProviderUtils.WriteDocument(doc, interestingFile);
+        }
+
+	compilerRunDirectory = FileUtil.toFile(fo.getParent()); // the original header path
+	
+        
+	
     }
     
     private static NativeFileItem findTopNativeItem(String topFile, NativeFileItem fileItem) {
@@ -107,36 +164,6 @@ class HeaderProxy extends SourceProxy {
             }
         }
         return null;
-    }
-    
-    @Override
-    public File getFileToCompile() {
-	return fileToCompile;
-    }
-    
-    @Override
-    public void copyFiles() throws IOException, BadLocationException {
-	ErrorProviderUtils.WriteDocument(doc, headerCopy);
-	PrintWriter writer = ErrorProviderUtils.createPrintWriter(fileToCompile);
-        writer.printf("#include \"%s\"%s", fo.getNameExt(), System.getProperty("line.separator"));
-	writer.close();	
-    }
-    
-    public String getInterestingFileAbsoluteName() {
-        return headerCopy.getAbsolutePath();
-    }
-
-    @Override
-    public File getCompilerRunDirectory() {
-        return (topFile == null) ? super.getCompilerRunDirectory() : new File(topFile).getParentFile();
-    }
-    
-    @Override
-    public String getCompilerOptions() {
-        if( topNativeItem  != null ) {
-            return " -I " + tmpDir.getAbsolutePath() + ' ' +  getCompilerOptions(topNativeItem);
-        }
-        return super.getCompilerOptions();
     }
     
     private static class TopIncludingFileAndDirective {
@@ -157,20 +184,21 @@ class HeaderProxy extends SourceProxy {
     private TopIncludingFileAndDirective getTopIncludingFile(CsmFile header) {
         Collection<CsmFile> files = CsmIncludeHierarchyResolver.getDefault().getFiles(header);
 	Set<CsmUID<CsmFile>> processedFiles = new HashSet<CsmUID<CsmFile>>();
+	TopIncludingFileAndDirective fad = new TopIncludingFileAndDirective();
         for( CsmFile file : files ) {
-	    TopIncludingFileAndDirective fad = new TopIncludingFileAndDirective();
 	    processedFiles.add(file.getUID());
             if( file.isSourceFile() ) {
 		fad.topFile = file;
 		fad.includeDirectiveText = findInclude(file, header);
                 return fad;
-            } else {
-		CsmFile top = getTopIncludingFile(file, processedFiles);
-		if( top != null ) {
-		    fad.topFile = top;
-		    fad.includeDirectiveText = findInclude(file, header);
-		    return fad;
-		}
+            }
+	}
+        for( CsmFile file : files ) {
+	    CsmFile top = getTopIncludingFile(file, processedFiles);
+	    if( top != null ) {
+		fad.topFile = top;
+		fad.includeDirectiveText = findInclude(file, header);
+		return fad;
 	    }
         }
 	return null;
@@ -199,7 +227,7 @@ class HeaderProxy extends SourceProxy {
     private String findInclude(CsmFile file, CsmFile header) {
 	if( file != null ) {
 	    for( CsmInclude include : file.getIncludes() ) {
-		if( file.equals(include.getIncludeFile() )) {
+		if( header.equals(include.getIncludeFile() )) {
 		    CharSequence cs = include.getIncludeName();
 		    if (cs != null) {
 			return cs.toString();
