@@ -74,6 +74,9 @@ import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 
 public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
+    
+    private static final String AXIS_ICON = "org/netbeans/modules/websvc/axis2/resources/axis_node_16.png"; // NOI18N
+    
     Service service;
     FileObject srcRoot;
     
@@ -88,6 +91,7 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
         content.add(service);
         content.add(srcRoot);
         content.add(this);
+        setIconBaseWithExtension(AXIS_ICON);
     }
     
     public String getName() {
@@ -122,10 +126,6 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-    }
-    
-    void changeIcon() {
-        fireIconChange();
     }
     
     @Override

@@ -105,8 +105,15 @@ public class TestOperationAction extends NodeAction  {
     }
     
     private String getSampleValue(String paramType) {
-        return "XYZ";
+        if ("java.lang.String".equals(paramType)) { //NOI18N
+            return "XYZ"; //NOI18N
+        } else if (paramType.matches("int|long|short|byte|java.lang.Integer|java.lang.Long|java.lang.Short|java.lang.Byte|java.math.BigInteger")) { //NOI18N
+            return "0"; //NOI18N
+        } else if (paramType.matches("float|double|java.lang.Float|java.lang.Double|java.math.BigDecimal")) { //NOI18N
+            return "0.0"; //NOI18N
+        } else if (paramType.matches("boolean|java.lang.Boolean")) { //NOI18N
+            return "false"; //NOI18N
+        } else return "null"; //NOI18N
     }
-
 
 }
