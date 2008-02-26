@@ -77,7 +77,7 @@
 
         <!-- copy the sources, applying the selected filters -->  
         <copy todir="${work.dir}/reglib" verbose="true">
-            <fileset dir="${sources.dir}/reglib">
+            <fileset dir="${sources.dir}/../reglib">
                 <include name="src/**/*.*"/>
                 <exclude name="**/nbproject/private/*.*"/>
                 <exclude name="build/**/*.*"/>
