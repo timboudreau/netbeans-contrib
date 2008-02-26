@@ -720,27 +720,7 @@ public final class RubyPlatform {
             pcs.firePropertyChange("gems", null, null); //NOI18N
         }
     }
-    
-    /** 
-     * @NOTE Add "lib;" before include file name of lib
-     */
-    public String getIncludeLibName(FileObject libPackageDirFo) {
-        FileObject libFo = getLibFO();
-        assert libFo != null;
-        String relativePath = FileUtil.getRelativePath(libFo, libPackageDirFo);
-        String[] groups = relativePath.split(File.separator);
-        String packageNameWithVersion = groups.length >= 1 ? groups[0] : relativePath;
-        // Remove version number:
-        int dashIdx = packageNameWithVersion.lastIndexOf('-');
-        String packageName = dashIdx != -1 ? packageNameWithVersion.substring(0, dashIdx) : packageNameWithVersion;
-        StringBuilder sb = new StringBuilder(30);
-        sb.append("lib;").append(packageName);
-        for (int i = 1; i < groups.length; i++) {
-            sb.append("/").append(groups[i]);
-        }
-        return sb.toString();
-    }
-    
+        
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
