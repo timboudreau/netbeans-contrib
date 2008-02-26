@@ -825,7 +825,9 @@ AccessModifier = (<private> | <protected>) [AccessQualifier];
 AccessQualifier = <lbracket> (NameId | <this>) <rbracket>;
 
 Annotation = <at> AnnotationExpr [<nl>];
-AnnotationExpr = AnnotType (Arguments)* [<lbrace> (<nl>)* (NameValuePair)* <rbrace>];
+## Hacking for AnnotationExpr = AnnotType (Arguments)* [<lbrace> (<nl>)* NameValuePair (<comma> (<nl>)* NameValuePair)* <rbrace>]
+##     where Arguments and followed braced NameValuePair conflict
+AnnotationExpr = AnnotType (ParenExpr)* [<lbrace> (<nl>)* NameValuePair (<comma> (<nl>)* NameValuePair)* <rbrace>];
 NameValuePair = <val> NameId <eq> (<nl>)* PrefixExpr;
 
 Import = <import> ImportStat (<comma> ImportStat)*;

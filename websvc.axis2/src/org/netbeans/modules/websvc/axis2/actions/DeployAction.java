@@ -101,29 +101,52 @@ public class DeployAction extends NodeAction  {
         AxisUtils.runTargets(project.getProjectDirectory(), new String[]{"axis2-deploy"}); //NOI18N
         String tomcatUser = preferences.get("TOMCAT_MANAGER_USER", null);
         if (tomcatUser != null) {
-            try {
-                String tomcatPassword = preferences.get("TOMCAT_MANAGER_PASSWORD", null);
-                URL reloadAxisUrl = new URL("http://localhost:8080/manager/html/reload?path=/axis2");
-                URLConnection conn = reloadAxisUrl.openConnection();
-                HttpURLConnection hconn = (HttpURLConnection) conn;
-                hconn.setAllowUserInteraction(false);
-                hconn.setRequestProperty("User-Agent", // NOI18N
-                         "NetBeansIDE-Tomcat-Manager/1.0"); // NOI18N
-                String input = tomcatUser + ":" + tomcatPassword;
-                String auth = new String(Base64.encode(input.getBytes()));                
-                //String auth = input;
-                hconn.setRequestProperty("Authorization", // NOI18N
-                                         "Basic " + auth); // NOI18N
-                hconn.connect();
-                int respCode = hconn.getResponseCode();
-                System.out.println("Server response = "+respCode);
-            } catch (MalformedURLException ex) {
-                ex.printStackTrace();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            
+            Preferences prefs = AxisUtils.getPreferences();
+            String axisUrl = prefs.get("AXIS_URL", "").trim();
+            if (axisUrl.length() > 0) {
+                try {
+                    String tomcatPassword = preferences.get("TOMCAT_MANAGER_PASSWORD", null);
+                    URL reloadAxisUrl = new URL(getReloadUrlForTomcatManager(axisUrl));
+                    URLConnection conn = reloadAxisUrl.openConnection();
+                    HttpURLConnection hconn = (HttpURLConnection) conn;
+                    hconn.setAllowUserInteraction(false);
+                    hconn.setRequestProperty("User-Agent", // NOI18N
+                             "NetBeansIDE-Tomcat-Manager/1.0"); // NOI18N
+                    String input = tomcatUser + ":" + tomcatPassword;
+                    String auth = new String(Base64.encode(input.getBytes()));                
+                    //String auth = input;
+                    hconn.setRequestProperty("Authorization", // NOI18N
+                                             "Basic " + auth); // NOI18N
+                    hconn.connect();
+                    int respCode = hconn.getResponseCode();
+                    System.out.println("Server response = "+respCode);
+                } catch (MalformedURLException ex) {
+                    ex.printStackTrace();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                String message = NbBundle.getMessage(DeployAction.class, "TXT_AxisUrlMissing");
+                NotifyDescriptor dialog = new NotifyDescriptor.Message(message);
+                DialogDisplayer.getDefault().notify(dialog);
+            }      
         }
+    }
+    
+    private String getReloadUrlForTomcatManager(String axisUrl) {
+        String prefix = "http://localhost:8080"; //NOI18N
+        String postfix = "/axis2"; //NOI18N
+        int index = axisUrl.indexOf("//"); //NOI18N
+        if (index>=0) {
+            String ignoreProtocol = axisUrl.substring(index+2);
+            int ind  = ignoreProtocol.indexOf("/");
+            if (ind>0) {
+                postfix = ignoreProtocol.substring(ind);
+                int axisUriIndex = axisUrl.indexOf(postfix);
+                prefix = axisUrl.substring(0, axisUriIndex);
+            }
+        }
+        return prefix+"/manager/html/reload?path="+postfix; //NOI18N
     }
 
 }
