@@ -82,7 +82,9 @@ public class Probe {
             PrintStream ps = new PrintStream(baos, true, "utf-8"); //NOI18N
 
             try {
-                ps.println("Editor Probe " + getVersion() + " dumping info..."); //NOI18N
+                String msg = "Editor Probe " + getVersion() + " dumping info..."; //NOI18N
+                Installer.FLOG.info(msg);
+                ps.println(msg);
                 
                 addEnvironmentInfo(ps);
                 addAllMopdules(ps);
@@ -94,7 +96,9 @@ public class Probe {
                     addSingleEditorStatus(editors.get(i), i, ps);
                 }
                 
-                ps.println("Editor Probe " + getVersion() + " dump finished!"); //NOI18N
+                msg = "Editor Probe " + getVersion() + " dump finished!"; //NOI18N
+                Installer.FLOG.info(msg);
+                ps.println(msg);
             } finally {
                 ps.flush();
                 ps.close();
@@ -270,7 +274,7 @@ public class Probe {
     private static void dumpAncestors(Component c, PrintStream ps, String indent) {
         ps.print(indent);
         ps.println(s2s(c));
-        if (c.getParent() != null) {
+        if (c != null && c.getParent() != null) {
             dumpAncestors(c.getParent(), ps, indent + "  "); //NOI18N
         }
     }

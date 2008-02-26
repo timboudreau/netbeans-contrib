@@ -57,6 +57,7 @@ import org.openide.windows.WindowManager;
  */
 public class Installer extends ModuleInstall {
 
+    public static final Logger FLOG = Logger.getLogger("nbeditor.focus"); //NOI18N
     private static final Logger LOG = Logger.getLogger(Installer.class.getName());
     
     private static HttpServer server = null;
@@ -155,9 +156,6 @@ public class Installer extends ModuleInstall {
     } // End of HttpServer class
     
     private static final class FocusLog implements PropertyChangeListener {
-        
-        private static final Logger FLOG = Logger.getLogger("nbeditor.focus"); //NOI18N
-        
         public void propertyChange(PropertyChangeEvent evt) {
             FLOG.info("FM pchng: '" + evt.getPropertyName()
                     + "' old=[" + Probe.s2s(evt.getOldValue())
