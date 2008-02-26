@@ -43,6 +43,7 @@ import org.netbeans.modules.erlang.platform.api.RubyPlatformManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
 import org.openide.windows.IOProvider;
@@ -227,43 +228,24 @@ public class ErlangIndexer implements Indexer {
         }
 
         public void analyze() throws IOException {
-            // Delete old contents of this file - if we're dealing with a user source file
-            if (! file.isPlatform()) {
-//                Set<Map<String, String>> indexedSet    = Collections.emptySet();
-//                Set<Map<String, String>> notIndexedSet = Collections.emptySet();
-//                Map<String, String> toDelete = new HashMap<String, String>();
-//                toDelete.put(FIELD_FILEURL, url);
-//
-//                try {
-//                    index.gsfStore(indexedSet, notIndexedSet, toDelete);
-//                } catch (IOException ioe) {
-//                    Exceptions.printStackTrace(ioe);
-//                }
-            }
-
             ErlContext rootCtx = result.getRootContext();
             if (rootCtx == null) {
                 return;
             }
 
-            String name = null;
+            String fqn = null;
             if (type == Type.Module) {
                 ErlModule module = rootCtx.getFirstDefinition(ErlModule.class);
                 if (module != null) {
-                    name = module.getName();
+                    fqn = module.getName();
                 }
             } else {
                 FileObject fo = file.getFileObject();
                 if (fo != null) {
-                    // header file name will contains its ext (such as ".hrl")
-                    if (file.isPlatform()) {
-                        name = RubyPlatformManager.getDefaultPlatform().getIncludeLibName(fo);
-                    } else {
-                        name = fo.getNameExt();
-                    }
+                    fqn = getHeaderFqn(fo);              
                 }
             }
-            if (name == null) {
+            if (fqn == null) {
                 return;
             }
             /** we will index exported functions and, defined macros etc */
@@ -284,16 +266,45 @@ public class ErlangIndexer implements Indexer {
              */
 
             /** The following code is currently for updating the timestamp only */
-            analyzeModule(type, name, includes, exports, records, macros);
+            analyzeModule(fqn, includes, exports, records, macros);
         }
 
-        private void analyzeModule(Type type, String name, Collection<ErlInclude> includes, Collection<ErlExport> exports, Collection<ErlRecord> records, Collection<ErlMacro> macros) {
+        /** 
+         * @NOTE Add "lib;" before header file fqn of lib, it also contains its ext (such as ".hrl")
+         */
+        private String getHeaderFqn(FileObject fo) {
+            FileObject libFo = RubyPlatformManager.getDefaultPlatform().getLibFO();
+            assert libFo != null;
+            String relativePath = FileUtil.getRelativePath(libFo, fo);
+            /** 
+             * @NOTE: we can not rely on file.isPlatform here: when a platform file
+             * is opened in editor, the file.isPlatform seems always return false; 
+             */
+            if (relativePath == null) {
+                // not a platform lib file
+                return fo.getNameExt();
+            }
+
+            String[] groups = relativePath.split(File.separator);
+            String packageNameWithVersion = groups.length >= 1 ? groups[0] : relativePath;
+            // Remove version number:
+            int dashIdx = packageNameWithVersion.lastIndexOf('-');
+            String packageName = dashIdx != -1 ? packageNameWithVersion.substring(0, dashIdx) : packageNameWithVersion;
+            StringBuilder sb = new StringBuilder(30);
+            sb.append("lib;").append(packageName);
+            for (int i = 1; i < groups.length; i++) {
+                sb.append("/").append(groups[i]);
+            }
+            return sb.toString();
+        }
+
+        private void analyzeModule(String fqn, Collection<ErlInclude> includes, Collection<ErlExport> exports, Collection<ErlRecord> records, Collection<ErlMacro> macros) {
             /** Add a Lucene document */
             IndexDocument document = factory.createDocument(40); // TODO - measure!
             documents.add(document);
 
-            String typeName = type == Type.Module ? "m" : "h";
-            String attributes = typeName;
+            String typeAttr = type == Type.Module ? "m" : "h";
+            String attrs = typeAttr;
 
             /** @TODO */
             //boolean isDocumented = isDocumented(node);
@@ -302,9 +313,9 @@ public class ErlangIndexer implements Indexer {
             //if (documentSize > 0) {
             //    attributes = attributes + "d(" + documentSize + ")";
             //}
-            document.addPair(FIELD_ATTRS, attributes, false);
+            document.addPair(FIELD_ATTRS, attrs, false);
 
-            document.addPair(FIELD_FQN_NAME, name, true);
+            document.addPair(FIELD_FQN_NAME, fqn, true);
 
             // TODO:
             //addIncluded(indexed);
