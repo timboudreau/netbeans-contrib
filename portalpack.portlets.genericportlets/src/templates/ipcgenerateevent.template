@@ -1,13 +1,29 @@
- public void generateNewEventEvent(ActionRequest request, ActionResponse response,String eventData) {
-        try{
-            PortletEventBroker peb = new PortletEventBroker(request);
-            /*Check for null value of Portlet Event Broker */
-            PortletEvent pe = peb.createEvent("NewEvent");
-            /*Check for null value of Portlet Event */
-            pe.setEventData(eventData);
-            pe.fire();
-
-        } catch(Exception e) {
-            /*Catch Exception here */
-	}
+try{
+<#if qname == "">
+String ${EVENT_NAME}_Event = "${EVENT_NAME}";
+<#if VALUE_TYPE != ''>
+${VALUE_TYPE} ${EVENT_NAME}_Data = null;
+<#else>
+java.io.Serializable ${EVENT_NAME}_Data = null;
+</#if>
+${RESPONSE}.setEvent(${EVENT_NAME}_Event,${EVENT_NAME}_Data);
+<#else>
+<#if NAMESPACE == '' && PREFIX == '' >
+QName qName = new QName("${LOCALPART}");
+<#elseif NAMESPACE == ''>
+QName qName = new QName(null,"${LOCALPART}","${PREFIX}");
+<#elseif PREFIX == ''>
+QName qName = new QName("${NAMESPACE}","${LOCALPART}",null);
+<#else>
+QName qName = new QName("${NAMESPACE}","${LOCALPART}","${PREFIX}");
+</#if>
+<#if VALUE_TYPE != ''>
+${VALUE_TYPE} ${LOCALPART}_Data = null;
+<#else>
+java.io.Serializable ${LOCALPART}_Data = null;
+</#if>
+response.setEvent(qName,${LOCALPART}_Data);
+</#if>
+}catch(Exception e){
+    e.printStackTrace();
 }
