@@ -43,7 +43,6 @@ package org.netbeans.modules.cnd.syntaxerr.provider.impl;
 
 import org.netbeans.modules.cnd.syntaxerr.provider.*;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -135,24 +134,36 @@ public class ErrorProviderImpl extends ErrorProvider {
 	    
             ErrorBag result = new ErrorBag();
     
-            fileProxy.copyFiles();
+            fileProxy.init();
 	    File fileToCompile = fileProxy.getFileToCompile();
 	    
             // TODO: set correct options
             String command = compilerInfo.getPath() + " -c -o /dev/null " + fileProxy.getCompilerOptions() + ' ' + fileToCompile.getAbsolutePath(); // NOI18N
             if( DebugUtils.SLEEP_ON_PARSE ) DebugUtils.sleep(3000);
-            if( DebugUtils.TRACE ) System.err.printf("\n\nRUNNING %s\n\tin directory %s\n", command, fileProxy.getCompilerRunDirectory().getAbsolutePath());
+            if( DebugUtils.TRACE ) System.err.printf("\n\nRUNNING (cd %s; %s)\n", fileProxy.getCompilerRunDirectory().getAbsolutePath(), command);
             Process compilerProcess = Runtime.getRuntime().exec(command, null, fileProxy.getCompilerRunDirectory());
             InputStream stream = compilerProcess.getErrorStream();
             compilerInfo.getParser().parseCompilerOutput(stream, fileProxy.getInterestingFileAbsoluteName(), result);
 //	    result = merge(result);
             stream.close();
             if( DebugUtils.CLEAN_TMP ) {
-                fileToCompile.delete();
+                clean(tmpDir);
             }
             if( DebugUtils.TRACE ) System.err.printf("DONE %s\n", command);
             return result.getResult();
         }
         return Collections.emptyList();
+    }
+    
+    private void clean(File dir) {
+	if( dir.isDirectory() ) {
+	    File[] files = dir.listFiles();
+	    for (int i = 0; i < files.length; i++) {
+		clean(files[i]);
+	    }
+	    dir.delete();
+	} else  {
+	    dir.delete();
+	}
     }
 }

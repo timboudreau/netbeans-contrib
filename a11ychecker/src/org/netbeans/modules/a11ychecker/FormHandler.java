@@ -122,7 +122,8 @@ public class FormHandler {
     public static final String TEXT_PROP = "text";	// NOI18N
     public static final String WINDOWS_OS = "windows";	// NOI18N
     public static final String FORM_NAME = "Form";	// NOI18N
-
+    public static final int USER_CODE=666;
+    
     public FormHandler(TopComponent tc) {
 
         //online scanning
@@ -376,7 +377,10 @@ public class FormHandler {
                         mnemonic = curr.getPropertyByName(MNEMONIC_PROP);
                     }
                     if (mnemonic != null) {
-                        if (getPropertyInteger(mnemonic) == null || getPropertyInteger(mnemonic).equals(0)) {
+                        // is this defined by usercode?
+                        if (isUserCode(mnemonic)) {
+                            addInfo(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_usercode"), curr.getName());
+                        } else if (getPropertyInteger(mnemonic) == null || getPropertyInteger(mnemonic).equals(0)) {
                             addError(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_needed"), curr.getName());	// NOI18N
                         } else {
                             int code = getPropertyInteger(mnemonic);
@@ -552,7 +556,31 @@ public class FormHandler {
         }
         return null;
     }
+    
+    /**
+     * @param property property tested for usecode presence
+     * @return true if Property contains userCode
+     */
+    private static boolean isUserCode(Property property) {
+        if (property != null) {
+            try {
+                Object value = property.getValue();
 
+                if (value instanceof RADConnectionDesignValue) {
+                    String p = ((RADConnectionDesignValue) value).getCode();
+                    if (p != null && !p.equals("")) {
+                        return true;
+                    }
+                }
+            } catch (IllegalAccessException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (InvocationTargetException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        } 
+        return false;
+    }
+    
     /**
      * returns FormEditorSupport
      * @return FormEditorSupport

@@ -42,89 +42,37 @@
 package org.netbeans.modules.websvc.axis2.nodes;
 
 import java.awt.Image;
-import java.beans.BeanInfo;
 import javax.swing.Action;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.websvc.axis2.actions.DeployAction;
+import org.netbeans.modules.websvc.axis2.actions.ShowServicesAction;
 import org.openide.actions.FindAction;
 import org.openide.actions.PasteAction;
 import org.openide.actions.PropertiesAction;
-import org.openide.filesystems.Repository;
-import org.openide.loaders.DataFolder;
 import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.Lookups;
 
 public class Axis2Node extends AbstractNode {
 
  
-    private static final String AXIS_BADGE = "org/netbeans/modules/websvc/axis2/resources/axisgroup.png"; // NOI18N
-    
-    private Icon folderIconCache;
-    private Icon openedFolderIconCache;
-    private java.awt.Image cachedServicesBadge;
-    
+    private static final String AXIS_GROUP_ICON = "org/netbeans/modules/websvc/axis2/resources/axis_group_node_16.png"; // NOI18N
+        
     public Axis2Node(Project project) {
         super(new Axis2Children(project), createLookup(project));
         setDisplayName(NbBundle.getBundle(Axis2Node.class).getString("LBL_Axis2"));
         setName("Axis2"); //NOI18N
-    }
-    
-    @Override
-    public Image getIcon( int type ) {
-        return computeIcon(false);
-    }
-    
-    @Override
-    public Image getOpenedIcon( int type ) {
-        return computeIcon(true);
-    }
-    
-    private java.awt.Image getServicesImage() {
-        if (cachedServicesBadge == null) {
-            cachedServicesBadge = Utilities.loadImage(AXIS_BADGE);
-        }            
-        return cachedServicesBadge;        
-    }
-    
-    /**
-     * Returns Icon of folder on active platform
-     * @param opened should the icon represent opened folder
-     * @return the folder icon
-     */
-    private Icon getFolderIcon (boolean opened) {
-        if (openedFolderIconCache == null) {
-            Node n = DataFolder.findFolder(Repository.getDefault().getDefaultFileSystem().getRoot()).getNodeDelegate();
-            openedFolderIconCache = new ImageIcon(n.getOpenedIcon(BeanInfo.ICON_COLOR_16x16));
-            folderIconCache = new ImageIcon(n.getIcon(BeanInfo.ICON_COLOR_16x16));
-        }
-        if (opened) {
-            return openedFolderIconCache;
-        }
-        else {
-            return folderIconCache;
-        }
-    }
-
-    private Image computeIcon( boolean opened) {        
-        Icon icon = getFolderIcon(opened);
-        Image image = ((ImageIcon)icon).getImage();
-        image = Utilities.mergeImages(image, getServicesImage(), 7, 7 );
-        return image;        
+        setIconBaseWithExtension(AXIS_GROUP_ICON);
     }
 
     @Override
     public Action[] getActions(boolean context) {
         return new Action[]{
-            //SystemAction.get(AxisConfigurationAction.class),
             SystemAction.get(DeployAction.class),
+            SystemAction.get(ShowServicesAction.class),
             null,
             SystemAction.get(FindAction.class),
             null,

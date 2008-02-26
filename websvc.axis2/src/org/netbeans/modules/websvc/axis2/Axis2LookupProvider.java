@@ -154,10 +154,9 @@ public class Axis2LookupProvider implements LookupProvider {
                 // setting axis properties
                 final Preferences preferences = AxisUtils.getPreferences();
                 try {
-                    String axisHome = preferences.get("AXIS_HOME",null); //NOI18N
                     String axisDeploy = preferences.get("AXIS_DEPLOY",null); //NOI18N
-                    if (axisHome != null || axisDeploy != null) {
-                        AxisUtils.updateAxisProperties(prj, axisHome, axisDeploy);
+                    if (axisDeploy != null) {
+                        AxisUtils.updateAxisDeployProperty(prj,axisDeploy);
                     }
                 } catch (IOException ex) {
                         ex.printStackTrace();
@@ -210,11 +209,11 @@ public class Axis2LookupProvider implements LookupProvider {
                 EditableProperties ep = AxisUtils.getEditableProperties(prj, AntProjectHelper.PRIVATE_PROPERTIES_PATH);
                 boolean needToStore = false;
                 if (ep != null) {
-                    String oldAxisHome = ep.getProperty("axis2.home");
-                    if (axisHome != null && !axisHome.equals(oldAxisHome)) {
-                        ep.setProperty("axis2.home",axisHome); //NOI18N
-                        needToStore = true;
-                    }
+//                    String oldAxisHome = ep.getProperty("axis2.home");
+//                    if (axisHome != null && !axisHome.equals(oldAxisHome)) {
+//                        ep.setProperty("axis2.home",axisHome); //NOI18N
+//                        needToStore = true;
+//                    }
                     String oldAxisDeploy = ep.getProperty("axis2.deploy.war");
                     if (oldAxisDeploy == null) oldAxisDeploy = ep.getProperty("axis2.deploy.dir");
                     if (axisDeploy != null && !axisDeploy.equals(oldAxisDeploy)) {

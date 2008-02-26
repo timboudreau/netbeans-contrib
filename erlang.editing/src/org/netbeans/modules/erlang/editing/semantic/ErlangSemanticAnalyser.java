@@ -103,7 +103,8 @@ public class ErlangSemanticAnalyser {
     private ParserManager parserManager;
     private ParserManagerListener parserManagerListener;
     
-    private static ErlVariable WILD_VAR = new ErlVariable("_", 0, 0, ErlVariable.Scope.LOCAL);
+    /** Don't get WILD_VAR to be static, otherwise, it will collect all usages cross all once opened source files */
+    private ErlVariable WILD_VAR = new ErlVariable("_", 0, 0, ErlVariable.Scope.LOCAL);
     
     private ErlangSemanticAnalyser(Document doc) {
         this.doc = doc;
@@ -634,7 +635,6 @@ public class ErlangSemanticAnalyser {
                 includeDfn.setLib(true);
                 includeDfn.setPath(pathStr);
                 if (! forIndexing) {
-                    //URL url = ErlangIndexProvider.getDefault().getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
                     URL url = ErlangIndexProvider.getDefault().get(fo).getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
                     includeDfn.setSourceFileUrl(url);
                 }
