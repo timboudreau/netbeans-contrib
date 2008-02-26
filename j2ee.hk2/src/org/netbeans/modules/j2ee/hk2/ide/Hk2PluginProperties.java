@@ -170,9 +170,12 @@ public class Hk2PluginProperties {
                     return list;
                 }
             }
-            File ee5lib = new File(jarDir, "javaee-5.0.jar");
-            if (!ee5lib.exists()) {//should not happen
-                return list;
+            File ee5lib = new File(jarDir, "javaee-5.0-SNAPSHOT.jar");  // V3 P2 M2
+            if (!ee5lib.exists()) {
+                ee5lib = new File(jarDir, "javaee-5.0.jar"); // V1 P2 M1 uses an older name.
+                if (!ee5lib.exists()) {
+                    return list;
+                }
             }
             
             Manifest m = new JarFile(ee5lib).getManifest();
@@ -180,7 +183,6 @@ public class Hk2PluginProperties {
             StringTokenizer token = new StringTokenizer(dependantJars, " ");
             while (token.hasMoreTokens()) {
                 String jar = token.nextToken();
-//                System.out.println("dependantJars : " + jar);
                 File j = new File(jarDir,  jar);
                 list.add(CustomizerSupport.fileToUrl(j));
             }
