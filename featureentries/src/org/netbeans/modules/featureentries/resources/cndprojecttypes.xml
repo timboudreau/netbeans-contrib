@@ -18,7 +18,7 @@
         <folder name="View">
             <file name="org.netbeans.modules.cnd.classview-ClassViewAction.instance">
                 <attr name='instanceCreate' methodvalue='org.netbeans.spi.actions.support.Factory.delegate'/>
-                <attr name='delegate' methodvalue='org.netbeans.modules.featureondemand.api.Factory.newAction'/>
+                <attr name='delegate' methodvalue='org.netbeans.modules.autoupdate.featureondemand.api.Factory.newAction'/>
                 <attr name='SystemFileSystem.localizingBundle' stringvalue='org.netbeans.modules.featureentries.resources.Bundle'/>
                 <attr name='iconBase' stringvalue='org/netbeans/modules/featureentries/resources/class_view.png'/>
                 <attr name='noIconInMenu' boolvalue="false"/>
@@ -34,7 +34,7 @@
                 <file name="makefile.xml">
                     <attr name="position" intvalue="100"/>
                     <attr name="template" boolvalue="true"/>
-                    <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.featureondemand.api.Factory.newProject"/>
+                    <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.autoupdate.featureondemand.api.Factory.newProject"/>
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
                     <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/makeProject.gif"/>
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/makefile.html"/>
@@ -43,7 +43,7 @@
                 <file name="newApplication.xml">
                     <attr name="position" intvalue="200"/>
                     <attr name="template" boolvalue="true"/>
-                    <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.featureondemand.api.Factory.newProject"/>
+                    <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.autoupdate.featureondemand.api.Factory.newProject"/>
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
                     <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/makeProject.gif"/>
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/newApplication.html"/>
@@ -52,7 +52,7 @@
                 <file name="newDynamicLibrary.xml">
                     <attr name="position" intvalue="300"/>
                     <attr name="template" boolvalue="true"/>
-                    <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.featureondemand.api.Factory.newProject"/>
+                    <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.autoupdate.featureondemand.api.Factory.newProject"/>
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
                     <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/makeProject.gif"/>
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/newDynamicLibrary.html"/>
@@ -61,7 +61,7 @@
                 <file name="newStaticLibrary.xml">
                     <attr name="position" intvalue="400"/>
                     <attr name="template" boolvalue="true"/>
-                    <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.featureondemand.api.Factory.newProject"/>
+                    <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.autoupdate.featureondemand.api.Factory.newProject"/>
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
                     <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/makeProject.gif"/>
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/newStaticLibrary.html"/>

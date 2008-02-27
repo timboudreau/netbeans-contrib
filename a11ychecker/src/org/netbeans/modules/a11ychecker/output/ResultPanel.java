@@ -50,24 +50,30 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyEditor;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
+import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import org.netbeans.modules.a11ychecker.FormBroker;
 import org.netbeans.modules.a11ychecker.FormHandler;
@@ -98,6 +104,9 @@ import org.openide.util.NbBundle;
  */
 public class ResultPanel extends javax.swing.JPanel implements TableModelListener {
 
+    private static final Logger LOG = Logger.getLogger(ResultPanel.class.getName());
+    private static final String GTK = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+    
     //auto resourcing constants
     /** auto resourcing property name */
     static final String PROP_AUTO_RESOURCING = "autoResourcing"; // NOI18N
@@ -130,9 +139,29 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
 
     /** Creates new form ResultPanel */
     public ResultPanel() {
+
+        // GTK Look & Feel workaround
+        boolean metal = UIManager.getSystemLookAndFeelClassName().equals(GTK); //NOI18N
+        TableCellRenderer iconRenderer = null;
+        if (metal) {
+            try {
+                Class clazz = Class.forName("javax.swing.JTable$IconRenderer");
+                Constructor ctor = clazz.getConstructors()[0];
+                ctor.setAccessible(true);
+                iconRenderer = (TableCellRenderer) ctor.newInstance();
+            } catch (Exception ex) {
+                LOG.log(Level.SEVERE, null, ex);
+            }
+        }
+        
         sorter = new TableSorter(model);
         initComponents();
         setColumnWidths();
+        
+        if (iconRenderer != null) {
+            messageTable.setDefaultRenderer(Icon.class, iconRenderer);
+        }
+        
         messageTable.setRowHeight(19);
         messageTable.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/output/Bundle").getString("table_tooltip"));	// NOI18N
         sorter.setTableHeader(messageTable.getTableHeader());

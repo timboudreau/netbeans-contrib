@@ -905,7 +905,7 @@ public class Erlang {
             } else if (definition instanceof ErlInclude && ((ErlInclude) definition).getPath() != null) {
                 String filePath = ((ErlInclude) definition).getPath();
                 if (((ErlInclude) definition).isLib()) {
-                    URL url = ErlangIndexProvider.getDefault().getModuleFileUrl(ErlangIndexProvider.Type.Header, filePath);
+                    URL url = ErlangIndexProvider.getDefault().getPersistentUrl(filePath);
                     if (url == null) {
                         return null;
                     }

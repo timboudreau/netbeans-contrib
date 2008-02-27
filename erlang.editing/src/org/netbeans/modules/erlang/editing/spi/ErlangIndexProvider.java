@@ -41,10 +41,13 @@
 package org.netbeans.modules.erlang.editing.spi;
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.netbeans.api.languages.CompletionItem;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
+import org.netbeans.modules.erlang.editing.semantic.ErlInclude;
+import org.netbeans.modules.erlang.editing.semantic.ErlMacro;
 import org.netbeans.modules.erlang.editing.util.ServiceLoader;
 import org.openide.filesystems.FileObject;
 
@@ -54,11 +57,6 @@ import org.openide.filesystems.FileObject;
  */
 public class ErlangIndexProvider {
     private static I i;
-
-    public enum Type {
-        Module, 
-	Header 
-    }
 
     /**
      * return a implementation of I, but do not use it directly, 
@@ -80,18 +78,20 @@ public class ErlangIndexProvider {
     public static interface I {
         ErlangIndexProvider.I get(FileObject fo);
         
-        ErlFunction getFunction(String moduleName, String functionName, int arity);
-	
-        URL getModuleFileUrl(Type type, String moduleName);
-
-        List<CompletionItem> getModuleCompletionItems(String modulePrefix);
+        ErlFunction getFunction(String fqn, String functionName, int arity);
         
-	List<CompletionItem> getFunctionCompletionItems(String moduleName);
+        ErlMacro getMacro(Collection<ErlInclude> includes, String macroName);     
+	
+        URL getPersistentUrl(String fqn);
 
-        List<CompletionItem> getRecordCompletionItems(String moduleName);
+        List<CompletionItem> getModuleCompletionItems(String fqnPrefix);
+        
+	List<CompletionItem> getFunctionCompletionItems(String fqn);
+
+        List<CompletionItem> getRecordCompletionItems(String fqn);
                 
-	List<CompletionItem> getMacroCompletionItems(String moduleName);
+	List<CompletionItem> getMacroCompletionItems(String fqn);
 
-        List<CompletionItem> getRecordFieldsCompletionItems(String moduleName, String recordName);
+        List<CompletionItem> getRecordFieldsCompletionItems(String fqn, String recordName);
     }
 }

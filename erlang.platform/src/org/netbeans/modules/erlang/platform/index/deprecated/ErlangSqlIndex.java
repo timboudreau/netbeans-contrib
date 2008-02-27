@@ -24,6 +24,8 @@ import java.util.Collection;
 import java.util.List;
 import org.netbeans.api.languages.CompletionItem;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
+import org.netbeans.modules.erlang.editing.semantic.ErlInclude;
+import org.netbeans.modules.erlang.editing.semantic.ErlMacro;
 import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider;
 import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider.I;
 import org.openide.filesystems.FileObject;
@@ -49,8 +51,12 @@ public class ErlangSqlIndex implements ErlangIndexProvider.I {
         }
         return null;
     }
+
+    public ErlMacro getMacro(Collection<ErlInclude> includes, String macroName) {
+        return null;
+    }
     
-    public URL getModuleFileUrl(ErlangIndexProvider.Type type, String module) {
+    public URL getPersistentUrl(String module) {
         if (! isIndexEngineAvaialble()) return null;
         String urlStr = sqlIndexEngine.searchModuleUrl(module);
         

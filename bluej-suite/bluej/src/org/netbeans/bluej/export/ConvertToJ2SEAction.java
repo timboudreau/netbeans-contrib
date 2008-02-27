@@ -174,10 +174,10 @@ public final class ConvertToJ2SEAction extends AbstractAction {
         ClassLoader loader = (ClassLoader)Lookup.getDefault().lookup(ClassLoader.class);
         Class j2seclazz = loader.loadClass("org.netbeans.modules.java.j2seproject.J2SEProjectGenerator");  // NOI18N
         Method createMethod = j2seclazz.getMethod("createProject", new Class[] {  // NOI18N
-            File.class, String.class, String.class, String.class
+            File.class, String.class, String.class, String.class, String.class
         });
         createMethod.invoke(null, new Object[] {
-            file, info.getName(), null, null
+            file, info.getName(), null, null, null
         });
         handle.progress(5);
         

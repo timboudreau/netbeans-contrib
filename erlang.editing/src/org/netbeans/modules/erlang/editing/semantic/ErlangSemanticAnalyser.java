@@ -87,6 +87,7 @@ public class ErlangSemanticAnalyser {
 
     private Document doc;
     private FileObject fo;
+    private ErlangIndexProvider.I index;
     private ASTNode astRoot;
     private ErlContext rootCtx;    
     /**
@@ -109,6 +110,7 @@ public class ErlangSemanticAnalyser {
     private ErlangSemanticAnalyser(Document doc) {
         this.doc = doc;
         this.fo = NbEditorUtilities.getFileObject(doc);
+        this.index = ErlangIndexProvider.getDefault().get(fo);
         initParserManagerListener();
     }
 
@@ -384,13 +386,15 @@ public class ErlangSemanticAnalyser {
                         findTokensInExprByType(expr, "var", tokensCollector);
                         for (ASTToken varToken : tokensCollector) {
                             String varNameStr = varToken.getIdentifier();
-                            if (!varNameStr.equals("_")) {                                
+                            if (! varNameStr.equals("_")) {                                
                                 ErlVariable variableDfn = functionContext.getVariableInScope(varNameStr);
                                 if (variableDfn == null) {
                                     variableDfn = new ErlVariable(varNameStr, varToken.getOffset(), varToken.getEndOffset(), ErlVariable.Scope.PARAMETER);
                                     functionContext.addDefinition(variableDfn);
                                 }
                                 functionContext.addUsage(varToken, variableDfn);
+                            } else {
+                                currCtx.addUsage(varToken, WILD_VAR);
                             }
                         }
                     }
@@ -607,7 +611,7 @@ public class ErlangSemanticAnalyser {
                 includeDfn.setPath(pathStr);
                 if (! forIndexing) {
                     /** @TODO search in project's -i paths and search in these include paths */
-                    URL url = ErlangIndexProvider.getDefault().get(fo).getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
+                    URL url = ErlangIndexProvider.getDefault().get(fo).getPersistentUrl(pathStr);
                     includeDfn.setSourceFileUrl(url);
                 }
                 /** add this usage to enable go to declartion */
@@ -634,8 +638,9 @@ public class ErlangSemanticAnalyser {
                 
                 includeDfn.setLib(true);
                 includeDfn.setPath(pathStr);
+                String libPathStr = "lib;" + pathStr;
                 if (! forIndexing) {
-                    URL url = ErlangIndexProvider.getDefault().get(fo).getModuleFileUrl(ErlangIndexProvider.Type.Header, pathStr);
+                    URL url = ErlangIndexProvider.getDefault().get(fo).getPersistentUrl(libPathStr);
                     includeDfn.setSourceFileUrl(url);
                 }
                 /** add this usage to enable go to declartion */
@@ -944,6 +949,15 @@ public class ErlangSemanticAnalyser {
                         if (macroDfn != null) {
                             rootCtx.addDefinition(macroDfn);
                             currCtx.addUsage(macroName, macroDfn);
+                        } else {                            
+                             if (! forIndexing) {
+                                Collection<ErlInclude> includes = rootCtx.getDefinitions(ErlInclude.class); 
+                                macroDfn = ErlangIndexProvider.getDefault().get(fo).getMacro(includes, macroNameStr);
+                                if (macroDfn != null) {
+                                    rootCtx.addDefinition(macroDfn);
+                                    currCtx.addUsage(macroName, macroDfn);
+                                }
+                            }
                         }
                     } else {
                         currCtx.addUsage(macroName, macroDfn);
