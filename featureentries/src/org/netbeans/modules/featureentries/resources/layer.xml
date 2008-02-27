@@ -2,7 +2,7 @@
 <!--
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
 
 
 The contents of this file are subject to the terms of either the GNU
@@ -26,7 +26,7 @@ your own identifying information:
 Contributor(s):
 
 The Original Software is NetBeans. The Initial Developer of the Original
-Software is Sun Microsystems, Inc. Portions Copyright 2001-2006 Sun
+Software is Sun Microsystems, Inc. Portions Copyright 2001-2008 Sun
 Microsystems, Inc. All Rights Reserved.
 
 If you wish your version of this file to be governed by only the CDDL
@@ -44,12 +44,12 @@ made subject to such option by the copyright holder.
 <filesystem>
     <folder name="FeaturesOnDemand">
         <file name="cnd.instance">
-            <attr name="instanceCreate" methodvalue="org.netbeans.modules.featureondemand.api.FeatureInfo.create"/>
+            <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.featureondemand.api.FeatureInfo.create"/>
             <attr name="codeName" stringvalue="org.netbeans.modules.cnd.kit"/>
             <attr name="projectLayer" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/cndprojecttypes.xml"/>
         </file>
         <file name="maven.instance">
-            <attr name="instanceCreate" methodvalue="org.netbeans.modules.featureondemand.api.FeatureInfo.create"/>
+            <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.featureondemand.api.FeatureInfo.create"/>
             <attr name="codeName" stringvalue="org.codehaus.mevenide.netbeans.feature"/>
             <!--
             <attr name="projectLayer" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/cndprojecttypes.xml"/>

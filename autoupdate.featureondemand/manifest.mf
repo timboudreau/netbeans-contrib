@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.modules.featureondemand
-OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/featureondemand/resources/Bundle.properties
+OpenIDE-Module: org.netbeans.modules.autoupdate.featureondemand
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/autoupdate/featureondemand/resources/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.1
 
