@@ -39,82 +39,19 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.hibernate.completion;
+package org.netbeans.modules.hibernate.hyperlink;
 
-import java.net.URL;
-import javax.lang.model.element.Element;
-import javax.swing.Action;
-import org.netbeans.api.java.source.CompilationController;
-import org.netbeans.api.java.source.ui.ElementJavadoc;
-import org.netbeans.spi.editor.completion.CompletionDocumentation;
+import org.netbeans.editor.TokenItem;
 
 /**
  *
- * 
+ * @author Rohan Ranade (Rohan.Ranade@Sun.COM), Dongmei Cao
  */
-public abstract class HibernateMappingCompletionDocumentation implements CompletionDocumentation {
-
-    public static HibernateMappingCompletionDocumentation getAttribValueDoc(String text) {
-        return new AttribValueDoc(text);
-    }
+public abstract class HyperlinkProcessor {
+    public abstract void process(HyperlinkEnv env);
     
-     public static HibernateMappingCompletionDocumentation createJavaDoc(CompilationController cc, Element element) {
-        return new JavaElementDoc(ElementJavadoc.create(cc, element));
-    }
-    
-    public URL getURL() {
-        return null;
-    }
-
-    public CompletionDocumentation resolveLink(String link) {
-        return null;
-    }
-
-    public Action getGotoSourceAction() {
-        return null;
-    }
-    
-    
-    
-    private static class AttribValueDoc extends HibernateMappingCompletionDocumentation {
-
-        private String text;
-
-        public AttribValueDoc(String text) {
-            this.text = text;
-        }
-
-        public String getText() {
-            return text;
-        }
-    }
-    
-    private static class JavaElementDoc extends HibernateMappingCompletionDocumentation {
-
-        private ElementJavadoc elementJavadoc;
-
-        public JavaElementDoc(ElementJavadoc elementJavadoc) {
-            this.elementJavadoc = elementJavadoc;
-        }
-
-        @Override
-        public JavaElementDoc resolveLink(String link) {
-            ElementJavadoc doc = elementJavadoc.resolveLink(link);
-            return doc != null ? new JavaElementDoc(doc) : null;
-        }
-
-        @Override
-        public URL getURL() {
-            return elementJavadoc.getURL();
-        }
-
-        public String getText() {
-            return elementJavadoc.getText();
-        }
-
-        @Override
-        public Action getGotoSourceAction() {
-            return elementJavadoc.getGotoSourceAction();
-        }
+    public int[] getSpan(HyperlinkEnv env) {
+        TokenItem item = env.getToken();
+        return new int[] { item.getOffset() + 1, item.getOffset() + item.getImage().length() - 1 };
     }
 }

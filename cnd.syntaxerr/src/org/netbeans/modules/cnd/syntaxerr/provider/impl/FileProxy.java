@@ -52,7 +52,15 @@ interface FileProxy {
 
     File getCompilerRunDirectory();
 
-    void copyFiles() throws IOException, BadLocationException;
+    /**
+     * Performs initialisatin, including copying files to the temporary directory.
+     * (I.e. actually prerforms all work - other methods just return values that are assigned in this method)
+     * It's guaranteer that it's first method that is called after constructor.
+     * 
+     * @throws java.io.IOException
+     * @throws javax.swing.text.BadLocationException
+     */
+    void init() throws IOException, BadLocationException;
 
     CompilerInfo getCompilerInfo();
 

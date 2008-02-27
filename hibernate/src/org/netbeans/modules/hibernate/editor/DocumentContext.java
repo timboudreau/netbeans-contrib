@@ -39,7 +39,7 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.hibernate.completion;
+package org.netbeans.modules.hibernate.editor;
 
 import java.util.ArrayList;
 import java.util.Collection;

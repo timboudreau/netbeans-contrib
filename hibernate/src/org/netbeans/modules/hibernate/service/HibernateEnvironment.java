@@ -43,6 +43,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import org.hibernate.HibernateException;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.libraries.Library;
 import org.netbeans.api.project.libraries.LibraryManager;
@@ -94,9 +96,17 @@ public class HibernateEnvironment {
     
     public ArrayList<String> getDatabaseTables(FileObject mappingFile) {
         ArrayList<String> databaseTables = new ArrayList<String>();
-        for(HibernateConfiguration configuration : getAllHibernateConfigurationsFromProject()) {
-            //TODO how to compare? oneis file with full path and another is just a relative path..
-            //if(mappingFile.getName())
+        try {
+            ArrayList<HibernateConfiguration> configurations = getHibernateConfigurationForMappingFile(mappingFile);
+            if(configurations.size() == 0 ) {
+                //This mapping file does not belong to any configuration file.
+                return databaseTables;
+            }
+            databaseTables.addAll(HibernateUtil.getAllDatabaseTables(configurations.toArray(new HibernateConfiguration[]{})));
+        } catch (SQLException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (HibernateException ex) {
+            Exceptions.printStackTrace(ex);
         }
         return databaseTables;
     }
@@ -123,12 +133,24 @@ public class HibernateEnvironment {
     /**
      * Returns all mapping files defined under this project.
      * 
-     * @param project the project for ehcih the mapping files need to be found.
+     * @param project the project for all the mapping files need to be found.
      * @return List of FileObjects for mapping files.
      */
     public ArrayList<FileObject> getAllHibernateMappingFileObjects(Project project) {
         return HibernateUtil.getAllHibernateMappingFileObjects(project);
     }        
+    
+     /**
+     * Returns relaive source paths of all mapping files present in this project.
+     * 
+     * @param project the project for all the mapping files need to be found.
+     * @return List of FileObjects for mapping files.
+     */
+    public ArrayList<String> getAllHibernateMappings(Project project) {
+        return HibernateUtil.getAllHibernateMappingsRelativeToSourcePath(project);
+    }        
+    
+    
     /**
      * Connects to the DB using supplied HibernateConfigurations and gets the list of
      * all table names.
@@ -155,10 +177,19 @@ public class HibernateEnvironment {
      */
     public ArrayList<TableColumn> getColumnsForTable(String tableName, FileObject mappingFileObject) {
         ArrayList<TableColumn> columnNames = new ArrayList<TableColumn>();
-        columnNames = HibernateUtil.getColumnsForTable(
-                tableName,
-                getHibernateConfigurationForMappingFile(mappingFileObject)
-        );
+        ArrayList<HibernateConfiguration> hibernateConfigurations = 
+                getHibernateConfigurationForMappingFile(mappingFileObject);
+        if(hibernateConfigurations.size() == 0 ) {
+            // This mapping fileis not (yet) mapped to any config file.
+            return columnNames;
+        } else {
+            for(HibernateConfiguration hibernateConfiguration : hibernateConfigurations) {
+                columnNames.addAll(HibernateUtil.getColumnsForTable(
+                    tableName,
+                    hibernateConfiguration
+                ));
+            }
+        }
         
         return columnNames;
     }
@@ -169,14 +200,14 @@ public class HibernateEnvironment {
      * @return true if the library is registered, false if the library is already registered or 
      * registration fails for some reason.
      */
-    public boolean addHibernateLibraryToProject() {
+    @SuppressWarnings("static-access")  //NOI18N
+    public boolean addHibernateLibraryToProject(FileObject fileInProject) {
         boolean addLibraryResult = false;
         try {
             LibraryManager libraryManager = LibraryManager.getDefault();
             Library hibernateLibrary = libraryManager.getLibrary("hibernate-support");  //NOI18N
-            WebProjectLibrariesModifier webProjectLibrariesModifier = project.getLookup().lookup(WebProjectLibrariesModifier.class);
-            addLibraryResult = webProjectLibrariesModifier.addCompileLibraries(new Library[]{hibernateLibrary});
-            addLibraryResult &= webProjectLibrariesModifier.addPackageLibraries(new Library[]{hibernateLibrary}, "lib"); //NOI18N
+            ProjectClassPathModifier projectClassPathModifier = project.getLookup().lookup(ProjectClassPathModifier.class);
+            addLibraryResult = projectClassPathModifier.addLibraries(new Library[]{hibernateLibrary}, fileInProject, ClassPath.COMPILE);  
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
             addLibraryResult = false;
@@ -207,15 +238,16 @@ public class HibernateEnvironment {
     }
 
     
-    private HibernateConfiguration getHibernateConfigurationForMappingFile(FileObject mappingFileObject)  {
+    private ArrayList<HibernateConfiguration> getHibernateConfigurationForMappingFile(FileObject mappingFileObject)  {
+        ArrayList<HibernateConfiguration> hibernateConfigurations = new ArrayList<HibernateConfiguration>();
         for(HibernateConfiguration config : getAllHibernateConfigurationsFromProject()) {
             for(String mappingFile : getAllHibernateMappingsFromConfiguration(config)) {
                 if(mappingFileObject.getPath().contains(mappingFile)) {
-                    return config;
+                    hibernateConfigurations.add(config);
                 }
             }
         }
-        return null ;// TODO fiix this.
+        return hibernateConfigurations;
     }
     /**
      * Returns the NetBeans project to which this HibernateEnvironment instance is bound.

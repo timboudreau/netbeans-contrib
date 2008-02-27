@@ -38,30 +38,53 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
+package org.netbeans.modules.hibernate.hyperlink;
 
-package org.netbeans.modules.hibernate.completion;
-
-import java.util.Map;
-import java.util.WeakHashMap;
-import javax.swing.text.Document;
+import org.netbeans.modules.editor.NbEditorUtilities;
+import org.openide.awt.StatusDisplayer;
+import org.openide.cookies.EditorCookie;
+import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.util.NbBundle;
 
 /**
  *
- * @author Rohan Ranade
+ * @author Rohan Ranade (Rohan.Ranade@Sun.COM), Dongmei Cao
  */
-public final class EditorContextFactory {
-    private static Map<Document, DocumentContext> contextCache = 
-            new WeakHashMap<Document, DocumentContext>();
+public class ResourceHyperlinkProcessor extends HyperlinkProcessor {
 
-    public static DocumentContext getDocumentContext(Document document, int caretOffset) {
-        DocumentContext context = contextCache.get(document);
-        if(context == null) {
-            context = new DocumentContext(document);
-            contextCache.put(document, context);
+    public ResourceHyperlinkProcessor() {
+    }
+
+    public void process(HyperlinkEnv env) {
+        FileObject fo = NbEditorUtilities.getFileObject(env.getDocument());
+        if (fo == null) {
+            return;
         }
-        
-        context.reset(caretOffset);
-        
-        return context;
+        FileObject parent = fo.getParent();
+
+        if (!openFile(parent.getFileObject(env.getValueString()))) {
+            String message = NbBundle.getMessage(ResourceHyperlinkProcessor.class, "LBL_ResourceNotFound", env.getValueString());
+            StatusDisplayer.getDefault().setStatusText(message);
+        }
+    }
+
+    private boolean openFile(FileObject file) {
+        if (file == null) {
+            return false;
+        }
+        DataObject dObj;
+        try {
+            dObj = DataObject.find(file);
+        } catch (DataObjectNotFoundException ex) {
+            return false;
+        }
+        EditorCookie editorCookie = dObj.getCookie(EditorCookie.class);
+        if (editorCookie == null) {
+            return false;
+        }
+        editorCookie.open();
+        return true;
     }
 }

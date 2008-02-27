@@ -140,7 +140,7 @@ class SourceProxy implements FileProxy {
 	return new File(tmpDir, fo.getNameExt());
     }
     
-    public void copyFiles() throws IOException, BadLocationException {
+    public void init() throws IOException, BadLocationException {
 	ErrorProviderUtils.WriteDocument(doc, getFileToCompile());
     }
 
