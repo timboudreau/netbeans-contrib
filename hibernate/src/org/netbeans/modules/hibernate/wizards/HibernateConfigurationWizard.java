@@ -52,6 +52,7 @@ import org.netbeans.api.project.Sources;
 import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.netbeans.modules.hibernate.cfg.model.SessionFactory;
 import org.netbeans.modules.hibernate.loaders.cfg.HibernateCfgDataObject;
+import org.netbeans.modules.hibernate.service.HibernateEnvironment;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataFolder;
@@ -72,6 +73,8 @@ public class HibernateConfigurationWizard implements WizardDescriptor.Instantiat
     private final String dialect = "hibernate.dialect";
     private final String driver = "hibernate.connection.driver_class";
     private final String url = "hibernate.connection.url";
+    private final String userName = "hibernate.connection.username";
+    private final String password = "hibernate.connection.password";
 
     public static HibernateConfigurationWizard create() {
         return new HibernateConfigurationWizard();
@@ -179,7 +182,9 @@ public class HibernateConfigurationWizard implements WizardDescriptor.Instantiat
     public void initialize(WizardDescriptor wizard) {
         this.wizard = wizard;
         project = Templates.getProject(wizard);
-        descriptor = new HibernateConfigurationWizardDescriptor(project);
+        descriptor = new HibernateConfigurationWizardDescriptor(project);        
+        FileObject sourceRoot = Util.getSourceRoot(project);        
+        Templates.setTargetFolder(wizard, sourceRoot);         
     }
 
     public void uninitialize(WizardDescriptor wizard) {
@@ -210,10 +215,22 @@ public class HibernateConfigurationWizard implements WizardDescriptor.Instantiat
             int row = sFactory.addProperty2(descriptor.getURL());
             sFactory.setAttributeValue(SessionFactory.PROPERTY2, row, "name", url);
         }
+        if (descriptor.getUserName() != null && !"".equals(descriptor.getUserName())) {
+            int row = sFactory.addProperty2(descriptor.getUserName());
+            sFactory.setAttributeValue(SessionFactory.PROPERTY2, row, "name", userName);
+        }
+        if (descriptor.getPassword() != null && !"".equals(descriptor.getPassword())) {
+            int row = sFactory.addProperty2(descriptor.getPassword());
+            sFactory.setAttributeValue(SessionFactory.PROPERTY2, row, "name", password);
+        }
         try {
             HibernateCfgDataObject hdo = (HibernateCfgDataObject) newOne;
             hdo.addSessionFactory(sFactory);
             hdo.save();
+            // Register Hibernate Library in the project if its not already registered.
+            HibernateEnvironment hibernateEnvironment = project.getLookup().lookup(HibernateEnvironment.class);
+            System.out.println("Library registered : " + hibernateEnvironment.addHibernateLibraryToProject(hdo.getPrimaryFile()));
+            
             return Collections.singleton(hdo.getPrimaryFile());
 
         } catch (Exception e) {

@@ -46,22 +46,26 @@ public class PortletXmlEventingHelper {
     {
         PortletType portlet = getPortlet(portletName);
         if(portlet == null) return new EventObject[0];
-       EventDefinitionReferenceType[] eventDefinitions = portlet.getSupportedPublishingEvent();
-        if(eventDefinitions == null)
+       EventDefinitionReferenceType[] eventDefinitionRefs = portlet.getSupportedPublishingEvent();
+        if(eventDefinitionRefs == null)
             return  new EventObject[0];
-        EventObject[] evtObject = new EventObject[eventDefinitions.length];
-        for(int i=0;i<eventDefinitions.length;i++)
+        EventObject[] evtObject = new EventObject[eventDefinitionRefs.length];
+        for(int i=0;i<eventDefinitionRefs.length;i++)
         {
-            QName qn = eventDefinitions[i].getQname();
+            QName qn = eventDefinitionRefs[i].getQname();
             if(qn != null)
             {
                 evtObject[i] = new EventObject();
                 evtObject[i].setQName(qn);
+                String valType = getEventType(qn);
+                evtObject[i].setValueType(valType);
             }else
             {
-                String name = eventDefinitions[i].getName();
+                String name = eventDefinitionRefs[i].getName();
                 evtObject[i] = new EventObject();
                 evtObject[i].setName(name);
+                String valType = getEventType(name);
+                evtObject[i].setValueType(valType);
             }
         }
         return evtObject;
@@ -82,11 +86,15 @@ public class PortletXmlEventingHelper {
             {
                 events[i] = new EventObject();
                 events[i].setQName(qn);
+                String valType = getEventType(qn);
+                events[i].setValueType(valType);
             }else
             {
                 String name = eventDefinitions[i].getName();
                 events[i] = new EventObject();
                 events[i].setName(name);
+                String valType = getEventType(name);
+                events[i].setValueType(valType);
             }
         }
         return events;
@@ -231,6 +239,36 @@ public class PortletXmlEventingHelper {
             }
         }
         return null;
+    }
+    
+    private String getEventType(Object event)
+    {
+        PortletApp portletApp = null;
+        try{
+            portletApp = dbObj.getPortletApp();
+        }catch(IOException e){
+            return null;
+        }
+        EventDefinitionType[] eventDefinitions = portletApp.getEventDefinition();
+        if(event instanceof QName)
+        {
+            QName qname = (QName)event;
+            for(EventDefinitionType eventDef:eventDefinitions)
+            {
+                if(eventDef.getQname() != null && eventDef.getQname().equals(qname))
+                    return eventDef.getValueType();
+            }
+
+        } else {
+            String name = (String)event;
+            for(EventDefinitionType eventDef:eventDefinitions)
+            {
+                if(eventDef.getName() != null && eventDef.getName().equals(name))
+                    return eventDef.getValueType();
+            }
+        }
+        return null;
+        
     }
     
     public boolean isEventingSupported()

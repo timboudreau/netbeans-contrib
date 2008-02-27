@@ -8,14 +8,13 @@ package org.netbeans.modules.websvc.axis2.options;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import org.netbeans.modules.websvc.axis2.actions.*;
+import org.netbeans.modules.websvc.axis2.AxisUtils;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.util.prefs.Preferences;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
-import org.openide.util.NbPreferences;
 
 /**
  *
@@ -23,21 +22,19 @@ import org.openide.util.NbPreferences;
  */
 public class Axis2ConfigurationPanel extends javax.swing.JPanel {
     
-    private String previousHomeDirectory, previousDeployDirectory;
+    private String previousDeployDirectory;
     private boolean modelChanged;
     
     public Axis2ConfigurationPanel() {
         
     }
     
-    /** Creates new form ConfigurationPanel */
-    public Axis2ConfigurationPanel(String axisHome, String axisDeploy) {
-        previousHomeDirectory = axisHome;
+    /** Creates new form Axis2ConfigurationPanel */
+    public Axis2ConfigurationPanel(String axisDeploy) {
         previousDeployDirectory = axisDeploy;
         initComponents();
-        axisHomeTf.setText(axisHome);
         axisDeployTf.setText(axisDeploy);
-        Preferences preferences = NbPreferences.forModule(AxisConfigurationAction.class);
+        Preferences preferences = AxisUtils.getPreferences();
         String axisUrl = preferences.get("AXIS_URL","");
         axisUrlTf.setText(axisUrl.length() == 0 ? "http://localhost:8080/axis2" : axisUrl); //NOI18N
         String tomcatUser = preferences.get("TOMCAT_MANAGER_USER","");
@@ -64,7 +61,6 @@ public class Axis2ConfigurationPanel extends javax.swing.JPanel {
             
         });
         DocumentListener docListener = new Axis2ConfigDocumentListener();
-        axisHomeTf.getDocument().addDocumentListener(docListener);
         axisUrlTf.getDocument().addDocumentListener(docListener);
         axisDeployTf.getDocument().addDocumentListener(docListener);
         tfTomcatUser.getDocument().addDocumentListener(docListener);
@@ -80,15 +76,9 @@ public class Axis2ConfigurationPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         jTabbedPane1 = new javax.swing.JTabbedPane();
-        runtimePanel = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        axisHomeLabel = new javax.swing.JLabel();
-        axisHomeTf = new javax.swing.JTextField();
-        browseButton = new javax.swing.JButton();
-        jLabel6 = new javax.swing.JLabel();
         deploymentPanel = new javax.swing.JPanel();
         axisDeployTf = new javax.swing.JTextField();
-        axisHomeLabel1 = new javax.swing.JLabel();
+        axisDeployLabel = new javax.swing.JLabel();
         browseButton1 = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -98,62 +88,9 @@ public class Axis2ConfigurationPanel extends javax.swing.JPanel {
         tfTomcatUser = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         tfTomcatPassword = new javax.swing.JPasswordField();
+        jLabel6 = new javax.swing.JLabel();
 
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(Axis2ConfigurationPanel.class, "Axis2ConfigurationPanel.jLabel1.text")); // NOI18N
-
-        axisHomeLabel.setText(org.openide.util.NbBundle.getMessage(Axis2ConfigurationPanel.class, "Axis2ConfigurationPanel.axisHomeLabel.text")); // NOI18N
-
-        browseButton.setText(org.openide.util.NbBundle.getMessage(Axis2ConfigurationPanel.class, "Axis2ConfigurationPanel.browseButton.text")); // NOI18N
-        browseButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                browseButtonActionPerformed(evt);
-            }
-        });
-
-        jLabel6.setText(org.openide.util.NbBundle.getMessage(Axis2ConfigurationPanel.class, "Axis2ConfigurationPanel.jLabel6.text")); // NOI18N
-
-        org.jdesktop.layout.GroupLayout runtimePanelLayout = new org.jdesktop.layout.GroupLayout(runtimePanel);
-        runtimePanel.setLayout(runtimePanelLayout);
-        runtimePanelLayout.setHorizontalGroup(
-            runtimePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(runtimePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(jLabel6)
-                .addContainerGap(272, Short.MAX_VALUE))
-            .add(runtimePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(runtimePanelLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .add(runtimePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(org.jdesktop.layout.GroupLayout.TRAILING, runtimePanelLayout.createSequentialGroup()
-                            .add(axisHomeTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(browseButton))
-                        .add(axisHomeLabel)
-                        .add(jLabel1))
-                    .addContainerGap()))
-        );
-        runtimePanelLayout.setVerticalGroup(
-            runtimePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(runtimePanelLayout.createSequentialGroup()
-                .add(131, 131, 131)
-                .add(jLabel6)
-                .addContainerGap(255, Short.MAX_VALUE))
-            .add(runtimePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(runtimePanelLayout.createSequentialGroup()
-                    .add(30, 30, 30)
-                    .add(axisHomeLabel)
-                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                    .add(runtimePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(browseButton)
-                        .add(axisHomeTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                    .add(jLabel1)
-                    .addContainerGap(30, Short.MAX_VALUE)))
-        );
-
-        jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(Axis2ConfigurationPanel.class, "Axis2ConfigurationPanel.runtimePanel.TabConstraints.tabTitle"), runtimePanel); // NOI18N
-
-        axisHomeLabel1.setText(org.openide.util.NbBundle.getMessage(Axis2ConfigurationPanel.class, "Axis2ConfigurationPanel.axisHomeLabel1.text")); // NOI18N
+        axisDeployLabel.setText(org.openide.util.NbBundle.getMessage(Axis2ConfigurationPanel.class, "Axis2ConfigurationPanel.axisDeployLabel.text")); // NOI18N
 
         browseButton1.setText(org.openide.util.NbBundle.getMessage(Axis2ConfigurationPanel.class, "Axis2ConfigurationPanel.browseButton1.text")); // NOI18N
         browseButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -176,6 +113,8 @@ public class Axis2ConfigurationPanel extends javax.swing.JPanel {
 
         tfTomcatPassword.setEditable(false);
 
+        jLabel6.setText(org.openide.util.NbBundle.getMessage(Axis2ConfigurationPanel.class, "Axis2ConfigurationPanel.jLabel6.text")); // NOI18N
+
         org.jdesktop.layout.GroupLayout deploymentPanelLayout = new org.jdesktop.layout.GroupLayout(deploymentPanel);
         deploymentPanel.setLayout(deploymentPanelLayout);
         deploymentPanelLayout.setHorizontalGroup(
@@ -195,31 +134,34 @@ public class Axis2ConfigurationPanel extends javax.swing.JPanel {
                                 .add(jLabel4)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(tfTomcatUser, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 180, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                    .add(jLabel6)
                     .add(deploymentPanelLayout.createSequentialGroup()
                         .add(jLabel3)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                        .add(axisUrlTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 483, Short.MAX_VALUE)))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(axisUrlTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE)))
                 .addContainerGap())
             .add(deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                 .add(deploymentPanelLayout.createSequentialGroup()
                     .addContainerGap()
                     .add(deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                         .add(org.jdesktop.layout.GroupLayout.TRAILING, deploymentPanelLayout.createSequentialGroup()
-                            .add(axisDeployTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE)
+                            .add(axisDeployTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 447, Short.MAX_VALUE)
                             .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                             .add(browseButton1))
-                        .add(axisHomeLabel1)
-                        .add(jLabel2))
+                        .add(jLabel2)
+                        .add(axisDeployLabel))
                     .addContainerGap()))
         );
         deploymentPanelLayout.setVerticalGroup(
             deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(deploymentPanelLayout.createSequentialGroup()
-                .add(133, 133, 133)
+                .add(121, 121, 121)
+                .add(jLabel6)
+                .add(47, 47, 47)
                 .add(deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
                     .add(axisUrlTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(68, 68, 68)
+                .add(18, 18, 18)
                 .add(cbTomcatManager)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -229,18 +171,18 @@ public class Axis2ConfigurationPanel extends javax.swing.JPanel {
                 .add(deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(tfTomcatPassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel5))
-                .addContainerGap(112, Short.MAX_VALUE))
+                .addContainerGap(97, Short.MAX_VALUE))
             .add(deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                 .add(deploymentPanelLayout.createSequentialGroup()
                     .add(30, 30, 30)
-                    .add(axisHomeLabel1)
+                    .add(axisDeployLabel)
                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                     .add(deploymentPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(browseButton1)
                         .add(axisDeployTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                     .add(jLabel2)
-                    .addContainerGap(30, Short.MAX_VALUE)))
+                    .addContainerGap(289, Short.MAX_VALUE)))
         );
 
         jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(Axis2ConfigurationPanel.class, "Axis2ConfigurationPanel.deploymentPanel.TabConstraints.tabTitle"), deploymentPanel); // NOI18N
@@ -249,25 +191,13 @@ public class Axis2ConfigurationPanel extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 596, Short.MAX_VALUE)
+            .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 575, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
-        // TODO add your handling code here:        
-        JFileChooser chooser = new JFileChooser(previousHomeDirectory);
-        chooser.setMultiSelectionEnabled(false);
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        if(chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            File axisDir = chooser.getSelectedFile();
-            axisHomeTf.setText(axisDir.getAbsolutePath());
-            previousHomeDirectory = axisDir.getPath();
-        } 
-    }//GEN-LAST:event_browseButtonActionPerformed
 
 private void browseButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButton1ActionPerformed
 // TODO add your handling code here:
@@ -297,31 +227,21 @@ private void browseButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel axisDeployLabel;
     private javax.swing.JTextField axisDeployTf;
-    private javax.swing.JLabel axisHomeLabel;
-    private javax.swing.JLabel axisHomeLabel1;
-    private javax.swing.JTextField axisHomeTf;
     private javax.swing.JTextField axisUrlTf;
-    private javax.swing.JButton browseButton;
     private javax.swing.JButton browseButton1;
     private javax.swing.JCheckBox cbTomcatManager;
     private javax.swing.JPanel deploymentPanel;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JPanel runtimePanel;
     private javax.swing.JPasswordField tfTomcatPassword;
     private javax.swing.JTextField tfTomcatUser;
     // End of variables declaration//GEN-END:variables
-    
-    
-    public String getAxisHome() {
-        return axisHomeTf.getText().trim();
-    }
     
     public String getAxisDeploy() {
         return axisDeployTf.getText().trim();

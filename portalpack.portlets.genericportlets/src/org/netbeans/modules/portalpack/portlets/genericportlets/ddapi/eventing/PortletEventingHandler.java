@@ -20,7 +20,6 @@
 package org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing;
 
 import java.util.Map;
-import javax.xml.namespace.QName;
 
 /**
  *

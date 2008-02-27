@@ -591,11 +591,11 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
                         result.add(new AddToDictionaryHint(this, projectDictionary, currentWord, "Add \"%s\" to the project's dictionary.", "1" + currentWord));
                     }
                 }
+            
+                Locale locale = LocaleQuery.findLocale(file);
+
+                result.add(new AddToDictionaryHint(this, getUsersLocalDictionary(locale), currentWord, "Add \"%s\" to your private dictionary.", "2" + currentWord));
             }
-            
-            Locale locale = LocaleQuery.findLocale(file);
-            
-            result.add(new AddToDictionaryHint(this, getUsersLocalDictionary(locale), currentWord, "Add \"%s\" to your private dictionary.", "2" + currentWord));
             
             if (!result.isEmpty()) {
                 HintsController.setErrors(doc, ComponentPeer.class.getName(), Collections.singletonList(ErrorDescriptionFactory.createErrorDescription(Severity.HINT, "Misspelled word", result, doc, span[0], span[1])));

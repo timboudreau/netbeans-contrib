@@ -50,7 +50,7 @@ public class ErlangSqlIndex implements ErlangIndexProvider.I {
         return null;
     }
     
-    public URL getModuleFileUrl(ErlangIndexProvider.Type type, String module) {
+    public URL getPersistentUrl(String module) {
         if (! isIndexEngineAvaialble()) return null;
         String urlStr = sqlIndexEngine.searchModuleUrl(module);
         

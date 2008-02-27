@@ -19,6 +19,8 @@
 package org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.sun.ui;
 
 import java.awt.Frame;
+import java.util.List;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.EventObject;
 
 /**
  *
@@ -26,14 +28,14 @@ import java.awt.Frame;
  */
 public class GenerateEventDialog extends javax.swing.JDialog {
     private String portlet = "";
-    private String event = "";
+    private EventObject event;
     private boolean cancel = false;
     /** Creates new form GenerateEventDialog */
-    public GenerateEventDialog(Frame parent,String portlet,String eventName) {
+    public GenerateEventDialog(Frame parent,String portlet,EventObject event) {
         super(parent,true);
         initComponents();
         this.portlet = portlet;
-        this.event = eventName;
+        this.event = event;
         initData();
         setLocation(parent.getX()+(parent.getWidth()-getWidth())/2,parent.getY()+(parent.getHeight()-getHeight())/2);
     }
@@ -42,7 +44,10 @@ public class GenerateEventDialog extends javax.swing.JDialog {
     {
         eventNameTf.setEditable(false);
         portletNameTf.setText(portlet);
-        eventNameTf.setText(event);
+        if(event.getName() != null)
+            eventNameTf.setText(event.getName());
+        else if(event.getQName() != null)
+            eventNameTf.setText(event.getQName().toString());
     }
     
     public void setMethods(Object[] methods)
@@ -51,6 +56,13 @@ public class GenerateEventDialog extends javax.swing.JDialog {
         {
             methodListCombo.addItem(methods[i]);
         }
+    }
+    
+    public void setMethods(List list)
+    {
+        for(int i=0;i<list.size();i++)
+            methodListCombo.addItem(list.get(i));
+        
     }
     
     public boolean isCancelled()

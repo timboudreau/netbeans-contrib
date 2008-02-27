@@ -79,7 +79,7 @@ public class ErlangTagsIndex implements ErlangIndexProvider.I {
         return null;
     }
 
-    public URL getModuleFileUrl(ErlangIndexProvider.Type type, String module) {
+    public URL getPersistentUrl(String module) {
         if (moduleToFunctions == null) {
             create();
         }

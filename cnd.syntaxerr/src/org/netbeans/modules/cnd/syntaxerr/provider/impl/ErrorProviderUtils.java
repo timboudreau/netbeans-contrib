@@ -49,6 +49,7 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import javax.swing.text.BadLocationException;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.cnd.api.model.CsmFile;
 
 /**
  *
@@ -77,6 +78,13 @@ public class ErrorProviderUtils {
 	file.mkdirs();
 	file.deleteOnExit();
 	return file;
+    }
+    
+    public static void copyFile(CsmFile src, File dst) throws IOException {
+	CharSequence text = src.getText();
+	PrintWriter writer = createPrintWriter(dst);
+	writer.append(text);
+	writer.close();
     }
     
     public static void WriteDocument(BaseDocument doc, File file) throws IOException, BadLocationException {

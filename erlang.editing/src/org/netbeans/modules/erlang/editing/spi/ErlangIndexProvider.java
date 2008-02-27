@@ -55,11 +55,6 @@ import org.openide.filesystems.FileObject;
 public class ErlangIndexProvider {
     private static I i;
 
-    public enum Type {
-        Module, 
-	Header 
-    }
-
     /**
      * return a implementation of I, but do not use it directly, 
      * always use getDefault().get(fo) instead 
@@ -80,18 +75,18 @@ public class ErlangIndexProvider {
     public static interface I {
         ErlangIndexProvider.I get(FileObject fo);
         
-        ErlFunction getFunction(String moduleName, String functionName, int arity);
+        ErlFunction getFunction(String fqn, String functionName, int arity);
 	
-        URL getModuleFileUrl(Type type, String moduleName);
+        URL getPersistentUrl(String fqn);
 
-        List<CompletionItem> getModuleCompletionItems(String modulePrefix);
+        List<CompletionItem> getModuleCompletionItems(String fqnPrefix);
         
-	List<CompletionItem> getFunctionCompletionItems(String moduleName);
+	List<CompletionItem> getFunctionCompletionItems(String fqn);
 
-        List<CompletionItem> getRecordCompletionItems(String moduleName);
+        List<CompletionItem> getRecordCompletionItems(String fqn);
                 
-	List<CompletionItem> getMacroCompletionItems(String moduleName);
+	List<CompletionItem> getMacroCompletionItems(String fqn);
 
-        List<CompletionItem> getRecordFieldsCompletionItems(String moduleName, String recordName);
+        List<CompletionItem> getRecordFieldsCompletionItems(String fqn, String recordName);
     }
 }

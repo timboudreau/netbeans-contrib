@@ -59,7 +59,7 @@ made subject to such option by the copyright holder.
                 <attr name="templateCategory" stringvalue="web-service-clients"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/websvc/axis2/resources/WebService.html"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.websvc.axis2.wizards.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/websvc/axis2/resources/AxisWS.png"/> 
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/websvc/axis2/resources/axis_node_16.png"/> 
             </file>
             <file name="AxisFromJavaEmpty.java" url="nbres:/org/netbeans/modules/websvc/axis2/resources/EmptyWebService.template">
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
@@ -73,7 +73,7 @@ made subject to such option by the copyright holder.
                 <attr name="templateCategory" stringvalue="web-service-clients"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/websvc/axis2/resources/WebService.html"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.websvc.axis2.wizards.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/websvc/axis2/resources/AxisWS.png"/> 
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/websvc/axis2/resources/axis_node_16.png"/> 
             </file>
         </folder><!-- Axis2 -->
     </folder>

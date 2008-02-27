@@ -59,31 +59,31 @@ public class DefaultErlangIndex implements ErlangIndexProvider.I {
         return this;
     }
     
-    public ErlFunction getFunction(String moduleName, String functionName, int arity) {
+    public ErlFunction getFunction(String fqn, String functionName, int arity) {
         return null;
     }
     
-    public URL getModuleFileUrl(ErlangIndexProvider.Type type, String moduleName) {
+    public URL getPersistentUrl(String fqn) {
         return null;
     }
 
-    public List<CompletionItem> getModuleCompletionItems(String modulePrefix) {
+    public List<CompletionItem> getModuleCompletionItems(String fqnPrefix) {
         return Collections.<CompletionItem>emptyList();
     }
     
-    public List<CompletionItem> getFunctionCompletionItems(String moduleName) {
+    public List<CompletionItem> getFunctionCompletionItems(String fqn) {
         return Collections.<CompletionItem>emptyList();
     }
 
-    public List<CompletionItem> getRecordCompletionItems(String moduleName) {
+    public List<CompletionItem> getRecordCompletionItems(String fqn) {
         return Collections.<CompletionItem>emptyList();
     }
      
-    public List<CompletionItem> getMacroCompletionItems(String moduleName) {
+    public List<CompletionItem> getMacroCompletionItems(String fqn) {
         return Collections.<CompletionItem>emptyList();
     }
 
-    public List<CompletionItem> getRecordFieldsCompletionItems(String moduleName, String recordName) {
+    public List<CompletionItem> getRecordFieldsCompletionItems(String fqn, String recordName) {
         return Collections.<CompletionItem>emptyList();
     }
 

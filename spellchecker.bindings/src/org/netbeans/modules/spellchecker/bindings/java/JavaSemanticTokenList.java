@@ -133,6 +133,10 @@ public class JavaSemanticTokenList implements TokenList {
     private static Map<FileObject, JavaSemanticTokenList>  js2TokenList = new WeakHashMap<FileObject, JavaSemanticTokenList>();
     
     static synchronized JavaSemanticTokenList get(FileObject file) {
+        if (!JavaTokenListProvider.ENABLE_SEMANTIC_TOKEN_LIST) {
+            return null;
+        }
+        
         JavaSource js = JavaSource.forFileObject(file);
         
         if (js == null) {
