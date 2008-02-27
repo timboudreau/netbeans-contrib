@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.netbeans.api.languages.CompletionItem;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
+import org.netbeans.modules.erlang.editing.semantic.ErlInclude;
+import org.netbeans.modules.erlang.editing.semantic.ErlMacro;
 import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider;
 import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider.I;
 import org.openide.filesystems.FileObject;
@@ -78,6 +81,11 @@ public class ErlangTagsIndex implements ErlangIndexProvider.I {
         }
         return null;
     }
+    
+    public ErlMacro getMacro(Collection<ErlInclude> includes, String macroName) {
+        return null;
+    }
+    
 
     public URL getPersistentUrl(String module) {
         if (moduleToFunctions == null) {
