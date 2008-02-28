@@ -95,7 +95,7 @@ public class NbWelcomePanel extends ErrorMessagePanel {
     private static BundleType type;
     public NbWelcomePanel() {
         setProperty(TITLE_PROPERTY,
-                DEFAULT_TITLE);
+                "nbWelcomepanel");
         setProperty(DESCRIPTION_PROPERTY,
                 DEFAULT_DESCRIPTION);
         
