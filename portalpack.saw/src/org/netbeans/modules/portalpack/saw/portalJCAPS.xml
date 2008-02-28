@@ -19,12 +19,12 @@
 */ -->
 <!DOCTYPE library PUBLIC "-//NetBeans//DTD Library Declaration 1.0//EN" "http://www.netbeans.org/dtds/library-declaration-1_0.dtd">
 <library version="1.0">
-    <name>saw</name>
+    <name>saw-lib</name>
     <type>j2se</type>
     <localizing-bundle>org.netbeans.modules.portalpack.saw.Bundle</localizing-bundle>
     <volume>
         <type>classpath</type>
-        <resource>jar:nbinst:///modules/ext/portalpack/saw/saw-api-0.2.jar!/</resource>
+        <resource>jar:nbinst:///modules/ext/portalpack/saw/saw-api-0.4.jar!/</resource>
     </volume>
     <volume>
         <type>src</type>
