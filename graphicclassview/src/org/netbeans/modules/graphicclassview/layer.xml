@@ -32,11 +32,11 @@
                 <folder name="Actions">
                     <file name="org-netbeans-modules-graphicclassview-actions-GraphicViewAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-graphicclassview-actions-GraphicViewAction.instance"/>
-                        <attr name="position" intvalue="200"/>
+                        <attr name="position" intvalue="201"/>
                     </file>
                     <file name="org-netbeans-modules-graphicclassview-actions-separatorAfter.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-                        <attr name="position" intvalue="300"/>
+                        <attr name="position" intvalue="299"/>
                     </file>
                 </folder>
             </folder>
