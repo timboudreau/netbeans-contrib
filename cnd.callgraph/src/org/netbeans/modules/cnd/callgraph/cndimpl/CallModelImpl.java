@@ -57,6 +57,7 @@ import org.netbeans.modules.cnd.api.model.services.CsmFileInfoQuery;
 import org.netbeans.modules.cnd.api.model.services.CsmFileReferences;
 import org.netbeans.modules.cnd.api.model.util.CsmKindUtilities;
 import org.netbeans.modules.cnd.api.model.xref.CsmReference;
+import org.netbeans.modules.cnd.api.model.xref.CsmReferenceKind;
 import org.netbeans.modules.cnd.api.model.xref.CsmReferenceRepository;
 import org.netbeans.modules.cnd.callgraph.api.Call;
 import org.netbeans.modules.cnd.callgraph.api.CallModel;
@@ -112,7 +113,7 @@ public class CallModelImpl implements CallModel {
         CsmFunction owner = functionImpl.getDeclaration();
         if (CsmKindUtilities.isFunction(owner)) {
             HashMap<CsmFunction,CsmReference> set = new HashMap<CsmFunction,CsmReference>();
-            for(CsmReference r : repository.getReferences(owner, project, false)){
+            for(CsmReference r : repository.getReferences(owner, project, CsmReferenceKind.ANY_USAGE)){
                 CsmFunction o = getFunctionDeclaration(getOwner(r));
                 if (o != null) {
                     if (!set.containsKey(o)) {

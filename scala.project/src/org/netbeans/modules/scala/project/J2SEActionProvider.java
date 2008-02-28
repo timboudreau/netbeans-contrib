@@ -203,7 +203,7 @@ class J2SEActionProvider implements ActionProvider {
         ));
 
         this.updateHelper = updateHelper;
-        this.project = project;
+        this.project = project;        
     }
     
     private final FileChangeListener modificationListener = new FileChangeAdapter() {
@@ -223,9 +223,10 @@ class J2SEActionProvider implements ActionProvider {
             }
         }
     };
-        
-    public void startFSListener () {
-        //Listener has to be started 
+    
+    
+    void startFSListener () {
+        //Listener has to be started when the project's lookup is initialized
         try {
             FileSystem fs = project.getProjectDirectory().getFileSystem();
             // XXX would be more efficient to only listen while DO_DEPEND=false (though this is the default)
@@ -234,7 +235,7 @@ class J2SEActionProvider implements ActionProvider {
             Exceptions.printStackTrace(x);
         }
     }
-    
+
     private void modification(FileObject f) {
         final Iterable <? extends FileObject> roots = getRoots();
         assert roots != null;
@@ -485,7 +486,7 @@ class J2SEActionProvider implements ActionProvider {
                 p.setProperty("javac.includes", clazz); // NOI18N
                 // Convert foo/FooTest.java -> foo.FooTest
                 if (clazz.endsWith(".scala")) { // NOI18N
-                    clazz = clazz.substring(0, clazz.length() - 5);
+                    clazz = clazz.substring(0, clazz.length() - 6);
                 }
                 clazz = clazz.replace('/','.');
                 final boolean hasMainClassFromTest = MainClassChooser.unitTestingSupport_hasMainMethodResult == null ? false :
@@ -725,7 +726,6 @@ class J2SEActionProvider implements ActionProvider {
     
     
     /**
-     * @TODO use scala parser
      * Lists all top level classes in a String, classes are separated by space (" ")
      * Used by debuger fix and continue (list of files to fix)
      * @param file for which the top level classes should be found
@@ -895,7 +895,7 @@ class J2SEActionProvider implements ActionProvider {
         }
         if (sourcesRoots.length > 0) {
             ClassPath bootPath = ClassPath.getClassPath (sourcesRoots[0], ClassPath.BOOT);        //Single compilation unit
-            ClassPath compilePath = ClassPath.getClassPath (sourcesRoots[0], ClassPath.COMPILE);
+            ClassPath compilePath = ClassPath.getClassPath (sourcesRoots[0], ClassPath.EXECUTE);
             ClassPath sourcePath = ClassPath.getClassPath(sourcesRoots[0], ClassPath.SOURCE);
             if (J2SEProjectUtil.isMainClass (mainClass, bootPath, compilePath, sourcePath)) {
                 return MainClassStatus.SET_AND_VALID;
@@ -905,7 +905,7 @@ class J2SEActionProvider implements ActionProvider {
             ClassPathProviderImpl cpProvider = project.getClassPathProvider();
             if (cpProvider != null) {
                 ClassPath bootPath = cpProvider.getProjectSourcesClassPath(ClassPath.BOOT);
-                ClassPath compilePath = cpProvider.getProjectSourcesClassPath(ClassPath.COMPILE);
+                ClassPath compilePath = cpProvider.getProjectSourcesClassPath(ClassPath.EXECUTE);
                 ClassPath sourcePath = cpProvider.getProjectSourcesClassPath(ClassPath.SOURCE);   //Empty ClassPath
                 if (J2SEProjectUtil.isMainClass (mainClass, bootPath, compilePath, sourcePath)) {
                     return MainClassStatus.SET_AND_VALID;

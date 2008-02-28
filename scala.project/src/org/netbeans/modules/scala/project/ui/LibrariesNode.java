@@ -104,6 +104,7 @@ import org.netbeans.spi.project.support.ant.PropertyUtils;
 import org.netbeans.spi.project.support.ant.ReferenceHelper;
 import org.netbeans.spi.java.project.support.ui.PackageView;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
+import org.netbeans.modules.scala.project.ui.customizer.AntArtifactChooser;
 import org.netbeans.spi.project.libraries.support.LibrariesSupport;
 import org.openide.util.Exceptions;
 
@@ -607,8 +608,8 @@ final class LibrariesNode extends AbstractNode {
             final J2SEProjectClassPathModifier cpMod = this.project.getLookup().lookup(J2SEProjectClassPathModifier.class);
             assert cpMod != null;
             AntArtifactChooser.ArtifactItem ai[] = AntArtifactChooser.showDialog(
-                    new String[] {JavaProjectConstants.ARTIFACT_TYPE_JAR, JavaProjectConstants.ARTIFACT_TYPE_FOLDER},
-                    project, null);
+                new String[] {JavaProjectConstants.ARTIFACT_TYPE_JAR, JavaProjectConstants.ARTIFACT_TYPE_FOLDER},
+                project, null);
             if ( ai != null ) {
                 final String propName = cpProvider.getPropertyName(projectSourcesArtifact, ClassPath.COMPILE);
                 addArtifacts(ai, cpMod, propName);
@@ -620,7 +621,7 @@ final class LibrariesNode extends AbstractNode {
             assert cpMod != null;
             assert propName != null;
             for (int i=0; i<artifactItems.length;i++) {
-                try {
+                try {                    
                     cpMod.handleAntArtifacts(new AntArtifact[]{artifactItems[i].getArtifact()}, 
                             new URI[]{artifactItems[i].getArtifactURI()}, propName, J2SEProjectClassPathModifier.ADD);
                 } catch (IOException ioe) {
@@ -703,7 +704,7 @@ final class LibrariesNode extends AbstractNode {
             super( NbBundle.getMessage( LibrariesNode.class, "LBL_AddFolder_Action" ) );
             assert project != null;
             assert projectSourcesArtifact != null;
-            this.project = project;
+            this.project = project;            
             this.projectSourcesArtifact = projectSourcesArtifact;
         }
 
@@ -756,7 +757,7 @@ final class LibrariesNode extends AbstractNode {
                     if (fileFilter.accept(fl)) {
                         URL u = LibrariesSupport.convertFilePathToURL(files[i]);
                         u = FileUtil.getArchiveRoot(u);
-                        cpMod.handleRoots(new URL[]{u}, propName, J2SEProjectClassPathModifier.ADD);
+                        cpMod.handleRoots(new URL[]{u}, propName, J2SEProjectClassPathModifier.ADD, false);
                     }
                 } catch (IOException ioe) {
                     ErrorManager.getDefault().notify(ioe);
