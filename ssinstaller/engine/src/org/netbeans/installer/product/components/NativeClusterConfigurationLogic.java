@@ -22,7 +22,7 @@ import org.netbeans.installer.wizard.components.WizardComponent;
  *
  * @author lm153972
  */
-public class NativeClasterConfigurationLogic extends ProductConfigurationLogic {
+public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
     @Override
     public void install(Progress progress) throws InstallationException {
         LogManager.logEntry("Installing native package...");        
@@ -33,15 +33,19 @@ public class NativeClasterConfigurationLogic extends ProductConfigurationLogic {
         }*/
         final Platform platform = SystemUtils.getCurrentPlatform();
         if (PackageType.isPlatformSupported(platform)) {
-            NativePackageInstaller packageInstaller = PackageType.getPlatformNativePackage(platform).getPackageInstaller();
+            NativePackageInstaller packageInstaller = PackageType.
+                    getPlatformNativePackage(platform).getPackageInstaller();
             for (FileEntry installedFile : getProduct().getInstalledFiles()) {
-                if (!installedFile.isDirectory() && packageInstaller.isCorrectPackageFile(installedFile.getName())) {
+                if (!installedFile.isDirectory() 
+                        && packageInstaller.isCorrectPackageFile(installedFile.getName())) {
                     if (!packageInstaller.install(installedFile.getName(), getProduct())) {
                         throw new InstallationException("Native package installation exception!");
                     } else installedFile.getFile().delete();
                 }
             }
-        } else throw new InstallationException("Platform is not supported!");
+        } else {
+            throw new InstallationException("Platform is not supported!");
+        }
         LogManager.logExit("Finish installing native package");        
         progress.setPercentage(Progress.COMPLETE);
     }

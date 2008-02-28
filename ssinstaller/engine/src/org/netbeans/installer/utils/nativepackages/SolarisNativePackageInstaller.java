@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.LogManager;
 
@@ -29,17 +30,24 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
     
     public boolean install(String pathToPackage, Product product) {
         String value = product.getProperty(DEVICE_FILES_COUNTER);
+        String target = Registry.getInstance().getProducts("sample").get(0)
+                .getInstallationLocation().getAbsolutePath();
         int counter = parseInteger(value) + 1;
         DeviceFileAnalizer analizer = new DeviceFileAnalizer(pathToPackage);
         product.setProperty(DEVICE_FILE + String.valueOf(counter) + DEVICE_FILE_PACKAGES_COUNTER, String.valueOf(analizer.getPackagesCount()));
         int i = 1;
         if (analizer.containsPackages()) {
             for(String packageName: analizer) {
-                try {
-                    LogManager.log("executing command: pkgadd -n -d " + pathToPackage + " " + packageName);
-                    Process p = new ProcessBuilder("pkgadd", "-n", "-d", pathToPackage, packageName).start();
-                    if (p.waitFor() != 0) return false;
-                    product.setProperty(DEVICE_FILE + String.valueOf(counter) + DEVICE_FILE_PACKAGE + String.valueOf(i), packageName);
+                try {                    
+                    LogManager.log("executing command: pkgadd -n -d " + pathToPackage 
+                            + " -R " + target + " " + packageName);
+                    Process p = new ProcessBuilder("pkgadd", "-n", "-d", pathToPackage, 
+                            "-R", target , packageName).start();
+                    if (p.waitFor() != 0) {
+                        return false;
+                    }
+                    product.setProperty(DEVICE_FILE + String.valueOf(counter) 
+                            + DEVICE_FILE_PACKAGE + String.valueOf(i), packageName);
                     i++;
                 } catch (InterruptedException ex) {
                     return false;
