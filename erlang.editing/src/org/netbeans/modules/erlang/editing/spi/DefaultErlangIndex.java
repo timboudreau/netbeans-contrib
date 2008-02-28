@@ -41,10 +41,13 @@
 package org.netbeans.modules.erlang.editing.spi;
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.netbeans.api.languages.CompletionItem;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
+import org.netbeans.modules.erlang.editing.semantic.ErlInclude;
+import org.netbeans.modules.erlang.editing.semantic.ErlMacro;
 import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider.I;
 import org.openide.filesystems.FileObject;
 
@@ -60,6 +63,10 @@ public class DefaultErlangIndex implements ErlangIndexProvider.I {
     }
     
     public ErlFunction getFunction(String fqn, String functionName, int arity) {
+        return null;
+    }
+
+    public ErlMacro getMacro(Collection<ErlInclude> includes, String macroName) {
         return null;
     }
     

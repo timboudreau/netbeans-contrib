@@ -386,13 +386,15 @@ public class ErlangSemanticAnalyser {
                         findTokensInExprByType(expr, "var", tokensCollector);
                         for (ASTToken varToken : tokensCollector) {
                             String varNameStr = varToken.getIdentifier();
-                            if (!varNameStr.equals("_")) {                                
+                            if (! varNameStr.equals("_")) {                                
                                 ErlVariable variableDfn = functionContext.getVariableInScope(varNameStr);
                                 if (variableDfn == null) {
                                     variableDfn = new ErlVariable(varNameStr, varToken.getOffset(), varToken.getEndOffset(), ErlVariable.Scope.PARAMETER);
                                     functionContext.addDefinition(variableDfn);
                                 }
                                 functionContext.addUsage(varToken, variableDfn);
+                            } else {
+                                currCtx.addUsage(varToken, WILD_VAR);
                             }
                         }
                     }
@@ -947,6 +949,15 @@ public class ErlangSemanticAnalyser {
                         if (macroDfn != null) {
                             rootCtx.addDefinition(macroDfn);
                             currCtx.addUsage(macroName, macroDfn);
+                        } else {                            
+                             if (! forIndexing) {
+                                Collection<ErlInclude> includes = rootCtx.getDefinitions(ErlInclude.class); 
+                                macroDfn = ErlangIndexProvider.getDefault().get(fo).getMacro(includes, macroNameStr);
+                                if (macroDfn != null) {
+                                    rootCtx.addDefinition(macroDfn);
+                                    currCtx.addUsage(macroName, macroDfn);
+                                }
+                            }
                         }
                     } else {
                         currCtx.addUsage(macroName, macroDfn);

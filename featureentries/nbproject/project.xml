@@ -6,7 +6,7 @@
             <code-name-base>org.netbeans.modules.featureentries</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>org.netbeans.modules.featureondemand</code-name-base>
+                    <code-name-base>org.netbeans.modules.autoupdate.featureondemand</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>

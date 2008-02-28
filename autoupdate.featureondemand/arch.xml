@@ -14,7 +14,7 @@ enclosed by brackets [] replaced by your own identifying information:
 "Portions Copyrighted [year] [name of copyright owner]"
 
 The Original Software is NetBeans. The Initial Developer of the Original
-Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <!DOCTYPE api-answers PUBLIC "-//NetBeans//DTD Arch Answers//EN" "../../nbbuild/antsrc/org/netbeans/nbbuild/Arch.dtd" [
@@ -141,7 +141,7 @@ Microsystems, Inc. All Rights Reserved.
   <p>
       <api name="FeaturesOnDemandAPI" category="stable" group="java" type="export">
           Factory methods to register correct 
-          <a href="@TOP@/org/netbeans/modules/featuresondemand/api/FeatureInfo.html">feature on demand</a>
+          <a href="@TOP@/org/netbeans/modules/autoupdate/featuresondemand/api/FeatureInfo.html">feature on demand</a>
       </api>
   </p>
  </answer>
@@ -1005,7 +1005,7 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="resources-layer">
   <p>
-   <api name="FeaturesOnDemand" group="layer" type="export" category="devel" url="@TOP@/org/netbeans/modules/featuresondemand/api/FeatureInfo.html">
+   <api name="FeaturesOnDemand" group="layer" type="export" category="devel" url="@TOP@/org/netbeans/modules/autoupdate/featuresondemand/api/FeatureInfo.html">
        API for modules to register their declarative definitions of UI that can then trigger
        installation or enablement of real modules.
    </api>
