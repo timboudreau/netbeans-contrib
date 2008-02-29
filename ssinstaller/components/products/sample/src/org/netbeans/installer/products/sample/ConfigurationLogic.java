@@ -3,6 +3,7 @@ package org.netbeans.installer.products.sample;
 import java.util.Arrays;
 import java.util.List;
 import org.netbeans.installer.product.components.ProductConfigurationLogic;
+import org.netbeans.installer.products.sample.panels.SSBasePanel;
 import org.netbeans.installer.utils.exceptions.InstallationException;
 import org.netbeans.installer.utils.exceptions.UninstallationException;
 import org.netbeans.installer.utils.progress.Progress;
@@ -25,7 +26,7 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
     @Override
     public List<WizardComponent> getWizardComponents() {
        // return Collections.EMPTY_LIST;
-        return Arrays.asList((WizardComponent) new DestinationPanel());
+        return Arrays.asList((WizardComponent) new SSBasePanel());
     }
 
 }

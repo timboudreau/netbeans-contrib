@@ -6,7 +6,7 @@ OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/archiver/Bundle.propertie
 
 Name: org/netbeans/modules/archiver/ArchiveDataLoader.class
 OpenIDE-Module-Class: Loader
-Install-Before: org.netbeans.modules.xml.core.XMLDataObject, org.openide.loaders.XMLDataObject
+Install-Before: org.netbeans.modules.xml.XMLDataObject, org.openide.loaders.XMLDataObject
 
 Name: org/netbeans/modules/archiver/CustomizeBeanAction.class
 OpenIDE-Module-Class: Action
