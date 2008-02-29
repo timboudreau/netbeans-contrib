@@ -146,7 +146,7 @@ public class CleartoolMockup extends Process implements Runnable {
         String[] args = cmd.split(" ");        
         String ctCommand = args[0];
         
-        slowDown(500);
+        slowDown(20);
         
         if(ctCommand.equals("ls")) {
              processLS(args);            
@@ -342,7 +342,7 @@ public class CleartoolMockup extends Process implements Runnable {
                         inputStream.setDelegate(new ByteArrayInputStream(("\n").getBytes()));    
                     } else {
                         for (File f : files) {       
-                            slowDown(50);
+                            slowDown(10);
                             inputStream.setDelegate(new ByteArrayInputStream(lsFile(f).toString().getBytes()));        
                         }                        
                     }                    
@@ -406,7 +406,7 @@ public class CleartoolMockup extends Process implements Runnable {
                     File[] files = file.listFiles();
                     if(files != null) {
                         for (File f : files) {
-                            slowDown(20);
+                            slowDown(10);
                             sb.append(lscoFile(f));                               
                         }
                     }                    
