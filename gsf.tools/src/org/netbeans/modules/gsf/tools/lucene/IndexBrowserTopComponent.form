@@ -32,7 +32,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="jSplitPane1" pref="763" max="32767" attributes="0"/>
+                      <Component id="jSplitPane1" pref="780" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
@@ -77,7 +77,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="selectedElementField" pref="694" max="32767" attributes="0"/>
+                      <Component id="selectedElementField" pref="716" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -140,20 +140,24 @@
     </Component>
     <Component class="javax.swing.JComboBox" name="keyCombo">
       <Properties>
+        <Property name="editable" type="boolean" value="true"/>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="12">
-            <StringItem index="0" value="func"/>
-            <StringItem index="1" value="class"/>
-            <StringItem index="2" value="method"/>
-            <StringItem index="3" value="field"/>
-            <StringItem index="4" value="attribute"/>
-            <StringItem index="5" value="constant"/>
-            <StringItem index="6" value="fqn"/>
-            <StringItem index="7" value="file"/>
-            <StringItem index="8" value="module"/>
-            <StringItem index="9" value="extends"/>
-            <StringItem index="10" value="require"/>
-            <StringItem index="11" value="dbtable"/>
+          <StringArray count="15">
+            <StringItem index="0" value="base"/>
+            <StringItem index="1" value="fqn"/>
+            <StringItem index="2" value="class"/>
+            <StringItem index="3" value="method"/>
+            <StringItem index="4" value="field"/>
+            <StringItem index="5" value="attribute"/>
+            <StringItem index="6" value="constant"/>
+            <StringItem index="7" value="fqn"/>
+            <StringItem index="8" value="file"/>
+            <StringItem index="9" value="module"/>
+            <StringItem index="10" value="extends"/>
+            <StringItem index="11" value="require"/>
+            <StringItem index="12" value="dbtable"/>
+            <StringItem index="13" value="clz"/>
+            <StringItem index="14" value="lcbase"/>
           </StringArray>
         </Property>
       </Properties>
@@ -241,11 +245,11 @@
                       <Component id="prevButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
                       <Component id="nextButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="225" max="32767" attributes="0"/>
+                      <EmptySpace pref="209" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <EmptySpace min="20" pref="20" max="20" attributes="0"/>
-                      <Component id="jScrollPane2" pref="496" max="32767" attributes="0"/>
+                      <Component id="jScrollPane2" pref="537" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -259,7 +263,7 @@
                           <Component id="nextButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane2" pref="369" max="32767" attributes="0"/>
+                      <Component id="jScrollPane2" pref="366" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -323,7 +327,7 @@
                       <Component id="jButton1" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jScrollPane3" pref="493" max="32767" attributes="0"/>
+                  <Component id="jScrollPane3" pref="508" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>

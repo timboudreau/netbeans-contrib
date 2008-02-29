@@ -143,7 +143,7 @@ public final class J2SEProject implements Project, AntProjectListener {
     private SourceRoots sourceRoots;
     private SourceRoots testRoots;
     private final ClassPathProviderImpl cpProvider;
-    private final J2SEProjectClassPathModifier cpMod;    
+    private final J2SEProjectClassPathModifier cpMod;
 
     private AntBuildExtender buildExtender;
 
@@ -168,7 +168,8 @@ public final class J2SEProject implements Project, AntProjectListener {
         this.cpMod = new J2SEProjectClassPathModifier(this, this.updateHelper, eval, refHelper);
         final J2SEActionProvider actionProvider = new J2SEActionProvider( this, this.updateHelper );
         lookup = createLookup(aux, actionProvider);
-        actionProvider.startFSListener();        helper.addAntProjectListener(this);
+        actionProvider.startFSListener();
+        helper.addAntProjectListener(this);
     }
 
     /**
@@ -180,7 +181,7 @@ public final class J2SEProject implements Project, AntProjectListener {
     }
 
     public String toString() {
-        return "J2SEProject[" + FileUtil.getFileDisplayName(getProjectDirectory()) + "]"; // NOI18N
+        return "ScalaProject[" + FileUtil.getFileDisplayName(getProjectDirectory()) + "]"; // NOI18N
     }
     
     private PropertyEvaluator createEvaluator() {
@@ -299,11 +300,11 @@ public final class J2SEProject implements Project, AntProjectListener {
     public ClassPathProviderImpl getClassPathProvider () {
         return this.cpProvider;
     }
-
+    
     public J2SEProjectClassPathModifier getProjectClassPathModifier () {
         return this.cpMod;
     }
-    
+
     public void configurationXmlChanged(AntProjectEvent ev) {
         if (ev.getPath().equals(AntProjectHelper.PROJECT_XML_PATH)) {
             // Could be various kinds of changes, but name & displayName might have changed.

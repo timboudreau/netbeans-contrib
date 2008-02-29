@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,7 +34,7 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.moduleresolver.ui;
@@ -50,9 +50,7 @@ import org.openide.util.NbBundle;
  * @author  Jirka Rechtacek
  */
 public class RepairNotification extends javax.swing.JPanel {
-    private static final String sModule = NbBundle.getMessage (RepairNotification.class, "RepairNotification_sModule");
-    private static final String sModules = NbBundle.getMessage (RepairNotification.class, "RepairNotification_sModules");
-    Collection<UpdateElement> candidates = null;
+    private Collection<UpdateElement> candidates = null;
     
     /** Creates new form RepairNotification */
     public RepairNotification (Collection<UpdateElement> modules) {
@@ -62,6 +60,7 @@ public class RepairNotification extends javax.swing.JPanel {
             candidates = modules;
         }
         initComponents();
+        String s = candidates.size () == 1 ? NbBundle.getMessage (RepairNotification.class, "taMessage_RepairNotification_Once") : NbBundle.getMessage (RepairNotification.class, "taMessage_RepairNotification_Many", candidates.size ());
     }
     
     /** This method is called from within the constructor to
@@ -82,7 +81,7 @@ public class RepairNotification extends javax.swing.JPanel {
         taMessage.setEditable(false);
         taMessage.setLineWrap(true);
         taMessage.setRows(5);
-        taMessage.setText(org.openide.util.NbBundle.getMessage(RepairNotification.class, "taMessage_RepairNotification", new Object[] {candidates.size (), candidates.size () == 1 ? sModule : sModules})); // NOI18N
+        taMessage.setText(candidates.size () == 1 ? NbBundle.getMessage (RepairNotification.class, "taMessage_RepairNotification_Once") : NbBundle.getMessage (RepairNotification.class, "taMessage_RepairNotification_Many", candidates.size ())); // NOI18N
         taMessage.setWrapStyleWord(true);
         taMessage.setOpaque(false);
         spMessage.setViewportView(taMessage);
