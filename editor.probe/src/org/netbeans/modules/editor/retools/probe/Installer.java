@@ -116,7 +116,13 @@ public class Installer extends ModuleInstall {
             + "<META HTTP-EQUIV=\"Refresh\" CONTENT=\"5; URL=/\" />" //NOI18N
             + "</head>" //NOI18N
             + "<body>" //NOI18N
-            + "<p>Editor Probe " + Probe.getVersion() + " is running...</p>" //NOI18N
+            + "<p>" //NOI18N
+            + "Editor Probe " + Probe.getVersion() + " is running...<br/>" //NOI18N
+            + (Probe.isJdkPatched() ? 
+                "The Probe's JDK patches detected, excellent!" : //NOI18N
+                "The Probe can't detect its JDK patches and is running with limited functionality only." //NOI18N
+              )
+            + "</p>" //NOI18N
             + "<p>Please Alt+Tab back to Netbeans and wait for at least 5 seconds, you can than come back here.</p>" //NOI18N
             + "</body>" //NOI18N
             + "</html>"; //NOI18N

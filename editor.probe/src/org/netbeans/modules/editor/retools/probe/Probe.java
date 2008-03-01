@@ -92,6 +92,12 @@ public class Probe {
                 Installer.FLOG.info(msg);
                 ps.println(msg);
     
+                if (isJdkPatched()) {
+                    ps.println("The Probe's JDK patches detected, excellent!"); //NOI18N
+                } else {
+                    ps.println("The Probe can't detect its JDK patches and is running with limited functionality only."); //NOI18N
+                }
+                
                 originsToMention.clear();
                 addEnvironmentInfo(ps);
                 addAllMopdules(ps);
@@ -294,6 +300,12 @@ public class Probe {
         }
     }
 
+    public static boolean isJdkPatched() {
+        findOrigin(null);
+        getFailedFocusRequests();
+        return !noFindOriginMethod && !noGetFailedFocusRequestsMethod;
+    }
+    
     private static boolean noFindOriginMethod = false;
     private static Throwable findOrigin(Component c) {
         Throwable origin = null;
@@ -326,14 +338,14 @@ public class Probe {
         return failedRequests;
     }
     
-    private static String editorId(JTextComponent c) {
+    private String editorId(JTextComponent c) {
         if (c == null) {
             return "null"; //NOI18N
         } else {
             Document d = c.getDocument();
             Object stream = d.getProperty(Document.StreamDescriptionProperty);
             FileObject f = getFileObjectFor(d);
-            return s2s(c) + "; stream=" + (f != null ? f.getPath() : s2s(stream)) + "; mimeType='" + d.getProperty("mimeType") + "'"; //NOI18N
+            return s2sLink(c) + "; stream=" + (f != null ? f.getPath() : s2s(stream)) + "; mimeType='" + d.getProperty("mimeType") + "'"; //NOI18N
         }
     }
     
@@ -370,7 +382,7 @@ public class Probe {
         } else {
             ps.print("  "); //NOI18N
             ps.print(indent);
-            ps.print(s2s(c));
+            ps.println(s2s(c));
         }
     }
 
