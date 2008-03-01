@@ -873,9 +873,10 @@ MARK:error: {
     message:"LBL_UNEXPECTED_CHARACTER";
 }
 
-########### colors #############################################################
+########### colors ##############################################################
+## http://ui.netbeans.org/docs/ui/editor_fonts_colors/Editor_fonts_and_colors.htm
 COLOR:keyword: {
-    foreground_color: "0x0000FE";
+    foreground_color: "0x0000E6";
 }
 
 COLOR:SimpleType, TypeParam.NameId: {
@@ -909,6 +910,16 @@ COLOR:FunDclDef.NameId: {
 #    underline_color: "0x000000";
 }
 
+COLOR:ValDclDef.PatDef.Pattern2.StableId.PathId.NameId: {
+    foreground_color: "0x009B00";
+}
+
+COLOR:VarDclDef.PatDef.Pattern2.StableId.PathId.NameId: {
+    foreground_color: "0x009B00";
+    font_type: "bold";
+}
+
+
 COLOR:PostfixExpr.NameId, PrefixExpr.PrefixOp: {
 #    foreground_color: "0x9966ff";
 #    foreground_color: "0x5F9EA0";
@@ -938,7 +949,7 @@ COLOR:comment_keyword: {
 }
 
 COLOR:xml_element_start,xml_end_element_start,xml_element_end,xml_end_element_end: {
-    foreground_color: "0x228B22";
+    foreground_color: "0x9933CC";
 }
 
 ########### complete and indentation ########################################################

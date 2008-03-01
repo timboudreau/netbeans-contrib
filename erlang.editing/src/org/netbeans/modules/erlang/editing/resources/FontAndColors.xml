@@ -42,11 +42,11 @@ made subject to such option by the copyright holder.
 -->
 <!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN" "http://www.netbeans.org/dtds/EditorFontsColors-1_1.dtd">
 <fontscolors>
-    <fontcolor name="keyword" default="keyword" foreColor="0000FE"/>
+    <fontcolor name="keyword" default="keyword" foreColor="0000E6"/>
     <fontcolor name="separator" default="operator"/>
     <fontcolor name="operator" default="operator"/>
     <fontcolor name="atom" default="identifier"/>
-    <fontcolor name="var" default="local-variable" foreColor="228B22"/>
+    <fontcolor name="var" default="local-variable" foreColor="009B00"/>
     <fontcolor name="attribute" default="keyword" foreColor="0000FE"/>
     <fontcolor name="macro" default="identifier" foreColor="2E92C7"/>
     <fontcolor name="record" default="identifier" foreColor="2E92C7"/>
