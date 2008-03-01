@@ -368,6 +368,11 @@ public class ScalaSemanticAnalyser {
                         currCtx.addDefinition(funDfn);
                         currCtx.addUsage(nameToken, funDfn);
                         break;
+                    } else if (isTokenTypeName(item1, "this")) {
+                        ASTToken nameToken = (ASTToken) item1;
+                        funDfn = new Function(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), 0);
+                        currCtx.addDefinition(funDfn);
+                        currCtx.addUsage(nameToken, funDfn);                        
                     }
                 }
                 pendingItems.putAll(processFunDclDef(rootCtx, item, currCtx, funDfn));
