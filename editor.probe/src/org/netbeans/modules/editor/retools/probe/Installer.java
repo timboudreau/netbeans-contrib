@@ -148,7 +148,7 @@ public class Installer extends ModuleInstall {
             }
             
             if (message[0] != null) {
-                return new NanoHTTPD.Response(HTTP_OK, "text/plain", message[0]); //NOI18N
+                return new NanoHTTPD.Response(HTTP_OK, "text/html", "<html><head><body><pre>\n" + message[0] + "\n</pre></body></head></html>"); //NOI18N
             } else {
                 return new NanoHTTPD.Response(HTTP_OK, "text/html", REFRESH_MESSAGE); //NOI18N
             }

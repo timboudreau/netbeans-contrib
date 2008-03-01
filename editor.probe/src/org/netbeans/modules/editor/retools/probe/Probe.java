@@ -47,8 +47,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.FocusManager;
@@ -72,6 +76,8 @@ public class Probe {
 
     private static final Logger LOG = Logger.getLogger(Probe.class.getName());
     
+    private final Map<String, Throwable> originsToMention = new HashMap<String, Throwable>();
+    
     public Probe() {
         
     }
@@ -85,7 +91,8 @@ public class Probe {
                 String msg = "Editor Probe " + getVersion() + " dumping info..."; //NOI18N
                 Installer.FLOG.info(msg);
                 ps.println(msg);
-                
+    
+                originsToMention.clear();
                 addEnvironmentInfo(ps);
                 addAllMopdules(ps);
 
@@ -95,6 +102,9 @@ public class Probe {
                 for(int i = 0; i < editors.size(); i++) {
                     addSingleEditorStatus(editors.get(i), i, ps);
                 }
+                
+                addFailedFocusRequests(ps);
+                addOrigins(ps);
                 
                 msg = "Editor Probe " + getVersion() + " dump finished!"; //NOI18N
                 Installer.FLOG.info(msg);
@@ -146,52 +156,53 @@ public class Probe {
         
         // Dump focus info:
         KeyboardFocusManager kfm = FocusManager.getCurrentKeyboardFocusManager();
-        ps.println("Focus manager: " + s2s(kfm));
-        ps.println("Active window: " + s2s(kfm.getActiveWindow()));
-        ps.println("Focused window: " + s2s(kfm.getFocusedWindow()));
-        ps.println("Netbeans main window: " + s2s(WindowManager.getDefault().getMainWindow()));
-        ps.println("Permanent focus owner: " + s2s(kfm.getPermanentFocusOwner()));
-        ps.print("Focus owner: ");
-        dumpAncestors(kfm.getFocusOwner(), ps, "");
+        ps.println("Focus manager: " + s2s(kfm)); //NOI18N
+        ps.println("Active window: " + s2s(kfm.getActiveWindow())); //NOI18N
+        ps.println("Focused window: " + s2s(kfm.getFocusedWindow())); //NOI18N
+        ps.println("Netbeans main window: " + s2s(WindowManager.getDefault().getMainWindow())); //NOI18N
+        ps.println("Focus cycle root: " + s2s(kfm.getCurrentFocusCycleRoot())); //NOI18N
+        ps.println("Permanent focus owner: " + s2s(kfm.getPermanentFocusOwner())); //NOI18N
+        ps.print("Focus owner: "); //NOI18N
+        dumpAncestors(kfm.getFocusOwner(), ps, ""); //NOI18N
         addSeparator(ps);
     }
     
     private void addSingleEditorStatus(JTextComponent editor, int index, PrintStream ps) {
-        ps.println("Editor[" + index + "]: " + editorId(editor));
+        ps.println("Editor[" + index + "]: " + editorId(editor)); //NOI18N
 
         // Dump component info
-        ps.println("JTextComponent: " + s2s(editor));
-        ps.println("Enabled: " + editor.isEnabled());
-        ps.println("Editable: " + editor.isEditable());
-        ps.println("Focusable: " + editor.isFocusable());
-        ps.println("Focus owner: " + editor.isFocusOwner());
-        ps.println("Valid: " + editor.isValid());
-        ps.println("Caret: " + s2s(editor.getCaret()));
-        ps.println("Caret offset: " + editor.getCaretPosition());
-        ps.println("Selection: <" + editor.getSelectionStart() + "," + editor.getSelectionEnd() + ">");
-        ps.println("UI: " + s2s(editor.getUI()));
-        ps.println("Parent: " + s2s(editor.getParent()));
-        ps.println("Keymap size: " + editor.getKeymap().getBoundKeyStrokes().length);
+        ps.println("JTextComponent: " + s2s(editor)); //NOI18N
+        ps.println("Enabled: " + editor.isEnabled()); //NOI18N
+        ps.println("Editable: " + editor.isEditable()); //NOI18N
+        ps.println("Focusable: " + editor.isFocusable()); //NOI18N
+        ps.println("Focus owner: " + editor.isFocusOwner()); //NOI18N
+        ps.println("Valid: " + editor.isValid()); //NOI18N
+        ps.println("Caret: " + s2s(editor.getCaret())); //NOI18N
+        ps.println("Caret offset: " + editor.getCaretPosition()); //NOI18N
+        ps.println("Selection: <" + editor.getSelectionStart() + "," + editor.getSelectionEnd() + ">"); //NOI18N
+        ps.println("UI: " + s2s(editor.getUI())); //NOI18N
+        ps.println("Parent: " + s2s(editor.getParent())); //NOI18N
+        ps.println("Keymap size: " + editor.getKeymap().getBoundKeyStrokes().length); //NOI18N
         ps.println();
         
         // Dump document info
         Document document = editor.getDocument();
-        ps.println("Document: " + s2s(document));
-        ps.println("Mimetype: '" + document.getProperty("mimeType") + "'");
-        ps.println("Length: " + document.getLength());
-        ps.println("Read locked: " + DocumentUtilities.isReadLocked(document));
-        ps.println("Write locked: " + DocumentUtilities.isWriteLocked(document));
+        ps.println("Document: " + s2s(document)); //NOI18N
+        ps.println("Mimetype: '" + document.getProperty("mimeType") + "'"); //NOI18N
+        ps.println("Length: " + document.getLength()); //NOI18N
+        ps.println("Read locked: " + DocumentUtilities.isReadLocked(document)); //NOI18N
+        ps.println("Write locked: " + DocumentUtilities.isWriteLocked(document)); //NOI18N
         // dump all fields from the whole class hierarchy
         ps.println();
         
         // Dump file info
         FileObject file = getFileObjectFor(document);
         if (file != null) {
-            ps.println("File: " + file.getPath());
-            ps.println("Mimetype: '" + file.getMIMEType() + "'");
-            ps.println("Readonly: " + !file.canWrite());
+            ps.println("File: " + file.getPath()); //NOI18N
+            ps.println("Mimetype: '" + file.getMIMEType() + "'"); //NOI18N
+            ps.println("Readonly: " + !file.canWrite()); //NOI18N
         } else {
-            ps.println("Stream: " + document.getProperty(Document.StreamDescriptionProperty));
+            ps.println("Stream: " + document.getProperty(Document.StreamDescriptionProperty)); //NOI18N
         }
         ps.println();
         
@@ -202,16 +213,65 @@ public class Probe {
         addSeparator(ps);
     }
     
+    private void addOrigins(PrintStream ps) {
+        if (originsToMention.size() > 0) {
+            ps.println("Known java.awt.Component origins:"); //NOI18N
+
+            List<String> references = new ArrayList<String>(originsToMention.keySet());
+            Collections.sort(references);
+
+            for(String r : references) {
+                Throwable origin = originsToMention.get(r);
+                ps.println("<a name=\"" + r + "\"></a>"); //NOI18N
+                origin.printStackTrace(ps);
+            }
+            
+            addSeparator(ps);
+        }
+    }
+    
+    private void addFailedFocusRequests(PrintStream ps) {
+        ps.println("Failed calls to java.awt.Component.requestFocus() and similar:"); //NOI18N
+
+        Throwable [] failedRequests = getFailedFocusRequests();
+        if (failedRequests.length > 0) {
+            for(Throwable stacktrace : failedRequests) {
+                ps.println();
+                stacktrace.printStackTrace(ps);
+            }
+        } else {
+            ps.println("No failures!"); //NOI18N
+        }   
+        
+        addSeparator(ps);
+    }
+    
     private void addSeparator(PrintStream ps) {
         ps.println("-------------------------------------------------------------------------------"); // NOI18N
     }
     
     public static String s2s(Object o) {
+        return _s2s(o, false);
+    }
+    
+    private static String _s2s(Object o, boolean linkToOrigin) {
         if (o == null) {
             return "null"; //NOI18N
         } else {
             String classAndHash = o.getClass().getName() + "@" + Integer.toHexString(System.identityHashCode(o)); //NOI18N
-            if (o instanceof Component) {
+            
+            if (linkToOrigin) {
+                classAndHash = "<a href=\"#" + classAndHash + "\">" + classAndHash + "</a>"; //NOI18N
+            }
+            
+            if (o instanceof Container) {
+                return classAndHash 
+                    + "; name='" + ((Component) o).getName() + "'" //NOI18N
+                    + "; isFocusable=" + ((Component) o).isFocusable() //NOI18N
+                    + "; isFocusOwner=" + ((Component) o).isFocusOwner() //NOI18N
+                    + "; focusTraversalPolicy=" + s2s(((Container) o).getFocusTraversalPolicy()) //NOI18N
+                ;
+            } else if (o instanceof Component) {
                 return classAndHash 
                     + "; name='" + ((Component) o).getName() + "'" //NOI18N
                     + "; isFocusable=" + ((Component) o).isFocusable() //NOI18N
@@ -221,6 +281,49 @@ public class Probe {
                 return classAndHash;
             }
         }
+    }
+
+    private String s2sLink(Component o) {
+        Throwable origin = findOrigin(o);
+        if (origin != null) {
+            String classAndHash = o.getClass().getName() + "@" + Integer.toHexString(System.identityHashCode(o)); //NOI18N
+            originsToMention.put(classAndHash, origin);
+            return _s2s(o, true);
+        } else {
+            return s2s(o);
+        }
+    }
+
+    private static boolean noFindOriginMethod = false;
+    private static Throwable findOrigin(Component c) {
+        Throwable origin = null;
+        if (!noFindOriginMethod) {
+            try {
+                Method findOriginMethod = Component.class.getDeclaredMethod("findOrigin", Component.class); //NOI18N
+                findOriginMethod.setAccessible(true);
+                origin = (Throwable) findOriginMethod.invoke(null, c);
+            } catch (Exception e) {
+                noFindOriginMethod = true;
+                LOG.log(Level.WARNING, null, e);
+            }
+        }
+        return origin;
+    }
+    
+    private static boolean noGetFailedFocusRequestsMethod = false;
+    private static Throwable[] getFailedFocusRequests() {
+        Throwable[] failedRequests = new Throwable[0];
+        if (!noGetFailedFocusRequestsMethod) {
+            try {
+                Method findOriginMethod = Component.class.getDeclaredMethod("getFailedFocusRequests"); //NOI18N
+                findOriginMethod.setAccessible(true);
+                failedRequests = (Throwable []) findOriginMethod.invoke(null);
+            } catch (Exception e) {
+                noGetFailedFocusRequestsMethod = true;
+                LOG.log(Level.WARNING, null, e);
+            }
+        }
+        return failedRequests;
     }
     
     private static String editorId(JTextComponent c) {
@@ -247,16 +350,16 @@ public class Probe {
         return f;
     }
     
-    private static void dumpComponentHierarchy(Component c, PrintStream ps, String indent) {
+    private void dumpComponentHierarchy(Component c, PrintStream ps, String indent) {
         if (c != null) {
             if (c.isFocusOwner()) {
-                ps.print("* ");
+                ps.print("* "); //NOI18N
             } else {
-                ps.print("  ");
+                ps.print("  "); //NOI18N
             }
 
             ps.print(indent);
-            ps.print(s2s(c));
+            ps.print(s2sLink(c));
             ps.println();
 
             if (c instanceof Container) {
@@ -265,17 +368,21 @@ public class Probe {
                 }
             }
         } else {
-            ps.print("  ");
+            ps.print("  "); //NOI18N
             ps.print(indent);
             ps.print(s2s(c));
         }
     }
 
-    private static void dumpAncestors(Component c, PrintStream ps, String indent) {
+    private void dumpAncestors(Component c, PrintStream ps, String indent) {
         ps.print(indent);
-        ps.println(s2s(c));
-        if (c != null && c.getParent() != null) {
-            dumpAncestors(c.getParent(), ps, indent + "  "); //NOI18N
+        if (c != null) {
+            ps.println(s2sLink(c));
+            if (c.getParent() != null) {
+                dumpAncestors(c.getParent(), ps, indent + "  "); //NOI18N
+            }
+        } else {
+            ps.println(s2s(c));
         }
     }
     
