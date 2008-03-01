@@ -48,7 +48,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
-import org.netbeans.modules.hibernate.HibernateCfgProperties;
+import org.netbeans.modules.hibernate.cfg.HibernateCfgProperties;
 import org.netbeans.modules.hibernate.cfg.model.SessionFactory;
 import org.netbeans.modules.hibernate.loaders.cfg.HibernateCfgDataObject;
 import org.openide.filesystems.FileObject;
@@ -107,6 +107,13 @@ public class Util {
         return new String[0];
     }
     
+    // Gets the list of mapping files from HibernateEnvironment.
+    public static String[] getMappingFilesFromProject(FileObject fileObj) {
+        org.netbeans.api.project.Project enclosingProject = org.netbeans.api.project.FileOwnerQuery.getOwner(fileObj);
+        org.netbeans.modules.hibernate.service.HibernateEnvironment env = enclosingProject.getLookup().lookup(org.netbeans.modules.hibernate.service.HibernateEnvironment.class);
+        return env.getAllHibernateMappings(enclosingProject).toArray(new String[]{});
+    }
+
     
     public static SourceGroup[] getJavaSourceGroups(HibernateCfgDataObject dObj) throws java.io.IOException {
         Project proj = FileOwnerQuery.getOwner(dObj.getPrimaryFile());

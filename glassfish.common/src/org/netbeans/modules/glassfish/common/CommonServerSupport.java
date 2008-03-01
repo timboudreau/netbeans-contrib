@@ -57,6 +57,7 @@ import org.netbeans.spi.glassfish.GlassfishModule.OperationState;
 import org.netbeans.spi.glassfish.GlassfishModule.ServerState;
 import org.netbeans.spi.glassfish.OperationStateListener;
 import org.openide.util.ChangeSupport;
+import org.openide.util.RequestProcessor;
 
 
 /**
@@ -75,15 +76,14 @@ public class CommonServerSupport implements GlassfishModule {
     
     private ChangeSupport changeSupport = new ChangeSupport(this);
     
-    
-    CommonServerSupport(final String displayName, final String homeFolder) {
-        // !PW FIXME Default these 5 for now...
-        final String adminName = "admin";
-        final String adminPassword = "adminadmin";
-        final String adminPort = "4848";
-        final String hostName = "localhost";
-        final String httpPort = "8080";
-        final int httpPortInt = 8080;
+    CommonServerSupport(final String displayName, final String homeFolder, int httpPort, int adminPort) {
+        final String hostName = GlassfishInstance.DEFAULT_HOST_NAME;
+        if(adminPort < 0) {
+            adminPort = GlassfishInstance.DEFAULT_ADMIN_PORT;
+        }
+        if(httpPort < 0) {
+            httpPort = GlassfishInstance.DEFAULT_HTTP_PORT;
+        }
         
         properties.put(DISPLAY_NAME_ATTR, displayName);
         properties.put(HOME_FOLDER_ATTR, homeFolder);
@@ -92,13 +92,13 @@ public class CommonServerSupport implements GlassfishModule {
                 hostName + ":" + httpPort;
         properties.put(URL_ATTR, deployerUrl);
         
-        properties.put(USERNAME_ATTR, adminName);
-        properties.put(PASSWORD_ATTR, adminPassword);
-        properties.put(ADMINPORT_ATTR, adminPort);
-        properties.put(HTTPPORT_ATTR, httpPort);
+        properties.put(USERNAME_ATTR, GlassfishInstance.DEFAULT_ADMIN_NAME);
+        properties.put(PASSWORD_ATTR, GlassfishInstance.DEFAULT_ADMIN_PASSWORD);
+        properties.put(ADMINPORT_ATTR, Integer.toString(adminPort));
+        properties.put(HTTPPORT_ATTR, Integer.toString(httpPort));
         properties.put(HOSTNAME_ATTR, hostName);
         
-        boolean isRunning = isRunning(hostName, httpPortInt);
+        boolean isRunning = isRunning(hostName, httpPort);
         setServerState(isRunning ? ServerState.RUNNING : ServerState.STOPPED);
     }
     
@@ -174,7 +174,7 @@ public class CommonServerSupport implements GlassfishModule {
         };
         FutureTask<OperationState> task = new FutureTask<OperationState>(
                 new StartTask(properties, null, startServerListener, stateListener));
-        task.run();
+        RequestProcessor.getDefault().post(task);
         return task;
     }
 
@@ -193,12 +193,17 @@ public class CommonServerSupport implements GlassfishModule {
         };
         FutureTask<OperationState> task = new FutureTask<OperationState>(
                 new StopTask(properties, stopServerListener, stateListener));
-        task.run();
+        RequestProcessor.getDefault().post(task);
         return task;
     }
     
     public Future<OperationState> deploy(final OperationStateListener stateListener, 
             final File application, final String name) {
+        return deploy(stateListener, application, name, null);
+    }
+
+    public Future<OperationState> deploy(final OperationStateListener stateListener, 
+            final File application, final String name, final String contextRoot) {
         OperationStateListener deployListener = new OperationStateListener() {
             public void operationStateChanged(OperationState newState, String message) {
                 System.out.println(newState.toString() + ": " + message);
@@ -206,9 +211,9 @@ public class CommonServerSupport implements GlassfishModule {
         };
         
         CommandRunner mgr = new CommandRunner(getInstanceProperties(), deployListener, stateListener);
-        return mgr.deploy(application, name);
+        return mgr.deploy(application, name, contextRoot);
     }
-
+    
     public Future<OperationState> undeploy(final OperationStateListener stateListener, final String name) {
         OperationStateListener undeployListener = new OperationStateListener() {
             public void operationStateChanged(OperationState newState, String message) {

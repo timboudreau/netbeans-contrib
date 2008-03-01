@@ -20,17 +20,6 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.sun;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
-
 /**
  *
  * @author Satyaranjan

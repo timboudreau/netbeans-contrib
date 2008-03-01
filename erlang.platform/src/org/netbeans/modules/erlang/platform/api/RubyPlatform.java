@@ -720,7 +720,7 @@ public final class RubyPlatform {
             pcs.firePropertyChange("gems", null, null); //NOI18N
         }
     }
-    
+        
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

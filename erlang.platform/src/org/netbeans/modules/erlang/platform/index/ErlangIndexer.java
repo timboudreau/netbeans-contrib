@@ -23,14 +23,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import javax.swing.text.Document;
-import org.netbeans.modules.gsf.api.Index;
 import org.netbeans.modules.gsf.api.Indexer;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
@@ -45,10 +39,10 @@ import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
 import org.netbeans.modules.erlang.editing.semantic.ErlInclude;
 import org.netbeans.modules.erlang.editing.semantic.ErlModule;
 import org.netbeans.modules.erlang.editing.semantic.ErlRecord;
-import org.netbeans.modules.erlang.editing.spi.ErlangIndexProvider;
 import org.netbeans.modules.erlang.platform.api.RubyPlatformManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
@@ -77,12 +71,9 @@ public class ErlangIndexer implements Indexer {
     private static final boolean PREINDEXING = Boolean.getBoolean("gsf.preindexing");
 
     /** Fields of Module Document for Lucene */
+    /** Fully Qualified Name */
     static final String FIELD_FQN_NAME = "fqn"; //NOI18N
     static final String FIELD_FILEURL = "source"; // NOI18N
-    static final String FIELD_MODULE_NAME = "module"; //NOI18N
-    static final String FIELD_CASE_INSENSITIVE_MODULE_NAME = "module-ig"; //NOI18N
-    static final String FIELD_HEADER_NAME = "header";
-    static final String FIELD_CASE_INSENSITIVE_HEADER_NAME = "header-ig"; //NOI18N
     static final String FIELD_EXPORT = "export"; //NOI18N
     static final String FIELD_EXPORTS = "exports"; //NOI18N
     static final String FIELD_IMPORT = "import"; //NOI18N
@@ -96,12 +87,7 @@ public class ErlangIndexer implements Indexer {
     static final String FIELD_ATTRS = "attrs"; //NOI18N
 
 
-    private static InputOutput io = IOProvider.getDefault().getIO("Info", false);
-    
-    
-    private IndexDocumentFactory factory;
-    private List<IndexDocument> documents = new ArrayList<IndexDocument>();
-    
+    private static InputOutput io = IOProvider.getDefault().getIO("Info", false);        
     
     public ErlangIndexer() {
     }
@@ -112,7 +98,7 @@ public class ErlangIndexer implements Indexer {
             url = file.toURI().toURL().toExternalForm();
             // Make relative URLs for urls in the libraries
             //return RubyIndex.getPreindexUrl(url);
-            return file.getPath();
+            return url;
         } catch (MalformedURLException ex) {
             Exceptions.printStackTrace(ex);
             return file.getPath();
@@ -201,13 +187,16 @@ public class ErlangIndexer implements Indexer {
     /** Travel through parsed result (ErlRoot), and index meta-data */
     private static class TreeAnalyzer {
 
+        private enum Type {
+            Module,
+            Header
+        }
+
         private ParserFile file;
         private String url;
         private String imports;
         private ErlangLanguageParserResult result;
-        private BaseDocument doc;
-        private Index index;
-        private ErlangIndexProvider.Type type = ErlangIndexProvider.Type.Header;
+        private Type type = Type.Header;
         private IndexDocumentFactory factory;
         private List<IndexDocument> documents = new ArrayList<IndexDocument>();
 
@@ -217,22 +206,20 @@ public class ErlangIndexer implements Indexer {
             this.factory = factory;
 
             FileObject fo = file.getFileObject();
+            if (fo.getExt().equals("hrl")) {
+                this.type = Type.Header;
+            } else {
+                this.type = Type.Module;
+            }
+            
             try {
-                this.doc = getBaseDocument(fo, true);
-                String ext = fo.getExt();
-                if (ext.equals("hrl")) {
-                    this.type = ErlangIndexProvider.Type.Header;
-                } else {
-                    this.type = ErlangIndexProvider.Type.Module;
-                }
-
                 url = file.getFileObject().getURL().toExternalForm();
                 if (PREINDEXING) {
                     // Make relative URLs for preindexed data structures
                     //url = ErlangIndex.getPreindexUrl(url);
                 }
-            } catch (IOException ioe) {
-                Exceptions.printStackTrace(ioe);
+            } catch (FileStateInvalidException ex) {
+                Exceptions.printStackTrace(ex);
             }
         }
 
@@ -241,60 +228,24 @@ public class ErlangIndexer implements Indexer {
         }
 
         public void analyze() throws IOException {
-            // Delete old contents of this file - if we're dealing with a user source file
-            if (!file.isPlatform()) {
-//                Set<Map<String, String>> indexedSet    = Collections.emptySet();
-//                Set<Map<String, String>> notIndexedSet = Collections.emptySet();
-//                Map<String, String> toDelete = new HashMap<String, String>();
-//                toDelete.put(FIELD_FILEURL, url);
-//
-//                try {
-//                    index.gsfStore(indexedSet, notIndexedSet, toDelete);
-//                } catch (IOException ioe) {
-//                    Exceptions.printStackTrace(ioe);
-//                }
-            }
-
             ErlContext rootCtx = result.getRootContext();
             if (rootCtx == null) {
                 return;
             }
 
-            FileObject fo = file.getFileObject();
-            String name = null;
-            if (type == ErlangIndexProvider.Type.Module) {
+            String fqn = null;
+            if (type == Type.Module) {
                 ErlModule module = rootCtx.getFirstDefinition(ErlModule.class);
                 if (module != null) {
-                    name = module.getName();
+                    fqn = module.getName();
                 }
             } else {
+                FileObject fo = file.getFileObject();
                 if (fo != null) {
-                    // header file name will contains ext(such as ".hrl")
-                    if (file.isPlatform()) {
-                        String libFolder = RubyPlatformManager.getDefaultPlatform().getLib();
-                        File libFolderFile = new File(libFolder);
-                        if (libFolderFile != null && libFolderFile.exists()) {
-                            FileObject libFolderObj = FileUtil.createData(libFolderFile);
-                            String relativePath = FileUtil.getRelativePath(libFolderObj, fo);
-                            String[] groups = relativePath.split(File.separator);
-                            String packageNameWithVersion = groups.length >= 1 ? groups[0] : relativePath;
-                            // Remove version number:
-                            int dashIdx = packageNameWithVersion.lastIndexOf('-');
-                            String packageName = dashIdx != -1 ? packageNameWithVersion.substring(0, dashIdx) : packageNameWithVersion;
-                            name = packageName;
-                            for (int i = 1; i < groups.length; i++) {
-                                name = name + "/" + groups[i];
-                            }
-                        } else {
-                            /** Something must be wrong if this happens: */
-                            name = null;
-                        }
-                    } else {
-                        name = fo.getNameExt();
-                    }
+                    fqn = getHeaderFqn(fo);              
                 }
             }
-            if (name == null) {
+            if (fqn == null) {
                 return;
             }
             /** we will index exported functions and, defined macros etc */
@@ -315,15 +266,45 @@ public class ErlangIndexer implements Indexer {
              */
 
             /** The following code is currently for updating the timestamp only */
-            analyzeModule(type, name, includes, exports, records, macros);
+            analyzeModule(fqn, includes, exports, records, macros);
         }
 
-        private void analyzeModule(ErlangIndexProvider.Type type, String name, Collection<ErlInclude> includes, Collection<ErlExport> exports, Collection<ErlRecord> records, Collection<ErlMacro> macros) {
+        /** 
+         * @NOTE Add "lib;" before header file fqn of lib, it also contains its ext (such as ".hrl")
+         */
+        private String getHeaderFqn(FileObject fo) {
+            FileObject libFo = RubyPlatformManager.getDefaultPlatform().getLibFO();
+            assert libFo != null;
+            String relativePath = FileUtil.getRelativePath(libFo, fo);
+            /** 
+             * @NOTE: we can not rely on file.isPlatform here: when a platform file
+             * is opened in editor, the file.isPlatform seems always return false; 
+             */
+            if (relativePath == null) {
+                // not a platform lib file
+                return fo.getNameExt();
+            }
+
+            String[] groups = relativePath.split(File.separator);
+            String packageNameWithVersion = groups.length >= 1 ? groups[0] : relativePath;
+            // Remove version number:
+            int dashIdx = packageNameWithVersion.lastIndexOf('-');
+            String packageName = dashIdx != -1 ? packageNameWithVersion.substring(0, dashIdx) : packageNameWithVersion;
+            StringBuilder sb = new StringBuilder(30);
+            sb.append("lib;").append(packageName);
+            for (int i = 1; i < groups.length; i++) {
+                sb.append("/").append(groups[i]);
+            }
+            return sb.toString();
+        }
+
+        private void analyzeModule(String fqn, Collection<ErlInclude> includes, Collection<ErlExport> exports, Collection<ErlRecord> records, Collection<ErlMacro> macros) {
             /** Add a Lucene document */
             IndexDocument document = factory.createDocument(40); // TODO - measure!
             documents.add(document);
 
-            String attributes = type == ErlangIndexProvider.Type.Module ? "m" : "h";
+            String typeAttr = type == Type.Module ? "m" : "h";
+            String attrs = typeAttr;
 
             /** @TODO */
             //boolean isDocumented = isDocumented(node);
@@ -332,18 +313,9 @@ public class ErlangIndexer implements Indexer {
             //if (documentSize > 0) {
             //    attributes = attributes + "d(" + documentSize + ")";
             //}
-            document.addPair(FIELD_ATTRS, attributes, false);
+            document.addPair(FIELD_ATTRS, attrs, false);
 
-            switch (type) {
-                case Module:
-                    document.addPair(FIELD_MODULE_NAME, name, true);
-                    document.addPair(FIELD_CASE_INSENSITIVE_MODULE_NAME, name.toLowerCase(), true);
-                    break;
-                case Header:
-                    document.addPair(FIELD_HEADER_NAME, name, true);
-                    document.addPair(FIELD_CASE_INSENSITIVE_HEADER_NAME, name.toLowerCase(), true);
-                    break;
-            }
+            document.addPair(FIELD_FQN_NAME, fqn, true);
 
             // TODO:
             //addIncluded(indexed);
@@ -351,7 +323,7 @@ public class ErlangIndexer implements Indexer {
             //    document.addPair(FIELD_INCLUDES, incudles, false);
             //}
             // Indexed so we can locate these documents when deleting/updating
-            document.addPair(FIELD_FILEURL, url, true);
+            //document.addPair(FIELD_FILEURL, url, true);
 
             for (ErlInclude include : includes) {
                 indexInclude(include, document);
@@ -379,27 +351,21 @@ public class ErlangIndexer implements Indexer {
 
             boolean isDocumented = false; // @TODO isDocumented(childNode);
             if (isDocumented) {
-                sb.append(":").append("d");
+                sb.append(";").append("d");
             } else {
-                sb.append(":").append("");
+                sb.append(";").append("");
             }
 
-            sb.append(":" + function.getArity());
+            sb.append(";").append(String.valueOf(function.getArity()));
 
-            sb.append(":").append(function.getOffset() + ":" + function.getEndOffset());
+            sb.append(";").append(String.valueOf(function.getOffset()));
+            sb.append(";").append(String.valueOf(function.getEndOffset()));
 
             for (String argumentsOpt : function.getArgumentsOpts()) {
-                sb.append(":").append(argumentsOpt);
+                sb.append(";").append(argumentsOpt);
             }
 
             document.addPair(FIELD_FUNCTION, sb.toString(), true);
-
-
-            // Storing a lowercase method name is kinda pointless in
-            // Ruby because the convention is to use all lowercase characters
-            // (using _ to separate words rather than camel case) so we're
-            // bloating the database for very little practical use here...
-            //ru.put(FIELD_CASE_INSENSITIVE_METHOD_NAME, name.toLowerCase());
         }
 
         private void indexInclude(ErlInclude include, IndexDocument document) {
@@ -408,23 +374,17 @@ public class ErlangIndexer implements Indexer {
 
             boolean isDocumented = false; // @TODO isDocumented(childNode);
             if (isDocumented) {
-                sb.append(":").append("d");
+                sb.append(";").append("d");
             } else {
-                sb.append(":").append("");
+                sb.append(";").append("");
             }
 
-            sb.append(":" + include.isLib());
+            sb.append(";").append(String.valueOf(include.isLib()));
 
-            sb.append(":").append(include.getOffset() + ":" + include.getEndOffset());
+            sb.append(";").append(String.valueOf(include.getOffset()));
+            sb.append(";").append(String.valueOf(include.getEndOffset()));
 
             document.addPair(FIELD_INCLUDE, sb.toString(), true);
-
-
-            // Storing a lowercase method name is kinda pointless in
-            // Ruby because the convention is to use all lowercase characters
-            // (using _ to separate words rather than camel case) so we're
-            // bloating the database for very little practical use here...
-            //ru.put(FIELD_CASE_INSENSITIVE_METHOD_NAME, name.toLowerCase());
         }
 
         private void indexRecord(ErlRecord record, IndexDocument document) {
@@ -433,27 +393,21 @@ public class ErlangIndexer implements Indexer {
 
             boolean isDocumented = false; // @TODO isDocumented(childNode);
             if (isDocumented) {
-                sb.append(":").append("d");
+                sb.append(";").append("d");
             } else {
-                sb.append(":").append("");
+                sb.append(";").append("");
             }
 
-            sb.append(":" + record.getFields().size());
+            sb.append(";").append(String.valueOf(record.getFields().size()));
 
-            sb.append(":").append(record.getOffset() + ":" + record.getEndOffset());
+            sb.append(";").append(String.valueOf(record.getOffset()));
+            sb.append(";").append(String.valueOf(record.getEndOffset()));
 
             for (String field : record.getFields()) {
-                sb.append(":").append(field);
+                sb.append(";").append(field);
             }
 
             document.addPair(FIELD_RECORD, sb.toString(), true);
-
-
-            // Storing a lowercase method name is kinda pointless in
-            // Ruby because the convention is to use all lowercase characters
-            // (using _ to separate words rather than camel case) so we're
-            // bloating the database for very little practical use here...
-            //ru.put(FIELD_CASE_INSENSITIVE_METHOD_NAME, name.toLowerCase());
         }
 
         private void indexMacro(ErlMacro macro, IndexDocument document) {
@@ -462,29 +416,23 @@ public class ErlangIndexer implements Indexer {
 
             boolean isDocumented = false; // @TODO isDocumented(childNode);
             if (isDocumented) {
-                sb.append(":").append("d");
+                sb.append(";").append("d");
             } else {
-                sb.append(":").append("");
+                sb.append(";").append("");
             }
 
-            sb.append(":" + macro.getParams().size());
+            sb.append(";").append(String.valueOf(macro.getParams().size()));
 
-            sb.append(":").append(macro.getOffset() + ":" + macro.getEndOffset());
+            sb.append(";").append(String.valueOf(macro.getOffset()));
+            sb.append(";").append(String.valueOf(macro.getEndOffset()));
 
             for (String param : macro.getParams()) {
-                sb.append(":").append(param);
+                sb.append(";").append(param);
             }
 
-            sb.append(":").append(macro.getBody());
+            sb.append(";").append(macro.getBody());
 
             document.addPair(FIELD_MACRO, sb.toString(), true);
-
-
-            // Storing a lowercase method name is kinda pointless in
-            // Ruby because the convention is to use all lowercase characters
-            // (using _ to separate words rather than camel case) so we're
-            // bloating the database for very little practical use here...
-            //ru.put(FIELD_CASE_INSENSITIVE_METHOD_NAME, name.toLowerCase());
         }
     } // end of inner class TreeAnalyzer
 

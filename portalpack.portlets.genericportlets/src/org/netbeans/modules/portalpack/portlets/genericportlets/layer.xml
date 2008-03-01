@@ -255,6 +255,12 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
+            <!-- Eventing templates -->
+            
+            <file name="ipcgenerateevent.template" url="nbresloc:templates/ipcgenerateevent.template">
+                <attr name="position" intvalue="0"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+            </file>
         </folder>
     </folder>
     

@@ -329,7 +329,8 @@ final class IndexBrowserTopComponent extends TopComponent {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, "Key:");
 
-        keyCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "func", "class", "method", "field", "attribute", "constant", "fqn", "file", "module", "extends", "require", "dbtable" }));
+        keyCombo.setEditable(true);
+        keyCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "base", "fqn", "class", "method", "field", "attribute", "constant", "fqn", "file", "module", "extends", "require", "dbtable", "clz", "lcbase" }));
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, "Name:");
 
@@ -396,10 +397,10 @@ final class IndexBrowserTopComponent extends TopComponent {
                 .add(prevButton)
                 .add(6, 6, 6)
                 .add(nextButton)
-                .addContainerGap(225, Short.MAX_VALUE))
+                .addContainerGap(209, Short.MAX_VALUE))
             .add(jPanel2Layout.createSequentialGroup()
                 .add(20, 20, 20)
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE))
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 537, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -410,7 +411,7 @@ final class IndexBrowserTopComponent extends TopComponent {
                     .add(prevButton)
                     .add(nextButton))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE))
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE))
         );
 
         jSplitPane1.setRightComponent(jPanel2);
@@ -444,7 +445,7 @@ final class IndexBrowserTopComponent extends TopComponent {
                     .add(languageCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jButton1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 493, Short.MAX_VALUE))
+                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -489,7 +490,7 @@ final class IndexBrowserTopComponent extends TopComponent {
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 763, Short.MAX_VALUE)
+                        .add(jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 780, Short.MAX_VALUE)
                         .addContainerGap())
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
@@ -523,7 +524,7 @@ final class IndexBrowserTopComponent extends TopComponent {
                     .add(layout.createSequentialGroup()
                         .add(jLabel7)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(selectedElementField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 694, Short.MAX_VALUE)
+                        .add(selectedElementField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 716, Short.MAX_VALUE)
                         .addContainerGap())))
         );
         layout.setVerticalGroup(

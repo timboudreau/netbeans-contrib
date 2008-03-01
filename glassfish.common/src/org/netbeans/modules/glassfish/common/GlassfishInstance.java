@@ -51,10 +51,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
+import javax.swing.event.ChangeListener;
 import org.netbeans.modules.glassfish.common.nodes.Hk2InstanceNode;
 import org.netbeans.api.server.ServerInstance;
 import org.netbeans.spi.glassfish.GlassfishModuleFactory;
 import org.netbeans.spi.glassfish.GlassfishModule.OperationState;
+import org.netbeans.spi.glassfish.GlassfishModule.ServerState;
 import org.netbeans.spi.server.ServerInstanceFactory;
 import org.netbeans.spi.server.ServerInstanceImplementation;
 import org.openide.nodes.Node;
@@ -73,6 +75,16 @@ public class GlassfishInstance implements ServerInstanceImplementation {
     // !PW FIXME Can we extrace the server name from the install?  That way,
     // perhaps we can distinguish between GF V3 and Sun AS 10.0
     public static final String GLASSFISH_SERVER_NAME = "GlassFish V3 New Preview";
+
+    // Reasonable default values for various server parameters.  Note, don't use
+    // these unless the server's actual setting cannot be determined in any way.
+    public static final String DEFAULT_HOST_NAME = "localhost"; // NOI18N
+    public static final String DEFAULT_ADMIN_NAME = "admin"; // NOI18N
+    public static final String DEFAULT_ADMIN_PASSWORD = "adminadmin"; // NOI18N
+    public static final int DEFAULT_HTTP_PORT = 8080;
+    public static final int DEFAULT_HTTPS_PORT = 8181;
+    public static final int DEFAULT_ADMIN_PORT = 4848;
+
     
     // Server properties
     private boolean removable = true;
@@ -86,8 +98,8 @@ public class GlassfishInstance implements ServerInstanceImplementation {
     private ServerInstance commonInstance;
     
 
-    GlassfishInstance(String displayName, String homeFolder) {
-        commonSupport = new CommonServerSupport(displayName, homeFolder);
+    GlassfishInstance(String displayName, String homeFolder, int httpPort, int adminPort) {
+        commonSupport = new CommonServerSupport(displayName, homeFolder, httpPort, adminPort);
 
         ic = new InstanceContent();
         lookup = new AbstractLookup(ic);
@@ -142,10 +154,12 @@ public class GlassfishInstance implements ServerInstanceImplementation {
      * 
      * @param displayName display name for this server instance.
      * @param homeFolder install folder where server code is located.
+     * @param httpPort http port for this server instance.
+     * @param adminPort admin port for this server instance.
      * @return GlassfishInstance object for this server instance.
      */
-    public static GlassfishInstance create(String displayName, String homeFolder) {
-        GlassfishInstance result = new GlassfishInstance(displayName, homeFolder);
+    public static GlassfishInstance create(String displayName, String homeFolder, int httpPort, int adminPort) {
+        GlassfishInstance result = new GlassfishInstance(displayName, homeFolder, httpPort, adminPort);
         result.commonInstance = ServerInstanceFactory.createServerInstance(result);
         return result;
     }
@@ -154,6 +168,10 @@ public class GlassfishInstance implements ServerInstanceImplementation {
         return commonInstance;
     }
         
+    public CommonServerSupport getCommonSupport() {
+        return commonSupport;
+    }
+    
     public String getDeployerUri() {
         return commonSupport.getDeployerUri();
     }
@@ -164,6 +182,18 @@ public class GlassfishInstance implements ServerInstanceImplementation {
     
     public Lookup getLookup() {
         return lookup;
+    }
+    
+    public void addChangeListener(final ChangeListener listener) {
+        commonSupport.addChangeListener(listener);
+    }
+
+    public void removeChangeListener(final ChangeListener listener) {
+        commonSupport.removeChangeListener(listener);
+    }
+    
+    public ServerState getServerState() {
+        return commonSupport.getServerState();
     }
     
     // ------------------------------------------------------------------------
@@ -179,12 +209,12 @@ public class GlassfishInstance implements ServerInstanceImplementation {
 
     public Node getFullNode() {
         Logger.getLogger("glassfish").log(Level.INFO, "Creating GF Instance node [FULL]");
-        return new Hk2InstanceNode(lookup, true);
+        return new Hk2InstanceNode(this, true);
     }
 
     public Node getBasicNode() {
         Logger.getLogger("glassfish").log(Level.INFO, "Creating GF Instance node [BASIC]");
-        return new Hk2InstanceNode(lookup, false);
+        return new Hk2InstanceNode(this, false);
     }
     
     public JComponent getCustomizer() {

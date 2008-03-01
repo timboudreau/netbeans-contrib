@@ -24,7 +24,7 @@
     <localizing-bundle>org.netbeans.modules.portalpack.saw.Bundle</localizing-bundle>
     <volume>
         <type>classpath</type>
-        <resource>jar:nbinst:///modules/ext/portalpack/saw/saw-api-0.2.jar!/</resource>
+        <resource>jar:nbinst:///modules/ext/portalpack/saw/saw-api-0.4.jar!/</resource>
     </volume>
     <volume>
         <type>src</type>

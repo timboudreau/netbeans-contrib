@@ -38,6 +38,7 @@
  */
 package org.netbeans.modules.hibernate.completion;
 
+import org.netbeans.modules.hibernate.editor.HibernateEditorUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -170,7 +171,7 @@ public abstract class Completor {
                 Document doc = context.getDocument();
                 final String typedChars = context.getTypedPrefix();
 
-                JavaSource js = HibernateCompletionEditorUtil.getJavaSource(doc);
+                JavaSource js = HibernateEditorUtil.getJavaSource(doc);
                 if (js == null) {
                     return Collections.emptyList();
                 }
@@ -280,14 +281,14 @@ public abstract class Completor {
             final int caretOffset = context.getCaretOffset();
             final String typedChars = context.getTypedPrefix();
 
-            final String className = HibernateCompletionEditorUtil.getClassName(context.getTag());
+            final String className = HibernateEditorUtil.getClassName(context.getTag());
             if (className == null) {
                 return Collections.emptyList();
             }
 
             try {
                 // Compile the class and find the fiels
-                JavaSource classJavaSrc = HibernateCompletionEditorUtil.getJavaSource(context.getDocument());
+                JavaSource classJavaSrc = HibernateEditorUtil.getJavaSource(context.getDocument());
                 classJavaSrc.runUserActionTask(new Task<CompilationController>() {
 
                     public void run(CompilationController cc) throws Exception {
@@ -331,7 +332,7 @@ public abstract class Completor {
             int caretOffset = context.getCaretOffset();
             String typedChars = context.getTypedPrefix();
 
-            List<String> tableNames = getDatabaseTableNamesFromProject(context);
+            List<String> tableNames = getDatabaseTableNamesForThisMappingFile(context);
 
             for (String tableName : tableNames) {
                 HibernateCompletionItem item = HibernateCompletionItem.createDatabaseTableItem(
@@ -344,12 +345,13 @@ public abstract class Completor {
             return results;
         }
 
-        private List<String> getDatabaseTableNamesFromProject(CompletionContext context) {
+        private List<String> getDatabaseTableNamesForThisMappingFile(CompletionContext context) {
             List<String> tableNames = new ArrayList<String>();
+            FileObject mappingFile = org.netbeans.modules.editor.NbEditorUtilities.getFileObject(context.getDocument());
             org.netbeans.api.project.Project enclosingProject = org.netbeans.api.project.FileOwnerQuery.getOwner(
-                    org.netbeans.modules.editor.NbEditorUtilities.getFileObject(context.getDocument()));
+                    mappingFile);
             org.netbeans.modules.hibernate.service.HibernateEnvironment env = enclosingProject.getLookup().lookup(org.netbeans.modules.hibernate.service.HibernateEnvironment.class);
-            tableNames = env.getAllDatabaseTablesForProject();
+            tableNames = env.getDatabaseTables(mappingFile);
             return tableNames;
         }
     }
@@ -365,7 +367,7 @@ public abstract class Completor {
             int caretOffset = context.getCaretOffset();
             String typedChars = context.getTypedPrefix();
 
-            final String tableName = HibernateCompletionEditorUtil.getTableName(context.getTag());
+            final String tableName = HibernateEditorUtil.getTableName(context.getTag());
 
             if (tableName == null) {
                 return Collections.emptyList();
@@ -457,16 +459,11 @@ public abstract class Completor {
         
         // Gets the list of mapping files from HibernateEnvironment.
         private String[] getMappingFilesFromProject(CompletionContext context) {
-            ArrayList<String> mappingFiles = new ArrayList<String>();
             org.netbeans.api.project.Project enclosingProject = org.netbeans.api.project.FileOwnerQuery.getOwner(
                     org.netbeans.modules.editor.NbEditorUtilities.getFileObject(context.getDocument())
                     );
             org.netbeans.modules.hibernate.service.HibernateEnvironment env = enclosingProject.getLookup().lookup(org.netbeans.modules.hibernate.service.HibernateEnvironment.class);
-            ArrayList<FileObject> mappingFileObjects = env.getAllHibernateMappingFileObjects(enclosingProject);
-            for(FileObject fo : mappingFileObjects) {
-                mappingFiles.add(fo.getPath());
-            }
-            return mappingFiles.toArray(new String[]{});
+            return env.getAllHibernateMappings(enclosingProject).toArray(new String[]{});
         }
     }
 }

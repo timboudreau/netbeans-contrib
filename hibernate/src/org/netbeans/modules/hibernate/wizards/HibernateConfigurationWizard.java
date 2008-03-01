@@ -73,6 +73,8 @@ public class HibernateConfigurationWizard implements WizardDescriptor.Instantiat
     private final String dialect = "hibernate.dialect";
     private final String driver = "hibernate.connection.driver_class";
     private final String url = "hibernate.connection.url";
+    private final String userName = "hibernate.connection.username";
+    private final String password = "hibernate.connection.password";
 
     public static HibernateConfigurationWizard create() {
         return new HibernateConfigurationWizard();
@@ -180,7 +182,9 @@ public class HibernateConfigurationWizard implements WizardDescriptor.Instantiat
     public void initialize(WizardDescriptor wizard) {
         this.wizard = wizard;
         project = Templates.getProject(wizard);
-        descriptor = new HibernateConfigurationWizardDescriptor(project);
+        descriptor = new HibernateConfigurationWizardDescriptor(project);        
+        FileObject sourceRoot = Util.getSourceRoot(project);        
+        Templates.setTargetFolder(wizard, sourceRoot);         
     }
 
     public void uninitialize(WizardDescriptor wizard) {
@@ -210,6 +214,14 @@ public class HibernateConfigurationWizard implements WizardDescriptor.Instantiat
         if (descriptor.getURL() != null && !"".equals(descriptor.getURL())) {
             int row = sFactory.addProperty2(descriptor.getURL());
             sFactory.setAttributeValue(SessionFactory.PROPERTY2, row, "name", url);
+        }
+        if (descriptor.getUserName() != null && !"".equals(descriptor.getUserName())) {
+            int row = sFactory.addProperty2(descriptor.getUserName());
+            sFactory.setAttributeValue(SessionFactory.PROPERTY2, row, "name", userName);
+        }
+        if (descriptor.getPassword() != null && !"".equals(descriptor.getPassword())) {
+            int row = sFactory.addProperty2(descriptor.getPassword());
+            sFactory.setAttributeValue(SessionFactory.PROPERTY2, row, "name", password);
         }
         try {
             HibernateCfgDataObject hdo = (HibernateCfgDataObject) newOne;

@@ -51,7 +51,6 @@ import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.hibernate.cfg.model.HibernateConfiguration;
 import org.netbeans.modules.hibernate.cfg.model.SessionFactory;
 import org.netbeans.modules.hibernate.util.HibernateUtil;
-import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
@@ -96,9 +95,17 @@ public class HibernateEnvironment {
     
     public ArrayList<String> getDatabaseTables(FileObject mappingFile) {
         ArrayList<String> databaseTables = new ArrayList<String>();
-        for(HibernateConfiguration configuration : getAllHibernateConfigurationsFromProject()) {
-            //TODO how to compare? oneis file with full path and another is just a relative path..
-            //if(mappingFile.getName())
+        try {
+            ArrayList<HibernateConfiguration> configurations = getHibernateConfigurationForMappingFile(mappingFile);
+            if(configurations.size() == 0 ) {
+                //This mapping file does not belong to any configuration file.
+                return databaseTables;
+            }
+            databaseTables.addAll(HibernateUtil.getAllDatabaseTables(configurations.toArray(new HibernateConfiguration[]{})));
+        } catch (SQLException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (HibernateException ex) {
+            Exceptions.printStackTrace(ex);
         }
         return databaseTables;
     }
@@ -125,12 +132,24 @@ public class HibernateEnvironment {
     /**
      * Returns all mapping files defined under this project.
      * 
-     * @param project the project for ehcih the mapping files need to be found.
+     * @param project the project for all the mapping files need to be found.
      * @return List of FileObjects for mapping files.
      */
     public ArrayList<FileObject> getAllHibernateMappingFileObjects(Project project) {
         return HibernateUtil.getAllHibernateMappingFileObjects(project);
     }        
+    
+     /**
+     * Returns relaive source paths of all mapping files present in this project.
+     * 
+     * @param project the project for all the mapping files need to be found.
+     * @return List of FileObjects for mapping files.
+     */
+    public ArrayList<String> getAllHibernateMappings(Project project) {
+        return HibernateUtil.getAllHibernateMappingsRelativeToSourcePath(project);
+    }        
+    
+    
     /**
      * Connects to the DB using supplied HibernateConfigurations and gets the list of
      * all table names.
@@ -157,10 +176,19 @@ public class HibernateEnvironment {
      */
     public ArrayList<TableColumn> getColumnsForTable(String tableName, FileObject mappingFileObject) {
         ArrayList<TableColumn> columnNames = new ArrayList<TableColumn>();
-        columnNames = HibernateUtil.getColumnsForTable(
-                tableName,
-                getHibernateConfigurationForMappingFile(mappingFileObject)
-        );
+        ArrayList<HibernateConfiguration> hibernateConfigurations = 
+                getHibernateConfigurationForMappingFile(mappingFileObject);
+        if(hibernateConfigurations.size() == 0 ) {
+            // This mapping fileis not (yet) mapped to any config file.
+            return columnNames;
+        } else {
+            for(HibernateConfiguration hibernateConfiguration : hibernateConfigurations) {
+                columnNames.addAll(HibernateUtil.getColumnsForTable(
+                    tableName,
+                    hibernateConfiguration
+                ));
+            }
+        }
         
         return columnNames;
     }
@@ -209,15 +237,16 @@ public class HibernateEnvironment {
     }
 
     
-    private HibernateConfiguration getHibernateConfigurationForMappingFile(FileObject mappingFileObject)  {
+    private ArrayList<HibernateConfiguration> getHibernateConfigurationForMappingFile(FileObject mappingFileObject)  {
+        ArrayList<HibernateConfiguration> hibernateConfigurations = new ArrayList<HibernateConfiguration>();
         for(HibernateConfiguration config : getAllHibernateConfigurationsFromProject()) {
             for(String mappingFile : getAllHibernateMappingsFromConfiguration(config)) {
                 if(mappingFileObject.getPath().contains(mappingFile)) {
-                    return config;
+                    hibernateConfigurations.add(config);
                 }
             }
         }
-        return null ;// TODO fiix this.
+        return hibernateConfigurations;
     }
     /**
      * Returns the NetBeans project to which this HibernateEnvironment instance is bound.

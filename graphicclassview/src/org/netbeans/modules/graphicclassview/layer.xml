@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Edit">
+            <file name="org-netbeans-modules-graphicclassview-actions-GraphicViewAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-java">
+                <folder name="Popup">
+                    <file name="org-netbeans-modules-graphicclassview-actions-GraphicViewAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-graphicclassview-actions-GraphicViewAction.instance"/>
+                        <attr name="position" intvalue="1060"/>
+                    </file>
+                    <file name="org-netbeans-modules-graphicclassview-actions-separatorAfter.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1070"/>
+                    </file>
+                    <file name="org-netbeans-modules-graphicclassview-actions-separatorBefore.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1050"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-java">
+                <folder name="Actions">
+                    <file name="org-netbeans-modules-graphicclassview-actions-GraphicViewAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-graphicclassview-actions-GraphicViewAction.instance"/>
+                        <attr name="position" intvalue="201"/>
+                    </file>
+                    <file name="org-netbeans-modules-graphicclassview-actions-separatorAfter.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="299"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Source">
+            <file name="org-netbeans-modules-graphicclassview-actions-GraphicViewAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-graphicclassview-actions-GraphicViewAction.instance"/>
+                <attr name="position" intvalue="4200"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>

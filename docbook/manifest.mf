@@ -7,5 +7,5 @@ OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/docbook/Bundle.properties
 
 Name: org/netbeans/modules/docbook/DocBookDataLoader.class
 OpenIDE-Module-Class: Loader
-Install-Before: org.netbeans.modules.xml.core.XMLDataObject
+Install-Before: org.netbeans.modules.xml.XMLDataObject
 

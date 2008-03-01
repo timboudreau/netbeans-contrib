@@ -82,6 +82,7 @@ import org.netbeans.modules.scala.project.ui.customizer.J2SEProjectProperties;
 import org.netbeans.spi.java.project.support.ExtraSourceJavadocSupport;
 import org.netbeans.spi.java.project.support.LookupMergerSupport;
 import org.netbeans.spi.java.project.support.ui.BrokenReferencesSupport;
+import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.SubprojectProvider;
 import org.netbeans.spi.project.ant.AntArtifactProvider;
@@ -142,7 +143,7 @@ public final class J2SEProject implements Project, AntProjectListener {
     private SourceRoots sourceRoots;
     private SourceRoots testRoots;
     private final ClassPathProviderImpl cpProvider;
-    private final J2SEProjectClassPathModifier cpMod;    
+    private final J2SEProjectClassPathModifier cpMod;
 
     private AntBuildExtender buildExtender;
 
@@ -165,7 +166,9 @@ public final class J2SEProject implements Project, AntProjectListener {
 
         this.cpProvider = new ClassPathProviderImpl(this.helper, evaluator(), getSourceRoots(),getTestSourceRoots()); //Does not use APH to get/put properties/cfgdata
         this.cpMod = new J2SEProjectClassPathModifier(this, this.updateHelper, eval, refHelper);
-        lookup = createLookup(aux);
+        final J2SEActionProvider actionProvider = new J2SEActionProvider( this, this.updateHelper );
+        lookup = createLookup(aux, actionProvider);
+        actionProvider.startFSListener();
         helper.addAntProjectListener(this);
     }
 
@@ -178,7 +181,7 @@ public final class J2SEProject implements Project, AntProjectListener {
     }
 
     public String toString() {
-        return "J2SEProject[" + FileUtil.getFileDisplayName(getProjectDirectory()) + "]"; // NOI18N
+        return "ScalaProject[" + FileUtil.getFileDisplayName(getProjectDirectory()) + "]"; // NOI18N
     }
     
     private PropertyEvaluator createEvaluator() {
@@ -247,15 +250,16 @@ public final class J2SEProject implements Project, AntProjectListener {
         return helper;
     }
 
-    private Lookup createLookup(AuxiliaryConfiguration aux) {
-        SubprojectProvider spp = refHelper.createSubprojectProvider();
-        Lookup base = Lookups.fixed(new Object[] {
+    private Lookup createLookup(final AuxiliaryConfiguration aux,
+            final ActionProvider actionProvider) {
+        final SubprojectProvider spp = refHelper.createSubprojectProvider();        
+        final Lookup base = Lookups.fixed(new Object[] {
             J2SEProject.this,
             new Info(),
             aux,
             helper.createCacheDirectoryProvider(),
             spp,
-            new J2SEActionProvider( this, this.updateHelper ),
+            actionProvider,
             new J2SELogicalViewProvider(this, this.updateHelper, evaluator(), spp, refHelper),
             // new J2SECustomizerProvider(this, this.updateHelper, evaluator(), refHelper),
             new CustomizerProviderImpl(this, this.updateHelper, evaluator(), refHelper, this.genFilesHelper),        
@@ -296,11 +300,11 @@ public final class J2SEProject implements Project, AntProjectListener {
     public ClassPathProviderImpl getClassPathProvider () {
         return this.cpProvider;
     }
-
+    
     public J2SEProjectClassPathModifier getProjectClassPathModifier () {
         return this.cpMod;
     }
-    
+
     public void configurationXmlChanged(AntProjectEvent ev) {
         if (ev.getPath().equals(AntProjectHelper.PROJECT_XML_PATH)) {
             // Could be various kinds of changes, but name & displayName might have changed.
