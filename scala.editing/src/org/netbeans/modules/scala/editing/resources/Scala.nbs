@@ -357,6 +357,17 @@ TOKEN:bquote_identifier: (
     "`"
 )
 
+TOKEN:symbol: (
+    "\'"
+    (
+      ( ["a"-"z" "A"-"Z" "$" "_"] 
+        ( ["a"-"z" "A"-"Z" "$" "_" "0"-"9"] )* ( "_" ( [^" " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";" "=" ":" "{" "}"] )+ )?
+      )
+      |
+      ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]+
+    ) 
+)
+
 ### Literal
 TOKEN:string: (
     "\"" 
@@ -493,17 +504,11 @@ PlainId = <upper_identifier>
 NameId = PlainId
        | <bquote_identifier>;
 
-Symbol = <quote> (PlainId | Keyword);
-
-# all (<nl>)* behind ";" should also be consumed
-Semi = <semi> (<nl>)*
-     | (<nl>)+ [";" (<nl>)*];
-
 Literal = <integer>
         | <float>
         | <char>
         | <string>
-        | Symbol
+        | <symbol>
         | <true> 
         | <false>
         | <null>;
