@@ -89,9 +89,6 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Inst
     }
     
     private static WizardDescriptor.InstantiatingIterator getRealNewMakeProjectWizardIterator (FileObject template) {
-        if (true) {
-            return null;
-        }
         WizardDescriptor.InstantiatingIterator res = null;
         if (FoDFileSystem.getInstance().getParentFileSystem (template) != null) {
             return null;

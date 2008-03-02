@@ -93,13 +93,13 @@ public class ToBeContinuedStep implements WizardDescriptor.FinishablePanel<Wizar
 
     @SuppressWarnings ("unchecked")
     public void readSettings (WizardDescriptor settings) {
-        Object o = settings.getProperty (FeatureOnDemanWizardIterator.TEMPORARY_DELEGATE_ITERATOR);
-        assert o != null && o instanceof WizardDescriptor.InstantiatingIterator :
-            o + " is not null and instanceof WizardDescriptor.InstantiatingIterator";
-        WizardDescriptor.InstantiatingIterator iterator = (WizardDescriptor.InstantiatingIterator) o;
-        iterator.initialize (settings);
-        settings.putProperty (FeatureOnDemanWizardIterator.DELEGATE_ITERATOR, iterator);
-        //fireChange ();
+//        Object o = settings.getProperty (FeatureOnDemanWizardIterator.TEMPORARY_DELEGATE_ITERATOR);
+//        assert o != null && o instanceof WizardDescriptor.InstantiatingIterator :
+//            o + " is not null and instanceof WizardDescriptor.InstantiatingIterator";
+//        WizardDescriptor.InstantiatingIterator iterator = (WizardDescriptor.InstantiatingIterator) o;
+//        iterator.initialize (settings);
+//        settings.putProperty (FeatureOnDemanWizardIterator.DELEGATE_ITERATOR, iterator);
+//        //fireChange ();
     }
 
     public void storeSettings (WizardDescriptor settings) {
