@@ -66,6 +66,10 @@ public class FeatureAction implements ActionListener, Runnable {
     public void actionPerformed(ActionEvent e) {
         success = false;
         RequestProcessor.getDefault().post(this, 0, Thread.NORM_PRIORITY).waitFinished();
+        
+        if (! success) {
+            return ;
+        }
 
         FileObject newFile = Repository.getDefault().getDefaultFileSystem().findResource(fo.getPath());
         if (newFile == null) {
@@ -87,13 +91,18 @@ public class FeatureAction implements ActionListener, Runnable {
         Collection<UpdateElement> toEnable = findModules.getModulesForEnable();
         if (toInstall != null && !toInstall.isEmpty()) {
             ModulesInstaller installer = new ModulesInstaller(toInstall);
-            installer.getInstallTask().waitFinished();
-            success = true;
+            installer.getInstallTask ().schedule (10);
+            installer.getInstallTask ().waitFinished();
+            findModules.createFindingTask().waitFinished();
+            success = findModules.getModulesForInstall ().isEmpty ();
         } else if (toEnable != null && !toEnable.isEmpty()) {
             ModulesActivator enabler = new ModulesActivator(toEnable);
-            enabler.getEnableTask().waitFinished();
+            enabler.getEnableTask ().schedule (100);
+            enabler.getEnableTask ().waitFinished();
             success = true;
         }
-        FoDFileSystem.getInstance().refresh();
+        if (success) {
+            FoDFileSystem.getInstance().refresh();
+        }
     }
 }
