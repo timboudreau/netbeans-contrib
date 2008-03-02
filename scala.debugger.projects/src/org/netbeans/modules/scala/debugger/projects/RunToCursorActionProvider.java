@@ -77,8 +77,7 @@ public class RunToCursorActionProvider extends ActionsProviderSupport {
     private LineBreakpoint      breakpoint;
     
     {
-        editor = (EditorContext) DebuggerManager.
-            getDebuggerManager ().lookupFirst (null, EditorContext.class);
+        editor = DebuggerManager.getDebuggerManager ().lookupFirst (null, EditorContext.class);
         
         Listener listener = new Listener ();
         MainProjectManager.getDefault ().addPropertyChangeListener (listener);
@@ -210,8 +209,7 @@ public class RunToCursorActionProvider extends ActionsProviderSupport {
         }
         
         public void engineAdded (DebuggerEngine engine) {
-            JPDADebugger debugger = (JPDADebugger) engine.lookupFirst 
-                (null, JPDADebugger.class);
+            JPDADebugger debugger = engine.lookupFirst(null, JPDADebugger.class);
             if (debugger == null) return;
             debugger.addPropertyChangeListener (
                 JPDADebugger.PROP_STATE,
@@ -220,8 +218,7 @@ public class RunToCursorActionProvider extends ActionsProviderSupport {
         }
         
         public void engineRemoved (DebuggerEngine engine) {
-            JPDADebugger debugger = (JPDADebugger) engine.lookupFirst 
-                (null, JPDADebugger.class);
+            JPDADebugger debugger = engine.lookupFirst(null, JPDADebugger.class);
             if (debugger == null) return;
             debugger.removePropertyChangeListener (
                 JPDADebugger.PROP_STATE,
