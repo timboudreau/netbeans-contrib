@@ -55,7 +55,7 @@
             <Property name="lineWrap" type="boolean" value="true"/>
             <Property name="rows" type="int" value="5"/>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="org/netbeans/modules/moduleresolver/Bundle.properties" key="taMessage_RepairNotification" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;, {arguments})">
+              <ResourceString bundle="org/netbeans/modules/moduleresolver/Bundle.properties" key="taMessage_RepairNotification" replaceFormat="candidates.size () == 1 ? NbBundle.getMessage (RepairNotification.class, &quot;taMessage_RepairNotification_Once&quot;) : NbBundle.getMessage (RepairNotification.class, &quot;taMessage_RepairNotification_Many&quot;, candidates.size ())">
                 <Argument index="0" javacode="candidates.size ()"/>
                 <Argument index="1" javacode="candidates.size () == 1 ? sModule : sModules"/>
               </ResourceString>

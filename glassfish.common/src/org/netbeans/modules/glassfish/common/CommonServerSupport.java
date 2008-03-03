@@ -57,6 +57,7 @@ import org.netbeans.spi.glassfish.GlassfishModule.OperationState;
 import org.netbeans.spi.glassfish.GlassfishModule.ServerState;
 import org.netbeans.spi.glassfish.OperationStateListener;
 import org.openide.util.ChangeSupport;
+import org.openide.util.RequestProcessor;
 
 
 /**
@@ -173,7 +174,7 @@ public class CommonServerSupport implements GlassfishModule {
         };
         FutureTask<OperationState> task = new FutureTask<OperationState>(
                 new StartTask(properties, null, startServerListener, stateListener));
-        task.run();
+        RequestProcessor.getDefault().post(task);
         return task;
     }
 
@@ -192,12 +193,17 @@ public class CommonServerSupport implements GlassfishModule {
         };
         FutureTask<OperationState> task = new FutureTask<OperationState>(
                 new StopTask(properties, stopServerListener, stateListener));
-        task.run();
+        RequestProcessor.getDefault().post(task);
         return task;
     }
     
     public Future<OperationState> deploy(final OperationStateListener stateListener, 
             final File application, final String name) {
+        return deploy(stateListener, application, name, null);
+    }
+
+    public Future<OperationState> deploy(final OperationStateListener stateListener, 
+            final File application, final String name, final String contextRoot) {
         OperationStateListener deployListener = new OperationStateListener() {
             public void operationStateChanged(OperationState newState, String message) {
                 System.out.println(newState.toString() + ": " + message);
@@ -205,9 +211,9 @@ public class CommonServerSupport implements GlassfishModule {
         };
         
         CommandRunner mgr = new CommandRunner(getInstanceProperties(), deployListener, stateListener);
-        return mgr.deploy(application, name);
+        return mgr.deploy(application, name, contextRoot);
     }
-
+    
     public Future<OperationState> undeploy(final OperationStateListener stateListener, final String name) {
         OperationStateListener undeployListener = new OperationStateListener() {
             public void operationStateChanged(OperationState newState, String message) {

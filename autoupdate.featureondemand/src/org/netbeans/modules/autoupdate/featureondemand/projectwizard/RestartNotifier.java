@@ -71,7 +71,7 @@ public final class RestartNotifier implements StatusLineElementProvider {
      */
     private static Component getUpdatesVisualizer () {
         if (null == flasher) {
-            ImageIcon img1 = new ImageIcon (Utilities.loadImage ("org/netbeans/modules/moduleresolver/resources/restart.png", false)); // NOI18N
+            ImageIcon img1 = new ImageIcon (Utilities.loadImage ("org/netbeans/modules/autoupdate/featureondemand/resources/restart.png", false)); // NOI18N
             assert img1 != null : "Icon cannot be null.";
             flasher = new RestartIcon (img1);
         }

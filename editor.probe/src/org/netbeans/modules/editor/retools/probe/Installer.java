@@ -57,6 +57,7 @@ import org.openide.windows.WindowManager;
  */
 public class Installer extends ModuleInstall {
 
+    public static final Logger FLOG = Logger.getLogger("nbeditor.focus"); //NOI18N
     private static final Logger LOG = Logger.getLogger(Installer.class.getName());
     
     private static HttpServer server = null;
@@ -115,7 +116,13 @@ public class Installer extends ModuleInstall {
             + "<META HTTP-EQUIV=\"Refresh\" CONTENT=\"5; URL=/\" />" //NOI18N
             + "</head>" //NOI18N
             + "<body>" //NOI18N
-            + "<p>Editor Probe " + Probe.getVersion() + " is running...</p>" //NOI18N
+            + "<p>" //NOI18N
+            + "Editor Probe " + Probe.getVersion() + " is running...<br/>" //NOI18N
+            + (Probe.isJdkPatched() ? 
+                "The Probe's JDK patches detected, excellent!" : //NOI18N
+                "The Probe can't detect its JDK patches and is running with limited functionality only." //NOI18N
+              )
+            + "</p>" //NOI18N
             + "<p>Please Alt+Tab back to Netbeans and wait for at least 5 seconds, you can than come back here.</p>" //NOI18N
             + "</body>" //NOI18N
             + "</html>"; //NOI18N
@@ -147,7 +154,7 @@ public class Installer extends ModuleInstall {
             }
             
             if (message[0] != null) {
-                return new NanoHTTPD.Response(HTTP_OK, "text/plain", message[0]); //NOI18N
+                return new NanoHTTPD.Response(HTTP_OK, "text/html", "<html><head><body><pre>\n" + message[0] + "\n</pre></body></head></html>"); //NOI18N
             } else {
                 return new NanoHTTPD.Response(HTTP_OK, "text/html", REFRESH_MESSAGE); //NOI18N
             }
@@ -155,9 +162,6 @@ public class Installer extends ModuleInstall {
     } // End of HttpServer class
     
     private static final class FocusLog implements PropertyChangeListener {
-        
-        private static final Logger FLOG = Logger.getLogger("nbeditor.focus"); //NOI18N
-        
         public void propertyChange(PropertyChangeEvent evt) {
             FLOG.info("FM pchng: '" + evt.getPropertyName()
                     + "' old=[" + Probe.s2s(evt.getOldValue())
