@@ -64,37 +64,38 @@ public abstract class ASTVisitor {
         List<ASTItem> path = new ArrayList<ASTItem>();
         path.add(entry);
         visitRecursively(entry, path, xpath(path), 0);
-
     }
 
     protected void visitRecursively(ASTItem item, List<ASTItem> path, String xpath, int ordinal) {
-        visitNote(path, xpath, ordinal);
-        path.remove(path.size() - 1);
-        Map<String, Integer> idToOrdinal = new HashMap<String, Integer>();
+        visitNote(path, xpath, ordinal, true);
+        Map<String, Integer> nameToOrdinal = new HashMap<String, Integer>();
         for (ASTItem child : item.getChildren()) {
             if (cancel[0]) {
                 return;
             }
-            String id = idOf(child);
-            Integer od = idToOrdinal.get(id);
-            od = od == null ? Integer.valueOf(0) : Integer.valueOf(ordinal++);            
-            idToOrdinal.put(id, od);
+            String name = nameOf(child);
+            Integer ord = nameToOrdinal.get(name);
+            ord = ord == null ? Integer.valueOf(0) : Integer.valueOf(ordinal++);            
+            nameToOrdinal.put(name, ord);
+            
             path.add(child);
-            visitRecursively(child, path, xpath(path), od);
+            visitRecursively(child, path, xpath(path), ord);
+            path.remove(path.size() - 1);
         }
+        visitNote(path, xpath, ordinal, false);
     }
 
     private String xpath(List<ASTItem> path) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(256);
         for (ASTItem item : path) {
-            sb.append(idOf(item)).append(".");
+            sb.append(nameOf(item)).append(".");
         }
-        return sb.substring(0, sb.length() - 1);
+        return sb.length() > 1 ? sb.substring(0, sb.length() - 1) : sb.toString();
     }
     
-    private String idOf(ASTItem item) {
-        return item instanceof ASTToken ? ((ASTToken) item).getIdentifier() : ((ASTNode) item).getNT();
+    private String nameOf(ASTItem item) {
+        return item instanceof ASTToken ? ((ASTToken) item).getTypeName() : ((ASTNode) item).getNT();
     }
     
-    abstract void visitNote(List<ASTItem> path, String xpath, int ordinal);
+    abstract void visitNote(List<ASTItem> path, String xpath, int ordinal, boolean enter);
 }

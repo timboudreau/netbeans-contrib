@@ -45,10 +45,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Stack;
 import org.netbeans.api.languages.ASTItem;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.ASTToken;
-import org.netbeans.api.languages.ParserManager;
 import org.netbeans.modules.scala.editing.semantic.Template.Kind;
 import org.netbeans.modules.scala.editing.spi.ScalaIndexProvider;
 
@@ -56,72 +56,221 @@ import org.netbeans.modules.scala.editing.spi.ScalaIndexProvider;
  *
  * @author dcaoyuan
  */
-public class ContextVisitor extends ASTVisitor {
+public class DefinitionVisitor extends ASTVisitor {
 
     private boolean forIndexing;
     private Map<ASTItem, String> astItemToType = new HashMap<ASTItem, String>();
-
     private ScalaContext rootCtx = null;
-    private ScalaContext currCtx = null;
-    private Packaging currPackage = null;
+    private Stack<ScalaContext> currCtx = new Stack<ScalaContext>();
+    /** states: */
+    private Packaging packaging = null;
     private Function funDfn = null;
     private Template tmplDfn = null;
     private Type typeDfn = null;
+    private Var varDfn = null;
+    private boolean containsValDfn;
+    private boolean containsVarDfn;
+    private ASTItem Expr = null;
+    private ASTItem postfixExpr = null;
 
-    public ContextVisitor(ScalaContext rootContext) {
+    public DefinitionVisitor(ScalaContext rootContext) {
         this.rootCtx = rootContext;
-        this.currCtx = rootContext;
+        currCtx.push(rootContext);
     }
 
     @Override
-    void visitNote( List<ASTItem> path, String xpath, int ordinal) {
+    void visitNote( List<ASTItem> path, String xpath, int ordinal, boolean enter) {
         ASTItem leaf = path.get(path.size() - 1);
-        if (xpath.equals("TopStats.TopStat.Packaging")) {
-            currPackage = new Packaging("Packaging", leaf.getOffset(), leaf.getEndOffset());
-            currCtx.addDefinition(currPackage);
-        } else if (xpath.equals("TopStats.TopStat.Packaging.QualId.NameId")) {
-            String pathStr = getIdTokenFromNameId(leaf).getIdentifier();
-            currPackage.addPath(pathStr);
-        } else if (xpath.equals("TopStats.TopStat.Packaging.TopStats")) {
-            ScalaContext newCtx = new ScalaContext(ScalaContext.BLOCK, leaf.getOffset(), leaf.getEndOffset());
-            currCtx.addContext(newCtx);
-            currCtx = newCtx;
-        } else if (xpath.equals("TopStats.TopStat.Packaging.TopStats.TopTmplDef")) {
-            ScalaContext newCtx = new ScalaContext(ScalaContext.TEMPLATE, leaf.getOffset(), leaf.getEndOffset());
-            currCtx.addContext(newCtx);
-            currCtx = newCtx;
-        } else if (xpath.endsWith("Import")) {
-            processImportStat(rootCtx, leaf, currCtx);
+        if (xpath.endsWith("Packaging")) {
+            if (enter) {
+                packaging = new Packaging("Packaging", leaf.getOffset(), leaf.getEndOffset());
+                currCtx.peek().addDefinition(packaging);
+            }
+        } else if (xpath.endsWith("Packaging.QualId.NameId") && enter) {
+            ASTToken idTok = getIdTokenFromNameId(leaf);
+            packaging.addPath(idTok.getIdentifier());
+        } else if (xpath.endsWith("Import.ImportStat") && enter) {
+            // todo
+        } else if (xpath.endsWith("TopStats") || 
+                xpath.endsWith("TemplateStats") || 
+                xpath.endsWith("BlockStats") || 
+                xpath.equals("CaseBlockStats")) {
+            if (enter) {
+                ScalaContext newCtx = new ScalaContext(ScalaContext.BLOCK, leaf.getOffset(), leaf.getEndOffset());
+                currCtx.peek().addContext(newCtx);
+                currCtx.push(newCtx);
+            } else {
+                currCtx.pop();
+            }
+        } else if (xpath.endsWith("FunDclDef") || 
+                xpath.endsWith("ObjectDef") || 
+                xpath.endsWith("ClassDef") || 
+                xpath.endsWith("TraitDef") || 
+                xpath.equals("TypeDclDef")) {
+            if (enter) {
+                ScalaContext newCtx = new ScalaContext(ScalaContext.BLOCK, leaf.getOffset(), leaf.getEndOffset());
+                currCtx.peek().addContext(newCtx);
+                currCtx.push(newCtx);
+            } else {
+                currCtx.pop();
+            }
         } else if (xpath.endsWith("FunDclDef.NameId")) {
-            ASTToken nameToken = getIdTokenFromNameId(leaf);
-            funDfn = new Function(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), 0);
-            currCtx.addDefinition(funDfn);
-            currCtx.addUsage(nameToken, funDfn);
+            if (enter) {
+                ASTToken idTok = getIdTokenFromNameId(leaf);
+                funDfn = new Function(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), 0);
+                funDfn.setContext(currCtx.peek());
+                currCtx.peek().addDefinition(funDfn);
+                currCtx.peek().addUsage(idTok, funDfn);
+            } else {
+                funDfn = null;
+            }
         } else if (xpath.endsWith("FunDclDef.this")) {
-            ASTToken nameToken = (ASTToken) leaf;
-            funDfn = new Function(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), 0);
-            currCtx.addDefinition(funDfn);
-            currCtx.addUsage(nameToken, funDfn);
-        } else if (xpath.endsWith("TmplDef.ObjectDef.NameId")) {
-            ASTToken nameToken = getIdTokenFromNameId(leaf);
-            tmplDfn = new Template(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), Kind.OBJECT, currPackage);
-            currCtx.addDefinition(tmplDfn);
-            currCtx.addUsage(nameToken, tmplDfn);
-        } else if (xpath.endsWith("TmplDef.ClassDef.NameId")) {
-            ASTToken nameToken = getIdTokenFromNameId(leaf);
-            tmplDfn = new Template(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), Kind.CLASS, currPackage);
-            currCtx.addDefinition(tmplDfn);
-            currCtx.addUsage(nameToken, tmplDfn);
-        } else if (xpath.endsWith("TmplDef.TraitDef.NameId")) {
-            ASTToken nameToken = getIdTokenFromNameId(leaf);
-            tmplDfn = new Template(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), Kind.TRAIT, currPackage);
-            currCtx.addDefinition(tmplDfn);
-            currCtx.addUsage(nameToken, tmplDfn);
+            if (enter) {
+                ASTToken idTok = getIdTokenFromNameId(leaf);
+                funDfn = new Function(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), 0);
+                funDfn.setContext(currCtx.peek());
+                currCtx.peek().addDefinition(funDfn);
+                currCtx.peek().addUsage(idTok, funDfn);
+            } else {
+                funDfn = null;
+            }
+        } else if (xpath.endsWith("FunDclDef.FunTypeParamClause.TypeParam.NameId")) {
+            if (enter) {
+                ASTToken idTok = getIdTokenFromNameId(leaf);
+                typeDfn = new Type(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset());
+                currCtx.peek().addDefinition(typeDfn);
+                currCtx.peek().addUsage(idTok, typeDfn);
+            } else {
+                typeDfn = null;
+            }
+        } else if (xpath.endsWith("FunDclDef.ParamClauses.ParamClause.Params.Param.NameId")) {
+            if (enter) {
+                ASTToken idTok = getIdTokenFromNameId(leaf);
+                if (!idTok.getIdentifier().equals("_")) {
+                    varDfn = new Var(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Var.Scope.LOCAL);
+                    varDfn.setVal(true);
+                    currCtx.peek().addDefinition(varDfn);
+                    currCtx.peek().addUsage(idTok, varDfn);
+                }
+            } else {
+                varDfn = null;
+            }
+        } else if (xpath.endsWith("ObjectDef.NameId")) {
+            if (enter) {
+                ASTToken idTok = getIdTokenFromNameId(leaf);
+                tmplDfn = new Template(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Kind.OBJECT, packaging);
+                tmplDfn.setContext(currCtx.peek());
+                currCtx.peek().addDefinition(tmplDfn);
+                currCtx.peek().addUsage(idTok, tmplDfn);
+            } else {
+                tmplDfn = null;
+            }
+        } else if (xpath.endsWith("ClassDef.NameId") && enter) {
+            if (enter) {
+                ASTToken idTok = getIdTokenFromNameId(leaf);
+                tmplDfn = new Template(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Kind.CLASS, packaging);
+                tmplDfn.setContext(currCtx.peek());
+                currCtx.peek().addDefinition(tmplDfn);
+                currCtx.peek().addUsage(idTok, tmplDfn);
+            } else {
+                tmplDfn = null;
+            }
+        } else if (xpath.endsWith("TraitDef.NameId") && enter) {
+            if (enter) {
+                ASTToken idTok = getIdTokenFromNameId(leaf);
+                tmplDfn = new Template(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Kind.TRAIT, packaging);
+                tmplDfn.setContext(currCtx.peek());
+                currCtx.peek().addDefinition(tmplDfn);
+                currCtx.peek().addUsage(idTok, tmplDfn);
+            } else {
+                tmplDfn = null;
+            }
+        } else if (xpath.endsWith("ClassParamClauses.ClassParams.ClassParam.NameId")) {
+            // under ObjectDef or ClassDef 
+            if (enter) {
+                ASTToken idTok = getIdTokenFromNameId(leaf);
+                varDfn = new Var(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Var.Scope.PARAMETER);
+                currCtx.peek().addDefinition(varDfn);
+                currCtx.peek().addUsage(idTok, varDfn);
+            } else {
+                varDfn = null;
+            }
         } else if (xpath.endsWith("TypeDclDef.NameId")) {
-            ASTToken nameToken = getIdTokenFromNameId(leaf);
-            typeDfn = new Type(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset());
-            currCtx.addDefinition(typeDfn);
-            currCtx.addUsage(nameToken, typeDfn);
+            if (enter) {
+                ASTToken idTok = getIdTokenFromNameId(leaf);
+                typeDfn = new Type(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset());
+                currCtx.peek().addDefinition(typeDfn);
+                currCtx.peek().addUsage(idTok, typeDfn);
+            } else {
+                typeDfn = null;
+            }
+        } else if (xpath.endsWith("ValDclDef.PatDef") ||
+                xpath.endsWith("Generator.Pattern1") ||
+                xpath.endsWith("ValDefInEnumerator.Pattern1") ||
+                xpath.endsWith("CasePattern0")) {
+            if (enter) {
+                containsValDfn = true;
+            } else {
+                containsValDfn = false;
+            }
+        } else if (xpath.endsWith("VarDclDef.PatDef")) {
+            if (enter) {
+                containsVarDfn = true;
+            } else {
+                containsVarDfn = false;
+            }
+        } else if (xpath.endsWith("NameId") && (containsValDfn || containsVarDfn)) {
+            if (enter) {
+                ASTToken idTok = getIdTokenFromNameId(leaf);
+                if (!idTok.getIdentifier().equals("_")) {
+                    varDfn = new Var(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Var.Scope.LOCAL);
+                    if (containsValDfn) {
+                        varDfn.setVal(true);
+                    } else if (containsVarDfn) {
+                        varDfn.setVal(false);
+                    }
+                    currCtx.peek().addDefinition(varDfn);
+                    currCtx.peek().addUsage(idTok, varDfn);
+                }
+            } else {
+                varDfn = null;
+            }
+        } /** process anonymous function: */
+        else if (xpath.endsWith("Expr") ||
+                xpath.endsWith("ExprInParen") ||
+                xpath.endsWith("ExprInTemplate") ||
+                xpath.endsWith("ExprInBlock") ||
+                xpath.endsWith("ExprInCaseBlock")) {
+            if (enter) {
+                Expr = leaf;
+            } else {
+                Expr = null;
+                postfixExpr = null;
+            }
+        } else if (xpath.endsWith("PostfixExpr")) {
+            if (enter && Expr != null) {
+                // remember it for later using
+                postfixExpr = leaf;
+            }
+        } else if (xpath.endsWith("FunExprTail") ||
+                xpath.endsWith("FunExprTailInTemplate") ||
+                xpath.endsWith("FunExprTailInBlock") ||
+                xpath.endsWith("FunExprTailInCaseBlock")) {
+            if (enter) {
+                if (postfixExpr != null) {
+                    // This is an anonymous function expr, the postfixExpt should be only in form of:
+                    // (Bindings | id)
+                    ScalaContext newCtx = new ScalaContext(ScalaContext.FUNCTION, Expr.getOffset(), Expr.getEndOffset());
+                    currCtx.peek().addContext(newCtx);
+                    currCtx.push(newCtx);
+                    containsValDfn = true;
+                }
+            } else {
+                if (postfixExpr != null) {
+                     currCtx.pop();
+                     containsValDfn = false;
+                }
+            }
         }
     }
 
@@ -137,8 +286,8 @@ public class ContextVisitor extends ASTVisitor {
                 if (isNode(item, "TopStat")) {
                     for (ASTItem item1 : item.getChildren()) {
                         if (isNode(item1, "Packaging")) {
-                            currPackage = processPackaging(rootCtx, item1);
-                            currCtx.addDefinition(currPackage);
+                            Packaging currPkg = processPackaging(rootCtx, item1);
+                            currCtx.addDefinition(currPkg);
                             for (ASTItem item2 : item1.getChildren()) {
                                 if (isNode(item2, "TopStats")) {
                                     ScalaContext newCtx = new ScalaContext(ScalaContext.BLOCK, item1.getOffset(), item1.getEndOffset());
@@ -254,7 +403,7 @@ public class ContextVisitor extends ASTVisitor {
                 for (ASTItem item1 : defStat.getChildren()) {
                     if (isNode(item1, "NameId")) {
                         ASTToken nameToken = getIdTokenFromNameId(item1);
-                        tmplDfn = new Template(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), kind, currPackage);
+                        tmplDfn = new Template(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), kind, packaging);
                         currCtx.addDefinition(tmplDfn);
                         currCtx.addUsage(nameToken, tmplDfn);
                         break;
@@ -1287,5 +1436,4 @@ public class ContextVisitor extends ASTVisitor {
             return query(result, fromDepth, pathNames, pathPositions);
         }
     }
-
 }

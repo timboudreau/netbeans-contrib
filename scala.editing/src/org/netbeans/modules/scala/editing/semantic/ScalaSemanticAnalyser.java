@@ -52,6 +52,7 @@ import javax.swing.text.Document;
 import org.netbeans.api.languages.ASTItem;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.ASTToken;
+import org.netbeans.api.languages.ParseException;
 import org.netbeans.api.languages.ParserManager;
 import org.netbeans.api.languages.ParserManager.State;
 import org.netbeans.api.languages.ParserManagerListener;
@@ -61,6 +62,7 @@ import org.netbeans.modules.scala.editing.semantic.Template.Kind;
 import org.netbeans.modules.scala.editing.spi.ScalaIndexProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -105,7 +107,7 @@ public class ScalaSemanticAnalyser {
         this.doc = doc;
         initParserManagerListener();
     }
-    
+
     private ScalaSemanticAnalyser(boolean forIndexing) {
         this.doc = null;
         this.forIndexing = forIndexing;
@@ -146,7 +148,6 @@ public class ScalaSemanticAnalyser {
 //        assert parserManager != null;
 //        return parserManager.getState();
 //    }
-
     public static ScalaSemanticAnalyser getAnalyserForIndexing() {
         return ANALYSER_FOR_INDEXING;
     }
@@ -235,9 +236,18 @@ public class ScalaSemanticAnalyser {
     public static ScalaContext getCurrentRootCtx(Document doc) {
         ScalaSemanticAnalyser analyser = getAnalyser(doc);
         if (analyser.rootCtx == null) {
-             ParserManager parserManager = ParserManager.get(doc);
-             waitingForParsingFinished(parserManager);
+            ParserManager parserManager = ParserManager.get(doc);
+            waitingForParsingFinished(parserManager);
+            if (analyser.rootCtx == null) {
+                try {
+                    analyser.astRoot = parserManager.getAST();
+                } catch (ParseException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+                analyser.analyse(analyser.astRoot);
+            }
         }
+
         return analyser.rootCtx;
     }
 
@@ -256,7 +266,9 @@ public class ScalaSemanticAnalyser {
         if (this.astRoot != astRoot) {
             this.astRoot = astRoot;
             ScalaContext rootCtxInParsing = new ScalaContext(ScalaContext.ROOT, astRoot.getOffset(), astRoot.getEndOffset());
-            process(rootCtxInParsing, astRoot, rootCtxInParsing);
+            new DefinitionVisitor(rootCtxInParsing).visit(astRoot);
+            new UsageVisitor(rootCtxInParsing).visit(astRoot);
+            //process(rootCtxInParsing, astRoot, rootCtxInParsing);
             rootCtx = rootCtxInParsing;
             DatabaseManager.setRoot(astRoot, rootCtx);
             return rootCtx;
@@ -264,8 +276,8 @@ public class ScalaSemanticAnalyser {
             return rootCtx;
         }
     }
-
     private Packaging currPackage = null;
+
     private void process(ScalaContext rootCtx, ASTItem n, ScalaContext currCtx) {
         if (isNode(n, "TopStats")) {
             /**
@@ -290,7 +302,6 @@ public class ScalaSemanticAnalyser {
                         } else if (isNode(item1, "Import")) {
                             processImportStat(rootCtx, item1, rootCtx);
                         } else if (isNode(item1, "TopTmplDef")) {
-
                         }
                     }
                     /** add all forms for post-precessing */
@@ -372,7 +383,7 @@ public class ScalaSemanticAnalyser {
                         ASTToken nameToken = (ASTToken) item1;
                         funDfn = new Function(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), 0);
                         currCtx.addDefinition(funDfn);
-                        currCtx.addUsage(nameToken, funDfn);                        
+                        currCtx.addUsage(nameToken, funDfn);
                     }
                 }
                 pendingItems.putAll(processFunDclDef(rootCtx, item, currCtx, funDfn));
@@ -396,7 +407,7 @@ public class ScalaSemanticAnalyser {
                 for (ASTItem item1 : defStat.getChildren()) {
                     if (isNode(item1, "NameId")) {
                         ASTToken nameToken = getIdTokenFromNameId(item1);
-                        tmplDfn = new Template(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), kind, currPackage);                        
+                        tmplDfn = new Template(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), kind, currPackage);
                         currCtx.addDefinition(tmplDfn);
                         currCtx.addUsage(nameToken, tmplDfn);
                         break;
@@ -528,7 +539,7 @@ public class ScalaSemanticAnalyser {
                                 currCtx.addDefinition(varDfn);
                                 currCtx.addUsage(varToken, varDfn);
                             } else {
-                            // error
+                                // error
                             }
                         }
                     }
@@ -545,7 +556,7 @@ public class ScalaSemanticAnalyser {
                                     currCtx.addDefinition(varDfn);
                                     currCtx.addUsage(varToken, varDfn);
                                 } else {
-                                // error
+                                    // error
                                 }
                             }
                         }
@@ -563,7 +574,7 @@ public class ScalaSemanticAnalyser {
                                     currCtx.addDefinition(varDfn);
                                     currCtx.addUsage(varToken, varDfn);
                                 } else {
-                                // error
+                                    // error
                                 }
                             }
                         }
@@ -593,7 +604,7 @@ public class ScalaSemanticAnalyser {
                         } else if (isNode(item1, "Type")) {
                             processAnyType(rootCtx, item1, newCtx);
                         } else if (isNode(item1, "TypeParamClause")) {
-                        /** @todo */
+                            /** @todo */
                         }
                     }
                 }
@@ -671,7 +682,7 @@ public class ScalaSemanticAnalyser {
         List<ASTItem> paths = query(packaging, "QualId/NameId");
         for (ASTItem path : paths) {
             String pathStr = getIdTokenFromNameId(path).getIdentifier();
-            packageDfn.addPath(pathStr);        
+            packageDfn.addPath(pathStr);
         }
         return packageDfn;
     }
@@ -985,6 +996,7 @@ public class ScalaSemanticAnalyser {
             for (ASTItem item : expr.getChildren()) {
                 if (isNode(item, "Expr")) {
                     exprCount++; // count the postion of Expr for future usage
+
                     processAnyExpr(rootCtx, item, currCtx, false);
                 }
             }
@@ -1125,7 +1137,6 @@ public class ScalaSemanticAnalyser {
                     astItemToType.put(expr, "Null");
                     astItemToType.put(item1, "Null");
                 } else {
-
                 }
             }
 //        } else if (isNode(expr, "Type")) {
@@ -1212,6 +1223,7 @@ public class ScalaSemanticAnalyser {
             if (nameId == null) {
                 return;
             } // @todo process this super ?
+
             ASTToken funName = getIdTokenFromNameId(nameId);
             if (funName != null) {
                 /** @todo get all functions with the same name, then find the same Type params one */
@@ -1250,6 +1262,7 @@ public class ScalaSemanticAnalyser {
             if (nameId == null) {
                 return;
             } // @todo process this super ?
+
             ASTToken varId = getIdTokenFromNameId(nameId);
             if (varId != null && !(varId.getIdentifier().equals("_"))) {
                 Var varDfn = currCtx.getVariableInScope(varId.getIdentifier());
@@ -1263,7 +1276,6 @@ public class ScalaSemanticAnalyser {
                 }
             }
         } else {
-
         }
 
         if (isNewExpr) {
@@ -1423,12 +1435,13 @@ public class ScalaSemanticAnalyser {
         }
         fromDepth++;
         if (fromDepth == pathNames.size()) { // reach leaf now            
+
             return result;
         } else {
             return query(result, fromDepth, pathNames, pathPositions);
         }
     }
-    
+
     private static void waitingForParsingFinished(ParserManager parserManager) {
         int counter = 0;
         try {
@@ -1440,6 +1453,4 @@ public class ScalaSemanticAnalyser {
         } catch (InterruptedException e) {
         }
     }
-
-    
 }
