@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
@@ -40,42 +40,41 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
 
-<project name="editor/deprecated/pre61settings/test-unit" basedir="." default="all">
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-type-A">
+                <file name="org-netbeans-editor-SettingsTest$MyKit.instance"/>
+                <folder name="CodeTemplates">
+                    <folder name="Defaults">
+                        <file name="abc.xml" url="code-templates.xml"/>
+                    </folder>
+                </folder>
+                <folder name="Keybindings">
+                    <folder name="NetBeans">
+                        <folder name="Defaults">
+                            <file name="abc.xml" url="key-bindings.xml"/>
+                        </folder>
+                    </folder>
+                </folder>
+                <folder name="Macros">
+                    <folder name="Defaults">
+                        <file name="abc.xml" url="macros.xml"/>
+                    </folder>
+                </folder>
+            </folder>
+            
+            <folder name="x-type-B">
+                <file name="org-netbeans-editor-SettingsTest$MyKit2.instance"/>
+                <folder name="Preferences">
+                    <folder name="Defaults">
+                        <file name="123-prefs.xml" url="preferences.xml"/>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
 
-    <!-- Imports default default-compiler and run-unit-test executor. -->
-    <import file="../../nbbuild/templates/xtest-unit.xml"/>
-
-    <!-- ========= -->
-    <!-- Compilers -->
-    <!-- ========= -->
-
-    <!-- Pre-build openide/text tests -->
-    <target name="pre-build">
-        <!--  Cannot use
-              <ant dir="../../openide/text/test" target="buildtests" inheritall="false"/>
-              because inheritAll="false" doesn't work for all properties. -->
-        <java classname="org.apache.tools.ant.Main" classpath="${java.class.path}" fork="true">
-            <arg value="-f"/>
-            <arg value="../../openide/text/test/build.xml"/>
-            <arg value="-Dxtest.testtype=${xtest.testtype}"/>
-            <arg value="-Dxtest.attribs=${xtest.attribs}"/>
-            <arg value="buildtests"/>
-        </java>
-    </target>
-    
-    <target name="default-compiler" depends="pre-build,xtest-unit.default-compiler">
-    </target>
-    
-    <!-- ========= -->
-    <!-- Executors -->
-    <!-- ========= -->
-    
-    <!-- Override if you need something special. 
-    <target name="run-unit-test" depends="init-cp">
-        <executeTests pluginname="jvm">
-            <classpath refid="test.unit.run.cp"/>
-        </executeTests>
-    </target>
-    -->
-</project>
+</filesystem>
