@@ -80,5 +80,9 @@ public class LinuxNativePackageInstaller implements NativePackageInstaller {
         }
         return null;
     }
+
+    public void setDestinationPath(String path) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
     
 }

@@ -27,11 +27,15 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
     public static final String DEVICE_FILE = "device_file.";
     public static final String DEVICE_FILE_PACKAGES_COUNTER = ".packages_counter";
     public static final String DEVICE_FILE_PACKAGE = ".package.";
+
+    String target = null;
+    
+    public void setDestinationPath(String path) {
+        target = path;
+    }
     
     public boolean install(String pathToPackage, Product product) {
         String value = product.getProperty(DEVICE_FILES_COUNTER);        
-        String target = Registry.getInstance().getProducts("sample").get(0)
-                .getInstallationLocation().getAbsolutePath();
         int counter = parseInteger(value) + 1;
         DeviceFileAnalizer analizer = new DeviceFileAnalizer(pathToPackage);
         product.setProperty(DEVICE_FILE + String.valueOf(counter) + DEVICE_FILE_PACKAGES_COUNTER, String.valueOf(analizer.getPackagesCount()));
@@ -67,8 +71,8 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
             for(int packageNumber=1; packageNumber<=parseInteger(packagesValue); packageNumber++) {
                 try {
                     String value = product.getProperty(DEVICE_FILE + String.valueOf(deviceNumber) + DEVICE_FILE_PACKAGE + String.valueOf(packageNumber));
-                    LogManager.log("executing command: pkgrm -n " + value);
-                    Process p = new ProcessBuilder("pkgrm", "-n", value).start();
+                    LogManager.log("executing command: pkgrm -R " + target  + " -n "+ value);
+                    Process p = new ProcessBuilder("pkgrm", "-R", target, "-n", value).start();
                     if (p.waitFor() != 0) return false;
                 } catch (InterruptedException ex) {
                     return false;

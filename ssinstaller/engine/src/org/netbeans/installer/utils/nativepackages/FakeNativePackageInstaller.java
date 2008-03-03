@@ -10,7 +10,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.LogManager;
-import org.netbeans.installer.utils.helper.FileEntry;
 
 /**
  *
@@ -22,6 +21,8 @@ public class FakeNativePackageInstaller implements NativePackageInstaller {
     public static final String FAKE_PACKAGES_DIR = "/tmp/installed_fake_packages/";
     public static final String FAKE_PACKAGES_COUNTER = "fake_packages_counter";
     public static final String FAKE_PACKAGE = "fake_package.";
+    
+    public String target = FAKE_PACKAGES_DIR;
     
     public boolean install(String pathToPackage, Product product) {
         try {
@@ -67,6 +68,10 @@ public class FakeNativePackageInstaller implements NativePackageInstaller {
 
     public boolean isCorrectPackageFile(String pathToPackage) {
         return !pathToPackage.contains("LICENSE") && !(new File(pathToPackage).isDirectory());
+    }
+
+    public void setDestinationPath(String path) {
+        target = path;
     }
 
 }
