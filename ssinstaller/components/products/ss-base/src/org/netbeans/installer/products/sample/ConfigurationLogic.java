@@ -25,7 +25,7 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
    
     @Override
     public List<WizardComponent> getWizardComponents() {
-       // return Collections.EMPTY_LIST;
+       // return Collections.EMPTY_LIST;s
         return Arrays.asList((WizardComponent) new SSBasePanel());
     }
 

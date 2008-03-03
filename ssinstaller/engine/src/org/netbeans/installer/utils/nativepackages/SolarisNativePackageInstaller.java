@@ -29,7 +29,7 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
     public static final String DEVICE_FILE_PACKAGE = ".package.";
     
     public boolean install(String pathToPackage, Product product) {
-        String value = product.getProperty(DEVICE_FILES_COUNTER);
+        String value = product.getProperty(DEVICE_FILES_COUNTER);        
         String target = Registry.getInstance().getProducts("sample").get(0)
                 .getInstallationLocation().getAbsolutePath();
         int counter = parseInteger(value) + 1;

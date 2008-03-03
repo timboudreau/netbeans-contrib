@@ -79,7 +79,7 @@ public class MainSequence extends WizardSequence {
     private PreCreateBundleSummaryPanel preCreateBundleSummaryPanel;
     private CreateBundleAction createBundleAction;
     private CreateNativeLauncherAction createNativeLauncherAction;
-    private CreateMacOSAppLauncherAction createAppLauncherAction ;
+    
     private PostCreateBundleSummaryPanel postCreateBundleSummaryPanel;
     private NbServiceTagCreateAction serviceTagAction;
     private NbRegistrationAction nbRegistrationAction;
@@ -96,7 +96,7 @@ public class MainSequence extends WizardSequence {
         preCreateBundleSummaryPanel = new PreCreateBundleSummaryPanel();
         createBundleAction = new CreateBundleAction();
         createNativeLauncherAction = new CreateNativeLauncherAction();
-        createAppLauncherAction = new CreateMacOSAppLauncherAction();
+        
         
         postCreateBundleSummaryPanel = new PostCreateBundleSummaryPanel();
         serviceTagAction = new NbServiceTagCreateAction();
@@ -188,11 +188,7 @@ public class MainSequence extends WizardSequence {
                 addChild(downloadConfigurationLogicAction);
                 addChild(downloadInstallationDataAction);
                 addChild(createBundleAction);
-                if(registry.getTargetPlatform().isCompatibleWith(Platform.MACOSX)) {
-                    addChild(createAppLauncherAction);
-                } else {
-                    addChild(createNativeLauncherAction);
-                }
+                addChild(createNativeLauncherAction);
                 addChild(postCreateBundleSummaryPanel);
                 break;
             default:
@@ -206,6 +202,7 @@ public class MainSequence extends WizardSequence {
         super.executeForward();
     }
     
+    @Override
     public boolean canExecuteForward() {
         return true;
     }

@@ -76,4 +76,10 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
         return Collections.EMPTY_LIST;
     }
     
+        
+    @Override
+    public boolean registerInSystem() {
+        return false;
+    }
+    
 }
