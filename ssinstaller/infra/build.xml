@@ -823,10 +823,10 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
          
         
-         <ant dir="${nbi.netbeans.dir}/infra/products/sample" target="release-all">
+         <ant dir="${nbi.netbeans.dir}/infra/products/ss-base" target="release-all">
             <property 
                 name="basedir" 
-                value="${nbi.netbeans.dir}/infra/products/sample"/>
+                value="${nbi.netbeans.dir}/infra/products/ss-base"/>
             <property 
                 name="environment.properties" 
                 value="${environment.properties}"/>
@@ -1527,7 +1527,7 @@ jarsigner.storepass=${jarsigner.storepass}
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-x86" 
                        target="${output.dir}/bundles/${nb.bundle.files.prefix}-cpp-solaris-x86.sh">
-            <component uid="sample" version="1.0.0.0.0"/>
+            <component uid="ss-base" version="1.0.0.0.0"/>
             <component uid="ssi-nativepackages" version="1.0.0.0.0"/>
             
             <component uid="nb-base" version="${nb.full.version}"/>

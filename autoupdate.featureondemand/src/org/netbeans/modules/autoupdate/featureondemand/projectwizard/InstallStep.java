@@ -218,9 +218,13 @@ public class InstallStep implements WizardDescriptor.AsynchronousValidatingPanel
         assert o != null && o instanceof WizardDescriptor.InstantiatingIterator :
             o + " is not null and instanceof WizardDescriptor.InstantiatingIterator";
         WizardDescriptor.InstantiatingIterator iterator = (WizardDescriptor.InstantiatingIterator) o;
-        iterator.initialize (wd);
-        wd.putProperty (FeatureOnDemanWizardIterator.TEMPORARY_DELEGATE_ITERATOR, iterator);
-        fireChange ();
+        
+        // success
+        if (! (o instanceof FeatureOnDemanWizardIterator)) {
+            iterator.initialize (wd);
+            wd.putProperty (FeatureOnDemanWizardIterator.TEMPORARY_DELEGATE_ITERATOR, iterator);
+            fireChange ();
+        }
     }
     
 }

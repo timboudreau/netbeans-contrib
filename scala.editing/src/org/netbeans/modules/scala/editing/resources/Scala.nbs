@@ -141,6 +141,22 @@ TOKEN:xml_comment: ( "<!--" - "-->" )
 TOKEN:line_comment: ( "//" [^"\n" "\r"]* )
 
 
+## The tokens that can terminate a statement are: literals, identifiers and the following
+## delimiters and reserved words:
+##     this null true false return type <xmlstart>
+##     _ ) ] }
+## A case token can begin a statement only
+## That means: all keyword and delimiters except above should consume all followed [" " "\t" "\n" "\r"]*
+## they are: 
+## catch else extends finally forSome, match, requires, with, yield
+
+## The tokens that can begin a statement are all Scala tokens except the following delimiters
+## and reserved words: (<nl> before them should be consumed)
+##     catch else extends finally forSome match requires with yield
+##     , . ; : _ = => <- <: <% >: # [ ) ] }
+## Notice: _ : = => <- <: <% >: # is also keyword
+## That means: all keyword and delimiters above should consume all preceded [" " "\t" "\n" "\r"]*
+
 ###### keywords
 ## abstract case catch class def
 ## do else extends false final
@@ -151,127 +167,69 @@ TOKEN:line_comment: ( "//" [^"\n" "\r"]* )
 ## trait try true type val
 ## var while with yield
 ## _ : = => <- <: <% >: # @
-TOKEN:abstract: ( "abstract" )
-TOKEN:case: ( "case" )
-TOKEN:class: ( "class" )
-TOKEN:def: ( "def" )
-TOKEN:do: ( "do" )
-TOKEN:false: ( "false" )
-TOKEN:final: ( "final" )
-TOKEN:for: ( "for" )
-TOKEN:if: ( "if" )
-TOKEN:implicit: ( "implicit" )
-TOKEN:import: ( "import" )
-TOKEN:lazy: ( "lazy" )
-TOKEN:new: ( "new" )
-TOKEN:null: ( "null" )
-TOKEN:object: ( "object" )
-TOKEN:override: ( "override" )
-TOKEN:package: ( "package" )
-TOKEN:private: ( "private" )
-TOKEN:protected: ( "protected" )
-TOKEN:return: ( "return" )
-TOKEN:sealed: ( "sealed" )
-TOKEN:super: ( "super" )
-TOKEN:this: ( "this" )
-TOKEN:throw: ( "throw" )
-TOKEN:trait: ( "trait" )
-TOKEN:try: ( "try" )
-TOKEN:true: ( "true" )
-TOKEN:type: ( "type" )
-TOKEN:val: ( "val" )
-TOKEN:var: ( "var" )
-TOKEN:while: ( "while ")
-TOKEN:at: ( "@" )
-
-## The tokens that can terminate a statement are: literals, identifiers and the following
-## delimiters and reserved words:
-##     this null true false return type <xmlstart>
-##     _ ) ] }
-## A case token can begin a statement only
-## That means: all keyword and delimiters except above should consume all followed [" " "\t" "\n" "\r"]*
-## they are: 
-## catch else extends finally forSome, match, requires, with, yield
-
-
-## keywords II
-## The tokens that can begin a statement are all Scala tokens except the following delimiters
-## and reserved words: (<nl> before them should be consumed)
-##     catch else extends finally forSome match requires with yield
-##     , . ; : _ = => <- <: <% >: # [ ) ] }
-## Notice: _ : = => <- <: <% >: # is also keyword
-## That means: all keyword and delimiters above should consume all preceded [" " "\t" "\n" "\r"]*
-TOKEN:catch: (
-    [" " "\t" "\n" "\r"]* "catch" [" " "\t" "\n" "\r"]+
+TOKEN:keyword: (
+    "abstract" |
+    "case" |
+    "catch" |
+    "class" |
+    "def" |
+    "do" |
+    "else" |
+    "extends" |
+    "false" |
+    "final" |
+    "finally" |
+    "for" |
+    "forSome" |
+    "if" |
+    "implicit" |
+    "import" |
+    "lazy" |
+    "match" |
+    "new" |
+    "null" |
+    "object" |
+    "override" |
+    "package" |
+    "private" |
+    "protected" |
+    "requires" |
+    "return" |
+    "sealed" |
+    "super" |
+    "this" |
+    "throw" |
+    "trait" |
+    "try" |
+    "true" |
+    "type" |
+    "val" |
+    "var" |
+    "while" |
+    "with" |
+    "yield" |
+    "_" |
+    ":" |
+    "=" |
+    "=>" |
+    "<-" |
+    "<:" |
+    "<%" |
+    ">:" |
+    "#" |
+    "@" 
 )
-## Hacking for: [Semi] "else" in if expr, consume ";"
-TOKEN:else: (
-    [" " "\t" "\n" "\r" ";"]* "else" [" " "\t" "\n" "\r"]+
-)
-TOKEN:extends: (
-    [" " "\t" "\n" "\r"]* "extends" [" " "\t" "\n" "\r"]+
-)
-TOKEN:finally: (
-    [" " "\t" "\n" "\r"]* "finally" [" " "\t" "\n" "\r"]+
-)
-TOKEN:forSome: (
-    [" " "\t" "\n" "\r"]* "forSome" [" " "\t" "\n" "\r"]+
-)
-TOKEN:match: (
-    [" " "\t" "\n" "\r"]* "match" [" " "\t" "\n" "\r"]+
-)
-TOKEN:requires: (
-    [" " "\t" "\n" "\r"]* "requires" [" " "\t" "\n" "\r"]+
-)
-TOKEN:with: (
-    [" " "\t" "\n" "\r"]* "with" [" " "\t" "\n" "\r"]+
-)
-TOKEN:yield: (
-    [" " "\t" "\n" "\r"]* "yield" [" " "\t" "\n" "\r"]+
-)
-TOKEN:eq: (
-    [" " "\t" "\n" "\r"]* "="
-)
-TOKEN:colon: (
-    [" " "\t" "\n" "\r"]* ":"
-)
-TOKEN:hash: (
-    [" " "\t" "\n" "\r"]* "#"
-)
-## don't add [" " "\t" "\n" "\r"]* before "_", otherwise the "_" begin varid will not be scanned properly 
-TOKEN:under: (
-    "_"
-)
-TOKEN:rarrow: (
-    [" " "\t" "\n" "\r"]* "=>"
-)
-TOKEN:larrow: (
-    [" " "\t" "\n" "\r"]* "<-"
-)
-TOKEN:tlower: (
-    [" " "\t" "\n" "\r"]* "<:"
-)
-TOKEN:tupper: (
-    [" " "\t" "\n" "\r"]* ">:"
-)
-TOKEN:tview: (
-    [" " "\t" "\n" "\r"]* "<%"
-)
-
 
 
 
 ## Operators
-## add [" " "\t" "\n" "\r"]* before "=" leading operators to avoid conflict with <eq>
 TOKEN:op_identifier: (
     ["!" "%" "&" "+" "-" "<" ">" "?" "\\" "^" "`" "|" "~" "*" ]
     ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]* 
     |
-    [" " "\t" "\n" "\r"]*
     ["#" ":" "@"]
     ["!" "%" "&" "+" "-" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]+ 
     |
-    [" " "\t" "\n" "\r"]*
     ["="]
     ["!" "%" "&" "+" "-" "<" "=" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]+ 
     ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]*
@@ -280,45 +238,11 @@ TOKEN:op_identifier: (
     ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/"]*
 )
 
-## separators
-TOKEN:quote: (
-    "\'"
+## Separators
+TOKEN:separator: (
+    "{" | "}" | "(" | ")" |"[" | "]" |
+    ";" | "." | ","
 )
-TOKEN:lparen: (
-    "("
-)
-## It seems safe to consume one <nl> before "{", since in most case, a [<nl>] is preceding of "{"
-TOKEN:lbrace: (
-    [" " "\t"]* ["\n" "\r"]? [" " "\t"]* "{"
-)
-## Separator II
-## Here, try to consume all <nl> before following separators, if there are comments 
-## before them, the <nl> after comments should also be consumed by this regex
-## @NOTICE: we can usally apply (<nl>)* after a separator or keyword in LL(k). But
-##          It may not work if apply (<nl>)* before them, so it's better to solve 
-##          these <nl> in token definition
-TOKEN:rbrace: (
-    [" " "\t" "\n" "\r"]* "}"
-)
-TOKEN:rparen: (
-    [" " "\t" "\n" "\r"]* ")"
-)
-TOKEN:lbracket: (
-    [" " "\t" "\n" "\r"]* "["
-)
-TOKEN:rbracket: (
-    [" " "\t" "\n" "\r"]* "]"
-)
-TOKEN:semi: (
-    [" " "\t" "\n" "\r"]* ";"
-)
-TOKEN:dot: (
-    [" " "\t" "\n" "\r"]* "."
-)
-TOKEN:comma: (
-    [" " "\t" "\n" "\r"]* ","
-)
-
 
 ### identifier
 # upper = ‘A’ | . . . | ‘Z’ | ‘$’ | ‘_’ and Unicode Lu
@@ -346,8 +270,9 @@ TOKEN:upper_identifier: (
 )
 ## Backquoted id
 TOKEN:bquote_identifier: (
-    "`" ( 
-        [^ "\\" "\'" "\n" "\r"] |
+    "`" 
+    ( 
+        [^ "\\" "`" "\n" "\r"] |
         ( "\\" (
             . |
             ( ["0"-"7"] ["0"-"7"] ["0"-"7"] ) |
@@ -358,9 +283,20 @@ TOKEN:bquote_identifier: (
     "`"
 )
 
-### Literal
+TOKEN:symbol: (
+    "\'"
+    (
+      ( ["a"-"z" "A"-"Z" "$" "_"] 
+        ( ["a"-"z" "A"-"Z" "$" "_" "0"-"9"] )* ( "_" ( [^" " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";" "=" ":" "{" "}"] )+ )?
+      )
+      |
+      ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]+
+    ) 
+)
+
 TOKEN:string: (
-    "\"" ( 
+    "\"" 
+    ( 
         [^ "\\" "\"" "\n" "\r"] |
         ( "\\" (
             . |
@@ -440,9 +376,10 @@ SKIP:comment
 SKIP:line_comment
 SKIP:xml_comment
 SKIP:comment_keyword
+SKIP:nl
 
 ## CompilationUnit
-S = (<nl>)* TopStats;
+S = TopStats;
 
 PlainId = <upper_identifier>
         | <var_identifier>
@@ -451,68 +388,62 @@ PlainId = <upper_identifier>
 NameId = PlainId
        | <bquote_identifier>;
 
-Symbol = <quote> PlainId;
-
-# all (<nl>)* behind ";" should also be consumed
-Semi = <semi> (<nl>)*
-     | (<nl>)+ [";" (<nl>)*];
-
 Literal = <integer>
         | <float>
         | <char>
         | <string>
-        | Symbol
-        | <true> 
-        | <false>
-        | <null>;
+        | <symbol>
+        | "true" 
+        | "false"
+        | "null";
 
-QualId = NameId (<dot> (<nl>)* NameId)*;
+QualId = NameId ("." NameId)*;
 
-Ids = NameId (<comma> (<nl>)* NameId)*;
+Ids = NameId ("," NameId)*;
 
 ## Hacking for: Path = StableId ["." "this"], since Path is also belongs to SimpleType etc
-StableId = PathId (<dot> (<nl>)* PathId)*;
+StableId = PathId ("." PathId)*;
 PathId = NameId
-       | <this>
-       | <super> [ClassQualifier] <dot> (<nl>)* NameId;
-ClassQualifier = <lbracket> NameId <rbracket>;
+       | "this"
+       | "super" [ClassQualifier] "." NameId;
+ClassQualifier = "[" NameId "]";
 
 ## Hacking for: SimpleType = StableId ["." "type"] (TypeArgs | "#" NameId)*
 ##  "." "type" should only be in SimpleType, but since StableId may also belongs to SimpleType,
 ##  we cannot add any more "." "anything" behind StableId
-TypeStableId = TypeId (<dot> (<nl>)* TypeId)*;
+TypeStableId = TypeId ("." TypeId)*;
 TypeId = PathId
-       | <under>
-       | <type>;
+       | "_"
+       | "type";
 
-Types = Type (<comma> (<nl>)* Type)*;
-Type = InfixType [<rarrow> (<nl>)* Type | ExistentialClause];
+Types = Type ("," Type)*;
+Type = InfixType ["=>" Type | ExistentialClause];
 ## Hacking for:
-#     | "(" <rarrow> (<nl>)* Type ")" <rarrow> (<nl>)* Type;
+#     | "(" <rarrow> Type ")" <rarrow> Type;
 # @see SimpleType
 
-ExistentialClause = <forSome> <lbrace> (<nl>)* ExistentialDcl (Semi ExistentialDcl)* <rbrace>;
-ExistentialDcl = <type> NameId [TypeParamClause] [<tupper> Type] [<tlower> Type]
-               | <val> Ids <colon> Type
+ExistentialClause = "forSome" "{" ExistentialDcl ([";"] ExistentialDcl)* "}";
+ExistentialDcl = "type" NameId [TypeParamClause] [">:" Type] ["<:" Type]
+               | "val" Ids ":" Type
                | ;
 
-InfixType = CompoundType (NameId [<nl>] CompoundType)*;
-CompoundType = AnnotType (<with> AnnotType)* [Refinement]
+InfixType = CompoundType (NameId CompoundType)*;
+CompoundType = AnnotType ("with" AnnotType)* [Refinement]
              | Refinement;
 ## Hacking for Ascription = <colon> (CompoundType | (Annotation)+);
 ## AnnotType actually should be AnnotType = (Annotation)* SimpleType ["*"]
 AnnotType = SimpleType ["*"]
           | (Annotation)+ [SimpleType ["*"]];
 
-SimpleType = TypeStableId (TypeArgs | <hash> NameId)*
-           | <lparen> (Types1 | <rarrow> (<nl>)* Type) <rparen> (TypeArgs | <hash> NameId)*;
+SimpleType = TypeStableId (TypeArgs | "#" NameId)*
+           | "(" (Types1 | "=>" Type) ")" (TypeArgs | "#" NameId)*;
 ## Hacking for: Type (<comma> Type)* [<comma>];
-Types1 = Type1 (<comma> (<nl>)* Type1)*;
+Types1 = Type1 ("," Type1)*;
 Type1 = Type
       | ;
-TypeArgs = <lbracket> Types <rbracket>;
+TypeArgs = "[" Types "]";
 
-Refinement = <lbrace> (<nl>)* [RefineStat (Semi RefineStat)*] <rbrace>;
+Refinement = "{" [RefineStat ([";"] RefineStat)*] "}";
 RefineStat = DclDef 
            | ;
 
@@ -529,12 +460,12 @@ RefineStat = DclDef
 Expr = CtrlExpr
      | PostfixExpr [Ascription [FunExprTail] | MatchExprTail | AssignExprTail | FunExprTail];
 ## Hacking for: Ascription = <colon> (CompoundType | (Annotation)+); @see AnnotType
-Ascription = <colon> (CompoundType);
+Ascription = ":" (CompoundType);
 ## MatchExprTail, AssignExprTail is same for Expr, ExprInParen, ExprInTemplate, ExprInBlock, ExprInCaseBlock, 
 ## but FunExprTail may not 
-MatchExprTail = <match> (<nl>)* <lbrace> (<nl>)* CaseClauses <rbrace>;
-AssignExprTail = <eq> (<nl>)* Expr;
-FunExprTail = <rarrow> (<nl>)* Expr;
+MatchExprTail = "match" "{" CaseClauses "}";
+AssignExprTail = "=" Expr;
+FunExprTail = "=>" Expr;
 
 CtrlExpr = IfExpr
          | WhileExpr
@@ -544,37 +475,43 @@ CtrlExpr = IfExpr
          | ThrowExpr
          | ReturnExpr;
 
-IfExpr = <if> <lparen> (<nl>)* Expr <rparen> (<nl>)* Expr [<else> (<nl>)* Expr];
-WhileExpr = <while> <lparen> (<nl>)* Expr <rparen> (<nl>)* Expr;
-TryExpr = <try> (<nl>)* <lbrace> (<nl>)* BlockStats <rbrace> [<catch> (<nl>)* <lbrace> (<nl>)* CaseClauses <rbrace>] [<finally> (<nl>)* Expr];
-DoExpr = <do> Expr [Semi] <while> <lparen> (<nl>)* Expr <rparen>;
-ForExpr = <for> (<lparen> (<nl>)* Enumerators <rparen> | <lbrace> (<nl>)* Enumerators <rbrace>) [<yield>] (<nl>)* Expr;
-ThrowExpr = <throw> Expr;
-ReturnExpr = <return> [Expr];
+IfExpr = "if" "(" Expr ")" Expr ["else" Expr];
+WhileExpr = "while" "(" Expr ")" Expr;
+TryExpr = "try" "{" BlockStats "}" ["catch" "{" CaseClauses "}"] ["finally" Expr];
+DoExpr = "do" Expr [";"] "while" "(" Expr ")";
+ForExpr = "for" ("(" Enumerators ")" | "{" Enumerators "}") ["yield"] Expr;
+ThrowExpr = "throw" Expr;
+ReturnExpr = "return" [Expr];
 
 
 ## Hacking for:
 ##     PostfixExpr = InfixExpr [NameId [<nl>]];
 ##     InfixExpr = PrefixExpr  (NameId [<nl>] InfixExpr)*;
 ## Should connect two exprs separated by <nl> to one expr when possible in semantic analyzer
-PostfixExpr = PrefixExpr (NameId [PrefixExpr])*;
+#PostfixExpr = PrefixExpr (NameId [PrefixExpr])*;
+#PrefixExpr = [PrefixOp] SimpleExpr;
+#PrefixOp = "-" 
+#         | "+" 
+#         | "~" 
+#         | "!";
+PostfixExpr = (SimpleExpr)+;
 PrefixExpr = [PrefixOp] SimpleExpr;
 PrefixOp = "-" 
          | "+" 
          | "~" 
          | "!";
 
-SimpleExpr = PathIdWithTypeArgs    (<dot> (<nl>)* PathIdWithTypeArgs | Arguments | <under>)*
-           | LiteralWithTypeArgs   (<dot> (<nl>)* PathIdWithTypeArgs | Arguments | <under>)*
-           | WildCardWithTypeArgs  (<dot> (<nl>)* PathIdWithTypeArgs | Arguments | <under>)*
-           | TupleExprWithTypeArgs (<dot> (<nl>)* PathIdWithTypeArgs | Arguments | <under>)*
-           | BlockExprWithTypeArgs (<dot> (<nl>)* PathIdWithTypeArgs [Arguments])*
-           | NewExpr               (<dot> (<nl>)* PathIdWithTypeArgs | Arguments |  <under>)*
+SimpleExpr = PathIdWithTypeArgs    ("." PathIdWithTypeArgs | Arguments | "_")*
+           | LiteralWithTypeArgs   ("." PathIdWithTypeArgs | Arguments | "_")*
+           | WildCardWithTypeArgs  ("." PathIdWithTypeArgs | Arguments | "_")*
+           | TupleExprWithTypeArgs ("." PathIdWithTypeArgs | Arguments | "_")*
+           | BlockExprWithTypeArgs ("." PathIdWithTypeArgs [Arguments])*
+           | NewExpr               ("." PathIdWithTypeArgs | Arguments | "_")*
            | XmlExpr;
 
 PathIdWithTypeArgs    = PathId    (TypeArgs)*;
 LiteralWithTypeArgs   = Literal   (TypeArgs)*;
-WildCardWithTypeArgs  = <under>   (TypeArgs)*;
+WildCardWithTypeArgs  = "_"       (TypeArgs)*;
 TupleExprWithTypeArgs = TupleExpr (TypeArgs)*;
 BlockExprWithTypeArgs = BlockExpr (TypeArgs)*;
 
@@ -592,7 +529,7 @@ TupleExpr = ParenExpr;
 ##    ClassTemplateBody = (PrthsOrBlock ("with" AnnotType)* (TypeArgs)*)*;
 ##    ClassParents = AnnotType (Arguments)* ("with" AnnotType)*;
 ## A possible expr: NewExpr = "new" [Block] ClassParents (PrthsOrBlock (TypeArgs)*)* [<dot> NameId];
-NewExpr = <new> (ClassParents [Template] | Template [ClassParents [Template]]) (TypeArgs)*;
+NewExpr = "new" (ClassParents [Template] | Template [ClassParents [Template]]) (TypeArgs)*;
 
 Arguments = ParenExpr
           | BlockExpr;
@@ -603,10 +540,9 @@ Arguments = ParenExpr
 ## Although "," is used to separator one expr, but, all <nl> in parenthsis should be ignor,
 ## so, we use (ExprInParen)+ here, and let ExprInParen include <nl>.
 ## ** Should combine them to one expr in semantic analyzer **
-ParenExpr = <lparen> (<nl>)* ExprInParen (<comma> (<nl>)* ExprInParen)* (<nl>)* <rparen>;
+ParenExpr = "(" ExprInParen ("," ExprInParen)* ")";
 ExprInParen = CtrlExpr
             | PostfixExpr [AscriptionInParen [FunExprTail] | MatchExprTail | AssignExprTail | FunExprTail]
-            | <nl>
             | ;
 ## Hacking for: Ascription and Binding;
 ##     Ascription = ":" (CompoundType | (Annotation)+ | "_" "*")
@@ -615,13 +551,13 @@ ExprInParen = CtrlExpr
 ## Since (Bindings | id) ‘=>’ Expr also conflicts with (PostfixExpr Ascription "=>" Expr), 
 ## we have to combine them as: Ascription = ":" (Type | (Annotation)+);
 ## Hacking for: AscriptionInPrths = <colon> (Type | (Annotation)+); @see AnnotType
-AscriptionInParen = <colon> (Type);
+AscriptionInParen = ":" (Type);
 
-BlockExpr = <lbrace> (<nl>)* (BlockStats | CaseClauses) <rbrace>;
-Template = <lbrace> (<nl>)* TemplateStats <rbrace> [<with>];
+BlockExpr = "{" (BlockStats | CaseClauses) "}";
+Template = "{" TemplateStats "}" ["with"];
 
 ####### Blocked Statements: #############
-TemplateStats = TemplateStat (Semi TemplateStat)*;
+TemplateStats = TemplateStat ([";"] TemplateStat)*;
 TemplateStat = Import
              | DclDefInTemplate
              | ExprInTemplate
@@ -631,47 +567,54 @@ DclDefInTemplate = (Annotation)* (Modifier)* (ValDclDef | VarDclDef | FunDclDef 
 ## Where, [id [‘:’ Type] ‘=>’] conflicts with Expr
 ExprInTemplate = CtrlExpr
                | PostfixExpr [Ascription [FunExprTailInTemplate] | MatchExprTail | AssignExprTail | FunExprTailInTemplate];
-FunExprTailInTemplate = <rarrow> (<nl>)* TemplateStats;
+FunExprTailInTemplate = "=>" TemplateStats;
 
-BlockStats = BlockStat (Semi BlockStat)*;
+BlockStats = BlockStat ([";"] BlockStat)*;
 BlockStat = Import
           | DclDefInBlock
           | ExprInBlock
           | ;
-DclDefInBlock = [<implicit>] (ValDclDef | VarDclDef | FunDclDef | TypeDclDef)
+DclDefInBlock = ["implicit"] (ValDclDef | VarDclDef | FunDclDef | TypeDclDef)
               | (LocalModifier)* TmplDef;
 ## Hacking for: ResultExpr = (Bindings | NameId [":" CompoundType]) "=>" BlockStats;
 ## Where, the right part of "=>" is BlockStats vs Expr in anonynous function expression
 ExprInBlock = CtrlExpr
             | PostfixExpr [Ascription [FunExprTailInBlock] | MatchExprTail | AssignExprTail | FunExprTailInBlock];
-FunExprTailInBlock = <rarrow> (<nl>)* BlockStats;
+FunExprTailInBlock = "=>" BlockStats;
 
 ## Hacking for CaseClause BlockStats, where another "case" starting TmplDef maybe 
 ## recognized as a CaseClause in LL(k)
-CaseBlockStats = CaseBlockStat (Semi CaseBlockStat)*;
+CaseBlockStats = CaseBlockStat ([";"] CaseBlockStat)*;
 CaseBlockStat = Import
               | DclDefInCaseBlock
               | ExprInCaseBlock
               | ;
-DclDefInCaseBlock = [<implicit>] (ValDclDef | VarDclDef | FunDclDef | TypeDclDef)
+DclDefInCaseBlock = ["implicit"] (ValDclDef | VarDclDef | FunDclDef | TypeDclDef)
                   | (LocalModifier)+ TmplDef;
 ExprInCaseBlock = CtrlExpr
                 | PostfixExpr [Ascription [FunExprTailInCaseBlock] | MatchExprTail | AssignExprTail | FunExprTailInCaseBlock];
-FunExprTailInCaseBlock = <rarrow> (<nl>)* CaseBlockStats;
+FunExprTailInCaseBlock = "=>" CaseBlockStats;
 
 CaseClauses = CaseClause (CaseClause)*;
-CaseClause = <case> CasePattern [Guard] <rarrow> (<nl>)* CaseBlockStats;
-Guard = <if> PostfixExpr;
+CaseClause = "case" CasePattern [Guard] "=>" CaseBlockStats;
+Guard = "if" PostfixExpr;
 
 ## The old style for-comprehensions' generator: ["val"] Pattern1 "<-" Expr [Guard]; 
 ## has been depracated in Version 2.6 
-Enumerators = Generator (Semi Enumerator)*;
-Generator = Pattern1 <larrow> Expr [Guard];
+#Enumerators = Generator ([<semi>] Enumerator)*;
+#Generator = Pattern1 <larrow> Expr [Guard];
+#Enumerator = Generator
+#           | Guard
+#           | ValDefInEnumerator
+#           | ;
+#ValDefInEnumerator = <val> Pattern1 <eq> Expr;
+Enumerators = Generator ([";"] Enumerator)*;
+Generator = Pattern1 ("<-" Expr [Guard])+;
 Enumerator = Generator
            | Guard
            | ValDefInEnumerator
            | ;
-ValDefInEnumerator = <val> Pattern1 <eq> (<nl>)* Expr;
+ValDefInEnumerator = "val" Pattern1 "=" Expr;
 
 
 XmlExpr = XmlElement (XmlElement)*
@@ -681,7 +624,7 @@ XmlExpr = XmlElement (XmlElement)*
 XmlElement = <xml_element_start> (XmlAttribute)* (<xml_end_element_end> | <xml_element_end> (XmlContent)* XmlEndTag);
 
 XmlEndTag = <xml_end_element_start> (XmlAttribute)* <xml_element_end>;
-XmlAttribute = <xml_attribute_name> <eq> (<xml_attribute_value> | <xml_scala_expr>);
+XmlAttribute = <xml_attribute_name> "=" (<xml_attribute_value> | <xml_scala_expr>);
 
 XmlCDSect = <cdsect_start> <cddata> <cdsect_end>;
 XmlContent = XmlCharData
@@ -693,83 +636,26 @@ XmlCharData = Literal
          | <var_identifier>
          | <upper_identifier>
          | <op_identifier>
-         | <semi>
-         | <lparen>
-         | <rparen>
-         | <lbracket>
-         | <rbracket>
-         | <larrow>
-         | <rarrow>
-         | <tlower>
-         | <tupper>
-         | <tview>
-         | <at>
-         | <eq>
-         | <colon>
-         | <dot>
-         | <comma>
-         | <hash>
-         | <under>
-         | <quote>
-         | <abstract>
-         | <case>
-         | <class>
-         | <def>
-         | <do>
-         | <false>
-         | <final>
-         | <for>
-         | <if>
-         | <implicit>
-         | <import>
-         | <lazy>
-         | <new>
-         | <null>
-         | <object>
-         | <override>
-         | <package>
-         | <private>
-         | <protected>
-         | <return>
-         | <sealed>
-         | <super>
-         | <this>
-         | <throw>
-         | <trait>
-         | <try>
-         | <true>
-         | <type>
-         | <val>
-         | <var>
-         | <while>
-         | <catch>
-         | <else>
-         | <extends>
-         | <finally>
-         | <forSome>
-         | <match>
-         | <requires>
-         | <with>
-         | <yield>
-         | <nl>;
-XmlScalaExpr = <lbrace> (<nl>)* BlockStats <rbrace>;
+         | <separator>
+         | <keyword>;
+XmlScalaExpr = "{" BlockStats "}";
 
 Pattern = Pattern1 ("|" Pattern1)*
         | ;
 Pattern1 = Pattern3;
 
 ## Hacking: used only by PatDef
-Pattern2 = <under> ["*"]
+Pattern2 = "_" ["*"]
          | Literal
-         | StableId [<lparen> (<nl>)* Patterns (<nl>)* <rparen> | <at> Pattern3]
+         | StableId ["(" Patterns ")" | "@" Pattern3]
          | TuplePattern
          | XmlPattern;
 
 ## Hacking for neg number in Literal
-Pattern3 = ["-"] SimplePattern (NameId [<nl>] ["-"] SimplePattern)*;
-SimplePattern = <under> ["*"]
+Pattern3 = ["-"] SimplePattern (NameId ["-"] SimplePattern)*;
+SimplePattern = "_" ["*"]
               | Literal
-              | StableId [<lparen> (<nl>)* Patterns (<nl>)* <rparen> | <at> Pattern3 | <colon> Type]
+              | StableId ["(" Patterns ")" | "@" Pattern3 | ":" Type]
               | TuplePattern
               | XmlPattern;
 
@@ -781,14 +667,14 @@ SimplePattern = <under> ["*"]
 ## function type rather then a (Type => Expr), so we here have to limit the Type to InfixType
 CasePattern = CasePattern1 ("|" CasePattern1)*;
 ## Hacking for neg number in Literal
-CasePattern1 = ["-"] CasePattern0 (NameId [<nl>] ["-"] CasePattern0)*;
-CasePattern0 = <under> ["*"]
+CasePattern1 = ["-"] CasePattern0 (NameId ["-"] CasePattern0)*;
+CasePattern0 = "_" ["*"]
              | Literal
-             | StableId [<lparen> (<nl>)* Patterns (<nl>)* <rparen> | <at> Pattern3 | <colon> InfixType]
+             | StableId ["(" Patterns ")" | "@" Pattern3 | ":" InfixType]
              | TuplePattern
              | XmlPattern;
 
-TuplePattern = <lparen> (<nl>)* Patterns (<nl>)* <rparen>;
+TuplePattern = "(" Patterns ")";
 
 XmlPattern = <xml_element_start> (XmlAttribute)* (<xml_end_element_end> | <xml_element_end> (XmlContentP)* XmlEndTag);
 XmlContentP = XmlCharData
@@ -796,50 +682,50 @@ XmlContentP = XmlCharData
             | XmlCDSect
             | <xml_pi>
             | XmlScalaPatterns;
-XmlScalaPatterns = <lbrace> (<nl>)* Patterns (<nl>)* <rbrace>;
+XmlScalaPatterns = "{" Patterns "}";
 
-Patterns = Pattern (<comma> (<nl>)* Pattern)*;
+Patterns = Pattern ("," Pattern)*;
 
 
-TypeParamClause = <lbracket> VariantTypeParam (<comma> (<nl>)* VariantTypeParam)* <rbracket>;
+TypeParamClause = "[" VariantTypeParam ("," VariantTypeParam)* "]";
 VariantTypeParam = ["+" | "-"] TypeParam;
 
-FunTypeParamClause = <lbracket> TypeParam (<comma> (<nl>)* TypeParam)* <rbracket>;
+FunTypeParamClause = "[" TypeParam ("," TypeParam)* "]";
 
 ## Hacking for TypeParam = NameId [">:" Type] ["<:" Type] ["<%" Type];
 ## Is the ScalaReference error? the following code is from examples.tcpoly.collection.HOSeq
 ##   trait Accumulator[+coll[x], elT] {...}
-TypeParam = NameId [TypeParamClause] [<tupper> Type] [<tlower> Type] [<tview> Type];
+TypeParam = NameId [TypeParamClause] [">:" Type] ["<:" Type] ["<%" Type];
 
 Modifier = LocalModifier
          | AccessModifier
-         | <override>;
+         | "override";
 
-LocalModifier = <abstract>
-              | <final>
-              | <sealed>
-              | <implicit>
-              | <lazy>;
+LocalModifier = "abstract"
+              | "final"
+              | "sealed"
+              | "implicit"
+              | "lazy";
 
-AccessModifier = (<private> | <protected>) [AccessQualifier];
-AccessQualifier = <lbracket> (NameId | <this>) <rbracket>;
+AccessModifier = ("private" | "protected") [AccessQualifier];
+AccessQualifier = "[" (NameId | "this") "]";
 
-Annotation = <at> AnnotationExpr [<nl>];
+Annotation = "@" AnnotationExpr;
 ## Hacking for AnnotationExpr = AnnotType (Arguments)* [<lbrace> (<nl>)* NameValuePair (<comma> (<nl>)* NameValuePair)* <rbrace>]
 ##     where Arguments and followed braced NameValuePair conflict
-AnnotationExpr = AnnotType (ParenExpr)* [<lbrace> (<nl>)* NameValuePair (<comma> (<nl>)* NameValuePair)* <rbrace>];
-NameValuePair = <val> NameId <eq> (<nl>)* PrefixExpr;
+AnnotationExpr = AnnotType (ParenExpr)* ["{" NameValuePair ("," NameValuePair)* "}"];
+NameValuePair = "val" NameId "=" PrefixExpr;
 
-Import = <import> ImportStat (<comma> ImportStat)*;
+Import = "import" ImportStat ("," ImportStat)*;
 ## Hacking for: ImportExpr = StableId "." (NameId | "_" | ImportSelectors);
 ImportStat = ImportId;
-ImportId = ImportId0 (<dot> (<nl>)* ImportId0)*;
+ImportId = ImportId0 ("." ImportId0)*;
 ImportId0 = NameId
-          | <super> [ClassQualifier] <dot> (<nl>)* NameId
-          | <under>
+          | "super" [ClassQualifier] "." NameId
+          | "_"
           | ImportSelectors;
-ImportSelectors = <lbrace> (<nl>)* ImportSelector (<comma> (<nl>)* ImportSelector)* <rbrace>;
-ImportSelector = (NameId [<rarrow> (<nl>)* (NameId | <under>)] | <under>);
+ImportSelectors = "{" ImportSelector ("," ImportSelector)* "}";
+ImportSelector = (NameId ["=>" (NameId | "_")] | "_");
 
 ## Hacking for TemplateStat: Dcl and Def all belongs to TemplateStat
 DclDef = ValDclDef
@@ -847,60 +733,60 @@ DclDef = ValDclDef
        | FunDclDef
        | TypeDclDef
        | TmplDef;
-ValDclDef = <val> PatDef [<eq> (<nl>)* Expr];
-VarDclDef = <var> PatDef [<eq> (<nl>)* Expr];
-FunDclDef = <def> NameId [FunTypeParamClause] [ParamClauses] ([<colon> Type] [<eq> (<nl>)* Expr] | <lbrace> BlockStats <rbrace>)
-          | <def> <this> [ParamClauses] (<eq> (<nl>)* ConstrExpr | ConstrBlock);
-TypeDclDef = <type> NameId [TypeParamClause] ([<tupper> Type] [<tlower> Type] [<tview> Type] | <eq> (<nl>)* Type);
+ValDclDef = "val" PatDef ["=" Expr];
+VarDclDef = "var" PatDef ["=" Expr];
+FunDclDef = "def" NameId [FunTypeParamClause] [ParamClauses] ([":" Type] ["=" Expr] | "{" BlockStats "}")
+          | "def" "this" [ParamClauses] ("=" ConstrExpr | ConstrBlock);
+TypeDclDef = "type" NameId [TypeParamClause] ([">:" Type] ["<:" Type] ["<%" Type] | "=" Type);
 
-PatDef = Pattern2 (<comma> (<nl>)* Pattern2)* [<colon> Type] ;
+PatDef = Pattern2 ("," Pattern2)* [":" Type] ;
 
 ParamClauses = ParamClause (ParamClause)*;
-ParamClause = <lparen> (<nl>)* [[<implicit>] Params] (<nl>)* <rparen>;
-Params = Param (<comma> (<nl>)* Param)*;
-Param = (Annotation)* NameId [<colon> ParamType];
+ParamClause = "(" [["implicit"] Params] ")";
+Params = Param ("," Param)*;
+Param = (Annotation)* NameId [":" ParamType];
 ParamType = Type ["*"]
-          | <rarrow> (<nl>)* Type;
+          | "=>" Type;
 
 ConstrExpr = SelfInvocation
            | ConstrBlock;
-SelfInvocation = <this> (Arguments)+;
-ConstrBlock = <lbrace> (<nl>)* SelfInvocation (Semi BlockStat)* <rbrace>;
+SelfInvocation = "this" (Arguments)+;
+ConstrBlock = "{" SelfInvocation ([";"] BlockStat)* "}";
 
 TmplDef = ClassDef
         | ObjectDef
         | TraitDef;
-ClassDef  = [<case>] <class> NameId [TypeParamClause] (Annotation)* [AccessModifier] ClassParamClauses            
-            [<requires> AnnotType] [ClassTemplateOpt];
-ObjectDef = [<case>] <object> NameId [ClassTemplateOpt];
-TraitDef  = <trait> NameId [TypeParamClause] [<requires> AnnotType] [TraitTemplateOpt];
+ClassDef  = ["case"] "class" NameId [TypeParamClause] (Annotation)* [AccessModifier] ClassParamClauses            
+            ["requires" AnnotType] [ClassTemplateOpt];
+ObjectDef = ["case"] "object" NameId [ClassTemplateOpt];
+TraitDef  = "trait" NameId [TypeParamClause] ["requires" AnnotType] [TraitTemplateOpt];
 
 ## Hacking for ClassParamClauses = (<lparen> (<nl>)* [ClassParams] (<nl>)* <rparen>)* [<lparen> (<nl>)* <implicit> ClassParams (<nl>)* <rparen>];
 ## Where:
 ##     ClassParam = (Annotation)* [(Modifier)* (<val> | <var>)] NameId [<colon> ParamType];
-ClassParamClauses = (<lparen> (<nl>)* [ClassParams] (<nl>)* <rparen>)*;
-ClassParams = ClassParam (<comma> (<nl>)* ClassParam)*;
-ClassParam = (Annotation)* (Modifier)* [(<val> | <var>)] NameId [<colon> ParamType];
+ClassParamClauses = ("(" [ClassParams] ")")*;
+ClassParams = ClassParam ("," ClassParam)*;
+ClassParam = (Annotation)* (Modifier)* [("val" | "var")] NameId [":" ParamType];
 
-ClassTemplateOpt = <extends> (ClassParents [Template] | Template [ClassParents [Template]])
+ClassTemplateOpt = "extends" (ClassParents [Template] | Template [ClassParents [Template]])
                  | Template;
-TraitTemplateOpt = <extends> (TraitParents [Template] | Template [TraitParents [Template]])
+TraitTemplateOpt = "extends" (TraitParents [Template] | Template [TraitParents [Template]])
                  | Template;
 
-ClassParents = AnnotType (ParenExpr)* (<with> AnnotType)*;
-TraitParents = AnnotType (<with> AnnotType)*;
+ClassParents = AnnotType (ParenExpr)* ("with" AnnotType)*;
+TraitParents = AnnotType ("with" AnnotType)*;
 
 ## Hacking for: [<nl>] Template
 ## Since Semi (which is ";" | <nl>) is separator between TopStat, we can not add [<nl>] Template at
 ## the end of ClassDef etc, instead, we have to let Template also be a TopStats
-TopStats = TopStat (Semi TopStat)*;
+TopStats = TopStat ([";"] TopStat)*;
 TopStat = TopTmplDef
         | Import
         | Packaging
         | ;
 
 TopTmplDef = (Annotation)* (Modifier)* TmplDef;
-Packaging = <package> QualId [<lbrace> (<nl>)* TopStats <rbrace>];
+Packaging = "package" QualId ["{" TopStats "}"];
 
 #AST {
 #    process:org.netbeans.modules.scala.editing.semantic.ScalaSemanticAnalyser.process;
@@ -987,58 +873,10 @@ MARK:error: {
     message:"LBL_UNEXPECTED_CHARACTER";
 }
 
-########### colors #############################################################
-COLOR:
-abstract,
-case,
-class,
-def,
-do,
-false,
-final,
-for,
-if,
-implicit,
-import,
-lazy,
-new,
-null,
-object,
-override,
-package,
-private,
-protected,
-return,
-sealed,
-super,
-this,
-throw,
-trait,
-try,
-true,
-type,
-val,
-var,
-while,
-catch,
-else,
-extends,
-finally,
-forSome,
-match,
-requires,
-with,
-yield,
-at,
-eq,
-colon,
-rarrow,
-larrow,
-tlower,
-tupper,
-tview: 
-{
-    foreground_color: "0x0000FE";
+########### colors ##############################################################
+## http://ui.netbeans.org/docs/ui/editor_fonts_colors/Editor_fonts_and_colors.htm
+COLOR:keyword: {
+    foreground_color: "0x0000E6";
 }
 
 COLOR:SimpleType, TypeParam.NameId: {
@@ -1072,6 +910,16 @@ COLOR:FunDclDef.NameId: {
 #    underline_color: "0x000000";
 }
 
+COLOR:ValDclDef.PatDef.Pattern2.StableId.PathId.NameId: {
+    foreground_color: "0x009B00";
+}
+
+COLOR:VarDclDef.PatDef.Pattern2.StableId.PathId.NameId: {
+    foreground_color: "0x009B00";
+    font_type: "bold";
+}
+
+
 COLOR:PostfixExpr.NameId, PrefixExpr.PrefixOp: {
 #    foreground_color: "0x9966ff";
 #    foreground_color: "0x5F9EA0";
@@ -1101,7 +949,7 @@ COLOR:comment_keyword: {
 }
 
 COLOR:xml_element_start,xml_end_element_start,xml_element_end,xml_end_element_end: {
-    foreground_color: "0x228B22";
+    foreground_color: "0x9933CC";
 }
 
 ########### complete and indentation ########################################################
