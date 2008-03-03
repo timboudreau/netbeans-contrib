@@ -17,10 +17,5 @@ import org.netbeans.installer.product.Registry;
  */
 public class ConfigurationLogic extends NativeClusterConfigurationLogic {
 
-    @Override
-    public void install(Progress progress) throws InstallationException {
-        this.getProduct().setInstallationLocation(new File("/tmp"));
-        super.install(progress);
-    }
-
+    
 }

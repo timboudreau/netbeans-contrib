@@ -12,6 +12,8 @@ import org.netbeans.installer.product.components.Product;
  * @author Igor Nikiforov
  */
 public interface NativePackageInstaller {
+    
+    void setDestinationPath(String path);
         
     boolean install(String pathToPackage, Product product);
     

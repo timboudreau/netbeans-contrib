@@ -153,6 +153,11 @@ final class AnalyzeStackTopComponent extends TopComponent {
                 .add(analyzeScroll, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE)
                 .addContainerGap())
         );
+
+        insertButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(AnalyzeStackTopComponent.class, "AnalyzeStackTopComponent.insertButton.AccessibleContext.accessibleDescription")); // NOI18N
+
+        getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(AnalyzeStackTopComponent.class, "AnalyzeStackTopComponent.AccessibleContext.accessibleName")); // NOI18N
+        getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(AnalyzeStackTopComponent.class, "AnalyzeStackTopComponent.AccessibleContext.accessibleDescription")); // NOI18N
     }// </editor-fold>//GEN-END:initComponents
 
     private void insertButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertButtonActionPerformed
