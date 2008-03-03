@@ -121,11 +121,7 @@ class Repository {
         }
         fe.setCheckedout(true);
         fe.setReserved(reserved);
-        try {
-            setFileReadOnly(file, false);
-        } catch (IOException ex) {
-            CleartoolMockup.LOG.log(Level.WARNING, null, ex);
-        }
+        setFileReadOnly(file, false);
     }
 
     FileEntry getEntry(File file) {
@@ -179,14 +175,12 @@ class Repository {
         }
         fe.setCheckedout(false);
         fe.setReserved(false);        
-        try {
-            setFileReadOnly(file, true);
-        } catch (IOException ex) {
-            CleartoolMockup.LOG.log(Level.WARNING, null, ex);
-        }        
+        if(file.isFile()) {
+            setFileReadOnly(file, true);            
+        }                
     }
     
-    private void setFileReadOnly(File file, boolean readOnly) throws IOException {
+    static void setFileReadOnly(File file, boolean readOnly) {
         String [] command = new String[3];
         if (Utilities.isWindows()) {
             command[0] = "attrib";
@@ -199,7 +193,7 @@ class Repository {
         try {
             Runtime.getRuntime().exec(command);
         } catch (Exception e) {
-            // probably does not work, ignore
+            CleartoolMockup.LOG.log(Level.WARNING, null, e);
         }
     }    
 }
