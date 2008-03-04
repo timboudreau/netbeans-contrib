@@ -347,6 +347,11 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
                     mnemonic = comp.getPropertyByName(FormHandler.MNEMONIC_PROP);
                 }
                 if (mnemonic != null) {
+                    if (FormHandler.isUserCode(mnemonic)) {
+                        NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getBundle(ResultPanel.class).getString("MSG_UserCodeNotSupported")); // NOI18N
+                        DialogDisplayer.getDefault().notify(nd);
+                        return;
+                    }
                     Property text = comp.getPropertyByName(FormHandler.TEXT_PROP);
                     String t = FormHandler.getPropertyString(text);
                     descriptor = createPropertyEditorDescriptor((PropertyPanel) panel, NbBundle.getMessage(ResultPanel.class, "mnemonic_dialog", propertyName, comp.getName(), t), prop);     //NOI18N

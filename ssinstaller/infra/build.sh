@@ -111,7 +111,8 @@ cd ${DIRNAME}
 
 ################################################################################
 # load the properties
-source ../../../../build-private.sh
+source build-private.sh
+source ../../../../build-private.sh 
 
 ################################################################################
 # define the temp file location
@@ -132,6 +133,7 @@ run() {
     # run the build
     ant build \
             \"-Dbuild.number=${BUILD_NUMBER}\" \
+	    \"-Dss.name=sunstudio 12\"\
             \"-Doutput.dir=${OUTPUT_DIR}\" \
             \"-Dbinary.cache.host=${BINARY_CACHE_HOST}\" \
             \"-Dnb.builds.host=${NB_BUILDS_HOST}\" \
@@ -204,7 +206,6 @@ setNetBeansBuildsHost() {
     fi
 }
 
-setNetBeansBuildsHost
 run $*
 
 if [ 1 == "$ML_BUILD" ] ; then
