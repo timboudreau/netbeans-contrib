@@ -44,8 +44,11 @@ import com.sun.rave.designtime.DesignContext;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JEditorPane;
+import javax.swing.JScrollPane;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.visualweb.insync.UndoEvent;
+import org.netbeans.modules.visualweb.insync.beans.Bean;
 import org.netbeans.modules.visualweb.insync.beans.BeansUnit;
 import org.netbeans.modules.visualweb.insync.faces.FacesBean;
 import org.netbeans.modules.visualweb.insync.faces.FacesPageUnit;
@@ -55,6 +58,9 @@ import org.netbeans.modules.visualweb.insync.live.LiveUnit;
 import org.netbeans.modules.visualweb.insync.models.FacesModel;
 import org.netbeans.modules.visualweb.insync.models.FacesModelSet;
 import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectUtils;
+import org.openide.DialogDisplayer;
+import org.openide.LifecycleManager;
+import org.openide.NotifyDescriptor;
 import org.openide.util.ContextAwareAction;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -86,60 +92,100 @@ public class RemoveUnusedBindingsAction extends AbstractAction implements Contex
         }
 
         public void actionPerformed(ActionEvent e) {
-            RequestProcessor.getDefault().post(new Runnable() {
-                public void run() {
-                    FacesModelSet facesModelSet = FacesModelSet.getInstance(project);
-                    if (facesModelSet != null) {
-                        DesignContext[] designContexts = facesModelSet.getDesignContexts();
+            JEditorPane editorPane = new JEditorPane();
+            editorPane.setContentType("text/html");
+            editorPane.setEditable(false);
+            editorPane.setText(NbBundle.getMessage(RemoveUnusedBindingsAction.class, "MSG_RemoveUnusedBindingsWarning"));
+
+            NotifyDescriptor d =
+                    new NotifyDescriptor.Confirmation(
+                        new JScrollPane(editorPane),
+                        NbBundle.getMessage(RemoveUnusedBindingsAction.class, "TITLE_RemoveUnusedBindings"),
+                        NotifyDescriptor.OK_CANCEL_OPTION);
+            if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
+                // Save all documents
+                LifecycleManager.getDefault().saveAll();
+
+                RequestProcessor.getDefault().post(new Runnable() {
+                    public void run() {
                         OutputWriter out = IOProvider.getDefault().getStdOut();
-                        for (DesignContext designContext : designContexts) {
-                            LiveUnit liveUnit = (LiveUnit) designContext;
-                            BeansUnit beansUnit = liveUnit.getBeansUnit();
-                            if (!(beansUnit instanceof FacesPageUnit)) {
-                                continue;
-                            }
-                            FacesModel facesModel = liveUnit.getModel();
-                            if (facesModel == null) {
-                                continue;
-                            }
-                            out.println(NbBundle.getMessage(RemoveUnusedBindingsAction.class,
-                                    "MSG_ProcessingFacesModel",  // NOI18N
-                                    facesModel.getFile().getPath()));
-                            if (facesModel.isBusted()) {
+                        out.println(NbBundle.getMessage(RemoveUnusedBindingsAction.class, "MSG_ProcessingProject", project.getProjectDirectory()));
+                        out.println(NbBundle.getMessage(RemoveUnusedBindingsAction.class, "MSG_Modeling"));
+                        FacesModelSet facesModelSet = FacesModelSet.getInstance(project);
+                        if (facesModelSet == null) {
+                            out.println(NbBundle.getMessage(RemoveUnusedBindingsAction.class, "MSG_ModelingFailed", project.getProjectDirectory()));
+                        } else {
+                            out.println(
+                                    NbBundle.getMessage(RemoveUnusedBindingsAction.class, "MSG_Modeling") +
+                                    NbBundle.getMessage(RemoveUnusedBindingsAction.class, "MSG_Done"));
+                            DesignContext[] designContexts = facesModelSet.getDesignContexts();
+                            for (DesignContext designContext : designContexts) {
+                                LiveUnit liveUnit = (LiveUnit) designContext;
+                                BeansUnit beansUnit = liveUnit.getBeansUnit();
+                                if (!(beansUnit instanceof FacesPageUnit)) {
+                                    continue;
+                                }
+                                FacesModel facesModel = liveUnit.getModel();
+                                if (facesModel == null) {
+                                    continue;
+                                }
                                 out.println(NbBundle.getMessage(RemoveUnusedBindingsAction.class,
-                                        "MSG_SkippingFacesModel",  // NOI18N
+                                        "MSG_ProcessingFacesModel",  // NOI18N
                                         facesModel.getFile().getPath()));
-                                continue;
-                            }
-                            UndoEvent undo = null;
-                            try {
-                                undo = facesModel.writeLock(
-                                        NbBundle.getMessage(RemoveUnusedBindingsAction.class,
-                                        "CTL_RemoveUnusedBindingsAction"));  // NOI18N
-                                FacesPageUnit facesPageUnit = (FacesPageUnit) beansUnit;
-                                DesignBean[] beans = liveUnit.getBeans();
-                                for (DesignBean bean : beans) {
-                                    if (bean instanceof FacesDesignBean) {
-                                        FacesDesignBean facesDesignBean = (FacesDesignBean) bean;
-                                        FacesBean.UsageInfo usageInfo = facesDesignBean.getUsageInfo();
-                                        if (usageInfo.getUsageStatus() == UsageStatus.NOT_USED) {
-                                            facesDesignBean.removeBinding();
-                                            out.println(NbBundle.getMessage(RemoveUnusedBindingsAction.class,
-                                                "MSG_RemovedBindingsForBean",  // NOI18N
-                                                facesDesignBean.getInstanceName()));
+                                if (facesModel.isBusted()) {
+                                    out.println(NbBundle.getMessage(RemoveUnusedBindingsAction.class,
+                                            "MSG_SkippingFacesModel",  // NOI18N
+                                            facesModel.getFile().getPath()));
+                                    continue;
+                                }
+                                UndoEvent undo = null;
+                                try {
+                                    undo = facesModel.writeLock(
+                                            NbBundle.getMessage(RemoveUnusedBindingsAction.class,
+                                            "CTL_RemoveUnusedBindingsAction"));  // NOI18N
+                                    FacesPageUnit facesPageUnit = (FacesPageUnit) beansUnit;
+                                    DesignBean[] beans = liveUnit.getBeans();
+                                    for (DesignBean bean : beans) {
+                                        if (bean instanceof FacesDesignBean) {
+                                            FacesDesignBean facesDesignBean = (FacesDesignBean) bean;
+                                            if (hasBindingAttribute(facesDesignBean)) {
+                                                FacesBean.UsageInfo usageInfo = facesDesignBean.getUsageInfo();
+                                                if (usageInfo.getUsageStatus() == UsageStatus.NOT_USED) {
+                                                    facesDesignBean.removeBinding();
+                                                    out.println(NbBundle.getMessage(RemoveUnusedBindingsAction.class,
+                                                        "MSG_RemovedBindingsForBean",  // NOI18N
+                                                        facesDesignBean.getInstanceName()));
+                                                }
+                                            }
                                         }
                                     }
+                                } finally {
+                                    facesModel.writeUnlock(undo);
                                 }
-                            } finally {
-                                facesModel.writeUnlock(undo);
+                                out.println(
+                                    NbBundle.getMessage(RemoveUnusedBindingsAction.class,
+                                        "MSG_ProcessingFacesModel", // NOI18N
+                                        facesModel.getFile().getPath()) +
+                                    NbBundle.getMessage(RemoveUnusedBindingsAction.class, "MSG_Done"));
                             }
-                            out.println(NbBundle.getMessage(RemoveUnusedBindingsAction.class,
-                                    "MSG_ProcessingFacesModelDone", // NOI18N
-                                    facesModel.getFile().getPath()));
                         }
+                        out.println(NbBundle.getMessage(RemoveUnusedBindingsAction.class, "MSG_ProcessingProject", project.getProjectDirectory()) +
+                                    NbBundle.getMessage(RemoveUnusedBindingsAction.class, "MSG_Done"));
                     }
-                }
-            });
+                });
+            }
         }
+    }
+
+    private static boolean hasBindingAttribute(DesignBean designBean) {
+        if (designBean instanceof FacesDesignBean) {
+            FacesDesignBean facesDesignBean = (FacesDesignBean) designBean;
+            Bean bean = facesDesignBean.getBean();
+            if (bean instanceof FacesBean) {
+                FacesBean facesBean = (FacesBean) bean;
+                return facesBean.getAttr(facesBean.BINDING_ATTR) != null;
+            }
+        }
+        return false;
     }
 }
