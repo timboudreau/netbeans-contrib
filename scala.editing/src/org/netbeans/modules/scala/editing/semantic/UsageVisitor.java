@@ -77,11 +77,12 @@ public class UsageVisitor extends ASTVisitor {
                 // @todo should process package here
                 if (pathIds.size() > 0) {
                     ASTToken latestIdTok = pathIds.get(pathIds.size() - 1);
-                    Type typeDfn = currCtx.getDefinitionInScopeByName(Type.class, latestIdTok.getIdentifier());
+                    String idStr = latestIdTok.getIdentifier();
+                    Type typeDfn = currCtx.getDefinitionInScopeByName(Type.class, idStr);
                     if (typeDfn != null) {
                         currCtx.addUsage(latestIdTok, typeDfn);
                     } else {
-                        Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, latestIdTok.getIdentifier());
+                        Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, idStr);
                         if (tmplDfn != null) {
                             currCtx.addUsage(latestIdTok, tmplDfn);
                         }
@@ -102,10 +103,11 @@ public class UsageVisitor extends ASTVisitor {
             } else {
                 if (pathIds.size() > 0) {
                     ASTToken latestIdTok = pathIds.get(pathIds.size() - 1);
+                    String idStr = latestIdTok.getIdentifier();
                     // @todo should process package here
-                    if (!latestIdTok.getIdentifier().equals("_")) {
+                    if (!idStr.equals("_")) {
                         ScalaContext currCtx = (ScalaContext) rootCtx.getClosestContext(latestIdTok.getOffset());
-                        Var varDfn = currCtx.getVariableInScope(latestIdTok.getIdentifier());
+                        Var varDfn = currCtx.getVariableInScope(idStr);
                         if (varDfn != null) {
                             currCtx.addUsage(latestIdTok, varDfn);
                         }
@@ -123,13 +125,14 @@ public class UsageVisitor extends ASTVisitor {
             if (enter) {
             } else {
                 ScalaContext currCtx = (ScalaContext) rootCtx.getClosestContext(leaf.getOffset());
-                for (ASTToken id : pathIds) {
-                    if (id.getIdentifier().equals("this") || id.getIdentifier().equals("super")) {
+                for (ASTToken idTok : pathIds) {
+                    String idStr = idTok.getIdentifier();
+                    if (idStr.equals("this") || idStr.equals("super")) {
                         // @todo
                     } else {
-                        Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, id.getIdentifier());
+                        Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, idStr);
                         if (tmplDfn != null && (tmplDfn.getKind() == Kind.CLASS || tmplDfn.getKind() == Kind.TRAIT)) {
-                            currCtx.addUsage(id, tmplDfn);
+                            currCtx.addUsage(idTok, tmplDfn);
                         }
                     }
                 }

@@ -434,7 +434,7 @@ public class ScalaSemanticAnalyser {
     private Map<ASTItem, ScalaContext> processTmplDef(ScalaContext rootCtx, ASTItem defStat, ScalaContext currCtx, Template tmplDfn) {
         Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
         ScalaContext newCtx = new ScalaContext(ScalaContext.TEMPLATE, defStat.getOffset(), defStat.getEndOffset());
-        tmplDfn.setContext(newCtx);
+        //tmplDfn.setContext(newCtx);
         currCtx.addContext(newCtx);
 
         Kind kind = tmplDfn.getKind();
@@ -589,7 +589,7 @@ public class ScalaSemanticAnalyser {
     private Map<ASTItem, ScalaContext> processFunDclDef(ScalaContext rootCtx, ASTItem funDclDef, ScalaContext currCtx, Function funDfn) {
         Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
         ScalaContext newCtx = new ScalaContext(ScalaContext.FUNCTION, funDclDef.getOffset(), funDclDef.getEndOffset());
-        funDfn.setContext(newCtx);
+        //funDfn.setContext(newCtx);
         currCtx.addContext(newCtx);
         for (ASTItem item : funDclDef.getChildren()) {
             if (isNode(item, "FunTypeParamClause")) {
@@ -632,7 +632,7 @@ public class ScalaSemanticAnalyser {
     private Map<ASTItem, ScalaContext> processTypeDclDef(ScalaContext rootCtx, ASTItem typeDclDef, ScalaContext currCtx, Type typeDfn) {
         Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
         ScalaContext newCtx = new ScalaContext(ScalaContext.FUNCTION, typeDclDef.getOffset(), typeDclDef.getEndOffset());
-        typeDfn.setContext(newCtx);
+        //typeDfn.setContext(newCtx);
         currCtx.addContext(newCtx);
         for (ASTItem item : typeDclDef.getChildren()) {
             if (isNode(item, "TypeParamClause")) {
