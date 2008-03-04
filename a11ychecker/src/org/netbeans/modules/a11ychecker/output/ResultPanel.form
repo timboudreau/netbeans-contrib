@@ -36,7 +36,7 @@
                       <Component id="warningCheckBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
                       <Component id="infoCheckBox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="645" max="32767" attributes="0"/>
+                      <EmptySpace pref="747" max="32767" attributes="0"/>
                       <Component id="autoI18nCheckBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="TraversalEditorButton" linkSize="1" min="-2" pref="18" max="-2" attributes="0"/>

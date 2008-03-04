@@ -53,6 +53,7 @@ import java.awt.Dialog;
 import java.io.File;
 import java.util.*;
 
+import java.util.ArrayList;
 import javax.swing.event.TableModelListener;
 import org.netbeans.modules.clearcase.*;
 import org.netbeans.modules.clearcase.ui.add.AddAction;
@@ -149,12 +150,22 @@ public class CheckinAction extends AbstractAction implements NotificationListene
         AddAction.addFiles(message, false, filesToCheckin);
         
         // TODO: process options
+        List<String> addExclusions = new ArrayList<String>();;
+        List<String> removeExclusions = new ArrayList<String>();        
         List<File> ciFiles = new ArrayList<File>(); 
         for (Map.Entry<ClearcaseFileNode, CheckinOptions> entry : filesToCheckin.entrySet()) {
+            File file = entry.getKey().getFile();
             if (entry.getValue() != CheckinOptions.EXCLUDE) {
-                ciFiles.add(entry.getKey().getFile());
+                ciFiles.add(file);
+                removeExclusions.add(file.getAbsolutePath());
+            } else {
+                addExclusions.add(file.getAbsolutePath());
             }
         }
+
+        ClearcaseModuleConfig.addExclusionPaths(addExclusions);
+        ClearcaseModuleConfig.removeExclusionPaths(removeExclusions);
+                                
         files = ciFiles.toArray(new File[ciFiles.size()]);
         Clearcase.getInstance().getClient().post(new ExecutionUnit(
                 "Checking in...",
