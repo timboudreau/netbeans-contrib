@@ -59,11 +59,11 @@ made subject to such option by the copyright holder.
     </folder>
     <folder name="Windows2">
         <folder name="Components">
-            <file name="VersioningTopComponent.settings" url="VersioningTopComponentSettings.xml"/>
+            <file name="ClearcaseTopComponent.settings" url="ClearcaseTopComponentSettings.xml"/>
         </folder>
         <folder name="Modes">
             <folder name="output">
-                <file name="VersioningTopComponent.wstcref" url="VersioningTopComponentWstcref.xml"/>
+                <file name="ClearcaseTopComponent.wstcref" url="ClearcaseTopComponentWstcref.xml"/>
             </folder>
         </folder>
     </folder>
