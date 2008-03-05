@@ -107,6 +107,10 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         syncTable = new SyncTable();
 
         initComponents();
+        tgbAll.setVisible(false);
+        tgbLocal.setVisible(false);
+        tgbRemote.setVisible(false);
+        
         setComponentsState();
         setVersioningComponent(syncTable.getComponent());
         reScheduleRefresh(0);
