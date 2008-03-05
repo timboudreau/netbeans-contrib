@@ -381,11 +381,14 @@ SKIP:nl
 ## CompilationUnit
 S = TopStats;
 
-PlainId = <upper_identifier>
-        | <var_identifier>
-        | <op_identifier>;
+## PlainId is not used yet, just keep it here for future:
+# PlainId = <upper_identifier>
+#        | <var_identifier>
+#        | <op_identifier>;
 
-NameId = PlainId
+NameId = <upper_identifier>
+       | <var_identifier>
+       | <op_identifier>
        | <bquote_identifier>;
 
 Literal = <integer>
@@ -494,6 +497,9 @@ ReturnExpr = "return" [Expr];
 #         | "+" 
 #         | "~" 
 #         | "!";
+## Can't write as: PostfixExpr = (PrefixExpr)+;
+## Otherwise, the "nl+" will be broken.
+##       val semi = nl+
 PostfixExpr = (SimpleExpr)+;
 PrefixExpr = [PrefixOp] SimpleExpr;
 PrefixOp = "-" 
