@@ -1,1 +1,1 @@
--module(__NAME__).
+-module(__CLASS_NAME__).

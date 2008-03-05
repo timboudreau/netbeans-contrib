@@ -83,7 +83,7 @@ public class DefinitionVisitor extends ASTVisitor {
             }
         } else if (xpath.endsWith("Packaging.QualId.NameId")) {
             if (enter) {
-                ASTToken idTok = getIdTokenFromNameId(leaf);
+                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 packaging.addPath(idTok.getIdentifier());
             }
         } else if (xpath.endsWith("Import.ImportStat")) {
@@ -127,7 +127,7 @@ public class DefinitionVisitor extends ASTVisitor {
             }
         } else if (xpath.endsWith("FunDclDef.NameId")) {
             if (enter) {
-                ASTToken idTok = getIdTokenFromNameId(leaf);
+                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 funDfn = new Function(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), 0);
                 // currCtx.peek() is the context of this definition itself, we should add this definition to parent
                 currCtx.peek().setEnclosingDefinition(funDfn);
@@ -138,7 +138,7 @@ public class DefinitionVisitor extends ASTVisitor {
             }
         } else if (xpath.endsWith("FunDclDef.this")) {
             if (enter) {
-                ASTToken idTok = getIdTokenFromNameId(leaf);
+                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 funDfn = new Function(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), 0);
                 // currCtx.peek() is the context of this definition itself, we should add this definition to parent
                 currCtx.peek().setEnclosingDefinition(funDfn);
@@ -149,7 +149,7 @@ public class DefinitionVisitor extends ASTVisitor {
             }
         } else if (xpath.endsWith("FunDclDef.FunTypeParamClause.TypeParam.NameId")) {
             if (enter) {
-                ASTToken idTok = getIdTokenFromNameId(leaf);
+                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 typeDfn = new Type(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset());
                 currCtx.peek().addDefinition(typeDfn);
                 currCtx.peek().addUsage(idTok, typeDfn);
@@ -158,7 +158,7 @@ public class DefinitionVisitor extends ASTVisitor {
             }
         } else if (xpath.endsWith("FunDclDef.ParamClauses.ParamClause.Params.Param.NameId")) {
             if (enter) {
-                ASTToken idTok = getIdTokenFromNameId(leaf);
+                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 if (!idTok.getIdentifier().equals("_")) {
                     varDfn = new Var(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Var.Scope.LOCAL);
                     varDfn.setVal(true);
@@ -170,7 +170,7 @@ public class DefinitionVisitor extends ASTVisitor {
             }
         } else if (xpath.endsWith("ObjectDef.NameId")) {
             if (enter) {
-                ASTToken idTok = getIdTokenFromNameId(leaf);
+                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 tmplDfn = new Template(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Kind.OBJECT, packaging);
                 // currCtx.peek() is the context of this definition itself, we should add this definition to parent
                 currCtx.peek().setEnclosingDefinition(tmplDfn);
@@ -181,7 +181,7 @@ public class DefinitionVisitor extends ASTVisitor {
             }
         } else if (xpath.endsWith("ClassDef.NameId")) {
             if (enter) {
-                ASTToken idTok = getIdTokenFromNameId(leaf);
+                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 tmplDfn = new Template(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Kind.CLASS, packaging);
                 // currCtx.peek() is the context of this definition itself, we should add this definition to parent
                 currCtx.peek().setEnclosingDefinition(tmplDfn);
@@ -192,7 +192,7 @@ public class DefinitionVisitor extends ASTVisitor {
             }
         } else if (xpath.endsWith("TraitDef.NameId")) {
             if (enter) {
-                ASTToken idTok = getIdTokenFromNameId(leaf);
+                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 tmplDfn = new Template(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Kind.TRAIT, packaging);
                 // currCtx.peek() is the context of this definition itself, we should add this definition to parent
                 currCtx.peek().setEnclosingDefinition(tmplDfn);
@@ -204,7 +204,7 @@ public class DefinitionVisitor extends ASTVisitor {
         } else if (xpath.endsWith("ClassParamClauses.ClassParams.ClassParam.NameId")) {
             // under ObjectDef or ClassDef 
             if (enter) {
-                ASTToken idTok = getIdTokenFromNameId(leaf);
+                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 /** @todo: add a constructor function for this class or object */
                 varDfn = new Var(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Var.Scope.PARAMETER);
                 currCtx.peek().addDefinition(varDfn);
@@ -214,7 +214,7 @@ public class DefinitionVisitor extends ASTVisitor {
             }
         } else if (xpath.endsWith("TypeDclDef.NameId")) {
             if (enter) {
-                ASTToken idTok = getIdTokenFromNameId(leaf);
+                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 typeDfn = new Type(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset());
                 // currCtx.peek() is the context of this definition itself, we should add this definition to parent
                 currCtx.peek().setEnclosingDefinition(typeDfn);
@@ -241,7 +241,7 @@ public class DefinitionVisitor extends ASTVisitor {
         } else if (xpath.endsWith("NameId")) {
             if (enter) {
                 if (containsValDfn || containsVarDfn) {
-                    ASTToken idTok = getIdTokenFromNameId(leaf);
+                    ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                     if (!idTok.getIdentifier().equals("_")) {
                         varDfn = new Var(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Var.Scope.LOCAL);
                         if (containsValDfn) {
@@ -293,19 +293,6 @@ public class DefinitionVisitor extends ASTVisitor {
                 }
             }
         }
-    }
-
-    private static ASTToken getIdTokenFromNameId(ASTItem NameId) {
-        for (ASTItem item1 : NameId.getChildren()) {
-            if (isNode(item1, "PlainId")) {
-                for (ASTItem item2 : item1.getChildren()) {
-                    return (ASTToken) item2;
-                }
-            } else if (isTokenType(item1, "bquote_identifier")) {
-                return (ASTToken) item1;
-            }
-        }
-        return null;
     }
 
     /**

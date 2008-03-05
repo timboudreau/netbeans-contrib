@@ -94,7 +94,7 @@ public class UsageVisitor extends ASTVisitor {
         }
         if (xpath.endsWith("TypeStableId.TypeId.PathId.NameId")) {
             if (enter && containsTypeUsage) {
-                ASTToken idTok = getIdTokenFromNameId(leaf);
+                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 pathIds.add(idTok);
             }
         } else if (xpath.endsWith("SimpleExpr.PathIdWithTypeArgs.PathId")) {
@@ -118,7 +118,7 @@ public class UsageVisitor extends ASTVisitor {
             }
         } else if (xpath.endsWith("SimpleExpr.PathIdWithTypeArgs.PathId.NameId")) {
             if (enter && containsVarUsage) {
-                ASTToken idTok = getIdTokenFromNameId(leaf);
+                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 pathIds.add(idTok);
             }
         } else if (xpath.endsWith("NewExpr.ClassParents.AnnotType.SimpleType.TypeStableId.TypeId.PathId")) {
@@ -140,7 +140,7 @@ public class UsageVisitor extends ASTVisitor {
             }
         } else if (xpath.endsWith("NewExpr.ClassParents.AnnotType.SimpleType.TypeStableId.TypeId.PathId.NameId")) {
             if (enter) {
-                ASTToken idTok = getIdTokenFromNameId(leaf);
+                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 pathIds.add(idTok);
             }
         }
@@ -231,7 +231,7 @@ public class UsageVisitor extends ASTVisitor {
                 return;
             } // @todo process this super ?
 
-            ASTToken funName = getIdTokenFromNameId(nameId);
+            ASTToken funName = (ASTToken) nameId.getChildren().get(0);
             if (funName != null) {
                 /** @todo get all functions with the same name, then find the same Type params one */
                 Function funDfn = currCtx.getDefinitionInScopeByName(Function.class, funName.getIdentifier());
@@ -270,7 +270,7 @@ public class UsageVisitor extends ASTVisitor {
                 return;
             } // @todo process this super ?
 
-            ASTToken varId = getIdTokenFromNameId(nameId);
+            ASTToken varId = (ASTToken) nameId.getChildren().get(0);
             if (varId != null && !(varId.getIdentifier().equals("_"))) {
                 Var varDfn = currCtx.getVariableInScope(varId.getIdentifier());
                 if (varDfn != null) {
@@ -287,43 +287,6 @@ public class UsageVisitor extends ASTVisitor {
 
     }
 
-
-    private static ASTToken getIdTokenFromNameId(ASTItem NameId) {
-        for (ASTItem item1 : NameId.getChildren()) {
-            if (isNode(item1, "PlainId")) {
-                for (ASTItem item2 : item1.getChildren()) {
-                    return (ASTToken) item2;
-                }
-            } else if (isTokenType(item1, "bquote_identifier")) {
-                return (ASTToken) item1;
-            }
-        }
-        return null;
-    }
-
-    private static ASTToken getLeafId(ASTItem stableId) {
-        ASTItem id = null;
-        /** get the latest PathId */
-        for (ASTItem item : stableId.getChildren()) {
-            if (isNode(item, "PathId")) {
-                id = item;
-            }
-        }
-
-        if (id != null) {
-            for (ASTItem item : id.getChildren()) {
-                if (isNode(item, "NameId")) {
-                    return getIdTokenFromNameId(item);
-                }
-            }
-        }
-
-        if (id != null && id instanceof ASTToken) {
-            return (ASTToken) id;
-        } else {
-            return null;
-        }
-    }
 
     /**
      * will also check if item is null
