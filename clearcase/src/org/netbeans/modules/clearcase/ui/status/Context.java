@@ -51,7 +51,7 @@ import org.openide.nodes.Node;
 import org.openide.util.lookup.Lookups;
 
 /**
- *
+ * This whole class is a hack until we won't have a serializable VCSContext. see issue #129268
  * @author Tomas Stupka
  */
 class Context implements Serializable {        
@@ -88,8 +88,7 @@ class Context implements Serializable {
         return false;
     }
 
-    VCSContext getVCSContext() {
-        // XXX this whole class is a hack until we won't have a seriazable VCSContext 
+    VCSContext getVCSContext() {        
         if(vcsContext == null) {                
             // must have been deserialized. we have to reconstruct the vcsContext somehow. 
             // it's just this way it won't work for project exclusions ...
