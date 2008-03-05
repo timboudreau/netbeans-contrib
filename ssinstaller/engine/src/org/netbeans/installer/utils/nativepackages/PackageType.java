@@ -14,7 +14,7 @@ import org.netbeans.installer.utils.helper.Platform;
 public enum PackageType {
 
     SOLARIS_PKG(new SolarisNativePackageInstaller(), Platform.SOLARIS),
-    LINUX_DEB(new FakeNativePackageInstaller(), Platform.LINUX);
+    LINUX_DEB(new LinuxNativePackageInstaller(), Platform.LINUX);
     
     private NativePackageInstaller packageInstaller = null;
     private Platform platform = null;

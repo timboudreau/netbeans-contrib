@@ -53,6 +53,7 @@ public class ScalaContext extends DatabaseContext {
     public final static String ROOT     = "Root";
     public final static String PACKAGE  = "Package";
     public final static String TEMPLATE = "Template";
+    public final static String TYPE     = "Type";
     public final static String FUNCTION = "Function";
     public final static String BLOCK    = "Block";
     public final static String FOR_LOOP = "ForLoop";
@@ -123,6 +124,13 @@ public class ScalaContext extends DatabaseContext {
     ErlMacro getMacroInScope(String name) {
         return getDefinitionInScopeByName(ErlMacro.class, name);
     }
+
+    @Override
+    public String toString() {
+        return "Context: " + getType() + " " + getOffset () + "-" + getEndOffset ();
+    }
+    
+    
 }
 
 

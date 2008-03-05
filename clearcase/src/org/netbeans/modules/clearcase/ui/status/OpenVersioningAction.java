@@ -59,7 +59,7 @@ public class OpenVersioningAction extends SystemAction {
     }
 
     public void actionPerformed(ActionEvent ev) {
-        VersioningTopComponent stc = VersioningTopComponent.getInstance();
+        ClearcaseTopComponent stc = ClearcaseTopComponent.getInstance();
         if (stc.hasContext()) {
             stc.open();
             stc.requestActive();

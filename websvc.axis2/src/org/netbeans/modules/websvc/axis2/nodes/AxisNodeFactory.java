@@ -41,12 +41,18 @@
 
 package org.netbeans.modules.websvc.axis2.nodes;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.websvc.axis2.Axis2ModelProvider;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
+import org.netbeans.modules.websvc.axis2.config.model.Service;
 import org.netbeans.spi.project.ui.support.NodeFactory;
 import org.netbeans.spi.project.ui.support.NodeList;
 import org.openide.nodes.Node;
@@ -74,13 +80,23 @@ public class AxisNodeFactory implements NodeFactory {
         
         private List<ChangeListener> listeners = new ArrayList<ChangeListener>();
         
+        private Axis2Model axis2Model;
+        private PropertyChangeListener axis2ModelProviderListener, axis2ModelListener;
+        
         public WsNodeList(Project proj) {
             project = proj;
+            axis2ModelProviderListener = new Axis2ModelProviderListener();
+            axis2ModelListener = new Axis2ModelListener();
         }
         
         public List<String> keys() {
             List<String> result = new ArrayList<String>();
-            result.add(KEY_SERVICES);
+            if (axis2Model != null) {
+                if (axis2Model.getRootComponent().getServices().size() > 0) {                   
+                    result.add(KEY_SERVICES);
+                    return result;
+                }
+            }
             return result;
         }
         
@@ -112,11 +128,58 @@ public class AxisNodeFactory implements NodeFactory {
         }
         
         public void addNotify() {
+            Axis2ModelProvider axis2ModelProvider = project.getLookup().lookup(Axis2ModelProvider.class);
+            if (axis2ModelProvider != null) {
+                axis2ModelProvider.addPropertyChangeListener(axis2ModelProviderListener);
+                axis2Model = axis2ModelProvider.getAxis2Model();
+                if (axis2Model != null) {
+                    axis2Model.getRootComponent().addPropertyChangeListener(axis2ModelListener);
+                }
+            }
         }
         
         public void removeNotify() {
+            Axis2ModelProvider axis2ModelProvider = project.getLookup().lookup(Axis2ModelProvider.class);
+            if (axis2ModelProvider != null) {
+                axis2ModelProvider.removePropertyChangeListener(axis2ModelProviderListener);
+            } if (axis2Model != null) {
+                axis2Model.getRootComponent().removePropertyChangeListener(axis2ModelListener);
+            }
         }
         
-    }
-    
+        private class Axis2ModelProviderListener implements PropertyChangeListener {
+
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (Axis2ModelProvider.PROP_AXIS2.equals(evt.getPropertyName())) {
+                    Axis2Model oldModel = (Axis2Model)evt.getOldValue();
+                    axis2Model = (Axis2Model)evt.getNewValue();
+                    if (oldModel != null) {
+                        oldModel.getRootComponent().removePropertyChangeListener(axis2ModelListener);
+                    }
+                    if (axis2Model != null) {
+                        axis2Model.getRootComponent().addPropertyChangeListener(axis2ModelListener);
+                    }
+                }
+            }
+
+        }
+        private class Axis2ModelListener implements PropertyChangeListener {
+
+            public void propertyChange(PropertyChangeEvent evt) {
+                // refresh keyes only if first service is created or last service is removed
+                if (evt.getSource() instanceof Axis2) {
+                    Axis2 axis2 = (Axis2)evt.getSource();
+                    Object oldValue = evt.getOldValue();
+                    Object newValue = evt.getNewValue();
+                    if (oldValue == null && newValue instanceof Service && axis2.getServices().size() == 1) {
+                        WsNodeList.this.fireChange();
+                    } else if (oldValue instanceof Service && newValue == null && axis2.getServices().size() == 0) {
+                        WsNodeList.this.fireChange();
+                    }
+                }
+                
+            }
+
+        }
+    }    
 }

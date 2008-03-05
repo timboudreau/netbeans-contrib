@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.php.devtools
+OpenIDE-Module-Layer: org/netbeans/modules/php/devtools/resources/layer.xml
+OpenIDE-Module-Install: org/netbeans/modules/php/devtools/browser/ModuleInstaller.class
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/php/devtools/resources/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

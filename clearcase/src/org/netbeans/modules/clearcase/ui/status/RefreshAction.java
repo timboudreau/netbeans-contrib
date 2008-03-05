@@ -66,12 +66,11 @@ public class RefreshAction extends NodeAction {
         // XXX not in awt ???
         EventQueue.invokeLater(new Runnable() {
             public void run() {
-                final VersioningTopComponent vtc = VersioningTopComponent.findInstance();
+                final ClearcaseTopComponent vtc = ClearcaseTopComponent.findInstance();
                 vtc.setContentTitle(/* XXX getContextDisplayName(nodes)*/ "Clearcase");        
                 vtc.setContext(ctx);
                 vtc.open(); 
                 vtc.requestActive();                
-                vtc.performRefreshAction();
             }
         });        
     }

@@ -72,7 +72,6 @@ import org.netbeans.modules.clearcase.ui.diff.DiffAction;
 import org.netbeans.modules.clearcase.ui.checkin.CheckinAction;
 import org.netbeans.modules.clearcase.ui.update.UpdateAction;
 import org.netbeans.modules.versioning.spi.VCSContext;
-import org.openide.util.Cancellable;
 
 /**
  * The main class of the Synchronize view, shows and acts on set of file roots. 
@@ -82,8 +81,8 @@ import org.openide.util.Cancellable;
 class VersioningPanel extends JPanel implements ExplorerManager.Provider, PreferenceChangeListener, PropertyChangeListener, VersioningListener, ActionListener {
     
     private ExplorerManager                 explorerManager;
-    private final VersioningTopComponent    parentTopComponent;
-    private VCSContext                      context;
+    private final ClearcaseTopComponent     parentTopComponent;
+    private Context                         context;
     private int                             displayStatuses;
     
     private SyncTable                       syncTable;
@@ -99,7 +98,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
      *  
      * @param parent enclosing top component
      */ 
-    public VersioningPanel(VersioningTopComponent parent) {
+    public VersioningPanel(ClearcaseTopComponent parent) {
         this.parentTopComponent = parent;
         explorerManager = new ExplorerManager ();
         displayStatuses = FileInformation.STATUS_LOCAL_CHANGE;
@@ -108,6 +107,10 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         syncTable = new SyncTable();
 
         initComponents();
+        tgbAll.setVisible(false);
+        tgbLocal.setVisible(false);
+        tgbRemote.setVisible(false);
+        
         setComponentsState();
         setVersioningComponent(syncTable.getComponent());
         reScheduleRefresh(0);
@@ -175,9 +178,9 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
      * 
      * @param ctx new context if the Versioning panel
      */ 
-    void setContext(VCSContext ctx) {
+    void setContext(Context ctx) {
         context = ctx;
-        reScheduleRefresh(0);
+        performRefreshAction();
     }
     
     public ExplorerManager getExplorerManager () {
@@ -246,14 +249,14 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
      */  
     private void onCommitAction() {
         LifecycleManager.getDefault().saveAll();            
-        CheckinAction.checkin(context);
+        CheckinAction.checkin(context.getVCSContext());
     }
     
     /**
      * Performs the "cleartool update" command on all diplayed roots.
      */ 
     private void onUpdateAction() {      
-        UpdateAction.update(context);
+        UpdateAction.update(context.getVCSContext());
         parentTopComponent.contentRefreshed();
     }
     
@@ -286,11 +289,10 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
 
     private ProgressSupport getProgressSupport() {
         if(refreshSupport == null) {
-            refreshSupport = new FileStatusCache.RefreshSupport(rp, context, "Refreshing status...") {
+            refreshSupport = new FileStatusCache.RefreshSupport(rp, context.getVCSContext(), "Refreshing status...") {
                 @Override
                 protected void perform() {
                     refresh();
-
                     setupModels();
                     parentTopComponent.contentRefreshed();                
                 }
@@ -307,10 +309,10 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         String title = parentTopComponent.getContentTitle();
         if (displayStatuses == FileInformation.STATUS_LOCAL_CHANGE) {            
             LifecycleManager.getDefault().saveAll();
-            DiffAction.diff(context, Setup.DIFFTYPE_LOCAL, title);
+            DiffAction.diff(context.getVCSContext(), Setup.DIFFTYPE_LOCAL, title);
         } else {
             LifecycleManager.getDefault().saveAll();
-            DiffAction.diff(context, Setup.DIFFTYPE_ALL, title);
+            DiffAction.diff(context.getVCSContext(), Setup.DIFFTYPE_ALL, title);
         }
     }
 
@@ -575,9 +577,9 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
             return;
         }
         // TODO: a little hacky
-        btnUpdate.setEnabled(new UpdateAction("", context).isEnabled());
+        btnUpdate.setEnabled(new UpdateAction("", context.getVCSContext()).isEnabled());
 
-        final SyncFileNode [] nodes = getNodes(context, displayStatuses);  // takes long
+        final SyncFileNode [] nodes = getNodes(context.getVCSContext(), displayStatuses);  // takes long
         if (nodes == null) {
             return;
             // finally section
