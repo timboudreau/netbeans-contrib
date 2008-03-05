@@ -40,7 +40,6 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
     <folder name="Templates">
@@ -73,4 +72,22 @@ made subject to such option by the copyright holder.
             </folder>
         </folder>
     </folder>
+    
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-jsp">
+              <folder name="visual">
+                <folder name="Actions">
+                  <!-- Add Set As Initial Page action -->
+                  <file name="SetPortletModeAction.instance">
+                     <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.visualweb.actions.SetAsInitialAction"/>
+                     <attr name="position" intvalue="100"/>
+                   </file>
+                </folder>
+               </folder>
+              </folder>
+          </folder>
+     </folder>
+                 
+                        
 </filesystem>
