@@ -411,15 +411,6 @@ PathId = NameId
        | "super" [ClassQualifier] "." NameId;
 ClassQualifier = "[" NameId "]";
 
-## Hacking for: SimpleType = StableId ["." "type"] (TypeArgs | "#" NameId)*
-##  "." "type" should only be in SimpleType, but since StableId may also belongs to SimpleType,
-##  we cannot add any more "." "anything" behind StableId
-TypeStableId = TypeId ("." TypeId)*;
-TypeId = PathId
-       | "_"
-       | "type";
-
-Types = Type ("," Type)*;
 Type = InfixType ["=>" Type | ExistentialClause];
 ## Hacking for:
 #     | "(" <rarrow> Type ")" <rarrow> Type;
@@ -438,13 +429,16 @@ CompoundType = AnnotType ("with" AnnotType)* [Refinement]
 AnnotType = SimpleType ["*"]
           | (Annotation)+ [SimpleType ["*"]];
 
+## Hacking for: Type ("," Type)* [","]:
+##              Type ("," [Type])*
 SimpleType = TypeStableId (TypeArgs | "#" NameId)*
-           | "(" (Types1 | "=>" Type) ")" (TypeArgs | "#" NameId)*;
-## Hacking for: Type (<comma> Type)* [<comma>];
-Types1 = Type1 ("," Type1)*;
-Type1 = Type
-      | ;
+           | "(" [Type ("," [Type])* | "=>" Type] ")" (TypeArgs | "#" NameId)*;
+TypeStableId = TypeId ("." TypeId)*;
+TypeId = PathId
+       | "_"
+       | "type";
 TypeArgs = "[" Types "]";
+Types = Type ("," Type)*;
 
 Refinement = "{" [RefineStat ([";"] RefineStat)*] "}";
 RefineStat = DclDef 
@@ -540,16 +534,9 @@ NewExpr = "new" (ClassParents [Template] | Template [ClassParents [Template]]) (
 Arguments = ParenExpr
           | BlockExpr;
 
-## Hacking for: Prths = "(" [Expr ("," Expr)* [","]] ")";
-## To let a optional [","] at the end, we just let PrthsExpr can be empty
-## @NOTICE 
-## Although "," is used to separator one expr, but, all <nl> in parenthsis should be ignor,
-## so, we use (ExprInParen)+ here, and let ExprInParen include <nl>.
-## ** Should combine them to one expr in semantic analyzer **
-ParenExpr = "(" ExprInParen ("," ExprInParen)* ")";
+ParenExpr = "(" [ExprInParen ("," [ExprInParen])*] ")";
 ExprInParen = CtrlExpr
-            | PostfixExpr [AscriptionInParen [FunExprTail] | MatchExprTail | AssignExprTail | FunExprTail]
-            | ;
+            | PostfixExpr [AscriptionInParen [FunExprTail] | MatchExprTail | AssignExprTail | FunExprTail];
 ## Hacking for: Ascription and Binding;
 ##     Ascription = ":" (CompoundType | (Annotation)+ | "_" "*")
 ##     Bindings = "(" Binding ("," Binding)* ")";
