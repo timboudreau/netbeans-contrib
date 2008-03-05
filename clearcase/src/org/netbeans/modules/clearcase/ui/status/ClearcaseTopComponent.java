@@ -154,7 +154,7 @@ public class ClearcaseTopComponent extends TopComponent implements Externalizabl
     private void refreshContent() {
         if (syncPanel == null) return;  // the component is not showing => nothing to refresh
         updateTitle();
-        syncPanel.setContext(context);        
+        syncPanel.setContext(context);   
     }
 
     /**
@@ -243,13 +243,6 @@ public class ClearcaseTopComponent extends TopComponent implements Externalizabl
 
     public Object readResolve() {
         return getInstance();
-    }
-
-    /**
-     * Programmatically invokes the Refresh action.
-     */ 
-    public void performRefreshAction() {
-        syncPanel.performRefreshAction();
     }
 
     /**

@@ -176,7 +176,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
      */ 
     void setContext(Context ctx) {
         context = ctx;
-        reScheduleRefresh(0);
+        performRefreshAction();
     }
     
     public ExplorerManager getExplorerManager () {
@@ -289,7 +289,6 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
                 @Override
                 protected void perform() {
                     refresh();
-
                     setupModels();
                     parentTopComponent.contentRefreshed();                
                 }

@@ -71,7 +71,6 @@ public class RefreshAction extends NodeAction {
                 vtc.setContext(ctx);
                 vtc.open(); 
                 vtc.requestActive();                
-                vtc.performRefreshAction();
             }
         });        
     }
