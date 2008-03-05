@@ -90,8 +90,8 @@ class Context implements Serializable {
 
     VCSContext getVCSContext() {        
         if(vcsContext == null) {                
-            // must have been deserialized. we have to reconstruct the vcsContext somehow. 
-            // it's just this way it won't work for project exclusions ...
+            // the class must have been deserialized. vcsContext  is transient, we have to reconstruct it somehow. 
+            // XXX this way it won't work for project exclusions ... (wontfix, it's a hack anyway)
             List<Node> nodes = new ArrayList<Node>();
             for(File root : rootFiles) {
                 nodes.add(new AbstractNode(Children.LEAF, Lookups.fixed(root)));    
