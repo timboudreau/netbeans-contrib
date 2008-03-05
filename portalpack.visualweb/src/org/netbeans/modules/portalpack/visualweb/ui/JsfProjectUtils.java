@@ -85,6 +85,8 @@ import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 // import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
 // import org.netbeans.modules.web.project.api.WebPropertyEvaluator;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeansUtil;
+import org.netbeans.modules.portalpack.visualweb.api.JsfPortletSupport;
+import org.netbeans.modules.portalpack.visualweb.api.JsfPortletSupportImpl;
 
 
 /**
@@ -289,7 +291,7 @@ public class JsfProjectUtils {
      * @return the portlet support object or null if the project is not
      * capable of supporting portlets
      */
-    public static Object getPortletSupport(Project project) {
+    public static JsfPortletSupport getPortletSupport(Project project) {
         FileObject webInf = getWebInf(project);
         if (webInf == null) {
             return null;
@@ -299,7 +301,7 @@ public class JsfProjectUtils {
         if (fo == null)
             return null;
         else {
-            return new Object();
+            return new JsfPortletSupportImpl(project);
         }
     }
 

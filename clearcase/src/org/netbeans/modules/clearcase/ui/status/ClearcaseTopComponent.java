@@ -49,56 +49,65 @@ import org.openide.util.HelpCtx;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.clearcase.Clearcase;
+import org.netbeans.modules.clearcase.util.Utils;
 import org.netbeans.modules.versioning.spi.VCSContext;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
+import org.openide.util.lookup.Lookups;
 
 /**
- * Top component of the Versioning view.
+ * The Clearcase Versioning view.
  * 
  * @author Maros Sandor
  */
-public class VersioningTopComponent extends TopComponent implements Externalizable {
+public class ClearcaseTopComponent extends TopComponent implements Externalizable {
    
     private static final long serialVersionUID = 1L;    
     
     private VersioningPanel         syncPanel;
-    private VCSContext              context;
+    private Context                 context;
     private String                  contentTitle;
     private String                  branchTitle;
     private long                    lastUpdateTimestamp;
     
-    private static VersioningTopComponent instance;
+    private static ClearcaseTopComponent instance;
     private static final String PREFERRED_ID = "ClearcaseTopComponent";
     
-    public VersioningTopComponent() {
+    public ClearcaseTopComponent() {
         
-        putClientProperty("SlidingName", NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_Title")); //NOI18N
+        putClientProperty("SlidingName", NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_Title")); //NOI18N
         
-        setName(NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_Title")); // NOI18N
-        setToolTipText(NbBundle.getMessage(VersioningTopComponent.class, "HINT_VersioningTopComponent"));
+        setName(NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_Title")); // NOI18N
+        setToolTipText(NbBundle.getMessage(ClearcaseTopComponent.class, "HINT_ClearcaseTopComponent"));
         setIcon(org.openide.util.Utilities.loadImage("org/netbeans/modules/clearcase/resources/icons/versioning-view.png"));  // NOI18N
         setLayout(new BorderLayout());
-        getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_Title"));
+        getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_Title"));
         syncPanel = new VersioningPanel(this);
         add(syncPanel);
     }
 
     /**
-     * Obtain the VersioningTopComponent instance. Never call {@link #getDefault} directly!
+     * Obtain the ClearcaseTopComponent instance. Never call {@link #getDefault} directly!
      */
-    public static synchronized VersioningTopComponent findInstance() {
+    public static synchronized ClearcaseTopComponent findInstance() {
         TopComponent win = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
         if (win == null) {
-            Logger.getLogger(VersioningTopComponent.class.getName()).warning(
+            Logger.getLogger(ClearcaseTopComponent.class.getName()).warning(
                     "Cannot find " + PREFERRED_ID + " component. It will not be located properly in the window system.");
             return getDefault();
         }
-        if (win instanceof VersioningTopComponent) {
-            return (VersioningTopComponent) win;
+        if (win instanceof ClearcaseTopComponent) {
+            return (ClearcaseTopComponent) win;
         }
-        Logger.getLogger(VersioningTopComponent.class.getName()).warning(
+        Logger.getLogger(ClearcaseTopComponent.class.getName()).warning(
                 "There seem to be multiple components with the '" + PREFERRED_ID +
                 "' ID. That is a potential source of errors and unexpected behavior.");
         return getDefault();
@@ -126,7 +135,8 @@ public class VersioningTopComponent extends TopComponent implements Externalizab
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         super.readExternal(in);
-        context = (VCSContext) in.readObject();
+        Object obj = in.readObject();
+        context = (Context) obj;        
         contentTitle = (String) in.readObject();
         lastUpdateTimestamp = in.readLong();
         syncPanel.deserialize();
@@ -144,7 +154,7 @@ public class VersioningTopComponent extends TopComponent implements Externalizab
     private void refreshContent() {
         if (syncPanel == null) return;  // the component is not showing => nothing to refresh
         updateTitle();
-        syncPanel.setContext(context);        
+        syncPanel.setContext(context);   
     }
 
     /**
@@ -179,12 +189,12 @@ public class VersioningTopComponent extends TopComponent implements Externalizab
         SwingUtilities.invokeLater(new Runnable (){
             public void run() {
                 if (contentTitle == null) {
-                    setName(NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_Title")); // NOI18N
+                    setName(NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_Title")); // NOI18N
                 } else {
                     if (branchTitle == null) {
-                        setName(NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_MultiTitle", contentTitle, age)); // NOI18N
+                        setName(NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_MultiTitle", contentTitle, age)); // NOI18N
                     } else {
-                        setName(NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_Title_ContentBranch", contentTitle, branchTitle, age)); // NOI18N
+                        setName(NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_Title_ContentBranch", contentTitle, branchTitle, age)); // NOI18N
                     }
                 }                
             }
@@ -197,34 +207,34 @@ public class VersioningTopComponent extends TopComponent implements Externalizab
 
     private String computeAge(long l) {
         if (lastUpdateTimestamp == 0) {
-            return NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_AgeUnknown"); // NOI18N
+            return NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_AgeUnknown"); // NOI18N
         } else if (l < 1000) { // 1000 equals 1 second
-            return NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_AgeCurrent"); // NOI18N
+            return NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_AgeCurrent"); // NOI18N
         } else if (l < 2000) { // age between 1 and 2 seconds
-            return NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_AgeOneSecond"); // NOI18N
+            return NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_AgeOneSecond"); // NOI18N
         } else if (l < 60000) { // 60000 equals 1 minute
-            return NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_AgeSeconds", Long.toString(l / 1000)); // NOI18N
+            return NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_AgeSeconds", Long.toString(l / 1000)); // NOI18N
         } else if (l < 120000) { // age between 1 and 2 minutes
-            return NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_AgeOneMinute"); // NOI18N
+            return NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_AgeOneMinute"); // NOI18N
         } else if (l < 3600000) { // 3600000 equals 1 hour
-            return NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_AgeMinutes", Long.toString(l / 60000)); // NOI18N
+            return NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_AgeMinutes", Long.toString(l / 60000)); // NOI18N
         } else if (l < 7200000) { // age between 1 and 2 hours
-            return NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_AgeOneHour"); // NOI18N
+            return NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_AgeOneHour"); // NOI18N
         } else if (l < 86400000) { // 86400000 equals 1 day
-            return NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_AgeHours", Long.toString(l / 3600000)); // NOI18N
+            return NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_AgeHours", Long.toString(l / 3600000)); // NOI18N
         } else if (l < 172800000) { // age between 1 and 2 days
-            return NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_AgeOneDay"); // NOI18N
+            return NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_AgeOneDay"); // NOI18N
         } else {
-            return NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_AgeDays", Long.toString(l / 86400000)); // NOI18N
+            return NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_AgeDays", Long.toString(l / 86400000)); // NOI18N
         }
     }
 
-    public static synchronized VersioningTopComponent getInstance() {
+    public static synchronized ClearcaseTopComponent getInstance() {
         if (instance == null) {
-            instance = (VersioningTopComponent) WindowManager.getDefault().findTopComponent(PREFERRED_ID); // NOI18N
+            instance = (ClearcaseTopComponent) WindowManager.getDefault().findTopComponent(PREFERRED_ID); // NOI18N
             if (instance == null) {
                 Clearcase.LOG.log(Level.INFO, null, new IllegalStateException("Can not find Versioning component")); // NOI18N
-                instance = new VersioningTopComponent();
+                instance = new ClearcaseTopComponent();
             }
         }
     
@@ -236,31 +246,24 @@ public class VersioningTopComponent extends TopComponent implements Externalizab
     }
 
     /**
-     * Programmatically invokes the Refresh action.
-     */ 
-    public void performRefreshAction() {
-        syncPanel.performRefreshAction();
-    }
-
-    /**
      * Sets files/folders the user wants to synchronize. They are typically activated (selected) nodes.
      * 
      * @param ctx new context of the Versioning view
      */
-    public void setContext(VCSContext ctx) {
+    public void setContext(VCSContext vcsContext) {
         syncPanel.cancelRefresh();
-        if (ctx == null) {
-            setName(NbBundle.getMessage(VersioningTopComponent.class, "MSG_Preparing")); // NOI18N
+        if (vcsContext == null) {
+            setName(NbBundle.getMessage(ClearcaseTopComponent.class, "MSG_Preparing")); // NOI18N
             setEnabled(false);
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         } else {
             setEnabled(true);
             setCursor(Cursor.getDefaultCursor());
-            context = ctx;
+            context = new Context(vcsContext);
             setBranchTitle(null);
             refreshContent();
         }
-        setToolTipText(getContextFilesList(ctx, NbBundle.getMessage(VersioningTopComponent.class, "CTL_Versioning_TopComponent_Title"))); // NOI18N            
+        setToolTipText(getContextFilesList(vcsContext, NbBundle.getMessage(ClearcaseTopComponent.class, "CTL_Clearcase_TopComponent_Title"))); // NOI18N            
     }
     
     private String getContextFilesList(VCSContext ctx, String def) {
@@ -295,9 +298,9 @@ public class VersioningTopComponent extends TopComponent implements Externalizab
      * i.e. deserialization routines; otherwise you could get a non-deserialized instance.
      * To obtain the singleton instance, use {@link findInstance}.
      */
-    public static synchronized VersioningTopComponent getDefault() {
+    public static synchronized ClearcaseTopComponent getDefault() {
         if (instance == null) {
-            instance = new VersioningTopComponent();
+            instance = new ClearcaseTopComponent();
         }
         return instance;
     }
@@ -305,8 +308,9 @@ public class VersioningTopComponent extends TopComponent implements Externalizab
     final static class ResolvableHelper implements Serializable {
         private static final long serialVersionUID = 1L;
         public Object readResolve() {
-            return VersioningTopComponent.getDefault();
+            return ClearcaseTopComponent.getDefault();
         }
     }
-    
+
+
 }

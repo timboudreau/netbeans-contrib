@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -38,35 +38,37 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.clearcase.ui.status;
 
-import org.openide.util.actions.SystemAction;
-import org.openide.util.HelpCtx;
 
-import java.awt.event.ActionEvent;
+package org.netbeans.modules.portalpack.visualweb.api;
 
 /**
- * @author Maros Sandor
+ * Exception reflecting problems using JsfPortletSupport.
+ * @author David Botterill
  */
-public class OpenVersioningAction extends SystemAction {
+public class JsfPortletSupportException extends Exception {
 
-    public String getName() {
-        return "Clearcase";
+    /**
+     * The default constructor.
+     */
+    public JsfPortletSupportException() {
     }
 
-    public HelpCtx getHelpCtx() {
-        return new HelpCtx(OpenVersioningAction.class);
+    /**
+     * This constructor uses the passed message for "toString" and "getMessageText".
+     * @param inMessage The message reflecting what when wrong.
+     */
+    public JsfPortletSupportException(String inMessage) {
+        super(inMessage);
     }
 
-    public void actionPerformed(ActionEvent ev) {
-        ClearcaseTopComponent stc = ClearcaseTopComponent.getInstance();
-        if (stc.hasContext()) {
-            stc.open();
-            stc.requestActive();
-        } else {
-            // TODO: set the context
-            stc.open();
-            stc.requestActive();
-        }
+    /**
+     * This constructor uses the passed message for "toString" and "getMessageText".
+     * @param inMessage The message reflecting what when wrong.
+     * @param inCause The Throwable cause that will be wrapped by this Exception.
+     */
+    public JsfPortletSupportException(String inMessage,Throwable inCause) {
+        super(inMessage, inCause);
     }
+
 }
