@@ -617,7 +617,7 @@ XmlExpr = XmlElement (XmlElement)*
 XmlElement = <xml_element_start> (XmlAttribute)* (<xml_end_element_end> | <xml_element_end> (XmlContent)* XmlEndTag);
 
 XmlEndTag = <xml_end_element_start> (XmlAttribute)* <xml_element_end>;
-XmlAttribute = <xml_attribute_name> "=" (<xml_attribute_value> | <xml_scala_expr>);
+XmlAttribute = <xml_attribute_name> <eq> (<xml_attribute_value> | <xml_scala_expr>);
 
 XmlCDSect = <cdsect_start> <cddata> <cdsect_end>;
 XmlContent = XmlCharData
@@ -903,7 +903,7 @@ COLOR:FunDclDef.NameId: {
 #    underline_color: "0x000000";
 }
 
-COLOR:ValDclDef.PatDef.Pattern2.StableId.PathId.NameId: {
+COLOR:ValDclDef.PatDef.Pattern2.StableId.PathId.NameId, ValDefInEnumerator.Pattern1.Pattern3.StableId.PathId.NameId, NameValuePair.NameId: {
     foreground_color: "0x009B00";
 }
 
