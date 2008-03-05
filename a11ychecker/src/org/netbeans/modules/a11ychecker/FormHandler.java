@@ -561,7 +561,7 @@ public class FormHandler {
      * @param property property tested for usecode presence
      * @return true if Property contains userCode
      */
-    private static boolean isUserCode(Property property) {
+    public static boolean isUserCode(Property property) {
         if (property != null) {
             try {
                 Object value = property.getValue();

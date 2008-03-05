@@ -46,6 +46,7 @@ import org.openide.util.ChangeSupport;
 import org.netbeans.api.project.Project;
 
 import org.openide.WizardDescriptor;
+import org.openide.filesystems.FileObject;
 import org.openide.util.HelpCtx;
 
 /**
@@ -109,5 +110,9 @@ public class HibernateMappingWizardDescriptor implements WizardDescriptor.Panel,
     
     public String getClassName() {
         return panel.getClassName();
+    }
+    
+    public FileObject getConfigurationFile() {
+        return panel.getConfigurationFile();
     }
 }
