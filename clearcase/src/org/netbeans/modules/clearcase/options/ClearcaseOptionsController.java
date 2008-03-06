@@ -60,7 +60,7 @@ class ClearcaseOptionsController extends OptionsPanelController {
 
     public void update() {
         setOdc(ClearcaseModuleConfig.getOnDemandCheckout());
-        panel.taExecutable.setText(ClearcaseModuleConfig.getPreferences().get(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, ""));
+        panel.taExecutable.setText(ClearcaseModuleConfig.getPreferences().get(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, "cleartool"));
     }
 
     public void applyChanges() {
@@ -73,8 +73,6 @@ class ClearcaseOptionsController extends OptionsPanelController {
     }
 
     public boolean isValid() {
-        String ctPath = panel.taExecutable.getText().trim();
-        if (ctPath.length() != 0 && !new File(ctPath).isFile()) return false;
         return true;
     }
 
