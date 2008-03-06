@@ -53,8 +53,12 @@ import java.io.File;
  */
 public class ClearcaseModuleConfig {
     
+    public enum OnDemandCheckout { Disabled, Unreserved, Reserved, ReservedWithFallback };
+    
     public static final String PROP_IGNORED_PATTERNS        = "ignoredPatterns";    // NOI18N
     public static final String PROP_COMMIT_EXCLUSIONS       = "commitExclusions";   // NOI18N    
+    public static final String PROP_CLEARTOOL_EXECUTABLE    = "cleartoolExecutablePath";   // NOI18N    
+    private static final String PROP_ONDEMAND_CHECKOUT       = "onDemandCheckout";   // NOI18N    
     
     private static Set<String> exclusions;
     
@@ -67,6 +71,14 @@ public class ClearcaseModuleConfig {
         ignoredFilePatterns.addAll(toPatterns(Utils.getStringList(getPreferences(), PROP_IGNORED_PATTERNS)));
     }
 
+    public static OnDemandCheckout getOnDemandCheckout() {
+        return OnDemandCheckout.valueOf(getPreferences().get(PROP_ONDEMAND_CHECKOUT, OnDemandCheckout.Reserved.name()));
+    }
+
+    public static void setOnDemandCheckout(OnDemandCheckout odc) {
+        getPreferences().put(PROP_ONDEMAND_CHECKOUT, odc.name());
+    }
+    
     private static Collection<Pattern> toPatterns(List<String> list) {
         Set<Pattern> patterns = new HashSet<Pattern>(list.size());
         for (String s : list) {

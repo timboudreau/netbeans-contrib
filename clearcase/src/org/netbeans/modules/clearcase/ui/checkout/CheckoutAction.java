@@ -54,10 +54,13 @@ import java.util.*;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
 import org.netbeans.modules.clearcase.FileInformation;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.clearcase.client.*;
+import org.netbeans.modules.clearcase.client.status.FileEntry;
 
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.awt.Mnemonics;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -202,16 +205,68 @@ public class CheckoutAction extends AbstractAction {
             }
         };
     }
-    
+
     /**
+     * Checks out the file or directory depending on the user-selected strategy in Options.
+     * In case the file is already writable or the directory is checked out, the method does nothing.
      * Interceptor entry point.
      * 
      * @param file file to checkout
+     * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
      */
-    public static void checkout(File file) {
-        ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Checking out...",
-                new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Default, true, createNotificationListener(file))));
+    public static void ensureMutable(File file) {
+        ensureMutable(file, null);
+    }   
+    
+    /**
+     * Checks out the file or directory depending on the user-selected strategy in Options.
+     * In case the file is already writable or the directory is checked out, the method does nothing.
+     * Interceptor entry point.
+     * 
+     * @param file file to checkout
+     * @param entry the given files {@link FileEntry}
+     * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
+     */
+    public static void ensureMutable(File file, FileEntry entry) {
+        if (file.isDirectory()) {
+            if(entry == null) {
+                entry = ClearcaseUtils.readEntry(file);                
+            }
+            if (entry == null || entry.isCheckedout() || entry.isViewPrivate()) {
+                return;
+            }
+        } else {
+            if (file.canWrite()) return;
+        }
+
+        ClearcaseModuleConfig.OnDemandCheckout odc = ClearcaseModuleConfig.getOnDemandCheckout();
+
+        CheckoutCommand command;
+        switch (odc) {
+        case Disabled:
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("On-demand checkouts are currently disabled. Visit IDE Options to change that."));
+            return;
+        case Reserved:
+        case ReservedWithFallback:
+            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Reserved, true, createNotificationListener(file));
+            break;
+        case Unreserved:
+            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, createNotificationListener(file));
+            break;
+        default:
+            throw new IllegalStateException("Illegal Checkout type: " + odc);
+        }
+        
+        ExecutionUnit eu = new ExecutionUnit("Checking out...", odc != ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback, command);
+        ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(eu);
         cr.waitFinished();
+        
+        if (command.hasFailed() && odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback) {
+            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, 
+                                          new OutputWindowNotificationListener(), createNotificationListener(file));
+            eu = new ExecutionUnit("Checking out...", true, command);
+            cr = Clearcase.getInstance().getClient().post(eu);
+            cr.waitFinished();
+        }
     }
 }

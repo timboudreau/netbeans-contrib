@@ -51,7 +51,9 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.editor.completion.Completion;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.editor.fscompletion.FSCompletionDocumentation;
 import org.netbeans.spi.editor.completion.CompletionItem;
+import org.netbeans.spi.editor.completion.CompletionResultSet;
 import org.netbeans.spi.editor.completion.CompletionTask;
 import org.netbeans.spi.editor.completion.support.CompletionUtilities;
 import org.openide.ErrorManager;
@@ -135,7 +137,26 @@ final class FSCompletionItem implements CompletionItem {
     }
 
     public CompletionTask createDocumentationTask() {
-        return null;
+        return new CompletionTask() {
+            public void query(CompletionResultSet resultSet) {
+                try {
+                    resultSet.setDocumentation(FSCompletionDocumentation.create(file));
+                } finally {
+                    resultSet.finish();
+                }
+            }
+
+            public void refresh(CompletionResultSet resultSet) {
+                try {
+                    resultSet.setDocumentation(FSCompletionDocumentation.create(file));
+                } finally {
+                    resultSet.finish();
+                }
+            }
+
+            public void cancel() {
+            }
+        };
     }
 
     public CompletionTask createToolTipTask() {

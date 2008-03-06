@@ -56,7 +56,7 @@ made subject to such option by the copyright holder.
                 <attr name="position" intvalue="3100"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="templateWizardIterator" newvalue="org.netbeans.modules.websvc.axis2.wizards.WsFromJavaWizardIterator"/>
-                <attr name="templateCategory" stringvalue="web-service-clients"/>
+                <attr name="templateCategory" stringvalue="axis"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/websvc/axis2/resources/WebService.html"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.websvc.axis2.wizards.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/websvc/axis2/resources/axis_node_16.png"/> 
@@ -70,7 +70,7 @@ made subject to such option by the copyright holder.
                 <attr name="position" intvalue="3200"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="templateWizardIterator" newvalue="org.netbeans.modules.websvc.axis2.wizards.WsFromWsdlWizardIterator"/>
-                <attr name="templateCategory" stringvalue="web-service-clients"/>
+                <attr name="templateCategory" stringvalue="axis"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/websvc/axis2/resources/WebService.html"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.websvc.axis2.wizards.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/websvc/axis2/resources/axis_node_16.png"/> 
