@@ -65,7 +65,7 @@ import org.openide.util.Exceptions;
  * @author tomas
  */
 public class CleartoolMockup extends Process implements Runnable {
-
+    
     private DelegateInputStream inputStream;    
     private ByteArrayOutputStream outputStream;
     private DelegateInputStream errorStream;
@@ -432,6 +432,9 @@ public class CleartoolMockup extends Process implements Runnable {
     }
 
     private void processMV(String[] args) {
+        
+        // check the files status - if parent isn't versioned return 'cleartool: Error: Not a vob object: "d/a"'
+        
         List<File> files = new ArrayList<File>();
         for (int i = 1; i < args.length; i++) {
             String arg = args[i];
