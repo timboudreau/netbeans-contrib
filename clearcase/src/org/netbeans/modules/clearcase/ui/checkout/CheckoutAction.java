@@ -244,6 +244,7 @@ public class CheckoutAction extends AbstractAction {
         CheckoutCommand command;
         switch (odc) {
         case Disabled:
+            // XXX let the user decide if he want's to checkout the file
             DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("On-demand checkouts are currently disabled. Visit IDE Options to change that."));
             return;
         case Reserved:
