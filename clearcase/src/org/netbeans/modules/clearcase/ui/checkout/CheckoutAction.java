@@ -205,7 +205,7 @@ public class CheckoutAction extends AbstractAction {
             }
         };
     }
-    
+
     /**
      * Checks out the file or directory depending on the user-selected strategy in Options.
      * In case the file is already writable or the directory is checked out, the method does nothing.
@@ -215,8 +215,23 @@ public class CheckoutAction extends AbstractAction {
      * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
      */
     public static void ensureMutable(File file) {
+        ensureMutable(file, null);
+    }   
+    
+    /**
+     * Checks out the file or directory depending on the user-selected strategy in Options.
+     * In case the file is already writable or the directory is checked out, the method does nothing.
+     * Interceptor entry point.
+     * 
+     * @param file file to checkout
+     * @param entry the given files {@link FileEntry}
+     * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
+     */
+    public static void ensureMutable(File file, FileEntry entry) {
         if (file.isDirectory()) {
-            FileEntry entry = ClearcaseUtils.readEntry(file);                
+            if(entry == null) {
+                entry = ClearcaseUtils.readEntry(file);                
+            }
             if (entry == null || entry.isCheckedout() || entry.isViewPrivate()) {
                 return;
             }
