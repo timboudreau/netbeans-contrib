@@ -58,7 +58,8 @@ public class ClearcaseModuleConfig {
     public static final String PROP_IGNORED_PATTERNS        = "ignoredPatterns";    // NOI18N
     public static final String PROP_COMMIT_EXCLUSIONS       = "commitExclusions";   // NOI18N    
     public static final String PROP_CLEARTOOL_EXECUTABLE    = "cleartoolExecutablePath";   // NOI18N    
-    private static final String PROP_ONDEMAND_CHECKOUT       = "onDemandCheckout";   // NOI18N    
+    private static final String PROP_ONDEMAND_CHECKOUT      = "onDemandCheckout";   // NOI18N    
+    public static final String PROP_ADD_VIEWPRIVATE         = "addViewPrivate";   // NOI18N    
     
     private static Set<String> exclusions;
     
