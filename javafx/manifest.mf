@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-AutoUpdate-Show-In-Client: false
-OpenIDE-Module: javafx
-OpenIDE-Module-Localizing-Bundle: javafx/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0.5
