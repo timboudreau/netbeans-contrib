@@ -41,6 +41,7 @@
 package org.netbeans.modules.clearcase.options;
 
 import org.netbeans.spi.options.OptionsPanelController;
+import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
 import org.openide.util.Lookup;
 import org.openide.util.HelpCtx;
 
@@ -57,9 +58,12 @@ class ClearcaseOptionsController extends OptionsPanelController {
     private ClearcaseOptionsPanel panel;
 
     public void update() {
+        setOdc(ClearcaseModuleConfig.getOnDemandCheckout());
     }
 
     public void applyChanges() {
+        if (!isValid()) return;
+        ClearcaseModuleConfig.setOnDemandCheckout(getOdc());
     }
 
     public void cancel() {
@@ -70,9 +74,24 @@ class ClearcaseOptionsController extends OptionsPanelController {
     }
 
     public boolean isChanged() {
+        if (getOdc() != ClearcaseModuleConfig.getOnDemandCheckout()) return true;
         return false;
     }
 
+    public ClearcaseModuleConfig.OnDemandCheckout getOdc() {
+        if (panel.rbDisabled.isSelected()) return ClearcaseModuleConfig.OnDemandCheckout.Disabled;
+        if (panel.rbUnreserved.isSelected()) return ClearcaseModuleConfig.OnDemandCheckout.Unreserved;
+        if (panel.cbFallback.isSelected()) return ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback;
+        return ClearcaseModuleConfig.OnDemandCheckout.Reserved;
+    }
+
+    private void setOdc(ClearcaseModuleConfig.OnDemandCheckout odc) {
+        panel.rbDisabled.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Disabled);
+        panel.rbUnreserved.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Unreserved);
+        panel.rbReserved.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Reserved || odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback);
+        panel.cbFallback.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback);
+    }
+    
     public JComponent getComponent(Lookup lookup) {
         if (panel == null) {
             panel = new ClearcaseOptionsPanel(); 
@@ -81,7 +100,7 @@ class ClearcaseOptionsController extends OptionsPanelController {
     }
 
     public HelpCtx getHelpCtx() {
-        return new HelpCtx(getClass());
+        return new HelpCtx(ClearcaseOptionsController.class);
     }
 
     public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener) {

@@ -91,14 +91,6 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         cache.refreshLater(file); 
     }
 
-    private void checkout(File parent) {
-        // check if not already checkedout
-        FileEntry entry = ClearcaseUtils.readEntry(parent);                
-        if (!entry.isCheckedout()) {
-            CheckoutAction.checkout(parent);
-        }        
-    }
-    
     private void fileDeletedImpl(File file) {
         // TODO clean up
         
@@ -111,7 +103,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         // XXX use execution unit
         if(Clearcase.getInstance().isManaged(parent)) {
             // 1. checkout parent if needed
-            checkout(parent);
+            CheckoutAction.ensureMutable(parent);
              
             // 2. uncheckout - even if the delete is invoked with the --force switch
             // ct rm on a file which was checkedout causes that after ct unco on its parent 
@@ -172,9 +164,9 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 
         if(Clearcase.getInstance().isManaged(fromParent) && Clearcase.getInstance().isManaged(toParent)) {
             // 1. checkout parents if needed
-            checkout(fromParent);
+            CheckoutAction.ensureMutable(fromParent);
             if(!fromParent.equals(toParent)){
-                checkout(toParent);
+                CheckoutAction.ensureMutable(toParent);
             }
             
             // 2. move the file
@@ -225,8 +217,6 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     @Override
     public void beforeEdit(File file) {
         Clearcase.LOG.finer("beforeEdit " + file);        
-        if(!file.canWrite()) { // XXX HACK             
-            CheckoutAction.checkout(file);   
-        }
+        CheckoutAction.ensureMutable(file);   
     }    
 }
