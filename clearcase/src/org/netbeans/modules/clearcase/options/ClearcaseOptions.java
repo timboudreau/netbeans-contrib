@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -38,35 +38,29 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.clearcase.ui.status;
 
-import org.openide.util.actions.SystemAction;
-import org.openide.util.HelpCtx;
+package org.netbeans.modules.clearcase.options;
 
-import java.awt.event.ActionEvent;
+import org.netbeans.spi.options.AdvancedOption;
+import org.netbeans.spi.options.OptionsPanelController;
+import org.openide.util.NbBundle;
 
 /**
+ * Clearcase Options.
+ *
  * @author Maros Sandor
  */
-public class OpenVersioningAction extends SystemAction {
+public final class ClearcaseOptions extends AdvancedOption {
 
-    public String getName() {
-        return "Clearcase";
+    public String getDisplayName() {
+        return NbBundle.getMessage(ClearcaseOptions.class, "Options.displayName");    // NOI18N
     }
 
-    public HelpCtx getHelpCtx() {
-        return new HelpCtx(OpenVersioningAction.class);
+    public String getTooltip() {
+        return NbBundle.getMessage(ClearcaseOptions.class, "Options.toolTip");        // NOI18N
     }
 
-    public void actionPerformed(ActionEvent ev) {
-        ClearcaseTopComponent stc = ClearcaseTopComponent.getInstance();
-        if (stc.hasContext()) {
-            stc.open();
-            stc.requestActive();
-        } else {
-            // TODO: set the context
-            stc.open();
-            stc.requestActive();
-        }
+    public OptionsPanelController create() {
+        return new ClearcaseOptionsController();
     }
 }

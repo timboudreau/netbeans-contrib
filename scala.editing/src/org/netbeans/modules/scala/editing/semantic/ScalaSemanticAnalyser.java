@@ -374,7 +374,7 @@ public class ScalaSemanticAnalyser {
                 Function funDfn = null;
                 for (ASTItem item1 : item.getChildren()) {
                     if (isNode(item1, "NameId")) {
-                        ASTToken nameToken = getIdTokenFromNameId(item1);
+                        ASTToken nameToken = (ASTToken) item1.getChildren().get(0);
                         funDfn = new Function(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), 0);
                         currCtx.addDefinition(funDfn);
                         currCtx.addUsage(nameToken, funDfn);
@@ -406,7 +406,7 @@ public class ScalaSemanticAnalyser {
                 Template tmplDfn = null;
                 for (ASTItem item1 : defStat.getChildren()) {
                     if (isNode(item1, "NameId")) {
-                        ASTToken nameToken = getIdTokenFromNameId(item1);
+                        ASTToken nameToken = (ASTToken) item1.getChildren().get(0);
                         tmplDfn = new Template(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), kind, currPackage);
                         currCtx.addDefinition(tmplDfn);
                         currCtx.addUsage(nameToken, tmplDfn);
@@ -418,7 +418,7 @@ public class ScalaSemanticAnalyser {
                 Type typeDfn = null;
                 for (ASTItem item1 : item.getChildren()) {
                     if (isNode(item1, "NameId")) {
-                        ASTToken nameToken = getIdTokenFromNameId(item1);
+                        ASTToken nameToken = (ASTToken) item1.getChildren().get(0);
                         typeDfn = new Type(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset());
                         currCtx.addDefinition(typeDfn);
                         currCtx.addUsage(nameToken, typeDfn);
@@ -455,7 +455,7 @@ public class ScalaSemanticAnalyser {
                 } else if (isNode(item1, "ClassParamClauses")) {
                     List<ASTItem> nameIds = query(item1, "ClassParams/ClassParam/NameId");
                     for (ASTItem nameId : nameIds) {
-                        ASTToken varToken = getIdTokenFromNameId(nameId);
+                        ASTToken varToken = (ASTToken) nameId.getChildren().get(0);
                         Var varDfn = new Var(varToken.getIdentifier(), varToken.getOffset(), varToken.getEndOffset(), Var.Scope.PARAMETER);
                         newCtx.addDefinition(varDfn);
                         newCtx.addUsage(varToken, varDfn);
@@ -597,7 +597,7 @@ public class ScalaSemanticAnalyser {
                 for (ASTItem typeParam : typeParams) {
                     for (ASTItem item1 : typeParam.getChildren()) {
                         if (isNode(item1, "NameId")) {
-                            ASTToken nameToken = getIdTokenFromNameId(item1);
+                            ASTToken nameToken = (ASTToken) item1.getChildren().get(0);
                             Type typeDfn = new Type(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset());
                             newCtx.addDefinition(typeDfn);
                             newCtx.addUsage(nameToken, typeDfn);
@@ -611,7 +611,7 @@ public class ScalaSemanticAnalyser {
             } else if (isNode(item, "ParamClauses")) {
                 List<ASTItem> nameIds = query(item, "ParamClause/Params/Param/NameId");
                 for (ASTItem nameId : nameIds) {
-                    ASTToken varToken = getIdTokenFromNameId(nameId);
+                    ASTToken varToken = (ASTToken) nameId.getChildren().get(0);
                     Var varDfn = new Var(varToken.getIdentifier(), varToken.getOffset(), varToken.getEndOffset(), Var.Scope.PARAMETER);
                     newCtx.addDefinition(varDfn);
                     newCtx.addUsage(varToken, varDfn);
@@ -638,7 +638,7 @@ public class ScalaSemanticAnalyser {
             if (isNode(item, "TypeParamClause")) {
                 List<ASTItem> nameIds = query(item, "VariantTypeParam/TypeParam/NameId");
                 for (ASTItem nameId : nameIds) {
-                    ASTToken nameToken = getIdTokenFromNameId(nameId);
+                    ASTToken nameToken = (ASTToken) nameId.getChildren().get(0);
                 /** @todo */
 //                    Var varDfn = new Var(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), Var.Scope.PARAMETER);
 //                    ctx.addDefinition(varDfn);
@@ -660,7 +660,7 @@ public class ScalaSemanticAnalyser {
                 if (nameIds.size() > 0) {
                     // @todo should process package here
                     ASTItem lastNameId = nameIds.get(nameIds.size() - 1);
-                    ASTToken idToken = getIdTokenFromNameId(lastNameId);
+                    ASTToken idToken = (ASTToken) lastNameId.getChildren().get(0);;
                     Type typeDfn = currCtx.getDefinitionInScopeByName(Type.class, idToken.getIdentifier());
                     if (typeDfn != null) {
                         currCtx.addUsage(idToken, typeDfn);
@@ -681,7 +681,7 @@ public class ScalaSemanticAnalyser {
         Packaging packageDfn = new Packaging("Packaging", packaging.getOffset(), packaging.getEndOffset());
         List<ASTItem> paths = query(packaging, "QualId/NameId");
         for (ASTItem path : paths) {
-            String pathStr = getIdTokenFromNameId(path).getIdentifier();
+            String pathStr = ((ASTToken) path.getChildren().get(0)).getIdentifier();
             packageDfn.addPath(pathStr);
         }
         return packageDfn;
@@ -880,7 +880,7 @@ public class ScalaSemanticAnalyser {
                 currCtx.addContext(newCtx);
                 List<ASTItem> nameIds = query(postfixExpr, "PrefixExpr/SimpleExpr/PathIdWithTypeArgs/PathId/NameId");
                 if (nameIds.size() > 0) {
-                    ASTToken varToken = getIdTokenFromNameId(nameIds.get(0));
+                    ASTToken varToken = (ASTToken) nameIds.get(0).getChildren().get(0);
                     Var varDfn = new Var(varToken.getIdentifier(), varToken.getOffset(), varToken.getEndOffset(), Var.Scope.LOCAL);
                     newCtx.addDefinition(varDfn);
                     newCtx.addUsage(varToken, varDfn);
@@ -888,7 +888,7 @@ public class ScalaSemanticAnalyser {
                     // Bindings = "(" Binding ("," Binding)* ")"; Binding = NameId [":" Type]
                     nameIds = query(postfixExpr, "PrefixExpr/SimpleExpr/TupleExprWithTypeArgs/ParenExpr/ExprInParen/PostfixExpr/PrefixExpr/SimpleExpr/PathIdWithTypeArgs/PathId/NameId");
                     for (ASTItem nameId : nameIds) {
-                        ASTToken varToken = getIdTokenFromNameId(nameId);
+                        ASTToken varToken = (ASTToken) nameId.getChildren().get(0);
                         Var varDfn = new Var(varToken.getIdentifier(), varToken.getOffset(), varToken.getEndOffset(), Var.Scope.LOCAL);
                         newCtx.addDefinition(varDfn);
                         newCtx.addUsage(varToken, varDfn);
@@ -1224,7 +1224,7 @@ public class ScalaSemanticAnalyser {
                 return;
             } // @todo process this super ?
 
-            ASTToken funName = getIdTokenFromNameId(nameId);
+            ASTToken funName = (ASTToken) nameId.getChildren().get(0);
             if (funName != null) {
                 /** @todo get all functions with the same name, then find the same Type params one */
                 Function funDfn = currCtx.getDefinitionInScopeByName(Function.class, funName.getIdentifier());
@@ -1263,7 +1263,7 @@ public class ScalaSemanticAnalyser {
                 return;
             } // @todo process this super ?
 
-            ASTToken varId = getIdTokenFromNameId(nameId);
+            ASTToken varId = (ASTToken) nameId.getChildren().get(0);
             if (varId != null && !(varId.getIdentifier().equals("_"))) {
                 Var varDfn = currCtx.getVariableInScope(varId.getIdentifier());
                 if (varDfn != null) {
@@ -1284,7 +1284,7 @@ public class ScalaSemanticAnalyser {
             for (ASTItem typeId : typeIds) {
                 for (ASTItem item : typeId.getChildren()) {
                     if (isNode(item, "NameId")) {
-                        ASTToken tmplId = getIdTokenFromNameId(item);
+                        ASTToken tmplId = (ASTToken) item.getChildren().get(0);
                         namespace.add(tmplId.getIdentifier());
                         Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, tmplId.getIdentifier());
                         if (tmplDfn != null && (tmplDfn.getKind() == Kind.CLASS || tmplDfn.getKind() == Kind.TRAIT)) {
@@ -1328,20 +1328,6 @@ public class ScalaSemanticAnalyser {
         }
     }
 
-    private static ASTToken getIdTokenFromNameId(ASTItem NameId) {
-        for (ASTItem item1 : NameId.getChildren()) {
-            if (isNode(item1, "PlainId")) {
-                for (ASTItem item2 : item1.getChildren()) {
-                    return (ASTToken) item2;
-                }
-            } else if (isTokenType(item1, "bquote_identifier")) {
-                return (ASTToken) item1;
-
-            }
-        }
-        return null;
-    }
-
     private static ASTToken getLeafId(ASTItem stableId) {
         ASTItem id = null;
         /** get the latest PathId */
@@ -1354,7 +1340,7 @@ public class ScalaSemanticAnalyser {
         if (id != null) {
             for (ASTItem item : id.getChildren()) {
                 if (isNode(item, "NameId")) {
-                    return getIdTokenFromNameId(item);
+                    return (ASTToken) item.getChildren().get(0);
                 }
             }
         }

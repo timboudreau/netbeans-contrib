@@ -122,30 +122,27 @@ public class HibernateEnvironment {
     
     /**
      * Returns configuration fileobjects if any contained in this project.
-     * @param project the project.
      * @return list of FileObjects for configuration files if found in this project, otherwise empty list.
      */
-    public ArrayList<FileObject> getAllHibernateConfigFileObjects(Project project) {
+    public ArrayList<FileObject> getAllHibernateConfigFileObjects() {
         return HibernateUtil.getAllHibernateConfigFileObjects(project);
     }
       
     /**
      * Returns all mapping files defined under this project.
      * 
-     * @param project the project for all the mapping files need to be found.
      * @return List of FileObjects for mapping files.
      */
-    public ArrayList<FileObject> getAllHibernateMappingFileObjects(Project project) {
+    public ArrayList<FileObject> getAllHibernateMappingFileObjects() {
         return HibernateUtil.getAllHibernateMappingFileObjects(project);
     }        
     
      /**
      * Returns relaive source paths of all mapping files present in this project.
      * 
-     * @param project the project for all the mapping files need to be found.
      * @return List of FileObjects for mapping files.
      */
-    public ArrayList<String> getAllHibernateMappings(Project project) {
+    public ArrayList<String> getAllHibernateMappings() {
         return HibernateUtil.getAllHibernateMappingsRelativeToSourcePath(project);
     }        
     
@@ -229,6 +226,7 @@ public class HibernateEnvironment {
         SessionFactory fact = hibernateConfiguration.getSessionFactory();
         int count = 0;
         for(boolean val : fact.getMapping()) {
+            @SuppressWarnings("static-access") //NOI18N
             String propName = fact.getAttributeValue(fact.MAPPING,
                     count++, "resource"); //NOI18N
             mappingsFromConfiguration.add(propName);
@@ -241,7 +239,7 @@ public class HibernateEnvironment {
         ArrayList<HibernateConfiguration> hibernateConfigurations = new ArrayList<HibernateConfiguration>();
         for(HibernateConfiguration config : getAllHibernateConfigurationsFromProject()) {
             for(String mappingFile : getAllHibernateMappingsFromConfiguration(config)) {
-                if(mappingFileObject.getPath().contains(mappingFile)) {
+                if(!mappingFile.trim().equals("") && mappingFileObject.getPath().contains(mappingFile)) {
                     hibernateConfigurations.add(config);
                 }
             }
