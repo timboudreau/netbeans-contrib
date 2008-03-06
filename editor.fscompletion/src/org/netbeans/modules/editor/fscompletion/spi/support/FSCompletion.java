@@ -44,9 +44,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import org.netbeans.api.queries.VisibilityQuery;
+import org.netbeans.spi.editor.completion.CompletionItem;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -57,20 +59,20 @@ public class FSCompletion {
 
     private FSCompletion() {}
 
-    public static List/*<CompletionItem>*/ completion(FileObject root, FileObject relative, String prefix, int anchor) throws IOException {
+    public static List<? extends CompletionItem> completion(FileObject root, FileObject relative, String prefix, int anchor) throws IOException {
         return completion(root, relative, prefix, anchor, DEFAULT_FILTER);
     }
 
     /**TODO: root=null, relative=null should mean root of all filesystems!
      */
-    public static List/*<CompletionItem>*/ completion(FileObject root, FileObject relative, String prefix, int anchor, FileObjectFilter filter) throws IOException {
+    public static List<? extends CompletionItem> completion(FileObject root, FileObject relative, String prefix, int anchor, FileObjectFilter filter) throws IOException {
         if (relative == null && root == null) {
             throw new IllegalArgumentException("root == null && relative == null currently not supported!");
         }
         
         boolean isAbsolute = relative == null;
         
-        List result = new ArrayList();
+        List<CompletionItem> result = new LinkedList<CompletionItem>();
         
         if (relative != null && relative.isData())
             relative = relative.getParent();
@@ -100,7 +102,7 @@ public class FSCompletion {
         }
         
         if (relative == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         
         FileObject[] children = relative.getChildren();
@@ -116,22 +118,22 @@ public class FSCompletion {
         return result;
     }
     
-    public static List/*<CompletionItem>*/ completion(FileObject[] root, FileObject[] relative, String prefix, int anchor) throws IOException {
+    public static List<? extends CompletionItem> completion(FileObject[] root, FileObject[] relative, String prefix, int anchor) throws IOException {
         return completion(root, relative, prefix, anchor, DEFAULT_FILTER);
     }
 
-    public static List/*<CompletionItem>*/ completion(FileObject[] root, FileObject[] relative, String prefix, int anchor, FileObjectFilter filter) throws IOException {
+    public static List<? extends CompletionItem> completion(FileObject[] root, FileObject[] relative, String prefix, int anchor, FileObjectFilter filter) throws IOException {
         if (root.length != relative.length) {
             throw new IllegalArgumentException();
         }
         
-        Set result = new LinkedHashSet();
+        Set<CompletionItem> result = new LinkedHashSet<CompletionItem>();
         
         for (int cntr = 0; cntr < root.length; cntr++) {
             result.addAll(completion(root[cntr], relative[cntr], prefix, anchor));
         }
         
-        return new ArrayList(result);
+        return new ArrayList<CompletionItem>(result);
     }
 
     private static final AcceptAllFileObjectFilter DEFAULT_FILTER = new AcceptAllFileObjectFilter();

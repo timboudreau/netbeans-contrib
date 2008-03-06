@@ -40,6 +40,13 @@
  */
 package org.netbeans.modules.clearcase.options;
 
+import org.netbeans.modules.versioning.util.AccessibleJFileChooser;
+import org.openide.util.NbBundle;
+import org.openide.filesystems.FileUtil;
+
+import javax.swing.*;
+import java.io.File;
+
 /**
  *
  * @author Maros Sandor
@@ -241,7 +248,17 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void bBrowseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bBrowseActionPerformed
-    // TODO add your handling code here:
+        String execPath = taExecutable.getText();
+        File oldFile = FileUtil.normalizeFile(new File(execPath));
+        JFileChooser fileChooser = new AccessibleJFileChooser(NbBundle.getMessage(ClearcaseOptionsPanel.class, "ACSD_ClearToolBrowse"), oldFile);   // NOI18N
+        fileChooser.setDialogTitle(NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearToolBrowse_title"));                                            // NOI18N
+        fileChooser.setMultiSelectionEnabled(false);
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.showDialog(this, NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearToolBrowse_OK_Button"));                                            // NOI18N
+        File f = fileChooser.getSelectedFile();
+        if (f != null) {
+            taExecutable.setText(f.getAbsolutePath());
+        }
     }//GEN-LAST:event_bBrowseActionPerformed
     
     private void rbDisabledActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbDisabledActionPerformed
