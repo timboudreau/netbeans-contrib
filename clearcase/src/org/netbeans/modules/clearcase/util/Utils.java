@@ -45,7 +45,6 @@ import java.io.*;
 import java.util.*;
 import java.util.ArrayList;
 import org.netbeans.modules.clearcase.Clearcase;
-import org.netbeans.modules.clearcase.client.NotificationListener;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Node;
