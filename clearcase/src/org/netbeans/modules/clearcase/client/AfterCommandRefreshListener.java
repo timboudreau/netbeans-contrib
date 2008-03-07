@@ -41,13 +41,7 @@
 package org.netbeans.modules.clearcase.client;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.util.Utils;
-import org.openide.filesystems.FileUtil;
 
 /**
  * Refreshes the status for files and the relevent filesystems after a {@link ClearcaseCommand} finnishes

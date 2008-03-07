@@ -184,7 +184,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                     // we have to add it to source control
                     AddAction.addFiles(new File[] {toParent}, null, false).waitFinished();
                 } else {
-                    if(!fromParent.equals(toParent)){
+                    if(!fromParent.equals(toParent)) {
                         CheckoutAction.ensureMutable(toParent, toParentEntry);
                     }    
                 }
