@@ -159,7 +159,7 @@ public class CheckoutAction extends AbstractAction {
         
         Clearcase.getInstance().getClient().post(new ExecutionUnit(
                 "Undoing Checkout...",
-                new UnCheckoutCommand(files, keepFiles, createNotificationListener(files), new OutputWindowNotificationListener())));
+                new UnCheckoutCommand(files, keepFiles, new AfterCommandRefreshListener(files), new OutputWindowNotificationListener())));
     }
 
     public static ClearcaseClient.CommandRunnable performCheckout(File[] files, String title) {        
@@ -191,21 +191,10 @@ public class CheckoutAction extends AbstractAction {
         ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit(
                 "Checking out...",
                 new CheckoutCommand(files, message, doReserved ? CheckoutCommand.Reserved.Reserved : CheckoutCommand.Reserved.Unreserved, 
-                                    false, createNotificationListener(files), new OutputWindowNotificationListener())));        
+                                    false, new AfterCommandRefreshListener(files), new OutputWindowNotificationListener())));        
         return cr;
     }
     
-    private static NotificationListener createNotificationListener(final File ...files) {
-        return new NotificationListener() {
-            public void commandStarted()        { /* boring */ }
-            public void outputText(String line) { /* boring */ }
-            public void errorText(String line)  { /* boring */ }
-            public void commandFinished() {     
-                org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files, false, false);                
-            }
-        };
-    }
-
     /**
      * Checks out the file or directory depending on the user-selected strategy in Options.
      * In case the file is already writable or the directory is checked out, the method does nothing.
@@ -249,10 +238,10 @@ public class CheckoutAction extends AbstractAction {
             return;
         case Reserved:
         case ReservedWithFallback:
-            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Reserved, true, createNotificationListener(file));
+            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Reserved, true, new AfterCommandRefreshListener(file));
             break;
         case Unreserved:
-            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, createNotificationListener(file));
+            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, new AfterCommandRefreshListener(file));
             break;
         default:
             throw new IllegalStateException("Illegal Checkout type: " + odc);
@@ -264,7 +253,7 @@ public class CheckoutAction extends AbstractAction {
         
         if (command.hasFailed() && odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback) {
             command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, 
-                                          new OutputWindowNotificationListener(), createNotificationListener(file));
+                                          new OutputWindowNotificationListener(), new AfterCommandRefreshListener(file));
             eu = new ExecutionUnit("Checking out...", true, command);
             cr = Clearcase.getInstance().getClient().post(eu);
             cr.waitFinished();

@@ -56,6 +56,7 @@ import java.util.*;
 import java.util.ArrayList;
 import javax.swing.event.TableModelListener;
 import org.netbeans.modules.clearcase.*;
+import org.netbeans.modules.clearcase.client.AfterCommandRefreshListener;
 import org.netbeans.modules.clearcase.ui.add.AddAction;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
@@ -73,7 +74,7 @@ import org.openide.util.RequestProcessor;
  * 
  * @author Maros Sandor
  */
-public class CheckinAction extends AbstractAction implements NotificationListener {
+public class CheckinAction extends AbstractAction {
     
     private final VCSContext context;
     protected final VersioningOutputManager voutput;
@@ -175,7 +176,7 @@ public class CheckinAction extends AbstractAction implements NotificationListene
         Clearcase.getInstance().getClient().post(new ExecutionUnit(
                 "Checking in...",
                 new CheckinCommand(files, message, forceUnmodified, 
-                                    preserveTime, new OutputWindowNotificationListener(), this)));
+                                    preserveTime, new OutputWindowNotificationListener(), new AfterCommandRefreshListener(files))));
     }
 
     // XXX temporary solution...
@@ -215,12 +216,5 @@ public class CheckinAction extends AbstractAction implements NotificationListene
      */
     public static void checkin(VCSContext context) {
         new CheckinAction("", context).actionPerformed(null);        
-    }
-    
-    public void commandStarted()        { /* boring */ }
-    public void outputText(String line) { /* boring */ }
-    public void errorText(String line)  { /* boring */ }
-    public void commandFinished() {               
-        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files, false, false);        
-    }    
+    }        
 }

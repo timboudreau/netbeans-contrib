@@ -47,8 +47,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import org.netbeans.modules.clearcase.client.ClearcaseClient;
+import org.netbeans.modules.clearcase.client.ClearcaseCommand;
 import org.netbeans.modules.clearcase.client.DeleteCommand;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.MoveCommand;
@@ -57,6 +60,7 @@ import org.netbeans.modules.clearcase.client.status.FileEntry;
 import org.netbeans.modules.clearcase.ui.add.AddAction;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.versioning.util.Utils;
+import org.openide.filesystems.FileUtil;
 
 /**
  * Listens on file system changes and reacts appropriately, mainly refreshing affected files' status.
@@ -93,7 +97,6 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     @Override
     public void afterDelete(final File file) {
         Clearcase.LOG.finer("afterDelete " + file);
-        cache.refreshLater(file); 
     }
 
     private void deleteFile(File file) {
@@ -114,11 +117,12 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         // 3. remove the file
         ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit("Deleting ...", new DeleteCommand(new File[]{file})));
         cr.waitFinished();
-
+                
         // the file stays on the filessytem if it was checkedout eventually
         if (file.exists()) {
             file.delete();
-        }
+        }        
+        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(new File[] { file }, false);
     }
     
     private void fileDeletedImpl(File file) {       
@@ -175,7 +179,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
             FileEntry fromEntry = ClearcaseUtils.readEntry(from);                
             
             if(fromEntry.isViewPrivate()) { // XXX HIJACKED?
-                // 'from' is not versiomed yet - let's just rename it
+                // 'from' is not versioned yet - let's just rename it
                 from.renameTo(to);
             } else {
                 
@@ -199,7 +203,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 
             }    
         } else if (!Clearcase.getInstance().isManaged(from)) {
-            // 'from' is not versiomed yet - let's just rename it
+            // 'from' is not versioned yet - let's just rename it
             from.renameTo(to);                            
         } else { // !Clearcase.getInstance().isManaged(to)
             FileEntry fromEntry = ClearcaseUtils.readEntry(fromParent);                
@@ -216,6 +220,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 deleteFile(from);
             }
         }            
+        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(new File[] { from, to }, true);
     }
     
     @Override

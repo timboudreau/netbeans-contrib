@@ -45,6 +45,7 @@ import java.io.*;
 import java.util.*;
 import java.util.ArrayList;
 import org.netbeans.modules.clearcase.Clearcase;
+import org.netbeans.modules.clearcase.client.NotificationListener;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Node;
@@ -75,35 +76,35 @@ public class Utils {
     /**
      * Refreshes the status for files and the relevent filesystems
      * 
-     * @param files files to be refreshed
-     * @param includeParents if true all parents for the given files will be refreshed too
+     * @param files files to be refreshed          
+     * @param includeChildren if true all children for the given files will be explicitly refreshed too
      */
-    // XXX maybe this should be somewere in the comand infrastructure
-    public static void afterCommandRefresh(final File[] files, final boolean includeParents, final boolean includeChildren) {    
-        org.netbeans.modules.versioning.util.Utils.post(new Runnable() {
-            public void run() {
-                Set<File> refreshSet = new HashSet<File>();
-                for (File file : files) {
-                    if(includeParents) {
-                        File parent = file.getParentFile();
-                        if(parent != null) {
-                            refreshSet.add(parent);
-                        }    
-                    }               
-                    if(includeChildren) {
-                        refreshSet.addAll(getFileTree(file));    
-                    } else {
-                        refreshSet.add(file);
-                    }
-                    
-                }                        
-                File[] refreshFiles = refreshSet.toArray(new File[refreshSet.size()]);
-                Clearcase.getInstance().getFileStatusCache().refreshLater(refreshFiles);
-                FileUtil.refreshFor(refreshFiles); 
+    public static void afterCommandRefresh(final File[] files, final boolean includeChildren) {  
+        // refresh the NB filessytem synchronously and 
+        // before the cache starts firing change events as 
+        // they might cause externally deleted/created warnings
+        Set<File> parents = new HashSet<File>();
+        for (File file : files) {
+            File parent = file.getParentFile();
+            if (parent != null) {
+                parents.add(parent);
             }
-        });        
-    }       
-    
+        }
+        FileUtil.refreshFor(parents.toArray(new File[parents.size()])); 
+
+        // refresh the cache ...
+        Set<File> refreshSet = new HashSet<File>();
+        for (File file : files) {
+            if(includeChildren) {
+                refreshSet.addAll(getFileTree(file));    
+            } else {
+                refreshSet.add(file);
+            }
+        }                        
+        File[] refreshFiles = refreshSet.toArray(new File[refreshSet.size()]);
+        Clearcase.getInstance().getFileStatusCache().refreshLater(refreshFiles);                            
+    }
+
     private static List<File> getFileTree(File file) {
         List<File> ret = new  ArrayList<File>();
         ret.add(file);

@@ -184,14 +184,21 @@ public class AddAction extends AbstractAction {
      * @return CommandRunnable that is adding the files or NULL of there are no files to add and no command was executed
      */    
     public static ClearcaseClient.CommandRunnable addFiles(final File[] files, final String message, boolean checkInAddedFiles) {        
-        return Clearcase.getInstance().getClient().post(new ExecutionUnit("Adding...", new MkElemCommand(files, message, checkInAddedFiles ? MkElemCommand.Checkout.Checkin : MkElemCommand.Checkout.Default, false, new OutputWindowNotificationListener(), new NotificationListener() {
-            public void commandStarted()        { /* boring */ }
-            public void outputText(String line) { /* boring */}
-            public void errorText(String line)  { /* boring */}
-            public void commandFinished() {                
-                org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files, true, false);
-            }
-        })));
+        HashSet<File> refreshSet = new HashSet<File>();
+        for (File file : files) {
+            refreshSet.add(file);
+            File parent = file.getParentFile();
+            if(parent != null) {
+                refreshSet.add(parent);
+            }    
+        }                    
+        return Clearcase.getInstance().getClient().post(
+                new ExecutionUnit(
+                    "Adding...", 
+                    new MkElemCommand(files, message, checkInAddedFiles ? MkElemCommand.Checkout.Checkin : MkElemCommand.Checkout.Default, 
+                    false, 
+                    new OutputWindowNotificationListener(), 
+                    new AfterCommandRefreshListener(refreshSet.toArray(new File[refreshSet.size()])))));
     }
 
     private static void addAncestors(Set<File> addFiles) {
