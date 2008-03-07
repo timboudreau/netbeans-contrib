@@ -97,7 +97,7 @@ public class DeleteTest extends NbTestCase {
         assertFalse(delete(file)); // interceptor refused to handle the file
     }
 
-    // XXX try to emulate also remotly checkout situation
+    // XXX try to emulate also remotely checkedout situation
     public void testDeleteUptodateFileUptodateParent() throws IOException {
         File parent = new File(vobRoot, "parent");
         parent.mkdirs();
