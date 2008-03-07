@@ -433,8 +433,6 @@ public class CleartoolMockup extends Process implements Runnable {
 
     private void processMV(String[] args) {
         
-        // check the files status - if parent isn't versioned return 'cleartool: Error: Not a vob object: "d/a"'
-        
         List<File> files = new ArrayList<File>();
         for (int i = 1; i < args.length; i++) {
             String arg = args[i];
@@ -446,6 +444,13 @@ public class CleartoolMockup extends Process implements Runnable {
         }
         File from = files.get(0);
         File to = files.get(1);
+        
+        File toParent = to.getParentFile();
+        FileEntry entry = Repository.getInstance().getEntry(toParent);
+        if(entry == null) {
+            errorStream.setDelegate(new ByteArrayInputStream(("cleartool: Error: Not a vob object: \"" + toParent.getAbsolutePath() + "\"\n").getBytes()));    
+            return;
+        }
         
         from.renameTo(to);
         
