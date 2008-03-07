@@ -105,7 +105,7 @@ public class CleartoolMockup extends Process implements Runnable {
             return;
         }
         File[] files = file.listFiles();
-        if(file != null) {
+        if(files != null) {
             for (File f : files) {
                 fixWritable(f);
             }
