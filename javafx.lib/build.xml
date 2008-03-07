@@ -44,11 +44,9 @@ made subject to such option by the copyright holder.
 <project name="org.netbeans.modules.javafx.lib" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project javafx.</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
-<!-- Commented to don't download jars each time when build this module
     <target name="netbeans-extra" depends="init">
         <get src="${jfxcompiler.jar.url}" dest="${jfxcompiler.jar}"/>
         <get src="${jfxrt.jar.url}" dest="${jfxrt.jar}"/>
         <get src="${Scenario.jar.url}" dest="${Scenario.jar}"/>
     </target>
--->
 </project>
