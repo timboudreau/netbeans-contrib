@@ -117,6 +117,7 @@ public class AddAction extends AbstractAction {
         dd.setOptions(new Object[] {addButton, cancelButton}); // NOI18N
         dd.setHelpCtx(new HelpCtx(AddAction.class));
 
+        panel.cbSuppressCheckout.setSelected(ClearcaseModuleConfig.getCheckInAddedFiles());
         final AddTable addTable = new AddTable(panel.jLabel2, AddTable.ADD_COLUMNS, new String [] { AddTableModel.COLUMN_NAME_NAME });
         addTable.getTableModel().addTableModelListener(new TableModelListener() {
             public void tableChanged(TableModelEvent e) {
@@ -138,7 +139,8 @@ public class AddAction extends AbstractAction {
         
         String message = panel.taMessage.getText();
         boolean checkInAddedFiles = panel.cbSuppressCheckout.isSelected();
-
+        ClearcaseModuleConfig.setCheckInAddedFiles(checkInAddedFiles);
+        
         Map<ClearcaseFileNode, CheckinOptions> filesToAdd = addTable.getAddFiles();
         
         addFiles(message, checkInAddedFiles, filesToAdd);

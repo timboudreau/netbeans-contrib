@@ -53,16 +53,15 @@ import java.io.File;
  */
 public class ClearcaseModuleConfig {
 
-
-    
     public enum OnDemandCheckout { Disabled, Unreserved, Reserved, ReservedWithFallback };
     
     public static final String PROP_IGNORED_PATTERNS            = "ignoredPatterns";            // NOI18N
     public static final String PROP_COMMIT_EXCLUSIONS           = "commitExclusions";           // NOI18N    
     public static final String PROP_CLEARTOOL_EXECUTABLE        = "cleartoolExecutablePath";    // NOI18N    
     private static final String PROP_ONDEMAND_CHECKOUT          = "onDemandCheckout";           // NOI18N    
-    private static final String PROP_FORCE_UNMODIFIED_CHECKIN   = "forceUnmodifiedCheckin";    // NOI18N    
-    private static final String PROP_PRESERVE_TIME_CHECKIN      = "preserveTimeCheckin";    // NOI18N    
+    private static final String PROP_FORCE_UNMODIFIED_CHECKIN   = "forceUnmodifiedCheckin";     // NOI18N    
+    private static final String PROP_PRESERVE_TIME_CHECKIN      = "preserveTimeCheckin";        // NOI18N    
+    private static final String PROP_CHECKIN_ADDED_FILES        = "checkInAddedFiles";          // NOI18N    
     
     private static Set<String> exclusions;
     
@@ -75,6 +74,14 @@ public class ClearcaseModuleConfig {
         ignoredFilePatterns.addAll(toPatterns(Utils.getStringList(getPreferences(), PROP_IGNORED_PATTERNS)));
     }
     
+    public static void setCheckInAddedFiles(boolean checkInAddedFiles) {
+        getPreferences().putBoolean(PROP_CHECKIN_ADDED_FILES, checkInAddedFiles);
+    }
+    
+    public static boolean getCheckInAddedFiles() {
+        return getPreferences().getBoolean(PROP_CHECKIN_ADDED_FILES, false);
+    }
+
     public static void setForceUnmodifiedCheckin(boolean forceUnmodified) {
         getPreferences().putBoolean(PROP_FORCE_UNMODIFIED_CHECKIN, forceUnmodified);
     }
