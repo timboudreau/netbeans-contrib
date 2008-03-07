@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+
+
+The contents of this file are subject to the terms of either the GNU
+General Public License Version 2 only ("GPL") or the Common
+Development and Distribution License("CDDL") (collectively, the
+"License"). You may not use this file except in compliance with the
+License. You can obtain a copy of the License at
+http://www.netbeans.org/cddl-gplv2.html
+or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+specific language governing permissions and limitations under the
+License.  When distributing the software, include this License Header
+Notice in each file and include the License file at
+nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+particular file as subject to the "Classpath" exception as provided
+by Sun in the GPL Version 2 section of the License file that
+accompanied this code. If applicable, add the following below the
+License Header, with the fields enclosed by brackets [] replaced by
+your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+Contributor(s):
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+
+If you wish your version of this file to be governed by only the CDDL
+or only the GPL Version 2, indicate your decision by adding
+"[Contributor] elects to include this software in this distribution
+under the [CDDL or GPL Version 2] license." If you do not indicate a
+single choice of license, a recipient has the option to distribute
+your version of this file under either the CDDL, the GPL Version 2 or
+to extend the choice of license to its licensees as provided above.
+However, if you add GPL Version 2 code and therefore, elected the GPL
+Version 2 license, then the option applies only if the new code is
+made subject to such option by the copyright holder.
+-->
+
+<!DOCTYPE codetemplates PUBLIC  "-//NetBeans//DTD Editor Code Templates settings 1.0//EN"
+                                "http://www.netbeans.org/dtds/EditorCodeTemplates-1_0.dtd">
+
+<codetemplates>
+    <!-- Keywords -->
+    <codetemplate abbreviation="ab"><code><![CDATA[abstract ]]></code></codetemplate> 
+    <codetemplate abbreviation="as"><code><![CDATA[assert ]]></code></codetemplate> 
+    <codetemplate abbreviation="at"><code><![CDATA[attribute ]]></code></codetemplate> 
+    <codetemplate abbreviation="bi"><code><![CDATA[bind ]]></code></codetemplate> 
+    <codetemplate abbreviation="bil"><code><![CDATA[bind lazy ]]></code></codetemplate> 
+    <codetemplate abbreviation="br"><code><![CDATA[break;]]></code></codetemplate> 
+    <codetemplate abbreviation="cn"><code><![CDATA[continue;]]></code></codetemplate> 
+    <codetemplate abbreviation="fa"><code><![CDATA[false ]]></code></codetemplate> 
+    <codetemplate abbreviation="im"><code><![CDATA[import ]]></code></codetemplate> 
+    <codetemplate abbreviation="pa"><code><![CDATA[package ]]></code></codetemplate> 
+    <codetemplate abbreviation="pe"><code><![CDATA[protected ]]></code></codetemplate> 
+    <codetemplate abbreviation="pr"><code><![CDATA[private ]]></code></codetemplate> 
+    <codetemplate abbreviation="pu"><code><![CDATA[public ]]></code></codetemplate> 
+    <codetemplate abbreviation="ro"><code><![CDATA[readonly ]]></code></codetemplate> 
+    <codetemplate abbreviation="su"><code><![CDATA[super]]></code></codetemplate> 
+    <codetemplate abbreviation="so"><code><![CDATA[sizeof ]]></code></codetemplate> 
+    <codetemplate abbreviation="st"><code><![CDATA[static ]]></code></codetemplate> 
+    <codetemplate abbreviation="th"><code><![CDATA[this ]]></code></codetemplate> 
+    <codetemplate abbreviation="tw"><code><![CDATA[throw ]]></code></codetemplate> 
+    <codetemplate abbreviation="tr"><code><![CDATA[true ]]></code></codetemplate> 
+    <codetemplate abbreviation="ind"><code><![CDATA[indexof ]]></code></codetemplate> 
+    <codetemplate abbreviation="iof"><code><![CDATA[instanceof ]]></code></codetemplate> 
+    <codetemplate abbreviation="inv"><code><![CDATA[inverse ]]></code></codetemplate> 
+    <codetemplate abbreviation="tof"><code><![CDATA[typeof ]]></code></codetemplate> 
+    <codetemplate abbreviation="we"><code><![CDATA[where ]]></code></codetemplate> 
+    
+    <!--  Data Types -->
+    <codetemplate abbreviation="Bo"><code><![CDATA[Boolean ]]></code></codetemplate> 
+    <codetemplate abbreviation="In"><code><![CDATA[Integer ]]></code></codetemplate> 
+    <codetemplate abbreviation="Nu"><code><![CDATA[Number ]]></code></codetemplate> 
+    <codetemplate abbreviation="St"><code><![CDATA[String ]]></code></codetemplate> 
+    
+    <!--  Array Data Modification Statements -->
+    <codetemplate abbreviation="ins"><code><![CDATA[insert ${Expression1} into ${Expression2};]]></code></codetemplate> 
+    <codetemplate abbreviation="insf"><code><![CDATA[insert ${Expression1} as first into ${Expression2};]]></code></codetemplate> 
+    <codetemplate abbreviation="insl"><code><![CDATA[insert ${Expression1} as last into ${Expression2};]]></code></codetemplate> 
+    <codetemplate abbreviation="insb"><code><![CDATA[insert ${Expression1} before ${Expression2};]]></code></codetemplate> 
+    <codetemplate abbreviation="insa"><code><![CDATA[insert ${Expression1} after ${Expression2};]]></code></codetemplate> 
+    <codetemplate abbreviation="de"><code><![CDATA[delete ${VariableOrAttribute}]]></code></codetemplate> 
+    
+    <!--  Querying Arrays Operators -->
+    <codetemplate abbreviation="selfi"><code><![CDATA[select ${Expression1} from ${Expression2} in ${Expression2} ]]></code></codetemplate> 
+    <codetemplate abbreviation="selfiw"><code><![CDATA[select ${Expression1} from ${Expression2} in ${Expression2} where ${Expression4} ]]></code></codetemplate> 
+    <codetemplate abbreviation="fore"><code><![CDATA[foreach (${List default=""}) ${StatementOrBlock default=""  hint="Statement or Block"} ]]></code></codetemplate> 
+    
+    <!-- Statements -->
+    <codetemplate abbreviation="if" contexts="BLOCK,CASE" descriptionId="CT_if">
+        <code>
+<![CDATA[if (${EXP instanceof="java.lang.Boolean" default="exp"}) {
+   ${selection line}${cursor}
+}
+]]>
+        </code>
+    </codetemplate>
+    <codetemplate abbreviation="ife" contexts="BLOCK,CASE" descriptionId="CT_ife">
+        <code>
+<![CDATA[if (${EXP instanceof="java.lang.Boolean" default="exp"}) {
+   ${selection line}${cursor}
+} else {
+}
+]]>
+        </code>
+    </codetemplate>
+    <codetemplate abbreviation="el">
+        <!-- TODO: context = immediately after if statement in body of an operation -->
+        <code><![CDATA[else {
+   ${selection line}${cursor}
+}]]>
+        </code>
+    </codetemplate> 
+    <codetemplate abbreviation="eli">
+        <!-- TODO: context = immediately after if statement in body of an operation -->
+        <code><![CDATA[else if (${EXP instanceof="java.lang.Boolean" default="exp"}) {
+   ${selection line}${cursor}
+}]]>
+        </code>
+    </codetemplate> 
+    <codetemplate abbreviation="wh">
+        <code>
+<![CDATA[while (${EXP instanceof="java.lang.Boolean" default="exp"}) {
+   ${selection line}${cursor}
+}]]>
+        </code>
+    </codetemplate> 
+    <codetemplate abbreviation="tr" contexts="BLOCK,CASE">
+        <code>
+<![CDATA[try {
+   ${selection line}${cursor}
+} catch (${Variable default="e"}) {
+}
+]]>
+        </code>
+    </codetemplate>
+    <codetemplate abbreviation="ca">
+        <!-- context = immediately after try catch statement in body of an operation -->
+        <code><![CDATA[catch (${Variable default="e"}) {
+}
+]]>
+        </code>
+    </codetemplate> 
+    <codetemplate abbreviation="fi">
+        <!-- context = immediately after try catch statement in body of an operation -->
+        <code><![CDATA[finally {
+}
+]]>
+        </code>
+    </codetemplate> 
+    <codetemplate abbreviation="for" contexts="BLOCK,CASE">
+        <code>
+<![CDATA[for (${IDX newVarName default="idx"} in ${ARR array default="arr"}) {
+   ${selection line}${cursor}
+}
+]]>
+        </code>
+    </codetemplate>
+    <codetemplate abbreviation="re" contexts="BLOCK,CASE">
+        <code>
+            <![CDATA[return ${Expression default=""};${cursor}]]>
+        </code>
+    </codetemplate> 
+    <codetemplate abbreviation="tw" contexts="BLOCK,CASE">
+        <code>
+            <![CDATA[throw ${AnyObject default=""};${cursor}]]>
+        </code>
+    </codetemplate> 
+    <codetemplate abbreviation="do" contexts="BLOCK,CASE">
+        <code>
+            <![CDATA[do { ${cursor} }]]>
+        </code>
+    </codetemplate> 
+    <codetemplate abbreviation="dol" contexts="BLOCK,CASE">
+        <code>
+            <![CDATA[do later { ${cursor} }]]>
+        </code>
+    </codetemplate> 
+    
+    <!--  Classes and Objects -->
+    <codetemplate abbreviation="cl">
+        <code>
+<![CDATA[class ${ClassName newClassName default="Class1"} ${extendsPosition default=""}{
+    ${cursor}
+}]]></code>
+    </codetemplate> 
+    <codetemplate abbreviation="ex">
+        <!-- context = immediately after ClassName in a class definition -->
+        <code><![CDATA[extends ${SuperClassName} ]]></code>
+    </codetemplate> 
+    <codetemplate abbreviation="at">
+        <!-- context =  class declaration  -->
+        <code>
+            <![CDATA[attribute ${AttributeName newAttributeName default="attr1"} ${restPartOfDeclaration default=""};]]>
+        </code>
+    </codetemplate> 
+    <codetemplate abbreviation="inv">
+        <!-- context =  once at the end of a attribute declaration  -->
+        <code>
+            <![CDATA[inverse ${ClassName.InverseAttributeName default=""}]]>
+        </code>
+    </codetemplate>
+    <codetemplate abbreviation="at">
+        <!-- context =  file scope -->
+        <code>
+            <![CDATA[attribute ${QualifiedAttributeName default=""} = ${InitExpression default=""};]]>
+        </code>
+    </codetemplate>
+    
+    <!-- Update Triggers -->
+    <codetemplate abbreviation="trin">
+        <!-- context =  file scope -->
+        <code>
+            <![CDATA[trigger on new ${ClassName} { ${cursor} }]]>
+        </code>
+    </codetemplate>
+    <codetemplate abbreviation="trii">
+        <!-- context =  file scope -->
+        <code>
+            <![CDATA[trigger on insert ${insertedElement default="e"} into ${ClassName.AttributeName} { ${cursor} }]]>
+        </code>
+    </codetemplate>
+    <codetemplate abbreviation="trid">
+        <!-- context =  file scope -->
+        <code>
+            <![CDATA[trigger on delete ${deletedElement default="e"} from ${ClassName.AttributeName} { ${cursor} }]]>
+        </code>
+    </codetemplate>
+    <codetemplate abbreviation="trir">
+        <!-- context =  file scope -->
+        <code>
+            <![CDATA[trigger on ${ClassName.AttributeName} ${oldValue} = ${newValue} { ${cursor} }]]>
+        </code>
+    </codetemplate>
+
+    <!-- Other -->
+    <codetemplate abbreviation="fu">
+        <!-- context =  file scope -->
+        <!-- TODO: 1. ${FunctionType} ??? 2. a return statement in the body? -->
+        <code><![CDATA[function ${FunctionName} (${ParameterList default=""}) { ${cursor} } ]]></code>
+    </codetemplate> 
+    <codetemplate abbreviation="op">
+        <!-- context =  file scope -->
+        <!-- TODO: 1. ${OperationType} ??? 2. a return statement in the body? -->
+        <code><![CDATA[operation ${OperationName} (${ParameterList default=""}) { ${cursor} } ]]></code>
+    </codetemplate> 
+    <codetemplate abbreviation="var">
+        <!-- context =  file scope -->
+        <code>
+            <![CDATA[var ${VariableName newVarName default="var1"} = ${InitExpression default=""};]]>
+        </code>
+    </codetemplate>
+    <codetemplate abbreviation="serr"><code><![CDATA[System.err.println("${cursor}");]]></code></codetemplate> 
+    <codetemplate abbreviation="sout"><code><![CDATA[System.out.println("${cursor}");]]></code></codetemplate> 
+        
+    
+</codetemplates>
