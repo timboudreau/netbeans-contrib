@@ -93,7 +93,6 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     @Override
     public void afterDelete(final File file) {
         Clearcase.LOG.finer("afterDelete " + file);
-        cache.refreshLater(file); 
     }
 
     private void deleteFile(File file) {
@@ -114,11 +113,12 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         // 3. remove the file
         ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit("Deleting ...", new DeleteCommand(new File[]{file})));
         cr.waitFinished();
-
+                
         // the file stays on the filessytem if it was checkedout eventually
         if (file.exists()) {
             file.delete();
-        }
+        }        
+        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(new File[] { file }, false);
     }
     
     private void fileDeletedImpl(File file) {       
@@ -128,11 +128,8 @@ public class ClearcaseInterceptor extends VCSInterceptor {
             return;
         }
                         
-        // XXX use execution unit
         if(Clearcase.getInstance().isManaged(parent)) {
             deleteFile(file);            
-        } else {
-            // XXX what if VOB root ???
         }                                 
     }    
 
@@ -175,7 +172,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
             FileEntry fromEntry = ClearcaseUtils.readEntry(from);                
             
             if(fromEntry.isViewPrivate()) { // XXX HIJACKED?
-                // 'from' is not versiomed yet - let's just rename it
+                // 'from' is not versioned yet - let's just rename it
                 from.renameTo(to);
             } else {
                 
@@ -187,7 +184,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                     // we have to add it to source control
                     AddAction.addFiles(new File[] {toParent}, null, false).waitFinished();
                 } else {
-                    if(!fromParent.equals(toParent)){
+                    if(!fromParent.equals(toParent)) {
                         CheckoutAction.ensureMutable(toParent, toParentEntry);
                     }    
                 }
@@ -199,7 +196,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 
             }    
         } else if (!Clearcase.getInstance().isManaged(from)) {
-            // 'from' is not versiomed yet - let's just rename it
+            // 'from' is not versioned yet - let's just rename it
             from.renameTo(to);                            
         } else { // !Clearcase.getInstance().isManaged(to)
             FileEntry fromEntry = ClearcaseUtils.readEntry(fromParent);                
@@ -216,6 +213,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 deleteFile(from);
             }
         }            
+        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(new File[] { from, to }, true);
     }
     
     @Override

@@ -19,6 +19,8 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.sun.ui;
 
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.EventObject;
+
 /**
  *
  * @author  Satyaranjan
@@ -26,6 +28,7 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.sun.
 public class ConsumeEventDialog extends javax.swing.JDialog {
 
     private boolean isCancelled = false;
+    private EventObject event;
     /** Creates new form ConsumeEventDialog */
     public ConsumeEventDialog(java.awt.Frame parent) {
         super(parent, true);
@@ -183,9 +186,13 @@ private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         modifiedJavaTf.setText(javafile);
         modifiedJavaTf.setToolTipText(javafile);
     }
-    public void setEventName(String eventName)
+    public void setEvent(EventObject event)
     {
-        eventNameTf.setText(eventName);
+        this.event = event;
+        if(event.getQName() != null)
+            eventNameTf.setText(event.getQName().toString());
+        else
+            eventNameTf.setText(event.getName());
     }
     public void setSuggestedMethodName(String suggestedMethod)
     {
@@ -200,9 +207,9 @@ private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     {
         return modifiedJavaTf.getText();
     }
-    public String getEventName()
+    public EventObject getEvent()
     {
-        return eventNameTf.getText();
+        return event;
     }
     public String getSuggestedMethodName()
     {

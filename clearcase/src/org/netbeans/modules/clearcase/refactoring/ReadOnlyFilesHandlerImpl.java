@@ -40,9 +40,12 @@
  */
 
 package org.netbeans.modules.clearcase.refactoring;
+import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.WeakHashMap;
+import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
+import org.netbeans.modules.clearcase.ui.checkout.CheckoutAction;
 import org.netbeans.modules.refactoring.api.Problem;
 import org.netbeans.modules.refactoring.api.RefactoringSession;
 import org.netbeans.modules.refactoring.spi.*;
@@ -60,31 +63,52 @@ public class ReadOnlyFilesHandlerImpl implements ReadOnlyFilesHandler {
     }
     
     public Problem createProblem(RefactoringSession session, Collection files) {
-        CheckoutFiles cof = (CheckoutFiles) sessions.get(session);
-        Collection fileSet = null;
-        if (cof != null) {
-            //instance of CheckoutFiles created for this session, try to add files
-            fileSet = new HashSet(cof.getFiles());
-            if (!fileSet.addAll(files)) {
-                // no files were added
+        
+        // XXX this doesn't fully work. we may chekout the given files, but we also have to checkout 
+        //     parent folders when moving. 
+        //     Unfortunatelly just checking out parents won't help beacuse the files collection given into
+        //     this method contains only files which are about to be changed. If there are also folders to
+        //     be moved we don't know about them and can't check their parents out! 
+        //     I'm slightly getting sick of this r/o filesystem!
+        
+        ClearcaseModuleConfig.OnDemandCheckout odc = ClearcaseModuleConfig.getOnDemandCheckout();
+        
+        switch (odc) {
+        case Disabled:
+            CheckoutFiles cof = (CheckoutFiles) sessions.get(session);
+            Collection fileSet = null;
+            if (cof != null) {
+                //instance of CheckoutFiles created for this session, try to add files
+                fileSet = new HashSet(cof.getFiles());
+                if (!fileSet.addAll(files)) {
+                    // no files were added
+                    return null;
+                }
+            } else {
+                // CheckoutFiles not found - create a new one
+                fileSet = new HashSet(files);
+            }
+
+            if(fileSet.size() == 0) {
                 return null;
             }
-        } else {
-            // CheckoutFiles not found - create a new one
-            fileSet = new HashSet(files);
-        }
-                 
-        if(fileSet.size() == 0) {
+
+            if (cof == null) {
+                cof = new CheckoutFiles(fileSet); // XXX check the files status - it might be there is some another reason why it's r/o!
+                sessions.put(session, cof);
+                return new Problem(false, NbBundle.getMessage(ReadOnlyFilesHandlerImpl.class, "MSG_CheckoutWarning"), ProblemDetailsFactory.createProblemDetails(cof));
+            } else {            
+                cof.setFiles(files);
+                return null;
+            }
+        case Reserved:
+        case ReservedWithFallback:
+        case Unreserved:
+            CheckoutFiles.checkout(files);
             return null;
-        }
-        
-        if (cof == null) {
-            cof = new CheckoutFiles(fileSet); // XXX check the files status - it might be there is some another reason why it's r/o!
-            sessions.put(session, cof);
-            return new Problem(false, NbBundle.getMessage(ReadOnlyFilesHandlerImpl.class, "MSG_CheckoutWarning"), ProblemDetailsFactory.createProblemDetails(cof));
-        } else {            
-            cof.setFiles(files);
-            return null;
-        }
-    }
+        default:
+            throw new IllegalStateException("Illegal Checkout type: " + odc);
+        }        
+    }        
+    
 }

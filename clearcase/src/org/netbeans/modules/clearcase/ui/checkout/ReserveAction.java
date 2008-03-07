@@ -145,7 +145,7 @@ public class ReserveAction extends AbstractAction {
                 
         Clearcase.getInstance().getClient().post(new ExecutionUnit(
                 "Modifying Checkout...",
-                new UnreserveCommand(files, message, createNotificationListener(files), new OutputWindowNotificationListener())));
+                new UnreserveCommand(files, message, new AfterCommandRefreshListener(files), new OutputWindowNotificationListener())));
     }
 
     public static void performReserve(File[] files, String title) {        
@@ -176,20 +176,9 @@ public class ReserveAction extends AbstractAction {
                 
         Clearcase.getInstance().getClient().post(new ExecutionUnit(
                 "Modifying Checkout...",
-                new ReserveCommand(files, message, createNotificationListener(files), new OutputWindowNotificationListener())));
+                new ReserveCommand(files, message, new OutputWindowNotificationListener(), new AfterCommandRefreshListener(files))));
     }
-    
-    private static NotificationListener createNotificationListener(final File ...files) {
-        return new NotificationListener() {
-            public void commandStarted()        { /* boring */ }
-            public void outputText(String line) { /* boring */ }
-            public void errorText(String line)  { /* boring */ }
-            public void commandFinished() {     
-                org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files, false, false);                
-            }
-        };
-    }
-    
+        
     /**
      * Interceptor entry point.
      * 
@@ -198,7 +187,7 @@ public class ReserveAction extends AbstractAction {
     public static void checkout(File file) {
         ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit(
                 "Modifying Checkout...",
-                new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Default, true, createNotificationListener(file))));
+                new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Default, true, new AfterCommandRefreshListener(file))));
         cr.waitFinished();
     }
 }
