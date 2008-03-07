@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -39,50 +39,49 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.groovy.editor.parser;
+package org.netbeans.modules.groovy.support.customizer;
 
-import java.io.IOException;
-import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.groovy.editor.AstUtilities;
-import org.netbeans.modules.groovy.editor.elements.AstElement;
-import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.gsf.api.ParserResult;
-import org.netbeans.modules.gsf.api.PositionManager;
-import org.openide.util.Exceptions;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JComponent;
+import org.netbeans.spi.project.ui.support.ProjectCustomizer;
+import org.netbeans.spi.project.ui.support.ProjectCustomizer.Category;
+import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
 
 /**
  *
  * @author Martin Adamek
  */
-public class GroovyPositionManager implements PositionManager {
+public final class GroovyCustomizer implements ProjectCustomizer.CompositeCategoryProvider {
 
-    public OffsetRange getOffsetRange(CompilationInfo info, ElementHandle object) {
-        if(object instanceof AstElement){
-            AstElement astElement = (AstElement)object;
-            OffsetRange range = OffsetRange.NONE;
-            try {
-                range = AstUtilities.getRange(astElement.getNode(), (BaseDocument) info.getDocument());
-                return range;
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
+    private static final String GROOVY = "Groovy";
+
+    public static GroovyCustomizer create() {
+        return new GroovyCustomizer();
+    }
+
+    public Category createCategory(Lookup context) {
+        ProjectCustomizer.Category category = ProjectCustomizer.Category.create(
+                GROOVY,
+                NbBundle.getMessage(GroovyCustomizer.class, "LBL_Groovy_Compiling"),
+                null,
+                (ProjectCustomizer.Category[]) null
+                );
+        category.setStoreListener(new StoreActionListener());
+        return category;
+    }
+
+    public JComponent createComponent(Category category, Lookup context) {
+        return new GroovyCustomizerPanel();
+    }
+    
+    private static final class StoreActionListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            // do the tricks here
         }
         
-        return OffsetRange.NONE;
     }
-
-    public boolean isTranslatingSource() {
-        return false;
-    }
-
-    public int getLexicalOffset(ParserResult result, int astOffset) {
-        return astOffset;
-    }
-
-    public int getAstOffset(ParserResult result, int lexicalOffset) {
-        return lexicalOffset;
-    }
-
+    
 }

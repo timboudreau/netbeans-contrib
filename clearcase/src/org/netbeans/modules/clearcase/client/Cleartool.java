@@ -41,6 +41,7 @@
 package org.netbeans.modules.clearcase.client;
 
 import org.netbeans.modules.clearcase.ClearcaseException;
+import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
 
 import java.util.logging.Logger;
 import java.io.*;
@@ -148,7 +149,7 @@ class Cleartool {
         String vobRoot = System.getProperty("org.netbeans.modules.clearcase.client.mockup.vobRoot");
         Process ct;
         if (vobRoot == null || vobRoot.trim().equals("")) {
-            ct = Runtime.getRuntime().exec("cleartool");
+            ct = Runtime.getRuntime().exec(getCleartoolExecutablePath());
             Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: shell process running");
         } else {
             ct = new CleartoolMockup(vobRoot);
@@ -324,5 +325,9 @@ class Cleartool {
         cmd.delete(cmd.length() - 1, cmd.length());
 
         return cmd;
+    }
+
+    public static String getCleartoolExecutablePath() {
+        return ClearcaseModuleConfig.getPreferences().get(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, "cleartool");
     }
 }
