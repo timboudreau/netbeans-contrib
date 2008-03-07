@@ -62,7 +62,7 @@ import org.openide.util.Exceptions;
 
 /**
  *
- * @author tomas
+ * @author Tomas Stupka
  */
 public class CleartoolMockup extends Process implements Runnable {
     
@@ -77,9 +77,24 @@ public class CleartoolMockup extends Process implements Runnable {
     private final String vobRoot;
     
     private String curPath = null;
-    private String SELECTOR_CHECKEDOUT_FROM_MAIN = File.separator + "main" + File.separator + "CHECKEDOUT from " + File.separator + "main"  + File.separator;
-    private String SELECTOR_MAIN = File.separator + "main" + File.separator;
-    private String RULE = "Rule: element * " + File.separator + "main" + File.separator + "LATEST";
+    private String SELECTOR_CHECKEDOUT_FROM_MAIN = 
+            File.separator + 
+            "main" + 
+            File.separator + 
+            "CHECKEDOUT from " + 
+            File.separator + 
+            "main"  + 
+            File.separator;
+    private String SELECTOR_MAIN = 
+            File.separator + 
+            "main" + 
+            File.separator;
+    private String RULE = 
+            "Rule: element * " + 
+            File.separator + 
+            "main" + 
+            File.separator + 
+            "LATEST";
     
     private static int counter = 0;
     
@@ -91,6 +106,11 @@ public class CleartoolMockup extends Process implements Runnable {
         if(counter++ == 0) {
             init();
         }
+    }
+    
+    public void start() {
+        thread = new Thread(this);
+        thread.start();
     }
     
     private void init() {
@@ -112,11 +132,6 @@ public class CleartoolMockup extends Process implements Runnable {
         }
     }
     
-    public void start() {
-        thread = new Thread(this);
-        thread.start();
-    }
-
     private void process(String cmd) {         
         if(cmd == null) {
             return;
@@ -182,9 +197,9 @@ public class CleartoolMockup extends Process implements Runnable {
              processUnsupported(args);            
         } else if (ctCommand.equals("quit")) {
             if(thread != null) {
-                //thread.destroy();
+                thread.interrupt();
             }
-        }      
+        }    
     }
 
     @Override
@@ -213,8 +228,7 @@ public class CleartoolMockup extends Process implements Runnable {
     }
 
     @Override
-    public void destroy() {
-        notifyAll();        
+    public void destroy() {        
         if(throwable != null) {
             LOG.log(Level.SEVERE, null, throwable);
         }
@@ -249,9 +263,9 @@ public class CleartoolMockup extends Process implements Runnable {
                 }
             }
         } finally {
-            try { inputStream.close(); } catch (IOException alreadyClosed) { }            
+            try { inputStream.close();  } catch (IOException alreadyClosed) { }            
             try { outputStream.close(); } catch (IOException alreadyClosed) { }            
-            try { errorStream.close(); } catch (IOException alreadyClosed) { }            
+            try { errorStream.close();  } catch (IOException alreadyClosed) { }            
         }
     }
 
@@ -320,7 +334,9 @@ public class CleartoolMockup extends Process implements Runnable {
         }
                 
         if(!file.getAbsolutePath().startsWith(vobRoot)) {
-            errorStream.setDelegate(new ByteArrayInputStream(("cleartool: Error: Pathname is not within a VOB: \"" + file.getAbsolutePath() + "\"\n").getBytes()));    
+            errorStream.setDelegate(
+                    new ByteArrayInputStream(
+                        ("cleartool: Error: Pathname is not within a VOB: \"" + file.getAbsolutePath() + "\"\n").getBytes()));    
         } else {
             if(!file.exists()) {
                 FileEntry entry = Repository.getInstance().getEntry(file);
@@ -391,7 +407,9 @@ public class CleartoolMockup extends Process implements Runnable {
         }
 
         if(!file.getAbsolutePath().startsWith(vobRoot)) {
-            errorStream.setDelegate(new ByteArrayInputStream(("cleartool: Error: Pathname is not within a VOB: \"" + file.getAbsolutePath() + "\"\n").getBytes()));    
+            errorStream.setDelegate(
+                    new ByteArrayInputStream(
+                        ("cleartool: Error: Pathname is not within a VOB: \"" + file.getAbsolutePath() + "\"\n").getBytes()));    
         } else {
             if(!file.exists()) {
                 FileEntry entry = Repository.getInstance().getEntry(file);
@@ -448,7 +466,9 @@ public class CleartoolMockup extends Process implements Runnable {
         File toParent = to.getParentFile();
         FileEntry entry = Repository.getInstance().getEntry(toParent);
         if(entry == null) {
-            errorStream.setDelegate(new ByteArrayInputStream(("cleartool: Error: Not a vob object: \"" + toParent.getAbsolutePath() + "\"\n").getBytes()));    
+            errorStream.setDelegate(
+                    new ByteArrayInputStream(
+                        ("cleartool: Error: Not a vob object: \"" + toParent.getAbsolutePath() + "\"\n").getBytes()));    
             return;
         }
         
@@ -514,7 +534,7 @@ public class CleartoolMockup extends Process implements Runnable {
             }
         }                
         for (File file : files) {
-            Repository.getInstance().removeEntry(file); // XXX is this how its supposd to work, or should we just delete-flag the entry 
+            Repository.getInstance().removeEntry(file);
         }
     }
 
@@ -620,7 +640,14 @@ public class CleartoolMockup extends Process implements Runnable {
     }
     
     private void processUnsupported(String[] args) {
-        NotifyDescriptor nd = new NotifyDescriptor("You are running with the mockup cleartool. Deal with it!", "Hey!", NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE, new Object[]{NotifyDescriptor.OK_OPTION}, null);        
+        NotifyDescriptor nd = 
+                new NotifyDescriptor(
+                    "You are running with the mockup cleartool. Deal with it!", 
+                    "Hey!", 
+                    NotifyDescriptor.DEFAULT_OPTION, 
+                    NotifyDescriptor.WARNING_MESSAGE, 
+                    new Object[]{ NotifyDescriptor.OK_OPTION }, 
+                    null);        
         DialogDisplayer.getDefault().notify(nd);
     }
 

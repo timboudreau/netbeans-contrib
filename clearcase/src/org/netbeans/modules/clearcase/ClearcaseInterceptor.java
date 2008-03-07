@@ -155,8 +155,6 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     @Override
     public void afterMove(final File from, final File to) {
         Clearcase.LOG.finer("afterMove " + from + " " + to);
-        cache.refreshLater(from);
-        cache.refreshLater(to);
     }
 
     private void fileMovedImpl(File from, File to) {        
