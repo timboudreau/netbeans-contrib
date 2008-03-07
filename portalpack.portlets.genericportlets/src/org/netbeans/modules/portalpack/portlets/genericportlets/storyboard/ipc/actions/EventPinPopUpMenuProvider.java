@@ -39,6 +39,7 @@ public class EventPinPopUpMenuProvider implements PopupMenuProvider, ActionListe
      private IPCGraphScene scene;
      private static final String ACTION_GENERATE_SOURCE = "Generate_Source";
      private static final String ACTION_REMOVE_EVENT = "Remove_Event";
+     private static final String ACTION_ADD_ALIAS = "Add_Alias";
      private JPopupMenu menu;
      private CustomPinWidget widget;
      /** Creates a new instance of NodePopUpMenuProvider */
@@ -53,9 +54,16 @@ public class EventPinPopUpMenuProvider implements PopupMenuProvider, ActionListe
         item.setBackground(Color.WHITE);
         menu.add(item);
         
+        JMenuItem addAliasItem;
+        addAliasItem = new JMenuItem("Add Alias");
+        addAliasItem.setActionCommand(ACTION_ADD_ALIAS);
+        addAliasItem.addActionListener(this);
+        addAliasItem.setBackground(Color.WHITE);
+        menu.add(addAliasItem);
+        
         JMenuItem removeEventItem;
         removeEventItem = new JMenuItem("Remove Event");
-        removeEventItem.setActionCommand(ACTION_GENERATE_SOURCE);
+        removeEventItem.setActionCommand(ACTION_REMOVE_EVENT);
         removeEventItem.addActionListener(this);
         removeEventItem.setBackground(Color.WHITE);
         menu.add(removeEventItem);
@@ -77,6 +85,9 @@ public class EventPinPopUpMenuProvider implements PopupMenuProvider, ActionListe
         } else if(e.getActionCommand().equals(ACTION_REMOVE_EVENT)){
             if(widget == null) return;
                 scene.getTaskHandler().removePublishEventPinFromNode(widget);
+        } else if(e.getActionCommand().equals(ACTION_ADD_ALIAS)) {
+            if(widget == null) return;
+            scene.getTaskHandler().addAliasForEvent(widget);
         }
     }
     

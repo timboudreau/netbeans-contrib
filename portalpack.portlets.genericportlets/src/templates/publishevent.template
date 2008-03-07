@@ -9,20 +9,20 @@ java.io.Serializable ${EVENT_NAME}_Data = null;
 ${RESPONSE}.setEvent(${EVENT_NAME}_Event,${EVENT_NAME}_Data);
 <#else>
 <#if NAMESPACE == '' && PREFIX == '' >
-QName qName = new QName("${LOCALPART}");
+javax.xml.namespace.QName qName = new javax.xml.namespace.QName("${LOCALPART}");
 <#elseif NAMESPACE == ''>
-QName qName = new QName(null,"${LOCALPART}","${PREFIX}");
+javax.xml.namespace.QName qName = new javax.xml.namespace.QName(null,"${LOCALPART}","${PREFIX}");
 <#elseif PREFIX == ''>
-QName qName = new QName("${NAMESPACE}","${LOCALPART}",null);
+javax.xml.namespace.QName qName = javax.xml.namespace.new QName("${NAMESPACE}","${LOCALPART}",null);
 <#else>
-QName qName = new QName("${NAMESPACE}","${LOCALPART}","${PREFIX}");
+javax.xml.namespace.QName qName = new javax.xml.namespace.QName("${NAMESPACE}","${LOCALPART}","${PREFIX}");
 </#if>
 <#if VALUE_TYPE != ''>
 ${VALUE_TYPE} ${LOCALPART}_Data = null;
 <#else>
 java.io.Serializable ${LOCALPART}_Data = null;
 </#if>
-response.setEvent(qName,${LOCALPART}_Data);
+${RESPONSE}.setEvent(qName,${LOCALPART}_Data);
 </#if>
 }catch(Exception e){
     e.printStackTrace();

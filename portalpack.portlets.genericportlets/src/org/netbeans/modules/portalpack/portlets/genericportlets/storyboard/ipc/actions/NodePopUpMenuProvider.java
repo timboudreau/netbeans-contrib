@@ -37,6 +37,7 @@ public class NodePopUpMenuProvider implements PopupMenuProvider, ActionListener{
      private IPCGraphScene scene;
      private static final String ACTION_REMOVE = "Remove";
      private static final String ACTION_ADD = "Add";
+     private static final String ACTION_ADD_PROCESS_EVENT = "Add_Process_Event";
      private String nodeKey="";
      private JPopupMenu menu;
      /** Creates a new instance of NodePopUpMenuProvider */
@@ -52,12 +53,20 @@ public class NodePopUpMenuProvider implements PopupMenuProvider, ActionListener{
         item.setBackground(Color.WHITE);
         menu.add(item);
         
-        item = new JMenuItem("Add Event");
+        item = new JMenuItem("Add Publish Event");
         item.setActionCommand(ACTION_ADD);
         item.addActionListener(this);
         item.setBackground(Color.WHITE);
         menu.add(item);
+        
+        JMenuItem item1 = new JMenuItem("Add Process Event");
+        item1.setActionCommand(ACTION_ADD_PROCESS_EVENT);
+        item1.addActionListener(this);
+        item1.setBackground(Color.WHITE);
+        menu.add(item1);
+        
         menu.setBackground(Color.white);
+        
     }
 
     public JPopupMenu getPopupMenu(Widget widget, Point localLocation) {
@@ -69,6 +78,8 @@ public class NodePopUpMenuProvider implements PopupMenuProvider, ActionListener{
             scene.deletePortletNodeFromScene(nodeKey, true);
         }else if(e.getActionCommand().equals(ACTION_ADD)){
             scene.addEvent(nodeKey);
+        }else if(e.getActionCommand().equals(ACTION_ADD_PROCESS_EVENT)){
+            scene.addNewProcessEvent(nodeKey);
         }
     }
     
