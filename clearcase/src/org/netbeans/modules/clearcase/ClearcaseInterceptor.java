@@ -47,11 +47,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import org.netbeans.modules.clearcase.client.ClearcaseClient;
-import org.netbeans.modules.clearcase.client.ClearcaseCommand;
 import org.netbeans.modules.clearcase.client.DeleteCommand;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.MoveCommand;
@@ -60,7 +57,6 @@ import org.netbeans.modules.clearcase.client.status.FileEntry;
 import org.netbeans.modules.clearcase.ui.add.AddAction;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.versioning.util.Utils;
-import org.openide.filesystems.FileUtil;
 
 /**
  * Listens on file system changes and reacts appropriately, mainly refreshing affected files' status.
@@ -132,11 +128,8 @@ public class ClearcaseInterceptor extends VCSInterceptor {
             return;
         }
                         
-        // XXX use execution unit
         if(Clearcase.getInstance().isManaged(parent)) {
             deleteFile(file);            
-        } else {
-            // XXX what if VOB root ???
         }                                 
     }    
 
