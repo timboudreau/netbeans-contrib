@@ -52,13 +52,17 @@ import java.io.File;
  * @author Maros Sandor
  */
 public class ClearcaseModuleConfig {
+
+
     
     public enum OnDemandCheckout { Disabled, Unreserved, Reserved, ReservedWithFallback };
     
-    public static final String PROP_IGNORED_PATTERNS        = "ignoredPatterns";    // NOI18N
-    public static final String PROP_COMMIT_EXCLUSIONS       = "commitExclusions";   // NOI18N    
-    public static final String PROP_CLEARTOOL_EXECUTABLE    = "cleartoolExecutablePath";   // NOI18N    
-    private static final String PROP_ONDEMAND_CHECKOUT       = "onDemandCheckout";   // NOI18N    
+    public static final String PROP_IGNORED_PATTERNS            = "ignoredPatterns";            // NOI18N
+    public static final String PROP_COMMIT_EXCLUSIONS           = "commitExclusions";           // NOI18N    
+    public static final String PROP_CLEARTOOL_EXECUTABLE        = "cleartoolExecutablePath";    // NOI18N    
+    private static final String PROP_ONDEMAND_CHECKOUT          = "onDemandCheckout";           // NOI18N    
+    private static final String PROP_FORCE_UNMODIFIED_CHECKIN   = "forceUnmodifiedCheckin";    // NOI18N    
+    private static final String PROP_PRESERVE_TIME_CHECKIN      = "preserveTimeCheckin";    // NOI18N    
     
     private static Set<String> exclusions;
     
@@ -70,7 +74,23 @@ public class ClearcaseModuleConfig {
     static {
         ignoredFilePatterns.addAll(toPatterns(Utils.getStringList(getPreferences(), PROP_IGNORED_PATTERNS)));
     }
+    
+    public static void setForceUnmodifiedCheckin(boolean forceUnmodified) {
+        getPreferences().putBoolean(PROP_FORCE_UNMODIFIED_CHECKIN, forceUnmodified);
+    }
+    
+    public static boolean getForceUnmodifiedCheckin() {
+        return getPreferences().getBoolean(PROP_FORCE_UNMODIFIED_CHECKIN, false);
+    }
 
+    public static void setPreserveTimeCheckin(boolean preserve) {
+        getPreferences().putBoolean(PROP_PRESERVE_TIME_CHECKIN, preserve);
+    }
+    
+    public static boolean getPreserveTimeCheckin() {
+        return getPreferences().getBoolean(PROP_PRESERVE_TIME_CHECKIN, false);
+    }
+    
     public static OnDemandCheckout getOnDemandCheckout() {
         return OnDemandCheckout.valueOf(getPreferences().get(PROP_ONDEMAND_CHECKOUT, OnDemandCheckout.Reserved.name()));
     }

@@ -122,6 +122,9 @@ public class CheckinAction extends AbstractAction implements NotificationListene
         dd.setOptions(new Object[] {addButton, cancelButton}); // NOI18N
         dd.setHelpCtx(new HelpCtx(CheckinAction.class));
 
+        panel.cbForceUnmodified.setSelected(ClearcaseModuleConfig.getForceUnmodifiedCheckin());      
+        panel.cbPreserveTime.setSelected(ClearcaseModuleConfig.getPreserveTimeCheckin());      
+        
         final CheckinTable checkinTable = new CheckinTable(panel.jLabel2, CheckinTable.CHECKIN_COLUMNS, new String [] { CheckinTableModel.COLUMN_NAME_NAME });        
         panel.setCheckinTable(checkinTable);
         checkinTable.getTableModel().addTableModelListener(new TableModelListener() {
@@ -130,6 +133,7 @@ public class CheckinAction extends AbstractAction implements NotificationListene
             }
         });
         computeNodes(checkinTable, cancelButton, panel);
+        
         
         panel.putClientProperty("contentTitle", contextTitle);  // NOI18N
         panel.putClientProperty("DialogDescriptor", dd); // NOI18N
@@ -161,11 +165,12 @@ public class CheckinAction extends AbstractAction implements NotificationListene
             } else {
                 addExclusions.add(file.getAbsolutePath());
             }
-        }
-
+        }                
         ClearcaseModuleConfig.addExclusionPaths(addExclusions);
         ClearcaseModuleConfig.removeExclusionPaths(removeExclusions);
-                                
+        ClearcaseModuleConfig.setForceUnmodifiedCheckin(forceUnmodified);      
+        ClearcaseModuleConfig.setPreserveTimeCheckin(preserveTime);              
+        
         files = ciFiles.toArray(new File[ciFiles.size()]);
         Clearcase.getInstance().getClient().post(new ExecutionUnit(
                 "Checking in...",
