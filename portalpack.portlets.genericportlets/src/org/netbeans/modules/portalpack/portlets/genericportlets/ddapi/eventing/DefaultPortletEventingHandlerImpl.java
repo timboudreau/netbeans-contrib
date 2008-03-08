@@ -91,6 +91,10 @@ public class DefaultPortletEventingHandlerImpl implements PortletEventingHandler
     public boolean generateProcessEventMethod(String portlet, EventObject eventName) throws PortletEventException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    public boolean addAlias(EventObject event, QName alias) throws PortletEventException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
     
     /** Creates a new instance of DefaultPorletEventingHandlerImpl */
    

@@ -50,7 +50,7 @@ import org.openide.filesystems.FileUtil;
 
 /**
  *
- * @author  Jan Becicka
+ * @author  Tomas Stupka
  */
 public class CheckoutPanel extends javax.swing.JPanel {
 

@@ -1,0 +1,15 @@
+<#if CUSTOM_METHOD != ''>
+public void ${CUSTOM_METHOD_NAME}(EventRequest request,EventResponse response)
+{
+    javax.portlet.Event Event = request.getEvent();
+}
+</#if>
+<#if NEW_PROCESS_EVENT != ''>
+{
+    javax.portlet.Event event = request.getEvent();
+    ${VALUE_TYPE} value = (${VALUE_TYPE})event.getValue();
+    //response.setRenderParameter("key",value);
+    request.getPortletSession().setAttribute("key",value);
+    
+}
+</#if>

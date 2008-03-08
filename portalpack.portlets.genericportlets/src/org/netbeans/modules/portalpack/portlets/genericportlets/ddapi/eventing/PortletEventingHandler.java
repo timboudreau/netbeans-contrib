@@ -20,6 +20,7 @@
 package org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing;
 
 import java.util.Map;
+import javax.xml.namespace.QName;
 
 /**
  *
@@ -54,6 +55,8 @@ public interface PortletEventingHandler {
     public boolean generatePublishEventMethod(String portlet,EventObject eventName)throws PortletEventException;
     
     public boolean generateProcessEventMethod(String portlet,EventObject eventName)throws PortletEventException;
+    
+    public boolean addAlias(EventObject event,QName alias) throws PortletEventException;
     
     public boolean isEventingSupported();
     

@@ -62,6 +62,7 @@ import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.ui.checkin.CheckinOptions;
 import org.netbeans.modules.clearcase.client.*;
+import org.netbeans.modules.clearcase.ui.checkin.CheckinAction;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.util.NbBundle;
@@ -75,7 +76,7 @@ import org.openide.util.RequestProcessor;
  */
 public class AddAction extends AbstractAction {
     
-    static final String RECENT_ADD_MESSAGES = "add.messages";
+    static final String RECENT_ADD_MESSAGES = "add.messages";    
 
     private final VCSContext context;
     protected final VersioningOutputManager voutput;
@@ -116,6 +117,7 @@ public class AddAction extends AbstractAction {
         dd.setOptions(new Object[] {addButton, cancelButton}); // NOI18N
         dd.setHelpCtx(new HelpCtx(AddAction.class));
 
+        panel.cbSuppressCheckout.setSelected(ClearcaseModuleConfig.getCheckInAddedFiles());
         final AddTable addTable = new AddTable(panel.jLabel2, AddTable.ADD_COLUMNS, new String [] { AddTableModel.COLUMN_NAME_NAME });
         addTable.getTableModel().addTableModelListener(new TableModelListener() {
             public void tableChanged(TableModelEvent e) {
@@ -137,7 +139,8 @@ public class AddAction extends AbstractAction {
         
         String message = panel.taMessage.getText();
         boolean checkInAddedFiles = panel.cbSuppressCheckout.isSelected();
-
+        ClearcaseModuleConfig.setCheckInAddedFiles(checkInAddedFiles);
+        
         Map<ClearcaseFileNode, CheckinOptions> filesToAdd = addTable.getAddFiles();
         
         addFiles(message, checkInAddedFiles, filesToAdd);
@@ -151,7 +154,7 @@ public class AddAction extends AbstractAction {
      * @param filesToAdd set of files to add - only files that have the ADD_XXXXXX checkin option set will be added
      * @return CommandRunnable that is adding the files or NULL of there are no files to add and no command was executed
      */
-    public static ClearcaseClient.CommandRunnable addFiles(String message, boolean checkInAddedFiles, Map<ClearcaseFileNode, CheckinOptions> filesToAdd) {
+    public static ClearcaseClient.CommandRunnable addFiles(final String message, boolean checkInAddedFiles, Map<ClearcaseFileNode, CheckinOptions> filesToAdd) {
         // TODO: process options
         Set<File> tmpFiles = new HashSet<File>();
         for (Map.Entry<ClearcaseFileNode, CheckinOptions> entry : filesToAdd.entrySet()) {
@@ -167,20 +170,35 @@ public class AddAction extends AbstractAction {
         List<File> addFiles = new ArrayList<File>(tmpFiles);
         
         // sort files - parents first, to avoid unnecessary warnings
-        Collections.sort(addFiles);
+        Collections.sort(addFiles);        
+        final File[] files = addFiles.toArray(new File[addFiles.size()]);
+        return addFiles(files, message, checkInAddedFiles);
+    }
 
-        final File [] files = addFiles.toArray(new File[addFiles.size()]);
-        return Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Adding...",
-                new MkElemCommand(files, message, checkInAddedFiles ? MkElemCommand.Checkout.Checkin : MkElemCommand.Checkout.Default, 
-                                    false, new OutputWindowNotificationListener(), new NotificationListener() {
-                    public void commandStarted()        { /* boring */ }
-                    public void outputText(String line) { /* boring */ }
-                    public void errorText(String line)  { /* boring */ }
-                    public void commandFinished() {                                                                        
-                        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files, true, false);        
-                    }    
-                })));
+    /**
+     * Invokes "mkelem" on supplied files.
+     * 
+     * @param files arrya of files to add 
+     * @param message message from the mkelem command or null
+     * @param checkInAddedFiles     
+     * @return CommandRunnable that is adding the files or NULL of there are no files to add and no command was executed
+     */    
+    public static ClearcaseClient.CommandRunnable addFiles(final File[] files, final String message, boolean checkInAddedFiles) {        
+        HashSet<File> refreshSet = new HashSet<File>();
+        for (File file : files) {
+            refreshSet.add(file);
+            File parent = file.getParentFile();
+            if(parent != null) {
+                refreshSet.add(parent);
+            }    
+        }                    
+        return Clearcase.getInstance().getClient().post(
+                new ExecutionUnit(
+                    "Adding...", 
+                    new MkElemCommand(files, message, checkInAddedFiles ? MkElemCommand.Checkout.Checkin : MkElemCommand.Checkout.Default, 
+                    false, 
+                    new OutputWindowNotificationListener(), 
+                    new AfterCommandRefreshListener(refreshSet.toArray(new File[refreshSet.size()])))));
     }
 
     private static void addAncestors(Set<File> addFiles) {

@@ -1,0 +1,29 @@
+try{
+<#if qname == "">
+String ${EVENT_NAME}_Event = "${EVENT_NAME}";
+<#if VALUE_TYPE != ''>
+${VALUE_TYPE} ${EVENT_NAME}_Data = null;
+<#else>
+java.io.Serializable ${EVENT_NAME}_Data = null;
+</#if>
+${RESPONSE}.setEvent(${EVENT_NAME}_Event,${EVENT_NAME}_Data);
+<#else>
+<#if NAMESPACE == '' && PREFIX == '' >
+javax.xml.namespace.QName qName = new javax.xml.namespace.QName("${LOCALPART}");
+<#elseif NAMESPACE == ''>
+javax.xml.namespace.QName qName = new javax.xml.namespace.QName(null,"${LOCALPART}","${PREFIX}");
+<#elseif PREFIX == ''>
+javax.xml.namespace.QName qName = javax.xml.namespace.new QName("${NAMESPACE}","${LOCALPART}",null);
+<#else>
+javax.xml.namespace.QName qName = new javax.xml.namespace.QName("${NAMESPACE}","${LOCALPART}","${PREFIX}");
+</#if>
+<#if VALUE_TYPE != ''>
+${VALUE_TYPE} ${LOCALPART}_Data = null;
+<#else>
+java.io.Serializable ${LOCALPART}_Data = null;
+</#if>
+${RESPONSE}.setEvent(qName,${LOCALPART}_Data);
+</#if>
+}catch(Exception e){
+    e.printStackTrace();
+}

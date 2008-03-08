@@ -16,6 +16,7 @@
  */
 package org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing;
 
+import java.net.URI;
 import javax.xml.namespace.QName;
 
 /**
@@ -27,6 +28,8 @@ public class EventObject {
     private QName qName;
     private String name;
     private String valueType;
+    private URI defaultNameSpace;
+    private QName[] aliases;
     
     public void setQName(QName qName)
     {
@@ -46,6 +49,33 @@ public class EventObject {
     public String getName()
     {
         return name;
+    }
+    
+    public URI getDefaultNameSpace()
+    {
+        return defaultNameSpace;
+    }
+    
+    public String getDefaultNameSpaceAsString()
+    {
+        if(defaultNameSpace == null) return null;
+        return defaultNameSpace.toString();
+    }
+    
+    public void setDefaultNameSpace(URI defaultNameSpace)
+    {
+        this.defaultNameSpace = defaultNameSpace;
+    }
+    
+    public QName[] getAlias()
+    {
+        if(aliases == null) return new QName[0];
+        return aliases;
+    }
+    
+    public void setAlias(QName[] qnames)
+    {
+        this.aliases = qnames;
     }
     
     public boolean isQName()

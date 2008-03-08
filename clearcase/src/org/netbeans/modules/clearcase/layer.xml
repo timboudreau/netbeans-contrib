@@ -57,6 +57,13 @@ made subject to such option by the copyright holder.
             </folder>
         </folder>
     </folder>
+
+    <folder name="VersioningOptionsDialog">
+        <file name="Clearcase.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.modules.clearcase.options.ClearcaseOptions"/>
+        </file>
+    </folder>        
+
     <folder name="Windows2">
         <folder name="Components">
             <file name="ClearcaseTopComponent.settings" url="ClearcaseTopComponentSettings.xml"/>

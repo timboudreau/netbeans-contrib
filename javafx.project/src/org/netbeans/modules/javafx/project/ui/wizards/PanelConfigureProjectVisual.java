@@ -86,7 +86,7 @@ public class PanelConfigureProjectVisual extends JPanel {
         }
         locationContainer.add( projectLocationPanel, java.awt.BorderLayout.CENTER );
         optionsPanel = new PanelOptionsVisual( panel, type );
-        projectTypesPanel = new PanelProjectTypesVisual(panel, optionsPanel);
+        projectTypesPanel = new PanelProjectTypesVisual(optionsPanel);
         projecttypesContainer.add(projectTypesPanel, java.awt.BorderLayout.CENTER);
         projectLocationPanel.addPropertyChangeListener(optionsPanel);
         optionsContainer.add( optionsPanel, java.awt.BorderLayout.CENTER );

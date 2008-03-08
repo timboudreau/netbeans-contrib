@@ -15,20 +15,10 @@
 
    <path id="run.extra.jvm">
 
-        <fileset dir="${netbeans.dest.dir}/${javafx.cluster.name}"> <include name="**/*.jar"/> </fileset>        
-        <fileset dir="${netbeans.dest.dir}/platform7"> <include name="**/*.jar"/> </fileset>        
-        <fileset dir="${netbeans.dest.dir}/ide8"> <include name="**/*.jar"/> </fileset>        
-        <fileset dir="${netbeans.dest.dir}/java1"> <include name="**/*.jar"/> </fileset>        
-
-        <fileset dir="${netbeans.dest.dir}/java1"> <include name="**/*.jar"/> </fileset>        
-
-        <pathelement path="../../test/lib/tests-unit.jar"/>
-        <pathelement path="../../../performance/insanelib/dist/insanelib.jar"/>
-
-        <pathelement path="${netbeans.dest.dir}/ruby1/modules/org-netbeans-api-gsf.jar"/>
-        <pathelement path="${netbeans.dest.dir}/ruby1/modules/org-netbeans-modules-gsf.jar"/>
-
-
+        <fileset dir="../../../nbbuild/netbeans/extra"> <include name="**/*.jar"/> </fileset>        
+        <fileset dir="../../../nbbuild/netbeans/platform7"> <include name="**/*.jar"/> </fileset>        
+        <fileset dir="../../../nbbuild/netbeans/ide8"> <include name="**/*.jar"/> </fileset>        
+        <fileset dir="../../../nbbuild/netbeans/java1"> <include name="**/*.jar"/> </fileset>        
 
     </path>   
 
@@ -45,28 +35,14 @@
     <target name="jvm-compiler">
         <echo message="**** JVM Compiler  ***"/>
 
+
         <buildTests srcDir="unit/src"> 
-            <classpath refid="run.extra.jvm"/>
-        </buildTests>
-    </target>
-
-    <target name="jvm-compiler-editor">
-        <echo message="**** JVM Compiler  ***"/>
-
-        <buildTests srcDir="../../../contrib/javafx.dataloader/test/unit/src"> 
             <classpath refid="run.extra.jvm"/>
         </buildTests>
     </target>
 
 
    <target name="run_tests_in_jvm">
-
-       <echo message="xtest data=${xtest.data}"/>
-
-       <copy todir="${xtest.data}"> <fileset dir="./../../editor/test/unit/data"/> </copy>
-
-       <!--unzip src="" dest="${tools.home}"/-->
-
        <executeTests  pluginName="jvm">
             <classpath refid="run.extra.jvm"/>
        </executeTests>
