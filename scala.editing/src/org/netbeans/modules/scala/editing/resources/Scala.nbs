@@ -49,29 +49,29 @@
 
 ## XML mode
 <DEFAULT>:TOKEN:xml_element_start: ( 
-      "<"  ["a"-"z" "A"-"Z" "?" "!"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* ):<IN_XML_ELEMENT>
+      "<"  [ "a"-"z" "A"-"Z" "?" "!" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* ):<IN_XML_ELEMENT>
 <DEFAULT>:TOKEN:xml_end_element_start: (
-      "</" ["a"-"z" "A"-"Z" "?" "!"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* ):<IN_XML_ELEMENT>
+      "</" [ "a"-"z" "A"-"Z" "?" "!" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* ):<IN_XML_ELEMENT>
 
 <IN_XML_ELEMENT> {
-      TOKEN:xml_attribute_name: ( ["a"-"z" "A"-"Z"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* ):<IN_XML_ATTRIBUTE>
-      TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
+      TOKEN:xml_attribute_name: ( [ "a"-"z" "A"-"Z" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* ):<IN_XML_ATTRIBUTE>
+      TOKEN:whitespace: ( [ " " "\t" "\n" "\r" ]* )
       TOKEN:xml_element_end: ( "?"? ">" ):<DEFAULT>
       TOKEN:xml_end_element_end: ( "/>" ):<DEFAULT>
 }
 
 <IN_XML_ATTRIBUTE> {
       TOKEN:eq: ( "=" ):<IN_XML_ATTRIBUTE_VALUE>
-      TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
+      TOKEN:whitespace: ( [ " " "\t" "\n" "\r" ]* )
       TOKEN:xml_element_end: ( "?"? ">" ):<DEFAULT>
       TOKEN:xml_end_element_end: ( "/>" ):<DEFAULT>
-      TOKEN:xml_attribute_name: ( [^ " " ">" "=" "\t" "\n" "\r"]+ )
+      TOKEN:xml_attribute_name: ( [^ " " ">" "=" "\t" "\n" "\r" ]+ )
 }
 
 <IN_XML_ATTRIBUTE_VALUE> {
       TOKEN:xml_attribute_value: ( 
-            "\"" [^ "\"" "\n" "\r"]* "\"" 
-          | "\'" [^ "\'" "\n" "\r"]* "\'"
+            "\"" [^ "\"" "\n" "\r" ]* "\"" 
+          | "\'" [^ "\'" "\n" "\r" ]* "\'"
       ):<IN_XML_ELEMENT>
       TOKEN:xml_scala_expr: ( "{" - "}" ):<IN_XML_ELEMENT>
       TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
@@ -83,8 +83,8 @@ TOKEN:xml_pi: (
 TOKEN:xml_comment: ( "<!--" - "-->" )
 <DEFAULT>:TOKEN:cdsect_start: ( "<![CDATA[" ):<IN_CDSEC>
 <IN_CDSEC> {
-      TOKEN:cddata: ( [^"]"]+ )
-      TOKEN:cddata: ( "]" [^">"] )
+      TOKEN:cddata: ( [^ "]" ]+ )
+      TOKEN:cddata: ( "]" [^ ">" ] )
       TOKEN:cdsect_end: ( "]]>" ):<DEFAULT>
 }
 
@@ -106,9 +106,9 @@ TOKEN:xml_comment: ( "<!--" - "-->" )
       )
       TOKEN:comment: ( "/*" ):<IN_COMMENT2>
       TOKEN:comment: ( "@" )
-      TOKEN:comment: ( [^"@" "*" "/"]+ )
-      TOKEN:comment: ( "*" [^"/" "*"]* )
-      TOKEN:comment: ( "/" [^"*"]* )
+      TOKEN:comment: ( [^ "@" "*" "/" ]+ )
+      TOKEN:comment: ( "*" [^ "/" "*" ]* )
+      TOKEN:comment: ( "/" [^ "*" ]* )
       TOKEN:comment: {
           pattern:( "*/" );
           end_state:"DEFAULT";
@@ -132,13 +132,13 @@ TOKEN:xml_comment: ( "<!--" - "-->" )
       )
       TOKEN:comment: ( "/*" ):<IN_COMMENT>
       TOKEN:comment: ( "@" )
-      TOKEN:comment: ( [^"@" "*" "/"]+ )
-      TOKEN:comment: ( "*" [^"/" "*"]* )
-      TOKEN:comment: ( "/" [^"*"] )
+      TOKEN:comment: ( [^ "@" "*" "/" ]+ )
+      TOKEN:comment: ( "*" [^ "/" "*" ]* )
+      TOKEN:comment: ( "/" [^ "*" ] )
       TOKEN:comment: ( "*/" ):<IN_COMMENT>
 }
 
-TOKEN:line_comment: ( "//" [^"\n" "\r"]* )
+TOKEN:line_comment: ( "//" [^ "\n" "\r" ]* )
 
 
 ## The tokens that can terminate a statement are: literals, identifiers and the following
@@ -224,15 +224,15 @@ TOKEN:keyword: (
 
 ## Operators
 TOKEN:op_identifier: (
-      ["!" "%" "&" "+" "-" "<" ">" "?" "\\" "^" "`" "|" "~" "*" ]
-      ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]* 
-    | ["#" ":" "@"]
-      ["!" "%" "&" "+" "-" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]+ 
-    | ["="]
-      ["!" "%" "&" "+" "-" "<" "=" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]+ 
-      ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]*
-    | ["/"]
-      ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/"]*
+      [ "!" "%" "&" "+" "-" "<" ">" "?" "\\" "^" "`" "|" "~" "*" ]
+      [ "!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*" ]* 
+    | [ "#" ":" "@" ]
+      [ "!" "%" "&" "+" "-"     "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*" ]+ 
+    | [ "=" ]
+      [ "!" "%" "&" "+" "-" "<" "="     "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*" ]+ 
+      [ "!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*" ]*
+    | [ "/"]
+      [ "!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/"     ]*
 )
 
 ## Separators
@@ -254,25 +254,25 @@ TOKEN:separator: (
 #   (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^ " " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";" "=" ":" "{" "}"])+)?
 # varid: lower idrest
 TOKEN:var_identifier: ( 
-      ["a"-"z"] 
-      ["a"-"z" "A"-"Z" "$" "_" "0"-"9"]* ( "_" [^" " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";" "=" ":" "{" "}"]+ )?
+      [ "a"-"z" ] 
+      [ "a"-"z" "A"-"Z" "$" "_" "0"-"9" ]* ( "_" [^ " " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";" "=" ":" "{" "}" ]+ )?
 )
 # upperid: upper idrest
 TOKEN:upper_identifier: (
-      ["_"]
-      ["a"-"z" "A"-"Z" "$" "_" "0"-"9"]+ ( "_" [^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "=" ":" "{" "}"]+ )? 
-    | ["A"-"Z" "$"] 
-      ["a"-"z" "A"-"Z" "$" "_" "0"-"9"]* ( "_" [^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "=" ":" "{" "}"]+ )?
+      [ "_" ]
+      [ "a"-"z" "A"-"Z" "$" "_" "0"-"9" ]+ ( "_" [^ " " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "=" ":" "{" "}" ]+ )? 
+    | [ "A"-"Z" "$" ] 
+      [ "a"-"z" "A"-"Z" "$" "_" "0"-"9" ]* ( "_" [^ " " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "=" ":" "{" "}" ]+ )?
 )
 ## Backquoted id
 TOKEN:bquote_identifier: (
       "`" 
-      ( [^ "\\" "`" "\n" "\r"] 
+      ( [^ "\\" "`" "\n" "\r" ] 
       | ( "\\" 
           ( . 
-          | ( ["0"-"7"] ["0"-"7"] ["0"-"7"] ) 
-          | ( "x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ) 
-          | ( "u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] )
+          | ( [ "0"-"7" ] [ "0"-"7" ] [ "0"-"7" ] ) 
+          | ( "x" [ "0"-"9" "a"-"f" "A"-"F" ] [ "0"-"9" "a"-"f" "A"-"F" ] ) 
+          | ( "u" [ "0"-"9" "a"-"f" "A"-"F" ] [ "0"-"9" "a"-"f" "A"-"F" ] [ "0"-"9" "a"-"f" "A"-"F" ] [ "0"-"9" "a"-"f" "A"-"F" ] )
           ) 
         )
       )*
@@ -281,21 +281,21 @@ TOKEN:bquote_identifier: (
 
 TOKEN:symbol: (
       "\'"
-      ( ( ["a"-"z" "A"-"Z" "$" "_"] 
-          ["a"-"z" "A"-"Z" "$" "_" "0"-"9"]* ( "_" [^" " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";" "=" ":" "{" "}"]+ )?
+      ( ( [ "a"-"z" "A"-"Z" "$" "_" ] 
+          [ "a"-"z" "A"-"Z" "$" "_" "0"-"9" ]* ( "_" [^ " " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";" "=" ":" "{" "}" ]+ )?
         )
-      | ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]+
+      | [ "!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*" ]+
       ) 
 )
 
 TOKEN:string: (
       "\"" 
-      ( [^ "\\" "\"" "\n" "\r"] 
+      ( [^ "\\" "\"" "\n" "\r" ] 
       | ( "\\" 
           ( . 
-          | ( ["0"-"7"] ["0"-"7"] ["0"-"7"] ) 
-          | ( "x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ) 
-          | ( "u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] )
+          | ( [ "0"-"7" ] [ "0"-"7" ] [ "0"-"7" ] ) 
+          | ( "x" [ "0"-"9" "a"-"f" "A"-"F" ] [ "0"-"9" "a"-"f" "A"-"F" ] ) 
+          | ( "u" [ "0"-"9" "a"-"f" "A"-"F" ] [ "0"-"9" "a"-"f" "A"-"F" ] [ "0"-"9" "a"-"f" "A"-"F" ] [ "0"-"9" "a"-"f" "A"-"F" ] )
           ) 
         )
       )* 
@@ -303,12 +303,12 @@ TOKEN:string: (
 )
 TOKEN:string: (
       "\"\"\""
-      ( ["\""]? ["\""]? [^"\""] 
+      ( [ "\"" ]? [ "\"" ]? [^ "\"" ] 
       | ( "\\" 
           ( . 
-          | ( ["0"-"7"] ["0"-"7"] ["0"-"7"] ) 
-          | ( "x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ) 
-          | ( "u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] )
+          | ( [ "0"-"7" ] [ "0"-"7" ] [ "0"-"7" ] ) 
+          | ( "x" [ "0"-"9" "a"-"f" "A"-"F" ] [ "0"-"9" "a"-"f" "A"-"F" ] ) 
+          | ( "u" [ "0"-"9" "a"-"f" "A"-"F" ] [ "0"-"9" "a"-"f" "A"-"F" ] [ "0"-"9" "a"-"f" "A"-"F" ] [ "0"-"9" "a"-"f" "A"-"F" ] )
           )
         )
       )*
@@ -317,12 +317,12 @@ TOKEN:string: (
 
 TOKEN:char: (
       "\'" 
-      ( [^ "\\" "\'" "\n" "\r"] 
+      ( [^ "\\" "\'" "\n" "\r" ] 
       | ( "\\" 
           ( . 
-          | ( ["0"-"7"] ["0"-"7"] ["0"-"7"] )
-          | ( "x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ) 
-          | ( "u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] )
+          | ( [ "0"-"7" ] [ "0"-"7" ] [ "0"-"7" ] )
+          | ( "x" [ "0"-"9" "a"-"f" "A"-"F" ] [ "0"-"9" "a"-"f" "A"-"F" ] ) 
+          | ( "u" [ "0"-"9" "a"-"f" "A"-"F" ] [ "0"-"9" "a"-"f" "A"-"F" ] [ "0"-"9" "a"-"f" "A"-"F" ] [ "0"-"9" "a"-"f" "A"-"F" ] )
           ) 
         )
       ) 
@@ -330,10 +330,10 @@ TOKEN:char: (
 )
 
 TOKEN:integer: (
-      ["0"-"9"] ['l' 'L']? 
-    | ["1"-"9"] ["0"-"9"]* ['l' 'L']? 
-    | "0" ["0"-"7"]+ ['l' 'L']? 
-    | "0" ["x" "X"] ["0"-"9" "a"-"f" "A"-"F"]+ ['l' 'L']? 
+      [ "0"-"9" ] [ 'l' 'L' ]? 
+    | [ "1"-"9" ] [ "0"-"9" ]* [ 'l' 'L' ]? 
+    | "0" [ "0"-"7" ]+ [ 'l' 'L' ]? 
+    | "0" [ "x" "X" ] [ "0"-"9" "a"-"f" "A"-"F" ]+ [ 'l' 'L' ]? 
 )
 
 ## Hacking for: ["0"-"9"]+ "." ["0"-"9"]* ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
@@ -345,21 +345,21 @@ TOKEN:integer: (
 ## "." must followed by float content, a "9." is scanned as float only when followed by whitespace
 ## @TODO "9." followed by <nl>: a float or may be an integer that can be followed by operator? 
 TOKEN:float: (
-      ["0"-"9"]+ "." [" " "\t"]+ 
-    | ["0"-"9"]+ "." ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? 
-    | ["0"-"9"]+ "." ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? 
-    | "." ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? 
-    | ["0"-"9"]+ ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? 
-    | ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]
+      [ "0"-"9" ]+ "." [ " " "\t" ]+ 
+    | [ "0"-"9" ]+ "." [ "0"-"9" ]+ ( [ "e" "E" ] [ "+" "-" ]? [ "0"-"9" ]+ )? [ "f" "F" "d" "D" ]? 
+    | [ "0"-"9" ]+ "."              ( [ "e" "E" ] [ "+" "-" ]? [ "0"-"9" ]+ )  [ "f" "F" "d" "D" ]? 
+    |              "." [ "0"-"9" ]+ ( [ "e" "E" ] [ "+" "-" ]? [ "0"-"9" ]+ )? [ "f" "F" "d" "D" ]? 
+    | [ "0"-"9" ]+                  ( [ "e" "E" ] [ "+" "-" ]? [ "0"-"9" ]+ )  [ "f" "F" "d" "D" ]? 
+    | [ "0"-"9" ]+                  ( [ "e" "E" ] [ "+" "-" ]? [ "0"-"9" ]+ )? [ "f" "F" "d" "D" ]
 )
 
 
 TOKEN:nl: (
-      ["\n" "\r"]+
+      [ "\n" "\r" ]+
 )
 
 TOKEN:whitespace: ( 
-      [" " "\t"]+ 
+      [ " " "\t" ]+ 
 )
 
 
@@ -380,7 +380,7 @@ S = TopStats;
 #        | <var_identifier>
 #        | <op_identifier>;
 
-NameId = 
+ScalaId = 
       <upper_identifier>
     | <var_identifier>
     | <op_identifier>
@@ -396,19 +396,19 @@ Literal =
     | "false"
     | "null";
 
-QualId = NameId ( "." NameId )*;
+QualId = ScalaId ( "." ScalaId )*;
 
-Ids = NameId ( "," NameId )*;
+Ids = ScalaId ( "," ScalaId )*;
 
 ## Hacking for: Path = StableId ["." "this"], since Path is also belongs to SimpleType etc
 StableId = PathId ( "." PathId )*;
 
 PathId = 
-      NameId
+      ScalaId
     | "this"
-    | "super" [ ClassQualifier ] "." NameId;
+    | "super" [ ClassQualifier ] "." ScalaId;
 
-ClassQualifier = "[" NameId "]";
+ClassQualifier = "[" ScalaId "]";
 
 Type = 
       InfixType 
@@ -422,14 +422,14 @@ Type =
 ExistentialClause = "forSome" "{" ExistentialDcl ( [ ";" ] ExistentialDcl )* "}";
 
 ExistentialDcl =
-      "type" NameId [ TypeParamClause ] [ ">:" Type ] [ "<:" Type ]
+      "type" ScalaId [ TypeParamClause ] [ ">:" Type ] [ "<:" Type ]
     | "val" Ids ":" Type
     | ;
 
-InfixType = CompoundType ( NameId CompoundType )*;
+InfixType = CompoundType ( ScalaId CompoundType )*;
 
 CompoundType = 
-      AnnotType ("with" AnnotType)* [Refinement]
+      AnnotType ("with" AnnotType)* [ Refinement ]
     | Refinement;
 
 ## Hacking for Ascription = <colon> (CompoundType | (Annotation)+);
@@ -441,9 +441,12 @@ AnnotType =
 ## Hacking for: Type ("," Type)* [","]:
 ##              Type ("," [Type])*
 SimpleType = 
-      TypeStableId ( TypeArgs | "#" NameId )*
-    | "(" [Type ( "," [Type] )* 
-    | "=>" Type] ")" ( TypeArgs | "#" NameId )*;
+      TypeStableId ( TypeArgs | "#" ScalaId )*
+    | "(" 
+      [ Type ( "," [ Type ] )* 
+      | "=>" Type
+      ] 
+      ")" ( TypeArgs | "#" ScalaId )*;
 
 TypeStableId = TypeId ( "." TypeId )*;
 
@@ -456,7 +459,7 @@ TypeArgs = "[" Types "]";
 
 Types = Type ( "," Type )*;
 
-Refinement = "{" [RefineStat ( [";"] RefineStat )*] "}";
+Refinement = "{" [RefineStat ( [ ";" ] RefineStat )*] "}";
 
 RefineStat = 
       DclDef 
@@ -465,7 +468,7 @@ RefineStat =
 ## Here we have to do a mixed hacking for various Expr:
 ## 1. Hacking for: Expr = (Bindings | id) ‘=>’ Expr | Expr1
 ##     Bindings = "(" Binding ("," Binding)* ")";
-##     Binding = NameId [":" Type];
+##     Binding = ScalaId [":" Type];
 ## Since 
 ##     CaseClause = "case" Pattern [Guard] "=>" CaseBlockStats; 
 ## where 
@@ -501,19 +504,19 @@ CtrlExpr =
     | ThrowExpr
     | ReturnExpr;
 
-IfExpr = "if" "(" Expr ")" Expr ["else" Expr];
+IfExpr = "if" "(" Expr ")" Expr [ "else" Expr ];
 WhileExpr = "while" "(" Expr ")" Expr;
-TryExpr = "try" "{" BlockStats "}" ["catch" "{" CaseClauses "}"] ["finally" Expr];
-DoExpr = "do" Expr [";"] "while" "(" Expr ")";
-ForExpr = "for" ("(" Enumerators ")" | "{" Enumerators "}") ["yield"] Expr;
+TryExpr = "try" "{" BlockStats "}" ["catch" "{" CaseClauses "}"] [ "finally" Expr ];
+DoExpr = "do" Expr [ ";" ] "while" "(" Expr ")";
+ForExpr = "for" ("(" Enumerators ")" | "{" Enumerators "}") [ "yield" ] Expr;
 ThrowExpr = "throw" Expr;
-ReturnExpr = "return" [Expr];
+ReturnExpr = "return" [ Expr ];
 
 
 ## Hacking for:
-##     PostfixExpr = InfixExpr [NameId [<nl>]];
-##     InfixExpr = PrefixExpr  (NameId [<nl>] InfixExpr)*;
-#PostfixExpr = PrefixExpr (NameId [PrefixExpr])*;
+##     PostfixExpr = InfixExpr [ScalaId [<nl>]];
+##     InfixExpr = PrefixExpr  (ScalaId [<nl>] InfixExpr)*;
+#PostfixExpr = PrefixExpr (ScalaId [PrefixExpr])*;
 #PrefixExpr = [PrefixOp] SimpleExpr;
 #PrefixOp = "-" 
 #         | "+" 
@@ -524,10 +527,10 @@ ReturnExpr = "return" [Expr];
 ##       val semi = nl+
 ##
 ## Should connect two exprs separated by <nl> to one expr when possible in semantic analyzer,
-## The rule could be: if encounter a NameId and followed only one <nl>, then next SimpleExpr 
+## The rule could be: if encounter a ScalaId and followed only one <nl>, then next SimpleExpr 
 ## is of the same Expr
 PostfixExpr = SimpleExpr+;
-PrefixExpr = [PrefixOp] SimpleExpr;
+PrefixExpr = [ PrefixOp ] SimpleExpr;
 PrefixOp = 
       "-" 
     | "+" 
@@ -559,14 +562,14 @@ TupleExpr = ParenExpr;
 ## Hacking for: "new" ([EarlyDef] ClassParents [Template] | Template)
 ## Since EalyBody and Template all start with "{" and Template is super set of EarlyBody,
 ## So, we have to use Template instead of EarlyBody
-##    NewExpr = "new" [Block] AnnotType ClassTemplateBody [<dot> NameId];
+##    NewExpr = "new" [Block] AnnotType ClassTemplateBody [<dot> ScalaId];
 ##    ClassTemplateBody = (PrthsOrBlock ("with" AnnotType)* (TypeArgs)*)*;
 ##    ClassParents = AnnotType (Arguments)* ("with" AnnotType)*;
-## A possible expr: NewExpr = "new" [Block] ClassParents (PrthsOrBlock (TypeArgs)*)* [<dot> NameId];
+## A possible expr: NewExpr = "new" [Block] ClassParents (PrthsOrBlock (TypeArgs)*)* [<dot> ScalaId];
 NewExpr = 
       "new" 
-      ( ClassParents [Template] 
-      | Template [ClassParents [Template]] 
+      ( ClassParents [ Template ] 
+      | Template [ ClassParents [ Template ] ] 
       ) 
       TypeArgs*;
 
@@ -579,7 +582,7 @@ ParenExpr = "(" [ ExprInParen ( "," [ExprInParen] )* ] ")";
 ExprInParen = 
       CtrlExpr
     | PostfixExpr 
-      [ AscriptionInParen [ FunExprTail] 
+      [ AscriptionInParen [ FunExprTail ] 
       | MatchExprTail 
       | AssignExprTail 
       | FunExprTail 
@@ -588,18 +591,18 @@ ExprInParen =
 ## Hacking for: Ascription and Binding;
 ##     Ascription = ":" (CompoundType | (Annotation)+ | "_" "*")
 ##     Bindings = "(" Binding ("," Binding)* ")";
-##     Binding = NameId [":" Type];
+##     Binding = ScalaId [":" Type];
 ## Since (Bindings | id) ‘=>’ Expr also conflicts with (PostfixExpr Ascription "=>" Expr), 
 ## we have to combine them as: Ascription = ":" (Type | (Annotation)+);
 ## Hacking for: AscriptionInPrths = <colon> (Type | (Annotation)+); @see AnnotType
-AscriptionInParen = ":" (Type);
+AscriptionInParen = ":" Type;
 
 BlockExpr = "{" ( BlockStats | CaseClauses ) "}";
 
-Template = "{" TemplateStats "}" ["with"];
+Template = "{" TemplateStats "}" [ "with" ];
 
 ####### Blocked Statements: #############
-TemplateStats = TemplateStat ( [";"] TemplateStat )*;
+TemplateStats = TemplateStat ( [ ";" ] TemplateStat )*;
 
 TemplateStat = 
       Import
@@ -646,7 +649,7 @@ DclDefInBlock =
       )
     | (LocalModifier)* TmplDef;
 
-## Hacking for: ResultExpr = (Bindings | NameId [":" CompoundType]) "=>" BlockStats;
+## Hacking for: ResultExpr = (Bindings | ScalaId [":" CompoundType]) "=>" BlockStats;
 ## Where, the right part of "=>" is BlockStats vs Expr in anonynous function expression
 ExprInBlock = 
       CtrlExpr
@@ -762,7 +765,7 @@ Pattern2 =
     | XmlPattern;
 
 ## Hacking for neg number in Literal
-Pattern3 = [ "-" ] SimplePattern ( NameId [ "-" ] SimplePattern )*;
+Pattern3 = [ "-" ] SimplePattern ( ScalaId [ "-" ] SimplePattern )*;
 
 SimplePattern = 
       "_" ["*"]
@@ -780,7 +783,7 @@ SimplePattern =
 CasePattern = CasePattern1 ( "|" CasePattern1 )*;
 
 ## Hacking for neg number in Literal
-CasePattern1 = [ "-" ] CasePattern0 ( NameId [ "-" ] CasePattern0 )*;
+CasePattern1 = [ "-" ] CasePattern0 ( ScalaId [ "-" ] CasePattern0 )*;
 
 CasePattern0 = 
       "_" ["*"]
@@ -810,10 +813,10 @@ VariantTypeParam = [ "+" | "-" ] TypeParam;
 
 FunTypeParamClause = "[" TypeParam ( "," TypeParam )* "]";
 
-## Hacking for TypeParam = NameId [">:" Type] ["<:" Type] ["<%" Type];
+## Hacking for TypeParam = ScalaId [">:" Type] ["<:" Type] ["<%" Type];
 ## Is the ScalaReference error? the following code is from examples.tcpoly.collection.HOSeq
 ##   trait Accumulator[+coll[x], elT] {...}
-TypeParam = NameId [ TypeParamClause ] [ ">:" Type ] [ "<:" Type ] [ "<%" Type ];
+TypeParam = ScalaId [ TypeParamClause ] [ ">:" Type ] [ "<:" Type ] [ "<%" Type ];
 
 Modifier = 
       LocalModifier
@@ -828,26 +831,26 @@ LocalModifier =
     | "lazy";
 
 AccessModifier = ( "private" | "protected" ) [ AccessQualifier ];
-AccessQualifier = "[" ( NameId | "this" ) "]";
+AccessQualifier = "[" ( ScalaId | "this" ) "]";
 
 Annotation = "@" AnnotationExpr;
 ## Hacking for AnnotationExpr = AnnotType (Arguments)* [<lbrace> (<nl>)* NameValuePair (<comma> (<nl>)* NameValuePair)* <rbrace>]
 ##     where Arguments and followed braced NameValuePair conflict
 AnnotationExpr = AnnotType ParenExpr* [ "{" NameValuePair ( "," NameValuePair )* "}" ];
-NameValuePair = "val" NameId "=" PrefixExpr;
+NameValuePair = "val" ScalaId "=" PrefixExpr;
 
 Import = "import" ImportStat ( "," ImportStat )*;
-## Hacking for: ImportExpr = StableId "." (NameId | "_" | ImportSelectors);
+## Hacking for: ImportExpr = StableId "." (ScalaId | "_" | ImportSelectors);
 ImportStat = ImportId;
 ImportId = ImportId0 ( "." ImportId0 )*;
 ImportId0 = 
-      NameId
-    | "super" [ ClassQualifier ] "." NameId
+      ScalaId
+    | "super" [ ClassQualifier ] "." ScalaId
     | "_"
     | ImportSelectors;
 
 ImportSelectors = "{" ImportSelector ( "," ImportSelector )* "}";
-ImportSelector = ( NameId [ "=>" ( NameId | "_" ) ] | "_" );
+ImportSelector = ( ScalaId [ "=>" ( ScalaId | "_" ) ] | "_" );
 
 ## Hacking for TemplateStat: Dcl and Def all belongs to TemplateStat
 DclDef = 
@@ -862,7 +865,7 @@ ValDclDef = "val" PatDef [ "=" Expr ];
 VarDclDef = "var" PatDef [ "=" Expr ];
 
 FunDclDef = 
-      "def" NameId [ FunTypeParamClause ] [ ParamClauses ] 
+      "def" ScalaId [ FunTypeParamClause ] [ ParamClauses ] 
       ( [ ":" Type ] [ "=" Expr ] 
       | "{" BlockStats "}" 
       )
@@ -872,7 +875,7 @@ FunDclDef =
       );
 
 TypeDclDef = 
-      "type" NameId [ TypeParamClause ] 
+      "type" ScalaId [ TypeParamClause ] 
       ( [ ">:" Type ] [ "<:" Type ] [ "<%" Type ] 
       | "=" Type 
       );
@@ -882,7 +885,7 @@ PatDef = Pattern2 ( "," Pattern2 )* [ ":" Type ] ;
 ParamClauses = ParamClause ParamClause*;
 ParamClause = "(" [ [ "implicit" ] Params ] ")";
 Params = Param ( "," Param )*;
-Param = Annotation* NameId [ ":" ParamType ];
+Param = Annotation* ScalaId [ ":" ParamType ];
 ParamType = 
       Type [ "*" ]
     | "=>" Type;
@@ -892,7 +895,7 @@ ConstrExpr =
     | ConstrBlock;
 
 SelfInvocation = "this" Arguments+;
-ConstrBlock = "{" SelfInvocation ( [";"] BlockStat )* "}";
+ConstrBlock = "{" SelfInvocation ( [ ";" ] BlockStat )* "}";
 
 TmplDef = 
     ClassDef
@@ -900,21 +903,21 @@ TmplDef =
   | TraitDef;
 
 ClassDef = 
-      [ "case"] "class" NameId [ TypeParamClause ] Annotation* [ AccessModifier ] ClassParamClauses            
+      [ "case"] "class" ScalaId [ TypeParamClause ] Annotation* [ AccessModifier ] ClassParamClauses            
       [ "requires" AnnotType ] [ ClassTemplateOpt ];
 
 ObjectDef = 
-      [ "case" ] "object" NameId [ ClassTemplateOpt ];
+      [ "case" ] "object" ScalaId [ ClassTemplateOpt ];
 
 TraitDef  = 
-      "trait" NameId [ TypeParamClause ] [ "requires" AnnotType ] [ TraitTemplateOpt ];
+      "trait" ScalaId [ TypeParamClause ] [ "requires" AnnotType ] [ TraitTemplateOpt ];
 
 ## Hacking for ClassParamClauses = (<lparen> (<nl>)* [ClassParams] (<nl>)* <rparen>)* [<lparen> (<nl>)* <implicit> ClassParams (<nl>)* <rparen>];
 ## Where:
-##     ClassParam = (Annotation)* [(Modifier)* (<val> | <var>)] NameId [<colon> ParamType];
+##     ClassParam = (Annotation)* [(Modifier)* (<val> | <var>)] ScalaId [<colon> ParamType];
 ClassParamClauses = ( "(" [ ClassParams ] ")" )*;
 ClassParams = ClassParam ( "," ClassParam )*;
-ClassParam = Annotation* Modifier* [ ( "val" | "var" ) ] NameId [ ":" ParamType ];
+ClassParam = Annotation* Modifier* [ ( "val" | "var" ) ] ScalaId [ ":" ParamType ];
 
 ClassTemplateOpt = 
       "extends" 
@@ -958,19 +961,19 @@ Packaging = "package" QualId [ "{" TopStats "}" ];
 
 ########### CODE FOLDING #######################################################
 FOLD:ClassDef:{
-    fold_display_name: "Class: $NameId$";
+    fold_display_name: "Class: $ScalaId$";
 }
 
 FOLD:TraitDef:{
-    fold_display_name: "Trait: $NameId$";
+    fold_display_name: "Trait: $ScalaId$";
 }
 
 FOLD:ObjectDef:{
-    fold_display_name: "Object: $NameId$";
+    fold_display_name: "Object: $ScalaId$";
 }
 
 FOLD:FunDclDef:{
-    fold_display_name: "Function: $NameId$";
+    fold_display_name: "Function: $ScalaId$";
 }
 
 #FOLD:MethodDeclaration:{
@@ -981,27 +984,27 @@ FOLD:FunDclDef:{
 
 ########## NAVIGATOR ###########################################################
 NAVIGATOR:ClassDef: {
-    display_name: "$NameId$";
+    display_name: "$ScalaId$";
     icon: "/org/netbeans/modules/languages/resources/class.gif";
 }
 
 NAVIGATOR:TraitDef: {
-    display_name: "$NameId$";
+    display_name: "$ScalaId$";
     icon: "/org/netbeans/modules/languages/resources/class.gif";
 }
 
 NAVIGATOR:ObjectDef: {
-    display_name: "$NameId$";
+    display_name: "$ScalaId$";
     icon: "/org/netbeans/modules/languages/resources/class.gif";
 }
 
 NAVIGATOR:FunDclDef: {
-    display_name: "$NameId$$FunTypeParamClause$$ParamClauses$ $colon$$Type$";
+    display_name: "$ScalaId$$FunTypeParamClause$$ParamClauses$ $colon$$Type$";
     icon: "/org/netbeans/modules/languages/resources/method.gif";
 }
 
 NAVIGATOR:TypeDclDef: {
-    display_name: "$NameId$";
+    display_name: "$ScalaId$";
     icon: "/org/netbeans/modules/languages/resources/variable.gif";
 }
 
@@ -1037,7 +1040,7 @@ COLOR:keyword: {
     foreground_color: "0x0000E6";
 }
 
-COLOR:SimpleType, TypeParam.NameId: {
+COLOR:SimpleType, TypeParam.ScalaId: {
 #    foreground_color: "0x2E92C7";
 #    foreground_color: "0xA020F0";
 #    foreground_color: "0xB8860B";
@@ -1045,19 +1048,19 @@ COLOR:SimpleType, TypeParam.NameId: {
     font_type: "bold";
 }
 
-COLOR:ObjectDef.NameId: {
+COLOR:ObjectDef.ScalaId: {
 #    foreground_color: "0xB8860B";
     foreground_color: "0x000000";
     font_type: "italics-bold";
 }
 
-COLOR:ClassDef.NameId, TraitDef.NameId, TypeDclDef.NameId: {
+COLOR:ClassDef.ScalaId, TraitDef.ScalaId, TypeDclDef.ScalaId: {
 #    foreground_color: "0xB8860B";
     foreground_color: "0x000000";
     font_type: "bold";
 }
 
-COLOR:FunDclDef.NameId: {
+COLOR:FunDclDef.ScalaId: {
 #    foreground_color: "0x9966ff";
 #    foreground_color: "0x5F9EA0";
 #    foreground_color: "0x2E92C7";
@@ -1068,17 +1071,17 @@ COLOR:FunDclDef.NameId: {
 #    underline_color: "0x000000";
 }
 
-COLOR:ValDclDef.PatDef.Pattern2.StableId.PathId.NameId, ValDefInEnumerator.Pattern1.Pattern3.StableId.PathId.NameId, NameValuePair.NameId: {
+COLOR:ValDclDef.PatDef.Pattern2.StableId.PathId.ScalaId, ValDefInEnumerator.Pattern1.Pattern3.StableId.PathId.ScalaId, NameValuePair.ScalaId: {
     foreground_color: "0x009B00";
 }
 
-COLOR:VarDclDef.PatDef.Pattern2.StableId.PathId.NameId: {
+COLOR:VarDclDef.PatDef.Pattern2.StableId.PathId.ScalaId: {
     foreground_color: "0x009B00";
     font_type: "bold";
 }
 
 
-COLOR:PostfixExpr.NameId, PrefixExpr.PrefixOp: {
+COLOR:PostfixExpr.ScalaId, PrefixExpr.PrefixOp: {
 #    foreground_color: "0x9966ff";
 #    foreground_color: "0x5F9EA0";
     foreground_color: "0x2E92C7";

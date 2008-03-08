@@ -129,23 +129,23 @@ public class SyntaxVisitor extends ASTVisitor {
             }
 
             ASTItem PathIdWithTypeArgs = pathIdsWithTypeArgs.get(0);
-            ASTItem nameId = null;
+            ASTItem scalaId = null;
             for (ASTItem item : PathIdWithTypeArgs.getChildren()) {
                 if (isNode(item, "PathId")) {
                     for (ASTItem item1 : item.getChildren()) {
-                        if (isNode(item1, "NameId")) {
-                            nameId = item1;
+                        if (isNode(item1, "ScalaId")) {
+                            scalaId = item1;
                             break;
                         }
                     }
                     break;
                 }
             }
-            if (nameId == null) {
+            if (scalaId == null) {
                 return;
             } // @todo process this super ?
 
-            ASTToken funName = (ASTToken) nameId.getChildren().get(0);
+            ASTToken funName = (ASTToken) scalaId.getChildren().get(0);
             if (funName != null) {
                 /** @todo get all functions with the same name, then find the same Type params one */
                 Function funDfn = currCtx.getDefinitionInScopeByName(Function.class, funName.getIdentifier());
@@ -168,23 +168,23 @@ public class SyntaxVisitor extends ASTVisitor {
 
         if (isVar) {
             ASTItem pathIdWithTypeArgs = pathIdsWithTypeArgs.get(0);
-            ASTItem nameId = null;
+            ASTItem scalaId = null;
             for (ASTItem item : pathIdWithTypeArgs.getChildren()) {
                 if (isNode(item, "PathId")) {
                     for (ASTItem item1 : item.getChildren()) {
-                        if (isNode(item1, "NameId")) {
-                            nameId = item1;
+                        if (isNode(item1, "ScalaId")) {
+                            scalaId = item1;
                             break;
                         }
                     }
                     break;
                 }
             }
-            if (nameId == null) {
+            if (scalaId == null) {
                 return;
             } // @todo process this super ?
 
-            ASTToken varId = (ASTToken) nameId.getChildren().get(0);
+            ASTToken varId = (ASTToken) scalaId.getChildren().get(0);
             if (varId != null && !(varId.getIdentifier().equals("_"))) {
                 Var varDfn = currCtx.getVariableInScope(varId.getIdentifier());
                 if (varDfn != null) {

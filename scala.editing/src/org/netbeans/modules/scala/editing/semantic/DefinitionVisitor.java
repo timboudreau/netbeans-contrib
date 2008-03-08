@@ -81,7 +81,7 @@ public class DefinitionVisitor extends ASTVisitor {
                 packaging = new Packaging("Packaging", leaf.getOffset(), leaf.getEndOffset());
                 currCtx.peek().addDefinition(packaging);
             }
-        } else if (xpath.endsWith("Packaging.QualId.NameId")) {
+        } else if (xpath.endsWith("Packaging.QualId.ScalaId")) {
             if (enter) {
                 ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 packaging.addPath(idTok.getIdentifier());
@@ -125,7 +125,7 @@ public class DefinitionVisitor extends ASTVisitor {
             } else {
                 currCtx.pop();
             }
-        } else if (xpath.endsWith("FunDclDef.NameId")) {
+        } else if (xpath.endsWith("FunDclDef.ScalaId")) {
             if (enter) {
                 ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 funDfn = new Function(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), 0);
@@ -147,7 +147,7 @@ public class DefinitionVisitor extends ASTVisitor {
             } else {
                 funDfn = null;
             }
-        } else if (xpath.endsWith("FunDclDef.FunTypeParamClause.TypeParam.NameId")) {
+        } else if (xpath.endsWith("FunDclDef.FunTypeParamClause.TypeParam.ScalaId")) {
             if (enter) {
                 ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 typeDfn = new Type(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset());
@@ -156,7 +156,7 @@ public class DefinitionVisitor extends ASTVisitor {
             } else {
                 typeDfn = null;
             }
-        } else if (xpath.endsWith("FunDclDef.ParamClauses.ParamClause.Params.Param.NameId")) {
+        } else if (xpath.endsWith("FunDclDef.ParamClauses.ParamClause.Params.Param.ScalaId")) {
             if (enter) {
                 ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 if (!idTok.getIdentifier().equals("_")) {
@@ -168,7 +168,7 @@ public class DefinitionVisitor extends ASTVisitor {
             } else {
                 varDfn = null;
             }
-        } else if (xpath.endsWith("ObjectDef.NameId")) {
+        } else if (xpath.endsWith("ObjectDef.ScalaId")) {
             if (enter) {
                 ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 tmplDfn = new Template(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Kind.OBJECT, packaging);
@@ -179,7 +179,7 @@ public class DefinitionVisitor extends ASTVisitor {
             } else {
                 tmplDfn = null;
             }
-        } else if (xpath.endsWith("ClassDef.NameId")) {
+        } else if (xpath.endsWith("ClassDef.ScalaId")) {
             if (enter) {
                 ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 tmplDfn = new Template(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Kind.CLASS, packaging);
@@ -190,7 +190,7 @@ public class DefinitionVisitor extends ASTVisitor {
             } else {
                 tmplDfn = null;
             }
-        } else if (xpath.endsWith("TraitDef.NameId")) {
+        } else if (xpath.endsWith("TraitDef.ScalaId")) {
             if (enter) {
                 ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 tmplDfn = new Template(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Kind.TRAIT, packaging);
@@ -201,7 +201,7 @@ public class DefinitionVisitor extends ASTVisitor {
             } else {
                 tmplDfn = null;
             }
-        } else if (xpath.endsWith("ClassParamClauses.ClassParams.ClassParam.NameId")) {
+        } else if (xpath.endsWith("ClassParamClauses.ClassParams.ClassParam.ScalaId")) {
             // under ObjectDef or ClassDef 
             if (enter) {
                 ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
@@ -212,7 +212,7 @@ public class DefinitionVisitor extends ASTVisitor {
             } else {
                 varDfn = null;
             }
-        } else if (xpath.endsWith("TypeDclDef.NameId")) {
+        } else if (xpath.endsWith("TypeDclDef.ScalaId")) {
             if (enter) {
                 ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 typeDfn = new Type(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset());
@@ -238,7 +238,7 @@ public class DefinitionVisitor extends ASTVisitor {
             } else {
                 containsVarDfn = false;
             }
-        } else if (xpath.endsWith("NameId")) {
+        } else if (xpath.endsWith("ScalaId")) {
             if (enter) {
                 if (containsValDfn || containsVarDfn) {
                     ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
