@@ -43,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import org.netbeans.api.languages.ASTItem;
-import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.ASTToken;
 import org.netbeans.modules.scala.editing.semantic.Template.Kind;
 
@@ -295,32 +294,4 @@ public class DefinitionVisitor extends ASTVisitor {
         }
     }
 
-    /**
-     * will also check if item is null
-     */
-    public static final boolean isNode(ASTItem item, String nt) {
-        return item != null && item instanceof ASTNode && ((ASTNode) item).getNT().equals(nt);
-    }
-
-    /**
-     * will also check if item is null
-     */
-    public static final boolean isToken(ASTItem item, String id) {
-        return item != null && item instanceof ASTToken && ((ASTToken) item).getIdentifier().equals(id);
-    }
-
-    /**
-     * will also check if item is null
-     */
-    public static final boolean isTokenType(ASTItem item, String type) {
-        if (item != null && item instanceof ASTToken) {
-            String typeName = ((ASTToken) item).getTypeName();
-            if (typeName != null) {
-                return typeName.equals(type);
-            } else {
-                return false;
-            }
-        }
-        return false;
-    }
 }

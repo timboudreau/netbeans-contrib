@@ -39,7 +39,6 @@
 package org.netbeans.modules.scala.editing.semantic;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,9 +58,7 @@ public class UsageVisitor extends ASTVisitor {
     private Map<ASTItem, String> astItemToType = new HashMap<ASTItem, String>();
     private ScalaContext rootCtx = null;
     private boolean containsTypeUsage;
-    private boolean containsVarUsage;
     private Stack<List<ASTToken>> pathIdStack = new Stack<List<ASTToken>>();
-    private boolean collectPathStarted;
 
     /** states: */
     public UsageVisitor(ScalaContext rootContext) {
@@ -331,50 +328,4 @@ public class UsageVisitor extends ASTVisitor {
         return false;
     }
 
-    //private static final String xpathRegrex = "((\\.)?(([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])*(\\[([0-9]+)\\])?))+";
-    //private static final Pattern xpathPattern = Pattern.compile(xpathRegrex);
-    public static List<ASTItem> query(ASTItem fromItem, String relativePath) {
-        List<String> pathNames = new ArrayList<String>();
-        List<Integer> pathPositions = new ArrayList<Integer>();
-        String[] elements = relativePath.split("/");
-        for (String element : elements) {
-            int pos1 = element.indexOf('[');
-            int pos2 = element.indexOf(']');
-            int pos = (pos1 > 0 && pos2 > 0) ? Integer.parseInt(element.substring(pos1 + 1, pos2)) : -1;
-            pathNames.add(element);
-            pathPositions.add(pos);
-        }
-        List<ASTItem> fromItems = new ArrayList<ASTItem>();
-        fromItems.add(fromItem);
-        return query(fromItems, 0, pathNames, pathPositions);
-    }
-
-    private static List<ASTItem> query(List<ASTItem> fromItems, int fromDepth, List<String> pathNames, List<Integer> pathPositions) {
-        if (pathNames.size() == 0) {
-            return Collections.<ASTItem>emptyList();
-        }
-        List<ASTItem> result = new ArrayList<ASTItem>();
-        String wantedName = pathNames.get(fromDepth);
-        int wantedPos = pathPositions.get(fromDepth);
-        for (ASTItem fromItem : fromItems) {
-            int pos = 0;
-            for (ASTItem child : fromItem.getChildren()) {
-                String name = child instanceof ASTToken ? ((ASTToken) child).getIdentifier() : ((ASTNode) child).getNT();
-                if (name.equals(wantedName)) {
-                    if (pos == wantedPos || wantedPos == -1) {
-                        result.add(child);
-                    } else {
-                        pos++;
-                    }
-                }
-            }
-        }
-        fromDepth++;
-        if (fromDepth == pathNames.size()) { // reach leaf now            
-
-            return result;
-        } else {
-            return query(result, fromDepth, pathNames, pathPositions);
-        }
-    }
 }
