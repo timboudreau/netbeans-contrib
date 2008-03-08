@@ -508,7 +508,7 @@ IfExpr = "if" "(" Expr ")" Expr [ "else" Expr ];
 WhileExpr = "while" "(" Expr ")" Expr;
 TryExpr = "try" "{" BlockStats "}" ["catch" "{" CaseClauses "}"] [ "finally" Expr ];
 DoExpr = "do" Expr [ ";" ] "while" "(" Expr ")";
-ForExpr = "for" ("(" Enumerators ")" | "{" Enumerators "}") [ "yield" ] Expr;
+ForExpr = "for" ( "(" Enumerators ")" | "{" Enumerators "}" ) [ "yield" ] Expr;
 ThrowExpr = "throw" Expr;
 ReturnExpr = "return" [ Expr ];
 
@@ -538,13 +538,16 @@ PrefixOp =
     | "!";
 
 SimpleExpr = 
-      PathIdWithTypeArgs    ( "." PathIdWithTypeArgs | Arguments | "_" )*
-    | LiteralWithTypeArgs   ( "." PathIdWithTypeArgs | Arguments | "_" )*
-    | WildCardWithTypeArgs  ( "." PathIdWithTypeArgs | Arguments | "_" )*
-    | TupleExprWithTypeArgs ( "." PathIdWithTypeArgs | Arguments | "_" )*
-    | BlockExprWithTypeArgs ( "." PathIdWithTypeArgs [Arguments] )*
-    | NewExpr               ( "." PathIdWithTypeArgs | Arguments | "_" )*
+      PathIdWithTypeArgs    ( DotPathIdWithTypeArgs | Arguments | "_" )*
+    | LiteralWithTypeArgs   ( DotPathIdWithTypeArgs | Arguments | "_" )*
+    | WildCardWithTypeArgs  ( DotPathIdWithTypeArgs | Arguments | "_" )*
+    | TupleExprWithTypeArgs ( DotPathIdWithTypeArgs | Arguments | "_" )*
+    | BlockExprWithTypeArgs ( DotPathIdWithTypeArgs [Arguments] )*
+    | NewExpr               ( DotPathIdWithTypeArgs | Arguments | "_" )*
     | XmlExpr;
+
+## Define this intermedia expr for convenience of semantic anlysis
+DotPathIdWithTypeArgs = "." PathIdWithTypeArgs;
 
 PathIdWithTypeArgs    = PathId    TypeArgs*;
 LiteralWithTypeArgs   = Literal   TypeArgs*;
@@ -577,7 +580,7 @@ Arguments =
         ParenExpr
       | BlockExpr;
 
-ParenExpr = "(" [ ExprInParen ( "," [ExprInParen] )* ] ")";
+ParenExpr = "(" [ ExprInParen ( "," [ ExprInParen ] )* ] ")";
 
 ExprInParen = 
       CtrlExpr

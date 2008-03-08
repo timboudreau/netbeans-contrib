@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import org.netbeans.api.languages.ASTItem;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.ASTToken;
@@ -59,7 +60,8 @@ public class UsageVisitor extends ASTVisitor {
     private ScalaContext rootCtx = null;
     private boolean containsTypeUsage;
     private boolean containsVarUsage;
-    private List<ASTToken> pathIds = new ArrayList<ASTToken>();
+    private Stack<List<ASTToken>> pathIdStack = new Stack<List<ASTToken>>();
+    private boolean collectPathStarted;
 
     /** states: */
     public UsageVisitor(ScalaContext rootContext) {
@@ -69,13 +71,15 @@ public class UsageVisitor extends ASTVisitor {
     @Override
     void visitNote( List<ASTItem> path, String xpath, int ordinal, boolean enter) {
         ASTItem leaf = path.get(path.size() - 1);
-        if (xpath.endsWith("TypeStableId.TypeId.PathId")) {
+        if (xpath.endsWith("TypeStableId")) {
             if (enter) {
+                pathIdStack.push(new ArrayList<ASTToken>());
                 containsTypeUsage = true;
             } else {
                 ScalaContext currCtx = (ScalaContext) rootCtx.getClosestContext(leaf.getOffset());
                 // @todo should process package here
-                if (pathIds.size() > 0) {
+                List<ASTToken> pathIds = pathIdStack.pop();
+                if (pathIds != null && pathIds.size() > 0) {
                     ASTToken latestIdTok = pathIds.get(pathIds.size() - 1);
                     String idStr = latestIdTok.getIdentifier();
                     Type typeDfn = currCtx.getDefinitionInScopeByName(Type.class, idStr);
@@ -89,41 +93,50 @@ public class UsageVisitor extends ASTVisitor {
                     }
                 }
                 containsTypeUsage = false;
-                pathIds.clear();
             }
         } else if (xpath.endsWith("TypeStableId.TypeId.PathId.ScalaId")) {
             if (enter && containsTypeUsage) {
                 ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
+                List<ASTToken> pathIds = pathIdStack.peek();
                 pathIds.add(idTok);
             }
-        } else if (xpath.endsWith("SimpleExpr.PathIdWithTypeArgs.PathId")) {
+        } else if (xpath.endsWith("SimpleExpr")) {
             if (enter) {
-                containsVarUsage = true;
+                pathIdStack.push(new ArrayList<ASTToken>());
             } else {
-                if (pathIds.size() > 0) {
-                    ASTToken latestIdTok = pathIds.get(pathIds.size() - 1);
-                    String idStr = latestIdTok.getIdentifier();
+                List<ASTToken> pathIds = pathIdStack.pop();
+                if (pathIds != null) {
                     // @todo should process package here
-                    if (!idStr.equals("_")) {
-                        ScalaContext currCtx = (ScalaContext) rootCtx.getClosestContext(latestIdTok.getOffset());
-                        Var varDfn = currCtx.getVariableInScope(idStr);
-                        if (varDfn != null) {
-                            currCtx.addUsage(latestIdTok, varDfn);
-                        }
-                    }
                 }
-                containsVarUsage = false;
-                pathIds.clear();
             }
         } else if (xpath.endsWith("SimpleExpr.PathIdWithTypeArgs.PathId.ScalaId")) {
-            if (enter && containsVarUsage) {
-                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
-                pathIds.add(idTok);
-            }
-        } else if (xpath.endsWith("NewExpr.ClassParents.AnnotType.SimpleType.TypeStableId.TypeId.PathId")) {
+            // this is a ScalaId started expr
             if (enter) {
+                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
+                String idStr = idTok.getIdentifier();
+                // @todo should process package here
+                if (!idStr.equals("_")) {
+                    ScalaContext currCtx = (ScalaContext) rootCtx.getClosestContext(idTok.getOffset());
+                    Var varDfn = currCtx.getVariableInScope(idStr);
+                    if (varDfn != null) {
+                        currCtx.addUsage(idTok, varDfn);
+                    }
+                }
+            }
+        } else if (xpath.endsWith("SimpleExpr.DotPathIdWithTypeArgs.PathIdWithTypeArgs.PathId.ScalaId")) {
+            if (enter) {
+                List<ASTToken> pathIds = pathIdStack.peek();
+                if (pathIds != null) {
+                    ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
+                    pathIds.add(idTok);
+                }
+            }
+        } else if (xpath.endsWith("NewExpr.ClassParents.AnnotType.SimpleType.TypeStableId")) {
+            if (enter) {
+                pathIdStack.push(new ArrayList<ASTToken>());
             } else {
                 ScalaContext currCtx = (ScalaContext) rootCtx.getClosestContext(leaf.getOffset());
+                List<ASTToken> pathIds = pathIdStack.pop();
                 for (ASTToken idTok : pathIds) {
                     String idStr = idTok.getIdentifier();
                     if (idStr.equals("this") || idStr.equals("super")) {
@@ -139,8 +152,11 @@ public class UsageVisitor extends ASTVisitor {
             }
         } else if (xpath.endsWith("NewExpr.ClassParents.AnnotType.SimpleType.TypeStableId.TypeId.PathId.ScalaId")) {
             if (enter) {
-                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
-                pathIds.add(idTok);
+                List<ASTToken> pathIds = pathIdStack.peek();
+                if (pathIds != null) {
+                    ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
+                    pathIds.add(idTok);
+                }
             }
         }
     }
@@ -285,7 +301,6 @@ public class UsageVisitor extends ASTVisitor {
         }
 
     }
-
 
     /**
      * will also check if item is null
