@@ -266,6 +266,7 @@ public class ScalaSemanticAnalyser {
         if (this.astRoot != astRoot) {
             this.astRoot = astRoot;
             ScalaContext rootCtxInParsing = new ScalaContext(ScalaContext.ROOT, astRoot.getOffset(), astRoot.getEndOffset());
+            new SyntaxVisitor(rootCtxInParsing).visit(astRoot);
             new DefinitionVisitor(rootCtxInParsing).visit(astRoot);
             new UsageVisitor(rootCtxInParsing).visit(astRoot);
             //process(rootCtxInParsing, astRoot, rootCtxInParsing);

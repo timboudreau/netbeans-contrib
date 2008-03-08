@@ -52,7 +52,7 @@ import org.netbeans.modules.scala.editing.semantic.Template.Kind;
  *
  * @author dcaoyuan
  */
-public class UsageVisitor extends ASTVisitor {
+public class SyntaxVisitor extends ASTVisitor {
 
     private boolean forIndexing;
     private Map<ASTItem, String> astItemToType = new HashMap<ASTItem, String>();
@@ -61,118 +61,33 @@ public class UsageVisitor extends ASTVisitor {
     private boolean containsVarUsage;
     private List<ASTToken> pathIds = new ArrayList<ASTToken>();
 
+    private int nlCount;
+    
     /** states: */
-    public UsageVisitor(ScalaContext rootContext) {
+    public SyntaxVisitor(ScalaContext rootContext) {
         this.rootCtx = rootContext;
     }
 
     @Override
     void visitNote( List<ASTItem> path, String xpath, int ordinal, boolean enter) {
         ASTItem leaf = path.get(path.size() - 1);
-        if (xpath.endsWith("TypeStableId.TypeId.PathId")) {
-            if (enter) {
-                containsTypeUsage = true;
-            } else {
-                ScalaContext currCtx = (ScalaContext) rootCtx.getClosestContext(leaf.getOffset());
-                // @todo should process package here
-                if (pathIds.size() > 0) {
-                    ASTToken latestIdTok = pathIds.get(pathIds.size() - 1);
-                    String idStr = latestIdTok.getIdentifier();
-                    Type typeDfn = currCtx.getDefinitionInScopeByName(Type.class, idStr);
-                    if (typeDfn != null) {
-                        currCtx.addUsage(latestIdTok, typeDfn);
-                    } else {
-                        Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, idStr);
-                        if (tmplDfn != null) {
-                            currCtx.addUsage(latestIdTok, tmplDfn);
-                        }
-                    }
-                }
-                containsTypeUsage = false;
-                pathIds.clear();
-            }
-        } else if (xpath.endsWith("TypeStableId.TypeId.PathId.NameId")) {
-            if (enter && containsTypeUsage) {
-                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
-                pathIds.add(idTok);
-            }
-        } else if (xpath.endsWith("SimpleExpr.PathIdWithTypeArgs.PathId")) {
-            if (enter) {
-                containsVarUsage = true;
-            } else {
-                if (pathIds.size() > 0) {
-                    ASTToken latestIdTok = pathIds.get(pathIds.size() - 1);
-                    String idStr = latestIdTok.getIdentifier();
-                    // @todo should process package here
-                    if (!idStr.equals("_")) {
-                        ScalaContext currCtx = (ScalaContext) rootCtx.getClosestContext(latestIdTok.getOffset());
-                        Var varDfn = currCtx.getVariableInScope(idStr);
-                        if (varDfn != null) {
-                            currCtx.addUsage(latestIdTok, varDfn);
-                        }
-                    }
-                }
-                containsVarUsage = false;
-                pathIds.clear();
-            }
-        } else if (xpath.endsWith("SimpleExpr.PathIdWithTypeArgs.PathId.NameId")) {
-            if (enter && containsVarUsage) {
-                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
-                pathIds.add(idTok);
-            }
-        } else if (xpath.endsWith("NewExpr.ClassParents.AnnotType.SimpleType.TypeStableId.TypeId.PathId")) {
+        if (xpath.endsWith("PostfixExpr")) {
             if (enter) {
             } else {
-                ScalaContext currCtx = (ScalaContext) rootCtx.getClosestContext(leaf.getOffset());
-                for (ASTToken idTok : pathIds) {
-                    String idStr = idTok.getIdentifier();
-                    if (idStr.equals("this") || idStr.equals("super")) {
-                        // @todo
-                    } else {
-                        Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, idStr);
-                        if (tmplDfn != null && (tmplDfn.getKind() == Kind.CLASS || tmplDfn.getKind() == Kind.TRAIT)) {
-                            currCtx.addUsage(idTok, tmplDfn);
-                        }
-                    }
-                }
-                pathIds.clear();
+                nlCount = 0;
             }
-        } else if (xpath.endsWith("NewExpr.ClassParents.AnnotType.SimpleType.TypeStableId.TypeId.PathId.NameId")) {
+        } else if (xpath.endsWith("PostfixExpr.SimpleExpr")) {
             if (enter) {
-                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
-                pathIds.add(idTok);
+//                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
+//                pathIds.add(idTok);
             }
+        } else if (xpath.endsWith("PostfixExpr.SimpleExpr.nl")) {
+            if (enter) {
+                nlCount++;
+            }        
         }
     }
 
-    private void processAnyExpr(ScalaContext rootCtx, ASTItem expr, ScalaContext currCtx, boolean containsVarDef) {
-        if (isNode(expr, "Literal")) {
-            for (ASTItem item1 : expr.getChildren()) {
-                if (isTokenType(item1, "integer")) {
-                    astItemToType.put(expr, "Integer");
-                    astItemToType.put(item1, "Integer");
-                } else if (isTokenType(item1, "float")) {
-                    astItemToType.put(expr, "Float");
-                    astItemToType.put(item1, "Float");
-                } else if (isTokenType(item1, "char")) {
-                    astItemToType.put(expr, "Char");
-                    astItemToType.put(item1, "Char");
-                } else if (isTokenType(item1, "string")) {
-                    astItemToType.put(expr, "String");
-                    astItemToType.put(item1, "String");
-                } else if (isToken(item1, "true") || isToken(item1, "false")) {
-                    astItemToType.put(expr, "Boolean");
-                    astItemToType.put(item1, "Boolean");
-                } else if (isToken(item1, "null")) {
-                    astItemToType.put(expr, "Null");
-                    astItemToType.put(item1, "Null");
-                } else {
-                }
-            }
-//        } else if (isNode(expr, "Type")) {
-//            processAnyType(rootCtx, expr, currCtx);
-        }
-    }
 
     private void processSimpleExpr(ScalaContext rootCtx, ASTItem simpleExpr, ScalaContext currCtx) {
         boolean isFunCall = false;
