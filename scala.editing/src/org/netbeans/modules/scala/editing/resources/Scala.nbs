@@ -640,7 +640,7 @@ BlockStats = BlockStat ( [ ";" ] BlockStat )*;
 
 BlockStat = 
       Import
-    | DclDefInBlock
+    | DclDefInTemplate ## DclDefInBlock
     | ExprInBlock
     | ;
 
@@ -651,7 +651,7 @@ DclDefInBlock =
       | FunDclDef 
       | TypeDclDef
       )
-    | (LocalModifier)* TmplDef;
+    | LocalModifier* TmplDef;
 
 ## Hacking for: ResultExpr = (Bindings | ScalaId [":" CompoundType]) "=>" BlockStats;
 ## Where, the right part of "=>" is BlockStats vs Expr in anonynous function expression
