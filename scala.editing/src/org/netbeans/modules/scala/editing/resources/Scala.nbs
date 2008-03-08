@@ -530,6 +530,7 @@ ReturnExpr = "return" [ Expr ];
 ## The rule could be: if encounter a ScalaId and followed only one <nl>, then next SimpleExpr 
 ## is of the same Expr
 PostfixExpr = SimpleExpr+;
+InfixExpr = PrefixExpr ( ScalaId [ PrefixExpr ] )*;
 PrefixExpr = [ PrefixOp ] SimpleExpr;
 PrefixOp = 
       "-" 

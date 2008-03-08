@@ -40,6 +40,8 @@ package org.netbeans.modules.scala.editing.semantic;
 
 import java.util.List;
 import org.netbeans.api.languages.ASTItem;
+import org.netbeans.api.languages.ASTNode;
+import org.netbeans.api.languages.ASTToken;
 
 /**
  *
@@ -48,33 +50,98 @@ import org.netbeans.api.languages.ASTItem;
 public class SyntaxVisitor extends ASTVisitor {
 
     private ScalaContext rootCtx = null;
-
     private int nlCount;
-    
+    private int ordinalCount;
+    private boolean possibleOp;
+
     public SyntaxVisitor(ScalaContext rootContext) {
         this.rootCtx = rootContext;
     }
 
     @Override
-    void visitNote( List<ASTItem> path, String xpath, int ordinal, boolean enter) {
+    boolean visitNote( List<ASTItem> path, String xpath, int ordinal, boolean enter) {
         ASTItem leaf = path.get(path.size() - 1);
         if (xpath.endsWith("PostfixExpr")) {
             if (enter) {
+                StringBuilder sb = new StringBuilder();
+                boolean prefixOpPreceding = false;
+                boolean infixExprPreceding = false;
+                int count = 0;
+                for (ASTItem simpleExpr : leaf.getChildren()) {
+                    if (isScalaId(simpleExpr)) {
+                        if (prefixOpPreceding) {
+                            sb.append(".InfixExpr");
+                            infixExprPreceding = true;
+                        }
+                        if (isPreOp(leaf)) {
+                            prefixOpPreceding = true;
+                        }
+                        count++;
+
+                    } else {
+                        prefixOpPreceding = false;
+                    }
+                }
+                return true;
             } else {
                 nlCount = 0;
             }
-        } else if (xpath.endsWith("PostfixExpr.SimpleExpr")) {
-            if (enter) {
-//                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
-//                pathIds.add(idTok);
-            }
-        } else if (xpath.endsWith("PostfixExpr.SimpleExpr.nl")) {
+        } else if (xpath.endsWith("nl") && xpath.contains("PostfixExpr.SimpleExpr")) {
             if (enter) {
                 nlCount++;
-            }        
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isScalaId(ASTItem item) {
+        if (item instanceof ASTNode) {
+            String id = ((ASTNode) item).getNT();
+            if (id.equals("ScalaId")) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            int astNodeCount = 0;
+            ASTItem next = null;
+            for (ASTItem child : item.getChildren()) {
+                if (child instanceof ASTNode) {
+                    next = child;
+                    astNodeCount++;
+                }
+            }
+            if (astNodeCount == 1) {
+                return isScalaId(next);
+            } else {
+                return false;
+            }
         }
     }
 
-
-
+    private boolean isPreOp(ASTItem item) {
+        if (item instanceof ASTToken) {
+            String id = ((ASTToken) item).getIdentifier();
+            if (id.equals("+") || id.equals("-") || id.equals("~") || id.equals("!")) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            int astNodeCount = 0;
+            ASTItem next = null;
+            for (ASTItem child : item.getChildren()) {
+                if (child instanceof ASTNode) {
+                    next = child;
+                    astNodeCount++;
+                }
+            }
+            if (astNodeCount == 1) {
+                return isScalaId(next);
+            } else {
+                return false;
+            }
+        }
+    }
 }
