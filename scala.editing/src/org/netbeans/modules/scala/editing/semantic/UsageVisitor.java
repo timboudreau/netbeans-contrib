@@ -58,7 +58,8 @@ public class UsageVisitor extends ASTVisitor {
     private Map<ASTItem, String> astItemToType = new HashMap<ASTItem, String>();
     private ScalaContext rootCtx = null;
     private boolean containsTypeUsage;
-    private Stack<List<ASTToken>> pathIdStack = new Stack<List<ASTToken>>();
+    private Stack<List<ASTItem>> chainStack = new Stack<List<ASTItem>>();
+    private Stack<ASTItem> varOrFunctionStack = new Stack<ASTItem>();
 
     /** states: */
     public UsageVisitor(ScalaContext rootContext) {
@@ -71,14 +72,15 @@ public class UsageVisitor extends ASTVisitor {
         ASTItem leaf = path.get(path.size() - 1);
         if (xpath.endsWith("TypeStableId")) {
             if (enter) {
-                pathIdStack.push(new ArrayList<ASTToken>());
+                chainStack.push(new ArrayList<ASTItem>());
                 containsTypeUsage = true;
             } else {
                 ScalaContext currCtx = (ScalaContext) rootCtx.getClosestContext(leaf.getOffset());
                 // @todo should process package here
-                List<ASTToken> pathIds = pathIdStack.pop();
+                List<ASTItem> pathIds = chainStack.pop();
                 if (pathIds != null && pathIds.size() > 0) {
-                    ASTToken latestIdTok = pathIds.get(pathIds.size() - 1);
+                    ASTItem latestIdNode = pathIds.get(pathIds.size() - 1);
+                    ASTToken latestIdTok = (ASTToken) latestIdNode.getChildren().get(0);
                     String idStr = latestIdTok.getIdentifier();
                     Type typeDfn = currCtx.getDefinitionInScopeByName(Type.class, idStr);
                     if (typeDfn != null) {
@@ -94,46 +96,95 @@ public class UsageVisitor extends ASTVisitor {
             }
         } else if (xpath.endsWith("TypeStableId.TypeId.PathId.ScalaId")) {
             if (enter && containsTypeUsage) {
-                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
-                List<ASTToken> pathIds = pathIdStack.peek();
-                pathIds.add(idTok);
+                List<ASTItem> pathIds = chainStack.peek();
+                pathIds.add(leaf);
             }
         } else if (xpath.endsWith("SimpleExpr")) {
             if (enter) {
-                pathIdStack.push(new ArrayList<ASTToken>());
+                chainStack.push(new ArrayList<ASTItem>());
             } else {
-                List<ASTToken> pathIds = pathIdStack.pop();
-                if (pathIds != null) {
-                    // @todo should process package here
+                List<ASTItem> chain = chainStack.pop();
+                if (!varOrFunctionStack.empty()) {
+                    // it's a var or function call expr
+                    ASTItem idNode = varOrFunctionStack.pop();
+                    ASTToken idTok = (ASTToken) idNode.getChildren().get(0);
+                    String idStr = idTok.getIdentifier();
+                    ScalaContext currCtx = (ScalaContext) rootCtx.getClosestContext(idTok.getOffset());
+
+                    boolean isVar = false;
+                    if (chain.size() > 0) {
+                        ASTNode first = (ASTNode) chain.get(0);
+                        if (first.getNT().equals("ScalaId")) {
+                            isVar = true;
+                        } else if (first.getNT().equals("Arguments")) {
+                            // it's function call
+                            // @todo infer args type
+                            int arity = 0;
+                            for (ASTItem child : first.getChildren()) {
+                                if (isNode(child, "Expr")) {
+                                    arity++;
+                                }
+                            }
+                            Function funDfn = currCtx.getDefinitionInScopeByName(Function.class, idStr);
+                            if (funDfn == null) {
+                                /** Is it a imported function call? */
+                                funDfn = ErlBuiltIn.getBuiltInFunction(idStr, arity);
+                                if (funDfn != null) {
+                                    currCtx.addDefinition(funDfn);
+                                    currCtx.addUsage(idTok, funDfn);
+                                } else {
+                                    // It may be a apply/update function of var?
+                                    isVar = true;
+                                }
+                            } else {
+                                currCtx.addUsage(idTok, funDfn);
+                            }
+
+                        }
+                    } else {
+                        // plain simple var
+                        isVar = true;
+                    }
+
+                    if (isVar) {
+                        // @todo should process package here
+                        Var varDfn = currCtx.getVariableInScope(idStr);
+                        if (varDfn != null) {
+                            currCtx.addUsage(idTok, varDfn);
+                        } else {
+                            Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, idStr);
+                            if (tmplDfn != null && (tmplDfn.getKind() == Kind.OBJECT || tmplDfn.getKind() == Kind.CLASS)) {
+                                currCtx.addUsage(idTok, tmplDfn);
+                            }
+                        }
+                    }
                 }
             }
         } else if (xpath.endsWith("SimpleExpr.PathIdWithTypeArgs.PathId.ScalaId")) {
             // this is a ScalaId starting expr
             if (enter) {
-                ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
-                String idStr = idTok.getIdentifier();
-                // @todo should process package here
-                ScalaContext currCtx = (ScalaContext) rootCtx.getClosestContext(idTok.getOffset());
-                Var varDfn = currCtx.getVariableInScope(idStr);
-                if (varDfn != null) {
-                    currCtx.addUsage(idTok, varDfn);
+                varOrFunctionStack.push(leaf);
+            }
+        } else if (xpath.endsWith("SimpleExpr.SimpleExprRest.PathRest.PathIdWithTypeArgs.PathId.ScalaId")) {
+            if (enter) {
+                List<ASTItem> chain = chainStack.peek();
+                if (chain != null) {
+                    chain.add(leaf);
                 }
             }
-        } else if (xpath.endsWith("SimpleExpr.DotPathIdWithTypeArgs.PathIdWithTypeArgs.PathId.ScalaId")) {
-            if (enter) {
-                List<ASTToken> pathIds = pathIdStack.peek();
-                if (pathIds != null) {
-                    ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
-                    pathIds.add(idTok);
-                }
+        } else if (xpath.endsWith("SimpleExpr.SimpleExprRest.Arguments")) {
+            List<ASTItem> chain = chainStack.peek();
+            if (chain != null) {
+                chain.add(leaf);
             }
         } else if (xpath.endsWith("NewExpr.ClassParents.AnnotType.SimpleType.TypeStableId")) {
             if (enter) {
-                pathIdStack.push(new ArrayList<ASTToken>());
+                chainStack.push(new ArrayList<ASTItem>());
             } else {
                 ScalaContext currCtx = (ScalaContext) rootCtx.getClosestContext(leaf.getOffset());
-                List<ASTToken> pathIds = pathIdStack.pop();
-                for (ASTToken idTok : pathIds) {
+                List<ASTItem> pathIds = chainStack.pop();
+                for (ASTItem idNode : pathIds) {
+                    ASTToken idTok = (ASTToken) idNode.getChildren().get(0);
                     String idStr = idTok.getIdentifier();
                     if (idStr.equals("this") || idStr.equals("super")) {
                         // @todo
@@ -148,10 +199,9 @@ public class UsageVisitor extends ASTVisitor {
             }
         } else if (xpath.endsWith("NewExpr.ClassParents.AnnotType.SimpleType.TypeStableId.TypeId.PathId.ScalaId")) {
             if (enter) {
-                List<ASTToken> pathIds = pathIdStack.peek();
+                List<ASTItem> pathIds = chainStack.peek();
                 if (pathIds != null) {
-                    ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
-                    pathIds.add(idTok);
+                    pathIds.add(leaf);
                 }
             }
         }
@@ -188,144 +238,4 @@ public class UsageVisitor extends ASTVisitor {
         }
     }
 
-    private void processSimpleExpr(ScalaContext rootCtx, ASTItem simpleExpr, ScalaContext currCtx) {
-        boolean isFunCall = false;
-        boolean isLocalCall = false;
-        boolean isVar = false;
-        List<ASTItem> pathIdsWithTypeArgs = null;
-        List<ASTItem> argsChain = null;
-        List<ASTItem> children = simpleExpr.getChildren();
-        List<ASTItem> pendingItems = new ArrayList<ASTItem>();
-        for (ASTItem item : children) {
-            if (isNode(item, "PathIdWithTypeArgs")) {
-                if (pathIdsWithTypeArgs == null) {
-                    pathIdsWithTypeArgs = new ArrayList<ASTItem>();
-                }
-                pathIdsWithTypeArgs.add(item);
-            } else if (isNode(item, "Arguments")) {
-                isFunCall = true;
-                if (argsChain == null) {
-                    argsChain = new ArrayList<ASTItem>();
-                }
-                argsChain.add(item);
-                pendingItems.add(item);
-            } else {
-                pendingItems.add(item);
-            }
-        }
-
-        isLocalCall = isFunCall && pathIdsWithTypeArgs != null && pathIdsWithTypeArgs.size() > 0 && isNode(children.get(0), "PathIdWithTypeArgs");
-        isVar = !isLocalCall && pathIdsWithTypeArgs != null && pathIdsWithTypeArgs.size() > 0 && isNode(children.get(0), "PathIdWithTypeArgs");
-        if (isLocalCall) {
-            int arityInt = 0;
-            if (argsChain != null && argsChain.size() > 0) {
-                // @todo infer arg type
-                for (ASTItem child : argsChain.get(0).getChildren()) {
-                    if (isNode(child, "Expr")) {
-                        arityInt++;
-                    }
-                }
-            }
-
-            ASTItem PathIdWithTypeArgs = pathIdsWithTypeArgs.get(0);
-            ASTItem scalaId = null;
-            for (ASTItem item : PathIdWithTypeArgs.getChildren()) {
-                if (isNode(item, "PathId")) {
-                    for (ASTItem item1 : item.getChildren()) {
-                        if (isNode(item1, "ScalaId")) {
-                            scalaId = item1;
-                            break;
-                        }
-                    }
-                    break;
-                }
-            }
-            if (scalaId == null) {
-                return;
-            } // @todo process this super ?
-
-            ASTToken funName = (ASTToken) scalaId.getChildren().get(0);
-            if (funName != null) {
-                /** @todo get all functions with the same name, then find the same Type params one */
-                Function funDfn = currCtx.getDefinitionInScopeByName(Function.class, funName.getIdentifier());
-                if (funDfn == null) {
-                    /** Is it a imported function call? */
-                    funDfn = ErlBuiltIn.getBuiltInFunction(funName.getIdentifier(), arityInt);
-                    if (funDfn != null) {
-                        currCtx.addDefinition(funDfn);
-                        currCtx.addUsage(funName, funDfn);
-                    } else {
-                        // It may be a apply/update function of var?
-                        isVar = true;
-                    }
-                } else {
-                    currCtx.addUsage(funName, funDfn);
-                }
-            }
-
-        }
-
-        if (isVar) {
-            ASTItem pathIdWithTypeArgs = pathIdsWithTypeArgs.get(0);
-            ASTItem scalaId = null;
-            for (ASTItem item : pathIdWithTypeArgs.getChildren()) {
-                if (isNode(item, "PathId")) {
-                    for (ASTItem item1 : item.getChildren()) {
-                        if (isNode(item1, "ScalaId")) {
-                            scalaId = item1;
-                            break;
-                        }
-                    }
-                    break;
-                }
-            }
-            if (scalaId == null) {
-                return;
-            } // @todo process this super ?
-
-            ASTToken varId = (ASTToken) scalaId.getChildren().get(0);
-            if (varId != null && !(varId.getIdentifier().equals("_"))) {
-                Var varDfn = currCtx.getVariableInScope(varId.getIdentifier());
-                if (varDfn != null) {
-                    currCtx.addUsage(varId, varDfn);
-                } else {
-                    Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, varId.getIdentifier());
-                    if (tmplDfn != null && (tmplDfn.getKind() == Kind.OBJECT || tmplDfn.getKind() == Kind.CLASS)) {
-                        currCtx.addUsage(varId, tmplDfn);
-                    }
-                }
-            }
-        } else {
-        }
-
-    }
-
-    /**
-     * will also check if item is null
-     */
-    public static final boolean isNode(ASTItem item, String nt) {
-        return item != null && item instanceof ASTNode && ((ASTNode) item).getNT().equals(nt);
-    }
-
-    /**
-     * will also check if item is null
-     */
-    public static final boolean isToken(ASTItem item, String id) {
-        return item != null && item instanceof ASTToken && ((ASTToken) item).getIdentifier().equals(id);
-    }
-
-    /**
-     * will also check if item is null
-     */
-    public static final boolean isTokenType(ASTItem item, String type) {
-        if (item != null && item instanceof ASTToken) {
-            String typeName = ((ASTToken) item).getTypeName();
-            if (typeName != null) {
-                return typeName.equals(type);
-            } else {
-                return false;
-            }
-        }
-        return false;
-    }
 }

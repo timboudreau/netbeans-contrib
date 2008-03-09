@@ -567,16 +567,21 @@ PrefixOp =
     | "!";
 
 SimpleExpr = 
-      PathIdWithTypeArgs    ( DotPathIdWithTypeArgs | Arguments | "_" )*
-    | LiteralWithTypeArgs   ( DotPathIdWithTypeArgs | Arguments | "_" )*
-    | WildCardWithTypeArgs  ( DotPathIdWithTypeArgs | Arguments | "_" )*
-    | TupleExprWithTypeArgs ( DotPathIdWithTypeArgs | Arguments | "_" )*
-    | BlockExprWithTypeArgs ( DotPathIdWithTypeArgs [Arguments] )*
-    | NewExpr               ( DotPathIdWithTypeArgs | Arguments | "_" )*
+      PathIdWithTypeArgs    SimpleExprRest*
+    | LiteralWithTypeArgs   SimpleExprRest*
+    | WildCardWithTypeArgs  SimpleExprRest*
+    | TupleExprWithTypeArgs SimpleExprRest*
+    | BlockExprWithTypeArgs SimpleExprRest*
+    | NewExpr               SimpleExprRest*
     | XmlExpr;
 
+SimpleExprRest = 
+      PathRest
+    | Arguments+
+    | "_";
+
 ## Define this intermedia expr for convenience of semantic anlysis
-DotPathIdWithTypeArgs = "." PathIdWithTypeArgs;
+PathRest = ( "." PathIdWithTypeArgs )+;
 
 PathIdWithTypeArgs    = PathId    TypeArgs*;
 LiteralWithTypeArgs   = Literal   TypeArgs*;

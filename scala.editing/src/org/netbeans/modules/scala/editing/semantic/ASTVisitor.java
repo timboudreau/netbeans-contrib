@@ -75,7 +75,7 @@ public abstract class ASTVisitor {
 
     protected void visitRecursively(ASTItem item, List<ASTItem> path, String xpath, int ordinal) {
         boolean willBypassChildren = visitNote(path, xpath, ordinal, true);
-        if (! willBypassChildren) {
+        if (!willBypassChildren) {
             Map<String, Integer> nameToOrdinal = new HashMap<String, Integer>();
             for (ASTItem child : item.getChildren()) {
                 if (cancel[0]) {
@@ -106,9 +106,42 @@ public abstract class ASTVisitor {
         return item instanceof ASTToken ? ((ASTToken) item).getTypeName() : ((ASTNode) item).getNT();
     }
 
+    /**********************************
+     * helper:
+     **********************************/
+    /**
+     * will also check if item is null
+     */
+    public final boolean isNode(ASTItem item, String nt) {
+        return item != null && item instanceof ASTNode && ((ASTNode) item).getNT().equals(nt);
+    }
+
+    /**
+     * will also check if item is null
+     */
+    public final boolean isToken(ASTItem item, String id) {
+        return item != null && item instanceof ASTToken && ((ASTToken) item).getIdentifier().equals(id);
+    }
+
+    /**
+     * will also check if item is null
+     */
+    public final boolean isTokenType(ASTItem item, String type) {
+        if (item != null && item instanceof ASTToken) {
+            String typeName = ((ASTToken) item).getTypeName();
+            if (typeName != null) {
+                return typeName.equals(type);
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
+
+
     //private static final String xpathRegrex = "((\\.)?(([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])*(\\[([0-9]+)\\])?))+";
     //private static final Pattern xpathPattern = Pattern.compile(xpathRegrex);
-    public static List<ASTItem> select(ASTItem fromItem, String relativePath) {
+    public List<ASTItem> select(ASTItem fromItem, String relativePath) {
         List<String> pathNames = new ArrayList<String>();
         List<Integer> pathPositions = new ArrayList<Integer>();
         String[] elements = relativePath.split(".");
@@ -124,7 +157,7 @@ public abstract class ASTVisitor {
         return select(fromItems, 0, pathNames, pathPositions);
     }
 
-    private static List<ASTItem> select(List<ASTItem> fromItems, int fromDepth, List<String> pathNames, List<Integer> pathPositions) {
+    private List<ASTItem> select(List<ASTItem> fromItems, int fromDepth, List<String> pathNames, List<Integer> pathPositions) {
         if (pathNames.size() == 0) {
             return Collections.<ASTItem>emptyList();
         }
