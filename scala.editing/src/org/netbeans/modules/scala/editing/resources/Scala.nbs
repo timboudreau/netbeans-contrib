@@ -400,9 +400,9 @@ QualId = ScalaId ( "." ScalaId )*;
 
 Ids = ScalaId ( "," ScalaId )*;
 
-## Hacking for: Path = StableId ["." "this"], since Path is also belongs to SimpleType etc
 StableId = PathId ( "." PathId )*;
 
+## Hacking for: Path = StableId ["." "this"], since Path is also belongs to SimpleType etc
 PathId = 
       ScalaId
     | "this"
@@ -530,14 +530,10 @@ ReturnExpr = "return" [ Expr ];
 ## The rule could be: if encounter a ScalaId and followed only one <nl>, then next SimpleExpr 
 ## is of the same Expr
 PostfixExpr = SimpleExpr+;
-#InfixExpr = 
-#    PrefixExpr 
-#    ( ( ScalaId [ PrefixExpr ] )*
-#    | PrefixExpr*
-#    );
+#InfixExpr = PrefixExpr ( ScalaId [ PrefixExpr ] )*;
 PrefixExpr = [ PrefixOp ] SimpleExpr;
 PrefixOp = 
-      "-" 
+      "-"
     | "+" 
     | "~" 
     | "!";
@@ -557,15 +553,8 @@ DotPathIdWithTypeArgs = "." PathIdWithTypeArgs;
 PathIdWithTypeArgs    = PathId    TypeArgs*;
 LiteralWithTypeArgs   = Literal   TypeArgs*;
 WildCardWithTypeArgs  = "_"       TypeArgs*;
-TupleExprWithTypeArgs = TupleExpr TypeArgs*;
+TupleExprWithTypeArgs = ParenExpr TypeArgs*;
 BlockExprWithTypeArgs = BlockExpr TypeArgs*;
-
-TupleExpr = ParenExpr;
-
-#TypedArguments = TypedWildCard
-#               | TypedParenExpr
-#               | TypedBlockExpr;
-
 
 ## Hacking for: "new" ([EarlyDef] ClassParents [Template] | Template)
 ## Since EalyBody and Template all start with "{" and Template is super set of EarlyBody,
@@ -785,7 +774,7 @@ Pattern2 =
 Pattern3 = [ "-" ] SimplePattern ( ScalaId [ "-" ] SimplePattern )*;
 
 SimplePattern = 
-      "_" ["*"] [ ":" Type ]
+      "_" [ "*" ] [ ":" Type ]
     | Literal
     | StableId ["(" Patterns ")" | "@" Pattern3 | ":" Type]
     | TuplePattern
@@ -803,7 +792,7 @@ CasePattern = CasePattern1 ( "|" CasePattern1 )*;
 CasePattern1 = [ "-" ] CasePattern0 ( ScalaId [ "-" ] CasePattern0 )*;
 
 CasePattern0 = 
-      "_" ["*"] [ ":" InfixType ]
+      "_" [ "*" ] [ ":" InfixType ]
     | Literal
     | StableId [ "(" Patterns ")" | "@" Pattern3 | ":" InfixType ]
     | TuplePattern

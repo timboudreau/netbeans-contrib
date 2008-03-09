@@ -108,7 +108,7 @@ public abstract class ASTVisitor {
 
     //private static final String xpathRegrex = "((\\.)?(([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])*(\\[([0-9]+)\\])?))+";
     //private static final Pattern xpathPattern = Pattern.compile(xpathRegrex);
-    public static List<ASTItem> query(ASTItem fromItem, String relativePath) {
+    public static List<ASTItem> select(ASTItem fromItem, String relativePath) {
         List<String> pathNames = new ArrayList<String>();
         List<Integer> pathPositions = new ArrayList<Integer>();
         String[] elements = relativePath.split(".");
@@ -121,10 +121,10 @@ public abstract class ASTVisitor {
         }
         List<ASTItem> fromItems = new ArrayList<ASTItem>();
         fromItems.add(fromItem);
-        return query(fromItems, 0, pathNames, pathPositions);
+        return select(fromItems, 0, pathNames, pathPositions);
     }
 
-    private static List<ASTItem> query(List<ASTItem> fromItems, int fromDepth, List<String> pathNames, List<Integer> pathPositions) {
+    private static List<ASTItem> select(List<ASTItem> fromItems, int fromDepth, List<String> pathNames, List<Integer> pathPositions) {
         if (pathNames.size() == 0) {
             return Collections.<ASTItem>emptyList();
         }
@@ -149,7 +149,7 @@ public abstract class ASTVisitor {
 
             return result;
         } else {
-            return query(result, fromDepth, pathNames, pathPositions);
+            return select(result, fromDepth, pathNames, pathPositions);
         }
     }
 }

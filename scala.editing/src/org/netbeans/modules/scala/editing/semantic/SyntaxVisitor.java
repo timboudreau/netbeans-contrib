@@ -70,10 +70,7 @@ public class SyntaxVisitor extends ASTVisitor {
                 int count = 0;
                 for (ASTItem simpleExpr : leaf.getChildren()) {
                     if (isScalaId(simpleExpr)) {
-                        if (prefixOpPreceding) {
-                            sb.append(".InfixExpr");
-                            infixExprPreceding = true;
-                        }
+                        sb.append("ScalaId");
                         if (isPreOp(leaf)) {
                             prefixOpPreceding = true;
                         }
@@ -86,10 +83,6 @@ public class SyntaxVisitor extends ASTVisitor {
                 bypassChildren = true;
             } else {
                 nlCount = 0;
-            }
-        } else if (xpath.endsWith("nl") && xpath.contains("PostfixExpr.SimpleExpr")) {
-            if (enter) {
-                nlCount++;
             }
         }
 
