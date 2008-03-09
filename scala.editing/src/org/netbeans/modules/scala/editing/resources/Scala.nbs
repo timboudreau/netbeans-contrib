@@ -224,7 +224,7 @@ TOKEN:keyword: (
 
 ## Operators
 TOKEN:op_identifier: (
-      [ "!" "%" "&" "+" "-" "<" ">" "?" "\\" "^" "`" "|" "~" "*" ]
+      [ "!" "%" "&" "+" "-" "<"     ">" "?"     "\\" "^" "`" "|" "~"             "*" ]
       [ "!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*" ]* 
     | [ "#" ":" "@" ]
       [ "!" "%" "&" "+" "-"     "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*" ]+ 
@@ -530,7 +530,11 @@ ReturnExpr = "return" [ Expr ];
 ## The rule could be: if encounter a ScalaId and followed only one <nl>, then next SimpleExpr 
 ## is of the same Expr
 PostfixExpr = SimpleExpr+;
-InfixExpr = PrefixExpr ( ScalaId [ PrefixExpr ] )*;
+#InfixExpr = 
+#    PrefixExpr 
+#    ( ( ScalaId [ PrefixExpr ] )*
+#    | PrefixExpr*
+#    );
 PrefixExpr = [ PrefixOp ] SimpleExpr;
 PrefixOp = 
       "-" 
@@ -640,18 +644,27 @@ BlockStats = BlockStat ( [ ";" ] BlockStat )*;
 
 BlockStat = 
       Import
-    | DclDefInTemplate ## DclDefInBlock
+    | DclDefInBlock
     | ExprInBlock
     | ;
 
 DclDefInBlock = 
-      [ "implicit" ] 
+      LocalModifier*
       ( ValDclDef 
       | VarDclDef 
       | FunDclDef 
       | TypeDclDef
-      )
-    | LocalModifier* TmplDef;
+      | TmplDef
+      );
+
+#DclDefInBlock = 
+#      [ "implicit" ] 
+#      ( ValDclDef 
+#      | VarDclDef 
+#      | FunDclDef 
+#      | TypeDclDef
+#      )
+#    | LocalModifier* TmplDef;
 
 ## Hacking for: ResultExpr = (Bindings | ScalaId [":" CompoundType]) "=>" BlockStats;
 ## Where, the right part of "=>" is BlockStats vs Expr in anonynous function expression
@@ -677,7 +690,7 @@ CaseBlockStat =
     | ;
 
 DclDefInCaseBlock = 
-      ["implicit"] 
+      [ "implicit" ] 
       ( ValDclDef 
       | VarDclDef 
       | FunDclDef 
@@ -772,7 +785,7 @@ Pattern2 =
 Pattern3 = [ "-" ] SimplePattern ( ScalaId [ "-" ] SimplePattern )*;
 
 SimplePattern = 
-      "_" ["*"]
+      "_" ["*"] [ ":" Type ]
     | Literal
     | StableId ["(" Patterns ")" | "@" Pattern3 | ":" Type]
     | TuplePattern
@@ -790,7 +803,7 @@ CasePattern = CasePattern1 ( "|" CasePattern1 )*;
 CasePattern1 = [ "-" ] CasePattern0 ( ScalaId [ "-" ] CasePattern0 )*;
 
 CasePattern0 = 
-      "_" ["*"]
+      "_" ["*"] [ ":" InfixType ]
     | Literal
     | StableId [ "(" Patterns ")" | "@" Pattern3 | ":" InfixType ]
     | TuplePattern

@@ -73,7 +73,8 @@ public class DefinitionVisitor extends ASTVisitor {
     }
 
     @Override
-    boolean visitNote( List<ASTItem> path, String xpath, int ordinal, boolean enter) {
+    boolean visitNote(List<ASTItem> path, String xpath, int ordinal, boolean enter) {
+        boolean bypassChildren = false;
         ASTItem leaf = path.get(path.size() - 1);
         if (xpath.endsWith("Packaging")) {
             if (enter) {
@@ -293,7 +294,7 @@ public class DefinitionVisitor extends ASTVisitor {
             }
         }
         
-        return false;
+        return bypassChildren;
     }
 
 }

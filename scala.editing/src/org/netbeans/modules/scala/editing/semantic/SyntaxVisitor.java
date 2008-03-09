@@ -59,7 +59,8 @@ public class SyntaxVisitor extends ASTVisitor {
     }
 
     @Override
-    boolean visitNote( List<ASTItem> path, String xpath, int ordinal, boolean enter) {
+    boolean visitNote(List<ASTItem> path, String xpath, int ordinal, boolean enter) {
+        boolean bypassChildren = false;
         ASTItem leaf = path.get(path.size() - 1);
         if (xpath.endsWith("PostfixExpr")) {
             if (enter) {
@@ -82,7 +83,7 @@ public class SyntaxVisitor extends ASTVisitor {
                         prefixOpPreceding = false;
                     }
                 }
-                return true;
+                bypassChildren = true;
             } else {
                 nlCount = 0;
             }
@@ -92,7 +93,7 @@ public class SyntaxVisitor extends ASTVisitor {
             }
         }
 
-        return false;
+        return bypassChildren;
     }
 
     private boolean isScalaId(ASTItem item) {
