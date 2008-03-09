@@ -48,48 +48,76 @@
 #Sm, So except parentheses ([]) and periods”
 
 ## XML mode
-<DEFAULT>:TOKEN:xml_element_start: ( 
-      "<"  [ "a"-"z" "A"-"Z" "?" "!" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* ):<IN_XML_ELEMENT>
-<DEFAULT>:TOKEN:xml_end_element_start: (
-      "</" [ "a"-"z" "A"-"Z" "?" "!" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* ):<IN_XML_ELEMENT>
+<DEFAULT>:
+TOKEN:xml_element_start: ( 
+      "<"  [ "a"-"z" "A"-"Z" "?" "!" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* 
+):<IN_XML_ELEMENT>
 
 <IN_XML_ELEMENT> {
       TOKEN:xml_attribute_name: ( [ "a"-"z" "A"-"Z" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* ):<IN_XML_ATTRIBUTE>
       TOKEN:whitespace: ( [ " " "\t" "\n" "\r" ]* )
-      TOKEN:xml_element_end: ( "?"? ">" ):<DEFAULT>
+      TOKEN:xml_element_end: ( "?"? ">" ):<DEFAULT> # <IN_XML_CONTENT>
       TOKEN:xml_end_element_end: ( "/>" ):<DEFAULT>
 }
 
 <IN_XML_ATTRIBUTE> {
-      TOKEN:eq: ( "=" ):<IN_XML_ATTRIBUTE_VALUE>
+      TOKEN:xml_eq: ( "=" ):<IN_XML_ATTRIBUTE_VALUE>
       TOKEN:whitespace: ( [ " " "\t" "\n" "\r" ]* )
-      TOKEN:xml_element_end: ( "?"? ">" ):<DEFAULT>
+      TOKEN:xml_attribute_name: ( [ "a"-"z" "A"-"Z" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* )
+      TOKEN:xml_element_end: ( "?"? ">" ):<DEFAULT> # <IN_XML_CONTENT>
       TOKEN:xml_end_element_end: ( "/>" ):<DEFAULT>
-      TOKEN:xml_attribute_name: ( [^ " " ">" "=" "\t" "\n" "\r" ]+ )
 }
 
 <IN_XML_ATTRIBUTE_VALUE> {
       TOKEN:xml_attribute_value: ( 
             "\"" [^ "\"" "\n" "\r" ]* "\"" 
           | "\'" [^ "\'" "\n" "\r" ]* "\'"
-      ):<IN_XML_ELEMENT>
-      TOKEN:xml_scala_expr: ( "{" - "}" ):<IN_XML_ELEMENT>
+      ):<IN_XML_ATTRIBUTE>
+      TOKEN:xml_scala_expr: ( "{" - "}" ):<IN_XML_ATTRIBUTE>
       TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
+}
+
+#<IN_XML_CONTENT> {
+#      TOKEN:xml_pcdata: ( [^ ">" "<" ]* )
+#      TOKEN:xml_element_start: ( 
+#            "<"  [ "a"-"z" "A"-"Z" "?" "!" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* 
+#      ):<IN_XML_ELEMENT>
+#      TOKEN:xml_end_element_start: (
+#            "</" [ "a"-"z" "A"-"Z" "?" "!" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* 
+#      ):<IN_XML_END_ELEMENT>
+#}
+
+# <IN_XML_CONTENT>
+<DEFAULT>:
+TOKEN:xml_end_element_start: (
+      "</" [ "a"-"z" "A"-"Z" "?" "!" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* 
+):<IN_XML_END_ELEMENT>
+
+<IN_XML_END_ELEMENT> {
+      TOKEN:xml_attribute_name: ( [ "a"-"z" "A"-"Z" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* )
+      TOKEN:whitespace: ( [ " " "\t" "\n" "\r" ]* )
+      TOKEN:xml_element_end: ( "?"? ">" ):<DEFAULT>
 }
 
 TOKEN:xml_pi: (
       "<?" - "?>"
 )
+
 TOKEN:xml_comment: ( "<!--" - "-->" )
-<DEFAULT>:TOKEN:cdsect_start: ( "<![CDATA[" ):<IN_CDSEC>
-<IN_CDSEC> {
-      TOKEN:cddata: ( [^ "]" ]+ )
-      TOKEN:cddata: ( "]" [^ ">" ] )
-      TOKEN:cdsect_end: ( "]]>" ):<DEFAULT>
+
+# <IN_XML_CONTENT>
+<DEFAULT>:
+TOKEN:xml_cdsect_start: ( "<![CDATA[" ):<IN_XML_CDSEC>
+
+<IN_XML_CDSEC> {
+      TOKEN:xml_cddata: ( [^ "]" ]+ )
+      TOKEN:xml_cddata: ( "]" [^ ">" ] )
+      TOKEN:xml_cdsect_end: ( "]]>" ):<DEFAULT> # <IN_XML_CONTENT>
 }
 
+<DEFAULT>:
+TOKEN:comment: ( "/*" ):<IN_COMMENT>
 
-<DEFAULT>:TOKEN:comment: ( "/*" ):<IN_COMMENT>
 <IN_COMMENT> {
       TOKEN:comment_keyword: (
             "@author" 
@@ -735,9 +763,9 @@ XmlElement = <xml_element_start> XmlAttribute* ( <xml_end_element_end> | <xml_el
 
 XmlEndTag = <xml_end_element_start> XmlAttribute* <xml_element_end>;
 
-XmlAttribute = <xml_attribute_name> <eq> (<xml_attribute_value> | <xml_scala_expr>);
+XmlAttribute = <xml_attribute_name> <xml_eq> (<xml_attribute_value> | <xml_scala_expr>);
 
-XmlCDSect = <cdsect_start> <cddata> <cdsect_end>;
+XmlCDSect = <xml_cdsect_start> <xml_cddata> <xml_cdsect_end>;
 
 XmlContent = 
       XmlCharData
