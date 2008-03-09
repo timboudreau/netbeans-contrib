@@ -66,7 +66,7 @@ public class UsageVisitor extends ASTVisitor {
     }
 
     @Override
-    boolean visitNote(List<ASTItem> path, String xpath, int ordinal, boolean enter) {
+    boolean visitNote( List<ASTItem> path, String xpath, int ordinal, boolean enter) {
         boolean bypassChildren = false;
         ASTItem leaf = path.get(path.size() - 1);
         if (xpath.endsWith("TypeStableId")) {
@@ -108,17 +108,15 @@ public class UsageVisitor extends ASTVisitor {
                 }
             }
         } else if (xpath.endsWith("SimpleExpr.PathIdWithTypeArgs.PathId.ScalaId")) {
-            // this is a ScalaId started expr
+            // this is a ScalaId starting expr
             if (enter) {
                 ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
                 String idStr = idTok.getIdentifier();
                 // @todo should process package here
-                if (!idStr.equals("_")) {
-                    ScalaContext currCtx = (ScalaContext) rootCtx.getClosestContext(idTok.getOffset());
-                    Var varDfn = currCtx.getVariableInScope(idStr);
-                    if (varDfn != null) {
-                        currCtx.addUsage(idTok, varDfn);
-                    }
+                ScalaContext currCtx = (ScalaContext) rootCtx.getClosestContext(idTok.getOffset());
+                Var varDfn = currCtx.getVariableInScope(idStr);
+                if (varDfn != null) {
+                    currCtx.addUsage(idTok, varDfn);
                 }
             }
         } else if (xpath.endsWith("SimpleExpr.DotPathIdWithTypeArgs.PathIdWithTypeArgs.PathId.ScalaId")) {
@@ -157,7 +155,7 @@ public class UsageVisitor extends ASTVisitor {
                 }
             }
         }
-        
+
         return bypassChildren;
     }
 
@@ -330,5 +328,4 @@ public class UsageVisitor extends ASTVisitor {
         }
         return false;
     }
-
 }

@@ -50,13 +50,13 @@
 ## XML mode
 <DEFAULT>:
 TOKEN:xml_element_start: ( 
-      "<"  [ "a"-"z" "A"-"Z" "?" "!" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* 
+      "<"  [ "a"-"z" "A"-"Z" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* 
 ):<IN_XML_ELEMENT>
 
 <IN_XML_ELEMENT> {
       TOKEN:xml_attribute_name: ( [ "a"-"z" "A"-"Z" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* ):<IN_XML_ATTRIBUTE>
       TOKEN:whitespace: ( [ " " "\t" "\n" "\r" ]* )
-      TOKEN:xml_element_end: ( "?"? ">" ):<DEFAULT> # <IN_XML_CONTENT>
+      TOKEN:xml_element_end: ( ">" ):<DEFAULT> # <IN_XML_CONTENT>
       TOKEN:xml_end_element_end: ( "/>" ):<DEFAULT>
 }
 
@@ -64,7 +64,7 @@ TOKEN:xml_element_start: (
       TOKEN:xml_eq: ( "=" ):<IN_XML_ATTRIBUTE_VALUE>
       TOKEN:whitespace: ( [ " " "\t" "\n" "\r" ]* )
       TOKEN:xml_attribute_name: ( [ "a"-"z" "A"-"Z" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* )
-      TOKEN:xml_element_end: ( "?"? ">" ):<DEFAULT> # <IN_XML_CONTENT>
+      TOKEN:xml_element_end: ( ">" ):<DEFAULT> # <IN_XML_CONTENT>
       TOKEN:xml_end_element_end: ( "/>" ):<DEFAULT>
 }
 
@@ -90,13 +90,13 @@ TOKEN:xml_element_start: (
 # <IN_XML_CONTENT>
 <DEFAULT>:
 TOKEN:xml_end_element_start: (
-      "</" [ "a"-"z" "A"-"Z" "?" "!" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* 
+      "</" [ "a"-"z" "A"-"Z" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* 
 ):<IN_XML_END_ELEMENT>
 
 <IN_XML_END_ELEMENT> {
       TOKEN:xml_attribute_name: ( [ "a"-"z" "A"-"Z" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* )
       TOKEN:whitespace: ( [ " " "\t" "\n" "\r" ]* )
-      TOKEN:xml_element_end: ( "?"? ">" ):<DEFAULT>
+      TOKEN:xml_element_end: ( ">" ):<DEFAULT>
 }
 
 TOKEN:xml_pi: (

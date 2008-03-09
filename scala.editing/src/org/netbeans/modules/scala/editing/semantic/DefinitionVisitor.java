@@ -73,7 +73,7 @@ public class DefinitionVisitor extends ASTVisitor {
     }
 
     @Override
-    boolean visitNote(List<ASTItem> path, String xpath, int ordinal, boolean enter) {
+    boolean visitNote( List<ASTItem> path, String xpath, int ordinal, boolean enter) {
         boolean bypassChildren = false;
         ASTItem leaf = path.get(path.size() - 1);
         if (xpath.endsWith("Packaging")) {
@@ -159,12 +159,10 @@ public class DefinitionVisitor extends ASTVisitor {
         } else if (xpath.endsWith("FunDclDef.ParamClauses.ParamClause.Params.Param.ScalaId")) {
             if (enter) {
                 ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
-                if (!idTok.getIdentifier().equals("_")) {
-                    varDfn = new Var(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Var.Scope.LOCAL);
-                    varDfn.setVal(true);
-                    currCtx.peek().addDefinition(varDfn);
-                    currCtx.peek().addUsage(idTok, varDfn);
-                }
+                varDfn = new Var(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Var.Scope.LOCAL);
+                varDfn.setVal(true);
+                currCtx.peek().addDefinition(varDfn);
+                currCtx.peek().addUsage(idTok, varDfn);
             } else {
                 varDfn = null;
             }
@@ -242,16 +240,14 @@ public class DefinitionVisitor extends ASTVisitor {
             if (enter) {
                 if (containsValDfn || containsVarDfn) {
                     ASTToken idTok = (ASTToken) leaf.getChildren().get(0);
-                    if (!idTok.getIdentifier().equals("_")) {
-                        varDfn = new Var(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Var.Scope.LOCAL);
-                        if (containsValDfn) {
-                            varDfn.setVal(true);
-                        } else if (containsVarDfn) {
-                            varDfn.setVal(false);
-                        }
-                        currCtx.peek().addDefinition(varDfn);
-                        currCtx.peek().addUsage(idTok, varDfn);
+                    varDfn = new Var(idTok.getIdentifier(), idTok.getOffset(), idTok.getEndOffset(), Var.Scope.LOCAL);
+                    if (containsValDfn) {
+                        varDfn.setVal(true);
+                    } else if (containsVarDfn) {
+                        varDfn.setVal(false);
                     }
+                    currCtx.peek().addDefinition(varDfn);
+                    currCtx.peek().addUsage(idTok, varDfn);
                 }
             } else {
                 varDfn = null;
@@ -293,8 +289,7 @@ public class DefinitionVisitor extends ASTVisitor {
                 }
             }
         }
-        
+
         return bypassChildren;
     }
-
 }
