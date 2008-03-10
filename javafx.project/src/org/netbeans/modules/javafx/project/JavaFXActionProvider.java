@@ -64,11 +64,9 @@ import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.fileinfo.NonRecursiveFolder;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
-import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.modules.javafx.model.impl.JavaFXModel;
 import org.netbeans.modules.javafx.project.classpath.ClassPathProviderImpl;
 import org.netbeans.modules.javafx.project.ui.customizer.JavaFXProjectProperties;
 import org.netbeans.modules.javafx.project.ui.customizer.MainClassChooser;
@@ -101,8 +99,8 @@ class JavaFXActionProvider implements ActionProvider {
         COMMAND_COMPILE_SINGLE, 
         COMMAND_RUN, 
         COMMAND_RUN_SINGLE, 
-//        COMMAND_DEBUG, 
-//        COMMAND_DEBUG_SINGLE,
+        COMMAND_DEBUG, 
+        COMMAND_DEBUG_SINGLE,
         JavaProjectConstants.COMMAND_JAVADOC,         
 //        COMMAND_TEST, 
 //        COMMAND_TEST_SINGLE, 
@@ -122,8 +120,8 @@ class JavaFXActionProvider implements ActionProvider {
         COMMAND_COMPILE_SINGLE, 
         COMMAND_RUN, 
         COMMAND_RUN_SINGLE, 
-//        COMMAND_DEBUG, 
-//        COMMAND_DEBUG_SINGLE,
+        COMMAND_DEBUG, 
+        COMMAND_DEBUG_SINGLE,
         JavaProjectConstants.COMMAND_JAVADOC,         
 //        COMMAND_TEST, 
 //        COMMAND_TEST_SINGLE, 
@@ -155,8 +153,8 @@ class JavaFXActionProvider implements ActionProvider {
         // commands.put(COMMAND_COMPILE_TEST_SINGLE, new String[] {"compile-test-single"}); // NOI18N
         commands.put(COMMAND_RUN, new String[] {"run"}); // NOI18N
         commands.put(COMMAND_RUN_SINGLE, new String[] {"run-single"}); // NOI18N
-//        commands.put(COMMAND_DEBUG, new String[] {"debug"}); // NOI18N
-//        commands.put(COMMAND_DEBUG_SINGLE, new String[] {"debug-single"}); // NOI18N
+        commands.put(COMMAND_DEBUG, new String[] {"debug"}); // NOI18N
+        commands.put(COMMAND_DEBUG_SINGLE, new String[] {"debug-single"}); // NOI18N
         commands.put(JavaProjectConstants.COMMAND_JAVADOC, new String[] {"javadoc"}); // NOI18N
 //        commands.put(COMMAND_TEST, new String[] {"test"}); // NOI18N
 //        commands.put(COMMAND_TEST_SINGLE, new String[] {"test-single"}); // NOI18N
@@ -167,8 +165,8 @@ class JavaFXActionProvider implements ActionProvider {
         this.bkgScanSensitiveActions = new HashSet<String>(Arrays.asList(new String[] {
             COMMAND_RUN, 
             COMMAND_RUN_SINGLE, 
-//            COMMAND_DEBUG, 
-//            COMMAND_DEBUG_SINGLE,
+            COMMAND_DEBUG, 
+            COMMAND_DEBUG_SINGLE,
 //            COMMAND_DEBUG_STEP_INTO
         }));
             
@@ -205,7 +203,7 @@ class JavaFXActionProvider implements ActionProvider {
             return ;
         }
         
-        Thread action = new Thread(new Runnable () {
+        Runnable action = new Runnable () {
             public void run () {
                 Properties p = new Properties();
                 String[] targetNames;
@@ -229,26 +227,21 @@ class JavaFXActionProvider implements ActionProvider {
                         DialogDisplayer.getDefault().notify(nd);
                     }
                     else {
-                        ActionUtils.runTarget(buildFo, targetNames, p).waitFinished();
-        
-                        //when java source were compiled we need to create new compilation for preview
-                        if (COMMAND_BUILD.equals(command) || 
-                              COMMAND_REBUILD.equals(command) || 
-                              COMMAND_RUN.equals(command) || 
-                              COMMAND_RUN_SINGLE.equals(command) ||
-                              COMMAND_COMPILE_SINGLE.equals(command) ||
-                              COMMAND_CLEAN.equals(command)){
-                            JavaFXModel.projectChanged(project);
-                        }
+                        ActionUtils.runTarget(buildFo, targetNames, p);
                     }
                 } 
                 catch (IOException e) {
                     ErrorManager.getDefault().notify(e);
                 }
             }            
-        });
+        };
         
-        action.start();
+//        if (this.bkgScanSensitiveActions.contains(command)) {        
+//            JMManager.getManager().invokeAfterScanFinished(action, NbBundle.getMessage (JavaFXActionProvider.class,"ACTION_"+command)); //NOI18N
+//        }
+//        else {
+            action.run();
+//        }
     }
 
     /**

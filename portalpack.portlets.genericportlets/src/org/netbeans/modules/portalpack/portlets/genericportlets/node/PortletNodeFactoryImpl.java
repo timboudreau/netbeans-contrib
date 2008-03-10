@@ -17,15 +17,13 @@
 package org.netbeans.modules.portalpack.portlets.genericportlets.node;
 
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletType;
+import org.netbeans.modules.portalpack.portlets.genericportlets.node.PortletFileNode;
+import org.netbeans.modules.portalpack.portlets.genericportlets.node.PortletLookupItem;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataNode;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject;
-import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.spi.project.ui.support.NodeFactory;
 import org.netbeans.spi.project.ui.support.NodeFactorySupport;
 import org.netbeans.spi.project.ui.support.NodeList;
-import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 
@@ -38,17 +36,48 @@ public class PortletNodeFactoryImpl implements NodeFactory {
     public PortletNodeFactoryImpl() {
     }
     
+    
+     Project proj;
+
+     /*
+    public NodeList createNodes(Project project) {
+      
+        this.proj = project;
+        
+        //If there is no 'nbproject' folder,
+        //return an empty list of nodes:
+        if (proj.getProjectDirectory().getFileObject("nbproject") == null) {
+            return NodeFactorySupport.fixedNodeList();
+        }
+        
+        //If our item is in the project's lookup,
+        //return a new node in the node list:
+        PortletLookupItem item = project.getLookup().lookup(PortletLookupItem.class);
+        if (item != null) {
+            try {
+                PortletFileNode nd = new PortletFileNode(proj);
+                return NodeFactorySupport.fixedNodeList(nd);
+            } catch (DataObjectNotFoundException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        
+        //If our item isn't in the lookup,
+        //then return an empty list of nodes:
+        return NodeFactorySupport.fixedNodeList();
+        
+    }*/
  
     public NodeList<?> createNodes(Project p) {
        
             org.netbeans.modules.web.api.webmodule.WebModule wm = org.netbeans.modules.web.api.webmodule.WebModule.getWebModule(p.getProjectDirectory());
             if (wm == null) {
-                return null;
+                return NodeFactorySupport.fixedNodeList();
             }
             org.openide.filesystems.FileObject webInf = wm.getWebInf();
             org.openide.filesystems.FileObject portletXml = webInf.getFileObject("portlet", "xml");
             if (portletXml == null || !portletXml.existsExt("xml")) {
-                return null;
+                return NodeFactorySupport.fixedNodeList();
             }
         try {    
             org.openide.loaders.DataObject dob = org.openide.loaders.DataObject.find(portletXml);
@@ -59,8 +88,7 @@ public class PortletNodeFactoryImpl implements NodeFactory {
            // return new PortletNodeList((PortletXMLDataObject)dob);
         } catch (DataObjectNotFoundException ex) {
             
-            Exceptions.printStackTrace(ex);
-            return null;
+            return NodeFactorySupport.fixedNodeList();
         }
         
         
