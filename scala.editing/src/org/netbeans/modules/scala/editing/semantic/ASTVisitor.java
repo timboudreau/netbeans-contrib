@@ -58,7 +58,11 @@ public abstract class ASTVisitor {
     private State state = State.NOT_PARSED;
     private boolean[] cancel = new boolean[]{false};
 
-    abstract void visitNote(List<ASTItem> path, String xpath, int ordinal, boolean enter);
+    /**
+     * 
+     * @return will bypass children visiting or not
+     */
+    abstract boolean visitNote(List<ASTItem> path, String xpath, int ordinal, boolean enter);
 
     public void visit(ASTNode entry) {
         if (state == State.PARSING) {
@@ -70,20 +74,22 @@ public abstract class ASTVisitor {
     }
 
     protected void visitRecursively(ASTItem item, List<ASTItem> path, String xpath, int ordinal) {
-        visitNote(path, xpath, ordinal, true);
-        Map<String, Integer> nameToOrdinal = new HashMap<String, Integer>();
-        for (ASTItem child : item.getChildren()) {
-            if (cancel[0]) {
-                return;
+        boolean willBypassChildren = visitNote(path, xpath, ordinal, true);
+        if (!willBypassChildren) {
+            Map<String, Integer> nameToOrdinal = new HashMap<String, Integer>();
+            for (ASTItem child : item.getChildren()) {
+                if (cancel[0]) {
+                    return;
+                }
+                String name = nameOf(child);
+                Integer ord = nameToOrdinal.get(name);
+                ord = ord == null ? Integer.valueOf(0) : Integer.valueOf(ordinal++);
+                nameToOrdinal.put(name, ord);
+
+                path.add(child);
+                visitRecursively(child, path, xpath(path), ord);
+                path.remove(path.size() - 1);
             }
-            String name = nameOf(child);
-            Integer ord = nameToOrdinal.get(name);
-            ord = ord == null ? Integer.valueOf(0) : Integer.valueOf(ordinal++);            
-            nameToOrdinal.put(name, ord);
-            
-            path.add(child);
-            visitRecursively(child, path, xpath(path), ord);
-            path.remove(path.size() - 1);
         }
         visitNote(path, xpath, ordinal, false);
     }
@@ -95,17 +101,50 @@ public abstract class ASTVisitor {
         }
         return sb.length() > 1 ? sb.substring(0, sb.length() - 1) : sb.toString();
     }
-    
+
     private String nameOf(ASTItem item) {
         return item instanceof ASTToken ? ((ASTToken) item).getTypeName() : ((ASTNode) item).getNT();
     }
-    
+
+    /**********************************
+     * helper:
+     **********************************/
+    /**
+     * will also check if item is null
+     */
+    public final boolean isNode(ASTItem item, String nt) {
+        return item != null && item instanceof ASTNode && ((ASTNode) item).getNT().equals(nt);
+    }
+
+    /**
+     * will also check if item is null
+     */
+    public final boolean isToken(ASTItem item, String id) {
+        return item != null && item instanceof ASTToken && ((ASTToken) item).getIdentifier().equals(id);
+    }
+
+    /**
+     * will also check if item is null
+     */
+    public final boolean isTokenType(ASTItem item, String type) {
+        if (item != null && item instanceof ASTToken) {
+            String typeName = ((ASTToken) item).getTypeName();
+            if (typeName != null) {
+                return typeName.equals(type);
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
+
+
     //private static final String xpathRegrex = "((\\.)?(([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])*(\\[([0-9]+)\\])?))+";
     //private static final Pattern xpathPattern = Pattern.compile(xpathRegrex);
-    public static List<ASTItem> query(ASTItem fromItem, String relativePath) {
+    public List<ASTItem> select(ASTItem fromItem, String relativePath) {
         List<String> pathNames = new ArrayList<String>();
         List<Integer> pathPositions = new ArrayList<Integer>();
-        String[] elements = relativePath.split("/");
+        String[] elements = relativePath.split(".");
         for (String element : elements) {
             int pos1 = element.indexOf('[');
             int pos2 = element.indexOf(']');
@@ -115,10 +154,10 @@ public abstract class ASTVisitor {
         }
         List<ASTItem> fromItems = new ArrayList<ASTItem>();
         fromItems.add(fromItem);
-        return query(fromItems, 0, pathNames, pathPositions);
+        return select(fromItems, 0, pathNames, pathPositions);
     }
 
-    private static List<ASTItem> query(List<ASTItem> fromItems, int fromDepth, List<String> pathNames, List<Integer> pathPositions) {
+    private List<ASTItem> select(List<ASTItem> fromItems, int fromDepth, List<String> pathNames, List<Integer> pathPositions) {
         if (pathNames.size() == 0) {
             return Collections.<ASTItem>emptyList();
         }
@@ -143,9 +182,7 @@ public abstract class ASTVisitor {
 
             return result;
         } else {
-            return query(result, fromDepth, pathNames, pathPositions);
+            return select(result, fromDepth, pathNames, pathPositions);
         }
     }
-    
-    
 }

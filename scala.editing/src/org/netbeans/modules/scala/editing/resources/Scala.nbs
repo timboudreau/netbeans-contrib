@@ -48,48 +48,76 @@
 #Sm, So except parentheses ([]) and periods”
 
 ## XML mode
-<DEFAULT>:TOKEN:xml_element_start: ( 
-      "<"  [ "a"-"z" "A"-"Z" "?" "!" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* ):<IN_XML_ELEMENT>
-<DEFAULT>:TOKEN:xml_end_element_start: (
-      "</" [ "a"-"z" "A"-"Z" "?" "!" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* ):<IN_XML_ELEMENT>
+<DEFAULT>:
+TOKEN:xml_element_start: ( 
+      "<"  [ "a"-"z" "A"-"Z" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* 
+):<IN_XML_ELEMENT>
 
 <IN_XML_ELEMENT> {
       TOKEN:xml_attribute_name: ( [ "a"-"z" "A"-"Z" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* ):<IN_XML_ATTRIBUTE>
       TOKEN:whitespace: ( [ " " "\t" "\n" "\r" ]* )
-      TOKEN:xml_element_end: ( "?"? ">" ):<DEFAULT>
+      TOKEN:xml_element_end: ( ">" ):<DEFAULT> # <IN_XML_CONTENT>
       TOKEN:xml_end_element_end: ( "/>" ):<DEFAULT>
 }
 
 <IN_XML_ATTRIBUTE> {
-      TOKEN:eq: ( "=" ):<IN_XML_ATTRIBUTE_VALUE>
+      TOKEN:xml_eq: ( "=" ):<IN_XML_ATTRIBUTE_VALUE>
       TOKEN:whitespace: ( [ " " "\t" "\n" "\r" ]* )
-      TOKEN:xml_element_end: ( "?"? ">" ):<DEFAULT>
+      TOKEN:xml_attribute_name: ( [ "a"-"z" "A"-"Z" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* )
+      TOKEN:xml_element_end: ( ">" ):<DEFAULT> # <IN_XML_CONTENT>
       TOKEN:xml_end_element_end: ( "/>" ):<DEFAULT>
-      TOKEN:xml_attribute_name: ( [^ " " ">" "=" "\t" "\n" "\r" ]+ )
 }
 
 <IN_XML_ATTRIBUTE_VALUE> {
       TOKEN:xml_attribute_value: ( 
             "\"" [^ "\"" "\n" "\r" ]* "\"" 
           | "\'" [^ "\'" "\n" "\r" ]* "\'"
-      ):<IN_XML_ELEMENT>
-      TOKEN:xml_scala_expr: ( "{" - "}" ):<IN_XML_ELEMENT>
+      ):<IN_XML_ATTRIBUTE>
+      TOKEN:xml_scala_expr: ( "{" - "}" ):<IN_XML_ATTRIBUTE>
       TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
+}
+
+#<IN_XML_CONTENT> {
+#      TOKEN:xml_pcdata: ( [^ ">" "<" ]* )
+#      TOKEN:xml_element_start: ( 
+#            "<"  [ "a"-"z" "A"-"Z" "?" "!" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* 
+#      ):<IN_XML_ELEMENT>
+#      TOKEN:xml_end_element_start: (
+#            "</" [ "a"-"z" "A"-"Z" "?" "!" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* 
+#      ):<IN_XML_END_ELEMENT>
+#}
+
+# <IN_XML_CONTENT>
+<DEFAULT>:
+TOKEN:xml_end_element_start: (
+      "</" [ "a"-"z" "A"-"Z" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* 
+):<IN_XML_END_ELEMENT>
+
+<IN_XML_END_ELEMENT> {
+      TOKEN:xml_attribute_name: ( [ "a"-"z" "A"-"Z" ] [ "a"-"z" "A"-"Z" "0"-"9" "-" "_" ":" ]* )
+      TOKEN:whitespace: ( [ " " "\t" "\n" "\r" ]* )
+      TOKEN:xml_element_end: ( ">" ):<DEFAULT>
 }
 
 TOKEN:xml_pi: (
       "<?" - "?>"
 )
+
 TOKEN:xml_comment: ( "<!--" - "-->" )
-<DEFAULT>:TOKEN:cdsect_start: ( "<![CDATA[" ):<IN_CDSEC>
-<IN_CDSEC> {
-      TOKEN:cddata: ( [^ "]" ]+ )
-      TOKEN:cddata: ( "]" [^ ">" ] )
-      TOKEN:cdsect_end: ( "]]>" ):<DEFAULT>
+
+# <IN_XML_CONTENT>
+<DEFAULT>:
+TOKEN:xml_cdsect_start: ( "<![CDATA[" ):<IN_XML_CDSEC>
+
+<IN_XML_CDSEC> {
+      TOKEN:xml_cddata: ( [^ "]" ]+ )
+      TOKEN:xml_cddata: ( "]" [^ ">" ] )
+      TOKEN:xml_cdsect_end: ( "]]>" ):<DEFAULT> # <IN_XML_CONTENT>
 }
 
+<DEFAULT>:
+TOKEN:comment: ( "/*" ):<IN_COMMENT>
 
-<DEFAULT>:TOKEN:comment: ( "/*" ):<IN_COMMENT>
 <IN_COMMENT> {
       TOKEN:comment_keyword: (
             "@author" 
@@ -224,7 +252,7 @@ TOKEN:keyword: (
 
 ## Operators
 TOKEN:op_identifier: (
-      [ "!" "%" "&" "+" "-" "<" ">" "?" "\\" "^" "`" "|" "~" "*" ]
+      [ "!" "%" "&" "+" "-" "<"     ">" "?"     "\\" "^" "`" "|" "~"             "*" ]
       [ "!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*" ]* 
     | [ "#" ":" "@" ]
       [ "!" "%" "&" "+" "-"     "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*" ]+ 
@@ -400,9 +428,9 @@ QualId = ScalaId ( "." ScalaId )*;
 
 Ids = ScalaId ( "," ScalaId )*;
 
-## Hacking for: Path = StableId ["." "this"], since Path is also belongs to SimpleType etc
 StableId = PathId ( "." PathId )*;
 
+## Hacking for: Path = StableId ["." "this"], since Path is also belongs to SimpleType etc
 PathId = 
       ScalaId
     | "this"
@@ -530,37 +558,36 @@ ReturnExpr = "return" [ Expr ];
 ## The rule could be: if encounter a ScalaId and followed only one <nl>, then next SimpleExpr 
 ## is of the same Expr
 PostfixExpr = SimpleExpr+;
+#InfixExpr = PrefixExpr ( ScalaId [ PrefixExpr ] )*;
 PrefixExpr = [ PrefixOp ] SimpleExpr;
 PrefixOp = 
-      "-" 
+      "-"
     | "+" 
     | "~" 
     | "!";
 
 SimpleExpr = 
-      PathIdWithTypeArgs    ( DotPathIdWithTypeArgs | Arguments | "_" )*
-    | LiteralWithTypeArgs   ( DotPathIdWithTypeArgs | Arguments | "_" )*
-    | WildCardWithTypeArgs  ( DotPathIdWithTypeArgs | Arguments | "_" )*
-    | TupleExprWithTypeArgs ( DotPathIdWithTypeArgs | Arguments | "_" )*
-    | BlockExprWithTypeArgs ( DotPathIdWithTypeArgs [Arguments] )*
-    | NewExpr               ( DotPathIdWithTypeArgs | Arguments | "_" )*
+      PathIdWithTypeArgs    SimpleExprRest*
+    | LiteralWithTypeArgs   SimpleExprRest*
+    | WildCardWithTypeArgs  SimpleExprRest*
+    | TupleExprWithTypeArgs SimpleExprRest*
+    | BlockExprWithTypeArgs SimpleExprRest*
+    | NewExpr               SimpleExprRest*
     | XmlExpr;
 
+SimpleExprRest = 
+      PathRest
+    | Arguments+
+    | "_";
+
 ## Define this intermedia expr for convenience of semantic anlysis
-DotPathIdWithTypeArgs = "." PathIdWithTypeArgs;
+PathRest = ( "." PathIdWithTypeArgs )+;
 
 PathIdWithTypeArgs    = PathId    TypeArgs*;
 LiteralWithTypeArgs   = Literal   TypeArgs*;
 WildCardWithTypeArgs  = "_"       TypeArgs*;
-TupleExprWithTypeArgs = TupleExpr TypeArgs*;
+TupleExprWithTypeArgs = ParenExpr TypeArgs*;
 BlockExprWithTypeArgs = BlockExpr TypeArgs*;
-
-TupleExpr = ParenExpr;
-
-#TypedArguments = TypedWildCard
-#               | TypedParenExpr
-#               | TypedBlockExpr;
-
 
 ## Hacking for: "new" ([EarlyDef] ClassParents [Template] | Template)
 ## Since EalyBody and Template all start with "{" and Template is super set of EarlyBody,
@@ -644,13 +671,22 @@ BlockStat =
     | ;
 
 DclDefInBlock = 
-      [ "implicit" ] 
+      LocalModifier*
       ( ValDclDef 
       | VarDclDef 
       | FunDclDef 
       | TypeDclDef
-      )
-    | (LocalModifier)* TmplDef;
+      | TmplDef
+      );
+
+#DclDefInBlock = 
+#      [ "implicit" ] 
+#      ( ValDclDef 
+#      | VarDclDef 
+#      | FunDclDef 
+#      | TypeDclDef
+#      )
+#    | LocalModifier* TmplDef;
 
 ## Hacking for: ResultExpr = (Bindings | ScalaId [":" CompoundType]) "=>" BlockStats;
 ## Where, the right part of "=>" is BlockStats vs Expr in anonynous function expression
@@ -676,7 +712,7 @@ CaseBlockStat =
     | ;
 
 DclDefInCaseBlock = 
-      ["implicit"] 
+      [ "implicit" ] 
       ( ValDclDef 
       | VarDclDef 
       | FunDclDef 
@@ -732,9 +768,9 @@ XmlElement = <xml_element_start> XmlAttribute* ( <xml_end_element_end> | <xml_el
 
 XmlEndTag = <xml_end_element_start> XmlAttribute* <xml_element_end>;
 
-XmlAttribute = <xml_attribute_name> <eq> (<xml_attribute_value> | <xml_scala_expr>);
+XmlAttribute = <xml_attribute_name> <xml_eq> (<xml_attribute_value> | <xml_scala_expr>);
 
-XmlCDSect = <cdsect_start> <cddata> <cdsect_end>;
+XmlCDSect = <xml_cdsect_start> <xml_cddata> <xml_cdsect_end>;
 
 XmlContent = 
       XmlCharData
@@ -771,7 +807,7 @@ Pattern2 =
 Pattern3 = [ "-" ] SimplePattern ( ScalaId [ "-" ] SimplePattern )*;
 
 SimplePattern = 
-      "_" ["*"]
+      "_" [ "*" ] [ ":" Type ]
     | Literal
     | StableId ["(" Patterns ")" | "@" Pattern3 | ":" Type]
     | TuplePattern
@@ -789,7 +825,7 @@ CasePattern = CasePattern1 ( "|" CasePattern1 )*;
 CasePattern1 = [ "-" ] CasePattern0 ( ScalaId [ "-" ] CasePattern0 )*;
 
 CasePattern0 = 
-      "_" ["*"]
+      "_" [ "*" ] [ ":" InfixType ]
     | Literal
     | StableId [ "(" Patterns ")" | "@" Pattern3 | ":" InfixType ]
     | TuplePattern
