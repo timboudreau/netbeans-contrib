@@ -23,10 +23,4 @@ public class SyntaxErrInstall extends ModuleInstall {
         ErrorHighlighter.instance().shutdown();
     }
 
-    @Override
-    public void uninstalled() {
-        if( DebugUtils.TRACE ) System.err.printf("SyntaxErrInstall.uninstalled\n");
-	super.uninstalled();
-        ErrorHighlighter.instance().shutdown();
-    }
 }

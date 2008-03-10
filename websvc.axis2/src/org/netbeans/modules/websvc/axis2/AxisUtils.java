@@ -51,14 +51,21 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import org.apache.tools.ant.module.api.support.ActionUtils;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.classpath.ClassPath.Entry;
+import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
+import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.project.SourceGroup;
 import org.netbeans.modules.websvc.axis2.services.model.ServicesModel;
 import org.netbeans.modules.websvc.axis2.services.model.ServicesUtils;
 import org.netbeans.modules.xml.xam.ModelSource;
@@ -386,5 +393,46 @@ public class AxisUtils {
             StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(AxisUtils.class,
                     "TXT_TesterPageUrl", urlString));   //NOI18N
         }
+    }
+    
+    public static List<URL> getReferencedJars(Project prj) throws IOException {
+        List<URL> libraries = new ArrayList<URL>();
+        SourceGroup[] sourceGroups = ProjectUtils.getSources(prj).getSourceGroups(
+                JavaProjectConstants.SOURCES_TYPE_JAVA);
+        FileObject srcRoot = null;
+        if (sourceGroups.length > 0) srcRoot = sourceGroups[0].getRootFolder();
+        if (srcRoot != null) {
+            EditableProperties ep = getEditableProperties(prj, AntProjectHelper.PROJECT_PROPERTIES_PATH);
+            ClassPath cp = ClassPath.getClassPath(srcRoot, ClassPath.COMPILE);
+            List<Entry> entries = cp.entries();
+            Set<String> alreadyAdded = new HashSet<String>();
+            for (Entry entry:entries) {
+                URL archive = FileUtil.getArchiveFile(entry.getURL());
+                if (archive != null && isJarReferenced(ep, archive)) {
+                    String jarName = getJarName(archive);
+                    if (!alreadyAdded.contains(jarName)) {
+                        alreadyAdded.add(jarName);
+                        libraries.add(archive);
+                    }
+                }
+            }
+        }
+        return libraries;
+    }
+    
+    private static boolean isJarReferenced(EditableProperties ep, URL jar) {
+        String urlString = jar.toExternalForm().replace('\\', '/');
+        int index = urlString.lastIndexOf("/");
+        if (index >= 0) {
+            String jarName = urlString.substring(index+1);
+            if (ep.getProperty("file.reference."+jarName) != null) return true;
+        }
+        return false;
+    }
+    
+    public static String getJarName(URL url) {
+        String text = url.getPath().replace('\\', '/');
+        int ind = text.lastIndexOf("/");
+        return ind >= 0 ? text.substring(ind+1):text;
     }
 }

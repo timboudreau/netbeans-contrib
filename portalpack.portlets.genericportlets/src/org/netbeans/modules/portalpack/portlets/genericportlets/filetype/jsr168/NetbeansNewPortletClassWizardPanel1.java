@@ -38,9 +38,11 @@ public class NetbeansNewPortletClassWizardPanel1 implements WizardDescriptor.Pan
     private NetbeansNewPortletClassVisualPanel1 component;
     private WizardDescriptor wizardDescriptor;
     private List availablePortlets;
-    public NetbeansNewPortletClassWizardPanel1(List availablePortlets)
+    public NetbeansNewPortletClassWizardPanel1(WizardDescriptor wizard, List availablePortlets)
     {
+        super();
         this.availablePortlets = availablePortlets;
+        this.wizardDescriptor = wizard;
     }
     
     public List getAvailablePortlets()

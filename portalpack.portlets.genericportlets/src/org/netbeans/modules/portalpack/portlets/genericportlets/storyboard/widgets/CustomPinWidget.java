@@ -19,9 +19,10 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widgets;
 
-import java.util.Properties;
+import java.awt.Image;
 import javax.xml.namespace.QName;
 import org.netbeans.api.visual.vmd.VMDPinWidget;
+import org.netbeans.api.visual.widget.ImageWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.EventObject;
 
@@ -41,9 +42,8 @@ public class CustomPinWidget extends VMDPinWidget {
     public CustomPinWidget(Scene scene)
     {
         super(scene);
-        
     }
-    
+       
     public String getKey()
     {
         return key;
