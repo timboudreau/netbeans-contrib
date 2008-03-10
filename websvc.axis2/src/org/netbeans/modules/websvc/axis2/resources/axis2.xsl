@@ -174,14 +174,29 @@ made subject to such option by the copyright holder.
                         </xsl:for-each>
                     </xsl:attribute>
                     <mkdir dir = "${{build.dir}}/axis2/WEB-INF/services"/>
+                    <xsl:if test="/axis2:axis2/axis2:libraries">
+                        <mkdir dir = "${{basedir}}/xml-resources/axis2/lib"/>
+                        <copy todir="${{basedir}}/xml-resources/axis2/lib" flatten="true" overwrite="false">
+                            <resources>
+                                <xsl:for-each select="/axis2:axis2/axis2:libraries/axis2:library-ref">
+                                    <xsl:variable name="file-name" select="@name"/>
+                                    <file file="${{file.reference.{$file-name}}}"/>
+                                </xsl:for-each>
+                            </resources>
+                        </copy>
+                    </xsl:if>
                     <jar destfile="${{build.dir}}/axis2/WEB-INF/services/{$wsname}.aar">
                         <fileset excludes="**/Test.class" dir="${{build.dir}}/classes"/>
                         <fileset dir="${{basedir}}/xml-resources/axis2">
                             <include name="**/*.wsdl"/>
                             <include name="**/*.xsd"/>
                             <include name="**/*.xml"/>
+                            <include name="**/*.jar"/>
                         </fileset>
                     </jar>
+                    <xsl:if test="/axis2:axis2/axis2:libraries">
+                        <delete dir = "${{basedir}}/xml-resources/axis2/lib"/>
+                    </xsl:if>
                 </target>
                 <target name="axis2-deploy-dir-check" depends="axis2-aar">
                     <condition property="axis2-deploy-dir-required">

@@ -40,54 +40,12 @@
  */
 package org.netbeans.modules.websvc.axis2.config.model;
 
+import java.util.List;
 
-public interface Axis2Visitor {
-
-    void visit(Axis2 component);
-    void visit(Service service);
-    void visit(GenerateWsdl generateWsdl);
-    void visit(JavaGenerator javaGenerator);
-    public void visit(Libraries libraries);
-    public void visit(LibraryRef libraryRef);
- 
+public interface Libraries extends Axis2Component {
+    public static String LIBRARY_REF_PROP = Axis2QNames.LIBRARY_REF.getLocalName();
     
-    /**
-     * Default shallow visitor.
-     */
-    public static class Default implements Axis2Visitor {
-       
-        public void visit(Axis2 component) {
-            visitChild();
-        }
-        
-        protected void visitChild() {
-        }
-        
-        public void visit(Service service) {
-        }
-        
-        public void visit(GenerateWsdl generateWsdl) {
-        }
-        
-        public void visit(JavaGenerator javaGenerator) {
-        }
-        
-        public void visit(Libraries libraries) {
-        }
-        
-        public void visit(LibraryRef libraryRef) {
-        }
-        
-    }
-    
-    /**
-     * Deep visitor.
-     */
-    public static class Deep extends Default {
-        protected void visitChild(Axis2Component component) {
-            for (Axis2Component child : component.getChildren()) {
-                child.accept(this);
-            }
-        }
-    }
+    List<LibraryRef> getLibraryRefs();
+    void addLibraryRef(LibraryRef library);
+    void removeLibraryRef(LibraryRef library);
 }
