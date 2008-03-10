@@ -95,15 +95,20 @@ public class IPCActionsHandler {
         }
     }
 
-    public void addAliasForEvent(CustomPinWidget widget) {
+    public void addAliasForEvent(CustomPinWidget widget,QName... qName) {
         
         String nodeKey = widget.getNodeKey();
         PortletNode node = (PortletNode) scene.getPortletNode(nodeKey);
         EventObject event = widget.getEvent();
+    
+        QName aliasQName = null;
+        if(qName.length == 0)
+        {
+             AddAliasPanel panel = new AddAliasPanel(WindowManager.getDefault().getMainWindow());        
+             aliasQName = panel.getAlias();
+        } else
+            aliasQName = qName[0];
         
-        AddAliasPanel panel = new AddAliasPanel(WindowManager.getDefault().getMainWindow());
-                    
-        QName aliasQName = panel.getAlias();
         if(aliasQName == null) return;
         if (node != null) {
             try {

@@ -86,26 +86,33 @@ public class HibernateUtil {
     throws java.sql.SQLException{
         ArrayList<String> allTables = new ArrayList<String>();
         for(HibernateConfiguration configuration : configurations) {
-            DatabaseConnection dbConnection = getDBConnection(configuration); 
-            java.sql.Connection jdbcConnection = dbConnection.getJDBCConnection();
-            java.sql.DatabaseMetaData dbMetadata = jdbcConnection.getMetaData();
-            java.sql.ResultSet rsSchema = dbMetadata.getSchemas();
-            if(rsSchema.next()) {
-                do {
-                    java.sql.ResultSet rs = dbMetadata.getTables(null,
-                            rsSchema.getString("TABLE_SCHEM"), //NOI18N
-                            null, new String[]{"TABLE"}); //NOI18N
-                    while(rs.next()) {
-                        allTables.add(rs.getString("TABLE_NAME")); //NOI18N
+            try {
+                DatabaseConnection dbConnection = getDBConnection(configuration);
+                java.sql.Connection jdbcConnection = dbConnection.getJDBCConnection();
+                if(jdbcConnection != null) {
+                    java.sql.DatabaseMetaData dbMetadata = jdbcConnection.getMetaData();
+                    java.sql.ResultSet rsSchema = dbMetadata.getSchemas();
+                    if (rsSchema.next()) {
+                        do {
+                            java.sql.ResultSet rs = dbMetadata.getTables(null, rsSchema.getString("TABLE_SCHEM"), null, new String[]{"TABLE"}); //NOI18N
+                            while (rs.next()) {
+                                allTables.add(rs.getString("TABLE_NAME")); 
+                            }
+                        } while (rsSchema.next());
+                    } else {
+                        // Getting tables from default schema.
+                        java.sql.ResultSet rs = dbMetadata.getTables(null, dbConnection.getSchema(), null, new String[]{"TABLE"}); //NOI18N
+                        while (rs.next()) {
+                            allTables.add(rs.getString("TABLE_NAME")); //NOI18N
+                        }
                     }
-                } while(rsSchema.next());
-            } else { // Getting tables from default schema.
-                java.sql.ResultSet rs = dbMetadata.getTables(null,
-                            dbConnection.getSchema(),
-                            null, new String[]{"TABLE"}); //NOI18N
-                    while(rs.next()) {
-                        allTables.add(rs.getString("TABLE_NAME")); //NOI18N
-                    }
+                }else {
+                   // JDBC Connection could not be established.
+                    //TODO Handle this situation gracefully, probably by displaying message to user.
+                    //throw new DatabaseException("JDBC Connection cannot be established.");
+                }
+            } catch (DatabaseException ex) {
+                Exceptions.printStackTrace(ex);
             }
         }
         return allTables;
@@ -244,6 +251,8 @@ public class HibernateUtil {
                 columnNames.add(tableColumn);
             }
 
+        } catch (DatabaseException ex) {
+            Exceptions.printStackTrace(ex);
         } catch (SQLException sQLException) {
             Exceptions.printStackTrace(sQLException);
         }
@@ -257,8 +266,7 @@ public class HibernateUtil {
         SessionFactory fact = configuration.getSessionFactory();
         int count = 0;
         for (String val : fact.getProperty2()) { 
-            @SuppressWarnings("static-access") //NOI18N
-            String propName = fact.getAttributeValue(fact.PROPERTY2, count++, "name");  //NOI18N
+            String propName = fact.getAttributeValue(SessionFactory.PROPERTY2, count++, "name");  //NOI18N
             if(propName.equals(property)) {
                 return val;
             }
@@ -267,7 +275,8 @@ public class HibernateUtil {
         return ""; //NOI18N
     }
 
-    private static DatabaseConnection getDBConnection(HibernateConfiguration configuration) {
+    private static DatabaseConnection getDBConnection(HibernateConfiguration configuration)
+        throws DatabaseException {
         try {
 
             String driverClassName = getDbConnectionDetails(configuration, "hibernate.connection.driver_class"); //NOI18N
@@ -290,18 +299,19 @@ public class HibernateUtil {
 
             JDBCDriver[] drivers = JDBCDriverManager.getDefault().getDrivers(driverClassName);
             //TODO check the driver here... it might not be loaded and driver[0] might result in AIOOB exception
-//            while(drivers.length == 0) {
-//                // Unable to load the driver. 
-//                Mutex.EVENT.readAccess(new Mutex.Action<Object>() {
-//
-//                    public Object run() {
-//                        JDBCDriverManager.getDefault().showAddDriverDialog();
-//                        return new Object();
-//                    }
-//                    
-//                });
-//                drivers = JDBCDriverManager.getDefault().getDrivers(driverClassName);
-//            }
+            // The following is an annoying work around till #129633 is fixed.
+            while(drivers.length == 0) {
+                // Unable to load the driver. 
+                Mutex.EVENT.readAccess(new Mutex.Action<Object>() {
+
+                    public Object run() {
+                        JDBCDriverManager.getDefault().showAddDriverDialog();
+                        return new Object();
+                    }
+                    
+                });
+                drivers = JDBCDriverManager.getDefault().getDrivers(driverClassName);
+            }
             final DatabaseConnection dbConnection = DatabaseConnection.create(drivers[0], driverURL, username, null, password, true);
             ConnectionManager.getDefault().addConnection(dbConnection);
             if(dbConnection.getJDBCConnection() == null ) {
@@ -317,8 +327,8 @@ public class HibernateUtil {
             return dbConnection;
         } catch (DatabaseException ex) {
             Exceptions.printStackTrace(ex);
+            throw ex;
         }
-        return null;
     }
      
     public static String getRelativeSourcePath(FileObject file, FileObject sourceRoot) {
@@ -334,7 +344,7 @@ public class HibernateUtil {
         return relativePath;
     }
 
-    private static Connection getJDBCConnection(HibernateConfiguration hibernateConfiguration) {
+    private static Connection getJDBCConnection(HibernateConfiguration hibernateConfiguration) throws DatabaseException {
         return getDBConnection(hibernateConfiguration).getJDBCConnection();
     }
 

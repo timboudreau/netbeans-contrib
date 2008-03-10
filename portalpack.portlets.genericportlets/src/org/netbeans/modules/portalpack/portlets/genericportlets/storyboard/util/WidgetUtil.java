@@ -19,21 +19,17 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.util;
 
-import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widgets.CustomPinWidget;
 import java.awt.Image;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
-import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.vmd.VMDGraphScene;
 import org.netbeans.api.visual.vmd.VMDNodeWidget;
 import org.netbeans.api.visual.vmd.VMDPinWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widgets.CustomPinWidget;
 import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc.CustomVMDGraphScene;
-import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc.actions.IPCPopUpMenuProvider;
 import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widgets.CustomNodeWidget;
-import org.openide.util.Utilities;
 
 /**
  *
