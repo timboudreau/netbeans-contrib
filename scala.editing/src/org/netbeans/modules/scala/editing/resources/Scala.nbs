@@ -557,23 +557,51 @@ ReturnExpr = "return" [ Expr ];
 ## Should connect two exprs separated by <nl> to one expr when possible in semantic analyzer,
 ## The rule could be: if encounter a ScalaId and followed only one <nl>, then next SimpleExpr 
 ## is of the same Expr
+
+#PostfixExpr = InfixExpr;
+#InfixExpr = 
+#      PrefixExpr
+#    (
+#    | ( LOOKAHEAD( ( <upper_identifier> | <var_identifier> | <op_identifier> | <bquote_identifier> )  ( "." | "(" | "[" ) ) 
+#        PrefixExpr )*
+#      ( ScalaId [ PrefixExpr ] )*
+#    );
+#PrefixExpr = [ PrefixOp ] SimpleExpr;
+
 PostfixExpr = SimpleExpr+;
 #InfixExpr = PrefixExpr ( ScalaId [ PrefixExpr ] )*;
-PrefixExpr = [ PrefixOp ] SimpleExpr;
-PrefixOp = 
+PrefixExpr  = [ PrefixOp ] SimpleExpr;
+
+PrefixOp =
       "-"
     | "+" 
     | "~" 
     | "!";
 
 SimpleExpr = 
-      PathIdWithTypeArgs    SimpleExprRest*
-    | LiteralWithTypeArgs   SimpleExprRest*
-    | WildCardWithTypeArgs  SimpleExprRest*
-    | TupleExprWithTypeArgs SimpleExprRest*
-    | BlockExprWithTypeArgs SimpleExprRest*
-    | NewExpr               SimpleExprRest*
+      SimplePathIdExpr
+    | SimpleLiteralExpr
+    | SimpleWildCardExpr
+    | SimpleTupleExpr
+    | SimpleBlockExpr
+    | SimpleNewExpr
     | XmlExpr;
+
+## Why following rules conflict under LL(k) when k >= 2
+#SimpleExpr = 
+#      SimpleScalaId
+#    | SimplePathIdExpr
+#    | ...;
+#SimpleScalaId      = ScalaId;
+#SimplePathIdExpr   = PathId  ( TypeArgs SimpleExprRest* | SimpleExprRest+ );
+
+
+SimplePathIdExpr   = PathId    [ TypeArgs ] SimpleExprRest*;
+SimpleLiteralExpr  = Literal   [ TypeArgs ] SimpleExprRest*;
+SimpleWildCardExpr = "_"       [ TypeArgs ] SimpleExprRest*;
+SimpleTupleExpr    = ParenExpr [ TypeArgs ] SimpleExprRest*;
+SimpleBlockExpr    = BlockExpr [ TypeArgs ] SimpleExprRest*;
+SimpleNewExpr      = NewExpr   [ TypeArgs ] SimpleExprRest*;
 
 SimpleExprRest = 
       PathRest
@@ -581,13 +609,7 @@ SimpleExprRest =
     | "_";
 
 ## Define this intermedia expr for convenience of semantic anlysis
-PathRest = ( "." PathIdWithTypeArgs )+;
-
-PathIdWithTypeArgs    = PathId    TypeArgs*;
-LiteralWithTypeArgs   = Literal   TypeArgs*;
-WildCardWithTypeArgs  = "_"       TypeArgs*;
-TupleExprWithTypeArgs = ParenExpr TypeArgs*;
-BlockExprWithTypeArgs = BlockExpr TypeArgs*;
+PathRest = ( "." PathId [ TypeArgs ] )+;
 
 ## Hacking for: "new" ([EarlyDef] ClassParents [Template] | Template)
 ## Since EalyBody and Template all start with "{" and Template is super set of EarlyBody,
@@ -600,8 +622,7 @@ NewExpr =
       "new" 
       ( ClassParents [ Template ] 
       | Template [ ClassParents [ Template ] ] 
-      ) 
-      TypeArgs*;
+      );
 
 Arguments = 
         ParenExpr

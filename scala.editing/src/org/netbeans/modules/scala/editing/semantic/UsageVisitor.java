@@ -160,19 +160,19 @@ public class UsageVisitor extends ASTVisitor {
                     }
                 }
             }
-        } else if (xpath.endsWith("SimpleExpr.PathIdWithTypeArgs.PathId.ScalaId")) {
+        } else if (xpath.endsWith("SimpleExpr.SimplePathIdExpr.PathId.ScalaId")) {
             // this is a ScalaId starting expr
             if (enter) {
                 varOrFunctionStack.push(leaf);
             }
-        } else if (xpath.endsWith("SimpleExpr.SimpleExprRest.PathRest.PathIdWithTypeArgs.PathId.ScalaId")) {
+        } else if (xpath.endsWith("SimpleExprRest.PathRest.PathId.ScalaId")) {
             if (enter) {
                 List<ASTItem> chain = chainStack.peek();
                 if (chain != null) {
                     chain.add(leaf);
                 }
             }
-        } else if (xpath.endsWith("SimpleExpr.SimpleExprRest.Arguments")) {
+        } else if (xpath.endsWith("SimpleExprRest.Arguments")) {
             List<ASTItem> chain = chainStack.peek();
             if (chain != null) {
                 chain.add(leaf);
