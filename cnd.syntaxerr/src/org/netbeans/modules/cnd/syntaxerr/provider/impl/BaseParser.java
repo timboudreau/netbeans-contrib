@@ -40,17 +40,13 @@
  */
 package org.netbeans.modules.cnd.syntaxerr.provider.impl;
 
-import org.netbeans.modules.cnd.syntaxerr.provider.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
 
 
 abstract class BaseParser implements CompilerOutputParser {
-
-    org.netbeans.modules.cnd.syntaxerr.provider.impl.ErrorProviderImpl outer;
 
     public void parseCompilerOutput(InputStream stream, String interestingFileName, ErrorBag errorBag) throws IOException {
 	BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
