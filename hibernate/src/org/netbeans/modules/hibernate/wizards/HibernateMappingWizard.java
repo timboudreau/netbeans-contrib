@@ -150,7 +150,7 @@ public class HibernateMappingWizard implements WizardDescriptor.InstantiatingIte
             DataObject confDataObject = DataObject.find(confFile);
             HibernateCfgDataObject hco = (HibernateCfgDataObject) confDataObject;
             SessionFactory sf = hco.getHibernateConfiguration().getSessionFactory();
-            int mappingIndex = sf.addMapping(true);
+            int mappingIndex = sf.addMapping(true);                        
             sf.setAttributeValue(SessionFactory.MAPPING, mappingIndex, resourceAttr, newOne.getPrimaryFile().getNameExt());
             hco.modelUpdatedFromUI();
             hco.save();

@@ -34,60 +34,16 @@
  * single choice of license, a recipient has the option to distribute
  * your version of this file under either the CDDL, the GPL Version 2 or
  * to extend the choice of license to its licensees as provided above.
- * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * However, if you add GPL Version 2 codervicee and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
 package org.netbeans.modules.websvc.axis2.config.model;
 
 
-public interface Axis2Visitor {
-
-    void visit(Axis2 component);
-    void visit(Service service);
-    void visit(GenerateWsdl generateWsdl);
-    void visit(JavaGenerator javaGenerator);
-    public void visit(Libraries libraries);
-    public void visit(LibraryRef libraryRef);
- 
+public interface LibraryRef extends Axis2Component {
+        
+    String getNameAttr();
+    void setNameAttr(String name);
     
-    /**
-     * Default shallow visitor.
-     */
-    public static class Default implements Axis2Visitor {
-       
-        public void visit(Axis2 component) {
-            visitChild();
-        }
-        
-        protected void visitChild() {
-        }
-        
-        public void visit(Service service) {
-        }
-        
-        public void visit(GenerateWsdl generateWsdl) {
-        }
-        
-        public void visit(JavaGenerator javaGenerator) {
-        }
-        
-        public void visit(Libraries libraries) {
-        }
-        
-        public void visit(LibraryRef libraryRef) {
-        }
-        
-    }
-    
-    /**
-     * Deep visitor.
-     */
-    public static class Deep extends Default {
-        protected void visitChild(Axis2Component component) {
-            for (Axis2Component child : component.getChildren()) {
-                child.accept(this);
-            }
-        }
-    }
 }

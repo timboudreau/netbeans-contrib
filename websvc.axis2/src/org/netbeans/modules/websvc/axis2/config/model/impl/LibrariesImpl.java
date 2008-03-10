@@ -38,56 +38,41 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.websvc.axis2.config.model;
+package org.netbeans.modules.websvc.axis2.config.model.impl;
 
+import java.util.List;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2QNames;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2Visitor;
+import org.netbeans.modules.websvc.axis2.config.model.Libraries;
+import org.netbeans.modules.websvc.axis2.config.model.LibraryRef;
+import org.w3c.dom.Element;
 
-public interface Axis2Visitor {
-
-    void visit(Axis2 component);
-    void visit(Service service);
-    void visit(GenerateWsdl generateWsdl);
-    void visit(JavaGenerator javaGenerator);
-    public void visit(Libraries libraries);
-    public void visit(LibraryRef libraryRef);
- 
+public class LibrariesImpl extends Axis2ComponentImpl implements Libraries {
     
-    /**
-     * Default shallow visitor.
-     */
-    public static class Default implements Axis2Visitor {
-       
-        public void visit(Axis2 component) {
-            visitChild();
-        }
-        
-        protected void visitChild() {
-        }
-        
-        public void visit(Service service) {
-        }
-        
-        public void visit(GenerateWsdl generateWsdl) {
-        }
-        
-        public void visit(JavaGenerator javaGenerator) {
-        }
-        
-        public void visit(Libraries libraries) {
-        }
-        
-        public void visit(LibraryRef libraryRef) {
-        }
-        
+    public LibrariesImpl(Axis2ModelImpl model, Element e) {
+        super(model, e);
     }
     
-    /**
-     * Deep visitor.
-     */
-    public static class Deep extends Default {
-        protected void visitChild(Axis2Component component) {
-            for (Axis2Component child : component.getChildren()) {
-                child.accept(this);
-            }
-        }
+    public LibrariesImpl(Axis2ModelImpl model) {
+        this(model, createElementNS(model, Axis2QNames.LIBRARIES));
     }
+    
+    public void accept(Axis2Visitor visitor) {
+        visitor.visit(this);
+    }
+
+    public List<LibraryRef> getLibraryRefs() {
+        return super.getChildren(LibraryRef.class);
+    }
+
+    public void addLibraryRef(LibraryRef library) {
+        appendChild(LIBRARY_REF_PROP, library);
+    }
+
+    public void removeLibraryRef(LibraryRef library) {
+        removeChild(LIBRARY_REF_PROP, library);
+    }
+
+
+    
 }

@@ -19,7 +19,7 @@
  * accompanied this code. If applicable, add the following below the
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
- * "Portions Copyrighted [year] [name of copyright owner]"
+ * "Portions Copyrighted [year] [name of copyright owneLibrariesImpl1r]"
  *
  * Contributor(s):
  *
@@ -38,56 +38,34 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.websvc.axis2.config.model;
+package org.netbeans.modules.websvc.axis2.config.model.impl;
 
+import org.netbeans.modules.websvc.axis2.config.model.Axis2QNames;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2Visitor;
+import org.netbeans.modules.websvc.axis2.config.model.LibraryRef;
+import org.w3c.dom.Element;
 
-public interface Axis2Visitor {
-
-    void visit(Axis2 component);
-    void visit(Service service);
-    void visit(GenerateWsdl generateWsdl);
-    void visit(JavaGenerator javaGenerator);
-    public void visit(Libraries libraries);
-    public void visit(LibraryRef libraryRef);
- 
+public class LibraryRefImpl extends Axis2ComponentImpl implements LibraryRef {
+    private static String NAME_ATTR_PROP = Axis2Attributes.attrName.getName();
     
-    /**
-     * Default shallow visitor.
-     */
-    public static class Default implements Axis2Visitor {
-       
-        public void visit(Axis2 component) {
-            visitChild();
-        }
-        
-        protected void visitChild() {
-        }
-        
-        public void visit(Service service) {
-        }
-        
-        public void visit(GenerateWsdl generateWsdl) {
-        }
-        
-        public void visit(JavaGenerator javaGenerator) {
-        }
-        
-        public void visit(Libraries libraries) {
-        }
-        
-        public void visit(LibraryRef libraryRef) {
-        }
-        
+    public LibraryRefImpl(Axis2ModelImpl model, Element e) {
+        super(model, e);
     }
     
-    /**
-     * Deep visitor.
-     */
-    public static class Deep extends Default {
-        protected void visitChild(Axis2Component component) {
-            for (Axis2Component child : component.getChildren()) {
-                child.accept(this);
-            }
-        }
+    public LibraryRefImpl(Axis2ModelImpl model) {
+        this(model, createElementNS(model, Axis2QNames.LIBRARY_REF));
     }
+    
+    public void accept(Axis2Visitor visitor) {
+        visitor.visit(this);
+    }
+
+    public String getNameAttr() {
+        return getAttribute(Axis2Attributes.attrName);
+    }
+
+    public void setNameAttr(String name) {
+        super.setAttribute(NAME_ATTR_PROP, Axis2Attributes.attrName, name);
+    }
+
 }

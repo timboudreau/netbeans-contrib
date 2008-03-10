@@ -44,6 +44,7 @@ import java.util.List;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2QNames;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Visitor;
+import org.netbeans.modules.websvc.axis2.config.model.Libraries;
 import org.netbeans.modules.websvc.axis2.config.model.Service;
 import org.w3c.dom.Element;
 
@@ -71,6 +72,20 @@ public class Axis2Impl extends Axis2ComponentImpl implements Axis2 {
     
     public void removeService(Service service) {
         removeChild(SERVICE_PROP, service);
+    }
+
+    public Libraries getLibraries() {
+        return super.getChild(Libraries.class);
+    }
+
+    public void setLibraries(Libraries libraries) {
+        Libraries child = super.getChild(Libraries.class);
+        if (child != null) {
+            super.removeChild(LIBRARIES_PROP, child);
+        }
+        if (libraries != null) {
+            appendChild(LIBRARIES_PROP, libraries);
+        }        
     }
     
 }

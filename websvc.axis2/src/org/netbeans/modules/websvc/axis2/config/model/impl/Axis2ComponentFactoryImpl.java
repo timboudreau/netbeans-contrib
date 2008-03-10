@@ -47,6 +47,8 @@ import org.netbeans.modules.websvc.axis2.config.model.Axis2QNames;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Visitor;
 import org.netbeans.modules.websvc.axis2.config.model.GenerateWsdl;
 import org.netbeans.modules.websvc.axis2.config.model.JavaGenerator;
+import org.netbeans.modules.websvc.axis2.config.model.Libraries;
+import org.netbeans.modules.websvc.axis2.config.model.LibraryRef;
 import org.netbeans.modules.websvc.axis2.config.model.Service;
 import org.netbeans.modules.xml.xam.dom.AbstractDocumentComponent;
 import org.w3c.dom.Element;
@@ -92,6 +94,8 @@ public class Axis2ComponentFactoryImpl implements Axis2ComponentFactory {
         public void visit(Axis2 context) {
             if (isElementQName(Axis2QNames.SERVICE)) {
                 created = new ServiceImpl((Axis2ModelImpl)context.getModel(), element);
+            } else if (isElementQName(Axis2QNames.LIBRARIES)) {
+                created = new LibrariesImpl((Axis2ModelImpl)context.getModel(), element);
             }
         }
         
@@ -100,6 +104,12 @@ public class Axis2ComponentFactoryImpl implements Axis2ComponentFactory {
                 created = new GenerateWsdlImpl((Axis2ModelImpl)context.getModel(), element);
             } else if (isElementQName(Axis2QNames.JAVA_GENERATOR)) {
                 created = new JavaGeneratorImpl((Axis2ModelImpl)context.getModel(), element);
+            }
+        }
+        
+        public void visit(Libraries context) {
+            if (isElementQName(Axis2QNames.LIBRARY_REF)) {
+                created = new LibraryRefImpl((Axis2ModelImpl)context.getModel(), element);
             }
         }
         
@@ -116,6 +126,14 @@ public class Axis2ComponentFactoryImpl implements Axis2ComponentFactory {
     
     public JavaGenerator createJavaGenerator() {
         return new JavaGeneratorImpl(model);
+    }
+
+    public Libraries createLibraries() {
+        return new LibrariesImpl(model);
+    }
+
+    public LibraryRef createLibraryRef() {
+        return new LibraryRefImpl(model);
     }
     
 }
