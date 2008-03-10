@@ -39,6 +39,8 @@ public class DebugUtils {
      */
     public static final boolean TRACE = getBoolean("cnd.synterr.trace", false); // NOI18N
     
+    public static final boolean TIMING = getBoolean("cnd.synterr.timing", false); // NOI18N
+    
     /** 
      * If the flag is set to FALSE, the temporary files are not deleted.
      * Used for debugging purposes only

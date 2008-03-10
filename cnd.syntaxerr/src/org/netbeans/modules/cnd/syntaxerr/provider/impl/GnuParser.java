@@ -49,12 +49,13 @@ class GnuParser extends BaseParser {
 	if (DebugUtils.TRACE) {
 	    System.err.printf("\tPARSING: \t%s\n", line);
 	}
-	findErrorOrWarning(line, ": error: ", true, interestingFileName, errorBag);
-	findErrorOrWarning(line, ": warning: ", false, interestingFileName, errorBag);
-	findErrorOrWarning(line, " #error ", true, interestingFileName, errorBag);
+	boolean dummy = // unused: in C++, I would write just findErrorOrWarning(...) || findErrorOrWarning(...), but in Java I can't
+	    findErrorOrWarning(line, ": error: ", true, interestingFileName, errorBag) 
+	||  findErrorOrWarning(line, ": warning: ", false, interestingFileName, errorBag)
+	||  findErrorOrWarning(line, " #error ", true, interestingFileName, errorBag);
     }
 
-    private void findErrorOrWarning(String line, String keyword, boolean error, String interestingFileName, ErrorBag errorBag) {
+    private boolean findErrorOrWarning(String line, String keyword, boolean error, String interestingFileName, ErrorBag errorBag) {
 	int pos = line.indexOf(keyword);
 	if (pos > 0) {
 	    int beforeErrPos = pos;
@@ -85,6 +86,8 @@ class GnuParser extends BaseParser {
 		    errorBag.add(message, error, lineNum, colNum);
 		}
 	    }
+	    return true;
 	}
+	return false;
     }
 }

@@ -73,4 +73,8 @@ class ErrorBag {
 	}
 	return result;
     }
+    
+    int size() {
+	return errors.size() + warnings.size();
+    }
 }
