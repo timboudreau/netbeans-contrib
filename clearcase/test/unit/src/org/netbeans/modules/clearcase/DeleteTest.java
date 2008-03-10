@@ -44,10 +44,15 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.netbeans.junit.NbTestCase;
+import org.netbeans.modules.clearcase.client.CheckinCommand;
+import org.netbeans.modules.clearcase.client.CheckoutCommand;
 import org.netbeans.modules.clearcase.client.ClearcaseClient;
-import org.netbeans.modules.clearcase.ui.add.AddAction;
-import org.netbeans.modules.clearcase.ui.checkout.CheckoutAction;
-import org.netbeans.modules.versioning.spi.VCSInterceptor;
+import org.netbeans.modules.clearcase.client.DeleteCommand;
+import org.netbeans.modules.clearcase.client.ExecutionUnit;
+import org.netbeans.modules.clearcase.client.MkElemCommand;
+import org.netbeans.modules.clearcase.client.UnCheckoutCommand;
+import org.netbeans.modules.clearcase.client.status.FileEntry;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.versioning.util.Utils;
 import org.openide.util.Exceptions;
 
@@ -61,26 +66,54 @@ public class DeleteTest extends NbTestCase {
     private File testRoot;
     private FileStatusCache cache;
     
+    private String MOCKUP_KEY = "org.netbeans.modules.clearcase.client.mockup.vobRoot";
+    private String MOCKUP_ROOT = "/tmp/vob";
+    
     public DeleteTest(String testName) throws IOException {
         super(testName);
-        System.setProperty("org.netbeans.modules.clearcase.client.mockup.vobRoot", "/tmp/vob");
-        testRoot = new File(System.getProperty("org.netbeans.modules.clearcase.client.mockup.vobRoot"), "deletetest"); //Utils.getTempFolder();
-                           
-        //System.setProperty("org.netbeans.modules.clearcase.client.mockup.vobRoot", vobRoot.getAbsolutePath());
+        
+        // run with mockup
+        System.setProperty(MOCKUP_KEY, MOCKUP_ROOT);
+        testRoot = new File(MOCKUP_ROOT + "/deletetest"); 
+        
+        // run with cleartool
+        // testRoot = new File("/data/ccase/tester/testdata/deletetest"); 
     }            
 
     @Override
     protected void setUp() throws Exception {
-        Utils.deleteRecursively(testRoot);
-        testRoot.mkdirs();
+        cleanUp();
+        init();
+        
         cache = new FileStatusCache();
         interceptor = new ClearcaseInterceptor();
         super.setUp();
     }
 
+    private void cleanUp() {
+        if(!testRoot.exists()) {
+            return;
+        }
+        String mockup = System.getProperty(MOCKUP_KEY);
+        if(mockup != null && !mockup.trim().equals("")) {
+            Utils.deleteRecursively(testRoot);    
+        } else {
+            File parent = testRoot.getParentFile();
+            ensureMutable(parent);            
+            FileEntry entry = ClearcaseUtils.readEntry(testRoot);
+            if(entry != null && !entry.isViewPrivate()) {
+                uncheckout(testRoot);
+                ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit("Cleaningup ...", new DeleteCommand(new File[]{testRoot})));
+                cr.waitFinished();            
+                Clearcase.getInstance().getClient().post(new ExecutionUnit("Cleaningup...", new CheckinCommand(new File[] {parent}, null, true, false)));
+            } else {
+                Utils.deleteRecursively(testRoot);    
+            }
+        }    
+    }
+    
     @Override
     protected void tearDown() throws Exception {
-        Utils.deleteRecursively(testRoot);
         super.tearDown();
     }
 
@@ -119,8 +152,7 @@ public class DeleteTest extends NbTestCase {
         // create uptodate file and folder
         File file = new File(parent, "file");
         file.createNewFile();        
-        ClearcaseClient.CommandRunnable cr = AddAction.addFiles(new File[]{parent, file}, null, true);
-        cr.waitFinished();
+        add(parent, file);        
         refreshImmediatelly(parent);
     
         FileInformation info = cache.getInfo(file);
@@ -149,11 +181,10 @@ public class DeleteTest extends NbTestCase {
         // create uptodate file and folder
         File file = new File(parent, "file");
         file.createNewFile();        
-        ClearcaseClient.CommandRunnable cr = AddAction.addFiles(new File[]{parent, file}, null, true);
-        cr.waitFinished();
+        add(parent, file);        
         refreshImmediatelly(parent);
         refreshImmediatelly(file);
-        CheckoutAction.ensureMutable(parent);
+        ensureMutable(parent);
         refreshImmediatelly(parent);
         
         FileInformation info = cache.getInfo(file);
@@ -182,11 +213,10 @@ public class DeleteTest extends NbTestCase {
         // create uptodate file and folder
         File file = new File(parent, "file");
         file.createNewFile();        
-        ClearcaseClient.CommandRunnable cr = AddAction.addFiles(new File[]{parent, file}, null, true);
-        cr.waitFinished();
+        add(parent, file);
         refreshImmediatelly(parent);
         refreshImmediatelly(file);
-        CheckoutAction.ensureMutable(file);
+        ensureMutable(file);
         refreshImmediatelly(file);
         
         FileInformation info = cache.getInfo(file);
@@ -215,12 +245,11 @@ public class DeleteTest extends NbTestCase {
         // create uptodate file and folder
         File file = new File(parent, "file");
         file.createNewFile();        
-        ClearcaseClient.CommandRunnable cr = AddAction.addFiles(new File[]{parent, file}, null, true);
-        cr.waitFinished();
+        add(parent, file);
         refreshImmediatelly(parent);
         refreshImmediatelly(file);
-        CheckoutAction.ensureMutable(file);
-        CheckoutAction.ensureMutable(parent);
+        ensureMutable(file);
+        ensureMutable(parent);
         refreshImmediatelly(parent);
         refreshImmediatelly(file);
         
@@ -252,17 +281,64 @@ public class DeleteTest extends NbTestCase {
         }
         interceptor.afterDelete(file);
         
-        waitALittleBit(2000); // the doDelete works asynchronusly. lets give him some time ...
-        
+        // the doDelete works asynchronusly. lets give him some time ...
+        for(int i = 0; i < 30; i++) {
+            waitALittleBit(200);
+            if(!file.exists()) {
+                break;
+            }
+        }
         return true; // interceptor handled the delete
+    }
+
+    private void init() {
+        testRoot.mkdirs();
+        add(testRoot);
     }
 
     private void refreshImmediatelly(File file) throws SecurityException, NoSuchMethodException, IllegalAccessException, IllegalAccessException, IllegalArgumentException, IllegalArgumentException, InvocationTargetException {
         Method m = cache.getClass().getDeclaredMethod("refresh", new Class[] {File.class, boolean.class});
         m.setAccessible(true);
         m.invoke(cache, new Object[] {file, true});
-    } 
+    }
+    
+    private void uncheckout(File file) {        
+        FileEntry entry = ClearcaseUtils.readEntry(file);
+        if (entry != null && entry.isCheckedout()) {
+            ClearcaseClient.CommandRunnable cr = 
+                    Clearcase.getInstance().getClient().post(
+                        new ExecutionUnit(
+                            "cleaning up", 
+                            new UnCheckoutCommand(new File[]{file}, false)));
+            cr.waitFinished();
+        }
+        File[] files = file.listFiles();
+        if(files == null) {
+            return;
+        }
+        for (File f : files) {
+            uncheckout(f);
+        }        
+    }
 
+    private void add(File... files) {
+        Clearcase.getInstance().getClient().post(new ExecutionUnit("Init...", new MkElemCommand(files, null, MkElemCommand.Checkout.Checkin, false))).waitFinished();
+    }
+
+    private static void ensureMutable(File file) {
+        if (file.isDirectory()) {
+            FileEntry entry = ClearcaseUtils.readEntry(file);                
+            if (entry == null || entry.isCheckedout() || entry.isViewPrivate()) {
+                return;
+            }
+        } else {
+            if (file.canWrite()) return;
+        }
+        CheckoutCommand command = new CheckoutCommand(new File[]{ file }, null, CheckoutCommand.Reserved.Reserved, true);
+        ExecutionUnit eu = new ExecutionUnit("Checking out...", false, command);
+        Clearcase.getInstance().getClient().post(eu).waitFinished();                
+    }
+    
     private void waitALittleBit(long l) {
         try {
             Thread.sleep(l);    // this is so slow ...
