@@ -114,7 +114,7 @@ public class ExcludeAction extends AbstractAction {
                 ClearcaseModuleConfig.addExclusionPaths(exclusions);                   
             }         
         } finally {
-            Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]), false, false);            
+            Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]), false);            
         }
     }    
     

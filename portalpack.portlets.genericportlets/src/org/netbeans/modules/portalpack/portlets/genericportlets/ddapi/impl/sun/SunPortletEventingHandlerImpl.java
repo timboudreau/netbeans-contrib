@@ -19,24 +19,6 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.sun;
 
-import java.util.logging.Logger;
-import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import org.netbeans.api.java.project.JavaProjectConstants;
-import org.netbeans.api.project.FileOwnerQuery;
-import org.netbeans.api.project.Project;
-import org.netbeans.api.project.SourceGroup;
-import org.netbeans.api.project.Sources;
-import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.PortletEventException;
-import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-
 /**
  *
  * @author Satyaranjan

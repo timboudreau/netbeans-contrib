@@ -41,21 +41,17 @@
 
 package org.netbeans.modules.clearcase.refactoring;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
+import java.util.MissingResourceException;
 import java.util.Set;
 import javax.swing.Action;
-import org.netbeans.modules.clearcase.client.ClearcaseClient;
+import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
 import org.netbeans.modules.clearcase.ui.checkout.CheckoutAction;
 import org.netbeans.modules.refactoring.spi.ProblemDetailsImplementation;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileStateInvalidException;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Cancellable;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -75,20 +71,11 @@ public class CheckoutFiles implements ProblemDetailsImplementation {
     public void showDetails(Action rerunRefactoringAction, Cancellable parent) {
         this.parent = parent;
 
-        FileObject[] fos = (FileObject[]) files.toArray(new FileObject[0]);        
-        File[] fs = new File[fos.length];
-        for (int i = 0; i < fos.length; i++) {
-            fs[i] = FileUtil.toFile(fos[i]);
-        }
-        
         // XXX this should be redesigned - change ui, progress bar, cancellable, etc...
-        ClearcaseClient.CommandRunnable cr = CheckoutAction.performCheckout(fs, NbBundle.getMessage(CheckoutFiles.class, "LBL_Title_Checkout_Files"));
-        if(cr == null) {
-            return;
-        }
-        cr.waitFinished();
-        rerunRefactoring(rerunRefactoringAction);
-        
+                
+        if (checkout(files)) {
+            rerunRefactoring(rerunRefactoringAction);
+        }                
     }
     
     public String getDetailsHint() {
@@ -97,6 +84,30 @@ public class CheckoutFiles implements ProblemDetailsImplementation {
 
     void setFiles(Collection files) {
         this.files = files;
+    }
+
+    static boolean checkout(Collection filesObjects) throws MissingResourceException {
+
+        ClearcaseModuleConfig.OnDemandCheckout odc = ClearcaseModuleConfig.getOnDemandCheckout();
+        if(odc == ClearcaseModuleConfig.OnDemandCheckout.Disabled) {
+            odc = ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback; // XXX is this how it should be?
+        }
+        
+        Set<File> files = new HashSet<File>();
+        FileObject[] fos = (FileObject[]) filesObjects.toArray(new FileObject[0]);
+        for (int i = 0; i < fos.length; i++) {
+            File file = FileUtil.toFile(fos[i]);
+            if(file != null) {
+                files.add(file);
+                File parent = file.getParentFile();
+                files.add(parent);
+            }
+        }
+        for (File file : files) {
+            CheckoutAction.ensureMutable(file, null);                
+        }
+
+        return true;
     }
     
     private void rerunRefactoring(Action rerunRefactoringAction) {

@@ -603,9 +603,6 @@ public final class JavaFXProject implements Project, AntProjectListener {
                             "${"+JavaFXProjectProperties.FX_LIBS +"}" // NOI18N
                         });
                     }
-                    if (!ep.containsKey(JavaFXProjectProperties.MAIN_FX_BUILD_CLASS)){
-                        ep.setProperty(JavaFXProjectProperties.MAIN_FX_BUILD_CLASS, JavaFXProjectProperties.FX_BUILD_CLASS_NAME);
-                    }
                     
                     helper.putProperties(
                             AntProjectHelper.PROJECT_PROPERTIES_PATH, ep);
@@ -759,7 +756,6 @@ public final class JavaFXProject implements Project, AntProjectListener {
 //                "Templates/Persistence/RelatedCMP", // NOI18N
 //                "Templates/WebServices/WebServiceClient" // NOI18N
         };
-
 
 
         public String[] getRecommendedTypes() {

@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: false
+OpenIDE-Module: org.netbeans.modules.javafx.userlib
+OpenIDE-Module-Layer: javafx/netbeans/fxuserlib/layer.xml
+OpenIDE-Module-Localizing-Bundle: javafx/netbeans/fxuserlib/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.1.0
+

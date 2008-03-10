@@ -1,0 +1,1610 @@
+/*
+ *  $Id: code.fx.semantic,v 1.1 2007/10/29 16:20:29 kaktus Exp $
+ * 
+ *  Copyright 2007 Sun Microsystems, Inc. All rights reserved.
+ *  SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ */
+
+package javafxpad;
+import javafx.ui._all_classes;
+import javafx.ui.*;
+import javafx.ui.canvas.*;
+import javafx.ui.filter.*;
+import net.java.javafx.ui.UIContext;
+import net.java.javafx.type.expr.ValidationError;
+import net.java.javafx.type.expr.VariableDeclarator;
+import net.java.javafx.typeImpl.Compilation;
+import net.java.javafx.typeImpl.completion.CompletionProcessor;
+import net.java.javafx.typeImpl.completion.CompletionParserTokenManager;
+import net.java.javafx.typeImpl.completion.CompletionParserConstants;
+import net.java.javafx.typeImpl.completion.SimpleCharStream;
+import net.java.javafx.typeImpl.completion.Token;
+import net.java.javafx.typeImpl.SourceCodeWriter;
+import java.net.URL;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.PrintWriter;
+import java.lang.StringBuffer;
+import java.lang.Throwable;
+import java.lang.System;
+import java.lang.Character;
+import java.lang.reflect.Method;
+import javax.swing.KeyStroke as JKeyStroke;
+import javax.swing.UIManager;
+import javafx.ui.KeyEvent;
+import java.awt.event.KeyEvent as AWTKeyEvent;
+import javafx.ui.KeyStroke;
+import javax.swing.Action;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Stack;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Map$Entry as MapEntry;
+import java.lang.Math;
+import java.awt.Dimension;
+import java.lang.Thread;
+import java.lang.Thread$UncaughtExceptionHandler as UncaughtExceptionHandler;
+import java.lang.Throwable;
+import java.net.URL;
+
+public class |>CLASS_DECLARATION:LineNumberPanel<| extends |>CLASS_USE:Widget<| {
+    private attribute |>ATTRIBUTE_USE:panel<|: <<net.java.javafx.ui.LineNumberPanel>>;
+    public attribute |>ATTRIBUTE_USE:lineCount<|: Number;
+    public operation |>OPERATION_DECLARATION:getCellBounds<|(|>ATTRIBUTE_USE:line<|:Integer);
+}
+
+operation |>CLASS_USE:LineNumberPanel<|.|>OPERATION_DECLARATION:getCellBounds<|(|>ATTRIBUTE_USE:line<|:Integer) {
+    return |>ATTRIBUTE_USE:panel<|.getCellBounds(|>ATTRIBUTE_USE:line<|);
+}
+
+trigger on |>CLASS_USE:LineNumberPanel<|.lineCount = |>ATTRIBUTE_USE:value<| {
+    |>ATTRIBUTE_USE:panel<|.setLineCount(|>ATTRIBUTE_USE:value<|);
+}
+
+operation |>CLASS_USE:LineNumberPanel<|.|>OPERATION_DECLARATION:createComponent<|() {
+    |>ATTRIBUTE_USE:panel<| = new <<net.java.javafx.ui.LineNumberPanel>>;
+    |>ATTRIBUTE_USE:panel<|.setOpaque(false);
+    |>ATTRIBUTE_USE:panel<|.setLineCount(|>ATTRIBUTE_USE:lineCount<|);
+    return |>ATTRIBUTE_USE:panel<|;
+}
+
+class |>CLASS_DECLARATION:ErrorMessage<| {
+    attribute |>ATTRIBUTE_USE:line<|: Integer;
+    attribute |>ATTRIBUTE_USE:column<|: Integer;
+    attribute |>ATTRIBUTE_USE:length<|: Integer;
+    attribute |>ATTRIBUTE_USE:message<|: String;
+}
+
+class |>CLASS_DECLARATION:CompletionProposal<| {
+    attribute |>ATTRIBUTE_USE:replacementText<|: String;
+    attribute |>ATTRIBUTE_USE:displayValue<|: String;
+    attribute |>ATTRIBUTE_USE:cursorOffset<|: Number;
+    attribute |>ATTRIBUTE_USE:documentation<|: String?;
+}
+
+public class |>CLASS_DECLARATION:JavaFXPad<| extends |>CLASS_USE:CompositeWidget<| {
+    attribute |>ATTRIBUTE_USE:runAutomatically<|: Boolean;
+    attribute |>ATTRIBUTE_USE:validateAutomatically<|: Boolean;
+    operation |>OPERATION_DECLARATION:runNow<|();
+    operation |>OPERATION_DECLARATION:validateNow<|();
+    function |>FUNCTION_DECLARATION:isValid<|(): Boolean;
+    private attribute |>ATTRIBUTE_USE:hasCRs<|: Boolean;
+    attribute |>ATTRIBUTE_USE:fontSize<|: Number;
+    attribute |>ATTRIBUTE_USE:mouseX<|: Number;
+    attribute |>ATTRIBUTE_USE:mouseY<|: Number;
+    attribute |>ATTRIBUTE_USE:zoomValue<|: Number;
+    attribute |>ATTRIBUTE_USE:zoomSelection<|: Number;
+    attribute |>ATTRIBUTE_USE:zoomOptions<|: Number*;
+    attribute |>ATTRIBUTE_USE:lineNumbers<|: |>CLASS_USE:LineNumberPanel<|;
+    attribute |>ATTRIBUTE_USE:frame<|: |>CLASS_USE:Frame<|;
+    attribute |>ATTRIBUTE_USE:imageCache<|: <<java.awt.Image>>*;
+    attribute |>ATTRIBUTE_USE:publicClassImage<|: String;
+    attribute |>ATTRIBUTE_USE:publicMethodImage<|: String;
+    attribute |>ATTRIBUTE_USE:publicFieldImage<|: String;
+    attribute |>ATTRIBUTE_USE:url<|:String?;
+    attribute |>ATTRIBUTE_USE:userCode<|: String;
+    attribute |>ATTRIBUTE_USE:compiledContent<|: |>CLASS_USE:Node<|*;
+    attribute |>ATTRIBUTE_USE:compileError<|: String?;
+    attribute |>ATTRIBUTE_USE:canvas<|:|>CLASS_USE:Canvas<|;
+    attribute |>ATTRIBUTE_USE:editor<|: SourceEditor;
+    attribute |>ATTRIBUTE_USE:rowHeader<|: |>CLASS_USE:Widget<|;
+    attribute |>ATTRIBUTE_USE:completionList<|:|>CLASS_USE:ListBox<|;
+    attribute |>ATTRIBUTE_USE:compileRequests<|: Number;
+    attribute |>ATTRIBUTE_USE:completionRequests<|: Number;
+    attribute |>ATTRIBUTE_USE:compilation<|: Compilation;
+    attribute |>ATTRIBUTE_USE:completionStartPos<|: Number;
+    attribute |>ATTRIBUTE_USE:inCompletion<|: Boolean;
+    attribute |>ATTRIBUTE_USE:updatingCompletions<|: Boolean;
+    attribute |>ATTRIBUTE_USE:completionX<|: Number;
+    attribute |>ATTRIBUTE_USE:completionY<|: Number;
+    attribute |>ATTRIBUTE_USE:pageSize<|: Number;
+    attribute |>ATTRIBUTE_USE:selectedDoc<|: String?;
+    attribute |>ATTRIBUTE_USE:selectedProposal<|: Number;
+    attribute |>ATTRIBUTE_USE:errMessages<|: |>CLASS_USE:ErrorMessage<|*;
+    operation |>OPERATION_DECLARATION:evaluate<|(sourceCode:String, run:Boolean);
+    attribute |>ATTRIBUTE_USE:completionProposals<|: |>CLASS_USE:CompletionProposal<|*;
+    operation |>OPERATION_DECLARATION:compile<|();
+    operation |>OPERATION_DECLARATION:completionRequest<|(k:|>CLASS_USE:KeyStroke<|);
+    operation |>OPERATION_DECLARATION:go<|();
+    operation |>OPERATION_DECLARATION:up<|();
+    operation |>OPERATION_DECLARATION:down<|();
+    operation |>OPERATION_DECLARATION:pageUp<|();
+    operation |>OPERATION_DECLARATION:pageDown<|();
+    operation |>OPERATION_DECLARATION:home<|();
+    operation |>OPERATION_DECLARATION:end<|();
+    operation |>OPERATION_DECLARATION:formatMethod<|(method:Method): String;
+    operation |>OPERATION_DECLARATION:formatType<|(|>ATTRIBUTE_USE:type<|:Class): String;
+    operation |>OPERATION_DECLARATION:makeField<|(field:String): String;
+    operation |>OPERATION_DECLARATION:makeAttr<|(|>ATTRIBUTE_USE:a<|:Attribute): String;
+    operation |>OPERATION_DECLARATION:makeVar<|(decl:VariableDeclarator): String;
+    operation |>OPERATION_DECLARATION:makeType<|(|>ATTRIBUTE_USE:type<|:String): String;
+    operation |>OPERATION_DECLARATION:makeOp<|(op:Operation): String;
+    operation |>OPERATION_DECLARATION:makeFunction<|(funName:String, def:Operation): String;
+    attribute |>ATTRIBUTE_USE:editorLineCount<|: Number;
+    operation |>OPERATION_DECLARATION:formatCode<|();
+    operation |>OPERATION_DECLARATION:doCompletion<|(keyboard:Boolean);
+    attribute |>ATTRIBUTE_USE:sourcePath<|: URL*;
+    operation |>OPERATION_DECLARATION:setSourcePath<|(urls:URL*);
+    attribute |>ATTRIBUTE_USE:matchCase<|: Boolean;
+    operation |>OPERATION_DECLARATION:doSearch<|();
+    attribute |>ATTRIBUTE_USE:searchActive<|: Boolean;
+    attribute |>ATTRIBUTE_USE:searchValue<|: String;
+    operation |>OPERATION_DECLARATION:highlightAll<|();
+    operation |>OPERATION_DECLARATION:searchNext<|();
+    operation |>OPERATION_DECLARATION:searchPrev<|();
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:doSearch<|() {
+    if (|>ATTRIBUTE_USE:searchActive<|) {
+	searchNext();
+    } else {
+	|>ATTRIBUTE_USE:searchActive<| = true;
+    }
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:searchNext<|() {
+    var text = |>ATTRIBUTE_USE:editor<|.text;
+    var value = |>ATTRIBUTE_USE:searchValue<|;
+    if (not |>ATTRIBUTE_USE:matchCase<|) {
+	|>ATTRIBUTE_USE:text<| = |>ATTRIBUTE_USE:text<|.toUpperCase();
+	|>ATTRIBUTE_USE:value<| = |>ATTRIBUTE_USE:value<|.toUpperCase();
+    }
+    var dot = |>ATTRIBUTE_USE:editor<|.caretDot + |>ATTRIBUTE_USE:value<|.length() + 1;
+    var i = |>ATTRIBUTE_USE:text<|.indexOf(|>ATTRIBUTE_USE:value<|, dot);
+    if (i >= 0) {
+	|>ATTRIBUTE_USE:editor<|.highlight = [i, i + |>ATTRIBUTE_USE:value<|.length()];
+	|>ATTRIBUTE_USE:editor<|.setSelection(i, i);
+    }
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:searchPrev<|() {
+    var text = |>ATTRIBUTE_USE:editor<|.text;
+    var dot = |>ATTRIBUTE_USE:editor<|.caretDot-1;
+    var value = |>ATTRIBUTE_USE:searchValue<|;
+    if (not |>ATTRIBUTE_USE:matchCase<|) {
+	|>ATTRIBUTE_USE:text<| = |>ATTRIBUTE_USE:text<|.toUpperCase();
+	|>ATTRIBUTE_USE:value<| = |>ATTRIBUTE_USE:value<|.toUpperCase();
+    }
+    var i = |>ATTRIBUTE_USE:text<|.lastIndexOf(|>ATTRIBUTE_USE:value<|, dot);
+    if (i >= 0) {
+	|>ATTRIBUTE_USE:editor<|.highlight = [i, i + |>ATTRIBUTE_USE:value<|.length()];
+	|>ATTRIBUTE_USE:editor<|.setSelection(i, i);
+    }
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:highlightAll<|() {
+    if (|>ATTRIBUTE_USE:searchValue<| == "") {
+	|>ATTRIBUTE_USE:editor<|.highlight = null;
+	return;
+    }
+    var value = |>ATTRIBUTE_USE:searchValue<|;
+    var dot = 0; //editor.caretDot;
+    var text = |>ATTRIBUTE_USE:editor<|.text;
+    if (not |>ATTRIBUTE_USE:matchCase<|) {
+	|>ATTRIBUTE_USE:text<| = |>ATTRIBUTE_USE:text<|.toUpperCase();
+	|>ATTRIBUTE_USE:value<| = |>ATTRIBUTE_USE:value<|.toUpperCase();
+    }
+    var len = |>ATTRIBUTE_USE:value<|.length();
+    var i = |>ATTRIBUTE_USE:text<|.indexOf(|>ATTRIBUTE_USE:value<|, dot);
+    delete |>ATTRIBUTE_USE:editor<|.highlight;
+    if (i >= 0) {
+	var i0 = i;
+	while (i >= 0) {
+	    insert [i, i+len] into |>ATTRIBUTE_USE:editor<|.highlight;
+	    i = |>ATTRIBUTE_USE:text<|.indexOf(|>ATTRIBUTE_USE:value<|, i + 1);
+	}
+	|>ATTRIBUTE_USE:editor<|.setSelection(i0, i0);
+    }
+}
+
+trigger on |>CLASS_USE:JavaFXPad<|.searchActive = newValue {
+    //editor.jtextarea.getCaret().setSelectionVisible(newValue); // hack: fix me
+    if (not newValue) {
+	|>ATTRIBUTE_USE:searchValue<| = "";
+	|>ATTRIBUTE_USE:editor<|.getComponent().requestFocus();
+    }
+}
+
+trigger on |>CLASS_USE:JavaFXPad<|.searchValue = newValue {
+    if (|>ATTRIBUTE_USE:searchValue<| == "") {
+	|>ATTRIBUTE_USE:editor<|.highlight = null;
+	return;
+    }
+    var dot = 0; //editor.caretDot;
+    var text = |>ATTRIBUTE_USE:editor<|.text;
+    if (not |>ATTRIBUTE_USE:matchCase<|) {
+	|>ATTRIBUTE_USE:text<| = |>ATTRIBUTE_USE:text<|.toUpperCase();
+	newValue = newValue.toUpperCase();
+    }
+    var i = |>ATTRIBUTE_USE:text<|.indexOf(newValue, dot);
+    if (i >= 0) {
+	|>ATTRIBUTE_USE:editor<|.highlight = [i, i + newValue.length()];
+	|>ATTRIBUTE_USE:editor<|.setSelection(i, i);
+    } else {
+	|>ATTRIBUTE_USE:editor<|.highlight = null;
+    }
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:setSourcePath<|(urls: URL*) {
+    println("setting source path to : {urls}");
+    |>ATTRIBUTE_USE:sourcePath<| = urls;
+    |>ATTRIBUTE_USE:compilation<|.setSourcePath(urls);
+}
+
+attribute |>CLASS_USE:JavaFXPad<|.fontSize = 16;
+
+trigger on new |>CLASS_USE:JavaFXPad<| {
+    var self = this;
+    /*
+   Thread.currentThread().getThreadGroup().setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+           operation uncaughtException(thr, t:Throwable) {
+               if (t.message <> null) {
+                   insert ErrorMessage {message: "{t.message}"} into self.errMessages;
+               }
+           }
+       });
+*/
+}
+
+attribute |>CLASS_USE:JavaFXPad<|.validateAutomatically = true;
+attribute |>CLASS_USE:JavaFXPad<|.runAutomatically = true;
+
+trigger on |>CLASS_USE:JavaFXPad<|.compileError = e {
+    println(e);
+}
+
+
+attribute |>CLASS_USE:JavaFXPad<|.imageCache = (select i.getImage() from i in select |>CLASS_USE:Image<| {|>ATTRIBUTE_USE:url<|: |>ATTRIBUTE_USE:url<|} from |>ATTRIBUTE_USE:url<| in [|>ATTRIBUTE_USE:publicMethodImage<|, |>ATTRIBUTE_USE:publicFieldImage<|, |>ATTRIBUTE_USE:publicClassImage<|]);
+
+attribute |>CLASS_USE:JavaFXPad<|.publicMethodImage = "{__DOCBASE__}/images/methpub_obj.gif";
+attribute |>CLASS_USE:JavaFXPad<|.publicFieldImage = "{__DOCBASE__}/images/field_public_obj.gif";
+attribute |>CLASS_USE:JavaFXPad<|.publicClassImage = "{__DOCBASE__}/images/class_obj.gif";
+attribute |>CLASS_USE:JavaFXPad<|.pageSize = 8;
+
+attribute |>CLASS_USE:JavaFXPad<|.selectedProposal = bind |>ATTRIBUTE_USE:completionList<|.selection;
+attribute |>CLASS_USE:JavaFXPad<|.zoomOptions = [8.33, 12.5, 25, 50, 100, 125, 150, 200, 400, 800, 1600];
+attribute |>CLASS_USE:JavaFXPad<|.zoomSelection = 4;
+attribute |>CLASS_USE:JavaFXPad<|.zoomValue = bind |>ATTRIBUTE_USE:zoomOptions<|[|>ATTRIBUTE_USE:zoomSelection<|];
+attribute |>CLASS_USE:JavaFXPad<|.editorLineCount = bind |>ATTRIBUTE_USE:editor<|.lineCount;
+
+trigger on |>CLASS_USE:JavaFXPad<|.zoomValue = |>ATTRIBUTE_USE:value<| {    
+//println("zoom = {value}");
+}
+
+trigger on |>CLASS_USE:JavaFXPad<|.editorLineCount = |>ATTRIBUTE_USE:value<| {
+//println("lineCount = {value}");
+}
+
+trigger on |>CLASS_USE:JavaFXPad<|.selectedProposal = |>ATTRIBUTE_USE:value<| {
+    |>ATTRIBUTE_USE:selectedDoc<| = null;
+    for (i in [false, true]) (dur 500 while |>ATTRIBUTE_USE:selectedProposal<| == |>ATTRIBUTE_USE:value<|) {
+        if (i and |>ATTRIBUTE_USE:selectedProposal<| == |>ATTRIBUTE_USE:value<|) {
+            |>ATTRIBUTE_USE:selectedDoc<| = |>ATTRIBUTE_USE:completionProposals<|[|>ATTRIBUTE_USE:value<|].documentation;
+        }                        
+    }
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:makeField<|(field:String): String {
+    return "<html><table cellpadding='0 0 0 4' cellspacing='0'><tr><td><img src='{|>ATTRIBUTE_USE:publicFieldImage<|}'></td><td>{field}</td></tr></html>";
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:makeAttr<|(|>ATTRIBUTE_USE:a<|:Attribute): String {
+    var t = formatType(|>ATTRIBUTE_USE:a<|.Type);
+    var s = formatType(|>ATTRIBUTE_USE:a<|.Scope);
+    return "<html><table cellpadding='0 0 0 4' cellspacing='0'><tr><td><img src='{|>ATTRIBUTE_USE:publicFieldImage<|}'></td><td>{|>ATTRIBUTE_USE:a<|.Name}&nbsp;&nbsp;&nbsp;&nbsp;{t}&nbsp;-&nbsp;{s}</td></tr></html>";
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:makeVar<|(decl:VariableDeclarator): String {
+    var t = formatType(decl.getType());
+    return "<html><table cellpadding='0 0 0 4' cellspacing='0'><tr><td><img src='{|>ATTRIBUTE_USE:publicFieldImage<|}'></td><td>{decl.getVarName()}&nbsp;&nbsp;&nbsp;&nbsp;{t}&nbsp;-&nbsp;</td></tr></html>";
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:makeType<|(|>ATTRIBUTE_USE:type<|:String): String {
+    return "<html><table cellpadding='0 0 0 4' cellspacing='0'><tr><td><img src='{|>ATTRIBUTE_USE:publicClassImage<|}'></td><td>{|>ATTRIBUTE_USE:type<|}</td></tr></html>";
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:makeOp<|(op:Operation): String {
+    var content = "{op.Name}(";
+    var sep = "";
+    var ret = null;
+    for (i in op.Attributes) {
+        if (i.Name == "this") {
+            continue;
+        } else if (i.Name == "return") {
+            ret = i;
+        } else {
+            |>ATTRIBUTE_USE:content<| = "{|>ATTRIBUTE_USE:content<|}{sep}{i.Name}:{formatType(i.Type)}";
+        }
+        sep = ", ";
+    }
+    if (ret <> null) {
+        |>ATTRIBUTE_USE:content<| = "{|>ATTRIBUTE_USE:content<|}): {formatType(ret.Type)}";
+    } else {
+        |>ATTRIBUTE_USE:content<| = "{|>ATTRIBUTE_USE:content<|})";
+    }
+    return "<html><table cellpadding='0 0 0 4' cellspacing='0'><tr><td><img src='{|>ATTRIBUTE_USE:publicMethodImage<|}'></td><td>{|>ATTRIBUTE_USE:content<|}</td></tr></html>";
+    
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:makeFunction<|(funName: String, op:Operation): String {
+    var content = "{funName}(";
+    var sep = "";
+    var ret = null;
+    for (i in op.Attributes[Name <> 'this' and Name <> 'return']) {
+        |>ATTRIBUTE_USE:content<| = "{|>ATTRIBUTE_USE:content<|}{sep}{i.Name}";
+        sep = ", ";
+    }
+    |>ATTRIBUTE_USE:content<| = "{|>ATTRIBUTE_USE:content<|})";
+    return |>ATTRIBUTE_USE:content<|;
+    
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:go<|() {
+    println("go...");
+    |>ATTRIBUTE_USE:userCode<| = getResourceAsString(|>ATTRIBUTE_USE:url<|);
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:up<|() {
+    var i = |>ATTRIBUTE_USE:completionList<|.selection;
+    if (i < 0) {
+        i = 0;
+    } else {
+        i--;
+        if (i < 0) {
+            i = sizeof |>ATTRIBUTE_USE:completionProposals<|-1;
+        }
+        |>ATTRIBUTE_USE:completionList<|.selection = i;
+    }
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:down<|() {
+    var i = |>ATTRIBUTE_USE:completionList<|.selection;
+    if (i < 0) {
+        i = 0;
+    }  else {
+        i++;
+        if (i >= sizeof |>ATTRIBUTE_USE:completionProposals<|) {
+            i = 0;
+        }
+        |>ATTRIBUTE_USE:completionList<|.selection = i;
+    }
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:pageUp<|() {
+    var i = |>ATTRIBUTE_USE:completionList<|.selection;
+    if (i < |>ATTRIBUTE_USE:pageSize<|) {
+        return;
+    }
+    i -= |>ATTRIBUTE_USE:pageSize<|;
+    if (i < 0) {
+        i = 0;
+    }
+    |>ATTRIBUTE_USE:completionList<|.selection = i;
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:pageDown<|() {
+    var i = |>ATTRIBUTE_USE:completionList<|.selection;
+    if (i > sizeof |>ATTRIBUTE_USE:completionProposals<| - |>ATTRIBUTE_USE:pageSize<|) {
+        return;
+    }
+    i += |>ATTRIBUTE_USE:pageSize<|;
+    if (i > sizeof |>ATTRIBUTE_USE:completionProposals<| -1) {
+        i = sizeof |>ATTRIBUTE_USE:completionProposals<| - 1;
+    }
+    |>ATTRIBUTE_USE:completionList<|.selection = i;
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:home<|() {
+    |>ATTRIBUTE_USE:completionList<|.selection = 0;
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:end<|() {
+    |>ATTRIBUTE_USE:completionList<|.selection = sizeof |>ATTRIBUTE_USE:completionProposals<| -1;
+}
+
+trigger on |>CLASS_USE:JavaFXPad<|.editor = |>ATTRIBUTE_USE:value<| {
+    var comp = |>ATTRIBUTE_USE:editor<|.getNonScrollPaneComponent();
+    var inputMap = comp.getInputMap();
+    var tabKey = inputMap.get(JKeyStroke.getKeyStroke(AWTKeyEvent.VK_TAB, 0));
+    var leftKey = inputMap.get(JKeyStroke.getKeyStroke(AWTKeyEvent.VK_LEFT, 0));
+    var rightKey = inputMap.get(JKeyStroke.getKeyStroke(AWTKeyEvent.VK_RIGHT, 0));
+    var upKey = inputMap.get(JKeyStroke.getKeyStroke(AWTKeyEvent.VK_UP, 0));
+    var downKey = inputMap.get(JKeyStroke.getKeyStroke(AWTKeyEvent.VK_DOWN, 0));
+    var pageUpKey = inputMap.get(JKeyStroke.getKeyStroke(AWTKeyEvent.VK_PAGE_UP, 0));
+    var pageDownKey = inputMap.get(JKeyStroke.getKeyStroke(AWTKeyEvent.VK_PAGE_DOWN, 0));
+    var homeKey = inputMap.get(JKeyStroke.getKeyStroke(AWTKeyEvent.VK_HOME, 0));
+    var endKey = inputMap.get(JKeyStroke.getKeyStroke(AWTKeyEvent.VK_END, 0));
+    var enterKey = inputMap.get(JKeyStroke.getKeyStroke(AWTKeyEvent.VK_ENTER, 0));
+    var enterAction = (Action)comp.getActionMap().get(enterKey);
+    var upAction = (Action)comp.getActionMap().get(upKey);
+    var downAction = (Action)comp.getActionMap().get(downKey);
+    var pageUpAction = (Action)comp.getActionMap().get(pageUpKey);
+    var pageDownAction = (Action)comp.getActionMap().get(pageDownKey);
+    var homeAction = (Action)comp.getActionMap().get(homeKey);
+    var endAction = (Action)comp.getActionMap().get(endKey);
+    var leftAction = (Action)comp.getActionMap().get(leftKey);
+    var rightAction = (Action)comp.getActionMap().get(rightKey);
+    var self = this;
+    comp.getActionMap().put(upKey, new Action() {
+        operation |>OPERATION_DECLARATION:isEnabled<|() {
+            return upAction.isEnabled();
+        }
+        operation |>OPERATION_DECLARATION:actionPerformed<|(e) {
+            if (self.inCompletion) {
+                self.up();
+            } else {
+                upAction.actionPerformed(e);
+            }
+        }
+    });
+    comp.getActionMap().put(downKey, new Action() {
+        operation |>OPERATION_DECLARATION:isEnabled<|() {
+            return downAction.isEnabled();
+        }
+        operation |>OPERATION_DECLARATION:actionPerformed<|(e) {
+            if (self.inCompletion) {
+                self.down();
+            } else {
+                downAction.actionPerformed(e);
+            }
+        }
+    });
+    comp.getActionMap().put(pageDownKey, new Action() {
+        operation |>OPERATION_DECLARATION:isEnabled<|() {
+            return pageDownAction.isEnabled();
+        }
+        operation |>OPERATION_DECLARATION:actionPerformed<|(e) {
+            if (self.inCompletion) {
+                self.pageDown();
+            } else {
+                //println("page down...{pageDownAction}");
+                pageDownAction.actionPerformed(e);
+            }
+        }
+    });
+    comp.getActionMap().put(pageUpKey, new Action() {
+        operation |>OPERATION_DECLARATION:isEnabled<|() {
+            return pageUpAction.isEnabled();
+        }
+        operation |>OPERATION_DECLARATION:actionPerformed<|(e) {
+            if (self.inCompletion) {
+                self.pageUp();
+            } else {
+                //println("page up...{pageUpAction}");
+                pageUpAction.actionPerformed(e);
+            }
+        }
+    });
+    comp.getActionMap().put(homeKey, new Action() {
+        operation |>OPERATION_DECLARATION:isEnabled<|() {
+            return homeAction.isEnabled();
+        }
+        operation |>OPERATION_DECLARATION:actionPerformed<|(e) {
+            if (self.inCompletion) {
+                self.home();
+            } else {
+                homeAction.actionPerformed(e);
+            }
+        }
+    });
+    comp.getActionMap().put(endKey, new Action() {
+        operation |>OPERATION_DECLARATION:isEnabled<|() {
+            return endAction.isEnabled();
+        }
+        operation |>OPERATION_DECLARATION:actionPerformed<|(e) {
+            if (self.inCompletion) {
+                self.end();
+            } else {
+                endAction.actionPerformed(e);
+            }
+        }
+    });
+    comp.getActionMap().put(leftKey, new Action() {
+        operation |>OPERATION_DECLARATION:isEnabled<|() {
+            return leftAction.isEnabled();
+        }
+        operation |>OPERATION_DECLARATION:actionPerformed<|(e) {
+            self.inCompletion = false;
+            leftAction.actionPerformed(e);
+        }
+    });
+    comp.getActionMap().put(rightKey, new Action() {
+        operation |>OPERATION_DECLARATION:isEnabled<|() {
+            return rightAction.isEnabled();
+        }
+        operation |>OPERATION_DECLARATION:actionPerformed<|(e) {
+            self.inCompletion = false;
+            rightAction.actionPerformed(e);
+        }
+    });
+    comp.getActionMap().put(tabKey, new Action() {
+        operation |>OPERATION_DECLARATION:isEnabled<|() {
+            return true;
+        }
+        operation |>OPERATION_DECLARATION:actionPerformed<|(e) {
+        //println("tab pressed");
+        }
+    });
+    comp.getActionMap().put(enterKey, new Action() {
+        operation |>OPERATION_DECLARATION:isEnabled<|() {
+            return enterAction.isEnabled();
+        }
+        operation |>OPERATION_DECLARATION:actionPerformed<|(e) {
+            if (not self.inCompletion) {
+                enterAction.actionPerformed(e);
+            }
+        }
+    });
+    var shift_ctrl_f = JKeyStroke.getKeyStroke(AWTKeyEvent.VK_F, AWTKeyEvent.CTRL_MASK+AWTKeyEvent.SHIFT_MASK);
+    
+    comp.getInputMap().put(shift_ctrl_f, "format");
+    comp.getActionMap().put("format", new Action() {
+        operation |>OPERATION_DECLARATION:isEnabled<|() {
+            return true;
+        }
+        operation |>OPERATION_DECLARATION:actionPerformed<|(e) {
+            self.formatCode();
+        }
+    });
+    
+    
+    
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:formatCode<|() {
+    if (true) {
+        var line = |>ATTRIBUTE_USE:editor<|.getLineOfOffset(|>ATTRIBUTE_USE:editor<|.caretDot) + 1;
+        var lineOffset = |>ATTRIBUTE_USE:editor<|.getLineStartOffset(|>ATTRIBUTE_USE:line<|-1);
+        var colOffset = |>ATTRIBUTE_USE:editor<|.caretDot - lineOffset + 1;
+        var fmt = new JFXCodeFormatter();
+        var result = fmt.formatCode(|>ATTRIBUTE_USE:editor<|.text, |>ATTRIBUTE_USE:line<|, lineOffset, colOffset, |>ATTRIBUTE_USE:editor<|.caretDot);
+        var newLineOff = fmt.getLineOffset();
+        |>ATTRIBUTE_USE:editor<|.text = result;
+        |>ATTRIBUTE_USE:editor<|.setCaretPosition(newLineOff);
+        return;
+    }
+    //println("format code...");
+    var textNoCRs = |>ATTRIBUTE_USE:editor<|.text.replaceAll("\r", "");
+    var reader = new StringReader(textNoCRs);
+    var line = |>ATTRIBUTE_USE:editor<|.getLineOfOffset(|>ATTRIBUTE_USE:editor<|.caretDot) + 1;
+    var lineOffset = |>ATTRIBUTE_USE:editor<|.getLineStartOffset(|>ATTRIBUTE_USE:line<|-1);
+    var colOffset = |>ATTRIBUTE_USE:editor<|.caretDot - lineOffset + 1;
+    var sw = new StringWriter();
+    var p = new PrintWriter(sw);
+    var charStream = new SimpleCharStream(reader, 1, 0, 4096);
+    var tokenizer = new CompletionParserTokenManager(charStream);
+    var tokens = new ArrayList();
+    var caretToken = null;
+    var caretOff = 0;
+    var newCaretPos = |>ATTRIBUTE_USE:editor<|.caretDot;
+    var lastTok = (Token)null;
+    while (true) {
+        var tok = tokenizer.getNextToken();
+        tokens.add(tok);
+        if (caretToken == null and tok.beginLine == |>ATTRIBUTE_USE:line<|) {
+            if (tok.beginColumn >= colOffset) {
+                if (tok.beginColumn == colOffset or lastTok.beginLine < |>ATTRIBUTE_USE:line<|) {
+                    caretToken = tok;
+                    caretOff = tok.beginColumn - colOffset;
+                } else {
+                    caretToken = lastTok;
+                    caretOff = tok.beginColumn - colOffset;
+                }
+            }
+        }
+        if (tok.kind == 0) {
+            break;
+        }
+        lastTok = tok;
+    }
+    var indent = "    ";
+    var level = 0;
+    var skip = false;
+    var stack = new Stack();
+    var lineNumVal = 1;
+    for (i in [0..tokens.size() - 1]) {
+        var tok = (Token)tokens.get(i);
+        var special = tok.specialToken;
+        var extra = "";
+        stack.clear();
+        var skipDec = false;
+        var newLineCount = 0;
+        while (special <> null) {
+            if (special.image <> "\r") {
+                if (special.image == "\n") {
+                    newLineCount++;
+                }
+                stack.push(special);
+            }
+            special = special.specialToken;
+        }
+        while (stack.size() > 0) {
+            special = (Token)stack.pop();
+            var specialImage = special.image;
+            //println("line {lineNumVal} special='{specialImage}'");
+            if (special.kind == CompletionParserConstants.FORMAL_COMMENT or 
+            special.kind == CompletionParserConstants.MULTI_LINE_COMMENT or
+            special.kind == CompletionParserConstants.SINGLE_LINE_COMMENT) {
+                // ok
+                |>ATTRIBUTE_USE:p<|.print(specialImage);
+                if (special.kind == CompletionParserConstants.SINGLE_LINE_COMMENT) {
+                    for (i in [0..<level]) {
+                        |>ATTRIBUTE_USE:p<|.print(indent);
+                    }
+                    skip = true;
+                }
+            } else if (specialImage == "\n") {
+                lineNumVal++;
+                |>ATTRIBUTE_USE:p<|.print("\n");
+                if (tok.image == '}') {
+                    var next = special.specialToken;
+                    if (next.image == "\r") {
+                        next = next.specialToken;
+                    }
+                    if (--newLineCount == 0) {
+                        //println("early dec level to {level} at {lineNumVal} next='{next.image}'");
+                        skipDec = true;
+                        level--;
+                    } else {
+                    //println("next after newline = '{next.image}'");
+                    }
+                }        
+                for (i in [0..<level]) {
+                    |>ATTRIBUTE_USE:p<|.print(indent);
+                }
+                skip = true;
+            } else if (specialImage == "\t") {
+                if (not skip) {
+                    |>ATTRIBUTE_USE:p<|.print(indent);
+                }
+            } else if (special.image == '\r') {
+            // nothing
+            } else {
+                if (not skip) {
+                    |>ATTRIBUTE_USE:p<|.print(specialImage);
+                }
+            }
+            special = special.specialToken;
+        }
+        |>ATTRIBUTE_USE:p<|.print(tok.image);
+        if (tok.image == '{') {
+            level++;
+        //println("inc level to {level} at {lineNumVal}");
+        } else if (tok.image == '}' and not skipDec) {
+            level--;
+        //println("dec level to {level} at {lineNumVal} skipDec={skipDec}");
+        } else if (tok.image == '[') {
+        } else if (tok.image == ']') {
+        }
+        if (false and caretToken == tok) {
+            newCaretPos = sw.toString().length() -tok.image.length() + caretOff;
+        }
+        skip = false;
+    }
+    //p.print("\n");
+    var newText = sw.toString();
+    var lineCount = 0;
+    var lineOff = 0;
+    var newline = "\n".charAt(0);
+    for (i in [0..newText.length()-1]) {
+        if (|>ATTRIBUTE_USE:lineCount<| == |>ATTRIBUTE_USE:line<|-1) {
+            lineOff = i;
+            break;
+        }
+        if (newText.charAt(i) == newline) {
+            |>ATTRIBUTE_USE:lineCount<|++;
+            
+        }
+    }
+    //var lineOff = editor.getLineStartOffset(line-1);
+    var space = ' '.charAt(0);
+    var c = newText.charAt(lineOff);
+    var newColOff = 0;
+    while (|>ATTRIBUTE_USE:c<| == space) {
+        newColOff++;
+        |>ATTRIBUTE_USE:c<| = newText.charAt(lineOff+newColOff);
+        if (|>ATTRIBUTE_USE:c<| <> space) {
+            break;
+        }
+    }
+    //println("colOffset={colOffset} newColOff={newColOff}");
+    lineOff += if newColOff > colOffset-1 then newColOff else colOffset-1;
+    if (|>ATTRIBUTE_USE:userCode<| <> newText) {
+        |>ATTRIBUTE_USE:editor<|.text = newText;
+    }
+    |>ATTRIBUTE_USE:editor<|.setCaretPosition(lineOff);
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:doCompletion<|(keyboard:Boolean) {
+    var selectedIndex = this.|>ATTRIBUTE_USE:completionList<|.selection;
+    var completion = |>ATTRIBUTE_USE:completionProposals<|[|>ATTRIBUTE_USE:selectedIndex<|];
+    if (completion == null) {
+        return;
+    }
+    var replacementValue = completion.replacementText;
+    var cursorOffset = completion.cursorOffset;
+    |>ATTRIBUTE_USE:inCompletion<| = false;
+    |>ATTRIBUTE_USE:editor<|.replaceRange(replacementValue, |>ATTRIBUTE_USE:completionStartPos<|, |>ATTRIBUTE_USE:editor<|.caretDot);
+    |>ATTRIBUTE_USE:editor<|.setCaretPosition(|>ATTRIBUTE_USE:editor<|.caretDot + |>ATTRIBUTE_USE:cursorOffset<|);
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:formatType<|(t:Class) {
+    var typeName = t.Name;
+    var dot = typeName.lastIndexOf('.');
+    if (dot > 0) {
+        typeName = typeName.substring(dot + 1);
+    }
+    return typeName;
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:formatMethod<|(method:Method) {
+    var name = method.getName();
+    var buf = new StringBuffer();
+    buf.append(|>ATTRIBUTE_USE:name<|);
+    buf.append('(');
+    var parms = method.getParameterTypes();
+    var sep = "";
+    for (parm in parms) {
+        buf.append(sep);
+        buf.append("arg{indexof parm}");
+        buf.append(":");
+        var typeName = formatType(parm);
+        buf.append(typeName);
+        sep = ", ";
+    }
+    buf.append(") ");
+    buf.append(" ");
+    buf.append(formatType(method.getReturnType()));
+    buf.append(" - ");
+    buf.append(formatType(method.getDeclaringClass()));
+    return "<html><table cellpadding='0 0 0 4' cellspacing='0'><tr><td><img src='{|>ATTRIBUTE_USE:publicMethodImage<|}'></td><td>{buf.toString()}</td></tr></table></html>";
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:completionRequest<|(k:|>CLASS_USE:KeyStroke<|) {
+    operation |>OPERATION_DECLARATION:getNodeAndDerived<|() {
+        var set = new HashSet();
+        operation |>OPERATION_DECLARATION:getDerivedTypes<|(|>ATTRIBUTE_USE:c<|:Class, result:Set) {
+            if (result.contains(|>ATTRIBUTE_USE:c<|)) {
+                return;
+            }
+            result.add(|>ATTRIBUTE_USE:c<|);
+            for (i in |>ATTRIBUTE_USE:c<|.Subclasses) {
+                getDerivedTypes(i, result);
+            }
+        }
+        getDerivedTypes(:|>CLASS_USE:Node<|, set);
+        return set.toArray();
+    }
+    var fileName = if |>ATTRIBUTE_USE:url<| == null then "JavaFXPad" else |>ATTRIBUTE_USE:url<|;
+    var sourceCode = |>ATTRIBUTE_USE:editor<|.text.replaceAll("\r\n", "\n"); //hack \r\n only counts as one character as far as the caret is concerned
+    var processor = new CompletionProcessor();
+    var members;
+    var offset = |>ATTRIBUTE_USE:editor<|.caretDot-1;
+    delete |>ATTRIBUTE_USE:errMessages<|;
+    try {
+        members = processor.getMembers(|>ATTRIBUTE_USE:compilation<|, fileName,
+        sourceCode, |>ATTRIBUTE_USE:offset<|);
+    } catch (err:ValidationError) {
+        |>ATTRIBUTE_USE:compileError<| = err.getMessage();
+        |>ATTRIBUTE_USE:compileError<| = "";
+        while (err <> null) {
+            |>ATTRIBUTE_USE:compileError<| = "{|>ATTRIBUTE_USE:compileError<|}{err.getMessage()}\n";
+            var loc = err.getLocation();
+            if (loc <> null) {
+                var line = loc.getBeginLine();
+                insert |>CLASS_USE:ErrorMessage<| {|>ATTRIBUTE_USE:line<|: |>ATTRIBUTE_USE:line<|, |>ATTRIBUTE_USE:column<|: loc.getBeginColumn(), |>ATTRIBUTE_USE:length<|: loc.getEndColumn() - loc.getBeginColumn()+1, |>ATTRIBUTE_USE:message<|: err.getMessage().replaceAll("<", "&lt;")} into |>ATTRIBUTE_USE:errMessages<|;
+            }
+            err = err.getNextError();
+        }
+    }
+    var lastToken = processor.getLastTokenBeforeOffset();
+    var nextToken = processor.getNextTokenAfterOffset();
+    var prefix = processor.getPrefix();
+    if (prefix == null) {
+        prefix = "";
+    }
+    |>ATTRIBUTE_USE:completionStartPos<| = |>ATTRIBUTE_USE:editor<|.caretDot - prefix.length();
+    //delete completionProposals;
+    |>ATTRIBUTE_USE:completionList<|.selection = -1;
+    var proposals:|>CLASS_USE:CompletionProposal<| = [];
+    operation |>OPERATION_DECLARATION:getIndentAtOffset<|() {
+        var nl = sourceCode.lastIndexOf("\n", |>ATTRIBUTE_USE:offset<|) + 1;
+        var end = nl;
+        if (nl < sourceCode.length()) {
+            while (end < sourceCode.length() and Character.isWhitespace(sourceCode.charAt(end))) {
+                end++;
+            }
+            return sourceCode.substring(nl, end);
+        }
+        return "";
+    }
+    var importPrefix = processor.getImportPrefix();
+    for (i in members) {
+        if (i instanceof String) {
+            insert |>CLASS_USE:CompletionProposal<| {
+                |>ATTRIBUTE_USE:replacementText<|: (String)i
+                |>ATTRIBUTE_USE:displayValue<|: (String)i
+                |>ATTRIBUTE_USE:cursorOffset<|: 0
+            } into proposals;
+        } else if (i instanceof Operation) {
+            var op = (Operation)i;
+            if (not op.Name.startsWith(prefix)) {
+                continue;
+            }
+            if (not op.Public) {
+                continue;
+            }
+            var p = op.Attributes[|>ATTRIBUTE_USE:a<||not (|>ATTRIBUTE_USE:a<|.Name in ["this", "return"])];
+            insert |>CLASS_USE:CompletionProposal<| {
+                |>ATTRIBUTE_USE:replacementText<|: "{op.Name}()"
+                |>ATTRIBUTE_USE:displayValue<|: makeOp(op)
+                |>ATTRIBUTE_USE:cursorOffset<|: if |>ATTRIBUTE_USE:p<| == [] then 0 else -1
+                |>ATTRIBUTE_USE:documentation<|: op.Documentation
+            } into proposals;
+        } else if (i instanceof Class) {
+            var c = (Class)i;
+            if (not |>ATTRIBUTE_USE:c<|.Public or |>ATTRIBUTE_USE:c<|.Abstract) {
+                continue;
+            }
+            var name = this.formatType(|>ATTRIBUTE_USE:c<|);
+            if (not |>ATTRIBUTE_USE:name<|.startsWith(prefix)) {
+                continue;
+            }
+            var replacement = |>ATTRIBUTE_USE:name<|;
+            var cursorOffset = 0;
+            if (nextToken.image <> '{') {
+                var indent = getIndentAtOffset();
+                replacement = "{|>ATTRIBUTE_USE:name<|} \{\n{indent}\t\n{indent}}";
+            |>ATTRIBUTE_USE:cursorOffset<| = -(indent.length() + 2);
+        }
+        insert |>CLASS_USE:CompletionProposal<| {
+            |>ATTRIBUTE_USE:replacementText<|: replacement
+            |>ATTRIBUTE_USE:displayValue<|: makeType(|>ATTRIBUTE_USE:name<|)
+            |>ATTRIBUTE_USE:cursorOffset<|: |>ATTRIBUTE_USE:cursorOffset<|
+            |>ATTRIBUTE_USE:documentation<|: |>ATTRIBUTE_USE:c<|.Documentation
+        } into proposals;
+    } else if (i instanceof Attribute) {
+        var a = (Attribute)i;
+        if (not |>ATTRIBUTE_USE:a<|.Public) {
+            continue;
+        }
+        if (not |>ATTRIBUTE_USE:a<|.Name.startsWith(prefix)) {
+            continue;
+        }
+        var replacement = |>ATTRIBUTE_USE:a<|.Name;
+        var cursorOffset = 0;
+        if (processor.isObjLiteral()) {
+            if (lastToken.next.next.image == "attribute") {
+                if (nextToken.image <> "=") {
+                    replacement = "{|>ATTRIBUTE_USE:a<|.Name} = ";
+                }
+            } else if (nextToken.image <> ":") {
+                replacement = "{|>ATTRIBUTE_USE:a<|.Name}: ";
+            }
+            if (|>ATTRIBUTE_USE:a<|.OneToMany or |>ATTRIBUTE_USE:a<|.ManyToMany) {
+                var indent = getIndentAtOffset();
+                replacement = "{replacement}\n{indent}[]";
+                |>ATTRIBUTE_USE:cursorOffset<| = -1;
+            }
+        }
+        insert |>CLASS_USE:CompletionProposal<| {
+            |>ATTRIBUTE_USE:replacementText<|: replacement
+            |>ATTRIBUTE_USE:displayValue<|: makeAttr(|>ATTRIBUTE_USE:a<|)
+            |>ATTRIBUTE_USE:cursorOffset<|: |>ATTRIBUTE_USE:cursorOffset<|
+            |>ATTRIBUTE_USE:documentation<|: |>ATTRIBUTE_USE:a<|.Documentation
+        } into proposals;
+    } else if (i instanceof VariableDeclarator) {
+        var decl = (VariableDeclarator)i;
+        insert |>CLASS_USE:CompletionProposal<| {
+            |>ATTRIBUTE_USE:replacementText<|: decl.getVarName()
+            |>ATTRIBUTE_USE:displayValue<|: makeVar(decl)
+        } into proposals;
+    } else if (i instanceof Method) {
+        var method = (Method)i;
+        var name = method.getName();
+        if (not |>ATTRIBUTE_USE:name<|.startsWith(prefix)) {
+            continue;
+        }
+        var displayName = this.formatMethod(method);
+        insert |>CLASS_USE:CompletionProposal<| {
+            |>ATTRIBUTE_USE:replacementText<|: "{|>ATTRIBUTE_USE:name<|}()"
+            |>ATTRIBUTE_USE:displayValue<|: displayName
+            |>ATTRIBUTE_USE:cursorOffset<|: if method.getParameterTypes() == [] then 0 else -1
+        } into proposals;
+    } else if (i instanceof MapEntry) {
+        var m = (MapEntry)i;
+        var key = (String)m.getKey();
+        var value = m.getValue();
+        var displayValue = makeField(key);
+        var off = 0;
+        if (|>ATTRIBUTE_USE:value<| instanceof |>CLASS_USE:Color<|) {
+            var color = (|>CLASS_USE:Color<|)|>ATTRIBUTE_USE:value<|;
+            var r = (|>ATTRIBUTE_USE:color<|.red*255).intValue();
+            var g = (|>ATTRIBUTE_USE:color<|.green*255).intValue();
+            var b = (|>ATTRIBUTE_USE:color<|.blue*255).intValue();
+            var bgcolor = "#{r format as <<%02X>>}{g format as <<%02X>>}{|>ATTRIBUTE_USE:b<| format as <<%02X>>}";
+            |>ATTRIBUTE_USE:displayValue<| = "<html><table><tr><td width='16' bgcolor='{bgcolor}'>&nbsp;</td><td>{key}</td></tr></table></html>";          
+        }
+        if (not key.startsWith(prefix)) {
+            continue;
+        }
+        if (|>ATTRIBUTE_USE:value<|.class instanceof Operation) {
+            |>ATTRIBUTE_USE:displayValue<| = makeFunction(key, (Operation) |>ATTRIBUTE_USE:value<|.class);
+            var args = |>ATTRIBUTE_USE:value<|.class.Attributes[Name <> 'this' and Name <> 'return'];
+            off = key.length()+2;
+            key = "{key}({foreach (|>ATTRIBUTE_USE:a<| in args) "{|>ATTRIBUTE_USE:a<|.Name}{if indexof |>ATTRIBUTE_USE:a<| < sizeof args-1 then ", " else ""}"})";
+            off = off - key.length();
+        }
+        insert |>CLASS_USE:CompletionProposal<| {
+            |>ATTRIBUTE_USE:replacementText<|: key
+            |>ATTRIBUTE_USE:displayValue<|: |>ATTRIBUTE_USE:displayValue<|
+            |>ATTRIBUTE_USE:cursorOffset<|: off
+        } into proposals;
+    }
+}       
+delete proposals[|>ATTRIBUTE_USE:p<||not |>ATTRIBUTE_USE:p<|.replacementText.startsWith(prefix)];
+if (sizeof proposals > 0) {
+    var list = Arrays.asList(proposals);
+    Collections.sort(|>ATTRIBUTE_USE:list<|, new Comparator() {
+        operation |>OPERATION_DECLARATION:compare<|(o1, o2) {
+            var p1 = (|>CLASS_USE:CompletionProposal<|)o1;
+            var p2 = (|>CLASS_USE:CompletionProposal<|)o2;
+            return p1.displayValue.compareTo(p2.displayValue);
+        }
+    });
+    proposals = (|>CLASS_USE:CompletionProposal<|*)list.toArray();
+}
+|>ATTRIBUTE_USE:updatingCompletions<| = true;
+|>ATTRIBUTE_USE:completionProposals<| = proposals;
+|>ATTRIBUTE_USE:completionList<|.selection = 0;
+|>ATTRIBUTE_USE:updatingCompletions<| = false;
+// fix me: this is just temporary hacking for now...
+var viewLocation = |>ATTRIBUTE_USE:editor<|.modelToView(|>ATTRIBUTE_USE:editor<|.caretDot);
+var editorLoc = |>ATTRIBUTE_USE:editor<|.getNonScrollPaneComponent().getLocationOnScreen();
+var topViewLoc = |>ATTRIBUTE_USE:component<|.getLocationOnScreen();
+var dx = editorLoc.x - topViewLoc.x;
+var dy = editorLoc.y - topViewLoc.y; 
+var x = |>ATTRIBUTE_USE:dx<| + viewLocation.x + viewLocation.width;
+var y = |>ATTRIBUTE_USE:dy<| + viewLocation.y + viewLocation.height;
+var w = |>ATTRIBUTE_USE:component<|.getWidth();
+var h = |>ATTRIBUTE_USE:component<|.getHeight();
+if (|>ATTRIBUTE_USE:x<| + 300 > w) {
+    |>ATTRIBUTE_USE:x<| = w - 300;
+}
+if (|>ATTRIBUTE_USE:y<| + 150 > h) {
+    |>ATTRIBUTE_USE:y<| = h - 150;
+}
+|>ATTRIBUTE_USE:completionX<| = |>ATTRIBUTE_USE:x<|;
+|>ATTRIBUTE_USE:completionY<| = |>ATTRIBUTE_USE:y<|;
+|>ATTRIBUTE_USE:inCompletion<| = sizeof proposals > 0;
+}
+
+trigger on |>CLASS_USE:JavaFXPad<|.inCompletion = |>ATTRIBUTE_USE:value<| {
+if (not |>ATTRIBUTE_USE:value<|) {
+    |>ATTRIBUTE_USE:updatingCompletions<| = true;
+    delete |>ATTRIBUTE_USE:completionProposals<|;
+    |>ATTRIBUTE_USE:updatingCompletions<| = false;
+}
+}
+
+function |>CLASS_USE:JavaFXPad<|.|>FUNCTION_DECLARATION:isValid<|() {
+    return sizeof |>ATTRIBUTE_USE:errMessages<| == 0;
+}
+
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:evaluate<|(sourceCode:String, run:Boolean) {
+if (|>ATTRIBUTE_USE:compilation<| == null) {
+    |>ATTRIBUTE_USE:compilation<| = new Compilation(context:UIContext.getModule());
+    |>ATTRIBUTE_USE:compilation<|.setSourcePath(|>ATTRIBUTE_USE:sourcePath<|);
+}
+var fileName = if |>ATTRIBUTE_USE:url<| == null then "JavaFXPad" else |>ATTRIBUTE_USE:url<|;
+var unit;
+try {
+    unit = |>ATTRIBUTE_USE:compilation<|.readCompilationUnit(fileName, new StringReader(sourceCode));
+} catch(err:ValidationError) {
+    |>ATTRIBUTE_USE:compileError<| = "";
+    delete |>ATTRIBUTE_USE:errMessages<|;
+    while (err <> null) {
+        |>ATTRIBUTE_USE:compileError<| = "{|>ATTRIBUTE_USE:compileError<|}{err.getMessage()}\n";
+        var loc = err.getLocation();
+        if (loc <> null) {
+            var line = loc.getBeginLine();
+            insert |>CLASS_USE:ErrorMessage<| {|>ATTRIBUTE_USE:line<|: |>ATTRIBUTE_USE:line<|, |>ATTRIBUTE_USE:column<|: loc.getBeginColumn(), |>ATTRIBUTE_USE:length<|: loc.getEndColumn() - loc.getBeginColumn()+1, |>ATTRIBUTE_USE:message<|: err.getMessage()} into |>ATTRIBUTE_USE:errMessages<|;
+        } 
+        err = err.getNextError();
+    }
+    return;
+}
+var stmt = unit.getStatements();
+var processor = new CompletionProcessor();
+var line = |>ATTRIBUTE_USE:editor<|.getLineOfOffset(|>ATTRIBUTE_USE:editor<|.caretDot);
+var lineOffset = |>ATTRIBUTE_USE:editor<|.getLineStartOffset(|>ATTRIBUTE_USE:line<|);
+var colOffset = |>ATTRIBUTE_USE:editor<|.caretDot - lineOffset;
+var t = processor.getType(stmt, lineOffset, colOffset);
+var contextType = processor.getContextType();
+var viewLocation = |>ATTRIBUTE_USE:editor<|.modelToView(|>ATTRIBUTE_USE:editor<|.caretDot);
+var err = |>ATTRIBUTE_USE:compilation<|.getLastError();
+delete |>ATTRIBUTE_USE:errMessages<|;
+|>ATTRIBUTE_USE:compileError<| = null;
+if (err <> null) {
+    |>ATTRIBUTE_USE:compileError<| = "";
+    while (err <> null) {
+        |>ATTRIBUTE_USE:compileError<| = "{|>ATTRIBUTE_USE:compileError<|}{err.getMessage()}\n";
+        var loc = err.getLocation();
+        if (loc <> null) {
+            var line = loc.getBeginLine();
+            insert |>CLASS_USE:ErrorMessage<| {|>ATTRIBUTE_USE:line<|: |>ATTRIBUTE_USE:line<|, |>ATTRIBUTE_USE:column<|: loc.getBeginColumn(), |>ATTRIBUTE_USE:length<|: loc.getEndColumn() - loc.getBeginColumn()+1, |>ATTRIBUTE_USE:message<|: err.getMessage().replaceAll("<", "&lt;")} into |>ATTRIBUTE_USE:errMessages<|;
+        }
+        err = err.getNextError();
+    }
+} else if (run) {
+    var result;
+    try {
+        result = unit.execute();
+    } catch (err:ValidationError) {
+        while (err <> null) {
+            |>ATTRIBUTE_USE:compileError<| = "{|>ATTRIBUTE_USE:compileError<|}{err.getMessage()}\n";
+            var loc = err.getLocation();
+            if (loc <> null) {
+                var line = loc.getBeginLine();
+                insert |>CLASS_USE:ErrorMessage<| {|>ATTRIBUTE_USE:line<|: |>ATTRIBUTE_USE:line<|, |>ATTRIBUTE_USE:column<|: loc.getBeginColumn(), |>ATTRIBUTE_USE:length<|: loc.getEndColumn() - loc.getBeginColumn()+1, |>ATTRIBUTE_USE:message<|: err.getMessage()} into |>ATTRIBUTE_USE:errMessages<|;
+            } 
+            err = err.getNextError();
+        }
+        |>ATTRIBUTE_USE:compileError<| = err.getMessage();
+        return;
+    }
+    if (result instanceof |>CLASS_USE:Frame<|) {
+        var f = (|>CLASS_USE:Frame<|)result;
+        var w = f.width;
+        var h = f.height;
+        var widget = ((|>CLASS_USE:Frame<|)result).content;
+        if (w == null or w == 0) {
+            w = |>ATTRIBUTE_USE:widget<|.getComponent().getPreferredSize().width;
+        }
+        if (h == null or h == 0) {
+            h = |>ATTRIBUTE_USE:widget<|.getComponent().getPreferredSize().height;
+        }
+        |>ATTRIBUTE_USE:widget<| = |>CLASS_USE:RootPane<| {
+            |>ATTRIBUTE_USE:menubar<|: f.menubar
+            |>ATTRIBUTE_USE:content<|: |>CLASS_USE:BorderPanel<| {
+                |>ATTRIBUTE_USE:opaque<|: true
+                |>ATTRIBUTE_USE:center<|: |>ATTRIBUTE_USE:widget<|
+            }
+        };
+        f.content = null;
+        f.visible = false;
+        result = |>CLASS_USE:Group<| {
+            |>ATTRIBUTE_USE:transform<|: translate(30, 30)
+            |>ATTRIBUTE_USE:content<|: ViewOutline {
+                |>ATTRIBUTE_USE:selected<|: true
+                |>ATTRIBUTE_USE:view<|: |>ATTRIBUTE_USE:widget<|
+                rectHeight: h
+                rectWidth: w
+            }
+        };
+    }
+    var notNode = select n from n in result where not (n instanceof |>CLASS_USE:Node<|) and not (n instanceof |>CLASS_USE:Widget<|);
+    if (notNode <> null) {
+        |>ATTRIBUTE_USE:compileError<| = "Incompatible type: expected Node, found {notNode[0].class.Name}";
+    } else if (run) {
+        |>ATTRIBUTE_USE:compiledContent<| = select if |>ATTRIBUTE_USE:x<| instanceof |>CLASS_USE:Widget<| then |>CLASS_USE:View<| {|>ATTRIBUTE_USE:content<|: (|>CLASS_USE:Widget<|)|>ATTRIBUTE_USE:x<|} else if |>ATTRIBUTE_USE:x<| instanceof |>CLASS_USE:Node<| then (|>CLASS_USE:Node<|)|>ATTRIBUTE_USE:x<| else null from |>ATTRIBUTE_USE:x<| in result;
+        |>ATTRIBUTE_USE:compileError<| = null;
+    }
+}
+//reportError(resource, doc, err, prefix);            
+if (t == null and contextType == null) {
+    return null;
+}
+}
+
+
+trigger on |>CLASS_USE:JavaFXPad<|.userCode[old] = |>ATTRIBUTE_USE:value<| {
+var req = ++|>ATTRIBUTE_USE:compileRequests<|;
+if (not |>ATTRIBUTE_USE:validateAutomatically<|) {
+	return;
+}
+for (compile in [false, true]) (dur 1000 linear) {
+    if (compile and |>ATTRIBUTE_USE:compileRequests<| == req) {
+        this.compile();
+    }
+}
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:validateNow<|() {
+try {
+    this.compile();
+} catch (e:Throwable) {
+    var w = new StringWriter();
+    e.printStackTrace(new PrintWriter(w));
+    |>ATTRIBUTE_USE:compileError<| = w.toString();
+}
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:runNow<|() {
+try {
+    this.evaluate(|>ATTRIBUTE_USE:userCode<|, true);
+} catch (e:Throwable) {
+    var w = new StringWriter();
+    e.printStackTrace(new PrintWriter(w));
+    |>ATTRIBUTE_USE:compileError<| = w.toString();
+}
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:compile<|() {
+if (this.|>ATTRIBUTE_USE:inCompletion<|) {
+    return;
+}
+var program = |>ATTRIBUTE_USE:userCode<|;
+if (program.length() == 0) {
+    |>ATTRIBUTE_USE:compiledContent<| = null;
+    |>ATTRIBUTE_USE:compileError<| = null;
+    return;
+}
+try {
+    this.evaluate(program, |>ATTRIBUTE_USE:runAutomatically<|);
+} catch (e:Throwable) {
+    var w = new StringWriter();
+    e.printStackTrace(new PrintWriter(w));
+    |>ATTRIBUTE_USE:compileError<| = w.toString();
+}
+}
+
+operation |>CLASS_USE:JavaFXPad<|.|>OPERATION_DECLARATION:composeWidget<|() {
+do later {if (|>ATTRIBUTE_USE:url<| <> null) {go();}}
+return |>CLASS_USE:Canvas<| {
+    |>ATTRIBUTE_USE:border<|: null
+    var: |>ATTRIBUTE_USE:canvas<|
+    // logRepaint: true
+    |>ATTRIBUTE_USE:cursor<|: DEFAULT
+    |>ATTRIBUTE_USE:content<|:
+    [|>CLASS_USE:View<| {
+        |>ATTRIBUTE_USE:antialias<|: true
+        |>ATTRIBUTE_USE:antialiasText<|: true
+        |>ATTRIBUTE_USE:sizeToFitCanvas<|: true
+        |>ATTRIBUTE_USE:content<|: |>CLASS_USE:SplitPane<| {
+            |>ATTRIBUTE_USE:orientation<|: VERTICAL
+            |>ATTRIBUTE_USE:content<|: bind
+            [|>CLASS_USE:SplitView<| {
+                |>ATTRIBUTE_USE:weight<|: 0.45
+                |>ATTRIBUTE_USE:content<|: |>CLASS_USE:BorderPanel<| {
+                    |>ATTRIBUTE_USE:preferredSize<|: {|>ATTRIBUTE_USE:height<|: 500, |>ATTRIBUTE_USE:width<|: 800}
+                    |>ATTRIBUTE_USE:center<|:
+                    |>CLASS_USE:ScrollPane<| {
+                        |>ATTRIBUTE_USE:cursor<|: DEFAULT
+                        var font = new |>CLASS_USE:Font<|("Tahoma", "PLAIN", 8)
+                        |>ATTRIBUTE_USE:columnHeader<|: bind if |>ATTRIBUTE_USE:canvas<|.height == 0 then null else |>CLASS_USE:Canvas<| {
+                            |>ATTRIBUTE_USE:border<|: null
+                            |>ATTRIBUTE_USE:content<|: |>CLASS_USE:Group<| {
+                                |>ATTRIBUTE_USE:transform<|: bind |>ATTRIBUTE_USE:scale<|(|>ATTRIBUTE_USE:zoomValue<|/100, |>ATTRIBUTE_USE:zoomValue<|/100)
+                                |>ATTRIBUTE_USE:content<|: |>CLASS_USE:Group<| {
+                                    
+                                    |>ATTRIBUTE_USE:content<|: 
+                                    [|>CLASS_USE:Group<| {
+                                        |>ATTRIBUTE_USE:content<|: bind foreach (|>ATTRIBUTE_USE:x<| in [0,5..(Math.max(this.|>ATTRIBUTE_USE:canvas<|.width, this.|>ATTRIBUTE_USE:canvas<|.viewport.currentWidth) *100/|>ATTRIBUTE_USE:zoomValue<|/ 5).intValue()*5+100])
+                                        [|>CLASS_USE:Line<| {
+                                            |>ATTRIBUTE_USE:stroke<|: black
+                                            |>ATTRIBUTE_USE:x1<|: |>ATTRIBUTE_USE:x<|
+                                            |>ATTRIBUTE_USE:x2<|: |>ATTRIBUTE_USE:x<|
+                                            |>ATTRIBUTE_USE:y1<|: if (|>ATTRIBUTE_USE:x<| % 100 == 0) 
+                                            then 0
+                                            else if |>ATTRIBUTE_USE:x<| % 10 == 0
+                                            then 9
+                                            else 12
+                                            |>ATTRIBUTE_USE:y2<|: 15
+                                        },
+                                        if |>ATTRIBUTE_USE:x<| % 100 == 0 then |>CLASS_USE:Text<| {|>ATTRIBUTE_USE:content<|: "{|>ATTRIBUTE_USE:x<|}" |>ATTRIBUTE_USE:x<|: |>ATTRIBUTE_USE:x<|+2, |>ATTRIBUTE_USE:font<|: |>ATTRIBUTE_USE:font<|} else null]
+                                    },
+                                    |>CLASS_USE:Polygon<| {
+                                        var w = 7
+                                        var h = 5
+                                        |>ATTRIBUTE_USE:transform<|: bind translate(Math.max(|>ATTRIBUTE_USE:mouseX<| - w/2, -w/2), 10-h)
+                                        |>ATTRIBUTE_USE:fill<|: black
+                                        |>ATTRIBUTE_USE:points<|: [0, 0, w, 0, w/2, h]
+                                    }]
+                                }
+                            }
+                        }
+                        |>ATTRIBUTE_USE:rowHeader<|: bind if |>ATTRIBUTE_USE:canvas<|.width == 0 then null else |>CLASS_USE:Canvas<| {
+ |>ATTRIBUTE_USE:border<|: null
+                            var contentGroup = |>CLASS_USE:Group<| {
+                                |>ATTRIBUTE_USE:transform<|: bind |>ATTRIBUTE_USE:scale<|(|>ATTRIBUTE_USE:zoomValue<|/100, |>ATTRIBUTE_USE:zoomValue<|/100)
+                                |>ATTRIBUTE_USE:content<|: |>CLASS_USE:Group<| {
+                                    |>ATTRIBUTE_USE:content<|: 
+                                    [|>CLASS_USE:Group<| {
+                                        
+                                        |>ATTRIBUTE_USE:content<|: bind foreach (|>ATTRIBUTE_USE:y<| in [0,5..(Math.max(this.|>ATTRIBUTE_USE:canvas<|.height, this.|>ATTRIBUTE_USE:canvas<|.viewport.currentHeight)*100/|>ATTRIBUTE_USE:zoomValue<| /5).intValue()*5+10])
+                                        [|>CLASS_USE:Line<| {
+                                            |>ATTRIBUTE_USE:stroke<|: black
+                                            |>ATTRIBUTE_USE:y1<|: |>ATTRIBUTE_USE:y<|
+                                            |>ATTRIBUTE_USE:y2<|: |>ATTRIBUTE_USE:y<|
+                                            |>ATTRIBUTE_USE:x1<|: if (|>ATTRIBUTE_USE:y<| % 100 == 0) 
+                                            then 0
+                                            else if |>ATTRIBUTE_USE:y<| % 10 == 0
+                                            then 9
+                                            else 12
+                                            |>ATTRIBUTE_USE:x2<|: 15
+                                        },
+                                        if |>ATTRIBUTE_USE:y<| % 100 == 0 then |>CLASS_USE:Text<| {|>ATTRIBUTE_USE:content<|: "{|>ATTRIBUTE_USE:y<|}" |>ATTRIBUTE_USE:transform<|: translate(6, |>ATTRIBUTE_USE:y<|-10), |>ATTRIBUTE_USE:halign<|:TRAILING, |>ATTRIBUTE_USE:font<|: |>ATTRIBUTE_USE:font<|} else null]
+                                    },
+                                    |>CLASS_USE:Polygon<| {
+                                        var w = 5
+                                        var h = 7
+                                        |>ATTRIBUTE_USE:transform<|: bind translate(10-w, Math.max(|>ATTRIBUTE_USE:mouseY<| - h/2, -h/2))
+                                        |>ATTRIBUTE_USE:fill<|: black
+                                        |>ATTRIBUTE_USE:points<|: [0, 0, 0, h, w, h/2]
+                                    }]
+                                }
+                            }
+                            |>ATTRIBUTE_USE:content<|: |>CLASS_USE:Group<| {
+                                |>ATTRIBUTE_USE:transform<|: bind translate(-contentGroup.currentX, 0)
+                                |>ATTRIBUTE_USE:content<|: contentGroup
+                            }
+                        }
+                        
+                        |>ATTRIBUTE_USE:view<|: |>CLASS_USE:Canvas<| {
+                            |>ATTRIBUTE_USE:border<|: null
+                            //logRepaint: true
+                            attribute: |>ATTRIBUTE_USE:canvas<|
+                            |>ATTRIBUTE_USE:background<|: white
+                            |>ATTRIBUTE_USE:onMouseMoved<|: operation(e:|>CLASS_USE:MouseEvent<|) {
+                                |>ATTRIBUTE_USE:mouseX<| = 1/(|>ATTRIBUTE_USE:zoomValue<|/100)*e.x;
+                                |>ATTRIBUTE_USE:mouseY<| = 1/(|>ATTRIBUTE_USE:zoomValue<|/100)*e.y;
+                            }
+                            |>ATTRIBUTE_USE:onMouseDragged<|: operation(e:|>CLASS_USE:MouseEvent<|) {
+                                |>ATTRIBUTE_USE:mouseX<| = 1/(|>ATTRIBUTE_USE:zoomValue<|/100)*e.x;
+                                |>ATTRIBUTE_USE:mouseY<| = 1/(|>ATTRIBUTE_USE:zoomValue<|/100)*e.y;
+                            }
+                            |>ATTRIBUTE_USE:content<|: |>CLASS_USE:Group<| {
+                                |>ATTRIBUTE_USE:transform<|: bind |>ATTRIBUTE_USE:scale<|(|>ATTRIBUTE_USE:zoomValue<|/100, |>ATTRIBUTE_USE:zoomValue<|/100)
+                                |>ATTRIBUTE_USE:content<|: |>CLASS_USE:Group<| {
+                                    |>ATTRIBUTE_USE:content<|: bind |>ATTRIBUTE_USE:compiledContent<|
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            |>CLASS_USE:SplitView<| {
+                |>ATTRIBUTE_USE:weight<|: 0.45
+                |>ATTRIBUTE_USE:content<|: |>CLASS_USE:BorderPanel<| {
+                    |>ATTRIBUTE_USE:preferredSize<|: {|>ATTRIBUTE_USE:height<|: 500, |>ATTRIBUTE_USE:width<|: 800}
+                    |>ATTRIBUTE_USE:cursor<|: DEFAULT
+                    |>ATTRIBUTE_USE:center<|: |>CLASS_USE:Canvas<| {
+                        |>ATTRIBUTE_USE:border<|: null
+                        var: editorCanvas
+                        |>ATTRIBUTE_USE:content<|: 
+                        [|>CLASS_USE:View<| {
+                            |>ATTRIBUTE_USE:size<|: bind select {|>ATTRIBUTE_USE:height<|: h, |>ATTRIBUTE_USE:width<|: w} from w in editorCanvas.width, h in editorCanvas.height
+                            |>ATTRIBUTE_USE:content<|: |>CLASS_USE:BorderPanel<| {
+			       |>ATTRIBUTE_USE:bottom<|: |>CLASS_USE:BorderPanel<| {
+                                   |>ATTRIBUTE_USE:visible<|: bind |>ATTRIBUTE_USE:searchActive<|
+                                   |>ATTRIBUTE_USE:border<|: |>CLASS_USE:EmptyBorder<| {|>ATTRIBUTE_USE:top<|: 2, |>ATTRIBUTE_USE:left<|: 4, |>ATTRIBUTE_USE:bottom<|: 2, |>ATTRIBUTE_USE:right<|: 4}
+				   |>ATTRIBUTE_USE:center<|: |>CLASS_USE:Canvas<| {
+                                       |>ATTRIBUTE_USE:border<|: null
+				       |>ATTRIBUTE_USE:focusable<|: false
+				       |>ATTRIBUTE_USE:content<|: SearchPanel {
+					   // 
+                                           closeAction: operation() {|>ATTRIBUTE_USE:searchActive<| = false;}
+                                           |>ATTRIBUTE_USE:searchValue<|: bind |>ATTRIBUTE_USE:searchValue<|
+                                           |>ATTRIBUTE_USE:matchCase<|: bind |>ATTRIBUTE_USE:matchCase<|
+                                           open: bind |>ATTRIBUTE_USE:searchActive<|
+                                           highlightAllAction: operation() {
+					       highlightAll();
+					   }
+                                           searchNextAction: operation() {searchNext();}
+                                           searchPrevAction: operation() {searchPrev();}
+				       }
+				   }
+			       }
+                               |>ATTRIBUTE_USE:center<|: SourceEditor {
+				//onMouseWheelMoved: operation(e) {println(e);}
+                                //preferredSize: {height: 500, width: 800}
+                                |>ATTRIBUTE_USE:editorKit<|: new <<net.java.javafx.ui.f3kit.F3EditorKit>>()
+                                |>ATTRIBUTE_USE:opaque<|: true
+                                selectedTextColor: white
+                                |>ATTRIBUTE_USE:foreground<|: black
+                                annotations: bind foreach (err in |>ATTRIBUTE_USE:errMessages<|) 
+                                LineAnnotation {
+                                    |>ATTRIBUTE_USE:line<|: err.line
+                                    |>ATTRIBUTE_USE:column<|: err.column
+                                    |>ATTRIBUTE_USE:length<|: err.length
+                                    var: self
+                                    |>ATTRIBUTE_USE:toolTipText<|: "<html><div 'width=300'>{err.message}</div></html>"
+                                    |>ATTRIBUTE_USE:content<|: |>CLASS_USE:Canvas<| {
+                                        
+                                        |>ATTRIBUTE_USE:content<|: |>CLASS_USE:Polyline<| {
+                                            |>ATTRIBUTE_USE:stroke<|: |>ATTRIBUTE_USE:red<|
+                                            |>ATTRIBUTE_USE:strokeLineJoin<|: BEVEL
+                                            |>ATTRIBUTE_USE:strokeWidth<|: 0.5
+                                            |>ATTRIBUTE_USE:transform<|: bind translate(0, self.currentHeight-1)
+                                            |>ATTRIBUTE_USE:points<|: bind foreach (i in [0,2..self.currentWidth + self.currentWidth % 2]) [i, if indexof i % 2 == 0 then 1.5 else -1.5]
+                                        }
+                                    }
+                                }
+                                attribute: |>ATTRIBUTE_USE:editor<|
+                                |>ATTRIBUTE_USE:tabSize<|: 4
+                                //rows: 1
+                                |>ATTRIBUTE_USE:lineWrap<|: false
+                                |>ATTRIBUTE_USE:border<|: |>CLASS_USE:EmptyBorder<| {|>ATTRIBUTE_USE:left<|: 4, |>ATTRIBUTE_USE:right<|: 4}
+                                var: self
+                                |>ATTRIBUTE_USE:font<|: bind new |>CLASS_USE:Font<|("Monospaced", "PLAIN", |>ATTRIBUTE_USE:fontSize<|)
+                                |>ATTRIBUTE_USE:text<|: bind |>ATTRIBUTE_USE:userCode<|
+                                |>ATTRIBUTE_USE:rowHeader<|: |>CLASS_USE:Canvas<| {
+                                    |>ATTRIBUTE_USE:cursor<|: DEFAULT
+                                    |>ATTRIBUTE_USE:background<|: new |>CLASS_USE:Color<|(220/255, 220/255, 220/255, 1.0)
+                                    |>ATTRIBUTE_USE:content<|: 
+                                    [|>CLASS_USE:View<| {
+                                        |>ATTRIBUTE_USE:content<|: |>CLASS_USE:LineNumberPanel<| {
+                                            attribute: |>ATTRIBUTE_USE:lineNumbers<|
+                                            |>ATTRIBUTE_USE:lineCount<|: bind |>ATTRIBUTE_USE:editor<|.lineCount
+                                            |>ATTRIBUTE_USE:font<|: bind self.font
+                                            |>ATTRIBUTE_USE:border<|: |>CLASS_USE:EmptyBorder<| {|>ATTRIBUTE_USE:right<|: 4}
+                                        }
+                                    },
+                                    |>CLASS_USE:Group<| {
+                                        var r = bind |>ATTRIBUTE_USE:lineNumbers<|.getCellBounds(0)
+                                        var errImage = |>CLASS_USE:Image<| {|>ATTRIBUTE_USE:url<|: "{__DOCBASE__}/images/error_obj.gif"}
+                                        |>ATTRIBUTE_USE:content<|: 
+                                        bind foreach (err in |>ATTRIBUTE_USE:errMessages<|) 
+                                        |>CLASS_USE:View<| {
+                                            |>ATTRIBUTE_USE:toolTipText<|: "<html><div 'width=300'>{err.message}</div></html>"
+                                            |>ATTRIBUTE_USE:transform<|: bind translate(2, (err.line -1)*r.height)
+                                            |>ATTRIBUTE_USE:content<|: |>CLASS_USE:SimpleLabel<| {|>ATTRIBUTE_USE:icon<|: errImage}
+                                            
+                                        }
+                                        
+                                    }]
+                                }
+                                |>ATTRIBUTE_USE:foreground<|: bind if |>ATTRIBUTE_USE:compileError<| == null then black else |>ATTRIBUTE_USE:red<|
+                                |>ATTRIBUTE_USE:onKeyTyped<|: operation(e:|>CLASS_USE:KeyEvent<|) {
+                                    var k:|>CLASS_USE:KeyStroke<| = e.keyStroke;
+                                    var modifiers:|>CLASS_USE:KeyStroke<|* = e.modifiers;
+                                    if (this.|>ATTRIBUTE_USE:inCompletion<|) {
+                                        var req = ++|>ATTRIBUTE_USE:completionRequests<|;
+                                        do later {
+                                            if (this.|>ATTRIBUTE_USE:inCompletion<| and req == |>ATTRIBUTE_USE:completionRequests<|) {
+                                                this.completionRequest(k);
+                                            }
+                                        }
+                                    } else {
+                                        if (e.keyChar == "\t") {
+                                            e.source.consume();
+                                            do later {
+                                                this.formatCode();
+                                            }
+                                        }
+                                    }
+                                }
+                                |>ATTRIBUTE_USE:onKeyDown<|: operation(e:|>CLASS_USE:KeyEvent<|) {
+                                    var k:|>CLASS_USE:KeyStroke<| = e.keyStroke;
+                                    var modifiers:|>CLASS_USE:KeyStroke<|* = e.modifiers;
+                                    
+                                    if (k == PERIOD:|>CLASS_USE:KeyStroke<| or
+                                    k == OPEN_BRACKET:|>CLASS_USE:KeyStroke<| or
+                                    (k == SPACE:|>CLASS_USE:KeyStroke<| and CONTROL:|>CLASS_USE:KeyStroke<| in |>ATTRIBUTE_USE:modifiers<|)) {
+                                        do later {
+                                            this.completionRequest(k);
+                                        }
+                                    } else if (k == ESCAPE:|>CLASS_USE:KeyStroke<|) {
+                                        this.|>ATTRIBUTE_USE:inCompletion<| = false;
+                                        var req = ++|>ATTRIBUTE_USE:compileRequests<|;
+                                        for (compile in [false, true]) (dur 2000 linear) {
+                                            if (compile and |>ATTRIBUTE_USE:compileRequests<| == req) {
+                                                this.compile();
+                                            }
+                                        }
+                                    } else if (k == ENTER:|>CLASS_USE:KeyStroke<|) {
+                                        if (this.|>ATTRIBUTE_USE:inCompletion<|) {
+                                            do later {
+                                                this.doCompletion(true);
+                                            }
+                                        }
+                                    } else if (k == UP:|>CLASS_USE:KeyStroke<| and CONTROL:|>CLASS_USE:KeyStroke<| in |>ATTRIBUTE_USE:modifiers<|) {
+                                        |>ATTRIBUTE_USE:fontSize<|++;
+                                    } else if (k == DOWN:|>CLASS_USE:KeyStroke<| and CONTROL:|>CLASS_USE:KeyStroke<| in |>ATTRIBUTE_USE:modifiers<|) {
+                                        |>ATTRIBUTE_USE:fontSize<|--;
+                                    }       
+                                }
+                            } 
+                        }
+ },
+                        
+                        |>CLASS_USE:View<| {     
+                            |>ATTRIBUTE_USE:visible<|: false
+                            |>ATTRIBUTE_USE:size<|: bind select {|>ATTRIBUTE_USE:width<|: w} from w in editorCanvas.width
+                            |>ATTRIBUTE_USE:transform<|: bind translate(0, editorCanvas.height)
+                            |>ATTRIBUTE_USE:valign<|: BOTTOM
+                            |>ATTRIBUTE_USE:content<|:
+                            |>CLASS_USE:GroupPanel<| {
+                                |>ATTRIBUTE_USE:background<|: new |>CLASS_USE:Color<|(1, 1, 1, 0.9)
+                                var row = |>CLASS_USE:Row<| {}
+                                var c1 = |>CLASS_USE:Column<|
+                                var c2 = |>CLASS_USE:Column<|
+                                var c3 = |>CLASS_USE:Column<|
+                                var c4 = |>CLASS_USE:Column<|
+                                var c5 = |>CLASS_USE:Column<|
+                                var c6 = |>CLASS_USE:Column<|
+                                var c7 = |>CLASS_USE:Column<|
+                                var c8 = |>CLASS_USE:Column<|
+                                |>ATTRIBUTE_USE:rows<|: |>ATTRIBUTE_USE:row<|
+                                |>ATTRIBUTE_USE:columns<|: [c1, c2, c3, c4, c5, c6, c7, c8]
+                                |>ATTRIBUTE_USE:content<|: 
+                                [|>CLASS_USE:Button<| {
+                                    |>ATTRIBUTE_USE:text<|: "Clear"
+                                    |>ATTRIBUTE_USE:row<|: |>ATTRIBUTE_USE:row<|
+                                    |>ATTRIBUTE_USE:column<|: c1
+                                },
+                                |>CLASS_USE:SimpleLabel<| {
+                                    |>ATTRIBUTE_USE:text<|: "Find:"
+                                    |>ATTRIBUTE_USE:row<|: |>ATTRIBUTE_USE:row<|
+                                    |>ATTRIBUTE_USE:column<|: c2
+                                },
+                                |>CLASS_USE:TextField<| {
+                                    |>ATTRIBUTE_USE:row<|: |>ATTRIBUTE_USE:row<|
+                                    |>ATTRIBUTE_USE:column<|: c3
+                                    |>ATTRIBUTE_USE:columns<|: 10
+                                },
+                                |>CLASS_USE:Button<| {
+                                    |>ATTRIBUTE_USE:row<|: |>ATTRIBUTE_USE:row<|
+                                    |>ATTRIBUTE_USE:column<|: c4
+                                    |>ATTRIBUTE_USE:text<|: "Next"
+                                },
+                                |>CLASS_USE:Button<| {
+                                    |>ATTRIBUTE_USE:row<|: |>ATTRIBUTE_USE:row<|
+                                    |>ATTRIBUTE_USE:column<|: c5
+                                    |>ATTRIBUTE_USE:text<|: "Previous"
+                                },
+                                |>CLASS_USE:CheckBox<| {
+                                    |>ATTRIBUTE_USE:row<|: |>ATTRIBUTE_USE:row<|
+                                    |>ATTRIBUTE_USE:column<|: c6
+                                    |>ATTRIBUTE_USE:text<|: "Highlight all"
+                                },
+                                |>CLASS_USE:CheckBox<| {
+                                    |>ATTRIBUTE_USE:row<|: |>ATTRIBUTE_USE:row<|
+                                    |>ATTRIBUTE_USE:column<|: c7
+                                    |>ATTRIBUTE_USE:text<|: "Match case"
+                                },
+                                |>CLASS_USE:SimpleLabel<| {
+                                    |>ATTRIBUTE_USE:row<|: |>ATTRIBUTE_USE:row<|
+                                    |>ATTRIBUTE_USE:column<|: c8
+                                    |>ATTRIBUTE_USE:text<|: "status"
+                                }]
+                            }
+                        }]
+                    }
+                }
+            },
+            |>CLASS_USE:SplitView<| {
+                |>ATTRIBUTE_USE:weight<|: 0.10
+                |>ATTRIBUTE_USE:content<|: |>CLASS_USE:BorderPanel<| {
+                    |>ATTRIBUTE_USE:center<|: |>CLASS_USE:ListBox<| {
+                        var: self
+                        |>ATTRIBUTE_USE:action<|: operation() { 
+                            var err = |>ATTRIBUTE_USE:errMessages<|[self.selection];
+                            if (err <> null) {
+                                do later {
+                                    |>ATTRIBUTE_USE:editor<|.selectLocation(err.line, err.column, err.line, err.column + err.length);
+                                }
+                            }
+                        }
+                        |>ATTRIBUTE_USE:cells<|: bind foreach (err in |>ATTRIBUTE_USE:errMessages<|) 
+                        |>CLASS_USE:ListCell<| {
+                            var eol = err.message.indexOf("\n")
+                            |>ATTRIBUTE_USE:text<|: "<html><table cellspacing='0' cellpadding='0'><tr><td><img src='{__DOCBASE__}/images/error_obj.gif'></img></td><td>&nbsp;{if eol < 0 then err.message else "{err.message.substring(0, eol).trim()}..."}</td></tr><table>"
+                            |>ATTRIBUTE_USE:toolTipText<|: "<html><div {if eol > 0 then "width='300'" else ""}>{err.message}</div></html>"
+                        }
+                    }
+                }
+            }]
+        }
+    },
+    |>CLASS_USE:Rect<| {
+        |>ATTRIBUTE_USE:selectable<|: true
+        |>ATTRIBUTE_USE:sizeToFitCanvas<|: true
+        |>ATTRIBUTE_USE:visible<|: bind |>ATTRIBUTE_USE:inCompletion<|
+        |>ATTRIBUTE_USE:fill<|: new |>CLASS_USE:Color<|(0, 0, 0, 0)
+        |>ATTRIBUTE_USE:onMousePressed<|: operation(e) {
+            if (|>ATTRIBUTE_USE:inCompletion<|) {
+                |>ATTRIBUTE_USE:inCompletion<| = false;
+                var req = ++|>ATTRIBUTE_USE:compileRequests<|;
+                for (compile in [false, true]) (dur 2000 linear) {
+                    if (compile and |>ATTRIBUTE_USE:compileRequests<| == req) {
+                        this.compile();
+                    }
+                }
+            }
+        }
+        |>ATTRIBUTE_USE:cursor<|: DEFAULT
+    },
+    |>CLASS_USE:View<| {
+        |>ATTRIBUTE_USE:antialias<|: false
+        |>ATTRIBUTE_USE:antialiasText<|: false
+        |>ATTRIBUTE_USE:visible<|: bind this.|>ATTRIBUTE_USE:inCompletion<|
+        |>ATTRIBUTE_USE:transform<|: bind translate(this.|>ATTRIBUTE_USE:completionX<|, this.|>ATTRIBUTE_USE:completionY<|)
+        |>ATTRIBUTE_USE:cursor<|: DEFAULT
+        |>ATTRIBUTE_USE:content<|: |>CLASS_USE:BorderPanel<| {
+            |>ATTRIBUTE_USE:preferredSize<|: {|>ATTRIBUTE_USE:width<|: 300, |>ATTRIBUTE_USE:height<|: 150}
+            |>ATTRIBUTE_USE:center<|: |>CLASS_USE:ListBox<| {
+                attribute: |>ATTRIBUTE_USE:completionList<|
+                |>ATTRIBUTE_USE:locked<|: bind |>ATTRIBUTE_USE:updatingCompletions<|
+                |>ATTRIBUTE_USE:cursor<|: DEFAULT
+                |>ATTRIBUTE_USE:focusable<|: false
+                |>ATTRIBUTE_USE:cells<|: bind foreach (proposal in this.|>ATTRIBUTE_USE:completionProposals<|) 
+                |>CLASS_USE:ListCell<| {
+                    |>ATTRIBUTE_USE:horizontalAlignment<|: LEADING
+                    |>ATTRIBUTE_USE:text<|: bind proposal.displayValue
+                }
+                |>ATTRIBUTE_USE:action<|: operation() {this.doCompletion(false);}
+            }
+        //border: ShadowedBorder
+        }
+    },
+    |>CLASS_USE:View<| {
+        |>ATTRIBUTE_USE:antialias<|: false
+        |>ATTRIBUTE_USE:antialiasText<|: false
+        |>ATTRIBUTE_USE:transform<|: bind translate(this.|>ATTRIBUTE_USE:completionX<|+301, this.|>ATTRIBUTE_USE:completionY<|)
+        operation |>OPERATION_DECLARATION:empty<|(str:String) {
+            return str == null or str.trim().length() == 0;
+        }
+        |>ATTRIBUTE_USE:visible<|: bind this.|>ATTRIBUTE_USE:inCompletion<| and not empty(|>ATTRIBUTE_USE:selectedDoc<|)
+        |>ATTRIBUTE_USE:content<|: |>CLASS_USE:BorderPanel<| {
+            |>ATTRIBUTE_USE:preferredSize<|: {|>ATTRIBUTE_USE:width<|: 330, |>ATTRIBUTE_USE:height<|: 150}
+            |>ATTRIBUTE_USE:center<|: |>CLASS_USE:ScrollPane<| {
+                |>ATTRIBUTE_USE:horizontalScrollBarPolicy<|: NEVER
+                |>ATTRIBUTE_USE:view<|: |>CLASS_USE:Label<| {
+                    |>ATTRIBUTE_USE:opaque<|: true
+                    |>ATTRIBUTE_USE:text<|: bind "<html><table width='300'><tr><td>{|>ATTRIBUTE_USE:selectedDoc<|}</td></tr></table></html>"
+                }
+            }
+        }
+    }]      
+};
+}
+
+operation |>OPERATION_DECLARATION:getResourceAsString<|(urlStr:String) {
+try {
+    var is = new URL(urlStr).openStream();
+    var reader = new BufferedReader(new InputStreamReader(is));
+    var line;
+    var buf = new StringBuffer();
+    while (true) {
+        |>ATTRIBUTE_USE:line<| = reader.readLine();
+        if (|>ATTRIBUTE_USE:line<| == null) {
+            break;
+        }
+        buf.append(|>ATTRIBUTE_USE:line<|);
+        buf.append("\n");
+    }
+    reader.close();
+    return buf.toString();
+} catch (e) {
+// ignore
+}
+return "";
+}
