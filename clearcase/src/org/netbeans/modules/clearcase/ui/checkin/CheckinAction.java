@@ -81,6 +81,8 @@ public class CheckinAction extends AbstractAction {
     static int ALLOW_CHECKIN = 
             FileInformation.STATUS_VERSIONED_CHECKEDOUT |
             FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY;
+
+    static String RECENT_CHECKIN_MESSAGES = "checkin.messages";
     
     private File[] files;
     
@@ -169,6 +171,7 @@ public class CheckinAction extends AbstractAction {
         ClearcaseModuleConfig.removeExclusionPaths(removeExclusions);
         ClearcaseModuleConfig.setForceUnmodifiedCheckin(forceUnmodified);      
         ClearcaseModuleConfig.setPreserveTimeCheckin(preserveTime);              
+        Utils.insert(ClearcaseModuleConfig.getPreferences(), RECENT_CHECKIN_MESSAGES, message, 20);
         
         files = ciFiles.toArray(new File[ciFiles.size()]);
         Clearcase.getInstance().getClient().post(new ExecutionUnit(
