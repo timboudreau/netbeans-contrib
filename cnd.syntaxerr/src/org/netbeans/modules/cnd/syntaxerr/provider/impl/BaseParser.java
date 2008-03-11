@@ -40,23 +40,29 @@
  */
 package org.netbeans.modules.cnd.syntaxerr.provider.impl;
 
-import org.netbeans.modules.cnd.syntaxerr.provider.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
 
 
 abstract class BaseParser implements CompilerOutputParser {
 
-    org.netbeans.modules.cnd.syntaxerr.provider.impl.ErrorProviderImpl outer;
-
+    /**
+     * It doesn't make sense to add too many annotations;
+     * besides, hundreds of annotations slows down Netbeans UI dramatically.
+     * So we have to limit the amount of annotations.
+     */
+    private static final int LIMIT = Integer.getInteger("cnd.syntaxerr.limit", 200);
+    
     public void parseCompilerOutput(InputStream stream, String interestingFileName, ErrorBag errorBag) throws IOException {
 	BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 	for (String line = reader.readLine(); line != null; line = reader.readLine()) {
 	    try {
 		parseCompilerOutputLine(line, interestingFileName, errorBag);
+		if( errorBag.size() >= LIMIT ) {
+		    break;
+		}
 	    } catch (Exception e) {
 		e.printStackTrace();
 	    }

@@ -14,8 +14,14 @@ import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.openide.util.NbBundle;
-import org.netbeans.modules.hibernate.loaders.cfg.multiview.Util;
-import org.netbeans.modules.hibernate.loaders.cfg.multiview.BrowseFolders;
+import org.netbeans.api.java.source.ui.TypeElementFinder;
+import javax.swing.SwingUtilities;
+import java.util.Set;
+import javax.lang.model.element.TypeElement;
+import org.netbeans.api.java.source.ClassIndex.NameKind;
+import org.netbeans.api.java.source.ClassIndex.SearchScope;
+import org.netbeans.api.java.source.ClasspathInfo;
+import org.netbeans.api.java.source.ElementHandle;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -36,18 +42,32 @@ public class HibernateMappingWizardPanel extends javax.swing.JPanel {
 
         this.browseButton.addActionListener(new java.awt.event.ActionListener() {
 
-            public void actionPerformed(ActionEvent arg0) {
-                try {
-                    org.netbeans.api.project.SourceGroup[] groups = getJavaSourceGroups();
-                    org.openide.filesystems.FileObject fo = BrowseFolders.showDialog(groups);
-                    if (fo != null) {
-                        String className = Util.getResourcePath(groups, fo);
-                        txtClassName.setText(className);
-                    }
-                } catch (java.io.IOException ex) {
+            public void actionPerformed(ActionEvent evt) {
+                browseButtonActionPerformed(evt);
+            }                
+        });
+    }
+    
+    private void browseButtonActionPerformed(ActionEvent evt) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                final ElementHandle<TypeElement> handle = TypeElementFinder.find(null, new TypeElementFinder.Customizer() {
+
+                            public Set<ElementHandle<TypeElement>> query(ClasspathInfo classpathInfo, String textForQuery, NameKind nameKind, Set<SearchScope> searchScopes) {
+                                return classpathInfo.getClassIndex().getDeclaredTypes(textForQuery, nameKind, searchScopes);
+                            }
+
+                            public boolean accept(ElementHandle<TypeElement> typeHandle) {
+                                return true;
+                            }
+                        });
+
+                if (handle != null) {
+                    txtClassName.setText(handle.getQualifiedName());
                 }
             }
         });
+        
     }
 
     @Override
@@ -56,7 +76,10 @@ public class HibernateMappingWizardPanel extends javax.swing.JPanel {
     }
 
     public String getClassName() {
-        return txtClassName.getText();
+        if (txtClassName.getText() != null) {
+            return txtClassName.getText().trim();
+        } 
+        return null;
     }
 
     public FileObject getConfigurationFile() {
@@ -129,7 +152,7 @@ public class HibernateMappingWizardPanel extends javax.swing.JPanel {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(txtClassName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE)
+                        .add(txtClassName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(browseButton))
                     .add(cmbResource, 0, 417, Short.MAX_VALUE))

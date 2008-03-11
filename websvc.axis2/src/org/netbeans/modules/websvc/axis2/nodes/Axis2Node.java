@@ -44,6 +44,7 @@ package org.netbeans.modules.websvc.axis2.nodes;
 import java.awt.Image;
 import javax.swing.Action;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.websvc.axis2.actions.AxisConfigurationAction;
 import org.netbeans.modules.websvc.axis2.actions.DeployAction;
 import org.netbeans.modules.websvc.axis2.actions.ShowServicesAction;
 import org.openide.actions.FindAction;
@@ -71,6 +72,7 @@ public class Axis2Node extends AbstractNode {
     @Override
     public Action[] getActions(boolean context) {
         return new Action[]{
+            SystemAction.get(AxisConfigurationAction.class),
             SystemAction.get(DeployAction.class),
             SystemAction.get(ShowServicesAction.class),
             null,
