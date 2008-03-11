@@ -12,10 +12,12 @@ import org.netbeans.installer.utils.LogManager;
  *
  * @author Igor Nikiforov
  */
-public class LinuxNativePackageInstaller implements NativePackageInstaller {
+public class LinuxDebianPackageInstaller implements NativePackageInstaller {
 
-    public static final String PACKAGES_COUNTER = "packages_counter";
-    public static final String PACKAGE = "package.";
+    public static final String PACKAGES_COUNTER = "deb_packages_counter";
+    public static final String PACKAGE = "deb_package.";
+    
+    private String target = null;
     
     public boolean install(String pathToPackage, Product product) {
         String value = product.getProperty(PACKAGES_COUNTER);
@@ -74,15 +76,15 @@ public class LinuxNativePackageInstaller implements NativePackageInstaller {
                 }
             }
         } catch (InterruptedException ex) {
-            Logger.getLogger(LinuxNativePackageInstaller.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(LinuxDebianPackageInstaller.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(LinuxNativePackageInstaller.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(LinuxDebianPackageInstaller.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
 
     public void setDestinationPath(String path) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        target = path;
     }
     
 }
