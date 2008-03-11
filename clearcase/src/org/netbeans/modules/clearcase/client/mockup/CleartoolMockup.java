@@ -463,6 +463,18 @@ public class CleartoolMockup extends Process implements Runnable {
         }
         if(kind != null && kind.equals("lbtype")) {
             inputStream.setDelegate(new ByteArrayInputStream("BORING\nSAD\nLIFE\n".getBytes()));            
+        } else {
+            /*
+            switch(kind) {
+                case Attribute: arguments.add("attype"); break;
+                case Branch:    arguments.add("brtype"); break;
+                case Element:   arguments.add("eltype"); break;
+                case Hyperlink: arguments.add("hltype"); break;
+                case Label:     arguments.add("lbtype"); break;
+                case Trigger:   arguments.add("trtype"); break;          
+            }
+            */
+            inputStream.setDelegate(new ByteArrayInputStream("\n".getBytes()));            
         }
     }
 
