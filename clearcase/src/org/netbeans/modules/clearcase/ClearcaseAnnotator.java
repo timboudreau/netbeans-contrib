@@ -55,12 +55,10 @@ import org.netbeans.modules.clearcase.ui.update.UpdateAction;
 import org.netbeans.modules.clearcase.ui.update.MergeAction;
 import org.netbeans.modules.clearcase.ui.diff.DiffAction;
 import org.netbeans.modules.clearcase.ui.IgnoreAction;
-import org.netbeans.modules.clearcase.ui.texthistory.TextHistoryAction;
 import org.netbeans.modules.clearcase.ui.history.ViewRevisionAction;
 import org.netbeans.modules.clearcase.ui.history.BrowseHistoryAction;
 import org.netbeans.modules.clearcase.ui.history.BrowseVersionTreeAction;
 import org.openide.util.Utilities;
-
 import javax.swing.*;
 import java.awt.Image;
 import java.io.File;
@@ -85,21 +83,7 @@ import org.openide.util.actions.SystemAction;
  * @author Maros Sandor
  */
 public class ClearcaseAnnotator extends VCSAnnotator {
-    
-    /*
-    newLocallyFormat = <font color="#008000">{0}</font>{1}
-    addedLocallyFormat = <font color="#008000">{0}</font>{1}
-    modifiedLocallyFormat = <font color="#0000FF">{0}</font>{1}
-    removedLocallyFormat = <font color="#999999">{0}</font>{1}
-    deletedLocallyFormat = <font color="#999999">{0}</font>{1}
-    newInRepositoryFormat = <font color="#000000">{0}</font>{1}
-    modifiedInRepositoryFormat = <font color="#000000">{0}</font>{1}
-    removedInRepositoryFormat = <font color="#000000">{0}</font>{1}
-    conflictFormat = <font color="#FF0000">{0}</font>{1}
-    mergeableFormat = <font color="#0000FF">{0}</font>{1}
-    excludedFormat = <font color="#999999">{0}</font>{1}
-     */  
-    
+      
     private static MessageFormat newLocallyFormat = new MessageFormat("<font color=\"#008000\">{0}</font>{1}");
     private static MessageFormat checkedoutFormat = new MessageFormat("<font color=\"#0000FF\">{0}</font>{1}");
     private static MessageFormat hijackedFormat = new MessageFormat("<font color=\"#FF0000\">{0}</font>{1}");
@@ -201,14 +185,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         if (!isVersioned) return null;
         
         boolean allExcluded = true;
-        boolean modified = false;
-        
-//        Map modifiedFiles = new HashMap();
-//        for (Iterator i = map.keySet().iterator(); i.hasNext();) {
-//            File file = (File) i.next();
-//            FileInformation info = (FileInformation) map.get(file);
-//            if ((info.getCachedStatus() & FileInformation.STATUS_LOCAL_CHANGE) != 0) modifiedFiles.put(file, info);
-//        }
+        boolean modified = false;        
 
         for (File root : context.getRootFiles()) {
             Map<File, FileInformation> modifiedFiles = cache.getAllModifiedValues(root); // XXX should go only after files from the context
