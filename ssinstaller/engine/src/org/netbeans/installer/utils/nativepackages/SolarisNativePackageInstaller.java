@@ -13,7 +13,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.LogManager;
 
@@ -28,7 +27,7 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
     public static final String DEVICE_FILE_PACKAGES_COUNTER = ".packages_counter";
     public static final String DEVICE_FILE_PACKAGE = ".package.";
 
-    String target = null;
+    private String target = null;
     
     public void setDestinationPath(String path) {
         target = path;
@@ -44,9 +43,13 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
             for(String packageName: analizer) {
                 try {                    
                     LogManager.log("executing command: pkgadd -n -d " + pathToPackage 
-                            + " -R " + target + " " + packageName);
-                    Process p = new ProcessBuilder("pkgadd", "-n", "-d", pathToPackage, 
-                            "-R", target , packageName).start();
+                            + (target == null? "": "-R " + target) + " " + packageName);
+                    Process p = null;
+                    if (target == null) {
+                        p = new ProcessBuilder("pkgadd", "-n", "-d", pathToPackage, packageName).start();
+                    } else {
+                        p = new ProcessBuilder("pkgadd", "-n", "-d", pathToPackage, "-R", target , packageName).start();
+                    }
                     if (p.waitFor() != 0) {
                         return false;
                     }
@@ -71,8 +74,13 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
             for(int packageNumber=1; packageNumber<=parseInteger(packagesValue); packageNumber++) {
                 try {
                     String value = product.getProperty(DEVICE_FILE + String.valueOf(deviceNumber) + DEVICE_FILE_PACKAGE + String.valueOf(packageNumber));
-                    LogManager.log("executing command: pkgrm -R " + target  + " -n "+ value);
-                    Process p = new ProcessBuilder("pkgrm", "-R", target, "-n", value).start();
+                    LogManager.log("executing command: pkgrm " + (target == null? "": "-R " + target)  + " -n "+ value);
+                    Process p = null;
+                    if (target == null) {
+                        p = new ProcessBuilder("pkgrm", "-n", value).start();
+                    } else {
+                        p = new ProcessBuilder("pkgrm", "-R", target, "-n", value).start();
+                    }
                     if (p.waitFor() != 0) return false;
                 } catch (InterruptedException ex) {
                     return false;
