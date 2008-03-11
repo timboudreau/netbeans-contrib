@@ -73,35 +73,40 @@ public class Utils {
     }
         
     /**
-     * Refreshes the status for files and the relevent filesystems
+     * Assynchronously refreshes the status for files and their filesystems. 
+     * Note, that a refresh on the NB filesystem may result in intercepting 
+     * new file events. 
      * 
      * @param files files to be refreshed          
      * @param includeChildren if true all children for the given files will be explicitly refreshed too
      */
-    public static void afterCommandRefresh(final File[] files, final boolean includeChildren) {  
-        // refresh the NB filessytem synchronously and 
-        // before the cache starts firing change events as 
-        // they might cause externally deleted/created warnings
-        Set<File> parents = new HashSet<File>();
-        for (File file : files) {
-            File parent = file.getParentFile();
-            if (parent != null) {
-                parents.add(parent);
-            }
-        }
-        FileUtil.refreshFor(parents.toArray(new File[parents.size()])); 
+    public static void afterCommandRefresh(final File[] files, final boolean includeChildren) {          
+        Clearcase.getInstance().getRequestProcessor().post(new Runnable() {
+            public void run() {
+                // refreshing the NB filessytem before the cache refresh starts firing change events -> 
+                // otherwise they might cause externally deleted/created warnings
+                Set<File> parents = new HashSet<File>();
+                for (File file : files) {
+                    File parent = file.getParentFile();
+                    if (parent != null) {
+                        parents.add(parent);
+                    }
+                }
+                FileUtil.refreshFor(parents.toArray(new File[parents.size()])); 
 
-        // refresh the cache ...
-        Set<File> refreshSet = new HashSet<File>();
-        for (File file : files) {
-            if(includeChildren) {
-                refreshSet.addAll(getFileTree(file));    
-            } else {
-                refreshSet.add(file);
+                // refresh the cache ...
+                Set<File> refreshSet = new HashSet<File>();
+                for (File file : files) {
+                    if(includeChildren) {
+                        refreshSet.addAll(getFileTree(file));    
+                    } else {
+                        refreshSet.add(file);
+                    }
+                }                        
+                File[] refreshFiles = refreshSet.toArray(new File[refreshSet.size()]);
+                Clearcase.getInstance().getFileStatusCache().refreshLater(refreshFiles);                            
             }
-        }                        
-        File[] refreshFiles = refreshSet.toArray(new File[refreshSet.size()]);
-        Clearcase.getInstance().getFileStatusCache().refreshLater(refreshFiles);                            
+        });                
     }
 
     private static List<File> getFileTree(File file) {

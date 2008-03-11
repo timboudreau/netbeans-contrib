@@ -189,6 +189,8 @@ public class CleartoolMockup extends Process implements Runnable {
              processMV(args);            
         } else if(ctCommand.equals("annotate")) {
              processANNOTATE(args);            
+        } else if(ctCommand.equals("lstype")) {
+             processLSTYPE(args);            
         } else if(ctCommand.equals("lsvtree") ||
                 ctCommand.equals("describe")  ||
                 ctCommand.equals("merge")     ||
@@ -449,6 +451,33 @@ public class CleartoolMockup extends Process implements Runnable {
         return sb;
     }
 
+    private void processLSTYPE(String[] args) {
+        String kind = null;
+        for (int i = 1; i < args.length; i++) {
+            String arg = args[i];
+            if(arg.equals("-short")) {              
+                // ignore
+            } else if(arg.equals("-kind")) {
+                kind = args[++i];
+            } 
+        }
+        if(kind != null && kind.equals("lbtype")) {
+            inputStream.setDelegate(new ByteArrayInputStream("BORING\nSAD\nLIFE\n".getBytes()));            
+        } else {
+            /*
+            switch(kind) {
+                case Attribute: arguments.add("attype"); break;
+                case Branch:    arguments.add("brtype"); break;
+                case Element:   arguments.add("eltype"); break;
+                case Hyperlink: arguments.add("hltype"); break;
+                case Label:     arguments.add("lbtype"); break;
+                case Trigger:   arguments.add("trtype"); break;          
+            }
+            */
+            inputStream.setDelegate(new ByteArrayInputStream("\n".getBytes()));            
+        }
+    }
+
     private void processMV(String[] args) {
         
         List<File> files = new ArrayList<File>();
@@ -620,7 +649,7 @@ public class CleartoolMockup extends Process implements Runnable {
             String line = null;
             StringBuffer sb = new StringBuffer();
             while((line = br.readLine()) != null) {
-                sb.append("####  2008-04-01 vajcak    ");
+                sb.append("####  2008-04-01 Arnold    ");
                 sb.append(File.separator);
                 sb.append("main");
                 sb.append(File.separator);

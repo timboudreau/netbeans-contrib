@@ -62,7 +62,6 @@ import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.ui.checkin.CheckinOptions;
 import org.netbeans.modules.clearcase.client.*;
-import org.netbeans.modules.clearcase.ui.checkin.CheckinAction;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.util.NbBundle;
@@ -77,7 +76,7 @@ import org.openide.util.RequestProcessor;
 public class AddAction extends AbstractAction {
     
     static final String RECENT_ADD_MESSAGES = "add.messages";    
-
+    
     private final VCSContext context;
     protected final VersioningOutputManager voutput;
 
@@ -140,6 +139,7 @@ public class AddAction extends AbstractAction {
         String message = panel.taMessage.getText();
         boolean checkInAddedFiles = panel.cbSuppressCheckout.isSelected();
         ClearcaseModuleConfig.setCheckInAddedFiles(checkInAddedFiles);
+        Utils.insert(ClearcaseModuleConfig.getPreferences(), RECENT_ADD_MESSAGES, message, 20);
         
         Map<ClearcaseFileNode, CheckinOptions> filesToAdd = addTable.getAddFiles();
         

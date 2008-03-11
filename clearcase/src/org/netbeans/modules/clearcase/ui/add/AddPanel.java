@@ -42,6 +42,10 @@
 package org.netbeans.modules.clearcase.ui.add;
 
 import java.awt.BorderLayout;
+import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
+import org.netbeans.modules.versioning.util.StringSelector;
+import org.netbeans.modules.versioning.util.Utils;
+import org.openide.util.NbBundle;
 
 /**
  * Add To Clearcase customization panel.
@@ -188,7 +192,7 @@ private void cbSuppressCheckoutActionPerformed(java.awt.event.ActionEvent evt) {
 }//GEN-LAST:event_cbSuppressCheckoutActionPerformed
 
 private void bRecentMessagesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bRecentMessagesActionPerformed
-    // ignore
+    onBrowseRecentMessages();
 }//GEN-LAST:event_bRecentMessagesActionPerformed
 
 
@@ -205,4 +209,13 @@ private void bRecentMessagesActionPerformed(java.awt.event.ActionEvent evt) {//G
     javax.swing.JTextArea taMessage;
     // End of variables declaration//GEN-END:variables
 
+    private void onBrowseRecentMessages() {
+        String message = StringSelector.select(NbBundle.getMessage(AddPanel.class, "CTL_AddForm_RecentTitle"), 
+                                               NbBundle.getMessage(AddPanel.class, "CTL_AddForm_RecentPrompt"), 
+                                               Utils.getStringList(ClearcaseModuleConfig.getPreferences(), AddAction.RECENT_ADD_MESSAGES));
+        if (message != null) {
+            taMessage.replaceSelection(message);
+        }
+    }
+    
 }
