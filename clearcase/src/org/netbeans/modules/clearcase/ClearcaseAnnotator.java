@@ -70,6 +70,7 @@ import org.netbeans.modules.clearcase.client.status.FileVersionSelector;
 import org.netbeans.modules.clearcase.ui.AnnotateAction;
 import org.netbeans.modules.clearcase.ui.checkin.ExcludeAction;
 import org.netbeans.modules.clearcase.ui.checkout.ReserveAction;
+import org.netbeans.modules.clearcase.ui.label.LabelAction;
 import org.netbeans.modules.versioning.util.SystemActionBridge;
 import org.netbeans.modules.diff.PatchAction;
 import org.openide.util.Lookup;
@@ -244,6 +245,8 @@ public class ClearcaseAnnotator extends VCSAnnotator {
 //            actions.add(SystemAction.get(ExportDiffAction.class));
             actions.add(SystemAction.get(PatchAction.class));
             actions.add(null);
+            actions.add(new LabelAction("Label...", ctx));
+            actions.add(null);
             actions.add(new AnnotateAction(ctx, Clearcase.getInstance().getAnnotationsProvider(ctx)));
             actions.add(new ViewRevisionAction("View Revision...", ctx));
 //            actions.add(new TextHistoryAction("List History", ctx));
@@ -269,6 +272,8 @@ public class ClearcaseAnnotator extends VCSAnnotator {
                 actions.add(new UpdateAction("Update", ctx));
                 actions.add(new MergeAction("Merge", ctx));
                 actions.add(new CheckinAction("Checkin...", ctx));
+                actions.add(null);
+                actions.add(new LabelAction("Label...", ctx));
                 actions.add(null);
                 actions.add(new AnnotateAction(ctx, Clearcase.getInstance().getAnnotationsProvider(ctx)));
                 actions.add(new ViewRevisionAction("View Revision...", ctx));
