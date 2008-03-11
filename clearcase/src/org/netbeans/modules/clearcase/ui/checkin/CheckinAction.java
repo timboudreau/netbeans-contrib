@@ -61,7 +61,6 @@ import org.netbeans.modules.clearcase.ui.add.AddAction;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
 import org.netbeans.modules.clearcase.client.CheckinCommand;
-import org.netbeans.modules.clearcase.client.NotificationListener;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -70,7 +69,7 @@ import org.openide.util.HelpCtx;
 import org.openide.util.RequestProcessor;
 
 /**
- * Sample Update action.
+ * Checkin action.
  * 
  * @author Maros Sandor
  */
@@ -84,7 +83,6 @@ public class CheckinAction extends AbstractAction {
             FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY;
     
     private File[] files;
-    private RequestProcessor.Task prepareTask;
     
     public CheckinAction(String name, VCSContext context) {
         this.context = context;
