@@ -15,6 +15,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.LogManager;
+import org.netbeans.installer.utils.exceptions.InstallationException;
+import org.netbeans.installer.utils.exceptions.UninstallationException;
 
 /**
  *
@@ -33,7 +35,7 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
         target = path;
     }
     
-    public boolean install(String pathToPackage, Product product) {
+    public void install(String pathToPackage, Product product) throws InstallationException {
         String value = product.getProperty(DEVICE_FILES_COUNTER);        
         int counter = parseInteger(value) + 1;
         DeviceFileAnalizer analizer = new DeviceFileAnalizer(pathToPackage);
@@ -43,54 +45,62 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
             for(String packageName: analizer) {
                 try {                    
                     LogManager.log("executing command: pkgadd -n -d " + pathToPackage 
-                            + (target == null? "": "-R " + target) + " " + packageName);
-                    Process p = null;
-                    if (target == null) {
-                        p = new ProcessBuilder("pkgadd", "-n", "-d", pathToPackage, packageName).start();
-                    } else {
-                        p = new ProcessBuilder("pkgadd", "-n", "-d", pathToPackage, "-R", target , packageName).start();
-                    }
+                            + " " + packageName);
+                    Process p = new ProcessBuilder("/usr/sbin/pkgadd", "-n",
+                            "-a", "/home/lm153972/ws/install-sparc-S2/adminfiles/SPROcc",
+                            "-r", "/home/lm153972/ws/install-sparc-S2/response/SPROfdxd",
+                            "-d", pathToPackage, 
+                            packageName).start();
                     if (p.waitFor() != 0) {
-                        return false;
+                        String line;
+                        StringBuffer message = new StringBuffer();
+                        message.append("Error = ");
+                        BufferedReader input =
+                                new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                        while ((line = input.readLine()) != null) {
+                            message.append(line);
+                        }                        
+                        message.append("\n Output = ");
+                        input =
+                                new BufferedReader(new InputStreamReader(p.getInputStream()));
+                        while ((line = input.readLine()) != null) {
+                            message.append(line);
+                        }
+                        throw new InstallationException("Error native. " + message);
                     }
                     product.setProperty(DEVICE_FILE + String.valueOf(counter) 
                             + DEVICE_FILE_PACKAGE + String.valueOf(i), packageName);
                     i++;
                 } catch (InterruptedException ex) {
-                    return false;
+                    throw new InstallationException("Error native.", ex);
                 } catch (IOException ex) {
-                    return false;
+                    throw new InstallationException("Error native.", ex);
                 }
             }
             product.setProperty(DEVICE_FILES_COUNTER, String.valueOf(counter));        
-        }
-        return true;
+        }        
     }
 
-    public boolean uninstall(Product product) {
+    public void uninstall(Product product) throws UninstallationException {
         String devicesValue = product.getProperty(DEVICE_FILES_COUNTER);
         for(int deviceNumber=1; deviceNumber<=parseInteger(devicesValue); deviceNumber++) {
             String packagesValue = product.getProperty(DEVICE_FILE + String.valueOf(deviceNumber) + DEVICE_FILE_PACKAGES_COUNTER);
             for(int packageNumber=1; packageNumber<=parseInteger(packagesValue); packageNumber++) {
                 try {
                     String value = product.getProperty(DEVICE_FILE + String.valueOf(deviceNumber) + DEVICE_FILE_PACKAGE + String.valueOf(packageNumber));
-                    LogManager.log("executing command: pkgrm " + (target == null? "": "-R " + target)  + " -n "+ value);
-                    Process p = null;
-                    if (target == null) {
-                        p = new ProcessBuilder("pkgrm", "-n", value).start();
-                    } else {
-                        p = new ProcessBuilder("pkgrm", "-R", target, "-n", value).start();
+                    LogManager.log("executing command: pkgrm -R " + target  + " -n "+ value);
+                    Process p = new ProcessBuilder("/usr/sbin/pkgrm", "-n", value).start();
+                    if (p.waitFor() != 0) {
+                        throw new UninstallationException("Error native. Returned not zero.");
                     }
-                    if (p.waitFor() != 0) return false;
                 } catch (InterruptedException ex) {
-                    return false;
+                    throw new UninstallationException("Error native.", ex);
                 } catch (IOException ex) {
-                    return false;
+                    throw new UninstallationException("Error native.", ex);
                 }
             }
         }
         product.setProperty(DEVICE_FILES_COUNTER, "0");        
-        return true;
     }
 
     public boolean isCorrectPackageFile(String pathToPackage) {
