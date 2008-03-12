@@ -24,15 +24,14 @@ import java.io.IOException;
 import java.util.logging.Logger;
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.SwingUtilities;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.Document;
 import javax.swing.text.DocumentFilter;
 import org.netbeans.modules.portalpack.servers.core.WizardPropertyReader;
 import org.netbeans.modules.portalpack.servers.core.api.ConfigPanel;
-import org.netbeans.modules.portalpack.servers.core.util.DirectoryChooser;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.core.util.Util;
@@ -266,34 +265,35 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
         
         String home = homeTf.getText();
         String domainDir = domainDirTf.getText();
-        DirectoryChooser chooser = new DirectoryChooser();
         
+        String defaultDir = "";
         if(domainDir == null || domainDir.trim().length() == 0)
         {
             if(home == null || home.trim().length() == 0)
-                chooser.open(System.getProperty("user.home"));
+                defaultDir = System.getProperty("user.home");
             else{
                 if(new File(home + File.separator + "domains" + File.separator + "domain1").exists())
                 {
-                    chooser.open(home + File.separator + "domains" + File.separator + "domain1");
+                    defaultDir = home + File.separator + "domains" + File.separator + "domain1";
                 }else if(new File(home,"domains").exists())
-                    chooser.open(home + File.separator + "domains");
+                    defaultDir = home + File.separator + "domains";
                 else{
                     if(new File(home).exists())
-                       chooser.open(home);
+                       defaultDir = home;
                     else 
-                       chooser.open(System.getProperty("user.home")); 
+                       defaultDir = System.getProperty("user.home"); 
                 }
             }
         }
         else{
             if(new File(domainDir).exists())
-                chooser.open(domainDir);
+                defaultDir = domainDir;
             else
-                chooser.open(System.getProperty("user.home")); 
+                defaultDir = System.getProperty("user.home"); 
         }
-        String dir = chooser.getSelectedDir();
-        domainDirTf.setText(dir);
+        String dir = browseInstallLocation(defaultDir);
+        if(dir != null)
+            domainDirTf.setText(dir);
         
         populateAllDefaultValues();
     }//GEN-LAST:event_domainDirButtonActionPerformed
@@ -302,28 +302,30 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
 // TODO add your handling code here:
         
         String domainDir = domainDirTf.getText();
-        DirectoryChooser chooser = new DirectoryChooser();
+        
         String home = homeTf.getText();
+        String defaultDir = "";
         if(home == null || home.trim().length() == 0)
         {
             if(domainDir == null || domainDir.trim().length() == 0)
-                chooser.open(System.getProperty("user.home"));
+                defaultDir = System.getProperty("user.home");
             else
             {
                 if(new File(domainDir).exists())
-                    chooser.open(domainDir);
+                    defaultDir = domainDir;
                 else
-                    chooser.open(System.getProperty("user.home"));
+                    defaultDir = System.getProperty("user.home");
             }
         }
         else{
             if(new File(home).exists())
-                chooser.open(home);
+                defaultDir = home;
             else
-                chooser.open(System.getProperty("user.home"));
+                defaultDir = System.getProperty("user.home");
         }
-        String dir = chooser.getSelectedDir();
-        homeTf.setText(dir);
+        String dir = browseInstallLocation(defaultDir);
+        if(dir != null)
+            homeTf.setText(dir);
         _performHomeTfFocusLost();
     }//GEN-LAST:event_homeButtonActionPerformed
 
@@ -479,6 +481,40 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
          setErrorMessage("");
         return true;
     }
+    
+     private String browseInstallLocation(String defaultDir){
+        String insLocation = null;
+        JFileChooser chooser = getJFileChooser(defaultDir);
+        int returnValue = chooser.showDialog(SwingUtilities.getWindowAncestor(this),
+                NbBundle.getMessage(SunAppServerConfigPanel.class, "LBL_BrowseButton")); //NOI18N
+        
+        if(returnValue == JFileChooser.APPROVE_OPTION){
+            insLocation = chooser.getSelectedFile().getAbsolutePath();
+        }
+        return insLocation;
+    }
+    
+    private JFileChooser getJFileChooser(String defaultDir){
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle(NbBundle.getMessage(SunAppServerConfigPanel.class, "LBL_ChooserName")); //NOI18N
+        chooser.setDialogType(JFileChooser.CUSTOM_DIALOG);
+
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setApproveButtonMnemonic("Choose_Button_Mnemonic".charAt(0)); //NOI18N
+        chooser.setMultiSelectionEnabled(false);
+        chooser.setApproveButtonToolTipText(NbBundle.getMessage(SunAppServerConfigPanel.class, "LBL_ChooserName")); //NOI18N
+
+        chooser.getAccessibleContext().setAccessibleName(NbBundle.getMessage(SunAppServerConfigPanel.class, "LBL_ChooserName")); //NOI18N
+        chooser.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(SunAppServerConfigPanel.class, "LBL_ChooserName")); //NOI18N
+
+        // set the current directory
+        File file = new File(defaultDir);
+        if(file != null)
+            chooser.setSelectedFile(file);
+
+        return chooser;
+    }
+
 
     public String getDescription() {
         return "Sun Java System Application Server 9";

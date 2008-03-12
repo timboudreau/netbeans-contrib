@@ -47,6 +47,8 @@ public interface Axis2Visitor {
     void visit(Service service);
     void visit(GenerateWsdl generateWsdl);
     void visit(JavaGenerator javaGenerator);
+    public void visit(Libraries libraries);
+    public void visit(LibraryRef libraryRef);
  
     
     /**
@@ -68,6 +70,12 @@ public interface Axis2Visitor {
         }
         
         public void visit(JavaGenerator javaGenerator) {
+        }
+        
+        public void visit(Libraries libraries) {
+        }
+        
+        public void visit(LibraryRef libraryRef) {
         }
         
     }

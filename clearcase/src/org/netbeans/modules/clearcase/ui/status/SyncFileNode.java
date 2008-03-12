@@ -203,7 +203,8 @@ public class SyncFileNode extends AbstractNode {
                             }
                         });
                     }
-                };                
+                };          
+                // XXX don't use the Clearcase.getInstance().getRequestProcessor() - it might delay FS events processings
                 nodeload = Clearcase.getInstance().getRequestProcessor().post(run);
                 return org.openide.util.NbBundle.getMessage(SyncFileNode.class, "LBL_RepositoryPath_LoadingProgress"); // NOI18N
             }

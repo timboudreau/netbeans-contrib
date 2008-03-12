@@ -72,12 +72,6 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
     private boolean notAllowed = false;
     
     /**
-     * 
-     */
-    public NetbeansNewPortletClassWizardIterator() {
-        
-    }
-    /**
      * Initialize panels representing individual wizard's steps and sets
      * various properties for them influencing wizard appearance.
      */
@@ -107,7 +101,7 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
         Sources sources = (Sources)project.getLookup().lookup(Sources.class);
         SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
         if (panels == null) {
-            packageChooserPanel = JavaTemplates.createPackageChooser(project,groups,new NetbeansNewPortletClassWizardPanel1(availablePortlets));
+            packageChooserPanel = JavaTemplates.createPackageChooser(project,groups,new NetbeansNewPortletClassWizardPanel1(wizard,availablePortlets));
             panels = new WizardDescriptor.Panel[] {
                 packageChooserPanel, new NewJSR168FileAdvanceWizardPanel()
                         
