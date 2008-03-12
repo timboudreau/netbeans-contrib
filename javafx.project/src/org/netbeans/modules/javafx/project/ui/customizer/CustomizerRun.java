@@ -543,7 +543,7 @@ public class CustomizerRun extends JPanel implements HelpCtx.Provider {
         public void actionPerformed(ActionEvent e) {
 
             // only chooseMainClassButton can be performed
-            final MainClassChooser panel = new MainClassChooser(sourceRoots.getRoots());
+            final MainClassChooser panel = new MainClassChooser(sourceRoots.getRoots() ,null , mainClassTextField.getText());
             Object[] options = new Object[]{okButton, DialogDescriptor.CANCEL_OPTION};
             panel.addChangeListener(new ChangeListener() {
 

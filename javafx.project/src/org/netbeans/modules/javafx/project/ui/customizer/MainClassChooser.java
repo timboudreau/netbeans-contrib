@@ -74,6 +74,7 @@ public class MainClassChooser extends JPanel {
     private ChangeListener changeListener;
     private String dialogSubtitle = null;
     private List<String> possibleMainClasses;
+    private String mainClass;
             
     /** Creates new form MainClassChooser */
     public MainClassChooser (FileObject[] sourcesRoots) {
@@ -81,6 +82,11 @@ public class MainClassChooser extends JPanel {
     }
 
     public MainClassChooser (FileObject[] sourcesRoots, String subtitle) {
+        this (sourcesRoots, subtitle, null);
+    }
+    
+    public MainClassChooser (FileObject[] sourcesRoots, String subtitle, String mainClass) {
+        this.mainClass = mainClass;
         dialogSubtitle = subtitle;
         initComponents();
         jMainClassList.setCellRenderer(new MainClassRenderer());
@@ -131,8 +137,13 @@ public class MainClassChooser extends JPanel {
                     Arrays.sort (arr, new MainClassComparator());
                     SwingUtilities.invokeLater(new Runnable () {
                         public void run () {
-                            jMainClassList.setListData (arr);
-                            jMainClassList.setSelectedIndex (0);
+                            jMainClassList.setListData(arr);
+                            int ind = possibleMainClasses.indexOf(mainClass);
+                            if (ind != -1){
+                                jMainClassList.setSelectedIndex (ind);
+                            }else{
+                                jMainClassList.setSelectedIndex (0);
+                            }
                         }
                     });                    
                 }
