@@ -6,8 +6,10 @@
 package org.netbeans.installer.utils.nativepackages;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,8 +33,34 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
 
     private String target = null;
     
+    //TODO fix
+    static final File TMP_DIR = new File("/tmp");
+            
+    File defaultResponse;
+    File defaultAdminFile;
+    public SolarisNativePackageInstaller() {
+        try {                        
+            defaultResponse = File.createTempFile("nbi-response", "", TMP_DIR);
+            PrintStream out = new PrintStream(defaultResponse);
+            out.println("LIST_FILE=/tmp/depend_list.\nTRLR_RESP=/tmp/response.\n");
+        } catch (IOException ex) {
+            throw new Error("Unexpected Error.", ex);
+        }
+    }
+    
+    
+    
     public void setDestinationPath(String path) {
         target = path;
+        try {
+            defaultAdminFile = File.createTempFile("nbi-admin", "", TMP_DIR);
+            PrintStream out = new PrintStream(defaultAdminFile);
+            out.println("mail=\ninstance=unique\npartial=nocheck\nrunlevel=nocheck" +
+                    "\nidepend=nocheck\nrdepend=nocheck\nspace=quit\nsetuid=nocheck\n" +
+                    "conflict=nocheck\naction=nocheck\nbasedir=" + path + "\n");
+        } catch (IOException ex) {
+            throw new Error("Unexpected Error.", ex);
+        }
     }
     
     public void install(String pathToPackage, Product product) throws InstallationException {
@@ -47,8 +75,8 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
                     LogManager.log("executing command: pkgadd -n -d " + pathToPackage 
                             + " " + packageName);
                     Process p = new ProcessBuilder("/usr/sbin/pkgadd", "-n",
-                            "-a", "/home/lm153972/ws/install-sparc-S2/adminfiles/SPROcc",
-                            "-r", "/home/lm153972/ws/install-sparc-S2/response/SPROfdxd",
+                            "-a", defaultAdminFile.getAbsolutePath(),
+                            "-r", defaultResponse.getAbsolutePath(),
                             "-d", pathToPackage, 
                             packageName).start();
                     if (p.waitFor() != 0) {
