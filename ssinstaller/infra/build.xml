@@ -485,12 +485,49 @@ jarsigner.storepass=${jarsigner.storepass}
                 name="release.parent.platforms"
                 value=""/>
         </ant>
-
+        <build-product dir="C_Compiler"/>
+        <build-product dir="C++_Compiler"/>
+        <build-product dir="Fortran_95_Compiler"/>
+        <build-product dir="DBX_Debugging_Tools"/>
+        <build-product dir="build_tools"/>
+        <build-product dir="X-Designer"/>
+        <build-product dir="demos"/>
+        <build-product dir="external_editors"/>
+        <build-product dir="support_files"/>
+        <build-product dir="Performance_Library"/>
+        <build-product dir="Third-party_Source"/>
      </target>
 
+     <macrodef name="build-product">
+         <attribute name="dir"/>
+         <sequential>
+                <ant dir="${nbi.netbeans.dir}/infra/products/@{dir}" target="release-all">
+            <property 
+                name="basedir" 
+                value="${nbi.netbeans.dir}/infra/products/@{dir}"/>
+            <property 
+                name="environment.properties" 
+                value="${environment.properties}"/>
+            
+            <property
+                name="dist.dir"
+                value="${output.dir}/components"/>
+            
+            <property
+                name="release.parent.uid"
+                value=""/>
+            <property
+                name="release.parent.version"
+                value=""/>
+            <property
+                name="release.parent.platforms"
+                value=""/>
+        </ant>
+         </sequential>
+     </macrodef>
     <target name="generate-netbeans-cpp-bundles">
         <!-- C/C++ bundles -->
-        
+        <!--
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="linux" 
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-linux.sh">
@@ -498,9 +535,21 @@ jarsigner.storepass=${jarsigner.storepass}
             <component uid="ssi-nativepackages" version="1.0.0.0.0"/>                           
             <component uid="nb-base" version="${nb.full.version}"/>
             <component uid="nb-cnd" version="${nb.full.version}"/>
+	     <component uid="C Compiler" version="1.0.0.0.0"/>
+ <component uid="C++ Compiler" version="1.0.0.0.0"/>
+ <component uid="Fortran 95 Compiler" version="1.0.0.0.0"/>
+ <component uid="DBX Debugging Tools" version="1.0.0.0.0"/>
+ <component uid="build tools" version="1.0.0.0.0"/>
+ <component uid="X-Designer" version="1.0.0.0.0"/>
+ <component uid="demos" version="1.0.0.0.0"/>
+ <component uid="external editors" version="1.0.0.0.0"/>
+ <component uid="support files" version="1.0.0.0.0"/>
+ <component uid="Performance Library" version="1.0.0.0.0"/>
+ <component uid="Third-party Source" version="1.0.0.0.0"/>
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
-        
+        -->
+	
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-x86" 
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-x86.sh">
@@ -509,7 +558,17 @@ jarsigner.storepass=${jarsigner.storepass}
             
             <component uid="nb-base" version="${nb.full.version}"/>
             <component uid="nb-cnd" version="${nb.full.version}"/>
-            
+ <component uid="C_Compiler" version="1.0.0.0.0"/>
+ <component uid="C++_Compiler" version="1.0.0.0.0"/>
+ <component uid="Fortran_95_Compiler" version="1.0.0.0.0"/>
+ <component uid="DBX_Debugging_Tools" version="1.0.0.0.0"/>
+ <component uid="build_tools" version="1.0.0.0.0"/>
+ <component uid="X-Designer" version="1.0.0.0.0"/>
+ <component uid="demos" version="1.0.0.0.0"/>
+ <component uid="external_editors" version="1.0.0.0.0"/>
+ <component uid="support_files" version="1.0.0.0.0"/>
+ <component uid="Performance_Library" version="1.0.0.0.0"/>
+ <component uid="Third-party_Source" version="1.0.0.0.0"/>
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
         
