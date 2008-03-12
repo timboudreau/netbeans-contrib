@@ -44,16 +44,18 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.netbeans.junit.NbTestCase;
+import org.netbeans.modules.clearcase.client.Arguments;
 import org.netbeans.modules.clearcase.client.CheckinCommand;
 import org.netbeans.modules.clearcase.client.CheckoutCommand;
 import org.netbeans.modules.clearcase.client.ClearcaseClient;
-import org.netbeans.modules.clearcase.client.DeleteCommand;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;
+import org.netbeans.modules.clearcase.client.FilesCommand;
 import org.netbeans.modules.clearcase.client.MkElemCommand;
 import org.netbeans.modules.clearcase.client.UnCheckoutCommand;
 import org.netbeans.modules.clearcase.client.status.FileEntry;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.versioning.util.Utils;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 /**
@@ -73,11 +75,11 @@ public class InteceptorTest extends NbTestCase {
         super(testName);
         
         // run with mockup
-        System.setProperty(MOCKUP_KEY, MOCKUP_ROOT);
-        testRoot = new File(MOCKUP_ROOT + "/inteceptortest"); 
+        // System.setProperty(MOCKUP_KEY, MOCKUP_ROOT);
+        // testRoot = new File(MOCKUP_ROOT + "/inteceptortest"); 
         
         // run with cleartool
-        // testRoot = new File("/data/ccase/tester/testdata/deletetest"); 
+        testRoot = new File("/data/ccase/tester/deletetest"); 
     }            
 
     @Override
@@ -95,21 +97,32 @@ public class InteceptorTest extends NbTestCase {
             return;
         }
         String mockup = System.getProperty(MOCKUP_KEY);
-        if(mockup != null && !mockup.trim().equals("")) {
-            Utils.deleteRecursively(testRoot);    
-        } else {
-            File parent = testRoot.getParentFile();
-            ensureMutable(parent);            
-            FileEntry entry = ClearcaseUtils.readEntry(testRoot);
-            if(entry != null && !entry.isViewPrivate()) {
-                uncheckout(testRoot);
-                ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit("Cleaningup ...", new DeleteCommand(new File[]{testRoot})));
-                cr.waitFinished();            
-                Clearcase.getInstance().getClient().post(new ExecutionUnit("Cleaningup...", new CheckinCommand(new File[] {parent}, null, true, false)));
+        File[] files = testRoot.listFiles();
+        for (File f : files) {
+            if(mockup != null && !mockup.trim().equals("")) {
+                Utils.deleteRecursively(f);    
             } else {
-                Utils.deleteRecursively(testRoot);    
-            }
-        }    
+                File parent = f.getParentFile();
+                ensureMutable(parent);            
+                FileEntry entry = ClearcaseUtils.readEntry(f);
+                if(entry != null && !entry.isViewPrivate()) {
+                    uncheckout(f);
+                    Clearcase.getInstance().getClient().post(new ExecutionUnit("Cleaningup ...", false, new RmElemCommand(f))).waitFinished();            
+                    FileUtil.refreshFor(parent);
+                    Clearcase.getInstance().getClient().post(new ExecutionUnit("Cleaningup...",  false, new CheckinCommand(new File[] {parent}, null, true, false))).waitFinished();
+                } else {
+                    Utils.deleteRecursively(f);    
+                }
+            }    
+        }
+    }
+    
+    private void init() {
+        FileEntry entry = ClearcaseUtils.readEntry(testRoot);
+        if(entry == null || entry.isViewPrivate()) {
+            testRoot.mkdirs();
+            add(testRoot);    
+        }        
     }
     
     @Override
@@ -446,12 +459,8 @@ public class InteceptorTest extends NbTestCase {
         }
     }
     
-    private void init() {
-        testRoot.mkdirs();
-        add(testRoot);
-    }
-
     private void refreshImmediatelly(File file) throws SecurityException, NoSuchMethodException, IllegalAccessException, IllegalAccessException, IllegalArgumentException, IllegalArgumentException, InvocationTargetException {
+        FileUtil.refreshFor(file.getParentFile());
         Method m = cache.getClass().getDeclaredMethod("refresh", new Class[] {File.class, boolean.class});
         m.setAccessible(true);
         m.invoke(cache, new Object[] {file, true});
@@ -501,4 +510,16 @@ public class InteceptorTest extends NbTestCase {
             Exceptions.printStackTrace(ex);
         }
     }
+    
+    private static class RmElemCommand extends FilesCommand {        
+        public RmElemCommand(File... files) {
+            super(files);        
+}
+        public void prepareCommand(Arguments arguments) throws ClearcaseException {
+            arguments.add("rmelem");                
+            arguments.add("-force");
+            arguments.add("-nco");
+            addFileArguments(arguments);
+        }
+    }    
 }
