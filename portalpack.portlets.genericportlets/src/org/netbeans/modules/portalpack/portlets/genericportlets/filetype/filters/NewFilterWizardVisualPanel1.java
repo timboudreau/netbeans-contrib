@@ -37,7 +37,7 @@ import org.openide.WizardDescriptor;
 public final class NewFilterWizardVisualPanel1 extends JPanel implements DocumentListener {
 
     private NewFilterWizardWizardPanel1 panel;
-    private boolean isParamOk;
+    private boolean isParamOk = true;
     private String paramErrorMsg = "";
 
     /** Creates new form NewFilterWizardVisualPanel1 */

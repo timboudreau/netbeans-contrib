@@ -361,7 +361,10 @@ public class WebDescriptorGenerator {
                 //add filter mapping element
                 FilterMappingType mappingType = portletApp.newFilterMappingType();
                 populateFilterMapping(mappingType, filterContext);
-                portletApp.addFilterMapping(mappingType);
+                String[] portlets = mappingType.getPortletName();
+               
+                if(portlets != null && portlets.length != 0)
+                    portletApp.addFilterMapping(mappingType);
                
                 savePortletApp(portletApp, portletXmlObj);
                 return true;
