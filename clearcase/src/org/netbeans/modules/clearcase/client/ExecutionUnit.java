@@ -70,10 +70,6 @@ public class ExecutionUnit implements Iterable<ClearcaseCommand>, Iterator<Clear
     public ExecutionUnit(ClearcaseCommand ... commands) {
         this(true, commands);
     }
-
-    protected ExecutionUnit(String displayName) {
-        this(true, new ClearcaseCommand[0]);
-    }
     
     public ExecutionUnit(boolean notifyErrors, ClearcaseCommand ... commands) {
         this.notifyErrors = notifyErrors;
