@@ -58,7 +58,6 @@ import javax.swing.event.TableModelListener;
 import org.netbeans.modules.clearcase.*;
 import org.netbeans.modules.clearcase.client.AfterCommandRefreshListener;
 import org.netbeans.modules.clearcase.ui.add.AddAction;
-import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
 import org.netbeans.modules.clearcase.client.CheckinCommand;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
