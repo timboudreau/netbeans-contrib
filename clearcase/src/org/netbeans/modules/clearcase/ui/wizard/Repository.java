@@ -121,7 +121,7 @@ public class Repository implements ActionListener, DocumentListener, FocusListen
 
         LsVobCommand lsvob = new LsVobCommand();
         try {
-            Clearcase.getInstance().getClient().exec(lsvob);
+            Clearcase.getInstance().getClient().exec(lsvob, true);
             result = lsvob.getVobs();
         } catch (ClearcaseException e) {
             Utils.logError(this, e);

@@ -115,7 +115,7 @@ public class ClearcaseClient {
             private ClearcaseClient.CommandRunnable cr;                        
             @Override
             protected void perform() {
-                cr = execImpl(new ExecutionUnit(command));
+                cr = execImpl(new ExecutionUnit(command), true);
                 setCancellableDelegate(cr);
             }   
         };
@@ -123,13 +123,14 @@ public class ClearcaseClient {
     }
     
     /**
-     * Execute a command synchronously, command execution and notification happens synchronously. Errors are notified by default. 
+     * Execute a command synchronously, command execution and notification happens synchronously. 
      * 
      * @param command command to execute
+          * @param notifyErrors notifies errors is true* 
      * @throws org.netbeans.modules.clearcase.ClearcaseException if the command is invalid, its execution fails, etc.
      */
-    public void exec(ClearcaseCommand command) throws ClearcaseException {        
-        exec(new ExecutionUnit(command));
+    public void exec(ClearcaseCommand command, boolean notifyErrors) throws ClearcaseException {        
+        exec(new ExecutionUnit(command), notifyErrors);
     }
     
     /**
@@ -138,12 +139,12 @@ public class ClearcaseClient {
      * @param eu commands to execute
      * @throws org.netbeans.modules.clearcase.ClearcaseException if the command is invalid, its execution fails, etc.
      */
-    public void exec(ExecutionUnit eu) {           
-        execImpl(eu);       
+    public void exec(ExecutionUnit eu, boolean notifyErrors) {           
+        execImpl(eu, notifyErrors);       
     }        
     
-    private CommandRunnable execImpl(ExecutionUnit eu) {           
-        CommandRunnable commandRunnable = new CommandRunnable(eu, true);
+    private CommandRunnable execImpl(ExecutionUnit eu, boolean notifyErrors) {           
+        CommandRunnable commandRunnable = new CommandRunnable(eu, notifyErrors);
         commandRunnable.run();
         return commandRunnable;        
     }  

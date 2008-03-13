@@ -214,7 +214,7 @@ public class ClearcaseUtils {
         final ClearcaseClient client = Clearcase.getInstance().getClient();
         // 1. list files ...
         ListStatus ls = new ListStatus(file, directory);    
-        client.exec(ls);
+        client.exec(ls, false);
 
         return new ArrayList<FileEntry>(ls.getOutput());
     }
