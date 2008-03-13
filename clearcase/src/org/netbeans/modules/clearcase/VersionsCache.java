@@ -82,13 +82,12 @@ public class VersionsCache implements NotificationListener {
         String revisionSpec = ClearcaseUtils.getExtendedName(workingCopy, revision);  
                 
         File tempFile = File.createTempFile("nbclearcase-", "get");
-        tempFile.delete();
-        ClearcaseClient.CommandRunnable cr =Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Getting Clearcased File...",
-                new GetCommand(tempFile, revisionSpec, this)));
-        cr.waitFinished();
+        tempFile.delete();        
+        
+        GetCommand cmd = new GetCommand(tempFile, revisionSpec, this);        
+        Clearcase.getInstance().getClient().post("Getting Clearcased File...", cmd).waitFinished();
         tempFile.deleteOnExit();
-        if (cr.getFailedCommand() == null && tempFile.isFile()) return tempFile;
+        if (cmd.hasFailed() && tempFile.isFile()) return tempFile;
         return null;
     }
 

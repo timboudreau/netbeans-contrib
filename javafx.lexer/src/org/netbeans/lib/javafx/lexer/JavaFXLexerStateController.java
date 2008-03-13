@@ -139,7 +139,7 @@ public class JavaFXLexerStateController {
             return braceDepth;
         }
 
-        public BraceQuoteTracker getNext() {
+        public BraceQuoteTracker getPrev() {
             return prev;
         }
 
@@ -157,7 +157,7 @@ public class JavaFXLexerStateController {
                     " braceDepth=" + getBraceDepth() +
                     " quote=" + getQuote() +
                     " percentIsFormat=" + isPercentIsFormat() +
-                    " prev=" + (getNext() == null ? "null" : "not null");
+                    " prev=" + (getPrev() == null ? "null" : "not null");
         }
         
     }
