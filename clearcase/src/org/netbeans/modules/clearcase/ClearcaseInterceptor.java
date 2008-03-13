@@ -248,7 +248,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         CheckoutAction.ensureMutable(file);   
     }    
     
-    private void post(ClearcaseCommand... commands) {        
-        Clearcase.getInstance().getClient().post(commands);
+    private void post(ClearcaseCommand command) {        
+        Clearcase.getInstance().getClient().post(command);
     }
 }
