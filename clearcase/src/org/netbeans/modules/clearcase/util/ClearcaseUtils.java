@@ -212,17 +212,11 @@ public class ClearcaseUtils {
             return null;
         }
         final ClearcaseClient client = Clearcase.getInstance().getClient();
-        try {
-            // 1. list files ...
-            ListStatus ls = new ListStatus(file, directory);    
-            client.exec(ls);
-        
-            return new ArrayList<FileEntry>(ls.getOutput());
-                        
-        } catch (ClearcaseException ex) {
-            Clearcase.LOG.log(Level.SEVERE, "Exception in status command for file : " + file.getAbsolutePath() + "]", ex);            
-        }
-        return null;
+        // 1. list files ...
+        ListStatus ls = new ListStatus(file, directory);    
+        client.exec(ls);
+
+        return new ArrayList<FileEntry>(ls.getOutput());
     }
     
 }

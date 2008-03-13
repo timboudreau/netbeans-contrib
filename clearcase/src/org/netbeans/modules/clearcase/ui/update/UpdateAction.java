@@ -87,9 +87,12 @@ public class UpdateAction extends AbstractAction implements NotificationListener
     
     public void actionPerformed(ActionEvent e) {
         Set<File> files = context.computeFiles(updateFileFilter);
-        Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Updating...",
-                new UpdateCommand(files.toArray(new File[files.size()]), this, new OutputWindowNotificationListener())));
+        UpdateCommand cmd = 
+                new UpdateCommand(
+                    files.toArray(new File[files.size()]), 
+                    this, 
+                    new OutputWindowNotificationListener());
+        Clearcase.getInstance().getClient().post("Updating...",cmd);
     }
 
     public static void update(VCSContext context) {

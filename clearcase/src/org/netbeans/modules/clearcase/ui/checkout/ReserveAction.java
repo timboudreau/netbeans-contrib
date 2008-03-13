@@ -142,10 +142,13 @@ public class ReserveAction extends AbstractAction {
         String message = panel.taMessage.getText();
 
         Utils.insert(ClearcaseModuleConfig.getPreferences(), CheckoutAction.RECENT_CHECKOUT_MESSAGES, message, 20);
-                
-        Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Modifying Checkout...",
-                new UnreserveCommand(files, message, new AfterCommandRefreshListener(files), new OutputWindowNotificationListener())));
+        UnreserveCommand cmd = 
+                new UnreserveCommand(
+                    files, 
+                    message, 
+                    new AfterCommandRefreshListener(files), 
+                    new OutputWindowNotificationListener());                
+        Clearcase.getInstance().getClient().post("Modifying Checkout...", cmd);
     }
 
     public static void performReserve(File[] files, String title) {        
@@ -171,23 +174,14 @@ public class ReserveAction extends AbstractAction {
         if (value != reserveButton) return;
         
         String message = panel.taMessage.getText();
-
         Utils.insert(ClearcaseModuleConfig.getPreferences(), CheckoutAction.RECENT_CHECKOUT_MESSAGES, message, 20);
-                
-        Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Modifying Checkout...",
-                new ReserveCommand(files, message, new OutputWindowNotificationListener(), new AfterCommandRefreshListener(files))));
-    }
         
-    /**
-     * Interceptor entry point.
-     * 
-     * @param file file to checkout
-     */
-    public static void checkout(File file) {
-        ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Modifying Checkout...",
-                new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Default, true, new AfterCommandRefreshListener(file))));
-        cr.waitFinished();
-    }
+        ReserveCommand cmd = 
+                new ReserveCommand(
+                    files, 
+                    message, 
+                    new OutputWindowNotificationListener(), 
+                    new AfterCommandRefreshListener(files));                
+        Clearcase.getInstance().getClient().post("Modifying Checkout...", cmd);
+    }        
 }

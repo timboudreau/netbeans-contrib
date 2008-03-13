@@ -174,10 +174,15 @@ public class CheckinAction extends AbstractAction {
         Utils.insert(ClearcaseModuleConfig.getPreferences(), RECENT_CHECKIN_MESSAGES, message, 20);
         
         files = ciFiles.toArray(new File[ciFiles.size()]);
-        Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Checking in...",
-                new CheckinCommand(files, message, forceUnmodified, 
-                                    preserveTime, new OutputWindowNotificationListener(), new AfterCommandRefreshListener(files))));
+        CheckinCommand cmd = 
+                new CheckinCommand(
+                    files, 
+                    message, 
+                    forceUnmodified, 
+                    preserveTime, 
+                    new OutputWindowNotificationListener(), 
+                    new AfterCommandRefreshListener(files));
+        Clearcase.getInstance().getClient().post("Checking in...", cmd);
     }
 
     // XXX temporary solution...

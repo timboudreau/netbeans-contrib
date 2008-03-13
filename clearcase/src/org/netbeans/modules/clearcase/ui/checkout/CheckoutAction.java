@@ -156,13 +156,16 @@ public class CheckoutAction extends AbstractAction {
         if (value != unCheckoutButton) return;
         
         boolean keepFiles = panel.cbKeep.isSelected();
-        
-        Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Undoing Checkout...",
-                new UnCheckoutCommand(files, keepFiles, new AfterCommandRefreshListener(files), new OutputWindowNotificationListener())));
+        UnCheckoutCommand cmd = 
+                new UnCheckoutCommand(
+                    files, 
+                    keepFiles, 
+                    new AfterCommandRefreshListener(files), 
+                    new OutputWindowNotificationListener());
+        Clearcase.getInstance().getClient().post("Undoing Checkout...", cmd);
     }
 
-    public static ClearcaseClient.CommandRunnable performCheckout(File[] files, String title) {        
+    private static void performCheckout(File[] files, String title) {        
         JButton checkoutButton = new JButton(); 
         CheckoutPanel panel = new CheckoutPanel();
         
@@ -181,18 +184,21 @@ public class CheckoutAction extends AbstractAction {
         dialog.setVisible(true);
         
         Object value = dd.getValue();
-        if (value != checkoutButton) return null;
+        if (value != checkoutButton) return;
         
         String message = panel.taMessage.getText();
         boolean doReserved = panel.cbReserved.isSelected();
 
         Utils.insert(ClearcaseModuleConfig.getPreferences(), RECENT_CHECKOUT_MESSAGES, message, 20);
-                
-        ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Checking out...",
-                new CheckoutCommand(files, message, doReserved ? CheckoutCommand.Reserved.Reserved : CheckoutCommand.Reserved.Unreserved, 
-                                    false, new AfterCommandRefreshListener(files), new OutputWindowNotificationListener())));        
-        return cr;
+        CheckoutCommand cmd = 
+                new CheckoutCommand(
+                        files, 
+                        message, 
+                        doReserved ? CheckoutCommand.Reserved.Reserved : CheckoutCommand.Reserved.Unreserved, 
+                        false, 
+                        new AfterCommandRefreshListener(files), 
+                        new OutputWindowNotificationListener());                
+        Clearcase.getInstance().getClient().post("Checking out...", cmd);        
     }
     
     /**
@@ -247,16 +253,14 @@ public class CheckoutAction extends AbstractAction {
             throw new IllegalStateException("Illegal Checkout type: " + odc);
         }
         
-        ExecutionUnit eu = new ExecutionUnit("Checking out...", odc != ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback, command);
-        ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(eu);
-        cr.waitFinished();
+        ExecutionUnit eu = new ExecutionUnit(odc != ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback, command);
+        Clearcase.getInstance().getClient().post(eu).waitFinished();
         
         if (command.hasFailed() && odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback) {
             command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, 
                                           new OutputWindowNotificationListener(), new AfterCommandRefreshListener(file));
-            eu = new ExecutionUnit("Checking out...", true, command);
-            cr = Clearcase.getInstance().getClient().post(eu);
-            cr.waitFinished();
+            eu = new ExecutionUnit(true, command);
+            Clearcase.getInstance().getClient().post(eu).waitFinished();
         }
     }
 }

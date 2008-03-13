@@ -107,11 +107,11 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         // it becomes [checkedout but removed]. This actually is not what we want.
         FileEntry entry = ClearcaseUtils.readEntry(file);
         if (entry != null && entry.isCheckedout()) {
-            post("Undoing checkout...", new UnCheckoutCommand(new File[]{ file }, false));
+            post(new UnCheckoutCommand(new File[]{ file }, false));
         }
 
         // 3. remove the file
-        post("Deleting ...", new DeleteCommand(new File[]{ file }));
+        post(new DeleteCommand(new File[]{ file }));
                 
         // the file stays on the filessytem if it was checkedout eventually
         if (file.exists()) {
@@ -125,8 +125,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         if(parent == null) {
             // how is this possible ?
             return;
-        }
-                        
+        }                        
         if(Clearcase.getInstance().isManaged(parent)) {
             deleteFile(file);            
         }                                 
@@ -187,7 +186,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 }
             
                 // 2. move the file
-                post("Moving ...", new MoveCommand(from, to));               
+                post(new MoveCommand(from, to));               
                 
             }    
         } else if (!Clearcase.getInstance().isManaged(from)) {
@@ -249,9 +248,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         CheckoutAction.ensureMutable(file);   
     }    
     
-    private void post(String displayName, ClearcaseCommand... commands) {
-        final ExecutionUnit eu = new ExecutionUnit(displayName, commands);
-        ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(eu);
-        cr.waitFinished();                        
+    private void post(ClearcaseCommand... commands) {        
+        Clearcase.getInstance().getClient().post(commands);
     }
 }
