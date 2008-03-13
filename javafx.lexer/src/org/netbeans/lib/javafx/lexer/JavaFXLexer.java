@@ -896,10 +896,10 @@ public class JavaFXLexer extends JavaFXTestableLexer implements Lexer<JavaFXToke
                     return tokenFactoryCreateToken(JavaFXTokenId.STRING_LITERAL,
                             inputReadLength(), PartType.START);
                 case '{':
-                    stateController.enterBrace(quote, false);
                     if(startedWith == '}') {
                         return token(JavaFXTokenId.RBRACE_LBRACE_STRING_LITERAL);
                     }
+                    stateController.enterBrace(quote, false);
                     return token(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL);
             }
         }
