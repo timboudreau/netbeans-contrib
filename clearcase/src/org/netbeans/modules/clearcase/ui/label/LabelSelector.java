@@ -54,7 +54,6 @@ import java.awt.event.WindowAdapter;
 import java.io.File;
 import java.util.List;
 import org.netbeans.modules.clearcase.Clearcase;
-import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.LsTypeCommand;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
 import org.netbeans.modules.versioning.util.NoContentPanel;
