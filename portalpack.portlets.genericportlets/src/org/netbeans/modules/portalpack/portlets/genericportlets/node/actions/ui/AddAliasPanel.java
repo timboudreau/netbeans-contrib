@@ -78,18 +78,22 @@ public class AddAliasPanel extends javax.swing.JDialog {
         cancelTf = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle(org.openide.util.NbBundle.getMessage(AddAliasPanel.class, "AddAliasPanel.Event.title")); // NOI18N
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(AddAliasPanel.class, "LBL_LOCAL_PART")); // NOI18N
 
         localPartTf.setText(org.openide.util.NbBundle.getMessage(AddAliasPanel.class, "AddAliasPanel.localPartTf.text")); // NOI18N
+        localPartTf.setToolTipText(org.openide.util.NbBundle.getMessage(AddAliasPanel.class, "AddAliasPanel.localPartTf.tooltip")); // NOI18N
 
         namespace.setText(org.openide.util.NbBundle.getMessage(AddAliasPanel.class, "LBL_NAMESPACE")); // NOI18N
 
         namespaceTf.setText(org.openide.util.NbBundle.getMessage(AddAliasPanel.class, "AddAliasPanel.namespaceTf.text")); // NOI18N
+        namespaceTf.setToolTipText(org.openide.util.NbBundle.getMessage(AddAliasPanel.class, "AddAliasPanel.namespaceTf.tooltip")); // NOI18N
 
         jLabel2.setText(org.openide.util.NbBundle.getMessage(AddAliasPanel.class, "LBL_PREFIX")); // NOI18N
 
-        prefixTf.setText(org.openide.util.NbBundle.getMessage(AddAliasPanel.class, "AddAliasPanel.prefixTf.text")); // NOI18N
+        prefixTf.setText(org.openide.util.NbBundle.getMessage(AddAliasPanel.class, "AddAliasPanel.prefixTf.tooltip")); // NOI18N
+        prefixTf.setToolTipText(org.openide.util.NbBundle.getMessage(AddAliasPanel.class, "AddAliasPanel.prefixTf.tooltip")); // NOI18N
         prefixTf.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 prefixTfActionPerformed(evt);
@@ -159,6 +163,9 @@ public class AddAliasPanel extends javax.swing.JDialog {
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        okButton.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(AddAliasPanel.class, "ACC_Ok")); // NOI18N
+        cancelTf.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(AddAliasPanel.class, "ACC_Cancel")); // NOI18N
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -181,7 +188,20 @@ private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     }
     
     if(namespace == null || namespace.length() ==0) namespace = null;
-  
+    
+    if(namespace != null && namespace.contains(" "))
+    {
+        NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(AddAliasPanel.class, "NOT_A_VALID_NAMESPACE"),NotifyDescriptor.ERROR_MESSAGE);
+        DialogDisplayer.getDefault().notify(nd);
+        return;
+    }
+    
+    if(prefix != null && prefix.contains(" "))
+    {
+        NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(AddAliasPanel.class, "NOT_A_VALID_PREFIX"),NotifyDescriptor.ERROR_MESSAGE);
+        DialogDisplayer.getDefault().notify(nd);
+        return;
+    }
     
         if(prefix == null || prefix.length() == 0)
             qName = new QName(namespace,localPart);

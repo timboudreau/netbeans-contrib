@@ -34,7 +34,7 @@ public class AddEventPanel extends javax.swing.JDialog {
    // private String name;
     private EventObject evtObject;
     /** Creates new form AddEventPanel */
-    public AddEventPanel(java.awt.Frame parent) {
+    public AddEventPanel(java.awt.Frame parent,String title) {
         super(parent, true);
         initComponents();
         qNameCB.setSelected(true);
@@ -64,6 +64,7 @@ public class AddEventPanel extends javax.swing.JDialog {
         valueType = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle(org.openide.util.NbBundle.getMessage(AddEventPanel.class, "AddEventPanel.title")); // NOI18N
 
         jLabel2.setText(org.openide.util.NbBundle.getMessage(AddEventPanel.class, "LBL_NAMESPACE")); // NOI18N
 
@@ -249,7 +250,7 @@ public class AddEventPanel extends javax.swing.JDialog {
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                AddEventPanel dialog = new AddEventPanel(new javax.swing.JFrame());
+                AddEventPanel dialog = new AddEventPanel(new javax.swing.JFrame(),"test");
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     public void windowClosing(java.awt.event.WindowEvent e) {
                         System.exit(0);
