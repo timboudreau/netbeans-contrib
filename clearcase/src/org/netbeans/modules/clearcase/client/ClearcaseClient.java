@@ -123,7 +123,7 @@ public class ClearcaseClient {
     }
     
     /**
-     * Execute a command synchronously, command execution and notification happens synchronously
+     * Execute a command synchronously, command execution and notification happens synchronously. Errors are notified by default. 
      * 
      * @param command command to execute
      * @throws org.netbeans.modules.clearcase.ClearcaseException if the command is invalid, its execution fails, etc.
@@ -133,7 +133,7 @@ public class ClearcaseClient {
     }
     
     /**
-     * Execute commands synchronously, command execution and notification happens synchronously
+     * Execute commands synchronously, command execution and notification happens synchronously. Errors are notified by default. 
      * 
      * @param eu commands to execute
      * @throws org.netbeans.modules.clearcase.ClearcaseException if the command is invalid, its execution fails, etc.
