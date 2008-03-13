@@ -81,45 +81,33 @@ class SourceProxy implements FileProxy {
     }
 
     public CompilerInfo getCompilerInfo() {
+        String path = MakeprojectUtils.getCompilerPath(dao, fileItem);
         if( isSun(dao, fileItem) ) {
-            String baseName = isCpp(dao, fileItem) ? "CC" : "cc"; // NOI18N
-            String path = ErrorProviderUtils.findInPath(baseName);
+            if( path == null || path.length() == 0 ) {
+                String baseName = isCpp(dao, fileItem) ? "CC" : "cc"; // NOI18N
+                path = ErrorProviderUtils.findInPath(baseName);
+            }
             return new CompilerInfo(path, new SunParser());
         }
         else {
-            String baseName = isCpp(dao, fileItem) ? "g++" : "gcc"; // NOI18N
-            String path = ErrorProviderUtils.findInPath(baseName);
+            if( path == null || path.length() == 0 ) {
+                String baseName = isCpp(dao, fileItem) ? "g++" : "gcc"; // NOI18N
+                path = ErrorProviderUtils.findInPath(baseName);
+            }
             return new CompilerInfo(path, new GnuParser());
         }
     }
-
+    
     public String getCompilerOptions() {
-        return getCompilerOptions(dao);
+        return getCompilerOptions(fileItem);
     }
     
-    public String getCompilerOptions(DataObject aDao) {
+    protected static String getCompilerOptions(NativeFileItem item) {
         StringBuilder sb = new StringBuilder(" -I . ");
-        NativeFileItemSet itemSet = aDao.getLookup().lookup(NativeFileItemSet.class);
-        if( itemSet != null ) {
-            for( NativeFileItem item : itemSet.getItems() ) {
-                for( String path : item.getUserIncludePaths() ) {
-                    sb.append(" -I "); // NOI18N
-                    sb.append(path);
-                }
-                for( String def : item.getUserMacroDefinitions() ) {
-                    sb.append(" -D"); // NOI18N
-                    sb.append(def);
-                }
-                break;
-            }
-            sb.append(' ');
-        }
-        return sb.toString();
-    }
-    
-    public String getCompilerOptions(NativeFileItem item) {
-        StringBuilder sb = new StringBuilder(" -I . ");
-        if( item != null ) {
+        String options = MakeprojectUtils.getCompilerOptions(item);
+        if( options != null ) {
+            sb.append(options);
+        } else  if( item != null ) {
             for( String path : item.getUserIncludePaths() ) {
                 sb.append(" -I "); // NOI18N
                 sb.append(path);
