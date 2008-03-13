@@ -151,7 +151,7 @@ public class CheckinAction extends AbstractAction {
 
         Map<ClearcaseFileNode, CheckinOptions> filesToCheckin = checkinTable.getAddFiles();
 
-        AddAction.addFiles(message, false, filesToCheckin);
+        AddAction.addFiles(message, false, filesToCheckin).waitFinished();
         
         // TODO: process options
         List<String> addExclusions = new ArrayList<String>();;
