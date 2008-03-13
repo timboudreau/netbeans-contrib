@@ -40,6 +40,9 @@
  */
 package org.netbeans.modules.groovy.editor;
 
+import groovy.lang.GroovySystem;
+import groovy.lang.MetaClass;
+import groovy.lang.MetaMethod;
 import groovy.util.Node;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,7 +70,13 @@ import org.netbeans.modules.groovy.editor.elements.KeywordElement;
 import org.netbeans.modules.groovy.editor.parser.GroovyParser;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
-
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import org.codehaus.groovy.ast.AnnotatedNode;
+import org.codehaus.groovy.ast.ClassNode;
+import org.codehaus.groovy.ast.expr.Expression;
+import org.codehaus.groovy.ast.expr.PropertyExpression;
+import org.codehaus.groovy.ast.stmt.ExpressionStatement;
 
 public class CodeCompleter implements Completable {
  
@@ -75,9 +84,44 @@ public class CodeCompleter implements Completable {
     boolean showSymbols = false;
     private boolean caseSensitive;
     private int anchor;
+    private  final Logger LOG = Logger.getLogger(CodeCompleter.class.getName());
     
     public CodeCompleter() {
     
+    }
+
+    private void populateProposal(Object method, CompletionRequest request, List<CompletionProposal> proposals, boolean isGDK) {
+        if (method != null && (method instanceof MetaMethod)) {
+            MetaMethod mm = (MetaMethod) method;
+
+            if (!request.prefix.equals("")) {
+                if (mm.getName().startsWith(request.prefix)) {
+                    MethodItem item = new MethodItem(mm, anchor, request, isGDK);
+                    proposals.add(item);
+                }
+            } else {
+                MethodItem item = new MethodItem(mm, anchor, request, isGDK);
+                proposals.add(item);
+            }
+        }
+    }
+
+    private void printASTNodeInformation(ASTNode node) {
+
+        LOG.log(Level.FINEST, "--------------------------------------------------------");
+        LOG.log(Level.FINEST, "Node.getText()  : " + node.getText());
+        LOG.log(Level.FINEST, "Node.toString() : " + node.toString());
+        LOG.log(Level.FINEST, "Node.getClass() : " + node.getClass());
+    }
+
+    private void printMethod(MetaMethod mm) {
+
+        LOG.log(Level.FINEST, "--------------------------------------------------");
+        LOG.log(Level.FINEST, "Methods.getName()       : " + mm.getName());
+        LOG.log(Level.FINEST, "Methods.toString()      : " + mm.toString());
+        LOG.log(Level.FINEST, "Methods.getDescriptor() : " + mm.getDescriptor());
+        LOG.log(Level.FINEST, "Methods.getSignature()  : " + mm.getSignature());
+        LOG.log(Level.FINEST, "Methods.getParamTypes() : " + mm.getParamTypes());
     }
 
     private boolean startsWith(String theString, String prefix) {
@@ -109,14 +153,78 @@ public class CodeCompleter implements Completable {
 
         return false;
     }
+    
+    private boolean completeMethods(List<CompletionProposal> proposals, CompletionRequest request, boolean isSymbol) {
+        
+        // figure out which class we are dealing with:
+        ASTNode root = AstUtilities.getRoot(request.info);
+        AstPath path = new AstPath(root ,request.astOffset, request.doc);
+        ASTNode closest;
+        
+        if (request.prefix.equals("")) {
+            closest = path.leaf();
+        } else {
+            closest = path.leafParent();
+        }
+        
+//        LOG.log(Level.FINEST, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+//        LOG.log(Level.FINEST, "(leaf): ");
+//        printASTNodeInformation(closest);
+//        LOG.log(Level.FINEST, "(parentLeaf): ");
+//        printASTNodeInformation(path.leafParent());
+        
+        Class clz = null;
+        ClassNode declClass = null;
+        
+        if (closest instanceof AnnotatedNode) {
+            declClass = ((AnnotatedNode) closest).getDeclaringClass();
+        } else if (closest instanceof Expression) {
+            declClass = ((Expression) closest).getType();
+        } else if (closest instanceof ExpressionStatement) {
+            Expression expr = ((ExpressionStatement) closest).getExpression();
+            if(expr instanceof PropertyExpression){
+                declClass = ((PropertyExpression)expr).getObjectExpression().getType();
+            } else {
+                return false;
+                }
+        } else {
+            return false;
+        }
+            
+        if (declClass != null) {
+            try {
+                clz = Class.forName(declClass.getName());
+            } catch (Exception e) {
+            }
+        }
+      
+        if (clz != null) {
+            MetaClass metaClz = GroovySystem.getMetaClassRegistry().getMetaClass(clz);
+
+            if (metaClz != null) {
+                for (Object method : metaClz.getMetaMethods()) {
+                    populateProposal(method, request, proposals, true);
+                }
+
+                for (Object method : metaClz.getMethods()) {
+                    populateProposal(method, request, proposals, false);
+                }
+            }
+
+        }
+        
+        return true;
+    }
+    
 
     public List<CompletionProposal> complete(CompilationInfo info, int lexOffset, String prefix, NameKind kind, QueryType queryType, boolean caseSensitive, HtmlFormatter formatter) {
         this.caseSensitive = caseSensitive;
 
-//        final int astOffset = AstUtilities.getAstOffset(info, lexOffset);
-//        if (astOffset == -1) {
-//            return null;
-//        }
+        final int astOffset = AstUtilities.getAstOffset(info, lexOffset);
+        
+        //LOG.setLevel(Level.FINEST);
+        LOG.log(Level.FINEST, "complete(...), prefix: " + prefix);
+        
         
         // Avoid all those annoying null checks
         if (prefix == null) {
@@ -126,8 +234,6 @@ public class CodeCompleter implements Completable {
         List<CompletionProposal> proposals = new ArrayList<CompletionProposal>();
 
         anchor = lexOffset - prefix.length();
-
-//        final RubyIndex index = RubyIndex.get(info.getIndex());
 
         final Document document;
         try {
@@ -144,7 +250,7 @@ public class CodeCompleter implements Completable {
         final TokenHierarchy<Document> th = TokenHierarchy.get(document);
         final BaseDocument doc = (BaseDocument)document;
         final FileObject fileObject = info.getFileObject();
-
+        
         boolean showLower = true;
         boolean showUpper = true;
         boolean showSymbols = false;
@@ -159,7 +265,7 @@ public class CodeCompleter implements Completable {
             CompletionRequest request = new CompletionRequest();
             request.formatter = formatter;
             request.lexOffset = lexOffset;
-//            request.astOffset = astOffset;
+            request.astOffset = astOffset;
 //            request.index = index;
             request.doc = doc;
             request.info = info;
@@ -169,13 +275,16 @@ public class CodeCompleter implements Completable {
             request.queryType = queryType;
             request.fileObject = fileObject;
 
-            // This is a bit stupid at the moment, not looking at the current typing context etc.
-            ASTNode root = AstUtilities.getRoot(info);
-
-            //if (root == null) {
-                completeKeywords(proposals, request, showSymbols);
-                return proposals;
-            //}
+            // No - we don't complete keywords, since one can get'em by hitting
+            // ctrl-k or use an abbrevation. Displaying them without a documentation
+            // makes no sense as well, see:
+            // http://www.netbeans.org/issues/show_bug.cgi?id=126500
+            // completeKeywords(proposals, request, showSymbols);
+            
+            // complte methods
+            completeMethods(proposals, request, showSymbols);
+            
+            return proposals;
         } finally {
             doc.readUnlock();
         }
@@ -219,7 +328,6 @@ public class CodeCompleter implements Completable {
         private int astOffset;
         private BaseDocument doc;
         private String prefix = "";
-        //private RubyIndex index;
         private NameKind kind;
         private QueryType queryType;
         private FileObject fileObject;
@@ -321,6 +429,127 @@ public class CodeCompleter implements Completable {
         public String getCustomInsertTemplate() {
             return null;
         }
+    }
+
+    private class MethodItem extends GroovyCompletionItem {
+        private static final String GROOVY_METHOD = "org/netbeans/modules/groovy/editor/resources/groovydoc.png"; //NOI18N
+        MetaMethod method;
+        HtmlFormatter formatter;
+        boolean isGDK;
+        
+        MethodItem(MetaMethod method, int anchorOffset, CompletionRequest request, boolean isGDK) {
+            super(null, anchorOffset, request);
+            this.method = method;
+            this.formatter = request.formatter;
+            this.isGDK = isGDK;
+        }
+
+        @Override
+        public String getName() {
+            return method.getName().toString() + "()";
+        }
+
+        @Override
+        public ElementKind getKind() {
+            return ElementKind.METHOD;
+        }
+
+        @Override
+        public String getLhsHtml() {
+            
+            ElementKind kind = getKind();
+            boolean emphasize = false;
+            
+            formatter.reset();
+            if(method.isStatic()){
+                emphasize = true;
+                formatter.emphasis(true);
+            }
+            formatter.name(kind, true);
+            
+            // method name
+            formatter.appendText(method.getName().toString());
+            
+            // construct signature by removing package names.
+            
+            String signature = method.getSignature();
+            int start = signature.indexOf("(");
+            int end   = signature.indexOf(")");
+            
+            String sig = signature.substring(start + 1, end);
+            
+            String simpleSig = "";
+            
+            for (String param : sig.split(",")) {
+                if(!simpleSig.equals("")) {
+                    simpleSig = simpleSig + ", ";
+                }
+                simpleSig = simpleSig + stripPackage(param);
+            }
+            
+            formatter.appendText("(" + simpleSig + ")");
+            
+            formatter.name(kind, false);
+            
+            if (emphasize) {
+                formatter.emphasis(false);
+            }
+            return formatter.getText();
+        }
+        
+        
+        @Override
+        public String getRhsHtml() {
+            formatter.reset();
+            
+            // no FQN return types but only the classname, please:
+            
+            String retType = method.getReturnType().toString();
+            retType = stripPackage(retType);
+            
+            formatter.appendHtml(retType);       
+            
+            return formatter.getText();
+        }
+
+        @Override
+        public ImageIcon getIcon() {
+            
+            if(!isGDK){
+                return null;
+            }
+            
+            if (keywordIcon == null) {
+                keywordIcon = new ImageIcon(org.openide.util.Utilities.loadImage(GROOVY_METHOD));
+            }
+
+            return keywordIcon;
+        }
+
+        @Override
+        public Set<Modifier> getModifiers() {
+            return Collections.emptySet();
+        }
+
+        private String stripPackage(String retType) {
+
+            if (retType.contains(".")) {
+                int idx = retType.lastIndexOf(".");
+                retType = retType.substring(idx + 1);
+            }
+            
+            // every now and than groovy comes with tailing
+            // semicolons. We got to get rid of them.
+           
+            retType.replace(";", "");
+            return retType;
+        }
+        
+//        @Override
+//        public ElementHandle getElement() {
+//            // For completion documentation
+//            return GroovyParser.createHandle(request.info, new AstMethodElement());
+//        }
     }
     
     private class KeywordItem extends GroovyCompletionItem {

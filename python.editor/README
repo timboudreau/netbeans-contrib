@@ -1,0 +1,3 @@
+To build this module you need additional library.
+You can download it from http://wiki.netbeans.org/python, it is called jython-antlr.jar.
+After downloading it, put it into python.editor/external and build module.

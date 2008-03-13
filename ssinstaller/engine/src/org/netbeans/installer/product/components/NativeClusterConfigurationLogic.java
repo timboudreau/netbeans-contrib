@@ -49,9 +49,8 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
             for (FileEntry installedFile : getProduct().getInstalledFiles()) {
                 if (!installedFile.isDirectory() 
                         && packageInstaller.isCorrectPackageFile(installedFile.getName())) {
-                    if (!packageInstaller.install(installedFile.getName(), getProduct())) {
-                        throw new InstallationException("Native package installation exception!");
-                    } else installedFile.getFile().delete();
+                    packageInstaller.install(installedFile.getName(), getProduct());
+                    installedFile.getFile().delete();
                 }
             }
         } else {
@@ -75,9 +74,7 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
             NativePackageInstaller packageInstaller = packageType.getPackageInstaller();
             packageInstaller.setDestinationPath( Registry.getInstance().getProducts(SS_BASE_UID)
                     .get(0).getInstallationLocation().getAbsolutePath());
-            if (!packageInstaller.uninstall(getProduct())) {
-                throw new UninstallationException("Native package uninstallation exception!");
-            }
+            packageInstaller.uninstall(getProduct());            
         } else {
             throw new UninstallationException("Platform is not supported!");
         }

@@ -662,7 +662,7 @@ is divided into following sections:
                          excludes="${{excludes}}" includeantruntime="false"
                          includes="**/*.fx" source="${{javac.source}}" sourcepath=""
                          srcdir="${{src.dir}}" target="${{javac.target}}"
-                         classpath="${{build.classes.dir}}:${{libs.JavaFXUserLib.classpath}}"
+                         classpath="${{build.classes.dir}}:${{javac.classpath}}:${{libs.JavaFXUserLib.classpath}}"
                          compilerclasspath="${{build.classes.dir}}:${{javac.classpath}}:${{libs.JavaFXUserLib.classpath}}"/>
             </target>
 

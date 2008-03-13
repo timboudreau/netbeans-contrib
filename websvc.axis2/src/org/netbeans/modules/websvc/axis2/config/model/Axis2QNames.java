@@ -51,7 +51,9 @@ public enum Axis2QNames {
     SERVICE_CLASS("service-class"), //NOI18N
     WSDL_URL("wsdl-url"), //NOI18N
     JAVA_GENERATOR("java-generator"), //NOI18N
-    GENERATE_WSDL("generate-wsdl"); //NOI18N
+    GENERATE_WSDL("generate-wsdl"), //NOI18N
+    LIBRARIES("libraries"), //NOI18N
+    LIBRARY_REF("library-ref"); //NOI18N
 
     public static final String AXIS2_NS = "http://www.netbeans.org/ns/axis2/1";
     
@@ -60,7 +62,11 @@ public enum Axis2QNames {
         mappedQNames.add(AXIS2.getQName());
         mappedQNames.add(SERVICE.getQName());
         mappedQNames.add(SERVICE_CLASS.getQName());
+        mappedQNames.add(WSDL_URL.getQName());
+        mappedQNames.add(JAVA_GENERATOR.getQName());
         mappedQNames.add(GENERATE_WSDL.getQName());
+        mappedQNames.add(LIBRARIES.getQName());
+        mappedQNames.add(LIBRARY_REF.getQName());
     }
 
     private QName qname;

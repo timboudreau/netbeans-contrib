@@ -52,6 +52,7 @@ import java.io.File;
  * @author Maros Sandor
  */
 public class ClearcaseModuleConfig {
+    
 
     public enum OnDemandCheckout { Disabled, Unreserved, Reserved, ReservedWithFallback };
     
@@ -65,6 +66,10 @@ public class ClearcaseModuleConfig {
     private static final String PROP_CHECKIN_ADDED_FILES        = "checkInAddedFiles";          // NOI18N    
     private static final String PROP_FORCE_UNMODIFIED_CHECKIN   = "forceUnmodifiedCheckin";     // NOI18N    
     
+    private static String PROP_LABEL_FOLLOW                     = "LabelFollow";                // NOI18N    
+    private static String PROP_LABEL_REPLACE                    = "LabelReplace";               // NOI18N    
+    private static String PROP_LABEL_RECURSE                    = "LabelRecurse";               // NOI18N    
+    
     private static Set<String> exclusions;
     
     /**
@@ -74,6 +79,30 @@ public class ClearcaseModuleConfig {
 
     static {
         ignoredFilePatterns.addAll(toPatterns(Utils.getStringList(getPreferences(), PROP_IGNORED_PATTERNS)));
+    }
+
+    public static boolean getLabelFollow() {
+        return getPreferences().getBoolean(PROP_LABEL_FOLLOW, true);
+    }
+
+    public static boolean getLabelRecurse() {
+        return getPreferences().getBoolean(PROP_LABEL_RECURSE, false);
+    }
+
+    public static boolean getLabelReplace() {
+        return getPreferences().getBoolean(PROP_LABEL_REPLACE, false);
+    }
+
+    public static void setLabelFollow(boolean follow) {
+        getPreferences().putBoolean(PROP_LABEL_FOLLOW, follow);
+    }
+
+    public static void setLabelRecurse(boolean recurse) {
+        getPreferences().putBoolean(PROP_LABEL_RECURSE, recurse);
+    }
+
+    public static void setLabelReplace(boolean replace) {
+        getPreferences().putBoolean(PROP_LABEL_REPLACE, replace);
     }
     
     public static void setCheckInAddedFiles(boolean checkInAddedFiles) {

@@ -43,10 +43,11 @@ public class NewFilterWizardWizardPanel1 implements WizardDescriptor.Panel {
     private WizardDescriptor wizard;
     private List availableFilters;
     
-    public NewFilterWizardWizardPanel1(List availableFilters)
+    public NewFilterWizardWizardPanel1(WizardDescriptor wizard, List availableFilters)
     {
         super();
         this.availableFilters = availableFilters;
+        this.wizard = wizard;
     }
     // Get the visual component for the panel. In this template, the component
     // is kept separate. This can be more efficient: if the wizard is created

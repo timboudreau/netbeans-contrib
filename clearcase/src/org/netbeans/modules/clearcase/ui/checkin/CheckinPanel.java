@@ -42,6 +42,10 @@
 package org.netbeans.modules.clearcase.ui.checkin;
 
 import java.awt.BorderLayout;
+import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
+import org.netbeans.modules.versioning.util.StringSelector;
+import org.netbeans.modules.versioning.util.Utils;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -201,7 +205,7 @@ private void cbForceUnmodifiedActionPerformed(java.awt.event.ActionEvent evt) {/
 }//GEN-LAST:event_cbForceUnmodifiedActionPerformed
 
 private void bRecentMessagesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bRecentMessagesActionPerformed
-    // ignore
+    onBrowseRecentMessages();
 }//GEN-LAST:event_bRecentMessagesActionPerformed
 
 private void cbPreserveTimeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbPreserveTimeActionPerformed
@@ -223,4 +227,13 @@ private void cbPreserveTimeActionPerformed(java.awt.event.ActionEvent evt) {//GE
     javax.swing.JTextArea taMessage;
     // End of variables declaration//GEN-END:variables
 
+    private void onBrowseRecentMessages() {
+        String message = StringSelector.select(NbBundle.getMessage(CheckinPanel.class, "CTL_CheckinForm_RecentTitle"), 
+                                               NbBundle.getMessage(CheckinPanel.class, "CTL_CheckinForm_RecentPrompt"), 
+                                               Utils.getStringList(ClearcaseModuleConfig.getPreferences(), CheckinAction.RECENT_CHECKIN_MESSAGES));
+        if (message != null) {
+            taMessage.replaceSelection(message);
+        }
+    }
+    
 }

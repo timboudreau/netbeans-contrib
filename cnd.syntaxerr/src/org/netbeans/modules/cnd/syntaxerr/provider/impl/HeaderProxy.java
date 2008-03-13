@@ -80,6 +80,7 @@ class HeaderProxy extends SourceProxy {
 	return fileToCompile;
     }
     
+    @Override
     public String getInterestingFileAbsoluteName() {
         return interestingFile.getAbsolutePath();
     }

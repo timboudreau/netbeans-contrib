@@ -20,17 +20,15 @@
 package org.netbeans.modules.portalpack.servers.jnpc.ui;
 
 import java.io.File;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import javax.swing.JFileChooser;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.netbeans.modules.portalpack.servers.core.WizardPropertyReader;
 import org.netbeans.modules.portalpack.servers.core.api.ConfigPanel;
-import org.netbeans.modules.portalpack.servers.core.util.DirectoryChooser;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.core.util.Util;
 import org.netbeans.modules.portalpack.servers.jnpc.common.JNPCConstants;
-import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
 
 /**
@@ -228,9 +226,7 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
     
     private void homeChooseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_homeChooseButtonActionPerformed
 // TODO add your handling code here:
-        DirectoryChooser chooser = new DirectoryChooser();
-        chooser.open(System.getProperty("user.home"));
-        String dir = chooser.getSelectedDir();
+        String dir = browseInstallLocation();
         if(dir != null && dir.trim().length() != 0)
             homeTf.setText(dir);
         fireChangeEvent();    
@@ -352,6 +348,39 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
 
     public String getDescription() {
         return "OS PC";
+    }
+    
+    private String browseInstallLocation(){
+        String insLocation = null;
+        JFileChooser chooser = getJFileChooser();
+        int returnValue = chooser.showDialog(SwingUtilities.getWindowAncestor(this),
+                NbBundle.getMessage(PCConfigPanel.class, "LBL_BrowseButton")); //NOI18N
+        
+        if(returnValue == JFileChooser.APPROVE_OPTION){
+            insLocation = chooser.getSelectedFile().getAbsolutePath();
+        }
+        return insLocation;
+    }
+    
+    private JFileChooser getJFileChooser(){
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle(NbBundle.getMessage(PCConfigPanel.class, "LBL_ChooserName")); //NOI18N
+        chooser.setDialogType(JFileChooser.CUSTOM_DIALOG);
+
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setApproveButtonMnemonic("Choose_Button_Mnemonic".charAt(0)); //NOI18N
+        chooser.setMultiSelectionEnabled(false);
+        chooser.setApproveButtonToolTipText(NbBundle.getMessage(PCConfigPanel.class, "LBL_ChooserName")); //NOI18N
+
+        chooser.getAccessibleContext().setAccessibleName(NbBundle.getMessage(PCConfigPanel.class, "LBL_ChooserName")); //NOI18N
+        chooser.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(PCConfigPanel.class, "LBL_ChooserName")); //NOI18N
+
+        // set the current directory
+        String dir = System.getProperty("user.home");
+        if(dir != null)
+            chooser.setSelectedFile(new File(dir));
+
+        return chooser;
     }
 
     public void insertUpdate(DocumentEvent e) {

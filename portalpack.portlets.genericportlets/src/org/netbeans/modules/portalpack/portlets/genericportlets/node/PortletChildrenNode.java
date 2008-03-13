@@ -67,9 +67,11 @@ public class PortletChildrenNode extends Children.Keys {
                     boolean isAssigned = false;
                     for(String portletName:portlets)
                     {
-                        if(portletName.equals(portletType.getPortletName()))
+                        if(portletName.equals(portletType.getPortletName())
+                                || portletName.equals("*"))
                         {
                             isAssigned = true;
+                            break;
                         }
                     }
                     if(isAssigned)
