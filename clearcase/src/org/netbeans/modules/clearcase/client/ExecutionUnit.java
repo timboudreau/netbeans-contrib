@@ -51,7 +51,6 @@ import java.util.List;
  */
 public class ExecutionUnit implements Iterable<ClearcaseCommand>, Iterator<ClearcaseCommand> {
 
-    private final boolean                   notifyErrors;
     private final List<ClearcaseCommand>    commands;
     
     /**
@@ -68,21 +67,12 @@ public class ExecutionUnit implements Iterable<ClearcaseCommand>, Iterator<Clear
     }
     
     public ExecutionUnit(ClearcaseCommand ... commands) {
-        this(true, commands);
-    }
-    
-    public ExecutionUnit(boolean notifyErrors, ClearcaseCommand ... commands) {
-        this.notifyErrors = notifyErrors;
         this.commands = new  ArrayList<ClearcaseCommand>();
         if(commands != null) {
             for (ClearcaseCommand c : commands) {
                 this.commands.add(c);
             }           
-        };
-    }
-
-    public boolean isNotifyErrors() {
-        return notifyErrors;
+        }
     }
 
     public synchronized  boolean hasNext() {

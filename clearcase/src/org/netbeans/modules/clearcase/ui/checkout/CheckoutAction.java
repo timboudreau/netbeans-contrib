@@ -253,14 +253,12 @@ public class CheckoutAction extends AbstractAction {
             throw new IllegalStateException("Illegal Checkout type: " + odc);
         }
         
-        ExecutionUnit eu = new ExecutionUnit(odc != ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback, command);
-        Clearcase.getInstance().getClient().post(eu).waitFinished();
+        Clearcase.getInstance().getClient().post(command, odc != ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback).waitFinished();
         
         if (command.hasFailed() && odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback) {
             command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, 
                                           new OutputWindowNotificationListener(), new AfterCommandRefreshListener(file));
-            eu = new ExecutionUnit(true, command);
-            Clearcase.getInstance().getClient().post(eu).waitFinished();
+            Clearcase.getInstance().getClient().post(command).waitFinished();
         }
     }
 }

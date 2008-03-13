@@ -111,7 +111,7 @@ public class LabelSelector extends javax.swing.JPanel implements MouseListener {
             @Override
             protected void perform() {
                 LsTypeCommand cmd = new LsTypeCommand(workingDir, LsTypeCommand.Kind.Label);                
-                Clearcase.getInstance().getClient().post("Listing Labels...", new ExecutionUnit(false, cmd)).waitFinished();
+                Clearcase.getInstance().getClient().post("Listing Labels...", cmd).waitFinished();
                 selector.setChoices(cmd.getTypes());
             }
         };

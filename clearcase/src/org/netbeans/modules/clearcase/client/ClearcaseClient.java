@@ -73,24 +73,30 @@ public class ClearcaseClient {
 
     /**
      * Executes the command in a separate thread, command execution and notification happens asynchronously and the method returns
-     * immediately.
+     * immediately. Errors are notified by default. 
      * 
      * @param command command to execute
      * @return RequestProcessor.Task
+     * @see #post(org.netbeans.modules.clearcase.client.ClearcaseCommand, boolean) 
      */    
     public RequestProcessor.Task post(ClearcaseCommand command) {
-        return post(new ExecutionUnit(command));    
+        return post(command, true);    
     }
 
     /**
-     * Execute the commands in a separate thread, command execution and notification happens asynchronously and the method returns
-     * immediately.
+     * Executes the command in a separate thread, command execution and notification happens asynchronously and the method returns
+     * immediately.  
      * 
-     * @param eu commands to execute
+     * @param command command to execute
+     * @param notifyErrors notifies errors is true
      * @return RequestProcessor.Task
-     */        
-    public RequestProcessor.Task post(ExecutionUnit eu) {
-        CommandRunnable commandRunnable = new CommandRunnable(eu);
+     */       
+    public RequestProcessor.Task post(ClearcaseCommand command, boolean notifyErrors) {
+        return post(new ExecutionUnit(command), notifyErrors); 
+    }
+          
+    private RequestProcessor.Task post(ExecutionUnit eu, boolean notifyErrors) {
+        CommandRunnable commandRunnable = new CommandRunnable(eu, notifyErrors);
         RequestProcessor.Task rptask = rp.create(commandRunnable);
         rptask.schedule(0);
         return rptask;
@@ -98,30 +104,18 @@ public class ClearcaseClient {
     
     /**
      * Execute a command in a separate thread, command execution and notification happens asynchronously and the method returns
-     * immediately.
+     * immediately. Errors are notified by default. 
      * 
      * @param command command to execute
      * @param displayName creates a progress handle with the given display name
      * @return RequestProcessor.Task
      */    
-    public RequestProcessor.Task post(String displayName, ClearcaseCommand command) {
-        return post(displayName, new ExecutionUnit(command));
-    }
-    
-    /**
-     * Execute a command in a separate thread, command execution and notification happens asynchronously and the method returns
-     * immediately.
-     * 
-     * @param eu commands to execute
-     * @param displayName creates a progress handle with the given display name
-     * @return RequestProcessor.Task
-     */  
-    public RequestProcessor.Task post(String displayName, final ExecutionUnit eu) {
+    public RequestProcessor.Task post(String displayName, final ClearcaseCommand command) {
         ProgressSupport ps = new ProgressSupport(rp, displayName) {            
             private ClearcaseClient.CommandRunnable cr;                        
             @Override
             protected void perform() {
-                cr = execImpl(eu);
+                cr = execImpl(new ExecutionUnit(command));
                 setCancellableDelegate(cr);
             }   
         };
@@ -149,7 +143,7 @@ public class ClearcaseClient {
     }        
     
     private CommandRunnable execImpl(ExecutionUnit eu) {           
-        CommandRunnable commandRunnable = new CommandRunnable(eu);
+        CommandRunnable commandRunnable = new CommandRunnable(eu, true);
         commandRunnable.run();
         return commandRunnable;        
     }  
@@ -189,9 +183,11 @@ public class ClearcaseClient {
         
         private final ExecutionUnit eu;
         private boolean             canceled;
+        private final boolean       notifyErrors;
 
-        public CommandRunnable(ExecutionUnit eu) {
+        public CommandRunnable(ExecutionUnit eu, boolean notifyErrors) {
             this.eu = eu;
+            this.notifyErrors = notifyErrors;
         }
 
         public void run() {            
@@ -215,7 +211,7 @@ public class ClearcaseClient {
             } catch (Exception e) {
                 Utils.logError(this, e);
             } 
-            if (eu.isNotifyErrors() && eu.getFailedCommand() != null) {
+            if (notifyErrors && eu.getFailedCommand() != null) {
                 notifyCommandError();
             }
         }
