@@ -92,19 +92,19 @@ public class CheckoutAction extends AbstractAction {
 
     private int getActionStatus() {
         FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
-        int status = STATUS_DISABLED;
+        int actionStatus = STATUS_DISABLED;
         Set<File> files = context.getFiles();
         for (File file : files) {
             if ((cache.getInfo(file).getStatus() & ALLOW_CHECKOUT) != 0) {
-                if (status == STATUS_UNCHECKOUT) return STATUS_DISABLED;
-                status = STATUS_CHECKOUT;
+                if (actionStatus == STATUS_UNCHECKOUT) return STATUS_DISABLED;
+                actionStatus = STATUS_CHECKOUT;
             }                
             if ((cache.getInfo(file).getStatus() & ALLOW_UNCO) != 0) {
-                if (status == STATUS_CHECKOUT) return STATUS_DISABLED;
-                status = STATUS_UNCHECKOUT;
+                if (actionStatus == STATUS_CHECKOUT) return STATUS_DISABLED;
+                actionStatus = STATUS_UNCHECKOUT;
             }
         }
-        return status;
+        return actionStatus;
     }
     
     @Override
