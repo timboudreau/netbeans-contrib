@@ -69,7 +69,7 @@ import org.openide.util.HelpCtx;
 import org.openide.util.RequestProcessor;
 
 /**
- * Sample Update action.
+ * Add action
  * 
  * @author Maros Sandor
  */
