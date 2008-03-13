@@ -41,8 +41,10 @@
 
 package org.netbeans.modules.j2ee.hk2.ide;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -52,10 +54,15 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.deploy.shared.ActionType;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.StateType;
@@ -66,12 +73,18 @@ import javax.enterprise.deploy.spi.status.ClientConfiguration;
 import javax.enterprise.deploy.spi.status.DeploymentStatus;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import org.netbeans.modules.j2ee.hk2.Hk2DeploymentManager;
 import org.netbeans.modules.j2ee.hk2.progress.ProgressEventSupport;
 import org.netbeans.modules.j2ee.hk2.progress.Status;
 import org.openide.ErrorManager;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 
 
@@ -141,7 +154,7 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
             this.tmId = new Hk2TargetModuleID(t, ctxPath, docBase); //NOI18N
             
 //            command = "deploy?path=" + dir.getAbsoluteFile()+"?name="+docBaseURI; // NOI18N
-            command = "deploy?path=" + dir.getAbsoluteFile()+"?name="+docBase; // NOI18N
+            command = "deploy?path=" + dir.getAbsoluteFile()+"?name="+docBase+"?force=true"; // NOI18N
             
             cmdType = CommandType.DISTRIBUTE;
 //            System.out.println("deploy command="+command);
@@ -163,7 +176,19 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
             
             this.tmId = (Hk2TargetModuleID) targetModuleID;
             
-            command = "redeploy?name=" +targetModuleID.getModuleID(); // NOI18N
+            command = "deploy?name=" +targetModuleID.getModuleID(); // NOI18N
+            
+            String path = getModulePath(targetModuleID.getModuleID());
+            if(path != null && path.length() > 0) {
+                if(path.startsWith("file:")) {
+                    path = path.substring(5);
+                }
+                command += "?path=" + path + "?force=true";
+            } else {
+                Logger.getLogger("glassfish-hk2").log(Level.WARNING, 
+                        "Unable to locate module path for " + targetModuleID.getModuleID());
+            }
+            
             
             cmdType = CommandType.DISTRIBUTE;
 //            System.out.println("redeploy command="+command);
@@ -323,6 +348,8 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
         if(outputMessage==null){
             outputMessage="";
         }
+        Logger.getLogger("glassfish-hk2").log(Level.INFO, "command result: " + outputCode + ", " + outputMessage);
+        
 //        System.out.println("Exit code is " + outputCode);
         if (!outputCode.equalsIgnoreCase("Success")) {
 //            System.out.println("message-> " + outputMessage);
@@ -384,6 +411,7 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
                 // Create a connection for this command
                 String uri = tm.getPlainUri();
                 String withoutSpaces = (uri + command).replaceAll(" ", "%20");  //NOI18N
+                Logger.getLogger("glassfish-hk2").log(Level.INFO, "command: " + withoutSpaces);
                 urlToConnectTo = new URL(withoutSpaces);
 //                System.out.println("withoutSpaces  "+withoutSpaces);
                 
@@ -523,4 +551,154 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
             pes.fireHandleProgressEvent(tmId, new Status(ActionType.EXECUTE, cmdType, msg, StateType.COMPLETED));
         }
     }
+    
+    
+    private static final String DEFAULT_DOMAIN_DIR = "domains/domain1";
+    private static final String DOMAIN_XML_PATH = "config/domain.xml";
+    
+    private String getModulePath(String moduleName) {
+        String path = null;
+        String installRoot = tm.getInstanceProperties().getProperty(Hk2PluginProperties.PROPERTY_HK2_HOME);
+        if(installRoot != null && installRoot.length() > 0) {
+            File installDir = new File(installRoot);
+            File domainDir = new File(installDir, DEFAULT_DOMAIN_DIR);
+            Map<String, ModuleDesc> moduleList = loadDeployedModuleList(domainDir);
+            ModuleDesc desc = moduleList.get(moduleName);
+            path = (desc != null) ? desc.path : null;
+        }
+        return path;
+    }
+    
+    private Map<String, ModuleDesc> loadDeployedModuleList(File domainDir) {
+        Map<String, ModuleDesc> result = Collections.emptyMap();
+        File domainXml = new File(domainDir, DOMAIN_XML_PATH);
+
+        if (domainXml.exists()) {
+            InputStream is = null;
+            try {
+                SAXParserFactory factory = SAXParserFactory.newInstance();
+                // !PW If namespace-aware is enabled, make sure localpart and
+                // qname are treated correctly in the handler code.
+                //                
+                factory.setNamespaceAware(false);
+                SAXParser saxParser = factory.newSAXParser();
+                DomainXmlParser handler = new DomainXmlParser();
+                is = new BufferedInputStream(new FileInputStream(domainXml));
+                saxParser.parse(new InputSource(is), handler);
+                result = handler.getModuleList();
+            } catch (ParserConfigurationException ex) {
+                // Badly formed domain.xml, fail.
+            } catch (SAXException ex) {
+                // Badly formed domain.xml, fail.
+            } catch (IOException ex) {
+                // Badly formed domain.xml, fail.
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException ex) {
+                        // ignore
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+    
+    private static final class ModuleDesc {
+        public final String name;
+        public final String path;
+        
+        public ModuleDesc(String name, String path) {
+            this.name = name;
+            this.path = path;
+        }
+    }
+    
+    /**
+     * This is a weak parser that attempts to locate the http, https, and admin
+     * port definitions in domain.xml.
+     * 
+     * Obvious improvements include accurate tracking of xml nodes to be certain
+     * we read /domain/configs/config for the correct server (e.g. clusters) and
+     * the correct http-listener entries therein.
+     */
+    private static final class DomainXmlParser extends DefaultHandler {
+
+        // Parser state
+        private Tag wantedTag;
+        private Tag currentTag;
+        
+        // Results
+        private Map<String, ModuleDesc> moduleMap;
+
+        DomainXmlParser() {
+        }
+
+        @Override
+        public void startElement(String uri, String localname, String qname, 
+                org.xml.sax.Attributes attributes) throws SAXException {
+            if(wantedTag.element().equals(qname)) {
+                currentTag = wantedTag;
+                wantedTag = wantedTag.next();
+            } else {
+                currentTag = null;
+            }
+            if(currentTag == Tag.APPLICATION) {
+                // <application enabled="true" 
+                //     context-root="/Foo" 
+                //     location="file:/tmp/Foo/build/web/" 
+                //     name="Foo" 
+                //     directory-deployed="true" 
+                //     object-type="user">                
+                String name = attributes.getValue("name");
+                if(name != null && name.length() > 0) {
+                    String path = attributes.getValue("location");
+                    moduleMap.put(name, new ModuleDesc(name, path));
+                }
+            }
+        }
+        
+        @Override
+        public void endElement(String uri, String localname, String qname) throws SAXException {
+        }
+
+        @Override
+        public void startDocument() throws SAXException {
+            wantedTag = Tag.DOMAIN;
+            currentTag = null;
+            moduleMap = new HashMap<String, ModuleDesc>();
+        }
+
+        @Override
+        public void endDocument() throws SAXException {
+        }
+        
+        public Map<String, ModuleDesc> getModuleList() {
+            return moduleMap;
+        }
+
+        private static enum Tag {
+            
+            DOMAIN { 
+                public String element() { return "domain"; } 
+                public Tag next() { return APPLICATIONS; }
+            },
+            APPLICATIONS { 
+                public String element() { return "applications"; } 
+                public Tag next() { return APPLICATION; }
+            },
+            APPLICATION { 
+                public String element() { return "application"; } 
+                public Tag next() { return APPLICATION; }
+            };
+            
+            public abstract String element();
+            public abstract Tag next();
+            
+        }
+        
+    }
+    
 }
