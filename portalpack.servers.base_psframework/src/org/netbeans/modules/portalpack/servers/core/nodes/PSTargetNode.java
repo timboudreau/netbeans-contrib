@@ -20,11 +20,9 @@
 package org.netbeans.modules.portalpack.servers.core.nodes;
 
 
-import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
+import javax.swing.Action;
 import org.netbeans.modules.portalpack.servers.core.common.enterprise.NodeTypeConstants;
 import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 
 public class PSTargetNode extends AbstractNode {
@@ -32,5 +30,9 @@ public class PSTargetNode extends AbstractNode {
     public PSTargetNode(Lookup lookup) {
         super(new DnChildrenNode(lookup,NodeTypeConstants.ORGANIZATION,null));
               
+    }
+    @Override
+    public Action[] getActions(boolean b) {
+        return new Action[] {};
     }
 }

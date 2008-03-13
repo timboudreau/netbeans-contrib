@@ -142,6 +142,8 @@ public class PortletXMLFactory {
     
     private static String getPortletAppImplementationClass(String version)
     {
+        if(version == null)
+            version = PortletApp.VERSION_1_0;
         if(version.equals(PortletApp.VERSION_2_0))
         {
             return "org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.model_2_0.PortletApp";

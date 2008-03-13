@@ -61,7 +61,6 @@ import org.netbeans.modules.clearcase.ui.add.AddAction;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
 import org.netbeans.modules.clearcase.client.CheckinCommand;
-import org.netbeans.modules.clearcase.client.NotificationListener;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -70,7 +69,7 @@ import org.openide.util.HelpCtx;
 import org.openide.util.RequestProcessor;
 
 /**
- * Sample Update action.
+ * Checkin action.
  * 
  * @author Maros Sandor
  */
@@ -82,9 +81,10 @@ public class CheckinAction extends AbstractAction {
     static int ALLOW_CHECKIN = 
             FileInformation.STATUS_VERSIONED_CHECKEDOUT |
             FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY;
+
+    static String RECENT_CHECKIN_MESSAGES = "checkin.messages";
     
     private File[] files;
-    private RequestProcessor.Task prepareTask;
     
     public CheckinAction(String name, VCSContext context) {
         this.context = context;
@@ -171,6 +171,7 @@ public class CheckinAction extends AbstractAction {
         ClearcaseModuleConfig.removeExclusionPaths(removeExclusions);
         ClearcaseModuleConfig.setForceUnmodifiedCheckin(forceUnmodified);      
         ClearcaseModuleConfig.setPreserveTimeCheckin(preserveTime);              
+        Utils.insert(ClearcaseModuleConfig.getPreferences(), RECENT_CHECKIN_MESSAGES, message, 20);
         
         files = ciFiles.toArray(new File[ciFiles.size()]);
         Clearcase.getInstance().getClient().post(new ExecutionUnit(

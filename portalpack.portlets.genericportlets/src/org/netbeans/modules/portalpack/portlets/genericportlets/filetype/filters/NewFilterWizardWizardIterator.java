@@ -104,7 +104,7 @@ public final class NewFilterWizardWizardIterator implements WizardDescriptor.Ins
         Sources sources = (Sources)project.getLookup().lookup(Sources.class);
         SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
         if (panels == null) {
-            packageChooserPanel = JavaTemplates.createPackageChooser(project,groups,new NewFilterWizardWizardPanel1(availableFilters));
+            packageChooserPanel = JavaTemplates.createPackageChooser(project,groups,new NewFilterWizardWizardPanel1(wizard,availableFilters));
             panels = new WizardDescriptor.Panel[] {
                 packageChooserPanel, new NewFilterWizardWizardPanel2(wizard,availablePortlets)
                         

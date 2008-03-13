@@ -16,8 +16,6 @@
  */
 package org.netbeans.modules.portalpack.portlets.genericportlets.node;
 
-import java.awt.datatransfer.Transferable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.Action;
@@ -35,7 +33,7 @@ public class PublicRenderParametersHolderNode extends AbstractNode {
 
     
     private PortletXMLDataObject dobj;
-    private static final String IMAGE_ICON_BASE = "org/netbeans/modules/portalpack/portlets/genericportlets/resources/folder.gif";
+    private static final String IMAGE_ICON_BASE = "org/netbeans/modules/portalpack/portlets/genericportlets/resources/folder.gif"; //NOI18N
     
     public PublicRenderParametersHolderNode(PortletXMLDataObject dobj) {
         super(new PublicRenderParametersChildrenNode(dobj));
@@ -53,7 +51,7 @@ public class PublicRenderParametersHolderNode extends AbstractNode {
 
     @Override
     public String getName() {
-        return "RenderParameters";
+        return "RenderParameters"; //NOI18N
        
     }
     

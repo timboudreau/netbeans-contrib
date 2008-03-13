@@ -49,6 +49,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 import org.netbeans.modules.clearcase.client.ClearcaseClient;
+import org.netbeans.modules.clearcase.client.ClearcaseCommand;
 import org.netbeans.modules.clearcase.client.DeleteCommand;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.MoveCommand;
@@ -106,13 +107,11 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         // it becomes [checkedout but removed]. This actually is not what we want.
         FileEntry entry = ClearcaseUtils.readEntry(file);
         if (entry != null && entry.isCheckedout()) {
-            ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit("Undoing checkout...", new UnCheckoutCommand(new File[]{file}, false)));
-            cr.waitFinished();
+            post("Undoing checkout...", new UnCheckoutCommand(new File[]{ file }, false));
         }
 
         // 3. remove the file
-        ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit("Deleting ...", new DeleteCommand(new File[]{file})));
-        cr.waitFinished();
+        post("Deleting ...", new DeleteCommand(new File[]{ file }));
                 
         // the file stays on the filessytem if it was checkedout eventually
         if (file.exists()) {
@@ -180,7 +179,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 if (toParentEntry.isViewPrivate()) {
                     // 'from' is versioned, 'to'-s parent isn't. 
                     // we have to add it to source control
-                    AddAction.addFiles(new File[] {toParent}, null, false).waitFinished();
+                    AddAction.addFiles(new File[] {toParent}, null, false);
                 } else {
                     if(!fromParent.equals(toParent)) {
                         CheckoutAction.ensureMutable(toParent, toParentEntry);
@@ -188,9 +187,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 }
             
                 // 2. move the file
-                ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                    "Moving ...", new MoveCommand(from, to)));
-                cr.waitFinished();                
+                post("Moving ...", new MoveCommand(from, to));               
                 
             }    
         } else if (!Clearcase.getInstance().isManaged(from)) {
@@ -251,4 +248,10 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         Clearcase.LOG.finer("beforeEdit " + file);        
         CheckoutAction.ensureMutable(file);   
     }    
+    
+    private void post(String displayName, ClearcaseCommand... commands) {
+        final ExecutionUnit eu = new ExecutionUnit(displayName, commands);
+        ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(eu);
+        cr.waitFinished();                        
+    }
 }

@@ -42,7 +42,7 @@ public class FilterNode extends AbstractNode {
     private FilterType filterType;
     private PortletXMLDataObject dobj;
     private String id;
-    private static final String IMAGE_ICON_BASE = "org/netbeans/modules/portalpack/portlets/genericportlets/resources/filter.PNG";
+    private static final String IMAGE_ICON_BASE = "org/netbeans/modules/portalpack/portlets/genericportlets/resources/filter.PNG"; //NOI18N
     /** Creates a new instance of FilterNode */
     public FilterNode(FilterType filterType,PortletXMLDataObject dobj) {
         super(Children.LEAF);

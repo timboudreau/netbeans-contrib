@@ -8,25 +8,17 @@
  */
 package org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc;
 
-import java.awt.Point;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.namespace.QName;
-import org.netbeans.api.visual.action.ActionFactory;
-import org.netbeans.api.visual.vmd.VMDPinWidget;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.EventObject;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.PortletEventException;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.PortletNode;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.actions.ui.AddAliasPanel;
-import org.netbeans.modules.portalpack.portlets.genericportlets.node.actions.ui.AddEventPanel;
-import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject;
-import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc.actions.NodePopUpMenuProvider;
-import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.util.WidgetUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widgets.CustomNodeWidget;
 import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widgets.CustomPinWidget;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 
 /**
@@ -36,6 +28,7 @@ import org.openide.windows.WindowManager;
 public class IPCActionsHandler {
 
     private IPCGraphScene scene;
+    private Logger logger = Logger.getLogger(CoreUtil.CORE_LOGGER);
 
     /** Creates a new instance of IPCActionsHandler */
     public IPCActionsHandler(IPCGraphScene scene) {
@@ -53,7 +46,7 @@ public class IPCActionsHandler {
                     scene.removePin(pin.getKey());
                 }
             } catch (Exception e) {
-                System.out.println("Event could not be deleted  properly");
+                logger.log(Level.SEVERE,"MSG_ERROR_EVENT_REMOVE",e);
             }
         }
     }
@@ -69,7 +62,7 @@ public class IPCActionsHandler {
                     scene.removePin(pin.getKey());
                 }
             } catch (Exception e) {
-                System.out.println("Event could not be deleted  properly");
+                logger.log(Level.SEVERE,"Could not remove event properly",e);
             }
         }
     }
@@ -79,7 +72,7 @@ public class IPCActionsHandler {
         try {
             portletNode.getDataObject().getPortletEventingHandler().generatePublishEventMethod(portletNode.getName(), evtObject);
         } catch (PortletEventException e) {
-            e.printStackTrace();
+           logger.log(Level.SEVERE,"Could not generate source for publish event",e);
         }
     }
 
@@ -88,22 +81,27 @@ public class IPCActionsHandler {
         try {
             portletNode.getDataObject().getPortletEventingHandler().generateProcessEventMethod(portletNode.getName(), event);
         } catch (PortletEventException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE,"Could not generate source for process event",e);
         //NotifyDescriptor.Message notifyd = new NotifyDescriptor.Message(NbBundle.getMessage(IPCActionsHandler.class,
         //        "MSG_ERROR_GENERATING_PROCESS_EVENT_CODE"), NotifyDescriptor.WARNING_MESSAGE);
         // DialogDisplayer.getDefault().notify(notifyd);
         }
     }
 
-    public void addAliasForEvent(CustomPinWidget widget) {
+    public void addAliasForEvent(CustomPinWidget widget,QName... qName) {
         
         String nodeKey = widget.getNodeKey();
         PortletNode node = (PortletNode) scene.getPortletNode(nodeKey);
         EventObject event = widget.getEvent();
+    
+        QName aliasQName = null;
+        if(qName.length == 0)
+        {
+             AddAliasPanel panel = new AddAliasPanel(WindowManager.getDefault().getMainWindow());        
+             aliasQName = panel.getAlias();
+        } else
+            aliasQName = qName[0];
         
-        AddAliasPanel panel = new AddAliasPanel(WindowManager.getDefault().getMainWindow());
-                    
-        QName aliasQName = panel.getAlias();
         if(aliasQName == null) return;
         if (node != null) {
             try {
@@ -119,7 +117,7 @@ public class IPCActionsHandler {
                     }
                 }
             } catch (Exception e) {
-                System.out.println("Alias could not be added properly");
+                logger.log(Level.SEVERE,"Alias Could not be added",e);
             }
         }
     }

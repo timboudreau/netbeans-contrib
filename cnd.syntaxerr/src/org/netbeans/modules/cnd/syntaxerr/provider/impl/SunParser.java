@@ -49,18 +49,19 @@ class SunParser extends BaseParser {
 	if (DebugUtils.TRACE) {
 	    System.err.printf("\tPARSING: \t%s\n", line);
 	}
-	findErrorOrWarning(line, ": Error: ", true, interestingFileName, errorBag);
-	findErrorOrWarning(line, ": Warning: ", false, interestingFileName, errorBag);
+	boolean dummy = // unused: in C++, I would write just findErrorOrWarning(...) || findErrorOrWarning(...), but in Java I can't
+	    findErrorOrWarning(line, ": Error: ", true, interestingFileName, errorBag) ||
+	    findErrorOrWarning(line, ": Warning: ", false, interestingFileName, errorBag);
     }
 
-    private void findErrorOrWarning(String line, String keyword, boolean error, String interestingFileName, ErrorBag errorBag) {
+    private boolean findErrorOrWarning(String line, String keyword, boolean error, String interestingFileName, ErrorBag errorBag) {
 	int keywordPos = line.indexOf(keyword);
 	if (keywordPos <= 0) {
-	    return;
+	    return false;
 	}
 	String message = line.substring(keywordPos + keyword.length());
 	if (!line.startsWith("\"")) {
-	    return;
+	    return true;
 	}
 	int fileEndPos = 1;
 	boolean backSlash = false;
@@ -74,16 +75,16 @@ class SunParser extends BaseParser {
 	}
 	String fileName = line.substring(1, fileEndPos);
 	if (!fileName.equals(interestingFileName)) {
-	    return;
+	    return true;
 	}
 	int lineStartPos = line.indexOf("line", fileEndPos);
 	if (lineStartPos < 0) {
-	    return;
+	    return true;
 	}
 	lineStartPos += "line".length() + 1;
 	int lineEndPos = line.indexOf(":", lineStartPos);
 	if (lineEndPos < 0) {
-	    return;
+	    return true;
 	}
 	String strPosition = line.substring(lineStartPos, lineEndPos).trim();
 	int lineNum = Integer.parseInt(strPosition);
@@ -92,5 +93,6 @@ class SunParser extends BaseParser {
 	    System.err.printf("\t\tFILE: %s LINE: %8d COL: %d MESSAGE: %s\n", fileName, lineNum, colNum, message);
 	}
 	errorBag.add(message, error, lineNum, colNum);
+	return true;
     }
 }

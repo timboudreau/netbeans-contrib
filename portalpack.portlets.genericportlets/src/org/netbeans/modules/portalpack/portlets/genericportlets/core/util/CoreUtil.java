@@ -28,6 +28,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
@@ -204,5 +205,79 @@ public class CoreUtil {
         } else{
             return false;
         }
+    }
+    
+    /** Checks if the given file name can be created in the target folder.
+     *
+     * @param dir target directory
+     * @param newObjectName name of created file
+     * @param extension extension of created file
+     * @return localized error message or null if all right
+     */
+    final public static String canUseFileName (FileObject folder, String objectName, String extension) {
+        String newObjectName=objectName;
+        if (extension != null && extension.length () > 0) {
+            StringBuffer sb = new StringBuffer ();
+            sb.append (objectName);
+            sb.append ('.'); // NOI18N
+            sb.append (extension);
+            newObjectName = sb.toString ();
+        }
+        
+        // check file name
+        
+        if (!checkFileName(objectName)) {
+            return NbBundle.getMessage (CoreUtil.class, "MSG_invalid_filename", newObjectName); // NOI18N
+        }
+            
+        // test whether the selected folder on selected filesystem is read-only or exists
+        if (folder!=  null) {
+            // target filesystem should be writable
+            if (!folder.canWrite ()) {
+                return NbBundle.getMessage (CoreUtil.class, "MSG_fs_is_readonly"); // NOI18N
+            }
+
+            if (folder.getFileObject(newObjectName) != null) {
+                return NbBundle.getMessage (CoreUtil.class, "MSG_file_already_exist", newObjectName); // NOI18N
+            }
+
+            if (org.openide.util.Utilities.isWindows ()) {
+                if (checkCaseInsensitiveName (folder, newObjectName)) {
+                    return NbBundle.getMessage (CoreUtil.class, "MSG_file_already_exist", newObjectName); // NOI18N
+                }
+            }
+        }
+
+        // all ok
+        return null;
+    }
+    
+    private static boolean checkFileName(String str) {
+        char c[] = str.toCharArray();
+        for (int i=0;i<c.length;i++) {
+            if (c[i]=='\\') return false;
+            if (c[i]=='/') return false;
+        }
+        return true;
+    }
+    
+    // This method is copied from web module
+    /** Check existence of file on case insensitive filesystem.
+     * Returns true if folder contains file with given name and extension.
+     * @param folder folder for search
+     * @param name name of file
+     * @param extension extension of file
+     * @return true if file with name and extension exists, false otherwise.
+     */    
+    private static boolean checkCaseInsensitiveName (FileObject folder, String name) {
+        java.util.Enumeration children = folder.getChildren (false);
+        FileObject fo;
+        while (children.hasMoreElements ()) {
+            fo = (FileObject) children.nextElement ();
+            if (name.equalsIgnoreCase (fo.getName ())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

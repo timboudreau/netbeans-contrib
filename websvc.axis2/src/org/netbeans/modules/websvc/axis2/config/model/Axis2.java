@@ -45,6 +45,10 @@ import java.util.List;
 
 public interface Axis2 extends Axis2Component {
     public static String SERVICE_PROP = Axis2QNames.SERVICE.getLocalName();
+    public static String LIBRARIES_PROP = Axis2QNames.LIBRARIES.getLocalName();
+    
+    Libraries getLibraries();
+    void setLibraries(Libraries libraries);
     
     List<Service> getServices();
     void addService(Service service);

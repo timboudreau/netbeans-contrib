@@ -63,7 +63,7 @@ public class DeleteCommand extends FilesCommand {
     }
 
     public void prepareCommand(Arguments arguments) throws ClearcaseException {
-        arguments.add("rm");                
+        arguments.add("rmname");                
         arguments.add("-force");
         addFileArguments(arguments);
     }

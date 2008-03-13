@@ -47,20 +47,14 @@ final class IPCStoryBoardTopComponent extends TopComponent {
         Image iconImage = Utilities.loadImage (ICON_PATH); 
         setIcon(iconImage);
         scene = new IPCGraphScene(this);
-     ////   jPanel1.add(scene.createView());
         jScrollPane1.setViewportView(scene.createView());
         
-       // scene.getView().setVisible(true);
-      ///  System.out.println("*****************"+scene.getView());
-        //        setIcon(Utilities.loadImage(ICON_PATH, true));
     }
     
     public void reset()
     {
-     ///   jPanel1.remove(scene.getView());
         jScrollPane1.remove(scene.getView());
         scene = new IPCGraphScene(this);
-        //jPanel1.add(scene.createView());
         jScrollPane1.setViewportView(scene.createView());
     }
     

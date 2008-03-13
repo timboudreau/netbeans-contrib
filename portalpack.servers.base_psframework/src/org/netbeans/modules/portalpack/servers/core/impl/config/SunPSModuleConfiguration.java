@@ -21,8 +21,11 @@ package org.netbeans.modules.portalpack.servers.core.impl.config;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.portalpack.servers.core.PSModuleConfiguration;
+import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 
 /**
  *
@@ -30,6 +33,7 @@ import org.netbeans.modules.portalpack.servers.core.PSModuleConfiguration;
  */
 public class SunPSModuleConfiguration extends PSModuleConfiguration{
 
+    private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
     public SunPSModuleConfiguration(J2eeModule j2eeModule) {
         super(j2eeModule);
     }
@@ -58,13 +62,13 @@ public class SunPSModuleConfiguration extends PSModuleConfiguration{
                         return;
                     } catch (IOException ex) {
                         //do nothing...
-                        ex.printStackTrace();
+                        logger.log(Level.WARNING,"Error",ex);
                     } finally {
                         try {
                             if(writer != null)
                                writer.close();
                         } catch (IOException ex) {
-                            ex.printStackTrace();
+                             logger.log(Level.WARNING,"Error",ex);
                         }
                     }
                 
