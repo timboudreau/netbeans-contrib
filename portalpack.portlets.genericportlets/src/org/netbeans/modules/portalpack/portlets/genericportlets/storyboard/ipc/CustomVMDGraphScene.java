@@ -171,20 +171,5 @@ public abstract class CustomVMDGraphScene extends GraphPinScene<String, String, 
         } else
             anchor = nodeWidget.getNodeAnchor ();
         return anchor;
-    }
-
-//    public abstract resetScene();
-            
-  
-
-    private static class MyPopupMenuProvider implements PopupMenuProvider {
-
-        public JPopupMenu getPopupMenu (Widget widget, Point localLocation) {
-            JPopupMenu popupMenu = new JPopupMenu ();
-            popupMenu.add (new JMenuItem ("Open " + ((VMDNodeWidget) widget).getNodeName ()));
-            return popupMenu;
-        }
-
-    }
-    
+    }    
 }

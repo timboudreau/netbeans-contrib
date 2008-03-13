@@ -102,6 +102,7 @@
 ^jnlpmodules/dist$
 ^javafx.graphicssample/resources/JavaFXDemos/dist$
 ^javafx.graphicssample/src/org/netbeans/modules/javafx/graphicssample/resources$
+^javafx.lib/external/compiler/.*\.jar$
 ^javafx.weather2/src/org/netbeans/modules/javafx/weather2/resources$
 ^jemmysupport/javahelp/org/netbeans/modules/usersguide$
 ^jemmysupport/javahelp/org/netbeans/modules/jemmysupport/docs/JavaHelpSearch2$
