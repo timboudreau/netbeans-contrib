@@ -69,42 +69,15 @@ public class ClearcaseClient {
     /**
      * Request processor that executes clearcase commands.
      */
-    private final RequestProcessor  rp = new RequestProcessor("Clearcase commands", 1); 
+    private final RequestProcessor  rp = new RequestProcessor("Clearcase commands", 1);
 
-    /**
-     * Executes the command in a separate thread, command execution and notification happens asynchronously and the method returns
-     * immediately. Errors are notified by default. 
-     * 
-     * @param command command to execute
-     * @return RequestProcessor.Task
-     * @see #post(org.netbeans.modules.clearcase.client.ClearcaseCommand, boolean) 
-     */    
-    public RequestProcessor.Task post(ClearcaseCommand command) {
-        return post(command, true);    
+    public RequestProcessor getRequestProcessor() {
+        return rp;
     }
 
-    /**
-     * Executes the command in a separate thread, command execution and notification happens asynchronously and the method returns
-     * immediately.  
-     * 
-     * @param command command to execute
-     * @param notifyErrors notifies errors is true
-     * @return RequestProcessor.Task
-     */       
-    public RequestProcessor.Task post(ClearcaseCommand command, boolean notifyErrors) {
-        return post(new ExecutionUnit(command), notifyErrors); 
-    }
-          
-    private RequestProcessor.Task post(ExecutionUnit eu, boolean notifyErrors) {
-        CommandRunnable commandRunnable = new CommandRunnable(eu, notifyErrors);
-        RequestProcessor.Task rptask = rp.create(commandRunnable);
-        rptask.schedule(0);
-        return rptask;
-    }
-    
     /**
      * Execute a command in a separate thread, command execution and notification happens asynchronously and the method returns
-     * immediately. Errors are notified by default. 
+     * immediately. Clearcase errors are notified. 
      * 
      * @param command command to execute
      * @param displayName creates a progress handle with the given display name
@@ -112,11 +85,11 @@ public class ClearcaseClient {
      */    
     public RequestProcessor.Task post(String displayName, final ClearcaseCommand command) {
         ProgressSupport ps = new ProgressSupport(rp, displayName) {            
-            private ClearcaseClient.CommandRunnable cr;                        
             @Override
             protected void perform() {
-                cr = execImpl(new ExecutionUnit(command), true);
+                CommandRunnable cr = new CommandRunnable(new ExecutionUnit(command), true);
                 setCancellableDelegate(cr);
+                cr.run();                
             }   
         };
         return ps.start();
@@ -126,28 +99,44 @@ public class ClearcaseClient {
      * Execute a command synchronously, command execution and notification happens synchronously. 
      * 
      * @param command command to execute
-          * @param notifyErrors notifies errors is true* 
-     * @throws org.netbeans.modules.clearcase.ClearcaseException if the command is invalid, its execution fails, etc.
+     * @param notifyErrors notifies errors is true     
      */
-    public void exec(ClearcaseCommand command, boolean notifyErrors) throws ClearcaseException {        
+    public void exec(ClearcaseCommand command, boolean notifyErrors) {        
         exec(new ExecutionUnit(command), notifyErrors);
     }
     
     /**
-     * Execute commands synchronously, command execution and notification happens synchronously. Errors are notified by default. 
+     * Execute commands synchronously, command execution and notification happens synchronously
      * 
-     * @param eu commands to execute
-     * @throws org.netbeans.modules.clearcase.ClearcaseException if the command is invalid, its execution fails, etc.
+     * @param eu commands to execute     
+     * @param notifyErrors notifies errors is true          
      */
     public void exec(ExecutionUnit eu, boolean notifyErrors) {           
-        execImpl(eu, notifyErrors);       
+        execImpl(eu, notifyErrors, null);
     }        
-    
-    private CommandRunnable execImpl(ExecutionUnit eu, boolean notifyErrors) {           
+
+    /**
+     * Execute command synchronously, command execution and notification happens synchronously
+     * immediately.  
+     * 
+     * @param command command to execute
+     * @param notifyErrors notifies errors is true
+     * @return CommandRunnable
+     */       
+    public void exec(ClearcaseCommand command, boolean notifyErrors, ProgressSupport ps) {
+        execImpl(new ExecutionUnit(command), notifyErrors, ps);        
+    }
+
+    private void execImpl(ExecutionUnit eu, boolean notifyErrors, ProgressSupport ps) {
         CommandRunnable commandRunnable = new CommandRunnable(eu, notifyErrors);
+        if(ps != null) {
+            ps.setCancellableDelegate(commandRunnable);
+        }
         commandRunnable.run();
-        return commandRunnable;        
-    }  
+        if(ps != null) {
+            ps.setCancellableDelegate(null);
+        }
+    }
     
     /**
      * Execute a clearcase command, but do not block other commands from execution. Use this call for launching
