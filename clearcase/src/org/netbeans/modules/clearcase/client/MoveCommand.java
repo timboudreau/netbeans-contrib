@@ -68,20 +68,4 @@ public class MoveCommand extends FilesCommand {
         arguments.add("-nc");
         addFileArguments(arguments);
     }
-
-    @Override
-    public String toString() {
-        if(stringValue == null) {
-            StringBuffer sb = new StringBuffer();
-            sb.append("mv ");
-            sb.append(" -nc");
-            String [] paths = computeRelativePaths();
-            for (String path : paths) {
-                sb.append(" ");
-                sb.append(path);
-            }
-            stringValue = sb.toString();
-        }
-        return stringValue;
-    }    
 }
