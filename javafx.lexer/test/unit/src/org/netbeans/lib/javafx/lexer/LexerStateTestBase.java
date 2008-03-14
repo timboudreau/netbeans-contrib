@@ -38,25 +38,62 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.clearcase.ui.texthistory;
 
-import org.netbeans.modules.versioning.spi.VCSContext;
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
+package org.netbeans.lib.javafx.lexer;
 
-public class TextHistoryAction extends AbstractAction {
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.netbeans.api.javafx.lexer.JavaFXTokenId;
+import org.netbeans.lib.javafx.lexer.JavaFXLexerStateController.BraceQuoteTracker;
+
+/**
+ *
+ * @author victor G. Vasilyev
+ */
+public abstract class LexerStateTestBase {
+    protected static JavaFXLexerTestAdapter instance;
+    protected static int version = 1;
     
-    private final VCSContext context;
+    protected TestableToken token;
+    protected BraceQuoteTracker state;
 
-    public TextHistoryAction(String name, VCSContext context) {
-        this.context = context;
-        putValue(Action.NAME, name);
+
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        instance = new JavaFXLexerTestAdapter(null, version);
     }
+
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+        instance.release();
+        instance = null;
+    }
+
+    protected Object assertStateHas(int braceDepth, char quote, boolean percentIsFormat) {
+        Object s = instance.state();
+        assertNotNull(s);
+        assertTrue(s instanceof BraceQuoteTracker);
+        state = (BraceQuoteTracker)s;
+        assertEquals(braceDepth, state.getBraceDepth());
+        assertEquals(quote, state.getQuote());
+        assertEquals(percentIsFormat, state.isPercentIsFormat());
+        return state;
+    }    
     
-    public void actionPerformed(ActionEvent ev) {
-        NotifyDescriptor nd = new NotifyDescriptor("Not implemeted yet!", "ClearCase", NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE, new Object[]{NotifyDescriptor.OK_OPTION}, null);        
-        DialogDisplayer.getDefault().notify(nd);
-    }
+    protected Object assertStateHas(int braceDepth, char quote, 
+                            boolean percentIsFormat, BraceQuoteTracker prev) {
+        state = (BraceQuoteTracker)assertStateHas(braceDepth, quote, percentIsFormat);
+        assertSame("The state should define expected prev state.", prev, state.getPrev());
+        return state;
+    }    
+    
+   protected void nextToken() {
+        instance.nextToken();
+        token = instance.getTestableToken();       
+   }
+
 }

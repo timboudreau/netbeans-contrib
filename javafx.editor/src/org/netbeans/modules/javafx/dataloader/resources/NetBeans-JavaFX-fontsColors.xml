@@ -49,6 +49,7 @@ made subject to such option by the copyright holder.
     <fontcolor name="errors" default="error"/>
     <fontcolor name="identifier" default="identifier"/>
     <fontcolor name="keyword" default="keyword"/>
+    <fontcolor name="keyword-directive" default="keyword-directive"/>
     <fontcolor name="literal" default="keyword" />
     <fontcolor name="comment" default="comment"/>
     <fontcolor name="number" default="number"/>
