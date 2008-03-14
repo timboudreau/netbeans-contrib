@@ -280,7 +280,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         if (propertyName.equals(FormHandler.TAB_TRAV_PROP)) {
             // FIXME vyvolat ten traversal editor
 
-            property = comp.getPropertyByName(FormHandler.TAB_TRAV_PROP, comp.getPropertyByName(FormHandler.TAB_TRAV_PROP).getClass(), true);
+            property = comp.getPropertyByName(FormHandler.TAB_TRAV_PROP);
 
             try {
                 final PropertyEditor propEd = property.getPropertyEditor();
@@ -327,7 +327,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
             return;
         }
 
-        prop = comp.getPropertyByName(propertyName, comp.getPropertyByName(propertyName).getClass(), true); //funguje na mnemonic
+        prop = comp.getPropertyByName(propertyName); //funguje na mnemonic
 
         //try to invoke property action
         //obsolete -- had to remove this, several reflexion calls
@@ -471,7 +471,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
                     //                    todo
                     if (OK_COMMAND.equals(action)) {
                         RADVisualComponent comp = (RADVisualComponent) getComponetByName(panel.getSelectedComponentName(), formDesigner);
-                        Property prop = comp.getPropertyByName(FormHandler.LABEL_FOR_PROP, comp.getPropertyByName(FormHandler.LABEL_FOR_PROP).getClass(), true);
+                        Property prop = comp.getPropertyByName(FormHandler.LABEL_FOR_PROP);
                         ComponentChooserEditor editor = (ComponentChooserEditor) ((FormProperty) prop).getCurrentEditor();
                         editor.setValue(rvc);
                         prop.setValue(editor.getValue());
@@ -922,7 +922,7 @@ public synchronized void setSelectedRow() {
         if (formDesigner==null)
             return;
         RADVisualComponent comp = (RADVisualComponent) getComponetByName("Form", formDesigner);
-        property = comp.getPropertyByName(FormHandler.TAB_TRAV_PROP, comp.getPropertyByName(FormHandler.TAB_TRAV_PROP).getClass(), true);
+        property = comp.getPropertyByName(FormHandler.TAB_TRAV_PROP);
         try {
                 final PropertyEditor propEd = property.getPropertyEditor();
                 propEd.setValue(new FormHandler(FormBroker.getDefault().findActiveEditor()).getFes().getFormModel().getTopRADComponent());

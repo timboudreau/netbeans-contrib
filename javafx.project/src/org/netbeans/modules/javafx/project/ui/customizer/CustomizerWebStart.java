@@ -273,7 +273,7 @@ public class CustomizerWebStart extends JPanel implements HelpCtx.Provider {
     }//GEN-LAST:event_browseButtonActionPerformed
 
     public HelpCtx getHelpCtx() {
-        return new HelpCtx(NbBundle.getMessage(WebStartProjectProperties.class, "HelpID_Deployment"));
+        return new HelpCtx(CustomizerWebStart.class);
     }
     
     private static class IconFileFilter extends FileFilter {

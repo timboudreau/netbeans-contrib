@@ -56,11 +56,10 @@ import java.util.*;
 import java.util.ArrayList;
 import javax.swing.event.TableModelListener;
 import org.netbeans.modules.clearcase.*;
+import org.netbeans.modules.clearcase.client.AfterCommandRefreshListener;
 import org.netbeans.modules.clearcase.ui.add.AddAction;
-import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
 import org.netbeans.modules.clearcase.client.CheckinCommand;
-import org.netbeans.modules.clearcase.client.NotificationListener;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -69,11 +68,11 @@ import org.openide.util.HelpCtx;
 import org.openide.util.RequestProcessor;
 
 /**
- * Sample Update action.
+ * Checkin action.
  * 
  * @author Maros Sandor
  */
-public class CheckinAction extends AbstractAction implements NotificationListener {
+public class CheckinAction extends AbstractAction {
     
     private final VCSContext context;
     protected final VersioningOutputManager voutput;
@@ -81,9 +80,10 @@ public class CheckinAction extends AbstractAction implements NotificationListene
     static int ALLOW_CHECKIN = 
             FileInformation.STATUS_VERSIONED_CHECKEDOUT |
             FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY;
+
+    static String RECENT_CHECKIN_MESSAGES = "checkin.messages";
     
     private File[] files;
-    private RequestProcessor.Task prepareTask;
     
     public CheckinAction(String name, VCSContext context) {
         this.context = context;
@@ -109,27 +109,31 @@ public class CheckinAction extends AbstractAction implements NotificationListene
     
     public void actionPerformed(ActionEvent ev) {
         String contextTitle = Utils.getContextDisplayName(context);
-        final JButton addButton = new JButton(); 
-        addButton.setEnabled(false);
-        final JButton cancelButton = new JButton("Cancel");         
+        final JButton checkinButton = new JButton(); 
+        checkinButton.setEnabled(false);
+        JButton cancelButton = new JButton(NbBundle.getMessage(CheckinAction.class, "Checkin_Cancel")); //NOI18N
         
-        CheckinPanel panel = new CheckinPanel();        
+        final CheckinPanel panel = new CheckinPanel();        
         
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(CheckinAction.class, "CTL_CheckinDialog_Title", contextTitle)); // NOI18N
         dd.setModal(true);        
-        org.openide.awt.Mnemonics.setLocalizedText(addButton, org.openide.util.NbBundle.getMessage(CheckinAction.class, "CTL_CheckinDialog_Checkin"));
+        org.openide.awt.Mnemonics.setLocalizedText(checkinButton, org.openide.util.NbBundle.getMessage(CheckinAction.class, "CTL_CheckinDialog_Checkin")); //NOI18N
         
-        dd.setOptions(new Object[] {addButton, cancelButton}); // NOI18N
+        dd.setOptions(new Object[] {checkinButton, cancelButton}); // NOI18N
         dd.setHelpCtx(new HelpCtx(CheckinAction.class));
 
+        panel.cbForceUnmodified.setSelected(ClearcaseModuleConfig.getForceUnmodifiedCheckin());      
+        panel.cbPreserveTime.setSelected(ClearcaseModuleConfig.getPreserveTimeCheckin());      
+        
         final CheckinTable checkinTable = new CheckinTable(panel.jLabel2, CheckinTable.CHECKIN_COLUMNS, new String [] { CheckinTableModel.COLUMN_NAME_NAME });        
         panel.setCheckinTable(checkinTable);
         checkinTable.getTableModel().addTableModelListener(new TableModelListener() {
             public void tableChanged(TableModelEvent e) {
-                addButton.setEnabled(checkinTable.getTableModel().getRowCount() > 0);
+                checkinButton.setEnabled(checkinTable.getTableModel().getRowCount() > 0);
             }
         });
         computeNodes(checkinTable, cancelButton, panel);
+        
         
         panel.putClientProperty("contentTitle", contextTitle);  // NOI18N
         panel.putClientProperty("DialogDescriptor", dd); // NOI18N
@@ -139,43 +143,20 @@ public class CheckinAction extends AbstractAction implements NotificationListene
         dialog.setVisible(true);                
                 
         Object value = dd.getValue();
-        if (value != addButton) return;                 
-        
-        String message = panel.taMessage.getText();
-        boolean forceUnmodified = panel.cbForceUnmodified.isSelected();
-        boolean preserveTime = panel.cbPreserveTime.isSelected();
+        if (value != checkinButton) return;
 
-        Map<ClearcaseFileNode, CheckinOptions> filesToCheckin = checkinTable.getAddFiles();
-
-        AddAction.addFiles(message, false, filesToCheckin);
-        
-        // TODO: process options
-        List<String> addExclusions = new ArrayList<String>();;
-        List<String> removeExclusions = new ArrayList<String>();        
-        List<File> ciFiles = new ArrayList<File>(); 
-        for (Map.Entry<ClearcaseFileNode, CheckinOptions> entry : filesToCheckin.entrySet()) {
-            File file = entry.getKey().getFile();
-            if (entry.getValue() != CheckinOptions.EXCLUDE) {
-                ciFiles.add(file);
-                removeExclusions.add(file.getAbsolutePath());
-            } else {
-                addExclusions.add(file.getAbsolutePath());
+        ProgressSupport ps = new ProgressSupport(Clearcase.getInstance().getClient().getRequestProcessor(), NbBundle.getMessage(CheckinAction.class, "Progress_Checking_in")) { //NOI18N
+            @Override
+            protected void perform() {
+                performCheckin(panel, checkinTable, this);
             }
-        }
-
-        ClearcaseModuleConfig.addExclusionPaths(addExclusions);
-        ClearcaseModuleConfig.removeExclusionPaths(removeExclusions);
-                                
-        files = ciFiles.toArray(new File[ciFiles.size()]);
-        Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Checking in...",
-                new CheckinCommand(files, message, forceUnmodified, 
-                                    preserveTime, new OutputWindowNotificationListener(), this)));
+        };   
+        ps.start();
     }
 
     // XXX temporary solution...
     private void computeNodes(final CheckinTable checkinTable, JButton cancel, final CheckinPanel checkinPanel) {
-        final ProgressSupport ps = new FileStatusCache.RefreshSupport(new RequestProcessor("Clearcase-AddTo"), context, "Preparing Add To...", cancel) {
+        final ProgressSupport ps = new FileStatusCache.RefreshSupport(new RequestProcessor("Clearcase-AddTo"), context, NbBundle.getMessage(CheckinAction.class, "Progress_Preparing_Checkin"), cancel) { //NOI18N
             @Override
             protected void perform() {
                 try {
@@ -211,11 +192,40 @@ public class CheckinAction extends AbstractAction implements NotificationListene
     public static void checkin(VCSContext context) {
         new CheckinAction("", context).actionPerformed(null);        
     }
-    
-    public void commandStarted()        { /* boring */ }
-    public void outputText(String line) { /* boring */ }
-    public void errorText(String line)  { /* boring */ }
-    public void commandFinished() {               
-        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(files, false, false);        
-    }    
+
+    private void performCheckin(CheckinPanel panel, final CheckinTable checkinTable, ProgressSupport ps) {
+        String message = panel.taMessage.getText();
+        boolean forceUnmodified = panel.cbForceUnmodified.isSelected();
+        boolean preserveTime = panel.cbPreserveTime.isSelected();
+
+        ps.setDisplayMessage(NbBundle.getMessage(CheckinAction.class, "Progress_Checkin_Adding_new_Files")); //NOI18N
+        Map<ClearcaseFileNode, CheckinOptions> filesToCheckin = checkinTable.getAddFiles();
+        // XXX true means they stay checked out and 
+        // still have to be checked in later. reconsider using false instead
+        AddAction.addFiles(null, true, filesToCheckin, ps);  
+
+        ps.setDisplayMessage(NbBundle.getMessage(CheckinAction.class, "Progress_Checking_in")); //NOI18N
+        List<String> addExclusions = new ArrayList<String>();
+        
+        List<String> removeExclusions = new ArrayList<String>();
+        List<File> ciFiles = new ArrayList<File>();
+        for (Map.Entry<ClearcaseFileNode, CheckinOptions> entry : filesToCheckin.entrySet()) {
+            File file = entry.getKey().getFile();
+            if (entry.getValue() != CheckinOptions.EXCLUDE) {
+                ciFiles.add(file);
+                removeExclusions.add(file.getAbsolutePath());
+            } else {
+                addExclusions.add(file.getAbsolutePath());
+            }
+        }
+        ClearcaseModuleConfig.addExclusionPaths(addExclusions);
+        ClearcaseModuleConfig.removeExclusionPaths(removeExclusions);
+        ClearcaseModuleConfig.setForceUnmodifiedCheckin(forceUnmodified);
+        ClearcaseModuleConfig.setPreserveTimeCheckin(preserveTime);
+        Utils.insert(ClearcaseModuleConfig.getPreferences(), RECENT_CHECKIN_MESSAGES, message, 20);
+
+        files = ciFiles.toArray(new File[ciFiles.size()]);
+        CheckinCommand cmd = new CheckinCommand(files, message, forceUnmodified, preserveTime, new OutputWindowNotificationListener(), new AfterCommandRefreshListener(files));
+        Clearcase.getInstance().getClient().exec(cmd, true, ps);
+    }
 }

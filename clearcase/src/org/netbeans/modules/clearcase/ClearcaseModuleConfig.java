@@ -53,8 +53,22 @@ import java.io.File;
  */
 public class ClearcaseModuleConfig {
     
-    public static final String PROP_IGNORED_PATTERNS        = "ignoredPatterns";    // NOI18N
-    public static final String PROP_COMMIT_EXCLUSIONS       = "commitExclusions";   // NOI18N    
+
+    public enum OnDemandCheckout { Disabled, Unreserved, Reserved, ReservedWithFallback };
+    
+    public static final String PROP_IGNORED_PATTERNS            = "ignoredPatterns";            // NOI18N
+    public static final String PROP_COMMIT_EXCLUSIONS           = "commitExclusions";           // NOI18N    
+    public static final String PROP_CLEARTOOL_EXECUTABLE        = "cleartoolExecutablePath";    // NOI18N    
+    public static final String PROP_ADD_VIEWPRIVATE             = "addViewPrivate";             // NOI18N    
+    
+    private static final String PROP_ONDEMAND_CHECKOUT          = "onDemandCheckout";           // NOI18N        
+    private static final String PROP_PRESERVE_TIME_CHECKIN      = "preserveTimeCheckin";        // NOI18N    
+    private static final String PROP_CHECKIN_ADDED_FILES        = "checkInAddedFiles";          // NOI18N    
+    private static final String PROP_FORCE_UNMODIFIED_CHECKIN   = "forceUnmodifiedCheckin";     // NOI18N    
+    
+    private static String PROP_LABEL_FOLLOW                     = "LabelFollow";                // NOI18N    
+    private static String PROP_LABEL_REPLACE                    = "LabelReplace";               // NOI18N    
+    private static String PROP_LABEL_RECURSE                    = "LabelRecurse";               // NOI18N    
     
     private static Set<String> exclusions;
     
@@ -67,6 +81,62 @@ public class ClearcaseModuleConfig {
         ignoredFilePatterns.addAll(toPatterns(Utils.getStringList(getPreferences(), PROP_IGNORED_PATTERNS)));
     }
 
+    public static boolean getLabelFollow() {
+        return getPreferences().getBoolean(PROP_LABEL_FOLLOW, true);
+    }
+
+    public static boolean getLabelRecurse() {
+        return getPreferences().getBoolean(PROP_LABEL_RECURSE, false);
+    }
+
+    public static boolean getLabelReplace() {
+        return getPreferences().getBoolean(PROP_LABEL_REPLACE, false);
+    }
+
+    public static void setLabelFollow(boolean follow) {
+        getPreferences().putBoolean(PROP_LABEL_FOLLOW, follow);
+    }
+
+    public static void setLabelRecurse(boolean recurse) {
+        getPreferences().putBoolean(PROP_LABEL_RECURSE, recurse);
+    }
+
+    public static void setLabelReplace(boolean replace) {
+        getPreferences().putBoolean(PROP_LABEL_REPLACE, replace);
+    }
+    
+    public static void setCheckInAddedFiles(boolean checkInAddedFiles) {
+        getPreferences().putBoolean(PROP_CHECKIN_ADDED_FILES, checkInAddedFiles);
+    }
+    
+    public static boolean getCheckInAddedFiles() {
+        return getPreferences().getBoolean(PROP_CHECKIN_ADDED_FILES, false);
+    }
+
+    public static void setForceUnmodifiedCheckin(boolean forceUnmodified) {
+        getPreferences().putBoolean(PROP_FORCE_UNMODIFIED_CHECKIN, forceUnmodified);
+    }
+    
+    public static boolean getForceUnmodifiedCheckin() {
+        return getPreferences().getBoolean(PROP_FORCE_UNMODIFIED_CHECKIN, false);
+    }
+
+    public static void setPreserveTimeCheckin(boolean preserve) {
+        getPreferences().putBoolean(PROP_PRESERVE_TIME_CHECKIN, preserve);
+    }
+    
+    public static boolean getPreserveTimeCheckin() {
+        return getPreferences().getBoolean(PROP_PRESERVE_TIME_CHECKIN, false);
+    }
+    
+    public static OnDemandCheckout getOnDemandCheckout() {
+        return OnDemandCheckout.valueOf(getPreferences().get(PROP_ONDEMAND_CHECKOUT, OnDemandCheckout.Reserved.name()));
+    }
+
+    public static void setOnDemandCheckout(OnDemandCheckout odc) {
+        getPreferences().put(PROP_ONDEMAND_CHECKOUT, odc.name());
+    }
+    
     private static Collection<Pattern> toPatterns(List<String> list) {
         Set<Pattern> patterns = new HashSet<Pattern>(list.size());
         for (String s : list) {

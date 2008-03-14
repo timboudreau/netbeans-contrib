@@ -44,6 +44,7 @@ import org.openide.util.actions.SystemAction;
 import org.openide.util.HelpCtx;
 
 import java.awt.event.ActionEvent;
+import org.openide.util.NbBundle;
 
 /**
  * @author Maros Sandor
@@ -51,7 +52,7 @@ import java.awt.event.ActionEvent;
 public class OpenVersioningAction extends SystemAction {
 
     public String getName() {
-        return "Clearcase";
+        return NbBundle.getMessage(OpenVersioningAction.class, "OpenCCView_Name_Clearcase"); //NOI18N;
     }
 
     public HelpCtx getHelpCtx() {
@@ -59,7 +60,7 @@ public class OpenVersioningAction extends SystemAction {
     }
 
     public void actionPerformed(ActionEvent ev) {
-        VersioningTopComponent stc = VersioningTopComponent.getInstance();
+        ClearcaseTopComponent stc = ClearcaseTopComponent.getInstance();
         if (stc.hasContext()) {
             stc.open();
             stc.requestActive();

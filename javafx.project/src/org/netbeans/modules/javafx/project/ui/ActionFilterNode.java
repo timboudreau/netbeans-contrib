@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import javax.swing.Action;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.java.api.common.ant.UpdateHelper;
 import org.openide.ErrorManager;
 import org.openide.actions.EditAction;
 import org.openide.actions.FindAction;
@@ -67,7 +68,6 @@ import org.netbeans.api.project.ProjectManager;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.netbeans.spi.project.support.ant.PropertyUtils;
-import org.netbeans.modules.javafx.project.UpdateHelper;
 import org.netbeans.modules.javafx.project.classpath.ClassPathSupport;
 
 /**

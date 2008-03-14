@@ -48,6 +48,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.ImageIcon;
 import javax.swing.text.BadLocationException;
 import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.ClassNode;
@@ -255,12 +256,15 @@ public class StructureAnalyzer implements StructureScanner {
             int importStart = 0;
             int importEnd   = 0;
             
+            boolean startSet = false;
+            
             while (ts.moveNext()) {
                 Token t = ts.token();
                 if (t.id() == GroovyTokenId.LITERAL_import) {
                     int offset = ts.offset();
-                    if (importStart == 0) {
+                    if (!startSet) {
                         importStart = offset;
+                        startSet = true;
                     }
                     importEnd = offset;
                 } else if (t.id() == GroovyTokenId.BLOCK_COMMENT) {
@@ -276,15 +280,21 @@ public class StructureAnalyzer implements StructureScanner {
                 }
             }
             
-            importEnd = Utilities.getRowEnd(doc, importEnd);
             
             // see GsfFoldManager.addTree() for suitable blocknames.
             
-            List<OffsetRange> importfolds = new ArrayList<OffsetRange>();
-            OffsetRange range = new OffsetRange(importStart, importEnd);
-            importfolds.add(range);
+            importEnd = Utilities.getRowEnd(doc, importEnd);
             
-            folds.put("imports", importfolds); // NOI18N
+            // same strategy here for the import statements: We have to have
+            // *more* than one line to fold them.
+            
+            if (Utilities.getRowCount(doc, importStart, importEnd) > 1) {
+                List<OffsetRange> importfolds = new ArrayList<OffsetRange>();
+                OffsetRange range = new OffsetRange(importStart, importEnd);
+                importfolds.add(range);
+                folds.put("imports", importfolds); // NOI18N
+            }
+            
             folds.put("comments", commentfolds); // NOI18N
 
             addFolds(doc, analysisResult.getElements(), folds, codefolds);
@@ -414,9 +424,7 @@ public class StructureAnalyzer implements StructureScanner {
         }
 
         public ElementHandle getElementHandle() {
-            // FIXME: our AstElement is not an ElementHandle (yet)
-            // return node;
-            return null;
+            return node;
         }
 
         public ElementKind getKind() {
@@ -468,13 +476,13 @@ public class StructureAnalyzer implements StructureScanner {
 
         public long getPosition() {
             OffsetRange range = AstUtilities.getRange(node.getNode(), doc);
-            LOG.log(Level.WARNING, "getPosition(), start: " + range.getStart());
+            LOG.log(Level.FINEST, "getPosition(), start: " + range.getStart());
             return (long) range.getStart();
         }
 
         public long getEndPosition() {
             OffsetRange range = AstUtilities.getRange(node.getNode(), doc);
-            LOG.log(Level.WARNING, "getEndPosition(), end: " + range.getEnd());
+            LOG.log(Level.FINEST, "getEndPosition(), end: " + range.getEnd());
             return (long) range.getEnd();
         }
 
@@ -517,6 +525,14 @@ public class StructureAnalyzer implements StructureScanner {
         @Override
         public String toString() {
             return getName();
+        }
+
+        public String getSortText() {
+            return getName();
+        }
+
+        public ImageIcon getCustomIcon() {
+            return null;
         }
     }
     

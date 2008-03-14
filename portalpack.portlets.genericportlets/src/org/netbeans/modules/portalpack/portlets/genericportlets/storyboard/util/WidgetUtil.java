@@ -19,39 +19,32 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.util;
 
-import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widgets.CustomPinWidget;
 import java.awt.Image;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
-import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.vmd.VMDGraphScene;
 import org.netbeans.api.visual.vmd.VMDNodeWidget;
 import org.netbeans.api.visual.vmd.VMDPinWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widgets.CustomPinWidget;
 import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc.CustomVMDGraphScene;
-import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc.actions.IPCPopUpMenuProvider;
 import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widgets.CustomNodeWidget;
-import org.openide.util.Utilities;
 
 /**
  *
  * @author Satyaranjan
  */
 public class WidgetUtil {
-    // private static final Image GLYPH_CONSUME_EVENT=Utilities.loadImage("org/netbeans/modules/portalpack/portlets/genericportlets/resources/eventicon.PNG");
      
     /** Creates a new instance of WidgetUtil */
     public WidgetUtil() {
     }
     public static VMDNodeWidget createNode(CustomVMDGraphScene scene, int x, int y, Image image, String key, String name, String type, List<Image> glyphs) {
-        //String nodeID = "node" + IPCGraphScene.nodeID ++;
-        String nodeID = key;
         
+        String nodeID = key;
         CustomNodeWidget widget = (CustomNodeWidget) scene.addNode(nodeID);
         widget.setNodeKey(nodeID);
-     //   widget.getActions().addAction(ActionFactory.createPopupMenuAction(new IPCPopUpMenuProvider()));
         widget.setPreferredLocation(new Point(x, y));
         widget.setNodeProperties(image, name, type, glyphs);
         return widget;
@@ -70,7 +63,6 @@ public class WidgetUtil {
     }
       
     public static Widget createEdge(CustomVMDGraphScene scene, String edgeID, String sourcePinID, String targetNodeID) {
-        //String edgeID = "edge" + IPCGraphScene.edgeID ++;
         Widget widget = scene.addEdge(edgeID);
         scene.setEdgeSource(edgeID, sourcePinID);
         scene.setEdgeTarget(edgeID, targetNodeID + VMDGraphScene.PIN_ID_DEFAULT_SUFFIX);

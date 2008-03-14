@@ -48,7 +48,7 @@ public class FilterHolderNode extends AbstractNode{
 
     @Override
     public String getName() {
-        return "Filters";
+        return "Filters"; //NOI18N
     }
 
     public PortletXMLDataObject getDataObject()

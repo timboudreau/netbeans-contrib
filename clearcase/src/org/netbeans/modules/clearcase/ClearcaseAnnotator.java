@@ -55,12 +55,10 @@ import org.netbeans.modules.clearcase.ui.update.UpdateAction;
 import org.netbeans.modules.clearcase.ui.update.MergeAction;
 import org.netbeans.modules.clearcase.ui.diff.DiffAction;
 import org.netbeans.modules.clearcase.ui.IgnoreAction;
-import org.netbeans.modules.clearcase.ui.texthistory.TextHistoryAction;
 import org.netbeans.modules.clearcase.ui.history.ViewRevisionAction;
 import org.netbeans.modules.clearcase.ui.history.BrowseHistoryAction;
 import org.netbeans.modules.clearcase.ui.history.BrowseVersionTreeAction;
 import org.openide.util.Utilities;
-
 import javax.swing.*;
 import java.awt.Image;
 import java.io.File;
@@ -72,6 +70,7 @@ import org.netbeans.modules.clearcase.client.status.FileVersionSelector;
 import org.netbeans.modules.clearcase.ui.AnnotateAction;
 import org.netbeans.modules.clearcase.ui.checkin.ExcludeAction;
 import org.netbeans.modules.clearcase.ui.checkout.ReserveAction;
+import org.netbeans.modules.clearcase.ui.label.LabelAction;
 import org.netbeans.modules.versioning.util.SystemActionBridge;
 import org.netbeans.modules.diff.PatchAction;
 import org.openide.util.Lookup;
@@ -85,28 +84,14 @@ import org.openide.util.actions.SystemAction;
  * @author Maros Sandor
  */
 public class ClearcaseAnnotator extends VCSAnnotator {
-    
-    /*
-    newLocallyFormat = <font color="#008000">{0}</font>{1}
-    addedLocallyFormat = <font color="#008000">{0}</font>{1}
-    modifiedLocallyFormat = <font color="#0000FF">{0}</font>{1}
-    removedLocallyFormat = <font color="#999999">{0}</font>{1}
-    deletedLocallyFormat = <font color="#999999">{0}</font>{1}
-    newInRepositoryFormat = <font color="#000000">{0}</font>{1}
-    modifiedInRepositoryFormat = <font color="#000000">{0}</font>{1}
-    removedInRepositoryFormat = <font color="#000000">{0}</font>{1}
-    conflictFormat = <font color="#FF0000">{0}</font>{1}
-    mergeableFormat = <font color="#0000FF">{0}</font>{1}
-    excludedFormat = <font color="#999999">{0}</font>{1}
-     */  
-    
-    private static MessageFormat newLocallyFormat = new MessageFormat("<font color=\"#008000\">{0}</font>{1}");
-    private static MessageFormat checkedoutFormat = new MessageFormat("<font color=\"#0000FF\">{0}</font>{1}");
-    private static MessageFormat hijackedFormat = new MessageFormat("<font color=\"#FF0000\">{0}</font>{1}");
-    private static MessageFormat ignoredFormat = new MessageFormat("<font color=\"#999999\">{0}</font>{1}");
-    private static MessageFormat removedFormat = new MessageFormat("<font color=\"#999999\">{0}</font>{1}");
-    private static MessageFormat missingFormat = new MessageFormat("<font color=\"#999999\">{0}</font>{1}");
-    private static MessageFormat eclipsedFormat = new MessageFormat("<s><font color=\"#008000\">{0}</font></s>{1}");
+      
+    private static MessageFormat newLocallyFormat = new MessageFormat("<font color=\"#008000\">{0}</font>{1}"); //NOI18N
+    private static MessageFormat checkedoutFormat = new MessageFormat("<font color=\"#0000FF\">{0}</font>{1}"); //NOI18N
+    private static MessageFormat hijackedFormat = new MessageFormat("<font color=\"#FF0000\">{0}</font>{1}"); //NOI18N
+    private static MessageFormat ignoredFormat = new MessageFormat("<font color=\"#999999\">{0}</font>{1}"); //NOI18N
+    private static MessageFormat removedFormat = new MessageFormat("<font color=\"#999999\">{0}</font>{1}"); //NOI18N
+    private static MessageFormat missingFormat = new MessageFormat("<font color=\"#999999\">{0}</font>{1}"); //NOI18N
+    private static MessageFormat eclipsedFormat = new MessageFormat("<s><font color=\"#008000\">{0}</font></s>{1}"); //NOI18N
     
     
     private static final Pattern lessThan = Pattern.compile("<");  // NOI18N
@@ -128,8 +113,8 @@ public class ClearcaseAnnotator extends VCSAnnotator {
 
     public ClearcaseAnnotator() {
         cache = Clearcase.getInstance().getFileStatusCache();
-        format = new MessageFormat("[{0}; {1}]"); 
-        emptyFormat = format.format(new String[] {"", ""} , new StringBuffer(), null).toString().trim();
+        format = new MessageFormat("[{0}; {1}]"); //NOI18N
+        emptyFormat = format.format(new String[] {"", ""} , new StringBuffer(), null).toString().trim(); //NOI18N
     }
 
     public String annotateName(String name, VCSContext context) {        
@@ -201,14 +186,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         if (!isVersioned) return null;
         
         boolean allExcluded = true;
-        boolean modified = false;
-        
-//        Map modifiedFiles = new HashMap();
-//        for (Iterator i = map.keySet().iterator(); i.hasNext();) {
-//            File file = (File) i.next();
-//            FileInformation info = (FileInformation) map.get(file);
-//            if ((info.getCachedStatus() & FileInformation.STATUS_LOCAL_CHANGE) != 0) modifiedFiles.put(file, info);
-//        }
+        boolean modified = false;        
 
         for (File root : context.getRootFiles()) {
             Map<File, FileInformation> modifiedFiles = cache.getAllModifiedValues(root); // XXX should go only after files from the context
@@ -256,53 +234,57 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         if (destination == VCSAnnotator.ActionDestination.MainMenu) {
             actions.add(new CheckoutAction(ctx));
             actions.add(new ReserveAction(ctx));
-            actions.add(new AddAction("Add To Source Control...", ctx));
+            actions.add(new AddAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_AddToSourceControl_Name"), ctx)); //NOI18N
             actions.add(null);
             //actions.add(SystemAction.get(RefreshAction.class));
-            actions.add(new DiffAction("Diff", ctx));
-            actions.add(new UpdateAction("Update", ctx));
-            actions.add(new MergeAction("Merge", ctx));
-            actions.add(new CheckinAction("Checkin...", ctx));
+            actions.add(new DiffAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Diff"), ctx)); //NOI18N
+            actions.add(new UpdateAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Update"), ctx)); //NOI18N
+            actions.add(new MergeAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Merge"), ctx)); //NOI18N
+            actions.add(new CheckinAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Checkin"), ctx)); //NOI18N
             actions.add(null);
 //            actions.add(SystemAction.get(ExportDiffAction.class));
             actions.add(SystemAction.get(PatchAction.class));
             actions.add(null);
+            actions.add(new LabelAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Label"), ctx)); //NOI18N
+            actions.add(null);
             actions.add(new AnnotateAction(ctx, Clearcase.getInstance().getAnnotationsProvider(ctx)));
-            actions.add(new ViewRevisionAction("View Revision...", ctx));
+            actions.add(new ViewRevisionAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_View_Revision"), ctx)); //NOI18N
 //            actions.add(new TextHistoryAction("List History", ctx));
-            actions.add(new BrowseHistoryAction("Browse History", ctx));
-            actions.add(new BrowseVersionTreeAction("Browse Version Tree", ctx));
+            actions.add(new BrowseHistoryAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_BrowseHistory"), ctx)); //NOI18N
+            actions.add(new BrowseVersionTreeAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_BrowseVersionTree"), ctx)); //NOI18N
             actions.add(null);
             actions.add(new IgnoreAction(ctx));
             actions.add(new ExcludeAction(ctx));
             actions.add(null);            
-            actions.add(new ShowPropertiesAction("Show Properties", ctx));
+            actions.add(new ShowPropertiesAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_ShowProperties"), ctx)); //NOI18N
 //            actions.add(new RemoveAction("Remove Name from Directory...", ctx));
         } else {
             boolean noneVersioned = isNothingVersioned(ctx);
             if (noneVersioned) {
-                actions.add(new AddToRepositoryAction("Import into Clea&rcase Repository...", ctx));
+                actions.add(new AddToRepositoryAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Import_into_Clea&rcase_Repository"), ctx)); //NOI18N
             } else {
                 actions.add(new CheckoutAction(ctx));
                 actions.add(new ReserveAction(ctx));
-                actions.add(new AddAction("Add To Source Control...", ctx));
+                actions.add(new AddAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_AddToSourceControl_Name"), ctx)); //NOI18N
                 actions.add(null);
-                actions.add(SystemActionBridge.createAction(SystemAction.get(RefreshAction.class), "Show Changes", context));
-                actions.add(new DiffAction("Diff", ctx));
-                actions.add(new UpdateAction("Update", ctx));
-                actions.add(new MergeAction("Merge", ctx));
-                actions.add(new CheckinAction("Checkin...", ctx));
+                actions.add(SystemActionBridge.createAction(SystemAction.get(RefreshAction.class), NbBundle.getMessage(ClearcaseAnnotator.class, "Action_ShowChanges"), context)); //NOI18N
+                actions.add(new DiffAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Diff"), ctx)); //NOI18N
+                actions.add(new UpdateAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Update"), ctx)); //NOI18N
+                actions.add(new MergeAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Merge"), ctx)); //NOI18N
+                actions.add(new CheckinAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Checkin"), ctx)); //NOI18N
+                actions.add(null);
+                actions.add(new LabelAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Label"), ctx)); //NOI18N
                 actions.add(null);
                 actions.add(new AnnotateAction(ctx, Clearcase.getInstance().getAnnotationsProvider(ctx)));
-                actions.add(new ViewRevisionAction("View Revision...", ctx));
+                actions.add(new ViewRevisionAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_View_Revision"), ctx)); //NOI18N
 //                actions.add(new TextHistoryAction("List History", ctx));
-                actions.add(new BrowseHistoryAction("Browse History", ctx));
-                actions.add(new BrowseVersionTreeAction("Browse Version Tree", ctx));
+                actions.add(new BrowseHistoryAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_BrowseHistory"), ctx)); //NOI18N
+                actions.add(new BrowseVersionTreeAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_BrowseVersionTree"), ctx)); //NOI18N
                 actions.add(null);
                 actions.add(new IgnoreAction(ctx));
                 actions.add(new ExcludeAction(ctx));
                 actions.add(null);                    
-                actions.add(new ShowPropertiesAction("Show Properties", ctx));
+                actions.add(new ShowPropertiesAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_ShowProperties"), ctx)); //NOI18N
             }
         }
         return actions.toArray(new Action[actions.size()]);
@@ -331,17 +313,17 @@ public class ClearcaseAnnotator extends VCSAnnotator {
                 textAnnotation = formatAnnotation(info, file);
             } else {                                
                 String statusText = info.getShortStatusText();
-                if(!statusText.equals("")) {
+                if(!statusText.equals("")) { //NOI18N
                     textAnnotation = " [" + info.getShortStatusText() + "]"; // NOI18N
                 } else {
-                    textAnnotation = "";
+                    textAnnotation = ""; //NOI18N
                 }                
             }
         } else {
             textAnnotation = ""; // NOI18N
         }
         if (textAnnotation.length() > 0) {
-            textAnnotation = NbBundle.getMessage(ClearcaseAnnotator.class, "textAnnotation", textAnnotation); 
+            textAnnotation = NbBundle.getMessage(ClearcaseAnnotator.class, "textAnnotation", textAnnotation); //NOI18N
         }
         
         if (info.getStatus() == FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY) {
@@ -389,9 +371,9 @@ public class ClearcaseAnnotator extends VCSAnnotator {
                 
         String annotation = format.format(arguments, new StringBuffer(), null).toString().trim();    
         if(annotation.equals(emptyFormat)) {
-            return "";            
+            return ""; //NOI18N
         } else {
-            return " " + annotation;
+            return " " + annotation; //NOI18N
         }
     }
     

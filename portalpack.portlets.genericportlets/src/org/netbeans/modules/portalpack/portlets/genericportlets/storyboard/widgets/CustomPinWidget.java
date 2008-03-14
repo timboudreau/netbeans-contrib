@@ -19,8 +19,10 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widgets;
 
-import java.util.Properties;
+import java.awt.Image;
+import javax.xml.namespace.QName;
 import org.netbeans.api.visual.vmd.VMDPinWidget;
+import org.netbeans.api.visual.widget.ImageWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.EventObject;
 
@@ -33,12 +35,15 @@ public class CustomPinWidget extends VMDPinWidget {
     private String eventName;
     private String nodeKey;
     private EventObject event;
+    private int type = -1;
+    public static int PUBLISH_EVENT_TYPE = 0;
+    public static int PROCESS_EVENT_TYPE = 1;
+    
     public CustomPinWidget(Scene scene)
     {
         super(scene);
-        
     }
-    
+       
     public String getKey()
     {
         return key;
@@ -76,6 +81,28 @@ public class CustomPinWidget extends VMDPinWidget {
     public void setNodeKey(String key)
     {
         this.nodeKey = key;
+    }
+    
+    public void setToolTipText()
+    {
+        QName[] qNames = event.getAlias();
+        StringBuffer toolTip = new StringBuffer();
+        for(QName q:qNames)
+            toolTip.append(q.toString() + ",");
+        if(qNames.length > 0)
+            setToolTipText("Aliases: "+toolTip.toString());
+    }
+    
+    public void setType(int type)
+    {
+        this.type = type;
+    }
+    
+    public int getType()
+    {
+        if(type == -1)
+            return PUBLISH_EVENT_TYPE;
+        return type;
     }
     
 }

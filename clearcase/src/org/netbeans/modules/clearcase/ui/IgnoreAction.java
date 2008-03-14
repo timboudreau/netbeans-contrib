@@ -51,6 +51,7 @@ import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.FileStatusCache;
 import org.netbeans.modules.clearcase.util.Utils;
+import org.openide.util.NbBundle;
 
 /**
  * @author Maros Sandor
@@ -83,16 +84,16 @@ public class IgnoreAction extends AbstractAction {
                 }                
             }    
         } finally {            
-            Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]), false, true);            
+            Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]), true);            
         }        
     }
 
     private static String getNameFromContext(VCSContext context) {
         int status = getStatus(context);
         if(status == FileInformation.STATUS_NOTVERSIONED_IGNORED) {
-            return "Unignore";    
+            return NbBundle.getMessage(IgnoreAction.class, "IgnoreAction_Name_Unignore"); //NOI18N
         } else {
-            return "Ignore";    
+            return NbBundle.getMessage(IgnoreAction.class, "IgnoreAction_Name_Ignore"); //NOI18N
         }        
     }
     

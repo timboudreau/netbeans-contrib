@@ -53,6 +53,7 @@ import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.FileStatusCache;
 import org.netbeans.modules.clearcase.util.Utils;
+import org.openide.util.NbBundle;
 
 /**
  * @author Maros Sandor
@@ -114,14 +115,14 @@ public class ExcludeAction extends AbstractAction {
                 ClearcaseModuleConfig.addExclusionPaths(exclusions);                   
             }         
         } finally {
-            Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]), false, false);            
+            Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]), false);            
         }
     }    
     
     private static String getNameFromContext(VCSContext context) {
         Set<File> roots = context.getRootFiles();
         if(roots.size() == 0 ) {
-            return "Exclude from Checkin";
+            return NbBundle.getMessage(ExcludeAction.class, "Action_Exclude_from_Checkin_Name"); //NOI18N
         }
 
         String name = null;
@@ -141,9 +142,9 @@ public class ExcludeAction extends AbstractAction {
             }            
         }    
         if(excluded) {
-            name = "Include to Checkin";            
+            name = NbBundle.getMessage(ExcludeAction.class, "Action_Include_to_Checkin_Name"); //NOI18N
         } else {
-            name = "Exclude from Checkin";
+            name = NbBundle.getMessage(ExcludeAction.class, "Action_Exclude_from_Checkin_Name"); //NOI18N
         }
         return name;            
     }    

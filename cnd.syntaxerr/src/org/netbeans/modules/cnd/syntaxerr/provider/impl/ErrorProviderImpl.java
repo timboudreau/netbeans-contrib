@@ -116,13 +116,25 @@ public class ErrorProviderImpl extends ErrorProvider {
     
     private Collection<ErrorInfo> getErrorsImpl(DataObject dao, BaseDocument doc) throws IOException, BadLocationException {
 	//System.err.printf("File %s MIME type %s\n", dao.getPrimaryFile().getNameExt(), dao.getPrimaryFile().getMIMEType());
-	FileProxy fileProxy;
-        if( isHeader(dao) ) {
-	    fileProxy = new HeaderProxy(dao, doc, tmpDir);
-            //return Collections.<ErrorInfo>emptyList();		    
+	if( ! DebugUtils.CLEAN_TMP ) {
+	    // if we are not cleaning it afterwards, clean it at least before!
+	    // (otherwise we can get compile errors)
+	    clean(tmpDir);
 	}
-	else {
-	    fileProxy = new SourceProxy(dao, doc, tmpDir);
+	ErrorProviderUtils.createTmpDir(tmpDir, dao.getName());
+	FileProxy fileProxy = null;
+	try {
+	    if( isHeader(dao) ) {
+		fileProxy = new HeaderProxy(dao, doc, tmpDir);
+		//return Collections.<ErrorInfo>emptyList();		    
+	    }
+	    else {
+		fileProxy = new SourceProxy(dao, doc, tmpDir);
+	    }
+	} finally {
+	    if( DebugUtils.CLEAN_TMP ) {
+		clean(tmpDir);
+	    }
 	}
 	return fileProxy == null ?   Collections.<ErrorInfo>emptyList() : getErrorsImpl(fileProxy);
     }
@@ -143,13 +155,11 @@ public class ErrorProviderImpl extends ErrorProvider {
             if( DebugUtils.TRACE ) System.err.printf("\n\nRUNNING (cd %s; %s)\n", fileProxy.getCompilerRunDirectory().getAbsolutePath(), command);
             Process compilerProcess = Runtime.getRuntime().exec(command, null, fileProxy.getCompilerRunDirectory());
             InputStream stream = compilerProcess.getErrorStream();
+	    long time = (DebugUtils.TRACE || DebugUtils.TIMING) ? System.currentTimeMillis() : 0L;
             compilerInfo.getParser().parseCompilerOutput(stream, fileProxy.getInterestingFileAbsoluteName(), result);
 //	    result = merge(result);
             stream.close();
-            if( DebugUtils.CLEAN_TMP ) {
-                clean(tmpDir);
-            }
-            if( DebugUtils.TRACE ) System.err.printf("DONE %s\n", command);
+            if( DebugUtils.TRACE || DebugUtils.TIMING ) System.err.printf("DONE (%d ms) %s\n", System.currentTimeMillis()-time, command);
             return result.getResult();
         }
         return Collections.emptyList();

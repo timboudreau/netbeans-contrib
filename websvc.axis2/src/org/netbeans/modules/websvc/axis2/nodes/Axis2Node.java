@@ -41,11 +41,12 @@
 
 package org.netbeans.modules.websvc.axis2.nodes;
 
-import java.awt.Image;
 import javax.swing.Action;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.websvc.axis2.actions.AxisConfigurationAction;
 import org.netbeans.modules.websvc.axis2.actions.DeployAction;
 import org.netbeans.modules.websvc.axis2.actions.ShowServicesAction;
+import org.netbeans.spi.project.ui.support.CommonProjectActions;
 import org.openide.actions.FindAction;
 import org.openide.actions.PasteAction;
 import org.openide.actions.PropertiesAction;
@@ -58,7 +59,7 @@ import org.openide.util.lookup.Lookups;
 
 public class Axis2Node extends AbstractNode {
 
- 
+    private static final String IS_WEB_SERVICE_ROOT = "is_web_service_root"; //NOI18N
     private static final String AXIS_GROUP_ICON = "org/netbeans/modules/websvc/axis2/resources/axis_group_node_16.png"; // NOI18N
         
     public Axis2Node(Project project) {
@@ -66,11 +67,15 @@ public class Axis2Node extends AbstractNode {
         setDisplayName(NbBundle.getBundle(Axis2Node.class).getString("LBL_Axis2"));
         setName("Axis2"); //NOI18N
         setIconBaseWithExtension(AXIS_GROUP_ICON);
+        setValue(IS_WEB_SERVICE_ROOT, Boolean.TRUE);
     }
 
     @Override
     public Action[] getActions(boolean context) {
         return new Action[]{
+            CommonProjectActions.newFileAction(),
+            null,
+            SystemAction.get(AxisConfigurationAction.class),
             SystemAction.get(DeployAction.class),
             SystemAction.get(ShowServicesAction.class),
             null,

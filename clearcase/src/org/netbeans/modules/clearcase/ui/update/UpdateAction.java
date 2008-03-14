@@ -51,13 +51,14 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.*;
+import org.openide.util.NbBundle;
 
 /**
  * Updates selected files/folders in the snapshot view.
  * 
  * @author Maros Sandor
  */
-public class UpdateAction extends AbstractAction implements NotificationListener {
+public class UpdateAction extends AbstractAction {
     
     private final VCSContext context;
 
@@ -87,13 +88,17 @@ public class UpdateAction extends AbstractAction implements NotificationListener
     
     public void actionPerformed(ActionEvent e) {
         Set<File> files = context.computeFiles(updateFileFilter);
-        Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Updating...",
-                new UpdateCommand(files.toArray(new File[files.size()]), this, new OutputWindowNotificationListener())));
+        File[] fileArray = files.toArray(new File[files.size()]);
+        UpdateCommand cmd = 
+                new UpdateCommand(
+                    fileArray, 
+                    new AfterCommandRefreshListener(fileArray), 
+                    new OutputWindowNotificationListener());
+        Clearcase.getInstance().getClient().post(NbBundle.getMessage(UpdateAction.class, "Progress_Updating"),cmd); //NOI18N
     }
 
     public static void update(VCSContext context) {
-        new UpdateAction("", context).actionPerformed(null);
+        new UpdateAction("", context).actionPerformed(null); //NOI18N
     }
     
     private static final FileFilter updateFileFilter = new FileFilter() {
@@ -101,16 +106,4 @@ public class UpdateAction extends AbstractAction implements NotificationListener
             return true;
         }
     };
-
-    public void commandStarted() {
-    }
-
-    public void outputText(String line) {
-    }
-
-    public void errorText(String line) {
-    }
-
-    public void commandFinished() {
-    }
 }

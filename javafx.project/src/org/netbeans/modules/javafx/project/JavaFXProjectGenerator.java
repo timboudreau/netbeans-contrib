@@ -280,7 +280,7 @@ public class JavaFXProjectGenerator {
         ep.setProperty("build.classes.dir", "${build.dir}/classes"); // NOI18N
         ep.setProperty("build.test.classes.dir", "${build.dir}/test/classes"); // NOI18N
         ep.setProperty("build.test.results.dir", "${build.dir}/test/results"); // NOI18N
-        ep.setProperty("build.classes.excludes", "**/*.java,**/*.form"); // NOI18N
+        ep.setProperty("build.classes.excludes", "**/*.java,**/*.form,**/*.fx"); // NOI18N
         ep.setProperty("dist.javadoc.dir", "${dist.dir}/javadoc"); // NOI18N
         ep.setProperty("platform.active", "default_platform"); // NOI18N
 
@@ -291,10 +291,6 @@ public class JavaFXProjectGenerator {
             "# " + NbBundle.getMessage(JavaFXProjectGenerator.class, "COMMENT_run.jvmargs_3"), // NOI18N
         }, false);
 
-        ep.setProperty( JavaFXProjectProperties.MAIN_FX_RUN_CLASS, 
-                JavaFXProjectProperties.FX_RUN_CLASS_NAME);
-        ep.setProperty( JavaFXProjectProperties.MAIN_FX_BUILD_CLASS, 
-                JavaFXProjectProperties.FX_BUILD_CLASS_NAME);
         ep.setProperty(JavaFXProjectProperties.JAVADOC_PRIVATE, "false"); // NOI18N
         ep.setProperty(JavaFXProjectProperties.JAVADOC_NO_TREE, "false"); // NOI18N
         ep.setProperty(JavaFXProjectProperties.JAVADOC_USE, "true"); // NOI18N
@@ -335,7 +331,7 @@ public class JavaFXProjectGenerator {
         }
         
         FileObject mainTemplate = Repository.getDefault().getDefaultFileSystem().
-            findResource( "Templates/JavaFX/JavaFXClass.fx" ); // NOI18N
+            findResource( "Templates/JavaFX/JavaFXEmpty.fx" ); // NOI18N
 
         if ( mainTemplate == null ) {
             return; // Don't know the template

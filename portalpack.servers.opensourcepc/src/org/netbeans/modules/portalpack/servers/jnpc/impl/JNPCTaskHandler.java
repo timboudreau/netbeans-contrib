@@ -275,7 +275,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
              Method m = cacheClazz.getMethod("init",new Class[]{});
              m.invoke(null,null);
         }catch(Exception e){
-            e.printStackTrace();
+            logger.log(Level.WARNING,"Error Updating Cache.",e);
                 //ignore exception incase of class not found.
         }
    }

@@ -69,6 +69,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
+import org.netbeans.modules.java.api.common.ant.UpdateHelper;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
@@ -99,10 +100,8 @@ import org.netbeans.spi.project.support.ant.PropertyUtils;
 import org.netbeans.spi.project.support.ant.ReferenceHelper;
 import org.netbeans.spi.java.project.support.ui.PackageView;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
-import org.netbeans.modules.javafx.project.UpdateHelper;
 import org.netbeans.modules.javafx.project.classpath.JavaFXProjectClassPathExtender;
 import org.netbeans.modules.javafx.project.ui.customizer.AntArtifactChooser;
-import org.netbeans.modules.javafx.project.ui.customizer.JavaFXProjectProperties;
 import org.netbeans.modules.javafx.project.ui.customizer.LibrariesChooser;
 
 

@@ -73,37 +73,42 @@ public class Utils {
     }
         
     /**
-     * Refreshes the status for files and the relevent filesystems
+     * Assynchronously refreshes the status for files and their filesystems. 
+     * Note, that a refresh on the NB filesystem may result in intercepting 
+     * new file events. 
      * 
-     * @param files files to be refreshed
-     * @param includeParents if true all parents for the given files will be refreshed too
+     * @param files files to be refreshed          
+     * @param includeChildren if true all children for the given files will be explicitly refreshed too
      */
-    // XXX maybe this should be somewere in the comand infrastructure
-    public static void afterCommandRefresh(final File[] files, final boolean includeParents, final boolean includeChildren) {    
-        org.netbeans.modules.versioning.util.Utils.post(new Runnable() {
+    public static void afterCommandRefresh(final File[] files, final boolean includeChildren) {          
+        Clearcase.getInstance().getRequestProcessor().post(new Runnable() {
             public void run() {
+                // refreshing the NB filessytem before the cache refresh starts firing change events -> 
+                // otherwise they might cause externally deleted/created warnings
+                Set<File> parents = new HashSet<File>();
+                for (File file : files) {
+                    File parent = file.getParentFile();
+                    if (parent != null) {
+                        parents.add(parent);
+                    }
+                }
+                FileUtil.refreshFor(parents.toArray(new File[parents.size()])); 
+
+                // refresh the cache ...
                 Set<File> refreshSet = new HashSet<File>();
                 for (File file : files) {
-                    if(includeParents) {
-                        File parent = file.getParentFile();
-                        if(parent != null) {
-                            refreshSet.add(parent);
-                        }    
-                    }               
                     if(includeChildren) {
                         refreshSet.addAll(getFileTree(file));    
                     } else {
                         refreshSet.add(file);
                     }
-                    
                 }                        
                 File[] refreshFiles = refreshSet.toArray(new File[refreshSet.size()]);
-                Clearcase.getInstance().getFileStatusCache().refreshLater(refreshFiles);
-                FileUtil.refreshFor(refreshFiles); 
+                Clearcase.getInstance().getFileStatusCache().refreshLater(refreshFiles);                            
             }
-        });        
-    }       
-    
+        });                
+    }
+
     private static List<File> getFileTree(File file) {
         List<File> ret = new  ArrayList<File>();
         ret.add(file);

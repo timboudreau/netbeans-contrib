@@ -29,6 +29,7 @@ import org.netbeans.api.visual.action.PopupMenuProvider;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc.IPCGraphScene;
 import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widgets.CustomPinWidget;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -38,22 +39,36 @@ public class ConsumeEventPinMenuProvider implements PopupMenuProvider, ActionLis
 
     
      private IPCGraphScene scene;
-     private static final String ACTION_GENERATE_SOURCE = "Generate Consume Event Source";
+     private static final String ACTION_GENERATE_SOURCE = "Generate Process Event Source"; //NOI18N
+     private static final String ACTION_REMOVE_PROCESS_EVENT = "Remove_Process_Event"; //NOI18N
+     private static final String ACTION_ADD_ALIAS = "Add_Alias";//NOI18N
      private JPopupMenu menu;
      private CustomPinWidget widget;
      /** Creates a new instance of NodePopUpMenuProvider */
     public ConsumeEventPinMenuProvider(IPCGraphScene scene) {
         this.scene = scene;
-        menu = new JPopupMenu("Popup menu");
+        menu = new JPopupMenu(NbBundle.getMessage(ConsumeEventPinMenuProvider.class, "MENU_POP_UP"));
         JMenuItem item;
 
-        item = new JMenuItem("Generate Consume Event Source");
+        item = new JMenuItem(NbBundle.getMessage(ConsumeEventPinMenuProvider.class, "MENU_GENERATE_CONSUME_EVENT_SOURCE"));
         item.setActionCommand(ACTION_GENERATE_SOURCE);
         item.addActionListener(this);
         item.setBackground(Color.WHITE);
-        //TODO menu.add(item);
+        menu.add(item);
         
-        //menu.setBorder(Border);
+        JMenuItem item2 = new JMenuItem(NbBundle.getMessage(ConsumeEventPinMenuProvider.class, "MENU_ADD_ALIAS"));
+        item2.setActionCommand(ACTION_ADD_ALIAS);
+        item2.addActionListener(this);
+        item2.setBackground(Color.WHITE);
+        menu.add(item2);
+        
+        
+        JMenuItem item1 = new JMenuItem(NbBundle.getMessage(ConsumeEventPinMenuProvider.class, "MENU_REMOVE_PROCESS_EVENT"));
+        item1.setActionCommand(ACTION_REMOVE_PROCESS_EVENT);
+        item1.addActionListener(this);
+        item1.setBackground(Color.WHITE);
+        menu.add(item1);
+        
     }
 
     public JPopupMenu getPopupMenu(Widget widget, Point localLocation) {
@@ -66,7 +81,15 @@ public class ConsumeEventPinMenuProvider implements PopupMenuProvider, ActionLis
     public void actionPerformed(ActionEvent e) {
         if(e.getActionCommand().equals(ACTION_GENERATE_SOURCE)){
             if(widget == null) return;
-            scene.getTaskHandler().generateProcessEventSource(widget.getNodeKey(),widget.getEventName());
+            scene.getTaskHandler().generateProcessEventSource(widget.getNodeKey(),widget.getEvent());
+        }else if(e.getActionCommand().equals(ACTION_REMOVE_PROCESS_EVENT)){
+            
+            if(widget == null) return;          
+                scene.getTaskHandler().removeEventPinFromNode((CustomPinWidget)widget);
+            
+        } else if(e.getActionCommand().equals(ACTION_ADD_ALIAS)){
+            if(widget == null) return;
+            scene.getTaskHandler().addAliasForEvent(widget);
         }
     }
 

@@ -102,5 +102,5 @@ public class CheckinCommand extends FilesCommand {
     public void commandFinished() {
         super.commandFinished();
         if (addMessageFile != null) addMessageFile.delete();
-    }
+    }        
 }

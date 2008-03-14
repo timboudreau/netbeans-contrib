@@ -1,5 +1,5 @@
 build.classes.dir=${build.dir}/classes
-build.classes.excludes=**/*.java,**/*.form
+build.classes.excludes=**/*.java,**/*.form,**/*.fx
 build.classpath=\
     ${javac.classpath}:\
     ${src.dir}:\

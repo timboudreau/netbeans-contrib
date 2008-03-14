@@ -44,14 +44,24 @@ import org.netbeans.modules.versioning.spi.VCSInterceptor;
 import org.netbeans.modules.clearcase.ui.checkout.CheckoutAction;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import org.netbeans.modules.clearcase.client.ClearcaseClient;
+import java.util.logging.Level;
+import org.netbeans.modules.clearcase.client.AfterCommandRefreshListener;
+import org.netbeans.modules.clearcase.client.CheckoutCommand;
+import org.netbeans.modules.clearcase.client.ClearcaseCommand;
 import org.netbeans.modules.clearcase.client.DeleteCommand;
-import org.netbeans.modules.clearcase.client.ExecutionUnit;
+import org.netbeans.modules.clearcase.client.MkElemCommand;
 import org.netbeans.modules.clearcase.client.MoveCommand;
+import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
 import org.netbeans.modules.clearcase.client.UnCheckoutCommand;
 import org.netbeans.modules.clearcase.client.status.FileEntry;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
+import org.netbeans.modules.versioning.util.Utils;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.util.NbBundle;
 
 /**
  * Listens on file system changes and reacts appropriately, mainly refreshing affected files' status.
@@ -88,61 +98,52 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     @Override
     public void afterDelete(final File file) {
         Clearcase.LOG.finer("afterDelete " + file);
-        cache.refreshLater(file); 
     }
 
-    private void checkout(File parent) {
-        // check if not already checkedout
-        FileEntry entry = ClearcaseUtils.readEntry(parent);                
-        if (!entry.isCheckedout()) {
-            CheckoutAction.checkout(parent);
+    private void deleteFile(File file) {
+        File parent = file.getParentFile();
+        
+        // 1. checkout parent if needed
+        ensureMutable(parent);
+
+        // 2. uncheckout - even if the delete is invoked with the --force switch
+        // ct rm on a file which was checkedout causes that after ct unco on its parent
+        // it becomes [checkedout but removed]. This actually is not what we want.
+        FileEntry entry = ClearcaseUtils.readEntry(file);
+        if (entry != null && entry.isCheckedout()) {
+            exec(new UnCheckoutCommand(new File[]{ file }, false),false);
+        }
+
+        // 3. remove the file
+        exec(new DeleteCommand(new File[]{ file }),false);
+                
+        // the file stays on the filessytem if it was checkedout eventually
+        if (file.exists()) {
+            file.delete();
         }        
+        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(new File[] { file }, false);
     }
     
-    private void fileDeletedImpl(File file) {
-        // TODO clean up
-        
+    private void fileDeletedImpl(File file) {       
         File parent = file.getParentFile();
         if(parent == null) {
             // how is this possible ?
             return;
-        }
-                        
-        // XXX use execution unit
+        }                        
         if(Clearcase.getInstance().isManaged(parent)) {
-            // 1. checkout parent if needed
-            checkout(parent);
-             
-            // 2. uncheckout - even if the delete is invoked with the --force switch
-            // ct rm on a file which was checkedout causes that after ct unco on its parent 
-            // it becomes [checkedout but removed]. This actually is not what we want.
-            FileEntry entry = ClearcaseUtils.readEntry(file);
-            if(entry != null &&  entry.isCheckedout()) {
-                ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Undoing checkout...", new UnCheckoutCommand(new File [] { file }, false)));
-                cr.waitFinished();
-            }      
-                    
-            // 3. remove the file
-            ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Deleting ...", new DeleteCommand(new File [] { file })));
-            cr.waitFinished();
-            
-            // the file stays on the filessytem if it was checkedout eventually
-            if(file.exists()) {
-                file.delete();
-            }                        
-            
-        } else {
-            // XXX what if VOB root ???
+            deleteFile(file);            
         }                                 
     }    
 
     @Override
     public boolean beforeMove(File from, File to) {
         Clearcase.LOG.finer("beforeMove " + from + " " + to);
-
-        // let the IDE take care for move of unversioned files
+        if(!Clearcase.getInstance().isManaged(from)) {
+            // let the IDE take care for move of unversioned files
+            return false;
+        }
+        
+        // let the IDE take care for view private files - they are defacto unversioned
         FileEntry entry = ClearcaseUtils.readEntry(from);
         return entry != null && !entry.isViewPrivate();
     }
@@ -156,13 +157,9 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     @Override
     public void afterMove(final File from, final File to) {
         Clearcase.LOG.finer("afterMove " + from + " " + to);
-        cache.refreshLater(from);
-        cache.refreshLater(to);
     }
 
-    private void fileMovedImpl(File from, File to) {
-        // TODO clean up
-        
+    private void fileMovedImpl(File from, File to) {        
         File fromParent = from.getParentFile();
         File toParent = to.getParentFile();
         if(fromParent == null || toParent == null) {
@@ -170,35 +167,63 @@ public class ClearcaseInterceptor extends VCSInterceptor {
             return;
         }
                 
-        if(Clearcase.getInstance().isManaged(fromParent) && Clearcase.getInstance().isManaged(toParent)) {
-            // 1. checkout parents if needed
-            checkout(fromParent);
-            if(!fromParent.equals(toParent)){
-                checkout(toParent);
-            }
+        if(Clearcase.getInstance().isManaged(from) && Clearcase.getInstance().isManaged(to)) {
             
-            // 2. move the file
-            ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Moving ...", new MoveCommand(from, to)));
-            cr.waitFinished();            
-        } else {
-            // XXX what if VOB root ???
-            // XXX or whatever else ???
-        }                                 
+            FileEntry fromEntry = ClearcaseUtils.readEntry(from);                
+            
+            if(fromEntry.isViewPrivate()) { // XXX HIJACKED?
+                // 'from' is not versioned yet - let's just rename it
+                from.renameTo(to);
+            } else {
+                
+                // 1. checkout parents if needed                
+                ensureMutable(fromParent);                
+                FileEntry toParentEntry = ClearcaseUtils.readEntry(toParent);                
+                if (toParentEntry.isViewPrivate()) {
+                    // 'from' is versioned, 'to'-s parent isn't. 
+                    // we have to add it to source control
+                    exec(new MkElemCommand(new File[] { toParent }, null, MkElemCommand.Checkout.Default, false),false);                                        
+                } else {
+                    if(!fromParent.equals(toParent)) {
+                        ensureMutable(toParent, toParentEntry);
+                    }    
+                }
+            
+                // 2. move the file
+                exec(new MoveCommand(from, to),false);               
+                
+            }    
+        } else if (!Clearcase.getInstance().isManaged(from)) {
+            // 'from' is not versioned yet - let's just rename it
+            from.renameTo(to);                            
+        } else { // !Clearcase.getInstance().isManaged(to)
+            FileEntry fromEntry = ClearcaseUtils.readEntry(fromParent);                
+            if (fromEntry.isViewPrivate()) {
+                // 'from' is not versiomed yet - let's just rename it
+                from.renameTo(to);                                            
+            } else {
+                try {
+                    // 1. checkout parents if needed
+                    Utils.copyStreamsCloseAll(new FileOutputStream(to), new FileInputStream(from));
+                } catch (IOException ex) {
+                    Clearcase.LOG.log(Level.SEVERE, null, ex);
+                }
+                deleteFile(from);
+            }
+        }            
+        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(new File[] { from, to }, true);
     }
     
     @Override
     public boolean beforeCreate(File file, boolean isDirectory) {
-        Clearcase.LOG.finer("beforeCreate " + file);
-        
-        return super.beforeCreate(file, isDirectory);
+        Clearcase.LOG.finer("beforeCreate " + file);        
+        return false;
     }
 
     @Override
     public void doCreate(File file, boolean isDirectory) throws IOException {
-        Clearcase.LOG.finer("doCreate " + file);        
-        
-        super.doCreate(file, isDirectory);
+        Clearcase.LOG.finer("doCreate " + file);                
+        // do nothing
     }
 
     @Override
@@ -209,8 +234,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     
     @Override
     public void afterChange(final File file) {
-        Clearcase.LOG.finer("afterChange " + file);
-        
+        Clearcase.LOG.finer("afterChange " + file);        
         Clearcase.getInstance().getRequestProcessor().post(new Runnable() {
             public void run() {
                 fileChangedImpl(file);
@@ -225,8 +249,71 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     @Override
     public void beforeEdit(File file) {
         Clearcase.LOG.finer("beforeEdit " + file);        
-        if(!file.canWrite()) { // XXX HACK             
-            CheckoutAction.checkout(file);   
+        ensureMutable(file);   
+    }    
+    
+    private void exec(ClearcaseCommand command, boolean notifyErrors) {        
+        Clearcase.getInstance().getClient().exec(command, notifyErrors);
+    }
+    
+/**
+     * Checks out the file or directory depending on the user-selected strategy in Options.
+     * In case the file is already writable or the directory is checked out, the method does nothing.
+     * Interceptor entry point.
+     * 
+     * @param file file to checkout
+     * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
+     */
+    public void ensureMutable(File file) {
+        ensureMutable(file, null);
+    }   
+    
+    /**
+     * Checks out the file or directory depending on the user-selected strategy in Options.
+     * In case the file is already writable or the directory is checked out, the method does nothing.
+     * Interceptor entry point.
+     * 
+     * @param file file to checkout
+     * @param entry the given files {@link FileEntry}
+     * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
+     */
+    public void ensureMutable(File file, FileEntry entry) {
+        if (file.isDirectory()) {
+            if(entry == null) {
+                entry = ClearcaseUtils.readEntry(file);                
+            }
+            if (entry == null || entry.isCheckedout() || entry.isViewPrivate()) {
+                return;
+            }
+        } else {
+            if (file.canWrite()) return;
+        }
+
+        ClearcaseModuleConfig.OnDemandCheckout odc = ClearcaseModuleConfig.getOnDemandCheckout();
+
+        CheckoutCommand command;
+        switch (odc) {
+        case Disabled:
+            // XXX let the user decide if he want's to checkout the file
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message(NbBundle.getMessage(ClearcaseInterceptor.class, "Interceptor_NoOnDemandCheckouts_Warning"))); //NOI18N
+            return;
+        case Reserved:
+        case ReservedWithFallback:
+            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Reserved, true, new AfterCommandRefreshListener(file));
+            break;
+        case Unreserved:
+            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, new AfterCommandRefreshListener(file));
+            break;
+        default:
+            throw new IllegalStateException("Illegal Checkout type: " + odc);
+        }
+        
+        exec(command, odc != ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback);
+        
+        if (command.hasFailed() && odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback) {
+            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, 
+                                          new OutputWindowNotificationListener(), new AfterCommandRefreshListener(file));
+            exec(command, true);
         }
     }    
 }

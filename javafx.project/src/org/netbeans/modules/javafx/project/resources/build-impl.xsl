@@ -492,7 +492,7 @@ is divided into following sections:
                     <xsl:attribute name="uri">http://www.netbeans.org/ns/javafx-project/3</xsl:attribute>
                     <attribute>
                         <xsl:attribute name="name">classname</xsl:attribute>
-                        <xsl:attribute name="default">${main.fx.class}</xsl:attribute>
+                        <xsl:attribute name="default">${main.class}</xsl:attribute>
                     </attribute>
                     <attribute>
                         <xsl:attribute name="name">classpath</xsl:attribute>
@@ -531,7 +531,7 @@ is divided into following sections:
                     <xsl:attribute name="uri">http://www.netbeans.org/ns/javafx-project/1</xsl:attribute>
                     <attribute>
                         <xsl:attribute name="name">classname</xsl:attribute>
-                        <xsl:attribute name="default">${main.fx.class}</xsl:attribute>
+                        <xsl:attribute name="default">${main.class}</xsl:attribute>
                     </attribute>
                     <element>
                         <xsl:attribute name="name">customize</xsl:attribute>
@@ -546,6 +546,7 @@ is divided into following sections:
                             <arg line="${{main.class}}"/>
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
+                                <!--path path="${{run.classpath}}:${{libs.JavaFXUserLib.classpath}}"/-->
                                 <path path="${{run.classpath}}"/>
                             </classpath>
                             <syspropertyset>
@@ -569,10 +570,6 @@ is divided into following sections:
                                 <xsl:with-param name="roots" select="/p:project/p:configuration/javafxproject3:data/javafxproject3:source-roots"/>
                             </xsl:call-template>
                         </xsl:attribute>
-                    </attribute>
-                    <attribute>
-                        <xsl:attribute name="name">classname</xsl:attribute>
-                        <xsl:attribute name="default">${FXBuild.class}</xsl:attribute>
                     </attribute>
                     <element>
                         <xsl:attribute name="name">customize</xsl:attribute>
@@ -643,18 +640,39 @@ is divided into following sections:
                 <copy todir="${{build.classes.dir}}">
                     <xsl:call-template name="createFilesets">
                         <xsl:with-param name="roots" select="/p:project/p:configuration/javafxproject3:data/javafxproject3:source-roots"/>
+                        <!-- XXX should perhaps use ${includes} and ${excludes} -->
                         <xsl:with-param name="excludes">${build.classes.excludes}</xsl:with-param>
                     </xsl:call-template>
                 </copy>
             </target>
-            
+            <target name="-compile-fx">
+                <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask" classpath="${{libs.JavaFXUserLib.classpath}}">
+                    <classpath>
+                            <xsl:element name="pathelement">
+                                <xsl:attribute name="location">${build.classes.dir}</xsl:attribute>
+                            </xsl:element>
+                            <xsl:element name="pathelement">
+                                <xsl:attribute name="location">${javac.classpath}</xsl:attribute>
+                            </xsl:element>
+                    </classpath>
+                </taskdef>
+        
+                <javafxc debug="${{javac.debug}}" deprecation="${{javac.deprecation}}"
+                         destdir="${{build.classes.dir}}"
+                         excludes="${{excludes}}" includeantruntime="false"
+                         includes="**/*.fx" source="${{javac.source}}" sourcepath=""
+                         srcdir="${{src.dir}}" target="${{javac.target}}"
+                         classpath="${{build.classes.dir}}:${{javac.classpath}}:${{libs.JavaFXUserLib.classpath}}"
+                         compilerclasspath="${{build.classes.dir}}:${{javac.classpath}}:${{libs.JavaFXUserLib.classpath}}"/>
+            </target>
+
             <target name="-post-compile">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
                 <xsl:comment> You can override this target in the ../build.xml file. </xsl:comment>
             </target>
             
             <target name="compile">
-                <xsl:attribute name="depends">init,deps-jar,-pre-pre-compile,-pre-compile,-do-compile,-post-compile</xsl:attribute>
+                <xsl:attribute name="depends">init,deps-jar,-pre-pre-compile,-pre-compile,-do-compile,-post-compile,-compile-fx</xsl:attribute>
                 <xsl:attribute name="description">Compile project.</xsl:attribute>
             </target>
             
@@ -715,7 +733,7 @@ is divided into following sections:
                 <xsl:attribute name="unless">manifest.available+main.class+mkdist.available</xsl:attribute>
                 <javafxproject1:jar manifest="${{manifest.file}}">
                     <javafxproject1:manifest>
-                        <javafxproject1:attribute name="Main-Class" value="${{main.fx.class}}"/>
+                        <javafxproject1:attribute name="Main-Class" value="${{main.class}}"/>
                     </javafxproject1:manifest>
                 </javafxproject1:jar>
                 <echo>To run this application from the command line without Ant, try:</echo>
@@ -751,7 +769,7 @@ is divided into following sections:
                 <copylibs manifest="${{manifest.file}}" runtimeclasspath="${{run.classpath.without.build.classes.dir}}" jarfile="${{dist.jar}}" compress="${{jar.compress}}">
                     <fileset dir="${{build.classes.dir}}"/>
                     <manifest>
-                        <attribute name="Main-Class" value="${{main.fx.class}}"/>
+                        <attribute name="Main-Class" value="${{main.class}}"/>
                         <attribute name="Class-Path" value="${{jar.classpath}}"/>
                     </manifest>
                 </copylibs>                                
@@ -788,11 +806,6 @@ is divided into following sections:
             <target name="jar">
                 <xsl:attribute name="depends">init,compile,-pre-jar,-do-jar-with-manifest,-do-jar-without-manifest,-do-jar-with-mainclass,-do-jar-with-libraries,-post-jar</xsl:attribute>
                 <xsl:attribute name="description">Build.</xsl:attribute>
-                <javafxproject1:java-build>
-                    <customize>
-                        <arg line="${{application.args}}"/>
-                    </customize>
-                </javafxproject1:java-build>
             </target>
             
             <target name="run-single">

@@ -42,6 +42,7 @@ package org.netbeans.modules.clearcase;
 
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.clearcase.client.*;
+import org.openide.util.NbBundle;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +56,7 @@ public class VersionsCache implements NotificationListener {
     
     private static final VersionsCache instance = new VersionsCache();
 
-    public static final String REVISION_BASE = "BASE";
+    public static final String REVISION_BASE = "BASE"; //NOI18N
     
     public static final String REVISION_CURRENT = "LOCAL"; // NOI18N
     
@@ -81,14 +82,13 @@ public class VersionsCache implements NotificationListener {
         }
         String revisionSpec = ClearcaseUtils.getExtendedName(workingCopy, revision);  
                 
-        File tempFile = File.createTempFile("nbclearcase-", "get");
-        tempFile.delete();
-        ClearcaseClient.CommandRunnable cr =Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Getting Clearcased File...",
-                new GetCommand(tempFile, revisionSpec, this)));
-        cr.waitFinished();
+        File tempFile = File.createTempFile("nbclearcase-", "get"); //NOI18N
+        tempFile.delete();        
+        
+        GetCommand cmd = new GetCommand(tempFile, revisionSpec, this);        
+        Clearcase.getInstance().getClient().post(NbBundle.getMessage(VersionsCache.class, "Progress_Getting_Clearcased_File"), cmd).waitFinished(); //NOI18N
         tempFile.deleteOnExit();
-        if (cr.getFailedCommand() == null && tempFile.isFile()) return tempFile;
+        if (!cmd.hasFailed() && tempFile.isFile()) return tempFile;
         return null;
     }
 

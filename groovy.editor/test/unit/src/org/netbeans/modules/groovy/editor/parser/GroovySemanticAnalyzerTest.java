@@ -42,11 +42,16 @@
 package org.netbeans.modules.groovy.editor.parser;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.netbeans.modules.groovy.editor.test.GroovyTestBase;
 import org.openide.filesystems.FileObject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.text.Document;
+import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -65,117 +70,56 @@ public class GroovySemanticAnalyzerTest extends GroovyTestBase {
         Logger.getLogger(org.netbeans.modules.groovy.editor.AstUtilities.class.getName()).setLevel(Level.FINEST);
     }
     
-        // uncomment this to have logging from GroovyLexer
-    protected Level logLevel() {
-        // enabling logging
-        return Level.INFO;
-        // we are only interested in a single logger, so we set its level in setUp(),
-        // as returning Level.FINEST here would log from all loggers
+    // uncomment this to have logging
+//    protected Level logLevel() {
+//        // enabling logging
+//        return Level.INFO;
+//        // we are only interested in a single logger, so we set its level in setUp(),
+//        // as returning Level.FINEST here would log from all loggers
+//    }
+
+    private String annotate(Document doc, Map<OffsetRange, ColoringAttributes> highlights) throws Exception {
+        StringBuilder sb = new StringBuilder();
+        String text = doc.getText(0, doc.getLength());
+        Map<Integer, OffsetRange> starts = new HashMap<Integer, OffsetRange>(100);
+        Map<Integer, OffsetRange> ends = new HashMap<Integer, OffsetRange>(100);
+        for (OffsetRange range : highlights.keySet()) {
+            starts.put(range.getStart(), range);
+            ends.put(range.getEnd(), range);
+        }
+
+        for (int i = 0; i < text.length(); i++) {
+            if (starts.containsKey(i)) {
+                sb.append("|>");
+                OffsetRange range = starts.get(i);
+                ColoringAttributes ca = highlights.get(range);
+                if (ca != null) {
+                    sb.append(ca.name());
+                    sb.append(':');
+                }
+            }
+            if (ends.containsKey(i)) {
+                sb.append("<|");
+            }
+            sb.append(text.charAt(i));
+        }
+
+        return sb.toString();
     }
 
-    
-    private void parseFile(FileObject file) throws IOException {
-        CompilationInfo info = getInfo(file);
+    private void checkSemantic(String relFilePath) throws Exception {
         GroovySemanticAnalyzer analyzer = new GroovySemanticAnalyzer();
+        CompilationInfo info = getInfo(relFilePath);
         analyzer.run(info);
+        Map<OffsetRange, ColoringAttributes> highlights = analyzer.getHighlights();
+
+        String annotatedSource = annotate(info.getDocument(), highlights);
+
+        assertDescriptionMatches(relFilePath, annotatedSource, false, ".semantic");
     }
 
-    public void testCombinedTest() throws IOException {
-        
-        String str =    "class DemoClass {\n" +
-                        "\tint field1 = 1\n" +
-                        "\n" +
-                        "DemoClass(int inputval){\n" +
-                        "\tfield1 = inputval\n" +
-                        "}\n" +
-                        "static void main(args) {\n" +
-                        "\tString s = 'aaa'\n" +
-                        "\tprintln 'Hello, world'\n" +
-                        "}\n" +
-                        "void dynamicmethod() {\n" +
-                        "\tfield1 = 2\n" +
-                        "\tthis.field1 = 77\n" +
-                        "}\n" +
-                        "}";
-        
-        // un-comment the line below to have cut'n'pastable 
-        // testcases for the groovy-editor
-        // System.out.println(str);
-        copyStringToFileObject(testFO, str);
-        parseFile(testFO);
+    public void testAnalysis() throws Exception {
+        checkSemantic("testfiles/Hello.groovy");
     }
-    
-    public void testPropertyExpression() throws IOException {
-        
-        String str =    "class TestClass {\n" +
-                        "\tpublic int pField = 1\n" +
-                        "}\n" +
-                        "TestClass tc = new TestClass()\n" +
-                        "tc.pField = 9\n" +
-                        "\n";
-        
-        // un-comment the line below to have cut'n'pastable 
-        // testcases for the groovy-editor
-        // System.out.println(str);
-        copyStringToFileObject(testFO, str);
-        parseFile(testFO);
-    }
-    
-        public void testConstructorAnnotation() throws IOException {
-        
-        String str =    "class TestClass {\n" +
-                        "\tint field1 = 1;\n" +
-                        "\n" +
-                        "\tTestClass (int f) {\n" +
-                        "\tfield1 = f;\n" +
-                        "\t}\n" +
-                        "}\n" +
-                        "println \"End.\"\n";
-        
-        // un-comment the line below to have cut'n'pastable 
-        // testcases for the groovy-editor
-        // System.out.println(str);
-        copyStringToFileObject(testFO, str);
-        parseFile(testFO);
-        
-        // mark this below "false" to deliberately fail the test and 
-        // thereby enabling the logging from the SemanticAnalyzer
-        assertTrue(true);
-    }
-
-        public void testClassNode() throws IOException {
-        
-        String str =    "class TestClass {\n" +
-                        "\tint field1 = 1;\n" +
-                        "\n" +
-                        "\tTestClass (int f) {\n" +
-                        "\t}\n" +
-                        "}\n" +
-                        "  class  SecondTestClass {\n" +
-                        "\n" +
-                        "\nSecondTestClass (int f) {\n" +
-                        "\t}\n" +
-                        "\nSecondTestClass (String str) {\n" +
-                        "\t}\n" +
-                        "}\n" +
-                        "   class   ThirdTestClass {\n" +
-                        "\n" +
-                        "\nThirdTestClass (int f) {\n" +
-                        "\t}\n" +
-                        "\nThirdTestClass (String str) {\n" +
-                        "\t}\n" +
-                        "}\n" +
-                        "println \"End.\"\n";
-        
-        // un-comment the line below to have cut'n'pastable 
-        // testcases for the groovy-editor
-        // System.out.println(str);
-        copyStringToFileObject(testFO, str);
-        parseFile(testFO);
-        
-        // mark this below "false" to deliberately fail the test and 
-        // thereby enabling the logging from the SemanticAnalyzer
-        assertTrue(true);
-    }        
     
 }

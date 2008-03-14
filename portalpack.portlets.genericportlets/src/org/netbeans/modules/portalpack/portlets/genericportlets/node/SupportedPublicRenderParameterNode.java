@@ -36,14 +36,14 @@ public class SupportedPublicRenderParameterNode extends AbstractNode{
     private PortletType portletType;
     private String publicrenderParameterName;
     private String id;
-    private static final String IMAGE_ICON_BASE = "org/netbeans/modules/portalpack/portlets/genericportlets/resources/renderparameter.PNG";
+    private static final String IMAGE_ICON_BASE = "org/netbeans/modules/portalpack/portlets/genericportlets/resources/renderparameter.PNG"; //NOI18N
     
     public SupportedPublicRenderParameterNode(PortletXMLDataObject dobj,PortletType portletType,String publicRenderParameter) {
         super(Children.LEAF);
         this.dobj = dobj;
         this.portletType = portletType;
         this.publicrenderParameterName = publicRenderParameter;
-        id = dobj.getApplicationName()+"."+portletType.getPortletName()+":" + publicRenderParameter + "_publicrenderparameter";
+        id = dobj.getApplicationName()+"."+portletType.getPortletName()+":" + publicRenderParameter + "_publicrenderparameter"; //NOI18N
         setIconBaseWithExtension(IMAGE_ICON_BASE);
     }
     
@@ -55,7 +55,7 @@ public class SupportedPublicRenderParameterNode extends AbstractNode{
 
     @Override
     public String getName() {
-        return publicrenderParameterName + "_supportedPublicRenderParameter";
+        return publicrenderParameterName + "_supportedPublicRenderParameter"; //NOI18N
     }
     
     public String getPortletName()

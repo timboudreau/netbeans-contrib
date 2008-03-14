@@ -90,8 +90,6 @@ public class ListStatus extends ExecutionUnit {
      * @param directory Sets the --directory switch for the cleartool commands
      */
     public ListStatus(File file, boolean directory) {        
-        super(""); // XXX need a name?
-        
         this.file = file;
         this.directory = directory;
         
@@ -202,14 +200,10 @@ public class ListStatus extends ExecutionUnit {
                     return null; 
                 }
             } catch (Exception e) {
-                Clearcase.LOG.log(Level.SEVERE, "Error while parsing[" + outputLine + "]", e);                
+                Clearcase.LOG.log(Level.SEVERE, "Error while parsing [" + outputLine + "]", e);                
             }                    
             return null;
-        }    
-        
-        public String toString() {
-            return "ls -long " + file.getAbsolutePath();
-        }        
+        }           
     }
     
     private class LSCOCommand extends ClearcaseCommand {            
@@ -252,13 +246,8 @@ public class ListStatus extends ExecutionUnit {
                             user));
                 }               
             } catch (Exception e) {
-                Clearcase.LOG.log(Level.SEVERE, "Error while parsing[" + outputLine + "]", e);                
+                Clearcase.LOG.log(Level.SEVERE, "Error while parsing [" + outputLine + "]", e);                
             }        
-        }
-    
-        @Override
-        public String toString() {
-            return "lsco " + file.getAbsolutePath();
         }
     }
     

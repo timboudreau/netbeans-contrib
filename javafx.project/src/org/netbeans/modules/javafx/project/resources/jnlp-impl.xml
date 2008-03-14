@@ -47,8 +47,8 @@ made subject to such option by the copyright holder.
     <property name="launch.jnlp.file" value="launch.jnlp"/>
     <property name="jnlp.dest.dir" location="dist"/>
     
-    <!-- helper file to create list of arguments -->
-    <property name="args.file" location="args.txt"/>
+    <!-- helper file to create list of arguments, etc. -->
+    <property name="helper.file" location="helper.txt"/>
     
     <target name="default">
         <echo message="Default target is not set."/>
@@ -67,7 +67,7 @@ made subject to such option by the copyright holder.
         <available file="${master.jnlp.file}" property="master.jnlp.exists"/>
     </target>
     <target name="jnlp-init-generate-master" depends="-check-for-master.jnlp" unless="master.jnlp.exists">
-        <echo file="${master.jnlp.file}"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+        <echo file="${master.jnlp.file}" encoding="UTF-8"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+" codebase="$${jnlp.codebase}" href="launch.jnlp">
     <information>
         <title>$${APPLICATION.TITLE}</title>
@@ -82,11 +82,9 @@ made subject to such option by the copyright holder.
     <resources>
 <!--$${JNLP.RESOURCES.RUNTIME}-->
 <!--$${JNLP.RESOURCES.MAIN.JAR}-->
-<!--$${JNLP.RESOURCES.FX.MAIN.JAR}-->
 <!--$${JNLP.RESOURCES.JARS}-->
     </resources>
     <application-desc main-class="$${jnlp.main.class}">
-<!--$${JNLP.APPLICATION.MAIN.CLASS.ARG}-->
 <!--$${JNLP.APPLICATION.ARGS}-->
     </application-desc>
 </jnlp>
@@ -194,7 +192,14 @@ made subject to such option by the copyright holder.
         </condition>
     </target>
     <target name="-jnlp-init-keystore" depends="-jnlp-init-keystore-props,-check-keystore-exists" unless="jnlp.signjar.keystore.exists">
-        <property name="jnlp.signjar.vendor" value="CN=${application.vendor}"/>
+        <echo message="${application.vendor}" file="${helper.file}"/>
+        <loadfile property="application.vendor.filtered" srcfile="${helper.file}">
+            <filterchain>
+                <deletecharacters chars=","/>
+            </filterchain>
+        </loadfile>
+        <delete file="${helper.file}"/>
+        <property name="jnlp.signjar.vendor" value="CN=${application.vendor.filtered}"/>
         <echo message="Going to create default keystore in ${jnlp.signjar.keystore}"/>
         <genkey dname="${jnlp.signjar.vendor}" alias="${jnlp.signjar.alias}" keystore="${jnlp.signjar.keystore}"
             storepass="${jnlp.signjar.storepass}" keypass="${jnlp.signjar.keypass}"/>
@@ -212,7 +217,7 @@ made subject to such option by the copyright holder.
     <!-- Generating JNLP file -->
     
     <target name="generate-jnlp" depends="jnlp-init-generate-master,-init-codebase,-init-resources-runtime,-init-security,-init-resources-jars,-init-application-args,-init-icons,-init-offline,-init-descriptions,jnlp-init-notinited">
-        <copy file="master.jnlp" tofile="${jnlp.dest.dir}/${launch.jnlp.file}__" overwrite="true">
+        <copy file="${master.jnlp.file}" tofile="${jnlp.dest.dir}/${launch.jnlp.file}__" overwrite="true" encoding="UTF-8">
             <filterchain>
                 <replacestring from="$${jnlp.codebase}" to="${jnlp.codebase.value}"/>
                 <replacestring from="&lt;!--$${JNLP.ICONS}--&gt;" to="${jnlp.icons.value}"/>
@@ -220,16 +225,14 @@ made subject to such option by the copyright holder.
                 <replacestring from="&lt;!--$${JNLP.OFFLINE.ALLOWED}--&gt;" to="${jnlp.offline.allowed.value}"/>
                 <replacestring from="&lt;!--$${JNLP.RESOURCES.RUNTIME}--&gt;" to="${jnlp.resources.runtime.value}"/>
                 <replacestring from="&lt;!--$${JNLP.RESOURCES.MAIN.JAR}--&gt;" to="${jnlp.resources.main.jar.value}"/>
-                <replacestring from="&lt;!--$${JNLP.RESOURCES.FX.MAIN.JAR}--&gt;" to='        &lt;jar href="${jnlp.fx.main.jar.value}" main="true" download="eager" /&gt;'/>
                 <replacestring from="&lt;!--$${JNLP.RESOURCES.JARS}--&gt;" to="${jnlp.resources.jars.value}"/>
-                <replacestring from="&lt;!--$${JNLP.APPLICATION.MAIN.CLASS.ARG}--&gt;" to="        &lt;argument&gt;${main.class}&lt;/argument&gt;"/>
                 <replacestring from="&lt;!--$${JNLP.APPLICATION.ARGS}--&gt;" to="${jnlp.application.args.value}"/>
                 <replacestring from="$${APPLICATION.TITLE}" to="${application.title}"/>
                 <replacestring from="$${APPLICATION.VENDOR}" to="${application.vendor}"/>
                 <replacestring from="$${APPLICATION.DESC}" to="${application.desc.value}"/>
                 <replacestring from="$${APPLICATION.DESC.SHORT}" to="${application.desc.short.value}"/>
                 <replacestring from="$${APPLICATION.HOMEPAGE}" to="${application.homepage}"/>
-                <replacestring from="$${jnlp.main.class}" to="${main.fx.class}"/>
+                <replacestring from="$${jnlp.main.class}" to="${main.class}"/>
             </filterchain>
         </copy>
         <antcall target="-strip-empty-lines"/>
@@ -242,7 +245,7 @@ made subject to such option by the copyright holder.
         <property name="jnlp.application.args.value" value=""/>
     </target>
     <target name="-strip-empty-lines">
-        <move file="${jnlp.dest.dir}/${launch.jnlp.file}__" tofile="${jnlp.dest.dir}/${launch.jnlp.file}" overwrite="true">
+        <move file="${jnlp.dest.dir}/${launch.jnlp.file}__" tofile="${jnlp.dest.dir}/${launch.jnlp.file}" overwrite="true" encoding="UTF-8">
             <filterchain>
                 <linecontainsregexp>
                     <regexp pattern=".+"/>
@@ -320,7 +323,7 @@ made subject to such option by the copyright holder.
         </condition>
     </target>
     <target name="-init-run-jvmargs-value" if="run.jvmargs.set">
-        <property name="run.jvmargs.value" value=' java-wm-args="${run.jvmargs}"'/>
+        <property name="run.jvmargs.value" value=' java-vm-args="${run.jvmargs}"'/>
     </target>
     <target name="-init-initial-heap-size-value" if="jnlp.initial-heap-size.set">
         <property name="initial-heap-size.value" value=' initial-heap-size="${jnlp.initial-heap-size}"'/>
@@ -332,9 +335,9 @@ made subject to such option by the copyright holder.
     <!-- JAR resources -->
     
     <target name="-init-resources-jars" depends="-preinit-resources-unsigned-jars,-preinit-resources-signed-jars,-preinit-resources-main-jar,-pack200-jars"/>
-    <target name="-preinit-resources-unsigned-jars" depends="-exclude-javaws-from-cp,-exclude-javafxrt-from-cp,-check-signing-possible" unless="jnlp.signed.true+signjarstask.available">
+    <target name="-preinit-resources-unsigned-jars" depends="-exclude-javaws-from-cp,-check-signing-possible" unless="jnlp.signed.true+signjarstask.available">
         <pathconvert pathsep="${line.separator}" property="jnlp.resources.jars.value">
-            <path path="${run.classpath.without.javafxrt.jar}"/>
+            <path path="${run.classpath.without.javaws.jar}"/>
             <mapper type="regexp" from="^.*[/\\]([^/\\]+\.jar)"
                 to='        &lt;jar href="lib/\1" download="eager"/&gt;'/>
         </pathconvert>
@@ -343,7 +346,7 @@ made subject to such option by the copyright holder.
         <pathconvert pathsep="${line.separator}" property="jnlp.resources.main.jar.value">
             <path location="${dist.jar}"/>
             <mapper type="regexp" from="^.*[/\\]([^/\\]+\.jar)"
-                to='        &lt;jar href="\1" download="eager"/&gt;'/>
+                to='        &lt;jar href="\1" main="true" download="eager"/&gt;'/>
         </pathconvert>
     </target>
     <target name="-exclude-javaws-from-cp">
@@ -356,17 +359,6 @@ made subject to such option by the copyright holder.
             <map from="${path.element.to.be.removed}" to=""/>
         </pathconvert>
     </target>
-    <target name="-exclude-javafxrt-from-cp">
-        <pathconvert property="path.element.to.be.removed2">
-            <path path="${run.classpath.without.javaws.jar}"/>
-            <mapper type="regexp" from="(^.*[/\\]javafxrt.jar)" to="\1"/>
-        </pathconvert>
-        <pathconvert property="run.classpath.without.javafxrt.jar">
-            <path path="${run.classpath.without.javaws.jar}"/>
-            <map from="${path.element.to.be.removed2}" to=""/>
-        </pathconvert>
-    </target>
-
     <target name="-check-task-available">
         <condition property="signjarstask.available">
             <isset property="netbeans.home"/>
@@ -386,24 +378,16 @@ made subject to such option by the copyright holder.
     <target name="-preinit-resources-signed-jars" depends="-unavailable-task-warning,-sign-jars" if="jnlp.signed.true+signjarstask.available">
         <property name="jnlp.resources.jars.value" value="${jnlp.signed.jars}${jnlp.components}"/>
     </target>
-    <target name="-sign-jars" depends="-repack-pack200-jars,-jnlp-init-keystore,-check-signing-possible" if="jnlp.signed.true+signjarstask.available">
+    <target name="-sign-jars" depends="-repack-pack200-jars, -jnlp-init-keystore,-check-signing-possible" if="jnlp.signed.true+signjarstask.available">
         <jnlpsignjars keystore="${jnlp.signjar.keystore}" storepass="${jnlp.signjar.storepass}" 
                 keypass="${jnlp.signjar.keypass}" alias="${jnlp.signjar.alias}" mainjar="${dist.jar}" destdir="dist"
                 codebase="${jnlp.codebase.value}" signedjarsprop="jnlp.signed.jars"
                 componentsprop="jnlp.components">
             <fileset dir="dist/lib">
                 <include name="*.jar"/>
-                <exclude name="javafxrt.jar"/>
             </fileset>
         </jnlpsignjars>
-        <!-- Sign excluded javafxrt.jar -->
-        <jnlpsignjars keystore="${jnlp.signjar.keystore}" storepass="${jnlp.signjar.storepass}" 
-                keypass="${jnlp.signjar.keypass}" alias="${jnlp.signjar.alias}" mainjar="${dist.dir}/${jnlp.fx.main.jar.value}" destdir="dist"
-                codebase="${jnlp.codebase.value}" signedjarsprop="jnlp.signed.javafxrt.jar"
-                componentsprop="jnlp.components">
-        </jnlpsignjars>
     </target>
-
     <target name="-pack200-property-check">
         <condition property="pack200.jar.compess.true">
             <istrue value="${pack200.jar.compress}"/>
@@ -419,38 +403,6 @@ made subject to such option by the copyright holder.
             </and>
         </condition>    
     </target>
-    
-    <macrodef name="unsignjars">
-        <attribute name="jar"/>
-        <sequential>
-            
-            <!--Remove any existing signature from a jar file-->
-            <tempfile prefix="unsignjar-" destdir="${java.io.tmpdir}" property="temp.file"/>
-            <echo message="Removing signature from JAR: @{jar}"/>
-            <mkdir dir="${temp.file}"/>
-            
-            <unjar src="@{jar}" dest="${temp.file}">
-                <patternset>
-                    <include name="**"/>
-                    <exclude name="META-INF/*.SF"/>
-                    <exclude name="META-INF/*.DSA"/>
-                    <exclude name="META-INF/*.RSA"/>
-                </patternset>
-            </unjar>
-            <delete file="@{jar}" failonerror="true"/>
-            
-            <!-- Touch it in case the file didn;t have a manifest.
-                 Otherwise the JAR task below will fail if the manifest
-                 file doesn't exist -->
-            <mkdir dir="${temp.file}/META-INF"/>
-            <touch file="${temp.file}/META-INF/MANIFEST.MF"/>
-            <jar destfile="@{jar}"
-                 basedir="${temp.file}"
-                 includes="**"
-                 manifest="${temp.file}/META-INF/MANIFEST.MF"/>
-            <delete dir="${temp.file}" failonerror="true"/>
-        </sequential>
-    </macrodef>
     <target name="-pack200-jars" depends="-pack200-property-check" if="pack200.jar.compess.true">
         <echo>Packing Jars with Pack200</echo>
         <pack200Extended src="${dist.jar}" destfile="${dist.jar}.pack.gz" GZIPOutput="true">
@@ -477,10 +429,12 @@ made subject to such option by the copyright holder.
             </fileset>    
         </pack200Extended>
     </target>
+    
     <!-- Application arguments -->
+    
     <target name="-init-application-args" if="application.args">
-        <echo message="${application.args}" file="${args.file}"/>
-        <loadfile srcfile="${args.file}" property="jnlp.application.args.value">
+        <echo message="${application.args}" file="${helper.file}"/>
+        <loadfile srcfile="${helper.file}" property="jnlp.application.args.value">
             <filterchain>
                 <tokenfilter delimoutput="\n">
                     <stringtokenizer/>
@@ -488,7 +442,7 @@ made subject to such option by the copyright holder.
                 </tokenfilter>
             </filterchain>
         </loadfile>
-        <delete file="${args.file}"/>
+        <delete file="${helper.file}"/>
     </target>
     
     <!-- Running/Debugging -->

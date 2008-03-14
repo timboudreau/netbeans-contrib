@@ -44,8 +44,6 @@ import org.netbeans.modules.clearcase.ClearcaseException;
 import org.netbeans.modules.clearcase.ClearcaseUnavailableException;
 import org.netbeans.modules.versioning.util.Utils;
 import org.netbeans.modules.versioning.util.CommandReport;
-import org.netbeans.api.progress.ProgressHandleFactory;
-import org.netbeans.api.progress.ProgressHandle;
 import org.openide.util.RequestProcessor;
 import org.openide.util.Cancellable;
 import org.openide.NotifyDescriptor;
@@ -56,6 +54,10 @@ import java.io.IOException;
 import java.beans.PropertyChangeListener;
 import java.awt.event.ActionEvent;
 import java.util.*;
+import java.util.logging.Level;
+import org.netbeans.modules.clearcase.Clearcase;
+import org.netbeans.modules.clearcase.util.ProgressSupport;
+import org.openide.util.NbBundle;
 
 /**
  * Interface to Clearcase functionality. 
@@ -70,21 +72,73 @@ public class ClearcaseClient {
     /**
      * Request processor that executes clearcase commands.
      */
-    private final RequestProcessor  rp = new RequestProcessor("Clearcase commands", 1); 
-    
+    private final RequestProcessor  rp = new RequestProcessor("Clearcase commands", 1);
+
+    public RequestProcessor getRequestProcessor() {
+        return rp;
+    }
+
     /**
      * Execute a command in a separate thread, command execution and notification happens asynchronously and the method returns
-     * immediately.
+     * immediately. Clearcase errors are notified. 
      * 
-     * @param eu commands to execute
-     * @throws org.netbeans.modules.clearcase.ClearcaseException if the command is invalid, its execution fails, etc.
+     * @param command command to execute
+     * @param displayName creates a progress handle with the given display name
+     * @return RequestProcessor.Task
+     */    
+    public RequestProcessor.Task post(String displayName, final ClearcaseCommand command) {
+        ProgressSupport ps = new ProgressSupport(rp, displayName) {            
+            @Override
+            protected void perform() {
+                CommandRunnable cr = new CommandRunnable(new ExecutionUnit(command), true);
+                setCancellableDelegate(cr);
+                cr.run();                
+            }   
+        };
+        return ps.start();
+    }
+    
+    /**
+     * Execute a command synchronously, command execution and notification happens synchronously. 
+     * 
+     * @param command command to execute
+     * @param notifyErrors notifies errors is true     
      */
-    public CommandRunnable post(ExecutionUnit eu) {
-        CommandRunnable commandRunnable = new CommandRunnable(eu);
-        RequestProcessor.Task rptask = rp.create(commandRunnable);
-        commandRunnable.setTask(rptask);
-        rptask.schedule(0);
-        return commandRunnable;
+    public void exec(ClearcaseCommand command, boolean notifyErrors) {        
+        exec(new ExecutionUnit(command), notifyErrors);
+    }
+    
+    /**
+     * Execute commands synchronously, command execution and notification happens synchronously
+     * 
+     * @param eu commands to execute     
+     * @param notifyErrors notifies errors is true          
+     */
+    public void exec(ExecutionUnit eu, boolean notifyErrors) {           
+        execImpl(eu, notifyErrors, null);
+    }        
+
+    /**
+     * Execute command synchronously, command execution and notification happens synchronously
+     * immediately.  
+     * 
+     * @param command command to execute
+     * @param notifyErrors notifies errors is true
+     * @return CommandRunnable
+     */       
+    public void exec(ClearcaseCommand command, boolean notifyErrors, ProgressSupport ps) {
+        execImpl(new ExecutionUnit(command), notifyErrors, ps);        
+    }
+
+    private void execImpl(ExecutionUnit eu, boolean notifyErrors, ProgressSupport ps) {
+        CommandRunnable commandRunnable = new CommandRunnable(eu, notifyErrors);
+        if(ps != null) {
+            ps.setCancellableDelegate(commandRunnable);
+        }
+        commandRunnable.run();
+        if(ps != null) {
+            ps.setCancellableDelegate(null);
+        }
     }
     
     /**
@@ -116,108 +170,77 @@ public class ClearcaseClient {
             }
         });
         rptask.schedule(0);
-    }
+    }    
     
-    /**
-     * Execute a command synchronously, command execution and notification happens synchronously
-     * 
-     * @param command command to execute
-     * @throws org.netbeans.modules.clearcase.ClearcaseException if the command is invalid, its execution fails, etc.
-     */
-    public void exec(ClearcaseCommand command) throws ClearcaseException {        
-        try {
-            ensureCleartool(); 
-            ct.exec(command);                               
-        } catch (IOException e) {
-            throw new ClearcaseException(e);
-        }            
-    }
-    
-    /**
-     * Execute commands from the execution unit synchronously, command execution and notification happens synchronously
-     * 
-     * @param eu commands to execute
-     * @throws org.netbeans.modules.clearcase.ClearcaseException if the command is invalid, its execution fails, etc.
-     */
-    public void exec(ExecutionUnit eu) throws ClearcaseException {        
-        try {
-            ensureCleartool();
-            // XXX is not cancellable!
-            for (ClearcaseCommand command : eu) {                
-                ct.exec(command);                
-            }                                        
-        } catch (IOException e) {
-            throw new ClearcaseException(e);
-        }            
-    }        
-    
-    public class CommandRunnable implements Runnable, Cancellable, Action {
+    private class CommandRunnable implements Runnable, Cancellable, Action {
         
         private final ExecutionUnit eu;
+        private boolean             canceled;
+        private final boolean       notifyErrors;
 
-        private RequestProcessor.Task task;
-
-        /**
-         * Set if a command fails - it producess an error output or throws an exception while executing.
-         */
-        private ClearcaseCommand      failedCommand;
-        private boolean               canceled;
-
-        public CommandRunnable(ExecutionUnit eu) {
+        public CommandRunnable(ExecutionUnit eu, boolean notifyErrors) {
             this.eu = eu;
+            this.notifyErrors = notifyErrors;
         }
 
-        public void run() {
-            ProgressHandle ph = ProgressHandleFactory.createHandle(eu.getDisplayName(), this, this);                        
+        public void run() {            
             if (canceled) return;
-            ph.start();
             try {
                 ensureCleartool();
                 for (ClearcaseCommand command : eu) {
                     if (canceled) break;
                     try {
                         ct.exec(command);
-                    } catch (Exception e) {
-                        failedCommand = command;
-                        failedCommand.setException(e);
+                    } catch (Exception e) {                        
+                        command.setException(e);
+                        eu.setFailedCommand(command);
                         break;
                     }                                        
                     if (command.hasFailed()) {
-                        failedCommand = command;
+                        eu.setFailedCommand(command);
                         break;
                     }
                 }
             } catch (Exception e) {
                 Utils.logError(this, e);
-            } finally {
-                ph.finish();
-            }
-            if (eu.isNotifyErrors() && failedCommand != null) {
-                notifyCommandError();
+            } 
+            if (eu.getFailedCommand() != null) {
+                handleCommandError(notifyErrors);
             }
         }
 
         /**
-         * Pops up a dialog that notifies the user that clearcase command failed.
+         * Logs and notifies CC errrors.
          * 
-         * @param eu
-         * @param error
+         * @param notifyErrors Pops up a dialog that notifies the user that clearcase command failed.        
          */
-        private void notifyCommandError() {
+        private void handleCommandError(boolean notifyErrors) {
             final List<String> errors = new ArrayList<String>(100);
             
-            Exception exception = failedCommand.getThrownException();
+            Exception exception = eu.getFailedCommand().getThrownException();
             if (exception != null) {
                 errors.add(exception.getMessage());
                 Utils.logWarn(this, exception);
             }
             
-            errors.addAll(failedCommand.getCmdError());
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    report("Clearcase Command Failure", "Error executing", errors, NotifyDescriptor.ERROR_MESSAGE);        
-                }
-            });
+            errors.addAll(eu.getFailedCommand().getCmdError());
+            
+            StringBuffer sb = new StringBuffer();
+            sb.append(NbBundle.getMessage(ClearcaseClient.class, "MSG_Clearcase_Command_Failure")); //NOI18N
+            sb.append(eu.getFailedCommand());
+            for (String err : errors) {
+                sb.append('\n');                
+                sb.append(err);
+            }   
+            Clearcase.LOG.log(Level.INFO, null, new ClearcaseException(sb.toString()));
+            
+            if(notifyErrors) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        report(NbBundle.getMessage(ClearcaseClient.class, "Report_ClearcaseCommandFailure_Title"), NbBundle.getMessage(ClearcaseClient.class, "Report_ClearcaseCommandFailure_Prompt"), errors, NotifyDescriptor.ERROR_MESSAGE); //NOI18N
+                    }
+                });
+            }
         }
         
         private void report(String title, String prompt, List<String> messages, int type) {
@@ -231,7 +254,7 @@ public class ClearcaseClient {
             if (emptyReport) return;
             
             CommandReport report = new CommandReport(prompt, messages);
-            JButton ok = new JButton("OK");
+            JButton ok = new JButton(NbBundle.getMessage(ClearcaseClient.class, "CommandReport_OK")); //NOI18N
             NotifyDescriptor descriptor = new NotifyDescriptor(
                     report, 
                     title, 
@@ -242,19 +265,13 @@ public class ClearcaseClient {
             DialogDisplayer.getDefault().notify(descriptor);
         }
         
-        public ClearcaseCommand getFailedCommand() {
-            return failedCommand;
-        }
-        
         public boolean isCanceled() {
             return canceled;
         }
 
         public boolean cancel() {
             canceled = true;
-            if (!task.cancel()) {
-                if (!task.isFinished()) ct.interrupt();
-            }
+            // XXX cancell cleartool
             return true;
         }
 
@@ -279,14 +296,6 @@ public class ClearcaseClient {
         }
 
         public void actionPerformed(ActionEvent e) {
-        }
-
-        public void setTask(RequestProcessor.Task task) {
-            this.task = task;
-        }
-
-        public void waitFinished() {
-            task.waitFinished();
         }
     }
     

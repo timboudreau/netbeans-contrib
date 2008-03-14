@@ -30,11 +30,12 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.JavaCodeUtil;
-import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.JavaSourceUtil;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.MethodInfo;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.EventObject;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.PortletEventException;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.PortletEventingHandler;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.sun.ui.ConsumeEventDialog;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.sun.ui.GenerateEventDialog;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.util.PortletXMLUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject;
@@ -141,80 +142,50 @@ public class PortletEventingHandlerImpl implements PortletEventingHandler {
 
     public boolean generatePublishEventMethod(String portlet, EventObject eventName) throws PortletEventException {
         String portletClassName = null;
-        GenerateEventDialog eventDialog = new GenerateEventDialog(WindowManager.getDefault().getMainWindow(),portlet,eventName);
+        GenerateEventDialog eventDialog = new GenerateEventDialog(WindowManager.getDefault().getMainWindow(), portlet, eventName);
         try {
             portletClassName = PortletXMLUtil.getPortletClassName(dbObj.getPortletApp(), portlet);
-            String[] methods = null;
+
             FileObject[] fileObjs = findJavaFileObj(portletClassName);
             if (fileObjs.length == 0) {
                 logger.fine("No Java class file found for ::: " + portletClassName);
                 return false;
             }
-            List<ExecutableElement> list = JavaCodeUtil.getMethods(portletClassName, fileObjs[0]);
+            List<MethodInfo> list = JavaCodeUtil.getMethods(portletClassName, fileObjs[0]);
             List publishMethods = JavaCodeUtil.getMethodsForPublishEvent(list);
-           
+
             eventDialog.setMethods(publishMethods);
             eventDialog.setVisible(true);
-            
-            if(eventDialog.addToExistingMethod())
-            {
-                /*org.openide.src.MethodElement methodElm = (org.openide.src.MethodElement) eventDialog.getExistingMethodName();
-                List parameterNames = JavaSourceUtil.getParameterName(methodElm,"ActionRequest","javax.portlet.ActionRequest");
-                StringWriter writer = new StringWriter();
-                HashMap map = new HashMap();
-                map.put("PORTLET_EVENT_NAME",eventName);
-                map.put("NEW_METHOD","false");
-                if(parameterNames.size() > 0)
-                    map.put("REQUEST",parameterNames.get(0));
-                JavaSourceUtil.mergeTemplate(JavaSourceUtil.IPC_GENERATE_EVENT_TEMPLATE,writer,map);
-                JavaSourceUtil.addToMethodBody(methodElm,writer.toString());
-                String[] imports = {"com.sun.portal.portletappengine.ipc.PortletEvent",  
-                                            "com.sun.portal.portletappengine.ipc.PortletEventBroker"};
-                JavaSourceUtil.addImports(imports,portletClassName,fileObjs[0]);*/
-                ExecutableElement methodElm = (ExecutableElement)eventDialog.getExistingMethodName();
-                JavaCodeUtil.addPublishEventCode(fileObjs[0], portletClassName, methodElm, null,eventName);
-            }else{
+
+            if(eventDialog.isCancelled())
+                return false;
+            if (eventDialog.addToExistingMethod()) {
+                MethodInfo methodInfo = (MethodInfo) eventDialog.getExistingMethodName();
+                JavaCodeUtil.addPublishEventCode(fileObjs[0], portletClassName, methodInfo, null, eventName);
+            } else {
                 String newMethodName = eventDialog.getSuggestedMethodName();
-                for(int i=0;i<publishMethods.size();i++)
-                {
-                    ExecutableElement methodElm = (ExecutableElement)publishMethods.get(i);
-                    if(methodElm.getSimpleName().toString().equals(newMethodName))
-                    {
-                        NotifyDescriptor.Message msg = new NotifyDescriptor.Message("A method with same name "+newMethodName+" already exists.");
+                if(newMethodName == null || newMethodName.length() == 0)
+                    return false;
+                for (int i = 0; i < publishMethods.size(); i++) {
+                    //ExecutableElement methodElm = (ExecutableElement)publishMethods.get(i);
+                    MethodInfo methodInfo = (MethodInfo) publishMethods.get(i);
+                    if (methodInfo.getMethodName().equals(newMethodName)) {
+                        NotifyDescriptor.Message msg = new NotifyDescriptor.Message("A method with same name " + newMethodName + " already exists.");
                         DialogDisplayer.getDefault().notify(msg);
                         return false;
                     }
                 }
-                
-               
-                JavaCodeUtil.addPublishEventCode(fileObjs[0], portletClassName, null , newMethodName,eventName);
-             /*   StringWriter writer = new StringWriter();
-                HashMap map = new HashMap();
-                map.put("PORTLET_EVENT_NAME",eventName);
-                map.put("NEW_METHOD","true");
-                map.put("REQUEST","actionRequest");
-                JavaSourceUtil.mergeTemplate(JavaSourceUtil.IPC_GENERATE_EVENT_TEMPLATE,writer,map);
-                String body = writer.toString();
-                
-                ArrayList parameters = new ArrayList();
-                parameters.add("ActionRequest actionRequest");
-                parameters.add("ActionResponse actionResponse");
-                parameters.add("String eventData");
-                String[] imports = {"com.sun.portal.portletappengine.ipc.PortletEvent",  
-                                            "com.sun.portal.portletappengine.ipc.PortletEventBroker"};
-                JavaSourceUtil.addImports(imports,portletClassName,fileObjs[0]);
-                JavaSourceUtil.addNewMethod(portletClassName,newMethodName,Modifier.PRIVATE,org.openide.src.Type.VOID,parameters,body,fileObjs[0]);*/
-              
+                JavaCodeUtil.addPublishEventCode(fileObjs[0], portletClassName, null, newMethodName, eventName);
 
             }
 
-             DataObject dob = DataObject.find(fileObjs[0]);
-             OpenCookie oc = (OpenCookie) dob.getCookie(OpenCookie.class);
-             if (oc != null) { 
-                 oc.open();
-              }
-       
-            
+            DataObject dob = DataObject.find(fileObjs[0]);
+            OpenCookie oc = (OpenCookie) dob.getCookie(OpenCookie.class);
+            if (oc != null) {
+                oc.open();
+            }
+
+
             return true;
         } catch (IOException ex) {
             StatusDisplayer.getDefault().setStatusText("Could not add code to publish event");
@@ -223,15 +194,100 @@ public class PortletEventingHandlerImpl implements PortletEventingHandler {
         return false;
     }
 
-public boolean generateProcessEventMethod(String portlet, EventObject eventName) throws PortletEventException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public boolean generateProcessEventMethod(String portlet, EventObject event) throws PortletEventException {
+        ConsumeEventDialog eventDialog = new ConsumeEventDialog(WindowManager.getDefault().getMainWindow());
+        try {
+            eventDialog.setEvent(event);
+            eventDialog.setPortletName(portlet);
+
+            String portletClassName = null;
+            portletClassName = PortletXMLUtil.getPortletClassName(dbObj.getPortletApp(), portlet);
+
+            FileObject[] fileObjs = findJavaFileObj(portletClassName);
+            if (fileObjs.length == 0) {
+                logger.fine("No Java class file found for ::: " + portletClassName);
+                return false;
+            }
+
+            List<MethodInfo> methods = JavaCodeUtil.getMethods(portletClassName, fileObjs[0]);
+
+            eventDialog.setJavaSourceName(FileUtil.toFile(fileObjs[0]).getAbsolutePath());
+            eventDialog.setSuggestedMethodName(resolveNewConsumeEventMethodName(event, methods));
+            eventDialog.setVisible(true);
+
+            if (eventDialog.isCancelled()) {
+                return false;
+            }
+            //create body
+            MethodInfo processEventMethod = JavaCodeUtil.getHandleProcessEventMethod(methods);
+            
+            JavaCodeUtil.addProcessEventCode(fileObjs[0], portletClassName, processEventMethod, eventDialog.getSuggestedMethodName(), event);
+            
+            DataObject dob = DataObject.find(fileObjs[0]);
+            OpenCookie oc = (OpenCookie) dob.getCookie(OpenCookie.class);
+            if (oc != null) {
+                oc.open();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
-public boolean isEventingSupported() {
+    public boolean isEventingSupported() {
         return helper.isEventingSupported();
     }
 
-public void refresh() {
+    public void refresh() {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    private String resolveNewConsumeEventMethodName(EventObject event, List existingMethods) {
+        String eventName = "";
+        if (event.getQName() != null) {
+            eventName = event.getQName().getLocalPart();
+        } else {
+            eventName = event.getName();
+        }
+        String prefix = "handleProcess" + eventName + "Event";
+
+        List list = new ArrayList();
+        for (int i = 0; i < existingMethods.size(); i++) {
+            list.add(((MethodInfo) existingMethods.get(i)).getMethodName());
+        }
+
+        int i = 0;
+        String methodName = prefix;
+        while (list.contains(methodName)) {
+            methodName = prefix + "_" + i;
+            i++;
+        }
+        return methodName;
+    }
+    
+    private String resolveNewGenerateEventMethodName(String eventName,String[] existingMethods)
+    {
+        String prefix = "generate"+eventName+"Event";
+        
+        List list = new ArrayList();
+        for(int i=0;i<existingMethods.length;i++)
+        {
+            list.add(existingMethods[i]);
+        }
+        
+        int i = 0;
+        String methodName = prefix;
+        while(list.contains(methodName))
+        {
+            methodName = prefix + "_" + i;
+            i++;
+        }
+        return methodName;
+    }
+
+    public boolean addAlias(EventObject event, QName alias) throws PortletEventException {
+        return helper.addAlias(event,alias);
     }
 }

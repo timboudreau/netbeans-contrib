@@ -156,11 +156,11 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <folder name="Menu">
         <folder name="Window">
             <folder name="Other">
-                <folder name="Portal Pack">
+                <!-- <folder name="Portal Pack"> -->
                     <file name="IPCStoryBoardAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-portalpack-portlets-genericportlets-storyboard-ipc-IPCStoryBoardAction.instance"/>
-                    </file>
-                </folder>
+                </file>
+                <!-- </folder> -->
             </folder>
         </folder>
     </folder>
@@ -178,29 +178,33 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <folder name="Templates">
         
         <folder name="JSP_Servlet">
-            <file name="JSR-168Portlet">
+      
+            <file name="Portlet">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
                 <attr name="instantiatingIterator" newvalue="org.netbeans.modules.portalpack.portlets.genericportlets.filetype.jsr168.NetbeansNewPortletClassWizardIterator"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="position" intvalue="503"/>
                 <attr name="templateCategory" stringvalue="web-types"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/resources/portletapp.gif"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/filetype/jsr168/netbeansNewPortletClass.html"/>
             </file>
-            
             <file name="PortletFilter">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
                 <attr name="instantiatingIterator" newvalue="org.netbeans.modules.portalpack.portlets.genericportlets.filetype.filters.NewFilterWizardWizardIterator"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="position" intvalue="504"/>
                 <attr name="templateCategory" stringvalue="servlet-types"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/resources/portletapp.gif"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/portalpack/portlets/genericportlets/filetype/filters/newFilterWizard.html"/>
             </file>
+            
         </folder>
         <folder name="Other">
+            <!--
             <file name="PortletTemplate.portlet" url="PortletTemplate.portlet">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
-                <!--<attr name="template" boolvalue="true"/>-->
-            </file>
+                <attr name="template" boolvalue="true"/>
+            </file>-->
             <file name="PortletXMLTemplate.xml" url="PortletXMLTemplate.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
                 <!-- <attr name="template" boolvalue="true"/>-->
@@ -257,7 +261,11 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             </file>
             <!-- Eventing templates -->
             
-            <file name="ipcgenerateevent.template" url="nbresloc:templates/ipcgenerateevent.template">
+            <file name="processevent.template" url="nbresloc:templates/processevent.template">
+                <attr name="position" intvalue="0"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+            </file>
+            <file name="publishevent.template" url="nbresloc:templates/publishevent.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
@@ -288,13 +296,43 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             <file name="portlet20lib.xml" url="portlet20lib.xml"/>
         </folder>
     </folder>
-    <!--
+    
     <folder name="Projects">
      <folder name="org-netbeans-modules-web-project">
+        <!--
+        <folder name="Lookup">
+            <file name="org.netbeans.modules.portalpack.portlets.genericportlets.node.LookupProviderImpl.instance"/>
+        </folder> -->
+        <!--
         <folder name="Nodes">
-            <file name="org-netbeans-modules-portalpack-portlets-genericportlets-node-PortletNodeFactoryImpl.instance"/>
-        </folder>
+            <file name="org-netbeans-modules-portalpack-portlets-genericportlets-node-PortletNodeFactoryImpl.instance">
+                    <attr name="position" intvalue="1200"/>
+            </file>
+            
+        </folder>-->
      </folder>
-    </folder>-->
+    </folder>
+    
+    <folder name="Plugins">
+        <!-- Register XML module catalog plugin -->
+        <folder name="XML">
+            <folder name="UserCatalogs">
+                <file name="org-netbeans-modules-portalpack-portlets-genericportlets-codecompletion-catalog-RegisterXSDCatalog.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.portalpack.portlets.genericportlets.codecompletion.catalog.RegisterXSDCatalog"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.xml.catalog.spi.CatalogReader"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+    
+    <folder name="j2ee">
+        <folder name="webtier">
+            <folder name="templates">
+                <file name="org-netbeans-modules-portalpack-portlets-genericportlets-filetypes-PortletPriviledgedTemplates.instance"> 
+                    <attr name="position" intvalue="213"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
     
 </filesystem>

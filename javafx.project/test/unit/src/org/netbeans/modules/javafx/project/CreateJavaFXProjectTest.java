@@ -71,9 +71,8 @@ public class CreateJavaFXProjectTest extends NbTestCase {
         "build.xml",
         "nbproject/build-impl.xml",
         "nbproject/project.xml",
-        "nbproject/project.properties"/*,
         "nbproject/project.properties",
-        "nbproject/private/private.properties",*/
+        "nbproject/private/private.properties",
     };
 
     private static final String[] createdProperties = {

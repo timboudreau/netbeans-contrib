@@ -66,9 +66,9 @@ class Repository {
         return instance;
     }
 
-    void add(File file, boolean checkout) {        
+    void add(File file, boolean checkin) {        
         ci(file, true);
-        if(checkout) {
+        if(!checkin) {
             co(file, true);
         }
     }

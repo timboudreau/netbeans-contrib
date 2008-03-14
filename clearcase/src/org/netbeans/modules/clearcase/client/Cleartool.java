@@ -41,6 +41,7 @@
 package org.netbeans.modules.clearcase.client;
 
 import org.netbeans.modules.clearcase.ClearcaseException;
+import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
 
 import java.util.logging.Logger;
 import java.io.*;
@@ -148,7 +149,7 @@ class Cleartool {
         String vobRoot = System.getProperty("org.netbeans.modules.clearcase.client.mockup.vobRoot");
         Process ct;
         if (vobRoot == null || vobRoot.trim().equals("")) {
-            ct = Runtime.getRuntime().exec("cleartool");
+            ct = Runtime.getRuntime().exec(getCleartoolExecutablePath());
             Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: shell process running");
         } else {
             ct = new CleartoolMockup(vobRoot);
@@ -210,8 +211,7 @@ class Cleartool {
     }
     
     public synchronized void exec(ClearcaseCommand command) throws IOException, ClearcaseException {
-        Arguments args = new Arguments();
-        command.prepareCommand(args);        
+
         
         // read all pending output
         readAll(ctOutput);
@@ -223,10 +223,9 @@ class Cleartool {
             ctInput.println("'" + cwd.getAbsolutePath() + "'");
         }
         
-        StringBuilder cmd = toString(args);
-        Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: Executing \"" + cmd + "\"");
+        Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: Executing " + command);
         
-        ctInput.println(cmd);
+        ctInput.println(command.getStringCommand());
         if (!fireAndForget) ctInput.println(MAGIC_PROMPT);
         ctInput.flush();
         
@@ -315,14 +314,7 @@ class Cleartool {
         }
     };
 
-    public static StringBuilder toString(Arguments args) {
-        StringBuilder cmd = new StringBuilder(100);
-        for (String arg : args) {
-            cmd.append(arg);
-            cmd.append(' ');
-        }
-        cmd.delete(cmd.length() - 1, cmd.length());
-
-        return cmd;
+    public static String getCleartoolExecutablePath() {
+        return ClearcaseModuleConfig.getPreferences().get(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, "cleartool");
     }
 }

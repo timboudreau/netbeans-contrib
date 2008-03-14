@@ -30,7 +30,7 @@ import javax.swing.table.AbstractTableModel;
 public class InitParamTableModel extends AbstractTableModel{
     
     private List initParamsList;
-    private String[] COLUMN_NAME={"Name","Value"};
+    private String[] COLUMN_NAME={"Name","Value"}; //NO I18N
     /** Creates a new instance of InitParamTableModel */
     public InitParamTableModel() {
         initParamsList = new ArrayList();
@@ -60,10 +60,14 @@ public class InitParamTableModel extends AbstractTableModel{
 
     @Override
     public void setValueAt(Object arg0, int arg1, int arg2) {
+        if(initParamsList.size() < arg1 + 1)
+            return;
         if(arg2 == 0)
            ((InitParam)initParamsList.get(arg1)).setName((String)arg0);
         else
             ((InitParam)initParamsList.get(arg1)).setValue((String)arg0);
+        
+        fireTableCellUpdated(arg1, arg2);
     }
        
     public void addRow()
@@ -73,6 +77,8 @@ public class InitParamTableModel extends AbstractTableModel{
     }
     public void deleteRow(int row)
     {
+        if(initParamsList.size() < row + 1)
+            return;
         initParamsList.remove(row);
         fireTableRowsDeleted(0, initParamsList.size());
     }

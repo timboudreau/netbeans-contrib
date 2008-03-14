@@ -75,13 +75,6 @@ public class HibernateEnvironment {
         this.project = project;
     }
 
-
-    /**
-     * Empty constructor used to create Hibernate Environments without NB projects.
-     */
-    public HibernateEnvironment() {
-    }
-
     /**
      * Returns all tables found in the configurations present in this project.
      * 
@@ -122,30 +115,27 @@ public class HibernateEnvironment {
     
     /**
      * Returns configuration fileobjects if any contained in this project.
-     * @param project the project.
      * @return list of FileObjects for configuration files if found in this project, otherwise empty list.
      */
-    public ArrayList<FileObject> getAllHibernateConfigFileObjects(Project project) {
+    public ArrayList<FileObject> getAllHibernateConfigFileObjects() {
         return HibernateUtil.getAllHibernateConfigFileObjects(project);
     }
       
     /**
      * Returns all mapping files defined under this project.
      * 
-     * @param project the project for all the mapping files need to be found.
      * @return List of FileObjects for mapping files.
      */
-    public ArrayList<FileObject> getAllHibernateMappingFileObjects(Project project) {
+    public ArrayList<FileObject> getAllHibernateMappingFileObjects() {
         return HibernateUtil.getAllHibernateMappingFileObjects(project);
     }        
     
      /**
      * Returns relaive source paths of all mapping files present in this project.
      * 
-     * @param project the project for all the mapping files need to be found.
      * @return List of FileObjects for mapping files.
      */
-    public ArrayList<String> getAllHibernateMappings(Project project) {
+    public ArrayList<String> getAllHibernateMappings() {
         return HibernateUtil.getAllHibernateMappingsRelativeToSourcePath(project);
     }        
     
@@ -199,14 +189,13 @@ public class HibernateEnvironment {
      * @return true if the library is registered, false if the library is already registered or 
      * registration fails for some reason.
      */
-    @SuppressWarnings("static-access")  //NOI18N
     public boolean addHibernateLibraryToProject(FileObject fileInProject) {
         boolean addLibraryResult = false;
         try {
             LibraryManager libraryManager = LibraryManager.getDefault();
             Library hibernateLibrary = libraryManager.getLibrary("hibernate-support");  //NOI18N
             ProjectClassPathModifier projectClassPathModifier = project.getLookup().lookup(ProjectClassPathModifier.class);
-            addLibraryResult = projectClassPathModifier.addLibraries(new Library[]{hibernateLibrary}, fileInProject, ClassPath.COMPILE);  
+            addLibraryResult = ProjectClassPathModifier.addLibraries(new Library[]{hibernateLibrary}, fileInProject, ClassPath.COMPILE);  
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
             addLibraryResult = false;
@@ -229,7 +218,7 @@ public class HibernateEnvironment {
         SessionFactory fact = hibernateConfiguration.getSessionFactory();
         int count = 0;
         for(boolean val : fact.getMapping()) {
-            String propName = fact.getAttributeValue(fact.MAPPING,
+            String propName = fact.getAttributeValue(SessionFactory.MAPPING,
                     count++, "resource"); //NOI18N
             mappingsFromConfiguration.add(propName);
         }
@@ -241,7 +230,7 @@ public class HibernateEnvironment {
         ArrayList<HibernateConfiguration> hibernateConfigurations = new ArrayList<HibernateConfiguration>();
         for(HibernateConfiguration config : getAllHibernateConfigurationsFromProject()) {
             for(String mappingFile : getAllHibernateMappingsFromConfiguration(config)) {
-                if(mappingFileObject.getPath().contains(mappingFile)) {
+                if(!mappingFile.trim().equals("") && mappingFileObject.getPath().contains(mappingFile)) {
                     hibernateConfigurations.add(config);
                 }
             }

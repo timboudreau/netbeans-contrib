@@ -107,7 +107,7 @@ public class SyncFileNode extends AbstractNode {
 
     @Override
     public Action getPreferredAction() {        
-        return new DiffAction("Diff", VCSContext.forNodes(new Node[] {this}));
+        return new DiffAction(NbBundle.getMessage(SyncFileNode.class, "DiffAction_Name"), VCSContext.forNodes(new Node[] {this})); // NOI18N
     }
 
     /**
@@ -203,7 +203,8 @@ public class SyncFileNode extends AbstractNode {
                             }
                         });
                     }
-                };                
+                };          
+                // XXX don't use the Clearcase.getInstance().getRequestProcessor() - it might delay FS events processings
                 nodeload = Clearcase.getInstance().getRequestProcessor().post(run);
                 return org.openide.util.NbBundle.getMessage(SyncFileNode.class, "LBL_RepositoryPath_LoadingProgress"); // NOI18N
             }

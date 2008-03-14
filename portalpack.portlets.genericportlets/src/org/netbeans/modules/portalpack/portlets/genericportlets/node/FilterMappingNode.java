@@ -37,20 +37,20 @@ public class FilterMappingNode extends AbstractNode {
     private PortletXMLDataObject dobj;
     private PortletType portletType;
     private String id;
-    private static final String IMAGE_ICON_BASE = "org/netbeans/modules/portalpack/portlets/genericportlets/resources/filter.PNG";
+    private static final String IMAGE_ICON_BASE = "org/netbeans/modules/portalpack/portlets/genericportlets/resources/filter.PNG"; //NOI18N
     /** Creates a new instance of FilterMappingNode */
-    public FilterMappingNode(PortletXMLDataObject dobj,PortletType portletType,FilterMappingType filterMappingType){//,PortletXMLDataObject dobj) {
+    public FilterMappingNode(PortletXMLDataObject dobj,PortletType portletType,FilterMappingType filterMappingType){
         super(Children.LEAF);
         this.filterMappingType = filterMappingType;
         this.dobj = dobj;
         this.portletType = portletType;
         setIconBaseWithExtension(IMAGE_ICON_BASE);
         id = new StringBuffer().append(dobj.getApplicationName())
-                               .append(".")
+                               .append(".") //NOI18N
                                .append(getName())
-                               .append(":")
+                               .append(":") //NOI18N
                                .append(portletType.getPortletName())
-                               .append("_filtermapping").toString();
+                               .append("_filtermapping").toString(); //NOI18N
     }
 
     @Override
@@ -61,7 +61,7 @@ public class FilterMappingNode extends AbstractNode {
 
     @Override
     public String getName() {
-        return filterMappingType.getFilterName() + "_mapping";
+        return filterMappingType.getFilterName() + "_mapping"; //NOI18N
     }
     
     public String getPortletName()

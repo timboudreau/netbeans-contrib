@@ -1,15 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.netbeans.installer.utils.nativepackages;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.LogManager;
+import org.netbeans.installer.utils.exceptions.InstallationException;
+import org.netbeans.installer.utils.exceptions.UninstallationException;
 
 /**
  *
@@ -22,40 +18,38 @@ public class FakeNativePackageInstaller implements NativePackageInstaller {
     public static final String FAKE_PACKAGES_COUNTER = "fake_packages_counter";
     public static final String FAKE_PACKAGE = "fake_package.";
     
-    public String target = FAKE_PACKAGES_DIR;
+    private String target = FAKE_PACKAGES_DIR;
     
-    public boolean install(String pathToPackage, Product product) {
+    public void install(String pathToPackage, Product product) throws InstallationException {
         try {
-            LogManager.log("executing command: touch " + FAKE_PACKAGES_DIR + extractFileName(pathToPackage));
+            LogManager.log("executing command: touch " + target + extractFileName(pathToPackage));
             int counter = parseInteger(product.getProperty(FAKE_PACKAGES_COUNTER)) + 1;            
             String packageName = extractFileName(pathToPackage);
-            Process p = new ProcessBuilder("touch", FAKE_PACKAGES_DIR + packageName).start();
-            if (p.waitFor() != 0) return false;
+            Process p = new ProcessBuilder("touch", target + packageName).start();
+            if (p.waitFor() != 0) throw new InstallationException("touch returned " + String.valueOf(p.exitValue()));
             product.setProperty(FAKE_PACKAGE + String.valueOf(counter), packageName);        
             product.setProperty(FAKE_PACKAGES_COUNTER, String.valueOf(counter));                    
         } catch (InterruptedException ex) {
-            Logger.getLogger(FakeNativePackageInstaller.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InstallationException("Error executing touch!", ex);
         } catch (IOException ex) {
-            Logger.getLogger(FakeNativePackageInstaller.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InstallationException("Error executing touch!", ex);
         }
-        return true;
     }
 
-    public boolean uninstall(Product product) {
+    public void uninstall(Product product) throws UninstallationException {
         try {
             int counter = parseInteger(product.getProperty(FAKE_PACKAGES_COUNTER));            
             for(int i=1; i<=counter; i++) {
                 String packageName = product.getProperty(FAKE_PACKAGE + String.valueOf(i));
-                LogManager.log("executing command: rm " + FAKE_PACKAGES_DIR + packageName);
-                Process p = new ProcessBuilder("rm", FAKE_PACKAGES_DIR + packageName).start();
-                if (p.waitFor() != 0) return false;
+                LogManager.log("executing command: rm " + target + packageName);
+                Process p = new ProcessBuilder("rm", target + packageName).start();
+                if (p.waitFor() != 0) throw new UninstallationException("rm returned " + String.valueOf(p.exitValue()));
             }
         } catch (InterruptedException ex) {
-            Logger.getLogger(FakeNativePackageInstaller.class.getName()).log(Level.SEVERE, null, ex);
+            throw new UninstallationException("Error executing rm!", ex);
         } catch (IOException ex) {
-            Logger.getLogger(FakeNativePackageInstaller.class.getName()).log(Level.SEVERE, null, ex);
+            throw new UninstallationException("Error executing rm!", ex);
         }
-        return true;
     }
 
     private int parseInteger(String value) {
@@ -71,7 +65,7 @@ public class FakeNativePackageInstaller implements NativePackageInstaller {
     }
 
     public void setDestinationPath(String path) {
-        target = path;
+        if (path != null && path.length() > 0) target = path;
     }
 
 }

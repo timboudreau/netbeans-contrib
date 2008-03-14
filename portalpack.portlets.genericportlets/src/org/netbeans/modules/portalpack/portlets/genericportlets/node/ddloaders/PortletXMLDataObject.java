@@ -18,6 +18,7 @@
   */
 package org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -157,7 +158,10 @@ public class PortletXMLDataObject extends XMLDataObject//XmlMultiViewDataObject
      */
     public PortletApp getPortletApp() throws IOException {
         if (portletApp==null) {
-            if(FileUtil.toFile(portletXmlFobj).exists()){
+            if(portletXmlFobj == null) return null;
+            File file = FileUtil.toFile(portletXmlFobj);
+            if(file == null) return null;
+            if(file.exists()){
                 try{
                     portletApp = PortletXMLFactory.createGraph(FileUtil.toFile(portletXmlFobj));
                 }catch(Exception e){

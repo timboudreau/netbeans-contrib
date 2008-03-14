@@ -69,10 +69,10 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
+import org.netbeans.modules.java.api.common.SourceRoots;
+import org.netbeans.modules.java.api.common.ant.UpdateHelper;
 import org.netbeans.modules.javafx.project.JavaFXProject;
 import org.netbeans.modules.javafx.project.JavaFXProjectUtil;
-import org.netbeans.modules.javafx.project.SourceRoots;
-import org.netbeans.modules.javafx.project.UpdateHelper;
 import org.netbeans.modules.javafx.project.ui.customizer.JavaFXProjectProperties;
 import org.netbeans.spi.java.project.support.ui.BrokenReferencesSupport;
 import org.netbeans.spi.java.project.support.ui.PackageView;
@@ -498,7 +498,7 @@ public class JavaFXLogicalViewProvider implements LogicalViewProvider {
             actions.add(ProjectSensitiveActions.projectCommandAction(JavaProjectConstants.COMMAND_JAVADOC, bundle.getString("LBL_JavadocAction_Name"), null)); // NOI18N
             actions.add(null);
             actions.add(ProjectSensitiveActions.projectCommandAction(ActionProvider.COMMAND_RUN, bundle.getString("LBL_RunAction_Name"), null)); // NOI18N
-//            actions.add(ProjectSensitiveActions.projectCommandAction(ActionProvider.COMMAND_DEBUG, bundle.getString("LBL_DebugAction_Name"), null)); // NOI18N
+            actions.add(ProjectSensitiveActions.projectCommandAction(ActionProvider.COMMAND_DEBUG, bundle.getString("LBL_DebugAction_Name"), null)); // NOI18N
 //            actions.add(ProjectSensitiveActions.projectCommandAction(ActionProvider.COMMAND_TEST, bundle.getString("LBL_TestAction_Name"), null)); // NOI18N
             actions.add(CommonProjectActions.setProjectConfigurationAction());
             actions.add(null);
@@ -581,7 +581,7 @@ public class JavaFXLogicalViewProvider implements LogicalViewProvider {
             
             public void actionPerformed(ActionEvent e) {
                 try {
-                    helper.requestSave();
+                    helper.requestUpdate();
                     BrokenReferencesSupport.showCustomizer(helper.getAntProjectHelper(), resolver, getBreakableProperties(), new String[] {JavaFXProjectProperties.JAVA_PLATFORM});
                     run();
                 } catch (IOException ioe) {
