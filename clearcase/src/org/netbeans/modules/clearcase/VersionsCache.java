@@ -87,7 +87,7 @@ public class VersionsCache implements NotificationListener {
         GetCommand cmd = new GetCommand(tempFile, revisionSpec, this);        
         Clearcase.getInstance().getClient().post("Getting Clearcased File...", cmd).waitFinished();
         tempFile.deleteOnExit();
-        if (cmd.hasFailed() && tempFile.isFile()) return tempFile;
+        if (!cmd.hasFailed() && tempFile.isFile()) return tempFile;
         return null;
     }
 
