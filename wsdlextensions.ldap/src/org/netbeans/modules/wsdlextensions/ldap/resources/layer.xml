@@ -19,7 +19,7 @@
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-      <folder name="Actions">
+    <folder name="Actions">
         <folder name="Other">
             <file name="org-netbeans-modules-wsdlextensions-ldap-ldif-GenerateWSDLAction.instance"/>
             <file name="org-netbeans-modules-wsdlextensions-ldap-ldif-ImportFileAction.instance"/>
@@ -97,68 +97,69 @@
             <file name="serverBrowser">
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
-                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.wsdlextensions.ldap.ServerBrowserWizardIterator"/>
+                <!--               <attr name="instantiatingIterator" newvalue="org.netbeans.modules.wsdlextensions.ldap.ServerBrowserWizardIterator"/>
+                -->              <attr name="instantiatingIterator" newvalue="org.netbeans.modules.wsdlextensions.ldap.LDAPServerBrowserWizardIterator"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/serverBrowser.html"/>
             </file>
         </folder>
     </folder>
     <folder name="WSDLEditor">
-		<file name="ldap-ext.xsd" url="ldap-ext.xsd">
-	        <attr name="namespace" stringvalue="http://schemas.sun.com/jbi/wsdl-extensions/ldap/"/>
+        <file name="ldap-ext.xsd" url="ldap-ext.xsd">
+            <attr name="namespace" stringvalue="http://schemas.sun.com/jbi/wsdl-extensions/ldap/"/>
             <attr name="prefix" stringvalue="ldap"/>
-	    </file>
-	    
-		 <folder name="Binding">
-	      <file name="LDAPBinding">
-			<attr name="xsdFileName" stringvalue="ldap-ext"/>
-	        <attr name="element" stringvalue="binding"/>
-	        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
-	        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/> 
-	      </file>
-	      </folder>
-     
-	     <folder name="BindingOperation">
-	      <file name="LDAPBindingOperation">
-   			<attr name="xsdFileName" stringvalue="ldap-ext"/>
-	        <attr name="element" stringvalue="operation"/>
-	        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
-	        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/> 
-	      </file>
-	      </folder>
-			
-		  <folder name="BindingOperationInput">
-		      <file name="LDAPBindingOperationInput">
-      			<attr name="xsdFileName" stringvalue="ldap-ext"/>
-		        <attr name="element" stringvalue="input"/>
-		        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
-		        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/> 
-		      </file>
-	      
-	      </folder>	        
-	      
-	      <folder name="BindingOperationOutput">
-		      <file name="LDAPBindingOperationOutput">
-      			<attr name="xsdFileName" stringvalue="ldap-ext"/>
-		        <attr name="element" stringvalue="output"/>
-		        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
-		        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/> 
-		      </file>
-		      
-	       </folder>	        
-	       
-	        	       
-	       <folder name="ServicePort">
-		      <file name="LDAPServicePort">
-      			<attr name="xsdFileName" stringvalue="ldap-ext"/>
-		        <attr name="element" stringvalue="address"/>
-		        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
-		        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/> 
-		      </file>
-	      </folder>	        
+        </file>
+        
+        <folder name="Binding">
+            <file name="LDAPBinding">
+                <attr name="xsdFileName" stringvalue="ldap-ext"/>
+                <attr name="element" stringvalue="binding"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/> 
+            </file>
+        </folder>
+        
+        <folder name="BindingOperation">
+            <file name="LDAPBindingOperation">
+                <attr name="xsdFileName" stringvalue="ldap-ext"/>
+                <attr name="element" stringvalue="operation"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/> 
+            </file>
+        </folder>
+        
+        <folder name="BindingOperationInput">
+            <file name="LDAPBindingOperationInput">
+                <attr name="xsdFileName" stringvalue="ldap-ext"/>
+                <attr name="element" stringvalue="input"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/> 
+            </file>
+            
+        </folder>	        
+        
+        <folder name="BindingOperationOutput">
+            <file name="LDAPBindingOperationOutput">
+                <attr name="xsdFileName" stringvalue="ldap-ext"/>
+                <attr name="element" stringvalue="output"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/> 
+            </file>
+            
+        </folder>	        
+        
+        
+        <folder name="ServicePort">
+            <file name="LDAPServicePort">
+                <attr name="xsdFileName" stringvalue="ldap-ext"/>
+                <attr name="element" stringvalue="address"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/> 
+            </file>
+        </folder>	        
     </folder>
-  
-  
+    
+    
     <folder name="SeeBeyondJbiComponents">
         <!-- JBI Component -->
         <folder name="sun-ldap-binding">
@@ -170,5 +171,5 @@
             </file>
         </folder>
     </folder>  
-  
+    
 </filesystem>
