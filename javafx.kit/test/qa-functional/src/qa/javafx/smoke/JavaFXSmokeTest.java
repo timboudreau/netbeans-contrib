@@ -2,15 +2,16 @@ package qa.javafx.smoke;
 
 import java.io.File;
 import java.io.FileFilter;
-import javax.swing.JToggleButton;
 import org.netbeans.jellytools.Bundle;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.jellytools.MainWindowOperator;
 import org.netbeans.jellytools.NewProjectWizardOperator;
 import org.netbeans.jellytools.ProjectsTabOperator;
+import org.netbeans.jellytools.ProjectsTabOperator;
 import org.netbeans.jellytools.TopComponentOperator;
+import org.netbeans.jellytools.actions.OpenAction;
 import org.netbeans.jellytools.nodes.Node;
-import org.netbeans.jemmy.operators.ContainerOperator;
+import org.netbeans.jemmy.TimeoutExpiredException;
 import org.netbeans.jemmy.operators.JButtonOperator;
 import org.netbeans.jemmy.operators.JDialogOperator;
 import org.netbeans.jemmy.operators.JMenuBarOperator;
@@ -19,57 +20,44 @@ import org.netbeans.jemmy.operators.JTabbedPaneOperator;
 import org.netbeans.jemmy.operators.JTableOperator;
 import org.netbeans.jemmy.operators.JTextComponentOperator;
 import org.netbeans.jemmy.operators.JTextFieldOperator;
-import org.netbeans.jemmy.operators.JToggleButtonOperator;
+import org.netbeans.jemmy.operators.JTreeOperator;
 import org.netbeans.junit.NbTestSuite;
+
+//import org.junit.Test;
+//import static org.junit.Assert.*;
+
 
 /**
  *
  * @author Alexandr Scherbatiy sunflower@netbeans.org
  */
 
-public class JavaFXSmokeTest extends NbTestCase {
 
-
+public class JavaFXSmokeTest extends NbTestCase{
 
     protected static final String PROJECT_NAME_HELLO_WORLD = "HelloWorld";
-
-
-
 
     public JavaFXSmokeTest(String name) {
         super(name);
     }
 
-
     public static NbTestSuite suite() {
         NbTestSuite suite = new NbTestSuite();
-        //suite.addTest(new JavaFXSmokeTest("testJavaFX"));
         //suite.addTest(new JavaFXSmokeTest("testLoadModule"));
         suite.addTest(new JavaFXSmokeTest("testProjectCreation"));
-        suite.addTest(new JavaFXSmokeTest("testPreviewMode"));
-        //suite.addTest(new JavaFXSmokeTest(""));
+        suite.addTest(new JavaFXSmokeTest("testMainFile"));
+        suite.addTest(new JavaFXSmokeTest("testEditor"));
+        //suite.addTest(new JavaFXSmokeTest("testPreviewMode"));
         return suite;
     }
 
-
-//    public void testJavaFX() {
-//        System.setOut(getLog());
-//        System.out.println("[data path] \"" + Util.getXtestDataPath() + "\"");
-//        System.out.println("[nbms path] \"" + Util.getXtestNBMsPath() + "\"");
-//    }
-
-
-
-
-
     public void testLoadModule() {
-        System.setOut(getLog());
+        //System.setOut(getLog());
 
 
         new JMenuBarOperator(MainWindowOperator.getDefault()).pushMenuNoBlock("Tools|Plugins");
         String pluginTitle = Bundle.getString("org.netbeans.modules.autoupdate.ui.actions.Bundle", "PluginManager_Panel_Name");
 
-        //JDialogOperator plugin = new JDialogOperator("Plugin Manager");
         JDialogOperator plugin = new JDialogOperator(pluginTitle);
         Util.waitProgressBar(plugin);
 
@@ -94,7 +82,6 @@ public class JavaFXSmokeTest extends NbTestCase {
             new JButtonOperator(plugin, "Close").pushNoBlock();
         }
     }
-
 
     public void loadPlugins(JDialogOperator pluginManager) {
         //System.setOut(getLog());
@@ -141,7 +128,7 @@ public class JavaFXSmokeTest extends NbTestCase {
         new JButtonOperator(new JDialogOperator("Validation Warning"), "Continue").push();
         new JButtonOperator(ideInstaller, "Finish").pushNoBlock();
 
-        //  IDE Restarts
+    //  IDE Restarts
     }
 
     public void testProjectCreation() {
@@ -154,24 +141,40 @@ public class JavaFXSmokeTest extends NbTestCase {
         projectWizard.finish();
     }
 
-    public void testPreviewMode() {
-        System.setOut(getLog());
-        Node umlNode = new Node(ProjectsTabOperator.invoke().tree(), PROJECT_NAME_HELLO_WORLD);
+    public void testMainFile() {
+        try {
+            TopComponentOperator mainFile = new TopComponentOperator("Main.fx");
+        } catch (TimeoutExpiredException e) {
+            fail("Known issue: Main FX file is not open after project creation");
+        }
+
+    }
+    
+
+    public void testEditor() {
+        //System.setOut(getLog());
+
+        Node projectNode = new Node(ProjectsTabOperator.invoke().tree(), PROJECT_NAME_HELLO_WORLD);
+
+        Node mainFileNode = new Node(projectNode, "Source Packages|helloworld|Main.fx");
+
+        new OpenAction().performPopup(mainFileNode);
+
         TopComponentOperator main = new TopComponentOperator("Main.fx");
         JTextComponentOperator textComponent = new JTextComponentOperator(main);
         String sample = "samples/helloworld/HelloWorld.fx";
         String text = Util.getSampleText(sample);
         assertNotNull("Sample \"" + sample + "\" was not found", text);
         textComponent.setText(text);
+
         //new JButtonOperator(main, "Enable Preview").push();
-        ContainerOperator cont = new ContainerOperator(main, new Util.ClassNameComponentChooser("PreviewButton"));
-        Util.showComponents(cont);
-        JToggleButtonOperator preview = new JToggleButtonOperator((JToggleButton) cont.getSource());
-        preview.push();
-        Util.sleep(4000);
-        Util.showComponents(main);
+        //ContainerOperator cont = new ContainerOperator(main, new Util.ClassNameComponentChooser("PreviewButton"));
+        //Util.showComponents(cont);
+        //JToggleButtonOperator preview = new JToggleButtonOperator((JToggleButton) cont.getSource());
+        //preview.push();
+        //Util.sleep(4000);
+        //Util.showComponents(main);
     }
 
-    //*/
 
 }
