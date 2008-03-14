@@ -128,7 +128,7 @@ public class Hk2StartRunnable implements Runnable {
                 // commands.  Until this is fixed, wait 1 second before assuming
                 // it's really ok.  Otherwise, domain.xml can get corrupted.
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(3000);
                 } catch (InterruptedException ex) {
                 }
                 fireStartProgressEvent(StateType.COMPLETED, createProgressMessage("MSG_SERVER_STARTED")); // NOI18N
