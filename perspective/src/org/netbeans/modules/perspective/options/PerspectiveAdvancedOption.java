@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,13 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,26 +31,32 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.clearcase.ui.texthistory;
+package org.netbeans.modules.perspective.options;
 
-import org.netbeans.modules.versioning.spi.VCSContext;
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
+import org.netbeans.spi.options.AdvancedOption;
+import org.netbeans.spi.options.OptionsPanelController;
+import org.openide.util.NbBundle;
 
-public class TextHistoryAction extends AbstractAction {
-    
-    private final VCSContext context;
+/**
+ *
+ * @author Anuradha
+ */
+public class PerspectiveAdvancedOption extends AdvancedOption {
 
-    public TextHistoryAction(String name, VCSContext context) {
-        this.context = context;
-        putValue(Action.NAME, name);
+    public String getDisplayName() {
+        return NbBundle.getMessage(PerspectiveAdvancedOption.class, "AdvancedOption_Perspective");
     }
-    
-    public void actionPerformed(ActionEvent ev) {
-        NotifyDescriptor nd = new NotifyDescriptor("Not implemeted yet!", "ClearCase", NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE, new Object[]{NotifyDescriptor.OK_OPTION}, null);        
-        DialogDisplayer.getDefault().notify(nd);
+
+    public String getTooltip() {
+        return NbBundle.getMessage(PerspectiveAdvancedOption.class, "AdvancedOption_Tooltip_Perspective");
+    }
+
+    public OptionsPanelController create() {
+        return new PerspectiveOptionsPanelController();
     }
 }

@@ -52,8 +52,8 @@ import java.util.Map;
 
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.modules.java.api.common.ant.UpdateHelper;
 import org.netbeans.modules.javafx.project.JavaFXProject;
-import org.netbeans.modules.javafx.project.UpdateHelper;
 import org.netbeans.spi.project.support.ant.GeneratedFilesHelper;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.spi.project.support.ant.ReferenceHelper;

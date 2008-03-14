@@ -44,18 +44,29 @@ package org.netbeans.modules.javafx.project;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.Collection;
+import javax.lang.model.element.TypeElement;
+import javax.swing.SwingUtilities;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectManager;
+import org.netbeans.modules.java.api.common.ant.UpdateHelper;
+import org.netbeans.spi.project.support.ant.AntProjectHelper;
+import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
 import org.openide.util.Exceptions;
+import org.openide.util.Mutex;
+import org.openide.util.MutexException;
 import org.openide.util.RequestProcessor;
 
 /**
@@ -64,7 +75,7 @@ import org.openide.util.RequestProcessor;
  */
 public class MainClassUpdater extends FileChangeAdapter implements PropertyChangeListener {
     
-    private static RequestProcessor performer = new RequestProcessor();
+    private static final RequestProcessor RP = new RequestProcessor ("main-class-updater",1);       //NOI18N
     
     private final Project project;
     private final PropertyEvaluator eval;
@@ -72,6 +83,7 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
     private final ClassPath sourcePath;
     private final String mainClassPropName;
     private FileObject current;
+    private FileChangeListener listener;
     
     /** Creates a new instance of MainClassUpdater */
     public MainClassUpdater(final Project project, final PropertyEvaluator eval,
@@ -85,7 +97,7 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
         this.eval = eval;
         this.helper = helper;
         this.sourcePath = sourcePath;
-        this.mainClassPropName = mainClassPropName;
+        this.mainClassPropName = mainClassPropName;        
         this.eval.addPropertyChangeListener(this);
         this.addFileChangeListener ();
     }
@@ -98,20 +110,72 @@ public class MainClassUpdater extends FileChangeAdapter implements PropertyChang
     
     public void propertyChange(PropertyChangeEvent evt) {
         if (this.mainClassPropName.equals(evt.getPropertyName())) {
-            this.addFileChangeListener ();
+            RP.post(new Runnable () {
+                public void run() {
+                    MainClassUpdater.this.addFileChangeListener ();
+                }
+            });            
         }
     }
     
     @Override
     public void fileRenamed (final FileRenameEvent evt) {
+        if (!project.getProjectDirectory().isValid()) {
+            return;
+        }
         final FileObject _current;
         synchronized (this) {
             _current = this.current;
         }
+        if (evt.getFile() == _current) {
+            Runnable r = new Runnable () {
+                public void run () {  
+                    try {
+                        final String oldMainClass = ProjectManager.mutex().readAccess(new Mutex.ExceptionAction<String>() {
+                            public String run() throws Exception {
+                                return eval.getProperty(mainClassPropName);
+                            }
+                        });
+
+                        Collection<ElementHandle<TypeElement>> main = SourceUtils.getMainClasses(_current);
+                        String newMainClass = null;
+                        if (!main.isEmpty()) {
+                            ElementHandle<TypeElement> mainHandle = main.iterator().next();
+                            newMainClass = mainHandle.getQualifiedName();
+                        }                    
+                        if (newMainClass != null && !newMainClass.equals(oldMainClass) && helper.requestUpdate() &&
+                                // XXX ##84806: ideally should update nbproject/configs/*.properties in this case:
+                            eval.getProperty(JavaFXConfigurationProvider.PROP_CONFIG) == null) {
+                            final String newMainClassFinal = newMainClass;
+                            ProjectManager.mutex().writeAccess(new Mutex.ExceptionAction<Void>() {
+                                public Void run() throws Exception {                                                                                    
+                                    EditableProperties props = helper.getProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH);
+                                    props.put (mainClassPropName, newMainClassFinal);
+                                    helper.putProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH, props);
+                                    ProjectManager.getDefault().saveProject (project);
+                                    return null;
+                                }
+                            });
+                        }
+                    } catch (IOException e) {
+                        Exceptions.printStackTrace(e);
+                    }
+                    catch (MutexException e) {
+                        Exceptions.printStackTrace(e);
+                    }
+                }
+            };
+            if (SwingUtilities.isEventDispatchThread()) {
+                r.run();
+            }
+            else {
+                SwingUtilities.invokeLater(r);
+            }
+        }
     }
     
     private void addFileChangeListener () {
-        performer.post( new Runnable () {
+        RP.post( new Runnable () {
             public void run() {
                 try {
                     SourceUtils.waitScanFinished();

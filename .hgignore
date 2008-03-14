@@ -235,3 +235,6 @@
 ^xtest.examples/MyModule/mymodule\.jar$
 ^xtest.examples/PaintApp/dist$
 ^xtest.examples/anagrams/dist$
+\.orig\..*$
+\.chg\..*$
+\.conflict\~$
