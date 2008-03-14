@@ -78,7 +78,15 @@ public abstract class ProgressSupport implements Runnable, Cancellable {
         }
     }
 
-    protected void setCancellableDelegate(Cancellable c) {
+    public void setDisplayMessage(String displayName) {
+        this.displayName = displayName;
+        ProgressHandle ph = getProgressHandle();
+        if(ph != null) {
+            ph.setDisplayName(displayName);
+        }
+    }
+
+    public void setCancellableDelegate(Cancellable c) {
         cancellableDelegate = c;
         if(canceled) {
             c.cancel();

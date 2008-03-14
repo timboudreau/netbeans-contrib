@@ -107,7 +107,7 @@ public class AddAction extends AbstractAction {
         final JButton addButton = new JButton(); 
         addButton.setEnabled(false);
         JButton cancelButton = new JButton("Cancel"); 
-        AddPanel panel = new AddPanel();        
+        final AddPanel panel = new AddPanel();        
                 
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(AddAction.class, "CTL_AddDialog_Title", contextTitle)); // NOI18N
         dd.setModal(true);        
@@ -135,27 +135,32 @@ public class AddAction extends AbstractAction {
         
         Object value = dd.getValue();
         if (value != addButton) return;
-        
-        String message = panel.taMessage.getText();
-        boolean checkInAddedFiles = panel.cbSuppressCheckout.isSelected();
-        ClearcaseModuleConfig.setCheckInAddedFiles(checkInAddedFiles);
-        Utils.insert(ClearcaseModuleConfig.getPreferences(), RECENT_ADD_MESSAGES, message, 20);
-        
-        Map<ClearcaseFileNode, CheckinOptions> filesToAdd = addTable.getAddFiles();
-        
-        addFiles(message, checkInAddedFiles, filesToAdd);
+
+        ProgressSupport ps = new ProgressSupport(Clearcase.getInstance().getClient().getRequestProcessor(), "Adding...") {
+            @Override
+            protected void perform() {
+                String message = panel.taMessage.getText();
+                boolean checkInAddedFiles = panel.cbSuppressCheckout.isSelected();
+                ClearcaseModuleConfig.setCheckInAddedFiles(checkInAddedFiles);
+                Utils.insert(ClearcaseModuleConfig.getPreferences(), RECENT_ADD_MESSAGES, message, 20);
+
+                Map<ClearcaseFileNode, CheckinOptions> filesToAdd = addTable.getAddFiles();
+
+                addFiles(message, checkInAddedFiles, filesToAdd, this);
+            }
+        };
+        ps.start();    
     }
 
     /**
-     * Invokes "mkelem" on supplied files.
+     * Invokes "mkelem" on supplied files. 
      * 
      * @param message message from the mkelem command or null
      * @param checkInAddedFiles
      * @param filesToAdd set of files to add - only files that have the ADD_XXXXXX checkin option set will be added
      * @return CommandRunnable that is adding the files or NULL of there are no files to add and no command was executed
      */
-    public static RequestProcessor.Task addFiles(final String message, boolean checkInAddedFiles, Map<ClearcaseFileNode, CheckinOptions> filesToAdd) {
-        // TODO: process options
+    public static void addFiles(final String message, boolean checkInAddedFiles, Map<ClearcaseFileNode, CheckinOptions> filesToAdd, ProgressSupport ps) {
         Set<File> tmpFiles = new HashSet<File>();
         for (Map.Entry<ClearcaseFileNode, CheckinOptions> entry : filesToAdd.entrySet()) {
             if (entry.getValue() == CheckinOptions.ADD_BINARY || entry.getValue() == CheckinOptions.ADD_TEXT || entry.getValue() == CheckinOptions.ADD_DIRECTORY) {
@@ -163,7 +168,7 @@ public class AddAction extends AbstractAction {
             }
         }
         
-        if (tmpFiles.size() == 0) return null;
+        if (tmpFiles.size() == 0) return;
         
         // make sure that ancestors are also added if they are not already under source control
         addAncestors(tmpFiles);
@@ -172,41 +177,25 @@ public class AddAction extends AbstractAction {
         // sort files - parents first, to avoid unnecessary warnings
         Collections.sort(addFiles);        
         final File[] files = addFiles.toArray(new File[addFiles.size()]);
-        return addFilesImpl(files, message, checkInAddedFiles);
-    }
-
-    /**
-     * Invokes "mkelem" on supplied files. Returns after all files are added.
-     * 
-     * @param files array of files to add 
-     * @param message message from the mkelem command or null
-     * @param checkInAddedFiles     
-     */    
-    public static void addFiles(final File[] files, final String message, boolean checkInAddedFiles) {        
-         addFilesImpl(files, message, checkInAddedFiles).waitFinished();
-    }    
-    
-    /**
-     * Invokes "mkelem" on supplied files.
-     * 
-     * @param files array of files to add 
-     * @param message message from the mkelem command or null
-     * @param checkInAddedFiles     
-     * @return CommandRunnable that is adding the files or NULL of there are no files to add and no command was executed
-     */        
-    private static RequestProcessor.Task addFilesImpl(final File[] files, final String message, boolean checkInAddedFiles) {        
-        HashSet<File> refreshSet = new HashSet<File>();
+                HashSet<File> refreshFiles = new HashSet<File>();
         for (File file : files) {
-            refreshSet.add(file);
+            refreshFiles.add(file);
             File parent = file.getParentFile();
             if(parent != null) {
-                refreshSet.add(parent);
+                refreshFiles.add(parent);
             }    
         }                    
-        MkElemCommand addCmd = new MkElemCommand(files, message, checkInAddedFiles ? MkElemCommand.Checkout.Checkin : MkElemCommand.Checkout.Default, false, new OutputWindowNotificationListener(), new AfterCommandRefreshListener(refreshSet.toArray(new File[refreshSet.size()])));
-        return Clearcase.getInstance().getClient().post("Adding...", addCmd);
+        MkElemCommand addCmd = 
+                new MkElemCommand(
+                    files, 
+                    message, 
+                    checkInAddedFiles ? MkElemCommand.Checkout.Checkin : MkElemCommand.Checkout.Default, 
+                    false, 
+                    new OutputWindowNotificationListener(), 
+                    new AfterCommandRefreshListener(refreshFiles.toArray(new File[refreshFiles.size()])));
+        Clearcase.getInstance().getClient().exec(addCmd, true, ps);
     }
-  
+       
     private static void addAncestors(Set<File> addFiles) {
         Set<File> ancestorsToAdd = new HashSet<File>(10);
         for (File file : addFiles) {
