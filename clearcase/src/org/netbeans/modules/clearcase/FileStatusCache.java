@@ -205,19 +205,7 @@ public class FileStatusCache {
         }        
         return fi;               
     }
-    
-//    /**
-//     * Refreshes recursively all files in the given context.
-//     * This method synchronously accesses disk and may block for a long period of time.
-//     * Status change events will be fired to notify all registered listeners.
-//     * 
-//     * @param ctx the context to be refreshed
-//     */
-//    public ProgressSupport createRefreshSupport(VCSContext ctx) {        
-//        Set<File> files = ctx.getRootFiles();
-//        return new RefreshSupport(true, false, files.toArray(new File[files.size()]));
-//    }            
-    
+        
     /**
      * Asynchronously refreshes the status for the given files.
      * Status change events will be fired to notify all registered listeners.
