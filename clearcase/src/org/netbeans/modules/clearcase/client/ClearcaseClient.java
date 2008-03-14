@@ -54,6 +54,8 @@ import java.io.IOException;
 import java.beans.PropertyChangeListener;
 import java.awt.event.ActionEvent;
 import java.util.*;
+import java.util.logging.Level;
+import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
 
 /**
@@ -201,18 +203,17 @@ public class ClearcaseClient {
             } catch (Exception e) {
                 Utils.logError(this, e);
             } 
-            if (notifyErrors && eu.getFailedCommand() != null) {
-                notifyCommandError();
+            if (eu.getFailedCommand() != null) {
+                handleCommandError(notifyErrors);
             }
         }
 
         /**
-         * Pops up a dialog that notifies the user that clearcase command failed.
+         * Logs and notifies CC errrors.
          * 
-         * @param eu
-         * @param error
+         * @param notifyErrors Pops up a dialog that notifies the user that clearcase command failed.        
          */
-        private void notifyCommandError() {
+        private void handleCommandError(boolean notifyErrors) {
             final List<String> errors = new ArrayList<String>(100);
             
             Exception exception = eu.getFailedCommand().getThrownException();
@@ -222,11 +223,23 @@ public class ClearcaseClient {
             }
             
             errors.addAll(eu.getFailedCommand().getCmdError());
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    report("Clearcase Command Failure", "Error executing", errors, NotifyDescriptor.ERROR_MESSAGE);        
-                }
-            });
+            
+            StringBuffer sb = new StringBuffer();
+            sb.append("Clearcase Command Failure: ");            
+            sb.append(eu.getFailedCommand());
+            for (String err : errors) {
+                sb.append('\n');                
+                sb.append(err);
+            }   
+            Clearcase.LOG.log(Level.INFO, null, new ClearcaseException(sb.toString()));
+            
+            if(notifyErrors) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        report("Clearcase Command Failure", "Error executing", errors, NotifyDescriptor.ERROR_MESSAGE);        
+                    }
+                });
+            }
         }
         
         private void report(String title, String prompt, List<String> messages, int type) {
