@@ -106,12 +106,12 @@ public class AddAction extends AbstractAction {
         String contextTitle = Utils.getContextDisplayName(context);
         final JButton addButton = new JButton(); 
         addButton.setEnabled(false);
-        JButton cancelButton = new JButton("Cancel"); 
+        JButton cancelButton = new JButton(NbBundle.getMessage(AddAction.class, "AddAction_Cancel")); //NOI18N
         final AddPanel panel = new AddPanel();        
                 
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(AddAction.class, "CTL_AddDialog_Title", contextTitle)); // NOI18N
         dd.setModal(true);        
-        org.openide.awt.Mnemonics.setLocalizedText(addButton, org.openide.util.NbBundle.getMessage(AddAction.class, "CTL_AddDialog_Add"));
+        org.openide.awt.Mnemonics.setLocalizedText(addButton, org.openide.util.NbBundle.getMessage(AddAction.class, "CTL_AddDialog_Add")); //NOI18N
         
         dd.setOptions(new Object[] {addButton, cancelButton}); // NOI18N
         dd.setHelpCtx(new HelpCtx(AddAction.class));
@@ -136,7 +136,7 @@ public class AddAction extends AbstractAction {
         Object value = dd.getValue();
         if (value != addButton) return;
 
-        ProgressSupport ps = new ProgressSupport(Clearcase.getInstance().getClient().getRequestProcessor(), "Adding...") {
+        ProgressSupport ps = new ProgressSupport(Clearcase.getInstance().getClient().getRequestProcessor(), NbBundle.getMessage(AddAction.class, "Progress_Adding")) { //NOI18N
             @Override
             protected void perform() {
                 String message = panel.taMessage.getText();
@@ -217,7 +217,7 @@ public class AddAction extends AbstractAction {
 
     // XXX temporary solution...
     private void computeNodes(final AddTable table, JButton cancel, final AddPanel addPanel) {
-        final ProgressSupport ps = new FileStatusCache.RefreshSupport(new RequestProcessor("Clearcase-AddTo"), context, "Preparing Add To...", cancel) {
+        final ProgressSupport ps = new FileStatusCache.RefreshSupport(new RequestProcessor("Clearcase-AddTo"), context, NbBundle.getMessage(AddAction.class, "Progress_Preparing_Add_To"), cancel) { //NOI18N
             @Override
             protected void perform() {
                 try {
