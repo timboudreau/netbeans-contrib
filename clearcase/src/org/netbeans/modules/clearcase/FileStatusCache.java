@@ -222,7 +222,7 @@ public class FileStatusCache {
                 filesToRefresh.add(file);                
             }
         }
-        getFilesToRefreshTask().schedule(500); 
+        getFilesToRefreshTask().schedule(200); 
     }    
     
     // --- Package private contract ------------------------------------------
