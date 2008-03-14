@@ -39,19 +39,19 @@
                     <attr name="active" stringvalue="output"/>
                     <folder name="output">
                         <attr name="index" intvalue="0"/>
-                        <attr name="opened" boolvalue="flase"/>
+                        <attr name="opened" boolvalue="false"/>
                     </folder>
                     <folder name="TaskListTopComponent">
                         <attr name="index" intvalue="1"/>
-                        <attr name="opened" boolvalue="flase"/>
+                        <attr name="opened" boolvalue="false"/>
                     </folder>
                     <folder name="DeclarationTopComponent">
                         <attr name="index" intvalue="2"/>
-                        <attr name="opened" boolvalue="flase"/>
+                        <attr name="opened" boolvalue="false"/>
                     </folder>
                     <folder name="JavadocTopComponent">
                         <attr name="index" intvalue="3"/>
-                        <attr name="opened" boolvalue="flase"/>
+                        <attr name="opened" boolvalue="false"/>
                     </folder>
                 </folder>
             </folder>
@@ -80,7 +80,7 @@
                     <attr name="active" stringvalue="navigatorTC"/>
                     <folder name="favorites">
                         <attr name="index" intvalue="0"/>
-                        <attr name="opened" boolvalue="flase"/>
+                        <attr name="opened" boolvalue="false"/>
                     </folder>
                     <folder name="navigatorTC">
                         <attr name="index" intvalue="1"/>
@@ -138,7 +138,7 @@
                     </folder>
                     <folder name="favorites">
                         <attr name="index" intvalue="1"/>
-                        <attr name="opened" boolvalue="flase"/>
+                        <attr name="opened" boolvalue="false"/>
                     </folder>
                     <folder name="navigatorTC">
                         <attr name="index" intvalue="2"/>
@@ -161,11 +161,11 @@
                     <attr name="active" stringvalue="DeclarationTopComponent"/> 
                     <folder name="DeclarationTopComponent">
                         <attr name="index" intvalue="2"/>
-                        <attr name="opened" boolvalue="flase"/>
+                        <attr name="opened" boolvalue="false"/>
                     </folder>
                     <folder name="JavadocTopComponent">
                         <attr name="index" intvalue="3"/>
-                        <attr name="opened" boolvalue="flase"/>
+                        <attr name="opened" boolvalue="false"/>
                     </folder>
                 </folder>
             </folder>
