@@ -66,6 +66,7 @@ import org.openide.util.Utilities;
 
 import javax.swing.*;
 import org.netbeans.modules.versioning.spi.VersioningSupport;
+import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
 /**
@@ -125,7 +126,7 @@ public class Clearcase {
     
     private void openLog() {
         if (log == null || log.isClosed()) {
-            log = IOProvider.getDefault().getIO("Clearcase", false);
+            log = IOProvider.getDefault().getIO(NbBundle.getMessage(Clearcase.class, "OutputWindow_Clearcase"), false);
             try {                
                 log.getOut().reset();   // workaround, otherwise it writes to nowhere
             } catch (IOException e) {
@@ -417,7 +418,7 @@ public class Clearcase {
                 private final VcsAnnotation annotation;
 
                 public DiffForAnnotationAction(VcsAnnotation annotation) {
-                    super("Diff to " + annotation.getRevision());
+                    super(NbBundle.getMessage(Clearcase.class, "Annotations_DiffTo", annotation.getRevision()));
                     this.annotation = annotation;
                 }
 
