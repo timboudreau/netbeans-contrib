@@ -40,14 +40,20 @@
 package org.netbeans.modules.javafx.debug;
 
 import com.sun.source.util.TreePath;
+import java.util.Iterator;
 import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;
+import javax.tools.Diagnostic;
 
 /**
  * // TODO: to be replaced by real class
  * @author david
  */
 class CompilationInfo {
+
+    CompilationInfo getDiagnostics() {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 
     Element getElement(TreePath currentPath) {
         throw new UnsupportedOperationException("Not yet implemented");
@@ -66,6 +72,10 @@ class CompilationInfo {
     }
 
     TypeMirror getTypeMirror(TreePath currentPath) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    Iterator<Diagnostic> iterator() {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 

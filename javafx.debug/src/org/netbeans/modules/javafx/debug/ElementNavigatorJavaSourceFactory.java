@@ -40,15 +40,9 @@
  */
 package org.netbeans.modules.javafx.debug;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.netbeans.api.java.source.CancellableTask;
-import org.netbeans.api.java.source.CompilationInfo;
-import org.netbeans.api.java.source.JavaSource;
-import org.netbeans.api.java.source.JavaSource.Phase;
-import org.netbeans.api.java.source.JavaSource.Priority;
-import org.netbeans.api.java.source.support.LookupBasedJavaSourceTaskFactory;
-import org.netbeans.modules.javafx.debug.TreeNavigatorJavaSourceFactory.WrapperTask;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
 
@@ -56,25 +50,26 @@ import org.openide.util.Lookup;
  *
  * @author Jan Lahoda
  */
-public final class ElementNavigatorJavaSourceFactory extends LookupBasedJavaSourceTaskFactory {
+public final class ElementNavigatorJavaSourceFactory /* extends LookupBasedJavaSourceTaskFactory */ {
     
-    private CancellableTask<CompilationInfo> task;
+//    private CancellableTask<CompilationInfo> task;
     
     static ElementNavigatorJavaSourceFactory getInstance() {
         return Lookup.getDefault().lookup(ElementNavigatorJavaSourceFactory.class);
     }
     
     public ElementNavigatorJavaSourceFactory() {
-        super(Phase.UP_TO_DATE, Priority.NORMAL);
+//        super(Phase.UP_TO_DATE, Priority.NORMAL);
     }
 
-    public synchronized CancellableTask<CompilationInfo> createTask(FileObject file) {
-        //XXX: should not be necessary to do the wrapper task, but for some reason it is necessary:
-        return new WrapperTask(task);
-    }
+//    public synchronized CancellableTask<CompilationInfo> createTask(FileObject file) {
+//        //XXX: should not be necessary to do the wrapper task, but for some reason it is necessary:
+//        return new WrapperTask(task);
+//    }
 
     public List<FileObject> getFileObjects() {
-        List<FileObject> result = super.getFileObjects();
+//        List<FileObject> result = super.getFileObjects();
+        List<FileObject> result = new ArrayList<FileObject>();
 
         if (result.size() == 1)
             return result;
@@ -83,7 +78,8 @@ public final class ElementNavigatorJavaSourceFactory extends LookupBasedJavaSour
     }
 
     public FileObject getFile() {
-        List<FileObject> result = super.getFileObjects();
+//        List<FileObject> result = super.getFileObjects();
+        List<FileObject> result = new ArrayList<FileObject>();
         
         if (result.size() == 1)
             return result.get(0);
@@ -91,9 +87,9 @@ public final class ElementNavigatorJavaSourceFactory extends LookupBasedJavaSour
         return null;
     }
 
-    public synchronized void setLookup(Lookup l, CancellableTask<CompilationInfo> task) {
-        this.task = task;
-        super.setLookup(l);
-    }
+//    public synchronized void setLookup(Lookup l, CancellableTask<CompilationInfo> task) {
+//        this.task = task;
+//        super.setLookup(l);
+//    }
 
 }

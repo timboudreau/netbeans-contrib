@@ -33,7 +33,6 @@ import org.openide.nodes.AbstractNode;
 import java.util.List;
 import java.util.Locale;
 import javax.tools.Diagnostic;
-import org.netbeans.api.java.source.CompilationInfo;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 

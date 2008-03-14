@@ -42,7 +42,6 @@ package org.netbeans.modules.javafx.debug;
 
 import java.util.Collections;
 import java.util.List;
-import org.netbeans.api.java.source.Comment;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;

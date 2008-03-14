@@ -133,7 +133,7 @@ public class TreeNavigatorProviderImpl implements NavigatorPanel {
     }
 
     public void panelDeactivated() {
-        TreeNavigatorJavaSourceFactory.getInstance().setLookup(Lookup.EMPTY, null);
+//        TreeNavigatorJavaSourceFactory.getInstance().setLookup(Lookup.EMPTY, null);
     }
 
     static OffsetsBag getBag(Document doc) {
