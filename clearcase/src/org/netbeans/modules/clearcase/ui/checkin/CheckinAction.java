@@ -111,13 +111,13 @@ public class CheckinAction extends AbstractAction {
         String contextTitle = Utils.getContextDisplayName(context);
         final JButton checkinButton = new JButton(); 
         checkinButton.setEnabled(false);
-        JButton cancelButton = new JButton("Cancel");         
+        JButton cancelButton = new JButton(NbBundle.getMessage(CheckinAction.class, "Checkin_Cancel")); //NOI18N
         
         final CheckinPanel panel = new CheckinPanel();        
         
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(CheckinAction.class, "CTL_CheckinDialog_Title", contextTitle)); // NOI18N
         dd.setModal(true);        
-        org.openide.awt.Mnemonics.setLocalizedText(checkinButton, org.openide.util.NbBundle.getMessage(CheckinAction.class, "CTL_CheckinDialog_Checkin"));
+        org.openide.awt.Mnemonics.setLocalizedText(checkinButton, org.openide.util.NbBundle.getMessage(CheckinAction.class, "CTL_CheckinDialog_Checkin")); //NOI18N
         
         dd.setOptions(new Object[] {checkinButton, cancelButton}); // NOI18N
         dd.setHelpCtx(new HelpCtx(CheckinAction.class));
@@ -145,7 +145,7 @@ public class CheckinAction extends AbstractAction {
         Object value = dd.getValue();
         if (value != checkinButton) return;
 
-        ProgressSupport ps = new ProgressSupport(Clearcase.getInstance().getClient().getRequestProcessor(), "Checking in...") {
+        ProgressSupport ps = new ProgressSupport(Clearcase.getInstance().getClient().getRequestProcessor(), NbBundle.getMessage(CheckinAction.class, "Progress_Checking_in")) { //NOI18N
             @Override
             protected void perform() {
                 performCheckin(panel, checkinTable, this);
@@ -156,7 +156,7 @@ public class CheckinAction extends AbstractAction {
 
     // XXX temporary solution...
     private void computeNodes(final CheckinTable checkinTable, JButton cancel, final CheckinPanel checkinPanel) {
-        final ProgressSupport ps = new FileStatusCache.RefreshSupport(new RequestProcessor("Clearcase-AddTo"), context, "Preparing Add To...", cancel) {
+        final ProgressSupport ps = new FileStatusCache.RefreshSupport(new RequestProcessor("Clearcase-AddTo"), context, NbBundle.getMessage(CheckinAction.class, "Progress_Preparing_Checkin"), cancel) { //NOI18N
             @Override
             protected void perform() {
                 try {
@@ -198,13 +198,13 @@ public class CheckinAction extends AbstractAction {
         boolean forceUnmodified = panel.cbForceUnmodified.isSelected();
         boolean preserveTime = panel.cbPreserveTime.isSelected();
 
-        ps.setDisplayMessage("Checkin - Adding new Files ...");
+        ps.setDisplayMessage(NbBundle.getMessage(CheckinAction.class, "Progress_Checkin_Adding_new_Files")); //NOI18N
         Map<ClearcaseFileNode, CheckinOptions> filesToCheckin = checkinTable.getAddFiles();
         // XXX true means they stay checked out and 
         // still have to be checked in later. reconsider using false instead
         AddAction.addFiles(null, false, filesToCheckin, ps);  
 
-        ps.setDisplayMessage("Checking in...");
+        ps.setDisplayMessage(NbBundle.getMessage(CheckinAction.class, "Progress_Checking_in")); //NOI18N
         List<String> addExclusions = new ArrayList<String>();
         
         List<String> removeExclusions = new ArrayList<String>();
