@@ -489,11 +489,17 @@ class JavaFXActionProvider implements ActionProvider {
                 if (clazz.endsWith(".java")) { // NOI18N
                     clazz = clazz.substring(0, clazz.length() - 5);
                 }
+                if (clazz.endsWith(".fx")) { // NOI18N
+                    clazz = clazz.substring(0, clazz.length() - 3);
+                }
                 clazz = clazz.replace('/','.');
                 final boolean hasMainClassFromTest = MainClassChooser.unitTestingSupport_hasMainMethodResult == null ? false :
                     MainClassChooser.unitTestingSupport_hasMainMethodResult.booleanValue();
-                final Collection<ElementHandle<TypeElement>> mainClasses = JavaFXProjectUtil.getMainMethods (file);
-                if (!hasMainClassFromTest && mainClasses.isEmpty()) {
+                Collection<ElementHandle<TypeElement>> mainClasses = null;
+                if (!file.getExt().equals("fx")){
+                    mainClasses = JavaFXProjectUtil.getMainMethods (file);
+                }
+                if ((file.getExt().equals("fx")) || (!hasMainClassFromTest && mainClasses.isEmpty())) {
                     if (AppletSupport.isApplet(file)) {
 
                         EditableProperties ep = updateHelper.getProperties (AntProjectHelper.PROJECT_PROPERTIES_PATH);
@@ -775,8 +781,13 @@ class JavaFXActionProvider implements ActionProvider {
         FileObject[] srcPath = project.getSourceRoots().getRoots();
         for (int i=0; i< srcPath.length; i++) {
             FileObject[] files = ActionUtils.findSelectedFiles(context, srcPath[i], ".java", true); // NOI18N
+            FileObject[] fxFiles = ActionUtils.findSelectedFiles(context, srcPath[i], ".fx", true); // NOI18N
+            
             if (files != null) {
                 return files;
+            }
+            if (fxFiles != null) {
+                return fxFiles;
             }
         }
         return null;

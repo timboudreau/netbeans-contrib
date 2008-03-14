@@ -12,6 +12,6 @@ import javafx.ui.*;
  * @author ${user}
  */
 
-class ${name} extends Applet{
+public class ${name} extends Applet{
     
 }

@@ -77,6 +77,25 @@ made subject to such option by the copyright holder.
                 <package>javax.lang.model.type</package>
                 <package>javax.lang.model.util</package>
                 <package>javax.tools</package>
+                <package>javax.lang.model.element</package>
+                <package>javax.lang.model.type</package>
+                <package>javax.lang.model.util</package>
+                <package>com.sun.tools.javac.util</package>
+                <package>com.sun.tools.javac.tree</package>
+                <package>net.java.javafx</package>
+                <package>net.java.javafx.jazz</package>
+                <package>net.java.javafx.jazz.animation</package>
+                <package>net.java.javafx.jazz.component</package>
+                <package>net.java.javafx.jazz.event</package>
+                <package>net.java.javafx.jazz.util</package>
+                <package>net.java.javafx.type</package>
+                <package>net.java.javafx.type.debug</package>
+                <package>net.java.javafx.type.expr</package>
+                <package>net.java.javafx.type.expr.format</package>
+                <package>net.java.javafx.typeImpl</package>
+                <package>net.java.javafx.typeImpl.completion</package>
+                <package>net.java.javafx.ui</package>
+                <package>net.java.javafx.ui.batik</package>
                 <package>org.jdesktop.layout</package>
             </public-packages>
         </data>
