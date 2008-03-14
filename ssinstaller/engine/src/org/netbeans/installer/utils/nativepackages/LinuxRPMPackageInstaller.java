@@ -9,6 +9,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.LogManager;
+import org.netbeans.installer.utils.exceptions.InstallationException;
+import org.netbeans.installer.utils.exceptions.UninstallationException;
 
 /**
  *
@@ -21,7 +23,7 @@ public class LinuxRPMPackageInstaller implements NativePackageInstaller {
     
     private String target = null;
     
-    public boolean install(String pathToPackage, Product product) {
+    public void install(String pathToPackage, Product product) throws InstallationException {
         String value = product.getProperty(PACKAGES_COUNTER);
         int counter = parseInteger(value) + 1;
         String packageName = getPackageName(pathToPackage);
@@ -34,19 +36,18 @@ public class LinuxRPMPackageInstaller implements NativePackageInstaller {
                 } else {
                     p = new ProcessBuilder("rpm", "-i", pathToPackage, "--root", target).start();
                 }
-                if (p.waitFor() != 0) return false;
+                if (p.waitFor() != 0) throw new InstallationException("'rpm -i' returned " + String.valueOf(p.exitValue()));
                 product.setProperty(PACKAGE + String.valueOf(counter), packageName);        
                 product.setProperty(PACKAGES_COUNTER, String.valueOf(counter));        
             } catch (InterruptedException ex) {
-                return false;
+                throw new InstallationException("Error executing 'rpm -i'!", ex);
             } catch (IOException ex) {
-                return false;
+                throw new InstallationException("Error executing 'rpm -i'!", ex);
             }
         }
-        return true;
     }
  
-    public boolean uninstall(Product product) {
+    public void uninstall(Product product) throws UninstallationException {
         String packagesValue = product.getProperty(PACKAGES_COUNTER);
         List<String> arguments = new LinkedList<String>();
         arguments.add("rpm");
@@ -61,13 +62,12 @@ public class LinuxRPMPackageInstaller implements NativePackageInstaller {
         try {
             LogManager.log("executing command: " + listToString(arguments));
             Process p = new ProcessBuilder(arguments).start();
-            if (p.waitFor() != 0) return false;
+            if (p.waitFor() != 0) throw new UninstallationException("'rpm -e' returned " + String.valueOf(p.exitValue()));
         } catch (InterruptedException ex) {
-            return false;
+            throw new UninstallationException("Error executing 'rpm -e'!", ex);
         } catch (IOException ex) {
-            return false;
+            throw new UninstallationException("Error executing 'rpm -e'!", ex);
         }        
-        return true;
     }
     
     private String listToString(List<String> list) {

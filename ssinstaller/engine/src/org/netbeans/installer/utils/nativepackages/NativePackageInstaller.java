@@ -6,6 +6,8 @@
 package org.netbeans.installer.utils.nativepackages;
 
 import org.netbeans.installer.product.components.Product;
+import org.netbeans.installer.utils.exceptions.InstallationException;
+import org.netbeans.installer.utils.exceptions.UninstallationException;
 
 /**
  *
@@ -15,9 +17,9 @@ public interface NativePackageInstaller {
     
     void setDestinationPath(String path);
         
-    boolean install(String pathToPackage, Product product);
+    void install(String pathToPackage, Product product) throws InstallationException;
     
-    boolean uninstall(Product product);
+    void uninstall(Product product) throws UninstallationException;
     
     boolean isCorrectPackageFile(String pathToPackage);
 

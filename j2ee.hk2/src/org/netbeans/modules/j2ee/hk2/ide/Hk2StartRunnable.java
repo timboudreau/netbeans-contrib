@@ -58,6 +58,7 @@ import org.openide.ErrorManager;
 import org.openide.execution.NbProcessDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -122,6 +123,14 @@ public class Hk2StartRunnable implements Runnable {
         while (System.currentTimeMillis() - start < TIMEOUT) {
             // Send the 'completed' event and return when the server is running
             if (startServer.isRunning()) {
+                // !PW FIXME V3 as of March 12 is starting Grizzly & listening
+                // for connections before the server is ready to take asadmin
+                // commands.  Until this is fixed, wait 1 second before assuming
+                // it's really ok.  Otherwise, domain.xml can get corrupted.
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                }
                 fireStartProgressEvent(StateType.COMPLETED, createProgressMessage("MSG_SERVER_STARTED")); // NOI18N
                 return;
             }

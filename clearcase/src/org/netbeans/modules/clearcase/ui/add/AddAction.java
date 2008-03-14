@@ -69,7 +69,7 @@ import org.openide.util.HelpCtx;
 import org.openide.util.RequestProcessor;
 
 /**
- * Sample Update action.
+ * Add action
  * 
  * @author Maros Sandor
  */
@@ -154,7 +154,7 @@ public class AddAction extends AbstractAction {
      * @param filesToAdd set of files to add - only files that have the ADD_XXXXXX checkin option set will be added
      * @return CommandRunnable that is adding the files or NULL of there are no files to add and no command was executed
      */
-    public static ClearcaseClient.CommandRunnable addFiles(final String message, boolean checkInAddedFiles, Map<ClearcaseFileNode, CheckinOptions> filesToAdd) {
+    public static RequestProcessor.Task addFiles(final String message, boolean checkInAddedFiles, Map<ClearcaseFileNode, CheckinOptions> filesToAdd) {
         // TODO: process options
         Set<File> tmpFiles = new HashSet<File>();
         for (Map.Entry<ClearcaseFileNode, CheckinOptions> entry : filesToAdd.entrySet()) {
@@ -172,18 +172,29 @@ public class AddAction extends AbstractAction {
         // sort files - parents first, to avoid unnecessary warnings
         Collections.sort(addFiles);        
         final File[] files = addFiles.toArray(new File[addFiles.size()]);
-        return addFiles(files, message, checkInAddedFiles);
+        return addFilesImpl(files, message, checkInAddedFiles);
     }
 
     /**
+     * Invokes "mkelem" on supplied files. Returns after all files are added.
+     * 
+     * @param files array of files to add 
+     * @param message message from the mkelem command or null
+     * @param checkInAddedFiles     
+     */    
+    public static void addFiles(final File[] files, final String message, boolean checkInAddedFiles) {        
+         addFilesImpl(files, message, checkInAddedFiles).waitFinished();
+    }    
+    
+    /**
      * Invokes "mkelem" on supplied files.
      * 
-     * @param files arrya of files to add 
+     * @param files array of files to add 
      * @param message message from the mkelem command or null
      * @param checkInAddedFiles     
      * @return CommandRunnable that is adding the files or NULL of there are no files to add and no command was executed
-     */    
-    public static ClearcaseClient.CommandRunnable addFiles(final File[] files, final String message, boolean checkInAddedFiles) {        
+     */        
+    private static RequestProcessor.Task addFilesImpl(final File[] files, final String message, boolean checkInAddedFiles) {        
         HashSet<File> refreshSet = new HashSet<File>();
         for (File file : files) {
             refreshSet.add(file);
@@ -192,15 +203,10 @@ public class AddAction extends AbstractAction {
                 refreshSet.add(parent);
             }    
         }                    
-        return Clearcase.getInstance().getClient().post(
-                new ExecutionUnit(
-                    "Adding...", 
-                    new MkElemCommand(files, message, checkInAddedFiles ? MkElemCommand.Checkout.Checkin : MkElemCommand.Checkout.Default, 
-                    false, 
-                    new OutputWindowNotificationListener(), 
-                    new AfterCommandRefreshListener(refreshSet.toArray(new File[refreshSet.size()])))));
+        MkElemCommand addCmd = new MkElemCommand(files, message, checkInAddedFiles ? MkElemCommand.Checkout.Checkin : MkElemCommand.Checkout.Default, false, new OutputWindowNotificationListener(), new AfterCommandRefreshListener(refreshSet.toArray(new File[refreshSet.size()])));
+        return Clearcase.getInstance().getClient().post("Adding...", addCmd);
     }
-
+  
     private static void addAncestors(Set<File> addFiles) {
         Set<File> ancestorsToAdd = new HashSet<File>(10);
         for (File file : addFiles) {

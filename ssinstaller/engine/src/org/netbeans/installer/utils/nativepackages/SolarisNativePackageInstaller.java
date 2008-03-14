@@ -6,8 +6,10 @@
 package org.netbeans.installer.utils.nativepackages;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,6 +17,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.LogManager;
+import org.netbeans.installer.utils.exceptions.InstallationException;
+import org.netbeans.installer.utils.exceptions.UninstallationException;
 
 /**
  *
@@ -29,11 +33,37 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
 
     private String target = null;
     
-    public void setDestinationPath(String path) {
-        target = path;
+    //TODO fix
+    static final File TMP_DIR = new File("/tmp");
+            
+    File defaultResponse;
+    File defaultAdminFile;
+    public SolarisNativePackageInstaller() {
+        try {                        
+            defaultResponse = File.createTempFile("nbi-response", "", TMP_DIR);
+            PrintStream out = new PrintStream(defaultResponse);
+            out.println("LIST_FILE=/tmp/depend_list.\nTRLR_RESP=/tmp/response.\n");
+        } catch (IOException ex) {
+            throw new Error("Unexpected Error.", ex);
+        }
     }
     
-    public boolean install(String pathToPackage, Product product) {
+    
+    
+    public void setDestinationPath(String path) {
+        target = path;
+        try {
+            defaultAdminFile = File.createTempFile("nbi-admin", "", TMP_DIR);
+            PrintStream out = new PrintStream(defaultAdminFile);
+            out.println("mail=\ninstance=unique\npartial=nocheck\nrunlevel=nocheck" +
+                    "\nidepend=nocheck\nrdepend=nocheck\nspace=quit\nsetuid=nocheck\n" +
+                    "conflict=nocheck\naction=nocheck\nbasedir=" + path + "\n");
+        } catch (IOException ex) {
+            throw new Error("Unexpected Error.", ex);
+        }
+    }
+    
+    public void install(String pathToPackage, Product product) throws InstallationException {
         String value = product.getProperty(DEVICE_FILES_COUNTER);        
         int counter = parseInteger(value) + 1;
         DeviceFileAnalizer analizer = new DeviceFileAnalizer(pathToPackage);
@@ -43,54 +73,62 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
             for(String packageName: analizer) {
                 try {                    
                     LogManager.log("executing command: pkgadd -n -d " + pathToPackage 
-                            + (target == null? "": "-R " + target) + " " + packageName);
-                    Process p = null;
-                    if (target == null) {
-                        p = new ProcessBuilder("pkgadd", "-n", "-d", pathToPackage, packageName).start();
-                    } else {
-                        p = new ProcessBuilder("pkgadd", "-n", "-d", pathToPackage, "-R", target , packageName).start();
-                    }
+                            + " " + packageName);
+                    Process p = new ProcessBuilder("/usr/sbin/pkgadd", "-n",
+                            "-a", defaultAdminFile.getAbsolutePath(),
+                            "-r", defaultResponse.getAbsolutePath(),
+                            "-d", pathToPackage, 
+                            packageName).start();
                     if (p.waitFor() != 0) {
-                        return false;
+                        String line;
+                        StringBuffer message = new StringBuffer();
+                        message.append("Error = ");
+                        BufferedReader input =
+                                new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                        while ((line = input.readLine()) != null) {
+                            message.append(line);
+                        }                        
+                        message.append("\n Output = ");
+                        input =
+                                new BufferedReader(new InputStreamReader(p.getInputStream()));
+                        while ((line = input.readLine()) != null) {
+                            message.append(line);
+                        }
+                        throw new InstallationException("Error native. " + message);
                     }
                     product.setProperty(DEVICE_FILE + String.valueOf(counter) 
                             + DEVICE_FILE_PACKAGE + String.valueOf(i), packageName);
                     i++;
                 } catch (InterruptedException ex) {
-                    return false;
+                    throw new InstallationException("Error native.", ex);
                 } catch (IOException ex) {
-                    return false;
+                    throw new InstallationException("Error native.", ex);
                 }
             }
             product.setProperty(DEVICE_FILES_COUNTER, String.valueOf(counter));        
-        }
-        return true;
+        }        
     }
 
-    public boolean uninstall(Product product) {
+    public void uninstall(Product product) throws UninstallationException {
         String devicesValue = product.getProperty(DEVICE_FILES_COUNTER);
         for(int deviceNumber=1; deviceNumber<=parseInteger(devicesValue); deviceNumber++) {
             String packagesValue = product.getProperty(DEVICE_FILE + String.valueOf(deviceNumber) + DEVICE_FILE_PACKAGES_COUNTER);
             for(int packageNumber=1; packageNumber<=parseInteger(packagesValue); packageNumber++) {
                 try {
                     String value = product.getProperty(DEVICE_FILE + String.valueOf(deviceNumber) + DEVICE_FILE_PACKAGE + String.valueOf(packageNumber));
-                    LogManager.log("executing command: pkgrm " + (target == null? "": "-R " + target)  + " -n "+ value);
-                    Process p = null;
-                    if (target == null) {
-                        p = new ProcessBuilder("pkgrm", "-n", value).start();
-                    } else {
-                        p = new ProcessBuilder("pkgrm", "-R", target, "-n", value).start();
+                    LogManager.log("executing command: pkgrm -R " + target  + " -n "+ value);
+                    Process p = new ProcessBuilder("/usr/sbin/pkgrm", "-n", value).start();
+                    if (p.waitFor() != 0) {
+                        throw new UninstallationException("Error native. Returned not zero.");
                     }
-                    if (p.waitFor() != 0) return false;
                 } catch (InterruptedException ex) {
-                    return false;
+                    throw new UninstallationException("Error native.", ex);
                 } catch (IOException ex) {
-                    return false;
+                    throw new UninstallationException("Error native.", ex);
                 }
             }
         }
         product.setProperty(DEVICE_FILES_COUNTER, "0");        
-        return true;
     }
 
     public boolean isCorrectPackageFile(String pathToPackage) {

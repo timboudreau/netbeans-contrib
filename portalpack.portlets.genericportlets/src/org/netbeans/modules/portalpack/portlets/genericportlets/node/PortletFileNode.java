@@ -46,6 +46,7 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.FilterNode;
+import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
 /**
@@ -58,11 +59,12 @@ public class PortletFileNode extends FilterNode {
           Utilities.loadImage("/org/netbeans/modules/portalpack/portlets/genericportlets/resources/folder.gif"); // NOI18N
 
     public PortletFileNode(Project proj) throws DataObjectNotFoundException {
-        super(DataObject.find(proj.getProjectDirectory().getFileObject("nbproject")).getNodeDelegate());
+        super(DataObject.find(proj.getProjectDirectory().getFileObject("nbproject")).getNodeDelegate()); //NOI18N
     }
 
+    @Override
     public String getDisplayName() {
-        return "PortletXML";
+        return NbBundle.getMessage(PortletFileNode.class,"LBL_PortletXML");
     }
      
     //Next, we add icons, for the default state, which is

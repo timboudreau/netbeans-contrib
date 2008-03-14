@@ -172,7 +172,7 @@ public class PC20TaskHandler extends JNPCTaskHandler {
             Method m = cacheClazz.getMethod("init", new Class[]{});
             m.invoke(null, null);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.INFO,"Error Updating Cache" + e.getMessage());
             //ignore exception incase of class not found.
         }
     }

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
@@ -176,9 +177,9 @@ public class SunASStartStopListener implements ServerStartStopListener{
             
             
         } catch (MalformedURLException ex) {
-            ex.printStackTrace();
+            logger.log(Level.WARNING,"Error",ex);
         }catch(IOException e){
-            e.printStackTrace();
+            logger.log(Level.WARNING,"Error",e);
         }
         return installRequire;
     }
@@ -203,7 +204,6 @@ public class SunASStartStopListener implements ServerStartStopListener{
     
     public String getPCBaseDir(PSConfigObject psconfig){
         File nbBase = new File(System.getProperty("netbeans.user"));
-        //Strinng displayName = psconfig.getDisplayName();
         return nbBase + File.separator + "pcbase" + psconfig.getDisplayName();
     }
     

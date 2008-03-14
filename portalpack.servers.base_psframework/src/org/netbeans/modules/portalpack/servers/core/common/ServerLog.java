@@ -136,14 +136,14 @@ class ServerLog extends Thread {
                 sleep(100); // take a nap
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            logger.log(Level.FINEST,"Error",ex);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.log(Level.FINEST,"Error",e);
         } finally {
             logSupport.detachAnnotation();
         }
         
-        logger.log(Level.INFO,"Logger stopped ..");
+        logger.log(Level.FINEST,"Logger stopped ..");
     }
     
     /**
