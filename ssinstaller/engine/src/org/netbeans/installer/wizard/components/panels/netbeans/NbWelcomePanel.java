@@ -339,7 +339,7 @@ public class NbWelcomePanel extends ErrorMessagePanel {
         private NbiButton customizeButton;
         private NbiLabel installationSizeLabel;
         
-        private NbCustomizeSelectionDialog customizeDialog;
+        private NbCustomizeSelectionDialog customizeDialog;        
         private NbiPanel leftImagePanel;
         
         private List<RegistryNode> registryNodes;
