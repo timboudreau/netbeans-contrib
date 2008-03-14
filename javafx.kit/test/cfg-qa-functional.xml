@@ -1,0 +1,20 @@
+<mconfig name="openidex unit test config">
+    
+
+    <testbag testattribs="all,smoke" executor="ide" name="JavaFX Smoke Tests">
+        <testset dir="qa-functional/src">
+            <patternset>
+
+                <include name="**/smoke/JavaFXSmokeTest.*"/>
+
+            </patternset>
+        </testset>
+    </testbag>
+
+    <executor name="ide" antfile="build-qa-functional.xml" target="runidetest" default="true"/>
+    <compiler name="default-compiler" default="true" antfile="build-qa-functional.xml" target="default-compiler"/>
+  
+
+</mconfig>
+
+
