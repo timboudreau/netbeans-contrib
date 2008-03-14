@@ -226,6 +226,15 @@ made subject to such option by the copyright holder.
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.project.templates.JavaFXTemplates.createJavaFXTemplateIterator"/>
             </file>
+            <file name="JavaFXApplet.fx" url="JavaFXApplet.fx">
+                <attr name="position" intvalue="300"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.dataloader.Bundle"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/resources/JavaFXApplet.html"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateCategory" stringvalue="javafx, java-classes"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.project.templates.JavaFXTemplates.createJavaFXTemplateIterator"/>
+            </file>
         </folder>
     </folder>
 
