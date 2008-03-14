@@ -47,6 +47,7 @@ import java.awt.event.ActionEvent;
 import java.awt.Dialog;
 import java.io.File;
 import java.util.*;
+import java.util.ArrayList;
 import javax.swing.*;
 
 import javax.swing.event.TableModelEvent;
@@ -62,6 +63,7 @@ import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.ui.checkin.CheckinOptions;
 import org.netbeans.modules.clearcase.client.*;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.util.NbBundle;
@@ -176,8 +178,8 @@ public class AddAction extends AbstractAction {
         
         // sort files - parents first, to avoid unnecessary warnings
         Collections.sort(addFiles);        
-        final File[] files = addFiles.toArray(new File[addFiles.size()]);
-                HashSet<File> refreshFiles = new HashSet<File>();
+        File[] files = addFiles.toArray(new File[addFiles.size()]);
+        HashSet<File> refreshFiles = new HashSet<File>();
         for (File file : files) {
             refreshFiles.add(file);
             File parent = file.getParentFile();
@@ -185,6 +187,48 @@ public class AddAction extends AbstractAction {
                 refreshFiles.add(parent);
             }    
         }                    
+                        
+        Set<File> topmostParents = new HashSet<File>();
+        for (File file : addFiles) {
+            File parent = file.getParentFile();
+            File remove = null;
+            File add = null;
+            if(topmostParents.size() == 0) {
+                topmostParents.add(parent);
+                continue;
+            }
+            for (File tmParent : topmostParents) {
+                if(parent.equals(tmParent)) {
+                    break;
+                }
+                if(Utils.isAncestorOrEqual(tmParent, parent)) {                    
+                    break;
+                } else if(Utils.isAncestorOrEqual(parent, tmParent)) {                    
+                    remove = tmParent;
+                    add = parent;
+                    break;
+                } else {
+                   add = parent; 
+                }
+            }
+            if(remove != null) {
+                topmostParents.remove(remove); 
+                remove = null;
+                topmostParents.add(add);       
+                add = null;
+            }
+            if(add != null) {
+                topmostParents.add(add);       
+                add = null;
+            }
+        }
+
+        ClearcaseClient client = Clearcase.getInstance().getClient();
+        for (File tmParent : topmostParents) {
+            if(!ClearcaseUtils.ensureMutable(client, tmParent)) {
+                return;
+            }  
+        }                
         MkElemCommand addCmd = 
                 new MkElemCommand(
                     files, 
@@ -193,7 +237,7 @@ public class AddAction extends AbstractAction {
                     false, 
                     new OutputWindowNotificationListener(), 
                     new AfterCommandRefreshListener(refreshFiles.toArray(new File[refreshFiles.size()])));
-        Clearcase.getInstance().getClient().exec(addCmd, true, ps);
+        client.exec(addCmd, true, ps);        
     }
        
     private static void addAncestors(Set<File> addFiles) {

@@ -102,7 +102,7 @@ public class InteceptorTest extends NbTestCase {
             } else {
                 File parent = f.getParentFile();
                 ensureMutable(parent);            
-                FileEntry entry = ClearcaseUtils.readEntry(f);
+                FileEntry entry = ClearcaseUtils.readEntry(Clearcase.getInstance().getClient(), f);
                 if(entry != null && !entry.isViewPrivate()) {
                     uncheckout(f);
                     Clearcase.getInstance().getClient().exec(new RmElemCommand(f), false);            
@@ -116,7 +116,7 @@ public class InteceptorTest extends NbTestCase {
     }
     
     private void init() {
-        FileEntry entry = ClearcaseUtils.readEntry(testRoot);
+        FileEntry entry = ClearcaseUtils.readEntry(Clearcase.getInstance().getClient(), testRoot);
         if(entry == null || entry.isViewPrivate()) {
             testRoot.mkdirs();
             add(testRoot);    
@@ -464,7 +464,7 @@ public class InteceptorTest extends NbTestCase {
     }
     
     private void uncheckout(File file) {        
-        FileEntry entry = ClearcaseUtils.readEntry(file);
+        FileEntry entry = ClearcaseUtils.readEntry(Clearcase.getInstance().getClient(), file);
         if (entry != null && entry.isCheckedout()) {
             Clearcase.getInstance().getClient().exec(new UnCheckoutCommand(new File[]{file}, false), true);
         }
@@ -483,7 +483,7 @@ public class InteceptorTest extends NbTestCase {
 
     private static void ensureMutable(File file) {
         if (file.isDirectory()) {
-            FileEntry entry = ClearcaseUtils.readEntry(file);                
+            FileEntry entry = ClearcaseUtils.readEntry(Clearcase.getInstance().getClient(), file);                
             if (entry == null || entry.isCheckedout() || entry.isViewPrivate()) {
                 return;
             }

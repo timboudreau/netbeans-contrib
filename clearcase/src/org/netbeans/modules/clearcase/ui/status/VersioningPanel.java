@@ -88,7 +88,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
     private SyncTable                       syncTable;
     
     private static final RequestProcessor   rp = new RequestProcessor("ClearCaseView", 1, true);  // NOI18N    
-    private ProgressSupport                 refreshSupport; 
+    private FileStatusCache.RefreshSupport  refreshSupport; 
     private final NoContentPanel            noContentComponent = new NoContentPanel();
     private RequestProcessor.Task           refreshViewTask;
     
@@ -180,6 +180,8 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
      */ 
     void setContext(Context ctx) {
         context = ctx;
+        Set<File> roots = ctx.getRootFiles();
+        getProgressSupport().setRootFiles(roots.toArray(new File[roots.size()]));
         performRefreshAction();
     }
     
@@ -286,8 +288,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         }
     }
 
-
-    private ProgressSupport getProgressSupport() {
+    private FileStatusCache.RefreshSupport getProgressSupport() {
         if(refreshSupport == null) {
             refreshSupport = new FileStatusCache.RefreshSupport(rp, context.getVCSContext(), NbBundle.getMessage(VersioningPanel.class, "Progress_RefreshingStatus")) { //NOI18N
                 @Override

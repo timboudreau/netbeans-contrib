@@ -7,7 +7,9 @@
 <#if package?? && package != "">
 package ${package};
 </#if>
-import javafx.ui.*;
+
+import javafx.ui.Applet;
+
 /**
  * @author ${user}
  */

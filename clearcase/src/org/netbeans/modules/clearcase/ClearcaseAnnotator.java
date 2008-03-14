@@ -356,7 +356,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         }
 
         String revisionString = "";     // NOI18N
-        FileEntry fileStatus = info.getStatus(file);
+        FileEntry fileStatus = info.getStatus(Clearcase.getInstance().getClient(),file);
         if (fileStatus != null) {
             FileVersionSelector version = fileStatus.getOriginVersion();
             if(version != null) {
