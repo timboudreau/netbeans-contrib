@@ -51,15 +51,16 @@ import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectManager;
+import org.netbeans.modules.javafx.project.ui.customizer.JavaFXProjectProperties;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.CopyOperationImplementation;
 import org.netbeans.spi.project.DeleteOperationImplementation;
 import org.netbeans.spi.project.MoveOperationImplementation;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
-import org.netbeans.spi.project.support.ant.GeneratedFilesHelper;
 import org.netbeans.spi.project.support.ant.PropertyUtils;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
@@ -70,6 +71,16 @@ import org.openide.util.NbBundle;
 public class JavaFXProjectOperations implements DeleteOperationImplementation, CopyOperationImplementation, MoveOperationImplementation {
     
     private JavaFXProject project;
+    
+    //RELY: Valid only on original project after the notifyMoving or notifyCopying was called
+    private String appArgs;
+    //RELY: Valid only on original project after the notifyMoving or notifyCopying was called
+    private String workDir;
+    
+    //RELY: Valid only on original project after the notifyMoving or notifyCopying was called
+    private String libraryPath;
+    //RELY: Valid only on original project after the notifyMoving or notifyCopying was called
+    private File libraryFile;
     
     public JavaFXProjectOperations(JavaFXProject project) {
         this.project = project;
@@ -88,7 +99,7 @@ public class JavaFXProjectOperations implements DeleteOperationImplementation, C
         List<FileObject> files = new ArrayList<FileObject>();
         
         addFile(projectDirectory, "nbproject", files); // NOI18N
-        addFile(projectDirectory, "build.xml", files); // NOI18N
+        addFile(projectDirectory, JavaFXProjectUtil.getBuildXmlName(project), files); // NOI18N
         addFile(projectDirectory, "xml-resources", files); //NOI18N
         addFile(projectDirectory, "catalog.xml", files); //NOI18N
         
@@ -100,6 +111,7 @@ public class JavaFXProjectOperations implements DeleteOperationImplementation, C
         files.addAll(Arrays.asList(project.getSourceRoots().getRoots()));
         files.addAll(Arrays.asList(project.getTestSourceRoots().getRoots()));
         addFile(project.getProjectDirectory(), "manifest.mf", files); // NOI18N
+        addFile(project.getProjectDirectory(), "master.jnlp", files); // NOI18N
         return files;
     }
     
@@ -110,7 +122,7 @@ public class JavaFXProjectOperations implements DeleteOperationImplementation, C
         
         Properties p = new Properties();
         String[] targetNames = ap.getTargetNames(ActionProvider.COMMAND_CLEAN, Lookup.EMPTY, p);
-        FileObject buildXML = project.getProjectDirectory().getFileObject(GeneratedFilesHelper.BUILD_XML_PATH);
+        FileObject buildXML = JavaFXProjectUtil.getBuildXml(project);
         
         assert targetNames != null;
         assert targetNames.length > 0;
@@ -139,11 +151,14 @@ public class JavaFXProjectOperations implements DeleteOperationImplementation, C
     }
     
     public void notifyMoving() throws IOException {
-        if (!this.project.getUpdateHelper().requestSave()) {
+        if (!this.project.getUpdateHelper().requestUpdate()) {
             throw new IOException (NbBundle.getMessage(JavaFXProjectOperations.class,
                 "MSG_OldProjectMetadata"));
         }
+        rememberLibraryLocation();
+        readPrivateProperties ();        
         notifyDeleting();
+        
     }
     
     public void notifyMoved(Project original, File originalPath, String nueName) {
@@ -184,6 +199,22 @@ public class JavaFXProjectOperations implements DeleteOperationImplementation, C
                 }
             }
         });
+    }
+    
+    private void readPrivateProperties () {
+        ProjectManager.mutex().readAccess(new Runnable() {
+            public void run () {
+                appArgs = project.getUpdateHelper().getProperties(AntProjectHelper.PRIVATE_PROPERTIES_PATH).getProperty(JavaFXProjectProperties.APPLICATION_ARGS);
+                workDir = project.getUpdateHelper().getProperties(AntProjectHelper.PRIVATE_PROPERTIES_PATH).getProperty(JavaFXProjectProperties.RUN_WORK_DIR);        
+            }
+        });
+    }
+    
+    private void rememberLibraryLocation() {
+        libraryPath = project.getAntProjectHelper().getLibrariesLocation();
+        if (libraryPath != null) {
+            libraryFile = PropertyUtils.resolveFile(FileUtil.toFile(project.getProjectDirectory()), libraryPath);
+        }
     }
     
 }

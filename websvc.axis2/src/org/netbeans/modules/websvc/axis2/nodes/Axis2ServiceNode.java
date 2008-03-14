@@ -74,7 +74,7 @@ import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 
 public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
-    
+    private static final String WSDL_URL_PROP = "wsdl_url"; //NOI18N
     private static final String AXIS_ICON = "org/netbeans/modules/websvc/axis2/resources/axis_node_16.png"; // NOI18N
     
     Service service;
@@ -92,6 +92,7 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
         content.add(srcRoot);
         content.add(this);
         setIconBaseWithExtension(AXIS_ICON);
+        setValue(WSDL_URL_PROP, getWsdlUrl());
     }
     
     public String getName() {
@@ -104,13 +105,17 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
     
     @Override
     public String getShortDescription() {
+        return getWsdlUrl();
+    }
+    
+    private String getWsdlUrl() {
         Preferences preferences = NbPreferences.forModule(Axis2ServiceNode.class);
         String axisURL = preferences.get("AXIS_URL",null); //NOI18N
         if (axisURL!=null) {
             return axisURL+"/services/"+service.getNameAttr()+"?wsdl"; //NOI18N
         } else {
             return service.getServiceClass();
-        }
+        }       
     }
     
     public void open() {
@@ -221,6 +226,7 @@ public class Axis2ServiceNode extends AbstractNode implements OpenCookie {
     public void nameChanged(String oldName, String newName) {
         fireNameChange(oldName, newName);
         fireDisplayNameChange(oldName, newName);
+        setValue(WSDL_URL_PROP, getWsdlUrl());
     }
     
 }

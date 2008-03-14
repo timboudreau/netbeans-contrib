@@ -46,6 +46,7 @@ import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.clearcase.util.Utils;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
 
 public class RefreshAction extends NodeAction {
@@ -67,7 +68,7 @@ public class RefreshAction extends NodeAction {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 final ClearcaseTopComponent vtc = ClearcaseTopComponent.findInstance();
-                vtc.setContentTitle(/* XXX getContextDisplayName(nodes)*/ "Clearcase");        
+                vtc.setContentTitle(NbBundle.getMessage(RefreshAction.class, "CCView_Name")); //NOI18N;
                 vtc.setContext(ctx);
                 vtc.open(); 
                 vtc.requestActive();                
@@ -82,7 +83,7 @@ public class RefreshAction extends NodeAction {
 
     @Override
     public String getName() {
-        return "Show changes";
+        return NbBundle.getMessage(RefreshAction.class, "ShowChanges_Name"); //NOI18N;
     }
 
     @Override
