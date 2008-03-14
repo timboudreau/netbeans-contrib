@@ -39,45 +39,22 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.javafx.project.queries;
+package org.netbeans.modules.javafx.project.api;
 
-import java.net.URL;
-import org.netbeans.api.project.FileOwnerQuery;
-import org.netbeans.api.project.Project;
-import org.netbeans.modules.java.api.common.SourceRoots;
-import org.netbeans.spi.java.queries.MultipleRootsUnitTestForSourceQueryImplementation;
-import org.openide.filesystems.FileObject;
+import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 
-public class UnitTestForSourceQueryImpl implements MultipleRootsUnitTestForSourceQueryImplementation {
-
-    private final SourceRoots sourceRoots;
-    private final SourceRoots testRoots;
-
-    public UnitTestForSourceQueryImpl(SourceRoots sourceRoots, SourceRoots testRoots) {
-        this.sourceRoots = sourceRoots;
-        this.testRoots = testRoots;
-    }
-
-    public URL[] findUnitTests(FileObject source) {
-        return find(source, sourceRoots, testRoots); // NOI18N
-    }
-
-    public URL[] findSources(FileObject unitTest) {
-        return find(unitTest, testRoots, sourceRoots); // NOI18N
-    }
-    
-    private URL[] find(FileObject file, SourceRoots from, SourceRoots to) {
-        Project p = FileOwnerQuery.getOwner(file);
-        if (p == null) {
-            return null;
-        }
-        FileObject[] fromRoots = from.getRoots();
-        for (int i = 0; i < fromRoots.length; i++) {
-            if (fromRoots[i].equals(file)) {
-                return to.getRootURLs();
-            }
-        }
-        return null;
-    }
-    
+/**
+ * Readonly access to project properties through PropertyEvaluator,
+ * an instance will be in lookup of the j2seproject.
+ * 
+ * @author Milan Kubec
+ * @since 1.10
+ */
+public interface JavaFXPropertyEvaluator {
+    /**
+     * Gives PropertyEvaluator for resolving project properties
+     *
+     * @return PropertyEvaluator for given project
+     */
+    PropertyEvaluator evaluator();
 }

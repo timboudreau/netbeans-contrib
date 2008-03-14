@@ -43,6 +43,7 @@ package org.netbeans.modules.javafx.project;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import org.netbeans.modules.java.api.common.SourceRoots;
 import org.openide.filesystems.FileObject;
 import org.netbeans.api.queries.FileBuiltQuery;
 import org.netbeans.spi.queries.FileBuiltQueryImplementation;
