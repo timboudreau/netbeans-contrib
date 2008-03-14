@@ -38,34 +38,62 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.perspective.options;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import org.netbeans.spi.options.OptionsCategory;
-import org.netbeans.spi.options.OptionsPanelController;
-import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
+package org.netbeans.lib.javafx.lexer;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.netbeans.api.javafx.lexer.JavaFXTokenId;
+import org.netbeans.lib.javafx.lexer.JavaFXLexerStateController.BraceQuoteTracker;
+
 /**
  *
- * @author Anuradha G
+ * @author victor G. Vasilyev
  */
-public final class PerspectiveOptionsCategory extends OptionsCategory {
+public abstract class LexerStateTestBase {
+    protected static JavaFXLexerTestAdapter instance;
+    protected static int version = 1;
+    
+    protected TestableToken token;
+    protected BraceQuoteTracker state;
 
-    @Override
-    public Icon getIcon() {
-        return new ImageIcon(Utilities.loadImage("org/netbeans/modules/perspective/resources/perspective32.png",true));
+
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        instance = new JavaFXLexerTestAdapter(null, version);
     }
 
-    public String getCategoryName() {
-        return NbBundle.getMessage(PerspectiveOptionsCategory.class, "OptionsCategory_Name_Perspective");
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+        instance.release();
+        instance = null;
     }
 
-    public String getTitle() {
-        return NbBundle.getMessage(PerspectiveOptionsCategory.class, "OptionsCategory_Title_Perspective");
-    }
+    protected Object assertStateHas(int braceDepth, char quote, boolean percentIsFormat) {
+        Object s = instance.state();
+        assertNotNull(s);
+        assertTrue(s instanceof BraceQuoteTracker);
+        state = (BraceQuoteTracker)s;
+        assertEquals(braceDepth, state.getBraceDepth());
+        assertEquals(quote, state.getQuote());
+        assertEquals(percentIsFormat, state.isPercentIsFormat());
+        return state;
+    }    
+    
+    protected Object assertStateHas(int braceDepth, char quote, 
+                            boolean percentIsFormat, BraceQuoteTracker prev) {
+        state = (BraceQuoteTracker)assertStateHas(braceDepth, quote, percentIsFormat);
+        assertSame("The state should define expected prev state.", prev, state.getPrev());
+        return state;
+    }    
+    
+   protected void nextToken() {
+        instance.nextToken();
+        token = instance.getTestableToken();       
+   }
 
-    public OptionsPanelController create() {
-        return new PerspectiveOptionsPanelController();
-    }
 }

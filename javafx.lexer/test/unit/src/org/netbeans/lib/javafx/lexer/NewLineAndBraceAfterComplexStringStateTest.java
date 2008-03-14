@@ -38,25 +38,55 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.clearcase.ui.texthistory;
 
-import org.netbeans.modules.versioning.spi.VCSContext;
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
+package org.netbeans.lib.javafx.lexer;
 
-public class TextHistoryAction extends AbstractAction {
-    
-    private final VCSContext context;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.netbeans.api.javafx.lexer.JavaFXTokenId;
 
-    public TextHistoryAction(String name, VCSContext context) {
-        this.context = context;
-        putValue(Action.NAME, name);
+/**
+ *
+ * @author Victor G. Vasilyev
+ */
+public class NewLineAndBraceAfterComplexStringStateTest  extends LexerStateTestBase {
+
+    @Before
+    public void setUp() {
     }
-    
-    public void actionPerformed(ActionEvent ev) {
-        NotifyDescriptor nd = new NotifyDescriptor("Not implemeted yet!", "ClearCase", NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE, new Object[]{NotifyDescriptor.OK_OPTION}, null);        
-        DialogDisplayer.getDefault().notify(nd);
+
+    @After
+    public void tearDown() {
     }
+
+    @Test
+    public void testCase1() {
+        System.out.println("testCase1");
+        instance.setSource("\"{a}{b}\"\n}");
+        nextToken();
+        assertEquals(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL, token.id);
+        Object state1 = assertStateHas(1, '\"', false, null);
+        nextToken();
+        assertEquals(JavaFXTokenId.IDENTIFIER, token.id);
+        Object state1_1 = assertStateHas(1, '\"', false, null);
+        assertSame(state1, state1_1);
+        nextToken();
+        assertEquals(JavaFXTokenId.RBRACE_LBRACE_STRING_LITERAL, token.id);
+        Object state1_2 = assertStateHas(1, '\"', false, null);
+        assertNotNull(state1);
+        assertNotNull(state1_2);
+        System.out.println("state1: " + state1);
+        System.out.println("state1_2: " + state1_2);
+        assertSame(state1, state1_2);
+        nextToken();
+        assertEquals(JavaFXTokenId.IDENTIFIER, token.id);
+        Object state1_3 = assertStateHas(1, '\"', false, null);
+        assertSame(state1, state1_3);
+        nextToken();
+        assertEquals(JavaFXTokenId.RBRACE_QUOTE_STRING_LITERAL, token.id);
+        assertNull(instance.state());
+    }
+
 }
