@@ -57,6 +57,7 @@ import java.util.*;
 import java.util.logging.Level;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
+import org.openide.util.NbBundle;
 
 /**
  * Interface to Clearcase functionality. 
@@ -225,7 +226,7 @@ public class ClearcaseClient {
             errors.addAll(eu.getFailedCommand().getCmdError());
             
             StringBuffer sb = new StringBuffer();
-            sb.append("Clearcase Command Failure: ");            
+            sb.append(NbBundle.getMessage(ClearcaseClient.class, "MSG_Clearcase_Command_Failure")); //NOI18N
             sb.append(eu.getFailedCommand());
             for (String err : errors) {
                 sb.append('\n');                
@@ -236,7 +237,7 @@ public class ClearcaseClient {
             if(notifyErrors) {
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        report("Clearcase Command Failure", "Error executing", errors, NotifyDescriptor.ERROR_MESSAGE);        
+                        report(NbBundle.getMessage(ClearcaseClient.class, "Report_ClearcaseCommandFailure_Title"), NbBundle.getMessage(ClearcaseClient.class, "Report_ClearcaseCommandFailure_Prompt"), errors, NotifyDescriptor.ERROR_MESSAGE); //NOI18N
                     }
                 });
             }
@@ -253,7 +254,7 @@ public class ClearcaseClient {
             if (emptyReport) return;
             
             CommandReport report = new CommandReport(prompt, messages);
-            JButton ok = new JButton("OK");
+            JButton ok = new JButton(NbBundle.getMessage(ClearcaseClient.class, "CommandReport_OK")); //NOI18N
             NotifyDescriptor descriptor = new NotifyDescriptor(
                     report, 
                     title, 

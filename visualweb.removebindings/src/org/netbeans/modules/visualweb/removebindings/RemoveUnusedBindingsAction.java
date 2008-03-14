@@ -117,7 +117,7 @@ public class RemoveUnusedBindingsAction extends AbstractAction implements Contex
                         } else {
                             out.println(
                                     NbBundle.getMessage(RemoveUnusedBindingsAction.class, "MSG_Modeling") +
-                                    NbBundle.getMessage(RemoveUnusedBindingsAction.class, "MSG_Done"));
+                                    NbBundle.getMessage(RemoveUnusedBindingsAction.class, "MSG_Done"));                            
                             DesignContext[] designContexts = facesModelSet.getDesignContexts();
                             for (DesignContext designContext : designContexts) {
                                 LiveUnit liveUnit = (LiveUnit) designContext;
