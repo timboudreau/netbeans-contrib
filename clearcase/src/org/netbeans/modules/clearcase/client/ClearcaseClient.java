@@ -270,7 +270,7 @@ public class ClearcaseClient {
 
         public boolean cancel() {
             canceled = true;
-            // XXX cancell cleartool
+            ct.interrupt();
             return true;
         }
 
