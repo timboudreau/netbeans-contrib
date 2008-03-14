@@ -41,7 +41,6 @@
 package org.netbeans.modules.clearcase;
 
 import org.netbeans.modules.versioning.spi.VCSInterceptor;
-import org.netbeans.modules.clearcase.ui.checkout.CheckoutAction;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,6 +49,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import org.netbeans.modules.clearcase.client.AfterCommandRefreshListener;
 import org.netbeans.modules.clearcase.client.CheckoutCommand;
+import org.netbeans.modules.clearcase.client.ClearcaseClient;
 import org.netbeans.modules.clearcase.client.ClearcaseCommand;
 import org.netbeans.modules.clearcase.client.DeleteCommand;
 import org.netbeans.modules.clearcase.client.MkElemCommand;
@@ -70,10 +70,13 @@ import org.openide.util.NbBundle;
  */
 public class ClearcaseInterceptor extends VCSInterceptor {
 
-    private final FileStatusCache   cache;
-
+    private final FileStatusCache cache;
+    private final ClearcaseClient client;
+    
+    
     public ClearcaseInterceptor() {
         cache = Clearcase.getInstance().getFileStatusCache();
+        client = new ClearcaseClient();        
     }
 
     @Override
@@ -81,7 +84,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         Clearcase.LOG.finer("beforeDelete " + file);        
                 
         // let the IDE take care for deletes of unversioned files        
-        FileEntry entry = ClearcaseUtils.readEntry(file);       
+        FileEntry entry = ClearcaseUtils.readEntry(client, file);       
         return entry != null && !entry.isViewPrivate();            
     }
 
@@ -109,7 +112,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         // 2. uncheckout - even if the delete is invoked with the --force switch
         // ct rm on a file which was checkedout causes that after ct unco on its parent
         // it becomes [checkedout but removed]. This actually is not what we want.
-        FileEntry entry = ClearcaseUtils.readEntry(file);
+        FileEntry entry = ClearcaseUtils.readEntry(client, file);
         if (entry != null && entry.isCheckedout()) {
             exec(new UnCheckoutCommand(new File[]{ file }, false),false);
         }
@@ -144,7 +147,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         }
         
         // let the IDE take care for view private files - they are defacto unversioned
-        FileEntry entry = ClearcaseUtils.readEntry(from);
+        FileEntry entry = ClearcaseUtils.readEntry(client, from);
         return entry != null && !entry.isViewPrivate();
     }
 
@@ -169,7 +172,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 
         if(Clearcase.getInstance().isManaged(from) && Clearcase.getInstance().isManaged(to)) {
             
-            FileEntry fromEntry = ClearcaseUtils.readEntry(from);                
+            FileEntry fromEntry = ClearcaseUtils.readEntry(client, from);                
             
             if(fromEntry.isViewPrivate()) { // XXX HIJACKED?
                 // 'from' is not versioned yet - let's just rename it
@@ -178,7 +181,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 
                 // 1. checkout parents if needed                
                 ensureMutable(fromParent);                
-                FileEntry toParentEntry = ClearcaseUtils.readEntry(toParent);                
+                FileEntry toParentEntry = ClearcaseUtils.readEntry(client, toParent);                
                 if (toParentEntry.isViewPrivate()) {
                     // 'from' is versioned, 'to'-s parent isn't. 
                     // we have to add it to source control
@@ -197,7 +200,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
             // 'from' is not versioned yet - let's just rename it
             from.renameTo(to);                            
         } else { // !Clearcase.getInstance().isManaged(to)
-            FileEntry fromEntry = ClearcaseUtils.readEntry(fromParent);                
+            FileEntry fromEntry = ClearcaseUtils.readEntry(client, fromParent);                
             if (fromEntry.isViewPrivate()) {
                 // 'from' is not versiomed yet - let's just rename it
                 from.renameTo(to);                                            
@@ -280,7 +283,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     public void ensureMutable(File file, FileEntry entry) {
         if (file.isDirectory()) {
             if(entry == null) {
-                entry = ClearcaseUtils.readEntry(file);                
+                entry = ClearcaseUtils.readEntry(client, file);                
             }
             if (entry == null || entry.isCheckedout() || entry.isViewPrivate()) {
                 return;

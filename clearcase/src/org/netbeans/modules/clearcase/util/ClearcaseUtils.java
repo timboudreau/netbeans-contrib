@@ -190,8 +190,8 @@ public class ClearcaseUtils {
      * @param file the file to get the {@link FileEntry} for
      * @return the {@link FileEntry}
      */
-    public static FileEntry readEntry(File file) {
-        List<FileEntry> entries = readEntries(file, true);
+    public static FileEntry readEntry(ClearcaseClient client, File file) {
+        List<FileEntry> entries = readEntries(client, file, true);
         if(entries == null || entries.size() == 0) {
             return null;
         }
@@ -207,11 +207,10 @@ public class ClearcaseUtils {
      * @return {@link FileEntry}-s describing the files actuall status
      * @see {@link FileEntry}
      */   
-    public static List<FileEntry> readEntries(File file, boolean directory) {
+    public static List<FileEntry> readEntries(ClearcaseClient client, File file, boolean directory) {
         if(file == null) {
             return null;
-        }
-        final ClearcaseClient client = Clearcase.getInstance().getClient();
+        }       
         // 1. list files ...
         ListStatus ls = new ListStatus(file, directory);    
         client.exec(ls, false);

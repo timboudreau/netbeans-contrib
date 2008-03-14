@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.clearcase;
 
+import org.netbeans.modules.clearcase.client.ClearcaseClient;
 import org.netbeans.modules.clearcase.client.status.FileEntry;
 
 import java.util.*;
@@ -95,9 +96,11 @@ public class FileStatusCache {
     private RequestProcessor.Task filesToRefreshTask;
 
     private static final Pattern keepPattern = Pattern.compile(".*\\.keep(\\.\\d+)?");
+    private final ClearcaseClient client;
     
     FileStatusCache() {
         this.clearcase = Clearcase.getInstance();        
+        client = new ClearcaseClient();
     }
     
     // --- Public interface -------------------------------------------------
@@ -276,10 +279,10 @@ public class FileStatusCache {
         if(!Clearcase.getInstance().isManaged(dir)) {                        
             isRoot = true;
             // file seems to be the vob root
-            statusValues = ClearcaseUtils.readEntries(file, true);
+            statusValues = ClearcaseUtils.readEntries(client, file, true);
         } else {
             isRoot = false;
-            statusValues = ClearcaseUtils.readEntries(dir, false);
+            statusValues = ClearcaseUtils.readEntries(client, dir, false);
         }              
                 
         Map<File, FileInformation> oldDirMap = get(dir); 
