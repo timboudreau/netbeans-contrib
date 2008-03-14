@@ -16,7 +16,11 @@ import org.openide.util.actions.CallableSystemAction;
 public final class ResetPerspectiveAction extends CallableSystemAction {
 
     public void performAction() {
-        NotifyDescriptor d = new NotifyDescriptor.Confirmation(NbBundle.getMessage(ResetAction.class, "Reset_Comfrom_Massage"), NbBundle.getMessage(ResetAction.class, "Reset_Perspective_H"), NotifyDescriptor.OK_CANCEL_OPTION);
+        NotifyDescriptor d = new NotifyDescriptor.Confirmation(
+                NbBundle.getMessage(ResetAction.class, "Reset_Comfrom_Massage",
+                PerspectiveManagerImpl.getInstance().getSelected().getAlias()),
+                NbBundle.getMessage(ResetAction.class, "Reset_Perspective_H"),
+                NotifyDescriptor.OK_CANCEL_OPTION);
         if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
             MainParser.getInstance().resetPerspective(PerspectiveManagerImpl.getInstance().getSelected());
         }
