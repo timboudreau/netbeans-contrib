@@ -65,7 +65,7 @@
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.perspective.Bundle"/>
             <!-- position attribute (between tools and window menu)-->
             <attr name="position" intvalue="1150"/>
-             <file name="org-netbeans-modules-perspective-menus-OpenPerspectivesAction.shadow">
+            <file name="org-netbeans-modules-perspective-menus-OpenPerspectivesAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-menus-OpenPerspectivesAction.instance"/>
                 <attr name="position" intvalue="100"/>
             </file>
@@ -74,7 +74,6 @@
                 <attr name="position" intvalue="500"/>
                 <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-menus-SaveAsAction.instance"/>
             </file>
-          
             <file name="org-netbeans-modules-perspective-menus-RemovePerspectiveAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-menus-RemovePerspectiveAction.instance"/>
                 <attr name="position" intvalue="600"/>
@@ -93,17 +92,19 @@
                 <attr name="position" intvalue="2000"/>
                 <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-menus-ResetAction.instance"/>
             </file>
-            
         </folder>
     </folder>
     
     <!-- Options Dialog -->
     <folder name="OptionsDialog">
-        <!-- Perspctive Caregory -->
-        <file name="org-netbeans-modules-perspective-options-PerspectiveOptionsCategory.instance">
-            <attr name="position" intvalue="1000"/>
-        </file>
+        <!-- Perspctive Advanced -->
+        <folder name="Advanced">
+            <file name="org-netbeans-modules-perspective-options-PerspectiveAdvancedOption.instance">
+                <attr name="position" intvalue="1000"/>
+            </file>
+        </folder>
     </folder>
+    
     <!-- Shortcuts -->
     <folder name="Shortcuts">
         <!--Quick Switch Shortcut -->
@@ -111,8 +112,8 @@
             <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-actions-QuickSwitch.instance"/>
         </file>
     </folder>
-    
-    <folder name="perspectives"></folder>
+    <folder name="perspectives">
+    </folder>
     <!--window system config folder-->
     <folder name="Windows2">
         <!--Tc components folder-->

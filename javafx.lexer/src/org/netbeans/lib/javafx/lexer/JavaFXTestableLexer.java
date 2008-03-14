@@ -45,7 +45,6 @@ import org.netbeans.api.javafx.lexer.JavaFXTokenId;
 import org.netbeans.api.lexer.PartType;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.spi.lexer.LexerInput;
-import org.netbeans.spi.lexer.LexerRestartInfo;
 import org.netbeans.spi.lexer.TokenFactory;
 
 /**
