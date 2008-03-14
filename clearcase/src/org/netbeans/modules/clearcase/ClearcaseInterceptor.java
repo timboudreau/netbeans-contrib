@@ -107,7 +107,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         File parent = file.getParentFile();
         
         // 1. checkout parent if needed
-        ensureMutable(parent);
+        ClearcaseUtils.ensureMutable(client, parent);
 
         // 2. uncheckout - even if the delete is invoked with the --force switch
         // ct rm on a file which was checkedout causes that after ct unco on its parent
@@ -180,7 +180,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
             } else {
                 
                 // 1. checkout parents if needed                
-                ensureMutable(fromParent);                
+                ClearcaseUtils.ensureMutable(client, fromParent);                
                 FileEntry toParentEntry = ClearcaseUtils.readEntry(client, toParent);                
                 if (toParentEntry.isViewPrivate()) {
                     // 'from' is versioned, 'to'-s parent isn't. 
@@ -188,7 +188,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                     exec(new MkElemCommand(new File[] { toParent }, null, MkElemCommand.Checkout.Default, false),false);                                        
                 } else {
                     if(!fromParent.equals(toParent)) {
-                        ensureMutable(toParent, toParentEntry);
+                        ClearcaseUtils.ensureMutable(client, toParent, toParentEntry);
                     }    
                 }
             
@@ -252,71 +252,10 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     @Override
     public void beforeEdit(File file) {
         Clearcase.LOG.finer("beforeEdit " + file);        
-        ensureMutable(file);   
+        ClearcaseUtils.ensureMutable(client, file);   
     }    
     
     private void exec(ClearcaseCommand command, boolean notifyErrors) {        
         Clearcase.getInstance().getClient().exec(command, notifyErrors);
-    }
-    
-/**
-     * Checks out the file or directory depending on the user-selected strategy in Options.
-     * In case the file is already writable or the directory is checked out, the method does nothing.
-     * Interceptor entry point.
-     * 
-     * @param file file to checkout
-     * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
-     */
-    public void ensureMutable(File file) {
-        ensureMutable(file, null);
-    }   
-    
-    /**
-     * Checks out the file or directory depending on the user-selected strategy in Options.
-     * In case the file is already writable or the directory is checked out, the method does nothing.
-     * Interceptor entry point.
-     * 
-     * @param file file to checkout
-     * @param entry the given files {@link FileEntry}
-     * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
-     */
-    public void ensureMutable(File file, FileEntry entry) {
-        if (file.isDirectory()) {
-            if(entry == null) {
-                entry = ClearcaseUtils.readEntry(client, file);                
-            }
-            if (entry == null || entry.isCheckedout() || entry.isViewPrivate()) {
-                return;
-            }
-        } else {
-            if (file.canWrite()) return;
-        }
-
-        ClearcaseModuleConfig.OnDemandCheckout odc = ClearcaseModuleConfig.getOnDemandCheckout();
-
-        CheckoutCommand command;
-        switch (odc) {
-        case Disabled:
-            // XXX let the user decide if he want's to checkout the file
-            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message(NbBundle.getMessage(ClearcaseInterceptor.class, "Interceptor_NoOnDemandCheckouts_Warning"))); //NOI18N
-            return;
-        case Reserved:
-        case ReservedWithFallback:
-            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Reserved, true, new AfterCommandRefreshListener(file));
-            break;
-        case Unreserved:
-            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, new AfterCommandRefreshListener(file));
-            break;
-        default:
-            throw new IllegalStateException("Illegal Checkout type: " + odc);
-        }
-        
-        exec(command, odc != ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback);
-        
-        if (command.hasFailed() && odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback) {
-            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, 
-                                          new OutputWindowNotificationListener(), new AfterCommandRefreshListener(file));
-            exec(command, true);
-        }
-    }    
+    }        
 }

@@ -46,10 +46,15 @@ import org.netbeans.modules.versioning.spi.VCSContext;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.*;
-import java.util.logging.Level;
+import org.netbeans.modules.clearcase.client.AfterCommandRefreshListener;
+import org.netbeans.modules.clearcase.client.CheckoutCommand;
 import org.netbeans.modules.clearcase.client.ClearcaseClient;
+import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
 import org.netbeans.modules.clearcase.client.status.FileEntry;
 import org.netbeans.modules.clearcase.client.status.ListStatus;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.util.NbBundle;
 
 /**
  * Clearase specific utility methods.
@@ -217,5 +222,77 @@ public class ClearcaseUtils {
 
         return new ArrayList<FileEntry>(ls.getOutput());
     }
+
+/**
+     * Checks out the file or directory depending on the user-selected strategy in Options.
+     * In case the file is already writable or the directory is checked out, the method does nothing.
+     * Interceptor entry point.
+     * 
+     * @param client ClearcaseClient
+     * @param file file to checkout
+     * @returns true if the given file is mutable, otherwise false* 
+     * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
+     */
+    public static boolean ensureMutable(ClearcaseClient client, File file) {
+        return ensureMutable(client, file, null);
+    }   
     
+    /**
+     * Checks out the file or directory depending on the user-selected strategy in Options.
+     * In case the file is already writable or the directory is checked out, the method does nothing.
+     * Interceptor entry point.
+     * 
+     * @param client ClearcaseClient
+     * @param file file to checkout
+     * @param entry the given files {@link FileEntry}
+     * @returns true if the given file is mutable, otherwise false
+     * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
+     */
+    public static boolean ensureMutable(ClearcaseClient client, File file, FileEntry entry) {
+        if (file.isDirectory()) {
+            if(entry == null) {
+                entry = ClearcaseUtils.readEntry(client, file);                
+            }
+            if (entry == null || entry.isCheckedout() || entry.isViewPrivate()) {
+                return true;
+            }
+        } else {
+            if (file.canWrite()) return true;
+        }
+
+        ClearcaseModuleConfig.OnDemandCheckout odc = ClearcaseModuleConfig.getOnDemandCheckout();
+
+        CheckoutCommand command;
+        switch (odc) {
+        case Disabled:
+            // XXX let the user decide if he want's to checkout the file
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message(NbBundle.getMessage(ClearcaseInterceptor.class, "Interceptor_NoOnDemandCheckouts_Warning"))); //NOI18N
+            return false;
+        case Reserved:
+        case ReservedWithFallback:
+            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Reserved, true, new AfterCommandRefreshListener(file));
+            break;
+        case Unreserved:
+            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, new AfterCommandRefreshListener(file));
+            break;
+        default:
+            throw new IllegalStateException("Illegal Checkout type: " + odc);
+        }
+        
+        Clearcase.getInstance().getClient().exec(command, odc != ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback);
+        if(!command.hasFailed()) {
+            return true;
+        } else if(odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback) {
+            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, 
+                                          new OutputWindowNotificationListener(), new AfterCommandRefreshListener(file));
+            Clearcase.getInstance().getClient().exec(command, true);
+            if (command.hasFailed()) {    
+                return false;
+            } else {
+                return true;
+            }   
+        } else {
+            return false;
+        }
+    }        
 }
