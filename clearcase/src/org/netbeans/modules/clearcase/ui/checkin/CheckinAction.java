@@ -58,7 +58,6 @@ import javax.swing.event.TableModelListener;
 import org.netbeans.modules.clearcase.*;
 import org.netbeans.modules.clearcase.client.AfterCommandRefreshListener;
 import org.netbeans.modules.clearcase.ui.add.AddAction;
-import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
 import org.netbeans.modules.clearcase.client.CheckinCommand;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
@@ -152,7 +151,7 @@ public class CheckinAction extends AbstractAction {
 
         Map<ClearcaseFileNode, CheckinOptions> filesToCheckin = checkinTable.getAddFiles();
 
-        AddAction.addFiles(message, false, filesToCheckin);
+        AddAction.addFiles(message, false, filesToCheckin).waitFinished();
         
         // TODO: process options
         List<String> addExclusions = new ArrayList<String>();;
@@ -174,10 +173,15 @@ public class CheckinAction extends AbstractAction {
         Utils.insert(ClearcaseModuleConfig.getPreferences(), RECENT_CHECKIN_MESSAGES, message, 20);
         
         files = ciFiles.toArray(new File[ciFiles.size()]);
-        Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Checking in...",
-                new CheckinCommand(files, message, forceUnmodified, 
-                                    preserveTime, new OutputWindowNotificationListener(), new AfterCommandRefreshListener(files))));
+        CheckinCommand cmd = 
+                new CheckinCommand(
+                    files, 
+                    message, 
+                    forceUnmodified, 
+                    preserveTime, 
+                    new OutputWindowNotificationListener(), 
+                    new AfterCommandRefreshListener(files));
+        Clearcase.getInstance().getClient().post("Checking in...", cmd);
     }
 
     // XXX temporary solution...

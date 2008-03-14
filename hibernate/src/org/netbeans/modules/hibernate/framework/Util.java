@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
+ * 
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,13 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,47 +31,34 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.javafx.project.queries;
+package org.netbeans.modules.hibernate.framework;
 
-import java.net.URL;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.java.api.common.SourceRoots;
-import org.netbeans.spi.java.queries.MultipleRootsUnitTestForSourceQueryImplementation;
+import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.openide.filesystems.FileObject;
 
-public class UnitTestForSourceQueryImpl implements MultipleRootsUnitTestForSourceQueryImplementation {
+/**
+ * This class provides utility methods such as getting the project from a 
+ * WebModule to be used in Hibernate Framework Provider classes.
+ * 
+ * @author Vadiraj Deshpande (Vadiraj.Deshpande@Sun.COM)
+ */
+public class Util {
 
-    private final SourceRoots sourceRoots;
-    private final SourceRoots testRoots;
-
-    public UnitTestForSourceQueryImpl(SourceRoots sourceRoots, SourceRoots testRoots) {
-        this.sourceRoots = sourceRoots;
-        this.testRoots = testRoots;
+    /**
+     * Returns the enclosing project that this web module is in.
+     * @param webModule the web module for which the project needs to be determined.
+     * @return the enclosing project or null of there is no project found.
+     */
+    public static Project getEnclosingProjectFromWebModule(WebModule webModule) {
+        FileObject documentBase = webModule.getDocumentBase();
+        return FileOwnerQuery.getOwner(documentBase);
     }
-
-    public URL[] findUnitTests(FileObject source) {
-        return find(source, sourceRoots, testRoots); // NOI18N
-    }
-
-    public URL[] findSources(FileObject unitTest) {
-        return find(unitTest, testRoots, sourceRoots); // NOI18N
-    }
-    
-    private URL[] find(FileObject file, SourceRoots from, SourceRoots to) {
-        Project p = FileOwnerQuery.getOwner(file);
-        if (p == null) {
-            return null;
-        }
-        FileObject[] fromRoots = from.getRoots();
-        for (int i = 0; i < fromRoots.length; i++) {
-            if (fromRoots[i].equals(file)) {
-                return to.getRootURLs();
-            }
-        }
-        return null;
-    }
-    
 }

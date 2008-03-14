@@ -45,9 +45,12 @@ import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import javax.lang.model.element.TypeElement;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -58,6 +61,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.netbeans.api.java.source.ElementHandle;
+import org.netbeans.api.java.source.SourceUtils;
+import org.netbeans.modules.javafx.project.JavaFXProjectUtil;
 import org.openide.awt.Mnemonics;
 import org.openide.awt.MouseUtils;
 import org.openide.filesystems.FileObject;
@@ -73,6 +78,7 @@ public class MainClassChooser extends JPanel {
 
     private ChangeListener changeListener;
     private String dialogSubtitle = null;
+    private Collection<ElementHandle<TypeElement>> possibleJavaMainClasses;
     private List<String> possibleMainClasses;
     private String mainClass;
             
@@ -123,8 +129,15 @@ public class MainClassChooser extends JPanel {
         
   RequestProcessor.getDefault ().post (new Runnable () {
             public void run () {
+                possibleMainClasses = JavaFXProjectUtil.getFXFiles(sourcesRoots);
                 
-                possibleMainClasses = MainClassChooser.getFXFiles(sourcesRoots);
+                possibleJavaMainClasses = SourceUtils.getMainClasses(sourcesRoots);
+                List<String> javaMainClasses = new Vector();
+                for (Iterator<ElementHandle<TypeElement>> it = possibleJavaMainClasses.iterator(); it.hasNext(); ) {
+                    javaMainClasses.add(it.next().getBinaryName());
+                }                
+                possibleMainClasses.addAll(javaMainClasses);
+                
                 if (possibleMainClasses.isEmpty ()) {                    
                     SwingUtilities.invokeLater( new Runnable () {
                         public void run () {
@@ -155,30 +168,6 @@ public class MainClassChooser extends JPanel {
         }
     }
 
-    private static List<String> getFXFiles(FileObject[] sourcesRoots) {
-        Vector result = new Vector();
-        for(FileObject fo : sourcesRoots) {
-            findFXFiles(fo, fo, result);
-        }
-        return(result);
-    }
-    
-    private static void findFXFiles(FileObject fo, FileObject root, List<String> storage) {
-        if(fo.isFolder()) {
-            for(FileObject foc : fo.getChildren()) {
-                findFXFiles(foc, root, storage);
-            }
-        } else {
-            if ("text/x-fx".equals(FileUtil.getMIMEType(fo)) && 
-                    "fx".equals(fo.getExt())) {
-                String shortPath = fo.getPath().substring(root.getPath().length());
-                shortPath = shortPath.replace(shortPath.charAt(0), '.').
-                        substring(1, shortPath.length() - "fx".length() - 1);;
-                storage.add(shortPath);
-            }
-        }
-    }
-    
     private Object[] getWarmupList () {        
 //        return JMManager.getManager().isScanInProgress() ?
 //            new Object[] {NbBundle.getMessage (MainClassChooser.class, "LBL_ChooseMainClass_SCANNING_MESSAGE")}:
@@ -187,8 +176,7 @@ public class MainClassChooser extends JPanel {
     }
     
     private boolean isValidMainClassName (Object value) {
-        return true;
-        //return (possibleMainClasses != null) && (possibleMainClasses.contains (value));
+        return (possibleMainClasses != null) && (possibleMainClasses.contains (value));
     }
 
 

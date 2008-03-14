@@ -215,7 +215,7 @@ public class Clearcase {
             // shou.d check via cleartool ls
             IsVersionedCommand cmd = new IsVersionedCommand(file);
             try {
-                client.exec(cmd);            
+                client.exec(cmd, false);            
                 if(cmd.isVersioned()) {
                     synchronized(managedRoots) {
                         managedRoots.add(ancestor);
@@ -239,7 +239,7 @@ public class Clearcase {
             boolean versioned = false;
             while(parent != null) {
                 IsVersionedCommand cmd = new IsVersionedCommand(parent);
-                client.exec(cmd);            
+                client.exec(cmd, false);            
                 if(cmd.isVersioned()) {
                     file = parent;
                     parent = file.getParentFile();                                        
@@ -333,7 +333,7 @@ public class Clearcase {
             File annFile = File.createTempFile("clearcase-", ".ann");
             annFile.deleteOnExit();
             AnnotateCommand ac = new AnnotateCommand(file, annFile);
-            getClient().exec(ac);
+            getClient().exec(ac, true);
             List<VcsAnnotation> annotations = processAnnotations(annFile);
             annFile.delete();
             return annotations;

@@ -41,9 +41,12 @@
 
 package org.netbeans.modules.javafx.project.ui.customizer;
 
+import java.util.Collection;
+import javax.lang.model.element.TypeElement;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeListener;
 
+import org.netbeans.api.java.source.ElementHandle;
 import org.openide.filesystems.FileObject;
 
 /** Shows a warning that no main class is set and allows choose a main class.
@@ -54,13 +57,22 @@ public class MainClassWarning extends JPanel {
 
     private String message;
     private FileObject[] sourcesRoots;
+    private final Collection<ElementHandle<TypeElement>> mainClasses;
 
-    /** Creates new form LibrariesChooser */
-    public MainClassWarning (String message, FileObject[] sourcesRoots) {
+    public MainClassWarning (final String message, final FileObject[] sourcesRoots) {
+        this (message,sourcesRoots,null);
+    }
+    
+    public MainClassWarning (String message, final Collection<ElementHandle<TypeElement>> mainClasses) {
+        this (message,null,mainClasses);
+    }
+    
+    private MainClassWarning (final String message, final FileObject[] sourcesRoots, final Collection<ElementHandle<TypeElement>> mainClasses) {
+        assert (sourcesRoots != null && mainClasses == null) || (sourcesRoots == null && mainClasses != null);
         this.sourcesRoots = sourcesRoots;
         this.message = message;
+        this.mainClasses = mainClasses;
         initComponents();
-        // add MainClassChooser
     }
     
     /** Returns the selected main class.
