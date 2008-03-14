@@ -47,8 +47,9 @@
     <!-- import the properties that are specific to this environment -->
     <property file="${environment.properties}"/>
     
+    <property file="${build.properties}"/>
     <!-- import the properties that are specific to this product package -->
-    <property file="build.properties"/>
+    <property file="common.properties"/>
     
     <!-- import the base script for building product packages -->
     <import file="${common.dir}/product.xml" optional="false"/>

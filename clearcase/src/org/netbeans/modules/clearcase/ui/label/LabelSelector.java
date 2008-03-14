@@ -54,7 +54,6 @@ import java.awt.event.WindowAdapter;
 import java.io.File;
 import java.util.List;
 import org.netbeans.modules.clearcase.Clearcase;
-import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.LsTypeCommand;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
 import org.netbeans.modules.versioning.util.NoContentPanel;
@@ -111,7 +110,7 @@ public class LabelSelector extends javax.swing.JPanel implements MouseListener {
             @Override
             protected void perform() {
                 LsTypeCommand cmd = new LsTypeCommand(workingDir, LsTypeCommand.Kind.Label);                
-                Clearcase.getInstance().getClient().post(new ExecutionUnit("Listing Labels...", false, cmd)).waitFinished();
+                Clearcase.getInstance().getClient().post("Listing Labels...", cmd).waitFinished();
                 selector.setChoices(cmd.getTypes());
             }
         };

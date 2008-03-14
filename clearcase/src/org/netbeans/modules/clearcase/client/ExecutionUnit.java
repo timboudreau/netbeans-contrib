@@ -51,35 +51,28 @@ import java.util.List;
  */
 public class ExecutionUnit implements Iterable<ClearcaseCommand>, Iterator<ClearcaseCommand> {
 
-    private final String                displayName;
-    private final boolean               notifyErrors;
-    private final List<ClearcaseCommand>   commands;
+    private final List<ClearcaseCommand>    commands;
+    
+    /**
+     * Set if a command fails - it producess an error output or throws an exception while executing.
+     */
+    private ClearcaseCommand      failedCommand;
 
-    public ExecutionUnit(String displayName, ClearcaseCommand ... commands) {
-        this(displayName, true, commands);
+    void setFailedCommand(ClearcaseCommand failedCommand) {
+        this.failedCommand = failedCommand;
     }
 
-    protected ExecutionUnit(String displayName) {
-        this(displayName, true, new ClearcaseCommand[0]);
+    public ClearcaseCommand getFailedCommand() {
+        return failedCommand;
     }
     
-    public ExecutionUnit(String displayName, boolean notifyErrors, ClearcaseCommand ... commands) {
-        this.displayName = displayName;
-        this.notifyErrors = notifyErrors;
+    public ExecutionUnit(ClearcaseCommand ... commands) {
         this.commands = new  ArrayList<ClearcaseCommand>();
         if(commands != null) {
             for (ClearcaseCommand c : commands) {
                 this.commands.add(c);
             }           
-        };
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public boolean isNotifyErrors() {
-        return notifyErrors;
+        }
     }
 
     public synchronized  boolean hasNext() {

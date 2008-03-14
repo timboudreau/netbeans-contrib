@@ -61,7 +61,7 @@ public abstract class ProgressSupport implements Runnable, Cancellable {
     private boolean canceled = false;
     private RequestProcessor rp;
     private Cancellable cancellableDelegate;
-    
+
     public ProgressSupport(RequestProcessor rp, String displayName) {
         this(rp, displayName, null);
     }
@@ -78,7 +78,15 @@ public abstract class ProgressSupport implements Runnable, Cancellable {
         }
     }
 
-    protected void setCancellableDelegate(Cancellable c) {
+    public void setDisplayMessage(String displayName) {
+        this.displayName = displayName;
+        ProgressHandle ph = getProgressHandle();
+        if(ph != null) {
+            ph.setDisplayName(displayName);
+        }
+    }
+
+    public void setCancellableDelegate(Cancellable c) {
         cancellableDelegate = c;
         if(canceled) {
             c.cancel();
@@ -96,18 +104,19 @@ public abstract class ProgressSupport implements Runnable, Cancellable {
         task.schedule(delay);
     }
     
-    public void start() {                        
-        task = rp.post(this);        
+    public RequestProcessor.Task start() {                        
+        task = rp.post(this);    
+        return task;
     }
 
     public JComponent getProgressComponent() {
         return ProgressHandleFactory.createProgressComponent(getProgressHandle());                                            
     }
         
-    private void startProgress() {    
+    private void startProgress() {  
         getProgressHandle().start();
-        Clearcase.LOG.fine("Progress started: " + displayName);
-    }
+        Clearcase.LOG.fine("Progress started: " + displayName);   
+    }         
     
     private ProgressHandle getProgressHandle() {
         if(progressHandle == null) {
@@ -135,8 +144,8 @@ public abstract class ProgressSupport implements Runnable, Cancellable {
             Clearcase.LOG.fine("Progress canceled: " + displayName);
         } else {
             Clearcase.LOG.fine("Progress finnished: " + displayName);   
-        }        
-    }
+        }            
+    }        
     
     public boolean cancel() {
         canceled = true;

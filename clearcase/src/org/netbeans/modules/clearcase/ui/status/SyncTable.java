@@ -323,24 +323,24 @@ class SyncTable implements MouseListener, ListSelectionListener, AncestorListene
         Mnemonics.setLocalizedText(item, item.getText());
         item = menu.add(new ReserveAction(selectedContext));
         Mnemonics.setLocalizedText(item, item.getText());
-        item = menu.add(new AddAction("Add To Source Control...", selectedContext));
+        item = menu.add(new AddAction(NbBundle.getMessage(SyncTable.class, "Popup_AddAction_Name"), selectedContext)); //NOI18N
         Mnemonics.setLocalizedText(item, item.getText());
         menu.addSeparator();
         
-        item = menu.add(new DiffAction("Diff", selectedContext));
+        item = menu.add(new DiffAction(NbBundle.getMessage(SyncTable.class, "Popup_DiffAction_Name"), selectedContext)); //NOI18N
         Mnemonics.setLocalizedText(item, item.getText());
-        item = menu.add(new UpdateAction("Update", selectedContext));
+        item = menu.add(new UpdateAction(NbBundle.getMessage(SyncTable.class, "Popup_UpdateAction_Name"), selectedContext)); //NOI18N
         Mnemonics.setLocalizedText(item, item.getText());
-        item = menu.add(new CheckinAction("Checkin...", selectedContext));
+        item = menu.add(new CheckinAction(NbBundle.getMessage(SyncTable.class, "Popup_CheckinAction_Name"), selectedContext)); //NOI18N
         Mnemonics.setLocalizedText(item, item.getText());
         
         menu.addSeparator();
         item = menu.add(new AnnotateAction(selectedContext, Clearcase.getInstance().getAnnotationsProvider(selectedContext)));
         Mnemonics.setLocalizedText(item, item.getText());
         
-        item = menu.add(new BrowseHistoryAction("Browse History", selectedContext));
+        item = menu.add(new BrowseHistoryAction(NbBundle.getMessage(SyncTable.class, "Popup_BrowseHistoryAction_Name"), selectedContext)); //NOI18N
         Mnemonics.setLocalizedText(item, item.getText());
-        item = menu.add(new BrowseVersionTreeAction("Browse Version Tree", selectedContext));
+        item = menu.add(new BrowseVersionTreeAction(NbBundle.getMessage(SyncTable.class, "Popup_BrowseVersionTree_Name"), selectedContext)); //NOI18N
         Mnemonics.setLocalizedText(item, item.getText());
     
         menu.addSeparator();
@@ -350,7 +350,7 @@ class SyncTable implements MouseListener, ListSelectionListener, AncestorListene
         Mnemonics.setLocalizedText(item, item.getText());        
         
         menu.addSeparator();
-        item = menu.add(new ShowPropertiesAction("Show Properties", selectedContext));
+        item = menu.add(new ShowPropertiesAction(NbBundle.getMessage(SyncTable.class, "Popup_ShowPropertiesAction_Name"), selectedContext)); //NOI18N
         Mnemonics.setLocalizedText(item, item.getText());
         
         return menu;

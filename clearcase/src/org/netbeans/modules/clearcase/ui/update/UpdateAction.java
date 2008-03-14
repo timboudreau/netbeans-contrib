@@ -57,7 +57,7 @@ import java.util.*;
  * 
  * @author Maros Sandor
  */
-public class UpdateAction extends AbstractAction implements NotificationListener {
+public class UpdateAction extends AbstractAction {
     
     private final VCSContext context;
 
@@ -87,9 +87,13 @@ public class UpdateAction extends AbstractAction implements NotificationListener
     
     public void actionPerformed(ActionEvent e) {
         Set<File> files = context.computeFiles(updateFileFilter);
-        Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Updating...",
-                new UpdateCommand(files.toArray(new File[files.size()]), this, new OutputWindowNotificationListener())));
+        File[] fileArray = files.toArray(new File[files.size()]);
+        UpdateCommand cmd = 
+                new UpdateCommand(
+                    fileArray, 
+                    new AfterCommandRefreshListener(fileArray), 
+                    new OutputWindowNotificationListener());
+        Clearcase.getInstance().getClient().post("Updating...",cmd);
     }
 
     public static void update(VCSContext context) {
@@ -101,16 +105,4 @@ public class UpdateAction extends AbstractAction implements NotificationListener
             return true;
         }
     };
-
-    public void commandStarted() {
-    }
-
-    public void outputText(String line) {
-    }
-
-    public void errorText(String line) {
-    }
-
-    public void commandFinished() {
-    }
 }

@@ -46,6 +46,7 @@ import java.beans.PropertyChangeEvent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.netbeans.modules.java.api.common.SourceRoots;
 import org.netbeans.modules.javafx.project.ui.customizer.JavaFXProjectProperties;
 import org.openide.util.Mutex;
 import org.netbeans.api.project.Sources;
