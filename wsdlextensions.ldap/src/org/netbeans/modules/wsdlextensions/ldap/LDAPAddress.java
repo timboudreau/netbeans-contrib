@@ -26,6 +26,55 @@ package org.netbeans.modules.wsdlextensions.ldap;
 */
 public interface LDAPAddress extends LDAPComponent {
     static final String LDAP_LOCATION_PROPERTY = "location";
+    static final String LDAP_PRINCIPAL_PROPERTY = "principal";
+    static final String LDAP_CREDENTIAL_PROPERTY = "credential";
+    static final String LDAP_SSLTYPE_PROPERTY = "ssltype";
+    static final String LDAP_AUTHENTICATION_PROPERTY = "authentication";
+    static final String LDAP_PROTOCOL_PROPERTY = "protocol";
+    static final String LDAP_TRUSTSTORE_PROPERTY = "truststore";
+    static final String LDAP_TRUSTSTOREPASSWORD_PROPERTY = "truststorepassword";
+    static final String LDAP_TRUSTSTORETYPE_PROPERTY = "truststoretype";
+    static final String LDAP_KEYSTORE_PROPERTY = "keystore";
+    static final String LDAP_KEYSTOREUSERNAME_PROPERTY = "keystoreusername";
+    static final String LDAP_KEYSTOREPASSWORD_PROPERTY = "keystorepassword";
+    static final String LDAP_KEYSTORETYPE_PROPERTY = "keystoretype";
+    
     public void setLocation(String loc);
     public String getLocation();
+    
+    public void setPrincipal(String str);
+    public String getPrincipal();
+    
+    public void setCredential(String str);
+    public String getCredential();
+    
+    public void setSsltype(String str);
+    public String getSsltype();
+    
+    public void setAuthentication(String str);
+    public String getAuthentication();
+    
+    public void setProtocol(String str);
+    public String getProtocol();
+    
+    public void setTruststore(String str);
+    public String getTruststore();
+    
+    public void setTruststorepassword(String str);
+    public String getTruststorepassword();
+    
+    public void setTruststoretype(String str);
+    public String getTruststoretype();
+    
+    public void setKeystore(String str);
+    public String getKeystore();
+    
+    public void setKeystoreusername(String str);
+    public String getKeystoreusername();
+    
+    public void setKeystorepassword(String str);
+    public String getKeystorepassword();
+
+    public void setKeystoretype(String str);
+    public String getKeystoretype();
 }

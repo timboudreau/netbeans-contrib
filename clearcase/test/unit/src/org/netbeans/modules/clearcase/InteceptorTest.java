@@ -47,8 +47,6 @@ import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.clearcase.client.Arguments;
 import org.netbeans.modules.clearcase.client.CheckinCommand;
 import org.netbeans.modules.clearcase.client.CheckoutCommand;
-import org.netbeans.modules.clearcase.client.ClearcaseClient;
-import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.FilesCommand;
 import org.netbeans.modules.clearcase.client.MkElemCommand;
 import org.netbeans.modules.clearcase.client.UnCheckoutCommand;
@@ -75,11 +73,11 @@ public class InteceptorTest extends NbTestCase {
         super(testName);
         
         // run with mockup
-        // System.setProperty(MOCKUP_KEY, MOCKUP_ROOT);
-        // testRoot = new File(MOCKUP_ROOT + "/inteceptortest"); 
-        
+//         System.setProperty(MOCKUP_KEY, MOCKUP_ROOT);
+//         testRoot = new File(MOCKUP_ROOT + "/inteceptortest"); 
+//        
         // run with cleartool
-        testRoot = new File("/data/ccase/tester/deletetest"); 
+         testRoot = new File("/data/ccase/tester/deletetest"); 
     }            
 
     @Override
@@ -104,12 +102,12 @@ public class InteceptorTest extends NbTestCase {
             } else {
                 File parent = f.getParentFile();
                 ensureMutable(parent);            
-                FileEntry entry = ClearcaseUtils.readEntry(f);
+                FileEntry entry = ClearcaseUtils.readEntry(Clearcase.getInstance().getClient(), f);
                 if(entry != null && !entry.isViewPrivate()) {
                     uncheckout(f);
-                    Clearcase.getInstance().getClient().post(new ExecutionUnit("Cleaningup ...", false, new RmElemCommand(f))).waitFinished();            
+                    Clearcase.getInstance().getClient().exec(new RmElemCommand(f), false);            
                     FileUtil.refreshFor(parent);
-                    Clearcase.getInstance().getClient().post(new ExecutionUnit("Cleaningup...",  false, new CheckinCommand(new File[] {parent}, null, true, false))).waitFinished();
+                    Clearcase.getInstance().getClient().exec(new CheckinCommand(new File[] {parent}, null, true, false), false);
                 } else {
                     Utils.deleteRecursively(f);    
                 }
@@ -118,7 +116,7 @@ public class InteceptorTest extends NbTestCase {
     }
     
     private void init() {
-        FileEntry entry = ClearcaseUtils.readEntry(testRoot);
+        FileEntry entry = ClearcaseUtils.readEntry(Clearcase.getInstance().getClient(), testRoot);
         if(entry == null || entry.isViewPrivate()) {
             testRoot.mkdirs();
             add(testRoot);    
@@ -443,8 +441,7 @@ public class InteceptorTest extends NbTestCase {
             return true;  // interceptor handled the move
         } else {
             return false; // interceptor refused handling the move
-        }
-        
+        }        
     }
 
     private void interceptorMove(File from, File to) throws IOException {
@@ -467,14 +464,9 @@ public class InteceptorTest extends NbTestCase {
     }
     
     private void uncheckout(File file) {        
-        FileEntry entry = ClearcaseUtils.readEntry(file);
+        FileEntry entry = ClearcaseUtils.readEntry(Clearcase.getInstance().getClient(), file);
         if (entry != null && entry.isCheckedout()) {
-            ClearcaseClient.CommandRunnable cr = 
-                    Clearcase.getInstance().getClient().post(
-                        new ExecutionUnit(
-                            "cleaning up", 
-                            new UnCheckoutCommand(new File[]{file}, false)));
-            cr.waitFinished();
+            Clearcase.getInstance().getClient().exec(new UnCheckoutCommand(new File[]{file}, false), true);
         }
         File[] files = file.listFiles();
         if(files == null) {
@@ -486,12 +478,12 @@ public class InteceptorTest extends NbTestCase {
     }
 
     private void add(File... files) {
-        Clearcase.getInstance().getClient().post(new ExecutionUnit("Init...", new MkElemCommand(files, null, MkElemCommand.Checkout.Checkin, false))).waitFinished();
+        Clearcase.getInstance().getClient().exec(new MkElemCommand(files, null, MkElemCommand.Checkout.Checkin, false), true);
     }
 
     private static void ensureMutable(File file) {
         if (file.isDirectory()) {
-            FileEntry entry = ClearcaseUtils.readEntry(file);                
+            FileEntry entry = ClearcaseUtils.readEntry(Clearcase.getInstance().getClient(), file);                
             if (entry == null || entry.isCheckedout() || entry.isViewPrivate()) {
                 return;
             }
@@ -499,8 +491,7 @@ public class InteceptorTest extends NbTestCase {
             if (file.canWrite()) return;
         }
         CheckoutCommand command = new CheckoutCommand(new File[]{ file }, null, CheckoutCommand.Reserved.Reserved, true);
-        ExecutionUnit eu = new ExecutionUnit("Checking out...", false, command);
-        Clearcase.getInstance().getClient().post(eu).waitFinished();                
+        Clearcase.getInstance().getClient().exec(command, true);                
     }
     
     private void waitALittleBit(long l) {

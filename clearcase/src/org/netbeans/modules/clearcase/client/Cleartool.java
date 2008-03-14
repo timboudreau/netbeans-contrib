@@ -211,8 +211,7 @@ class Cleartool {
     }
     
     public synchronized void exec(ClearcaseCommand command) throws IOException, ClearcaseException {
-        Arguments args = new Arguments();
-        command.prepareCommand(args);        
+
         
         // read all pending output
         readAll(ctOutput);
@@ -224,10 +223,9 @@ class Cleartool {
             ctInput.println("'" + cwd.getAbsolutePath() + "'");
         }
         
-        StringBuilder cmd = toString(args);
-        Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: Executing \"" + cmd + "\"");
+        Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: Executing " + command);
         
-        ctInput.println(cmd);
+        ctInput.println(command.getStringCommand());
         if (!fireAndForget) ctInput.println(MAGIC_PROMPT);
         ctInput.flush();
         
@@ -315,17 +313,6 @@ class Cleartool {
             arguments.add("quit");
         }
     };
-
-    public static StringBuilder toString(Arguments args) {
-        StringBuilder cmd = new StringBuilder(100);
-        for (String arg : args) {
-            cmd.append(arg);
-            cmd.append(' ');
-        }
-        cmd.delete(cmd.length() - 1, cmd.length());
-
-        return cmd;
-    }
 
     public static String getCleartoolExecutablePath() {
         return ClearcaseModuleConfig.getPreferences().get(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, "cleartool");

@@ -37,16 +37,17 @@ import org.netbeans.modules.wsdlextensions.ldap.ldif.LdifObjectClass;
  * @author Gary
  */
 public class ServerUtil {
+
     private static LdapContext mConnection = null;
     private static String ldapUrl = null;
-    
+
     private ServerUtil() {
     }
-    
+
     public static void getConnection(String url) {
         try {
             Hashtable env = new Hashtable();
-            env.put(Context.INITIAL_CONTEXT_FACTORY,"com.sun.jndi.ldap.LdapCtxFactory");
+            env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
             env.put(Context.PROVIDER_URL, url);
             mConnection = new InitialLdapContext(env, null);
             ldapUrl = url;
@@ -54,32 +55,32 @@ public class ServerUtil {
             ex.printStackTrace();
         }
     }
-    
+
     public static List getObjectNames() throws NamingException {
         List ret = new ArrayList();
         DirContext top = mConnection.getSchema("");
         NamingEnumeration ne = top.list("ClassDefinition");
-        
+
         while (ne.hasMore()) {
             NameClassPair pair = (NameClassPair) ne.next();
             String clsName = pair.getName();
             ret.add(clsName);
         }
-        
+
         return ret;
     }
-    
+
     public static LdifObjectClass getObjectClass(String objName) throws NamingException {
         LdifObjectClass objClass = new LdifObjectClass();
-        
+
         DirContext top = mConnection.getSchema("");
-        DirContext schema = (DirContext)top.lookup("ClassDefinition/" + objName);
+        DirContext schema = (DirContext) top.lookup("ClassDefinition/" + objName);
         Attributes atrs = schema.getAttributes("");
         Attribute name = atrs.get("NAME");
         NamingEnumeration nameValue = name.getAll();
         objClass.setName((String) nameValue.next());
         objClass.setLdapUrl(ldapUrl);
-        
+
         Attribute sup = atrs.get("SUP");
         if (sup != null) {
             NamingEnumeration supValue = sup.getAll();
@@ -93,7 +94,7 @@ public class ServerUtil {
             }
             objClass.setSuper(sups);
         }
-        
+
         Attribute may = atrs.get("MAY");
         if (may != null) {
             NamingEnumeration mayValue = may.getAll();
@@ -102,7 +103,7 @@ public class ServerUtil {
                 objClass.addMay(a);
             }
         }
-        
+
         Attribute must = atrs.get("MUST");
         if (must != null) {
             NamingEnumeration mustValue = must.getAll();
@@ -114,5 +115,34 @@ public class ServerUtil {
         }
         objClass.setSelected(new ArrayList());
         return objClass;
+    }
+
+    public static ArrayList getObjectAttributes(String objName) throws NamingException {
+        ArrayList ret = new ArrayList();
+
+        DirContext top = mConnection.getSchema("");
+        DirContext schema = (DirContext) top.lookup("ClassDefinition/" + objName);
+        Attributes atrs = schema.getAttributes("");
+
+        Attribute must = atrs.get("MUST");
+        if (must != null) {
+            NamingEnumeration mustValue = must.getAll();
+            String musts = "";
+            while (mustValue.hasMore()) {
+                String a = (String) mustValue.next();
+                ret.add(a);
+            }
+        }
+
+        Attribute may = atrs.get("MAY");
+        if (may != null) {
+            NamingEnumeration mayValue = may.getAll();
+            while (mayValue.hasMore()) {
+                String a = (String) mayValue.next();
+                ret.add(a);
+            }
+        }
+
+        return ret;
     }
 }

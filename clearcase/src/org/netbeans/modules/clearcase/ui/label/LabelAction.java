@@ -97,13 +97,18 @@ public class LabelAction extends AbstractAction {
         }
         
         files = roots.toArray(new File[roots.size()]);
-        Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Setting Label...",
-                new LabelCommand(                
+        LabelCommand cmd = 
+                new LabelCommand(
                     files, 
-                    label.getLabel(), label.getComment(), label.getReplace(), 
-                    label.getRecurse(), label.getFollow(), label.getVersion(), 
-                    new OutputWindowNotificationListener(), new AfterCommandRefreshListener(files))));
+                    label.getLabel(), 
+                    label.getComment(), 
+                    label.getReplace(), 
+                    label.getRecurse(), 
+                    label.getFollow(), 
+                    label.getVersion(), 
+                    new OutputWindowNotificationListener(), 
+                    new AfterCommandRefreshListener(files));
+        Clearcase.getInstance().getClient().post("Setting Label...",cmd);
     }
 
 }

@@ -46,6 +46,7 @@ import org.openide.util.NbBundle;
 import java.io.Serializable;
 import java.io.File;
 import java.util.*;
+import org.netbeans.modules.clearcase.client.ClearcaseClient;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 
 /**
@@ -216,9 +217,9 @@ public class FileInformation implements Serializable {
      * 
      * @return Status parsed output from 'cleartool ls, diff, ...'
      */
-    public FileEntry getStatus(File file) {
+    public FileEntry getStatus(ClearcaseClient client, File file) {
         if (fileEntry == null && file != null) {
-            fileEntry = ClearcaseUtils.readEntry(file);
+            fileEntry = ClearcaseUtils.readEntry(client, file);
         }
         return fileEntry;
     }    

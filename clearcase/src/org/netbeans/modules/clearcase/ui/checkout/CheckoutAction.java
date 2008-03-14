@@ -87,24 +87,24 @@ public class CheckoutAction extends AbstractAction {
     public CheckoutAction(VCSContext context) {
         this.context = context;
         status = getActionStatus();
-        putValue(Action.NAME, status == STATUS_UNCHECKOUT ? "Uncheckout..." : "Checkout...");
+        putValue(Action.NAME, status == STATUS_UNCHECKOUT ? NbBundle.getMessage(CheckoutAction.class, "Action_Uncheckout_Name") : NbBundle.getMessage(CheckoutAction.class, "Action_Checkout_Name")); //NOI18N
     }
 
     private int getActionStatus() {
         FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
-        int status = STATUS_DISABLED;
+        int actionStatus = STATUS_DISABLED;
         Set<File> files = context.getFiles();
         for (File file : files) {
             if ((cache.getInfo(file).getStatus() & ALLOW_CHECKOUT) != 0) {
-                if (status == STATUS_UNCHECKOUT) return STATUS_DISABLED;
-                status = STATUS_CHECKOUT;
+                if (actionStatus == STATUS_UNCHECKOUT) return STATUS_DISABLED;
+                actionStatus = STATUS_CHECKOUT;
             }                
             if ((cache.getInfo(file).getStatus() & ALLOW_UNCO) != 0) {
-                if (status == STATUS_CHECKOUT) return STATUS_DISABLED;
-                status = STATUS_UNCHECKOUT;
+                if (actionStatus == STATUS_CHECKOUT) return STATUS_DISABLED;
+                actionStatus = STATUS_UNCHECKOUT;
             }
         }
-        return status;
+        return actionStatus;
     }
     
     @Override
@@ -140,7 +140,7 @@ public class CheckoutAction extends AbstractAction {
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(CheckoutAction.class, "CTL_UncheckoutDialog_Title", contextTitle)); // NOI18N
         dd.setModal(true);
         dd.setMessageType(DialogDescriptor.WARNING_MESSAGE);
-        Mnemonics.setLocalizedText(unCheckoutButton, NbBundle.getMessage(CheckoutAction.class, "CTL_UncheckoutDialog_Unheckout"));
+        Mnemonics.setLocalizedText(unCheckoutButton, NbBundle.getMessage(CheckoutAction.class, "CTL_UncheckoutDialog_Unheckout")); //NOI18N
         
         dd.setOptions(new Object[] {unCheckoutButton, DialogDescriptor.CANCEL_OPTION}); // NOI18N
         dd.setHelpCtx(new HelpCtx(CheckoutAction.class));
@@ -156,19 +156,22 @@ public class CheckoutAction extends AbstractAction {
         if (value != unCheckoutButton) return;
         
         boolean keepFiles = panel.cbKeep.isSelected();
-        
-        Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Undoing Checkout...",
-                new UnCheckoutCommand(files, keepFiles, new AfterCommandRefreshListener(files), new OutputWindowNotificationListener())));
+        UnCheckoutCommand cmd = 
+                new UnCheckoutCommand(
+                    files, 
+                    keepFiles, 
+                    new AfterCommandRefreshListener(files), 
+                    new OutputWindowNotificationListener());
+        Clearcase.getInstance().getClient().post(NbBundle.getMessage(CheckoutAction.class, "Progress_Undoing_Checkout"), cmd); //NOI18N
     }
 
-    public static ClearcaseClient.CommandRunnable performCheckout(File[] files, String title) {        
+    private static void performCheckout(File[] files, String title) {        
         JButton checkoutButton = new JButton(); 
         CheckoutPanel panel = new CheckoutPanel();
         
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(CheckoutAction.class, "CTL_CheckoutDialog_Title", title)); // NOI18N
         dd.setModal(true);        
-        org.openide.awt.Mnemonics.setLocalizedText(checkoutButton, org.openide.util.NbBundle.getMessage(CheckoutAction.class, "CTL_CheckoutDialog_Checkout"));
+        org.openide.awt.Mnemonics.setLocalizedText(checkoutButton, org.openide.util.NbBundle.getMessage(CheckoutAction.class, "CTL_CheckoutDialog_Checkout")); //NOI18N
         
         dd.setOptions(new Object[] {checkoutButton, DialogDescriptor.CANCEL_OPTION}); // NOI18N
         dd.setHelpCtx(new HelpCtx(CheckoutAction.class));
@@ -181,82 +184,20 @@ public class CheckoutAction extends AbstractAction {
         dialog.setVisible(true);
         
         Object value = dd.getValue();
-        if (value != checkoutButton) return null;
+        if (value != checkoutButton) return;
         
         String message = panel.taMessage.getText();
         boolean doReserved = panel.cbReserved.isSelected();
 
         Utils.insert(ClearcaseModuleConfig.getPreferences(), RECENT_CHECKOUT_MESSAGES, message, 20);
-                
-        ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(new ExecutionUnit(
-                "Checking out...",
-                new CheckoutCommand(files, message, doReserved ? CheckoutCommand.Reserved.Reserved : CheckoutCommand.Reserved.Unreserved, 
-                                    false, new AfterCommandRefreshListener(files), new OutputWindowNotificationListener())));        
-        return cr;
-    }
-    
-    /**
-     * Checks out the file or directory depending on the user-selected strategy in Options.
-     * In case the file is already writable or the directory is checked out, the method does nothing.
-     * Interceptor entry point.
-     * 
-     * @param file file to checkout
-     * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
-     */
-    public static void ensureMutable(File file) {
-        ensureMutable(file, null);
-    }   
-    
-    /**
-     * Checks out the file or directory depending on the user-selected strategy in Options.
-     * In case the file is already writable or the directory is checked out, the method does nothing.
-     * Interceptor entry point.
-     * 
-     * @param file file to checkout
-     * @param entry the given files {@link FileEntry}
-     * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
-     */
-    public static void ensureMutable(File file, FileEntry entry) {
-        if (file.isDirectory()) {
-            if(entry == null) {
-                entry = ClearcaseUtils.readEntry(file);                
-            }
-            if (entry == null || entry.isCheckedout() || entry.isViewPrivate()) {
-                return;
-            }
-        } else {
-            if (file.canWrite()) return;
-        }
-
-        ClearcaseModuleConfig.OnDemandCheckout odc = ClearcaseModuleConfig.getOnDemandCheckout();
-
-        CheckoutCommand command;
-        switch (odc) {
-        case Disabled:
-            // XXX let the user decide if he want's to checkout the file
-            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("On-demand checkouts are currently disabled. Visit IDE Options to change that."));
-            return;
-        case Reserved:
-        case ReservedWithFallback:
-            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Reserved, true, new AfterCommandRefreshListener(file));
-            break;
-        case Unreserved:
-            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, new AfterCommandRefreshListener(file));
-            break;
-        default:
-            throw new IllegalStateException("Illegal Checkout type: " + odc);
-        }
-        
-        ExecutionUnit eu = new ExecutionUnit("Checking out...", odc != ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback, command);
-        ClearcaseClient.CommandRunnable cr = Clearcase.getInstance().getClient().post(eu);
-        cr.waitFinished();
-        
-        if (command.hasFailed() && odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback) {
-            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, 
-                                          new OutputWindowNotificationListener(), new AfterCommandRefreshListener(file));
-            eu = new ExecutionUnit("Checking out...", true, command);
-            cr = Clearcase.getInstance().getClient().post(eu);
-            cr.waitFinished();
-        }
-    }
+        CheckoutCommand cmd = 
+                new CheckoutCommand(
+                        files, 
+                        message, 
+                        doReserved ? CheckoutCommand.Reserved.Reserved : CheckoutCommand.Reserved.Unreserved, 
+                        false, 
+                        new AfterCommandRefreshListener(files), 
+                        new OutputWindowNotificationListener());                
+        Clearcase.getInstance().getClient().post(NbBundle.getMessage(CheckoutAction.class, "Progress_Checkout"), cmd); //NOI18N
+    }        
 }

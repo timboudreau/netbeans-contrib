@@ -44,6 +44,7 @@ package org.netbeans.modules.javafx.project.queries;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import org.netbeans.modules.java.api.common.SourceRoots;
 import org.netbeans.spi.java.queries.SourceForBinaryQueryImplementation;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.openide.ErrorManager;
@@ -59,7 +60,6 @@ import java.util.HashMap;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.queries.SourceForBinaryQuery;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
-import org.netbeans.modules.javafx.project.SourceRoots;
 import org.openide.filesystems.URLMapper;
 import org.openide.util.ChangeSupport;
 

@@ -88,7 +88,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
     private SyncTable                       syncTable;
     
     private static final RequestProcessor   rp = new RequestProcessor("ClearCaseView", 1, true);  // NOI18N    
-    private ProgressSupport                 refreshSupport; 
+    private FileStatusCache.RefreshSupport  refreshSupport; 
     private final NoContentPanel            noContentComponent = new NoContentPanel();
     private RequestProcessor.Task           refreshViewTask;
     
@@ -180,6 +180,8 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
      */ 
     void setContext(Context ctx) {
         context = ctx;
+        Set<File> roots = ctx.getRootFiles();
+        getProgressSupport().setRootFiles(roots.toArray(new File[roots.size()]));
         performRefreshAction();
     }
     
@@ -286,10 +288,9 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         }
     }
 
-
-    private ProgressSupport getProgressSupport() {
+    private FileStatusCache.RefreshSupport getProgressSupport() {
         if(refreshSupport == null) {
-            refreshSupport = new FileStatusCache.RefreshSupport(rp, context.getVCSContext(), "Refreshing status...") {
+            refreshSupport = new FileStatusCache.RefreshSupport(rp, context.getVCSContext(), NbBundle.getMessage(VersioningPanel.class, "Progress_RefreshingStatus")) { //NOI18N
                 @Override
                 protected void perform() {
                     refresh();
@@ -577,7 +578,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
             return;
         }
         // TODO: a little hacky
-        btnUpdate.setEnabled(new UpdateAction("", context.getVCSContext()).isEnabled());
+        btnUpdate.setEnabled(new UpdateAction("", context.getVCSContext()).isEnabled()); //NOI18N
 
         final SyncFileNode [] nodes = getNodes(context.getVCSContext(), displayStatuses);  // takes long
         if (nodes == null) {
@@ -685,7 +686,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         btnRefresh.setPreferredSize(new java.awt.Dimension(22, 23));
         btnRefresh.addActionListener(this);
         jPanel2.add(btnRefresh);
-        btnRefresh.getAccessibleContext().setAccessibleName("Refresh Status");
+        btnRefresh.getAccessibleContext().setAccessibleName(NbBundle.getMessage(VersioningPanel.class, "VersioningPanel.btnRefresh.AccessibleContext.accessibleName")); // NOI18N
 
         btnDiff.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/clearcase/resources/icons/diff.png"))); // NOI18N
         btnDiff.setToolTipText(bundle.getString("CTL_Synchronize_Action_Diff_Tooltip")); // NOI18N
@@ -693,7 +694,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         btnDiff.setPreferredSize(new java.awt.Dimension(22, 25));
         btnDiff.addActionListener(this);
         jPanel2.add(btnDiff);
-        btnDiff.getAccessibleContext().setAccessibleName("Diff All");
+        btnDiff.getAccessibleContext().setAccessibleName(NbBundle.getMessage(VersioningPanel.class, "VersioningPanel.btnDiff.AccessibleContext.accessibleName")); // NOI18N
 
         jPanel3.setOpaque(false);
         jPanel2.add(jPanel3);
@@ -704,7 +705,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         btnUpdate.setPreferredSize(new java.awt.Dimension(22, 25));
         btnUpdate.addActionListener(this);
         jPanel2.add(btnUpdate);
-        btnUpdate.getAccessibleContext().setAccessibleName("Update");
+        btnUpdate.getAccessibleContext().setAccessibleName(NbBundle.getMessage(VersioningPanel.class, "VersioningPanel.btnUpdate.AccessibleContext.accessibleName")); // NOI18N
 
         btnCommit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/clearcase/resources/icons/commit.png"))); // NOI18N
         btnCommit.setToolTipText(bundle.getString("CTL_CommitForm_Action_Commit_Tooltip")); // NOI18N
@@ -712,7 +713,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
         btnCommit.setPreferredSize(new java.awt.Dimension(22, 25));
         btnCommit.addActionListener(this);
         jPanel2.add(btnCommit);
-        btnCommit.getAccessibleContext().setAccessibleName("Commit");
+        btnCommit.getAccessibleContext().setAccessibleName(NbBundle.getMessage(VersioningPanel.class, "VersioningPanel.btnCommit.AccessibleContext.accessibleName")); // NOI18N
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;

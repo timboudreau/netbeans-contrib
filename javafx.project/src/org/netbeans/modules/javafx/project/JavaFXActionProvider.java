@@ -45,9 +45,11 @@ import java.awt.Dialog;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,7 +58,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
+import javax.lang.model.element.TypeElement;
 import javax.swing.JButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -64,9 +68,18 @@ import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.fileinfo.NonRecursiveFolder;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.java.queries.UnitTestForSourceQuery;
+import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.ElementHandle;
+import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.ui.ScanDialog;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.project.SourceGroup;
+import org.netbeans.api.project.Sources;
+import org.netbeans.modules.java.api.common.ant.UpdateHelper;
+import org.netbeans.modules.javafx.project.applet.AppletSupport;
 import org.netbeans.modules.javafx.project.classpath.ClassPathProviderImpl;
 import org.netbeans.modules.javafx.project.ui.customizer.JavaFXProjectProperties;
 import org.netbeans.modules.javafx.project.ui.customizer.MainClassChooser;
@@ -74,140 +87,232 @@ import org.netbeans.modules.javafx.project.ui.customizer.MainClassWarning;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
-import org.netbeans.spi.project.support.ant.GeneratedFilesHelper;
 import org.netbeans.spi.project.ui.support.DefaultProjectOperations;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.MouseUtils;
+import org.openide.execution.ExecutorTask;
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileChangeListener;
+import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+import org.openide.util.Task;
+import org.openide.util.TaskListener;
 
 /** Action provider of the JavaFX project. This is the place where to do
  * strange things to JavaFX actions. E.g. compile-single.
  */
 class JavaFXActionProvider implements ActionProvider {
-    
+
     // Commands available from JavaFX project
     private static final String[] supportedActions = {
-        COMMAND_BUILD, 
-        COMMAND_CLEAN, 
-        COMMAND_REBUILD, 
-        COMMAND_COMPILE_SINGLE, 
-        COMMAND_RUN, 
-        COMMAND_RUN_SINGLE, 
-        COMMAND_DEBUG, 
+        COMMAND_BUILD,
+        COMMAND_CLEAN,
+        COMMAND_REBUILD,
+        COMMAND_COMPILE_SINGLE,
+        COMMAND_RUN,
+        COMMAND_RUN_SINGLE,
+        COMMAND_DEBUG,
         COMMAND_DEBUG_SINGLE,
-        JavaProjectConstants.COMMAND_JAVADOC,         
-//        COMMAND_TEST, 
-//        COMMAND_TEST_SINGLE, 
-//        COMMAND_DEBUG_TEST_SINGLE, 
-//        JavaProjectConstants.COMMAND_DEBUG_FIX,
-//        COMMAND_DEBUG_STEP_INTO,
+        JavaProjectConstants.COMMAND_JAVADOC,
+        COMMAND_TEST,
+        COMMAND_TEST_SINGLE,
+        COMMAND_DEBUG_TEST_SINGLE,
+        JavaProjectConstants.COMMAND_DEBUG_FIX,
+        COMMAND_DEBUG_STEP_INTO,
         COMMAND_DELETE,
         COMMAND_COPY,
         COMMAND_MOVE,
         COMMAND_RENAME,
     };
-    
-    
+
+
     private static final String[] platformSensitiveActions = {
-        COMMAND_BUILD, 
-        COMMAND_REBUILD, 
-        COMMAND_COMPILE_SINGLE, 
-        COMMAND_RUN, 
-        COMMAND_RUN_SINGLE, 
-        COMMAND_DEBUG, 
+        COMMAND_BUILD,
+        COMMAND_REBUILD,
+        COMMAND_COMPILE_SINGLE,
+        COMMAND_RUN,
+        COMMAND_RUN_SINGLE,
+        COMMAND_DEBUG,
         COMMAND_DEBUG_SINGLE,
-        JavaProjectConstants.COMMAND_JAVADOC,         
-//        COMMAND_TEST, 
-//        COMMAND_TEST_SINGLE, 
-//        COMMAND_DEBUG_TEST_SINGLE, 
-//        JavaProjectConstants.COMMAND_DEBUG_FIX,
-//        COMMAND_DEBUG_STEP_INTO,
+        JavaProjectConstants.COMMAND_JAVADOC,
+        COMMAND_TEST,
+        COMMAND_TEST_SINGLE,
+        COMMAND_DEBUG_TEST_SINGLE,
+        JavaProjectConstants.COMMAND_DEBUG_FIX,
+        COMMAND_DEBUG_STEP_INTO,
     };
-    
+
     // Project
-    JavaFXProject project;
-    
+    final JavaFXProject project;
+
     // Ant project helper of the project
     private UpdateHelper updateHelper;
-    
-        
+
+
     /** Map from commands to ant targets */
     Map<String,String[]> commands;
-    
+
     /**Set of commands which are affected by background scanning*/
     final Set<String> bkgScanSensitiveActions;
+
+    /** Set of Java source files (as relative path from source root) known to have been modified. See issue #104508. */
+    private Set<String> dirty = null;
+
+    private Sources src;
+    private List<FileObject> roots;
     
-    public JavaFXActionProvider( JavaFXProject project, UpdateHelper updateHelper ) {
-        
+    // Used only from unit tests to suppress detection of top level classes. If value
+    // is different from null it will be returned instead.
+    String unitTestingSupport_fixClasses;
+
+    public JavaFXActionProvider(JavaFXProject project, UpdateHelper updateHelper) {
+
         commands = new HashMap<String,String[]>();
-        commands.put(COMMAND_BUILD, new String[] {"jar"}); // NOI18N
+        // treated specially: COMMAND_{,RE}BUILD
         commands.put(COMMAND_CLEAN, new String[] {"clean"}); // NOI18N
-        commands.put(COMMAND_REBUILD, new String[] {"clean", "jar"}); // NOI18N
         commands.put(COMMAND_COMPILE_SINGLE, new String[] {"compile-single"}); // NOI18N
-        // commands.put(COMMAND_COMPILE_TEST_SINGLE, new String[] {"compile-test-single"}); // NOI18N
         commands.put(COMMAND_RUN, new String[] {"run"}); // NOI18N
         commands.put(COMMAND_RUN_SINGLE, new String[] {"run-single"}); // NOI18N
         commands.put(COMMAND_DEBUG, new String[] {"debug"}); // NOI18N
         commands.put(COMMAND_DEBUG_SINGLE, new String[] {"debug-single"}); // NOI18N
         commands.put(JavaProjectConstants.COMMAND_JAVADOC, new String[] {"javadoc"}); // NOI18N
-//        commands.put(COMMAND_TEST, new String[] {"test"}); // NOI18N
-//        commands.put(COMMAND_TEST_SINGLE, new String[] {"test-single"}); // NOI18N
-//        commands.put(COMMAND_DEBUG_TEST_SINGLE, new String[] {"debug-test"}); // NOI18N
-//        commands.put(JavaProjectConstants.COMMAND_DEBUG_FIX, new String[] {"debug-fix"}); // NOI18N
-//        commands.put(COMMAND_DEBUG_STEP_INTO, new String[] {"debug-stepinto"}); // NOI18N
+        commands.put(COMMAND_TEST, new String[] {"test"}); // NOI18N
+        commands.put(COMMAND_TEST_SINGLE, new String[] {"test-single"}); // NOI18N
+        commands.put(COMMAND_DEBUG_TEST_SINGLE, new String[] {"debug-test"}); // NOI18N
+        commands.put(JavaProjectConstants.COMMAND_DEBUG_FIX, new String[] {"debug-fix"}); // NOI18N
+        commands.put(COMMAND_DEBUG_STEP_INTO, new String[] {"debug-stepinto"}); // NOI18N
 
-        this.bkgScanSensitiveActions = new HashSet<String>(Arrays.asList(new String[] {
-            COMMAND_RUN, 
-            COMMAND_RUN_SINGLE, 
-            COMMAND_DEBUG, 
+        this.bkgScanSensitiveActions = new HashSet<String>(Arrays.asList(
+            COMMAND_RUN,
+            COMMAND_RUN_SINGLE,
+            COMMAND_DEBUG,
             COMMAND_DEBUG_SINGLE,
-//            COMMAND_DEBUG_STEP_INTO
-        }));
-            
+            COMMAND_DEBUG_STEP_INTO
+        ));
+
         this.updateHelper = updateHelper;
-        this.project = project;
+        this.project = project;        
     }
     
+    private final FileChangeListener modificationListener = new FileChangeAdapter() {
+        public @Override void fileChanged(FileEvent fe) {
+            modification(fe.getFile());
+        }
+        public @Override void fileDataCreated(FileEvent fe) {
+            modification(fe.getFile());
+        }
+    };
+
+    private final ChangeListener sourcesChangeListener = new ChangeListener() {
+
+        public void stateChanged(ChangeEvent e) {
+            synchronized (JavaFXActionProvider.this) {
+                JavaFXActionProvider.this.roots = null;
+            }
+        }
+    };
+    
+    
+    void startFSListener () {
+        //Listener has to be started when the project's lookup is initialized
+        try {
+            FileSystem fs = project.getProjectDirectory().getFileSystem();
+            // XXX would be more efficient to only listen while DO_DEPEND=false (though this is the default)
+            fs.addFileChangeListener(FileUtil.weakFileChangeListener(modificationListener, fs));
+        } catch (FileStateInvalidException x) {
+            Exceptions.printStackTrace(x);
+        }
+    }
+
+    private void modification(FileObject f) {
+        final Iterable <? extends FileObject> roots = getRoots();
+        assert roots != null;
+        for (FileObject root : roots) {
+            String path = FileUtil.getRelativePath(root, f);
+            if (path != null) {
+                synchronized (this) {
+                    if (dirty != null) {
+                        dirty.add(path);
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    private Iterable <? extends FileObject> getRoots () {
+        Sources _src = null;
+        synchronized (this) {
+            if (this.roots != null) {
+                return this.roots;
+            }
+            if (this.src == null) {
+                this.src = this.project.getLookup().lookup(Sources.class);
+                this.src.addChangeListener (sourcesChangeListener);
+            }
+            _src = this.src;
+        }
+        assert _src != null;
+        final SourceGroup[] sgs = _src.getSourceGroups (JavaProjectConstants.SOURCES_TYPE_JAVA);
+        final List<FileObject> _roots = new ArrayList<FileObject>(sgs.length);
+        for (SourceGroup sg : sgs) {
+            final FileObject root = sg.getRootFolder();
+            if (UnitTestForSourceQuery.findSources(root).length == 0) {
+                _roots.add (root);
+            }
+        }
+        synchronized (this) {
+            if (this.roots == null) {
+                this.roots = _roots;
+            }
+            return this.roots;
+        }
+    }
+
     private FileObject findBuildXml() {
-        return project.getProjectDirectory().getFileObject(GeneratedFilesHelper.BUILD_XML_PATH);
+        return JavaFXProjectUtil.getBuildXml(project);
     }
-    
+
     public String[] getSupportedActions() {
         return supportedActions;
     }
-    
+
     public void invokeAction( final String command, final Lookup context ) throws IllegalArgumentException {
         if (COMMAND_DELETE.equals(command)) {
             DefaultProjectOperations.performDefaultDeleteOperation(project);
             return ;
         }
-        
+
         if (COMMAND_COPY.equals(command)) {
             DefaultProjectOperations.performDefaultCopyOperation(project);
             return ;
         }
-        
+
         if (COMMAND_MOVE.equals(command)) {
             DefaultProjectOperations.performDefaultMoveOperation(project);
             return ;
         }
-        
+
         if (COMMAND_RENAME.equals(command)) {
             DefaultProjectOperations.performDefaultRenameOperation(project, null);
             return ;
         }
-        
-        Runnable action = new Runnable () {
+
+        final Runnable action = new Runnable () {
             public void run () {
                 Properties p = new Properties();
                 String[] targetNames;
-        
+
                 targetNames = getTargetNames(command, context, p);
                 if (targetNames == null) {
                     return;
@@ -227,21 +332,30 @@ class JavaFXActionProvider implements ActionProvider {
                         DialogDisplayer.getDefault().notify(nd);
                     }
                     else {
-                        ActionUtils.runTarget(buildFo, targetNames, p);
+                        ActionUtils.runTarget(buildFo, targetNames, p).addTaskListener(new TaskListener() {
+                            public void taskFinished(Task task) {
+                                if (((ExecutorTask) task).result() != 0) {
+                                    synchronized (JavaFXActionProvider.this) {
+                                        // #120843: if a build fails, disable dirty-list optimization.
+                                        dirty = null;
+                                    }
+                                }
+                            }
+                        });
                     }
-                } 
+                }
                 catch (IOException e) {
                     ErrorManager.getDefault().notify(e);
                 }
-            }            
+            }
         };
-        
-//        if (this.bkgScanSensitiveActions.contains(command)) {        
-//            JMManager.getManager().invokeAfterScanFinished(action, NbBundle.getMessage (JavaFXActionProvider.class,"ACTION_"+command)); //NOI18N
-//        }
-//        else {
+
+        if (this.bkgScanSensitiveActions.contains(command)) {
+            ScanDialog.runWhenScanFinished(action, NbBundle.getMessage (JavaFXActionProvider.class,"ACTION_"+command));   //NOI18N
+        }
+        else {
             action.run();
-//        }
+        }
     }
 
     /**
@@ -265,28 +379,30 @@ class JavaFXActionProvider implements ActionProvider {
                 p.setProperty("javac.includes", ActionUtils.antIncludesList(files, getRoot(sourceRoots,files[0]), recursive)); // NOI18N
                 String[] targets = targetsFromConfig.get(command);
                 targetNames = (targets != null) ? targets : commands.get(command);
-            } 
+            }
             else {
                 FileObject[] testRoots = project.getTestSourceRoots().getRoots();
                 files = findSourcesAndPackages(context, testRoots);
                 p.setProperty("javac.includes", ActionUtils.antIncludesList(files, getRoot(testRoots,files[0]), recursive)); // NOI18N
                 targetNames = new String[] {"compile-test-single"}; // NOI18N
             }
-        } 
+        }
         else if ( command.equals( COMMAND_TEST_SINGLE ) ) {
             FileObject[] files = findTestSourcesForSources(context);
             targetNames = setupTestSingle(p, files);
-        } 
+        }
         else if ( command.equals( COMMAND_DEBUG_TEST_SINGLE ) ) {
             FileObject[] files = findTestSourcesForSources(context);
             targetNames = setupDebugTestSingle(p, files);
-        } 
+        }
         else if ( command.equals( JavaProjectConstants.COMMAND_DEBUG_FIX ) ) {
             FileObject[] files = findSources( context );
             String path = null;
+            String classes = "";    //NOI18N
             if (files != null) {
                 path = FileUtil.getRelativePath(getRoot(project.getSourceRoots().getRoots(),files[0]), files[0]);
                 targetNames = new String[] {"debug-fix"}; // NOI18N
+                classes = getTopLevelClasses(files[0]);
             } else {
                 files = findTestSources(context, false);
                 path = FileUtil.getRelativePath(getRoot(project.getTestSourceRoots().getRoots(),files[0]), files[0]);
@@ -297,6 +413,7 @@ class JavaFXActionProvider implements ActionProvider {
                 path = path.substring(0, path.length() - 5);
             }
             p.setProperty("fix.includes", path); // NOI18N
+            p.setProperty("fix.classes", classes); // NOI18N
         }
         else if (command.equals (COMMAND_RUN) || command.equals(COMMAND_DEBUG) || command.equals(COMMAND_DEBUG_STEP_INTO)) {
             String config = project.evaluator().getProperty(JavaFXConfigurationProvider.PROP_CONFIG);
@@ -315,13 +432,16 @@ class JavaFXActionProvider implements ActionProvider {
             // to define a main class - in this case an active config need not override it.
             String mainClass = project.evaluator().getProperty(JavaFXProjectProperties.MAIN_CLASS);
             MainClassStatus result = isSetMainClass (project.getSourceRoots().getRoots(), mainClass);
+            
             if (context.lookup(JavaFXConfigurationProvider.Config.class) != null) {
+//            if(ep.getProperty(JavaFXProjectProperties.MAIN_CLASS) != null){
                 // If a specific config was selected, just skip this check for now.
                 // XXX would ideally check that that config in fact had a main class.
                 // But then evaluator.getProperty(MAIN_CLASS) would be inaccurate.
                 // Solvable but punt on it for now.
                 result = MainClassStatus.SET_AND_VALID;
             }
+  
             if (result != MainClassStatus.SET_AND_VALID) {
                 do {
                     // show warning, if cancel then return
@@ -333,14 +453,14 @@ class JavaFXActionProvider implements ActionProvider {
                     result=isSetMainClass (project.getSourceRoots().getRoots(), mainClass);
                 } while (result != MainClassStatus.SET_AND_VALID);
                 try {
-                    if (updateHelper.requestSave()) {
+                    if (updateHelper.requestUpdate()) {
                         updateHelper.putProperties(path, ep);
                         ProjectManager.getDefault().saveProject(project);
                     }
                     else {
                         return null;
                     }
-                } catch (IOException ioe) {           
+                } catch (IOException ioe) {
                     ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "Error while saving project: " + ioe);
                 }
             }
@@ -352,6 +472,7 @@ class JavaFXActionProvider implements ActionProvider {
             if (targetNames == null) {
                 throw new IllegalArgumentException(command);
             }
+            prepareDirtyList(p, false);
         } else if (command.equals (COMMAND_RUN_SINGLE) || command.equals (COMMAND_DEBUG_SINGLE)) {
             FileObject[] files = findTestSources(context, false);
             if (files != null) {
@@ -368,27 +489,102 @@ class JavaFXActionProvider implements ActionProvider {
                 if (clazz.endsWith(".java")) { // NOI18N
                     clazz = clazz.substring(0, clazz.length() - 5);
                 }
-                clazz = clazz.replace('/', '.');
+                if (clazz.endsWith(".fx")) { // NOI18N
+                    clazz = clazz.substring(0, clazz.length() - 3);
+                }
+                clazz = clazz.replace('/','.');
+                final boolean hasMainClassFromTest = MainClassChooser.unitTestingSupport_hasMainMethodResult == null ? false :
+                    MainClassChooser.unitTestingSupport_hasMainMethodResult.booleanValue();
+                Collection<ElementHandle<TypeElement>> mainClasses = null;
+                if (!file.getExt().equals("fx")){
+                    mainClasses = JavaFXProjectUtil.getMainMethods (file);
+                }
+                if ((file.getExt().equals("fx")) || (!hasMainClassFromTest && mainClasses.isEmpty())) {
+                    if (AppletSupport.isApplet(file)) {
 
-                if (command.equals(COMMAND_RUN_SINGLE)) {
-                    p.setProperty("run.class", clazz); // NOI18N
-                    String[] targets = targetsFromConfig.get(command);
-                    targetNames = (targets != null) ? targets : commands
-                            .get(COMMAND_RUN_SINGLE);
+                        EditableProperties ep = updateHelper.getProperties (AntProjectHelper.PROJECT_PROPERTIES_PATH);
+                        String jvmargs = ep.getProperty("run.jvmargs");
+
+                        URL url = null;
+
+                        // do this only when security policy is not set manually
+                        if ((jvmargs == null) || !(jvmargs.indexOf("java.security.policy") > 0)) {  //NOI18N
+                            AppletSupport.generateSecurityPolicy(project.getProjectDirectory());
+                            if ((jvmargs == null) || (jvmargs.length() == 0)) {
+                                ep.setProperty("run.jvmargs", "-Djava.security.policy=applet.policy"); //NOI18N
+                            } else {
+                                ep.setProperty("run.jvmargs", jvmargs + " -Djava.security.policy=applet.policy"); //NOI18N
+                            }
+                            updateHelper.putProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH, ep);
+                            try {
+                                ProjectManager.getDefault().saveProject(project);
+                            } catch (Exception e) {
+                                ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "Error while saving project: " + e);
+                            }
+                        }
+
+                        if (file.existsExt("html") || file.existsExt("HTML")) { //NOI18N
+                            url = copyAppletHTML(file, "html"); //NOI18N
+                        } else {
+                            url = generateAppletHTML(file);
+                        }
+                        if (url == null) {
+                            return null;
+                        }
+                        p.setProperty("applet.url", url.toString()); // NOI18N
+                        if (command.equals (COMMAND_RUN_SINGLE)) {
+                            targetNames = new String[] {"run-applet"}; // NOI18N
+                        } else {
+                            p.setProperty("debug.class", clazz); // NOI18N
+                            targetNames = new String[] {"debug-applet"}; // NOI18N
+                        }
+                    } else {
+                        NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(JavaFXActionProvider.class, "LBL_No_Main_Classs_Found", clazz), NotifyDescriptor.INFORMATION_MESSAGE);
+                        DialogDisplayer.getDefault().notify(nd);
+                        return null;
+                    }
+                } else {
+                    if (!hasMainClassFromTest) {                    
+                        if (mainClasses.size() == 1) {
+                            //Just one main class
+                            clazz = mainClasses.iterator().next().getBinaryName();
+                        }
+                        else {
+                            //Several main classes, let the user choose
+                            clazz = showMainClassWarning(file, mainClasses);
+                            if (clazz == null) {
+                                return null;
+                            }
+                        }
+                    }
+                    if (command.equals (COMMAND_RUN_SINGLE)) {
+                        p.setProperty("run.class", clazz); // NOI18N
+                        String[] targets = targetsFromConfig.get(command);
+                        targetNames = (targets != null) ? targets : commands.get(COMMAND_RUN_SINGLE);
+                    } else {
+                        p.setProperty("debug.class", clazz); // NOI18N
+                        String[] targets = targetsFromConfig.get(command);
+                        targetNames = (targets != null) ? targets : commands.get(COMMAND_DEBUG_SINGLE);
+                    }
                 }
-                else {
-                    p.setProperty("debug.class", clazz); // NOI18N
-                    String[] targets = targetsFromConfig.get(command);
-                    targetNames = (targets != null) ? targets : commands
-                            .get(COMMAND_DEBUG_SINGLE);
-                }
-                
             }
         } else {
             String[] targets = targetsFromConfig.get(command);
             targetNames = (targets != null) ? targets : commands.get(command);
             if (targetNames == null) {
-                throw new IllegalArgumentException(command);
+                String buildTarget = "false".equalsIgnoreCase(project.evaluator().getProperty(JavaFXProjectProperties.DO_JAR)) ? "compile" : "jar"; // NOI18N
+                if (command.equals(COMMAND_BUILD)) {
+                    targetNames = new String[] {buildTarget};
+                    prepareDirtyList(p, true);
+                } else if (command.equals(COMMAND_REBUILD)) {
+                    targetNames = new String[] {"clean", buildTarget}; // NOI18N
+                } else {
+                    throw new IllegalArgumentException(command);
+                }
+            }
+            if (COMMAND_CLEAN.equals(command)) {
+                //After clean, rebuild all
+                dirty = null;
             }
         }
         JavaFXConfigurationProvider.Config c = context.lookup(JavaFXConfigurationProvider.Config.class);
@@ -404,7 +600,39 @@ class JavaFXActionProvider implements ActionProvider {
         }
         return targetNames;
     }
-    
+    private void prepareDirtyList(Properties p, boolean isExplicitBuildTarget) {
+        String doDepend = project.evaluator().getProperty(JavaFXProjectProperties.DO_DEPEND);
+        synchronized (this) {
+            if (dirty == null) {
+                // #119777: the first time, build everything.
+                dirty = new TreeSet<String>();
+                return;
+            }
+            for (DataObject d : DataObject.getRegistry().getModified()) {
+                // Treat files modified in memory as dirty as well.
+                // (If you make an edit and press F11, the save event happens *after* Ant is launched.)
+                modification(d.getPrimaryFile());
+            }
+            if (!"true".equalsIgnoreCase(doDepend) && !(isExplicitBuildTarget && dirty.isEmpty())) { // NOI18N
+                // #104508: if not using <depend>, try to compile just those files known to have been touched since the last build.
+                // (In case there are none such, yet the user invoked build anyway, probably they know what they are doing.)
+                if (dirty.isEmpty()) {
+                    // includes="" apparently is ignored.
+                    dirty.add("nothing whatsoever"); // NOI18N
+                }
+                StringBuilder dirtyList = new StringBuilder();
+                for (String f : dirty) {
+                    if (dirtyList.length() > 0) {
+                        dirtyList.append(',');
+                    }
+                    dirtyList.append(f);
+                }
+                p.setProperty(JavaFXProjectProperties.INCLUDES, dirtyList.toString());
+            }
+            dirty.clear();
+        }
+    }
+
     // loads targets for specific commands from shared config property file
     // returns map; key=command name; value=array of targets for given command
     private HashMap<String,String[]> loadTargetsFromConfig() {
@@ -446,12 +674,11 @@ class JavaFXActionProvider implements ActionProvider {
         }
         return targets;
     }
-    
+
     private String[] setupTestSingle(Properties p, FileObject[] files) {
         FileObject[] testSrcPath = project.getTestSourceRoots().getRoots();
         FileObject root = getRoot(testSrcPath, files[0]);
         p.setProperty("test.includes", ActionUtils.antIncludesList(files, root)); // NOI18N
-        // The following is no longer actually necessary (see #97053), but should be harmless to leave in:
         p.setProperty("javac.includes", ActionUtils.antIncludesList(files, root)); // NOI18N
         return new String[] {"test-single"}; // NOI18N
     }
@@ -462,6 +689,7 @@ class JavaFXActionProvider implements ActionProvider {
         String path = FileUtil.getRelativePath(root, files[0]);
         // Convert foo/FooTest.java -> foo.FooTest
         p.setProperty("test.class", path.substring(0, path.length() - 5).replace('/', '.')); // NOI18N
+        p.setProperty("javac.includes", ActionUtils.antIncludesList(files, root)); // NOI18N
         return new String[] {"debug-test"}; // NOI18N
     }
 
@@ -480,7 +708,7 @@ class JavaFXActionProvider implements ActionProvider {
         else if ( command.equals( COMMAND_DEBUG_TEST_SINGLE ) ) {
             FileObject[] files = findTestSourcesForSources(context);
             return files != null && files.length == 1;
-        } else if (command.equals(COMMAND_RUN_SINGLE) || 
+        } else if (command.equals(COMMAND_RUN_SINGLE) ||
                         command.equals(COMMAND_DEBUG_SINGLE) ||
                         command.equals(JavaProjectConstants.COMMAND_DEBUG_FIX)) {
             FileObject fos[] = findSources(context);
@@ -494,15 +722,58 @@ class JavaFXActionProvider implements ActionProvider {
             return true;
         }
     }
-    
-    
-   
+
+
+
     // Private methods -----------------------------------------------------
-    
-    
+
+
     private static final Pattern SRCDIRJAVA = Pattern.compile("\\.java$"); // NOI18N
     private static final String SUBST = "Test.java"; // NOI18N
     
+    
+    /**
+     * Lists all top level classes in a String, classes are separated by space (" ")
+     * Used by debuger fix and continue (list of files to fix)
+     * @param file for which the top level classes should be found
+     * @return list of top levels
+     */
+    private String getTopLevelClasses (final FileObject file) {
+        assert file != null;
+        if (unitTestingSupport_fixClasses != null) {
+            return unitTestingSupport_fixClasses;
+        }
+        final String[] classes = new String[] {""}; //NOI18N
+        JavaSource js = JavaSource.forFileObject(file);
+        if (js != null) {
+            try {
+                js.runUserActionTask(new org.netbeans.api.java.source.Task<CompilationController>() {
+                    public void run(CompilationController ci) throws Exception {
+                        if (ci.toPhase(JavaSource.Phase.ELEMENTS_RESOLVED).compareTo(JavaSource.Phase.ELEMENTS_RESOLVED) < 0) {
+                            ErrorManager.getDefault().log(ErrorManager.WARNING,
+                                    "Unable to resolve "+ci.getFileObject()+" to phase "+JavaSource.Phase.RESOLVED+", current phase = "+ci.getPhase()+
+                                    "\nDiagnostics = "+ci.getDiagnostics()+
+                                    "\nFree memory = "+Runtime.getRuntime().freeMemory());
+                            return;
+                        }
+                        List<? extends TypeElement> types = ci.getTopLevelElements();
+                        if (types.size() > 0) {
+                            for (TypeElement type : types) {
+                                if (classes[0].length() > 0) {
+                                    classes[0] = classes[0] + " ";            // NOI18N
+                                }
+                                classes[0] = classes[0] + type.getQualifiedName().toString().replace('.', '/') + "*.class";  // NOI18N
+                            }
+                        }
+                    }
+                }, true);
+            } catch (java.io.IOException ioex) {
+                Exceptions.printStackTrace(ioex);
+            }
+        }
+        return classes[0];
+    }
+
     /** Find selected sources, the sources has to be under single source root,
      *  @param context the lookup in which files should be found
      */
@@ -510,8 +781,13 @@ class JavaFXActionProvider implements ActionProvider {
         FileObject[] srcPath = project.getSourceRoots().getRoots();
         for (int i=0; i< srcPath.length; i++) {
             FileObject[] files = ActionUtils.findSelectedFiles(context, srcPath[i], ".java", true); // NOI18N
+            FileObject[] fxFiles = ActionUtils.findSelectedFiles(context, srcPath[i], ".fx", true); // NOI18N
+            
             if (files != null) {
                 return files;
+            }
+            if (fxFiles != null) {
+                return fxFiles;
             }
         }
         return null;
@@ -533,7 +809,7 @@ class JavaFXActionProvider implements ActionProvider {
             return null;
         }
     }
-    
+
     private FileObject[] findSourcesAndPackages (Lookup context, FileObject[] srcRoots) {
         for (int i=0; i<srcRoots.length; i++) {
             FileObject[] result = findSourcesAndPackages(context, srcRoots[i]);
@@ -543,7 +819,7 @@ class JavaFXActionProvider implements ActionProvider {
         }
         return null;
     }
-    
+
     /** Find either selected tests or tests which belong to selected source files
      */
     private FileObject[] findTestSources(Lookup context, boolean checkInSrcDir) {
@@ -570,7 +846,7 @@ class JavaFXActionProvider implements ActionProvider {
         }
         return null;
     }
-   
+
 
     /** Find tests corresponding to selected sources.
      */
@@ -592,8 +868,8 @@ class JavaFXActionProvider implements ActionProvider {
             }
         }
         return null;
-    }      
-    
+    }
+
     private FileObject getRoot (FileObject[] roots, FileObject file) {
         assert file != null : "File can't be null";   //NOI18N
         FileObject srcDir = null;
@@ -606,7 +882,7 @@ class JavaFXActionProvider implements ActionProvider {
         }
         return srcDir;
     }
-    
+
     private static enum MainClassStatus {
         SET_AND_VALID,
         SET_BUT_INVALID,
@@ -631,17 +907,17 @@ class JavaFXActionProvider implements ActionProvider {
         }
         if (sourcesRoots.length > 0) {
             ClassPath bootPath = ClassPath.getClassPath (sourcesRoots[0], ClassPath.BOOT);        //Single compilation unit
-            ClassPath compilePath = ClassPath.getClassPath (sourcesRoots[0], ClassPath.COMPILE);
+            ClassPath compilePath = ClassPath.getClassPath (sourcesRoots[0], ClassPath.EXECUTE);
             ClassPath sourcePath = ClassPath.getClassPath(sourcesRoots[0], ClassPath.SOURCE);
             if (JavaFXProjectUtil.isMainClass (mainClass, bootPath, compilePath, sourcePath)) {
                 return MainClassStatus.SET_AND_VALID;
             }
         }
         else {
-            ClassPathProviderImpl cpProvider = project.getLookup().lookup(ClassPathProviderImpl.class);
+            ClassPathProviderImpl cpProvider = project.getClassPathProvider();
             if (cpProvider != null) {
                 ClassPath bootPath = cpProvider.getProjectSourcesClassPath(ClassPath.BOOT);
-                ClassPath compilePath = cpProvider.getProjectSourcesClassPath(ClassPath.COMPILE);
+                ClassPath compilePath = cpProvider.getProjectSourcesClassPath(ClassPath.EXECUTE);
                 ClassPath sourcePath = cpProvider.getProjectSourcesClassPath(ClassPath.SOURCE);   //Empty ClassPath
                 if (JavaFXProjectUtil.isMainClass (mainClass, bootPath, compilePath, sourcePath)) {
                     return MainClassStatus.SET_AND_VALID;
@@ -650,7 +926,7 @@ class JavaFXActionProvider implements ActionProvider {
         }
         return MainClassStatus.SET_BUT_INVALID;
     }
-    
+
     /**
      * Asks user for name of main class
      * @param mainClass current main class
@@ -663,7 +939,7 @@ class JavaFXActionProvider implements ActionProvider {
         boolean canceled;
         final JButton okButton = new JButton (NbBundle.getMessage (MainClassWarning.class, "LBL_MainClassWarning_ChooseMainClass_OK")); // NOI18N
         okButton.getAccessibleContext().setAccessibleDescription (NbBundle.getMessage (MainClassWarning.class, "AD_MainClassWarning_ChooseMainClass_OK"));
-        
+
         // main class goes wrong => warning
         String message;
         switch (messageType) {
@@ -686,7 +962,7 @@ class JavaFXActionProvider implements ActionProvider {
             okButton,
             DialogDescriptor.CANCEL_OPTION
         };
-        
+
         panel.addChangeListener (new ChangeListener () {
            public void stateChanged (ChangeEvent e) {
                if (e.getSource () instanceof MouseEvent && MouseUtils.isDoubleClick (((MouseEvent)e.getSource ()))) {
@@ -697,7 +973,7 @@ class JavaFXActionProvider implements ActionProvider {
                }
            }
         });
-        
+
         okButton.setEnabled (false);
         DialogDescriptor desc = new DialogDescriptor (panel,
             NbBundle.getMessage (MainClassWarning.class, "CTL_MainClassWarning_Title", ProjectUtils.getInformation(project).getDisplayName()), // NOI18N
@@ -712,16 +988,51 @@ class JavaFXActionProvider implements ActionProvider {
             canceled = false;
             ep.put(JavaFXProjectProperties.MAIN_CLASS, mainClass == null ? "" : mainClass);
         }
-        dlg.dispose();            
+        dlg.dispose();
 
         return canceled;
     }
     
+    private String showMainClassWarning (final FileObject file, final Collection<ElementHandle<TypeElement>> mainClasses) {
+        assert mainClasses != null;
+        String mainClass = null;
+        final JButton okButton = new JButton (NbBundle.getMessage (MainClassWarning.class, "LBL_MainClassWarning_ChooseMainClass_OK")); // NOI18N
+        okButton.getAccessibleContext().setAccessibleDescription (NbBundle.getMessage (MainClassWarning.class, "AD_MainClassWarning_ChooseMainClass_OK"));
+        
+        final MainClassWarning panel = new MainClassWarning (NbBundle.getMessage(MainClassWarning.class, "CTL_FileMultipleMain", file.getNameExt()),mainClasses);
+        Object[] options = new Object[] {
+            okButton,
+            DialogDescriptor.CANCEL_OPTION
+        };
+
+        panel.addChangeListener (new ChangeListener () {
+           public void stateChanged (ChangeEvent e) {
+               if (e.getSource () instanceof MouseEvent && MouseUtils.isDoubleClick (((MouseEvent)e.getSource ()))) {
+                   // click button and the finish dialog with selected class
+                   okButton.doClick ();
+               } else {
+                   okButton.setEnabled (panel.getSelectedMainClass () != null);
+               }
+           }
+        });
+        DialogDescriptor desc = new DialogDescriptor (panel,
+            NbBundle.getMessage (MainClassWarning.class, "CTL_FileMainClass_Title"), // NOI18N
+            true, options, options[0], DialogDescriptor.BOTTOM_ALIGN, null, null);
+        desc.setMessageType (DialogDescriptor.INFORMATION_MESSAGE);
+        Dialog dlg = DialogDisplayer.getDefault ().createDialog (desc);
+        dlg.setVisible (true);
+        if (desc.getValue() == options[0]) {
+            mainClass = panel.getSelectedMainClass ();
+        }
+        dlg.dispose();
+        return mainClass;
+    }
+
     private void showPlatformWarning () {
         final JButton closeOption = new JButton (NbBundle.getMessage(JavaFXActionProvider.class, "CTL_BrokenPlatform_Close"));
         closeOption.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(JavaFXActionProvider.class, "AD_BrokenPlatform_Close"));
-        final ProjectInformation pi = (ProjectInformation) this.project.getLookup().lookup (ProjectInformation.class);
-        final String projectDisplayName = pi == null ? 
+        final ProjectInformation pi = project.getLookup().lookup(ProjectInformation.class);
+        final String projectDisplayName = pi == null ?
             NbBundle.getMessage (JavaFXActionProvider.class,"TEXT_BrokenPlatform_UnknownProjectName")
             : pi.getDisplayName();
         final DialogDescriptor dd = new DialogDescriptor(
@@ -737,5 +1048,70 @@ class JavaFXActionProvider implements ActionProvider {
         final Dialog dlg = DialogDisplayer.getDefault().createDialog(dd);
         dlg.setVisible(true);
     }
-    
+
+    private URL generateAppletHTML(FileObject file) {
+        URL url = null;
+        try {
+            String buildDirProp = project.evaluator().getProperty("build.dir"); //NOI18N
+            String classesDirProp = project.evaluator().getProperty("build.classes.dir"); //NOI18N
+            FileObject buildDir = this.updateHelper.getAntProjectHelper().resolveFileObject(buildDirProp);
+            FileObject classesDir = this.updateHelper.getAntProjectHelper().resolveFileObject(classesDirProp);
+
+            if (buildDir == null) {
+                buildDir = FileUtil.createFolder(project.getProjectDirectory(), buildDirProp);
+            }
+
+            if (classesDir == null) {
+                classesDir = FileUtil.createFolder(project.getProjectDirectory(), classesDirProp);
+            }
+            String activePlatformName = project.evaluator().getProperty("platform.active"); //NOI18N
+            url = AppletSupport.generateHtmlFileURL(file, buildDir, classesDir, activePlatformName);
+        } catch (FileStateInvalidException fe) {
+            //ingore
+        } catch (IOException ioe) {
+            ErrorManager.getDefault().notify(ioe);
+            return null;
+        }
+        return url;
+    }
+
+    private URL copyAppletHTML(FileObject file, String ext) {
+        URL url = null;
+        try {
+            String buildDirProp = project.evaluator().getProperty("build.dir"); //NOI18N
+            FileObject buildDir = updateHelper.getAntProjectHelper().resolveFileObject(buildDirProp);
+
+            if (buildDir == null) {
+                buildDir = FileUtil.createFolder(project.getProjectDirectory(), buildDirProp);
+            }
+
+            FileObject htmlFile = null;
+            htmlFile = file.getParent().getFileObject(file.getName(), "html"); //NOI18N
+            if (htmlFile == null) {
+                htmlFile = file.getParent().getFileObject(file.getName(), "HTML"); //NOI18N
+            }
+            if (htmlFile == null) {
+                return null;
+            }
+
+            FileObject existingFile = buildDir.getFileObject(htmlFile.getName(), htmlFile.getExt());
+            if (existingFile != null) {
+                existingFile.delete();
+            }
+
+            FileObject targetHtml = htmlFile.copy(buildDir, file.getName(), ext);
+
+            if (targetHtml != null) {
+                String activePlatformName = project.evaluator().getProperty("platform.active"); //NOI18N
+                url = AppletSupport.getHTMLPageURL(targetHtml, activePlatformName);
+            }
+        } catch (FileStateInvalidException fe) {
+            //ingore
+        } catch (IOException ioe) {
+            ErrorManager.getDefault().notify(ioe);
+            return null;
+        }
+        return url;
+    }
+
 }

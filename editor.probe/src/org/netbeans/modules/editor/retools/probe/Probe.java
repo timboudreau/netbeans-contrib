@@ -135,7 +135,7 @@ public class Probe {
             printSystemInfoMethod.setAccessible(true);
             printSystemInfoMethod.invoke(null, ps);
         } catch (Exception e) {
-            LOG.log(Level.WARNING, null, e);
+            LOG.log(Level.INFO, null, e);
         }
     }
 
@@ -316,7 +316,7 @@ public class Probe {
                 origin = (Throwable) findOriginMethod.invoke(null, c);
             } catch (Exception e) {
                 noFindOriginMethod = true;
-                LOG.log(Level.WARNING, null, e);
+                LOG.log(Level.INFO, null, e);
             }
         }
         return origin;
@@ -332,7 +332,7 @@ public class Probe {
                 failedRequests = (Throwable []) findOriginMethod.invoke(null);
             } catch (Exception e) {
                 noGetFailedFocusRequestsMethod = true;
-                LOG.log(Level.WARNING, null, e);
+                LOG.log(Level.INFO, null, e);
             }
         }
         return failedRequests;

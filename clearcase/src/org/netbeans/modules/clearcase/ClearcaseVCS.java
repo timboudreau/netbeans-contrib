@@ -50,6 +50,7 @@ import org.netbeans.modules.versioning.spi.VersioningSystem;
 import org.netbeans.modules.versioning.util.VersioningEvent;
 import org.netbeans.modules.versioning.util.VersioningListener;
 import org.netbeans.spi.queries.CollocationQueryImplementation;
+import org.openide.util.NbBundle;
 
 /**
  * Extends framework <code>VersioningSystem</code> to Clearcase module functionality.
@@ -59,8 +60,8 @@ import org.netbeans.spi.queries.CollocationQueryImplementation;
 public class ClearcaseVCS extends VersioningSystem implements PropertyChangeListener, VersioningListener, CollocationQueryImplementation {
 
     public ClearcaseVCS() {
-        putProperty(PROP_DISPLAY_NAME, "Clearcase");
-        putProperty(PROP_MENU_LABEL, "Clea&rcase");
+        putProperty(PROP_DISPLAY_NAME, NbBundle.getMessage(ClearcaseVCS.class, "VCS_Clearcase_Name"));
+        putProperty(PROP_MENU_LABEL, NbBundle.getMessage(ClearcaseVCS.class, "VCS_Clearcase_Menu_Label"));
         Clearcase.getInstance().getFileStatusCache().addVersioningListener(this);
     }
 
