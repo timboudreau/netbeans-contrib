@@ -228,6 +228,12 @@ public class ListStatus extends ExecutionUnit {
         private void parseOutput(String outputLine) {        
             try {
                 String st[] = outputLine.split(OUTPUT_DELIMITER);        
+                if(st.length < 3) {
+                    // this might happen - e.g. the file got cheked in just between the
+                    // 'ct ls' and the 'ct lsco' commands
+                    // XXX mark the file as invalid and rerun the status for it
+                    return;
+                }
                 File file = new File(st[0]);
                 String user = st[1];
                 boolean reserved = st[2].equals(RESERVED);
@@ -246,7 +252,7 @@ public class ListStatus extends ExecutionUnit {
                             user));
                 }               
             } catch (Exception e) {
-                Clearcase.LOG.log(Level.SEVERE, "Error while parsing [" + outputLine + "]", e);                
+                Clearcase.LOG.log(Level.INFO, "Error while parsing [" + outputLine + "]", e);                
             }        
         }
     }
