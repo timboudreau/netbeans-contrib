@@ -161,6 +161,18 @@ made subject to such option by the copyright holder.
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="600"/>
                     </file>
+                    <file name="CompileFile.instance">
+                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.java.project.JavaProjectModule.compile"/>
+                        <attr name="position" intvalue="620"/>
+                    </file>
+                    <file name="RunFile.instance">
+                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.java.project.JavaProjectModule.run"/>
+                          <attr name="position" intvalue="640"/>
+                    </file>
+                    <file name="Separator3.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="700"/>
+                    </file>
                     <file name="DeleteAction.instance">
                         <attr name="instanceClass" stringvalue="org.openide.actions.DeleteAction"/>
                         <attr name="position" intvalue="800"/>
@@ -169,7 +181,7 @@ made subject to such option by the copyright holder.
                         <attr name="instanceClass" stringvalue="org.openide.actions.RenameAction"/>
                         <attr name="position" intvalue="900"/>
                     </file>
-                    <file name="Separator3.instance">
+                    <file name="Separator4.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="1000"/>
                     </file>
@@ -177,7 +189,7 @@ made subject to such option by the copyright holder.
                         <attr name="instanceClass" stringvalue="org.openide.actions.SaveAsTemplateAction"/>
                         <attr name="position" intvalue="1100"/>
                     </file>
-                    <file name="Separator4.instance">
+                    <file name="Separator5.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="1200"/>
                     </file>
@@ -185,7 +197,7 @@ made subject to such option by the copyright holder.
                         <attr name="instanceClass" stringvalue="org.openide.actions.FileSystemAction"/>
                         <attr name="position" intvalue="1300"/>
                     </file>
-                    <file name="Separator5.instance">
+                    <file name="Separator6.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="1400"/>
                     </file> 
@@ -203,7 +215,7 @@ made subject to such option by the copyright holder.
             </folder>
         </folder>
     </folder>
-
+  
     <folder name="Templates">
         <attr name="Java/JavaFX" boolvalue="true"/>
         <folder name="JavaFX">

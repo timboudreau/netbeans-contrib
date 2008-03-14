@@ -94,6 +94,12 @@ public class AppletSupport {
         if (unitTestingSupport_isApplet != null) {
             return unitTestingSupport_isApplet.booleanValue();
         }
+        
+        //support for javafx applets
+        if ("fx".equals(file.getExt()) && "text/x-fx".equals(file.getMIMEType())){
+            return true;
+        }
+        
         JavaSource js = JavaSource.forFileObject(file);
         if (js == null) {
             return false;
@@ -149,16 +155,29 @@ public class AppletSupport {
         FileLock lock = htmlFile.lock();
         PrintWriter writer = null;
         try {
-            writer = new PrintWriter(htmlFile.getOutputStream(lock));
-            ClassPath cp = ClassPath.getClassPath(appletFile, ClassPath.EXECUTE);
-            ClassPath sp = ClassPath.getClassPath(appletFile, ClassPath.SOURCE);
-            String path = FileUtil.getRelativePath(sp.findOwnerRoot(appletFile), appletFile);
-            path = path.substring(0, path.length()-5);
-            String codebase = FileUtil.getRelativePath(buildDir, classesDir);
-            if (codebase == null) {
-                codebase = classesDir.getURL().toString();
+            if (appletFile.getExt().equals("fx")){
+                writer = new PrintWriter(htmlFile.getOutputStream(lock));
+                ClassPath cp = ClassPath.getClassPath(appletFile, ClassPath.EXECUTE);
+                ClassPath sp = ClassPath.getClassPath(appletFile, ClassPath.SOURCE);
+                String path = FileUtil.getRelativePath(sp.findOwnerRoot(appletFile), appletFile);
+                path = path.substring(0, path.length()-3);
+                String codebase = FileUtil.getRelativePath(buildDir, classesDir);
+                if (codebase == null) {
+                    codebase = classesDir.getURL().toString();
+                }
+                fillInFile(writer, path.replaceAll("/", "."), "codebase=\"" + codebase + "\""); // NOI18N
+            }else{
+                writer = new PrintWriter(htmlFile.getOutputStream(lock));
+                ClassPath cp = ClassPath.getClassPath(appletFile, ClassPath.EXECUTE);
+                ClassPath sp = ClassPath.getClassPath(appletFile, ClassPath.SOURCE);
+                String path = FileUtil.getRelativePath(sp.findOwnerRoot(appletFile), appletFile);
+                path = path.substring(0, path.length()-5);
+                String codebase = FileUtil.getRelativePath(buildDir, classesDir);
+                if (codebase == null) {
+                    codebase = classesDir.getURL().toString();
+                }
+                fillInFile(writer, path + "." + CLASS_EXT, "codebase=\"" + codebase + "\""); // NOI18N
             }
-            fillInFile(writer, path + "." + CLASS_EXT, "codebase=\"" + codebase + "\""); // NOI18N
         } finally {
             lock.releaseLock();
             if (writer != null)
@@ -284,6 +303,7 @@ public class AppletSupport {
             writer.print("<APPLET " + codebase + " code="); // NOI18N
         writer.print ("\""); // NOI18N
 
+       
         writer.print(name);
         writer.print ("\""); // NOI18N
 
