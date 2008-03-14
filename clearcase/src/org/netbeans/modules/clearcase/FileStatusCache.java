@@ -501,7 +501,7 @@ public class FileStatusCache {
     public static class RefreshSupport extends ProgressSupport {
         private final boolean recursivelly;
         private final boolean fireEvents;
-        private final File[] files;
+        private File[] files;
 
         FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
 
@@ -525,6 +525,10 @@ public class FileStatusCache {
             this.fireEvents = fireEvents;
             this.files = files;
         }
+
+        public void setRootFiles(File[] files) {
+            this.files = files;
+        }        
         
         private File[] getRootFiles(VCSContext ctx) {
             Set<File> roots = ctx.getRootFiles();
