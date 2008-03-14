@@ -105,9 +105,9 @@ public class InteceptorTest extends NbTestCase {
                 FileEntry entry = ClearcaseUtils.readEntry(f);
                 if(entry != null && !entry.isViewPrivate()) {
                     uncheckout(f);
-                    Clearcase.getInstance().getClient().post(new RmElemCommand(f), false).waitFinished();            
+                    Clearcase.getInstance().getClient().exec(new RmElemCommand(f), false);            
                     FileUtil.refreshFor(parent);
-                    Clearcase.getInstance().getClient().post(new CheckinCommand(new File[] {parent}, null, true, false), false).waitFinished();
+                    Clearcase.getInstance().getClient().exec(new CheckinCommand(new File[] {parent}, null, true, false), false);
                 } else {
                     Utils.deleteRecursively(f);    
                 }
@@ -466,7 +466,7 @@ public class InteceptorTest extends NbTestCase {
     private void uncheckout(File file) {        
         FileEntry entry = ClearcaseUtils.readEntry(file);
         if (entry != null && entry.isCheckedout()) {
-            Clearcase.getInstance().getClient().post(new UnCheckoutCommand(new File[]{file}, false)).waitFinished();
+            Clearcase.getInstance().getClient().exec(new UnCheckoutCommand(new File[]{file}, false), true);
         }
         File[] files = file.listFiles();
         if(files == null) {
@@ -478,7 +478,7 @@ public class InteceptorTest extends NbTestCase {
     }
 
     private void add(File... files) {
-        Clearcase.getInstance().getClient().post(new MkElemCommand(files, null, MkElemCommand.Checkout.Checkin, false)).waitFinished();
+        Clearcase.getInstance().getClient().exec(new MkElemCommand(files, null, MkElemCommand.Checkout.Checkin, false), true);
     }
 
     private static void ensureMutable(File file) {
@@ -491,7 +491,7 @@ public class InteceptorTest extends NbTestCase {
             if (file.canWrite()) return;
         }
         CheckoutCommand command = new CheckoutCommand(new File[]{ file }, null, CheckoutCommand.Reserved.Reserved, true);
-        Clearcase.getInstance().getClient().post(command).waitFinished();                
+        Clearcase.getInstance().getClient().exec(command, true);                
     }
     
     private void waitALittleBit(long l) {

@@ -38,25 +38,23 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.clearcase.ui.texthistory;
 
-import org.netbeans.modules.versioning.spi.VCSContext;
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
+package org.netbeans.modules.javafx.project.api;
 
-public class TextHistoryAction extends AbstractAction {
-    
-    private final VCSContext context;
+import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 
-    public TextHistoryAction(String name, VCSContext context) {
-        this.context = context;
-        putValue(Action.NAME, name);
-    }
-    
-    public void actionPerformed(ActionEvent ev) {
-        NotifyDescriptor nd = new NotifyDescriptor("Not implemeted yet!", "ClearCase", NotifyDescriptor.DEFAULT_OPTION, NotifyDescriptor.WARNING_MESSAGE, new Object[]{NotifyDescriptor.OK_OPTION}, null);        
-        DialogDisplayer.getDefault().notify(nd);
-    }
+/**
+ * Readonly access to project properties through PropertyEvaluator,
+ * an instance will be in lookup of the j2seproject.
+ * 
+ * @author Milan Kubec
+ * @since 1.10
+ */
+public interface JavaFXPropertyEvaluator {
+    /**
+     * Gives PropertyEvaluator for resolving project properties
+     *
+     * @return PropertyEvaluator for given project
+     */
+    PropertyEvaluator evaluator();
 }

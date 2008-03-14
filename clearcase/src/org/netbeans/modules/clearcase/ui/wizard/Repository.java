@@ -120,12 +120,8 @@ public class Repository implements ActionListener, DocumentListener, FocusListen
         List<String> result1 = new ArrayList();
 
         LsVobCommand lsvob = new LsVobCommand();
-        try {
-            Clearcase.getInstance().getClient().exec(lsvob, true);
-            result = lsvob.getVobs();
-        } catch (ClearcaseException e) {
-            Utils.logError(this, e);
-        }
+        Clearcase.getInstance().getClient().exec(lsvob, true);
+        result = lsvob.getVobs();
 
         repositoryPanel.urlComboBox.addItem("Select...");
         for (int i=0; i<result.size(); i++)
