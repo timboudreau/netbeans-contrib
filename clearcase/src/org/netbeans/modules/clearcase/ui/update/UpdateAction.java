@@ -51,6 +51,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.*;
+import org.openide.util.NbBundle;
 
 /**
  * Updates selected files/folders in the snapshot view.
@@ -93,11 +94,11 @@ public class UpdateAction extends AbstractAction {
                     fileArray, 
                     new AfterCommandRefreshListener(fileArray), 
                     new OutputWindowNotificationListener());
-        Clearcase.getInstance().getClient().post("Updating...",cmd);
+        Clearcase.getInstance().getClient().post(NbBundle.getMessage(UpdateAction.class, "Progress_Updating"),cmd); //NOI18N
     }
 
     public static void update(VCSContext context) {
-        new UpdateAction("", context).actionPerformed(null);
+        new UpdateAction("", context).actionPerformed(null); //NOI18N
     }
     
     private static final FileFilter updateFileFilter = new FileFilter() {
