@@ -79,7 +79,7 @@ public class LabelSelector extends javax.swing.JPanel implements MouseListener {
         
         selector.listValues.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);        
         
-        selector.labelPanel = new NoContentPanel("<Listing Labels, please wait...>");
+        selector.labelPanel = new NoContentPanel(NbBundle.getMessage(LabelSelector.class, "LabelsListing_NoContent")); //NOI18N
         selector.listPanel.add(selector.labelPanel);
                         
         DialogDescriptor descriptor = new DialogDescriptor(selector, title);
@@ -106,11 +106,11 @@ public class LabelSelector extends javax.swing.JPanel implements MouseListener {
     }
 
     private static Cancellable listLabels(final LabelSelector selector, final File workingDir) {
-        ProgressSupport ps = new ProgressSupport(new RequestProcessor("Clearcase - List Labels", 1), "Listing Labels...") {
+        ProgressSupport ps = new ProgressSupport(new RequestProcessor("Clearcase - List Labels", 1), NbBundle.getMessage(LabelSelector.class, "Progress_Listing_Labels")) { //NOI18N
             @Override
             protected void perform() {
                 LsTypeCommand cmd = new LsTypeCommand(workingDir, LsTypeCommand.Kind.Label);                
-                Clearcase.getInstance().getClient().post("Listing Labels...", cmd).waitFinished();
+                Clearcase.getInstance().getClient().post(NbBundle.getMessage(LabelSelector.class, "Progress_Listing_Labels"), cmd).waitFinished(); //NOI18N
                 selector.setChoices(cmd.getTypes());
             }
         };
@@ -137,7 +137,7 @@ public class LabelSelector extends javax.swing.JPanel implements MouseListener {
             listPanel.add(scrollPane, java.awt.BorderLayout.CENTER);        
             listPanel.revalidate();
         } else {
-            labelPanel.setLabel("<No Labels Found>");
+            labelPanel.setLabel(NbBundle.getMessage(LabelSelector.class, "LabelsListing_NoLabels")); //NOI18N
         }
     }
 
