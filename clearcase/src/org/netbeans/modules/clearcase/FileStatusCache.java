@@ -58,6 +58,7 @@ import org.netbeans.modules.versioning.spi.VersioningSupport;
 import org.netbeans.modules.versioning.util.ListenersSupport;
 import org.netbeans.modules.versioning.util.Utils;
 import org.netbeans.modules.versioning.util.VersioningListener;
+import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
 /**
@@ -528,7 +529,7 @@ public class FileStatusCache {
         }
 
         public RefreshSupport(RequestProcessor rp, boolean recursivelly, boolean fireEvents, File[] files) {
-            super(rp, "Refreshing status..."); 
+            super(rp, NbBundle.getMessage(FileStatusCache.class, "Progress_RefreshingStatus")); 
             this.recursivelly = recursivelly;
             this.fireEvents = fireEvents;
             this.files = files;
