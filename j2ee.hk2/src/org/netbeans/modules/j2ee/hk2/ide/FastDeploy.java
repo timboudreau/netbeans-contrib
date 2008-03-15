@@ -110,7 +110,8 @@ public class FastDeploy extends IncrementalDeployment {
 //        System.out.println("incrementalDeploy");
         Hk2ManagerImpl tmi = new Hk2ManagerImpl((Hk2DeploymentManager)dm);
         tmi.reDeploy(targetModuleID);
-        return tmi;    }
+        return tmi;    
+    }
     
     /**
      * 

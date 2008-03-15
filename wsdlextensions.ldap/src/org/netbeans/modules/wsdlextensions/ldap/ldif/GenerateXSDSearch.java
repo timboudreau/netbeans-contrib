@@ -1,10 +1,40 @@
 /*
- * GenerateWSDL.java
- *
- * Created on Apr 30, 2007, 9:27:35 PM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * 
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * 
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ * 
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.wsdlextensions.ldap.ldif;
 
@@ -19,36 +49,32 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import org.netbeans.modules.wsdlextensions.ldap.impl.ResultSetAttribute;
 import org.netbeans.modules.wsdlextensions.ldap.impl.SearchFilterAttribute;
-import org.netbeans.modules.wsdlextensions.ldap.impl.UpdateSetAttribute;
 import org.openide.util.Exceptions;
 
 /**
  *
  * @author tianlize
  */
-public class GenerateXSD {
+public class GenerateXSDSearch {
 
     private File mDir;
     private Map mSelectedObjectMap;
     private String mFunction;
     private String mFileName;
-    private String mBaseDN = "";
-    private String mMainAttrInAdd="";
+    private String mBaseDN;
     private String mSearchFilterTypeElements = "";
     private String mResponseTypeElements = "";
-    private String mAddAttributesType = "";
 //    private GenerateSearchFilter mLDAPSearchFilter;
-    public GenerateXSD() {
+    public GenerateXSDSearch() {
 
     }
 
-    public GenerateXSD(File dir, Map selectedObject, String function, String fileName, String baseDN, String mainAttr) {
+    public GenerateXSDSearch(File dir, Map selectedObject, String function, String fileName, String baseDN) {
         mDir = dir;
         mSelectedObjectMap = selectedObject;
         mFunction = function;
         mFileName = fileName;
         mBaseDN = baseDN;
-        mMainAttrInAdd=mainAttr;
 //        mLDAPSearchFilter=new GenerateSearchFilter(selectedObject);
     }
 
@@ -72,7 +98,7 @@ public class GenerateXSD {
         ret += "\n";
         ret += getTab(1) + "<xsd:import schemaLocation=\"LdapBase.xsd\" namespace=\"http://schemas.sun.com/jbi/wsdl-extensions/ldap/\"/>" + "\n";
         ret += "\n";
-
+        
         return ret;
     }
 
@@ -136,7 +162,7 @@ public class GenerateXSD {
             ret += generateAttribute("compareOp", "optional", "xsd:string", sfa.getCompareOp(), level + 2);
             ret += getTab(level + 1) + "</xsd:complexType>" + "\n";
             ret += getTab(level) + "</xsd:element>" + "\n";
-
+            
             ret += "\n";
         }
         mSearchFilterTypeElements += ret;
@@ -145,38 +171,17 @@ public class GenerateXSD {
         return ret;
     }
 
-    private String generateAddAttributesTypeEles(LdifObjectClass mLdif, int level) {
-        String ret = "";
-        List selected = mLdif.getResultSet();
-        Iterator it = selected.iterator();
-        String objName = mLdif.getName();
-        while (it.hasNext()) {
-            String attrName=(String)it.next();
-            String str=objName + "." + attrName;
-            if(!mMainAttrInAdd.equals(str)){
-                ret += generateElement(objName + "." + attrName, "xsd:string", null, level);
-            }            
-        }
-        mAddAttributesType += ret;
-        return ret;
-    }
-
     private String generateRequestType(int level) {
         String ret = "";
         ret += getTab(level) + "<xsd:complexType name=\"RequestType\">" + "\n";
         ret += getTab(level + 1) + "<xsd:sequence>" + "\n";
         ret += getTab(level + 2) + "<xsd:element name=\"property\" type=\"tns:RequestPropertyType\"></xsd:element>" + "\n";
-        if (mFunction.equals("Search")) {
-            ret += getTab(level + 2) + "<xsd:element name=\"attributes\" type=\"tns:SearchFilterType\"></xsd:element>" + "\n";
-        } else if (mFunction.equals("Update")) {
-            ret += getTab(level + 2) + "<xsd:element name=\"attributes\" type=\"tns:UpdateType\"></xsd:element>" + "\n";
-        } else if (mFunction.equals("Add")) {
-            ret += getTab(level + 2) + "<xsd:element name=\"attributes\" type=\"tns:AddType\"></xsd:element>" + "\n";
-        }
+        ret += getTab(level + 2) + "<xsd:element name=\"attributes\" type=\"tns:SearchFilterType\"></xsd:element>" + "\n";
         ret += getTab(level + 2) + "<xsd:element name=\"connection\" type=\"ldap:ConnectionType\"></xsd:element>" + "\n";
         ret += getTab(level + 1) + "</xsd:sequence>" + "\n";
         ret += getTab(level) + "</xsd:complexType>" + "\n";
         ret += "\n";
+
         return ret;
     }
 
@@ -205,7 +210,7 @@ public class GenerateXSD {
         ret += getTab(level + 1) + "</xsd:sequence>" + "\n";
         ret += getTab(level) + "</xsd:complexType>" + "\n";
         ret += "\n";
-
+        
         return ret;
     }
 
@@ -216,7 +221,9 @@ public class GenerateXSD {
         ret += mSearchFilterTypeElements;
         ret += getTab(level + 1) + "</xsd:sequence>" + "\n";
         ret += getTab(level) + "</xsd:complexType>" + "\n";
+        
         ret += "\n";
+        
         return ret;
     }
 
@@ -226,11 +233,7 @@ public class GenerateXSD {
         ret += getTab(level) + "<xsd:complexType name=\"ResponseType\" >" + "\n";
         ret += getTab(level + 1) + "<xsd:sequence>" + "\n";
         ret += getTab(level + 2) + "<xsd:element name=\"property\" type=\"ldap:ResponsePropertyType\"/>" + "\n";
-        if (mFunction.equals("Search")) {
-            ret += getTab(level + 2) + "<xsd:element name=\"ResponseElements\" maxOccurs=\"unbounded\" type=\"tns:ResponseAttributeType\"/>" + "\n";
-        } else {
-            ret += getTab(level + 2) + "<xsd:element name=\"OperationResult\" maxOccurs=\"unbounded\" type=\"xsd:boolean\"/>" + "\n";
-        }
+        ret += getTab(level + 2) + "<xsd:element name=\"ResponseElements\" maxOccurs=\"unbounded\" type=\"tns:ResponseAttributeType\"/>" + "\n";
         ret += getTab(level + 1) + "</xsd:sequence>" + "\n";
         ret += getTab(level) + "</xsd:complexType>" + "\n";
         ret += "\n";
@@ -242,7 +245,7 @@ public class GenerateXSD {
 
         ret += getTab(level) + "<xsd:complexType name=\"ResponseAttributeType\" >" + "\n";
         ret += getTab(level + 1) + "<xsd:sequence>" + "\n";
-        ret += generateResponseElement(mLdif, level + 2);
+        ret += generateResponseElement(mLdif, level + 1);
         ret += getTab(level + 1) + "</xsd:sequence>" + "\n";
         ret += getTab(level) + "</xsd:complexType>" + "\n";
         ret += "\n";
@@ -258,18 +261,7 @@ public class GenerateXSD {
         ret += mResponseTypeElements;
         ret += getTab(level + 1) + "</xsd:sequence>" + "\n";
         ret += getTab(level) + "</xsd:complexType>" + "\n";
-
-        ret += "\n";
-        return ret;
-    }
-
-    private String generateMainUpdateElementsType(int level) {
-        String ret = "";
-        ret += getTab(level) + "<xsd:complexType name=\"UpdateElementsType\" >" + "\n";
-        ret += getTab(level + 1) + "<xsd:sequence>" + "\n";
-        ret += mResponseTypeElements;
-        ret += getTab(level + 1) + "</xsd:sequence>" + "\n";
-        ret += getTab(level) + "</xsd:complexType>" + "\n";
+        
         ret += "\n";
         return ret;
     }
@@ -281,83 +273,8 @@ public class GenerateXSD {
         Iterator it = selected.iterator();
         while (it.hasNext()) {
             ResultSetAttribute sra = (ResultSetAttribute) it.next();
-            ret += generateElement(sra.getObjName() + "." + sra.getAttributeName(), "xsd:string", null, true, level);
+            ret += generateElement(sra.getObjName() + "." + sra.getAttributeName(), "xsd:string", null, true, level + 1);
             sra = null;
-        }
-        selected = null;
-        it = null;
-        mResponseTypeElements += ret;
-        return ret;
-    }
-
-    private String generateUpdateTypeAddEle(UpdateSetAttribute usa, int level) {
-        String ret = "";
-        ret += getTab(level) + "<xsd:element name=\"" + usa.getObjName() + "." + usa.getAttrName() + "\">\n";
-        ret += getTab(level + 1) + "<xsd:complexType>\n";
-        ret += getTab(level + 2) + "<xsd:sequence>\n";
-        ret += generateElement("AddValue", "xsd:string", null, level + 3);
-        ret += getTab(level + 2) + "</xsd:sequence>\n";
-        ret += generateAttribute("opType", "optional", "xsd:string", "Add", level + 2);
-        ret += getTab(level + 1) + "</xsd:complexType>\n";
-        ret += getTab(level) + "</xsd:element>\n";
-        return ret;
-    }
-
-    private String generateUpdateTypeReplaceEle(UpdateSetAttribute usa, int level) {
-        String ret = "";
-        ret += getTab(level) + "<xsd:element name=\"" + usa.getObjName() + "." + usa.getAttrName() + "\">\n";
-        ret += getTab(level + 1) + "<xsd:complexType>\n";
-        ret += getTab(level + 2) + "<xsd:sequence>\n";
-//        ret+=generateElement("primaryValue", "xsd:string", null, level+3);
-        ret += generateElement("newValue", "xsd:string", null, level + 3);
-        ret += getTab(level + 2) + "</xsd:sequence>\n";
-        ret += generateAttribute("opType", "optional", "xsd:string", "Replace", level + 2);
-        ret += getTab(level + 1) + "</xsd:complexType>\n";
-        ret += getTab(level) + "</xsd:element>\n";
-        return ret;
-    }
-
-    private String generateUpdateTypeRemoveEle(UpdateSetAttribute usa, int level) {
-        String ret = "";
-        ret += getTab(level) + "<xsd:element name=\"" + usa.getObjName() + "." + usa.getAttrName() + "\">\n";
-        ret += getTab(level + 1) + "<xsd:complexType>\n";
-        ret += getTab(level + 2) + "<xsd:sequence>\n";
-        ret += generateElement("removeValue", "xsd:string", null, level + 3);
-        ret += getTab(level + 2) + "</xsd:sequence>\n";
-        ret += generateAttribute("opType", "optional", "xsd:string", "Remove", level + 2);
-        ret += getTab(level + 1) + "</xsd:complexType>\n";
-        ret += getTab(level) + "</xsd:element>\n";
-        return ret;
-    }
-
-    private String generateUpdateTypeRemoveAllEle(UpdateSetAttribute usa, int level) {
-        String ret = "";
-        ret += getTab(level) + "<xsd:element name=\"" + usa.getObjName() + "." + usa.getAttrName() + "\">\n";
-        ret += getTab(level + 1) + "<xsd:complexType>\n";
-        ret += generateAttribute("opType", "optional", "xsd:string", "RemoveAll", level + 2);
-        ret += getTab(level + 1) + "</xsd:complexType>\n";
-        ret += getTab(level) + "</xsd:element>\n";
-        return ret;
-    }
-
-    private String generateUpdateTypeElements(LdifObjectClass mLdif, int level) {
-        String ret = "";
-
-        List selected = mLdif.getResultSet();
-        Iterator it = selected.iterator();
-        while (it.hasNext()) {
-            UpdateSetAttribute usa = (UpdateSetAttribute) it.next();
-            String opType = usa.getOpType();
-            if ("Add".equals(opType)) {
-                ret += generateUpdateTypeAddEle(usa, level);
-            } else if ("Replace".equals(opType)) {
-                ret += generateUpdateTypeReplaceEle(usa, level);
-            } else if ("Remove".equals(opType)) {
-                ret += generateUpdateTypeRemoveEle(usa, level);
-            } else {
-                ret += generateUpdateTypeRemoveAllEle(usa, level);
-            }
-            usa = null;
         }
         selected = null;
         it = null;
@@ -384,82 +301,7 @@ public class GenerateXSD {
         return ret;
     }
 
-    private String generateUpdateType(int level) {
-        String ret = "";
-        ret += getTab(level) + "<xsd:complexType name=\"UpdateType\">\n";
-        ret += getTab(level + 1) + "<xsd:sequence>\n";
-        ret += generateElement("SearchFilter", "tns:SearchFilterType", null, level + 2);
-        ret += generateElement("UpdateElements", "tns:UpdateElementsType", null, level + 2);
-        ret += getTab(level + 1) + "</xsd:sequence>\n";
-        ret += getTab(level) + "</xsd:complexType>\n";
-        return ret;
-    }
-
-    private String generateAddType(int level) {
-        String ret = "";
-        ret += getTab(level) + "<xsd:complexType name=\"AddType\">\n";
-        ret += getTab(level + 1) + "<xsd:sequence>\n";
-        ret += generateElement("Attributes", "tns:AttributesType", null, level + 2);
-        ret += getTab(level + 1) + "</xsd:sequence>\n";
-        ret += getTab(level) + "</xsd:complexType>\n";
-        return ret;
-    }
-
-    private String generateAddTypeMain(int level) {
-        String ret = "";
-        ret += getTab(level) + "<xsd:complexType name=\"AddType\">\n";
-        ret += getTab(level + 1) + "<xsd:sequence>\n";
-        ret += generateElement("MainAttribute", "tns:MainAttributeType", null, level + 2);
-        ret += generateElement("Attributes", "tns:AttributesType", null, level + 2);
-        ret += getTab(level + 1) + "</xsd:sequence>\n";
-        ret += getTab(level) + "</xsd:complexType>\n";
-        return ret;
-    }
-
-    private String generateAddMainAttributeType(int level) {
-        String ret = "";
-        ret += getTab(level) + "<xsd:complexType name=\"MainAttributeType\">\n";
-        ret += getTab(level + 1) + "<xsd:sequence>\n";
-        if(mMainAttrInAdd!=null & (!mMainAttrInAdd.equals(""))){
-            ret += generateElement(mMainAttrInAdd, "xsd:string", null, level + 2);
-        }        
-        ret += getTab(level + 1) + "</xsd:sequence>\n";
-        ret += getTab(level) + "</xsd:complexType>\n";
-        return ret;
-    }
-
-    private String generateAddAttributesType(LdifObjectClass mLdif,int level) {
-        String ret = "";
-        ret += getTab(level) + "<xsd:complexType name=\"AttributesType\">\n";
-        ret += getTab(level + 1) + "<xsd:sequence>\n";
-        ret += generateAddAttributesTypeEles(mLdif,level+2);
-        ret += getTab(level + 1) + "</xsd:sequence>\n";
-        ret += getTab(level) + "</xsd:complexType>\n";
-        return ret;
-    }
-    
-    private String generateAddAttributesTypeMain(int level) {
-        String ret = "";
-        ret += getTab(level) + "<xsd:complexType name=\"AttributesType\">\n";
-        ret += getTab(level + 1) + "<xsd:sequence>\n";
-        ret += mAddAttributesType;
-        ret += getTab(level + 1) + "</xsd:sequence>\n";
-        ret += getTab(level) + "</xsd:complexType>\n";
-        return ret;
-    }
-
-    private String generateUpdateElementsType(LdifObjectClass mLdif, int level) {
-        String ret = "";
-        ret += getTab(level) + "<xsd:complexType name=\"UpdateElementsType\">\n";
-        ret += getTab(level + 1) + "<xsd:sequence>\n";
-        ret += generateUpdateTypeElements(mLdif, level + 2);
-        ret += getTab(level + 1) + "</xsd:sequence>\n";
-        ret += getTab(level) + "</xsd:complexType>\n";
-        return ret;
-    }
-
-    private String generateSearchSchema(LdifObjectClass mLdif) {
-
+    private String generateSchema(LdifObjectClass mLdif) {
         String ret = "";
         ret += this.generateXMLHead();
         ret += this.generateSchemaHead(mLdif.getName());
@@ -470,64 +312,11 @@ public class GenerateXSD {
         ret += this.generateResponseAttributeType(mLdif, 1);
         ret += this.generateGlobalElements(1);
         ret += this.generateSchemaTail();
+        
         return ret;
     }
 
-    private String generateUpdateSchema(LdifObjectClass mLdif) {
-        String ret = "";
-        ret += this.generateXMLHead();
-        ret += this.generateSchemaHead(mLdif.getName());
-        ret += this.generateRequestType(1);
-        ret += this.generateRequestPropertyType(1);
-        ret += this.generateUpdateType(1);
-        ret += this.generateSearchFilterType(mLdif, 1);
-        ret += this.generateResponseType(1);
-        ret += this.generateUpdateElementsType(mLdif, 1);
-        ret += this.generateGlobalElements(1);
-        ret += this.generateSchemaTail();
-        return ret;
-    }
-
-    private String generateAddSchema(LdifObjectClass mLdif) {
-        String ret = "";
-        ret += this.generateXMLHead();
-        ret += this.generateSchemaHead(mLdif.getName());
-        ret += this.generateRequestType(1);
-        ret += this.generateRequestPropertyType(1);
-        ret += this.generateResponseType(1);
-        ret += this.generateAddType(1);
-        ret += this.generateAddAttributesType(mLdif, 1);
-        ret += this.generateGlobalElements(1);
-        ret += this.generateSchemaTail();
-        return ret;
-    }
-
-    private String generateAddMainSchema() {
-        String ret = "";
-        ret += this.generateXMLHead();
-        ret += this.generateSchemaHead(mFileName);
-        ret += this.generateRequestType(1);
-        ret += this.generateRequestPropertyType(1);
-        ret += this.generateResponseType(1);
-        ret += this.generateAddTypeMain(1);
-        ret += this.generateAddMainAttributeType(1);
-        ret += this.generateAddAttributesTypeMain(1);
-        ret += this.generateGlobalElements(1);
-        ret += this.generateSchemaTail();
-        return ret;
-    }
-
-    private String generateSchema(LdifObjectClass mLdif) {
-        if (mFunction.equals("Search")) {
-            return generateSearchSchema(mLdif);
-        } else if (mFunction.equals("Add")) {
-            return generateAddSchema(mLdif);
-        } else {
-            return generateUpdateSchema(mLdif);
-        }
-    }
-
-    private String generateSearchMainSchema() {
+    private String generateMainSchema() {
         String ret = "";
         ret += this.generateXMLHead();
         ret += this.generateSchemaHead(mFileName);
@@ -540,33 +329,6 @@ public class GenerateXSD {
         ret += this.generateSchemaTail();
 
         return ret;
-    }
-
-    private String generateUpdateMainSchema() {
-        String ret = "";
-        ret += this.generateXMLHead();
-        ret += this.generateSchemaHead(mFileName);
-        ret += this.generateRequestType(1);
-        ret += this.generateRequestPropertyType(1);
-        ret += this.generateUpdateType(1);
-        ret += this.generateMainSearchFilterType(1);
-        ret += this.generateResponseType(1);
-        ret += this.generateMainUpdateElementsType(1);
-        ret += this.generateGlobalElements(1);
-        ret += this.generateSchemaTail();
-        return ret;
-    }
-
-    private String generateMainSchema() {
-        if (mFunction.equals("Search")) {
-            return generateSearchMainSchema();
-        } else if (mFunction.equals("Add")) {
-            return generateAddMainSchema();
-        } else {
-//        }else{    
-            return generateUpdateMainSchema();
-        }
-
     }
 
     public void generate() throws IOException {
@@ -592,6 +354,7 @@ public class GenerateXSD {
             mainSchema = null;
             mainFos = null;
             try {
+
                 copyBaseSchema();
             } catch (ClassNotFoundException ex) {
                 Exceptions.printStackTrace(ex);
@@ -600,7 +363,7 @@ public class GenerateXSD {
             }
         }
     }
-
+    
     private void copyBaseSchema() throws ClassNotFoundException, FileNotFoundException, IOException {
         Class cls = this.getClass();
         InputStream is = cls.getResourceAsStream("/org/netbeans/modules/wsdlextensions/ldap/resources/LdapBase.xsd");

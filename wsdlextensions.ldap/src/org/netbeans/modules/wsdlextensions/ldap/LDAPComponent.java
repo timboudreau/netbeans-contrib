@@ -27,12 +27,17 @@ import org.netbeans.modules.xml.wsdl.model.ExtensibilityElement;
 public interface LDAPComponent extends ExtensibilityElement {
 
     public interface Visitor {
+
         void visit(LDAPAddress target);
+
         void visit(LDAPBinding target);
+
         void visit(LDAPOperation target);
+
         void visit(LDAPOperationInput target);
-				void visit(LDAPOperationOutput target);
+
+        void visit(LDAPOperationOutput target);
     }
-    
+
     void accept(Visitor visitor);
 }

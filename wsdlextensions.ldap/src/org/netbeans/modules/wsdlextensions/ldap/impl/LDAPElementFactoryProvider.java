@@ -16,7 +16,6 @@
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-
 package org.netbeans.modules.wsdlextensions.ldap.impl;
 
 import java.util.ArrayList;
@@ -31,51 +30,61 @@ import org.w3c.dom.Element;
 
 /**
  ** @author 
-*/
+ */
 public class LDAPElementFactoryProvider {
-    
+
     public static class BindingFactory extends ElementFactory {
+
         public Set<QName> getElementQNames() {
             return Collections.singleton(LDAPQName.BINDING.getQName());
         }
+
         public WSDLComponent create(WSDLComponent context, Element element) {
             return new LDAPBindingImpl(context.getModel(), element);
         }
     }
 
     public static class AddressFactory extends ElementFactory {
+
         public Set<QName> getElementQNames() {
             return Collections.singleton(LDAPQName.ADDRESS.getQName());
         }
+
         public WSDLComponent create(WSDLComponent context, Element element) {
             return new LDAPAddressImpl(context.getModel(), element);
         }
     }
 
-    public static class OperationFactory extends ElementFactory{
+    public static class OperationFactory extends ElementFactory {
+
         public Set<QName> getElementQNames() {
             return Collections.singleton(LDAPQName.OPERATION.getQName());
         }
+
         public WSDLComponent create(WSDLComponent context, Element element) {
             return new LDAPOperationImpl(context.getModel(), element);
         }
     }
 
-    public static class InputFactory extends ElementFactory{
+    public static class InputFactory extends ElementFactory {
+
         public Set<QName> getElementQNames() {
             return Collections.singleton(LDAPQName.INPUT.getQName());
         }
+
         public WSDLComponent create(WSDLComponent context, Element element) {
             return new LDAPOperationInputImpl(context.getModel(), element);
         }
     }
-	
-	public static class OutputFactory extends ElementFactory{
+
+    public static class OutputFactory extends ElementFactory {
+
         public Set<QName> getElementQNames() {
             return Collections.singleton(LDAPQName.OUTPUT.getQName());
         }
+
         public WSDLComponent create(WSDLComponent context, Element element) {
             return new LDAPOperationOutputImpl(context.getModel(), element);
         }
-    }	
+    }
 }
