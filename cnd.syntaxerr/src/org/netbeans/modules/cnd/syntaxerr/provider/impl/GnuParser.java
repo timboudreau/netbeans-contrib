@@ -52,7 +52,7 @@ class GnuParser extends BaseParser {
 	boolean dummy = // unused: in C++, I would write just findErrorOrWarning(...) || findErrorOrWarning(...), but in Java I can't
 	    findErrorOrWarning(line, ": error: ", true, interestingFileName, errorBag, null) 
 	||  findErrorOrWarning(line, ": warning: ", false, interestingFileName, errorBag, null)
-	||  findErrorOrWarning(line, ": No such file or directory", false, interestingFileName, errorBag, "No such file or directory")
+	||  findErrorOrWarning(line, ": No such file or directory", true, interestingFileName, errorBag, "No such file or directory")
 	||  findErrorOrWarning(line, " #error ", true, interestingFileName, errorBag, null);
     }
 
