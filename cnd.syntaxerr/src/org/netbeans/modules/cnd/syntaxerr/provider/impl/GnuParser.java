@@ -50,12 +50,14 @@ class GnuParser extends BaseParser {
 	    System.err.printf("\tPARSING: \t%s\n", line);
 	}
 	boolean dummy = // unused: in C++, I would write just findErrorOrWarning(...) || findErrorOrWarning(...), but in Java I can't
-	    findErrorOrWarning(line, ": error: ", true, interestingFileName, errorBag) 
-	||  findErrorOrWarning(line, ": warning: ", false, interestingFileName, errorBag)
-	||  findErrorOrWarning(line, " #error ", true, interestingFileName, errorBag);
+	    findErrorOrWarning(line, ": error: ", true, interestingFileName, errorBag, null) 
+	||  findErrorOrWarning(line, ": warning: ", false, interestingFileName, errorBag, null)
+	||  findErrorOrWarning(line, ": No such file or directory", false, interestingFileName, errorBag, "No such file or directory")
+	||  findErrorOrWarning(line, " #error ", true, interestingFileName, errorBag, null);
     }
 
-    private boolean findErrorOrWarning(String line, String keyword, boolean error, String interestingFileName, ErrorBag errorBag) {
+    private boolean findErrorOrWarning(String line, String keyword, boolean error, String interestingFileName, 
+                                    ErrorBag errorBag, String message) {
 	int pos = line.indexOf(keyword);
 	if (pos > 0) {
 	    int beforeErrPos = pos;
@@ -73,13 +75,19 @@ class GnuParser extends BaseParser {
 		    } else {
 			lineNum = Integer.parseInt(strPosition.substring(0, colonPos));
 			try {
-			    int endPos = strPosition.endsWith(":") ? strPosition.length()-1 : strPosition.length();
+			    //int endPos = strPosition.endsWith(":") ? strPosition.length()-1 : strPosition.length();
+                            int endPos = strPosition.indexOf(":", colonPos + 1);
+                            if( endPos < 0 ) {
+                                endPos = strPosition.length();
+                            }
 			    colNum = Integer.parseInt(strPosition.substring(colonPos + 1, endPos));
 			} catch( NumberFormatException e ) {
 			    e.printStackTrace();
 			}
 		    }
-		    String message = line.substring(afterErrPos);
+                    if( message == null ) {
+                        message = line.substring(afterErrPos);
+                    }
 		    if (DebugUtils.TRACE) {
 			System.err.printf("\t\tFILE: %s LINE: %8d COL: %d MESSAGE: %s\n", fileName, lineNum, colNum, message);
 		    }
