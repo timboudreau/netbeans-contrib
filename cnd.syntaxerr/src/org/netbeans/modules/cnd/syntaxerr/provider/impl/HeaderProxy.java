@@ -142,8 +142,8 @@ class HeaderProxy extends SourceProxy {
 	    writer.printf("#include \"%s\"%s", fo.getNameExt(), System.getProperty("line.separator"));
 	    writer.close();	
 
-	    // TODO: be more smart when getting options: try get them from folder & project
-	    compilerOptions = super.getCompilerOptions();
+	    // TODO: try getting options from folder as well
+	    compilerOptions = getProjectCompilerOptions();
 	    
 	    interestingFile = new File(tmpDir.getAbsolutePath(), fo.getNameExt());	
 	    ErrorProviderUtils.WriteDocument(doc, interestingFile);
@@ -153,6 +153,24 @@ class HeaderProxy extends SourceProxy {
 	
         
 	
+    }
+    
+    private String getProjectCompilerOptions() {
+        StringBuilder sb = new StringBuilder();
+        if( this.fileItem != null ) {
+            NativeProject nativeProject = this.fileItem.getNativeProject();
+            for( String path : nativeProject.getUserIncludePaths() ) {
+                sb.append("-I");
+                sb.append(path);
+                sb.append(' ');
+            }
+            for( String def : nativeProject.getUserMacroDefinitions() ) {
+                sb.append("-D");
+                sb.append(def);
+                sb.append(' ');
+            }
+        }
+        return sb.toString();
     }
     
     private static NativeFileItem findTopNativeItem(String topFile, NativeFileItem fileItem) {
