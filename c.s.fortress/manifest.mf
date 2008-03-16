@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: com.sun.fortress
+OpenIDE-Module-Localizing-Bundle: com/sun/fortress/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
