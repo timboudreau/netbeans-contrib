@@ -38,25 +38,39 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
+
 package org.netbeans.modules.gsf;
 
-import javax.swing.Action;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.JTextComponent;
+import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.gsfpath.spi.classpath.ClassPathProvider;
+import org.openide.filesystems.FileObject;
 
-/** @author Sandip V. Chitale (Sandip.Chitale@Sun.Com) */
-public class SelectPreviousCamelCasePosition extends PreviousCamelCasePosition {
-    public static final String selectPreviousCamelCasePosition = "select-previous-camel-case-position"; //NOI18N
+/**
+ * Supplies classpath information according to project file owner.
+ * This is already available in j2seproject, but when the java support
+ * is not present it causes user source paths not to be indexed etc.
+ * 
+ * @author Jesse Glick
+ */
+public class ProjectClassPathProvider implements ClassPathProvider {
 
-    public SelectPreviousCamelCasePosition(Action originalAction) {
-        this(selectPreviousCamelCasePosition, originalAction);
+    /** Default constructor for lookup. */
+    public ProjectClassPathProvider() {}
+    
+    public ClassPath findClassPath(FileObject file, String type) {
+        Project p = FileOwnerQuery.getOwner(file);
+        if (p != null) {
+            ClassPathProvider cpp = p.getLookup().lookup(ClassPathProvider.class);
+            if (cpp != null) {
+                return cpp.findClassPath(file, type);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
-
-    protected SelectPreviousCamelCasePosition(String name, Action originalAction) {
-        super(name, originalAction);
-    }
-
-    protected @Override void moveToNewOffset(JTextComponent textComponent, int offset) throws BadLocationException {
-        textComponent.getCaret().moveDot(offset);
-    }
+    
 }
