@@ -94,6 +94,7 @@ public class LDAPComponentValidator
     public String getName() {
         return getClass().getName();
     }
+
     
     /**
      * Validates given model.

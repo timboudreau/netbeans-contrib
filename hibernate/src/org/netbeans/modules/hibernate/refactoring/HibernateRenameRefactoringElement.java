@@ -38,18 +38,8 @@
  */
 package org.netbeans.modules.hibernate.refactoring;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import org.netbeans.modules.hibernate.mapping.model.HibernateMapping;
-import org.netbeans.modules.hibernate.mapping.model.MyClass;
-import org.netbeans.modules.refactoring.spi.SimpleRefactoringElementImplementation;
-import org.openide.ErrorManager;
-import org.openide.filesystems.FileAlreadyLockedException;
 import org.openide.filesystems.FileObject;
 import org.openide.text.PositionBounds;
-import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
 /**
@@ -57,41 +47,22 @@ import org.openide.util.NbBundle;
  * 
  * @author Dongmei Cao
  */
-public class HibernateRenameRefactoringElement extends SimpleRefactoringElementImplementation {
+public class HibernateRenameRefactoringElement extends HibernateRefactoringElement {
 
-    private FileObject mappingFileObject;
-    private String oldName;
     private String newName;
-    private PositionBounds position;
 
-    public HibernateRenameRefactoringElement(FileObject fo, String oldName, String newName, PositionBounds position) {
-        this.mappingFileObject = fo;
-        this.oldName = oldName;
+    public HibernateRenameRefactoringElement(FileObject fo, String oldName, String newName, PositionBounds position, String displayText) {
+        super(fo, oldName, position, displayText);
         this.newName = newName;
-        this.position = position;
     }
 
-    public String getText() {
-        return NbBundle.getMessage(HibernateRenameRefactoringElement.class, "CHANGE", oldName, newName);
-    }
-
+    @Override
     public String getDisplayText() {
-        return getText();
+        return NbBundle.getMessage(HibernateRenameRefactoringElement.class, "CHANGE", origName, newName);
     }
 
+    @Override
     public void performChange() {
-        // Do nothing here. The changes are performed in JavaClassRenameTransaction
-    }
-
-    public Lookup getLookup() {
-        return Lookup.EMPTY;
-    }
-
-    public FileObject getParentFile() {
-        return mappingFileObject;
-    }
-
-    public PositionBounds getPosition() {
-        return position;
+        // Do nothing here. The changes are performed in RenameTransaction
     }
 }

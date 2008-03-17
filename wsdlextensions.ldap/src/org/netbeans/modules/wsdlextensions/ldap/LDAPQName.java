@@ -24,7 +24,7 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 /**
- * @author 
+ * @author ZAZ Dev
  *
  */
 public enum LDAPQName {

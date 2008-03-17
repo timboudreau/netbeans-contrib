@@ -34,5 +34,4 @@ public class LDAPTemplateProvider extends ExtensibilityElementTemplateProvider {
     public String getLocalizedMessage(String str, Object[] objects) {
         return NbBundle.getMessage(LDAPTemplateProvider.class, str, objects);
     }
-
 }
