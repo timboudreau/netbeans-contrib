@@ -36,31 +36,74 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+
 package org.netbeans.modules.fortress.editing.visitors;
 
 import com.sun.fortress.nodes.Node;
+import java.util.Collections;
+import java.util.Set;
+import org.netbeans.modules.fortress.editing.FortressMimeResolver;
+import org.netbeans.modules.gsf.api.ElementHandle;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.Modifier;
+import org.openide.filesystems.FileObject;
 
 /**
  *
  * @author dcaoyuan
  */
-public class Signature {
-
-    public enum Type {
-
-        Object,
-        GlobalVar,
-        LocalVar,
-        Parameter,
-        Function,
+public class Element implements ElementHandle {
+    
+    private Node node;
+    private Node nameNode;
+    private Scope enclosedScope;
+    private ElementKind kind;
+    
+    public Element(Node node, Node nameNode, Scope enclosedScope, ElementKind kind) {
+        this.node = node;
+        this.nameNode = nameNode;
+        this.enclosedScope = enclosedScope;
+        this.kind = kind;
     }
     
-    public Scope enclosingScope;
-    public Node nameNode;
-    public Type type;
+    public Node getNode() {
+        return node;
+    }
     
-    public Signature(Node nameNode, Type type) {
-        this.nameNode = nameNode;
-        this.type = type;
+    public Node getNameNode() {
+        return nameNode;
+    }
+    
+    public Scope getEnclosedScope() {
+        return enclosedScope;
+    }
+    
+    public  String getName() {
+        return nameNode.stringName();
+    }
+    
+    public  ElementKind getKind() {
+        return kind;
+    }
+    
+    public String getMimeType() {
+        return FortressMimeResolver.MIME_TYPE;
+    }
+
+    public boolean signatureEquals(ElementHandle handle) {
+        // XXX TODO
+        return false;
+    }
+
+    public FileObject getFileObject() {
+        return null;
+    }
+    
+    public Set<Modifier> getModifiers() {
+        return Collections.emptySet();
+    }
+
+    public String getIn() {
+        return null;
     }
 }

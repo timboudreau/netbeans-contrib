@@ -47,12 +47,11 @@ import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.gsf.api.TranslatedSource;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
-import org.netbeans.modules.fortress.editing.FortressParserResult;
 import org.openide.util.Exceptions;
 
 /**
  *
- * @author Tor Norbye
+ * @author Caoyuan Deng
  */
 public class AstUtilities {
 
