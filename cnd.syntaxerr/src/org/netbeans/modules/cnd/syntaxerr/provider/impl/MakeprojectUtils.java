@@ -95,18 +95,21 @@ public class MakeprojectUtils {
                 ItemConfiguration itemConf = item.getItemConfiguration(activeConf);
                 CompilerSet compilerSet = CompilerSetManager.getDefault().getCompilerSet(activeConf.getCompilerSet().getValue());
                 if( compilerSet != null ) {
-                    BasicCompiler compiler = (BasicCompiler)compilerSet.getTool(itemConf.getTool());
-                    BasicCompilerConfiguration compilerConfiguration = itemConf.getCompilerConfiguration();
-                    String options = compilerConfiguration.getOptions(compiler);
-                    if( options.startsWith("$(") ) { //NOI18N
-                        int pos = options.indexOf(")"); //NOI18N
-                        if( pos > 0 ) {
-                            return options.substring(pos+1);
+                    Tool tool = compilerSet.getTool(itemConf.getTool());
+                    if( tool instanceof  BasicCompiler ) {
+                        BasicCompiler compiler = (BasicCompiler)compilerSet.getTool(itemConf.getTool());
+                        BasicCompilerConfiguration compilerConfiguration = itemConf.getCompilerConfiguration();
+                        String options = compilerConfiguration.getOptions(compiler);
+                        if( options.startsWith("$(") ) { //NOI18N
+                            int pos = options.indexOf(")"); //NOI18N
+                            if( pos > 0 ) {
+                                return options.substring(pos+1);
+                            } else {
+                                return null;
+                            }
                         } else {
-                            return null;
+                            return options;
                         }
-                    } else {
-                        return options;
                     }
                 }
             }

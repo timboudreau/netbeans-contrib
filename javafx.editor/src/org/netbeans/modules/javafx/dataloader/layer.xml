@@ -157,9 +157,23 @@ made subject to such option by the copyright holder.
                         <attr name="instanceClass" stringvalue="org.openide.actions.PasteAction"/>
                         <attr name="position" intvalue="500"/>
                     </file>
+<!--                    
                     <file name="Separator2.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="600"/>
+                    </file>
+                    <file name="CompileFile.instance">
+                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.java.project.JavaProjectModule.compile"/>
+                        <attr name="position" intvalue="620"/>
+                    </file>
+                    <file name="RunFile.instance">
+                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.java.project.JavaProjectModule.run"/>
+                          <attr name="position" intvalue="640"/>
+                    </file>
+-->                    
+                    <file name="Separator3.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="700"/>
                     </file>
                     <file name="DeleteAction.instance">
                         <attr name="instanceClass" stringvalue="org.openide.actions.DeleteAction"/>
@@ -169,7 +183,7 @@ made subject to such option by the copyright holder.
                         <attr name="instanceClass" stringvalue="org.openide.actions.RenameAction"/>
                         <attr name="position" intvalue="900"/>
                     </file>
-                    <file name="Separator3.instance">
+                    <file name="Separator4.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="1000"/>
                     </file>
@@ -177,7 +191,7 @@ made subject to such option by the copyright holder.
                         <attr name="instanceClass" stringvalue="org.openide.actions.SaveAsTemplateAction"/>
                         <attr name="position" intvalue="1100"/>
                     </file>
-                    <file name="Separator4.instance">
+                    <file name="Separator5.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="1200"/>
                     </file>
@@ -185,7 +199,7 @@ made subject to such option by the copyright holder.
                         <attr name="instanceClass" stringvalue="org.openide.actions.FileSystemAction"/>
                         <attr name="position" intvalue="1300"/>
                     </file>
-                    <file name="Separator5.instance">
+                    <file name="Separator6.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="1400"/>
                     </file> 
@@ -203,7 +217,7 @@ made subject to such option by the copyright holder.
             </folder>
         </folder>
     </folder>
-
+  
     <folder name="Templates">
         <attr name="Java/JavaFX" boolvalue="true"/>
         <folder name="JavaFX">
@@ -221,6 +235,15 @@ made subject to such option by the copyright holder.
                 <attr name="position" intvalue="200"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.dataloader.Bundle"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/resources/JavaFXClass.html"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateCategory" stringvalue="javafx, java-classes"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.project.templates.JavaFXTemplates.createJavaFXTemplateIterator"/>
+            </file>
+            <file name="JavaFXApplet.fx" url="JavaFXApplet.fx">
+                <attr name="position" intvalue="300"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.dataloader.Bundle"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/resources/JavaFXApplet.html"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="templateCategory" stringvalue="javafx, java-classes"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>

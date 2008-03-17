@@ -16,7 +16,6 @@
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-
 package org.netbeans.modules.wsdlextensions.ldap.impl;
 
 import java.util.Collection;
@@ -27,36 +26,54 @@ import org.netbeans.modules.xml.xam.dom.Attribute;
  *
  */
 public enum LDAPAttribute implements Attribute {
-	LDAP_OPERATIONTYPE_PROPERTY("operationType"),
-	LDAP_RETPARTNAME_PROPERTY("returnPartName"),
-	LDAP_ATTRIBUTES_PROPERTY("attributes"),
-        LDAP_LOCATION_PROPERTY("location");
-    
+
+    LDAP_OPERATIONTYPE_PROPERTY("operationType"),
+    LDAP_RETPARTNAME_PROPERTY("returnPartName"),
+    LDAP_ATTRIBUTES_PROPERTY("attributes"),
+    LDAP_LOCATION_PROPERTY("location"),
+    LDAP_PRINCIPAL_PROPERTY("principal"),
+    LDAP_CREDENTIAL_PROPERTY("credential"),
+    LDAP_SSLTYPE_PROPERTY("ssltype"),
+    LDAP_AUTHENTICATION_PROPERTY("authentication"),
+    LDAP_PROTOCOL_PROPERTY("protocol"),
+    LDAP_TRUSTSTORE_PROPERTY("truststore"),
+    LDAP_TRUSTSTOREPASSWORD_PROPERTY("truststorepassword"),
+    LDAP_TRUSTSTORETYPE_PROPERTY("truststoretype"),
+    LDAP_KEYSTORE_PROPERTY("keystore"),
+    LDAP_KEYSTOREUSERNAME_PROPERTY("keystoreusername"),
+    LDAP_KEYSTOREPASSWORD_PROPERTY("keystorepassword"),
+    LDAP_KEYSTORETYPE_PROPERTY("keystoretype");
     private String name;
     private Class type;
     private Class subtype;
-    
+
     LDAPAttribute(String name) {
         this(name, String.class);
     }
-    
+
     LDAPAttribute(String name, Class type) {
         this(name, type, null);
     }
-    
+
     LDAPAttribute(String name, Class type, Class subtype) {
         this.name = name;
         this.type = type;
         this.subtype = subtype;
     }
-    
-    public String toString() { return name; }
-    
+
+    public String toString() {
+        return name;
+    }
+
     public Class getType() {
         return type;
     }
-    
-    public String getName() { return name; }
-    
-    public Class getMemberType() { return subtype; }
+
+    public String getName() {
+        return name;
+    }
+
+    public Class getMemberType() {
+        return subtype;
+    }
 }

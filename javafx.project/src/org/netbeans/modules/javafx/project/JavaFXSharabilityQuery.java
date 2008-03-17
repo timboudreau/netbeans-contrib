@@ -44,6 +44,7 @@ package org.netbeans.modules.javafx.project;
 import java.io.File;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import org.netbeans.modules.java.api.common.SourceRoots;
 import org.openide.util.Mutex;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.spi.queries.SharabilityQueryImplementation;

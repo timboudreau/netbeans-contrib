@@ -66,6 +66,7 @@ import org.openide.util.Utilities;
 
 import javax.swing.*;
 import org.netbeans.modules.versioning.spi.VersioningSupport;
+import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
 /**
@@ -125,7 +126,7 @@ public class Clearcase {
     
     private void openLog() {
         if (log == null || log.isClosed()) {
-            log = IOProvider.getDefault().getIO("Clearcase", false);
+            log = IOProvider.getDefault().getIO(NbBundle.getMessage(Clearcase.class, "OutputWindow_Clearcase"), false);
             try {                
                 log.getOut().reset();   // workaround, otherwise it writes to nowhere
             } catch (IOException e) {
@@ -209,58 +210,64 @@ public class Clearcase {
         
         // first check if it is a snapshot view. it's quite cheap 
         // compared to the following logic, so run it first
-        File ancestor = getTopmostSnapshotViewAncestor(file);
+        File ancestor = getTopmostSnapshotViewAncestor(file);        
         if(ancestor != null) {
             // we found the view.dat metadata, but to get sure wes still
-            // shou.d check via cleartool ls
+            // should check via cleartool ls
             IsVersionedCommand cmd = new IsVersionedCommand(file);
-            try {
-                client.exec(cmd, false);            
-                if(cmd.isVersioned()) {
-                    synchronized(managedRoots) {
-                        managedRoots.add(ancestor);
-                    }
-                    Clearcase.LOG.finest("getTopmostManagedParent found snapshot root " + ancestor +  " for " + file);
-                    return ancestor;
+            client.exec(cmd, false);            
+            if(cmd.hasFailed()) {
+                Exception ex = cmd.getThrownException();
+                if(ex instanceof ClearcaseUnavailableException) {
+                    // clearcase is not installed
+                    Clearcase.LOG.finest("getTopmostManagedParent - clearcase not installed: " + ex.getMessage());
+                } else {                    
+                    Clearcase.LOG.log(Level.WARNING, ex.getMessage());
                 }
-            } catch (ClearcaseUnavailableException ex) {
-                // clearcase is not installed
-                Clearcase.LOG.finest("getTopmostManagedParent - clearcase not installed: " + ex.getMessage());
-            } catch (ClearcaseException ex) {
-                Clearcase.LOG.log(Level.WARNING, ex.getMessage());
+                return null;
+            }
+            if(cmd.isVersioned()) {
+                synchronized(managedRoots) {
+                    managedRoots.add(ancestor);
+                }
+                Clearcase.LOG.finest("getTopmostManagedParent found snapshot root " + ancestor +  " for " + file);
+                return ancestor;
             }
             Clearcase.LOG.finest("getTopmostManagedParent snapshot ancestor " + ancestor + " for " + file + " not versioned");
             return null;
         }
         
         // doesn't seem to be a snapshot, try it the hard way
-        try {
-            File parent = file.isDirectory() ? file : file.getParentFile();
-            boolean versioned = false;
-            while(parent != null) {
-                IsVersionedCommand cmd = new IsVersionedCommand(parent);
-                client.exec(cmd, false);            
-                if(cmd.isVersioned()) {
-                    file = parent;
-                    parent = file.getParentFile();                                        
-                    versioned = true;
-                } else if(!versioned) {
-                    Clearcase.LOG.finest("getTopmostManagedParent no root for " + file);
-                    return null;    
-                } else {
-                    synchronized(managedRoots) {
-                        managedRoots.add(file);
-                    }
-                    Clearcase.LOG.finest("getTopmostManagedParent found root " + file);
-                    return file;
-                }               
-            }            
-        } catch (ClearcaseUnavailableException ex) {
-            // clearcase is not installed
-            Clearcase.LOG.finest("getTopmostManagedParent - clearcase not installed: " + ex.getMessage());
-        } catch (ClearcaseException ex) {
-            Clearcase.LOG.log(Level.WARNING, null, ex);
-        }
+        File parent = file.isDirectory() ? file : file.getParentFile();
+        boolean versioned = false;
+        while(parent != null) {
+            IsVersionedCommand cmd = new IsVersionedCommand(parent);
+            client.exec(cmd, false);       
+            if(cmd.hasFailed()) {
+                Exception ex = cmd.getThrownException();
+                if(ex instanceof ClearcaseUnavailableException) {
+                    // clearcase is not installed
+                    Clearcase.LOG.finest("getTopmostManagedParent - clearcase not installed: " + ex.getMessage());
+                } else {                    
+                    Clearcase.LOG.log(Level.WARNING, ex.getMessage());
+                }
+                return null;
+            }
+            if(cmd.isVersioned()) {
+                file = parent;
+                parent = file.getParentFile();                                        
+                versioned = true;
+            } else if(!versioned) {
+                Clearcase.LOG.finest("getTopmostManagedParent no root for " + file);
+                return null;    
+            } else {
+                synchronized(managedRoots) {
+                    managedRoots.add(file);
+                }
+                Clearcase.LOG.finest("getTopmostManagedParent found root " + file);
+                return file;
+            }               
+        }            
         Clearcase.LOG.finest("getTopmostManagedParent no root for " + file);
         return null;       
     }
@@ -411,7 +418,7 @@ public class Clearcase {
                 private final VcsAnnotation annotation;
 
                 public DiffForAnnotationAction(VcsAnnotation annotation) {
-                    super("Diff to " + annotation.getRevision());
+                    super(NbBundle.getMessage(Clearcase.class, "Annotations_DiffTo", annotation.getRevision()));
                     this.annotation = annotation;
                 }
 

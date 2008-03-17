@@ -68,15 +68,20 @@ made subject to such option by the copyright holder.
                 </dependency>
             </module-dependencies>
             <public-packages>
-                <package>com.jhlabs.composite</package>
-                <package>com.jhlabs.image</package>
-                <package>com.jhlabs.math</package>
-                <package>com.jhlabs.vecmath</package>
-                <package>com.sun.tools.javafx.main</package>
                 <package>com.sun.javafx.api</package>
                 <package>com.sun.source.tree</package>
-                <package>javax.tools</package>
+                <package>com.sun.source.util</package>
                 <package>com.sun.tools.javac.util</package>
+                <package>com.sun.tools.javafx.main</package>
+                <package>javax.lang.model.element</package>
+                <package>javax.lang.model.type</package>
+                <package>javax.lang.model.util</package>
+                <package>javax.tools</package>
+                <package>javax.lang.model.element</package>
+                <package>javax.lang.model.type</package>
+                <package>javax.lang.model.util</package>
+                <package>com.sun.tools.javac.util</package>
+                <package>com.sun.tools.javac.tree</package>
                 <package>net.java.javafx</package>
                 <package>net.java.javafx.jazz</package>
                 <package>net.java.javafx.jazz.animation</package>

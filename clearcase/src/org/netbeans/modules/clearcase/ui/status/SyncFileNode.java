@@ -107,7 +107,7 @@ public class SyncFileNode extends AbstractNode {
 
     @Override
     public Action getPreferredAction() {        
-        return new DiffAction("Diff", VCSContext.forNodes(new Node[] {this}));
+        return new DiffAction(NbBundle.getMessage(SyncFileNode.class, "DiffAction_Name"), VCSContext.forNodes(new Node[] {this})); // NOI18N
     }
 
     /**
@@ -245,7 +245,7 @@ public class SyncFileNode extends AbstractNode {
 
         public Object getValue() throws IllegalAccessException, InvocationTargetException {
             FileInformation finfo =  node.getInfo();
-            finfo.getStatus(node.getFile());  
+            finfo.getStatus(Clearcase.getInstance().getClient(), node.getFile());  
             int mask = panel.getDisplayStatuses();
             return finfo.getStatusText(mask);
         }

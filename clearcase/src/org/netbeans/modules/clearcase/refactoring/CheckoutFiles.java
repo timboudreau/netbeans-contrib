@@ -104,7 +104,7 @@ public class CheckoutFiles implements ProblemDetailsImplementation {
             }
         }
         for (File file : files) {
-            CheckoutAction.ensureMutable(file, null);                
+           // XXX CheckoutAction.ensureMutable(file, null);                
         }
 
         return true;
