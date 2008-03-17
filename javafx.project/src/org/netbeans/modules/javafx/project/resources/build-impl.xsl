@@ -665,6 +665,25 @@ is divided into following sections:
                          classpath="${{build.classes.dir}}:${{javac.classpath}}:${{libs.JavaFXUserLib.classpath}}"
                          compilerclasspath="${{build.classes.dir}}:${{javac.classpath}}:${{libs.JavaFXUserLib.classpath}}"/>
             </target>
+            <target name="-compile-fx-single">
+                <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask" classpath="${{libs.JavaFXUserLib.classpath}}">
+                    <classpath>
+                            <xsl:element name="pathelement">
+                                <xsl:attribute name="location">${build.classes.dir}</xsl:attribute>
+                            </xsl:element>
+                            <xsl:element name="pathelement">
+                                <xsl:attribute name="location">${javac.classpath}</xsl:attribute>
+                            </xsl:element>
+                    </classpath>
+                </taskdef>
+                <javafxc debug="${{javac.debug}}" deprecation="${{javac.deprecation}}"
+                         destdir="${{build.classes.dir}}"
+                         excludes="${{excludes}}" includeantruntime="false"
+                         includes="${{javac.includes}}" source="${{javac.source}}" sourcepath=""
+                         srcdir="${{src.dir}}" target="${{javac.target}}"
+                         classpath="${{build.classes.dir}}:${{javac.classpath}}:${{libs.JavaFXUserLib.classpath}}"
+                         compilerclasspath="${{build.classes.dir}}:${{javac.classpath}}:${{libs.JavaFXUserLib.classpath}}"/>
+            </target>
 
             <target name="-post-compile">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
@@ -694,7 +713,7 @@ is divided into following sections:
             </target>
             
             <target name="compile-single">
-                <xsl:attribute name="depends">init,deps-jar,-pre-pre-compile,-pre-compile-single,-do-compile-single,-post-compile-single</xsl:attribute>
+                <xsl:attribute name="depends">init,deps-jar,-pre-pre-compile,-pre-compile-single,-do-compile-single,-post-compile-single,-compile-fx-single</xsl:attribute>
             </target>
             
             <xsl:comment>

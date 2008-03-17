@@ -799,7 +799,8 @@ class JavaFXActionProvider implements ActionProvider {
             //Check if files are either packages of java files
             if (files != null) {
                 for (int i = 0; i < files.length; i++) {
-                    if (!files[i].isFolder() && !"java".equals(files[i].getExt())) {
+                    if (!files[i].isFolder() && 
+                            (!"java".equals(files[i].getExt())) && (!"fx".equals(files[i].getExt()))) {
                         return null;
                     }
                 }
