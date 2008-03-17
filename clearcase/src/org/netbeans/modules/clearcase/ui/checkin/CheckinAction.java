@@ -212,9 +212,9 @@ public class CheckinAction extends AbstractAction {
 
         ps.setDisplayMessage(NbBundle.getMessage(CheckinAction.class, "Progress_Checkin_Adding_new_Files")); //NOI18N
         Map<ClearcaseFileNode, CheckinOptions> filesToCheckin = checkinTable.getAddFiles();
-        // XXX true means they stay checked out and 
-        // still have to be checked in later. reconsider using false instead
-        AddAction.addFiles(null, true, filesToCheckin, ps);  
+        // XXX false means they stay checked out and 
+        // still have to be checked in later. reconsider using true instead
+        AddAction.addFiles(null, false, filesToCheckin, ps);  
 
         ps.setDisplayMessage(NbBundle.getMessage(CheckinAction.class, "Progress_Checking_in")); //NOI18N
         List<String> addExclusions = new ArrayList<String>();
