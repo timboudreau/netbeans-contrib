@@ -44,6 +44,7 @@ import java.util.*;
 import java.io.File;
 
 import org.netbeans.modules.clearcase.*;
+import org.openide.util.Exceptions;
 
 /**
  * Encapsulates a command given to a ClearCase client. 
@@ -59,6 +60,8 @@ public abstract class ClearcaseCommand implements NotificationListener {
     private final List<String> cmdOutput = new ArrayList<String>(10);
     private final List<String> cmdError = new ArrayList<String>(10);
 
+    private String stringValue;
+    
     /**
      * If the command thrown an execption, this is it.
      */
@@ -78,7 +81,7 @@ public abstract class ClearcaseCommand implements NotificationListener {
     }
 
     protected ClearcaseCommand(NotificationListener... listeners) {
-        this.listeners.addAll(Arrays.asList(listeners));
+        this.listeners.addAll(Arrays.asList(listeners));        
     }
 
     /**
@@ -152,4 +155,36 @@ public abstract class ClearcaseCommand implements NotificationListener {
     protected boolean isErrorMessage(String s) {
         return true;
     }
+
+    @Override
+    public String toString() {
+        try {
+            StringBuffer sb = new StringBuffer();
+            sb.append("\"");
+            sb.append(getStringCommand());
+            sb.append("\"");
+            return sb.toString();
+        } catch (ClearcaseException ex) {
+            return super.toString();
+        }
+    }
+
+    public String getStringCommand() throws ClearcaseException {
+        if(stringValue == null) {
+            Arguments args = new Arguments();
+            prepareCommand(args);
+            stringValue = toString(args).toString();
+        }
+        return stringValue;
+    }
+
+    private static StringBuilder toString(Arguments args) {
+        StringBuilder cmd = new StringBuilder(100);
+        for (String arg : args) {
+            cmd.append(arg);
+            cmd.append(' ');
+        }
+        cmd.delete(cmd.length() - 1, cmd.length());
+        return cmd;
+    }    
 }

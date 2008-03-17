@@ -56,6 +56,7 @@ public class PerspectivePreferences {
     private Preferences preferences = NbPreferences.forModule(PerspectivePreferences.class);
     private static PerspectivePreferences instance;
     private static final String SELECTED = "selected"; //NOI18N
+    private static final String FIRST_LOAD = "first_load"; //NOI18N
 
 
     private static final String TRACK_OPENED = "track_opened"; //NOI18N
@@ -109,6 +110,14 @@ public class PerspectivePreferences {
 
     public void setCloseOpened(boolean b) {
         preferences.putBoolean(CLOSE_OPENED, b);
+    }
+    public boolean isFirstLoad() {
+        //true by default
+        return preferences.getBoolean(FIRST_LOAD, true);
+    }
+
+    public void setFirstLoad(boolean b) {
+        preferences.putBoolean(FIRST_LOAD, b);
     }
 
     public synchronized String getCustomPerspectiveName() {

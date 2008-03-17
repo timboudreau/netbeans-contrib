@@ -54,7 +54,10 @@ import java.io.IOException;
 import java.beans.PropertyChangeListener;
 import java.awt.event.ActionEvent;
 import java.util.*;
+import java.util.logging.Level;
+import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
+import org.openide.util.NbBundle;
 
 /**
  * Interface to Clearcase functionality. 
@@ -201,18 +204,17 @@ public class ClearcaseClient {
             } catch (Exception e) {
                 Utils.logError(this, e);
             } 
-            if (notifyErrors && eu.getFailedCommand() != null) {
-                notifyCommandError();
+            if (eu.getFailedCommand() != null) {
+                handleCommandError(notifyErrors);
             }
         }
 
         /**
-         * Pops up a dialog that notifies the user that clearcase command failed.
+         * Logs and notifies CC errrors.
          * 
-         * @param eu
-         * @param error
+         * @param notifyErrors Pops up a dialog that notifies the user that clearcase command failed.        
          */
-        private void notifyCommandError() {
+        private void handleCommandError(boolean notifyErrors) {
             final List<String> errors = new ArrayList<String>(100);
             
             Exception exception = eu.getFailedCommand().getThrownException();
@@ -222,11 +224,23 @@ public class ClearcaseClient {
             }
             
             errors.addAll(eu.getFailedCommand().getCmdError());
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    report("Clearcase Command Failure", "Error executing", errors, NotifyDescriptor.ERROR_MESSAGE);        
-                }
-            });
+            
+            StringBuffer sb = new StringBuffer();
+            sb.append(NbBundle.getMessage(ClearcaseClient.class, "MSG_Clearcase_Command_Failure")); //NOI18N
+            sb.append(eu.getFailedCommand());
+            for (String err : errors) {
+                sb.append('\n');                
+                sb.append(err);
+            }   
+            Clearcase.LOG.log(Level.INFO, null, new ClearcaseException(sb.toString()));
+            
+            if(notifyErrors) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        report(NbBundle.getMessage(ClearcaseClient.class, "Report_ClearcaseCommandFailure_Title"), NbBundle.getMessage(ClearcaseClient.class, "Report_ClearcaseCommandFailure_Prompt"), errors, NotifyDescriptor.ERROR_MESSAGE); //NOI18N
+                    }
+                });
+            }
         }
         
         private void report(String title, String prompt, List<String> messages, int type) {
@@ -240,7 +254,7 @@ public class ClearcaseClient {
             if (emptyReport) return;
             
             CommandReport report = new CommandReport(prompt, messages);
-            JButton ok = new JButton("OK");
+            JButton ok = new JButton(NbBundle.getMessage(ClearcaseClient.class, "CommandReport_OK")); //NOI18N
             NotifyDescriptor descriptor = new NotifyDescriptor(
                     report, 
                     title, 
@@ -257,7 +271,7 @@ public class ClearcaseClient {
 
         public boolean cancel() {
             canceled = true;
-            // XXX cancell cleartool
+            ct.interrupt();
             return true;
         }
 

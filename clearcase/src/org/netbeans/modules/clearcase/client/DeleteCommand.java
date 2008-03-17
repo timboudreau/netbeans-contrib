@@ -67,20 +67,4 @@ public class DeleteCommand extends FilesCommand {
         arguments.add("-force");
         addFileArguments(arguments);
     }
-
-    @Override
-    public String toString() {
-        if(stringValue == null) {
-            StringBuffer sb = new StringBuffer();
-            sb.append("rm ");
-            sb.append(" -force");
-            String [] paths = computeRelativePaths();
-            for (String path : paths) {
-                sb.append(" ");
-                sb.append(path);
-            }
-            stringValue = sb.toString();
-        }
-        return stringValue;
-    }    
 }
