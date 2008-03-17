@@ -36,11 +36,14 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.fortress.editing.visitors;
 
+import com.sun.fortress.nodes.FnAbsDeclOrDecl;
 import com.sun.fortress.nodes.Node;
+import com.sun.fortress.nodes.TraitObjectAbsDeclOrDecl;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.netbeans.modules.fortress.editing.FortressMimeResolver;
 import org.netbeans.modules.gsf.api.ElementHandle;
@@ -52,40 +55,41 @@ import org.openide.filesystems.FileObject;
  *
  * @author dcaoyuan
  */
-public class Element implements ElementHandle {
-    
+public class Signature implements ElementHandle {
+
     private Node node;
     private Node nameNode;
     private Scope enclosedScope;
     private ElementKind kind;
-    
-    public Element(Node node, Node nameNode, Scope enclosedScope, ElementKind kind) {
+    private Set<Modifier> mods;
+
+    public Signature(Node node, Node nameNode, Scope enclosedScope, ElementKind kind) {
         this.node = node;
         this.nameNode = nameNode;
         this.enclosedScope = enclosedScope;
         this.kind = kind;
     }
-    
+
     public Node getNode() {
         return node;
     }
-    
+
     public Node getNameNode() {
         return nameNode;
     }
-    
+
     public Scope getEnclosedScope() {
         return enclosedScope;
     }
-    
-    public  String getName() {
+
+    public String getName() {
         return nameNode.stringName();
     }
-    
-    public  ElementKind getKind() {
+
+    public ElementKind getKind() {
         return kind;
     }
-    
+
     public String getMimeType() {
         return FortressMimeResolver.MIME_TYPE;
     }
@@ -98,9 +102,33 @@ public class Element implements ElementHandle {
     public FileObject getFileObject() {
         return null;
     }
-    
+
     public Set<Modifier> getModifiers() {
-        return Collections.emptySet();
+        if (mods == null) {
+            mods = new HashSet<Modifier>();
+        }
+        
+        List<com.sun.fortress.nodes.Modifier> fortressMods = Collections.emptyList();
+        if (node instanceof TraitObjectAbsDeclOrDecl) {
+            fortressMods = ((TraitObjectAbsDeclOrDecl) node).getMods();
+        } else if (node instanceof FnAbsDeclOrDecl) {
+            fortressMods = ((FnAbsDeclOrDecl) node).getMods();
+        }
+        
+        for (com.sun.fortress.nodes.Modifier mod : fortressMods) {
+            String modStr = mod.stringName();
+            if (modStr.equals("static")) {
+                mods.add(Modifier.STATIC);
+            } else if (modStr.equals("private")) {
+                mods.add(Modifier.PRIVATE);
+            } else if (modStr.equals("protected")) {
+                mods.add(Modifier.PROTECTED);
+            } else if (modStr.equals("public")) {
+                mods.add(Modifier.PUBLIC);
+            }
+        }
+        
+        return mods;
     }
 
     public String getIn() {
