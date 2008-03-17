@@ -230,7 +230,7 @@ public class ClearcaseUtils {
      * 
      * @param client ClearcaseClient
      * @param file file to checkout
-     * @returns true if the given file is mutable, otherwise false* 
+     * @returns true if the given file is mutable, otherwise false
      * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
      */
     public static boolean ensureMutable(ClearcaseClient client, File file) {
