@@ -178,7 +178,7 @@ public class AddAction extends AbstractAction {
      * @return CommandRunnable that is adding the files or NULL of there are no files to add and no command was executed
      */
     public static void addFiles(final String message, boolean checkInAddedFiles, Map<ClearcaseFileNode, CheckinOptions> filesToAdd, ProgressSupport ps) {
-        Set<File> tmpFiles = new HashSet<File>();
+        Set<File> tmpFiles = new HashSet<File>();        
         for (Map.Entry<ClearcaseFileNode, CheckinOptions> entry : filesToAdd.entrySet()) {
             if (entry.getValue() == CheckinOptions.ADD_BINARY || entry.getValue() == CheckinOptions.ADD_TEXT || entry.getValue() == CheckinOptions.ADD_DIRECTORY) {
                 tmpFiles.add(entry.getKey().getFile());
@@ -239,10 +239,14 @@ public class AddAction extends AbstractAction {
         }
 
         ClearcaseClient client = Clearcase.getInstance().getClient();
-        for (File tmParent : topmostParents) {
-            if(!ClearcaseUtils.ensureMutable(client, tmParent)) {
+        List<File> checkedoutParents = new ArrayList<File>();
+        for (File tmParent : topmostParents) {            
+            int ret = ClearcaseUtils.ensureMutable(client, tmParent);
+            if(ret == 0) {
                 return;
-            }  
+            } else if(ret == ClearcaseUtils.WAS_CHECKEDOUT) {
+                checkedoutParents.add(tmParent);
+            }
         }                
         MkElemCommand addCmd = 
                 new MkElemCommand(
@@ -253,6 +257,19 @@ public class AddAction extends AbstractAction {
                     new OutputWindowNotificationListener(), 
                     new AfterCommandRefreshListener(refreshFiles.toArray(new File[refreshFiles.size()])));
         client.exec(addCmd, true, ps);        
+        
+        if(checkedoutParents.size() > 0) {
+            File[] checkinParents = checkedoutParents.toArray(new File[checkedoutParents.size()]);
+            CheckinCommand checkinParentsCmd =
+                new CheckinCommand(
+                    checkinParents, 
+                    message, 
+                    true,                 // should be always modified
+                    ClearcaseModuleConfig.getPreserveTimeCheckin(), 
+                    new OutputWindowNotificationListener(), 
+                    new AfterCommandRefreshListener(checkinParents));
+            client.exec(checkinParentsCmd, true, ps);            
+        }                
     }
        
     private static void addAncestors(Set<File> addFiles) {
