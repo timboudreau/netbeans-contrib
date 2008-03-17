@@ -1,0 +1,242 @@
+/*******************************************************************************
+    Copyright 2008 Sun Microsystems, Inc.,
+    4150 Network Circle, Santa Clara, California 95054, U.S.A.
+    All rights reserved.
+
+    U.S. Government Rights - Commercial software.
+    Government users are subject to the Sun Microsystems, Inc. standard
+    license agreement and applicable provisions of the FAR and its supplements.
+
+    Use is subject to license terms.
+
+    This distribution may include materials developed by third parties.
+
+    Sun, Sun Microsystems, the Sun logo and Java are trademarks or registered
+    trademarks of Sun Microsystems, Inc. in the U.S. and other countries.
+ ******************************************************************************/
+
+/*
+ * Definition of Fortress components and APIs.
+ */
+module com.sun.fortress.parser.Compilation(Decl, Identifier, Keyword, Symbol,
+                                           Spacing);
+
+import Decl;
+import Identifier;
+import Keyword;
+import Symbol;
+import Spacing;
+
+/* File ::=
+     w CompilationUnit w EndOfFile
+   | (w Imports w ;?)? w Exports w ;? (w Decls w ;?)? w EndOfFile
+   | (w Imports w ;?)? w AbsDecls w ;? w EndOfFile
+   | w Imports w ;? (w AbsDecls w ;?)? w EndOfFile
+ */
+public CompilationUnit File =
+     w CompilationUnit w EndOfFile
+   / a1:(w yyValue:Imports w semicolon?)? w a2:Exports w semicolon?
+     a3:(w yyValue:Decls w semicolon?)? w EndOfFile
+     { if (a1 == null) a1 = Collections.<Import>emptyList();
+       if (a3 == null) a3 = Collections.<Decl>emptyList();
+       Span span = createSpan(yyStart,yyCount);
+       String file = span.begin.getFileName();
+       APIName name = NodeFactory.makeAPIName(span, file, "\\.");
+       yyValue = new Component(span, name, a1, a2, a3);
+     }
+   / a1:(w yyValue:Imports w semicolon?)? w a2:AbsDecls w semicolon? w EndOfFile
+     { if (a1 == null) a1 = Collections.<Import>emptyList();
+       Span span = createSpan(yyStart,yyCount);
+       String file = span.begin.getFileName();
+       APIName name = NodeFactory.makeAPIName(span, file, "\\.");
+       yyValue = new Api(span, name, a1, a2);
+     }
+   / w a1:Imports w semicolon? a2:(w yyValue:AbsDecls w semicolon?)? w EndOfFile
+     { if (a2 == null) a2 = Collections.<AbsDecl>emptyList();
+       Span span = createSpan(yyStart,yyCount);
+       String file = span.begin.getFileName();
+       APIName name = NodeFactory.makeAPIName(span, file, "\\.");
+       yyValue = new Api(span, name, a1, a2);
+     };
+
+/* CompilationUnit ::=
+     Component
+   | Api
+ */
+private CompilationUnit CompilationUnit =
+     Component
+   / Api ;
+
+/* Component ::=
+     (native w)? component w APIName (w Imports w ;?)? w Exports w ;?
+     (w Decls w ;?)? w end
+ */
+private Component Component =
+     a1:(native w)? component w a2:APIName a3:(w yyValue:Imports w semicolon?)? w
+     a4:Exports w semicolon? a5:(w yyValue:Decls w semicolon?)? w end
+     { if (a3 == null) a3 = Collections.<Import>emptyList();
+       if (a5 == null) a5 = Collections.<Decl>emptyList();
+       Span span = createSpan(yyStart,yyCount);
+       if (a1 == null)
+           yyValue = new Component(span, a2, a3, a4, a5);
+       else
+           yyValue = new Component(span, true, a2, a3, a4, a5);
+     };
+
+/* Api ::=
+     (native w)? api w APIName (w Imports w ;?)? (w AbsDecls w ;?)? w end
+ */
+private Api Api =
+     a1:(native w)? api w a2:APIName a3:(w yyValue:Imports w semicolon?)?
+     a4:(w yyValue:AbsDecls w semicolon?)? w end
+     { if (a3 == null) a3 = Collections.<Import>emptyList();
+       if (a4 == null) a4 = Collections.<AbsDecl>emptyList();
+       Span span = createSpan(yyStart,yyCount);
+       if (a1 == null)
+           yyValue = new Api(span, a2, a3, a4);
+       else
+           yyValue = new Api(span, true, a2, a3, a4);
+     };
+
+/* Imports ::= Import (br Import)* */
+private List<Import> Imports = a1:Import a2s:(br Import)*
+     { for (List<Import> i : a2s.list()) {
+         for (Import j : i) {
+           a1.add(j);
+         }
+       }
+       yyValue = a1;
+     };
+
+/* Import ::=
+     import w ImportedNames
+   | import w api w AliasedAPINames
+ */
+private List<Import> Import =
+     import w ImportedNames
+   / import w api w a1:AliasedAPINames
+     { Import imp = new ImportApi(createSpan(yyStart, yyCount), a1);
+       yyValue = FortressUtil.mkList(imp);
+     };
+
+/* ImportedNames ::=
+     APIName . w { w ... w } (w except w SimpleNames)?
+   | APIName . w { w AliasedSimpleNameList (w , w ...)? w }
+   | QualifiedName (w as w Id)?
+ */
+private List<Import> ImportedNames =
+     a1:APIName dot w opencurly w ellipses w closecurly
+     a2:(w except w SimpleNames)?
+     { if (a2 == null) a2 = Collections.<SimpleName>emptyList();
+       yyValue = FortressUtil.mkList((Import)new ImportStar(
+                                             createSpan(yyStart,yyCount),a1,a2));
+     }
+   / a1:APIName dot w opencurly w a2:AliasedSimpleNameList
+     a3:(w comma w ellipses)? w closecurly
+     { Span span = createSpan(yyStart,yyCount);
+       List<Import> imports = FortressUtil.mkList((Import)new ImportNames(span,
+                                                                         a1,a2));
+       if (a3 != null)
+           imports.add((Import)new ImportStar(span, a1,
+                               Collections.<SimpleName>emptyList()));
+       yyValue = imports;
+     }
+   / a1:QualifiedName a2:(w as w Id)?
+     { AliasedSimpleName an;
+       APIName api = Option.unwrap(a1.getApi());
+       SimpleName name = a1.getName();
+       if (a2 == null)
+           an = NodeFactory.makeAliasedSimpleName(name.getSpan(), name);
+       else
+           an = NodeFactory.makeAliasedSimpleName(FortressUtil.spanTwo(name,a2),
+                                                  name, a2);
+       yyValue = FortressUtil.mkList((Import)new ImportNames(
+                                             createSpan(yyStart,yyCount),
+                                             api, FortressUtil.mkList(an)));
+     };
+
+/* SimpleNames ::= SimpleName | { w SimpleNameList w } */
+private List<SimpleName> SimpleNames =
+     a1:SimpleName { yyValue = FortressUtil.mkList(a1); }
+   / void:opencurly w SimpleNameList w void:closecurly ;
+
+/* SimpleNameList ::= SimpleName (w , w SimpleName)* */
+private List<SimpleName> SimpleNameList =
+     a1:SimpleName a2s:(w comma w SimpleName)*
+     { yyValue = FortressUtil.mkList(a1, a2s.list()); };
+
+/* AliasedSimpleName ::=
+     Id (w as w Id)?
+   | opr w Op (w as w Op)?
+   | opr w EncloserPair (w as w EncloserPair)?
+ */
+private AliasedSimpleName AliasedSimpleName =
+     a1:Id a2:(w as w Id)?
+     { Span span = createSpan(yyStart,yyCount);
+       if (a2 == null)
+           yyValue = NodeFactory.makeAliasedSimpleName(span, a1);
+       else
+           yyValue = NodeFactory.makeAliasedSimpleName(span, a1, a2);
+     }
+   / opr w a1:Op a2:(w as w Op)?
+     { Span span = createSpan(yyStart,yyCount);
+       if (a2 == null)
+           yyValue = NodeFactory.makeAliasedSimpleName(span, a1);
+       else
+           yyValue = NodeFactory.makeAliasedSimpleName(span, a1, a2);
+     }
+   / opr w a1:EncloserPair a2:(w as w EncloserPair)?
+     { Span span = createSpan(yyStart,yyCount);
+       if (a2 == null)
+           yyValue = NodeFactory.makeAliasedSimpleName(span, a1);
+       else
+           yyValue = NodeFactory.makeAliasedSimpleName(span, a1, a2);
+     };
+
+/* AliasedSimpleNameList ::= AliasedSimpleName (w , w AliasedSimpleName)* */
+private List<AliasedSimpleName> AliasedSimpleNameList =
+     a1:AliasedSimpleName a2s:(w comma w AliasedSimpleName)*
+     { yyValue = FortressUtil.mkList(a1, a2s.list()); };
+
+/* AliasedAPINames ::=
+     AliasedAPIName
+   | { w AliasedAPINameList w }
+ */
+private List<AliasedAPIName> AliasedAPINames =
+     a1:AliasedAPIName { yyValue = FortressUtil.mkList(a1); }
+   / void:opencurly w AliasedAPINameList w void:closecurly ;
+
+/* AliasedAPIName ::= APIName (w as w Id)? */
+private AliasedAPIName AliasedAPIName =
+     a1:APIName a2:(w as w Id)?
+     { Span span = createSpan(yyStart,yyCount);
+       if (a2 == null)
+           yyValue = new AliasedAPIName(span, a1, Option.<Id>none());
+       else
+           yyValue = new AliasedAPIName(span, a1, Option.some(a2));
+     };
+
+/* AliasedAPINameList ::= AliasedAPIName (w , w AliasedAPIName)* */
+private List<AliasedAPIName> AliasedAPINameList =
+     a1:AliasedAPIName a2s:(w comma w AliasedAPIName)*
+     { yyValue = FortressUtil.mkList(a1, a2s.list()); };
+
+/* Exports ::= Export (br Export)* */
+private List<Export> Exports = a1:Export a2s:(br Export)*
+     { yyValue = FortressUtil.mkList(a1, a2s.list()); };
+
+/* Export ::= export w APINames */
+private Export Export = export w a1:APINames
+     { yyValue = new Export(createSpan(yyStart,yyCount), a1); };
+
+/* APINames ::=
+     APIName
+   | { w APINameList w }
+ */
+List<APIName> APINames =
+     a1:APIName { yyValue = FortressUtil.mkList(a1); }
+   / void:opencurly w APINameList w void:closecurly ;
+
+/* APINameList ::= APIName (w , w APIName)* */
+private List<APIName> APINameList = a1:APIName a2s:(w comma w APIName)*
+     { yyValue = FortressUtil.mkList(a1, a2s.list()); };

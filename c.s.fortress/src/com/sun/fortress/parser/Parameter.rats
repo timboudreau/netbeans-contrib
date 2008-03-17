@@ -1,0 +1,154 @@
+/*******************************************************************************
+    Copyright 2008 Sun Microsystems, Inc.,
+    4150 Network Circle, Santa Clara, California 95054, U.S.A.
+    All rights reserved.
+
+    U.S. Government Rights - Commercial software.
+    Government users are subject to the Sun Microsystems, Inc. standard
+    license agreement and applicable provisions of the FAR and its supplements.
+
+    Use is subject to license terms.
+
+    This distribution may include materials developed by third parties.
+
+    Sun, Sun Microsystems, the Sun logo and Java are trademarks or registered
+    trademarks of Sun Microsystems, Inc. in the U.S. and other countries.
+ ******************************************************************************/
+
+/*
+ * Definition of Fortress parameters.
+ */
+module com.sun.fortress.parser.Parameter(NoNewlineHeader, MayNewlineHeader,
+                                         Type, Expr, Identifier, Keyword,
+                                         Symbol, Spacing);
+
+import NoNewlineHeader;
+import MayNewlineHeader;
+import Type;
+import Expr;
+import Identifier;
+import Keyword;
+import Symbol;
+import Spacing;
+
+/* ValParam ::= BindId | ( (w Params)? w ) */
+List<Param> ValParam =
+     a1:BindId
+     { yyValue = FortressUtil.<Param, NormalParam>mkList(NodeFactory.makeParam(a1)); }
+   / openparen a1:(w Params)? w closeparen
+     { if (a1 == null) yyValue = FortressUtil.emptyParams();
+       else            yyValue = a1;
+     };
+
+/* Params ::=
+     (Param w , w)* (Varargs w , w)? Keyword (w , w Keyword)*
+   | (Param w , w)*  Varargs
+   |  Param (w , w Param)*
+ */
+List<Param> Params =
+     a1s:(Param w comma w)* a2:(Varargs w comma w)? a3:Keyword
+       a4s:(w comma w Keyword)*
+     { yyValue = FortressUtil.<Param, NormalParam>mkList(a1s.list());
+       if (a2 != null) yyValue.add(a2);
+       yyValue.add(a3);
+       yyValue.addAll(a4s.list());
+     }
+   / a1s:(Param w comma w)* a2:Varargs
+     { yyValue = FortressUtil.<Param, NormalParam>mkList(a1s.list(), a2); }
+   / a1:Param a2s:(w comma w Param)*
+     { yyValue = FortressUtil.<Param, NormalParam>mkList(a1, a2s.list()); };
+
+/* Varargs ::= BindId w : w Type w ... */
+VarargsParam VarargsParam = a1:BindId w colon w a2:Type w ellipses
+     { VarargsType ty = new VarargsType(a2.getSpan(), a2);
+       yyValue = NodeFactory.makeVarargsParam(a1, ty);
+     };
+VarargsParam Varargs = VarargsParam ;
+
+/* Keyword ::= Param w = w Expr */
+Param Keyword = a1:Param w equals w a2:Expr
+     { yyValue = NodeFactory.makeParam(a1, a2); };
+
+/* Param ::= BindId (w IsType)? | Type */
+NormalParam PlainParam =
+     a1:BindId w a2:IsType
+     { yyValue = NodeFactory.makeParam(a1, a2); }
+   / !(BindId (w closedoublesquare / w closesquare /
+               w opendoublesquare / w opensquare / w rightarrow))
+     a1:BindId
+     { yyValue = NodeFactory.makeParam(a1); }
+   / a1:Type
+     { yyValue = NodeFactory.makeParam(new Id(createSpan(yyStart,yyCount), "_"),
+                                       a1); };
+NormalParam Param = PlainParam ;
+
+/* OpHeaderFront ::=
+     opr (w BIG)? w ({ w |-> | LeftEncloser | Encloser) (w StaticParams)? w
+     Params w (RightEncloser | Encloser)
+   | opr w ValParam w (Op | ExponentOp) (w StaticParams)?
+   | opr (w BIG)? w (Op | ^ | Encloser | SUM | PROD) (w StaticParams)? w ValParam
+ */
+FnHeaderFront OpHeaderFront =
+     <Enclosing> opr big:(w BIG)? w
+     opa1:("{" w "|->"
+           {yyValue=NodeFactory.makeOpEnclosing(createSpan(yyStart,yyCount),
+                                                "{|->");}
+         / LeftEncloser
+         / Encloser)
+     opa2:(w StaticParams)? w opa3:Params w opa4:(RightEncloser / Encloser)
+     { SimpleName name;
+       Span span = createSpan(yyStart,yyCount);
+       Op leftOp = (Op)opa1;
+       String left  = leftOp.getText();
+       String right = opa4.getText();
+       if (PrecedenceMap.ONLY.matchedBrackets(left, right) ||
+           left.equals("{|->") && right.equals("}")) {
+           if (big != null) {
+               leftOp = NodeFactory.makeOpBig(leftOp.getSpan(), "BIG " + left);
+               opa4 = NodeFactory.makeOpBig(opa4.getSpan(), "BIG " + right);
+           }
+           name = new Enclosing(span, leftOp, opa4);
+       } else
+           name = error(leftOp, "Mismatched enclosing operator definition: "
+                                + left + " and " + right);
+       if (opa2 == null) opa2 = FortressUtil.emptyStaticParams();
+       yyValue = new FnHeaderFront(name, opa2, opa3);
+     }
+   / opr w a1:ValParam w a2:(Op / ExponentOp) a3:(w StaticParams)?
+     { Span span = createSpan(yyStart,yyCount);
+       if (a3 == null)
+           yyValue = new FnHeaderFront(NodeFactory.makeOpPostfix(a2), a1);
+       else
+           yyValue = new FnHeaderFront(NodeFactory.makeOpPostfix(a2), a3, a1);
+     }
+   / opr big:(w BIG)? w
+     a1:(Op
+        / caret {yyValue=NodeFactory.makeOpUnknown(createSpan(yyStart,yyCount),
+                                                   "^");}
+        / Encloser
+        / SUM  {yyValue=NodeFactory.makeOpBig(createSpan(yyStart,yyCount),
+                                              "BIG +");}
+        / PROD {yyValue=NodeFactory.makeOpBig(createSpan(yyStart,yyCount),
+                                              "BIG juxtaposition");})
+     a2:(w StaticParams)? w a3:ValParam
+     { Span span = createSpan(yyStart,yyCount);
+       Op op = (Op)a1;
+       if (big != null)
+           op = NodeFactory.makeOpBig(op.getSpan(), "BIG " + op.getText());
+       else if (op.getText().equals("BIG +") ||
+                op.getText().equals("BIG juxtaposition")) {
+           op = op;
+       } else if (a3.size() == 0) { // nofix
+           op = NodeFactory.makeOpNofix(op);
+       } else if (NodeUtil.isMultifix(a3)) { // multifix
+           op = NodeFactory.makeOpMultifix(op);
+       } else if (a3.size() == 1) { // prefix
+           op = NodeFactory.makeOpPrefix(op);
+       } else if (a3.size() == 2) { // infix
+           op = NodeFactory.makeOpInfix(op);
+       } else { // error
+           op = error(op, "Operator fix is invalid in its dclaration.");
+       }
+       if (a2 == null) yyValue = new FnHeaderFront(op, a3);
+       else            yyValue = new FnHeaderFront(op, a2, a3);
+     };

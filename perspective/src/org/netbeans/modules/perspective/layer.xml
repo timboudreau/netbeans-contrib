@@ -97,11 +97,9 @@
     
     <!-- Options Dialog -->
     <folder name="OptionsDialog">
-        <!-- Perspctive Advanced -->
+        <!-- Perspective Advanced -->
         <folder name="Advanced">
-            <file name="org-netbeans-modules-perspective-options-PerspectiveAdvancedOption.instance">
-                <attr name="position" intvalue="1000"/>
-            </file>
+            <file name="org-netbeans-modules-perspective-options-PerspectiveAdvancedOption.instance"/>
         </folder>
     </folder>
     

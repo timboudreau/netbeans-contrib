@@ -45,11 +45,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.StringTokenizer;
 import javax.swing.text.BadLocationException;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.cnd.api.project.NativeFileItem;
 import org.netbeans.modules.cnd.api.project.NativeFileItemSet;
 import org.netbeans.modules.cnd.api.project.NativeProject;
+import org.netbeans.modules.cnd.syntaxerr.DebugUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
@@ -105,9 +107,28 @@ class SourceProxy implements FileProxy {
     protected static String getCompilerOptions(NativeFileItem item) {
         StringBuilder sb = new StringBuilder(" -I . ");
         String options = MakeprojectUtils.getCompilerOptions(item);
-        if( options != null ) {
-            sb.append(options);
-        } else  if( item != null ) {
+        if( options != null && options.length() > 0 ) {
+            if( item == null ) {
+                sb.append(options);
+            } else {
+                // we filter out-I and -D options -
+                // we better get them from item, since item converts paths properly
+                for (StringTokenizer tokenizer = new StringTokenizer(options); tokenizer.hasMoreTokens();) {
+                    String token = tokenizer.nextToken();
+                    if( token.startsWith("-I") || token.startsWith("-D") ) {
+                        if( token.length() == 2 ) {
+                            //  skip next if "-I"/-D" is separated with space
+                            tokenizer.nextToken(); 
+                        }
+                    } else {
+                        sb.append(token);
+                        sb.append(' ');
+                    }
+                }
+
+            }
+        }
+        if( item != null ) {
             for( String path : item.getUserIncludePaths() ) {
                 sb.append(" -I "); // NOI18N
                 sb.append(path);

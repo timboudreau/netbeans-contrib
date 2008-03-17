@@ -43,7 +43,6 @@ package org.netbeans.modules.perspective.persistence;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Callable;
-import org.netbeans.modules.perspective.Perspective;
 import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
 import org.netbeans.modules.perspective.ui.ToolbarStyleSwitchUI;
 import org.netbeans.modules.perspective.utils.OpenedViewTracker;
@@ -115,7 +114,8 @@ public class MainParser {
         }
         if (selected != null) {
 
-            PerspectiveManagerImpl.getInstance().setSelected(selected, false);
+            PerspectiveManagerImpl.getInstance().setSelected(selected,
+                    PerspectivePreferences.getInstance().isFirstLoad());
             ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
 
 
@@ -160,6 +160,7 @@ public class MainParser {
                 PerspectiveManagerImpl.getInstance().setSelected(selected);
 
             }
+            PerspectivePreferences.getInstance().setFirstLoad(false);
         }
 
     }
@@ -196,6 +197,7 @@ public class MainParser {
                 Exceptions.printStackTrace(ex);
             }
         }
+        PerspectivePreferences.getInstance().setFirstLoad(true);
         restore();
     }
 }

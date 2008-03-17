@@ -1,0 +1,91 @@
+/*******************************************************************************
+    Copyright 2008 Sun Microsystems, Inc.,
+    4150 Network Circle, Santa Clara, California 95054, U.S.A.
+    All rights reserved.
+
+    U.S. Government Rights - Commercial software.
+    Government users are subject to the Sun Microsystems, Inc. standard
+    license agreement and applicable provisions of the FAR and its supplements.
+
+    Use is subject to license terms.
+
+    This distribution may include materials developed by third parties.
+
+    Sun, Sun Microsystems, the Sun logo and Java are trademarks or registered
+    trademarks of Sun Microsystems, Inc. in the U.S. and other countries.
+ ******************************************************************************/
+
+/*
+ * Definition of Fortress top-level declarations.
+ */
+module com.sun.fortress.parser.Declaration(TraitObject, Function, Variable,
+                                           Other, Spacing, Syntax);
+
+import TraitObject;
+import Function;
+import Variable;
+import Other;
+import Spacing;
+import Syntax;
+
+/* Decls ::= Decl (br Decl)* */
+List<Decl> Decls = a1:Decl a2s:(br Decl)*
+     { for (List<Decl> ds : a2s.list()) {
+         a1.addAll(ds);
+       }
+       yyValue = a1;
+     };
+
+/* Decl ::=
+     TraitDecl
+   | ObjectDecl
+   | VarDecl
+   | FnDecl
+   | DimUnitDecl
+   | TypeAlias
+   | TestDecl
+   | PropertyDecl
+   | ExternalSyntax
+*/
+private List<Decl> Decl =
+     a1:TraitDecl      { yyValue = FortressUtil.mkList((Decl)a1); }
+   / a1:ObjectDecl     { yyValue = FortressUtil.mkList((Decl)a1); }
+   / a1:VarDecl        { yyValue = FortressUtil.mkList((Decl)a1); }
+   / a1:FnDecl         { yyValue = FortressUtil.mkList((Decl)a1); }
+   / DimUnitDecl
+   / a1:TypeAlias      { yyValue = FortressUtil.mkList((Decl)a1); }
+   / a1:TestDecl       { yyValue = FortressUtil.mkList((Decl)a1); }
+   / a1:PropertyDecl   { yyValue = FortressUtil.mkList((Decl)a1); }
+   / a1:ExternalSyntax { yyValue = FortressUtil.mkList((Decl)a1); };
+
+/* AbsDecls ::= AbsDecl (br AbsDecl)* */
+List<AbsDecl> AbsDecls = a1:AbsDecl a2s:(br AbsDecl)*
+     { for (List<AbsDecl> ds : a2s.list()) {
+         a1.addAll(ds);
+       }
+       yyValue = a1;
+     };
+
+/* AbsDecl ::=
+     AbsTraitDecl
+   | AbsObjectDecl
+   | AbsVarDecl
+   | AbsFnDecl
+   | DimUnitDecl
+   | TypeAlias
+   | TestDecl
+   | PropertyDecl
+   | AbsExternalSyntax
+ */
+private List<AbsDecl> AbsDecl =
+     a1:AbsTraitDecl      { yyValue = FortressUtil.mkList((AbsDecl)a1); }
+   / a1:AbsObjectDecl     { yyValue = FortressUtil.mkList((AbsDecl)a1); }
+   / a1:AbsVarDecl        { yyValue = FortressUtil.mkList((AbsDecl)a1); }
+   / a1:AbsFnDecl         { yyValue = FortressUtil.mkList((AbsDecl)a1); }
+   / DimUnitDecl
+   / a1:TypeAlias         { yyValue = FortressUtil.mkList((AbsDecl)a1); }
+   / a1:TestDecl          { yyValue = FortressUtil.mkList((AbsDecl)a1); }
+   / a1:PropertyDecl      { yyValue = FortressUtil.mkList((AbsDecl)a1); }
+   / a1:AbsExternalSyntax { yyValue = FortressUtil.mkList((AbsDecl)a1); }
+   / a1:GrammarDef        { yyValue = FortressUtil.mkList((AbsDecl)a1); }
+   ;

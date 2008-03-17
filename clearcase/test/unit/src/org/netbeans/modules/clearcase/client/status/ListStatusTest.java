@@ -123,6 +123,19 @@ public class ListStatusTest extends TestCase {
         assertEquals("Reserved", info.getStatusText());
     }
 
+    public void testSeemedToBeCheckedout() throws IOException, ClearcaseException, IllegalAccessException, IllegalArgumentException, InvocationTargetException { 
+        String lsRawOutput = "version                README@@/main/CHECKEDOUT from /main/3  Rule: element * CHECKEDOUT";
+        String lscoRawOutput = "README<~=~>cctomas<~=~>";
+        List<FileEntry> entryList = execList(lsRawOutput, lscoRawOutput);
+        
+        assertEquals(1, entryList.size());                
+        assertListOutput(entryList.get(0), null, new File("README"), "/main", FileVersionSelector.CHECKEDOUT_VERSION, "/main/CHECKEDOUT", "/main", 3L, "/main/3", true, "version");                
+        
+        FileEntry entry = convert(entryList.get(0));  
+        FileInformation info = createFileInformation(entry);
+        assertTrue((FileInformation.STATUS_VERSIONED_CHECKEDOUT & info.getStatus()) != 0);                        
+    }
+            
     public void testCheckedoutUnreserved() throws IOException, ClearcaseException, IllegalAccessException, IllegalArgumentException, InvocationTargetException { 
         String lsRawOutput = "version                README@@/main/CHECKEDOUT from /main/1  Rule: element * CHECKEDOUT";
         String lscoRawOutput = "README<~=~>cctomas<~=~>unreserved";

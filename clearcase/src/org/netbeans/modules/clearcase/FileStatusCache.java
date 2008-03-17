@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.clearcase;
 
+import org.netbeans.modules.clearcase.client.ClearcaseClient;
 import org.netbeans.modules.clearcase.client.status.FileEntry;
 
 import java.util.*;
@@ -58,6 +59,7 @@ import org.netbeans.modules.versioning.spi.VersioningSupport;
 import org.netbeans.modules.versioning.util.ListenersSupport;
 import org.netbeans.modules.versioning.util.Utils;
 import org.netbeans.modules.versioning.util.VersioningListener;
+import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
 /**
@@ -94,9 +96,11 @@ public class FileStatusCache {
     private RequestProcessor.Task filesToRefreshTask;
 
     private static final Pattern keepPattern = Pattern.compile(".*\\.keep(\\.\\d+)?");
+    private final ClearcaseClient client;
     
     FileStatusCache() {
         this.clearcase = Clearcase.getInstance();        
+        client = new ClearcaseClient();
     }
     
     // --- Public interface -------------------------------------------------
@@ -204,19 +208,7 @@ public class FileStatusCache {
         }        
         return fi;               
     }
-    
-//    /**
-//     * Refreshes recursively all files in the given context.
-//     * This method synchronously accesses disk and may block for a long period of time.
-//     * Status change events will be fired to notify all registered listeners.
-//     * 
-//     * @param ctx the context to be refreshed
-//     */
-//    public ProgressSupport createRefreshSupport(VCSContext ctx) {        
-//        Set<File> files = ctx.getRootFiles();
-//        return new RefreshSupport(true, false, files.toArray(new File[files.size()]));
-//    }            
-    
+        
     /**
      * Asynchronously refreshes the status for the given files.
      * Status change events will be fired to notify all registered listeners.
@@ -230,7 +222,7 @@ public class FileStatusCache {
                 filesToRefresh.add(file);                
             }
         }
-        getFilesToRefreshTask().schedule(500); 
+        getFilesToRefreshTask().schedule(200); 
     }    
     
     // --- Package private contract ------------------------------------------
@@ -287,10 +279,10 @@ public class FileStatusCache {
         if(!Clearcase.getInstance().isManaged(dir)) {                        
             isRoot = true;
             // file seems to be the vob root
-            statusValues = ClearcaseUtils.readEntries(file, true);
+            statusValues = ClearcaseUtils.readEntries(client, file, true);
         } else {
             isRoot = false;
-            statusValues = ClearcaseUtils.readEntries(dir, false);
+            statusValues = ClearcaseUtils.readEntries(client, dir, false);
         }              
                 
         Map<File, FileInformation> oldDirMap = get(dir); 
@@ -509,7 +501,7 @@ public class FileStatusCache {
     public static class RefreshSupport extends ProgressSupport {
         private final boolean recursivelly;
         private final boolean fireEvents;
-        private final File[] files;
+        private File[] files;
 
         FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
 
@@ -528,11 +520,15 @@ public class FileStatusCache {
         }
 
         public RefreshSupport(RequestProcessor rp, boolean recursivelly, boolean fireEvents, File[] files) {
-            super(rp, "Refreshing status..."); 
+            super(rp, NbBundle.getMessage(FileStatusCache.class, "Progress_RefreshingStatus")); 
             this.recursivelly = recursivelly;
             this.fireEvents = fireEvents;
             this.files = files;
         }
+
+        public void setRootFiles(File[] files) {
+            this.files = files;
+        }        
         
         private File[] getRootFiles(VCSContext ctx) {
             Set<File> roots = ctx.getRootFiles();

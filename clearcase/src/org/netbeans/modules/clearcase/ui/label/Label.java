@@ -76,7 +76,7 @@ public class Label implements ActionListener, DocumentListener {
         
         labelButton = new JButton(); 
         labelButton.setEnabled(false);
-        JButton cancelButton = new JButton("Cancel");                 
+        JButton cancelButton = new JButton(NbBundle.getMessage(Label.class, "LabelAction_Cancel")); //NOI18N
                 
         panel.recurseCheckBox.setSelected(ClearcaseModuleConfig.getLabelRecurse());      
         panel.replaceCheckBox.setSelected(ClearcaseModuleConfig.getLabelReplace());      
