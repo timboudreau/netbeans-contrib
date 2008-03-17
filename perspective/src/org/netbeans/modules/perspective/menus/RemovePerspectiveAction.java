@@ -19,7 +19,8 @@ import org.openide.util.actions.CallableSystemAction;
 public final class RemovePerspectiveAction extends CallableSystemAction {
 
     public void performAction() {
-        NotifyDescriptor d = new NotifyDescriptor.Confirmation(NbBundle.getMessage(RemovePerspectiveAction.class, "Remove_Comfrom_Massage"),
+        NotifyDescriptor d = new NotifyDescriptor.Confirmation(NbBundle.getMessage(RemovePerspectiveAction.class, "Remove_Comfrom_Massage",
+                PerspectiveManagerImpl.getInstance().getSelected().getAlias()),
                 NbBundle.getMessage(ResetAction.class, "Remove_Perspective_H"),
                 NotifyDescriptor.OK_CANCEL_OPTION);
         if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
