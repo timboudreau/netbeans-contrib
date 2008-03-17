@@ -122,7 +122,22 @@ public class AddAction extends AbstractAction {
         final AddTable addTable = new AddTable(panel.jLabel2, AddTable.ADD_COLUMNS, new String [] { AddTableModel.COLUMN_NAME_NAME });
         addTable.getTableModel().addTableModelListener(new TableModelListener() {
             public void tableChanged(TableModelEvent e) {
-                addButton.setEnabled(addTable.getTableModel().getRowCount() > 0);
+                if(addTable.getTableModel().getRowCount() < 1) {                    
+                    addButton.setEnabled(false);
+                    return;
+                }
+                boolean enabled = false;
+                Map<ClearcaseFileNode, CheckinOptions> filesToAdd = addTable.getAddFiles();
+                for (CheckinOptions option : filesToAdd.values()) {
+                    if (option == CheckinOptions.ADD_BINARY || 
+                        option == CheckinOptions.ADD_TEXT || 
+                        option == CheckinOptions.ADD_DIRECTORY) 
+                    {
+                        enabled = true;
+                        break;
+                    }                
+                }
+                addButton.setEnabled(enabled);
             }
         });
         computeNodes(addTable, cancelButton, panel);        

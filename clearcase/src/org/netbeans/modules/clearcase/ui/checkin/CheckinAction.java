@@ -129,7 +129,19 @@ public class CheckinAction extends AbstractAction {
         panel.setCheckinTable(checkinTable);
         checkinTable.getTableModel().addTableModelListener(new TableModelListener() {
             public void tableChanged(TableModelEvent e) {
-                checkinButton.setEnabled(checkinTable.getTableModel().getRowCount() > 0);
+                if(checkinTable.getTableModel().getRowCount() < 1) {
+                    checkinButton.setEnabled(false);        
+                    return;
+                }                        
+                Map<ClearcaseFileNode, CheckinOptions> filesToCheckin = checkinTable.getAddFiles();
+                boolean enabled = false;
+                for (CheckinOptions option : filesToCheckin.values()) {                    
+                    if (option != CheckinOptions.EXCLUDE) {
+                        enabled = true;
+                        break;
+                    }
+                }
+                checkinButton.setEnabled(enabled);        
             }
         });
         computeNodes(checkinTable, cancelButton, panel);
