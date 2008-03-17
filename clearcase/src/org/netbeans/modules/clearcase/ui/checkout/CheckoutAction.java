@@ -54,13 +54,10 @@ import java.util.*;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
 import org.netbeans.modules.clearcase.FileInformation;
-import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.clearcase.client.*;
-import org.netbeans.modules.clearcase.client.status.FileEntry;
 
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.awt.Mnemonics;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
