@@ -41,10 +41,8 @@ package org.netbeans.modules.fortress.editing.visitors;
 import com.sun.fortress.nodes.Node;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -52,22 +50,12 @@ import java.util.Set;
  * @author Caoyuan Deng
  */
 public class Scope implements Iterable<Scope> {
-    
-    public enum Type {
-        GlobalVar,
-        LocalVar,
-        Parameter,
-        Function,
-    }
 
     private final Node node;
-    private List<Scope> scopes;
     private Scope parent;
-    // This needs to be per scope
-    private Map<Node, Type> definitionToType = new HashMap<Node, Type>();
-    private Map<Node, Node> usageToDefinition = new HashMap<Node, Node>();
-    private Map<Node, Type> readCalls = new HashMap<Node, Type>();
-    private Map<Node, Type> writtenVars = new HashMap<Node, Type>();
+    private List<Scope> scopes;
+    private List<Signature> definitions;
+    private List<Signature> usages;
 
     public Scope(Node node) {
         this.node = node;
@@ -80,9 +68,26 @@ public class Scope implements Iterable<Scope> {
     public Scope getParent() {
         return parent;
     }
-    
+
     public List<Scope> getScopes() {
+        if (scopes == null) {
+            return Collections.emptyList();
+        }
         return scopes;
+    }
+
+    public List<Signature> getDefinitions() {
+        if (definitions == null) {
+            return Collections.emptyList();
+        }
+        return definitions;
+    }
+
+    public List<Signature> getUsages() {
+        if (usages == null) {
+            return Collections.emptyList();
+        }
+        return usages;
     }
 
     void addScope(Scope scope) {
@@ -93,22 +98,21 @@ public class Scope implements Iterable<Scope> {
         scope.parent = this;
     }
 
-    public Map<Node, Type> getDefinitions() {
-        return definitionToType;
+    void addDefinition(Signature signature) {
+        if (definitions == null) {
+            definitions = new ArrayList<Signature>();
+        }
+        definitions.add(signature);
     }
-    
-    public Map<Node, Node> getUsages() {
-        return usageToDefinition;
+
+    void addUsage(Signature signature) {
+        if (usages == null) {
+            usages = new ArrayList<Signature>();
+            ;
+        }
+        usages.add(signature);
     }
-    
-    void addDefinition(Node definition, Type type) {
-        definitionToType.put(definition, type);
-    }
-    
-    void addUsage(Node usage, Node definition) {
-        usageToDefinition.put(usage, definition);
-    }
-    
+
     public Iterator<Scope> iterator() {
         if (scopes != null) {
             return scopes.iterator();
@@ -189,7 +193,7 @@ public class Scope implements Iterable<Scope> {
 
     @Override
     public String toString() {
-        return "Scope(node=" + node + ",locals=" + definitionToType + ",read=" + usageToDefinition + ",calls=" + readCalls + ", written=" + writtenVars + ")";
+        return "Scope(node=" + node + ",locals=" + getDefinitions() + ",read=" + getUsages() + ")";
     }
 }
 

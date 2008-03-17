@@ -51,7 +51,6 @@ import org.netbeans.modules.gsf.api.ParserResult;
 
 /**
  *
- * @author Tor Norbye
  * @author Caoyuan Deng
  */
 public class FortressParserResult extends ParserResult {
@@ -62,7 +61,6 @@ public class FortressParserResult extends ParserResult {
     private String source;
     private OffsetRange sanitizedRange = OffsetRange.NONE;
     private String sanitizedContents;
-//    private JsAnalyzer.AnalysisResult analysisResult;
     private FortressParser.Sanitize sanitized;
     private boolean commentsAdded;
     private Scope rootScope;
@@ -74,15 +72,6 @@ public class FortressParserResult extends ParserResult {
         this.ast = ast;
     }
 
-//    public JsParseResult(ParserFile file, AstRootElement rootElement, AstTreeNode ast, Node root,
-//        RootNode realRoot, JsParserResult jrubyResult) {
-//        super(file);
-//        this.rootElement = rootElement;
-//        this.ast = ast;
-//        this.root = root;
-//        this.realRoot = realRoot;
-//        this.jrubyResult = jrubyResult;
-//    }
     public ParserResult.AstTreeNode getAst() {
         return ast;
     }
@@ -91,8 +80,8 @@ public class FortressParserResult extends ParserResult {
         this.ast = ast;
     }
 
-    /** The root node of the AST produced by the parser.
-     * Later, rip out the getAst part etc.
+    /** 
+     * The root node of the AST produced by the parser.
      */
     public Node getRootNode() {
         return rootNode;
@@ -133,17 +122,6 @@ public class FortressParserResult extends ParserResult {
         return sanitized;
     }
 
-//    public void setStructure(@NonNull JsAnalyzer.AnalysisResult result) {
-//        this.analysisResult = result;
-//    }
-
-//    @NonNull
-//    public JsAnalyzer.AnalysisResult getStructure() {
-//        if (analysisResult == null) {
-//            analysisResult = JsAnalyzer.analyze(this, getInfo());
-//        }
-//        return analysisResult;
-//    }
     public boolean isCommentsAdded() {
         return commentsAdded;
     }

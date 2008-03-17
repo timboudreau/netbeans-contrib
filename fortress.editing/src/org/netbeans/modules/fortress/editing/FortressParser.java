@@ -360,11 +360,7 @@ public class FortressParser implements Parser {
         final boolean ignoreErrors = sanitizedSource;
 
         Reader in = new StringReader(source);
-        String fileName = "<current>";
-        if (context.file != null) {
-            fileName = context.file.getNameExt();
-        }
-        //Fortress parser = new Fortress(in, fileName);
+        String fileName = context.file != null ? context.file.getNameExt() : "<current>";
         Fortress parser = new Fortress(in, fileName);
         context.parser = parser;
 
@@ -372,10 +368,9 @@ public class FortressParser implements Parser {
             context.errorOffset = -1;
         }
 
-        int yyStart = 0;
         Node node = null;
         try {
-            Result r = parser.pFile(yyStart);
+            Result r = parser.pFile(0);
             if (r.hasValue()) {
                 SemanticValue v = (SemanticValue) r;
                 node = (Node) v.value;
@@ -398,7 +393,7 @@ public class FortressParser implements Parser {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (IllegalArgumentException e) {
-            // An interl exception throw by Fortress, just catch it and notify
+            // An internal exception thrown by Fortress, just catch it and notify
             notifyError(context, "SYNTAX_ERROR", e.getMessage(),
                     0, 0, sanitizing, Severity.ERROR, new Object[]{e                    });
         }

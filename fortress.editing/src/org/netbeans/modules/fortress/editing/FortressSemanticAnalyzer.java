@@ -41,9 +41,8 @@ package org.netbeans.modules.fortress.editing;
 import com.sun.fortress.nodes.Node;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import org.netbeans.modules.fortress.editing.FortressParserResult;
 import org.netbeans.modules.fortress.editing.visitors.Scope;
+import org.netbeans.modules.fortress.editing.visitors.Signature;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OffsetRange;
@@ -97,19 +96,7 @@ public class FortressSemanticAnalyzer implements SemanticAnalyzer {
 
         Map<OffsetRange, ColoringAttributes> highlights = new HashMap<OffsetRange, ColoringAttributes>(100);
         Scope rootScope = result.getRootScope();
-        Map<Node, Scope.Type> definitions = rootScope.getDefinitions();
-        for (Entry<Node, Scope.Type> definition : definitions.entrySet()) {
-            OffsetRange range = AstUtilities.getRange(info, definition.getKey());
-            switch (definition.getValue()) {
-                case Function:
-                    highlights.put(range, ColoringAttributes.METHOD);
-                    break;
-                default:
-                    highlights.put(range, ColoringAttributes.UNDEFINED);
-            }
-
-        }
-
+        visitScopeRecursively(info, rootScope, highlights);
 
         if (highlights.size() > 0) {
 //            if (result.getTranslatedSource() != null) {
@@ -127,6 +114,27 @@ public class FortressSemanticAnalyzer implements SemanticAnalyzer {
             this.semanticHighlights = highlights;
         } else {
             this.semanticHighlights = null;
+        }
+    }
+
+    private void visitScopeRecursively(CompilationInfo info, Scope scope, Map<OffsetRange, ColoringAttributes> highlights) {
+        for (Signature definition : scope.getDefinitions()) {
+            OffsetRange range = AstUtilities.getRange(info, definition.nameNode);
+            switch (definition.type) {
+                case Object:
+                    highlights.put(range, ColoringAttributes.CLASS);
+                    break;
+                case Function:
+                    highlights.put(range, ColoringAttributes.METHOD);
+                    break;
+                default:
+                    highlights.put(range, ColoringAttributes.UNDEFINED);
+            }
+
+        }
+
+        for (Scope child : scope.getScopes()) {
+            visitScopeRecursively(info, child, highlights);
         }
     }
 }

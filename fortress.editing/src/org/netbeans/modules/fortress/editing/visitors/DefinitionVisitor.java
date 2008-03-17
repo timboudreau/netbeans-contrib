@@ -38,41 +38,71 @@
  */
 package org.netbeans.modules.fortress.editing.visitors;
 
+import com.sun.fortress.nodes.APIName;
+import com.sun.fortress.nodes.Component;
 import com.sun.fortress.nodes.FnDef;
+import com.sun.fortress.nodes.Id;
 import com.sun.fortress.nodes.Node;
-import com.sun.fortress.nodes.NodeDepthFirstVisitor;
+import com.sun.fortress.nodes.NodeDepthFirstVisitor_void;
+import com.sun.fortress.nodes.ObjectDecl;
 import com.sun.fortress.nodes.SimpleName;
-import com.sun.fortress.nodes.StringLiteralExpr;
-import java.util.Collections;
-import java.util.List;
 import java.util.Stack;
-import xtc.parser.Sequence;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class DefinitionVisitor extends NodeDepthFirstVisitor<List<Sequence>> {    
-    
+public class DefinitionVisitor extends NodeDepthFirstVisitor_void {
+
     private Scope rootScope;
-    private Stack<Scope> currScope = new Stack<Scope>();
+    private Stack<Scope> scopeStack = new Stack<Scope>();
 
     public DefinitionVisitor(Scope rootCtx) {
         this.rootScope = rootCtx;
+        scopeStack.push(rootCtx);
     }
-    
+
     @Override
-    public List<Sequence> defaultCase(Node that) {
-        System.out.println("Default: " + that.stringName());
-        return Collections.emptyList();
+    public void defaultCase(Node that) {
+        //System.out.println("Default: " + that.stringName());
     }
-    
+
     @Override
-    public List<Sequence> forFnDef(FnDef that) {
+    public void forComponent(Component that) {
+        Scope scope = new Scope(that);
+        APIName name = that.getName();
+        Signature signature = new Signature(name, Signature.Type.Object);
+
+        scopeStack.peek().addDefinition(signature);
+        scopeStack.peek().addScope(scope);
+        scopeStack.push(scope);
+        super.forComponent(that);
+        scopeStack.pop();
+    }
+
+    @Override
+    public void forObjectDecl(ObjectDecl that) {
+        Scope scope = new Scope(that);
+        Id name = that.getName();
+        Signature signature = new Signature(name, Signature.Type.Object);
+
+        scopeStack.peek().addDefinition(signature);
+        scopeStack.peek().addScope(scope);
+        scopeStack.push(scope);
+        super.forObjectDecl(that);
+        scopeStack.pop();
+    }
+
+    @Override
+    public void forFnDef(FnDef that) {
+        Scope scope = new Scope(that);
         SimpleName name = that.getName();
-        rootScope.addDefinition(name, Scope.Type.Function);
-        
-        return super.forFnDef(that);        
+        Signature signature = new Signature(name, Signature.Type.Function);
+
+        scopeStack.peek().addDefinition(signature);
+        scopeStack.peek().addScope(scope);
+        scopeStack.push(scope);
+        super.forFnDef(that);
+        scopeStack.pop();
     }
-    
 }
