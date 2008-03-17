@@ -47,6 +47,7 @@ package org.netbeans.modules.perspective.utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.swing.SwingUtilities;
 import org.netbeans.modules.perspective.Perspective;
 import org.netbeans.modules.perspective.PerspectiveManager;
 import org.netbeans.modules.perspective.ui.ToolbarStyleSwitchUI;
@@ -125,10 +126,15 @@ public class PerspectiveManagerImpl extends PerspectiveManager {
         setSelected((PerspectiveImpl) perspective, true);
     }
 
-    public void setSelected(PerspectiveImpl perspective, boolean switchPerspective) {
+    public void setSelected(final PerspectiveImpl perspective, boolean switchPerspective) {
         selected = perspective;
         if (switchPerspective &&perspective!=null) {
-            ModeController.getInstance().switchView(perspective);
+            SwingUtilities.invokeLater(new Runnable() {
+
+                public void run() {
+                   ModeController.getInstance().switchView(perspective);
+                }
+            });
         }
         ToolbarStyleSwitchUI.getInstance().setSelected(selected);
     }

@@ -219,31 +219,25 @@ public class AstUtilities {
                 columnNumber = 1;
             }
             
-            int start = getOffset(doc, lineNumber, columnNumber)
-                        + "class".length();
-            
-            try {
-                while (true) {
-                    char a[] = doc.getChars(start, 1);
-                    if (!(a[0] == ' ')) {
-                        break;
-                    }
-                    start++;
+            // happens in some cases when groovy source uses some non-imported java class
+            if (doc != null) {
+                int start = getOffset(doc, lineNumber, columnNumber) + "class".length(); // NOI18N
+                try {
+                    start = Utilities.getFirstNonWhiteFwd(doc, start);
+                } catch (BadLocationException ex) {
+                    Exceptions.printStackTrace(ex);
                 }
-            } catch (BadLocationException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-            
 
-            ClassNode classNode = (ClassNode) node;
-            return new OffsetRange(start, start + classNode.getName().length());
+                ClassNode classNode = (ClassNode) node;
+                return new OffsetRange(start, start + classNode.getNameWithoutPackage().length());
+            }
         } else if (node instanceof ConstructorNode) {
             int start = getOffset(doc, node.getLineNumber(), node.getColumnNumber());
             if (start < 0) {
                 start = 0;
             }
             ConstructorNode constructorNode = (ConstructorNode) node;
-            return new OffsetRange(start, start + constructorNode.getDeclaringClass().getName().length());
+            return new OffsetRange(start, start + constructorNode.getDeclaringClass().getNameWithoutPackage().length());
         } else if (node instanceof MethodNode) {
             int start = getOffset(doc, node.getLineNumber(), node.getColumnNumber());
             if (start < 0) {
@@ -255,6 +249,18 @@ public class AstUtilities {
             int start = getOffset(doc, node.getLineNumber(), node.getColumnNumber());
             if (start < 0) {
                 start = 0;
+            }
+            // In case of variable in GString: "Hello, ${name}", node coordinates 
+            // are suggesting '{' (it means begin and end colum info is wrong).
+            // Pick up what we really want from this.
+            try {
+                if (node.getLineNumber() == node.getLastLineNumber() &&
+                        (node.getLastColumnNumber() - node.getColumnNumber() == 1) &&
+                        "{".equals(doc.getText(start, 1))) {
+                    start++;
+                }
+            } catch (BadLocationException ex) {
+                Exceptions.printStackTrace(ex);
             }
             VariableExpression variableExpression = (VariableExpression) node;
             return new OffsetRange(start, start + variableExpression.getName().length());
