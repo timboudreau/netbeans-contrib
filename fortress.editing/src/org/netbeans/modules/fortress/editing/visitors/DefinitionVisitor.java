@@ -47,6 +47,7 @@ import com.sun.fortress.nodes.NodeDepthFirstVisitor_void;
 import com.sun.fortress.nodes.ObjectDecl;
 import com.sun.fortress.nodes.SimpleName;
 import java.util.Stack;
+import org.netbeans.modules.gsf.api.ElementKind;
 
 /**
  *
@@ -71,7 +72,7 @@ public class DefinitionVisitor extends NodeDepthFirstVisitor_void {
     public void forComponent(Component that) {
         Scope scope = new Scope(that);
         APIName name = that.getName();
-        Signature signature = new Signature(name, Signature.Type.Object);
+        Element signature = new Element(that, name, scope, ElementKind.MODULE);
 
         scopeStack.peek().addDefinition(signature);
         scopeStack.peek().addScope(scope);
@@ -84,7 +85,7 @@ public class DefinitionVisitor extends NodeDepthFirstVisitor_void {
     public void forObjectDecl(ObjectDecl that) {
         Scope scope = new Scope(that);
         Id name = that.getName();
-        Signature signature = new Signature(name, Signature.Type.Object);
+        Element signature = new Element(that, name, scope, ElementKind.CLASS);
 
         scopeStack.peek().addDefinition(signature);
         scopeStack.peek().addScope(scope);
@@ -97,7 +98,7 @@ public class DefinitionVisitor extends NodeDepthFirstVisitor_void {
     public void forFnDef(FnDef that) {
         Scope scope = new Scope(that);
         SimpleName name = that.getName();
-        Signature signature = new Signature(name, Signature.Type.Function);
+        Element signature = new Element(that, name, scope, ElementKind.METHOD);
 
         scopeStack.peek().addDefinition(signature);
         scopeStack.peek().addScope(scope);
