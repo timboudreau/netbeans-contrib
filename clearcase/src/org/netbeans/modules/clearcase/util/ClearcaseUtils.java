@@ -67,6 +67,24 @@ public class ClearcaseUtils {
     }
 
     /**
+     * Computes previous revision number to the given one.
+     * 
+     * @param rev a revision number, eg. "/main/3"
+     * @return String predecesor revision number, eg. "/main/2"
+     */
+    public static String previousRevision(String rev) {
+        int idx = rev.lastIndexOf(File.separator);
+        if (idx == -1) return null;
+        int revno = 0;
+        try {
+            revno = Integer.parseInt(rev.substring(idx + 1));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        return rev.substring(0, idx + 1) + (revno - 1);
+    }
+    
+    /**
      * Determines whether the supplied context contains something managed by Clearcase.s
      * 
      * @param context context to examine
