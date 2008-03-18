@@ -49,6 +49,7 @@ import org.netbeans.modules.versioning.annotate.VcsAnnotations;
 import org.netbeans.modules.versioning.annotate.VcsAnnotation;
 import org.openide.windows.InputOutput;
 import org.openide.windows.IOProvider;
+import org.openide.windows.TopComponent;
 
 import java.io.*;
 import java.util.*;
@@ -62,12 +63,16 @@ import java.text.ParseException;
 
 import org.netbeans.modules.clearcase.client.ClearcaseCommand;
 import org.netbeans.modules.clearcase.client.AnnotateCommand;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.openide.util.Utilities;
 
 import javax.swing.*;
 import org.netbeans.modules.versioning.spi.VersioningSupport;
+import org.netbeans.api.diff.Diff;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
+import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.FileObject;
 
 /**
  * Main entry point for Clearcase functionality, use getInstance() to get the Clearcase object.
@@ -416,13 +421,38 @@ public class Clearcase {
             private class DiffForAnnotationAction extends AbstractAction {
                 
                 private final VcsAnnotation annotation;
+                private final String        prevRevision;
 
                 public DiffForAnnotationAction(VcsAnnotation annotation) {
-                    super(NbBundle.getMessage(Clearcase.class, "Annotations_DiffTo", annotation.getRevision()));
+                    prevRevision = ClearcaseUtils.previousRevision(annotation.getRevision());
+                    putValue(Action.NAME, NbBundle.getMessage(Clearcase.class, "Annotations_DiffTo", prevRevision, annotation.getRevision())); //NOI18N
                     this.annotation = annotation;
                 }
 
                 public void actionPerformed(ActionEvent e) {
+                    try {
+                        diffToPrevious(annotation);
+                    } catch (IOException e1) {
+                        Utils.logError(this, e1);
+                    }
+                }
+
+                private void diffToPrevious(VcsAnnotation annotation) throws IOException {
+                    String selectedRevision = annotation.getRevision();
+                    File baseFile = FileUtil.normalizeFile(context.getRootFiles().iterator().next());
+            
+                    File left = VersionsCache.getInstance().getFileRevision(baseFile, prevRevision);
+                    File right = VersionsCache.getInstance().getFileRevision(baseFile, selectedRevision);
+            
+                    FileObject fo = FileUtil.toFileObject(baseFile);
+                    String mimeType = (fo == null) ? "text/plain" : fo.getMIMEType(); // NOI18N        
+        
+                    Reader r1 = new FileReader(left);
+                    Reader r2 = new FileReader(right);
+                    
+                    TopComponent c = (TopComponent) Diff.getDefault().createDiff(prevRevision, prevRevision, r1, selectedRevision, selectedRevision, r2, mimeType);
+                    c.open();
+                    c.requestActive();
                 }
             }
         }

@@ -100,12 +100,12 @@
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.GsfLanguage"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.fortress.editing.FortressLanguage"/>
                 </file>
-                <!--
                 <file name="bracket.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.BracketCompletion"/>
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.fortress.editing.JsBracketCompleter"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.fortress.editing.FortressBracketCompleter"/>
                 </file>
                 
+                <!--
                 <file name="formatter.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Formatter"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.fortress.editing.JsFormatter"/>

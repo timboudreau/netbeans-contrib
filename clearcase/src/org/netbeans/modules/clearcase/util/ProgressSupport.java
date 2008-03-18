@@ -41,6 +41,8 @@ package org.netbeans.modules.clearcase.util;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DateFormat;
+import java.util.Date;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import org.netbeans.api.progress.ProgressHandle;
@@ -115,9 +117,11 @@ public abstract class ProgressSupport implements Runnable, Cancellable {
         
     private void startProgress() {  
         getProgressHandle().start();
-        Clearcase.LOG.fine("Progress started: " + displayName);   
+        String msg = "==[IDE]== " + DateFormat.getDateTimeInstance().format(new Date()) + " " + displayName + "\n\n";       // NOI18N        
+        logOutput(msg);   
+        Clearcase.LOG.fine(msg);   
     }         
-    
+            
     private ProgressHandle getProgressHandle() {
         if(progressHandle == null) {
             progressHandle = ProgressHandleFactory.createHandle(displayName, this);
@@ -140,10 +144,14 @@ public abstract class ProgressSupport implements Runnable, Cancellable {
     protected void finnishProgress() {
         getProgressHandle().finish();
         progressHandle = null;
-        if(isCanceled()) {
-            Clearcase.LOG.fine("Progress canceled: " + displayName);
+        if(isCanceled()) {            
+            String msg = "==[IDE]== " + DateFormat.getDateTimeInstance().format(new Date()) + " " + displayName + " " + org.openide.util.NbBundle.getMessage(ProgressSupport.class, "MSG_Progress_Canceled") + "\n\n";
+            logOutput(msg); 
+            Clearcase.LOG.fine(msg);
         } else {
-            Clearcase.LOG.fine("Progress finnished: " + displayName);   
+            String msg = "==[IDE]== " + DateFormat.getDateTimeInstance().format(new Date()) + " " + displayName + " " + org.openide.util.NbBundle.getMessage(ProgressSupport.class, "MSG_Progress_Finished") + "\n\n";
+            logOutput(msg); // NOI18N
+            Clearcase.LOG.fine(msg);   
         }            
     }        
     
@@ -154,4 +162,9 @@ public abstract class ProgressSupport implements Runnable, Cancellable {
         }
         return task != null ?  task.cancel() : true;
     }
+    
+    private void logOutput(String output) {
+        Clearcase.getInstance().printlnOut(output);
+        Clearcase.getInstance().flushLog();    
+    }    
 }

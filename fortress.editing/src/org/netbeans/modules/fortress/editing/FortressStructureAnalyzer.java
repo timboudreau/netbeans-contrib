@@ -39,9 +39,12 @@
 package org.netbeans.modules.fortress.editing;
 
 import com.sun.fortress.nodes.FnDef;
+import com.sun.fortress.nodes.IdType;
 import com.sun.fortress.nodes.Node;
 import com.sun.fortress.nodes.Param;
+import com.sun.fortress.nodes.TupleType;
 import com.sun.fortress.nodes.Type;
+import com.sun.fortress.nodes.VoidType;
 import edu.rice.cs.plt.tuple.Option;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -201,12 +204,12 @@ public class FortressStructureAnalyzer implements StructureScanner {
                 if ((params != null) && (params.size() > 0)) {
                     formatter.parameters(true);
 
-                    for (Iterator<Param> it = params.iterator(); it.hasNext();) {
-                        String nameStr = it.next().getName().stringName();
+                    for (Iterator<Param> itr = params.iterator(); itr.hasNext();) {
+                        String nameStr = itr.next().getName().stringName();
                         // TODO - if I know types, list the type here instead. For now, just use the parameter name instead
                         formatter.appendText(nameStr);
 
-                        if (it.hasNext()) {
+                        if (itr.hasNext()) {
                             formatter.appendHtml(", ");
                         }
                     }
@@ -221,12 +224,38 @@ public class FortressStructureAnalyzer implements StructureScanner {
                     formatter.appendText("()");
                 } else if (retType.isSome()) {
                     formatter.appendHtml(" : ");
-                    formatter.appendText(Option.unwrap(retType).stringName());
+                    Type type = Option.unwrap(retType);
+                    formatter.appendText(getTypeHtml(type));
                 }
 
             }
 
             return formatter.getText();
+        }
+
+        private String getTypeHtml(Type type) {
+            StringBuilder name = new StringBuilder();
+            
+            if (type instanceof IdType) {
+                name.append(((IdType) type).getName().getName().getText());
+            } else if (type instanceof TupleType) {
+                name.append("(");
+                List<Type> elements = ((TupleType) type).getElements();
+                for (Iterator<Type> itr = elements.iterator(); itr.hasNext();) {
+                    name.append(getTypeHtml(itr.next()));
+                    
+                    if (itr.hasNext()) {
+                        name.append(", ");
+                    }
+                }
+                name.append(")");
+            } else if (type instanceof VoidType){
+                name.append("()");
+            } else {
+                name.append(type.stringName());
+            }
+            
+            return name.toString();
         }
 
         public ElementHandle getElementHandle() {
