@@ -71,15 +71,15 @@ public class HighlightsLayerFactoryImpl implements HighlightsLayerFactory {
     }
     
     private static Object createImpl(FileObject f) {
-        if ("org-netbeans-modules-java-debug-TreeNavigatorProviderImpl".equals(f.getName())) {
+        if ("TreeNavigatorProviderImpl".equals(f.getName())) {
             return new TreeNavigatorProviderImpl();
         }
         
-        if ("org-netbeans-modules-java-debug-ElementNavigatorProviderImpl".equals(f.getName())) {
+        if ("ElementNavigatorProviderImpl".equals(f.getName())) {
             return new ElementNavigatorProviderImpl();
         }
         
-        if ("org-netbeans-modules-java-debug-ErrorNavigatorProviderImpl".equals(f.getName())) {
+        if ("ErrorNavigatorProviderImpl".equals(f.getName())) {
             return new ErrorNavigatorProviderImpl();
         }
         

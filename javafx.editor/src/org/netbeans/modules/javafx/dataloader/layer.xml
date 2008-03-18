@@ -165,12 +165,10 @@ made subject to such option by the copyright holder.
                         <attr name="instanceCreate" methodvalue="org.netbeans.modules.java.project.JavaProjectModule.compile"/>
                         <attr name="position" intvalue="620"/>
                     </file>
-<!--                    
                     <file name="RunFile.instance">
                         <attr name="instanceCreate" methodvalue="org.netbeans.modules.java.project.JavaProjectModule.run"/>
                           <attr name="position" intvalue="640"/>
                     </file>
--->                    
                     <file name="Separator3.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="700"/>
