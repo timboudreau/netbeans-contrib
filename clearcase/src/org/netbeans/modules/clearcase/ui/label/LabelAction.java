@@ -53,6 +53,7 @@ import org.netbeans.modules.clearcase.client.AfterCommandRefreshListener;
 import org.netbeans.modules.clearcase.client.ExecutionUnit;
 import org.netbeans.modules.clearcase.client.LabelCommand;
 import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
+import org.openide.util.NbBundle;
 
 /**
  * Label action.
@@ -108,7 +109,7 @@ public class LabelAction extends AbstractAction {
                     label.getVersion(), 
                     new OutputWindowNotificationListener(), 
                     new AfterCommandRefreshListener(files));
-        Clearcase.getInstance().getClient().post("Setting Label...",cmd);
+        Clearcase.getInstance().getClient().post(NbBundle.getMessage(LabelAction.class, "Progress_Setting_Label"),cmd); //NOI18N
     }
 
 }

@@ -1,0 +1,94 @@
+/*******************************************************************************
+    Copyright 2008 Sun Microsystems, Inc.,
+    4150 Network Circle, Santa Clara, California 95054, U.S.A.
+    All rights reserved.
+
+    U.S. Government Rights - Commercial software.
+    Government users are subject to the Sun Microsystems, Inc. standard
+    license agreement and applicable provisions of the FAR and its supplements.
+
+    Use is subject to license terms.
+
+    This distribution may include materials developed by third parties.
+
+    Sun, Sun Microsystems, the Sun logo and Java are trademarks or registered
+    trademarks of Sun Microsystems, Inc. in the U.S. and other countries.
+ ******************************************************************************/
+
+/*
+ * Definition of Fortress spacing including comments.
+ *
+ * Whitespace Convention in grammar productions:
+ * Every production which can be empty "owns" its leading whitespace.
+ * Exception: Modifiers own their trailing whitespace.
+ */
+module com.sun.fortress.parser.Spacing(Symbol);
+
+import Symbol;
+
+transient void EndOfFile  = !_ ;
+private String Whitespace =
+     Space
+   / "\t"              // Error production
+     { yyValue = error(new VoidLiteralExpr(createSpan(yyStart,yyCount)),
+                       "Tabulation is not allowed in Fortress programs except in comments.");
+     }
+   / Newline ;
+private String Space      =
+     " "
+   / "\f"
+   / "\t"              // Error production
+     { yyValue = error(new VoidLiteralExpr(createSpan(yyStart,yyCount)),
+                       "Tabulation is not allowed in Fortress programs except in comments.");
+     }
+   / NoNewlineComment ;
+private String Newline    = "\r\n" / "\r" / "\n" / NewlineComment ;
+private String Comment    =
+     a1:"(*" a2:CommentContents a3:"*)" { yyValue = a1 + a2 + a3; };
+
+private String CommentContents =
+     a1s:CommentContent*
+     { yyValue = "";
+       for (Object s : a1s.list()) {
+         yyValue += s;
+       }
+     } ;
+private String CommentContent =
+     Comment
+   / c:'*' !')'      { yyValue = ""+c; }
+   / c:_ &{c != '*'} { yyValue = ""+c; }
+   ;
+private String NewlineComment = Comment;
+private String NoNewlineComment =
+     Comment &{ !(yyValue.contains("\r\n") || yyValue.contains("\r")
+               || yyValue.contains("\n")) };
+
+private String wValue =
+   a1s:Whitespace*
+   { yyValue = "";
+     for (String s : (List<String>)a1s.list()) {
+       yyValue += s;
+     }
+   };
+private String wrValue =
+   a1s:Whitespace+
+   { yyValue = "";
+     for (String s : (List<String>)a1s.list()) {
+       yyValue += s;
+     }
+   };
+
+transient void w  = void:Whitespace*; // whitespace optional
+transient void wr = void:Whitespace+; // whitespace required
+
+transient void s  = void:Space*;      // space optional
+transient void sr = void:Space+;      // space required
+
+transient void nl = s void:Newline w ; // required newline in whitespace
+transient void br = nl / s ";" w;      // line break
+
+/* RectSeparator ::= (w ;)+ w / sr / nl */
+Integer RectSeparator =
+     a1s:(w semicolon)+ w { yyValue = a1s.size() + 1; }
+   / sr                   { yyValue = 1; }
+   / nl                   { yyValue = 2; };
