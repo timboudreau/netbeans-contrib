@@ -461,15 +461,16 @@ public class FortressLexUtilities {
 
         while (ts.movePrevious()) {
             Token<?extends FortressTokenId> token = ts.token();
+            String text = token.text().toString();
 
-            if (isBeginToken(token, doc, ts.offset())) {
+            if (isBeginToken(text, doc, ts.offset())) {
                 // No matching dot for "do" used in conditionals etc.)) {
                 if (balance == 0) {
                     return new OffsetRange(ts.offset(), ts.offset() + token.length());
                 }
 
                 balance--;
-            } else if (token.text().toString().equals("end")) {
+            } else if (text.equals("end")) {
                 balance++;
             }
         }
@@ -482,10 +483,11 @@ public class FortressLexUtilities {
 
         while (ts.moveNext()) {
             Token<?extends FortressTokenId> token = ts.token();
+            String text = token.text().toString();
 
-            if (isBeginToken(token, doc, ts.offset())) {
+            if (isBeginToken(text, doc, ts.offset())) {
                 balance--;
-            } else if (token.text().toString().equals("end")) {
+            } else if (text.equals("end")) {
                 if (balance == 0) {
                     return new OffsetRange(ts.offset(), ts.offset() + token.length());
                 }
@@ -537,12 +539,11 @@ public class FortressLexUtilities {
      * with a corresponding "end" token, such as "begin", "def", "module",
      * etc.
      */
-    public static boolean isBeginToken(Token token, BaseDocument doc, int offset) {
-        String text = token.text().toString();
-        if (text.equals("do")) {
+    public static boolean isBeginToken(String tokenText, BaseDocument doc, int offset) {
+        if (tokenText.equals("do")) {
             return isEndmatchingDo(doc, offset);
         }
-        return END_PAIRS.contains(text);
+        return END_PAIRS.contains(tokenText);
     }
 
     /**
@@ -550,12 +551,11 @@ public class FortressLexUtilities {
      * with a corresponding "end" token, such as "begin", "def", "module",
      * etc.
      */
-    public static boolean isEndToken(Token token, BaseDocument doc, int offset) {
-        String text = token.text().toString();
-        if (text.equals("do")) {
+    public static boolean isEndToken(String tokenText, BaseDocument doc, int offset) {
+        if (tokenText.equals("do")) {
             return isEndmatchingDo(doc, offset);
         }
-        return END_PAIRS.contains(text);
+        return END_PAIRS.contains(tokenText);
     }
         
 
@@ -649,10 +649,11 @@ public class FortressLexUtilities {
 
             do {
                 Token<? extends FortressTokenId> token = ts.token();
+                String text = token.text().toString();
                 
-                if (isBeginToken(token, doc, ts.offset())) {
+                if (isBeginToken(text, doc, ts.offset())) {
                     balance++;
-                } else if (isEndToken(token, doc, ts.offset())) {
+                } else if (isEndToken(text, doc, ts.offset())) {
                     balance--;
                 }
             } while (ts.moveNext() && (ts.offset() <= end));
