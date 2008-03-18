@@ -51,6 +51,7 @@ import java.awt.Dialog;
 import java.io.File;
 import java.util.*;
 
+import java.util.ArrayList;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
 import org.netbeans.modules.clearcase.FileInformation;
@@ -151,13 +152,27 @@ public class CheckoutAction extends AbstractAction {
         
         Object value = dd.getValue();
         if (value != unCheckoutButton) return;
+
+        // the direct children for every root have to be refeshed as
+        // the unceheckout might have changed the files structure -
+        // - newly added file won't be referenced etc.      
+        List<File> filesToRefresh = new ArrayList<File>();
+        for (File file : files) {
+            filesToRefresh.add(file);
+            File[] children = file.listFiles();
+            if(children != null) {
+                for (File child : children) {
+                    filesToRefresh.add(child);
+                }
+            }    
+        }
         
         boolean keepFiles = panel.cbKeep.isSelected();
         UnCheckoutCommand cmd = 
                 new UnCheckoutCommand(
                     files, 
                     keepFiles, 
-                    new AfterCommandRefreshListener(files), 
+                    new AfterCommandRefreshListener(filesToRefresh.toArray(new File[filesToRefresh.size()])), 
                     new OutputWindowNotificationListener());
         Clearcase.getInstance().getClient().post(NbBundle.getMessage(CheckoutAction.class, "Progress_Undoing_Checkout"), cmd); //NOI18N
     }

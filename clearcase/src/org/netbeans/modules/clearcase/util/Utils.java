@@ -98,7 +98,7 @@ public class Utils {
                 Set<File> refreshSet = new HashSet<File>();
                 for (File file : files) {
                     if(includeChildren) {
-                        refreshSet.addAll(getFileTree(file));    
+                        refreshSet.addAll(getFilesTree(file));    
                     } else {
                         refreshSet.add(file);
                     }
@@ -109,14 +109,14 @@ public class Utils {
         });                
     }
 
-    private static List<File> getFileTree(File file) {
+    public static List<File> getFilesTree(File file) {
         List<File> ret = new  ArrayList<File>();
         ret.add(file);
         if(file.isDirectory()) {
             File[] files = file.listFiles();
             if(files != null) {
                 for (File f : files) {
-                    ret.addAll(getFileTree(f));
+                    ret.addAll(getFilesTree(f));
                 }
             }
         }

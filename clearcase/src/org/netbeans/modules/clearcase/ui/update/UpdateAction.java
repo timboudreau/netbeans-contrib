@@ -51,6 +51,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.*;
+import org.netbeans.modules.clearcase.util.Utils;
 import org.openide.util.NbBundle;
 
 /**
@@ -87,12 +88,19 @@ public class UpdateAction extends AbstractAction {
     }    
     
     public void actionPerformed(ActionEvent e) {
-        Set<File> files = context.computeFiles(updateFileFilter);
-        File[] fileArray = files.toArray(new File[files.size()]);
+        Set<File> files = context.computeFiles(updateFileFilter);        
+
+        // the whole tree for every root has to be refeshed as
+        // the update might have changed the files structure
+        List<File> filesToRefresh = new ArrayList<File>();
+        for (File file : files) {
+            filesToRefresh.addAll(Utils.getFilesTree(file));            
+        }
+        
         UpdateCommand cmd = 
                 new UpdateCommand(
-                    fileArray, 
-                    new AfterCommandRefreshListener(fileArray), 
+                    files.toArray(new File[files.size()]), 
+                    new AfterCommandRefreshListener(filesToRefresh.toArray(new File[filesToRefresh.size()])), 
                     new OutputWindowNotificationListener());
         Clearcase.getInstance().getClient().post(NbBundle.getMessage(UpdateAction.class, "Progress_Updating"),cmd); //NOI18N
     }
