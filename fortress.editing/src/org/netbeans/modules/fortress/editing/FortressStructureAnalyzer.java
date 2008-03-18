@@ -41,9 +41,11 @@ package org.netbeans.modules.fortress.editing;
 import com.sun.fortress.nodes.FnDef;
 import com.sun.fortress.nodes.IdType;
 import com.sun.fortress.nodes.Node;
+import com.sun.fortress.nodes.NormalParam;
 import com.sun.fortress.nodes.Param;
 import com.sun.fortress.nodes.TupleType;
 import com.sun.fortress.nodes.Type;
+import com.sun.fortress.nodes.VarargsParam;
 import com.sun.fortress.nodes.VoidType;
 import edu.rice.cs.plt.tuple.Option;
 import java.util.ArrayList;
@@ -205,10 +207,28 @@ public class FortressStructureAnalyzer implements StructureScanner {
                     formatter.parameters(true);
 
                     for (Iterator<Param> itr = params.iterator(); itr.hasNext();) {
-                        String nameStr = itr.next().getName().stringName();
-                        // TODO - if I know types, list the type here instead. For now, just use the parameter name instead
+                        Param param = itr.next();
+                        String nameStr = param.getName().stringName();
                         formatter.appendText(nameStr);
-
+                        
+                        String typeStr = null;
+                        if (param instanceof NormalParam) {
+                            Option<Type> typeOption = ((NormalParam) param).getType();
+                            if (typeOption.isNone()) {
+                                typeStr = "nat";
+                            } else {
+                                Type type = Option.unwrap(typeOption);
+                                typeStr = getTypeHtml(type);
+                            }
+                        } else if (param instanceof VarargsParam) {
+                            Type type = ((VarargsParam) param).getVarargsType().getType();
+                            typeStr = getTypeHtml(type) + "...";
+                        }           
+                        if (typeStr != null) {
+                            formatter.appendHtml(":");
+                            formatter.appendText(typeStr);
+                        }
+                        
                         if (itr.hasNext()) {
                             formatter.appendHtml(", ");
                         }
@@ -221,7 +241,7 @@ public class FortressStructureAnalyzer implements StructureScanner {
                 Option<Type> retType = fnDef.getReturnType();
                 if (retType.isNone()) {
                     formatter.appendHtml(" : ");
-                    formatter.appendText("()");
+                    formatter.appendText("nat");
                 } else if (retType.isSome()) {
                     formatter.appendHtml(" : ");
                     Type type = Option.unwrap(retType);
@@ -235,7 +255,7 @@ public class FortressStructureAnalyzer implements StructureScanner {
 
         private String getTypeHtml(Type type) {
             StringBuilder name = new StringBuilder();
-            
+
             if (type instanceof IdType) {
                 name.append(((IdType) type).getName().getName().getText());
             } else if (type instanceof TupleType) {
@@ -243,18 +263,18 @@ public class FortressStructureAnalyzer implements StructureScanner {
                 List<Type> elements = ((TupleType) type).getElements();
                 for (Iterator<Type> itr = elements.iterator(); itr.hasNext();) {
                     name.append(getTypeHtml(itr.next()));
-                    
+
                     if (itr.hasNext()) {
                         name.append(", ");
                     }
                 }
                 name.append(")");
-            } else if (type instanceof VoidType){
+            } else if (type instanceof VoidType) {
                 name.append("()");
             } else {
                 name.append(type.stringName());
             }
-            
+
             return name.toString();
         }
 

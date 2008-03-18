@@ -127,7 +127,6 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
     /** Tokens which indicate that we're within a regexp string */
     // XXX What about FortressTokenId.REGEXP_BEGIN?
     private static final TokenId[] REGEXP_TOKENS = {FortressTokenId.REGEXP_LITERAL, FortressTokenId.REGEXP_END    };
-
     /** When != -1, this indicates that we previously adjusted the indentation of the
      * line to the given offset, and if it turns out that the user changes that token,
      * we revert to the original indentation
@@ -445,9 +444,10 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
                             int lineBegin = Utilities.getRowFirstNonWhite(doc, next);
 
                             Token<? extends FortressTokenId> token = FortressLexUtilities.getToken(doc, lineBegin);
+                            String text = token.text().toString();
 
                             if ((token != null) && FortressLexUtilities.isIndentToken(token) &&
-                                    !FortressLexUtilities.isBeginToken(token, doc, lineBegin)) {
+                                    !FortressLexUtilities.isBeginToken(text, doc, lineBegin)) {
                                 insertEnd = false;
                             }
                         }
@@ -543,7 +543,7 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
                         }
                     }
                 }
-            } 
+            }
         }
 
         TokenSequence<? extends FortressTokenId> ts = FortressLexUtilities.getTokenSequence(doc, caretOffset);
@@ -773,9 +773,7 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
             case ')':
             case ']':
             case '(':
-            case '[':
-                 {
-
+            case '[': {
                     if (!isInsertMatchingEnabled(doc)) {
                         return false;
                     }
@@ -786,6 +784,7 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
                         return true;
                     }
                     TokenId id = token.id();
+                    String text = token.text().toString();
 
                     if ((ch == '{') && (id == FortressTokenId.ERROR && dotPos > 0)) {
                         Token<? extends FortressTokenId> prevToken = FortressLexUtilities.getToken(doc, dotPos - 1);
@@ -821,22 +820,22 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
                         String s = token.text().toString();
                         if ((length == 2) && "[]".equals(s) || "[]=".equals(s)) { // Special case
 
-                            skipClosingBracket(doc, caret, ch, FortressTokenId.RBRACKET);
+                            skipClosingBracket(doc, caret, ch, "[");
 
                             return true;
                         }
                     }
 
-                    if (((id == FortressTokenId.IDENTIFIER) && (token.length() == 1)) ||
-                            (id == FortressTokenId.LBRACKET) || (id == FortressTokenId.RBRACKET) ||
-                            (id == FortressTokenId.LBRACE) || (id == FortressTokenId.RBRACE) ||
-                            (id == FortressTokenId.LPAREN) || (id == FortressTokenId.RPAREN)) {
+                    if ((id == FortressTokenId.IDENTIFIER && token.length() == 1) ||
+                            text.equals("[") || text.equals("]") ||
+                            text.equals("{") || text.equals("}") ||
+                            text.equals("(") || text.equals(")")) {
                         if (ch == ']') {
-                            skipClosingBracket(doc, caret, ch, FortressTokenId.RBRACKET);
+                            skipClosingBracket(doc, caret, ch, "[");
                         } else if (ch == ')') {
-                            skipClosingBracket(doc, caret, ch, FortressTokenId.RPAREN);
+                            skipClosingBracket(doc, caret, ch, "(");
                         } else if (ch == '}') {
-                            skipClosingBracket(doc, caret, ch, FortressTokenId.RBRACE);
+                            skipClosingBracket(doc, caret, ch, "{");
                         } else if ((ch == '[') || (ch == '(') || (ch == '{')) {
                             completeOpeningBracket(doc, dotPos, caret, ch);
                         }
@@ -967,7 +966,7 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
         int lineStart = Utilities.getRowStart(doc, dotPos);
         ts.move(dotPos + 1);
         while (ts.movePrevious() && ts.offset() >= lineStart) {
-            TokenId tid = ts.token().id();
+            TokenId id = ts.token().id();
             String text = ts.token().text().toString();
             if (text.equals("do") || text.equals("{")) {
                 return true;
@@ -1082,7 +1081,7 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
             } else if (text.equals("\\]")) {
                 return FortressLexUtilities.findBwd(doc, ts, "[\\", "\\]");
             } else if (id.primaryCategory().equals("keyword")) {
-                if (FortressLexUtilities.isBeginToken(token, doc, ts.offset())) {
+                if (FortressLexUtilities.isBeginToken(text, doc, ts.offset())) {
                     return FortressLexUtilities.findEnd(doc, ts);
                 } else if ((text.equals("end")) || FortressLexUtilities.isIndentToken(token)) { // Find matching block
 
@@ -1123,7 +1122,8 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
             }
 
             case '(':
-            case '[': { // and '{' via fallthrough
+            case '[': 
+            case '{': {
 
                 char tokenAtDot = FortressLexUtilities.getTokenChar(doc, dotPos);
 
@@ -1162,11 +1162,11 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
      * @param caret caret
      * @param bracket the bracket character ']' or ')'
      */
-    private void skipClosingBracket(BaseDocument doc, Caret caret, char bracket, TokenId bracketId)
+    private void skipClosingBracket(BaseDocument doc, Caret caret, char bracket, String bracketText)
             throws BadLocationException {
         int caretOffset = caret.getDot();
 
-        if (isSkipClosingBracket(doc, caretOffset, bracketId)) {
+        if (isSkipClosingBracket(doc, caretOffset, bracketText)) {
             doc.remove(caretOffset - 1, 1);
             caret.setDot(caretOffset); // skip closing bracket
 
@@ -1182,7 +1182,7 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
      * @param doc document into which typing was done.
      * @param caretOffset
      */
-    private boolean isSkipClosingBracket(BaseDocument doc, int caretOffset, TokenId bracketId)
+    private boolean isSkipClosingBracket(BaseDocument doc, int caretOffset, String bracketText)
             throws BadLocationException {
         // First check whether the caret is not after the last char in the document
         // because no bracket would follow then so it could not be skipped.
@@ -1206,22 +1206,19 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
         if (!ts.moveNext()) {
             return false;
         }
-
+        
         Token<? extends FortressTokenId> token = ts.token();
 
         // Check whether character follows the bracket is the same bracket
-        if ((token != null) && (token.id() == bracketId)) {
-            int bracketIntId = bracketId.ordinal();
-            int leftBracketIntId =
-                    (bracketIntId == FortressTokenId.RPAREN.ordinal()) ? FortressTokenId.LPAREN.ordinal()
-                    : FortressTokenId.LBRACKET.ordinal();
+        if (token != null && token.text().toString().equals(bracketText)) {
+            String leftBracketText = bracketText.equals(")")  ? "(" : "[";
 
             // Skip all the brackets of the same type that follow the last one
             ts.moveNext();
 
             Token<? extends FortressTokenId> nextToken = ts.token();
 
-            while ((nextToken != null) && (nextToken.id() == bracketId)) {
+            while (nextToken != null && nextToken.text().toString().equals(bracketText)) {
                 token = nextToken;
 
                 if (!ts.moveNext()) {
@@ -1245,10 +1242,10 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
             boolean finished = false;
 
             while (!finished && (token != null)) {
-                int tokenIntId = token.id().ordinal();
+                String tokenText = token.text().toString();
 
-                if ((token.id() == FortressTokenId.LPAREN) || (token.id() == FortressTokenId.LBRACKET)) {
-                    if (tokenIntId == bracketIntId) {
+                if (tokenText.equals("(") || tokenText.equals("[")) {
+                    if (tokenText.equals(bracketText)) {
                         bracketBalance++;
 
                         if (bracketBalance == 0) {
@@ -1267,19 +1264,18 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
                             finished = true;
                         }
                     }
-                } else if ((token.id() == FortressTokenId.RPAREN) ||
-                        (token.id() == FortressTokenId.RBRACKET)) {
-                    if (tokenIntId == bracketIntId) {
+                } else if (tokenText.equals(")") || tokenText.equals("]")) {
+                    if (tokenText.equals(bracketText)) {
                         bracketBalance--;
                     }
-                } else if (token.id() == FortressTokenId.LBRACE) {
+                } else if (tokenText.equals("{")) {
                     braceBalance++;
 
                     if (braceBalance > 0) { // stop on extra left brace
 
                         finished = true;
                     }
-                } else if (token.id() == FortressTokenId.RBRACE) {
+                } else if (tokenText.equals("}")) {
                     braceBalance--;
                 }
 
@@ -1312,17 +1308,17 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
                 ts.move(ofs);
                 ts.moveNext();
                 token = ts.token();
+                String text = token.text().toString();
                 finished = false;
 
                 while (!finished && (token != null)) {
                     //int tokenIntId = token.getTokenID().getNumericID();
-                    if ((token.id() == FortressTokenId.LPAREN) || (token.id() == FortressTokenId.LBRACKET)) {
-                        if (token.id().ordinal() == leftBracketIntId) {
+                    if (text.equals("(") || text.equals("[")) {
+                        if (text.equals(leftBracketText)) {
                             bracketBalance++;
                         }
-                    } else if ((token.id() == FortressTokenId.RPAREN) ||
-                            (token.id() == FortressTokenId.RBRACKET)) {
-                        if (token.id().ordinal() == bracketIntId) {
+                    } else if (text.equals(")") || text.equals("]")) {
+                        if (text.equals(leftBracketText)) {
                             bracketBalance--;
 
                             if (bracketBalance == 0) {
@@ -1340,9 +1336,9 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
                                 finished = true;
                             }
                         }
-                    } else if (token.id() == FortressTokenId.LBRACE) {
+                    } else if (text.equals("{")) {
                         braceBalance++;
-                    } else if (token.id() == FortressTokenId.RBRACE) {
+                    } else if (text.equals("}")) {
                         braceBalance--;
 
                         if (braceBalance < 0) { // stop on extra right brace
@@ -1608,7 +1604,7 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
         if (astOffset == -1) {
             return Collections.emptyList();
         }
-        
+
         return Collections.emptyList();
 
 //        AstPath path = new AstPath(root, astOffset);
