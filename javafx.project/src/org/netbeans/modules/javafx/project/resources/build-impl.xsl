@@ -543,7 +543,7 @@ is divided into following sections:
                             <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
                                 <xsl:attribute name="jvm">${platform.java}</xsl:attribute>
                             </xsl:if>
-                            <arg line="${{main.class}}"/>
+                            <!--arg line="${{main.class}}"/-->
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
                                 <!--path path="${{run.classpath}}:${{libs.JavaFXUserLib.classpath}}"/-->
@@ -830,7 +830,7 @@ is divided into following sections:
             <target name="run-single">
                 <xsl:attribute name="depends">init,compile</xsl:attribute>
                 <fail unless="run.class">Must select one file in the IDE or set run.class</fail>
-                <javafxproject1:java classname="${{run.class}}"/>
+                <javafxproject1:java-run classname="${{run.class}}"/>
             </target>
             
             <xsl:comment>
@@ -1183,11 +1183,11 @@ is divided into following sections:
             <target name="run-applet">
                 <xsl:attribute name="depends">init,compile-single</xsl:attribute>
                 <fail unless="applet.url">Must select one file in the IDE or set applet.url</fail>
-                <javafxproject1:java classname="sun.applet.AppletViewer">
+                <javafxproject1:java-run classname="sun.applet.AppletViewer">
                     <customize>
                         <arg value="${{applet.url}}"/>
                     </customize>
-                </javafxproject1:java>
+                </javafxproject1:java-run>
             </target>
             
             <xsl:comment>
