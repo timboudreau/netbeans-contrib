@@ -42,7 +42,7 @@ import com.sun.fortress.nodes.Node;
 import java.util.HashMap;
 import java.util.Map;
 import org.netbeans.modules.fortress.editing.visitors.Scope;
-import org.netbeans.modules.fortress.editing.visitors.Element;
+import org.netbeans.modules.fortress.editing.visitors.Signature;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OffsetRange;
@@ -118,11 +118,11 @@ public class FortressSemanticAnalyzer implements SemanticAnalyzer {
     }
 
     private void visitScopeRecursively(CompilationInfo info, Scope scope, Map<OffsetRange, ColoringAttributes> highlights) {
-        for (Element definition : scope.getDefinitions()) {
+        for (Signature definition : scope.getDefinitions()) {
             OffsetRange range = AstUtilities.getRange(info, definition.getNameNode());
             switch (definition.getKind()) {
                 case MODULE:
-                    highlights.put(range, ColoringAttributes.PACKAGE_PRIVATE);
+                    highlights.put(range, ColoringAttributes.CLASS);
                     break;
                 case CLASS:
                     highlights.put(range, ColoringAttributes.CLASS);

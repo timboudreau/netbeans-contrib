@@ -37,73 +37,24 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.fortress.editing.visitors;
-
-import com.sun.fortress.nodes.Node;
-import java.util.Collections;
-import java.util.Set;
-import org.netbeans.modules.fortress.editing.FortressMimeResolver;
-import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.Modifier;
-import org.openide.filesystems.FileObject;
+package org.netbeans.spi.glassfish;
 
 /**
  *
- * @author dcaoyuan
+ * @author Peter Williams
  */
-public class Element implements ElementHandle {
+public interface RemoveCookie {
     
-    private Node node;
-    private Node nameNode;
-    private Scope enclosedScope;
-    private ElementKind kind;
-    
-    public Element(Node node, Node nameNode, Scope enclosedScope, ElementKind kind) {
-        this.node = node;
-        this.nameNode = nameNode;
-        this.enclosedScope = enclosedScope;
-        this.kind = kind;
-    }
-    
-    public Node getNode() {
-        return node;
-    }
-    
-    public Node getNameNode() {
-        return nameNode;
-    }
-    
-    public Scope getEnclosedScope() {
-        return enclosedScope;
-    }
-    
-    public  String getName() {
-        return nameNode.stringName();
-    }
-    
-    public  ElementKind getKind() {
-        return kind;
-    }
-    
-    public String getMimeType() {
-        return FortressMimeResolver.MIME_TYPE;
-    }
+    /**
+     * Called when the associated server instance is being removed from the IDE.
+     * 
+     * Addon modules should implement this if they need notification when the
+     * server instance is removed from the IDE (e.g. JavaEE module needs to
+     * remove corresponding JavaEE server instance.)
+     * 
+     * @param serverUri uri of server instance being removed although the addon
+     *   module should already have this information.
+     */
+    public void removeInstance(String serverUri);
 
-    public boolean signatureEquals(ElementHandle handle) {
-        // XXX TODO
-        return false;
-    }
-
-    public FileObject getFileObject() {
-        return null;
-    }
-    
-    public Set<Modifier> getModifiers() {
-        return Collections.emptySet();
-    }
-
-    public String getIn() {
-        return null;
-    }
 }

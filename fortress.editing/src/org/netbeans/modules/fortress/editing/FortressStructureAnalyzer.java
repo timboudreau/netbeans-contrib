@@ -36,13 +36,15 @@
  * 
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.fortress.editing;
 
 import com.sun.fortress.nodes.FnDef;
+import com.sun.fortress.nodes.IdType;
 import com.sun.fortress.nodes.Node;
 import com.sun.fortress.nodes.Param;
+import com.sun.fortress.nodes.TupleType;
 import com.sun.fortress.nodes.Type;
+import com.sun.fortress.nodes.VoidType;
 import edu.rice.cs.plt.tuple.Option;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,16 +64,19 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.StructureItem;
 import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.fortress.editing.visitors.Scope;
-import org.netbeans.modules.fortress.editing.visitors.Element;
+import org.netbeans.modules.fortress.editing.visitors.Signature;
 
 /**
  *
- * @author Tor Norbye
+ * @author Caoyuan Deng
  */
 public class FortressStructureAnalyzer implements StructureScanner {
+
     public static final String NETBEANS_IMPORT_FILE = "__netbeans_import__"; // NOI18N
+
     private static final String DOT_CALL = ".call"; // NOI18N
-    
+
+
     public List<? extends StructureItem> scan(CompilationInfo info, HtmlFormatter formatter) {
         FortressParserResult result = AstUtilities.getParserResult(info);
         if (result == null) {
@@ -86,10 +91,10 @@ public class FortressStructureAnalyzer implements StructureScanner {
         Scope rootScope = result.getRootScope();
         List<StructureItem> itemList = new ArrayList<StructureItem>();
 
-        for (Element signature : rootScope.getDefinitions()) {
+        for (Signature signature : rootScope.getDefinitions()) {
             itemList.add(new FortressStructureItem(signature, info, formatter));
         }
-        
+
         return itemList;
     }
 
@@ -105,7 +110,7 @@ public class FortressStructureAnalyzer implements StructureScanner {
         }
 
         Scope rootScope = result.getRootScope();
-        Map<String,List<OffsetRange>> folds = new HashMap<String,List<OffsetRange>>();
+        Map<String, List<OffsetRange>> folds = new HashMap<String, List<OffsetRange>>();
         List<OffsetRange> codeblocks = new ArrayList<OffsetRange>();
         folds.put("codeblocks", codeblocks); // NOI18N
 
@@ -155,30 +160,23 @@ public class FortressStructureAnalyzer implements StructureScanner {
 //        
         return folds;
     }
-    
 
     private class FortressStructureItem implements StructureItem {
-        private Element signature;
-        private ElementKind kind;
+
+        private Signature signature;
         private CompilationInfo info;
         private HtmlFormatter formatter;
 
-        private FortressStructureItem(Element signature, CompilationInfo info, HtmlFormatter formatter) {
+        private FortressStructureItem(Signature signature, CompilationInfo info, HtmlFormatter formatter) {
             this.signature = signature;
             this.info = info;
             this.formatter = formatter;
+        }
 
-            kind = signature.getKind();
-        }
-        
-        void setKind(ElementKind kind) {
-            this.kind = kind;
-        }
-        
         public String getName() {
             return signature.getName();
         }
-        
+
         public String getSortText() {
             return getName();
         }
@@ -191,47 +189,73 @@ public class FortressStructureAnalyzer implements StructureScanner {
 //            }
 
             formatter.appendText(getName());
-            
+
 //            if (strike) {
 //                formatter.deprecated(false);
 //            }
-            
+
             if (signature.getNode() instanceof FnDef) {
                 // Append parameters
-                FnDef fnDef = (FnDef)signature.getNode();
+                FnDef fnDef = (FnDef) signature.getNode();
 
                 Collection<Param> params = fnDef.getParams();
 
+                formatter.appendHtml("(");
                 if ((params != null) && (params.size() > 0)) {
-                    formatter.appendHtml("(");
                     formatter.parameters(true);
 
-                    for (Iterator<Param> it = params.iterator(); it.hasNext();) {
-                        String nameStr = it.next().getName().stringName();
+                    for (Iterator<Param> itr = params.iterator(); itr.hasNext();) {
+                        String nameStr = itr.next().getName().stringName();
                         // TODO - if I know types, list the type here instead. For now, just use the parameter name instead
                         formatter.appendText(nameStr);
 
-                        if (it.hasNext()) {
+                        if (itr.hasNext()) {
                             formatter.appendHtml(", ");
                         }
                     }
 
                     formatter.parameters(false);
-                    formatter.appendHtml(")");
                 }
-                
+                formatter.appendHtml(")");
+
                 Option<Type> retType = fnDef.getReturnType();
                 if (retType.isNone()) {
                     formatter.appendHtml(" : ");
-                    formatter.appendText("()");                    
-                } else if(retType.isSome()) {
+                    formatter.appendText("()");
+                } else if (retType.isSome()) {
                     formatter.appendHtml(" : ");
-                    formatter.appendText(Option.unwrap(retType).stringName());                    
+                    Type type = Option.unwrap(retType);
+                    formatter.appendText(getTypeHtml(type));
                 }
-                
+
             }
 
             return formatter.getText();
+        }
+
+        private String getTypeHtml(Type type) {
+            StringBuilder name = new StringBuilder();
+            
+            if (type instanceof IdType) {
+                name.append(((IdType) type).getName().getName().getText());
+            } else if (type instanceof TupleType) {
+                name.append("(");
+                List<Type> elements = ((TupleType) type).getElements();
+                for (Iterator<Type> itr = elements.iterator(); itr.hasNext();) {
+                    name.append(getTypeHtml(itr.next()));
+                    
+                    if (itr.hasNext()) {
+                        name.append(", ");
+                    }
+                }
+                name.append(")");
+            } else if (type instanceof VoidType){
+                name.append("()");
+            } else {
+                name.append(type.stringName());
+            }
+            
+            return name.toString();
         }
 
         public ElementHandle getElementHandle() {
@@ -239,7 +263,7 @@ public class FortressStructureAnalyzer implements StructureScanner {
         }
 
         public ElementKind getKind() {
-            return kind;
+            return signature.getKind();
         }
 
         public Set<Modifier> getModifiers() {
@@ -247,36 +271,37 @@ public class FortressStructureAnalyzer implements StructureScanner {
         }
 
         public boolean isLeaf() {
-            switch (kind) {
-            case ATTRIBUTE:
-            case CONSTANT:
-            case CONSTRUCTOR:
-            case METHOD:
-            case FIELD:
-            case KEYWORD:
-            case VARIABLE:
-            case OTHER:
-            case GLOBAL:
-            case PACKAGE:
-            case PROPERTY:
-                return true;
+            switch (signature.getKind()) {
+                case ATTRIBUTE:
+                case CONSTANT:
+                case CONSTRUCTOR:
+                case METHOD:
+                case FIELD:
+                case KEYWORD:
+                case VARIABLE:
+                case OTHER:
+                case GLOBAL:
+                case PACKAGE:
+                case PROPERTY:
+                    return true;
 
-            case MODULE:
-            case CLASS:
-                return false;
+                case FILE:
+                case MODULE:
+                case CLASS:
+                    return false;
 
-            default:
-                throw new RuntimeException("Unhandled kind: " + kind);
+                default:
+                    throw new RuntimeException("Unhandled kind: " + signature.getKind());
             }
         }
 
-        public List<?extends StructureItem> getNestedItems() {
-            List<Element> nested = signature.getEnclosedScope().getDefinitions();
+        public List<? extends StructureItem> getNestedItems() {
+            List<Signature> nested = signature.getEnclosedScope().getDefinitions();
 
             if ((nested != null) && (nested.size() > 0)) {
                 List<FortressStructureItem> children = new ArrayList<FortressStructureItem>(nested.size());
 
-                for (Element signature : nested) {
+                for (Signature signature : nested) {
                     children.add(new FortressStructureItem(signature, info, formatter));
                 }
 
@@ -304,9 +329,9 @@ public class FortressStructureAnalyzer implements StructureScanner {
                 return false;
             }
 
-            FortressStructureItem d = (FortressStructureItem)o;
+            FortressStructureItem d = (FortressStructureItem) o;
 
-            if (kind != d.kind) {
+            if (signature.getKind() != d.signature.getKind()) {
                 return false;
             }
 
@@ -322,7 +347,7 @@ public class FortressStructureAnalyzer implements StructureScanner {
             int hash = 7;
 
             hash = (29 * hash) + ((this.getName() != null) ? this.getName().hashCode() : 0);
-            hash = (29 * hash) + ((this.kind != null) ? this.kind.hashCode() : 0);
+            hash = (29 * hash) + ((this.signature.getKind() != null) ? this.signature.getKind().hashCode() : 0);
 
             return hash;
         }

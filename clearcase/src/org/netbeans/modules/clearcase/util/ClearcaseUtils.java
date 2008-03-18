@@ -223,19 +223,19 @@ public class ClearcaseUtils {
         return new ArrayList<FileEntry>(ls.getOutput());
     }
 
-/**
-     * Checks out the file or directory depending on the user-selected strategy in Options.
-     * In case the file is already writable or the directory is checked out, the method does nothing.
-     * Interceptor entry point.
-     * 
-     * @param client ClearcaseClient
-     * @param file file to checkout
-     * @returns true if the given file is mutable, otherwise false* 
-     * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
+    /**
+     * The file given in {@link #ensureMutable(org.netbeans.modules.clearcase.client.ClearcaseClient, java.io.File)} or
+     * {@link #ensureMutable(org.netbeans.modules.clearcase.client.ClearcaseClient, java.io.File, org.netbeans.modules.clearcase.client.status.FileEntry)}     
+     * is mutable.
      */
-    public static boolean ensureMutable(ClearcaseClient client, File file) {
-        return ensureMutable(client, file, null);
-    }   
+    public static int IS_MUTABLE        = 1;
+    
+    /**
+     * The file given in {@link #ensureMutable(org.netbeans.modules.clearcase.client.ClearcaseClient, java.io.File)} or
+     * {@link #ensureMutable(org.netbeans.modules.clearcase.client.ClearcaseClient, java.io.File, org.netbeans.modules.clearcase.client.status.FileEntry)}
+     * is mutable and was checkedout by the method.
+     */
+    public static int WAS_CHECKEDOUT    = 2;
     
     /**
      * Checks out the file or directory depending on the user-selected strategy in Options.
@@ -244,20 +244,42 @@ public class ClearcaseUtils {
      * 
      * @param client ClearcaseClient
      * @param file file to checkout
-     * @param entry the given files {@link FileEntry}
-     * @returns true if the given file is mutable, otherwise false
+     * @return <ul> 
+     *            <li>0 isn't mutable
+     *            <li>{@link #IS_MUTABLE} is mutable  
+     *            <li>{@link #WAS_CHECKEDOUT} is mutable and was checkout by the method
+     *          </ul> 
      * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
      */
-    public static boolean ensureMutable(ClearcaseClient client, File file, FileEntry entry) {
+    public static int ensureMutable(ClearcaseClient client, File file) {
+        return ensureMutable(client, file, null);
+    }   
+        
+    /**
+     * Checks out the file or directory depending on the user-selected strategy in Options.
+     * In case the file is already writable or the directory is checked out, the method does nothing.
+     * Interceptor entry point.
+     * 
+     * @param client ClearcaseClient
+     * @param file file to checkout
+     * @param entry the given files {@link FileEntry}
+     * @return <ul> 
+     *            <li>0 isn't mutable
+     *            <li>{@link #IS_MUTABLE} is mutable  
+     *            <li>{@link #WAS_CHECKEDOUT} is mutable and was checkout by the method
+     *          </ul> 
+     * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
+     */
+    public static int ensureMutable(ClearcaseClient client, File file, FileEntry entry) {
         if (file.isDirectory()) {
             if(entry == null) {
                 entry = ClearcaseUtils.readEntry(client, file);                
             }
             if (entry == null || entry.isCheckedout() || entry.isViewPrivate()) {
-                return true;
+                return IS_MUTABLE;
             }
         } else {
-            if (file.canWrite()) return true;
+            if (file.canWrite()) return IS_MUTABLE;
         }
 
         ClearcaseModuleConfig.OnDemandCheckout odc = ClearcaseModuleConfig.getOnDemandCheckout();
@@ -267,7 +289,7 @@ public class ClearcaseUtils {
         case Disabled:
             // XXX let the user decide if he want's to checkout the file
             DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message(NbBundle.getMessage(ClearcaseInterceptor.class, "Interceptor_NoOnDemandCheckouts_Warning"))); //NOI18N
-            return false;
+            return 0;
         case Reserved:
         case ReservedWithFallback:
             command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Reserved, true, new AfterCommandRefreshListener(file));
@@ -281,18 +303,18 @@ public class ClearcaseUtils {
         
         Clearcase.getInstance().getClient().exec(command, odc != ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback);
         if(!command.hasFailed()) {
-            return true;
+            return WAS_CHECKEDOUT;
         } else if(odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback) {
             command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, 
                                           new OutputWindowNotificationListener(), new AfterCommandRefreshListener(file));
             Clearcase.getInstance().getClient().exec(command, true);
             if (command.hasFailed()) {    
-                return false;
+                return 0;
             } else {
-                return true;
+                return WAS_CHECKEDOUT;
             }   
         } else {
-            return false;
+            return 0;
         }
     }        
 }

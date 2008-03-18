@@ -38,7 +38,8 @@
  */
 package org.netbeans.modules.fortress.editing.visitors;
 
-import com.sun.fortress.nodes.APIName;
+import com.sun.fortress.nodes.AbsObjectDecl;
+import com.sun.fortress.nodes.AbsTraitDecl;
 import com.sun.fortress.nodes.Component;
 import com.sun.fortress.nodes.FnDef;
 import com.sun.fortress.nodes.Id;
@@ -46,6 +47,8 @@ import com.sun.fortress.nodes.Node;
 import com.sun.fortress.nodes.NodeDepthFirstVisitor_void;
 import com.sun.fortress.nodes.ObjectDecl;
 import com.sun.fortress.nodes.SimpleName;
+import com.sun.fortress.nodes.TraitDecl;
+import java.util.List;
 import java.util.Stack;
 import org.netbeans.modules.gsf.api.ElementKind;
 
@@ -71,8 +74,9 @@ public class DefinitionVisitor extends NodeDepthFirstVisitor_void {
     @Override
     public void forComponent(Component that) {
         Scope scope = new Scope(that);
-        APIName name = that.getName();
-        Element signature = new Element(that, name, scope, ElementKind.MODULE);
+        List<Id> paths = that.getName().getIds();
+        Node name = paths.size() > 0 ? paths.get(paths.size() - 1) : that.getName();        
+        Signature signature = new Signature(that, name, scope, ElementKind.FILE);
 
         scopeStack.peek().addDefinition(signature);
         scopeStack.peek().addScope(scope);
@@ -82,10 +86,37 @@ public class DefinitionVisitor extends NodeDepthFirstVisitor_void {
     }
 
     @Override
+    public void forTraitDecl(TraitDecl that) {
+        Scope scope = new Scope(that);
+        Id name = that.getName();
+        Signature signature = new Signature(that, name, scope, ElementKind.MODULE);
+
+        scopeStack.peek().addDefinition(signature);
+        scopeStack.peek().addScope(scope);
+        scopeStack.push(scope);
+        super.forTraitDecl(that);
+        scopeStack.pop();
+    }
+
+    @Override
+    public void forAbsTraitDecl(AbsTraitDecl that) {
+        Scope scope = new Scope(that);
+        Id name = that.getName();
+        Signature signature = new Signature(that, name, scope, ElementKind.MODULE);
+
+        scopeStack.peek().addDefinition(signature);
+        scopeStack.peek().addScope(scope);
+        scopeStack.push(scope);
+        super.forAbsTraitDecl(that);
+        scopeStack.pop();
+    }
+    
+    
+    @Override
     public void forObjectDecl(ObjectDecl that) {
         Scope scope = new Scope(that);
         Id name = that.getName();
-        Element signature = new Element(that, name, scope, ElementKind.CLASS);
+        Signature signature = new Signature(that, name, scope, ElementKind.CLASS);
 
         scopeStack.peek().addDefinition(signature);
         scopeStack.peek().addScope(scope);
@@ -95,10 +126,24 @@ public class DefinitionVisitor extends NodeDepthFirstVisitor_void {
     }
 
     @Override
+    public void forAbsObjectDecl(AbsObjectDecl that) {
+        Scope scope = new Scope(that);
+        Id name = that.getName();
+        Signature signature = new Signature(that, name, scope, ElementKind.CLASS);
+
+        scopeStack.peek().addDefinition(signature);
+        scopeStack.peek().addScope(scope);
+        scopeStack.push(scope);
+        super.forAbsObjectDecl(that);
+        scopeStack.pop();
+    }
+
+        
+    @Override
     public void forFnDef(FnDef that) {
         Scope scope = new Scope(that);
         SimpleName name = that.getName();
-        Element signature = new Element(that, name, scope, ElementKind.METHOD);
+        Signature signature = new Signature(that, name, scope, ElementKind.METHOD);
 
         scopeStack.peek().addDefinition(signature);
         scopeStack.peek().addScope(scope);

@@ -54,8 +54,8 @@ public class Scope implements Iterable<Scope> {
     private final Node node;
     private Scope parent;
     private List<Scope> scopes;
-    private List<Element> definitions;
-    private List<Element> usages;
+    private List<Signature> definitions;
+    private List<Signature> usages;
 
     public Scope(Node node) {
         this.node = node;
@@ -76,14 +76,14 @@ public class Scope implements Iterable<Scope> {
         return scopes;
     }
 
-    public List<Element> getDefinitions() {
+    public List<Signature> getDefinitions() {
         if (definitions == null) {
             return Collections.emptyList();
         }
         return definitions;
     }
 
-    public List<Element> getUsages() {
+    public List<Signature> getUsages() {
         if (usages == null) {
             return Collections.emptyList();
         }
@@ -98,16 +98,16 @@ public class Scope implements Iterable<Scope> {
         scope.parent = this;
     }
 
-    void addDefinition(Element signature) {
+    void addDefinition(Signature signature) {
         if (definitions == null) {
-            definitions = new ArrayList<Element>();
+            definitions = new ArrayList<Signature>();
         }
         definitions.add(signature);
     }
 
-    void addUsage(Element signature) {
+    void addUsage(Signature signature) {
         if (usages == null) {
-            usages = new ArrayList<Element>();
+            usages = new ArrayList<Signature>();
             ;
         }
         usages.add(signature);
