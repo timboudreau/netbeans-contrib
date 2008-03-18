@@ -95,9 +95,9 @@ public class AppletSupport {
             return unitTestingSupport_isApplet.booleanValue();
         }
         
-        //support for javafx applets
+        //support for javafx applets not implemented yet
         if ("fx".equals(file.getExt()) && "text/x-fx".equals(file.getMIMEType())){
-            return true;
+            return false;
         }
         
         JavaSource js = JavaSource.forFileObject(file);
