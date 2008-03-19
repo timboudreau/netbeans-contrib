@@ -79,8 +79,6 @@ import org.openide.util.WeakListeners;
 
 public class JavaFXDataNode extends DataNode implements ChangeListener{
     
-    private static final long serialVersionUID = -7396485743899766258L;
-
     private static final String FX_ICON_BASE = "org/netbeans/modules/javafx/dataloader/FX-filetype.png"; // NOI18N
     private static final String CLASS_ICON_BASE = "org/netbeans/modules/javafx/dataloader/FX-filetype.png"; // NOI18N
 
@@ -96,7 +94,7 @@ public class JavaFXDataNode extends DataNode implements ChangeListener{
     */
     public JavaFXDataNode (final DataObject jdo, boolean isJavaFXSource) {
         super (jdo, Children.LEAF);
-        this.setIconBaseWithExtension(isJavaFXSource ? FX_ICON_BASE : CLASS_ICON_BASE);
+        setIconBaseWithExtension(isJavaFXSource ? FX_ICON_BASE : CLASS_ICON_BASE);
         Logger.getLogger("TIMER").log(Level.FINE, "JavaFXNode", new Object[] {jdo.getPrimaryFile(), this});
         
         if (isJavaFXSource) {
@@ -128,9 +126,8 @@ public class JavaFXDataNode extends DataNode implements ChangeListener{
         }
   
     }
-    
+/*    
     public void setName(String name) {
-/*        
         RenameHandler handler = getRenameHandler();
         if (handler == null) {
             super.setName(name);
@@ -141,8 +138,9 @@ public class JavaFXDataNode extends DataNode implements ChangeListener{
                 super.setName(name);
             }
         }
- */ 
+  
     }
+*/
 /*    
     private static synchronized RenameHandler getRenameHandler() {
         Collection<? extends RenameHandler> handlers = (Lookup.getDefault().lookupAll(RenameHandler.class)) ;
@@ -279,9 +277,9 @@ public class JavaFXDataNode extends DataNode implements ChangeListener{
     }
     
     private Image enhanceIcon(Image i) {
-        if (isCompiled != null && !isCompiled.get()) {
-            i = Utilities.mergeImages(i, NEEDS_COMPILE, 16, 0);
-        }
+//        if (isCompiled != null && !isCompiled.get()) {
+//            i = Utilities.mergeImages(i, NEEDS_COMPILE, 16, 0);
+//        }
 /*  all fx files are executable      
         if (isExecutable != null && isExecutable.get()) {
             i = Utilities.mergeImages(i, IS_EXECUTABLE_CLASS, 10, 6);
