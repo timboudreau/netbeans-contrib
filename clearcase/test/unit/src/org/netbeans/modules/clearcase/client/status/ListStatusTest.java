@@ -89,7 +89,7 @@ public class ListStatusTest extends TestCase {
         List<FileEntry> entryList = execList(rawOutput);        
         
         assertEquals(1, entryList.size());        
-        assertListOutput(entryList.get(0), null, new File("Main.java"), "/main", 1L, "/main/1", null, -1, null, false, "version");                
+        assertListOutput(entryList.get(0), null, "element * /main/LATEST", new File("Main.java"), "/main", 1L, "/main/1", null, -1, null, false, "version");                
         
         FileEntry entry = convert(entryList.get(0));    
         FileInformation info = createFileInformation(entry);
@@ -101,7 +101,7 @@ public class ListStatusTest extends TestCase {
         List<FileEntry> entryList = execList(rawOutput);
         
         assertEquals(1, entryList.size());        
-        assertListOutput(entryList.get(0), null, new File("file0"), null, -1, null, null, -1, null, false, "view private object");        
+        assertListOutput(entryList.get(0), null, null, new File("file0"), null, -1, null, null, -1, null, false, "view private object");        
         
         FileEntry entry = convert(entryList.get(0));        
         FileInformation info = createFileInformation(entry);
@@ -114,7 +114,7 @@ public class ListStatusTest extends TestCase {
         List<FileEntry> entryList = execList(lsRawOutput, lscoRawOutput);
         
         assertEquals(1, entryList.size());                
-        assertListOutput(entryList.get(0), null, new File("README"), "/main", FileVersionSelector.CHECKEDOUT_VERSION, "/main/CHECKEDOUT", "/main", 3L, "/main/3", true, "version");                
+        assertListOutput(entryList.get(0), null, "element * CHECKEDOUT", new File("README"), "/main", FileVersionSelector.CHECKEDOUT_VERSION, "/main/CHECKEDOUT", "/main", 3L, "/main/3", true, "version");                
         
         FileEntry entry = convert(entryList.get(0));  
         FileInformation info = createFileInformation(entry);
@@ -129,7 +129,7 @@ public class ListStatusTest extends TestCase {
         List<FileEntry> entryList = execList(lsRawOutput, lscoRawOutput);
         
         assertEquals(1, entryList.size());                
-        assertListOutput(entryList.get(0), null, new File("README"), "/main", FileVersionSelector.CHECKEDOUT_VERSION, "/main/CHECKEDOUT", "/main", 3L, "/main/3", true, "version");                
+        assertListOutput(entryList.get(0), null, "element * CHECKEDOUT", new File("README"), "/main", FileVersionSelector.CHECKEDOUT_VERSION, "/main/CHECKEDOUT", "/main", 3L, "/main/3", true, "version");                
         
         FileEntry entry = convert(entryList.get(0));  
         FileInformation info = createFileInformation(entry);
@@ -143,7 +143,7 @@ public class ListStatusTest extends TestCase {
         List<FileEntry> entryList = execList(lsRawOutput, lscoRawOutput);
         
         assertEquals(1, entryList.size());                
-        assertListOutput(entryList.get(0), null, new File("README"), "/main", FileVersionSelector.CHECKEDOUT_VERSION, "/main/CHECKEDOUT", "/main", 1L, "/main/1", true, "version");                
+        assertListOutput(entryList.get(0), null, "element * CHECKEDOUT", new File("README"), "/main", FileVersionSelector.CHECKEDOUT_VERSION, "/main/CHECKEDOUT", "/main", 1L, "/main/1", true, "version");                
         
         FileEntry entry = convert(entryList.get(0));  
         FileInformation info = createFileInformation(entry);
@@ -161,8 +161,8 @@ public class ListStatusTest extends TestCase {
         List<FileEntry> entryList = execList(lsRawOutput, lscoRawOutput);
         
         assertEquals(2, entryList.size());                 
-        assertListOutput(entryList.get(0), "[checkedout but removed]", new File("README"), "/main", FileVersionSelector.CHECKEDOUT_VERSION, "/main/CHECKEDOUT", "/main", 1L, "/main/1", true, "version");                
-        assertListOutput(entryList.get(1), "[not loaded, checkedout but removed]", new File("test1"), "/main", FileVersionSelector.CHECKEDOUT_VERSION, "/main/CHECKEDOUT", "/main", 2L, "/main/2", true, "version");                        
+        assertListOutput(entryList.get(0), "[checkedout but removed]", null, new File("README"), "/main", FileVersionSelector.CHECKEDOUT_VERSION, "/main/CHECKEDOUT", "/main", 1L, "/main/1", true, "version");                
+        assertListOutput(entryList.get(1), "[not loaded, checkedout but removed]", null, new File("test1"), "/main", FileVersionSelector.CHECKEDOUT_VERSION, "/main/CHECKEDOUT", "/main", 2L, "/main/2", true, "version");                        
         
         FileEntry entry = convert(entryList.get(0));                    
         FileInformation info = createFileInformation(entry);
@@ -180,7 +180,7 @@ public class ListStatusTest extends TestCase {
         List<FileEntry> entryList = execList(lsRawOutput, lscoRawOutput);
         
         assertEquals(1, entryList.size());                 
-        assertListOutput(entryList.get(0), "[checkedout but removed]", new File("README"), "/main", FileVersionSelector.CHECKEDOUT_VERSION, "/main/CHECKEDOUT", "/main", 1L, "/main/1", true, "version");                        
+        assertListOutput(entryList.get(0), "[checkedout but removed]", null, new File("README"), "/main", FileVersionSelector.CHECKEDOUT_VERSION, "/main/CHECKEDOUT", "/main", 1L, "/main/1", true, "version");                        
         
         FileEntry entry = convert(entryList.get(0));                    
         FileInformation info = createFileInformation(entry);
@@ -192,7 +192,7 @@ public class ListStatusTest extends TestCase {
         List<FileEntry> entryList = execList(rawOutput);
         
         assertEquals(1, entryList.size());                 
-        assertListOutput(entryList.get(0), "[loaded but missing]", new File("test1"), "/main", 2L, "/main/2", null, -1, null, false, "version");                
+        assertListOutput(entryList.get(0), "[loaded but missing]", null, new File("test1"), "/main", 2L, "/main/2", null, -1, null, false, "version");                
         
         FileEntry entry = convert(entryList.get(0));
         FileInformation info = createFileInformation(entry);
@@ -204,7 +204,7 @@ public class ListStatusTest extends TestCase {
         List<FileEntry> entryList = execList(rawOutput);
         
         assertEquals(1, entryList.size());                   
-        assertListOutput(entryList.get(0), "[hijacked]", new File("test1"), "/main", 2L, "/main/2", null, -1, null, false, "version");                
+        assertListOutput(entryList.get(0), "[hijacked]", "element * /main/LATEST", new File("test1"), "/main", 2L, "/main/2", null, -1, null, false, "version");                
         
         FileEntry entry = convert(entryList.get(0));       
         FileInformation info = createFileInformation(entry);
@@ -219,7 +219,7 @@ public class ListStatusTest extends TestCase {
         List<FileEntry> entryList = execList(rawOutput);
         
         assertEquals(1, entryList.size()); 
-        assertListOutput(entryList.get(0), "[eclipsed]", new File("Makefile"), null, -1, null, null, -1, null, false, "file element");                        
+        assertListOutput(entryList.get(0), "[eclipsed]", null, new File("Makefile"), null, -1, null, null, -1, null, false, "file element");                        
         
         FileEntry entry = convert(entryList.get(0));       
         FileInformation info = createFileInformation(entry);
@@ -232,7 +232,7 @@ public class ListStatusTest extends TestCase {
         entryList = execList(rawOutput);
         
         assertEquals(1, entryList.size());                
-        assertListOutput(entryList.get(0), "[eclipsed]", new File("Makefile"), null, -1, null, null, -1, null, false, "file element");                                
+        assertListOutput(entryList.get(0), "[eclipsed]", null, new File("Makefile"), null, -1, null, null, -1, null, false, "file element");                                
     }        
     
     public void testCrap() throws IOException, ClearcaseException {
@@ -262,10 +262,13 @@ public class ListStatusTest extends TestCase {
                 
     }        
             
-    private void assertListOutput(FileEntry fe, String annotation, File file, String versionPath, 
+    private void assertListOutput(FileEntry fe, String annotation, String rule, File file, String versionPath, 
                                   long version, String versionSelector, String originVersionPath, 
                                   long originVersion, String originVersionSelector, boolean checkedout, String type) {         
         assertEquals(annotation, fe.getAnnotation());
+        if(rule != null) {
+            assertEquals(rule, fe.getRule());               
+        }        
         assertEquals(file, fe.getFile());
         if(versionSelector != null) {
             assertNotNull(fe.getVersion());
@@ -345,6 +348,6 @@ public class ListStatusTest extends TestCase {
     }
     
     private FileEntry convert(FileEntry entry) {
-        return new FileEntry(entry.getType(), FileUtil.normalizeFile(entry.getFile()), entry.getOriginVersion(), entry.getVersion(), entry.getAnnotation(), entry.isReserved(), "");
+        return new FileEntry(entry.getType(), FileUtil.normalizeFile(entry.getFile()), entry.getOriginVersion(), entry.getVersion(), entry.getAnnotation(), entry.getRule(), entry.isReserved(), "");
     }
 }

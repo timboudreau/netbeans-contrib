@@ -37,7 +37,7 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.portalpack.portlets.genericportlets.filetypes;
+package org.netbeans.modules.portalpack.portlets.genericportlets.filetype;
 
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.modules.web.spi.webmodule.WebPrivilegedTemplates;

@@ -62,24 +62,24 @@ public class ClasspathConfigPanel extends ConfigPanel{
         classPathList = new javax.swing.JList();
         addClassPathButton = new javax.swing.JButton();
         removeClassPathButton = new javax.swing.JButton();
-
-        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11));
-        jLabel5.setText("ClassPath");
+        setFont(new java.awt.Font("Tahoma", 1, 11));
+  
+        jLabel5.setText(NbBundle.getMessage(ClasspathConfigPanel.class,"LBL_ClassPath"));
 
         classPathList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        classPathList.setToolTipText("Add jar library which will be used only during compilation. Those will not be included in war.");
+        classPathList.setToolTipText(NbBundle.getMessage(ClasspathConfigPanel.class,"TT_ADD_JAR"));
         jScrollPane1.setViewportView(classPathList);
 
-        addClassPathButton.setFont(new java.awt.Font("Tahoma", 1, 11));
-        addClassPathButton.setText("Add");
+   
+        addClassPathButton.setText(NbBundle.getMessage(ClasspathConfigPanel.class,"LBL_Add"));
         addClassPathButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addClassPathButtonActionPerformed(evt);
             }
         });
 
-        removeClassPathButton.setFont(new java.awt.Font("Tahoma", 1, 11));
-        removeClassPathButton.setText("Remove");
+    
+        removeClassPathButton.setText(NbBundle.getMessage(ClasspathConfigPanel.class,"LBL_Remove"));
         removeClassPathButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 removeClassPathButtonActionPerformed(evt);

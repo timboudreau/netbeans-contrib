@@ -41,32 +41,60 @@
 
 package org.netbeans.lib.javafx.lexer;
 
-import junit.framework.JUnit4TestAdapter;
-import junit.framework.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import org.netbeans.api.javafx.lexer.JavaFXTokenId;
 
 /**
- * The entry point of the JavaFX Lexer test suite.
+ *
  * @author Victor G. Vasilyev
  */
-@RunWith(Suite.class)
-@SuiteClasses({
-//	JavaFXLexerTest3.class,
-    DoubleQuoteStringLiteralTest.class,
-    JavaFXLexerStateTest.class,
-    NewLineAndBraceAfterComplexStringStateTest.class,
-    NewLineAndBraceAfterComplexStringTest.class,
-    StringLiteralModificationTest.class            
-})
-public class JavaFXLexerTestSuite {
-
-    public JavaFXLexerTestSuite() {
+public class StringLiteralStateTest extends LexerStateTestBase {
+    
+    private static final String IDENTIFIER = "a";
+    private static final String EMPTY_BLOCK = "{}";
+    private static final String EMPTY_STRING_LITERAL = "\"\"";
+    private static final String WHITESPACE = " ";
+    private static final String EMPTY_QUOTE_LBRACE_STRING_LITERAL = "\"{";
+    private static final String EMPTY_RBRACE_QUOTE_STRING_LITERAL = "}\"";
+    private static final String SEMICOLON = ";";
+    
+    public StringLiteralStateTest() {
     }
 
-    public static Test suite() {
-        return new JUnit4TestAdapter(JavaFXLexerTestSuite.class);
+    @Before
+    public void setUp() {
     }
 
+    @After
+    public void tearDown() {
+    }
+
+    @Test
+    public void state3() {
+        System.out.println("state3");
+        instance.setSource( 
+                EMPTY_QUOTE_LBRACE_STRING_LITERAL + 
+                EMPTY_BLOCK + 
+                EMPTY_RBRACE_QUOTE_STRING_LITERAL +
+                SEMICOLON);
+        nextToken();
+        assertEquals(token.id, JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL);
+        assertStateHas(1, '\"', false);
+        nextToken();
+        assertEquals(token.id, JavaFXTokenId.LBRACE);
+        assertStateHas(2, '\"', false);
+        nextToken();
+        assertEquals(token.id, JavaFXTokenId.RBRACE);
+        assertStateHas(1, '\"', false);
+        nextToken();
+        assertEquals(token.id, JavaFXTokenId.RBRACE_QUOTE_STRING_LITERAL);
+        assertNull("A state should be null at the last token of the string literals.", instance.state());
+        nextToken();
+        assertEquals(token.id, JavaFXTokenId.SEMICOLON);
+        assertNull("A state should be null outside of the string literals.", instance.state());
+    }
+    
 }

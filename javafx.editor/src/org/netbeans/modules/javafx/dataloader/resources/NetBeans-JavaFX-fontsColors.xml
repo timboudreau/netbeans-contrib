@@ -44,17 +44,28 @@ made subject to such option by the copyright holder.
 <!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN" "http://www.netbeans.org/dtds/EditorFontsColors-1_1.dtd">
 
 <fontscolors>
-    <!-- JavaTokenId categories -->
-    <fontcolor name="character" default="char"/>
-    <fontcolor name="errors" default="error"/>
+    <!-- JavaFXTokenId categories -->
+    <fontcolor name="comment" default="comment"/>
+    <fontcolor name="error" default="error"/>    
+    <fontcolor name="format" default="string">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="i18n-artifact" default="string">
+        <font style="bold+italic" />
+    </fontcolor>
     <fontcolor name="identifier" default="identifier"/>
     <fontcolor name="keyword" default="keyword"/>
-    <fontcolor name="keyword-directive" default="keyword-directive"/>
-    <fontcolor name="literal" default="keyword" />
-    <fontcolor name="comment" default="comment"/>
+    <fontcolor name="keyword-directive" default="keyword">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="keyword-literal" default="identifier">
+        <font style="bold" />
+    </fontcolor>
     <fontcolor name="number" default="number"/>
     <fontcolor name="operator" default="operator"/>
+    <fontcolor name="separator" default="separator"/>
     <fontcolor name="string" default="string"/>
+    <fontcolor name="time" foreColor="magenta" default="default"/>
     <fontcolor name="whitespace" default="whitespace"/>
     
     

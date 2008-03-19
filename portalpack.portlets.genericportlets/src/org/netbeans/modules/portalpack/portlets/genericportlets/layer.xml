@@ -327,7 +327,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <folder name="j2ee">
         <folder name="webtier">
             <folder name="templates">
-                <file name="org-netbeans-modules-portalpack-portlets-genericportlets-filetypes-PortletPriviledgedTemplates.instance"> 
+                <file name="org-netbeans-modules-portalpack-portlets-genericportlets-filetype-PortletPriviledgedTemplates.instance"> 
                     <attr name="position" intvalue="213"/>
                 </file>
             </folder>
