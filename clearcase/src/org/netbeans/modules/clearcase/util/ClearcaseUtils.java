@@ -63,9 +63,30 @@ import org.openide.util.NbBundle;
  */
 public class ClearcaseUtils {
 
+    public static enum ViewType { None, Snapshot, Dynamic, Remote };
+    
     private ClearcaseUtils() {
     }
 
+    private static ViewType getViewType(File file) {
+        // TODO: incomplete implementation
+        if (Clearcase.getInstance().getTopmostSnapshotViewAncestor(file) != null) return ViewType.Snapshot;
+        return ViewType.None;
+    }
+
+    /**
+     * Query for files in snapshot views.
+     * 
+     * @param ctx a context to scan
+     * @return true if the context contains at least one file from a snapshot view, false otherwise
+     */
+    public static boolean containsSnapshot(VCSContext ctx) {
+        for (File file : ctx.getRootFiles()) {
+            if (getViewType(file) == ViewType.Snapshot) return true;
+        }
+        return false;
+    }
+    
     /**
      * Computes previous revision number to the given one.
      * 
