@@ -108,6 +108,14 @@ made subject to such option by the copyright holder.
                     <file name="format">
                         <attr name="position" intvalue="1490"/>
                     </file>                    
+                    <file name="SeparatorBeforeRun.instance">
+			<attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1940"/>
+                    </file>
+                    <file name="RunFile.instance">
+                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.java.project.JavaProjectModule.run"/>
+                          <attr name="position" intvalue="1950"/>
+                    </file>
                     <file name="SeparatorBeforeCut.instance">
 			<attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="1960"/>
