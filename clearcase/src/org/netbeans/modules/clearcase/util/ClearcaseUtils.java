@@ -54,6 +54,9 @@ import org.netbeans.modules.clearcase.client.status.FileEntry;
 import org.netbeans.modules.clearcase.client.status.ListStatus;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.filesystems.FileUtil;
+import org.openide.windows.TopComponent;
+import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
 
 /**
@@ -62,6 +65,72 @@ import org.openide.util.NbBundle;
  * @author Maros Sandor
  */
 public class ClearcaseUtils {
+    /**
+     * Semantics is similar to {@link org.openide.windows.TopComponent#getActivatedNodes()} except that this
+     * method returns File objects instead od Nodes. Every node is examined for Files it represents. File and Folder
+     * nodes represent their underlying files or folders. Project nodes are represented by their source groups. Other
+     * logical nodes must provide FileObjects in their Lookup.
+     *
+     * @return File [] array of activated files
+     * @param nodes or null (then taken from windowsystem, it may be wrong on editor tabs #66700).
+     */
+    public static VCSContext getCurrentContext(Node[] nodes) {
+        if (nodes == null) {
+            nodes = TopComponent.getRegistry().getActivatedNodes();
+        }
+        return VCSContext.forNodes(nodes);
+    }
+
+    /**
+     * Assynchronously refreshes the status for files and their filesystems. 
+     * Note, that a refresh on the NB filesystem may result in intercepting 
+     * new file events. 
+     * 
+     * @param files files to be refreshed          
+     * @param includeChildren if true all children for the given files will be explicitly refreshed too
+     */
+    public static void afterCommandRefresh(final File[] files, final boolean includeChildren) {          
+        Clearcase.getInstance().getRequestProcessor().post(new Runnable() {
+            public void run() {
+                // refreshing the NB filessytem before the cache refresh starts firing change events -> 
+                // otherwise they might cause externally deleted/created warnings
+                Set<File> parents = new HashSet<File>();
+                for (File file : files) {
+                    File parent = file.getParentFile();
+                    if (parent != null) {
+                        parents.add(parent);
+                    }
+                }
+                FileUtil.refreshFor(parents.toArray(new File[parents.size()])); 
+
+                // refresh the cache ...
+                Set<File> refreshSet = new HashSet<File>();
+                for (File file : files) {
+                    if(includeChildren) {
+                        refreshSet.addAll(getFilesTree(file));    
+                    } else {
+                        refreshSet.add(file);
+                    }
+                }                        
+                File[] refreshFiles = refreshSet.toArray(new File[refreshSet.size()]);
+                Clearcase.getInstance().getFileStatusCache().refreshLater(refreshFiles);                            
+            }
+        });                
+    }
+
+    public static List<File> getFilesTree(File file) {
+        List<File> ret = new  ArrayList<File>();
+        ret.add(file);
+        if(file.isDirectory()) {
+            File[] files = file.listFiles();
+            if(files != null) {
+                for (File f : files) {
+                    ret.addAll(getFilesTree(f));
+                }
+            }
+        }
+        return ret;
+    }
 
     public static enum ViewType { None, Snapshot, Dynamic, Remote };
     

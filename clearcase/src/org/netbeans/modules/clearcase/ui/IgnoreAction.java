@@ -50,7 +50,7 @@ import java.io.File;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.FileStatusCache;
-import org.netbeans.modules.clearcase.util.Utils;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.openide.util.NbBundle;
 
 /**
@@ -84,7 +84,7 @@ public class IgnoreAction extends AbstractAction {
                 }                
             }    
         } finally {            
-            Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]), true);            
+            ClearcaseUtils.afterCommandRefresh(roots.toArray(new File[roots.size()]), true);            
         }        
     }
 

@@ -118,7 +118,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         if (file.exists()) {
             file.delete();
         }        
-        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(new File[] { file }, false);
+        ClearcaseUtils.afterCommandRefresh(new File[] { file }, false);
     }
     
     private void fileDeletedImpl(File file) {       
@@ -208,7 +208,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 deleteFile(from);
             }
         }            
-        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(new File[] { from, to }, true);
+        ClearcaseUtils.afterCommandRefresh(new File[] { from, to }, true);
     }
     
     @Override
