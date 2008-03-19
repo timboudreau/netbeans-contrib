@@ -850,7 +850,7 @@ public class JavaFXLexer extends JavaFXTestableLexer implements Lexer<JavaFXToke
                     return finishIdentifier(c);
 
                 // Rest of lowercase letters starting identifiers
-                case 'h': case 'j': case 'k': case 'm': 
+                case 'g': case 'h': case 'j': case 'k': case 'm': 
                 case 'q': case 'u': case 'x': case 'y': case 'z':
                 // Uppercase letters starting identifiers
                 case 'A': case 'B': case 'C': case 'D': case 'E':
