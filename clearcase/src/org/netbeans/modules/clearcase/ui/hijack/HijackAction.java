@@ -167,7 +167,7 @@ public class HijackAction extends AbstractAction {
     private static void performHijack(File[] files) {
         for (File file : files) {
             if (file.isFile() && !file.canWrite()) {
-                Utils.setReadOnly(file, false);
+                //Utils.setReadOnly(file, false);
                 file.setLastModified(System.currentTimeMillis());
             }
         }
