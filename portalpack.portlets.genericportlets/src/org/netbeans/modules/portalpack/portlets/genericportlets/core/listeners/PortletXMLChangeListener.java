@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -36,62 +36,31 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.hibernate.refactoring;
 
-import org.netbeans.modules.refactoring.spi.SimpleRefactoringElementImplementation;
-import org.openide.filesystems.FileObject;
-import org.openide.text.PositionBounds;
-import org.openide.util.Lookup;
+package org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners;
+
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.AppContext;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
 
 /**
- * A refactoring element for refactoring the mapped the class name
+ * This class can be implemented to do some specific tasks when portlet xml is changed. The 
+ * methods in this interfaces are for different type of changes in portlet xml. 
  * 
- * @author Dongmei Cao
+ * The implementation classes are required to be specified in the following way in
+ * respective layer.xml file
+ * 
+ * <folder name="portalpack">
+ *       <folder name="listeners">
+ *           <folder name="portletxml">
+ *               <file name="org-netbeans-modules-portalpack-xxx-SampleListener.instance">           
+ *               </file>
+ *           </folder>    
+ *       </folder>
+ * </folder>
+ * @author satyaranjan
  */
-public class HibernateRefactoringElement extends SimpleRefactoringElementImplementation {
+public interface PortletXMLChangeListener {
+    
+    public void addPortlet(PortletContext portletContext,AppContext appContext,String webInfDir);
 
-    private FileObject mappingFileObject;
-    private PositionBounds position;
-    private String text;
-    protected String origName;
-
-    public HibernateRefactoringElement(FileObject fo, String oldName, PositionBounds position, String text) {
-        this.mappingFileObject = fo;
-        this.origName = oldName;
-        this.position = position;
-        this.text = text;
-    }
-
-    public String getText() {
-        return this.text;
-    }
-
-    public String getDisplayText() {
-        return fixDisplayText(getText());
-    }
-
-    public void performChange() {
-        // Do nothing here.
-    }
-
-    public Lookup getLookup() {
-        return Lookup.EMPTY;
-    }
-
-    public FileObject getParentFile() {
-        return mappingFileObject;
-    }
-
-    public PositionBounds getPosition() {
-        return position;
-    }
-
-    private String fixDisplayText(String displayText) {
-        String finalText = displayText.replaceAll("<", "&lt;");
-        finalText.replaceAll(">", "&gt;");
-        // TODO: will not split properly for cases, such as,
-        // <property column="name" name="name"/>. Will fix it later
-        String[] subStrings = finalText.split(origName);
-        return subStrings[0] + "<b>" + origName + "</b>" + subStrings[1];
-    }
 }

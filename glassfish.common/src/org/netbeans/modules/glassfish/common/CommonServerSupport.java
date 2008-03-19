@@ -53,6 +53,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.event.ChangeListener;
 import org.netbeans.spi.glassfish.AppDesc;
 import org.netbeans.spi.glassfish.GlassfishModule;
@@ -163,7 +165,8 @@ public class CommonServerSupport implements GlassfishModule {
     }
     
     public Future<OperationState> startServer(final OperationStateListener stateListener) {
-        System.out.println("CSS.startServer called on thread \"" + Thread.currentThread().getName() + "\"");
+        Logger.getLogger("glassfish").log(Level.FINEST, 
+                "CSS.startServer called on thread \"" + Thread.currentThread().getName() + "\"");
         OperationStateListener startServerListener = new OperationStateListener() {
             public void operationStateChanged(OperationState newState, String message) {
                 if(newState == OperationState.RUNNING) {
@@ -182,7 +185,8 @@ public class CommonServerSupport implements GlassfishModule {
     }
 
     public Future<OperationState> stopServer(final OperationStateListener stateListener) {
-        System.out.println("CSS.stopServer called on thread \"" + Thread.currentThread().getName() + "\"");
+        Logger.getLogger("glassfish").log(Level.FINEST, 
+                "CSS.stopServer called on thread \"" + Thread.currentThread().getName() + "\"");
         OperationStateListener stopServerListener = new OperationStateListener() {
             public void operationStateChanged(OperationState newState, String message) {
                 if(newState == OperationState.RUNNING) {
@@ -207,31 +211,30 @@ public class CommonServerSupport implements GlassfishModule {
 
     public Future<OperationState> deploy(final OperationStateListener stateListener, 
             final File application, final String name, final String contextRoot) {
-        OperationStateListener deployListener = new OperationStateListener() {
-            public void operationStateChanged(OperationState newState, String message) {
-                System.out.println(newState.toString() + ": " + message);
-            }
-        };
-        
-        CommandRunner mgr = new CommandRunner(getInstanceProperties(), deployListener, stateListener);
+        CommandRunner mgr = new CommandRunner(getInstanceProperties(), stateListener);
         return mgr.deploy(application, name, contextRoot);
     }
     
-    public Future<OperationState> undeploy(final OperationStateListener stateListener, final String name) {
-        OperationStateListener undeployListener = new OperationStateListener() {
-            public void operationStateChanged(OperationState newState, String message) {
-                System.out.println(newState.toString() + ": " + message);
-            }
-        };
+    public Future<OperationState> redeploy(final OperationStateListener stateListener, 
+            final String name) {
+        return redeploy(stateListener, name, null);
+    }
         
-        CommandRunner mgr = new CommandRunner(getInstanceProperties(), undeployListener, stateListener);
+    public Future<OperationState> redeploy(final OperationStateListener stateListener, 
+            final String name, final String contextRoot) {
+        CommandRunner mgr = new CommandRunner(getInstanceProperties(), stateListener);
+        return mgr.redeploy(name, contextRoot);
+    }
+
+    public Future<OperationState> undeploy(final OperationStateListener stateListener, final String name) {
+        CommandRunner mgr = new CommandRunner(getInstanceProperties(), stateListener);
         return mgr.undeploy(name);
     }
     
-    public AppDesc [] getModuleList() {
+    public AppDesc [] getModuleList(String container) {
         CommandRunner mgr = new CommandRunner(getInstanceProperties());
         int total = 0;
-        Map<String, List<AppDesc>> appMap = mgr.getApplications();
+        Map<String, List<AppDesc>> appMap = mgr.getApplications(container);
         Collection<List<AppDesc>> appLists = appMap.values();
         for(List<AppDesc> appList: appLists) {
             total += appList.size();

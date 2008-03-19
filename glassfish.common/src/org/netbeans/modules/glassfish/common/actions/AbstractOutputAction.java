@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -36,62 +36,52 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.hibernate.refactoring;
 
-import org.netbeans.modules.refactoring.spi.SimpleRefactoringElementImplementation;
-import org.openide.filesystems.FileObject;
-import org.openide.text.PositionBounds;
-import org.openide.util.Lookup;
+package org.netbeans.modules.glassfish.common.actions;
+
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import org.netbeans.spi.glassfish.GlassfishModule;
+import org.openide.util.Mutex;
+import org.openide.util.Utilities;
+import org.openide.util.WeakListeners;
 
 /**
- * A refactoring element for refactoring the mapped the class name
- * 
- * @author Dongmei Cao
+ *
+ * @author Peter Williams
  */
-public class HibernateRefactoringElement extends SimpleRefactoringElementImplementation {
+public abstract class AbstractOutputAction extends AbstractAction implements ChangeListener {
 
-    private FileObject mappingFileObject;
-    private PositionBounds position;
-    private String text;
-    protected String origName;
+    private static final String PROP_ENABLED = "enabled"; // NOI18N
+    
+    protected final GlassfishModule commonSupport;
 
-    public HibernateRefactoringElement(FileObject fo, String oldName, PositionBounds position, String text) {
-        this.mappingFileObject = fo;
-        this.origName = oldName;
-        this.position = position;
-        this.text = text;
+    public AbstractOutputAction(final GlassfishModule commonSupport, 
+            String localizedName, String localizedShortDesc, String iconBase) {
+        super(localizedName, new ImageIcon(Utilities.loadImage(iconBase)));
+        putValue(SHORT_DESCRIPTION, localizedShortDesc);
+        this.commonSupport = commonSupport;
+
+        // listen for server state changes
+        commonSupport.addChangeListener(WeakListeners.change(this, commonSupport));
     }
 
-    public String getText() {
-        return this.text;
-    }
+    public abstract void actionPerformed(ActionEvent e);
 
-    public String getDisplayText() {
-        return fixDisplayText(getText());
-    }
+    @Override
+    public abstract boolean isEnabled();
 
-    public void performChange() {
-        // Do nothing here.
-    }
-
-    public Lookup getLookup() {
-        return Lookup.EMPTY;
-    }
-
-    public FileObject getParentFile() {
-        return mappingFileObject;
-    }
-
-    public PositionBounds getPosition() {
-        return position;
-    }
-
-    private String fixDisplayText(String displayText) {
-        String finalText = displayText.replaceAll("<", "&lt;");
-        finalText.replaceAll(">", "&gt;");
-        // TODO: will not split properly for cases, such as,
-        // <property column="name" name="name"/>. Will fix it later
-        String[] subStrings = finalText.split(origName);
-        return subStrings[0] + "<b>" + origName + "</b>" + subStrings[1];
+    // --------------------------------------------------------------------
+    // ChangeListener interface implementation
+    // --------------------------------------------------------------------
+    public void stateChanged(ChangeEvent evt) {
+        Mutex.EVENT.readAccess(new Runnable() {
+            public void run() {
+                firePropertyChange(PROP_ENABLED, null, isEnabled() ? Boolean.TRUE : Boolean.FALSE);
+            }
+        });
     }
 }
