@@ -98,6 +98,7 @@ public class UpdateAction extends AbstractAction {
         UpdateCommand cmd = 
                 new UpdateCommand(
                     files.toArray(new File[files.size()]), 
+                    UpdateCommand.HijackedAction.DoNotTouch,
                     new AfterCommandRefreshListener(filesToRefresh.toArray(new File[filesToRefresh.size()])), 
                     new OutputWindowNotificationListener());
         Clearcase.getInstance().getClient().post(NbBundle.getMessage(UpdateAction.class, "Progress_Updating"),cmd); //NOI18N

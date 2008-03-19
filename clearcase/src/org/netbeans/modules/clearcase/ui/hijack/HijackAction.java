@@ -43,17 +43,27 @@ package org.netbeans.modules.clearcase.ui.hijack;
 import org.netbeans.modules.clearcase.FileStatusCache;
 import org.netbeans.modules.versioning.spi.VCSContext;
 import org.netbeans.modules.versioning.util.Utils;
+import org.netbeans.modules.versioning.util.DialogBoundsPreserver;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.awt.Dialog;
 import java.io.File;
 import java.util.*;
 
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
+import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
+import org.netbeans.modules.clearcase.client.AfterCommandRefreshListener;
+import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
+import org.netbeans.modules.clearcase.client.UpdateCommand;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 
 import org.openide.util.NbBundle;
+import org.openide.util.HelpCtx;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.awt.Mnemonics;
 
 /**
  * Hijacks all files/folders in the context, making them editable by the user.
@@ -114,13 +124,53 @@ public class HijackAction extends AbstractAction {
     }
     
     private void performUnhijack(File [] files) {
+        String contextTitle = Utils.getContextDisplayName(context);
+        JButton unHijackButton = new JButton(); 
+        UnhijackPanel panel = new UnhijackPanel();
+
+        panel.cbKeep.setEnabled(false);
+        for (File file : files) {
+            if(file.isFile()) {
+                panel.cbKeep.setEnabled(true);        
+                break;
+            }
+        }
+        
+        DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(HijackAction.class, "CTL_UnhijackDialog_Title", contextTitle)); // NOI18N
+        dd.setModal(true);
+        dd.setMessageType(DialogDescriptor.WARNING_MESSAGE);
+        Mnemonics.setLocalizedText(unHijackButton, NbBundle.getMessage(HijackAction.class, "CTL_UnhijackDialog_Unhijack")); //NOI18N
+        
+        dd.setOptions(new Object[] {unHijackButton, DialogDescriptor.CANCEL_OPTION}); // NOI18N
+        dd.setHelpCtx(new HelpCtx(HijackAction.class));
+                
+        panel.putClientProperty("contentTitle", contextTitle);  // NOI18N
+        panel.putClientProperty("DialogDescriptor", dd); // NOI18N
+        final Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);        
+        dialog.addWindowListener(new DialogBoundsPreserver(ClearcaseModuleConfig.getPreferences(), "unhijack.dialog")); // NOI18N       
+        dialog.pack();        
+        dialog.setVisible(true);
+        
+        Object value = dd.getValue();
+        if (value != unHijackButton) return;
+
+        boolean keepFiles = panel.cbKeep.isSelected();
+        UpdateCommand cmd = 
+                new UpdateCommand(
+                    files, 
+                    keepFiles ? UpdateCommand.HijackedAction.BackupAndOverwrite : UpdateCommand.HijackedAction.Overwrite,
+                    new AfterCommandRefreshListener(files), 
+                    new OutputWindowNotificationListener());
+        Clearcase.getInstance().getClient().post(NbBundle.getMessage(HijackAction.class, "Progress_Undoing_Hijack"), cmd); //NOI18N
     }
 
     private static void performHijack(File[] files) {
         for (File file : files) {
             if (file.isFile() && !file.canWrite()) {
                 Utils.setReadOnly(file, false);
+                file.setLastModified(System.currentTimeMillis());
             }
         }
+        ClearcaseUtils.afterCommandRefresh(files, false);
     }        
 }
