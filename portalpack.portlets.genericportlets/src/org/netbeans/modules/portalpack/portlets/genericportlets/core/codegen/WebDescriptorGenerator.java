@@ -262,6 +262,10 @@ public class WebDescriptorGenerator {
         if (pc.getPortletClass() != null && pc.getPortletClass().length() != 0) {
             portletType.setPortletClass(pc.getPortletClass());
         }
+        
+        if(pc.getResourceBundle() != null && pc.getResourceBundle().length() != 0) {
+            portletType.setResourceBundle(pc.getResourceBundle());
+        }
         portletType.setExpirationCache(0);
 
         //add support

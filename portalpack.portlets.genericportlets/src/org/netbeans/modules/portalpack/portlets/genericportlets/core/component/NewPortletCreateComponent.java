@@ -31,10 +31,13 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUt
 import java.io.*;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.DataContext;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners.PortletXMLChangeListener;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners.util.LayerXMLHelper;
 
 
 /**
@@ -70,13 +73,50 @@ public abstract class NewPortletCreateComponent {
         //create portlet
         context.setPortletClass(className);
         WebResourceCreatorFactory.addPortletEntryToPortletXml(webInfDir,context);
+        //call portletxmllistener to add proper changes
+        firePortletAddEvent(context, appContext, className, webInfDir);
     }
     
     public void doCreateClass(String modulePath, String moduleName,  String selectedDir, String clazzName, PortletContext context,AppContext appContext,ResultContext retMap) throws PortletCreateException {
         createNewPortletFile(selectedDir,clazzName,context,retMap);
         String className = (String)retMap.getAttribute(ResultContext.CLASS_NAME);
+        //Create ResourceBundleFile if not present
+        if(doCreateResourceBundle((String)retMap.getAttribute(ResultContext.FILE_PATH)))
+        {
+            String resBundlePath = (String)retMap.getAttribute(ResultContext.PACKAGE) + "." + "messages"; //NOI18N
+            context.setResourceBundle(resBundlePath);
+        }
         doAfterCreate(context,appContext,className,getWebInfDir());
         
+    }
+
+    private boolean doCreateResourceBundle(String portletClassFilePath) {
+        try{
+            File portletFile = new File(portletClassFilePath);
+            File resBundle = new File(portletFile.getParentFile(),"messages.properties"); //NOI18N
+            if(resBundle != null  && resBundle.exists())
+                return true;
+            resBundle.createNewFile();
+            return true;
+        }catch(Exception e){
+            logger.info(e.getMessage());
+            //ignore error
+            return false;
+        }
+    }
+    
+    private void firePortletAddEvent(PortletContext context,
+            AppContext appContext,String className,String webInf)
+    {
+        List<PortletXMLChangeListener> portletXMLListeners = LayerXMLHelper.getRegisteredPortletXMLListeners();
+        if(portletXMLListeners == null || portletXMLListeners.size() == 0)
+            return;
+        
+        for(PortletXMLChangeListener listener:portletXMLListeners)
+        {
+            if(listener == null) continue;
+            listener.addPortlet(context, appContext, webInf);
+        }
     }
     
     protected abstract void refreshPath(String modulePath);
@@ -154,11 +194,13 @@ public abstract class NewPortletCreateComponent {
                 returnVal.setAttribute(ResultContext.CLASS_NAME, packageStr + "." + className);
                 returnVal.setAttribute(ResultContext.PORTLET_NAME, portletName);
                 returnVal.setAttribute(ResultContext.FILE_PATH,pFile.getAbsolutePath());
+                returnVal.setAttribute(ResultContext.PACKAGE, packageStr);
                 return packageStr + "." + className;
             } else {
                 returnVal.setAttribute(ResultContext.CLASS_NAME, className);
                 returnVal.setAttribute(ResultContext.PORTLET_NAME, portletName);
                 returnVal.setAttribute(ResultContext.FILE_PATH,pFile.getAbsolutePath());
+                returnVal.setAttribute(ResultContext.PACKAGE, "");
                 return className;
             }
         }

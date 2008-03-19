@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -37,44 +37,30 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.glassfish.javaee;
+package org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import org.netbeans.modules.glassfish.javaee.ide.FastDeploy;
-import org.netbeans.modules.j2ee.deployment.plugins.spi.FindJSPServlet;
-import org.netbeans.modules.j2ee.deployment.plugins.spi.IncrementalDeployment;
-import org.netbeans.modules.j2ee.deployment.plugins.spi.OptionalDeploymentManagerFactory;
-import org.netbeans.modules.j2ee.deployment.plugins.spi.StartServer;
-import org.openide.WizardDescriptor.InstantiatingIterator;
-
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.AppContext;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
 
 /**
- *
- * @author Ludovic Champenois
- * @author Peter Williams
+ * This class can be implemented to do some specific tasks when portlet xml is changed. The 
+ * methods in this interfaces are for different type of changes in portlet xml. 
+ * 
+ * The implementation classes are required to be specified in the following way in
+ * respective layer.xml file
+ * 
+ * <folder name="portalpack">
+ *       <folder name="listeners">
+ *           <folder name="portletxml">
+ *               <file name="org-netbeans-modules-portalpack-xxx-SampleListener.instance">           
+ *               </file>
+ *           </folder>    
+ *       </folder>
+ * </folder>
+ * @author satyaranjan
  */
-public class Hk2OptionalFactory extends OptionalDeploymentManagerFactory {
+public interface PortletXMLChangeListener {
     
-    public StartServer getStartServer(DeploymentManager dm) {
-        return new Hk2StartServer(dm);
-    }
-    
-    public IncrementalDeployment getIncrementalDeployment(DeploymentManager dm) {
-        return dm instanceof Hk2DeploymentManager ?
-                new FastDeploy((Hk2DeploymentManager) dm) : null;
-    }
-    
-    public FindJSPServlet getFindJSPServlet(DeploymentManager dm) {
-        Logger.getLogger("glassfish-javaee").log(Level.INFO, 
-                "JavaEE_V3_OptionalFactory.getFindJSPServlet");
-        return null;
-    }
-    
-    @Override
-    public InstantiatingIterator getAddInstanceIterator() {
-        return null;
-    }
-    
+    public void addPortlet(PortletContext portletContext,AppContext appContext,String webInfDir);
+
 }

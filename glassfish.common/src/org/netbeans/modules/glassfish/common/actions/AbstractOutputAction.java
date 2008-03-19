@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -37,44 +37,51 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.glassfish.javaee;
+package org.netbeans.modules.glassfish.common.actions;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import org.netbeans.modules.glassfish.javaee.ide.FastDeploy;
-import org.netbeans.modules.j2ee.deployment.plugins.spi.FindJSPServlet;
-import org.netbeans.modules.j2ee.deployment.plugins.spi.IncrementalDeployment;
-import org.netbeans.modules.j2ee.deployment.plugins.spi.OptionalDeploymentManagerFactory;
-import org.netbeans.modules.j2ee.deployment.plugins.spi.StartServer;
-import org.openide.WizardDescriptor.InstantiatingIterator;
-
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import org.netbeans.spi.glassfish.GlassfishModule;
+import org.openide.util.Mutex;
+import org.openide.util.Utilities;
+import org.openide.util.WeakListeners;
 
 /**
  *
- * @author Ludovic Champenois
  * @author Peter Williams
  */
-public class Hk2OptionalFactory extends OptionalDeploymentManagerFactory {
+public abstract class AbstractOutputAction extends AbstractAction implements ChangeListener {
+
+    private static final String PROP_ENABLED = "enabled"; // NOI18N
     
-    public StartServer getStartServer(DeploymentManager dm) {
-        return new Hk2StartServer(dm);
+    protected final GlassfishModule commonSupport;
+
+    public AbstractOutputAction(final GlassfishModule commonSupport, 
+            String localizedName, String localizedShortDesc, String iconBase) {
+        super(localizedName, new ImageIcon(Utilities.loadImage(iconBase)));
+        putValue(SHORT_DESCRIPTION, localizedShortDesc);
+        this.commonSupport = commonSupport;
+
+        // listen for server state changes
+        commonSupport.addChangeListener(WeakListeners.change(this, commonSupport));
     }
-    
-    public IncrementalDeployment getIncrementalDeployment(DeploymentManager dm) {
-        return dm instanceof Hk2DeploymentManager ?
-                new FastDeploy((Hk2DeploymentManager) dm) : null;
-    }
-    
-    public FindJSPServlet getFindJSPServlet(DeploymentManager dm) {
-        Logger.getLogger("glassfish-javaee").log(Level.INFO, 
-                "JavaEE_V3_OptionalFactory.getFindJSPServlet");
-        return null;
-    }
-    
+
+    public abstract void actionPerformed(ActionEvent e);
+
     @Override
-    public InstantiatingIterator getAddInstanceIterator() {
-        return null;
+    public abstract boolean isEnabled();
+
+    // --------------------------------------------------------------------
+    // ChangeListener interface implementation
+    // --------------------------------------------------------------------
+    public void stateChanged(ChangeEvent evt) {
+        Mutex.EVENT.readAccess(new Runnable() {
+            public void run() {
+                firePropertyChange(PROP_ENABLED, null, isEnabled() ? Boolean.TRUE : Boolean.FALSE);
+            }
+        });
     }
-    
 }

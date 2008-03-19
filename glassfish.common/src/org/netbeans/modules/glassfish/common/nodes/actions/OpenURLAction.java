@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,13 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,50 +37,69 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
- * Contributor(s):
- * 
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.glassfish.common.nodes.actions;
 
-package org.netbeans.modules.glassfish.javaee;
-
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import org.netbeans.modules.glassfish.javaee.ide.FastDeploy;
-import org.netbeans.modules.j2ee.deployment.plugins.spi.FindJSPServlet;
-import org.netbeans.modules.j2ee.deployment.plugins.spi.IncrementalDeployment;
-import org.netbeans.modules.j2ee.deployment.plugins.spi.OptionalDeploymentManagerFactory;
-import org.netbeans.modules.j2ee.deployment.plugins.spi.StartServer;
-import org.openide.WizardDescriptor.InstantiatingIterator;
-
+import org.openide.awt.HtmlBrowser.URLDisplayer;
+import org.openide.nodes.Node;
+import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
+import org.openide.util.actions.NodeAction;
 
 /**
+ * Action which displays selected web module in browser.
  *
- * @author Ludovic Champenois
- * @author Peter Williams
+ * @author Michal Mocnak
  */
-public class Hk2OptionalFactory extends OptionalDeploymentManagerFactory {
-    
-    public StartServer getStartServer(DeploymentManager dm) {
-        return new Hk2StartServer(dm);
+public class OpenURLAction extends NodeAction {
+
+    protected void performAction(Node[] nodes) {
+        for(Node node : nodes) {
+            OpenURLActionCookie oCookie = node.getCookie(OpenURLActionCookie.class);
+
+            if(oCookie != null) {
+                try {
+                    URLDisplayer.getDefault().showURL(new URL(oCookie.getWebURL()));
+                } catch(MalformedURLException ex) {
+                    Logger.getLogger("glassfish").log(Level.INFO, ex.getLocalizedMessage(), ex);
+                }
+            }
+        }
     }
-    
-    public IncrementalDeployment getIncrementalDeployment(DeploymentManager dm) {
-        return dm instanceof Hk2DeploymentManager ?
-                new FastDeploy((Hk2DeploymentManager) dm) : null;
+
+    protected boolean enable(Node[] nodes) {
+        for(Node node : nodes) {
+            OpenURLActionCookie oCookie = node.getCookie(OpenURLActionCookie.class);
+            UndeployModuleCookie uCookie = node.getCookie(UndeployModuleCookie.class);
+
+            if(uCookie != null) {
+                if(uCookie.isRunning()) {
+                    return false;
+                }
+            }
+            if(oCookie != null && oCookie.getWebURL() != null) {
+                return true;
+            }
+        }
+
+        return false;
     }
-    
-    public FindJSPServlet getFindJSPServlet(DeploymentManager dm) {
-        Logger.getLogger("glassfish-javaee").log(Level.INFO, 
-                "JavaEE_V3_OptionalFactory.getFindJSPServlet");
-        return null;
+
+    public String getName() {
+        return NbBundle.getMessage(OpenURLAction.class, "LBL_OpenInBrowserAction"); // NOI18N
+
     }
-    
+
     @Override
-    public InstantiatingIterator getAddInstanceIterator() {
-        return null;
+    protected boolean asynchronous() {
+        return false;
     }
-    
+
+    public HelpCtx getHelpCtx() {
+        return HelpCtx.DEFAULT_HELP;
+    }
 }

@@ -21,6 +21,7 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.core.util;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.CodeGenConstants;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -32,9 +33,11 @@ import org.netbeans.api.project.libraries.Library;
 import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.modules.schema2beans.BaseBean;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.modules.web.project.api.WebPropertyEvaluator;
 import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
@@ -201,6 +204,47 @@ public class NetbeansUtil {
 
         PropertyEvaluator pe = wpe.evaluator();
         return new EditableProperties(pe.getProperties());
+    }
+    
+    public static void saveBean(BaseBean bean, FileObject fileObject)
+    {
+        if(fileObject == null || bean == null) return;
+        
+        try {
+            FileLock lock = fileObject.lock();
+            OutputStream out = fileObject.getOutputStream(lock);
+            bean.write(out);
+            try{
+                 out.flush();
+                 out.close();
+            }catch(Exception e){
+                logger.log(Level.SEVERE,"Error flushing output stream during save of portletXml",e);
+            }
+            
+            lock.releaseLock();
+            
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE,"Error saving portlet xml file",ex);
+        }
+    }
+    
+    public static void saveBean(BaseBean bean, File file)
+    {
+        if(file == null)
+            logger.log(Level.SEVERE,"Cann't save to Null File ");
+        
+        FileObject fobj = FileUtil.toFileObject(file);
+        try{
+             if(fobj == null)
+                fobj = FileUtil.createData(file);
+        }catch(Exception e){
+            logger.severe(e.getMessage());
+        }
+        
+        if(fobj != null)
+            saveBean(bean, fobj);
+        else
+            logger.log(Level.SEVERE,"FileObject is null : "+file);
     }
 }
 
