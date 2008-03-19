@@ -48,6 +48,7 @@ import org.openide.util.HelpCtx;
 import javax.swing.*;
 import java.beans.PropertyChangeListener;
 import org.netbeans.modules.clearcase.Clearcase;
+import org.netbeans.modules.clearcase.ClearcaseAnnotator;
 
 /**
  * Clearcase Options Controller.
@@ -62,7 +63,10 @@ class ClearcaseOptionsController extends OptionsPanelController {
         setOdc(ClearcaseModuleConfig.getOnDemandCheckout());
         panel.taExecutable.setText(ClearcaseModuleConfig.getPreferences().get(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, "cleartool"));
         panel.cbCheckinViewPrivate.setSelected(ClearcaseModuleConfig.getPreferences().getBoolean(ClearcaseModuleConfig.PROP_ADD_VIEWPRIVATE, true));
-        panel.taLabelFormat.setText(ClearcaseModuleConfig.getPreferences().get(ClearcaseModuleConfig.PROP_LABEL_FORMAT, ""));
+        panel.taLabelFormat.setText(
+                ClearcaseModuleConfig.getPreferences().get(
+                        ClearcaseModuleConfig.PROP_LABEL_FORMAT, 
+                        "[{" + ClearcaseAnnotator.ANNOTATION_STATUS + "}; {" + ClearcaseAnnotator.ANNOTATION_VERSION + "}]"));
     }
 
     public void applyChanges() {
