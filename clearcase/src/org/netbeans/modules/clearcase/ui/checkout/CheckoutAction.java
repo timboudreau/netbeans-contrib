@@ -51,16 +51,14 @@ import java.awt.Dialog;
 import java.io.File;
 import java.util.*;
 
+import java.util.ArrayList;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
 import org.netbeans.modules.clearcase.FileInformation;
-import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.clearcase.client.*;
-import org.netbeans.modules.clearcase.client.status.FileEntry;
 
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.awt.Mnemonics;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -87,7 +85,7 @@ public class CheckoutAction extends AbstractAction {
     public CheckoutAction(VCSContext context) {
         this.context = context;
         status = getActionStatus();
-        putValue(Action.NAME, status == STATUS_UNCHECKOUT ? "Uncheckout..." : "Checkout...");
+        putValue(Action.NAME, status == STATUS_UNCHECKOUT ? NbBundle.getMessage(CheckoutAction.class, "Action_Uncheckout_Name") : NbBundle.getMessage(CheckoutAction.class, "Action_Checkout_Name")); //NOI18N
     }
 
     private int getActionStatus() {
@@ -140,7 +138,7 @@ public class CheckoutAction extends AbstractAction {
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(CheckoutAction.class, "CTL_UncheckoutDialog_Title", contextTitle)); // NOI18N
         dd.setModal(true);
         dd.setMessageType(DialogDescriptor.WARNING_MESSAGE);
-        Mnemonics.setLocalizedText(unCheckoutButton, NbBundle.getMessage(CheckoutAction.class, "CTL_UncheckoutDialog_Unheckout"));
+        Mnemonics.setLocalizedText(unCheckoutButton, NbBundle.getMessage(CheckoutAction.class, "CTL_UncheckoutDialog_Unheckout")); //NOI18N
         
         dd.setOptions(new Object[] {unCheckoutButton, DialogDescriptor.CANCEL_OPTION}); // NOI18N
         dd.setHelpCtx(new HelpCtx(CheckoutAction.class));
@@ -154,15 +152,29 @@ public class CheckoutAction extends AbstractAction {
         
         Object value = dd.getValue();
         if (value != unCheckoutButton) return;
+
+        // the direct children for every root have to be refeshed as
+        // the unceheckout might have changed the files structure -
+        // - newly added file won't be referenced etc.      
+        List<File> filesToRefresh = new ArrayList<File>();
+        for (File file : files) {
+            filesToRefresh.add(file);
+            File[] children = file.listFiles();
+            if(children != null) {
+                for (File child : children) {
+                    filesToRefresh.add(child);
+                }
+            }    
+        }
         
         boolean keepFiles = panel.cbKeep.isSelected();
         UnCheckoutCommand cmd = 
                 new UnCheckoutCommand(
                     files, 
                     keepFiles, 
-                    new AfterCommandRefreshListener(files), 
+                    new AfterCommandRefreshListener(filesToRefresh.toArray(new File[filesToRefresh.size()])), 
                     new OutputWindowNotificationListener());
-        Clearcase.getInstance().getClient().post("Undoing Checkout...", cmd);
+        Clearcase.getInstance().getClient().post(NbBundle.getMessage(CheckoutAction.class, "Progress_Undoing_Checkout"), cmd); //NOI18N
     }
 
     private static void performCheckout(File[] files, String title) {        
@@ -171,7 +183,7 @@ public class CheckoutAction extends AbstractAction {
         
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(CheckoutAction.class, "CTL_CheckoutDialog_Title", title)); // NOI18N
         dd.setModal(true);        
-        org.openide.awt.Mnemonics.setLocalizedText(checkoutButton, org.openide.util.NbBundle.getMessage(CheckoutAction.class, "CTL_CheckoutDialog_Checkout"));
+        org.openide.awt.Mnemonics.setLocalizedText(checkoutButton, org.openide.util.NbBundle.getMessage(CheckoutAction.class, "CTL_CheckoutDialog_Checkout")); //NOI18N
         
         dd.setOptions(new Object[] {checkoutButton, DialogDescriptor.CANCEL_OPTION}); // NOI18N
         dd.setHelpCtx(new HelpCtx(CheckoutAction.class));
@@ -198,6 +210,6 @@ public class CheckoutAction extends AbstractAction {
                         false, 
                         new AfterCommandRefreshListener(files), 
                         new OutputWindowNotificationListener());                
-        Clearcase.getInstance().getClient().post("Checking out...", cmd);        
+        Clearcase.getInstance().getClient().post(NbBundle.getMessage(CheckoutAction.class, "Progress_Checkout"), cmd); //NOI18N
     }        
 }

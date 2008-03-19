@@ -80,7 +80,7 @@ public class ReserveAction extends AbstractAction {
     public ReserveAction(VCSContext context) {
         this.context = context;
         status = getActionStatus();
-        putValue(Action.NAME, status == STATUS_UNRESERVE ? "Unreserve..." : "Reserve...");
+        putValue(Action.NAME, status == STATUS_UNRESERVE ? NbBundle.getMessage(ReserveAction.class, "Action_Unreserve_Name") : NbBundle.getMessage(ReserveAction.class, "Action_Reserve_Name")); //NOI18N
     }
 
     private int getActionStatus() {
@@ -124,7 +124,7 @@ public class ReserveAction extends AbstractAction {
         
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(ReserveAction.class, "CTL_UnreserveDialog_Title", title)); // NOI18N
         dd.setModal(true);        
-        Mnemonics.setLocalizedText(reserveButton, NbBundle.getMessage(ReserveAction.class, "CTL_UnreserveDialog_Unreserve"));
+        Mnemonics.setLocalizedText(reserveButton, NbBundle.getMessage(ReserveAction.class, "CTL_UnreserveDialog_Unreserve")); //NOI18N
         
         dd.setOptions(new Object[] {reserveButton, DialogDescriptor.CANCEL_OPTION}); // NOI18N
         dd.setHelpCtx(new HelpCtx(ReserveAction.class));
@@ -148,7 +148,7 @@ public class ReserveAction extends AbstractAction {
                     message, 
                     new AfterCommandRefreshListener(files), 
                     new OutputWindowNotificationListener());                
-        Clearcase.getInstance().getClient().post("Modifying Checkout...", cmd);
+        Clearcase.getInstance().getClient().post(NbBundle.getMessage(ReserveAction.class, "Progress_Modifying_Checkout"), cmd); //NOI18N
     }
 
     public static void performReserve(File[] files, String title) {        
@@ -158,7 +158,7 @@ public class ReserveAction extends AbstractAction {
         
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(ReserveAction.class, "CTL_ReserveDialog_Title", title)); // NOI18N
         dd.setModal(true);        
-        Mnemonics.setLocalizedText(reserveButton, NbBundle.getMessage(ReserveAction.class, "CTL_ReserveDialog_Reserve"));
+        Mnemonics.setLocalizedText(reserveButton, NbBundle.getMessage(ReserveAction.class, "CTL_ReserveDialog_Reserve")); //NOI18N
         
         dd.setOptions(new Object[] {reserveButton, DialogDescriptor.CANCEL_OPTION}); // NOI18N
         dd.setHelpCtx(new HelpCtx(ReserveAction.class));
@@ -182,6 +182,6 @@ public class ReserveAction extends AbstractAction {
                     message, 
                     new OutputWindowNotificationListener(), 
                     new AfterCommandRefreshListener(files));                
-        Clearcase.getInstance().getClient().post("Modifying Checkout...", cmd);
+        Clearcase.getInstance().getClient().post(NbBundle.getMessage(ReserveAction.class, "Progress_Modifying_Checkout"), cmd); //NOI18N
     }        
 }

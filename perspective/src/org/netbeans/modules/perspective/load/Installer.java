@@ -42,17 +42,17 @@ package org.netbeans.modules.perspective.load;
 
 import org.netbeans.modules.perspective.persistence.MainParser;
 import org.openide.modules.ModuleInstall;
+import org.openide.windows.WindowManager;
 
 /**
  * Manages a module's lifecycle.
  */
 public class Installer extends ModuleInstall {
 
-
     @Override
     public boolean closing() {
-       //store Perspective config to perspective dir
-        MainParser paser=MainParser.getInstance();
+        //store Perspective config to perspective dir
+        MainParser paser = MainParser.getInstance();
         paser.store();
         return super.closing();
     }
@@ -60,9 +60,13 @@ public class Installer extends ModuleInstall {
     @Override
     public void restored() {
         //restore perspectives from perspective dir
-        super.restored();
-        MainParser paser=MainParser.getInstance();
-        paser.restore();
+        WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
+
+            public void run() {
+
+                MainParser paser = MainParser.getInstance();
+                paser.restore();
+            }
+        });
     }
-    
 }

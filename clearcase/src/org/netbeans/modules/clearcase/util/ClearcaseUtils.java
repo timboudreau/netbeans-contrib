@@ -46,10 +46,18 @@ import org.netbeans.modules.versioning.spi.VCSContext;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.*;
-import java.util.logging.Level;
+import org.netbeans.modules.clearcase.client.AfterCommandRefreshListener;
+import org.netbeans.modules.clearcase.client.CheckoutCommand;
 import org.netbeans.modules.clearcase.client.ClearcaseClient;
+import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
 import org.netbeans.modules.clearcase.client.status.FileEntry;
 import org.netbeans.modules.clearcase.client.status.ListStatus;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.filesystems.FileUtil;
+import org.openide.windows.TopComponent;
+import org.openide.nodes.Node;
+import org.openide.util.NbBundle;
 
 /**
  * Clearase specific utility methods.
@@ -57,10 +65,115 @@ import org.netbeans.modules.clearcase.client.status.ListStatus;
  * @author Maros Sandor
  */
 public class ClearcaseUtils {
+    /**
+     * Semantics is similar to {@link org.openide.windows.TopComponent#getActivatedNodes()} except that this
+     * method returns File objects instead od Nodes. Every node is examined for Files it represents. File and Folder
+     * nodes represent their underlying files or folders. Project nodes are represented by their source groups. Other
+     * logical nodes must provide FileObjects in their Lookup.
+     *
+     * @return File [] array of activated files
+     * @param nodes or null (then taken from windowsystem, it may be wrong on editor tabs #66700).
+     */
+    public static VCSContext getCurrentContext(Node[] nodes) {
+        if (nodes == null) {
+            nodes = TopComponent.getRegistry().getActivatedNodes();
+        }
+        return VCSContext.forNodes(nodes);
+    }
 
+    /**
+     * Assynchronously refreshes the status for files and their filesystems. 
+     * Note, that a refresh on the NB filesystem may result in intercepting 
+     * new file events. 
+     * 
+     * @param files files to be refreshed          
+     * @param includeChildren if true all children for the given files will be explicitly refreshed too
+     */
+    public static void afterCommandRefresh(final File[] files, final boolean includeChildren) {          
+        Clearcase.getInstance().getRequestProcessor().post(new Runnable() {
+            public void run() {
+                // refreshing the NB filessytem before the cache refresh starts firing change events -> 
+                // otherwise they might cause externally deleted/created warnings
+                Set<File> parents = new HashSet<File>();
+                for (File file : files) {
+                    File parent = file.getParentFile();
+                    if (parent != null) {
+                        parents.add(parent);
+                    }
+                }
+                FileUtil.refreshFor(parents.toArray(new File[parents.size()])); 
+
+                // refresh the cache ...
+                Set<File> refreshSet = new HashSet<File>();
+                for (File file : files) {
+                    if(includeChildren) {
+                        refreshSet.addAll(getFilesTree(file));    
+                    } else {
+                        refreshSet.add(file);
+                    }
+                }                        
+                File[] refreshFiles = refreshSet.toArray(new File[refreshSet.size()]);
+                Clearcase.getInstance().getFileStatusCache().refreshLater(refreshFiles);                            
+            }
+        });                
+    }
+
+    public static List<File> getFilesTree(File file) {
+        List<File> ret = new  ArrayList<File>();
+        ret.add(file);
+        if(file.isDirectory()) {
+            File[] files = file.listFiles();
+            if(files != null) {
+                for (File f : files) {
+                    ret.addAll(getFilesTree(f));
+                }
+            }
+        }
+        return ret;
+    }
+
+    public static enum ViewType { None, Snapshot, Dynamic, Remote };
+    
     private ClearcaseUtils() {
     }
 
+    private static ViewType getViewType(File file) {
+        // TODO: incomplete implementation
+        if (Clearcase.getInstance().getTopmostSnapshotViewAncestor(file) != null) return ViewType.Snapshot;
+        return ViewType.None;
+    }
+
+    /**
+     * Query for files in snapshot views.
+     * 
+     * @param ctx a context to scan
+     * @return true if the context contains at least one file from a snapshot view, false otherwise
+     */
+    public static boolean containsSnapshot(VCSContext ctx) {
+        for (File file : ctx.getRootFiles()) {
+            if (getViewType(file) == ViewType.Snapshot) return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Computes previous revision number to the given one.
+     * 
+     * @param rev a revision number, eg. "/main/3"
+     * @return String predecesor revision number, eg. "/main/2"
+     */
+    public static String previousRevision(String rev) {
+        int idx = rev.lastIndexOf(File.separator);
+        if (idx == -1) return null;
+        int revno = 0;
+        try {
+            revno = Integer.parseInt(rev.substring(idx + 1));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        return rev.substring(0, idx + 1) + (revno - 1);
+    }
+    
     /**
      * Determines whether the supplied context contains something managed by Clearcase.s
      * 
@@ -190,8 +303,8 @@ public class ClearcaseUtils {
      * @param file the file to get the {@link FileEntry} for
      * @return the {@link FileEntry}
      */
-    public static FileEntry readEntry(File file) {
-        List<FileEntry> entries = readEntries(file, true);
+    public static FileEntry readEntry(ClearcaseClient client, File file) {
+        List<FileEntry> entries = readEntries(client, file, true);
         if(entries == null || entries.size() == 0) {
             return null;
         }
@@ -207,16 +320,109 @@ public class ClearcaseUtils {
      * @return {@link FileEntry}-s describing the files actuall status
      * @see {@link FileEntry}
      */   
-    public static List<FileEntry> readEntries(File file, boolean directory) {
+    public static List<FileEntry> readEntries(ClearcaseClient client, File file, boolean directory) {
         if(file == null) {
             return null;
-        }
-        final ClearcaseClient client = Clearcase.getInstance().getClient();
+        }       
         // 1. list files ...
         ListStatus ls = new ListStatus(file, directory);    
         client.exec(ls, false);
 
         return new ArrayList<FileEntry>(ls.getOutput());
     }
+
+    /**
+     * The file given in {@link #ensureMutable(org.netbeans.modules.clearcase.client.ClearcaseClient, java.io.File)} or
+     * {@link #ensureMutable(org.netbeans.modules.clearcase.client.ClearcaseClient, java.io.File, org.netbeans.modules.clearcase.client.status.FileEntry)}     
+     * is mutable.
+     */
+    public static int IS_MUTABLE        = 1;
     
+    /**
+     * The file given in {@link #ensureMutable(org.netbeans.modules.clearcase.client.ClearcaseClient, java.io.File)} or
+     * {@link #ensureMutable(org.netbeans.modules.clearcase.client.ClearcaseClient, java.io.File, org.netbeans.modules.clearcase.client.status.FileEntry)}
+     * is mutable and was checkedout by the method.
+     */
+    public static int WAS_CHECKEDOUT    = 2;
+    
+    /**
+     * Checks out the file or directory depending on the user-selected strategy in Options.
+     * In case the file is already writable or the directory is checked out, the method does nothing.
+     * Interceptor entry point.
+     * 
+     * @param client ClearcaseClient
+     * @param file file to checkout
+     * @return <ul> 
+     *            <li>0 isn't mutable
+     *            <li>{@link #IS_MUTABLE} is mutable  
+     *            <li>{@link #WAS_CHECKEDOUT} is mutable and was checkout by the method
+     *          </ul> 
+     * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
+     */
+    public static int ensureMutable(ClearcaseClient client, File file) {
+        return ensureMutable(client, file, null);
+    }   
+        
+    /**
+     * Checks out the file or directory depending on the user-selected strategy in Options.
+     * In case the file is already writable or the directory is checked out, the method does nothing.
+     * Interceptor entry point.
+     * 
+     * @param client ClearcaseClient
+     * @param file file to checkout
+     * @param entry the given files {@link FileEntry}
+     * @return <ul> 
+     *            <li>0 isn't mutable
+     *            <li>{@link #IS_MUTABLE} is mutable  
+     *            <li>{@link #WAS_CHECKEDOUT} is mutable and was checkout by the method
+     *          </ul> 
+     * @see org.netbeans.modules.clearcase.ClearcaseModuleConfig#getOnDemandCheckout()
+     */
+    public static int ensureMutable(ClearcaseClient client, File file, FileEntry entry) {
+        if (file.isDirectory()) {
+            if(entry == null) {
+                entry = ClearcaseUtils.readEntry(client, file);                
+            }
+            if (entry == null || entry.isCheckedout() || entry.isViewPrivate()) {
+                return IS_MUTABLE;
+            }
+        } else {
+            if (file.canWrite()) return IS_MUTABLE;
+        }
+
+        ClearcaseModuleConfig.OnDemandCheckout odc = ClearcaseModuleConfig.getOnDemandCheckout();
+
+        CheckoutCommand command;
+        switch (odc) {
+        case Disabled:
+            // XXX let the user decide if he want's to checkout the file
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message(NbBundle.getMessage(ClearcaseInterceptor.class, "Interceptor_NoOnDemandCheckouts_Warning"))); //NOI18N
+            return 0;
+        case Reserved:
+        case ReservedWithFallback:
+            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Reserved, true, new AfterCommandRefreshListener(file));
+            break;
+        case Unreserved:
+            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, new AfterCommandRefreshListener(file));
+            break;
+        default:
+            throw new IllegalStateException("Illegal Checkout type: " + odc);
+        }
+        
+        Clearcase.getInstance().getClient().exec(command, odc != ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback);
+        if(!command.hasFailed()) {
+            return WAS_CHECKEDOUT;
+        } else if(odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback) {
+            command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, 
+                                          new OutputWindowNotificationListener(), new AfterCommandRefreshListener(file));
+            Clearcase.getInstance().getClient().exec(command, true);
+            if (command.hasFailed()) {    
+                return 0;
+            } else {
+                return WAS_CHECKEDOUT;
+            }   
+        } else {
+            return 0;
+        }
+    }        
 }

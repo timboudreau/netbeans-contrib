@@ -52,6 +52,8 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.concurrent.ExecutionException;
@@ -60,6 +62,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.spi.glassfish.AppDesc;
 import org.netbeans.spi.glassfish.GlassfishModule;
 import org.netbeans.spi.glassfish.GlassfishModule.OperationState;
 import org.netbeans.spi.glassfish.OperationStateListener;
@@ -71,6 +74,8 @@ import org.netbeans.spi.glassfish.OperationStateListener;
  * @author Peter Williams
  */
 public class CommandRunner extends BasicTask<OperationState> {
+    
+    public final int HTTP_RETRY_DELAY = 3000;
     
     /** Executor that serializes management tasks. 
      */
@@ -111,15 +116,15 @@ public class CommandRunner extends BasicTask<OperationState> {
      * 
      * @return String array of names of deployed applications.
      */
-    public String [] getApplications() {
-        String[] result = new String[0];
+    public Map<String, List<AppDesc>> getApplications(String container) {
+        Map<String, List<AppDesc>> result = Collections.emptyMap();
         try {
-            ServerCommand.ListCommand cmd = new ServerCommand.ListCommand();
+            ServerCommand.ListCommand cmd = new ServerCommand.ListCommand(container);
             serverCmd = cmd;
             Future<OperationState> task = executor().submit(this);
             OperationState state = task.get();
             if (state == OperationState.COMPLETED) {
-                result = cmd.getApplications();
+                result = cmd.getApplicationMap();
             }
         } catch (InterruptedException ex) {
             Logger.getLogger("glassfish").log(Level.INFO, ex.getMessage(), ex);
@@ -167,7 +172,7 @@ public class CommandRunner extends BasicTask<OperationState> {
         return executor().submit(this);
     }
     
-    public Future<OperationState> redeploy(String moduleName)  {
+    public Future<OperationState> redeploy(String moduleName, String contextRoot)  {
 //        try {
 //            this.tmId = (Hk2TargetModuleID) targetModuleID;
 //            command = "redeploy?name=" +targetModuleID.getModuleID(); // NOI18N
@@ -182,7 +187,7 @@ public class CommandRunner extends BasicTask<OperationState> {
 //            fireOperationStateChanged(null, new Status(ActionType.EXECUTE, serverCmd, msg, StateType.FAILED));
 //        }
         
-        ServerCommand.RedeployCommand cmd = new ServerCommand.RedeployCommand(moduleName);
+        ServerCommand.RedeployCommand cmd = new ServerCommand.RedeployCommand(moduleName, contextRoot);
         serverCmd = cmd;
         return executor().submit(this);
     }
@@ -246,16 +251,18 @@ public class CommandRunner extends BasicTask<OperationState> {
         URLConnection conn = null;
         String commandUrl = constructCommandUrl(true);
         
-        System.out.println("CommandRunner.call(" + commandUrl + ") called on thread \"" + 
+        Logger.getLogger("glassfish").log(Level.FINEST, 
+                "CommandRunner.call(" + commandUrl + ") called on thread \"" + 
                 Thread.currentThread().getName() + "\"");
         
         // Create a connection for this command
         try {
             urlToConnectTo = new URL(commandUrl);
-            Logger.getLogger("glassfish").log(Level.INFO, "V3 HTTP Command: " + commandUrl);
 
-            while(retries-- > 0) {
+            while(!succeeded && retries-- > 0) {
                 try {
+                    Logger.getLogger("glassfish").log(Level.FINE, "V3 HTTP Command: " + commandUrl );
+
                     conn = urlToConnectTo.openConnection();
                     if(conn instanceof HttpURLConnection) {
                         HttpURLConnection hconn = (HttpURLConnection) conn;
@@ -287,7 +294,7 @@ public class CommandRunner extends BasicTask<OperationState> {
                             // connection to manager has not been allowed
                             authorized = false;
                             return fireOperationStateChanged(OperationState.FAILED, 
-                                    "MSG_AuthorizationFailed", serverCmd.toString(), instanceName);
+                                    "MSG_AuthorizationFailed", serverCmd.toString(), instanceName); // NOI18N
                         }
 
                         // !PW FIXME log status for debugging purposes
@@ -304,23 +311,23 @@ public class CommandRunner extends BasicTask<OperationState> {
                             succeeded = serverCmd.processResponse();
                         }
                     } else {
-                        Logger.getLogger("glassfish").log(Level.INFO, "Unexpected connection type: " + 
+                        Logger.getLogger("glassfish").log(Level.INFO, "Unexpected connection type: " +
                                 urlToConnectTo);
                     }
                 } catch(ProtocolException ex) {
-                    fireOperationStateChanged(OperationState.FAILED, "MSG_Exception", 
+                    fireOperationStateChanged(OperationState.FAILED, "MSG_Exception", // NOI18N
                             ex.getLocalizedMessage());
                     retries = 0;
                 } catch(IOException ex) {
                     if(retries <= 0) {
-                        fireOperationStateChanged(OperationState.FAILED, "MSG_Exception", 
+                        fireOperationStateChanged(OperationState.FAILED, "MSG_Exception", // NOI18N
                                 ex.getLocalizedMessage());
                     }
                 }
-
+                
                 if(!succeeded && retries > 0) {
                     try {
-                        Thread.sleep(3000);
+                        Thread.sleep(HTTP_RETRY_DELAY);
                     } catch (InterruptedException e) {}
                 }
             } // while
@@ -329,10 +336,10 @@ public class CommandRunner extends BasicTask<OperationState> {
         }
         
         if(succeeded) {
-            return fireOperationStateChanged(OperationState.COMPLETED, "MSG_ServerCmdCompleted", 
+            return fireOperationStateChanged(OperationState.COMPLETED, "MSG_ServerCmdCompleted", // NOI18N
                     serverCmd.toString(), instanceName);
         } else {
-            return fireOperationStateChanged(OperationState.FAILED, "MSG_ServerCmdFailed", 
+            return fireOperationStateChanged(OperationState.FAILED, "MSG_ServerCmdFailed", // NOI18N
                     serverCmd.toString(), instanceName);
         }
     }

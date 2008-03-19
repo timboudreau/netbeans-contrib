@@ -41,7 +41,7 @@ public class PortletContext {
     private String editJsp;
     private String helpJsp;
     private boolean hasJsp = false;
-   
+    private String resourceBundle = null;
     /** Creates a new instance of PortletContext */
     public PortletContext() {
     }
@@ -210,5 +210,15 @@ public class PortletContext {
     public void setPortletVersion(String version)
     {
         this.version = version;
+    }
+    
+    public void setResourceBundle(String resBundle)
+    {
+        this.resourceBundle = resBundle;
+    }
+    
+    public String getResourceBundle()
+    {
+        return resourceBundle;
     }
 }

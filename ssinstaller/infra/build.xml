@@ -557,21 +557,19 @@ jarsigner.storepass=${jarsigner.storepass}
                        platform="solaris-x86" 
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-x86.sh">
             <component uid="ss-base" version="1.0.0.0.0"/>
-            <!--<component uid="ssi-nativepackages" version="1.0.0.0.0"/>
-            -->
             <component uid="nb-base" version="${nb.full.version}"/>
             <component uid="nb-cnd" version="${nb.full.version}"/>
-            <component uid="C_Compiler" version="1.0.0.0.0"/>
-            <component uid="C++_Compiler" version="1.0.0.0.0"/>
-            <component uid="Fortran_95_Compiler" version="1.0.0.0.0"/>
-            <component uid="DBX_Debugging_Tools" version="1.0.0.0.0"/>
-            <component uid="build_tools" version="1.0.0.0.0"/>
-            <component uid="X-Designer" version="1.0.0.0.0"/>
-            <component uid="demos" version="1.0.0.0.0"/>
-            <component uid="external_editors" version="1.0.0.0.0"/>
-            <component uid="support_files" version="1.0.0.0.0"/>
-            <component uid="Performance_Library" version="1.0.0.0.0"/>
-            <component uid="Third-party_Source" version="1.0.0.0.0"/>
+            <component uid="c-compiler" version="1.0.0.0.0"/>
+	    <component uid="c---compiler" version="1.0.0.0.0"/>
+	    <component uid="fortran--compiler" version="1.0.0.0.0"/>
+	    <component uid="dbx-debugging-tools" version="1.0.0.0.0"/>
+	    <component uid="build-tools" version="1.0.0.0.0"/>
+	    <component uid="x-designer" version="1.0.0.0.0"/>
+	    <component uid="demos" version="1.0.0.0.0"/>
+	    <component uid="external-editors" version="1.0.0.0.0"/>
+	    <component uid="support-files" version="1.0.0.0.0"/>
+            <component uid="performance-library" version="1.0.0.0.0"/>
+	    <component uid="third-party-source" version="1.0.0.0.0"/>
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
         <!--

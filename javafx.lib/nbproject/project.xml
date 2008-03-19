@@ -71,11 +71,11 @@ made subject to such option by the copyright holder.
                 <package>com.sun.javafx.api</package>
                 <package>com.sun.source.tree</package>
                 <package>com.sun.source.util</package>
+                <package>com.sun.tools.javac.tree</package>
                 <package>com.sun.tools.javac.util</package>
                 <package>com.sun.tools.javafx.main</package>
                 <package>javax.lang.model.element</package>
                 <package>javax.lang.model.type</package>
-                <package>javax.lang.model.util</package>
                 <package>javax.tools</package>
                 <package>org.jdesktop.layout</package>
             </public-packages>

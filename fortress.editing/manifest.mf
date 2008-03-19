@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.fortress.editing
+OpenIDE-Module-Layer: org/netbeans/modules/fortress/editing/resources/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/fortress/editing/Bundle.properties
+OpenIDE-Module-Specification-Version: 0.10.0
+

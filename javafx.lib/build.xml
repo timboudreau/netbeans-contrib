@@ -43,18 +43,9 @@ made subject to such option by the copyright holder.
 <project name="org.netbeans.modules.javafx.lib" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project javafx.</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
-    <target name="netbeans-extra" depends="init, check_downloaded" unless="skip_download">
-        <get src="${jfxcompiler.jar.url}" dest="${jfxcompiler.jar}"/>
-        <get src="${jfxrt.jar.url}" dest="${jfxrt.jar}"/>
-        <get src="${Scenario.jar.url}" dest="${Scenario.jar}"/>
-    </target>
-    <target name="check_downloaded" depends="init">
-        <condition property="skip_download">
-            <and>
-              <available file="${jfxcompiler.jar}"/>
-              <available file="${jfxrt.jar}"/>
-              <available file="${Scenario.jar}"/>
-            </and>
-        </condition>
+    <target name="netbeans-extra" depends="init">
+        <get src="${jfxcompiler.jar.url}" dest="${jfxcompiler.jar}" usetimestamp="true" verbose="true"/>
+        <get src="${jfxrt.jar.url}" dest="${jfxrt.jar}" usetimestamp="true" verbose="true"/>
+        <get src="${Scenario.jar.url}" dest="${Scenario.jar}" usetimestamp="true" verbose="true"/>
     </target>
 </project>

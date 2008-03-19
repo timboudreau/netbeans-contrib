@@ -245,7 +245,7 @@ public class SyncFileNode extends AbstractNode {
 
         public Object getValue() throws IllegalAccessException, InvocationTargetException {
             FileInformation finfo =  node.getInfo();
-            finfo.getStatus(node.getFile());  
+            finfo.getStatus(Clearcase.getInstance().getClient(), node.getFile());  
             int mask = panel.getDisplayStatuses();
             return finfo.getStatusText(mask);
         }

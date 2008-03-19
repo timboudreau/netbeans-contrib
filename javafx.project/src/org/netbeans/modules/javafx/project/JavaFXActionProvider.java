@@ -499,7 +499,7 @@ class JavaFXActionProvider implements ActionProvider {
                 if (!file.getExt().equals("fx")){
                     mainClasses = JavaFXProjectUtil.getMainMethods (file);
                 }
-                if ((file.getExt().equals("fx")) || (!hasMainClassFromTest && mainClasses.isEmpty())) {
+                if (!file.getExt().equals("fx") && !hasMainClassFromTest && mainClasses.isEmpty()) {
                     if (AppletSupport.isApplet(file)) {
 
                         EditableProperties ep = updateHelper.getProperties (AntProjectHelper.PROJECT_PROPERTIES_PATH);
@@ -544,7 +544,7 @@ class JavaFXActionProvider implements ActionProvider {
                         return null;
                     }
                 } else {
-                    if (!hasMainClassFromTest) {                    
+                    if (!file.getExt().equals("fx") && !hasMainClassFromTest) {
                         if (mainClasses.size() == 1) {
                             //Just one main class
                             clazz = mainClasses.iterator().next().getBinaryName();
@@ -799,7 +799,8 @@ class JavaFXActionProvider implements ActionProvider {
             //Check if files are either packages of java files
             if (files != null) {
                 for (int i = 0; i < files.length; i++) {
-                    if (!files[i].isFolder() && !"java".equals(files[i].getExt())) {
+                    if (!files[i].isFolder() && 
+                            (!"java".equals(files[i].getExt())) && (!"fx".equals(files[i].getExt()))) {
                         return null;
                     }
                 }

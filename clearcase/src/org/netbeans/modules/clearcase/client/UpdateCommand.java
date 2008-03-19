@@ -50,6 +50,10 @@ import java.io.File;
  * @author Maros Sandor
  */
 public class UpdateCommand extends FilesCommand {
+
+    public static enum HijackedAction { DoNotTouch, Overwrite, BackupAndOverwrite };
+
+    private final HijackedAction hijacked;
     
     /**
      * Creates Update command.
@@ -57,13 +61,18 @@ public class UpdateCommand extends FilesCommand {
      * @param files files to update
      * @param listeners listeners for update events
      */
-    public UpdateCommand(File [] files, NotificationListener... listeners) {
+    public UpdateCommand(File [] files, HijackedAction hijacked, NotificationListener... listeners) {
         super(files, listeners);
+        this.hijacked = hijacked;
     }
 
     public void prepareCommand(Arguments arguments) throws ClearcaseException {
         arguments.add("update");
-        arguments.add("-noverwrite");
+        if (hijacked == HijackedAction.BackupAndOverwrite) {
+            arguments.add("-rename");
+        } else if (hijacked == HijackedAction.Overwrite) {
+            arguments.add("-overwrite");
+        }
         addFileArguments(arguments);
     }
 

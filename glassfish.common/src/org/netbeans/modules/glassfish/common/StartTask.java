@@ -45,6 +45,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.spi.glassfish.GlassfishModule;
 import org.netbeans.spi.glassfish.GlassfishModule.OperationState;
@@ -84,7 +86,8 @@ public class StartTask extends BasicTask<OperationState> {
     public OperationState call() {
         // Save the current time so that we can deduct that the startup
         // Failed due to timeout
-        System.out.println("StartTask.call() called on thread \"" + Thread.currentThread().getName() + "\"");
+        Logger.getLogger("glassfish").log(Level.FINEST, 
+                "StartTask.call() called on thread \"" + Thread.currentThread().getName() + "\"");
         long start = System.currentTimeMillis();
 
         String host = null;
@@ -125,6 +128,14 @@ public class StartTask extends BasicTask<OperationState> {
         while(System.currentTimeMillis() - start < TIMEOUT) {
             // Send the 'completed' event and return when the server is running
             if(CommonServerSupport.isRunning(host, port)) {
+                // !PW FIXME V3 as of March 12 is starting Grizzly & listening
+                // for connections before the server is ready to take asadmin
+                // commands.  Until this is fixed, wait 1 second before assuming
+                // it's really ok.  Otherwise, domain.xml can get corrupted.
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException ex) {
+                }
                 return fireOperationStateChanged(OperationState.COMPLETED, 
                         "MSG_SERVER_STARTED", instanceName); // NOI18N
             }

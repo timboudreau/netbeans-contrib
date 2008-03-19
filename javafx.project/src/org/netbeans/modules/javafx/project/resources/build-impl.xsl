@@ -543,7 +543,7 @@ is divided into following sections:
                             <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
                                 <xsl:attribute name="jvm">${platform.java}</xsl:attribute>
                             </xsl:if>
-                            <arg line="${{main.class}}"/>
+                            <!--arg line="${{main.class}}"/-->
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
                                 <!--path path="${{run.classpath}}:${{libs.JavaFXUserLib.classpath}}"/-->
@@ -665,6 +665,25 @@ is divided into following sections:
                          classpath="${{build.classes.dir}}:${{javac.classpath}}:${{libs.JavaFXUserLib.classpath}}"
                          compilerclasspath="${{build.classes.dir}}:${{javac.classpath}}:${{libs.JavaFXUserLib.classpath}}"/>
             </target>
+            <target name="-compile-fx-single">
+                <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask" classpath="${{libs.JavaFXUserLib.classpath}}">
+                    <classpath>
+                            <xsl:element name="pathelement">
+                                <xsl:attribute name="location">${build.classes.dir}</xsl:attribute>
+                            </xsl:element>
+                            <xsl:element name="pathelement">
+                                <xsl:attribute name="location">${javac.classpath}</xsl:attribute>
+                            </xsl:element>
+                    </classpath>
+                </taskdef>
+                <javafxc debug="${{javac.debug}}" deprecation="${{javac.deprecation}}"
+                         destdir="${{build.classes.dir}}"
+                         excludes="${{excludes}}" includeantruntime="false"
+                         includes="${{javac.includes}}" source="${{javac.source}}" sourcepath=""
+                         srcdir="${{src.dir}}" target="${{javac.target}}"
+                         classpath="${{build.classes.dir}}:${{javac.classpath}}:${{libs.JavaFXUserLib.classpath}}"
+                         compilerclasspath="${{build.classes.dir}}:${{javac.classpath}}:${{libs.JavaFXUserLib.classpath}}"/>
+            </target>
 
             <target name="-post-compile">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
@@ -694,7 +713,7 @@ is divided into following sections:
             </target>
             
             <target name="compile-single">
-                <xsl:attribute name="depends">init,deps-jar,-pre-pre-compile,-pre-compile-single,-do-compile-single,-post-compile-single</xsl:attribute>
+                <xsl:attribute name="depends">init,deps-jar,-pre-pre-compile,-pre-compile-single,-do-compile-single,-post-compile-single,-compile-fx-single</xsl:attribute>
             </target>
             
             <xsl:comment>
@@ -811,7 +830,7 @@ is divided into following sections:
             <target name="run-single">
                 <xsl:attribute name="depends">init,compile</xsl:attribute>
                 <fail unless="run.class">Must select one file in the IDE or set run.class</fail>
-                <javafxproject1:java classname="${{run.class}}"/>
+                <javafxproject1:java-run classname="${{run.class}}"/>
             </target>
             
             <xsl:comment>
@@ -1164,11 +1183,11 @@ is divided into following sections:
             <target name="run-applet">
                 <xsl:attribute name="depends">init,compile-single</xsl:attribute>
                 <fail unless="applet.url">Must select one file in the IDE or set applet.url</fail>
-                <javafxproject1:java classname="sun.applet.AppletViewer">
+                <javafxproject1:java-run classname="sun.applet.AppletViewer">
                     <customize>
                         <arg value="${{applet.url}}"/>
                     </customize>
-                </javafxproject1:java>
+                </javafxproject1:java-run>
             </target>
             
             <xsl:comment>

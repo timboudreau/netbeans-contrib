@@ -47,6 +47,7 @@ import java.awt.event.ActionEvent;
 import java.awt.Dialog;
 import java.io.File;
 import java.util.*;
+import java.util.ArrayList;
 import javax.swing.*;
 
 import javax.swing.event.TableModelEvent;
@@ -62,6 +63,7 @@ import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.ui.checkin.CheckinOptions;
 import org.netbeans.modules.clearcase.client.*;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.util.NbBundle;
@@ -106,12 +108,12 @@ public class AddAction extends AbstractAction {
         String contextTitle = Utils.getContextDisplayName(context);
         final JButton addButton = new JButton(); 
         addButton.setEnabled(false);
-        JButton cancelButton = new JButton("Cancel"); 
+        JButton cancelButton = new JButton(NbBundle.getMessage(AddAction.class, "AddAction_Cancel")); //NOI18N
         final AddPanel panel = new AddPanel();        
                 
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(AddAction.class, "CTL_AddDialog_Title", contextTitle)); // NOI18N
         dd.setModal(true);        
-        org.openide.awt.Mnemonics.setLocalizedText(addButton, org.openide.util.NbBundle.getMessage(AddAction.class, "CTL_AddDialog_Add"));
+        org.openide.awt.Mnemonics.setLocalizedText(addButton, org.openide.util.NbBundle.getMessage(AddAction.class, "CTL_AddDialog_Add")); //NOI18N
         
         dd.setOptions(new Object[] {addButton, cancelButton}); // NOI18N
         dd.setHelpCtx(new HelpCtx(AddAction.class));
@@ -120,7 +122,22 @@ public class AddAction extends AbstractAction {
         final AddTable addTable = new AddTable(panel.jLabel2, AddTable.ADD_COLUMNS, new String [] { AddTableModel.COLUMN_NAME_NAME });
         addTable.getTableModel().addTableModelListener(new TableModelListener() {
             public void tableChanged(TableModelEvent e) {
-                addButton.setEnabled(addTable.getTableModel().getRowCount() > 0);
+                if(addTable.getTableModel().getRowCount() < 1) {                    
+                    addButton.setEnabled(false);
+                    return;
+                }
+                boolean enabled = false;
+                Map<ClearcaseFileNode, CheckinOptions> filesToAdd = addTable.getAddFiles();
+                for (CheckinOptions option : filesToAdd.values()) {
+                    if (option == CheckinOptions.ADD_BINARY || 
+                        option == CheckinOptions.ADD_TEXT || 
+                        option == CheckinOptions.ADD_DIRECTORY) 
+                    {
+                        enabled = true;
+                        break;
+                    }                
+                }
+                addButton.setEnabled(enabled);
             }
         });
         computeNodes(addTable, cancelButton, panel);        
@@ -136,7 +153,7 @@ public class AddAction extends AbstractAction {
         Object value = dd.getValue();
         if (value != addButton) return;
 
-        ProgressSupport ps = new ProgressSupport(Clearcase.getInstance().getClient().getRequestProcessor(), "Adding...") {
+        ProgressSupport ps = new ProgressSupport(Clearcase.getInstance().getClient().getRequestProcessor(), NbBundle.getMessage(AddAction.class, "Progress_Adding")) { //NOI18N
             @Override
             protected void perform() {
                 String message = panel.taMessage.getText();
@@ -161,7 +178,7 @@ public class AddAction extends AbstractAction {
      * @return CommandRunnable that is adding the files or NULL of there are no files to add and no command was executed
      */
     public static void addFiles(final String message, boolean checkInAddedFiles, Map<ClearcaseFileNode, CheckinOptions> filesToAdd, ProgressSupport ps) {
-        Set<File> tmpFiles = new HashSet<File>();
+        Set<File> tmpFiles = new HashSet<File>();        
         for (Map.Entry<ClearcaseFileNode, CheckinOptions> entry : filesToAdd.entrySet()) {
             if (entry.getValue() == CheckinOptions.ADD_BINARY || entry.getValue() == CheckinOptions.ADD_TEXT || entry.getValue() == CheckinOptions.ADD_DIRECTORY) {
                 tmpFiles.add(entry.getKey().getFile());
@@ -176,8 +193,8 @@ public class AddAction extends AbstractAction {
         
         // sort files - parents first, to avoid unnecessary warnings
         Collections.sort(addFiles);        
-        final File[] files = addFiles.toArray(new File[addFiles.size()]);
-                HashSet<File> refreshFiles = new HashSet<File>();
+        File[] files = addFiles.toArray(new File[addFiles.size()]);
+        HashSet<File> refreshFiles = new HashSet<File>();
         for (File file : files) {
             refreshFiles.add(file);
             File parent = file.getParentFile();
@@ -185,6 +202,52 @@ public class AddAction extends AbstractAction {
                 refreshFiles.add(parent);
             }    
         }                    
+                        
+        Set<File> topmostParents = new HashSet<File>();
+        for (File file : addFiles) {
+            File parent = file.getParentFile();
+            File remove = null;
+            File add = null;
+            if(topmostParents.size() == 0) {
+                topmostParents.add(parent);
+                continue;
+            }
+            for (File tmParent : topmostParents) {
+                if(parent.equals(tmParent)) {
+                    break;
+                }
+                if(Utils.isAncestorOrEqual(tmParent, parent)) {                    
+                    break;
+                } else if(Utils.isAncestorOrEqual(parent, tmParent)) {                    
+                    remove = tmParent;
+                    add = parent;
+                    break;
+                } else {
+                   add = parent; 
+                }
+            }
+            if(remove != null) {
+                topmostParents.remove(remove); 
+                remove = null;
+                topmostParents.add(add);       
+                add = null;
+            }
+            if(add != null) {
+                topmostParents.add(add);       
+                add = null;
+            }
+        }
+
+        ClearcaseClient client = Clearcase.getInstance().getClient();
+        List<File> checkedoutParents = new ArrayList<File>();
+        for (File tmParent : topmostParents) {            
+            int ret = ClearcaseUtils.ensureMutable(client, tmParent);
+            if(ret == 0) {
+                return;
+            } else if(ret == ClearcaseUtils.WAS_CHECKEDOUT) {
+                checkedoutParents.add(tmParent);
+            }
+        }                
         MkElemCommand addCmd = 
                 new MkElemCommand(
                     files, 
@@ -193,7 +256,20 @@ public class AddAction extends AbstractAction {
                     false, 
                     new OutputWindowNotificationListener(), 
                     new AfterCommandRefreshListener(refreshFiles.toArray(new File[refreshFiles.size()])));
-        Clearcase.getInstance().getClient().exec(addCmd, true, ps);
+        client.exec(addCmd, true, ps);        
+        
+        if(checkedoutParents.size() > 0) {
+            File[] checkinParents = checkedoutParents.toArray(new File[checkedoutParents.size()]);
+            CheckinCommand checkinParentsCmd =
+                new CheckinCommand(
+                    checkinParents, 
+                    message, 
+                    true,                 // should be always modified
+                    ClearcaseModuleConfig.getPreserveTimeCheckin(), 
+                    new OutputWindowNotificationListener(), 
+                    new AfterCommandRefreshListener(checkinParents));
+            client.exec(checkinParentsCmd, true, ps);            
+        }                
     }
        
     private static void addAncestors(Set<File> addFiles) {
@@ -217,7 +293,7 @@ public class AddAction extends AbstractAction {
 
     // XXX temporary solution...
     private void computeNodes(final AddTable table, JButton cancel, final AddPanel addPanel) {
-        final ProgressSupport ps = new FileStatusCache.RefreshSupport(new RequestProcessor("Clearcase-AddTo"), context, "Preparing Add To...", cancel) {
+        final ProgressSupport ps = new FileStatusCache.RefreshSupport(new RequestProcessor("Clearcase-AddTo"), context, NbBundle.getMessage(AddAction.class, "Progress_Preparing_Add_To"), cancel) { //NOI18N
             @Override
             protected void perform() {
                 try {

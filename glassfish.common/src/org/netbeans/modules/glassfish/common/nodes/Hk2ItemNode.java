@@ -42,16 +42,27 @@
 package org.netbeans.modules.glassfish.common.nodes;
 
 import java.awt.Image;
+import java.beans.BeanInfo;
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
 import javax.swing.Action;
 import javax.swing.JFileChooser;
 import org.netbeans.modules.glassfish.common.CommandRunner;
 import org.netbeans.modules.glassfish.common.nodes.actions.DeployDirectoryCookie;
+import org.netbeans.modules.glassfish.common.nodes.actions.OpenURLAction;
+import org.netbeans.modules.glassfish.common.nodes.actions.OpenURLActionCookie;
 import org.netbeans.modules.glassfish.common.nodes.actions.RefreshModulesAction;
 import org.netbeans.modules.glassfish.common.nodes.actions.RefreshModulesCookie;
+import org.netbeans.modules.glassfish.common.nodes.actions.UndeployModuleAction;
+import org.netbeans.modules.glassfish.common.nodes.actions.UndeployModuleCookie;
+import org.netbeans.spi.glassfish.AppDesc;
+import org.netbeans.spi.glassfish.Decorator;
 import org.netbeans.spi.glassfish.GlassfishModule;
+import org.netbeans.spi.glassfish.GlassfishModule.OperationState;
 import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.nodes.AbstractNode;
@@ -59,6 +70,7 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.WindowManager;
 
@@ -71,18 +83,16 @@ import org.openide.windows.WindowManager;
  */
 public class Hk2ItemNode extends AbstractNode {
     
-    private ItemType type;
+    private Decorator decorator;
     
-    private static final String HTTP_HEADER = "http://";
+    private static final String HTTP_HEADER = "http://"; // NOI18N
+
     
-    private static final int TIMEOUT = 30000;
-    
-    private Hk2ItemNode(Children children, final Object module, final Lookup lookup, final ItemType type) {
+    private Hk2ItemNode(Children children, final Lookup lookup, final String name, final Decorator decorator) {
         super(children);
-        this.type = type;
+        this.decorator = decorator;
         
-        // NEW COOKIE CODE
-        if(type.isRefreshable()) {
+        if(decorator.isRefreshable()) {
             getCookieSet().add(new RefreshModulesCookie() {
                 public void refresh() {
                     Children children = getChildren();
@@ -93,7 +103,7 @@ public class Hk2ItemNode extends AbstractNode {
             });
         }
         
-        if(type.canDeployTo()) {
+        if(decorator.canDeployTo()) {
             getCookieSet().add(new DeployDirectoryCookie() {
                 public void deployDirectory() {
                     JFileChooser chooser = new JFileChooser();
@@ -119,270 +129,109 @@ public class Hk2ItemNode extends AbstractNode {
             }); 
         }
         
-        // OLD COOKIE CODE
-        if(type.equals(ItemType.J2EE_APPLICATION_FOLDER) ||
-                type.equals(ItemType.REFRESHABLE_FOLDER)) {
-//            getCookieSet().add(new RefreshModulesCookie() {
-//                public void refresh() {
-//                    Children children = getChildren();
-//                    if(children instanceof Refreshable)
-//                        ((Refreshable)children).updateKeys();
-//                }
-//            });
-//            getCookieSet().add(new DeployDirectoryCookie() {
-//                private boolean isRunning = false;
-//                public void deployDirectory() {
-//                    
-//                    JFileChooser chooser = new JFileChooser();
-//                    chooser.setDialogTitle(NbBundle.getMessage(Hk2ItemNode.class, "LBL_ChooseButton")); //NOI18N
-//                    chooser.setDialogType(JFileChooser.CUSTOM_DIALOG);
-//                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-//                    //chooser.setApproveButtonMnemonic("Choose_Button_Mnemonic".charAt(0)); //NOI18N
-//                    chooser.setMultiSelectionEnabled(false);
-//                    
-//                    //chooser.setAcceptAllFileFilterUsed(false);
-//                    //chooser.setApproveButtonToolTipText(NbBundle.getMessage(Hk2ItemNode.class, "LBL_ChooserName")); //NOI18N
-//                    //chooser.getAccessibleContext().setAccessibleName(NbBundle.getMessage(Hk2ItemNode.class, "LBL_ChooserName")); //NOI18N
-//                    //chooser.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(Hk2ItemNode.class, "LBL_ChooserName")); //NOI18N
-//                    
-//                    int returnValue = chooser.showDialog(new JFrame(), NbBundle.getMessage(Hk2ItemNode.class, "LBL_ChooseButton")); //NOI18N
-//                    
-//                    if(returnValue != JFileChooser.APPROVE_OPTION){
-//                        return;
-//                        
-//                    }
-//                    
-//                    final File dir=new File(chooser.getSelectedFile().getAbsolutePath());
-//                    final Hk2DeploymentManager dm =
-//                            (Hk2DeploymentManager)lookup.lookup(Hk2DeploymentManager.class);
-//                    final String message=NbBundle.getMessage(Hk2ItemNode.class,
-//                            "LBL_DeployProgress", chooser.getSelectedFile().getAbsolutePath());
-//                    final ProgressHandle handle = ProgressHandleFactory.createHandle(message);
-//                    
-//                    Runnable r = new Runnable() {
-//                        public void run() {
-//                            isRunning = true;
-//                            
-//                            // Save the current time so that we can deduct that the deploy
-//                            // failed due to timeout
-//                            long start = System.currentTimeMillis();
-//                            FastDeploy g= new FastDeploy(dm);
-//                            ProgressObject o =g.initialDeploy(null, dir,dir.getName()) ;
-//                            handle.progress(o.getDeploymentStatus().getMessage());
-//                            
-//                            
-//                            while(!(o.getDeploymentStatus().isCompleted()||o.getDeploymentStatus().isFailed()) && System.currentTimeMillis() - start < TIMEOUT) {
-//                                //                                System.out.println("o.getDeploymentStatus()"+o.getDeploymentStatus());
-//                                handle.progress(o.getDeploymentStatus().getMessage());
-//                                try {
-//                                    Thread.sleep(500);
-//                                } catch(InterruptedException ex) {
-//                                    // Nothing to do
-//                                }
-//                            }
-//                            handle.progress(o.getDeploymentStatus().getMessage());
-//                            handle.finish();
-//                            
-//                            NotifyDescriptor d = new NotifyDescriptor.Message(o.getDeploymentStatus().getMessage(), NotifyDescriptor.INFORMATION_MESSAGE);
-//                            d.setTitle(message);
-//                            DialogDisplayer.getDefault().notify(d);
-//                            isRunning = false;
-//                        }
-//                    };
-//                    
-//                    handle.start();
-//                    RequestProcessor.getDefault().post(r);
-//                }
-//            });        } else if(type.equals(ItemType.J2EE_APPLICATION)) {
-//                getCookieSet().add(new OpenURLActionCookie() {
-//                    public String getWebURL() {
-//                        if(module == null || lookup == null)
-//                            return null;
-//                        
-//                        try {
-//                            Hk2DeploymentManager dm = (Hk2DeploymentManager)lookup.lookup(Hk2DeploymentManager.class);
-//                            String app =  module.getModuleID();
-//                            
-//                            
-//                            
-//                            InstanceProperties ip = dm.getInstanceProperties();
-//                            
-//                            String host = ip.getProperty(Hk2PluginProperties.PROPERTY_HOST);
-//                            String httpPort = ip.getProperty(InstanceProperties.HTTP_PORT_NUMBER);
-//                            if(app == null || host == null || httpPort == null)
-//                                return null;
-//                            
-//                            return HTTP_HEADER + host + ":" + httpPort + "/"+app+"/";
-//                        } catch (Throwable t) {
-//                            return null;
-//                        }
-//                    }
-//                });
-//                getCookieSet().add(new UndeployModuleCookie() {
-//                    private boolean isRunning = false;
-//                    
-//                    public Task undeploy() {
-//                        final Hk2DeploymentManager dm =
-//                                (Hk2DeploymentManager)lookup.lookup(Hk2DeploymentManager.class);
-//                        final ProgressHandle handle = ProgressHandleFactory.createHandle(NbBundle.getMessage(Hk2ItemNode.class,
-//                                "LBL_UndeployProgress", ((Hk2TargetModuleID)module).getModuleID()));
-//                        
-//                        Runnable r = new Runnable() {
-//                            public void run() {
-//                                isRunning = true;
-//                                
-//                                // Save the current time so that we can deduct that the undeploy
-//                                // failed due to timeout
-//                                long start = System.currentTimeMillis();
-//                                
-//                                ProgressObject o = dm.undeploy(new TargetModuleID[] {module});
-//                                
-//                                while(!o.getDeploymentStatus().isCompleted() && System.currentTimeMillis() - start < TIMEOUT) {
-//                                    //                                System.out.println("o.getDeploymentStatus()"+o.getDeploymentStatus());
-//                                    try {
-//                                        Thread.sleep(500);
-//                                    } catch(InterruptedException ex) {
-//                                        // Nothing to do
-//                                    }
-//                                }
-//                                handle.progress(o.getDeploymentStatus().getMessage());
-//                                handle.finish();
-//                                isRunning = false;
-//                            }
-//                        };
-//                        
-//                        handle.start();
-//                        return RequestProcessor.getDefault().post(r);
-//                    }
-//                    
-//                    public synchronized boolean isRunning() {
-//                        return isRunning;
-//                    }
-//                });
-            } else if (type.equals(ItemType.JDBC_NATIVE_DATASOURCES) ||
-            type.equals(ItemType.JDBC_MANAGED_DATASOURCES) ||
-            type.equals(ItemType.CONNECTION_POOLS)) {
-//                getCookieSet().add(new UndeployModuleCookie() {
-//                    private boolean isRunning = false;
-//                    
-//                    public Task undeploy() {
-//                        final Hk2DeploymentManager dm =(Hk2DeploymentManager) lookup.lookup(Hk2DeploymentManager.class);
-//                        final ProgressHandle handle = ProgressHandleFactory.createHandle(NbBundle.getMessage(Hk2ItemNode.class,
-//                                "LBL_UndeployProgress", getDisplayName()));
-//                        
-//                        Runnable r = new Runnable() {
-//                            public void run() {
-//                                isRunning = true;
-//                                
-//                                //////      ludo                      Hk2DatasourceManager dsManager = new Hk2DatasourceManager(dm);
-//                                //////
-//                                //////                            // Undeploying
-//                                //////                            if(type.equals(ItemType.JDBC_NATIVE_DATASOURCES)) {
-//                                //////                                dsManager.undeployNativeDataSource(getDisplayName());
-//                                //////                            } else if (type.equals(ItemType.JDBC_MANAGED_DATASOURCES)) {
-//                                //////                                dsManager.undeployManagedDataSource(getDisplayName());
-//                                //////                            } else if (type.equals(ItemType.CONNECTION_POOLS)) {
-//                                //////                                dsManager.undeployConnectionPool(getDisplayName());
-//                                //////                            }
-//                                //////
-//                                handle.finish();
-//                                isRunning = false;
-//                            }
-//                        };
-//                        
-//                        handle.start();
-//                        return RequestProcessor.getDefault().post(r);
-//                    }
-//                    
-//                    public synchronized boolean isRunning() {
-//                        return isRunning;
-//                    }
-//                });
-            }
+        if(decorator.canUndeploy()) {
+            getCookieSet().add(new UndeployModuleCookie() {
+                
+                private volatile WeakReference<Future<OperationState>> status;
+
+                public Future<OperationState> undeploy() {
+                    Future<OperationState> result = null;
+                    GlassfishModule commonModule = lookup.lookup(GlassfishModule.class);
+                    if(commonModule != null) {
+                        CommandRunner mgr = new CommandRunner(commonModule.getInstanceProperties());
+                        result = mgr.undeploy(name);
+                        status = new WeakReference<Future<OperationState>>(result);
+                    }
+                    return result;
+                }
+
+                public boolean isRunning() {
+                    WeakReference<Future<OperationState>> localref = status;
+                    if(localref == null) {
+                        return false;
+                    }
+                    Future<OperationState> cmd = localref.get();
+                    if(cmd == null || cmd.isDone()) {
+                        return false;
+                    }
+                    return true;
+                }
+                
+            });
+        }
+
+        // !PW FIXME retrieve browser URL from decorator directly.
+        if(decorator.canShowBrowser()) {
+            getCookieSet().add(new OpenURLActionCookie() {
+                
+                public String getWebURL() {
+                    String result = null;
+                    GlassfishModule commonModule = lookup.lookup(GlassfishModule.class);
+                    if(commonModule != null) {
+                        Map<String, String> ip = commonModule.getInstanceProperties();
+                        String host = ip.get(GlassfishModule.HOSTNAME_ATTR);
+                        String httpPort = ip.get(GlassfishModule.HTTPPORT_ATTR);
+                        result = HTTP_HEADER + host + ":" + httpPort + "/" + name + "/";
+                    }
+                    return result;
+                }
+            });
+        }
     }
     
-    public Hk2ItemNode(Lookup lookup, Object module, ItemType type) {
-        this(Children.LEAF, module, lookup, type);
-//        String s = ((Hk2TargetModuleID) module).getModuleID();
-        String s = module.toString(); // was module.getModuleID()
-        setDisplayName(s);//Hk2PluginUtils.getName(module));
+    public Hk2ItemNode(Lookup lookup, AppDesc app, Decorator decorator) {
+        this(Children.LEAF, lookup, app.getName(), decorator);
+        setDisplayName(app.getName());
+        setShortDescription("<html>name: " + app.getName() + "<br>path: " + app.getPath() + "</html>");
     }
     
-    public Hk2ItemNode(Lookup lookup, Children children, String name, ItemType type) {
-        this(children, null, lookup, type);
+    public Hk2ItemNode(Lookup lookup, Children children, String name, Decorator type) {
+        this(children, lookup, name, type);
         setDisplayName(name);
     }
     
-    /** 
-     * !PW FIXME Need logic to delegate icon display to decorator in node or
-     * instance lookup.  Then JavaEE module can provide icons for EE nodes and
-     * Ruby module provide icon for Ruby nodes independent of each other.
-     *
-     * @param type
-     * @return
-     */
     @Override
     public Image getIcon(int type) {
-//        if(this.type.equals(ItemType.J2EE_APPLICATION_FOLDER)) {
-//            return UISupport.getIcon(ServerIcon.EAR_FOLDER);
-//        } else if(this.type.equals(ItemType.J2EE_APPLICATION) ||
-//                this.type.equals(ItemType.J2EE_APPLICATION_SYSTEM)) {
-//            return UISupport.getIcon(ServerIcon.EAR_ARCHIVE);
-//        } else if(this.type.equals(ItemType.JDBC_MANAGED_DATASOURCES) ||
-//                this.type.equals(ItemType.JDBC_NATIVE_DATASOURCES)) {
-//            return Utilities.loadImage(JDBC_RESOURCE_ICON);
-//        } else if(this.type.equals(ItemType.CONNECTION_POOLS)) {
-//            return Utilities.loadImage(CONNECTION_POOL_ICON);
-//        } else {
-            return getIconDelegate().getIcon(type);
-//        }
+        Image image = null;
+        Image badge = decorator.getIconBadge();
+        if(badge != null) {
+            image = badgeFolder(badge, false);
+        } else {
+            image = decorator.getIcon(type);
+        }
+        return image != null ? image : getIconDelegate().getIcon(type);
     }
     
-    /** 
-     * !PW FIXME Need logic to delegate icon display to decorator in node or
-     * instance lookup.  Then JavaEE module can provide icons for EE nodes and
-     * Ruby module provide icon for Ruby nodes independent of each other.
-     *
-     * @param type
-     * @return
-     */
     @Override
     public Image getOpenedIcon(int type) {
-//        if(this.type.equals(ItemType.J2EE_APPLICATION_FOLDER)) {
-//            return UISupport.getIcon(ServerIcon.EAR_OPENED_FOLDER);
-//        } else if(this.type.equals(ItemType.J2EE_APPLICATION) ||
-//                this.type.equals(ItemType.J2EE_APPLICATION_SYSTEM) ||
-//                this.type.equals(ItemType.JDBC_MANAGED_DATASOURCES) ||
-//                this.type.equals(ItemType.JDBC_NATIVE_DATASOURCES) ||
-//                this.type.equals(ItemType.CONNECTION_POOLS)) {
-//            return getIcon(type);
-//        } else {
-            return getIconDelegate().getOpenedIcon(type);
-//        }
-    }
-    
-    private Node getIconDelegate() {
-        return DataFolder.findFolder(Repository.getDefault().getDefaultFileSystem().getRoot()).getNodeDelegate();
+        Image image = null;
+        Image badge = decorator.getIconBadge();
+        if(badge != null) {
+            image = badgeFolder(badge, true);
+        } else {
+            image = decorator.getOpenedIcon(type);
+        }
+        return image != null ? image : getIconDelegate().getOpenedIcon(type);
     }
     
     @Override
     public Action[] getActions(boolean context) {
         List<Action> actions = new ArrayList<Action>();
 
-        if(type.isRefreshable()) {
+        if(decorator.isRefreshable()) {
             actions.add(SystemAction.get(RefreshModulesAction.class));
         }
         
-        if(type.canDeployTo()) {
+        if(decorator.canDeployTo()) {
 //            actions.add(SystemAction.get(DeployDirectoryAction.class));
         }
         
-        if(type.canUndeploy()) {
-//            actions.add(SystemAction.get(UndeployModuleAction.class));
+        if(decorator.canUndeploy()) {
+            actions.add(SystemAction.get(UndeployModuleAction.class));
         }
     
-        if(type.canShowBrowser()) {
-//            actions.add(SystemAction.get(OpenURLAction.class));
+        if(decorator.canShowBrowser()) {
+            actions.add(SystemAction.get(OpenURLAction.class));
         }
         
         return actions.toArray(new Action[actions.size()]);
@@ -400,40 +249,44 @@ public class Hk2ItemNode extends AbstractNode {
         return node;
     }
 
+    /**
+     * Applies a badge to an open or closed folder icon.
+     * 
+     * @param badge badge image for folder
+     * @param opened use open or closed folder
+     * @return an image of the badged folder
+     */
+    public static Image badgeFolder(Image badge, boolean opened) {
+        Node folderNode = getIconDelegate();
+        Image folder = opened ? folderNode.getOpenedIcon(BeanInfo.ICON_COLOR_16x16) : 
+                folderNode.getIcon(BeanInfo.ICON_COLOR_16x16);
+        return Utilities.mergeImages(folder, badge, 7, 7);
+    }
     
     /**
-     * Enumeration of node types.  Allows single location of logic for determining
-     * node action availability.
+     * Retrieves the IDE's standard folder node, so we can access the default
+     * open/closed folder icons.
+     * 
+     * @return standard folder node
      */
-    public static enum ItemType {
-        
-        J2EE_APPLICATION_FOLDER { 
-            @Override public boolean isRefreshable() { return true; }
-            @Override public boolean canDeployTo() { return true; }
-        },
-        J2EE_APPLICATION { 
-            @Override public boolean canUndeploy() { return true; }
-            @Override public boolean canShowBrowser() { return true; }
-        },
-        REFRESHABLE_FOLDER { 
-            @Override public boolean isRefreshable() { return true; }
-            @Override public boolean canDeployTo() { return true; }
-        },
-        JDBC_MANAGED_DATASOURCES { 
-            @Override public boolean canUndeploy() { return true; }
-        },
-        JDBC_NATIVE_DATASOURCES {
-            @Override public boolean canUndeploy() { return true; }
-        },
-        CONNECTION_POOLS {
-            @Override public boolean canUndeploy() { return true; }
-        };
-        
-        public boolean isRefreshable() { return false; }
-        public boolean canDeployTo() { return false; }
-        public boolean canUndeploy() { return false; }
-        public boolean canShowBrowser() { return false; }
-
+    private static Node getIconDelegate() {
+        return DataFolder.findFolder(Repository.getDefault().
+                getDefaultFileSystem().getRoot()).getNodeDelegate();
     }
- 
+    
+    public static Decorator J2EE_APPLICATION_FOLDER = new Decorator() {
+        @Override public boolean isRefreshable() { return true; }
+        @Override public boolean canDeployTo() { return true; }
+    };
+    
+    public static Decorator J2EE_APPLICATION = new Decorator() { 
+        @Override public boolean canUndeploy() { return true; }
+        @Override public boolean canShowBrowser() { return true; }
+    };
+    
+    public static Decorator REFRESHABLE_FOLDER = new Decorator() { 
+        @Override public boolean isRefreshable() { return true; }
+        @Override public boolean canDeployTo() { return true; }
+    };
+    
 }

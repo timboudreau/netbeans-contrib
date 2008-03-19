@@ -42,9 +42,15 @@ package org.netbeans.modules.glassfish.common;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import org.netbeans.spi.glassfish.AppDesc;
 
 
 /**
@@ -174,22 +180,34 @@ public abstract class ServerCommand {
      */
     public static final class ListCommand extends ServerCommand {
         
+        private final String container;
         private Manifest list = null;
-        private List<String> containerList = null;
-        private List<String> appList = null; 
+        private Map<String, List<AppDesc>> appMap = null; 
         
-        public String [] getContainers() {
-            if(containerList != null && containerList.size() > 0) {
-                return containerList.toArray(new String [containerList.size()]);
-            }
-            return null;
+        public ListCommand() {
+            this(null);
         }
         
-        public String [] getApplications() {
-            if(appList != null && appList.size() > 0) {
-                return appList.toArray(new String [appList.size()]);
+        public ListCommand(final String container) {
+            this.container = container;
+        }
+        
+        public String [] getContainers() {
+            String [] result = null;
+            if(appMap != null && appMap.size() > 0) {
+                Set<String> containers = appMap.keySet();
+                result = containers.toArray(new String[containers.size()]);
             }
-            return null;
+            return result != null ? result : new String[0];
+        }
+        
+        public Map<String, List<AppDesc>> getApplicationMap() {
+            // !PW Can still modify sublist... is there a better structure?
+            if(appMap != null) {
+                return Collections.unmodifiableMap(appMap);
+            } else {
+                return Collections.emptyMap();
+            }
         }
         
         @Override
@@ -225,31 +243,55 @@ public abstract class ServerCommand {
             }
 
             String [] containers = containerDesc.split(","); // NOI18N
-            containerList = new ArrayList<String>(containers.length);
             for(String container: containers) {
+                if(skipContainer(container)) {
+                    continue;
+                }
+                
                 // get container attributes
                 Attributes contAttr = list.getAttributes(container);
                 String appDesc = contAttr.getValue("children"); // NOI18N
+
+                // !PW XXX Do we want/need to show empty containers?
                 if(appDesc == null) {
                     // no apps currently deployed in this container
                     continue;
                 }
-
-                // !PW XXX Do we want/need to show empty containers?
-                // Only add the container if there are running apps...
-                containerList.add(container);
                 
                 String [] apps = appDesc.split(","); // NOI18N
-                appList = new ArrayList<String>(apps.length);
+                List<AppDesc> appList = new ArrayList<AppDesc>(apps.length);
                 for(String app: apps) {
                     Attributes appAttr = list.getAttributes(app);
-                    appList.add(appAttr.getValue("message")); // NOI18N
+                    String name = appAttr.getValue("message"); // NOI18N
+                    String path = appAttr.getValue("Source_value"); // NOI18N
+                    if(path.startsWith("file:")) {
+                        path = new String(path.substring(5));
+                    }
+                    appList.add(new AppDesc(name, path));
                 }
+                
+                if(appMap == null) {
+                    appMap = new HashMap<String, List<AppDesc>>();
+                }
+                
+                appMap.put(container, appList);
             }
             
             return true;
         }
     
+        /**
+         * For skipping containers we don't care about.
+         * 
+         * @param container
+         * @return
+         */
+        private boolean skipContainer(String currentContainer) {
+            return container != null ? !container.equals(currentContainer) :
+                "security_ContractProvider".equals(container);
+        }
+    
+        
     };
     
     /**
@@ -280,6 +322,7 @@ public abstract class ServerCommand {
                 cmd.append("?contextroot="); // NOI18N
                 cmd.append(contextRoot);
             }
+            cmd.append("?force=true");
             return cmd.toString();
         } 
         
@@ -291,14 +334,23 @@ public abstract class ServerCommand {
     public static final class RedeployCommand extends ServerCommand {
         
         private final String name;
+        private final String contextRoot;
         
-        public RedeployCommand(final String name) {
+        public RedeployCommand(final String name, final String contextRoot) {
             this.name = name;
+            this.contextRoot = contextRoot;
         }
         
         @Override
         public String getCommand() { 
-            return "redeploy?name=" + name; // NOI18N
+            StringBuilder cmd = new StringBuilder(128);
+            cmd.append("redeploy?name="); // NOI18N
+            cmd.append(name);
+            if(contextRoot != null && contextRoot.length() > 0) {
+                cmd.append("?contextroot="); // NOI18N
+                cmd.append(contextRoot);
+            }
+            return cmd.toString();
         }
         
     }

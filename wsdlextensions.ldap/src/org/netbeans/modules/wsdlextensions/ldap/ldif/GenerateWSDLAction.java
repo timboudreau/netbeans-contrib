@@ -13,7 +13,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
 
 public final class GenerateWSDLAction extends CookieAction {
-    
+
     protected void performAction(Node[] activatedNodes) {
         DataObject dataObject = (DataObject) activatedNodes[0].getLookup().lookup(DataObject.class);
         // TODO use dataObject
@@ -33,47 +33,46 @@ public final class GenerateWSDLAction extends CookieAction {
                 if (objs != null) {
                     for (int i = 0; i < objs.size(); i++) {
                         LdifObjectClass objclass = (LdifObjectClass) objs.get(i);
-                        GenerateXSD genXsd = new GenerateXSD(wsdlDir, objclass,
-                                "Search");
-                        GenerateWSDL genWSDL = new GenerateWSDL(wsdlDir,
-                                objclass, "Search");
-                        genXsd.generate();
-                        genWSDL.generate();
+//                        GenerateXSD genXsd = new GenerateXSD(wsdlDir, objclass,
+//                                "Search");
+//                        GenerateWSDL genWSDL = new GenerateWSDL(wsdlDir,
+//                                objclass, "Search");
+//                        genXsd.generate();
+//                        genWSDL.generate();
                     }
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-            
+
             fo.getParent().refresh();
         }
     }
-    
+
     protected int mode() {
         return CookieAction.MODE_EXACTLY_ONE;
     }
-    
+
     public String getName() {
         return NbBundle.getMessage(GenerateWSDLAction.class, "CTL_GenerateWSDLAction");
     }
-    
+
     protected Class[] cookieClasses() {
-        return new Class[] {
+        return new Class[]{
             DataObject.class
         };
     }
-    
+
     protected String iconResource() {
         return "org/netbeans/modules/wsdlextensions/ldap/resources/ldiffile16x16.png";
     }
-    
+
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }
-    
+
     protected boolean asynchronous() {
         return false;
     }
-    
 }
 

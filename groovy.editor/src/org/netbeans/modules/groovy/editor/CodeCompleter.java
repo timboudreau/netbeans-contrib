@@ -44,6 +44,9 @@ import groovy.lang.GroovySystem;
 import groovy.lang.MetaClass;
 import groovy.lang.MetaMethod;
 import groovy.util.Node;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -77,30 +80,64 @@ import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.PropertyExpression;
 import org.codehaus.groovy.ast.stmt.ExpressionStatement;
+import org.netbeans.api.java.platform.JavaPlatform;
+import org.netbeans.api.java.platform.JavaPlatformManager;
+import org.netbeans.modules.groovy.editor.elements.AstMethodElement;
+import org.netbeans.modules.groovy.support.api.GroovySettings;
+import org.openide.util.Utilities;
 
 public class CodeCompleter implements Completable {
  
     private static ImageIcon keywordIcon;
-    boolean showSymbols = false;
     private boolean caseSensitive;
     private int anchor;
-    private  final Logger LOG = Logger.getLogger(CodeCompleter.class.getName());
+    private final Logger LOG = Logger.getLogger(CodeCompleter.class.getName());
+    private String jdkJavaDocBase    = null;
+    private String groovyJavaDocBase = null;
     
     public CodeCompleter() {
-    
+        // LOG.setLevel(Level.FINEST);
+        
+        JavaPlatformManager platformMan = JavaPlatformManager.getDefault();
+        JavaPlatform  platform = platformMan.getDefaultPlatform();
+        List<URL> docfolder = platform.getJavadocFolders();
+        
+        for (URL url : docfolder) {
+            LOG.log(Level.FINEST, "JavaDoc path from PlatformManager: " + url.toString());
+            jdkJavaDocBase = url.toString();
+        }
+        
+        GroovySettings groovySettings = new GroovySettings();
+
+        // FIXME: Here we only care for the GDK, but not for the additional
+        // Groovy classes. I have to add those as well.
+        
+        String gHomeDoc = groovySettings.getGroovyHome() + "/" + "html" + "/" +"groovy-jdk/";
+        File gdoc = new File(gHomeDoc);
+        
+        if (gdoc.exists() && gdoc.isDirectory()) {
+            
+            if(Utilities.isWindows()){
+                gHomeDoc = gHomeDoc.replace("\\", "/");
+                }
+            
+            groovyJavaDocBase = "file:/" + gHomeDoc;
+            LOG.log(Level.FINEST, "GDK Doc path: " + groovyJavaDocBase);
+        }
+
     }
 
-    private void populateProposal(Object method, CompletionRequest request, List<CompletionProposal> proposals, boolean isGDK) {
+    private void populateProposal(Class clz, Object method, CompletionRequest request, List<CompletionProposal> proposals, boolean isGDK) {
         if (method != null && (method instanceof MetaMethod)) {
             MetaMethod mm = (MetaMethod) method;
 
             if (!request.prefix.equals("")) {
                 if (mm.getName().startsWith(request.prefix)) {
-                    MethodItem item = new MethodItem(mm, anchor, request, isGDK);
+                    MethodItem item = new MethodItem(clz, mm, anchor, request, isGDK);
                     proposals.add(item);
                 }
             } else {
-                MethodItem item = new MethodItem(mm, anchor, request, isGDK);
+                MethodItem item = new MethodItem(clz, mm, anchor, request, isGDK);
                 proposals.add(item);
             }
         }
@@ -117,11 +154,12 @@ public class CodeCompleter implements Completable {
     private void printMethod(MetaMethod mm) {
 
         LOG.log(Level.FINEST, "--------------------------------------------------");
-        LOG.log(Level.FINEST, "Methods.getName()       : " + mm.getName());
-        LOG.log(Level.FINEST, "Methods.toString()      : " + mm.toString());
-        LOG.log(Level.FINEST, "Methods.getDescriptor() : " + mm.getDescriptor());
-        LOG.log(Level.FINEST, "Methods.getSignature()  : " + mm.getSignature());
-        LOG.log(Level.FINEST, "Methods.getParamTypes() : " + mm.getParamTypes());
+        LOG.log(Level.FINEST, "getName()           : " + mm.getName());
+        LOG.log(Level.FINEST, "toString()          : " + mm.toString());
+        LOG.log(Level.FINEST, "getDescriptor()     : " + mm.getDescriptor());
+        LOG.log(Level.FINEST, "getSignature()      : " + mm.getSignature());
+        LOG.log(Level.FINEST, "getParamTypes()     : " + mm.getParamTypes());
+        LOG.log(Level.FINEST, "getDeclaringClass() : " + mm.getDeclaringClass());
     }
 
     private boolean startsWith(String theString, String prefix) {
@@ -154,7 +192,7 @@ public class CodeCompleter implements Completable {
         return false;
     }
     
-    private boolean completeMethods(List<CompletionProposal> proposals, CompletionRequest request, boolean isSymbol) {
+    private boolean completeMethods(List<CompletionProposal> proposals, CompletionRequest request) {
         
         // figure out which class we are dealing with:
         ASTNode root = AstUtilities.getRoot(request.info);
@@ -203,11 +241,11 @@ public class CodeCompleter implements Completable {
 
             if (metaClz != null) {
                 for (Object method : metaClz.getMetaMethods()) {
-                    populateProposal(method, request, proposals, true);
+                    populateProposal(clz, method, request, proposals, true);
                 }
 
                 for (Object method : metaClz.getMethods()) {
-                    populateProposal(method, request, proposals, false);
+                    populateProposal(clz, method, request, proposals, false);
                 }
             }
 
@@ -222,7 +260,6 @@ public class CodeCompleter implements Completable {
 
         final int astOffset = AstUtilities.getAstOffset(info, lexOffset);
         
-        //LOG.setLevel(Level.FINEST);
         LOG.log(Level.FINEST, "complete(...), prefix: " + prefix);
         
         
@@ -251,11 +288,6 @@ public class CodeCompleter implements Completable {
         final BaseDocument doc = (BaseDocument)document;
         final FileObject fileObject = info.getFileObject();
         
-        boolean showLower = true;
-        boolean showUpper = true;
-        boolean showSymbols = false;
-        char first = 0;
-
         doc.readLock(); // Read-lock due to Token hierarchy use
         
         try {        
@@ -282,7 +314,7 @@ public class CodeCompleter implements Completable {
             // completeKeywords(proposals, request, showSymbols);
             
             // complte methods
-            completeMethods(proposals, request, showSymbols);
+            completeMethods(proposals, request);
             
             return proposals;
         } finally {
@@ -292,7 +324,74 @@ public class CodeCompleter implements Completable {
     }
 
     public String document(CompilationInfo info, ElementHandle element) {
-        return "";
+        LOG.log(Level.FINEST, "document(), ElementHandle : " + element);
+        
+        String ERROR = "<h2>Not found.</h2>";
+        String doctext = ERROR;
+
+        if (element instanceof AstMethodElement) {
+            AstMethodElement ame = (AstMethodElement) element;
+
+            String base = "";
+
+            if (jdkJavaDocBase != null && ame.isGDK() == false) {
+                base = jdkJavaDocBase;
+            } else if (groovyJavaDocBase != null && ame.isGDK() == true) {
+                base = groovyJavaDocBase;
+            } else {
+                LOG.log(Level.FINEST, "Neither JDK nor GDK or error locating: " + ame.isGDK());
+                return ERROR;
+            }
+            
+            // enable this to troubleshoot subtle differences in JDK/GDK signatures
+            printMethod(ame.getMethod());
+            
+            // some (artificial) methods are declared on other Classes
+            // we have to figure this out.
+            
+            Class clz;
+            
+            if(ame.isGDK()){
+                clz = ame.getMethod().getDeclaringClass().getCachedClass();
+            } else {
+                clz = ame.getClz();
+                }
+            
+            // create path from fq java package name:
+            // java.lang.String -> java/lang/String.html
+            String classNamePath = clz.getName().replace(".", "/");
+            classNamePath = classNamePath + ".html";
+
+            // create the signature-string of the method
+            String sig = ame.getMethod().getSignature();
+            int firstblank = sig.indexOf(" ");
+            String sigName = sig.substring(firstblank + 1);
+            String urlName = base + classNamePath + "#" + sigName;
+
+            try {
+                LOG.log(Level.FINEST, "Trying to load URL = " + urlName);
+                doctext = HTMLJavadocParser.getJavadocText(
+                        new URL(urlName),
+                        false,
+                        ame.isGDK());
+            } catch (MalformedURLException ex) {
+                LOG.log(Level.FINEST, "document(), URL trouble: " + ex);
+                return ERROR;
+            }
+            
+            // If we could not find a suitable JavaDoc for the method
+            // say so. 
+            
+            if(doctext == null){
+                doctext = "Sorry, I'm unable to find the documentation.";
+            }
+
+            doctext =   "<h2>" + clz.getName() + "</h2><BR>" +
+                        "<h3>" + sig           + "</h3><BR>" + 
+                        doctext;
+
+        }
+        return doctext;
     }
 
     public ElementHandle resolveLink(String link, ElementHandle originalHandle) {
@@ -372,7 +471,10 @@ public class CodeCompleter implements Completable {
         }
 
         public ElementHandle getElement() {
-            return GroovyParser.createHandle(request.info, element);
+            LOG.log(Level.FINEST, "getElement() request.info : " + request.info);
+            LOG.log(Level.FINEST, "getElement() element : " + element);
+            
+            return null;
         }
 
         public ElementKind getKind() {
@@ -436,12 +538,19 @@ public class CodeCompleter implements Completable {
         MetaMethod method;
         HtmlFormatter formatter;
         boolean isGDK;
+        AstMethodElement methodElement;
+        Class clz;
         
-        MethodItem(MetaMethod method, int anchorOffset, CompletionRequest request, boolean isGDK) {
+        MethodItem(Class clz, MetaMethod method, int anchorOffset, CompletionRequest request, boolean isGDK) {
             super(null, anchorOffset, request);
+            this.clz = clz;
             this.method = method;
             this.formatter = request.formatter;
             this.isGDK = isGDK;
+            
+            // This is an artificial, new ElementHandle which has no real
+            // equivalent in the AST. It's used to match the one passed to super.document()
+            methodElement = new AstMethodElement(new ASTNode(), clz, method, isGDK);
         }
 
         @Override
@@ -545,11 +654,15 @@ public class CodeCompleter implements Completable {
             return retType;
         }
         
-//        @Override
-//        public ElementHandle getElement() {
-//            // For completion documentation
-//            return GroovyParser.createHandle(request.info, new AstMethodElement());
-//        }
+        @Override
+        public ElementHandle getElement() {
+            
+            // to display the documentation box for each element, the completion-
+            // element needs to implement this method. Otherwise document(...)
+            // won't even be called at all.
+            
+            return methodElement;
+        }
     }
     
     private class KeywordItem extends GroovyCompletionItem {

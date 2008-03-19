@@ -7,11 +7,13 @@
 <#if package?? && package != "">
 package ${package};
 </#if>
-import javafx.ui.*;
+
+import javafx.ui.Applet;
+
 /**
  * @author ${user}
  */
 
-class ${name} extends Applet{
+public class ${name} extends Applet{
     
 }

@@ -526,18 +526,20 @@ TranslatedSource translatedSource = null; // TODO - determine this here?
             closest = closest.getParent();
         }
 
-        try {
-            TreePath treePath = new TreePath(path.toArray());
-            listen = false;
-            tree.setSelectionPath(treePath);
-            tree.expandPath(treePath);
-            tree.scrollPathToVisible(treePath);
-            org.openide.awt.StatusDisplayer.getDefault()
-                                           .setStatusText("Caret position : " + position);
-            listen = true;
-        } catch (Exception ex) {
-            // XXX TODO debug
-            ex.printStackTrace();
+        if (!path.isEmpty()) {
+            try {
+                TreePath treePath = new TreePath(path.toArray());
+                listen = false;
+                tree.setSelectionPath(treePath);
+                tree.expandPath(treePath);
+                tree.scrollPathToVisible(treePath);
+                org.openide.awt.StatusDisplayer.getDefault()
+                                               .setStatusText("Caret position : " + position);
+                listen = true;
+            } catch (Exception ex) {
+                // XXX TODO debug
+                ex.printStackTrace();
+            }
         }
     }
 
