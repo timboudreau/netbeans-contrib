@@ -107,6 +107,12 @@ public class ClearcaseAnnotator extends VCSAnnotator {
             FileInformation.STATUS_VERSIONED_CHECKEDOUT | FileInformation.STATUS_VERSIONED_HIJACKED | 
             FileInformation.STATUS_NOTVERSIONED_ECLIPSED;
 
+    public static String ANNOTATION_STATUS      = "status";
+    public static String ANNOTATION_VERSION      = "version";
+    public static String ANNOTATION_RULE   = "rule";
+    
+    public static String[] LABELS = new String[] {ANNOTATION_STATUS, ANNOTATION_VERSION, ANNOTATION_RULE};
+    
     private MessageFormat format;     
     private String emptyFormat;
     

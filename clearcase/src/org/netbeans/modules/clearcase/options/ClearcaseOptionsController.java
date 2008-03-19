@@ -61,13 +61,15 @@ class ClearcaseOptionsController extends OptionsPanelController {
         setOdc(ClearcaseModuleConfig.getOnDemandCheckout());
         panel.taExecutable.setText(ClearcaseModuleConfig.getPreferences().get(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, "cleartool"));
         panel.cbCheckinViewPrivate.setSelected(ClearcaseModuleConfig.getPreferences().getBoolean(ClearcaseModuleConfig.PROP_ADD_VIEWPRIVATE, true));
+        panel.taLabelFormat.setText(ClearcaseModuleConfig.getPreferences().get(ClearcaseModuleConfig.PROP_LABEL_FORMAT, ""));
     }
 
     public void applyChanges() {
         if (!isValid()) return;
         ClearcaseModuleConfig.setOnDemandCheckout(getOdc());
-        ClearcaseModuleConfig.getPreferences().put(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, panel.taExecutable.getText().trim());
+        ClearcaseModuleConfig.getPreferences().put(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, panel.taExecutable.getText().trim());        
         ClearcaseModuleConfig.getPreferences().putBoolean(ClearcaseModuleConfig.PROP_ADD_VIEWPRIVATE, panel.cbCheckinViewPrivate.isSelected());
+        ClearcaseModuleConfig.getPreferences().put(ClearcaseModuleConfig.PROP_LABEL_FORMAT, panel.taLabelFormat.getText().trim());
     }
 
     public void cancel() {

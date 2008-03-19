@@ -32,7 +32,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jSeparator1" pref="612" max="32767" attributes="0"/>
+                      <Component id="jSeparator1" pref="616" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="10" pref="10" max="10" attributes="0"/>
@@ -53,7 +53,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="taLabelFormat" pref="562" max="32767" attributes="0"/>
+              <Component id="taLabelFormat" pref="577" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="bAddVariable" min="-2" max="-2" attributes="0"/>
           </Group>
@@ -69,12 +69,12 @@
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jSeparator3" pref="684" max="32767" attributes="0"/>
+                          <Component id="jSeparator3" pref="712" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jSeparator2" pref="639" max="32767" attributes="0"/>
+                          <Component id="jSeparator2" pref="651" max="32767" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
