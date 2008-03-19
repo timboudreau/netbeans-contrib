@@ -38,16 +38,23 @@
  */
 package org.netbeans.modules.fortress.editing.visitors;
 
+import com.sun.fortress.nodes.AbsFnDecl;
 import com.sun.fortress.nodes.AbsObjectDecl;
 import com.sun.fortress.nodes.AbsTraitDecl;
 import com.sun.fortress.nodes.Component;
 import com.sun.fortress.nodes.FnDef;
 import com.sun.fortress.nodes.Id;
+import com.sun.fortress.nodes.LValue;
+import com.sun.fortress.nodes.LValueBind;
+import com.sun.fortress.nodes.LocalVarDecl;
+import com.sun.fortress.nodes.MethodInvocation;
 import com.sun.fortress.nodes.Node;
 import com.sun.fortress.nodes.NodeDepthFirstVisitor_void;
 import com.sun.fortress.nodes.ObjectDecl;
 import com.sun.fortress.nodes.SimpleName;
 import com.sun.fortress.nodes.TraitDecl;
+import com.sun.fortress.nodes.VarDecl;
+import com.sun.fortress.nodes.VarRef;
 import java.util.List;
 import java.util.Stack;
 import org.netbeans.modules.gsf.api.ElementKind;
@@ -56,12 +63,12 @@ import org.netbeans.modules.gsf.api.ElementKind;
  *
  * @author Caoyuan Deng
  */
-public class DefinitionVisitor extends NodeDepthFirstVisitor_void {
+public class SignatureVisitor extends NodeDepthFirstVisitor_void {
 
     private Scope rootScope;
     private Stack<Scope> scopeStack = new Stack<Scope>();
 
-    public DefinitionVisitor(Scope rootCtx) {
+    public SignatureVisitor(Scope rootCtx) {
         this.rootScope = rootCtx;
         scopeStack.push(rootCtx);
     }
@@ -75,7 +82,7 @@ public class DefinitionVisitor extends NodeDepthFirstVisitor_void {
     public void forComponent(Component that) {
         Scope scope = new Scope(that);
         List<Id> paths = that.getName().getIds();
-        Node name = paths.size() > 0 ? paths.get(paths.size() - 1) : that.getName();        
+        Node name = paths.size() > 0 ? paths.get(paths.size() - 1) : that.getName();
         Signature signature = new Signature(that, name, scope, ElementKind.FILE);
 
         scopeStack.peek().addDefinition(signature);
@@ -110,8 +117,7 @@ public class DefinitionVisitor extends NodeDepthFirstVisitor_void {
         super.forAbsTraitDecl(that);
         scopeStack.pop();
     }
-    
-    
+
     @Override
     public void forObjectDecl(ObjectDecl that) {
         Scope scope = new Scope(that);
@@ -138,7 +144,6 @@ public class DefinitionVisitor extends NodeDepthFirstVisitor_void {
         scopeStack.pop();
     }
 
-        
     @Override
     public void forFnDef(FnDef that) {
         Scope scope = new Scope(that);
@@ -151,4 +156,65 @@ public class DefinitionVisitor extends NodeDepthFirstVisitor_void {
         super.forFnDef(that);
         scopeStack.pop();
     }
+
+    @Override
+    public void forAbsFnDecl(AbsFnDecl that) {
+        super.forAbsFnDecl(that);
+    }
+
+    @Override
+    public void forVarDecl(VarDecl that) {
+        Scope scope = scopeStack.peek();
+        List<LValueBind> lValueBinds = that.getLhs();
+        for (LValueBind lValueBind : lValueBinds) {
+            Id id = lValueBind.getName();
+            Signature signature = new Signature(lValueBind, id, scope, ElementKind.FIELD);
+            scope.addDefinition(signature);
+        }
+
+        super.forVarDecl(that);
+    }
+
+    @Override
+    public void forLocalVarDecl(LocalVarDecl that) {
+        Scope scope = scopeStack.peek();
+        List<LValue> lValues = that.getLhs();
+        for (LValue lValue : lValues) {
+            if (lValue instanceof LValueBind) {
+                Id id = ((LValueBind) lValue).getName();
+                Signature signature = new Signature(lValue, id, scope, ElementKind.VARIABLE);
+                scope.addDefinition(signature);
+            } else {
+                System.out.println("LValue: " + lValue.stringName());
+            }
+        }
+
+        super.forLocalVarDecl(that);
+    }
+
+
+    /******************************
+     * Usages
+     ******************************/
+    
+    @Override
+    public void forVarRef(VarRef that) {
+        Scope scope = scopeStack.peek();
+        Id id = that.getVar().getName();
+        Signature signature = new Signature(that, id, scope, ElementKind.VARIABLE);
+        scope.addUsage(signature);
+        
+        super.forVarRef(that);
+    }
+
+    @Override
+    public void forMethodInvocation(MethodInvocation that) {
+        Scope scope = scopeStack.peek();
+        Id id = that.getMethod();
+        Signature signature = new Signature(that, id, scope, ElementKind.METHOD);
+        scope.addUsage(signature);
+
+        super.forMethodInvocation(that);
+    }    
+    
 }

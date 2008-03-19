@@ -130,8 +130,10 @@ public class FortressSemanticAnalyzer implements SemanticAnalyzer {
                 case METHOD:
                     highlights.put(range, ColoringAttributes.METHOD);
                     break;
+                case FIELD:
+                    highlights.put(range, ColoringAttributes.FIELD);
+                    break;
                 default:
-                    highlights.put(range, ColoringAttributes.UNDEFINED);
             }
 
         }

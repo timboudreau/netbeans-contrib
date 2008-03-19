@@ -43,7 +43,7 @@ package org.netbeans.modules.fortress.editing;
 import org.netbeans.modules.fortress.editing.FortressParser;
 import com.sun.fortress.nodes.Node;
 import org.netbeans.modules.fortress.editing.FortressMimeResolver;
-import org.netbeans.modules.fortress.editing.visitors.DefinitionVisitor;
+import org.netbeans.modules.fortress.editing.visitors.SignatureVisitor;
 import org.netbeans.modules.fortress.editing.visitors.Scope;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserFile;
@@ -136,7 +136,7 @@ public class FortressParserResult extends ParserResult {
             assert node != null : "Attempted to get definition visitor for broken source";
             rootScope = new Scope(node);
 
-            DefinitionVisitor definitionVisitor = new DefinitionVisitor(rootScope);
+            SignatureVisitor definitionVisitor = new SignatureVisitor(rootScope);
             node.accept(definitionVisitor);
         }
 
