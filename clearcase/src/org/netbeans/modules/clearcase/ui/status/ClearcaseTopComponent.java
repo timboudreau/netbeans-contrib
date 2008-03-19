@@ -49,19 +49,10 @@ import org.openide.util.HelpCtx;
 import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.clearcase.Clearcase;
-import org.netbeans.modules.clearcase.util.Utils;
 import org.netbeans.modules.versioning.spi.VCSContext;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.nodes.Node;
-import org.openide.util.lookup.Lookups;
 
 /**
  * The Clearcase Versioning view.

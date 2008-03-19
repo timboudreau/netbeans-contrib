@@ -58,7 +58,7 @@ public class FortressLexer implements Lexer<FortressTokenId> {
 
     private LexerInput input;
     private TokenFactory<FortressTokenId> tokenFactory;
-    LexerInputReader lexerInputReader;
+    private LexerInputReader lexerInputReader;
 
     public FortressLexer(LexerRestartInfo<FortressTokenId> info) {
         this.input = info.input();

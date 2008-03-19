@@ -37,19 +37,51 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.portalpack.portlets.genericportlets.filetypes;
+package org.netbeans.modules.glassfish.common.actions;
 
-import org.netbeans.modules.web.api.webmodule.WebModule;
-import org.netbeans.modules.web.spi.webmodule.WebPrivilegedTemplates;
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import org.netbeans.spi.glassfish.GlassfishModule;
+import org.openide.util.Mutex;
+import org.openide.util.Utilities;
+import org.openide.util.WeakListeners;
 
 /**
  *
- * @author satyaranjan
+ * @author Peter Williams
  */
-public class PortletPriviledgedTemplates implements WebPrivilegedTemplates {
-    public String[] getPrivilegedTemplates(WebModule webModule) {
-         return new String[] {
-             "Templates/JSP_Servlet/Portlet", // NOI18N
-         };
+public abstract class AbstractOutputAction extends AbstractAction implements ChangeListener {
+
+    private static final String PROP_ENABLED = "enabled"; // NOI18N
+    
+    protected final GlassfishModule commonSupport;
+
+    public AbstractOutputAction(final GlassfishModule commonSupport, 
+            String localizedName, String localizedShortDesc, String iconBase) {
+        super(localizedName, new ImageIcon(Utilities.loadImage(iconBase)));
+        putValue(SHORT_DESCRIPTION, localizedShortDesc);
+        this.commonSupport = commonSupport;
+
+        // listen for server state changes
+        commonSupport.addChangeListener(WeakListeners.change(this, commonSupport));
+    }
+
+    public abstract void actionPerformed(ActionEvent e);
+
+    @Override
+    public abstract boolean isEnabled();
+
+    // --------------------------------------------------------------------
+    // ChangeListener interface implementation
+    // --------------------------------------------------------------------
+    public void stateChanged(ChangeEvent evt) {
+        Mutex.EVENT.readAccess(new Runnable() {
+            public void run() {
+                firePropertyChange(PROP_ENABLED, null, isEnabled() ? Boolean.TRUE : Boolean.FALSE);
+            }
+        });
     }
 }

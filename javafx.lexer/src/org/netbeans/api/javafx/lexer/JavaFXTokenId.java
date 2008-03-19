@@ -197,8 +197,8 @@ public enum JavaFXTokenId implements TokenId {
     QUOTE_LBRACE_STRING_LITERAL(null, Category.STRING, CanStartStatement.NO, JavaLike.NO),
     RBRACE_QUOTE_STRING_LITERAL(null, Category.STRING, CanStartStatement.NO, JavaLike.NO),
     RBRACE_LBRACE_STRING_LITERAL(null, Category.STRING, CanStartStatement.NO, JavaLike.NO),
-    FORMAT_STRING_LITERAL(null, Category.STRING, CanStartStatement.NO, JavaLike.NO),
-    TRANSLATION_KEY(null, Category.OPERATOR, CanStartStatement.NO, JavaLike.NO),   
+    FORMAT_STRING_LITERAL(null, Category.FORMAT, CanStartStatement.NO, JavaLike.NO),
+    TRANSLATION_KEY(null, Category.I18N_ARTIFACT, CanStartStatement.NO, JavaLike.NO),   
 //* Whitespces
     /** Java-like, but the JavaFX grammar defines it as <code>WS</code> */
     WHITESPACE(null, Category.WHITESPACE, CanStartStatement.NO, JavaLike.YES), 
@@ -213,7 +213,7 @@ public enum JavaFXTokenId implements TokenId {
 //* Errors
     INVALID_COMMENT_END("*/", Category.ERROR, CanStartStatement.NO, JavaLike.YES),
     /**  Note, it isn't the same as <code>JavaFXTokenId.FLOAT_LITERAL_INVALID</code>! */
-    FLOATING_POINT_LITERAL_INVALID(null, Category.NUMBER, CanStartStatement.NO, JavaLike.NO),
+    FLOATING_POINT_LITERAL_INVALID(null, Category.ERROR, CanStartStatement.NO, JavaLike.NO),
     ERROR(null, Category.ERROR, CanStartStatement.NO, JavaLike.YES);
 
 //***
@@ -372,19 +372,21 @@ public enum JavaFXTokenId implements TokenId {
     }
 
     public enum Category {
+        COMMENT("comment"),
+        ERROR("error"),
+        FORMAT("format"),
+        I18N_ARTIFACT("i18n-artifact"),
+        IDENTIFIER("identifier"),
         KEYWORD("keyword"),
         DIRECTIVE("keyword-directive"),
-        LITERAL("literal"),
-        SEPARATOR("separator"),
+        LITERAL("keyword-literal"),
         NUMBER("number"),
+        OPERATOR("operator"),
+        SEPARATOR("separator"),
         STRING("string"),
         TIME("time"),
         WHITESPACE("whitespace"),
-        COMMENT("comment"),
-        IDENTIFIER("identifier"),
-        OPERATOR("operator"),
-        ERROR("error");
-        
+        ;
        private final String primaryCategory;
 
        Category(String primaryCategory) {

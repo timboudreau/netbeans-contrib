@@ -40,18 +40,11 @@
 package org.netbeans.modules.glassfish.common.actions;
 
 import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import org.netbeans.spi.glassfish.GlassfishModule;
 import org.netbeans.spi.glassfish.GlassfishModule.ServerState;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
-import org.openide.util.Mutex;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
-import org.openide.util.WeakListeners;
 import org.openide.util.actions.NodeAction;
 
 /**
@@ -62,37 +55,40 @@ public class StopServerAction extends NodeAction {
 
     @Override
     protected void performAction(Node[] activatedNodes) {
-        performActionImpl(activatedNodes);
+        for(Node node : activatedNodes) {
+            GlassfishModule commonSupport = 
+                    node.getLookup().lookup(GlassfishModule.class);
+            if(commonSupport != null) {
+                performActionImpl(commonSupport);
+            }
+        }
     }
     
-    private static void performActionImpl(Node[] nodes) {
-        GlassfishModule commonSupport = 
-                nodes[0].getLookup().lookup(GlassfishModule.class);
-        if(commonSupport != null) {
-            commonSupport.stopServer(null);
-        }
+    private static void performActionImpl(GlassfishModule commonSupport) {
+        commonSupport.stopServer(null);
     }
     
     @Override
     protected boolean enable(Node[] activatedNodes) {
-        return (activatedNodes != null) ? enableImpl(activatedNodes) : false;
-    }
-
-    private static boolean enableImpl(Node[] nodes) {
-        boolean result = true;
-        for(int i = 0; i < nodes.length && result; i++) {
-            GlassfishModule commonSupport = nodes[0].getLookup().lookup(GlassfishModule.class);
-            if(commonSupport != null) {
-                result = checkEnableStop(commonSupport);
-            } else {
-                // No server instance found for this node.
-                result = false;
+        boolean result = false;
+        if(activatedNodes != null && activatedNodes.length > 0) {
+            for(Node node : activatedNodes) {
+                GlassfishModule commonSupport = node.getLookup().lookup(GlassfishModule.class);
+                if(commonSupport != null) {
+                    result = enableImpl(commonSupport);
+                } else {
+                    // No server instance found for this node.
+                    result = false;
+                }
+                if(!result) {
+                    break;
+                }
             }
         }
         return result;
     }
-    
-    private static final boolean checkEnableStop(GlassfishModule commonSupport) {
+
+    private static final boolean enableImpl(GlassfishModule commonSupport) {
         return commonSupport.getServerState() == ServerState.RUNNING;
     }
     
@@ -103,7 +99,7 @@ public class StopServerAction extends NodeAction {
 
     @Override
     public String getName() {
-        return NbBundle.getMessage(StopServerAction.class, "CTL_StopServerAction");
+        return NbBundle.getMessage(StopServerAction.class, "CTL_StopServerAction"); // NOI18N
     }
 
     @Override
@@ -112,47 +108,25 @@ public class StopServerAction extends NodeAction {
     }
 
     /** This action will be displayed in the server output window */
-    public static class OutputAction extends AbstractAction implements ChangeListener {
-    
+    public static class OutputAction extends AbstractOutputAction {
+        
         private static final String ICON = 
                 "org/netbeans/modules/glassfish/common/resources/stop.png"; // NOI18N
-        private static final String PROP_ENABLED = "enabled"; // NOI18N
-        private Node node;
         
-        public OutputAction(Node node) {
-            super(NbBundle.getMessage(StopServerAction.class, "LBL_StopOutput"),
-                  new ImageIcon(Utilities.loadImage(ICON)));
-            putValue(SHORT_DESCRIPTION, NbBundle.getMessage(StopServerAction.class, "LBL_StopOutputDesc"));
-            this.node = node;
-            
-            // listen for server state changes
-            GlassfishModule commonSupport = node.getLookup().lookup(GlassfishModule.class);
-            commonSupport.addChangeListener(WeakListeners.change(this, commonSupport));
+        public OutputAction(final GlassfishModule commonSupport) {
+            super(commonSupport, NbBundle.getMessage(StopServerAction.class, "LBL_StopOutput"), // NOI18N
+                    NbBundle.getMessage(StopServerAction.class, "LBL_StopOutputDesc"), // NOI18N
+                    ICON);
         }
-
+        
         public void actionPerformed(ActionEvent e) {
-            performActionImpl(new Node[] { node });
+            performActionImpl(commonSupport);
         }
 
         @Override
         public boolean isEnabled() {
-            return enableImpl(new Node[] { node });
+            return enableImpl(commonSupport);
         }
         
-        // --------------------------------------------------------------------
-        // ChangeListener interface implementation
-        // --------------------------------------------------------------------
-        public void stateChanged(ChangeEvent evt) {
-            final GlassfishModule commonSupport = node.getLookup().lookup(GlassfishModule.class);
-            Mutex.EVENT.readAccess(new Runnable() {
-                public void run() {
-                    firePropertyChange(PROP_ENABLED, null, 
-                            commonSupport.getServerState() == ServerState.RUNNING ? 
-                            Boolean.TRUE : Boolean.FALSE);
-                }
-            });
-        }
-
     }
-
 }

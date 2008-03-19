@@ -86,10 +86,10 @@ public class Hk2ApplicationsChildren extends Children.Keys<Object> implements Re
                     try {
                         java.util.Map<String, String> ip = commonSupport.getInstanceProperties();
                         CommandRunner mgr = new CommandRunner(ip);
-                        java.util.Map<String, List<AppDesc>> appMap = mgr.getApplications();
+                        java.util.Map<String, List<AppDesc>> appMap = mgr.getApplications(null);
                         for(Entry<String, List<AppDesc>> entry: appMap.entrySet()) {
                             List<AppDesc> apps = entry.getValue();
-                            Decorator decorator = findDecorator(entry.getKey(), Hk2ItemNode.ItemType.J2EE_APPLICATION);
+                            Decorator decorator = findDecorator(entry.getKey(), Hk2ItemNode.J2EE_APPLICATION);
                             for(AppDesc app: apps) {
                                 keys.add(new Hk2ItemNode(lookup, app, decorator));
                             }

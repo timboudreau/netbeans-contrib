@@ -38,12 +38,25 @@
  */
 package org.netbeans.modules.fortress.editing;
 
+import com.sun.fortress.nodes.ArrayType;
+import com.sun.fortress.nodes.ArrowType;
+import com.sun.fortress.nodes.ExtentRange;
 import com.sun.fortress.nodes.FnDef;
 import com.sun.fortress.nodes.IdType;
+import com.sun.fortress.nodes.Indices;
+import com.sun.fortress.nodes.InstantiatedType;
+import com.sun.fortress.nodes.IntArg;
+import com.sun.fortress.nodes.NatParam;
 import com.sun.fortress.nodes.Node;
+import com.sun.fortress.nodes.NormalParam;
 import com.sun.fortress.nodes.Param;
+import com.sun.fortress.nodes.SimpleTypeParam;
+import com.sun.fortress.nodes.StaticArg;
+import com.sun.fortress.nodes.StaticParam;
 import com.sun.fortress.nodes.TupleType;
 import com.sun.fortress.nodes.Type;
+import com.sun.fortress.nodes.TypeArg;
+import com.sun.fortress.nodes.VarargsParam;
 import com.sun.fortress.nodes.VoidType;
 import edu.rice.cs.plt.tuple.Option;
 import java.util.ArrayList;
@@ -197,6 +210,29 @@ public class FortressStructureAnalyzer implements StructureScanner {
             if (signature.getNode() instanceof FnDef) {
                 // Append parameters
                 FnDef fnDef = (FnDef) signature.getNode();
+                List<StaticParam> staticParams = fnDef.getStaticParams();
+                if (staticParams.size() > 0) {
+                    formatter.appendHtml("[\\");
+
+                    for (Iterator<StaticParam> itr = staticParams.iterator(); itr.hasNext();) {
+                        StaticParam param = itr.next();
+
+                        if (param instanceof NatParam) {
+                            formatter.appendText(param.toString());
+                        } else if (param instanceof SimpleTypeParam) {
+                            formatter.appendText(param.toString());
+                        } else {
+                            formatter.appendText(param.stringName());
+                        }
+
+
+                        if (itr.hasNext()) {
+                            formatter.appendHtml(", ");
+                        }
+                    }
+
+                    formatter.appendHtml("\\]");
+                }
 
                 Collection<Param> params = fnDef.getParams();
 
@@ -205,9 +241,26 @@ public class FortressStructureAnalyzer implements StructureScanner {
                     formatter.parameters(true);
 
                     for (Iterator<Param> itr = params.iterator(); itr.hasNext();) {
-                        String nameStr = itr.next().getName().stringName();
-                        // TODO - if I know types, list the type here instead. For now, just use the parameter name instead
+                        Param param = itr.next();
+                        String nameStr = param.getName().stringName();
                         formatter.appendText(nameStr);
+
+                        String typeStr = null;
+                        if (param instanceof NormalParam) {
+                            Option<Type> typeOption = ((NormalParam) param).getType();
+                            if (typeOption.isNone()) {
+                            } else {
+                                Type type = Option.unwrap(typeOption);
+                                typeStr = getTypeHtml(type);
+                            }
+                        } else if (param instanceof VarargsParam) {
+                            Type type = ((VarargsParam) param).getVarargsType().getType();
+                            typeStr = getTypeHtml(type) + "...";
+                        }
+                        if (typeStr != null) {
+                            formatter.appendHtml(":");
+                            formatter.appendText(typeStr);
+                        }
 
                         if (itr.hasNext()) {
                             formatter.appendHtml(", ");
@@ -220,8 +273,6 @@ public class FortressStructureAnalyzer implements StructureScanner {
 
                 Option<Type> retType = fnDef.getReturnType();
                 if (retType.isNone()) {
-                    formatter.appendHtml(" : ");
-                    formatter.appendText("()");
                 } else if (retType.isSome()) {
                     formatter.appendHtml(" : ");
                     Type type = Option.unwrap(retType);
@@ -234,30 +285,91 @@ public class FortressStructureAnalyzer implements StructureScanner {
         }
 
         private String getTypeHtml(Type type) {
-            StringBuilder name = new StringBuilder();
-            
+            StringBuilder sb = new StringBuilder();
+
             if (type instanceof IdType) {
-                name.append(((IdType) type).getName().getName().getText());
+                String typeName = ((IdType) type).getName().getName().getText();
+                sb.append(FortressUtils.unicodedTypeName(typeName));
             } else if (type instanceof TupleType) {
-                name.append("(");
+                sb.append("(");
                 List<Type> elements = ((TupleType) type).getElements();
                 for (Iterator<Type> itr = elements.iterator(); itr.hasNext();) {
-                    name.append(getTypeHtml(itr.next()));
-                    
+                    sb.append(getTypeHtml(itr.next()));
+
                     if (itr.hasNext()) {
-                        name.append(", ");
+                        sb.append(", ");
                     }
                 }
-                name.append(")");
-            } else if (type instanceof VoidType){
-                name.append("()");
+                sb.append(")");
+            } else if (type instanceof VoidType) {
+                sb.append("()");
+            } else if (type instanceof InstantiatedType) {
+                String idName = ((InstantiatedType) type).getName().getName().getText();
+                sb.append(idName);
+                sb.append("[\\"); // "[\\" "\u27E6" LEFT WHITE SQUARE BRACKET 
+
+                List<StaticArg> args = ((InstantiatedType) type).getArgs();
+                for (Iterator<StaticArg> itr = args.iterator(); itr.hasNext();) {
+                    StaticArg arg = itr.next();
+                    String argStr = getArgHtml(arg);
+
+                    sb.append(argStr);
+
+                    if (itr.hasNext()) {
+                        sb.append(", ");
+                    }
+                }
+                sb.append("\\]"); // "\\]" "\u27E7" RIGHT WHITE SQUARE BRACKET 
+
+            } else if (type instanceof ArrowType) {
+                Type domain = ((ArrowType) type).getDomain();
+                Type range = ((ArrowType) type).getRange();
+
+                sb.append(getTypeHtml(domain));
+                sb.append("\u2192"); // "->"
+
+                sb.append(getTypeHtml(range));
+            } else if (type instanceof ArrayType) {
+                Type element = ((ArrayType) type).getElement();
+                sb.append(getTypeHtml(element));
+                sb.append("[");
+
+                Indices indices = ((ArrayType) type).getIndices();
+                List<ExtentRange> extentRanges = indices.getExtents();
+                for (Iterator<ExtentRange> itr = extentRanges.iterator(); itr.hasNext();) {
+                    Option<StaticArg> arg = itr.next().getSize();
+                    if (arg.isSome()) {
+                        sb.append(getArgHtml(Option.unwrap(arg)));
+                    }
+
+                    if (itr.hasNext()) {
+                        sb.append(", ");
+                    }
+                }
+
+                sb.append("]");
             } else {
-                name.append(type.stringName());
+                // @todo, leave stringName to get its kind of type
+                sb.append(type.stringName());
             }
-            
-            return name.toString();
+
+            return sb.toString();
         }
 
+        private String getArgHtml(StaticArg arg) {
+            String argStr = null;
+
+            if (arg instanceof TypeArg) {
+                argStr = getTypeHtml(((TypeArg) arg).getType());
+            } else if (arg instanceof IntArg) {
+                argStr = ((IntArg) arg).getVal().toString();
+            } else {
+                argStr = getTypeHtml(arg);
+            }
+
+            return argStr;
+        }
+        
         public ElementHandle getElementHandle() {
             return signature;
         }
@@ -301,8 +413,8 @@ public class FortressStructureAnalyzer implements StructureScanner {
             if ((nested != null) && (nested.size() > 0)) {
                 List<FortressStructureItem> children = new ArrayList<FortressStructureItem>(nested.size());
 
-                for (Signature signature : nested) {
-                    children.add(new FortressStructureItem(signature, info, formatter));
+                for (Signature sign : nested) {
+                    children.add(new FortressStructureItem(sign, info, formatter));
                 }
 
                 return children;
@@ -361,4 +473,5 @@ public class FortressStructureAnalyzer implements StructureScanner {
             return null;
         }
     }
+    
 }

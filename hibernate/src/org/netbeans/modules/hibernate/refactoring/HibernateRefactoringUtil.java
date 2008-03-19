@@ -73,6 +73,7 @@ import org.netbeans.editor.TokenID;
 import org.netbeans.editor.TokenItem;
 import org.netbeans.modules.hibernate.mapping.model.HibernateMapping;
 import org.netbeans.modules.hibernate.mapping.model.MyClass;
+import org.netbeans.modules.hibernate.mapping.model.Property;
 import org.netbeans.modules.hibernate.service.HibernateEnvironment;
 import org.netbeans.modules.xml.text.api.XMLDefaultTokenContext;
 import org.netbeans.modules.xml.text.syntax.SyntaxElement;
@@ -87,6 +88,8 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.text.CloneableEditorSupport;
 import org.openide.text.PositionBounds;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 /**
  *
@@ -272,7 +275,7 @@ public class HibernateRefactoringUtil {
 
                 for (int ci = 0; ci < myClazz.length; ci++) {
                     String clsName = myClazz[ci].getAttributeValue("name"); // NO I18N
-                    if (clsName.equals(oldBinaryName)) {
+                    if (clsName != null && clsName.equals(oldBinaryName)) {
                         // Find the class. That means this file needs to be refactored
                         OccurrenceItem foundPlace = getJavaClassPositionBounds(mFileObj, oldBinaryName);
                         occurrences.put(mFileObj, foundPlace);
@@ -315,7 +318,6 @@ public class HibernateRefactoringUtil {
                 return null;
             }
 
-            boolean inClassElement = false;
             String text = null;
             while (item != null) {
                 TokenID tokenId = item.getTokenID();
@@ -325,31 +327,144 @@ public class HibernateRefactoringUtil {
 
                     SyntaxElement element = syntaxSupport.getElementChain(item.getOffset() + 1);
                     if (element instanceof StartTag || element instanceof EmptyTag) {
-                        String tagName = ((Tag) element).getTagName();
-                        if (tagName.equalsIgnoreCase("class")) { // NOI18N
-                            inClassElement = true;
-                            text = document.getText(item.getOffset(), element.getElementLength());
+                        
+                        Node theNode = (Node) element;
+
+                        // Search for the <class> element
+                        if (theNode.getNodeName().equalsIgnoreCase("class")) { // NOI18N
+                            String nameAttribValue = getNameAttributeValue(theNode);
+                            
+                            if (nameAttribValue != null && nameAttribValue.equals(className)) {
+                                
+                                text = document.getText(item.getOffset(), element.getElementLength());
+                                
+                                int index = text.indexOf(className);
+                                int startOffset = item.getOffset() + index;
+                                int endOffset = startOffset + className.length();
+
+                                PositionBounds loc = new PositionBounds(editor.createPositionRef(startOffset, Bias.Forward),
+                                        editor.createPositionRef(endOffset, Bias.Forward));
+
+                                return new OccurrenceItem(loc, text);
+                            }
                         }
                     }
+                } 
+                
+                item = item.getNext();
+            }
+            return null;
+        } catch (IOException ex) {
+            ErrorManager.getDefault().notify(org.openide.ErrorManager.INFORMATIONAL, ex);
+        } catch (BadLocationException ex) {
+            ErrorManager.getDefault().notify(org.openide.ErrorManager.INFORMATIONAL, ex);
+        }
 
-                } else if (tokenId == XMLDefaultTokenContext.VALUE && inClassElement) {
+        return null;
+    }
 
-                    // Look for the class name to be refactored here
+    public static Map<FileObject, OccurrenceItem> getJavaFieldOccurrences(List<FileObject> allMappingFiles, String className, String fieldName) {
+        Map<FileObject, OccurrenceItem> occurrences = new HashMap<FileObject, OccurrenceItem>();
+        for (FileObject mFileObj : allMappingFiles) {
+            try {
+                InputStream is = mFileObj.getInputStream();
+                HibernateMapping hbMapping = HibernateMapping.createGraph(is);
 
-                    String image = item.getImage();
-                    if (image.contains(className)) {
-                        // Found it
-                        inClassElement = false;
+                // Check the name attribute of the <property> element in the <class> elements
+                MyClass[] myClazz = hbMapping.getMyClass();
+                for (int ci = 0; ci < myClazz.length; ci++) {
+                    String clsName = myClazz[ci].getAttributeValue("name"); // NO I18N
+                    if (clsName != null && clsName.equals(className)) {
 
-                        int startOffset = item.getOffset() + 1;
-                        int endOffset = startOffset + className.length();
+                        Property[] clazzProps = myClazz[ci].getProperty2();
+                        for (int pi = 0; pi < clazzProps.length; pi++) {
+                            if (clazzProps[pi].getAttributeValue("name").equals(fieldName)) {
 
-                        PositionBounds loc = new PositionBounds(editor.createPositionRef(startOffset, Bias.Forward),
-                                editor.createPositionRef(endOffset, Bias.Forward));
-                        
-                        return new OccurrenceItem(loc,text);
+                                // Find the property to be refactored
+                                OccurrenceItem foundPlace = getJavaFieldPositionBounds(mFileObj, className, fieldName);
+                                occurrences.put(mFileObj, foundPlace);
+
+                                // It is safe to assume that this is only one <class> element
+                                // with this particular Java class. 
+                                // So, go on to the next file
+                                break;
+                            }
+                        }
+
+                    // TODO: need to search other elements, such as, <id> etc.
                     }
                 }
+
+            } catch (FileNotFoundException ex) {
+                ErrorManager.getDefault().notify(org.openide.ErrorManager.INFORMATIONAL, ex);
+            }
+        }
+        return occurrences;
+    }
+
+    private static OccurrenceItem getJavaFieldPositionBounds(FileObject mappingFile, String className, String fieldName) {
+        try {
+            // Get the document for this file
+            DataObject dataObject = DataObject.find(mappingFile);
+            EditorCookie result = dataObject.getCookie(EditorCookie.class);
+            if (result == null) {
+                throw new IllegalStateException("File " + mappingFile + " does not have an EditorCookie.");
+            }
+
+            CloneableEditorSupport editor = (CloneableEditorSupport) result;
+            BaseDocument document = (BaseDocument) editor.openDocument();
+            XMLSyntaxSupport syntaxSupport = (XMLSyntaxSupport) document.getSyntaxSupport();
+
+
+            int start = document.getStartPosition().getOffset();
+            TokenItem item = syntaxSupport.getTokenChain(start, Math.min(start + 1, document.getLength()));
+            if (item == null) {
+                return null;
+            }
+
+            boolean thisIsTheClassElement = false;
+            String text = null;
+            while (item != null) {
+                TokenID tokenId = item.getTokenID();
+
+                if (tokenId == XMLDefaultTokenContext.TAG) {
+                    // Did we find the <class> element
+
+                    SyntaxElement element = syntaxSupport.getElementChain(item.getOffset() + 1);
+                    if (element instanceof StartTag || element instanceof EmptyTag) {
+                        
+                        Node theNode = (Node)element;
+                        
+                        if (!thisIsTheClassElement) {
+                            // Search for the <class> element
+                            if (theNode.getNodeName().equalsIgnoreCase("class")) { // NOI18N
+                                String nameAttribValue = getNameAttributeValue(theNode);
+                                if(nameAttribValue != null && nameAttribValue.equals(className)) {
+                                    thisIsTheClassElement = true;
+                                }
+                            }
+                        } else {
+                            // It is in the <class> element.
+                            // Search for the <property> element
+                            if (theNode.getNodeName().equalsIgnoreCase("property")) {
+                               String nameAttribValue = getNameAttributeValue(theNode);
+                                if( nameAttribValue != null && nameAttribValue.equals(fieldName)) {
+                                    
+                                    text = document.getText(item.getOffset(), element.getElementLength());
+                                    
+                                    // find the offset for the field name
+                                    int index = text.indexOf(fieldName);
+                                    int startOffset = item.getOffset() + index;
+                                    int endOffset = startOffset + fieldName.length();
+                                    PositionBounds loc = new PositionBounds(editor.createPositionRef(startOffset, Bias.Forward),
+                                            editor.createPositionRef(endOffset, Bias.Forward));
+
+                                    return new OccurrenceItem(loc, text);
+                                }
+                            }
+                        }
+                    }
+                } 
 
                 item = item.getNext();
             }
@@ -375,7 +490,7 @@ public class HibernateRefactoringUtil {
 
                 // Check package attribute in the <hibernate-mapping> tag
                 String pkgName = hbMapping.getAttributeValue("package"); //NOI18N
-                if (pkgName.equals(oldPkgName)) {
+                if (pkgName != null && pkgName.equals(oldPkgName)) {
                     // Find one
                     OccurrenceItem foundPlace = getJavaPackagePositionBounds(mFileObj, oldPkgName, startOffset);
                     foundPlaces.add(foundPlace);
@@ -388,7 +503,7 @@ public class HibernateRefactoringUtil {
 
                 for (int ci = 0; ci < myClazz.length; ci++) {
                     String clsName = myClazz[ci].getAttributeValue("name"); // NO I18N
-                    if (clsName.startsWith(oldPkgName)) {
+                    if (clsName != null && clsName.startsWith(oldPkgName)) {
 
                         OccurrenceItem foundPlace = getJavaPackagePositionBounds(mFileObj, oldPkgName, startOffset);
                         foundPlaces.add(foundPlace);
@@ -466,7 +581,7 @@ public class HibernateRefactoringUtil {
                         int endOffset = startOffset + pkgName.length();
                         PositionBounds loc = new PositionBounds(editor.createPositionRef(startOffset, Bias.Forward),
                                 editor.createPositionRef(endOffset, Bias.Forward));
-                        
+
                         return new OccurrenceItem(loc, text);
                     }
                 }
@@ -512,5 +627,17 @@ public class HibernateRefactoringUtil {
         } else {
             return true;
         }
+    }
+    
+    private static String getNameAttributeValue(Node node) {
+        if(node == null )
+            return null;
+        
+        NamedNodeMap attribs = node.getAttributes();
+        if (attribs != null && attribs.getNamedItem("name") != null) { // NOI18N
+            return attribs.getNamedItem("name").getNodeValue(); // NOI18N
+        }
+        
+        return null;
     }
 }
