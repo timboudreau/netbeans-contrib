@@ -43,6 +43,7 @@ package org.netbeans.modules.clearcase;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.clearcase.client.*;
 import org.openide.util.NbBundle;
+import org.openide.filesystems.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,7 +89,7 @@ public class VersionsCache implements NotificationListener {
         GetCommand cmd = new GetCommand(tempFile, revisionSpec, this);        
         Clearcase.getInstance().getClient().post(NbBundle.getMessage(VersionsCache.class, "Progress_Getting_Clearcased_File"), cmd).waitFinished(); //NOI18N
         tempFile.deleteOnExit();
-        if (!cmd.hasFailed() && tempFile.isFile()) return tempFile;
+        if (!cmd.hasFailed() && tempFile.isFile()) return FileUtil.normalizeFile(tempFile);
         return null;
     }
 

@@ -63,7 +63,6 @@ import org.openide.util.Exceptions;
 import xtc.parser.ParseError;
 import xtc.parser.Result;
 import xtc.parser.SemanticValue;
-import xtc.tree.Location;
 
 /**
  * Wrapper around com.sun.fortress.parser.Fortress to parse a buffer into an AST.
@@ -381,11 +380,12 @@ public class FortressParser implements Parser {
                     int start = 0;
                     ParseError e = r.parseError();
                     if (e.index != -1) {
-                        Location location = parser.location(e.index);
-                        start = getOffset(context, location.line - 1, location.column);
+                        //Location location = parser.location(e.index);
+                        //start = getOffset(context, location.line - 1, location.column);
+                        start = e.index;
                     }
                     notifyError(context, "SYNTAX_ERROR", e.msg,
-                            start, start, sanitizing, Severity.ERROR, new Object[]{e.index, e                            });
+                            start, start, sanitizing, Severity.ERROR, new Object[]{e.index, e});
                 }
 
                 System.err.println(r.parseError().msg);
@@ -395,7 +395,7 @@ public class FortressParser implements Parser {
         } catch (IllegalArgumentException e) {
             // An internal exception thrown by Fortress, just catch it and notify
             notifyError(context, "SYNTAX_ERROR", e.getMessage(),
-                    0, 0, sanitizing, Severity.ERROR, new Object[]{e                    });
+                    0, 0, sanitizing, Severity.ERROR, new Object[]{e});
         }
 
 
@@ -442,7 +442,7 @@ public class FortressParser implements Parser {
             if (params instanceof Object[]) {
                 error.setParameters((Object[]) params);
             } else {
-                error.setParameters(new Object[]{params                        });
+                error.setParameters(new Object[]{params});
             }
         }
 

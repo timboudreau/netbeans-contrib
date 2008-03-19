@@ -57,7 +57,7 @@ public class RefreshModulesAction extends NodeAction {
     
     protected boolean enable(Node[] nodes) {
         for(Node node:nodes) {
-            RefreshModulesCookie cookie = (RefreshModulesCookie) node.getCookie(RefreshModulesCookie.class);
+            RefreshModulesCookie cookie = node.getCookie(RefreshModulesCookie.class);
             if (cookie == null) {
                 return false;
             }
@@ -72,7 +72,7 @@ public class RefreshModulesAction extends NodeAction {
     
     protected void performAction(Node[] nodes) {
         for(Node node:nodes) {
-            RefreshModulesCookie cookie = (RefreshModulesCookie) node.getCookie(RefreshModulesCookie.class);
+            RefreshModulesCookie cookie = node.getCookie(RefreshModulesCookie.class);
             if (cookie != null) {
                 cookie.refresh();
             }

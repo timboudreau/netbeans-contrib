@@ -30,7 +30,7 @@ public class ResultContext{
     public static final String CLASS_NAME = "classname";
     public static final String PORTLET_NAME = "portletname";
     public static final String FILE_PATH = "PATH_TO_CLASS_FILE";
-
+    public static final String PACKAGE = "package";
 
     private HashMap map = null;
 

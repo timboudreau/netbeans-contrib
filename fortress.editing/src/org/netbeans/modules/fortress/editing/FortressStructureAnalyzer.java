@@ -39,9 +39,14 @@
 package org.netbeans.modules.fortress.editing;
 
 import com.sun.fortress.nodes.FnDef;
+import com.sun.fortress.nodes.IdType;
 import com.sun.fortress.nodes.Node;
+import com.sun.fortress.nodes.NormalParam;
 import com.sun.fortress.nodes.Param;
+import com.sun.fortress.nodes.TupleType;
 import com.sun.fortress.nodes.Type;
+import com.sun.fortress.nodes.VarargsParam;
+import com.sun.fortress.nodes.VoidType;
 import edu.rice.cs.plt.tuple.Option;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -201,12 +206,30 @@ public class FortressStructureAnalyzer implements StructureScanner {
                 if ((params != null) && (params.size() > 0)) {
                     formatter.parameters(true);
 
-                    for (Iterator<Param> it = params.iterator(); it.hasNext();) {
-                        String nameStr = it.next().getName().stringName();
-                        // TODO - if I know types, list the type here instead. For now, just use the parameter name instead
+                    for (Iterator<Param> itr = params.iterator(); itr.hasNext();) {
+                        Param param = itr.next();
+                        String nameStr = param.getName().stringName();
                         formatter.appendText(nameStr);
-
-                        if (it.hasNext()) {
+                        
+                        String typeStr = null;
+                        if (param instanceof NormalParam) {
+                            Option<Type> typeOption = ((NormalParam) param).getType();
+                            if (typeOption.isNone()) {
+                                typeStr = "nat";
+                            } else {
+                                Type type = Option.unwrap(typeOption);
+                                typeStr = getTypeHtml(type);
+                            }
+                        } else if (param instanceof VarargsParam) {
+                            Type type = ((VarargsParam) param).getVarargsType().getType();
+                            typeStr = getTypeHtml(type) + "...";
+                        }           
+                        if (typeStr != null) {
+                            formatter.appendHtml(":");
+                            formatter.appendText(typeStr);
+                        }
+                        
+                        if (itr.hasNext()) {
                             formatter.appendHtml(", ");
                         }
                     }
@@ -218,15 +241,41 @@ public class FortressStructureAnalyzer implements StructureScanner {
                 Option<Type> retType = fnDef.getReturnType();
                 if (retType.isNone()) {
                     formatter.appendHtml(" : ");
-                    formatter.appendText("()");
+                    formatter.appendText("nat");
                 } else if (retType.isSome()) {
                     formatter.appendHtml(" : ");
-                    formatter.appendText(Option.unwrap(retType).stringName());
+                    Type type = Option.unwrap(retType);
+                    formatter.appendText(getTypeHtml(type));
                 }
 
             }
 
             return formatter.getText();
+        }
+
+        private String getTypeHtml(Type type) {
+            StringBuilder name = new StringBuilder();
+
+            if (type instanceof IdType) {
+                name.append(((IdType) type).getName().getName().getText());
+            } else if (type instanceof TupleType) {
+                name.append("(");
+                List<Type> elements = ((TupleType) type).getElements();
+                for (Iterator<Type> itr = elements.iterator(); itr.hasNext();) {
+                    name.append(getTypeHtml(itr.next()));
+
+                    if (itr.hasNext()) {
+                        name.append(", ");
+                    }
+                }
+                name.append(")");
+            } else if (type instanceof VoidType) {
+                name.append("()");
+            } else {
+                name.append(type.stringName());
+            }
+
+            return name.toString();
         }
 
         public ElementHandle getElementHandle() {
