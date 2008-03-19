@@ -156,11 +156,10 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <folder name="Menu">
         <folder name="Window">
             <folder name="Other">
-                <!-- <folder name="Portal Pack"> -->
                     <file name="IPCStoryBoardAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-portalpack-portlets-genericportlets-storyboard-ipc-IPCStoryBoardAction.instance"/>
-                </file>
-                <!-- </folder> -->
+                        <attr name="position" intvalue="1200"/>
+                    </file>
             </folder>
         </folder>
     </folder>

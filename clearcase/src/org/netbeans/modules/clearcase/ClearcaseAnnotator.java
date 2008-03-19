@@ -68,6 +68,7 @@ import java.util.regex.Pattern;
 import org.netbeans.modules.clearcase.client.status.FileEntry;
 import org.netbeans.modules.clearcase.client.status.FileVersionSelector;
 import org.netbeans.modules.clearcase.ui.AnnotateAction;
+import org.netbeans.modules.clearcase.ui.hijack.HijackAction;
 import org.netbeans.modules.clearcase.ui.checkin.ExcludeAction;
 import org.netbeans.modules.clearcase.ui.checkout.ReserveAction;
 import org.netbeans.modules.clearcase.ui.label.LabelAction;
@@ -234,6 +235,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
         if (destination == VCSAnnotator.ActionDestination.MainMenu) {
             actions.add(new CheckoutAction(ctx));
             actions.add(new ReserveAction(ctx));
+            actions.add(new HijackAction(ctx));
             actions.add(new AddAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_AddToSourceControl_Name"), ctx)); //NOI18N
             actions.add(null);
             //actions.add(SystemAction.get(RefreshAction.class));
@@ -265,6 +267,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
             } else {
                 actions.add(new CheckoutAction(ctx));
                 actions.add(new ReserveAction(ctx));
+                actions.add(new HijackAction(ctx));
                 actions.add(new AddAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_AddToSourceControl_Name"), ctx)); //NOI18N
                 actions.add(null);
                 actions.add(SystemActionBridge.createAction(SystemAction.get(RefreshAction.class), NbBundle.getMessage(ClearcaseAnnotator.class, "Action_ShowChanges"), context)); //NOI18N

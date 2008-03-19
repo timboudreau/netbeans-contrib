@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2008 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -38,35 +38,56 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.clearcase.client;
 
-import java.io.File;
+package org.netbeans.modules.javafx.dataloader;
 
-import org.netbeans.modules.clearcase.util.ClearcaseUtils;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.loaders.MultiDataObject;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 
 /**
- * Refreshes the status for files and the relevent filesystems after a {@link ClearcaseCommand} finnishes
- * 
- * @author Tomas Stupka
- * 
- */    
-public class AfterCommandRefreshListener implements NotificationListener {
+ * This class contains helper methods necessary to write extensions
+ * of the java data support.
+ *
+ * @author Jan Pokorsky
+ */
+public final class JavaFXDataSupport {
+
+    /** singleton */
+    private JavaFXDataSupport() {
+    }
     
-    private final File[] files;
-    
-    /**     
-     * @param files files to be refreshed          
+    /**
+     * In case you write own data loader you should use this entry for the
+     * <code>.java</code> file object. The entry provides functionality like
+     * create from template.
+     * @param mdo the data object this entry will belong to
+     * @param javafile the file object for the entry
+     * @return the java entry
      */
-    public AfterCommandRefreshListener(File... files) {        
-        this.files = files;
+    public static MultiDataObject.Entry createJavaFileEntry(MultiDataObject mdo, FileObject fxfile) {
+        return new JavaFXDataLoader.JavaFXFileEntry(mdo, fxfile);
     }
 
-    public void commandStarted()        { /* boring */ }
-    public void outputText(String line) { /* boring */ }
-    public void errorText(String line)  { /* boring */ }
-    
-    public void commandFinished() {     
-        ClearcaseUtils.afterCommandRefresh(files, false);
+    /**
+     * Creates a default node for a particular java file object.
+     * @param javafile the java file object to represent
+     * @return the node
+     */
+    public static Node createJavaFXNode(FileObject javafile) {
+        try {
+            DataObject jdo = DataObject.find(javafile);
+            return new JavaFXDataNode(jdo, true);
+        } catch (DataObjectNotFoundException ex) {
+            Logger.getLogger(JavaFXDataSupport.class.getName()).log(Level.INFO, null, ex);
+            return new AbstractNode(Children.LEAF);
+        }
     }
 
 }
