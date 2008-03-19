@@ -588,7 +588,7 @@ class VersioningPanel extends JPanel implements ExplorerManager.Provider, Prefer
 
         final String [] tableColumns;            
         if (nodes.length > 0) {                
-            tableColumns = new String [] { SyncFileNode.COLUMN_NAME_NAME, SyncFileNode.COLUMN_NAME_STATUS, SyncFileNode.COLUMN_NAME_PATH };                                    
+            tableColumns = new String [] { SyncFileNode.COLUMN_NAME_NAME, SyncFileNode.COLUMN_NAME_STATUS, SyncFileNode.COLUMN_NAME_PATH, SyncFileNode.COLUMN_NAME_RULE };                                    
         } else {
             tableColumns = null;
         }

@@ -120,6 +120,9 @@ class SyncTable implements MouseListener, ListSelectionListener, AncestorListene
         columnLabels.put(SyncFileNode.COLUMN_NAME_PATH, new String [] { 
                                           loc.getString("CTL_VersioningView_Column_Path_Title"), 
                                           loc.getString("CTL_VersioningView_Column_Path_Desc")});
+        columnLabels.put(SyncFileNode.COLUMN_NAME_RULE, new String [] { 
+                                          loc.getString("CTL_VersioningView_Column_Rule_Title"), 
+                                          loc.getString("CTL_VersioningView_Column_Rule_Desc")});
     }
 
     private static final Comparator NodeComparator = new Comparator() {
@@ -164,7 +167,8 @@ class SyncTable implements MouseListener, ListSelectionListener, AncestorListene
         setColumns(new String[] {
             SyncFileNode.COLUMN_NAME_NAME,
             SyncFileNode.COLUMN_NAME_STATUS,
-            SyncFileNode.COLUMN_NAME_PATH}
+            SyncFileNode.COLUMN_NAME_PATH,
+            SyncFileNode.COLUMN_NAME_RULE}
         );
         table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT ).put(
                 KeyStroke.getKeyStroke(KeyEvent.VK_F10, KeyEvent.SHIFT_DOWN_MASK ), "org.openide.actions.PopupAction");
@@ -181,15 +185,7 @@ class SyncTable implements MouseListener, ListSelectionListener, AncestorListene
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 int width = table.getWidth();
-                if (tableColumns.length == 3) {
-                    for (int i = 0; i < tableColumns.length; i++) {
-                        if (SyncFileNode.COLUMN_NAME_PATH.equals(tableColumns[i])) {
-                            table.getColumnModel().getColumn(i).setPreferredWidth(width * 60 / 100);
-                        } else {
-                            table.getColumnModel().getColumn(i).setPreferredWidth(width * 20 / 100);
-                        }
-                    }
-                } else if (tableColumns.length == 4) {
+                if (tableColumns.length == 4) {
                     for (int i = 0; i < tableColumns.length; i++) {
                         if (SyncFileNode.COLUMN_NAME_PATH.equals(tableColumns[i])) {
                             table.getColumnModel().getColumn(i).setPreferredWidth(width * 55 / 100);
