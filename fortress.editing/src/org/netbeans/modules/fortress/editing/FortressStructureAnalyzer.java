@@ -408,7 +408,7 @@ public class FortressStructureAnalyzer implements StructureScanner {
         }
 
         public List<? extends StructureItem> getNestedItems() {
-            List<Definition> nested = definition.getEnclosedScope().getDefinitions();
+            List<Definition> nested = definition.getBindingScope().getDefinitions();
 
             if ((nested != null) && (nested.size() > 0)) {
                 List<FortressStructureItem> children = new ArrayList<FortressStructureItem>(nested.size());
@@ -424,11 +424,11 @@ public class FortressStructureAnalyzer implements StructureScanner {
         }
 
         public long getPosition() {
-            return definition.getEnclosedScope().getRange().getStart();
+            return definition.getBindingScope().getRange().getStart();
         }
 
         public long getEndPosition() {
-            return definition.getEnclosedScope().getRange().getEnd();
+            return definition.getBindingScope().getRange().getEnd();
         }
 
         @Override

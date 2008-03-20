@@ -49,18 +49,8 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public class Usage extends Signature {
     
-    private Scope enclosingScope;
-    
-    public Usage(Node node, Node nameNode, OffsetRange nameRange, Scope enclosingScope, ElementKind kind) {
+    public Usage(Node node, Node nameNode, OffsetRange nameRange, ElementKind kind) {
         super(node, nameNode, nameRange, kind);
-        this.enclosingScope = enclosingScope;
     }
     
-    /**
-     * @return the scope that encloses this item 
-     */
-    public Scope getEnclosingScope() {
-        return enclosingScope;
-    }
-
 }

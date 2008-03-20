@@ -48,22 +48,22 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  * @author Caoyuan Deng
  */
 public class Definition extends Signature {
-    private Scope enclosedScope;
     
-    public Definition(Node node, Node nameNode, OffsetRange nameRange, Scope enclosedScope, ElementKind kind) {
+    private Scope bindingScope;
+    
+    public Definition(Node node, Node nameNode, OffsetRange nameRange, ElementKind kind) {
         super(node, nameNode, nameRange, kind);
-        this.enclosedScope = enclosedScope;
     }
     
     /**
-     * @return the scope that this item encloses 
-     */    
-    public Scope getEnclosedScope() {
-        return enclosedScope;
+     * @Note: bindingScope will be set when new {@link Scope#Scope(Definition, OffsetRange)}
+     */
+    protected void setBindingScope(Scope bindingScope) {
+        this.bindingScope = bindingScope;
     }
-
-    @Override
-    Scope getEnclosingScope() {
-        return enclosedScope.getParent();
+    
+    public Scope getBindingScope() {
+        assert bindingScope != null : "Each definition should set binding scope!";
+        return bindingScope;
     }
 }
