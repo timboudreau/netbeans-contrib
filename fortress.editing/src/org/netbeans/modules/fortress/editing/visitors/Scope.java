@@ -61,24 +61,19 @@ public class Scope implements Iterable<Scope> {
     private boolean scopesSorted;
     private boolean definitionsSorted;
     private boolean usagesSorted;
-    private OffsetRange offsetRange;
-    private int endOffset;
+    private OffsetRange range;
 
-    public Scope(Node node, OffsetRange offsetRange) {
+    public Scope(Node node, OffsetRange range) {
         this.node = node;
-        this.offsetRange = offsetRange;
+        this.range = range;
     }
 
     public Node getNode() {
         return node;
     }
 
-    public OffsetRange getOffsetRange() {
-        return offsetRange;
-    }
-
-    public int getEndOffset() {
-        return endOffset;
+    public OffsetRange getRange() {
+        return range;
     }
 
     public Scope getParent() {
@@ -187,9 +182,9 @@ public class Scope implements Iterable<Scope> {
             while (low <= high) {
                 int mid = (low + high) >> 1;
                 Scope middle = scopes.get(mid);
-                if (offset < middle.getOffsetRange().getStart()) {
+                if (offset < middle.getRange().getStart()) {
                     high = mid - 1;
-                } else if (offset >= middle.getOffsetRange().getEnd()) {
+                } else if (offset >= middle.getRange().getEnd()) {
                     low = mid + 1;
                 } else {
                     return middle.getSignature(offset);
@@ -200,7 +195,7 @@ public class Scope implements Iterable<Scope> {
         return null;
     }
 
-    public List<Signature> findOccurencies(Signature signature) {
+    public List<Signature> findOccurrences(Signature signature) {
         Definition definition = null;
         if (signature instanceof Definition) {
             definition = (Definition) signature;
@@ -212,12 +207,12 @@ public class Scope implements Iterable<Scope> {
             return Collections.emptyList();
         }
 
-        List<Signature> occurencies = new ArrayList<Signature>();
-        occurencies.add(definition);
+        List<Signature> occurrences = new ArrayList<Signature>();
+        occurrences.add(definition);
         
-        findUsages(definition, occurencies);
+        findUsages(definition, occurrences);
 
-        return occurencies;
+        return occurrences;
     }
 
     public Definition findDefinition(Usage usage) {
@@ -225,7 +220,7 @@ public class Scope implements Iterable<Scope> {
         return findDefinitionInScope(closestScope, usage);
     }
 
-    public Definition findDefinitionInScope(Scope scope, Usage usage) {
+    private Definition findDefinitionInScope(Scope scope, Usage usage) {
         for (Definition definition : scope.getDefinitions()) {
             /** @todo also compare arity etc */
             if (definition.getName().equals(usage.getName())) {
@@ -330,13 +325,13 @@ public class Scope implements Iterable<Scope> {
 
     @Override
     public String toString() {
-        return "Scope(node=" + node + ",locals=" + getDefinitions() + ",read=" + getUsages() + ")";
+        return "Scope(node=" + node + "," + getRange() + ",defs=" + getDefinitions() + ",usages=" + getUsages() + ")";
     }
 
     private static class ScopeComparator implements Comparator<Scope> {
 
         public int compare(Scope o1, Scope o2) {
-            return o1.getOffsetRange().getStart() < o2.getOffsetRange().getStart() ? -1 : 1;
+            return o1.getRange().getStart() < o2.getRange().getStart() ? -1 : 1;
         }
     }
 

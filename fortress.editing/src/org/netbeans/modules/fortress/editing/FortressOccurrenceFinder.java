@@ -36,7 +36,6 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.fortress.editing;
 
 import com.sun.fortress.nodes.Node;
@@ -62,6 +61,7 @@ import org.openide.util.Exceptions;
  * @author Caoyuan Deng
  */
 public class FortressOccurrenceFinder implements OccurrencesFinder {
+
     private boolean cancelled;
     private int caretPosition;
     private Map<OffsetRange, ColoringAttributes> occurrences;
@@ -88,7 +88,7 @@ public class FortressOccurrenceFinder implements OccurrencesFinder {
     public void setCaretPosition(int position) {
         this.caretPosition = position;
     }
-    
+
     public void run(CompilationInfo info) {
         resume();
 
@@ -115,7 +115,7 @@ public class FortressOccurrenceFinder implements OccurrencesFinder {
         Map<OffsetRange, ColoringAttributes> highlights = new HashMap<OffsetRange, ColoringAttributes>(100);
 
         Signature closest = rootScope.getSignature(caretPosition);
-        
+
         int astOffset = AstUtilities.getAstOffset(info, caretPosition);
         if (astOffset == -1) {
             return;
@@ -142,7 +142,7 @@ public class FortressOccurrenceFinder implements OccurrencesFinder {
         // We don't want occurrences highlights that span lines.
         if (closest != null) {
             try {
-                BaseDocument doc = (BaseDocument)info.getDocument();
+                BaseDocument doc = (BaseDocument) info.getDocument();
                 if (doc == null) {
                     // Document was just closed
                     return;
@@ -168,13 +168,13 @@ public class FortressOccurrenceFinder implements OccurrencesFinder {
                     // this case, the full def node is selected, which typically spans
                     // lines. This should trigger if you put the caret on the method definition
                     // line, unless it's in a comment there.
-                    org.netbeans.api.lexer.Token<?extends FortressTokenId> token = FortressLexUtilities.getToken(doc, caretPosition);
+                    org.netbeans.api.lexer.Token<? extends FortressTokenId> token = FortressLexUtilities.getToken(doc, caretPosition);
                     //boolean isFunctionKeyword = (token != null) && token.id() == JsTokenId.FUNCTION;
                     boolean isMethodName = closest.getKind() == ElementKind.METHOD;
-                    //boolean isReturn = closest.getType() == Token.RETURN && astOffset < closest.getSourceStart() + "return".length();
+                //boolean isReturn = closest.getType() == Token.RETURN && astOffset < closest.getSourceStart() + "return".length();
 
 //                    if (isMethodName) {
-                        // Highlight exit points
+                // Highlight exit points
 //                        Node func = closest;
 //                        if (isFunctionKeyword) {
 //                            // Look inside the method - the offsets for function doesn't include the "function" keyword yet
@@ -197,7 +197,7 @@ public class FortressOccurrenceFinder implements OccurrencesFinder {
 //                            }
 //                        }
 //                        highlightExits(func, highlights, info);
-                        // Fall through and set closest to null such that I don't do other highlighting
+                // Fall through and set closest to null such that I don't do other highlighting
 //                        closest = null;
 //                    } else if (closest.getType() == Token.CALL && 
 //                            lexStartPos != -1 && lexEndPos != -1 && 
@@ -217,13 +217,11 @@ public class FortressOccurrenceFinder implements OccurrencesFinder {
         }
 
         if (closest != null) {
-            if (closest.getKind() == ElementKind.VARIABLE) {
-                List<Signature> occurencies = rootScope.findOccurencies(closest);
-                for (Signature signature : occurencies) {
-                    highlights.put(signature.getNameRange(), ColoringAttributes.MARK_OCCURRENCES);
-                }
-                closest = null;
+            List<Signature> _occurrences = rootScope.findOccurrences(closest);
+            for (Signature signature : _occurrences) {
+                highlights.put(signature.getNameRange(), ColoringAttributes.MARK_OCCURRENCES);
             }
+            closest = null;
         }
 
         if (isCancelled()) {
@@ -232,14 +230,14 @@ public class FortressOccurrenceFinder implements OccurrencesFinder {
 
         if (highlights.size() > 0) {
             if (result.getTranslatedSource() != null) {
-                Map<OffsetRange, ColoringAttributes> translated = new HashMap<OffsetRange,ColoringAttributes>(2*highlights.size());
-                for (Map.Entry<OffsetRange,ColoringAttributes> entry : highlights.entrySet()) {
+                Map<OffsetRange, ColoringAttributes> translated = new HashMap<OffsetRange, ColoringAttributes>(2 * highlights.size());
+                for (Map.Entry<OffsetRange, ColoringAttributes> entry : highlights.entrySet()) {
                     OffsetRange range = FortressLexUtilities.getLexerOffsets(info, entry.getKey());
                     if (range != OffsetRange.NONE) {
                         translated.put(range, entry.getValue());
                     }
                 }
-                
+
                 highlights = translated;
             }
 
@@ -261,10 +259,9 @@ public class FortressOccurrenceFinder implements OccurrencesFinder {
 //            }
 //        }
 
-        // TODO: Find the last statement, and highlight it.
-        // Be careful not to highlight the entire statement (which could be a giant if
-        // statement spanning the whole screen); just pick the first line.
-        
+    // TODO: Find the last statement, and highlight it.
+    // Be careful not to highlight the entire statement (which could be a giant if
+    // statement spanning the whole screen); just pick the first line.
 // Highlighting the last statement is disabled because statement offsets are generally
 // not valid yet. Fix that first.
 //        Node last = node.getLastChild();

@@ -424,11 +424,11 @@ public class FortressStructureAnalyzer implements StructureScanner {
         }
 
         public long getPosition() {
-            return definition.getEnclosedScope().getOffsetRange().getStart();
+            return definition.getEnclosedScope().getRange().getStart();
         }
 
         public long getEndPosition() {
-            return definition.getEnclosedScope().getOffsetRange().getEnd();
+            return definition.getEnclosedScope().getRange().getEnd();
         }
 
         @Override
