@@ -55,9 +55,12 @@ import com.sun.fortress.nodes.SimpleName;
 import com.sun.fortress.nodes.TraitDecl;
 import com.sun.fortress.nodes.VarDecl;
 import com.sun.fortress.nodes.VarRef;
+import com.sun.fortress.nodes_util.SourceLoc;
+import com.sun.fortress.nodes_util.Span;
 import java.util.List;
 import java.util.Stack;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -67,10 +70,24 @@ public class SignatureVisitor extends NodeDepthFirstVisitor_void {
 
     private Scope rootScope;
     private Stack<Scope> scopeStack = new Stack<Scope>();
+    private List<Integer> linesOffset;
 
-    public SignatureVisitor(Scope rootCtx) {
-        this.rootScope = rootCtx;
-        scopeStack.push(rootCtx);
+    public SignatureVisitor(Node rootNode, List<Integer> linesOffset) {
+        this.linesOffset = linesOffset;
+        // set linesOffset before call getOffsetRange(Node)
+        this.rootScope = new Scope(rootNode, getOffsetRange(rootNode));
+        scopeStack.push(rootScope);
+    }
+
+    public Scope getRootScope() {
+        return rootScope;
+    }
+
+    private OffsetRange getOffsetRange(Node node) {
+        Span span = node.getSpan();
+        SourceLoc begin = span.getBegin();
+        SourceLoc end = span.getEnd();
+        return new OffsetRange(linesOffset.get(begin.getLine() - 1) + begin.column() + 1, linesOffset.get(end.getLine() - 1) + end.column() + 1);
     }
 
     @Override
@@ -80,12 +97,12 @@ public class SignatureVisitor extends NodeDepthFirstVisitor_void {
 
     @Override
     public void forComponent(Component that) {
-        Scope scope = new Scope(that);
+        Scope scope = new Scope(that, getOffsetRange(that));
         List<Id> paths = that.getName().getIds();
         Node name = paths.size() > 0 ? paths.get(paths.size() - 1) : that.getName();
-        Signature signature = new Signature(that, name, scope, ElementKind.FILE);
+        Definition definition = new Definition(that, name, getOffsetRange(name), scope, ElementKind.FILE);
 
-        scopeStack.peek().addDefinition(signature);
+        scopeStack.peek().addDefinition(definition);
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
         super.forComponent(that);
@@ -94,9 +111,9 @@ public class SignatureVisitor extends NodeDepthFirstVisitor_void {
 
     @Override
     public void forTraitDecl(TraitDecl that) {
-        Scope scope = new Scope(that);
+        Scope scope = new Scope(that, getOffsetRange(that));
         Id name = that.getName();
-        Signature signature = new Signature(that, name, scope, ElementKind.MODULE);
+        Definition signature = new Definition(that, name, getOffsetRange(name), scope, ElementKind.MODULE);
 
         scopeStack.peek().addDefinition(signature);
         scopeStack.peek().addScope(scope);
@@ -107,11 +124,11 @@ public class SignatureVisitor extends NodeDepthFirstVisitor_void {
 
     @Override
     public void forAbsTraitDecl(AbsTraitDecl that) {
-        Scope scope = new Scope(that);
+        Scope scope = new Scope(that, getOffsetRange(that));
         Id name = that.getName();
-        Signature signature = new Signature(that, name, scope, ElementKind.MODULE);
+        Definition definition = new Definition(that, name, getOffsetRange(name), scope, ElementKind.MODULE);
 
-        scopeStack.peek().addDefinition(signature);
+        scopeStack.peek().addDefinition(definition);
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
         super.forAbsTraitDecl(that);
@@ -120,11 +137,11 @@ public class SignatureVisitor extends NodeDepthFirstVisitor_void {
 
     @Override
     public void forObjectDecl(ObjectDecl that) {
-        Scope scope = new Scope(that);
+        Scope scope = new Scope(that, getOffsetRange(that));
         Id name = that.getName();
-        Signature signature = new Signature(that, name, scope, ElementKind.CLASS);
+        Definition definition = new Definition(that, name, getOffsetRange(name), scope, ElementKind.CLASS);
 
-        scopeStack.peek().addDefinition(signature);
+        scopeStack.peek().addDefinition(definition);
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
         super.forObjectDecl(that);
@@ -133,11 +150,11 @@ public class SignatureVisitor extends NodeDepthFirstVisitor_void {
 
     @Override
     public void forAbsObjectDecl(AbsObjectDecl that) {
-        Scope scope = new Scope(that);
+        Scope scope = new Scope(that, getOffsetRange(that));
         Id name = that.getName();
-        Signature signature = new Signature(that, name, scope, ElementKind.CLASS);
+        Definition definition = new Definition(that, name, getOffsetRange(name), scope, ElementKind.CLASS);
 
-        scopeStack.peek().addDefinition(signature);
+        scopeStack.peek().addDefinition(definition);
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
         super.forAbsObjectDecl(that);
@@ -146,11 +163,11 @@ public class SignatureVisitor extends NodeDepthFirstVisitor_void {
 
     @Override
     public void forFnDef(FnDef that) {
-        Scope scope = new Scope(that);
+        Scope scope = new Scope(that, getOffsetRange(that));
         SimpleName name = that.getName();
-        Signature signature = new Signature(that, name, scope, ElementKind.METHOD);
+        Definition definition = new Definition(that, name, getOffsetRange(name), scope, ElementKind.METHOD);
 
-        scopeStack.peek().addDefinition(signature);
+        scopeStack.peek().addDefinition(definition);
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
         super.forFnDef(that);
@@ -164,46 +181,50 @@ public class SignatureVisitor extends NodeDepthFirstVisitor_void {
 
     @Override
     public void forVarDecl(VarDecl that) {
-        Scope scope = scopeStack.peek();
+        Scope scope = new Scope(that, getOffsetRange(that));
         List<LValueBind> lValueBinds = that.getLhs();
         for (LValueBind lValueBind : lValueBinds) {
             Id id = lValueBind.getName();
-            Signature signature = new Signature(lValueBind, id, scope, ElementKind.FIELD);
-            scope.addDefinition(signature);
+            Definition definition = new Definition(lValueBind, id, getOffsetRange(id), scope, ElementKind.FIELD);
+            scopeStack.peek().addDefinition(definition);
         }
 
+        scopeStack.peek().addScope(scope);
+        scopeStack.push(scope);
         super.forVarDecl(that);
+        scopeStack.pop();
     }
 
     @Override
     public void forLocalVarDecl(LocalVarDecl that) {
-        Scope scope = scopeStack.peek();
+        Scope scope = new Scope(that, getOffsetRange(that));
         List<LValue> lValues = that.getLhs();
         for (LValue lValue : lValues) {
             if (lValue instanceof LValueBind) {
                 Id id = ((LValueBind) lValue).getName();
-                Signature signature = new Signature(lValue, id, scope, ElementKind.VARIABLE);
-                scope.addDefinition(signature);
+                Definition definition = new Definition(lValue, id, getOffsetRange(id), scope, ElementKind.VARIABLE);
+                scopeStack.peek().addDefinition(definition);
             } else {
                 System.out.println("LValue: " + lValue.stringName());
             }
         }
 
+        scopeStack.peek().addScope(scope);
+        scopeStack.push(scope);
         super.forLocalVarDecl(that);
+        scopeStack.pop();
     }
-
 
     /******************************
      * Usages
      ******************************/
-    
     @Override
     public void forVarRef(VarRef that) {
         Scope scope = scopeStack.peek();
         Id id = that.getVar().getName();
-        Signature signature = new Signature(that, id, scope, ElementKind.VARIABLE);
-        scope.addUsage(signature);
-        
+        Usage usage = new Usage(that, id, getOffsetRange(id), scope, ElementKind.VARIABLE);
+        scope.addUsage(usage);
+
         super.forVarRef(that);
     }
 
@@ -211,10 +232,9 @@ public class SignatureVisitor extends NodeDepthFirstVisitor_void {
     public void forMethodInvocation(MethodInvocation that) {
         Scope scope = scopeStack.peek();
         Id id = that.getMethod();
-        Signature signature = new Signature(that, id, scope, ElementKind.METHOD);
-        scope.addUsage(signature);
+        Usage usage = new Usage(that, id, getOffsetRange(id), scope, ElementKind.METHOD);
+        scope.addUsage(usage);
 
         super.forMethodInvocation(that);
-    }    
-    
+    }
 }

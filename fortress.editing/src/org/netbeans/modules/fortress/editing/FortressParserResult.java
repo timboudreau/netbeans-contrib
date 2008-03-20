@@ -40,9 +40,8 @@
  */
 package org.netbeans.modules.fortress.editing;
 
-import org.netbeans.modules.fortress.editing.FortressParser;
 import com.sun.fortress.nodes.Node;
-import org.netbeans.modules.fortress.editing.FortressMimeResolver;
+import java.util.List;
 import org.netbeans.modules.fortress.editing.visitors.SignatureVisitor;
 import org.netbeans.modules.fortress.editing.visitors.Scope;
 import org.netbeans.modules.gsf.api.OffsetRange;
@@ -64,12 +63,14 @@ public class FortressParserResult extends ParserResult {
     private FortressParser.Sanitize sanitized;
     private boolean commentsAdded;
     private Scope rootScope;
+    private List<Integer> linesOffset;
 
-    public FortressParserResult(FortressParser parser, ParserFile file, Node rootNode, AstTreeNode ast) {
+    public FortressParserResult(FortressParser parser, ParserFile file, Node rootNode, AstTreeNode ast, List<Integer> linesOffset) {
         super(parser, file, FortressMimeResolver.MIME_TYPE);
         this.file = file;
         this.rootNode = rootNode;
         this.ast = ast;
+        this.linesOffset = linesOffset;
     }
 
     public ParserResult.AstTreeNode getAst() {
@@ -134,10 +135,10 @@ public class FortressParserResult extends ParserResult {
         if (rootScope == null) {
             Node node = getRootNode();
             assert node != null : "Attempted to get definition visitor for broken source";
-            rootScope = new Scope(node);
 
-            SignatureVisitor definitionVisitor = new SignatureVisitor(rootScope);
+            SignatureVisitor definitionVisitor = new SignatureVisitor(node, linesOffset);
             node.accept(definitionVisitor);
+            rootScope = definitionVisitor.getRootScope();
         }
 
         return rootScope;
