@@ -52,6 +52,7 @@ import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.FileStatusCache;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -76,8 +77,15 @@ public class IgnoreAction extends AbstractAction {
         if(roots.size() == 0 ) {
             return;
         }
+        int status = getStatus(context);
+        String progressDisplayName;
+        if(status == FileInformation.STATUS_NOTVERSIONED_IGNORED) {
+            progressDisplayName = NbBundle.getMessage(IgnoreAction.class, "IgnoreAction.progress.unignoring");
+        } else {
+            progressDisplayName = NbBundle.getMessage(IgnoreAction.class, "IgnoreAction.progress.ignoring");
+        }
         try {
-            ProgressSupport ps = new ProgressSupport(Clearcase.getInstance().getRequestProcessor(), NbBundle.getMessage(IgnoreAction.class, "Ignore.progress")) {
+            ProgressSupport ps = new ProgressSupport(Clearcase.getInstance().getRequestProcessor(), progressDisplayName) {
                 @Override
                 protected void perform() {
                     for (File file : roots) {
@@ -85,8 +93,8 @@ public class IgnoreAction extends AbstractAction {
                             ClearcaseModuleConfig.setUnignored(file);
                         } else {
                             ClearcaseModuleConfig.setIgnored(file);
-                        }                
-                    }    
+                        }
+                    }
                 }
             };
             ps.start();
