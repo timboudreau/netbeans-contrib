@@ -28,8 +28,8 @@
  */
 package org.netbeans.modules.spellchecker.bindings.htmlxml;
 
-import javax.swing.event.ChangeListener;
-import org.netbeans.modules.spellchecker.spi.language.TokenList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -37,6 +37,7 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.editor.Utilities;
 import org.netbeans.modules.spellchecker.spi.language.TokenList;
 import org.openide.ErrorManager;
 
@@ -52,6 +53,7 @@ public abstract class AbstractTokenList implements TokenList {
     private CharSequence currentWord;
     private int currentStartOffset;
     private int nextSearchOffset;
+    private int ignoreBefore;
 
     /** Creates a new instance of HtmlXmlTokenList */
     AbstractTokenList(BaseDocument doc) {
@@ -61,7 +63,13 @@ public abstract class AbstractTokenList implements TokenList {
     public void setStartOffset(int offset) {
         currentWord = null;
         currentStartOffset = (-1);
-        this.nextSearchOffset = offset;
+        this.ignoreBefore = offset;
+        try {
+            this.nextSearchOffset = Utilities.getRowStart(doc, offset);
+        } catch (BadLocationException ex) {
+            Logger.getLogger(AbstractTokenList.class.getName()).log(Level.FINE, null, ex);
+            this.nextSearchOffset = offset;
+        }
     }
 
     public int getCurrentWordStartOffset() {
@@ -82,6 +90,15 @@ public abstract class AbstractTokenList implements TokenList {
     protected abstract int[] findNextSpellSpan(TokenSequence<? extends TokenId> ts, int offset) throws BadLocationException;
 
     public boolean nextWord() {
+        boolean next = nextWordImpl();
+        
+        while (next && (currentStartOffset + currentWord.length()) < ignoreBefore)
+            next = nextWordImpl();
+        
+        return next;
+    }
+    
+    private boolean nextWordImpl() {
         try {
             int[] span = findNextSpellSpan();
 
