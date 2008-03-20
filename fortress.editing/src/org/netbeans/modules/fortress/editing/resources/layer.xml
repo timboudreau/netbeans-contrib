@@ -144,11 +144,10 @@
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.OccurrencesFinder"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.fortress.editing.FortressOccurrenceFinder"/>
                 </file>
-                <!--
                 <file name="renamer.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.InstantRenamer"/>
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.fortress.editing.FortressRenameHandler"/>
-                </file> -->
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.fortress.editing.FortressInstantRenamer"/>
+                </file>
             </folder>
         </folder>
     </folder>
