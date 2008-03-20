@@ -39,7 +39,6 @@
 package org.netbeans.modules.fortress.editing.visitors;
 
 import com.sun.fortress.nodes.FnAbsDeclOrDecl;
-import com.sun.fortress.nodes.ModifierAbstract;
 import com.sun.fortress.nodes.ModifierPrivate;
 import com.sun.fortress.nodes.Node;
 import com.sun.fortress.nodes.TraitObjectAbsDeclOrDecl;
@@ -51,24 +50,25 @@ import org.netbeans.modules.fortress.editing.FortressMimeResolver;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Modifier;
+import org.netbeans.modules.gsf.api.OffsetRange;
 import org.openide.filesystems.FileObject;
 
 /**
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
-public class Signature implements ElementHandle {
+public abstract class Signature implements ElementHandle {
 
     private Node node;
     private Node nameNode;
-    private Scope enclosedScope;
     private ElementKind kind;
     private Set<Modifier> mods;
+    private OffsetRange nameRange;
 
-    public Signature(Node node, Node nameNode, Scope enclosedScope, ElementKind kind) {
+    public Signature(Node node, Node nameNode, OffsetRange nameRange, ElementKind kind) {
         this.node = node;
         this.nameNode = nameNode;
-        this.enclosedScope = enclosedScope;
+        this.nameRange = nameRange;
         this.kind = kind;
     }
 
@@ -80,12 +80,12 @@ public class Signature implements ElementHandle {
         return nameNode;
     }
 
-    public Scope getEnclosedScope() {
-        return enclosedScope;
-    }
-
     public String getName() {
         return nameNode.stringName();
+    }
+
+    public OffsetRange getNameRange() {
+        return nameRange;
     }
 
     public ElementKind getKind() {
@@ -129,4 +129,9 @@ public class Signature implements ElementHandle {
     public String getIn() {
         return null;
     }
+
+    /**
+     * @return the scope that encloses this item 
+     */
+    abstract Scope getEnclosingScope();
 }

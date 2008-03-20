@@ -68,6 +68,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.ImageIcon;
+import org.netbeans.modules.fortress.editing.visitors.Definition;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
@@ -77,7 +78,6 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.StructureItem;
 import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.fortress.editing.visitors.Scope;
-import org.netbeans.modules.fortress.editing.visitors.Signature;
 
 /**
  *
@@ -102,13 +102,13 @@ public class FortressStructureAnalyzer implements StructureScanner {
         }
 
         Scope rootScope = result.getRootScope();
-        List<StructureItem> itemList = new ArrayList<StructureItem>();
+        List<StructureItem> items = new ArrayList<StructureItem>();
 
-        for (Signature signature : rootScope.getDefinitions()) {
-            itemList.add(new FortressStructureItem(signature, info, formatter));
+        for (Definition definition : rootScope.getDefinitions()) {
+            items.add(new FortressStructureItem(definition, info, formatter));
         }
 
-        return itemList;
+        return items;
     }
 
     public Map<String, List<OffsetRange>> folds(CompilationInfo info) {
@@ -176,18 +176,18 @@ public class FortressStructureAnalyzer implements StructureScanner {
 
     private class FortressStructureItem implements StructureItem {
 
-        private Signature signature;
+        private Definition definition;
         private CompilationInfo info;
         private HtmlFormatter formatter;
 
-        private FortressStructureItem(Signature signature, CompilationInfo info, HtmlFormatter formatter) {
-            this.signature = signature;
+        private FortressStructureItem(Definition definition, CompilationInfo info, HtmlFormatter formatter) {
+            this.definition = definition;
             this.info = info;
             this.formatter = formatter;
         }
 
         public String getName() {
-            return signature.getName();
+            return definition.getName();
         }
 
         public String getSortText() {
@@ -207,9 +207,9 @@ public class FortressStructureAnalyzer implements StructureScanner {
 //                formatter.deprecated(false);
 //            }
 
-            if (signature.getNode() instanceof FnDef) {
+            if (definition.getNode() instanceof FnDef) {
                 // Append parameters
-                FnDef fnDef = (FnDef) signature.getNode();
+                FnDef fnDef = (FnDef) definition.getNode();
                 List<StaticParam> staticParams = fnDef.getStaticParams();
                 if (staticParams.size() > 0) {
                     formatter.appendHtml("[\\");
@@ -371,19 +371,19 @@ public class FortressStructureAnalyzer implements StructureScanner {
         }
         
         public ElementHandle getElementHandle() {
-            return signature;
+            return definition;
         }
 
         public ElementKind getKind() {
-            return signature.getKind();
+            return definition.getKind();
         }
 
         public Set<Modifier> getModifiers() {
-            return signature.getModifiers();
+            return definition.getModifiers();
         }
 
         public boolean isLeaf() {
-            switch (signature.getKind()) {
+            switch (definition.getKind()) {
                 case ATTRIBUTE:
                 case CONSTANT:
                 case CONSTRUCTOR:
@@ -403,18 +403,18 @@ public class FortressStructureAnalyzer implements StructureScanner {
                     return false;
 
                 default:
-                    throw new RuntimeException("Unhandled kind: " + signature.getKind());
+                    throw new RuntimeException("Unhandled kind: " + definition.getKind());
             }
         }
 
         public List<? extends StructureItem> getNestedItems() {
-            List<Signature> nested = signature.getEnclosedScope().getDefinitions();
+            List<Definition> nested = definition.getEnclosedScope().getDefinitions();
 
             if ((nested != null) && (nested.size() > 0)) {
                 List<FortressStructureItem> children = new ArrayList<FortressStructureItem>(nested.size());
 
-                for (Signature sign : nested) {
-                    children.add(new FortressStructureItem(sign, info, formatter));
+                for (Definition child : nested) {
+                    children.add(new FortressStructureItem(child, info, formatter));
                 }
 
                 return children;
@@ -424,11 +424,11 @@ public class FortressStructureAnalyzer implements StructureScanner {
         }
 
         public long getPosition() {
-            return AstUtilities.getRange(info, signature.getNode()).getStart();
+            return definition.getEnclosedScope().getOffsetRange().getStart();
         }
 
         public long getEndPosition() {
-            return AstUtilities.getRange(info, signature.getNode()).getEnd();
+            return definition.getEnclosedScope().getOffsetRange().getEnd();
         }
 
         @Override
@@ -443,7 +443,7 @@ public class FortressStructureAnalyzer implements StructureScanner {
 
             FortressStructureItem d = (FortressStructureItem) o;
 
-            if (signature.getKind() != d.signature.getKind()) {
+            if (definition.getKind() != d.definition.getKind()) {
                 return false;
             }
 
@@ -459,7 +459,7 @@ public class FortressStructureAnalyzer implements StructureScanner {
             int hash = 7;
 
             hash = (29 * hash) + ((this.getName() != null) ? this.getName().hashCode() : 0);
-            hash = (29 * hash) + ((this.signature.getKind() != null) ? this.signature.getKind().hashCode() : 0);
+            hash = (29 * hash) + ((this.definition.getKind() != null) ? this.definition.getKind().hashCode() : 0);
 
             return hash;
         }

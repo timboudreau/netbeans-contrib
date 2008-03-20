@@ -95,6 +95,7 @@ public class FortressSemanticAnalyzer implements SemanticAnalyzer {
         }
 
         Scope rootScope = result.getRootScope();
+        
         Map<OffsetRange, ColoringAttributes> highlights = new HashMap<OffsetRange, ColoringAttributes>(100);
         visitScopeRecursively(info, rootScope, highlights);
 
@@ -119,7 +120,7 @@ public class FortressSemanticAnalyzer implements SemanticAnalyzer {
 
     private void visitScopeRecursively(CompilationInfo info, Scope scope, Map<OffsetRange, ColoringAttributes> highlights) {
         for (Signature definition : scope.getDefinitions()) {
-            OffsetRange range = AstUtilities.getRange(info, definition.getNameNode());
+            OffsetRange range = definition.getNameRange();
             switch (definition.getKind()) {
                 case MODULE:
                     highlights.put(range, ColoringAttributes.CLASS);

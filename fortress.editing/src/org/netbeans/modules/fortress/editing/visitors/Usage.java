@@ -40,80 +40,27 @@
 package org.netbeans.modules.fortress.editing.visitors;
 
 import com.sun.fortress.nodes.Node;
-import java.util.ArrayList;
-import java.util.List;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class ScopeChain {
-        private List<Scope> scopes = new ArrayList<Scope>();
-        private List<Scope> roots = new ArrayList<Scope>();
-        private Scope current;
-
-        Scope getCurrent() {
-            return current;
-        }
-
-//        Scope push(Node parent) {
-//            Scope scope = new Scope(parent);
-//            if (roots.isEmpty()) {
-//                roots.add(scope);
-//            } else {
-//                current.addScope(scope);
-//            }
-//            scopes.add(scope);
-//            current = scope;
-//
-//            return scope;
-//        }
-
-        Scope pop() {
-            current = current.getParent();
-
-            return current;
-        }
-
-        private Scope findScope(Node node) {
-            // Locate surrounding function/script
-//            while (node != null) {
-//                int type = node.getType();
-//                if (type == Token.FUNCTION || type == Token.SCRIPT) {
-//                    for (Scope root : roots) {
-//                        Scope s = findScope(root, node);
-//                        if (s != null) {
-//                            return s;
-//                        }
-//                    }
-//                }
-//                
-//                node = node.getParentNode();
-//            }
-            
-            return null;
-        }
-        
-        private Scope findScope(Scope scope, Node node) {
-            if (scope.getNode() == node) {
-                return scope;
-            }
-            
-            if (scope.getScopes() != null) {
-                for (Scope child : scope.getScopes()) {
-                    Scope s = findScope(child, node);
-                    if (s != null) {
-                        return s;
-                    }
-                }
-            }
-            
-            return null;
-        }
-
-        @Override
-        public String toString() {
-            return "ScopeChain:" + roots;
-        }
+public class Usage extends Signature {
+    
+    private Scope enclosingScope;
+    
+    public Usage(Node node, Node nameNode, OffsetRange nameRange, Scope enclosingScope, ElementKind kind) {
+        super(node, nameNode, nameRange, kind);
+        this.enclosingScope = enclosingScope;
+    }
+    
+    /**
+     * @return the scope that encloses this item 
+     */
+    public Scope getEnclosingScope() {
+        return enclosingScope;
+    }
 
 }
