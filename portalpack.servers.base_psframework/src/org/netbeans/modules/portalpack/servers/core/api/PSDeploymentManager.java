@@ -376,6 +376,16 @@ public abstract class PSDeploymentManager implements DeploymentManager {
        }
        return null;
    }
+   
+   public boolean isShowServerLogSupported()
+   {
+       return false;
+   }
+   
+   public void showServerLog()
+   {
+       //do nothing
+   }
   
    public abstract PSTaskHandler getTaskHandler();
    public abstract PSConfigPanelManager getPSConfigPanelManager();

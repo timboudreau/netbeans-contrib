@@ -26,6 +26,7 @@ import org.netbeans.modules.portalpack.servers.core.nodes.actions.ShowAdminToolA
 import java.awt.Component;
 import java.awt.Label;
 import javax.swing.JPanel;
+import org.netbeans.modules.portalpack.servers.core.nodes.actions.ShowServerLogAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -62,9 +63,10 @@ public class PSInstanceNode extends AbstractNode implements Node.Cookie {
     }
     
     public javax.swing.Action[] getActions(boolean context) {
-        javax.swing.Action[]  newActions = new javax.swing.Action[2] ;
+        javax.swing.Action[]  newActions = new javax.swing.Action[3] ;
         newActions[0]=(null);        
         newActions[1]= (SystemAction.get(ShowAdminToolAction.class));
+        newActions[2] = (SystemAction.get(ShowServerLogAction.class));      
          
         return newActions;
     }

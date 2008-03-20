@@ -19,16 +19,23 @@
 
 package org.netbeans.modules.portalpack.servers.jnpc;
 
+import java.io.File;
+import java.io.IOException;
+import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 import org.netbeans.modules.portalpack.servers.core.PSJ2eePlatformImpl;
 import org.netbeans.modules.portalpack.servers.core.api.PSConfigPanelManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSNodeConfiguration;
 import org.netbeans.modules.portalpack.servers.core.api.PSStartServerInf;
 import org.netbeans.modules.portalpack.servers.core.api.PSTaskHandler;
+import org.netbeans.modules.portalpack.servers.core.common.FileLogViewerSupport;
+import org.netbeans.modules.portalpack.servers.core.common.LogManager;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.jnpc.common.JNPCConstants;
 import org.netbeans.modules.portalpack.servers.jnpc.impl.JNPCTaskHandler;
 import org.netbeans.modules.portalpack.servers.jnpc.pc20.PC20TaskHandler;
+import org.openide.util.Exceptions;
+import org.openide.windows.InputOutput;
 
 /**
  *
@@ -75,4 +82,23 @@ public class JNPCDeploymentManager extends PSDeploymentManager {
     public PSJ2eePlatformImpl createPSJ2eePlatformImpl(PSConfigObject psconfig) {
          return new JNPCJ2eePlatformImpl(psconfig);
     }
+
+    @Override
+    public void showServerLog() {
+        try {
+            
+            FileLogViewerSupport.removeLogViewerSupport(getUri());
+            File f = new File(getPSConfig().getDomainDir() + File.separator + "/logs/server.log");
+            FileLogViewerSupport p = FileLogViewerSupport.getLogViewerSupport(f, getUri(), 2000, true);
+            p.showLogViewer(true);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    @Override
+    public boolean isShowServerLogSupported() {
+        return true;
+    }
+    
 }
