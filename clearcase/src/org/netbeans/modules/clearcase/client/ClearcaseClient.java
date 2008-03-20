@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.clearcase.client;
 
+import java.io.FileNotFoundException;
 import org.netbeans.modules.clearcase.ClearcaseException;
 import org.netbeans.modules.clearcase.ClearcaseUnavailableException;
 import org.netbeans.modules.versioning.util.Utils;
@@ -53,8 +54,14 @@ import javax.swing.*;
 import java.io.IOException;
 import java.beans.PropertyChangeListener;
 import java.awt.event.ActionEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.Reader;
 import java.util.*;
+import java.util.ArrayList;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.util.ProgressSupport;
 import org.openide.util.NbBundle;
@@ -69,6 +76,8 @@ public class ClearcaseClient {
 
     private Cleartool ct;
 
+    private List<Pattern> supressedMessages;
+    
     /**
      * Request processor that executes clearcase commands.
      */
@@ -237,12 +246,53 @@ public class ClearcaseClient {
             if(notifyErrors) {
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        report(NbBundle.getMessage(ClearcaseClient.class, "Report_ClearcaseCommandFailure_Title"), NbBundle.getMessage(ClearcaseClient.class, "Report_ClearcaseCommandFailure_Prompt"), errors, NotifyDescriptor.ERROR_MESSAGE); //NOI18N
+                        report(
+                            NbBundle.getMessage(ClearcaseClient.class, "Report_ClearcaseCommandFailure_Title"), 
+                            NbBundle.getMessage(ClearcaseClient.class, "Report_ClearcaseCommandFailure_Prompt"), 
+                            filterSuppresedMessages(errors), 
+                            NotifyDescriptor.ERROR_MESSAGE); //NOI18N
                     }
                 });
             }
         }
         
+        private List<String> filterSuppresedMessages(List<String> messages) {
+            String supressedFile = System.getProperty("org.netbeans.modules.clearcase.supressMessages");
+            if(supressedFile == null || supressedFile.trim().equals("")) {
+                return messages;
+            }
+            if(supressedMessages == null) {
+                BufferedReader fr = null;
+                try {
+                    File f = new File(supressedFile);
+                    fr = new BufferedReader(new FileReader(f));
+                    String line;
+                    while( (line = fr.readLine()) != null) {
+                        supressedMessages.add(Pattern.compile(line));
+                    }
+                } catch (IOException ex) {
+                    Clearcase.LOG.log(Level.INFO, "Could not open supressedMessages file " + supressedFile, ex);
+                    return messages;
+                } finally {
+                    try { if(fr != null) fr.close(); } catch (IOException ex) { /*ignore*/ }
+                }                
+            }
+            List<String> ret = new ArrayList<String>();
+            for (String msg : messages) {
+                boolean matches = false;
+                for (Pattern p : supressedMessages) {
+                    if(p.matcher(msg).matches()) {
+                        matches = true;
+                        break; 
+                    }
+                    if(!matches) {
+                        ret.add(msg);
+                    }
+                }
+            }
+            return ret;
+        }
+                
         private void report(String title, String prompt, List<String> messages, int type) {
             boolean emptyReport = true;
             for (String message : messages) {
