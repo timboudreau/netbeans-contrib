@@ -21,6 +21,7 @@ package org.netbeans.modules.portalpack.servers.jnpc;
 
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSStartServerInf;
+import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
 import org.netbeans.modules.portalpack.servers.core.impl.DefaultStartServerImpl;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver.SunAppServerStartServer;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatStartServer;

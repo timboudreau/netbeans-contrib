@@ -40,12 +40,20 @@
  */
 package org.netbeans.modules.clearcase.options;
 
+import java.awt.Dialog;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import org.netbeans.modules.versioning.util.AccessibleJFileChooser;
 import org.openide.util.NbBundle;
 import org.openide.filesystems.FileUtil;
 
 import javax.swing.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import org.netbeans.modules.clearcase.ClearcaseAnnotator;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 
 /**
  *
@@ -274,7 +282,63 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_cbFallbackActionPerformed
     
     private void bAddVariableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bAddVariableActionPerformed
-    // TODO add your handling code here:
+        LabelsPanel labelsPanel = new LabelsPanel();
+        List<LabelVariable> variables = new ArrayList<LabelVariable>(ClearcaseAnnotator.LABELS.length);
+        for (int i = 0; i < ClearcaseAnnotator.LABELS.length; i++) {   
+            LabelVariable variable = new LabelVariable(
+                    ClearcaseAnnotator.LABELS[i], 
+                    "{" + ClearcaseAnnotator.LABELS[i] + "} - " + NbBundle.getMessage(ClearcaseOptionsPanel.class, "Variable." + ClearcaseAnnotator.LABELS[i])
+            );
+            variables.add(variable);   
+        }       
+        labelsPanel.labelsList.setListData(variables.toArray(new LabelVariable[variables.size()]));                
+                
+        String title = NbBundle.getMessage(ClearcaseOptionsPanel.class, "Variables.title");
+        String acsd = NbBundle.getMessage(ClearcaseOptionsPanel.class, "Variables.acsd");
+
+        DialogDescriptor dialogDescriptor = new DialogDescriptor(labelsPanel, title);
+        dialogDescriptor.setModal(true);
+        dialogDescriptor.setValid(true);
+        
+        final Dialog dialog = DialogDisplayer.getDefault().createDialog(dialogDescriptor);
+        dialog.getAccessibleContext().setAccessibleDescription(acsd);
+        
+        labelsPanel.labelsList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(e.getClickCount() == 2) {
+                    dialog.setVisible(false);
+                }
+            }        
+        });                 
+        
+        dialog.setVisible(true);
+        
+        if(DialogDescriptor.OK_OPTION.equals(dialogDescriptor.getValue())) {
+            
+            Object[] selection = labelsPanel.labelsList.getSelectedValues();
+            
+            String variable = "";
+            for (int i = 0; i < selection.length; i++) {
+                variable += "{" + ((LabelVariable)selection[i]).getVariable() + "}";
+            }
+
+            String annotation = taLabelFormat.getText();
+
+            int pos = taLabelFormat.getCaretPosition();
+            if(pos < 0) pos = annotation.length();
+
+            StringBuffer sb = new StringBuffer(annotation.length() + variable.length());
+            sb.append(annotation.substring(0, pos));
+            sb.append(variable);
+            if(pos < annotation.length()) {
+                sb.append(annotation.substring(pos, annotation.length()));
+            }
+            taLabelFormat.setText(sb.toString());
+            taLabelFormat.requestFocus();
+            taLabelFormat.setCaretPosition(pos + variable.length());            
+            
+        }        
     }//GEN-LAST:event_bAddVariableActionPerformed
     
     private void taLabelFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_taLabelFormatActionPerformed
@@ -285,6 +349,28 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
     // TODO add your handling code here:
     }//GEN-LAST:event_cbCheckinViewPrivateActionPerformed
 
+private class LabelVariable {
+        private String description;
+        private String variable;
+         
+        public LabelVariable(String variable, String description) {
+            this.description = description;
+            this.variable = variable;
+        }
+         
+        @Override
+        public String toString() {
+            return description;
+        }
+        
+        public String getDescription() {
+            return description;
+        }
+        
+        public String getVariable() {
+            return variable;
+        }
+    }    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     javax.swing.JButton bAddVariable;
