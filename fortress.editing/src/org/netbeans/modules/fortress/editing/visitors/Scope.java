@@ -41,9 +41,11 @@ package org.netbeans.modules.fortress.editing.visitors;
 import com.sun.fortress.nodes.Node;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -54,15 +56,24 @@ public class Scope implements Iterable<Scope> {
     private final Node node;
     private Scope parent;
     private List<Scope> scopes;
-    private List<Signature> definitions;
-    private List<Signature> usages;
+    private List<Definition> definitions;
+    private List<Usage> usages;
+    private boolean scopesSorted;
+    private boolean definitionsSorted;
+    private boolean usagesSorted;
+    private OffsetRange range;
 
-    public Scope(Node node) {
+    public Scope(Node node, OffsetRange range) {
         this.node = node;
+        this.range = range;
     }
 
     public Node getNode() {
         return node;
+    }
+
+    public OffsetRange getRange() {
+        return range;
     }
 
     public Scope getParent() {
@@ -76,14 +87,14 @@ public class Scope implements Iterable<Scope> {
         return scopes;
     }
 
-    public List<Signature> getDefinitions() {
+    public List<Definition> getDefinitions() {
         if (definitions == null) {
             return Collections.emptyList();
         }
         return definitions;
     }
 
-    public List<Signature> getUsages() {
+    public List<Usage> getUsages() {
         if (usages == null) {
             return Collections.emptyList();
         }
@@ -98,19 +109,18 @@ public class Scope implements Iterable<Scope> {
         scope.parent = this;
     }
 
-    void addDefinition(Signature signature) {
+    void addDefinition(Definition definition) {
         if (definitions == null) {
-            definitions = new ArrayList<Signature>();
+            definitions = new ArrayList<Definition>();
         }
-        definitions.add(signature);
+        definitions.add(definition);
     }
 
-    void addUsage(Signature signature) {
+    void addUsage(Usage usage) {
         if (usages == null) {
-            usages = new ArrayList<Signature>();
-            ;
+            usages = new ArrayList<Usage>();
         }
-        usages.add(signature);
+        usages.add(usage);
     }
 
     public Iterator<Scope> iterator() {
@@ -118,6 +128,128 @@ public class Scope implements Iterable<Scope> {
             return scopes.iterator();
         } else {
             return Collections.<Scope>emptySet().iterator();
+        }
+    }
+
+    public Signature getSignature(int offset) {
+        if (definitions != null) {
+            if (!definitionsSorted) {
+                Collections.sort(definitions, new SignatureComparator());
+                definitionsSorted = true;
+            }
+            int low = 0;
+            int high = definitions.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                Definition middle = definitions.get(mid);
+                if (offset < middle.getNameRange().getStart()) {
+                    high = mid - 1;
+                } else if (offset >= middle.getNameRange().getEnd()) {
+                    low = mid + 1;
+                } else {
+                    return middle;
+                }
+            }
+        }
+
+        if (usages != null) {
+            if (!usagesSorted) {
+                Collections.sort(usages, new SignatureComparator());
+                usagesSorted = true;
+            }
+            int low = 0;
+            int high = usages.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                Usage middle = usages.get(mid);
+                if (offset < middle.getNameRange().getStart()) {
+                    high = mid - 1;
+                } else if (offset >= middle.getNameRange().getEnd()) {
+                    low = mid + 1;
+                } else {
+                    return middle;
+                }
+            }
+        }
+
+        if (scopes != null) {
+            if (!scopesSorted) {
+                Collections.sort(scopes, new ScopeComparator());
+                scopesSorted = true;
+            }
+            int low = 0;
+            int high = scopes.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                Scope middle = scopes.get(mid);
+                if (offset < middle.getRange().getStart()) {
+                    high = mid - 1;
+                } else if (offset >= middle.getRange().getEnd()) {
+                    low = mid + 1;
+                } else {
+                    return middle.getSignature(offset);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public List<Signature> findOccurrences(Signature signature) {
+        Definition definition = null;
+        if (signature instanceof Definition) {
+            definition = (Definition) signature;
+        } else if (signature instanceof Usage) {
+            definition = findDefinition((Usage) signature);
+        }
+
+        if (definition == null) {
+            return Collections.emptyList();
+        }
+
+        List<Signature> occurrences = new ArrayList<Signature>();
+        occurrences.add(definition);
+        
+        findUsages(definition, occurrences);
+
+        return occurrences;
+    }
+
+    public Definition findDefinition(Usage usage) {
+        Scope closestScope = usage.getEnclosingScope();
+        return findDefinitionInScope(closestScope, usage);
+    }
+
+    private Definition findDefinitionInScope(Scope scope, Usage usage) {
+        for (Definition definition : scope.getDefinitions()) {
+            /** @todo also compare arity etc */
+            if (definition.getName().equals(usage.getName())) {
+                return definition;
+            }
+        }
+
+        Scope parentScope = scope.getParent();
+        if (parentScope != null) {
+            return parentScope.findDefinitionInScope(parentScope, usage);
+        }
+
+        return null;
+    }
+
+    public void findUsages(Definition definition, List<Signature> usages) {
+        Scope enclosingScope = definition.getEnclosingScope();
+        findUsagesInScope(enclosingScope, definition, usages);
+    }
+
+    private void findUsagesInScope(Scope scope, Definition definition, List<Signature> usages) {
+        for (Usage usage : scope.getUsages()) {
+            if (definition.getName().equals(usage.getName())) {
+                usages.add(usage);
+            }
+        }
+
+        for (Scope child : scope.getScopes()) {
+            findUsagesInScope(child, definition, usages);
         }
     }
 
@@ -193,7 +325,21 @@ public class Scope implements Iterable<Scope> {
 
     @Override
     public String toString() {
-        return "Scope(node=" + node + ",locals=" + getDefinitions() + ",read=" + getUsages() + ")";
+        return "Scope(node=" + node + "," + getRange() + ",defs=" + getDefinitions() + ",usages=" + getUsages() + ")";
+    }
+
+    private static class ScopeComparator implements Comparator<Scope> {
+
+        public int compare(Scope o1, Scope o2) {
+            return o1.getRange().getStart() < o2.getRange().getStart() ? -1 : 1;
+        }
+    }
+
+    private static class SignatureComparator implements Comparator<Signature> {
+
+        public int compare(Signature o1, Signature o2) {
+            return o1.getNameRange().getStart() < o2.getNameRange().getStart() ? -1 : 1;
+        }
     }
 }
 

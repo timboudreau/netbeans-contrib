@@ -56,18 +56,18 @@ public class ScopeChain {
             return current;
         }
 
-        Scope push(Node parent) {
-            Scope scope = new Scope(parent);
-            if (roots.isEmpty()) {
-                roots.add(scope);
-            } else {
-                current.addScope(scope);
-            }
-            scopes.add(scope);
-            current = scope;
-
-            return scope;
-        }
+//        Scope push(Node parent) {
+//            Scope scope = new Scope(parent);
+//            if (roots.isEmpty()) {
+//                roots.add(scope);
+//            } else {
+//                current.addScope(scope);
+//            }
+//            scopes.add(scope);
+//            current = scope;
+//
+//            return scope;
+//        }
 
         Scope pop() {
             current = current.getParent();

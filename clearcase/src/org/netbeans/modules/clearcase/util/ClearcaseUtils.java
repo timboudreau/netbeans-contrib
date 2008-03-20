@@ -422,7 +422,7 @@ public class ClearcaseUtils {
         Clearcase.getInstance().getClient().exec(command, odc == ClearcaseModuleConfig.OnDemandCheckout.Reserved || odc == ClearcaseModuleConfig.OnDemandCheckout.Unreserved);
         if(!command.hasFailed()) {
             return WAS_CHECKEDOUT;
-        } else if (odc == ClearcaseModuleConfig.OnDemandCheckout.UnreservedWithFallback && canHijack) {
+        } else if (canHijack && (odc == ClearcaseModuleConfig.OnDemandCheckout.UnreservedWithFallback || odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithHijackFallback)) {
             return HijackAction.hijack(file) ? IS_MUTABLE : 0; 
         } else if(odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithUnreservedFallback || odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithBothFallbacks) {
             command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, 
