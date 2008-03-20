@@ -40,7 +40,6 @@
  */
 package org.netbeans.modules.clearcase.client;
 
-import java.io.FileNotFoundException;
 import org.netbeans.modules.clearcase.ClearcaseException;
 import org.netbeans.modules.clearcase.ClearcaseUnavailableException;
 import org.netbeans.modules.versioning.util.Utils;
@@ -57,7 +56,6 @@ import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.Reader;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -76,7 +74,7 @@ public class ClearcaseClient {
 
     private Cleartool ct;
 
-    private List<Pattern> supressedMessages;
+    private List<Pattern> suppressedMessages;
     
     /**
      * Request processor that executes clearcase commands.
@@ -249,29 +247,29 @@ public class ClearcaseClient {
                         report(
                             NbBundle.getMessage(ClearcaseClient.class, "Report_ClearcaseCommandFailure_Title"), 
                             NbBundle.getMessage(ClearcaseClient.class, "Report_ClearcaseCommandFailure_Prompt"), 
-                            filterSuppresedMessages(errors), 
+                            filterSuppressedMessages(errors), 
                             NotifyDescriptor.ERROR_MESSAGE); //NOI18N
                     }
                 });
             }
         }
         
-        private List<String> filterSuppresedMessages(List<String> messages) {
-            String supressedFile = System.getProperty("org.netbeans.modules.clearcase.supressMessages");
-            if(supressedFile == null || supressedFile.trim().equals("")) {
+        private List<String> filterSuppressedMessages(List<String> messages) {
+            String suppressedFile = System.getProperty("org.netbeans.modules.clearcase.suppressMessages");
+            if(suppressedFile == null || suppressedFile.trim().equals("")) {
                 return messages;
             }
-            if(supressedMessages == null) {
+            if(suppressedMessages == null) {
                 BufferedReader fr = null;
                 try {
-                    File f = new File(supressedFile);
+                    File f = new File(suppressedFile);
                     fr = new BufferedReader(new FileReader(f));
                     String line;
                     while( (line = fr.readLine()) != null) {
-                        supressedMessages.add(Pattern.compile(line));
+                        suppressedMessages.add(Pattern.compile(line));
                     }
                 } catch (IOException ex) {
-                    Clearcase.LOG.log(Level.INFO, "Could not open supressedMessages file " + supressedFile, ex);
+                    Clearcase.LOG.log(Level.INFO, "Could not open suppressedMessages file " + suppressedFile, ex);
                     return messages;
                 } finally {
                     try { if(fr != null) fr.close(); } catch (IOException ex) { /*ignore*/ }
@@ -280,7 +278,7 @@ public class ClearcaseClient {
             List<String> ret = new ArrayList<String>();
             for (String msg : messages) {
                 boolean matches = false;
-                for (Pattern p : supressedMessages) {
+                for (Pattern p : suppressedMessages) {
                     if(p.matcher(msg).matches()) {
                         matches = true;
                         break; 
