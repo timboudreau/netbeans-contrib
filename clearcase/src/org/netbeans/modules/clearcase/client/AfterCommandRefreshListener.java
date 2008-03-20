@@ -41,7 +41,8 @@
 package org.netbeans.modules.clearcase.client;
 
 import java.io.File;
-import org.netbeans.modules.clearcase.util.Utils;
+
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 
 /**
  * Refreshes the status for files and the relevent filesystems after a {@link ClearcaseCommand} finnishes
@@ -65,7 +66,7 @@ public class AfterCommandRefreshListener implements NotificationListener {
     public void errorText(String line)  { /* boring */ }
     
     public void commandFinished() {     
-        Utils.afterCommandRefresh(files, false);
+        ClearcaseUtils.afterCommandRefresh(files, false);
     }
 
 }

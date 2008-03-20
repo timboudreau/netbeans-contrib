@@ -40,7 +40,6 @@
  */
 package org.netbeans.modules.fortress.editing;
 
-import org.netbeans.modules.fortress.editing.AstUtilities;
 import org.netbeans.modules.fortress.editing.elements.AstElement;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementHandle;

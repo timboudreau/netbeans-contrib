@@ -20,7 +20,9 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc;
 
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 
 /**
@@ -29,8 +31,9 @@ import org.openide.windows.TopComponent;
 public class IPCStoryBoardAction extends AbstractAction {
     
     public IPCStoryBoardAction() {
-        super(NbBundle.getMessage(IPCStoryBoardAction.class, "CTL_IPCStoryBoardAction"));
-        //        putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(IPCStoryBoardTopComponent.ICON_PATH, true)));
+        super(NbBundle.getMessage(IPCStoryBoardAction.class, "CTL_IPCStoryBoardAction"));        
+        putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(IPCStoryBoardTopComponent.ICON_PATH, true)));
+        //putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyE)); //#NOI18N
     }
     
     public void actionPerformed(ActionEvent evt) {

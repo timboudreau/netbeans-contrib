@@ -485,6 +485,7 @@ jarsigner.storepass=${jarsigner.storepass}
                 name="release.parent.platforms"
                 value=""/>
         </ant>
+	
         <build-product dir="C_Compiler"/>
         <build-product dir="C++_Compiler"/>
         <build-product dir="Fortran_95_Compiler"/>
@@ -496,11 +497,13 @@ jarsigner.storepass=${jarsigner.storepass}
         <build-product dir="support_files"/>
         <build-product dir="Performance_Library"/>
         <build-product dir="Third-party_Source"/>
+	
      </target>
 
      <macrodef name="build-product">
          <attribute name="dir"/>
          <sequential>
+		
                 <ant dir="${nbi.netbeans.dir}/infra/products/native" target="release-all">
 	    <property 
                 name="build.properties" 
@@ -557,9 +560,11 @@ jarsigner.storepass=${jarsigner.storepass}
                        platform="solaris-x86" 
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-x86.sh">
             <component uid="ss-base" version="1.0.0.0.0"/>
-            <component uid="nb-base" version="${nb.full.version}"/>
+            
+	    <component uid="nb-base" version="${nb.full.version}"/>
             <component uid="nb-cnd" version="${nb.full.version}"/>
-            <component uid="c-compiler" version="1.0.0.0.0"/>
+            
+	    <component uid="c-compiler" version="1.0.0.0.0"/>
 	    <component uid="c---compiler" version="1.0.0.0.0"/>
 	    <component uid="fortran--compiler" version="1.0.0.0.0"/>
 	    <component uid="dbx-debugging-tools" version="1.0.0.0.0"/>
@@ -570,8 +575,10 @@ jarsigner.storepass=${jarsigner.storepass}
 	    <component uid="support-files" version="1.0.0.0.0"/>
             <component uid="performance-library" version="1.0.0.0.0"/>
 	    <component uid="third-party-source" version="1.0.0.0.0"/>
+	    
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
+	
         <!--
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-sparc" 
@@ -624,8 +631,7 @@ jarsigner.storepass=${jarsigner.storepass}
     </target>
 
     <target name="prepare-output-dir">
-	<delete dir="${output.dir}"/>
-        
+	<delete dir="${output.dir}"/>    
         <mkdir dir="${output.dir}"/>
         <mkdir dir="${output.dir}/bundles"/>
         <mkdir dir="${output.dir}/components"/>        

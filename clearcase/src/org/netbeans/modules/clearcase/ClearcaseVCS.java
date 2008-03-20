@@ -44,6 +44,7 @@ import java.io.File;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
+import java.util.Set;
 import org.netbeans.modules.versioning.spi.VCSAnnotator;
 import org.netbeans.modules.versioning.spi.VCSInterceptor;
 import org.netbeans.modules.versioning.spi.VersioningSystem;
@@ -59,10 +60,17 @@ import org.openide.util.NbBundle;
  */
 public class ClearcaseVCS extends VersioningSystem implements PropertyChangeListener, VersioningListener, CollocationQueryImplementation {
 
+    /**
+     * Fired when textual annotations and badges have changed. The NEW value is Set<File> of files that changed or NULL
+     * if all annotaions changed.
+     */
+    static final String PROP_ANNOTATIONS_CHANGED = "annotationsChanged";
+    
     public ClearcaseVCS() {
         putProperty(PROP_DISPLAY_NAME, NbBundle.getMessage(ClearcaseVCS.class, "VCS_Clearcase_Name"));
         putProperty(PROP_MENU_LABEL, NbBundle.getMessage(ClearcaseVCS.class, "VCS_Clearcase_Menu_Label"));
         Clearcase.getInstance().getFileStatusCache().addVersioningListener(this);
+        Clearcase.getInstance().getAnnotator().addPropertyChangeListener(this);
     }
 
     /**
@@ -109,12 +117,9 @@ public class ClearcaseVCS extends VersioningSystem implements PropertyChangeList
     }
     
     public void propertyChange(PropertyChangeEvent event) {
-        // TODO - doesn't look like we need this right now
-//        if (event.getPropertyName().equals(Clearcase.PROP_ANNOTATIONS_CHANGED)) {
-//            fireAnnotationsChanged((Set<File>) event.getNewValue());
-//        } else if (event.getPropertyName().equals(Clearcase.PROP_VERSIONED_FILES_CHANGED)) {
-//            fireVersionedFilesChanged();
-//        } 
+        if (event.getPropertyName().equals(ClearcaseAnnotator.PROP_ANNOTATIONS_CHANGED)) {
+            fireAnnotationsChanged((Set<File>) event.getNewValue());
+        } 
     }
 
     public void versioningEvent(VersioningEvent event) {

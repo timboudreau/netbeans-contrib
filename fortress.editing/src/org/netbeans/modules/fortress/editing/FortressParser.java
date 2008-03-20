@@ -47,6 +47,8 @@ import com.sun.fortress.parser.Fortress;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.text.BadLocationException;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParseEvent;
@@ -286,7 +288,7 @@ public class FortressParser implements Parser {
 
         switch (sanitizing) {
             case NEVER:
-                return createParseResult(context.file, null, null/*, null, null*/);
+                return createParseResult(context.file, null, null, computeLinesOffset(context.source));
 
             case NONE:
 
@@ -336,7 +338,7 @@ public class FortressParser implements Parser {
             case MISSING_END:
             default:
                 // We're out of tricks - just return the failed parse result
-                return createParseResult(context.file, null, null/*, null, null*/);
+                return createParseResult(context.file, null, null, computeLinesOffset(context.source));
         }
     }
 
@@ -401,7 +403,7 @@ public class FortressParser implements Parser {
 
         if (node != null) {
             context.sanitized = sanitizing;
-            FortressParserResult r = createParseResult(context.file, node, null);
+            FortressParserResult r = createParseResult(context.file, node, null, computeLinesOffset(source));
             r.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents);
             r.setSource(source);
             return r;
@@ -410,27 +412,26 @@ public class FortressParser implements Parser {
         }
     }
 
-    private FortressParserResult createParseResult(ParserFile file, Node rootNode, ParserResult.AstTreeNode ast) {
-        return new FortressParserResult(this, file, rootNode, ast);
+    private FortressParserResult createParseResult(ParserFile file, Node rootNode, ParserResult.AstTreeNode ast, List<Integer> linesOffset) {
+        return new FortressParserResult(this, file, rootNode, ast, linesOffset);
     }
+    
+    private List<Integer> computeLinesOffset(String source) {       
+        int length = source.length();
 
-    private int getOffset(Context context, int line, int lineOffset) {
+        List<Integer> linesOffset = new ArrayList<Integer>(length / 25);
+        linesOffset.add(0);
 
-        String source = context.source;
-
-        int offset = 0;
-        for (int i = 0; i < line; offset++) {
-            if (source.charAt(offset) == '\n') {
-                // \r's come first so are not a problem...
-                i++;
+        int line = 0;
+        for (int i = 0; i < length; i++) {
+            if (source.charAt(i) == '\n') {
+                // \r comes first so are not a problem...
+                linesOffset.add(i);
+                line++;
             }
         }
-
-        offset += lineOffset;
-
-        offset = offset > source.length() ? source.length() : offset;
-
-        return offset;
+        
+        return linesOffset;       
     }
 
     protected void notifyError(Context context, String key, String message,

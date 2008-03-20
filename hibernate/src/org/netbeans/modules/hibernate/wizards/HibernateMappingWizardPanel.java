@@ -48,8 +48,11 @@ package org.netbeans.modules.hibernate.wizards;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import org.netbeans.api.project.Project;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.netbeans.api.java.source.ui.TypeElementFinder;
 import javax.swing.SwingUtilities;
@@ -59,7 +62,10 @@ import org.netbeans.api.java.source.ClassIndex.NameKind;
 import org.netbeans.api.java.source.ClassIndex.SearchScope;
 import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.java.source.ElementHandle;
+import org.netbeans.modules.hibernate.cfg.model.HibernateConfiguration;
+import org.netbeans.modules.hibernate.loaders.cfg.HibernateCfgDataObject;
 import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
 
 /**
  *
@@ -69,42 +75,65 @@ public class HibernateMappingWizardPanel extends javax.swing.JPanel {
 
     private Project project;
     ArrayList<FileObject> configFileObjects;
+    List<String> databaseTables;
+    org.netbeans.modules.hibernate.service.HibernateEnvironment env;
 
     /** Creates new form HibernateMappingWizardPanel */
     public HibernateMappingWizardPanel(Project project) {
         this.project = project;
         initComponents();
+        env = project.getLookup().lookup(org.netbeans.modules.hibernate.service.HibernateEnvironment.class);
         String[] configFiles = getConfigFilesFromProject(project);
         this.cmbResource.setModel(new DefaultComboBoxModel(configFiles));
-
+        fillDatabaseTable();
         this.browseButton.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(ActionEvent evt) {
                 browseButtonActionPerformed(evt);
-            }                
+            }
         });
     }
-    
+
+    // This fills the databaseTable drop down with a list of tables
+    public void fillDatabaseTable() {
+        if (cmbResource.getItemCount() == 0) {
+            this.cmbDatabaseTable.setModel(new DefaultComboBoxModel(new String[]{}));
+        } else {
+            if (cmbResource.getSelectedIndex() != -1) {
+                try {
+                    HibernateConfiguration hibConf = ((HibernateCfgDataObject) DataObject.find(configFileObjects.get(cmbResource.getSelectedIndex()))).getHibernateConfiguration();
+                    databaseTables = env.getAllDatabaseTables(hibConf);
+                    // adding an empty element to the list
+                    databaseTables.add(0, "");
+                    this.cmbDatabaseTable.setModel(new DefaultComboBoxModel(databaseTables.toArray()));
+                } catch (DataObjectNotFoundException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        }
+    }
+
     private void browseButtonActionPerformed(ActionEvent evt) {
         SwingUtilities.invokeLater(new Runnable() {
+
             public void run() {
                 final ElementHandle<TypeElement> handle = TypeElementFinder.find(null, new TypeElementFinder.Customizer() {
 
-                            public Set<ElementHandle<TypeElement>> query(ClasspathInfo classpathInfo, String textForQuery, NameKind nameKind, Set<SearchScope> searchScopes) {
-                                return classpathInfo.getClassIndex().getDeclaredTypes(textForQuery, nameKind, searchScopes);
-                            }
+                    public Set<ElementHandle<TypeElement>> query(ClasspathInfo classpathInfo, String textForQuery, NameKind nameKind, Set<SearchScope> searchScopes) {
+                        return classpathInfo.getClassIndex().getDeclaredTypes(textForQuery, nameKind, searchScopes);
+                    }
 
-                            public boolean accept(ElementHandle<TypeElement> typeHandle) {
-                                return true;
-                            }
-                        });
+                    public boolean accept(ElementHandle<TypeElement> typeHandle) {
+                        return true;
+                    }
+                });
 
                 if (handle != null) {
                     txtClassName.setText(handle.getQualifiedName());
                 }
             }
         });
-        
+
     }
 
     @Override
@@ -115,7 +144,7 @@ public class HibernateMappingWizardPanel extends javax.swing.JPanel {
     public String getClassName() {
         if (txtClassName.getText() != null) {
             return txtClassName.getText().trim();
-        } 
+        }
         return null;
     }
 
@@ -126,11 +155,16 @@ public class HibernateMappingWizardPanel extends javax.swing.JPanel {
         return null;
     }
 
+    public String getDatabaseTable() {
+        if (cmbDatabaseTable.getSelectedIndex() != -1) {
+            return cmbDatabaseTable.getSelectedItem().toString().trim();
+        }
+        return null;
+    }
+
     // Gets the list of Config files from HibernateEnvironment.
     public String[] getConfigFilesFromProject(Project project) {
         ArrayList<String> configFiles = new ArrayList<String>();
-        org.netbeans.api.project.Project enclosingProject = project;
-        org.netbeans.modules.hibernate.service.HibernateEnvironment env = enclosingProject.getLookup().lookup(org.netbeans.modules.hibernate.service.HibernateEnvironment.class);
         configFileObjects = env.getAllHibernateConfigFileObjects();
         for (FileObject fo : configFileObjects) {
             configFiles.add(fo.getNameExt());
@@ -151,6 +185,8 @@ public class HibernateMappingWizardPanel extends javax.swing.JPanel {
         browseButton = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         cmbResource = new javax.swing.JComboBox();
+        jLabel3 = new javax.swing.JLabel();
+        cmbDatabaseTable = new javax.swing.JComboBox();
 
         setName(org.openide.util.NbBundle.getMessage(HibernateMappingWizardPanel.class, "LBL_HibernateMappingPanel_Name")); // NOI18N
 
@@ -169,6 +205,17 @@ public class HibernateMappingWizardPanel extends javax.swing.JPanel {
         jLabel2.setText(org.openide.util.NbBundle.getMessage(HibernateMappingWizardPanel.class, "HibernateMappingWizardPanel.jLabel2.text")); // NOI18N
 
         cmbResource.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cmbResource.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbResourceActionPerformed(evt);
+            }
+        });
+
+        jLabel3.setDisplayedMnemonic(java.util.ResourceBundle.getBundle("org/netbeans/modules/hibernate/wizards/Bundle").getString("Database_mnemonic").charAt(0));
+        jLabel3.setLabelFor(cmbDatabaseTable);
+        jLabel3.setText(org.openide.util.NbBundle.getMessage(HibernateMappingWizardPanel.class, "HibernateMappingWizardPanel.jLabel3.text")); // NOI18N
+
+        cmbDatabaseTable.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -176,15 +223,20 @@ public class HibernateMappingWizardPanel extends javax.swing.JPanel {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel2)
-                    .add(jLabel1))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(txtClassName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+                        .add(jLabel1)
+                        .add(27, 27, 27)
+                        .add(txtClassName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(browseButton))
-                    .add(cmbResource, 0, 417, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                            .add(jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(cmbDatabaseTable, 0, 425, Short.MAX_VALUE)
+                            .add(cmbResource, 0, 425, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -195,18 +247,29 @@ public class HibernateMappingWizardPanel extends javax.swing.JPanel {
                     .add(jLabel1)
                     .add(browseButton)
                     .add(txtClassName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(18, 18, 18)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel2)
                     .add(cmbResource, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(cmbDatabaseTable, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel3))
+                .addContainerGap(16, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+    private void cmbResourceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbResourceActionPerformed
+        // TODO add your handling code here:
+        fillDatabaseTable();
+    }//GEN-LAST:event_cmbResourceActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton browseButton;
+    private javax.swing.JComboBox cmbDatabaseTable;
     private javax.swing.JComboBox cmbResource;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JTextField txtClassName;
     // End of variables declaration//GEN-END:variables
 }

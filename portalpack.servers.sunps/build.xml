@@ -36,9 +36,9 @@ Microsystems, Inc. All Rights Reserved.
      </target>
      
     <target name="release" depends="init"> 
-        <!--
-        <copy file="../../external/jmxremote_optional.jar"
-        todir="${cluster}/modules/ext/portalpack"/> -->
+        
+        <copy file="external/jmxremote_optional.jar"
+        todir="${cluster}/modules/ext/portalpack"/>
         <!--
         <copy file="../../external/jmxremote.jar"
         todir="${cluster}/modules/ext/portalpack"/> 

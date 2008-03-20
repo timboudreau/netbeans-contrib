@@ -43,7 +43,7 @@ package org.netbeans.modules.clearcase.ui.status;
 import java.awt.EventQueue;
 import javax.swing.Action;
 import org.netbeans.modules.versioning.spi.VCSContext;
-import org.netbeans.modules.clearcase.util.Utils;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -63,7 +63,7 @@ public class RefreshAction extends NodeAction {
 
     @Override
     protected void performAction(Node[] activatedNodes) {
-        final VCSContext ctx = Utils.getCurrentContext(activatedNodes);                
+        final VCSContext ctx = ClearcaseUtils.getCurrentContext(activatedNodes);                
         // XXX not in awt ???
         EventQueue.invokeLater(new Runnable() {
             public void run() {

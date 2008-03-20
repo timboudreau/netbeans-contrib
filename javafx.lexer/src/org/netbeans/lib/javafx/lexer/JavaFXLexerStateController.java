@@ -51,32 +51,50 @@ import java.util.logging.Logger;
  * v3.g rev 1927</a>.
  *  
  * @author Victor G. Vasilyev
+ * 
+ * @todo simplify it! Avoid redundant method invocations to improve performance.
+ * @todo Remove BraceQuoteTracker.hashCode()
+ * @todo Remove BraceQuoteTracker.mutable
  */
 public class JavaFXLexerStateController {
 
-    private static final boolean DEBUG = true; // TODO get it from propery file
+    private static final boolean DEBUG = false; 
     private static final Logger LOG = DEBUG ?
             Logger.getLogger(JavaFXLexerStateController.class.getName()) : null;
 
     private BraceQuoteTracker quoteStack;
+    private BraceQuoteTracker lastState;
     
     protected JavaFXLexerStateController(Object state) {
-        this.quoteStack = (BraceQuoteTracker)state;
-        if(DEBUG) LOG.log(Level.INFO, 
-                          "JavaFXLexer has instantiated with state [{0}]",
-                          quoteStack);
+        if (DEBUG) {
+            LOG.log(Level.INFO, "JavaFXLexer start instantiation with state [{0}]", state);
+        }
+        assert(state == null || state instanceof BraceQuoteTracker);
+        lastState = (BraceQuoteTracker)state;
+        quoteStack = state == null ? 
+            null : ((BraceQuoteTracker)state).newWorkingCopy();
+         if (DEBUG) {
+            LOG.log(Level.INFO, "JavaFXLexer has instantiated with state [{0}]", quoteStack);
+        }
     }
     
     public Object getState() {
         if(DEBUG) LOG.log(Level.INFO, 
                           "JavaFXLexer has requested for state [{0}]",
                           quoteStack);
-        return quoteStack;
+        if(quoteStack == null) {
+            lastState = null;
+        } else if(!quoteStack.equals(lastState)) {
+            lastState = quoteStack.newClone();
+        }
+        if(DEBUG) LOG.log(Level.INFO, "returned state is [{0}]", lastState);
+        return lastState;
     }
    
     public void release() {
-        if(DEBUG) LOG.log(Level.INFO, "JavaFXLexer has released.");
         quoteStack = null;
+        lastState = null;
+        if(DEBUG) LOG.log(Level.INFO, "JavaFXLexer has released.");
     }
 
     protected void enterBrace(int quote, boolean percentIsFormat) {
@@ -86,7 +104,10 @@ public class JavaFXLexerStateController {
                 quoteStack.percentIsFormat = percentIsFormat;
             }
         } else {
-            quoteStack = new BraceQuoteTracker(quoteStack, (char) quote, percentIsFormat); // push
+//            quoteStack = new BraceQuoteTracker(quoteStack, (char) quote, percentIsFormat); // push
+            BraceQuoteTracker prevState = lastState;
+            quoteStack = new BraceQuoteTracker(lastState, (char) quote, percentIsFormat); // push
+            lastState = prevState;
         }
     }
 
@@ -106,7 +127,8 @@ public class JavaFXLexerStateController {
 
     protected void leaveQuote() {
         assert (quoteStack != null && quoteStack.braceDepth == 0);
-        quoteStack = quoteStack.prev; // pop
+//        quoteStack = quoteStack.prev; // pop
+        quoteStack = quoteStack.prev == null ? null : quoteStack.prev.newWorkingCopy(); // pop
     }
 
     protected boolean percentIsFormat() {
@@ -123,16 +145,20 @@ public class JavaFXLexerStateController {
 
     /** Track "He{"l{"l"}o"} world" quotes
      */
-    protected static class BraceQuoteTracker {
+    protected static class BraceQuoteTracker implements Cloneable {
         private int braceDepth;
         private char quote;
         private boolean percentIsFormat;
         private BraceQuoteTracker prev;
+        private boolean mutable = true; // mutable working copy by default.
         private BraceQuoteTracker(BraceQuoteTracker prev, char quote, boolean percentIsFormat) {
             this.quote = quote;
             this.percentIsFormat = percentIsFormat;
             this.braceDepth = 1;
             this.prev = prev;
+            if (DEBUG) {
+                LOG.log(Level.INFO, "<init> of {0}", this.toString());
+            }
         }
 
         public int getBraceDepth() {
@@ -153,11 +179,92 @@ public class JavaFXLexerStateController {
 
         @Override
         public String toString() {
-            return getClass().getSimpleName() + ":" + 
+            return getClass().getSimpleName() + "@" + Integer.toHexString(hashCode()) + ":" + 
+                    "mutable=" + mutable +
                     " braceDepth=" + getBraceDepth() +
                     " quote=" + getQuote() +
                     " percentIsFormat=" + isPercentIsFormat() +
-                    " prev=" + (getPrev() == null ? "null" : "not null");
+                    " prev=" + 
+                    (getPrev() == null ? 
+                        "null" : 
+                        "@" + Integer.toHexString(getPrev().hashCode()));
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final BraceQuoteTracker other = (BraceQuoteTracker) obj;
+            if (this.braceDepth != other.braceDepth) {
+                return false;
+            }
+            if (this.quote != other.quote) {
+                return false;
+            }
+            if (this.percentIsFormat != other.percentIsFormat) {
+                return false;
+            }
+            if (this.prev != other.prev && (this.prev == null || !this.prev.equals(other.prev))) {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 89 * hash + this.braceDepth;
+            hash = 89 * hash + this.quote;
+            hash = 89 * hash + (this.percentIsFormat ? 1 : 0);
+            hash = 89 * hash + (this.mutable ? 1 : 0);
+            return hash;
+        }
+
+       @Override        
+        protected Object clone() throws CloneNotSupportedException {
+            BraceQuoteTracker tracker = (BraceQuoteTracker)super.clone();
+            tracker.mutable = false; // all clones are immutable!
+            if (DEBUG) {
+                LOG.log(Level.INFO, "clone() of {0}", this.toString());
+                LOG.log(Level.INFO, "clone is {0}", tracker.toString());
+            }
+            return tracker;
+        }
+
+        private BraceQuoteTracker newClone() {
+            try {
+                return (BraceQuoteTracker) clone();
+            } catch (CloneNotSupportedException ex) {
+                // This exception should be never occurred.
+                Logger.getLogger(JavaFXLexerStateController.class.getName()).
+                        log(Level.SEVERE, 
+                            "The " + 
+                            this.getClass().getName() +
+                            " class MUST implement the Cloneable interface."
+                            , ex);
+                return null;
+            }            
+        }
+
+        private BraceQuoteTracker newWorkingCopy() {
+            try {
+                BraceQuoteTracker tracker = (BraceQuoteTracker) this.clone();
+                tracker.mutable = true; // all Working Copies are mutable!
+                if (DEBUG) {
+                    LOG.log(Level.INFO, "newWorkingCopy() of {0}", this.toString());
+                    LOG.log(Level.INFO, "newWorkingCopy is {0}", tracker.toString());
+                }
+                return tracker;
+            } catch (CloneNotSupportedException ex) {
+//                Logger.getLogger(JavaFXLexerStateController.class.getName()).
+//                        log(Level.SEVERE, null, ex);
+                // We never should be here.
+                return null;
+            }
         }
         
     }

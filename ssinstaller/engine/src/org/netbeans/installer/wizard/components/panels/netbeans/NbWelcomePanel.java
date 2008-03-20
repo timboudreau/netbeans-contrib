@@ -373,7 +373,7 @@ public class NbWelcomePanel extends ErrorMessagePanel {
         protected void initializeContainer() {
             super.initializeContainer();
             
-            container.getBackButton().setVisible(false);
+            //container.getBackButton().setVisible(false);
         }
       
         @Override

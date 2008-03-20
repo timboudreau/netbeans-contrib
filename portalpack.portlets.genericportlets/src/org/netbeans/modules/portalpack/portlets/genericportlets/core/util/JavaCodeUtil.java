@@ -536,6 +536,33 @@ public class JavaCodeUtil {
         }
         return null;
     }
+    
+    //Find a process event method with a given name from the list of methods.
+    public static MethodInfo getProcessEventMethodWithName(List<MethodInfo> methods,String methodName)
+    {
+        if(methodName == null) return null;
+        for (MethodInfo method : methods) {
+            String tempMethodName = method.getMethodName();
+            if (!tempMethodName.equals(methodName)) //NOI18N
+            {
+                continue;
+            }
+
+            MethodInfo.ParameterInfo[] paramTable = method.getParameterInfo();
+            if (paramTable == null || paramTable.length != 2) {
+                continue;
+            }
+            String type1 = paramTable[0].getType();
+            String type2 = paramTable[1].getType();
+            if (((type1.equals("javax.portlet.EventRequest") || type1.equals("EventRequest")) //NOI18N
+                    && (type2.equals("javax.portlet.EventResponse") || type2.equals("EventResponse")))) //NOI18N
+            {
+                return method;
+            }
+        }
+        return null;
+    }
+    
 
     private static class MemberVisitor extends TreePathScanner<Void, Void> {
 

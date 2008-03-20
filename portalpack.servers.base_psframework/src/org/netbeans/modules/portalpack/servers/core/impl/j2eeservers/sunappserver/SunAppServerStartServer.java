@@ -27,10 +27,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.FindJSPServlet;
-import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
-import org.netbeans.modules.portalpack.servers.core.PSLogViewer;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSStartServerInf;
+import org.netbeans.modules.portalpack.servers.core.common.FileLogViewerSupport;
 import org.netbeans.modules.portalpack.servers.core.common.LogManager;
 import org.netbeans.modules.portalpack.servers.core.util.Command;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
@@ -157,32 +156,12 @@ public class SunAppServerStartServer extends PSStartServerInf{
     }
     
     private void viewAdminLogs(){
-        String uri = dm.getUri();
+        
         String location = psconfig.getDomainDir() + File.separator + "logs" + File.separator +"server.log";
         
-        
-        PSLogViewer logViewer = new PSLogViewer(new File(location));
-        
-        
+        FileLogViewerSupport logViewer = FileLogViewerSupport.getLogViewerSupport(new File(location), dm.getUri(), 2000, true);       
         try{
-            logViewer.showLogViewer(UISupport.getServerIO(uri));
-        }catch(Exception ex){
-            ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
-        }
-    }
-      
-    private void viewInstanceLogs(){
-        String uri = dm.getUri();
-        String domainDir = psconfig.getDomainDir();
-        File fdomainDir = new File(domainDir);
-        String domainName = fdomainDir.getName();
-        String location = domainDir +
-                File.separator+"logs"+File.separator+"errors";
-        
-        PSLogViewer logViewer = new PSLogViewer(new File(location));
-        
-        try{
-            logViewer.showLogViewer(UISupport.getServerIO(uri));
+            logViewer.showLogViewer(true);
         }catch(Exception ex){
             ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
         }

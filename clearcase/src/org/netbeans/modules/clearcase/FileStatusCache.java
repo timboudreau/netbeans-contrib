@@ -291,7 +291,7 @@ public class FileStatusCache {
             newDirMap = new HashMap<File, FileInformation>();            
         } else {
             // XXX what if vob gets deleted?
-            newDirMap = oldDirMap;
+            newDirMap = oldDirMap;  // XXX do we need this?
         }
                  
         for(FileEntry fs : statusValues) {            

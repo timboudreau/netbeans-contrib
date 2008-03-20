@@ -118,7 +118,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         if (file.exists()) {
             file.delete();
         }        
-        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(new File[] { file }, false);
+        ClearcaseUtils.afterCommandRefresh(new File[] { file }, false);
     }
     
     private void fileDeletedImpl(File file) {       
@@ -208,7 +208,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 deleteFile(from);
             }
         }            
-        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(new File[] { from, to }, true);
+        ClearcaseUtils.afterCommandRefresh(new File[] { from, to }, true);
     }
     
     @Override
@@ -247,7 +247,12 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     public void beforeEdit(File file) {
         Clearcase.LOG.finer("beforeEdit " + file);        
         ClearcaseUtils.ensureMutable(client, file);   
-    }    
+    }
+
+    @Override
+    public boolean isMutable(File file) {
+        return true;
+    }
     
     private void exec(ClearcaseCommand command, boolean notifyErrors) {        
         Clearcase.getInstance().getClient().exec(command, notifyErrors);

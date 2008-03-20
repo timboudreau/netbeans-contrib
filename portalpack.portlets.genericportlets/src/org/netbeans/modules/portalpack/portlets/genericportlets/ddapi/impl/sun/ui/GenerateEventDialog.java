@@ -19,6 +19,7 @@
 package org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.sun.ui;
 
 import java.awt.Frame;
+import java.awt.event.ItemEvent;
 import java.util.List;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.EventObject;
 
@@ -87,7 +88,7 @@ public class GenerateEventDialog extends javax.swing.JDialog {
     private void initComponents() {
 
         generateSourcePanel = new javax.swing.JPanel();
-        addToExistingMethodCombo = new javax.swing.JCheckBox();
+        addToExistingMethodCB = new javax.swing.JCheckBox();
         methodListCombo = new javax.swing.JComboBox();
         generateNewMthodLabel = new javax.swing.JLabel();
         methodNameTxt = new javax.swing.JTextField();
@@ -104,9 +105,14 @@ public class GenerateEventDialog extends javax.swing.JDialog {
 
         generateSourcePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, org.openide.util.NbBundle.getMessage(GenerateEventDialog.class, "GenerateEventDialog.generateSourcePanel.border.title"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 12))); // NOI18N
 
-        addToExistingMethodCombo.setText(org.openide.util.NbBundle.getMessage(GenerateEventDialog.class, "GenerateEventDialog.addToExistingMethodCombo.text")); // NOI18N
-        addToExistingMethodCombo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        addToExistingMethodCombo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        addToExistingMethodCB.setText(org.openide.util.NbBundle.getMessage(GenerateEventDialog.class, "GenerateEventDialog.addToExistingMethodCB.text")); // NOI18N
+        addToExistingMethodCB.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        addToExistingMethodCB.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        addToExistingMethodCB.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                addToExistingMethodCBItemStateChanged(evt);
+            }
+        });
 
         generateNewMthodLabel.setText(org.openide.util.NbBundle.getMessage(GenerateEventDialog.class, "GenerateEventDialog.generateNewMthodLabel.text")); // NOI18N
 
@@ -119,7 +125,7 @@ public class GenerateEventDialog extends javax.swing.JDialog {
             .add(generateSourcePanelLayout.createSequentialGroup()
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(generateSourcePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(addToExistingMethodCombo)
+                    .add(addToExistingMethodCB)
                     .add(generateNewMthodLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(generateSourcePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
@@ -131,7 +137,7 @@ public class GenerateEventDialog extends javax.swing.JDialog {
             .add(generateSourcePanelLayout.createSequentialGroup()
                 .add(18, 18, 18)
                 .add(generateSourcePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(addToExistingMethodCombo)
+                    .add(addToExistingMethodCB)
                     .add(methodListCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .add(26, 26, 26)
                 .add(generateSourcePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -240,10 +246,20 @@ private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     setVisible(false);
     dispose();
 }//GEN-LAST:event_okButtonActionPerformed
+
+private void addToExistingMethodCBItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_addToExistingMethodCBItemStateChanged
+// TODO add your handling code here:
+    int state = evt.getStateChange();
+    if(state == ItemEvent.SELECTED)
+        methodNameTxt.setEditable(false);
+    else
+        methodNameTxt.setEditable(true);
+        
+}//GEN-LAST:event_addToExistingMethodCBItemStateChanged
    
     public boolean addToExistingMethod()
     {
-        return addToExistingMethodCombo.isSelected();
+        return addToExistingMethodCB.isSelected();
     }
 
     public Object getExistingMethodName()
@@ -252,7 +268,7 @@ private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox addToExistingMethodCombo;
+    private javax.swing.JCheckBox addToExistingMethodCB;
     private javax.swing.JButton cancelButton;
     private javax.swing.JLabel eventNameLabel;
     private javax.swing.JTextField eventNameTf;

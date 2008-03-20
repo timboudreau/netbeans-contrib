@@ -27,6 +27,8 @@
  */
 package org.netbeans.modules.fortress.editing;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.text.BadLocationException;
 import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;
@@ -51,38 +53,38 @@ public class FortressUtils {
         }
         // Pieced together from various sources (JsYaccLexer, DefaultJsParser, ...)
         switch (name.charAt(0)) {
-        case '+':
-            return name.equals("+") || name.equals("+@");
-        case '-':
-            return name.equals("-") || name.equals("-@");
-        case '*':
-            return name.equals("*") || name.equals("**");
-        case '<':
-            return name.equals("<") || name.equals("<<") || name.equals("<=") || name.equals("<=>");
-        case '>':
-            return name.equals(">") || name.equals(">>") || name.equals(">=");
-        case '=':
-            return name.equals("=") || name.equals("==") || name.equals("===") || name.equals("=~");
-        case '!':
-            return name.equals("!=") || name.equals("!~");
-        case '&':
-            return name.equals("&") || name.equals("&&");
-        case '|':
-            return name.equals("|") || name.equals("||");
-        case '[':
-            return name.equals("[]") || name.equals("[]=");
-        case '%':
-            return name.equals("%");
-        case '/':
-            return name.equals("/");
-        case '~':
-            return name.equals("~");
-        case '^':
-            return name.equals("^");
-        case '`':
-            return name.equals("`");
-        default:
-            return false;
+            case '+':
+                return name.equals("+") || name.equals("+@");
+            case '-':
+                return name.equals("-") || name.equals("-@");
+            case '*':
+                return name.equals("*") || name.equals("**");
+            case '<':
+                return name.equals("<") || name.equals("<<") || name.equals("<=") || name.equals("<=>");
+            case '>':
+                return name.equals(">") || name.equals(">>") || name.equals(">=");
+            case '=':
+                return name.equals("=") || name.equals("==") || name.equals("===") || name.equals("=~");
+            case '!':
+                return name.equals("!=") || name.equals("!~");
+            case '&':
+                return name.equals("&") || name.equals("&&");
+            case '|':
+                return name.equals("|") || name.equals("||");
+            case '[':
+                return name.equals("[]") || name.equals("[]=");
+            case '%':
+                return name.equals("%");
+            case '/':
+                return name.equals("/");
+            case '~':
+                return name.equals("~");
+            case '^':
+                return name.equals("^");
+            case '`':
+                return name.equals("`");
+            default:
+                return false;
         }
     }
 
@@ -139,6 +141,7 @@ public class FortressUtils {
         }
 
         String[] mods = name.split("::"); // NOI18N
+
         for (String mod : mods) {
             if (!isValidFortressClassName(mod)) {
                 return false;
@@ -276,6 +279,7 @@ public class FortressUtils {
 
     public static String getLineCommentPrefix() {
         return "//"; // NOI18N
+
     }
 
     /** Includes things you'd want selected as a unit when double clicking in the editor */
@@ -291,6 +295,42 @@ public class FortressUtils {
                 (c == '!') || (c == '?') || (c == '=');
     }
 
+    public static final String unicodedTypeName(String typeName) {
+        String unicoded = STD_LIB_TYPE_UNICODE.get(typeName);
+        return unicoded != null ? unicoded : typeName;
+    }
+    public static final Map<String, String> STD_LIB_TYPE_UNICODE = new HashMap<String, String>();
+    
+
+    static {
+        STD_LIB_TYPE_UNICODE.put("ZZ8", "\u21248");
+        STD_LIB_TYPE_UNICODE.put("ZZ16", "\u212416");
+        STD_LIB_TYPE_UNICODE.put("ZZ32", "\u212432");
+        STD_LIB_TYPE_UNICODE.put("ZZ64", "\u212464");
+        STD_LIB_TYPE_UNICODE.put("ZZ128", "\u2124128");
+
+        STD_LIB_TYPE_UNICODE.put("NN8", "\u21258");
+        STD_LIB_TYPE_UNICODE.put("NN16", "\u212516");
+        STD_LIB_TYPE_UNICODE.put("NN32", "\u212532");
+        STD_LIB_TYPE_UNICODE.put("NN64", "\u212564");
+        STD_LIB_TYPE_UNICODE.put("NN128", "\u2125128");
+
+        STD_LIB_TYPE_UNICODE.put("QQ8", "\u212A8");
+        STD_LIB_TYPE_UNICODE.put("QQ16", "\u212A16");
+        STD_LIB_TYPE_UNICODE.put("QQ32", "\u212A32");
+        STD_LIB_TYPE_UNICODE.put("QQ64", "\u212A64");
+        STD_LIB_TYPE_UNICODE.put("QQ128", "\u212A128");
+
+        STD_LIB_TYPE_UNICODE.put("CC16", "\u210216");
+        STD_LIB_TYPE_UNICODE.put("CC32", "\u210232");
+        STD_LIB_TYPE_UNICODE.put("CC64", "\u210264");
+        STD_LIB_TYPE_UNICODE.put("CC128", "\u2102128");
+        STD_LIB_TYPE_UNICODE.put("CC256", "\u2102256");
+
+        STD_LIB_TYPE_UNICODE.put("RR32", "\u211D16");
+        STD_LIB_TYPE_UNICODE.put("RR64", "\u211D32");
+
+    }
     public static final String[] FORTRESS_KEYWORDS = new String[]{
         "BIG SI",
         "unit",
@@ -373,17 +413,15 @@ public class FortressUtils {
         "with",
         "wrapped"
     };
-
     public static final String[] FORTRESS_RESERVED_WORDS = new String[]{
         // The operators on units, namely cubed, cubic, in, inverse, per, square, 
         // and squared, are also reserved words.
-        "cubed", 
-        "cubic", 
-        "in", 
-        "inverse", 
-        "per", 
+        "cubed",
+        "cubic",
+        "in",
+        "inverse",
+        "per",
         "square",
-        
         // To avoid confusion, Fortress reserves the following tokens:
         // They do not have any special meanings but they cannot be used as identifiers.
         "goto",
@@ -538,7 +576,7 @@ public class FortressUtils {
             return false;
         }
 
-        for (int i = sb.length() - len,  j = 0; j < len; i++, j++) {
+        for (int i = sb.length() - len, j = 0; j < len; i++, j++) {
             if (sb.charAt(i) != s.charAt(j)) {
                 return false;
             }
@@ -549,6 +587,7 @@ public class FortressUtils {
 
     public static String truncate(String s, int length) {
         assert length > 3; // Not for short strings
+
         if (s.length() <= length) {
             return s;
         } else {
