@@ -268,8 +268,9 @@ public class ClearcaseClient {
                     while( (line = fr.readLine()) != null) {
                         suppressedMessages.add(Pattern.compile(line));
                     }
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     Clearcase.LOG.log(Level.INFO, "Could not open suppressedMessages file " + suppressedFile, ex);
+                    System.setProperty("org.netbeans.modules.clearcase.suppressMessages", ""); // do not try again
                     return messages;
                 } finally {
                     try { if(fr != null) fr.close(); } catch (IOException ex) { /*ignore*/ }
@@ -277,15 +278,18 @@ public class ClearcaseClient {
             }
             List<String> ret = new ArrayList<String>();
             for (String msg : messages) {
+                if(msg == null) {
+                    continue;
+                }
                 boolean matches = false;
                 for (Pattern p : suppressedMessages) {
                     if(p.matcher(msg).matches()) {
                         matches = true;
                         break; 
                     }
-                    if(!matches) {
-                        ret.add(msg);
-                    }
+                }
+                if(!matches) {
+                    ret.add(msg);
                 }
             }
             return ret;
