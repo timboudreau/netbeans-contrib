@@ -41,6 +41,7 @@
 package org.netbeans.modules.clearcase.util;
 
 import org.netbeans.modules.clearcase.*;
+import org.netbeans.modules.clearcase.ui.hijack.HijackAction;
 import org.netbeans.modules.versioning.spi.VCSContext;
 
 import java.io.File;
@@ -391,6 +392,10 @@ public class ClearcaseUtils {
         }
 
         ClearcaseModuleConfig.OnDemandCheckout odc = ClearcaseModuleConfig.getOnDemandCheckout();
+        boolean canHijack = getViewType(file) == ViewType.Snapshot;
+        if (!canHijack && odc == ClearcaseModuleConfig.OnDemandCheckout.Hijack) {
+            odc = ClearcaseModuleConfig.OnDemandCheckout.Unreserved;
+        }
 
         CheckoutCommand command;
         switch (odc) {
@@ -398,25 +403,35 @@ public class ClearcaseUtils {
             // XXX let the user decide if he want's to checkout the file
             DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message(NbBundle.getMessage(ClearcaseInterceptor.class, "Interceptor_NoOnDemandCheckouts_Warning"))); //NOI18N
             return 0;
+        case Hijack:
+            return HijackAction.hijack(file) ? IS_MUTABLE : 0; 
         case Reserved:
-        case ReservedWithFallback:
+        case ReservedWithHijackFallback:
+        case ReservedWithUnreservedFallback:
+        case ReservedWithBothFallbacks:
             command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Reserved, true, new AfterCommandRefreshListener(file));
             break;
         case Unreserved:
+        case UnreservedWithFallback:
             command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, new AfterCommandRefreshListener(file));
             break;
         default:
             throw new IllegalStateException("Illegal Checkout type: " + odc);
         }
         
-        Clearcase.getInstance().getClient().exec(command, odc != ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback);
+        Clearcase.getInstance().getClient().exec(command, odc == ClearcaseModuleConfig.OnDemandCheckout.Reserved || odc == ClearcaseModuleConfig.OnDemandCheckout.Unreserved);
         if(!command.hasFailed()) {
             return WAS_CHECKEDOUT;
-        } else if(odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback) {
+        } else if (odc == ClearcaseModuleConfig.OnDemandCheckout.UnreservedWithFallback && canHijack) {
+            return HijackAction.hijack(file) ? IS_MUTABLE : 0; 
+        } else if(odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithUnreservedFallback || odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithBothFallbacks) {
             command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, 
                                           new OutputWindowNotificationListener(), new AfterCommandRefreshListener(file));
-            Clearcase.getInstance().getClient().exec(command, true);
-            if (command.hasFailed()) {    
+            Clearcase.getInstance().getClient().exec(command, odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithUnreservedFallback);
+            if (command.hasFailed() && canHijack) {    
+                if (odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithBothFallbacks) {
+                    return HijackAction.hijack(file) ? IS_MUTABLE : 0; 
+                }
                 return 0;
             } else {
                 return WAS_CHECKEDOUT;
@@ -424,5 +439,5 @@ public class ClearcaseUtils {
         } else {
             return 0;
         }
-    }        
+    }
 }

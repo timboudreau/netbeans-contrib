@@ -54,7 +54,8 @@ import java.io.File;
 public class ClearcaseModuleConfig {
     
 
-    public enum OnDemandCheckout { Disabled, Unreserved, Reserved, ReservedWithFallback };
+    public enum OnDemandCheckout { Disabled, Unreserved, UnreservedWithFallback, Hijack, 
+        Reserved, ReservedWithUnreservedFallback, ReservedWithHijackFallback, ReservedWithBothFallbacks };
     
     public static final String PROP_IGNORED_PATTERNS            = "ignoredPatterns";            // NOI18N
     public static final String PROP_COMMIT_EXCLUSIONS           = "commitExclusions";           // NOI18N    

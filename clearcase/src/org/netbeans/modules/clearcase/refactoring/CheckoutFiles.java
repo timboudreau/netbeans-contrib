@@ -90,7 +90,7 @@ public class CheckoutFiles implements ProblemDetailsImplementation {
 
         ClearcaseModuleConfig.OnDemandCheckout odc = ClearcaseModuleConfig.getOnDemandCheckout();
         if(odc == ClearcaseModuleConfig.OnDemandCheckout.Disabled) {
-            odc = ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback; // XXX is this how it should be?
+            odc = ClearcaseModuleConfig.OnDemandCheckout.ReservedWithBothFallbacks; // XXX is this how it should be?
         }
         
         Set<File> files = new HashSet<File>();
