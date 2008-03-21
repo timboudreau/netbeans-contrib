@@ -246,6 +246,13 @@ public class Clearcase {
         File parent = file.isDirectory() ? file : file.getParentFile();
         boolean versioned = false;
         while(parent != null) {
+            if(!parent.exists()) {
+                // IsVersionedCommand works only for existing files !!!
+                // we have to look for some existing versioned parent
+                file = parent;
+                parent = file.getParentFile();    
+                continue;
+            }
             IsVersionedCommand cmd = new IsVersionedCommand(parent);
             client.exec(cmd, false);       
             if(cmd.hasFailed()) {

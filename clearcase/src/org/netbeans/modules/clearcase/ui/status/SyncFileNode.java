@@ -42,6 +42,7 @@
 package org.netbeans.modules.clearcase.ui.status;
 
 import java.io.IOException;
+import org.netbeans.modules.clearcase.client.status.FileEntry;
 import org.openide.nodes.*;
 import org.openide.util.*;
 import org.openide.util.lookup.Lookups;
@@ -69,9 +70,10 @@ public class SyncFileNode extends AbstractNode {
     
     private FileNode node;
 
-    static final String COLUMN_NAME_NAME        = "name"; // NOI18N
-    static final String COLUMN_NAME_PATH        = "path"; // NOI18N
+    static final String COLUMN_NAME_NAME        = "name";   // NOI18N
+    static final String COLUMN_NAME_PATH        = "path";   // NOI18N
     static final String COLUMN_NAME_STATUS      = "status"; // NOI18N
+    static final String COLUMN_NAME_RULE        = "rule";   // NOI18N
     static final String COLUMN_NAME_BRANCH      = "branch"; // NOI18N
     
     private String htmlDisplayName;
@@ -140,6 +142,7 @@ public class SyncFileNode extends AbstractNode {
         ps.put(new NameProperty());
         ps.put(new PathProperty());
         ps.put(new StatusProperty());
+        ps.put(new RuleProperty());
         
         sheet.put(ps);
         setSheet(sheet);        
@@ -245,9 +248,28 @@ public class SyncFileNode extends AbstractNode {
 
         public Object getValue() throws IllegalAccessException, InvocationTargetException {
             FileInformation finfo =  node.getInfo();
-            finfo.getStatus(Clearcase.getInstance().getClient(), node.getFile());  
+            finfo.getFileEntry(Clearcase.getInstance().getClient(), node.getFile());  
             int mask = panel.getDisplayStatuses();
             return finfo.getStatusText(mask);
         }
     }
+    
+    private class RuleProperty extends SyncFileProperty {
+        
+        public RuleProperty() {
+            super(COLUMN_NAME_RULE, String.class, NbBundle.getMessage(SyncFileNode.class, "BK2009"), NbBundle.getMessage(SyncFileNode.class, "BK2009")); // NOI18N
+            setValue("sortkey", SyncFileNode.this.getName()); // NOI18N
+        }
+
+        public Object getValue() throws IllegalAccessException, InvocationTargetException {
+            FileInformation finfo =  node.getInfo();
+            FileEntry entry = finfo.getCachedEntry();
+            if(entry != null) {
+                return entry.getRule();
+            } else {
+                return "";
+            }
+            
+        }
+    }    
 }

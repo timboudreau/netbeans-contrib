@@ -40,12 +40,20 @@
  */
 package org.netbeans.modules.clearcase.options;
 
+import java.awt.Dialog;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import org.netbeans.modules.versioning.util.AccessibleJFileChooser;
 import org.openide.util.NbBundle;
 import org.openide.filesystems.FileUtil;
 
 import javax.swing.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import org.netbeans.modules.clearcase.ClearcaseAnnotator;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 
 /**
  *
@@ -85,6 +93,9 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
         jLabel5 = new javax.swing.JLabel();
         jSeparator3 = new javax.swing.JSeparator();
         cbCheckinViewPrivate = new javax.swing.JCheckBox();
+        rbHijack = new javax.swing.JRadioButton();
+        cbHijackAfterUnreserved = new javax.swing.JCheckBox();
+        cbHijackAfterReserved = new javax.swing.JCheckBox();
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.jLabel1.text")); // NOI18N
 
@@ -152,6 +163,13 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
             }
         });
 
+        buttonGroup1.add(rbHijack);
+        org.openide.awt.Mnemonics.setLocalizedText(rbHijack, NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbHijack.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(cbHijackAfterUnreserved, NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbHijackAfterUnreserved.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(cbHijackAfterReserved, NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbHijackAfterReserved.text")); // NOI18N
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -159,49 +177,54 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
             .add(layout.createSequentialGroup()
                 .add(jLabel1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(taExecutable, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE)
+                .add(taExecutable, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 530, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(bBrowse))
             .add(layout.createSequentialGroup()
                 .add(2, 2, 2)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(jLabel4)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(taLabelFormat, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 590, Short.MAX_VALUE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(bAddVariable))
+                            .add(layout.createSequentialGroup()
+                                .add(10, 10, 10)
+                                .add(cbCheckinViewPrivate)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
+                            .add(layout.createSequentialGroup()
+                                .add(jLabel5)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jSeparator3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 712, Short.MAX_VALUE))
+                            .add(layout.createSequentialGroup()
+                                .add(jLabel3)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jSeparator2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 667, Short.MAX_VALUE)))
+                        .addContainerGap())
+                    .add(layout.createSequentialGroup()
                         .add(jLabel2)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 612, Short.MAX_VALUE))
+                        .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 640, Short.MAX_VALUE))
                     .add(layout.createSequentialGroup()
                         .add(10, 10, 10)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(rbUnreserved)
                             .add(rbDisabled)
+                            .add(rbHijack)
+                            .add(rbUnreserved)
+                            .add(layout.createSequentialGroup()
+                                .add(21, 21, 21)
+                                .add(cbHijackAfterUnreserved))
                             .add(rbReserved)
                             .add(layout.createSequentialGroup()
                                 .add(21, 21, 21)
-                                .add(cbFallback)))
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(cbHijackAfterReserved)
+                                    .add(cbFallback))))
                         .add(363, 363, 363))))
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jLabel4)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(taLabelFormat, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 562, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(bAddVariable))
-            .add(layout.createSequentialGroup()
-                .add(2, 2, 2)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(10, 10, 10)
-                        .add(cbCheckinViewPrivate)
-                        .addContainerGap())
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(layout.createSequentialGroup()
-                            .add(jLabel5)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(jSeparator3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 684, Short.MAX_VALUE))
-                        .add(layout.createSequentialGroup()
-                            .add(jLabel3)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(jSeparator2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 639, Short.MAX_VALUE)))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -217,17 +240,22 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(rbDisabled)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(rbHijack)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(rbUnreserved)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(cbHijackAfterUnreserved)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(rbReserved)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(cbFallback)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(cbHijackAfterReserved)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabel3)
                     .add(layout.createSequentialGroup()
-                        .add(14, 14, 14)
-                        .add(jLabel3))
-                    .add(layout.createSequentialGroup()
-                        .add(20, 20, 20)
+                        .add(6, 6, 6)
                         .add(jSeparator2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -241,9 +269,9 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
                         .add(2, 2, 2))
                     .add(layout.createSequentialGroup()
                         .add(jSeparator3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
                 .add(cbCheckinViewPrivate)
-                .addContainerGap(77, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -274,7 +302,63 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_cbFallbackActionPerformed
     
     private void bAddVariableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bAddVariableActionPerformed
-    // TODO add your handling code here:
+        LabelsPanel labelsPanel = new LabelsPanel();
+        List<LabelVariable> variables = new ArrayList<LabelVariable>(ClearcaseAnnotator.LABELS.length);
+        for (int i = 0; i < ClearcaseAnnotator.LABELS.length; i++) {   
+            LabelVariable variable = new LabelVariable(
+                    ClearcaseAnnotator.LABELS[i], 
+                    "{" + ClearcaseAnnotator.LABELS[i] + "} - " + NbBundle.getMessage(ClearcaseOptionsPanel.class, "Variable." + ClearcaseAnnotator.LABELS[i])
+            );
+            variables.add(variable);   
+        }       
+        labelsPanel.labelsList.setListData(variables.toArray(new LabelVariable[variables.size()]));                
+                
+        String title = NbBundle.getMessage(ClearcaseOptionsPanel.class, "Variables.title");
+        String acsd = NbBundle.getMessage(ClearcaseOptionsPanel.class, "Variables.acsd");
+
+        DialogDescriptor dialogDescriptor = new DialogDescriptor(labelsPanel, title);
+        dialogDescriptor.setModal(true);
+        dialogDescriptor.setValid(true);
+        
+        final Dialog dialog = DialogDisplayer.getDefault().createDialog(dialogDescriptor);
+        dialog.getAccessibleContext().setAccessibleDescription(acsd);
+        
+        labelsPanel.labelsList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(e.getClickCount() == 2) {
+                    dialog.setVisible(false);
+                }
+            }        
+        });                 
+        
+        dialog.setVisible(true);
+        
+        if(DialogDescriptor.OK_OPTION.equals(dialogDescriptor.getValue())) {
+            
+            Object[] selection = labelsPanel.labelsList.getSelectedValues();
+            
+            String variable = "";
+            for (int i = 0; i < selection.length; i++) {
+                variable += "{" + ((LabelVariable)selection[i]).getVariable() + "}";
+            }
+
+            String annotation = taLabelFormat.getText();
+
+            int pos = taLabelFormat.getCaretPosition();
+            if(pos < 0) pos = annotation.length();
+
+            StringBuffer sb = new StringBuffer(annotation.length() + variable.length());
+            sb.append(annotation.substring(0, pos));
+            sb.append(variable);
+            if(pos < annotation.length()) {
+                sb.append(annotation.substring(pos, annotation.length()));
+            }
+            taLabelFormat.setText(sb.toString());
+            taLabelFormat.requestFocus();
+            taLabelFormat.setCaretPosition(pos + variable.length());            
+            
+        }        
     }//GEN-LAST:event_bAddVariableActionPerformed
     
     private void taLabelFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_taLabelFormatActionPerformed
@@ -285,6 +369,28 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
     // TODO add your handling code here:
     }//GEN-LAST:event_cbCheckinViewPrivateActionPerformed
 
+private class LabelVariable {
+        private String description;
+        private String variable;
+         
+        public LabelVariable(String variable, String description) {
+            this.description = description;
+            this.variable = variable;
+        }
+         
+        @Override
+        public String toString() {
+            return description;
+        }
+        
+        public String getDescription() {
+            return description;
+        }
+        
+        public String getVariable() {
+            return variable;
+        }
+    }    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     javax.swing.JButton bAddVariable;
@@ -292,6 +398,8 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
     javax.swing.ButtonGroup buttonGroup1;
     javax.swing.JCheckBox cbCheckinViewPrivate;
     javax.swing.JCheckBox cbFallback;
+    javax.swing.JCheckBox cbHijackAfterReserved;
+    javax.swing.JCheckBox cbHijackAfterUnreserved;
     javax.swing.JLabel jLabel1;
     javax.swing.JLabel jLabel2;
     javax.swing.JLabel jLabel3;
@@ -301,6 +409,7 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
     javax.swing.JSeparator jSeparator2;
     javax.swing.JSeparator jSeparator3;
     javax.swing.JRadioButton rbDisabled;
+    javax.swing.JRadioButton rbHijack;
     javax.swing.JRadioButton rbReserved;
     javax.swing.JRadioButton rbUnreserved;
     javax.swing.JTextField taExecutable;

@@ -46,6 +46,7 @@ import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
+import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 
 /**
@@ -216,6 +217,15 @@ public class PortletEventingHandlerImpl implements PortletEventingHandler {
             eventDialog.setVisible(true);
 
             if (eventDialog.isCancelled()) {
+                return false;
+            }
+            
+            MethodInfo annotateProcessEventMethod = JavaCodeUtil.getProcessEventMethodWithName(methods, eventDialog.getSuggestedMethodName());
+            if(annotateProcessEventMethod != null)
+            {
+                NotifyDescriptor nd = new NotifyDescriptor.Message(
+                        NbBundle.getMessage(PortletEventingHandlerImpl.class, "MSG_A_METHOD_WITH_SAME_NAME_EXISTS"), NotifyDescriptor.ERROR_MESSAGE);
+                DialogDisplayer.getDefault().notifyLater(nd);
                 return false;
             }
             //create body

@@ -37,19 +37,13 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.portalpack.portlets.genericportlets.filetypes;
-
-import org.netbeans.modules.web.api.webmodule.WebModule;
-import org.netbeans.modules.web.spi.webmodule.WebPrivilegedTemplates;
+package org.netbeans.modules.portalpack.servers.core.common;
 
 /**
  *
  * @author satyaranjan
  */
-public class PortletPriviledgedTemplates implements WebPrivilegedTemplates {
-    public String[] getPrivilegedTemplates(WebModule webModule) {
-         return new String[] {
-             "Templates/JSP_Servlet/Portlet", // NOI18N
-         };
-    }
+public interface ServerConstants {
+    public static String SUN_APP_SERVER_9 = "SUN_APP_SERVER_9";
+    public static String TOMCAT_5_X = "TOMCAT_5_X";
 }

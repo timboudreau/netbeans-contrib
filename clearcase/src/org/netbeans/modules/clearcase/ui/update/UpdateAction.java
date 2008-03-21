@@ -51,7 +51,8 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.*;
-import org.netbeans.modules.clearcase.util.Utils;
+
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.openide.util.NbBundle;
 
 /**
@@ -72,12 +73,9 @@ public class UpdateAction extends AbstractAction {
     public boolean isEnabled() {
         Set<File> roots = context.getRootFiles();
         if (roots.size() == 0) return false;
+        if (!ClearcaseUtils.containsSnapshot(context)) return false;
         FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
         for (File file : roots) {
-            // TODSO consider this as a HACK - cache the info if file in shapshot or not 
-            if( Clearcase.getInstance().getTopmostSnapshotViewAncestor(file) == null ) {
-                return false;
-            }                
             FileInformation info = cache.getCachedInfo(file);
             if(info != null && 
                (info.getStatus() & FileInformation.STATUS_VERSIONED) == 0 ){
@@ -94,12 +92,13 @@ public class UpdateAction extends AbstractAction {
         // the update might have changed the files structure
         List<File> filesToRefresh = new ArrayList<File>();
         for (File file : files) {
-            filesToRefresh.addAll(Utils.getFilesTree(file));            
+            filesToRefresh.addAll(ClearcaseUtils.getFilesTree(file));            
         }
         
         UpdateCommand cmd = 
                 new UpdateCommand(
                     files.toArray(new File[files.size()]), 
+                    UpdateCommand.HijackedAction.DoNotTouch,
                     new AfterCommandRefreshListener(filesToRefresh.toArray(new File[filesToRefresh.size()])), 
                     new OutputWindowNotificationListener());
         Clearcase.getInstance().getClient().post(NbBundle.getMessage(UpdateAction.class, "Progress_Updating"),cmd); //NOI18N

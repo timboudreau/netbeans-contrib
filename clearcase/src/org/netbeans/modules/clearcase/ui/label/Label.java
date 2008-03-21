@@ -179,8 +179,9 @@ public class Label implements ActionListener, DocumentListener {
     private void validate() {
         boolean enabled = true;
         String labelText = panel.labelTextField.getText();
-        if(labelText != null && !labelText.equals("")) {
+        if(labelText == null || labelText.trim().equals("")) {
             enabled = false;
         }                
+        labelButton.setEnabled(enabled);
     }    
 }

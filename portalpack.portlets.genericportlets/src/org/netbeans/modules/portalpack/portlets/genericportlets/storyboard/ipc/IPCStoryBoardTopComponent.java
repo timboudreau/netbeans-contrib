@@ -35,7 +35,7 @@ final class IPCStoryBoardTopComponent extends TopComponent {
     
     private static IPCStoryBoardTopComponent instance;
     /** path to the icon used by the component and its open action */
-    private static final String ICON_PATH = "org/netbeans/modules/portalpack/portlets/genericportlets/resources/ipcicon.png";
+    public static final String ICON_PATH = "org/netbeans/modules/portalpack/portlets/genericportlets/resources/ipcicon.png";
     
     private static final String PREFERRED_ID = "IPCStoryBoardTopComponent";
     private IPCGraphScene scene;

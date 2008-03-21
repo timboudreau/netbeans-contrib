@@ -89,7 +89,7 @@ public class LabelSelector extends javax.swing.JPanel implements MouseListener {
         Dialog dialog = DialogDisplayer.getDefault().createDialog(descriptor);
         dialog.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(LabelSelector.class, "ACSD_LabelSelectorDialog"));  // NOI18N        
         
-        final Cancellable cancellable = listLabels(selector, files[0].isFile() ? files[0] : files[0].getParentFile());
+        final Cancellable cancellable = listLabels(selector, files[0].isFile() ? files[0].getParentFile() : files[0]);
         dialog.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {

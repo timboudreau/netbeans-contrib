@@ -305,6 +305,7 @@ public class NbBasePanel extends DestinationPanel {
             fileChooser = new NbiDirectoryChooser();
             
             // this /////////////////////////////////////////////////////////////////
+           /*
             add(jdkLocationLabel, new GridBagConstraints(
                     0, 2,                             // x, y
                     2, 1,                             // width, height
@@ -337,6 +338,7 @@ public class NbBasePanel extends DestinationPanel {
                     GridBagConstraints.HORIZONTAL,    // fill
                     new Insets(4, 11, 0, 11),         // padding
                     0, 0));                           // padx, pady - ???
+            */
         }
         
         private void browseButtonPressed() {

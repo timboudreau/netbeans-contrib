@@ -70,8 +70,9 @@ public class FileEntry {
     final private FileVersionSelector originVersion;
     final private FileVersionSelector version;
     final private String annotation;
-    final boolean reserved;
-    final String user;
+    final private boolean reserved;
+    final private String user;
+    final private String rule; 
     
     private String stringValue;
         
@@ -80,7 +81,8 @@ public class FileEntry {
            File file, 
            FileVersionSelector originVersion, 
            FileVersionSelector version, 
-           String annotation, 
+           String annotation,
+           String rule,
            boolean reserved,
            String user) 
     {
@@ -92,6 +94,7 @@ public class FileEntry {
         this.originVersion = originVersion;
         this.version = version;
         this.annotation = annotation;        
+        this.rule = rule;                
         this.reserved = reserved;
         this.user = user;
     }
@@ -106,6 +109,10 @@ public class FileEntry {
 
     public String getType() {
         return type;
+    }
+
+    public String getRule() {
+        return rule;
     }
 
     public boolean isEclipsed() {
