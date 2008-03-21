@@ -47,6 +47,10 @@ import java.io.IOException;
  */
 public class CompilationController extends CompilationInfo {
 
+    public CompilationController(JavaFXSource source) {
+        super(source);
+    }
+    
     /** Moves the state to required phase. If given state was already reached 
      * the state is not changed. The method will throw exception if a state is 
      * illegal required. Acceptable parameters for thid method are <BR>
@@ -64,12 +68,11 @@ public class CompilationController extends CompilationInfo {
         if (phase == JavaFXSource.Phase.MODIFIED) {
             throw new IllegalArgumentException( "Invalid phase: " + phase );    //NOI18N
         }
-        JavaFXSource.Phase currentPhase = JavaFXSource.moveToPhase(phase, this, false);
+        JavaFXSource.Phase currentPhase = source.moveToPhase(phase, this, false);
             return currentPhase.compareTo (phase) < 0 ? currentPhase : phase;
         }
 
     void invalidate() {
-        throw new UnsupportedOperationException("Not yet implemented");
     }
 
 }

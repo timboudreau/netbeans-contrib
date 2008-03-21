@@ -39,15 +39,30 @@
 
 package org.netbeans.api.javafx.source;
 
+import com.sun.javafx.api.JavafxcTask;
+
 /**
  *
  * @author nenik
  */
 public class CompilationInfo {
-    private JavaFXSource.Phase phase = JavaFXSource.Phase.MODIFIED;
+    final JavaFXSource source;
+    private JavafxcTask cTask;
+    
+    JavaFXSource.Phase phase = JavaFXSource.Phase.MODIFIED;
+
+    public CompilationInfo(JavaFXSource source) {
+        this.source = source;
+    }
 
     public JavaFXSource.Phase getPhase() {
         return phase;
     }
 
+    JavafxcTask getJavafxcTask() {
+        if (cTask == null) {
+            cTask = source.createJavafxcTask();
+        }
+        return cTask;
+    }
 }
