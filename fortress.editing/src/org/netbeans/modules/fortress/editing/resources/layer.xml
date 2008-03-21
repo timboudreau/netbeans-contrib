@@ -87,15 +87,6 @@
     <folder name="GsfPlugins">
         <folder name="text">
             <folder name="x-fortress">
-                <!-- Is this attribute unused? -->
-                <attr name="displayName" stringvalue="Fortress"/>
-                
-                <!-- Used by index scanner to identify relevant files -->
-                <folder name="extensions">
-                    <file name="fss"/>
-                    <file name="fsi"/>
-                </folder>
-                
                 <file name="language.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.GsfLanguage"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.fortress.editing.FortressLanguage"/>

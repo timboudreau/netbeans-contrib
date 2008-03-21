@@ -274,18 +274,17 @@ public class FileStatusCache {
         }     
 
         boolean isRoot;
-        List<FileEntry> statusValues;
-        
+        List<FileEntry> statusValues;                
+        Map<File, FileInformation> oldDirMap = get(dir); // get the old values before you read the new ones
         if(!Clearcase.getInstance().isManaged(dir)) {                        
-            isRoot = true;
-            // file seems to be the vob root
+            // file seems to be the vob root            
+            isRoot = true;            
             statusValues = ClearcaseUtils.readEntries(client, file, true);
         } else {
             isRoot = false;
             statusValues = ClearcaseUtils.readEntries(client, dir, false);
         }              
                 
-        Map<File, FileInformation> oldDirMap = get(dir); 
         Map<File, FileInformation> newDirMap;        
         if(!isRoot || oldDirMap == null) {
             newDirMap = new HashMap<File, FileInformation>();            

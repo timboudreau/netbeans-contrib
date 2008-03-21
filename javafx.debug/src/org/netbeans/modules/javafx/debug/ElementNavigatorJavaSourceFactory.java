@@ -41,8 +41,16 @@
 package org.netbeans.modules.javafx.debug;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.netbeans.api.javafx.source.CancellableTask;
+import org.netbeans.api.javafx.source.CompilationInfo;
+import org.netbeans.api.javafx.source.JavaFXSource.Phase;
+import org.netbeans.api.javafx.source.JavaFXSource.Priority;
+import org.netbeans.api.javafx.source.JavaFXSourceTaskFactory;
+import org.netbeans.api.javafx.source.support.LookupBasedJavaSourceTaskFactory;
+import org.netbeans.modules.javafx.debug.TreeNavigatorJavaFXSourceFactory.WrapperTask;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
 
@@ -50,36 +58,38 @@ import org.openide.util.Lookup;
  *
  * @author Jan Lahoda
  */
-public final class ElementNavigatorJavaSourceFactory /* extends LookupBasedJavaSourceTaskFactory */ {
+public final class ElementNavigatorJavaSourceFactory extends LookupBasedJavaSourceTaskFactory {
     
-//    private CancellableTask<CompilationInfo> task;
+    private CancellableTask<CompilationInfo> task;
     
     static ElementNavigatorJavaSourceFactory getInstance() {
-        return Lookup.getDefault().lookup(ElementNavigatorJavaSourceFactory.class);
+        Collection c = Lookup.getDefault().lookupAll(JavaFXSourceTaskFactory.class);
+        ElementNavigatorJavaSourceFactory res = Lookup.getDefault().lookup(ElementNavigatorJavaSourceFactory.class);
+        assert res != null;
+        return res;
     }
     
     public ElementNavigatorJavaSourceFactory() {
-//        super(Phase.UP_TO_DATE, Priority.NORMAL);
+        super(Phase.UP_TO_DATE, Priority.NORMAL);
     }
 
-//    public synchronized CancellableTask<CompilationInfo> createTask(FileObject file) {
-//        //XXX: should not be necessary to do the wrapper task, but for some reason it is necessary:
-//        return new WrapperTask(task);
-//    }
+    public synchronized CancellableTask<CompilationInfo> createTask(FileObject file) {
+        //XXX: should not be necessary to do the wrapper task, but for some reason it is necessary:
+        return new WrapperTask(task);
+    }
 
     public List<FileObject> getFileObjects() {
-//        List<FileObject> result = super.getFileObjects();
-        List<FileObject> result = new ArrayList<FileObject>();
+        List<FileObject> result = super.getFileObjects();
 
-        if (result.size() == 1)
+        if (result.size() == 1) {
             return result;
+        }
 
         return Collections.emptyList();
     }
 
     public FileObject getFile() {
-//        List<FileObject> result = super.getFileObjects();
-        List<FileObject> result = new ArrayList<FileObject>();
+        List<FileObject> result = super.getFileObjects();
         
         if (result.size() == 1)
             return result.get(0);
@@ -87,9 +97,8 @@ public final class ElementNavigatorJavaSourceFactory /* extends LookupBasedJavaS
         return null;
     }
 
-//    public synchronized void setLookup(Lookup l, CancellableTask<CompilationInfo> task) {
-//        this.task = task;
-//        super.setLookup(l);
-//    }
-
+    public synchronized void setLookup(Lookup l, CancellableTask<CompilationInfo> task) {
+        this.task = task;
+        super.setLookup(l);
+    }
 }

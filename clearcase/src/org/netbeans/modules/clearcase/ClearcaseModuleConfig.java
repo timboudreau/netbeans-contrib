@@ -54,7 +54,7 @@ import java.io.File;
 public class ClearcaseModuleConfig {
     
 
-    public enum OnDemandCheckout { Disabled, Unreserved, UnreservedWithFallback, Hijack, 
+    public enum OnDemandCheckout { Disabled, Prompt, Unreserved, UnreservedWithFallback, Hijack, 
         Reserved, ReservedWithUnreservedFallback, ReservedWithHijackFallback, ReservedWithBothFallbacks };
     
     public static final String PROP_IGNORED_PATTERNS            = "ignoredPatterns";            // NOI18N

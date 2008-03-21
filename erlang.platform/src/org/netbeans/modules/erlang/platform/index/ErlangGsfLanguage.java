@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.netbeans.modules.gsf.api.GsfLanguage;
 import org.netbeans.api.lexer.Language;
@@ -88,6 +89,17 @@ public class ErlangGsfLanguage implements GsfLanguage {
         return Collections.emptyList();
     }
     
+    public String getDisplayName() {
+        return "Erlang";
+    }
+    
+    public String getPreferredExtension() {
+        return "erl"; // NOI18N
+    }
+
+    public Map<String,String> getSourceGroupNames() {
+        return Collections.emptyMap();
+    }
 }
 
 

@@ -53,4 +53,12 @@ public class EJSLanguage extends JsLanguage {
     public Language getLexerLanguage() {
         return EJSTokenId.language();
     }
+
+    public String getDisplayName() {
+        return "EJS";
+    }
+
+    public String getPreferredExtension() {
+        return "ejs"; // NOI18N
+    }
 }

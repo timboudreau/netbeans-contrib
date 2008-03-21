@@ -38,13 +38,11 @@
  */
 package org.netbeans.modules.fortress.editing.visitors;
 
-import com.sun.fortress.nodes.Node;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
@@ -53,7 +51,7 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public class Scope implements Iterable<Scope> {
 
-    private final Node node;
+    private final Definition bindingDefinition;
     private Scope parent;
     private List<Scope> scopes;
     private List<Definition> definitions;
@@ -63,13 +61,17 @@ public class Scope implements Iterable<Scope> {
     private boolean usagesSorted;
     private OffsetRange range;
 
-    public Scope(Node node, OffsetRange range) {
-        this.node = node;
+    public Scope(Definition bindingDefinition, OffsetRange range) {
+        if (bindingDefinition != null) {
+            bindingDefinition.setBindingScope(this);
+        }
+        
+        this.bindingDefinition = bindingDefinition;
         this.range = range;
     }
 
-    public Node getNode() {
-        return node;
+    public Definition getBindingDefinition() {
+        return bindingDefinition;
     }
 
     public OffsetRange getRange() {
@@ -114,6 +116,7 @@ public class Scope implements Iterable<Scope> {
             definitions = new ArrayList<Definition>();
         }
         definitions.add(definition);
+        definition.setEnclosingScope(this);
     }
 
     void addUsage(Usage usage) {
@@ -121,6 +124,7 @@ public class Scope implements Iterable<Scope> {
             usages = new ArrayList<Usage>();
         }
         usages.add(usage);
+        usage.setEnclosingScope(this);
     }
 
     public Iterator<Scope> iterator() {
@@ -209,7 +213,7 @@ public class Scope implements Iterable<Scope> {
 
         List<Signature> occurrences = new ArrayList<Signature>();
         occurrences.add(definition);
-        
+
         findUsages(definition, occurrences);
 
         return occurrences;
@@ -253,79 +257,9 @@ public class Scope implements Iterable<Scope> {
         }
     }
 
-    private List<Node> findVarNodes(String name) {
-        List<Node> nodes = new ArrayList<Node>();
-        addNodes(node, name, nodes);
-
-        return nodes;
-    }
-
-    // Iterate over a scope and mark the given unused locals and globals in the highlights map
-    private void addNodes(Node node, String name, List<Node> result) {
-//            switch (node.getType()) {
-//                case Token.NAME:
-//                case Token.PARAMETER:
-//                case Token.BINDNAME: {
-//                    String s = node.getString();
-//                    if (s.equals(name)) {
-//                        result.add(node);
-//                    }
-//                    break;
-//                }
-//            }
-//
-//            if (node.hasChildren()) {
-//                Node child = node.getFirstChild();
-//
-//                for (; child != null; child = child.getNext()) {
-//                    int type = child.getType();
-//                    if (type == Token.FUNCTION || type == Token.SCRIPT) {
-//                        // It's another scope - skip
-//                        continue;
-//                    }
-//                    addNodes(child, name, result);
-//                }
-//            }
-        }
-
-    private List<Node> findVarNodes(Set<String> names) {
-        List<Node> nodes = new ArrayList<Node>();
-        addNodes(node, names, nodes);
-
-        return nodes;
-    }
-
-    // Iterate over a scope and mark the given unused locals and globals in the highlights map
-    private void addNodes(Node node, Set<String> names, List<Node> result) {
-//            switch (node.getType()) {
-//                case Token.NAME:
-//                case Token.PARAMETER:
-//                case Token.BINDNAME: {
-//                    String s = node.getString();
-//                    if (names.contains(s)) {
-//                        result.add(node);
-//                    }
-//                    break;
-//                }
-//            }
-//
-//            if (node.hasChildren()) {
-//                Node child = node.getFirstChild();
-//
-//                for (; child != null; child = child.getNext()) {
-//                    int type = child.getType();
-//                    if (type == Token.FUNCTION || type == Token.SCRIPT) {
-//                        // It's another scope - skip
-//                        continue;
-//                    }
-//                    addNodes(child, names, result);
-//                }
-//            }
-        }
-
     @Override
     public String toString() {
-        return "Scope(node=" + node + "," + getRange() + ",defs=" + getDefinitions() + ",usages=" + getUsages() + ")";
+        return "Scope(Binding=" + bindingDefinition + "," + getRange() + ",defs=" + getDefinitions() + ",usages=" + getUsages() + ")";
     }
 
     private static class ScopeComparator implements Comparator<Scope> {

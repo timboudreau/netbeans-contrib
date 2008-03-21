@@ -43,7 +43,7 @@ package org.netbeans.modules.javafx.debug;
 //import com.sun.source.tree.Tree;
 import java.util.ArrayList;
 import java.util.List;
-//import javax.lang.model.element.Element;
+import javax.lang.model.element.Element;
 //import javax.lang.model.element.ExecutableElement;
 //import javax.lang.model.element.PackageElement;
 //import javax.lang.model.element.TypeElement;
@@ -53,36 +53,37 @@ import java.util.List;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.netbeans.api.javafx.source.CompilationInfo;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class ElementNode /* extends AbstractNode */ implements OffsetProvider {
+public class ElementNode extends AbstractNode implements OffsetProvider {
     
-//    private Element element;
+    private Element element;
     private CompilationInfo info;
     
 //    public static Node getTree(CompilationInfo info) {
 //        return getTree(info, info.getElement(info.getTree().getTypeDecls().get(0)));
 //    }
     
-//    public static Node getTree(CompilationInfo info, Element element) {
-//        List<Node> result = new ArrayList<Node>();
-//        
+    public static Node getTree(CompilationInfo info, Element element) {
+        List<Node> result = new ArrayList<Node>();
+        
 //        new FindChildrenElementVisitor(info).scan(element, result);
-//        
-//        return result.get(0);
-//    }
-//
-//    /** Creates a new instance of TreeNode */
-//    public ElementNode(CompilationInfo info, Element element, List<Node> nodes) {
-//        super(nodes.isEmpty() ? Children.LEAF: new NodeChilren(nodes));
-//        this.element = element;
-//        this.info = info;
-//        setDisplayName(element.getKind().toString() + ":" + element.toString()); //NOI18N
-//        setIconBaseWithExtension("org/netbeans/modules/java/debug/resources/element.png"); //NOI18N
-//    }
+        
+        return result.get(0);
+    }
+
+    /** Creates a new instance of TreeNode */
+    public ElementNode(CompilationInfo info, Element element, List<Node> nodes) {
+        super(nodes.isEmpty() ? Children.LEAF: new NodeChilren(nodes));
+        this.element = element;
+        this.info = info;
+        setDisplayName(element.getKind().toString() + ":" + element.toString()); //NOI18N
+        setIconBaseWithExtension("org/netbeans/modules/java/debug/resources/element.png"); //NOI18N
+    }
 
     public int getStart() {
 //        Tree tree = info.getTrees().getTree(element);
