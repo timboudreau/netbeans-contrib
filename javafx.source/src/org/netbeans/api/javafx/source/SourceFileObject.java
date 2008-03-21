@@ -53,7 +53,6 @@ import java.net.URI;
 import java.nio.CharBuffer;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.NestingKind;
 import javax.tools.JavaFileObject;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;

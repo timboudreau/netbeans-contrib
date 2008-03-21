@@ -40,9 +40,9 @@
 package org.netbeans.api.javafx.source;
 
 import com.sun.javafx.api.JavafxcTask;
-import com.sun.javafx.api.JavafxcTool;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javac.util.JavacFileManager;
+import com.sun.tools.javafx.api.JavafxcTool;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -103,7 +103,7 @@ public final class JavaFXSource {
     JavafxcTask createJavafxcTask() {
         JavafxcTool tool = JavafxcTool.create();
         JavacFileManager fileManager = tool.getStandardFileManager(null, null, Charset.defaultCharset());
-        JavaFileObject jfo = SourceFileObject.create(files.iterator().next(), null); // XXX
+        JavaFileObject jfo = (JavaFileObject) SourceFileObject.create(files.iterator().next(), null); // XXX
         JavafxcTask task = tool.getTask(null, fileManager, null, null, Collections.singleton(jfo));
 //            Context context = task.getContext();
         
