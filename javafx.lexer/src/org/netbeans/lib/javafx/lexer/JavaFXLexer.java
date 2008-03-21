@@ -81,7 +81,7 @@ import org.netbeans.spi.lexer.LexerRestartInfo;
  * @version 1.00
  * 
  * @todo convertUnicode - Implement a Scaner according to the JavaFX specification.
- * @todo NextIsPercent
+ * @todo finishOctalLiteral()
  */
 
 public class JavaFXLexer extends JavaFXTestableLexer implements Lexer<JavaFXTokenId> {
@@ -169,7 +169,7 @@ public class JavaFXLexer extends JavaFXTestableLexer implements Lexer<JavaFXToke
                     if ((c = inputRead()) == '.') {
                         return token(JavaFXTokenId.DOTDOT);
                     } else if ('0' <= c && c <= '9') { // float literal
-                        return finishNumberLiteral(inputRead(), true);
+                        return finishDigitalLiteral(inputRead(), true);
                     } else {
                         inputBackup(1);
                     }
@@ -319,37 +319,13 @@ public class JavaFXLexer extends JavaFXTestableLexer implements Lexer<JavaFXToke
                 case '0': // "0" in a number literal or a time literal
 		    c = inputRead();
                     if (c == 'x' || c == 'X') { // in hexadecimal (possibly floating-point) literal
-                        boolean inFraction = false;
-                        while (true) {
-                            switch (inputRead()) {
-                                case '0': case '1': case '2': case '3': case '4':
-                                case '5': case '6': case '7': case '8': case '9':
-                                case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
-                                case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
-                                    break;
-                                case '.': // hex float literal
-                                    if (!inFraction) {
-                                        inFraction = true;
-                                    } else { // two dots in the float literal
-                                        return token(JavaFXTokenId.FLOATING_POINT_LITERAL_INVALID);
-                                    }
-                                    break;
-//                                case 'p': case 'P': // binary exponent
-//                                    return finishFloatExponent();
-                                default:
-                                    inputBackup(1);
-                                    // if float then before mandatory binary exponent => invalid
-                                    return token(inFraction ? JavaFXTokenId.FLOATING_POINT_LITERAL_INVALID
-                                            : JavaFXTokenId.DECIMAL_LITERAL);
-                            }
-                        } // end of while(true)
+                        return  finishHexLiteral();
                     }
-                    return finishNumberLiteral(c, false); 
-                    
+                    return finishDigitalLiteral(c, false); 
                 case '1': case '2': case '3': case '4':
                 case '5': case '6': case '7': case '8': case '9': 
                     // "1"..."9" in a number literal or a time literal
-                    return finishNumberLiteral(inputRead(), false);
+                    return finishDigitalLiteral(inputRead(), false);
 
                     
                 // Keywords lexing    
@@ -1021,8 +997,28 @@ public class JavaFXLexer extends JavaFXTestableLexer implements Lexer<JavaFXToke
         } else // c is identifier part
             return finishIdentifier();
     }
-    
-    private Token<JavaFXTokenId> finishNumberLiteral(int c, boolean inFraction) {
+
+    /**
+     * It should be called after reading and recognizing "0x".
+     * @return
+     */
+    private Token<JavaFXTokenId> finishHexLiteral() {
+        while (true) {
+            switch (inputRead()) {
+                case '0': case '1': case '2': case '3': case '4':
+                case '5': case '6': case '7': case '8': case '9':
+                case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+                case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+                    break;
+                default:
+                    inputBackup(1);
+                    return token(JavaFXTokenId.HEX_LITERAL);
+            }
+        } // end of while(true)
+    }
+
+    private Token<JavaFXTokenId> finishDigitalLiteral(int c, boolean inFraction) {
+        // TODO if c == '0' then it may be OCTAL_LITERAL
         while (true) {
             switch (c) {
                 case '.':
