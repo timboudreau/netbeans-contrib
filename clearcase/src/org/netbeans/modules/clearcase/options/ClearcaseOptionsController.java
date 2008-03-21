@@ -72,7 +72,7 @@ class ClearcaseOptionsController extends OptionsPanelController {
     public void applyChanges() {
         if (!isValid()) return;
         ClearcaseModuleConfig.setOnDemandCheckout(getOdc());
-        ClearcaseModuleConfig.getPreferences().put(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, panel.taExecutable.getText().trim());        
+        ClearcaseModuleConfig.getPreferences().put(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, panel.taExecutable.getText().trim());
         ClearcaseModuleConfig.getPreferences().putBoolean(ClearcaseModuleConfig.PROP_ADD_VIEWPRIVATE, panel.cbCheckinViewPrivate.isSelected());
         ClearcaseModuleConfig.getPreferences().put(ClearcaseModuleConfig.PROP_LABEL_FORMAT, panel.taLabelFormat.getText().trim());
         Clearcase.getInstance().getAnnotator().refresh();
@@ -92,16 +92,25 @@ class ClearcaseOptionsController extends OptionsPanelController {
 
     public ClearcaseModuleConfig.OnDemandCheckout getOdc() {
         if (panel.rbDisabled.isSelected()) return ClearcaseModuleConfig.OnDemandCheckout.Disabled;
-        if (panel.rbUnreserved.isSelected()) return ClearcaseModuleConfig.OnDemandCheckout.Unreserved;
-        if (panel.cbFallback.isSelected()) return ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback;
-        return ClearcaseModuleConfig.OnDemandCheckout.Reserved;
+        if (panel.rbHijack.isSelected()) return ClearcaseModuleConfig.OnDemandCheckout.Hijack;
+        if (panel.rbUnreserved.isSelected()) {
+            return panel.cbHijackAfterUnreserved.isSelected() ? ClearcaseModuleConfig.OnDemandCheckout.UnreservedWithFallback : ClearcaseModuleConfig.OnDemandCheckout.Unreserved;
+        }
+        if (panel.cbFallback.isSelected()) {
+            return panel.cbHijackAfterReserved.isSelected() ?  ClearcaseModuleConfig.OnDemandCheckout.ReservedWithBothFallbacks : ClearcaseModuleConfig.OnDemandCheckout.ReservedWithUnreservedFallback;
+        } else {
+            return panel.cbHijackAfterReserved.isSelected() ?  ClearcaseModuleConfig.OnDemandCheckout.ReservedWithHijackFallback : ClearcaseModuleConfig.OnDemandCheckout.Reserved;
+        }
     }
 
     private void setOdc(ClearcaseModuleConfig.OnDemandCheckout odc) {
         panel.rbDisabled.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Disabled);
-        panel.rbUnreserved.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Unreserved);
-        panel.rbReserved.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Reserved || odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback);
-        panel.cbFallback.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback);
+        panel.rbHijack.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Hijack);
+        panel.rbUnreserved.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Unreserved || odc == ClearcaseModuleConfig.OnDemandCheckout.UnreservedWithFallback);
+        panel.rbReserved.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Reserved || odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithHijackFallback ||
+            odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithBothFallbacks || odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithUnreservedFallback);
+        panel.cbFallback.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithBothFallbacks || odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithUnreservedFallback);
+        panel.cbHijackAfterReserved.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithBothFallbacks || odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithHijackFallback);
     }
     
     public JComponent getComponent(Lookup lookup) {

@@ -102,8 +102,11 @@ public class ReadOnlyFilesHandlerImpl implements ReadOnlyFilesHandler {
                 return null;
             }
         case Reserved:
-        case ReservedWithFallback:
+        case ReservedWithHijackFallback:
+        case ReservedWithUnreservedFallback:
+        case ReservedWithBothFallbacks:
         case Unreserved:
+        case UnreservedWithFallback:
             CheckoutFiles.checkout(files);
             return null;
         default:

@@ -41,9 +41,14 @@ package org.netbeans.api.javafx.source;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import com.sun.javafx.api.JavafxcTask;
+import com.sun.javafx.api.JavafxcTool;
+import com.sun.source.tree.CompilationUnitTree;
+import com.sun.tools.javac.util.JavacFileManager;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,6 +73,7 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenHierarchyEvent;
 import org.netbeans.api.lexer.TokenHierarchyEventType;
 import org.netbeans.api.lexer.TokenHierarchyListener;
+import javax.tools.JavaFileObject;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -84,15 +90,16 @@ import org.openide.util.WeakListeners;
  */
 public final class JavaFXSource {
 
-    static Phase moveToPhase(Phase phase, CompilationController aThis, boolean b) {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
     public static enum Phase {
         MODIFIED,
         PARSED,
         ELEMENTS_RESOLVED,
         RESOLVED,   
         UP_TO_DATE;
+        
+        public boolean lessThan(Phase p) {
+            return compareTo(p) < 0;
+        }
     };
     public static enum Priority {
         MAX,
@@ -103,6 +110,36 @@ public final class JavaFXSource {
         LOW,
         MIN
     };
+
+    JavafxcTask createJavafxcTask() {
+        JavafxcTool tool = JavafxcTool.create();
+        JavacFileManager fileManager = tool.getStandardFileManager(null, null, Charset.defaultCharset());
+        JavaFileObject jfo = SourceFileObject.create(files.iterator().next(), null); // XXX
+        JavafxcTask task = tool.getTask(null, fileManager, null, null, Collections.singleton(jfo));
+//            Context context = task.getContext();
+        
+        return task;
+  }
+
+    Phase moveToPhase(Phase phase, CompilationController cc, boolean b) throws IOException {
+        if (cc.phase.lessThan(Phase.PARSED)) {
+                Iterable<? extends CompilationUnitTree> trees = cc.getJavafxcTask().parse();
+//                new JavaFileObject[] {currentInfo.jfo});
+
+                System.err.println("Parsed to: ");
+                for (CompilationUnitTree cut : trees) {
+                    System.err.println("  cut:" + cut);
+                }
+                
+                /*                assert trees != null : "Did not parse anything";        //NOI18N
+                Iterator<? extends CompilationUnitTree> it = trees.iterator();
+                assert it.hasNext();
+                CompilationUnitTree unit = it.next();
+                currentInfo.setCompilationUnit(unit);
+*/
+        }
+        return phase;
+    }
 
     private static Map<FileObject, Reference<JavaFXSource>> file2Source = new WeakHashMap<FileObject, Reference<JavaFXSource>>();
     private static final Logger LOGGER = Logger.getLogger(JavaFXSource.class.getName());
@@ -199,7 +236,7 @@ public final class JavaFXSource {
     }
 
     private static CompilationController createCurrentInfo (final JavaFXSource js, final String javafxc) throws IOException {                
-        CompilationController info = new CompilationController();//js, binding, javac);
+        CompilationController info = new CompilationController(js);//js, binding, javac);
         return info;
     }
 

@@ -41,17 +41,27 @@
 
 package org.netbeans.modules.gsf.browser;
 
+import java.io.File;
+import java.io.IOException;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
+import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectManager;
+import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.editor.Registry;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.modules.ModuleInstall;
+import org.openide.util.Exceptions;
+import org.openide.windows.WindowManager;
 
 /**
  * (From the stripwhitespace module's ModuleInstaller)
  * @author Andrei Badea
  */
 public class ModuleInstaller extends ModuleInstall {
+    public static final boolean PREINDEXING = Boolean.getBoolean("gsf.preindexing");
 
     // prevent the listener from begin GCd (Registry holds the listeners weakly)
     private static ChangeListener listener;
@@ -70,6 +80,31 @@ public class ModuleInstaller extends ModuleInstall {
         JTextComponent component = Registry.getMostActiveComponent();
         if (component != null) {
             HighlightSections.getDefault().install(component);
+        }
+        
+        if (PREINDEXING) {
+            WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
+                public void run() {
+                    // Kick off preindexing
+                    String projectPath = System.getProperty("gsf.preindexing.projectpath");
+                    if (projectPath == null) {
+                        projectPath = "/Users/tor/NetBeansProjects/RailsApplication1";
+                    }
+                    File f = new File(projectPath);
+                    assert f.exists() : f.getPath() + " cannot be opened for preindexing";
+                    FileObject projectDirectory = FileUtil.toFileObject(f);
+                    try {
+                        Project p = ProjectManager.getDefault().findProject(projectDirectory);
+                        assert p != null : f.getPath() + " cannot be opened";
+                        OpenProjects.getDefault().open(new Project[] { p}, false);
+                        OpenProjects.getDefault().setMainProject(p);
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
+                    } catch (IllegalArgumentException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
+            });
         }
     }
 

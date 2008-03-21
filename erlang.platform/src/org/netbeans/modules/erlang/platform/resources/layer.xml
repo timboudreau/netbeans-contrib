@@ -47,17 +47,9 @@
     <folder name="GsfPlugins">
         <folder name="text">
             <folder name="x-erlang">
-                <!-- Is this attribute unused? -->
-                <attr name="displayName" stringvalue="Erlang"/>
-                
                 <!-- Use Schliemann instead of the custom GSF editor kit -->
                 <attr name="useCustomEditorKit" boolvalue="true"/>
 
-                <!-- Used by index scanner to identify relevant files -->
-                <folder name="extensions">
-                    <file name="erl"/>
-                    <file name="hrl"/>
-                </folder>
                 <file name="language.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.GsfLanguage"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.erlang.platform.index.ErlangGsfLanguage"/>

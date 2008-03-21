@@ -175,6 +175,10 @@ public class ErlangIndexer implements Indexer {
         }
     }
 
+    public boolean acceptQueryPath(String url) {
+        return true;
+    }
+
     public String getIndexVersion() {
         return "6.102"; // NOI18N
     }

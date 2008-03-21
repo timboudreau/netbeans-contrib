@@ -199,7 +199,6 @@
     <folder name="GsfPlugins">
         <folder name="text">
             <folder name="x-ejs">
-                <attr name="displayName" stringvalue="EJS"/>
                 <attr name="useCustomEditorKit" boolvalue="true"/>
                 
                 <file name="language.instance">
