@@ -110,8 +110,10 @@ public class CheckinAction extends AbstractAction {
     public void actionPerformed(ActionEvent ev) {
         String contextTitle = Utils.getContextDisplayName(context);
         final JButton checkinButton = new JButton(); 
+        checkinButton.setToolTipText(NbBundle.getMessage(CheckinAction.class, "TT_CheckinAction"));
         checkinButton.setEnabled(false);
         JButton cancelButton = new JButton(NbBundle.getMessage(CheckinAction.class, "Checkin_Cancel")); //NOI18N
+        cancelButton.setToolTipText(NbBundle.getMessage(CheckinAction.class, "TT_CancelAction"));
         
         final CheckinPanel panel = new CheckinPanel();        
         
@@ -151,6 +153,7 @@ public class CheckinAction extends AbstractAction {
         panel.putClientProperty("DialogDescriptor", dd); // NOI18N
         final Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);        
         dialog.addWindowListener(new DialogBoundsPreserver(ClearcaseModuleConfig.getPreferences(), "add.dialog")); // NOI18N       
+        dialog.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CheckinAction.class, "ACSD_CheckinDialog")); // NOI18N
         dialog.pack();        
         dialog.setVisible(true);                
                 

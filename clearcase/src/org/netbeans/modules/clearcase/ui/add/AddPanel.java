@@ -88,10 +88,12 @@ class AddPanel extends javax.swing.JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(AddPanel.class, "AddPanel.jLabel2.text")); // NOI18N
 
+        jLabel1.setLabelFor(taMessage);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(AddPanel.class, "AddPanel.jLabel1.text")); // NOI18N
 
         bRecentMessages.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/clearcase/resources/icons/recent_messages.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(bRecentMessages, org.openide.util.NbBundle.getMessage(AddPanel.class, "AddPanel.bRecentMessages.text")); // NOI18N
+        bRecentMessages.setToolTipText(org.openide.util.NbBundle.getMessage(AddPanel.class, "AddPanel.bRecentMessages.toolTipText")); // NOI18N
         bRecentMessages.setBorderPainted(false);
         bRecentMessages.setMargin(new java.awt.Insets(0, 0, 0, 0));
         bRecentMessages.addActionListener(new java.awt.event.ActionListener() {
@@ -102,9 +104,11 @@ class AddPanel extends javax.swing.JPanel {
 
         taMessage.setColumns(20);
         taMessage.setRows(4);
+        taMessage.setToolTipText(org.openide.util.NbBundle.getMessage(AddPanel.class, "AddPanel.taMessage.toolTipText")); // NOI18N
         jScrollPane1.setViewportView(taMessage);
 
         org.openide.awt.Mnemonics.setLocalizedText(cbSuppressCheckout, org.openide.util.NbBundle.getMessage(AddPanel.class, "AddPanel.cbSuppressCheckout.text")); // NOI18N
+        cbSuppressCheckout.setToolTipText(org.openide.util.NbBundle.getMessage(AddPanel.class, "AddPanel.cbSuppressCheckout.toolTipText")); // NOI18N
         cbSuppressCheckout.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbSuppressCheckoutActionPerformed(evt);
@@ -139,7 +143,7 @@ class AddPanel extends javax.swing.JPanel {
         );
         progressPanelLayout.setVerticalGroup(
             progressPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 15, Short.MAX_VALUE)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, barPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 15, Short.MAX_VALUE)
         );
 
@@ -154,11 +158,11 @@ class AddPanel extends javax.swing.JPanel {
                     .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(cbSuppressCheckout)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 216, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 255, Short.MAX_VALUE)
                         .add(progressPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(jLabel1)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 521, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 550, Short.MAX_VALUE)
                         .add(bRecentMessages))
                     .add(jLabel2))
                 .addContainerGap())
