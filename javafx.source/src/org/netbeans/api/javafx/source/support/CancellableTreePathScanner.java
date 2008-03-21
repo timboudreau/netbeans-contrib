@@ -38,61 +38,66 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.javafx.debug;
+package org.netbeans.api.javafx.source.support;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import org.netbeans.api.javafx.source.CancellableTask;
-import org.netbeans.api.javafx.source.CompilationInfo;
-import org.netbeans.modules.javafx.debug.TreeNavigatorJavaFXSourceFactory.WrapperTask;
-import org.openide.filesystems.FileObject;
-import org.openide.util.Lookup;
+import com.sun.source.tree.Tree;
+import com.sun.source.util.TreePathScanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
  * @author Jan Lahoda
  */
-public final class ElementNavigatorJavaSourceFactory /* extends LookupBasedJavaSourceTaskFactory */ {
-    
-    private CancellableTask<CompilationInfo> task;
-    
-    static ElementNavigatorJavaSourceFactory getInstance() {
-        return Lookup.getDefault().lookup(ElementNavigatorJavaSourceFactory.class);
-    }
-    
-    public ElementNavigatorJavaSourceFactory() {
-//        super(Phase.UP_TO_DATE, Priority.NORMAL);
-    }
+public class CancellableTreePathScanner<R,P> extends TreePathScanner<R,P> {
 
-    public synchronized CancellableTask<CompilationInfo> createTask(FileObject file) {
-        //XXX: should not be necessary to do the wrapper task, but for some reason it is necessary:
-        return new WrapperTask(task);
+    private final AtomicBoolean internalCanceled;
+    private final AtomicBoolean canceled;
+
+    /**Construct a new CancellableTreePathScanner which can be canceled by calling
+     * the {@link #cancel} method.
+     */
+    public CancellableTreePathScanner() {
+        this(null);
     }
 
-    public List<FileObject> getFileObjects() {
-//        List<FileObject> result = super.getFileObjects();
-        List<FileObject> result = new ArrayList<FileObject>();
-
-        if (result.size() == 1)
-            return result;
-
-        return Collections.emptyList();
-    }
-
-    public FileObject getFile() {
-//        List<FileObject> result = super.getFileObjects();
-        List<FileObject> result = new ArrayList<FileObject>();
+    /**Construct a new CancellableTreePath Scanner which can be canceled either by calling
+     * the {@link #cancel} method, or by setting <code>true</code> into the provided
+     * <code>canceled</code> {@link AtomicBoolean}.
+     * 
+     * @param canceled an {@link AtomicBoolean} through which this scanner can be canceled.
+     *                 The scanner never changes the state of the {@link AtomicBoolean}.
+     * @since 0.29
+     */
+    public CancellableTreePathScanner(AtomicBoolean canceled) {
+        this.canceled = canceled;
         
-        if (result.size() == 1)
-            return result.get(0);
-        
-        return null;
+        this.internalCanceled = new AtomicBoolean();
     }
 
-    public synchronized void setLookup(Lookup l, CancellableTask<CompilationInfo> task) {
-        this.task = task;
-//        super.setLookup(l);
+    protected boolean isCanceled() {
+        return internalCanceled.get() || (canceled != null && canceled.get());
+    }
+
+    public void cancel() {
+        internalCanceled.set(true);
+    }
+
+    /** @inheritDoc
+     */
+    public R scan(Tree tree, P p) {
+        if (isCanceled())
+            return null;
+        
+        return super.scan(tree, p);
+    }
+
+    /** @inheritDoc
+     */
+    public R scan(Iterable<? extends Tree> trees, P p) {
+        if (isCanceled())
+            return null;
+        
+        return super.scan(trees, p);
     }
 
 }

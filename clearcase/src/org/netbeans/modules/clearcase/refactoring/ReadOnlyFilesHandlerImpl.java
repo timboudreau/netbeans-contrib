@@ -74,6 +74,7 @@ public class ReadOnlyFilesHandlerImpl implements ReadOnlyFilesHandler {
         ClearcaseModuleConfig.OnDemandCheckout odc = ClearcaseModuleConfig.getOnDemandCheckout();
         
         switch (odc) {
+        case Prompt:
         case Disabled:
             CheckoutFiles cof = (CheckoutFiles) sessions.get(session);
             Collection fileSet = null;

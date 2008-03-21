@@ -48,6 +48,8 @@ import javax.swing.ActionMap;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
+import org.netbeans.api.javafx.source.CancellableTask;
+import org.netbeans.api.javafx.source.CompilationInfo;
 import org.netbeans.spi.navigator.NavigatorPanel;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
@@ -114,22 +116,24 @@ public class ElementNavigatorProviderImpl implements NavigatorPanel {
     }
 
     public void panelActivated(Lookup context) {
-//        ElementNavigatorJavaSourceFactory.getInstance().setLookup(context, new TaskImpl());
+        ElementNavigatorJavaSourceFactory.getInstance().setLookup(context, new TaskImpl());
     }
 
     public void panelDeactivated() {
-//        ElementNavigatorJavaSourceFactory.getInstance().setLookup(Lookup.EMPTY, null);
+        ElementNavigatorJavaSourceFactory.getInstance().setLookup(Lookup.EMPTY, null);
     }
     
-//    private final class TaskImpl implements CancellableTask<CompilationInfo> {
-//        
-//        public void cancel() {
-//        }
-//
-//        public void run(CompilationInfo info) {
-//            manager.setRootContext(ElementNode.getTree(info, info.getTrees().getElement(new TreePath(info.getCompilationUnit()))));
-//        }
-//        
-//    }
+    private final class TaskImpl implements CancellableTask<CompilationInfo> {
+        
+        public void cancel() {
+        }
+
+        public void run(CompilationInfo info) {
+            manager.setRootContext(ElementNode.getTree(info,
+                   /* info.getTrees().getElement(new TreePath(info.getCompilationUnit())) */ null
+                ));
+        }
+        
+    }
     
 }

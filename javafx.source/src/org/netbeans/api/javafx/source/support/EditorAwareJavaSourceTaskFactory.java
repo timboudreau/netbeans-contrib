@@ -38,61 +38,60 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.javafx.debug;
+package org.netbeans.api.javafx.source.support;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import org.netbeans.api.javafx.source.CancellableTask;
-import org.netbeans.api.javafx.source.CompilationInfo;
-import org.netbeans.modules.javafx.debug.TreeNavigatorJavaFXSourceFactory.WrapperTask;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import org.netbeans.api.javafx.source.JavaFXSource.Phase;
+import org.netbeans.api.javafx.source.JavaFXSource.Priority;
+import org.netbeans.api.javafx.source.JavaFXSourceTaskFactory;
+//import org.netbeans.api.javafx.source.SourceUtils;
 import org.openide.filesystems.FileObject;
-import org.openide.util.Lookup;
 
-/**
+/**A {@link JavaSourceTaskFactorySupport} that registers tasks to all files that are
+ * opened in the editor and are visible.
  *
  * @author Jan Lahoda
  */
-public final class ElementNavigatorJavaSourceFactory /* extends LookupBasedJavaSourceTaskFactory */ {
+public abstract class EditorAwareJavaSourceTaskFactory extends JavaFXSourceTaskFactory {
     
-    private CancellableTask<CompilationInfo> task;
+    private String[] supportedMimeTypes;
     
-    static ElementNavigatorJavaSourceFactory getInstance() {
-        return Lookup.getDefault().lookup(ElementNavigatorJavaSourceFactory.class);
+    /**Construct the EditorAwareJavaSourceTaskFactory with given {@link Phase} and {@link Priority}.
+     *
+     * @param phase phase to use for tasks created by {@link #createTask}
+     * @param priority priority to use for tasks created by {@link #createTask}
+     */
+    protected EditorAwareJavaSourceTaskFactory(Phase phase, Priority priority) {
+        this(phase, priority, (String[]) null);
     }
     
-    public ElementNavigatorJavaSourceFactory() {
-//        super(Phase.UP_TO_DATE, Priority.NORMAL);
+    /**Construct the EditorAwareJavaSourceTaskFactory with given {@link Phase} and {@link Priority}.
+     *
+     * @param phase phase to use for tasks created by {@link #createTask}
+     * @param priority priority to use for tasks created by {@link #createTask}
+     * @param supportedMimeTypes a list of mime types on which the tasks created by this factory should be run
+     * @since 0.21
+     */
+    protected EditorAwareJavaSourceTaskFactory(Phase phase, Priority priority, String... supportedMimeTypes) {
+        super(phase, priority);
+        //XXX: weak, or something like this:
+        OpenedEditors.getDefault().addChangeListener(new ChangeListenerImpl());
+        this.supportedMimeTypes = supportedMimeTypes != null ? supportedMimeTypes.clone() : null;
     }
-
-    public synchronized CancellableTask<CompilationInfo> createTask(FileObject file) {
-        //XXX: should not be necessary to do the wrapper task, but for some reason it is necessary:
-        return new WrapperTask(task);
-    }
-
+    
+    /**@inheritDoc*/
     public List<FileObject> getFileObjects() {
-//        List<FileObject> result = super.getFileObjects();
-        List<FileObject> result = new ArrayList<FileObject>();
+        List<FileObject> files = OpenedEditors.filterSupportedMIMETypes(OpenedEditors.getDefault().getVisibleEditorsFiles(), supportedMimeTypes);
 
-        if (result.size() == 1)
-            return result;
-
-        return Collections.emptyList();
+        return files;
     }
 
-    public FileObject getFile() {
-//        List<FileObject> result = super.getFileObjects();
-        List<FileObject> result = new ArrayList<FileObject>();
-        
-        if (result.size() == 1)
-            return result.get(0);
-        
-        return null;
-    }
-
-    public synchronized void setLookup(Lookup l, CancellableTask<CompilationInfo> task) {
-        this.task = task;
-//        super.setLookup(l);
+    private class ChangeListenerImpl implements ChangeListener {
+        public void stateChanged(ChangeEvent e) {
+            fileObjectsChanged();
+        }
     }
 
 }
