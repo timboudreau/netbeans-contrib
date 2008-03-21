@@ -45,7 +45,6 @@ import java.util.Collections;
 import java.util.List;
 import org.netbeans.api.javafx.source.CancellableTask;
 import org.netbeans.api.javafx.source.CompilationInfo;
-import org.netbeans.modules.javafx.debug.TreeNavigatorJavaFXSourceFactory.WrapperTask;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
 
@@ -53,15 +52,15 @@ import org.openide.util.Lookup;
  *
  * @author Jan Lahoda
  */
-public final class ElementNavigatorJavaSourceFactory /* extends LookupBasedJavaSourceTaskFactory */ {
+public final class TreeNavigatorJavaFXSourceFactory /* extends LookupBasedJavaSourceTaskFactory  */{
     
     private CancellableTask<CompilationInfo> task;
     
-    static ElementNavigatorJavaSourceFactory getInstance() {
-        return Lookup.getDefault().lookup(ElementNavigatorJavaSourceFactory.class);
+    static TreeNavigatorJavaFXSourceFactory getInstance() {
+        return Lookup.getDefault().lookup(TreeNavigatorJavaFXSourceFactory.class);
     }
     
-    public ElementNavigatorJavaSourceFactory() {
+    public TreeNavigatorJavaFXSourceFactory() {
 //        super(Phase.UP_TO_DATE, Priority.NORMAL);
     }
 
@@ -95,4 +94,21 @@ public final class ElementNavigatorJavaSourceFactory /* extends LookupBasedJavaS
 //        super.setLookup(l);
     }
 
+    static class WrapperTask implements CancellableTask<CompilationInfo> {
+        
+        private CancellableTask<CompilationInfo> delegate;
+        
+        public WrapperTask(CancellableTask<CompilationInfo> delegate) {
+            this.delegate = delegate;
+        }
+
+        public void cancel() {
+            delegate.cancel();
+        }
+
+        public void run(CompilationInfo parameter) throws Exception {
+            delegate.run(parameter);
+        }
+        
+    }
 }
