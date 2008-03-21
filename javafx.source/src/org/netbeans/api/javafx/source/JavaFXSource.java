@@ -39,8 +39,6 @@
 
 package org.netbeans.api.javafx.source;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.javafx.api.JavafxcTool;
 import com.sun.source.tree.CompilationUnitTree;
@@ -55,7 +53,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -66,13 +63,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.text.Document;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.api.lexer.TokenHierarchyEvent;
-import org.netbeans.api.lexer.TokenHierarchyEventType;
-import org.netbeans.api.lexer.TokenHierarchyListener;
 import javax.tools.JavaFileObject;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
@@ -81,7 +71,6 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
-import org.openide.util.WeakListeners;
 
 /**
  * A class representing JavaFX source.
@@ -295,7 +284,7 @@ public final class JavaFXSource {
      */
     void rescheduleTask(CancellableTask<CompilationInfo> task) {
         synchronized (INTERNAL_LOCK) {
-            JavaFXSource.Request request = this.currentRequest.getTaskToCancel (task);
+            JavaFXSource.Request request = currentRequest.getTaskToCancel (task);
             if ( request == null) {                
 out:            for (Iterator<Collection<Request>> it = finishedRequests.values().iterator(); it.hasNext();) {
                     Collection<Request> cr = it.next ();
