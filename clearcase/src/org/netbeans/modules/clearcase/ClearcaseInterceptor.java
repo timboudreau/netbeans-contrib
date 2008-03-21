@@ -200,6 +200,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 from.renameTo(to);                                            
             } else {
                 try {
+                    // XXX what if not file???
                     // 1. checkout parents if needed
                     Utils.copyStreamsCloseAll(new FileOutputStream(to), new FileInputStream(from));
                 } catch (IOException ex) {
