@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import org.netbeans.modules.clearcase.client.ClearcaseClient;
 import org.netbeans.modules.clearcase.client.ClearcaseCommand;
@@ -164,6 +165,10 @@ public class ClearcaseInterceptor extends VCSInterceptor {
             return;
         }
                 
+        List<File> refreshFiles = ClearcaseUtils.getFilesTree(from); // all children under from have to be explicitly refreshed
+        refreshFiles.add(from);
+        refreshFiles.add(to);
+        
         if(Clearcase.getInstance().isManaged(from) && Clearcase.getInstance().isManaged(to)) {
             
             FileEntry fromEntry = ClearcaseUtils.readEntry(client, from);                
@@ -209,7 +214,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 deleteFile(from);
             }
         }            
-        ClearcaseUtils.afterCommandRefresh(new File[] { from, to }, true);
+        ClearcaseUtils.afterCommandRefresh(refreshFiles.toArray(new File[refreshFiles.size()]), true);
     }
     
     @Override
