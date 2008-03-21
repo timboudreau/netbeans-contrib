@@ -1026,6 +1026,12 @@ public class JavaFXLexer extends JavaFXTestableLexer implements Lexer<JavaFXToke
         while (true) {
             switch (c) {
                 case '.':
+                    if((c = inputRead()) == '.') { 
+                        // two dots in the literal => the next token is DOTDOT
+                        inputBackup(JavaFXTokenId.DOTDOT.fixedText().length());
+                        return token(inFraction ? JavaFXTokenId.FLOATING_POINT_LITERAL
+                            : JavaFXTokenId.DECIMAL_LITERAL);
+                    }
                     if (!inFraction) {
                         inFraction = true;
                     } else { // two dots in the literal
@@ -1048,9 +1054,8 @@ public class JavaFXLexer extends JavaFXTestableLexer implements Lexer<JavaFXToke
                     return token(JavaFXTokenId.TIME_LITERAL); // "<time>s"
                 default:
                     inputBackup(1);
-//                    return token(inFraction ? JavaFXTokenId.DOUBLE_LITERAL
-//                            : JavaFXTokenId.INT_LITERAL);
-                    return token(JavaFXTokenId.FLOATING_POINT_LITERAL);
+                    return token(inFraction ? JavaFXTokenId.FLOATING_POINT_LITERAL
+                            : JavaFXTokenId.DECIMAL_LITERAL);
             }
             c = inputRead();
         }
