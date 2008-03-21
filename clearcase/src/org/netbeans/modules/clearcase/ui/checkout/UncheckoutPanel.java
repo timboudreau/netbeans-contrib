@@ -78,9 +78,10 @@ public class UncheckoutPanel extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         cbKeep = new javax.swing.JCheckBox();
 
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(UncheckoutPanel.class, "UncheckoutPanel.jLabel1.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(UncheckoutPanel.class, "UncheckoutPanel.jLabel1.text")); // NOI18N
 
-        cbKeep.setText(org.openide.util.NbBundle.getMessage(UncheckoutPanel.class, "UncheckoutPanel.cbKeep.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(cbKeep, org.openide.util.NbBundle.getMessage(UncheckoutPanel.class, "UncheckoutPanel.cbKeep.text")); // NOI18N
+        cbKeep.setToolTipText(org.openide.util.NbBundle.getMessage(UncheckoutPanel.class, "UncheckoutPanel.cbKeep.toolTipText")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
