@@ -37,46 +37,26 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.javafx.debug;
+package org.netbeans.spi.glassfish;
 
-import com.sun.source.util.TreePath;
-import java.util.Iterator;
-import javax.lang.model.element.Element;
-import javax.lang.model.type.TypeMirror;
-import javax.tools.Diagnostic;
+import java.util.Collection;
+import javax.swing.JPanel;
 
 /**
- * // TODO: to be replaced by real class
- * @author david
+ *
+ * @author Peter Williams
  */
-class CompilationInfo {
-
-    CompilationInfo getDiagnostics() {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    Element getElement(TreePath currentPath) {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    Object getSourcePositions() {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    CompilationInfo getTreeUtilities() {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    CompilationInfo getTrees() {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    TypeMirror getTypeMirror(TreePath currentPath) {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    Iterator<Diagnostic> iterator() {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
+public interface CustomizerCookie {
+    
+    /**
+     * Called when the the server instance customizer is being displayed.
+     * 
+     * Addon modules should implement this if they need to provide any pages on
+     * the server instance customizer.
+     * 
+     * @return Collection of JPanels which will be displayed as tabs on the
+     *   customizer.
+     */
+    public Collection<JPanel> getCustomizerPages();
 
 }

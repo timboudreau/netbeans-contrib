@@ -286,7 +286,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
             //actions.add(SystemAction.get(RefreshAction.class));
             actions.add(new DiffAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Diff"), ctx)); //NOI18N
             actions.add(new UpdateAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Update"), ctx)); //NOI18N
-            actions.add(new MergeAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Merge"), ctx)); //NOI18N
+//            actions.add(new MergeAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Merge"), ctx)); //NOI18N
             actions.add(new CheckinAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Checkin"), ctx)); //NOI18N
             actions.add(null);
 //            actions.add(SystemAction.get(ExportDiffAction.class));
@@ -318,7 +318,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
                 actions.add(SystemActionBridge.createAction(SystemAction.get(RefreshAction.class), NbBundle.getMessage(ClearcaseAnnotator.class, "Action_ShowChanges"), context)); //NOI18N
                 actions.add(new DiffAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Diff"), ctx)); //NOI18N
                 actions.add(new UpdateAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Update"), ctx)); //NOI18N
-                actions.add(new MergeAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Merge"), ctx)); //NOI18N
+//                actions.add(new MergeAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Merge"), ctx)); //NOI18N
                 actions.add(new CheckinAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Checkin"), ctx)); //NOI18N
                 actions.add(null);
                 actions.add(new LabelAction(NbBundle.getMessage(ClearcaseAnnotator.class, "Action_Label"), ctx)); //NOI18N

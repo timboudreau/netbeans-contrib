@@ -107,8 +107,10 @@ public class AddAction extends AbstractAction {
     public void actionPerformed(ActionEvent ev) {
         String contextTitle = Utils.getContextDisplayName(context);
         final JButton addButton = new JButton(); 
+        addButton.setToolTipText(NbBundle.getMessage(AddAction.class, "TT_AddAction"));
         addButton.setEnabled(false);
         JButton cancelButton = new JButton(NbBundle.getMessage(AddAction.class, "AddAction_Cancel")); //NOI18N
+        cancelButton.setToolTipText(NbBundle.getMessage(AddAction.class, "TT_CancelAction"));
         final AddPanel panel = new AddPanel();        
                 
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(AddAction.class, "CTL_AddDialog_Title", contextTitle)); // NOI18N
@@ -147,6 +149,7 @@ public class AddAction extends AbstractAction {
         panel.putClientProperty("DialogDescriptor", dd); // NOI18N
         final Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);        
         dialog.addWindowListener(new DialogBoundsPreserver(ClearcaseModuleConfig.getPreferences(), "add.dialog")); // NOI18N       
+        dialog.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(AddAction.class, "ACSD_AddDialog")); // NOI18N
         dialog.pack();        
         dialog.setVisible(true);
         

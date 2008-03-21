@@ -57,13 +57,14 @@ import org.openide.filesystems.FileObject;
  *
  * @author Caoyuan Deng
  */
-public abstract class Signature implements ElementHandle {
+public class Signature implements ElementHandle {
 
     private Node node;
     private Node nameNode;
     private ElementKind kind;
     private Set<Modifier> mods;
     private OffsetRange nameRange;
+    private Scope enclosingScope;
 
     public Signature(Node node, Node nameNode, OffsetRange nameRange, ElementKind kind) {
         this.node = node;
@@ -90,6 +91,22 @@ public abstract class Signature implements ElementHandle {
 
     public ElementKind getKind() {
         return kind;
+    }
+
+    /**
+     * @Note: enclosingScope will be set when call
+     *   {@link Scope#addDefinition(Definition)} or {@link Scope#addUsage(Usage)}
+     */    
+    protected void setEnclosingScope(Scope enclosingScope) {
+        this.enclosingScope = enclosingScope;
+    }
+    
+    /**
+     * @return the scope that encloses this item 
+     */
+    public Scope getEnclosingScope() {
+        assert enclosingScope != null : "Each signature should set enclosing scope!";
+        return enclosingScope;
     }
 
     public String getMimeType() {
@@ -129,9 +146,4 @@ public abstract class Signature implements ElementHandle {
     public String getIn() {
         return null;
     }
-
-    /**
-     * @return the scope that encloses this item 
-     */
-    abstract Scope getEnclosingScope();
 }

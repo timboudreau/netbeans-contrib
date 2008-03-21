@@ -48,7 +48,8 @@ import org.openide.filesystems.FileObject;
 public class ClasspathInfo {
 
     static ClasspathInfo create(FileObject fileObject) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        return new ClasspathInfo();
+//        throw new UnsupportedOperationException("Not yet implemented");
     }
 
 }

@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.fortress.editing;
 
+import java.util.Map;
 import java.util.Collection;
 import java.util.Collections;
 import org.netbeans.api.lexer.Language;
@@ -69,4 +70,15 @@ public class FortressLanguage implements GsfLanguage {
         return Collections.emptyList();
     }
     
+    public String getDisplayName() {
+        return "Fortress";
+    }
+
+    public String getPreferredExtension() {
+        return "fss"; // NOI18N
+    }
+
+    public Map<String,String> getSourceGroupNames() {
+        return Collections.emptyMap();
+    }
 }
