@@ -46,6 +46,9 @@ import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedExcep
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
+import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
+import org.netbeans.modules.j2ee.sun.api.SunURIManager;
+import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
@@ -360,6 +363,28 @@ public abstract class PSDeploymentManager implements DeploymentManager {
    public PSStartServerInf getStartServerHandler()
    {
        return PSStartServerFactory.getPSStartServerHandler(this);
+   }
+   
+   public DeploymentManager getJ2EEContainerDeploymentManager()
+   {
+       if(psconfig.getServerType() != null && 
+               psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9))
+       {
+           InstanceProperties props = SunURIManager.getInstanceProperties(new File(psconfig.getServerHome()), psconfig.getHost(), Integer.parseInt(psconfig.getPort()));
+           if(props == null) return null;
+           return props.getDeploymentManager();
+       }
+       return null;
+   }
+   
+   public boolean isShowServerLogSupported()
+   {
+       return false;
+   }
+   
+   public void showServerLog()
+   {
+       //do nothing
    }
   
    public abstract PSTaskHandler getTaskHandler();

@@ -52,6 +52,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import org.netbeans.api.java.classpath.ClassPath.Entry;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
@@ -95,11 +96,6 @@ public class AppletSupport {
             return unitTestingSupport_isApplet.booleanValue();
         }
         
-        //support for javafx applets not implemented yet
-        if ("fx".equals(file.getExt()) && "text/x-fx".equals(file.getMIMEType())){
-            return false;
-        }
-        
         JavaSource js = JavaSource.forFileObject(file);
         if (js == null) {
             return false;
@@ -141,6 +137,15 @@ public class AppletSupport {
         }
         return result[0];
     }    
+
+    public static boolean isJavaFXApplet(final FileObject file) {
+        if (file == null) {
+            return false;
+        }
+        
+        return false; //not implemented yet > disabled
+    }    
+    
     
     /**
     * @return html file with the same name as applet
@@ -155,27 +160,31 @@ public class AppletSupport {
         FileLock lock = htmlFile.lock();
         PrintWriter writer = null;
         try {
+            writer = new PrintWriter(htmlFile.getOutputStream(lock));
+            ClassPath cp = ClassPath.getClassPath(appletFile, ClassPath.EXECUTE);
+            ClassPath sp = ClassPath.getClassPath(appletFile, ClassPath.SOURCE);
+            String path = FileUtil.getRelativePath(sp.findOwnerRoot(appletFile), appletFile);
+            String codebase = FileUtil.getRelativePath(buildDir, classesDir);
+            
+            if (codebase == null) {
+                codebase = classesDir.getURL().toString();
+            }
             if (appletFile.getExt().equals("fx")){
-                writer = new PrintWriter(htmlFile.getOutputStream(lock));
-                ClassPath cp = ClassPath.getClassPath(appletFile, ClassPath.EXECUTE);
-                ClassPath sp = ClassPath.getClassPath(appletFile, ClassPath.SOURCE);
-                String path = FileUtil.getRelativePath(sp.findOwnerRoot(appletFile), appletFile);
+                String libs="";
+                Iterator<Entry> it = cp.entries().iterator();
+                while(it.hasNext()){
+                    Entry entry = it.next();
+                    if ((entry.getRoot().getFileSystem() instanceof JarFileSystem) && !entry.getRoot().getFileSystem().getDisplayName().contains("javafxc.jar")){
+                        libs = libs.concat(entry.getRoot().getFileSystem().getDisplayName());
+                        if (it.hasNext()){
+                            libs = libs.concat(",");
+                        }
+                    }
+                }
                 path = path.substring(0, path.length()-3);
-                String codebase = FileUtil.getRelativePath(buildDir, classesDir);
-                if (codebase == null) {
-                    codebase = classesDir.getURL().toString();
-                }
-                fillInFile(writer, path.replaceAll("/", "."), "codebase=\"" + codebase + "\""); // NOI18N
+                fillInFile(writer, path.replaceAll("/", "."), "codebase=\"" + codebase + "\" archive=\"" + libs + "\""); // NOI18N
             }else{
-                writer = new PrintWriter(htmlFile.getOutputStream(lock));
-                ClassPath cp = ClassPath.getClassPath(appletFile, ClassPath.EXECUTE);
-                ClassPath sp = ClassPath.getClassPath(appletFile, ClassPath.SOURCE);
-                String path = FileUtil.getRelativePath(sp.findOwnerRoot(appletFile), appletFile);
                 path = path.substring(0, path.length()-5);
-                String codebase = FileUtil.getRelativePath(buildDir, classesDir);
-                if (codebase == null) {
-                    codebase = classesDir.getURL().toString();
-                }
                 fillInFile(writer, path + "." + CLASS_EXT, "codebase=\"" + codebase + "\""); // NOI18N
             }
         } finally {

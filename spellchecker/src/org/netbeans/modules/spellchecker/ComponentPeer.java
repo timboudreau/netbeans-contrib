@@ -262,9 +262,24 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
                 return ;
             }
 
-            l.setStartOffset(span[0]);
-
             final boolean[] cont = new boolean [1];
+            
+            doc.render(new Runnable() {
+                public void run() {
+                    if (isCanceled()) {
+                        cont[0] = false;
+                        return;
+                    } else {
+                        l.setStartOffset(span[0]);
+                        cont[0] = true;
+                    }
+                }
+            });
+            
+            if (!cont[0]) {
+                return ;
+            }
+
             final CharSequence[] word = new CharSequence[1];
             
             while (!isCanceled()) {

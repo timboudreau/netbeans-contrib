@@ -250,7 +250,8 @@ public class NbPostInstallSummaryPanel extends WizardPanel {
             messagePaneNetBeans.setText("");
             boolean nbInstalled = false;
             for (Product product: products) {
-                if (product.getUid().equals("nb-base")) {
+                if (product.getUid().equals("nb-base")
+                        || product.getUid().equals("ss-base")) {
                     if (SystemUtils.isWindows()) {
                         messagePaneNetBeans.setText(DEFAULT_MESSAGE_NETBEANS_TEXT_WINDOWS);
                     } else if (SystemUtils.isMacOS()) {
@@ -266,11 +267,11 @@ public class NbPostInstallSummaryPanel extends WizardPanel {
             List<Product> toRegister = new LinkedList<Product>();
             for (Product product : products) {
                 final String uid = product.getUid();
-                if (uid.equals("nb-base") || uid.equals("jdk") || uid.equals("glassfish") || uid.equals("sjsas")) {
+                if (uid.equals("nb-base") || uid.equals("ss-base")) {
                     toRegister.add(product);
                 }
             }
-            boolean registrationEnabled = 
+            boolean registrationEnabled =
                     nbInstalled            && // if NetBeans is among installed products
                     !toRegister.isEmpty()  && // if anything to register
                     !SystemUtils.isMacOS() && // no support on mac

@@ -115,7 +115,7 @@ public class HijackAction extends AbstractAction {
         Set<File> roots = context.getFiles();
         switch (status) {
         case STATUS_HIJACK:
-            performHijack(roots.toArray(new File[roots.size()]));
+            hijack(roots.toArray(new File[roots.size()]));
             break;
         case STATUS_UNHIJACK:
             performUnhijack(roots.toArray(new File[roots.size()]));
@@ -164,13 +164,22 @@ public class HijackAction extends AbstractAction {
         Clearcase.getInstance().getClient().post(NbBundle.getMessage(HijackAction.class, "Progress_Undoing_Hijack"), cmd); //NOI18N
     }
 
-    private static void performHijack(File[] files) {
+    /**
+     * Hijacks files, make them r/w.
+     * 
+     * @param files files to hijack
+     * @return true if all supplies files are now mutable, false otherwise
+     */
+    public static boolean hijack(File ... files) {
+        boolean allWritable = true;
         for (File file : files) {
             if (file.isFile() && !file.canWrite()) {
-                //Utils.setReadOnly(file, false);
+                Utils.setReadOnly(file, false);
                 file.setLastModified(System.currentTimeMillis());
+                allWritable &= file.canWrite();
             }
         }
         ClearcaseUtils.afterCommandRefresh(files, false);
+        return allWritable;
     }        
 }

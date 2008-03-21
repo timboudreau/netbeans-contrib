@@ -124,9 +124,9 @@ public class MainSequence extends WizardSequence {
         // a bundle, we only need to download and package things
         switch (ExecutionMode.getCurrentExecutionMode()) {
             case NORMAL:
-                if (toInstall.size() > 0) {
-                    addChild(downloadConfigurationLogicAction);
-                    addChild(licensesPanel);
+                if (toInstall.size() > 0) {                    
+                    addChild(downloadConfigurationLogicAction);                    
+                    //addChild(licensesPanel);
                     
                     for (Product product: toInstall) {
                         if (!productSequences.containsKey(product)) {

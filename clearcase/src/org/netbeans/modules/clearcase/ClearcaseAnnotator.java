@@ -61,6 +61,8 @@ import org.netbeans.modules.clearcase.ui.history.BrowseVersionTreeAction;
 import org.openide.util.Utilities;
 import javax.swing.*;
 import java.awt.Image;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.*;
@@ -86,13 +88,21 @@ import org.openide.util.actions.SystemAction;
  */
 public class ClearcaseAnnotator extends VCSAnnotator {
       
-    private static MessageFormat newLocallyFormat = new MessageFormat("<font color=\"#008000\">{0}</font>{1}"); //NOI18N
-    private static MessageFormat checkedoutFormat = new MessageFormat("<font color=\"#0000FF\">{0}</font>{1}"); //NOI18N
-    private static MessageFormat hijackedFormat = new MessageFormat("<font color=\"#FF0000\">{0}</font>{1}"); //NOI18N
-    private static MessageFormat ignoredFormat = new MessageFormat("<font color=\"#999999\">{0}</font>{1}"); //NOI18N
-    private static MessageFormat removedFormat = new MessageFormat("<font color=\"#999999\">{0}</font>{1}"); //NOI18N
-    private static MessageFormat missingFormat = new MessageFormat("<font color=\"#999999\">{0}</font>{1}"); //NOI18N
-    private static MessageFormat eclipsedFormat = new MessageFormat("<s><font color=\"#008000\">{0}</font></s>{1}"); //NOI18N
+    /**
+     * Fired when textual annotations and badges have changed. The NEW value is Set<File> of files that changed or NULL
+     * if all annotaions changed.
+     */
+    static final String PROP_ANNOTATIONS_CHANGED = "annotationsChanged";    
+    
+    private final PropertyChangeSupport support = new PropertyChangeSupport(this);
+    
+    private static MessageFormat newLocallyFormat = new MessageFormat("<font color=\"#008000\">{0}</font>{1}");         // NOI18N
+    private static MessageFormat checkedoutFormat = new MessageFormat("<font color=\"#0000FF\">{0}</font>{1}");         // NOI18N
+    private static MessageFormat hijackedFormat   = new MessageFormat("<font color=\"#FF0000\">{0}</font>{1}");         // NOI18N
+    private static MessageFormat ignoredFormat    = new MessageFormat("<font color=\"#999999\">{0}</font>{1}");         // NOI18N
+    private static MessageFormat removedFormat    = new MessageFormat("<font color=\"#999999\">{0}</font>{1}");         // NOI18N
+    private static MessageFormat missingFormat    = new MessageFormat("<font color=\"#999999\">{0}</font>{1}");         // NOI18N
+    private static MessageFormat eclipsedFormat   = new MessageFormat("<s><font color=\"#008000\">{0}</font></s>{1}");  // NOI18N
     
     
     private static final Pattern lessThan = Pattern.compile("<");  // NOI18N
@@ -107,17 +117,52 @@ public class ClearcaseAnnotator extends VCSAnnotator {
             FileInformation.STATUS_VERSIONED_CHECKEDOUT | FileInformation.STATUS_VERSIONED_HIJACKED | 
             FileInformation.STATUS_NOTVERSIONED_ECLIPSED;
 
+    public static String ANNOTATION_STATUS  = "status";
+    public static String ANNOTATION_VERSION = "version";
+    public static String ANNOTATION_RULE    = "rule";
+    
+    public static String[] LABELS = new String[] {ANNOTATION_STATUS, ANNOTATION_VERSION, ANNOTATION_RULE};
+    
     private MessageFormat format;     
     private String emptyFormat;
     
     private FileStatusCache cache;    
 
     public ClearcaseAnnotator() {
-        cache = Clearcase.getInstance().getFileStatusCache();
-        format = new MessageFormat("[{0}; {1}]"); //NOI18N
-        emptyFormat = format.format(new String[] {"", ""} , new StringBuffer(), null).toString().trim(); //NOI18N
+        cache = Clearcase.getInstance().getFileStatusCache();        
+        refresh();
     }
 
+    public void refresh() {
+        String string = ClearcaseModuleConfig.getPreferences().get(ClearcaseModuleConfig.PROP_LABEL_FORMAT, "");
+        if (string != null && !string.trim().equals("")) {            
+            string = string.replaceAll("\\{" + ANNOTATION_STATUS  + "\\}", "\\{0\\}");           // NOI18N    
+            string = string.replaceAll("\\{" + ANNOTATION_VERSION + "\\}", "\\{1\\}");           // NOI18N
+            string = string.replaceAll("\\{" + ANNOTATION_RULE    + "\\}", "\\{2\\}");           // NOI18N
+            format = new MessageFormat(string);
+            emptyFormat = format.format(new String[] {"", "", ""}, new StringBuffer(), null).toString().trim();            
+        } else {
+            format = null;
+            emptyFormat = null;
+        }                     
+        refreshAllAnnotations();
+    }    
+    
+    /**
+     * Refreshes all textual annotations and badges.
+     */
+    private void refreshAllAnnotations() {
+        support.firePropertyChange(PROP_ANNOTATIONS_CHANGED, null, null);
+    }
+
+    void addPropertyChangeListener(PropertyChangeListener listener) {
+        support.addPropertyChangeListener(listener);
+    }
+
+    void removePropertyChangeListener(PropertyChangeListener listener) {
+        support.removePropertyChangeListener(listener);
+    }
+    
     public String annotateName(String name, VCSContext context) {        
         int includeStatus = 
                 FileInformation.STATUS_VERSIONED_UPTODATE | 
@@ -352,31 +397,39 @@ public class ClearcaseAnnotator extends VCSAnnotator {
      * Applies custom format.
      */
     private String formatAnnotation(FileInformation info, File file) {
-        String statusString = "";  // NOI18N
+        String statusText = "";  // NOI18N
         int status = info.getStatus();
         if (status != FileInformation.STATUS_VERSIONED_UPTODATE) {
-            statusString = info.getShortStatusText();
+            statusText = info.getShortStatusText();
         }
 
-        String revisionString = "";     // NOI18N
-        FileEntry fileStatus = info.getFileEntry(Clearcase.getInstance().getClient(),file);
-        if (fileStatus != null) {
-            FileVersionSelector version = fileStatus.getOriginVersion();
+        String versionSelector = "";     // NOI18N
+        FileEntry fileEntry = info.getFileEntry(Clearcase.getInstance().getClient(), file);
+        String rule = "";
+        if (fileEntry != null) {
+            FileVersionSelector version = fileEntry.getOriginVersion();
             if(version != null) {
-                revisionString = fileStatus.getOriginVersion().getVersionSelector();                
+                versionSelector = fileEntry.getOriginVersion().getVersionSelector();                
             }            
+            rule = fileEntry.getRule();
         }
         
         Object[] arguments = new Object[] {
-            statusString,
-            revisionString
+            statusText,
+            versionSelector,
+            rule
         };
                 
         String annotation = format.format(arguments, new StringBuffer(), null).toString().trim();    
         if(annotation.equals(emptyFormat)) {
-            return ""; //NOI18N
+            return "";                          // NOI18N
         } else {
-            return " " + annotation; //NOI18N
+            annotation = annotation.trim();
+            if(annotation.equals("")) {
+                return "";                      // NOI18N   
+            } else {
+                return " " + annotation;        // NOI18N   
+            }            
         }
     }
     
