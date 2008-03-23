@@ -689,6 +689,7 @@ public final class JavaFXProject implements Project, AntProjectListener {
         private static final String[] PRIVILEGED_NAMES = new String[] {
             "Templates/JavaFX/JavaFXClass.fx", // NOI18N
             "Templates/JavaFX/JavaFXEmpty.fx", // NOI18N
+            "Templates/JavaFX/JavaFXApplet.fx", // NOI18N
             "Templates/Classes/Class.java", // NOI18N
             "Templates/Classes/Package", // NOI18N
             "Templates/Classes/Interface.java", // NOI18N

@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import org.netbeans.modules.clearcase.client.ClearcaseClient;
 import org.netbeans.modules.clearcase.client.ClearcaseCommand;
@@ -118,7 +119,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
         if (file.exists()) {
             file.delete();
         }        
-        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(new File[] { file }, false);
+        ClearcaseUtils.afterCommandRefresh(new File[] { file }, false);
     }
     
     private void fileDeletedImpl(File file) {       
@@ -164,6 +165,10 @@ public class ClearcaseInterceptor extends VCSInterceptor {
             return;
         }
                 
+        List<File> refreshFiles = ClearcaseUtils.getFilesTree(from); // all children under from have to be explicitly refreshed
+        refreshFiles.add(from);
+        refreshFiles.add(to);
+        
         if(Clearcase.getInstance().isManaged(from) && Clearcase.getInstance().isManaged(to)) {
             
             FileEntry fromEntry = ClearcaseUtils.readEntry(client, from);                
@@ -200,6 +205,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 from.renameTo(to);                                            
             } else {
                 try {
+                    // XXX what if not file???
                     // 1. checkout parents if needed
                     Utils.copyStreamsCloseAll(new FileOutputStream(to), new FileInputStream(from));
                 } catch (IOException ex) {
@@ -208,7 +214,7 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 deleteFile(from);
             }
         }            
-        org.netbeans.modules.clearcase.util.Utils.afterCommandRefresh(new File[] { from, to }, true);
+        ClearcaseUtils.afterCommandRefresh(refreshFiles.toArray(new File[refreshFiles.size()]), true);
     }
     
     @Override
@@ -247,7 +253,12 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     public void beforeEdit(File file) {
         Clearcase.LOG.finer("beforeEdit " + file);        
         ClearcaseUtils.ensureMutable(client, file);   
-    }    
+    }
+
+    @Override
+    public boolean isMutable(File file) {
+        return true;
+    }
     
     private void exec(ClearcaseCommand command, boolean notifyErrors) {        
         Clearcase.getInstance().getClient().exec(command, notifyErrors);

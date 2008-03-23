@@ -55,13 +55,33 @@ import org.netbeans.spi.lexer.LexerRestartInfo;
  * value for it. The default value is Integer.valueOf(1). 
  * <p><b>Note:</b>This version doesn't rely on the version value 
  * and doesn't change its behavior.</p>
+ * 
+ * <p>
+ * This implementation is based on the JavaFX ANTLR gramar 
+ * <a href="https://openjfx-compiler.dev.java.net/source/browse/openjfx-compiler/trunk/src/share/classes/com/sun/tools/javafx/antlr/v3.g?rev=1927&view=markup">
+ * v3.g rev 1927</a>.
+ * </p>
+ * 
+ * <p>The implementation of this class is adoption for JavaFX of the
+ * <code>org.netbeans.lib.java.lexer.JavaLexer</code> developed by
+ * Miloslav Metelka.
+ * </p>
+ * <p>
+ * Unlike the original implementation this implementation is consistent with 
+ * the Unit test approach. The implementation extends the 
+ * <code>JavaFXTestableLexer<code> that encapsulates all the Lexer API entities 
+ * which can't be instantiated outside of the infrastructure.
+ * It lets to design a test of the <code>JavaFXLexer</code> unit with using an 
+ * Adaptor that will overload methods of the <code>JavaFXTestableLexer</code>, 
+ * but it won't hide <code>Lexer</code> API (i.e. a subject of unit testing).
+ * </p>
  *
  * @author Miloslav Metelka
  * @author Victor G. Vasilyev
  * @version 1.00
  * 
- * @todo convertUnicode
- * @todo NextIsPercent
+ * @todo convertUnicode - Implement a Scaner according to the JavaFX specification.
+ * @todo finishOctalLiteral()
  */
 
 public class JavaFXLexer extends JavaFXTestableLexer implements Lexer<JavaFXTokenId> {
@@ -149,7 +169,7 @@ public class JavaFXLexer extends JavaFXTestableLexer implements Lexer<JavaFXToke
                     if ((c = inputRead()) == '.') {
                         return token(JavaFXTokenId.DOTDOT);
                     } else if ('0' <= c && c <= '9') { // float literal
-                        return finishNumberLiteral(inputRead(), true);
+                        return finishDigitalLiteral(inputRead(), true);
                     } else {
                         inputBackup(1);
                     }
@@ -242,6 +262,19 @@ public class JavaFXLexer extends JavaFXTestableLexer implements Lexer<JavaFXToke
                     inputBackup(1);
                     return token(JavaFXTokenId.SLASH);
                 case '%':
+                    if(stateController.percentIsFormat()) {
+                        while(true) {
+                            c = inputRead();
+                            switch(c) {
+                                case ' ': // May be all whitespaces should be listed?
+                                case EOF:
+                                    stateController.resetPercentIsFormat();
+                                    return token(JavaFXTokenId.FORMAT_STRING_LITERAL);                        
+                                default:
+                                    continue;
+                            }
+                        }
+                    }
                     if (inputRead() == '=')
                         return token(JavaFXTokenId.PERCENTEQ);
                     inputBackup(1);
@@ -286,37 +319,13 @@ public class JavaFXLexer extends JavaFXTestableLexer implements Lexer<JavaFXToke
                 case '0': // "0" in a number literal or a time literal
 		    c = inputRead();
                     if (c == 'x' || c == 'X') { // in hexadecimal (possibly floating-point) literal
-                        boolean inFraction = false;
-                        while (true) {
-                            switch (inputRead()) {
-                                case '0': case '1': case '2': case '3': case '4':
-                                case '5': case '6': case '7': case '8': case '9':
-                                case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
-                                case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
-                                    break;
-                                case '.': // hex float literal
-                                    if (!inFraction) {
-                                        inFraction = true;
-                                    } else { // two dots in the float literal
-                                        return token(JavaFXTokenId.FLOATING_POINT_LITERAL_INVALID);
-                                    }
-                                    break;
-//                                case 'p': case 'P': // binary exponent
-//                                    return finishFloatExponent();
-                                default:
-                                    inputBackup(1);
-                                    // if float then before mandatory binary exponent => invalid
-                                    return token(inFraction ? JavaFXTokenId.FLOATING_POINT_LITERAL_INVALID
-                                            : JavaFXTokenId.DECIMAL_LITERAL);
-                            }
-                        } // end of while(true)
+                        return  finishHexLiteral();
                     }
-                    return finishNumberLiteral(c, false); 
-                    
+                    return finishDigitalLiteral(c, false); 
                 case '1': case '2': case '3': case '4':
                 case '5': case '6': case '7': case '8': case '9': 
                     // "1"..."9" in a number literal or a time literal
-                    return finishNumberLiteral(inputRead(), false);
+                    return finishDigitalLiteral(inputRead(), false);
 
                     
                 // Keywords lexing    
@@ -817,7 +826,7 @@ public class JavaFXLexer extends JavaFXTestableLexer implements Lexer<JavaFXToke
                     return finishIdentifier(c);
 
                 // Rest of lowercase letters starting identifiers
-                case 'h': case 'j': case 'k': case 'm': 
+                case 'g': case 'h': case 'j': case 'k': case 'm': 
                 case 'q': case 'u': case 'x': case 'y': case 'z':
                 // Uppercase letters starting identifiers
                 case 'A': case 'B': case 'C': case 'D': case 'E':
@@ -899,8 +908,33 @@ public class JavaFXLexer extends JavaFXTestableLexer implements Lexer<JavaFXToke
                     if(startedWith == '}') {
                         return token(JavaFXTokenId.RBRACE_LBRACE_STRING_LITERAL);
                     }
-                    stateController.enterBrace(quote, false);
+                    stateController.enterBrace(quote, isThereFormatClause());
                     return token(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL);
+            }
+        }
+    }
+    
+    private boolean isThereFormatClause() {
+        // See the fragment NextIsPercent[int quoteContext] definition in 
+        // the v3.g ANTLR grammar file.
+        int charCounter = 0; 
+        while (true) {
+            int c = inputRead();
+            charCounter++;
+            switch (c) {
+                case ' ':
+                case '\r':
+                case '\t':
+                case '\u000C':
+                case '\n':
+                    continue;
+                case '%':
+                    inputBackup(charCounter);
+                    return true;
+                case EOF:
+                default:
+                    inputBackup(charCounter);
+                    return false;
             }
         }
     }
@@ -963,11 +997,37 @@ public class JavaFXLexer extends JavaFXTestableLexer implements Lexer<JavaFXToke
         } else // c is identifier part
             return finishIdentifier();
     }
-    
-    private Token<JavaFXTokenId> finishNumberLiteral(int c, boolean inFraction) {
+
+    /**
+     * It should be called after reading and recognizing "0x".
+     * @return
+     */
+    private Token<JavaFXTokenId> finishHexLiteral() {
+        while (true) {
+            switch (inputRead()) {
+                case '0': case '1': case '2': case '3': case '4':
+                case '5': case '6': case '7': case '8': case '9':
+                case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+                case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+                    break;
+                default:
+                    inputBackup(1);
+                    return token(JavaFXTokenId.HEX_LITERAL);
+            }
+        } // end of while(true)
+    }
+
+    private Token<JavaFXTokenId> finishDigitalLiteral(int c, boolean inFraction) {
+        // TODO if c == '0' then it may be OCTAL_LITERAL
         while (true) {
             switch (c) {
                 case '.':
+                    if((c = inputRead()) == '.') { 
+                        // two dots in the literal => the next token is DOTDOT
+                        inputBackup(JavaFXTokenId.DOTDOT.fixedText().length());
+                        return token(inFraction ? JavaFXTokenId.FLOATING_POINT_LITERAL
+                            : JavaFXTokenId.DECIMAL_LITERAL);
+                    }
                     if (!inFraction) {
                         inFraction = true;
                     } else { // two dots in the literal
@@ -990,9 +1050,8 @@ public class JavaFXLexer extends JavaFXTestableLexer implements Lexer<JavaFXToke
                     return token(JavaFXTokenId.TIME_LITERAL); // "<time>s"
                 default:
                     inputBackup(1);
-//                    return token(inFraction ? JavaFXTokenId.DOUBLE_LITERAL
-//                            : JavaFXTokenId.INT_LITERAL);
-                    return token(JavaFXTokenId.FLOATING_POINT_LITERAL);
+                    return token(inFraction ? JavaFXTokenId.FLOATING_POINT_LITERAL
+                            : JavaFXTokenId.DECIMAL_LITERAL);
             }
             c = inputRead();
         }

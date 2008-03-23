@@ -43,6 +43,7 @@ package org.netbeans.modules.python.editor;
 import org.netbeans.modules.python.editor.lexer.PythonTokenId;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import org.netbeans.modules.gsf.api.GsfLanguage;
 import org.netbeans.api.lexer.Language;
 import org.openide.filesystems.FileObject;
@@ -71,5 +72,17 @@ public class PythonLanguage implements GsfLanguage {
 
     public Collection<FileObject> getCoreLibraries() {
         return Collections.emptyList();
+    }
+
+    public String getDisplayName() {
+        return "Python";
+    }
+
+    public String getPreferredExtension() {
+        return "py"; // NOI18N
+    }
+
+    public Map<String,String> getSourceGroupNames() {
+        return Collections.emptyMap();
     }
 }

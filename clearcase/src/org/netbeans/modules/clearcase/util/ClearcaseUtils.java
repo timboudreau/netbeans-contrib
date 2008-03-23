@@ -41,20 +41,31 @@
 package org.netbeans.modules.clearcase.util;
 
 import org.netbeans.modules.clearcase.*;
+import org.netbeans.modules.clearcase.ui.hijack.HijackAction;
+import org.netbeans.modules.clearcase.ui.hijack.UnhijackPanel;
 import org.netbeans.modules.versioning.spi.VCSContext;
+import org.netbeans.modules.versioning.util.Utils;
+import org.netbeans.modules.versioning.util.DialogBoundsPreserver;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.util.*;
-import org.netbeans.modules.clearcase.client.AfterCommandRefreshListener;
-import org.netbeans.modules.clearcase.client.CheckoutCommand;
-import org.netbeans.modules.clearcase.client.ClearcaseClient;
-import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
+import java.awt.Dialog;
+
+import org.netbeans.modules.clearcase.client.*;
 import org.netbeans.modules.clearcase.client.status.FileEntry;
 import org.netbeans.modules.clearcase.client.status.ListStatus;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.DialogDescriptor;
+import org.openide.awt.Mnemonics;
+import org.openide.filesystems.FileUtil;
+import org.openide.windows.TopComponent;
+import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
+import org.openide.util.HelpCtx;
+
+import javax.swing.*;
 
 /**
  * Clearase specific utility methods.
@@ -62,10 +73,97 @@ import org.openide.util.NbBundle;
  * @author Maros Sandor
  */
 public class ClearcaseUtils {
+    /**
+     * Semantics is similar to {@link org.openide.windows.TopComponent#getActivatedNodes()} except that this
+     * method returns File objects instead od Nodes. Every node is examined for Files it represents. File and Folder
+     * nodes represent their underlying files or folders. Project nodes are represented by their source groups. Other
+     * logical nodes must provide FileObjects in their Lookup.
+     *
+     * @return File [] array of activated files
+     * @param nodes or null (then taken from windowsystem, it may be wrong on editor tabs #66700).
+     */
+    public static VCSContext getCurrentContext(Node[] nodes) {
+        if (nodes == null) {
+            nodes = TopComponent.getRegistry().getActivatedNodes();
+        }
+        return VCSContext.forNodes(nodes);
+    }
 
+    /**
+     * Assynchronously refreshes the status for files and their filesystems. 
+     * Note, that a refresh on the NB filesystem may result in intercepting 
+     * new file events. 
+     * 
+     * @param files files to be refreshed          
+     * @param includeChildren if true all children for the given files will be explicitly refreshed too
+     */
+    public static void afterCommandRefresh(final File[] files, final boolean includeChildren) {          
+        Clearcase.getInstance().getRequestProcessor().post(new Runnable() {
+            public void run() {
+                // refreshing the NB filessytem before the cache refresh starts firing change events -> 
+                // otherwise they might cause externally deleted/created warnings
+                Set<File> parents = new HashSet<File>();
+                for (File file : files) {
+                    File parent = file.getParentFile();
+                    if (parent != null) {
+                        parents.add(parent);
+                    }
+                }
+                FileUtil.refreshFor(parents.toArray(new File[parents.size()])); 
+
+                // refresh the cache ...
+                Set<File> refreshSet = new HashSet<File>();
+                for (File file : files) {
+                    if(includeChildren) {
+                        refreshSet.addAll(getFilesTree(file));    
+                    } else {
+                        refreshSet.add(file);
+                    }
+                }                        
+                File[] refreshFiles = refreshSet.toArray(new File[refreshSet.size()]);
+                Clearcase.getInstance().getFileStatusCache().refreshLater(refreshFiles);                            
+            }
+        });                
+    }
+
+    public static List<File> getFilesTree(File file) {
+        List<File> ret = new  ArrayList<File>();
+        ret.add(file);
+        if(file.isDirectory()) {
+            File[] files = file.listFiles();
+            if(files != null) {
+                for (File f : files) {
+                    ret.addAll(getFilesTree(f));
+                }
+            }
+        }
+        return ret;
+    }
+
+    public static enum ViewType { None, Snapshot, Dynamic, Remote };
+    
     private ClearcaseUtils() {
     }
 
+    private static ViewType getViewType(File file) {
+        // TODO: incomplete implementation
+        if (Clearcase.getInstance().getTopmostSnapshotViewAncestor(file) != null) return ViewType.Snapshot;
+        return ViewType.None;
+    }
+
+    /**
+     * Query for files in snapshot views.
+     * 
+     * @param ctx a context to scan
+     * @return true if the context contains at least one file from a snapshot view, false otherwise
+     */
+    public static boolean containsSnapshot(VCSContext ctx) {
+        for (File file : ctx.getRootFiles()) {
+            if (getViewType(file) == ViewType.Snapshot) return true;
+        }
+        return false;
+    }
+    
     /**
      * Computes previous revision number to the given one.
      * 
@@ -301,32 +399,47 @@ public class ClearcaseUtils {
         }
 
         ClearcaseModuleConfig.OnDemandCheckout odc = ClearcaseModuleConfig.getOnDemandCheckout();
+        boolean canHijack = getViewType(file) == ViewType.Snapshot;
+        if (!canHijack && odc == ClearcaseModuleConfig.OnDemandCheckout.Hijack) {
+            odc = ClearcaseModuleConfig.OnDemandCheckout.Unreserved;
+        }
+        if (odc == ClearcaseModuleConfig.OnDemandCheckout.Prompt) {
+            odc = promptForAction(file);
+        }
 
         CheckoutCommand command;
         switch (odc) {
         case Disabled:
-            // XXX let the user decide if he want's to checkout the file
-            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message(NbBundle.getMessage(ClearcaseInterceptor.class, "Interceptor_NoOnDemandCheckouts_Warning"))); //NOI18N
             return 0;
+        case Hijack:
+            return HijackAction.hijack(file) ? IS_MUTABLE : 0; 
         case Reserved:
-        case ReservedWithFallback:
+        case ReservedWithHijackFallback:
+        case ReservedWithUnreservedFallback:
+        case ReservedWithBothFallbacks:
             command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Reserved, true, new AfterCommandRefreshListener(file));
             break;
         case Unreserved:
+        case UnreservedWithFallback:
             command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, new AfterCommandRefreshListener(file));
             break;
         default:
             throw new IllegalStateException("Illegal Checkout type: " + odc);
         }
         
-        Clearcase.getInstance().getClient().exec(command, odc != ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback);
+        Clearcase.getInstance().getClient().exec(command, odc == ClearcaseModuleConfig.OnDemandCheckout.Reserved || odc == ClearcaseModuleConfig.OnDemandCheckout.Unreserved);
         if(!command.hasFailed()) {
             return WAS_CHECKEDOUT;
-        } else if(odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithFallback) {
+        } else if (canHijack && (odc == ClearcaseModuleConfig.OnDemandCheckout.UnreservedWithFallback || odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithHijackFallback)) {
+            return HijackAction.hijack(file) ? IS_MUTABLE : 0; 
+        } else if(odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithUnreservedFallback || odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithBothFallbacks) {
             command = new CheckoutCommand(new File [] { file }, null, CheckoutCommand.Reserved.Unreserved, true, 
                                           new OutputWindowNotificationListener(), new AfterCommandRefreshListener(file));
-            Clearcase.getInstance().getClient().exec(command, true);
-            if (command.hasFailed()) {    
+            Clearcase.getInstance().getClient().exec(command, odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithUnreservedFallback);
+            if (command.hasFailed() && canHijack) {    
+                if (odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithBothFallbacks) {
+                    return HijackAction.hijack(file) ? IS_MUTABLE : 0; 
+                }
                 return 0;
             } else {
                 return WAS_CHECKEDOUT;
@@ -334,5 +447,33 @@ public class ClearcaseUtils {
         } else {
             return 0;
         }
-    }        
+    }
+
+    private static ClearcaseModuleConfig.OnDemandCheckout promptForAction(File file) {
+        ClearcaseModuleConfig.OnDemandCheckout odc = ClearcaseModuleConfig.OnDemandCheckout.valueOf(ClearcaseModuleConfig.getPreferences().get("ondemandcheckout.action", ClearcaseModuleConfig.OnDemandCheckout.Reserved.toString()));
+        CheckoutActionPanel panel = new CheckoutActionPanel(file, odc);
+        
+        DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(ClearcaseUtils.class, "OnDemandCheckouts_Title")); // NOI18N
+        dd.setModal(true);
+        dd.setMessageType(DialogDescriptor.QUESTION_MESSAGE);
+        
+        dd.setOptions(new Object[] {DialogDescriptor.OK_OPTION, DialogDescriptor.CANCEL_OPTION});
+        dd.setHelpCtx(new HelpCtx(ClearcaseUtils.class));
+                
+        panel.putClientProperty("DialogDescriptor", dd); // NOI18N
+        final Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);        
+        dialog.addWindowListener(new DialogBoundsPreserver(ClearcaseModuleConfig.getPreferences(), "ondemandcheckout.dialog")); // NOI18N       
+        dialog.pack();        
+        dialog.setVisible(true);
+        
+        Object value = dd.getValue();
+        if (value != DialogDescriptor.OK_OPTION) return ClearcaseModuleConfig.OnDemandCheckout.Disabled;
+        
+        if (panel.rbHijack.isSelected()) odc = ClearcaseModuleConfig.OnDemandCheckout.Hijack; 
+        if (panel.rbReserved.isSelected()) odc = ClearcaseModuleConfig.OnDemandCheckout.Reserved; 
+        if (panel.rbUnreserved.isSelected()) odc = ClearcaseModuleConfig.OnDemandCheckout.Unreserved; 
+        
+        ClearcaseModuleConfig.getPreferences().put("ondemandcheckout.action", odc.toString());
+        return odc;
+    }
 }

@@ -54,11 +54,13 @@ import java.io.File;
 public class ClearcaseModuleConfig {
     
 
-    public enum OnDemandCheckout { Disabled, Unreserved, Reserved, ReservedWithFallback };
+    public enum OnDemandCheckout { Disabled, Prompt, Unreserved, UnreservedWithFallback, Hijack, 
+        Reserved, ReservedWithUnreservedFallback, ReservedWithHijackFallback, ReservedWithBothFallbacks };
     
     public static final String PROP_IGNORED_PATTERNS            = "ignoredPatterns";            // NOI18N
     public static final String PROP_COMMIT_EXCLUSIONS           = "commitExclusions";           // NOI18N    
     public static final String PROP_CLEARTOOL_EXECUTABLE        = "cleartoolExecutablePath";    // NOI18N    
+    public static final String PROP_LABEL_FORMAT                = "labelFormat";                // NOI18N    
     public static final String PROP_ADD_VIEWPRIVATE             = "addViewPrivate";             // NOI18N    
     
     private static final String PROP_ONDEMAND_CHECKOUT          = "onDemandCheckout";           // NOI18N        

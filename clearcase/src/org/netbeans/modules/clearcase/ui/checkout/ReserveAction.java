@@ -119,6 +119,7 @@ public class ReserveAction extends AbstractAction {
     
     private void performUnreserve(File [] files, String title) {
         JButton reserveButton = new JButton(); 
+        reserveButton.setToolTipText(NbBundle.getMessage(ReserveAction.class, "TT_UnreserveAction"));
         CheckoutPanel panel = new CheckoutPanel();
         panel.cbReserved.setVisible(false);
         
@@ -133,6 +134,7 @@ public class ReserveAction extends AbstractAction {
         panel.putClientProperty("DialogDescriptor", dd); // NOI18N
         final Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);        
         dialog.addWindowListener(new DialogBoundsPreserver(ClearcaseModuleConfig.getPreferences(), "checkout.dialog")); // NOI18N       
+        dialog.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(ReserveAction.class, "ACSD_UnreserveDialog")); // NOI18N
         dialog.pack();        
         dialog.setVisible(true);
         
@@ -153,6 +155,7 @@ public class ReserveAction extends AbstractAction {
 
     public static void performReserve(File[] files, String title) {        
         JButton reserveButton = new JButton(); 
+        reserveButton.setToolTipText(NbBundle.getMessage(ReserveAction.class, "TT_ReserveAction"));
         CheckoutPanel panel = new CheckoutPanel();
         panel.cbReserved.setVisible(false);
         
@@ -167,6 +170,7 @@ public class ReserveAction extends AbstractAction {
         panel.putClientProperty("DialogDescriptor", dd); // NOI18N
         final Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);        
         dialog.addWindowListener(new DialogBoundsPreserver(ClearcaseModuleConfig.getPreferences(), "checkout.dialog")); // NOI18N       
+        dialog.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(ReserveAction.class, "ACSD_ReserveDialog")); // NOI18N
         dialog.pack();        
         dialog.setVisible(true);
         

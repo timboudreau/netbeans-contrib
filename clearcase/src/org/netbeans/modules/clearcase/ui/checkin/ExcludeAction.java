@@ -52,7 +52,7 @@ import java.util.List;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.FileStatusCache;
-import org.netbeans.modules.clearcase.util.Utils;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.openide.util.NbBundle;
 
 /**
@@ -115,7 +115,7 @@ public class ExcludeAction extends AbstractAction {
                 ClearcaseModuleConfig.addExclusionPaths(exclusions);                   
             }         
         } finally {
-            Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]), false);            
+            ClearcaseUtils.afterCommandRefresh(roots.toArray(new File[roots.size()]), false);            
         }
     }    
     

@@ -184,7 +184,7 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
 
     public boolean undeploy(String appName) throws Exception {
         try{
-           unDeployFromGlassFish(appName);
+            unDeployFromGlassFish(appName);
             //_undeploy(appName);
         }catch(Exception e){
             logger.log(Level.SEVERE, "Error",e);
@@ -206,7 +206,7 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
         Properties props = new Properties();
         props.put("jsr88.dm.id","deployer:Sun:AppServer::" + psconfig.getHost() + ":" + psconfig.getAdminPort());
         props.put("jsr88.dm.user",psconfig.getAdminUser());
-        props.put("jsr88.dm.passwd",psconfig.getAdminPassWord());
+        props.put("jsr88.dm.passwd",psconfig.getProperty(SunAppServerConstants.SERVER_PASSWORD));
         props.put("jsr88.df.classname","com.sun.enterprise.deployapi.SunDeploymentFactory");
         
         ClassLoader ld = getServerClassLoader(new File(psconfig.getServerHome()));
@@ -223,7 +223,7 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
         Properties props = new Properties();
         props.put("jsr88.dm.id","deployer:Sun:AppServer::" + psconfig.getHost() + ":" + psconfig.getAdminPort());
         props.put("jsr88.dm.user",psconfig.getAdminUser());
-        props.put("jsr88.dm.passwd",psconfig.getAdminPassWord());
+        props.put("jsr88.dm.passwd",psconfig.getProperty(SunAppServerConstants.SERVER_PASSWORD));
         props.put("jsr88.df.classname","com.sun.enterprise.deployapi.SunDeploymentFactory");
         
         ClassLoader ld = getServerClassLoader(new File(psconfig.getServerHome()));

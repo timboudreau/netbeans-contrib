@@ -39,6 +39,7 @@
 package org.netbeans.modules.fortress.editing.visitors;
 
 import com.sun.fortress.nodes.FnAbsDeclOrDecl;
+import com.sun.fortress.nodes.ModifierPrivate;
 import com.sun.fortress.nodes.Node;
 import com.sun.fortress.nodes.TraitObjectAbsDeclOrDecl;
 import java.util.Collections;
@@ -49,24 +50,26 @@ import org.netbeans.modules.fortress.editing.FortressMimeResolver;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Modifier;
+import org.netbeans.modules.gsf.api.OffsetRange;
 import org.openide.filesystems.FileObject;
 
 /**
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
 public class Signature implements ElementHandle {
 
     private Node node;
     private Node nameNode;
-    private Scope enclosedScope;
     private ElementKind kind;
     private Set<Modifier> mods;
+    private OffsetRange nameRange;
+    private Scope enclosingScope;
 
-    public Signature(Node node, Node nameNode, Scope enclosedScope, ElementKind kind) {
+    public Signature(Node node, Node nameNode, OffsetRange nameRange, ElementKind kind) {
         this.node = node;
         this.nameNode = nameNode;
-        this.enclosedScope = enclosedScope;
+        this.nameRange = nameRange;
         this.kind = kind;
     }
 
@@ -78,16 +81,32 @@ public class Signature implements ElementHandle {
         return nameNode;
     }
 
-    public Scope getEnclosedScope() {
-        return enclosedScope;
-    }
-
     public String getName() {
         return nameNode.stringName();
     }
 
+    public OffsetRange getNameRange() {
+        return nameRange;
+    }
+
     public ElementKind getKind() {
         return kind;
+    }
+
+    /**
+     * @Note: enclosingScope will be set when call
+     *   {@link Scope#addDefinition(Definition)} or {@link Scope#addUsage(Usage)}
+     */    
+    protected void setEnclosingScope(Scope enclosingScope) {
+        this.enclosingScope = enclosingScope;
+    }
+    
+    /**
+     * @return the scope that encloses this item 
+     */
+    public Scope getEnclosingScope() {
+        assert enclosingScope != null : "Each signature should set enclosing scope!";
+        return enclosingScope;
     }
 
     public String getMimeType() {
@@ -107,27 +126,20 @@ public class Signature implements ElementHandle {
         if (mods == null) {
             mods = new HashSet<Modifier>();
         }
-        
+
         List<com.sun.fortress.nodes.Modifier> fortressMods = Collections.emptyList();
         if (node instanceof TraitObjectAbsDeclOrDecl) {
             fortressMods = ((TraitObjectAbsDeclOrDecl) node).getMods();
         } else if (node instanceof FnAbsDeclOrDecl) {
             fortressMods = ((FnAbsDeclOrDecl) node).getMods();
         }
-        
+
         for (com.sun.fortress.nodes.Modifier mod : fortressMods) {
-            String modStr = mod.stringName();
-            if (modStr.equals("static")) {
-                mods.add(Modifier.STATIC);
-            } else if (modStr.equals("private")) {
+            if (mod instanceof ModifierPrivate) {
                 mods.add(Modifier.PRIVATE);
-            } else if (modStr.equals("protected")) {
-                mods.add(Modifier.PROTECTED);
-            } else if (modStr.equals("public")) {
-                mods.add(Modifier.PUBLIC);
             }
         }
-        
+
         return mods;
     }
 

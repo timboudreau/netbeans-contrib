@@ -121,7 +121,7 @@ public class LabelCommand extends FilesCommand {
     protected final void addPNames(Arguments arguments) {
         String [] paths = computeRelativePaths();
         for (String path : paths) {
-            arguments.add(path + Clearcase.getInstance().getExtendedNamingSymbol() + version);
+            arguments.add(path + ((version != null && !version.trim().equals("")) ? Clearcase.getInstance().getExtendedNamingSymbol() + version : "") );
         }
     }
     

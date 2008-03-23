@@ -78,7 +78,7 @@ public class VersionsCache implements NotificationListener {
         if (REVISION_CURRENT.equals(revision)) {
             return workingCopy.exists() ? workingCopy : null;
         } else if (REVISION_BASE.equals(revision)) {
-            revision = Clearcase.getInstance().getFileStatusCache().getInfo(workingCopy).getStatus(Clearcase.getInstance().getClient(), workingCopy).getVersionSelector();
+            revision = Clearcase.getInstance().getFileStatusCache().getInfo(workingCopy).getFileEntry(Clearcase.getInstance().getClient(), workingCopy).getVersionSelector();
             if (revision == null) return null;
         }
         String revisionSpec = ClearcaseUtils.getExtendedName(workingCopy, revision);  

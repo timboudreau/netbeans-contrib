@@ -212,18 +212,27 @@ public class FileInformation implements Serializable {
     /**
      * Retrieves the files {@link FileEntry}
      *
+     * @param client the {@link ClearcaseClient} to be used to retrieve the {@link FileEntry}
      * @param file file this information belongs to or null if you do not want the entry to be read from disk 
-     * in case it is not loaded yet is not versioned or its entry is invalid
-     * 
-     * @return Status parsed output from 'cleartool ls, diff, ...'
+     * in case it is not loaded yet is not versioned or its entry is invalid 
+     * @return {@link FileEntry} parsed output from 'cleartool ls, diff, ...'
      */
-    public FileEntry getStatus(ClearcaseClient client, File file) {
+    public FileEntry getFileEntry(ClearcaseClient client, File file) {
         if (fileEntry == null && file != null) {
             fileEntry = ClearcaseUtils.readEntry(client, file);
         }
         return fileEntry;
     }    
 
+    /**
+     * Returns the {@link FileEntry} if it already exists.
+     *
+     * @return {@link FileEntry}parsed output from 'cleartool ls, diff, ...'
+     */
+    public FileEntry getCachedEntry() {
+        return fileEntry;
+    }    
+    
     /**
      * Returns localized text representation of status.
      * 

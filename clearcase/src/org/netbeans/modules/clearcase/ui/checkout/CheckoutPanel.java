@@ -99,10 +99,12 @@ class CheckoutPanel extends javax.swing.JPanel {
 
         taMessage.setColumns(20);
         taMessage.setRows(5);
+        taMessage.setToolTipText(org.openide.util.NbBundle.getMessage(CheckoutPanel.class, "CheckoutPanel.taMessage.toolTipText")); // NOI18N
         taMessage.setWrapStyleWord(true);
         jScrollPane1.setViewportView(taMessage);
 
         org.openide.awt.Mnemonics.setLocalizedText(cbReserved, org.openide.util.NbBundle.getMessage(CheckoutPanel.class, "CheckoutPanel.cbReserved.text")); // NOI18N
+        cbReserved.setToolTipText(org.openide.util.NbBundle.getMessage(CheckoutPanel.class, "CheckoutPanel.cbReserved.toolTipText")); // NOI18N
         cbReserved.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbReservedActionPerformed(evt);
@@ -110,7 +112,7 @@ class CheckoutPanel extends javax.swing.JPanel {
         });
 
         bRecentMessages.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/clearcase/resources/icons/recent_messages.png"))); // NOI18N
-        org.openide.awt.Mnemonics.setLocalizedText(bRecentMessages, org.openide.util.NbBundle.getMessage(CheckoutPanel.class, "CheckoutPanel.bRecentMessages.text")); // NOI18N
+        bRecentMessages.setToolTipText(org.openide.util.NbBundle.getMessage(CheckoutPanel.class, "CheckoutPanel.bRecentMessages.toolTipText")); // NOI18N
         bRecentMessages.setBorderPainted(false);
         bRecentMessages.setIconTextGap(0);
         bRecentMessages.setMargin(new java.awt.Insets(0, 2, 0, 2));

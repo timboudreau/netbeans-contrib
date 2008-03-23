@@ -152,6 +152,7 @@ public class ListStatus extends ExecutionUnit {
                 if(typeMatcher.matches()) {
                     String type = typeMatcher.group(1);
                     String fileDesc = typeMatcher.group(3);
+                    String rule = "";
 
                     String filePath = null;       
                     String annotation = null;
@@ -163,9 +164,10 @@ public class ListStatus extends ExecutionUnit {
                     if(idxAt > -1) {                
 
                         // rip of the Rule part - "Rule: ... " 
-                        int idxRule = fileDesc.lastIndexOf(RULE_PREFIX);
+                        int idxRule = fileDesc.lastIndexOf(RULE_PREFIX);                        
                         if(idxRule > -1) {
-                            fileDesc = fileDesc.substring(0, idxRule).trim();
+                            rule = fileDesc.substring(idxRule + RULE_PREFIX.length()).trim();
+                            fileDesc = fileDesc.substring(0, idxRule).trim();                            
                         }                
                         filePath = fileDesc.substring(0, idxAt).trim();
                         String extendedPathPart = fileDesc.substring(idxAt + EXTENDED_NAMING_SYMBOL.length()).trim();
@@ -194,7 +196,7 @@ public class ListStatus extends ExecutionUnit {
                     } else {
                         filePath = fileDesc.trim();
                     }           
-                    return new FileEntry(type, new File(filePath), originVersion, version, annotation, false, null);
+                    return new FileEntry(type, new File(filePath), originVersion, version, annotation, rule, false, null);
                 } else {
                     Clearcase.LOG.warning("Unknownn file classification: \"" + outputLine + "\"");                    
                     return null; 
@@ -248,6 +250,7 @@ public class ListStatus extends ExecutionUnit {
                             fe.getOriginVersion(), 
                             fe.getVersion(), 
                             fe.getAnnotation(), 
+                            fe.getRule(),
                             reserved,
                             user));
                 }               

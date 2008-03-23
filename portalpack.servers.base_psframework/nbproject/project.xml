@@ -112,6 +112,15 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.modules.j2ee.sun.appsrv</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.7</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.modules.j2eeapis</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -271,12 +280,16 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <public-packages>
+            <friend-packages>
+                <friend>org.netbeans.modules.portalpack.servers.liferay</friend>
+                <friend>org.netbeans.modules.portalpack.servers.opensourcepc</friend>
+                <friend>org.netbeans.modules.portalpack.servers.sunps</friend>
                 <package>org.netbeans.modules.portalpack.servers.core</package>
                 <package>org.netbeans.modules.portalpack.servers.core.api</package>
                 <package>org.netbeans.modules.portalpack.servers.core.common</package>
                 <package>org.netbeans.modules.portalpack.servers.core.common.enterprise</package>
                 <package>org.netbeans.modules.portalpack.servers.core.impl</package>
+                <package>org.netbeans.modules.portalpack.servers.core.impl.config</package>
                 <package>org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver</package>
                 <package>org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat</package>
                 <package>org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.ui</package>
@@ -284,10 +297,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 <package>org.netbeans.modules.portalpack.servers.core.nodes.actions</package>
                 <package>org.netbeans.modules.portalpack.servers.core.ui</package>
                 <package>org.netbeans.modules.portalpack.servers.core.util</package>
-                <package>org.saxpath</package>
-                <package>org.saxpath.conformance</package>
-                <package>org.saxpath.helpers</package>
-            </public-packages>
+            </friend-packages>
         </data>
     </configuration>
 </project>

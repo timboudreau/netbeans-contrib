@@ -41,7 +41,6 @@
 
 package org.netbeans.lib.javafx.lexer;
 
-import java.util.ConcurrentModificationException;
 import javax.swing.text.Document;
 import org.netbeans.api.javafx.lexer.JavaFXTokenId;
 import org.netbeans.api.lexer.Language;
@@ -60,7 +59,7 @@ import java.util.logging.Logger;
 public class LexerTestBase {
     private static final boolean DEBUG = true; // TODO get it from propery file
     private static final Logger LOG = DEBUG ?
-            Logger.getLogger(JavaFXLexerStateController.class.getName()) : null;
+            Logger.getLogger(LexerTestBase.class.getName()) : null;
 
     private Document doc;
     private TokenHierarchy<?> hi;
@@ -68,8 +67,6 @@ public class LexerTestBase {
 
     protected void setUp() {
         initJavaFXDocument();
-        initTokenHierarchy();
-        initTokenSequence();
     }
 
     protected void tearDown() {
@@ -84,19 +81,40 @@ public class LexerTestBase {
     }
     
     protected void setSource(String text)  throws Exception {
+        doc.insertString(0, text, null);
+        initTokenHierarchy();
         if(DEBUG) {
-            System.out.println("LexerTest source=[{" + text + "}]");
             LOG.log(Level.INFO, "LexerTest source=[{0}]", text);
         }
-        doc.insertString(0, text, null);
         // Last token sequence should throw exception - new must be obtained
-        try {
-            ts.moveNext();
-            fail("TokenSequence.moveNext() did not throw exception as expected.");
-        } catch (ConcurrentModificationException e) {
-            // Expected exception
+//        try {
+//            ts.moveNext();
+//            fail("TokenSequence.moveNext() did not throw exception as expected.");
+//        } catch (ConcurrentModificationException e) {
+//            // Expected exception
+//        }
+        initTokenSequence();
+    }
+
+    protected void setSource(int offset, String text)  throws Exception {
+        doc.insertString(offset, text, null);
+        if(DEBUG) {
+            LOG.log(Level.INFO, 
+                    "LexerTest offset=[{0}] insertedText=[{1}]", 
+                    new Object[] {offset, text});
+            String fullText = doc.getText(0, doc.getLength());
+            LOG.log(Level.INFO, 
+                    "resulted source=[{0}]", 
+                    fullText);
         }
-        ts = hi.tokenSequence();
+        // Last token sequence should throw exception - new must be obtained
+//        try {
+//            ts.moveNext();
+//            fail("TokenSequence.moveNext() did not throw exception as expected.");
+//        } catch (ConcurrentModificationException e) {
+//            // Expected exception
+//        }
+        initTokenSequence();
     }
 
     private void initJavaFXDocument() {
@@ -108,12 +126,18 @@ public class LexerTestBase {
     
     private void initTokenSequence() {
         ts = hi.tokenSequence();
-        assertFalse(ts.moveNext());
-    }
+//        assertFalse(ts.moveNext());
+        if(DEBUG) {
+            LOG.log(Level.INFO, "initTokenSequence(): {0}", ts);
+        }
+   }
     
     private void initTokenHierarchy() {
         hi = TokenHierarchy.get(doc);
         assertNotNull("Null token hierarchy for document", hi);
+        if(DEBUG) {
+            LOG.log(Level.INFO, "initTokenHierarchy(): {0}", hi);
+        }
     }
 
 }

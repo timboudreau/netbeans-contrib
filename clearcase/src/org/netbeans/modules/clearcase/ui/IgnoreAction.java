@@ -50,7 +50,9 @@ import java.io.File;
 import org.netbeans.modules.clearcase.Clearcase;
 import org.netbeans.modules.clearcase.FileInformation;
 import org.netbeans.modules.clearcase.FileStatusCache;
-import org.netbeans.modules.clearcase.util.Utils;
+import org.netbeans.modules.clearcase.util.ClearcaseUtils;
+import org.netbeans.modules.clearcase.util.ProgressSupport;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -71,20 +73,33 @@ public class IgnoreAction extends AbstractAction {
     }
     
     public void actionPerformed(ActionEvent e) {
-        Set<File> roots = context.getRootFiles();
+        final Set<File> roots = context.getRootFiles();
         if(roots.size() == 0 ) {
             return;
         }
+        int status = getStatus(context);
+        String progressDisplayName;
+        if(status == FileInformation.STATUS_NOTVERSIONED_IGNORED) {
+            progressDisplayName = NbBundle.getMessage(IgnoreAction.class, "IgnoreAction.progress.unignoring");
+        } else {
+            progressDisplayName = NbBundle.getMessage(IgnoreAction.class, "IgnoreAction.progress.ignoring");
+        }
         try {
-            for (File file : roots) {
-                if (ClearcaseModuleConfig.isIgnored(file)) {
-                    ClearcaseModuleConfig.setUnignored(file);
-                } else {
-                    ClearcaseModuleConfig.setIgnored(file);
-                }                
-            }    
+            ProgressSupport ps = new ProgressSupport(Clearcase.getInstance().getRequestProcessor(), progressDisplayName) {
+                @Override
+                protected void perform() {
+                    for (File file : roots) {
+                        if (ClearcaseModuleConfig.isIgnored(file)) {
+                            ClearcaseModuleConfig.setUnignored(file);
+                        } else {
+                            ClearcaseModuleConfig.setIgnored(file);
+                        }
+                    }
+                }
+            };
+            ps.start();
         } finally {            
-            Utils.afterCommandRefresh(roots.toArray(new File[roots.size()]), true);            
+            ClearcaseUtils.afterCommandRefresh(roots.toArray(new File[roots.size()]), true);            
         }        
     }
 

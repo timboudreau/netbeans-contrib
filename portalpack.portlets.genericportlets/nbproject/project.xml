@@ -322,16 +322,21 @@ Microsystems, Inc. All Rights Reserved.
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <public-packages>
+            <friend-packages>
+                <friend>org.netbeans.modules.portalpack.servers.liferay</friend>
+                <friend>org.netbeans.modules.portalpack.visualweb</friend>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.core</package>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen</package>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.core.component</package>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.core.exceptions</package>
+                <package>org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners</package>
+                <package>org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners.util</package>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.core.metagen</package>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.core.util</package>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.ddapi</package>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing</package>
-            </public-packages>
+                <package>org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders</package>
+            </friend-packages>
         </data>
     </configuration>
 </project>

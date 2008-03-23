@@ -125,6 +125,7 @@ public class CheckoutAction extends AbstractAction {
     private void performUncheckout(File [] files) {
         String contextTitle = Utils.getContextDisplayName(context);
         JButton unCheckoutButton = new JButton(); 
+        unCheckoutButton.setToolTipText(NbBundle.getMessage(CheckoutAction.class, "TT_UncheckoutAction"));
         UncheckoutPanel panel = new UncheckoutPanel();
 
         panel.cbKeep.setEnabled(false);
@@ -147,6 +148,7 @@ public class CheckoutAction extends AbstractAction {
         panel.putClientProperty("DialogDescriptor", dd); // NOI18N
         final Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);        
         dialog.addWindowListener(new DialogBoundsPreserver(ClearcaseModuleConfig.getPreferences(), "uncheckout.dialog")); // NOI18N       
+        dialog.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CheckoutAction.class, "ACSD_UncheckoutDialog")); // NOI18N
         dialog.pack();        
         dialog.setVisible(true);
         
@@ -180,6 +182,7 @@ public class CheckoutAction extends AbstractAction {
     private static void performCheckout(File[] files, String title) {        
         JButton checkoutButton = new JButton(); 
         CheckoutPanel panel = new CheckoutPanel();
+        checkoutButton.setToolTipText(NbBundle.getMessage(CheckoutAction.class, "TT_CheckoutAction"));
         
         DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(CheckoutAction.class, "CTL_CheckoutDialog_Title", title)); // NOI18N
         dd.setModal(true);        
@@ -192,6 +195,7 @@ public class CheckoutAction extends AbstractAction {
         panel.putClientProperty("DialogDescriptor", dd); // NOI18N
         final Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);        
         dialog.addWindowListener(new DialogBoundsPreserver(ClearcaseModuleConfig.getPreferences(), "checkout.dialog")); // NOI18N       
+        dialog.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(CheckoutAction.class, "ACSD_CheckoutDialog")); // NOI18N
         dialog.pack();        
         dialog.setVisible(true);
         

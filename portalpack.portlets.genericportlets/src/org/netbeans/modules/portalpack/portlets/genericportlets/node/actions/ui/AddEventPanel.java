@@ -37,6 +37,7 @@ public class AddEventPanel extends javax.swing.JDialog {
     public AddEventPanel(java.awt.Frame parent,String title) {
         super(parent, true);
         initComponents();
+        setTitle(title);
         qNameCB.setSelected(true);
         setLocation(parent.getX()+(parent.getWidth()-getWidth())/2,parent.getY()+(parent.getHeight()-getHeight())/2);
         setVisible(true);

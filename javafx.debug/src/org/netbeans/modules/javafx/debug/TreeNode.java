@@ -94,6 +94,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;
+import org.netbeans.api.javafx.source.CompilationInfo;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -774,23 +775,23 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
         }
         
         private void addCorrespondingElement(List<Node> below) {
-            Element el = info.getTrees().getElement(getCurrentPath());
+//            Element el = info.getTrees().getElement(getCurrentPath());
             
-            if (el != null) {
+//            if (el != null) {
 //                below.add(new ElementNode(info, el, Collections.EMPTY_LIST));
-            } else {
-                below.add(new NotFoundElementNode(NbBundle.getMessage(TreeNode.class, "Cannot_Resolve_Element")));
-            }
+//            } else {
+//                below.add(new NotFoundElementNode(NbBundle.getMessage(TreeNode.class, "Cannot_Resolve_Element")));
+//            }
         }
 
         private void addCorrespondingType(List<Node> below) {
-            TypeMirror tm = info.getTrees().getTypeMirror(getCurrentPath());
-            
-            if (tm != null) {
-                below.add(new TypeNode(tm));
-            } else {
-                below.add(new NotFoundTypeNode(NbBundle.getMessage(TreeNode.class, "Cannot_Resolve_Type")));
-            }
+//            TypeMirror tm = info.getTrees().getTypeMirror(getCurrentPath());
+//            
+//            if (tm != null) {
+//                below.add(new TypeNode(tm));
+//            } else {
+//                below.add(new NotFoundTypeNode(NbBundle.getMessage(TreeNode.class, "Cannot_Resolve_Type")));
+//            }
         }
         
         private void addCorrespondingComments(List<Node> below) {

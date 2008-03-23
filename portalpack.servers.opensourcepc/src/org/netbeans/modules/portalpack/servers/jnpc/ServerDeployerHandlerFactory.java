@@ -20,11 +20,10 @@
 package org.netbeans.modules.portalpack.servers.jnpc;
 
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
-import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatConfigUtil;
+import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.jnpc.impl.SunAppServerDeployHandler;
 import org.netbeans.modules.portalpack.servers.jnpc.impl.TomcatDeployHandler;
-import org.openide.filesystems.FileObject;
 
 /**
  *

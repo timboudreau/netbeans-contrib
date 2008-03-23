@@ -496,55 +496,53 @@ class JavaFXActionProvider implements ActionProvider {
                 final boolean hasMainClassFromTest = MainClassChooser.unitTestingSupport_hasMainMethodResult == null ? false :
                     MainClassChooser.unitTestingSupport_hasMainMethodResult.booleanValue();
                 Collection<ElementHandle<TypeElement>> mainClasses = null;
-                if (!file.getExt().equals("fx")){
-                    mainClasses = JavaFXProjectUtil.getMainMethods (file);
+                
+                Boolean isFX = file.getExt().equals("fx");
+                Boolean isMain = true;
+                if (!isFX){
+                    mainClasses = JavaFXProjectUtil.getMainMethods(file);
+                    isMain = hasMainClassFromTest || !mainClasses.isEmpty();
                 }
-                if (!file.getExt().equals("fx") && !hasMainClassFromTest && mainClasses.isEmpty()) {
-                    if (AppletSupport.isApplet(file)) {
+                
+                if ((isFX && AppletSupport.isJavaFXApplet(file)) || (!isFX && !isMain && AppletSupport.isApplet(file))){
+                    EditableProperties ep = updateHelper.getProperties (AntProjectHelper.PROJECT_PROPERTIES_PATH);
+                    String jvmargs = ep.getProperty("run.jvmargs");
 
-                        EditableProperties ep = updateHelper.getProperties (AntProjectHelper.PROJECT_PROPERTIES_PATH);
-                        String jvmargs = ep.getProperty("run.jvmargs");
+                    URL url = null;
 
-                        URL url = null;
-
-                        // do this only when security policy is not set manually
-                        if ((jvmargs == null) || !(jvmargs.indexOf("java.security.policy") > 0)) {  //NOI18N
-                            AppletSupport.generateSecurityPolicy(project.getProjectDirectory());
-                            if ((jvmargs == null) || (jvmargs.length() == 0)) {
-                                ep.setProperty("run.jvmargs", "-Djava.security.policy=applet.policy"); //NOI18N
-                            } else {
-                                ep.setProperty("run.jvmargs", jvmargs + " -Djava.security.policy=applet.policy"); //NOI18N
-                            }
-                            updateHelper.putProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH, ep);
-                            try {
-                                ProjectManager.getDefault().saveProject(project);
-                            } catch (Exception e) {
-                                ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "Error while saving project: " + e);
-                            }
-                        }
-
-                        if (file.existsExt("html") || file.existsExt("HTML")) { //NOI18N
-                            url = copyAppletHTML(file, "html"); //NOI18N
+                    // do this only when security policy is not set manually
+                    if ((jvmargs == null) || !(jvmargs.indexOf("java.security.policy") > 0)) {  //NOI18N
+                        AppletSupport.generateSecurityPolicy(project.getProjectDirectory());
+                        if ((jvmargs == null) || (jvmargs.length() == 0)) {
+                            ep.setProperty("run.jvmargs", "-Djava.security.policy=applet.policy"); //NOI18N
                         } else {
-                            url = generateAppletHTML(file);
+                            ep.setProperty("run.jvmargs", jvmargs + " -Djava.security.policy=applet.policy"); //NOI18N
                         }
-                        if (url == null) {
-                            return null;
+                        updateHelper.putProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH, ep);
+                        try {
+                            ProjectManager.getDefault().saveProject(project);
+                        } catch (Exception e) {
+                            ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "Error while saving project: " + e);
                         }
-                        p.setProperty("applet.url", url.toString()); // NOI18N
-                        if (command.equals (COMMAND_RUN_SINGLE)) {
-                            targetNames = new String[] {"run-applet"}; // NOI18N
-                        } else {
-                            p.setProperty("debug.class", clazz); // NOI18N
-                            targetNames = new String[] {"debug-applet"}; // NOI18N
-                        }
+                    }
+
+                    if (file.existsExt("html") || file.existsExt("HTML")) { //NOI18N
+                        url = copyAppletHTML(file, "html"); //NOI18N
                     } else {
-                        NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(JavaFXActionProvider.class, "LBL_No_Main_Classs_Found", clazz), NotifyDescriptor.INFORMATION_MESSAGE);
-                        DialogDisplayer.getDefault().notify(nd);
+                        url = generateAppletHTML(file);
+                    }
+                    if (url == null) {
                         return null;
                     }
-                } else {
-                    if (!file.getExt().equals("fx") && !hasMainClassFromTest) {
+                    p.setProperty("applet.url", url.toString()); // NOI18N
+                    if (command.equals (COMMAND_RUN_SINGLE)) {
+                        targetNames = new String[] {"run-applet"}; // NOI18N
+                    } else {
+                        p.setProperty("debug.class", clazz); // NOI18N
+                        targetNames = new String[] {"debug-applet"}; // NOI18N
+                    }
+                }else if (isFX || (!isFX && isMain)){
+                    if (!isFX && !hasMainClassFromTest) {
                         if (mainClasses.size() == 1) {
                             //Just one main class
                             clazz = mainClasses.iterator().next().getBinaryName();
@@ -566,6 +564,10 @@ class JavaFXActionProvider implements ActionProvider {
                         String[] targets = targetsFromConfig.get(command);
                         targetNames = (targets != null) ? targets : commands.get(COMMAND_DEBUG_SINGLE);
                     }
+                }else{
+                    NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(JavaFXActionProvider.class, "LBL_No_Main_Classs_Found", clazz), NotifyDescriptor.INFORMATION_MESSAGE);
+                    DialogDisplayer.getDefault().notify(nd);
+                    return null;
                 }
             }
         } else {
@@ -600,6 +602,11 @@ class JavaFXActionProvider implements ActionProvider {
         }
         return targetNames;
     }
+    
+    private void proceedApplet(){
+        
+    }
+    
     private void prepareDirtyList(Properties p, boolean isExplicitBuildTarget) {
         String doDepend = project.evaluator().getProperty(JavaFXProjectProperties.DO_DEPEND);
         synchronized (this) {

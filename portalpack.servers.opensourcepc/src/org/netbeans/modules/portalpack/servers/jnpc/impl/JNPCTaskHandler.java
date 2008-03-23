@@ -140,32 +140,6 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         }
     }
 
-     protected int runProcess(String str, boolean wait) throws Exception {
-        final Process child = Runtime.getRuntime().exec(str);
-
-        LogManager manager = new LogManager(dm);
-        manager.openServerLog(child,str + System.currentTimeMillis());
-        if (wait)
-            child.waitFor();
-
-        return child.exitValue();
-
-    }
-
-    protected int runProcess(String[] cmdArray, boolean wait) throws Exception {
-        final Process child = Runtime.getRuntime().exec(cmdArray);
-
-
-        LogManager manager = new LogManager(dm);
-        manager.openServerLog(child,"" + System.currentTimeMillis());
-        if (wait)
-            child.waitFor();
-
-        return child.exitValue();
-
-    }
-
-
     public void undeploy(String portletAppName, String dn) throws Exception {
       
         _undeployFromPC(portletAppName,true);

@@ -41,6 +41,8 @@
 
 package org.netbeans.lib.javafx.lexer;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.javafx.lexer.JavaFXTokenId;
 import org.netbeans.api.lexer.PartType;
 import org.netbeans.api.lexer.Token;
@@ -60,6 +62,10 @@ import org.netbeans.spi.lexer.TokenFactory;
  * @author Victor G. Vasilyev
  */
 public abstract class JavaFXTestableLexer implements TestableLexer {
+
+    private static final boolean DEBUG = false;
+    private static final Logger LOG = DEBUG ?
+            Logger.getLogger(JavaFXTestableLexer.class.getName()) : null;
 
     private final LexerInput input;
     
@@ -96,21 +102,34 @@ public abstract class JavaFXTestableLexer implements TestableLexer {
     }
     
     public Token<JavaFXTokenId> tokenFactoryCreateToken(JavaFXTokenId id) {
+        if (DEBUG) {
+            LOG.log(Level.INFO, "new JavaFXTokenId id=[{0}]", id);
+        }
         return tokenFactory.createToken(id);
     }
 
     public Token<JavaFXTokenId> tokenFactoryCreateToken(JavaFXTokenId id,
             int tokenLenght, PartType partType) {
+        if (DEBUG) {
+            LOG.log(Level.INFO, "new JavaFXTokenId id=[{0}]", id);
+        }
         return tokenFactory.createToken(id, tokenLenght, partType);
     }
     
     public Token<JavaFXTokenId> tokenFactoryGetFlyweightToken(JavaFXTokenId id, String text) {
+        if (DEBUG) {
+            LOG.log(Level.INFO, "new JavaFXTokenId id=[{0}]", id);
+        }
         return tokenFactory.getFlyweightToken(id, text);
     }
 
 
     public Token<JavaFXTokenId> token(JavaFXTokenId id) {
         String fixedText = id.fixedText();
+        if (DEBUG) {
+            LOG.log(Level.INFO, "new JavaFXTokenId id=[{0}] fixedText =[{1}]", 
+                    new Object[] { id, fixedText });
+        }
         return (fixedText != null)
                 ? tokenFactory.getFlyweightToken(id, fixedText)
                 : tokenFactory.createToken(id);
