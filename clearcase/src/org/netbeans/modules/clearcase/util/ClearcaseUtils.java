@@ -42,23 +42,30 @@ package org.netbeans.modules.clearcase.util;
 
 import org.netbeans.modules.clearcase.*;
 import org.netbeans.modules.clearcase.ui.hijack.HijackAction;
+import org.netbeans.modules.clearcase.ui.hijack.UnhijackPanel;
 import org.netbeans.modules.versioning.spi.VCSContext;
+import org.netbeans.modules.versioning.util.Utils;
+import org.netbeans.modules.versioning.util.DialogBoundsPreserver;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.util.*;
-import org.netbeans.modules.clearcase.client.AfterCommandRefreshListener;
-import org.netbeans.modules.clearcase.client.CheckoutCommand;
-import org.netbeans.modules.clearcase.client.ClearcaseClient;
-import org.netbeans.modules.clearcase.client.OutputWindowNotificationListener;
+import java.awt.Dialog;
+
+import org.netbeans.modules.clearcase.client.*;
 import org.netbeans.modules.clearcase.client.status.FileEntry;
 import org.netbeans.modules.clearcase.client.status.ListStatus;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.DialogDescriptor;
+import org.openide.awt.Mnemonics;
 import org.openide.filesystems.FileUtil;
 import org.openide.windows.TopComponent;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
+import org.openide.util.HelpCtx;
+
+import javax.swing.*;
 
 /**
  * Clearase specific utility methods.
@@ -396,12 +403,13 @@ public class ClearcaseUtils {
         if (!canHijack && odc == ClearcaseModuleConfig.OnDemandCheckout.Hijack) {
             odc = ClearcaseModuleConfig.OnDemandCheckout.Unreserved;
         }
+        if (odc == ClearcaseModuleConfig.OnDemandCheckout.Prompt) {
+            odc = promptForAction(file);
+        }
 
         CheckoutCommand command;
         switch (odc) {
         case Disabled:
-            // XXX let the user decide if he want's to checkout the file
-            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message(NbBundle.getMessage(ClearcaseInterceptor.class, "Interceptor_NoOnDemandCheckouts_Warning"))); //NOI18N
             return 0;
         case Hijack:
             return HijackAction.hijack(file) ? IS_MUTABLE : 0; 
@@ -439,5 +447,33 @@ public class ClearcaseUtils {
         } else {
             return 0;
         }
+    }
+
+    private static ClearcaseModuleConfig.OnDemandCheckout promptForAction(File file) {
+        ClearcaseModuleConfig.OnDemandCheckout odc = ClearcaseModuleConfig.OnDemandCheckout.valueOf(ClearcaseModuleConfig.getPreferences().get("ondemandcheckout.action", ClearcaseModuleConfig.OnDemandCheckout.Reserved.toString()));
+        CheckoutActionPanel panel = new CheckoutActionPanel(file, odc);
+        
+        DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(ClearcaseUtils.class, "OnDemandCheckouts_Title")); // NOI18N
+        dd.setModal(true);
+        dd.setMessageType(DialogDescriptor.QUESTION_MESSAGE);
+        
+        dd.setOptions(new Object[] {DialogDescriptor.OK_OPTION, DialogDescriptor.CANCEL_OPTION});
+        dd.setHelpCtx(new HelpCtx(ClearcaseUtils.class));
+                
+        panel.putClientProperty("DialogDescriptor", dd); // NOI18N
+        final Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);        
+        dialog.addWindowListener(new DialogBoundsPreserver(ClearcaseModuleConfig.getPreferences(), "ondemandcheckout.dialog")); // NOI18N       
+        dialog.pack();        
+        dialog.setVisible(true);
+        
+        Object value = dd.getValue();
+        if (value != DialogDescriptor.OK_OPTION) return ClearcaseModuleConfig.OnDemandCheckout.Disabled;
+        
+        if (panel.rbHijack.isSelected()) odc = ClearcaseModuleConfig.OnDemandCheckout.Hijack; 
+        if (panel.rbReserved.isSelected()) odc = ClearcaseModuleConfig.OnDemandCheckout.Reserved; 
+        if (panel.rbUnreserved.isSelected()) odc = ClearcaseModuleConfig.OnDemandCheckout.Unreserved; 
+        
+        ClearcaseModuleConfig.getPreferences().put("ondemandcheckout.action", odc.toString());
+        return odc;
     }
 }

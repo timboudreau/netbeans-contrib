@@ -77,9 +77,16 @@ public class ClearcaseVisibilityQuery implements VisibilityQueryImplementation {
         if (file.isFolder()) {
             return !name.equals("lost+found");
         } else {
-            return !name.equals("view.dat") &&                     
-                    !updtPattern.matcher(name).matches() && 
-                    !unloadedPattern.matcher(name).matches();
+            return !name.equals("view.dat") &&                 
+                   // WARNING: 
+                   // *.mkelem are temporary files created by the mkelem command
+                   // 1.) it looks like keeping them visible causes exception - e.g. 
+                   //     java.lang.IllegalStateException: The data object .../blah/blah.mkelem is invalid
+                   //     as they are created and deleted outside of the IDE                     
+                   // 2.) there is no known need to show them at all 
+                   !name.endsWith(".mkelem") &&                                         
+                   !updtPattern.matcher(name).matches() && 
+                   !unloadedPattern.matcher(name).matches();
         }
     }
 

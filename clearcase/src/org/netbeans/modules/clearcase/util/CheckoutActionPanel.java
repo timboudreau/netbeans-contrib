@@ -38,34 +38,31 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.clearcase.ui.checkout;
+package org.netbeans.modules.clearcase.util;
 
 import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
+import org.openide.awt.Mnemonics;
+import org.openide.util.NbBundle;
+
+import java.io.File;
 
 /**
- * Uncheckout confirmation panel.
  *
  * @author Maros Sandor
  */
-public class UncheckoutPanel extends javax.swing.JPanel {
+public class CheckoutActionPanel extends javax.swing.JPanel {
     
-    private static final String UNCHECKOUT_KEEP = "uncheckout.keep";
-
-    /** Creates new form UncheckoutPanel */
-    public UncheckoutPanel() {
+    /** Creates new form CheckoutActionPanel 
+     * @param file
+     * @param odc*/
+    public CheckoutActionPanel(File file, ClearcaseModuleConfig.OnDemandCheckout odc) {
         initComponents();
+        Mnemonics.setLocalizedText(jLabel1, NbBundle.getMessage(CheckoutActionPanel.class, "CheckoutActionPanel.jLabel1.text", file.getName()));
+        rbHijack.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Hijack);
+        rbReserved.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Reserved);
+        rbUnreserved.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Unreserved);
     }
-
-    public void addNotify() {
-        super.addNotify();
-        cbKeep.setSelected(ClearcaseModuleConfig.getPreferences().getBoolean(UNCHECKOUT_KEEP, true));
-    }
-
-    public void removeNotify() {
-        ClearcaseModuleConfig.getPreferences().putBoolean(UNCHECKOUT_KEEP, cbKeep.isSelected());
-        super.removeNotify();
-    }
-
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -75,39 +72,58 @@ public class UncheckoutPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
-        cbKeep = new javax.swing.JCheckBox();
+        rbHijack = new javax.swing.JRadioButton();
+        rbReserved = new javax.swing.JRadioButton();
+        rbUnreserved = new javax.swing.JRadioButton();
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(UncheckoutPanel.class, "UncheckoutPanel.jLabel1.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(CheckoutActionPanel.class, "CheckoutActionPanel.jLabel1.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(cbKeep, org.openide.util.NbBundle.getMessage(UncheckoutPanel.class, "UncheckoutPanel.cbKeep.text")); // NOI18N
-        cbKeep.setToolTipText(org.openide.util.NbBundle.getMessage(UncheckoutPanel.class, "UncheckoutPanel.cbKeep.toolTipText")); // NOI18N
+        buttonGroup1.add(rbHijack);
+        org.openide.awt.Mnemonics.setLocalizedText(rbHijack, org.openide.util.NbBundle.getMessage(CheckoutActionPanel.class, "CheckoutActionPanel.rbHijack.text")); // NOI18N
+
+        buttonGroup1.add(rbReserved);
+        org.openide.awt.Mnemonics.setLocalizedText(rbReserved, org.openide.util.NbBundle.getMessage(CheckoutActionPanel.class, "CheckoutActionPanel.rbReserved.text")); // NOI18N
+
+        buttonGroup1.add(rbUnreserved);
+        org.openide.awt.Mnemonics.setLocalizedText(rbUnreserved, org.openide.util.NbBundle.getMessage(CheckoutActionPanel.class, "CheckoutActionPanel.rbUnreserved.text")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel1)
-                    .add(cbKeep))
-                .addContainerGap(80, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(rbHijack)
+                            .add(rbReserved)
+                            .add(rbUnreserved))))
+                .addContainerGap(49, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(jLabel1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(cbKeep))
+                .add(rbHijack)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(rbReserved)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(rbUnreserved))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-
+    
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    javax.swing.JCheckBox cbKeep;
+    javax.swing.ButtonGroup buttonGroup1;
     javax.swing.JLabel jLabel1;
+    javax.swing.JRadioButton rbHijack;
+    javax.swing.JRadioButton rbReserved;
+    javax.swing.JRadioButton rbUnreserved;
     // End of variables declaration//GEN-END:variables
-
+    
 }

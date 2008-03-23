@@ -92,6 +92,7 @@ class ClearcaseOptionsController extends OptionsPanelController {
 
     public ClearcaseModuleConfig.OnDemandCheckout getOdc() {
         if (panel.rbDisabled.isSelected()) return ClearcaseModuleConfig.OnDemandCheckout.Disabled;
+        if (panel.rbPrompt.isSelected()) return ClearcaseModuleConfig.OnDemandCheckout.Prompt;
         if (panel.rbHijack.isSelected()) return ClearcaseModuleConfig.OnDemandCheckout.Hijack;
         if (panel.rbUnreserved.isSelected()) {
             return panel.cbHijackAfterUnreserved.isSelected() ? ClearcaseModuleConfig.OnDemandCheckout.UnreservedWithFallback : ClearcaseModuleConfig.OnDemandCheckout.Unreserved;
@@ -105,6 +106,7 @@ class ClearcaseOptionsController extends OptionsPanelController {
 
     private void setOdc(ClearcaseModuleConfig.OnDemandCheckout odc) {
         panel.rbDisabled.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Disabled);
+        panel.rbPrompt.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Prompt);
         panel.rbHijack.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Hijack);
         panel.rbUnreserved.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Unreserved || odc == ClearcaseModuleConfig.OnDemandCheckout.UnreservedWithFallback);
         panel.rbReserved.setSelected(odc == ClearcaseModuleConfig.OnDemandCheckout.Reserved || odc == ClearcaseModuleConfig.OnDemandCheckout.ReservedWithHijackFallback ||

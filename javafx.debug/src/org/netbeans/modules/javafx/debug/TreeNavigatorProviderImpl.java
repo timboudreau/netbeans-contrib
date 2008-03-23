@@ -57,6 +57,8 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.Document;
 import javax.swing.text.StyleConstants;
 import org.netbeans.api.editor.settings.AttributesUtilities;
+import org.netbeans.api.javafx.source.CancellableTask;
+import org.netbeans.api.javafx.source.CompilationInfo;
 import org.netbeans.spi.editor.highlighting.support.OffsetsBag;
 import org.netbeans.spi.navigator.NavigatorPanel;
 import org.openide.cookies.EditorCookie;
@@ -86,7 +88,7 @@ public class TreeNavigatorProviderImpl implements NavigatorPanel {
         manager.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 if (ExplorerManager.PROP_SELECTED_NODES.equals(evt.getPropertyName())) {
-                    setHighlights(TreeNavigatorJavaSourceFactory.getInstance().getFile(), manager);
+                    setHighlights(TreeNavigatorJavaFXSourceFactory.getInstance().getFile(), manager);
                 }
             }
         });
@@ -129,11 +131,11 @@ public class TreeNavigatorProviderImpl implements NavigatorPanel {
     }
 
     public void panelActivated(Lookup context) {
-//        TreeNavigatorJavaSourceFactory.getInstance().setLookup(context, new TaskImpl());
+        TreeNavigatorJavaFXSourceFactory.getInstance().setLookup(context, new TaskImpl());
     }
 
     public void panelDeactivated() {
-//        TreeNavigatorJavaSourceFactory.getInstance().setLookup(Lookup.EMPTY, null);
+        TreeNavigatorJavaFXSourceFactory.getInstance().setLookup(Lookup.EMPTY, null);
     }
 
     static OffsetsBag getBag(Document doc) {
@@ -191,15 +193,15 @@ public class TreeNavigatorProviderImpl implements NavigatorPanel {
     private static final AttributeSet HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Background, new Color(224, 224, 224));
     private static final AttributeSet HIGHLIGHT_PREF = AttributesUtilities.createImmutable(StyleConstants.Underline, new Color(30, 255, 0));
     
-//    private final class TaskImpl implements CancellableTask<CompilationInfo> {
-//        
-//        public void cancel() {
-//        }
-//
-//        public void run(CompilationInfo info) {
-//            manager.setRootContext(TreeNode.getTree(info, new TreePath(info.getCompilationUnit())));
-//        }
-//        
-//    }
+    private final class TaskImpl implements CancellableTask<CompilationInfo> {
+        
+        public void cancel() {
+        }
+
+        public void run(CompilationInfo info) {
+            manager.setRootContext(TreeNode.getTree(info, new TreePath(null /*info.getCompilationUnit()*/)));
+        }
+        
+    }
     
 }
