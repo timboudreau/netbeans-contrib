@@ -1,0 +1,440 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * 
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * 
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ * 
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ */
+
+/*
+ * Definition of Scala lexical tokens.
+ * 
+ * @author Caoyuan Deng
+ */
+module org.netbeans.modules.scala.editing.rats.ParserScala;
+
+import org.netbeans.modules.scala.editing.rats.Character;
+import org.netbeans.modules.scala.editing.rats.Identifier;
+import org.netbeans.modules.scala.editing.rats.Keyword;
+import org.netbeans.modules.scala.editing.rats.Literal;
+import org.netbeans.modules.scala.editing.rats.Spacing;
+import org.netbeans.modules.scala.editing.rats.Symbol;
+import org.netbeans.modules.scala.editing.rats.Xml;
+
+option flatten;
+
+transient generic XmlExpr =
+  &( ' ' / "(" / "{" ) ( Ws / Separator ) XmlElement ;
+
+transient generic Literal =
+  "-" IntegerLiteral
+/ "-" FloatingPointLiteral
+/ BooleanLiteral
+/ CharacterLiteral
+/ StringLiteral
+/ SymbolLiteral
+;
+
+transient generic BooleanLiteral = "true" / "false";
+transient generic NullLiteral = "null" ;
+
+transient String semi = ";" / nl+ ;
+
+generic QualId = Id ( void:"." Id )* ;
+generic Ids = Id ( void:"," Id )* ;
+
+generic Path =
+  Id ( void:"." Id )*
+/ ( Id void:"." )? "this"
+/ ( Id void:"." ) "super" ClassQualifier? "." Id
+;
+
+generic StableId = 
+  Id
+/ Path "." Id
+/ ( Id "." ) "super" ClassQualifier? "." Id
+;
+
+generic ClassQualifier = "[" Id "]";
+
+generic Type = 
+  InfixType "=>" Type
+/ "(" ( void:"=>" Type )? ")" "=>" Type
+/ InfixType ExistentialClause?
+;
+
+generic ExistentialClause = "forSome" "{" ExistentialDcl ( void:semi ExistentialDcl )* "}";
+
+generic ExistentialDcl = 
+  void:"type" TypeDcl
+/ void:"val"  ValDcl
+;
+
+generic InfixType = CompoundType InfixTypeRest* ;
+generic InfixTypeRest = Id void:nl? CompoundType ;
+
+generic CompoundType = 
+  AnnotType ( void:"with" AnnotType )* Refinement?
+/ Refinement
+;
+
+generic AnnotType = Annotation* SimpleType ;
+
+generic SimpleType = 
+  StableId TypeArgs* ( void:"#" Id )*
+/ Path void:"." void:"type" TypeArgs* ( void:"#" Id )*
+/ void:"(" Types void:","? void:")" TypeArgs* ( void:"#" Id )*
+;
+
+generic TypeArgs = "[" Types "]" ;
+
+generic Types = Type ( void:"," Type )* ;
+
+generic Refinement = void:nl? void:"{" RefineStat? ( void:semi RefineStat? )* void:"}" ;
+
+generic RefineStat = 
+  void:"type" TypeDef
+/ Dcl
+;
+
+generic TypePat = Type ;
+
+generic Ascription = 
+  void:":" CompoundType
+/ void:":" Annotation Annotation*
+/ void:":" "_" "*"
+;
+
+generic Expr = 
+  ( Bindings / Id ) void:"=>" Expr
+/ ExprNotFun;
+
+generic ExprNotFun = 
+  void:"if" "(" Expr ")" void:nl* Expr ( void:semi? void:"else" Expr )?
+/ void:"while" "(" Expr ")" void:nl* Expr
+/ void:"try" "{" Block "}" ( void:"catch" void:"{" CaseClauses void:"}" )? ( void:"finally" Expr )?
+/ void:"do" Expr void:semi? void:"while" void:"(" Expr void:")"
+/ void:"for" ( void:"(" Enumerators void:")" / void:"{" Enumerators void:"}" ) void:nl* void:"yield"? Expr
+/ void:"throw" Expr
+/ void:"return" Expr?
+/ ( SimpleExpr void:"." )? Id void:"=" Expr
+/ SimpleExpr ArgumentExprs void:"=" Expr
+/ PostfixExpr Ascription
+/ PostfixExpr void:"match" void:"{" CaseClauses void:"}"
+/ PostfixExpr
+;
+
+generic PostfixExpr = InfixExpr ( Id void:nl? )? ;
+
+generic InfixExpr = PrefixExpr InfixExprRest* ;
+generic InfixExprRest = Id void:nl? PrefixExpr;
+
+generic PrefixExpr = ( "-" / "+" / "~" / "!" )? SimpleExpr ;
+
+generic SimpleExpr = 
+  SimplePathExpr
+/ SimpleLiteralExpr
+/ SimpleWildCardExpr
+/ SimpleTupleExpr
+/ SimpleBlockExpr
+/ SimpleNewExpr
+/ XmlExpr
+;
+
+generic SimplePathExpr     = Path      TypeArgs? SimpleExprRest*;
+generic SimpleLiteralExpr  = Literal   TypeArgs? SimpleExprRest*;
+generic SimpleWildCardExpr = "_"       TypeArgs? SimpleExprRest*;
+generic SimpleTupleExpr    = ParenExpr TypeArgs? SimpleExprRest*;
+generic SimpleBlockExpr    = BlockExpr TypeArgs? SimpleExprRest*;
+generic SimpleNewExpr      = NewExpr   TypeArgs? SimpleExprRest*;
+
+generic SimpleExprRest = 
+  PathRest+
+/ ArgumentExprs+
+/ "_";
+
+generic PathRest = void:"." Path TypeArgs? ;
+
+generic NewExpr = void:"new" ( ClassTemplate / TemplateBody ) ;
+
+generic Exprs = Expr ( void:"," Expr )*;
+
+generic ArgumentExprs = 
+  ParenExpr
+/ nl? BlockExpr
+;
+
+generic ParenExpr = void:"(" ( Exprs void:","? )? void:")";
+
+generic BlockExpr = 
+  void:"{" CaseClauses void:"}"
+/ void:"{" Block void:"}"
+;
+
+generic Block = ( BlockStat? void:semi )* ResultExpr? ;
+
+generic BlockStat = 
+  Import
+/ void:"implicit"? Def
+/ LocalModifier* TmplDef
+/ ExprNotFun
+;
+
+generic ResultExpr = 
+  <ResultNotFun> ExprNotFun
+/ <FunResult>    ( Bindings / ResultBinding ) void:"=>" Block
+;
+
+generic ResultBinding = Id void:":" CompoundType ;
+
+generic Enumerators = Generator ( void:semi Enumerator )*;
+
+generic Enumerator = 
+  Generator
+/ Guard
+/ "val" Pattern1 "=" Expr
+;
+
+generic Generator = Pattern1 "<-" Expr Guard? ;
+
+generic CaseClauses = CaseClause CaseClause* ;
+generic CaseClause = void:"case" Pattern Guard? void:"=>" Block ;
+
+generic Guard = void:"if" PostfixExpr;
+
+generic Pattern = Pattern1 ( void:"|" Pattern1 )* ;
+
+generic Pattern1 = 
+  varid ":" TypePat
+/ "_"   ":" TypePat
+/ Pattern2
+;
+
+generic Pattern2 = 
+  varid ( void:"@" Pattern3 )?
+/ Pattern3
+;
+
+generic Pattern3 = 
+  SimplePattern Pattern3Rest+
+/ SimplePattern
+;
+generic Pattern3Rest = Id void:nl? SimplePattern ;
+
+generic SimplePattern = 
+  "_":Keyword
+/ Literal
+/ TuplePattern
+/ StableId TuplePattern
+/ StableId void:"(" ( Patterns void:","  )? void:"_" void:"*" void:")"
+/ StableId
+/ varid
+;
+
+generic TuplePattern = void:"(" ( Patterns void:","? )? void:")" ;
+
+generic Patterns = 
+  Pattern ( void:"," Pattern )*
+/ "_" "*"
+;
+
+generic TypeParamClause = "[" VariantTypeParam ( void:"," VariantTypeParam )* "]" ;
+
+generic FunTypeParamClause = "[" TypeParam ( void:"," TypeParam )* "]" ;
+
+generic VariantTypeParam = ( "+" / "-" ) TypeParam ;
+
+generic TypeParam = ( Id / "_" ) TypeParamClause? ( void:">:" Type )? ( void:"<:" Type )? ( void:"<%" Type )? ;
+
+generic ParamClauses = ParamClause* ( void:nl? void:"(" void:"implicit" Params void:")" )? ;
+
+generic ParamClause = nl? "(" Params? ")" ;
+
+generic Params = Param ( void:"," Param )* ;
+
+generic Param = Annotation* Id ( void:":" ParamType )? ;
+
+generic ParamType = 
+  Type void:"*"
+/ Type
+/ "=>" Type
+;
+
+generic ClassParamClauses = ClassParamClause* ( void:nl? void:"(" void:"implicit" ClassParams void:")" )? ;
+
+generic ClassParamClause = nl? "(" ClassParams? ")" ;
+
+generic ClassParams = ClassParam ( void:"," ClassParam )* ;
+
+generic ClassParam = Annotation* ( Modifier* ( <Val> void:"val" / <Var> void:"var" ) )? Id ( void:":" ParamType )? ;
+
+generic Bindings = void:"(" Binding ( void:"," Binding )* void:")" ;
+
+generic Binding = Id ( void:":" Type )? ;
+
+generic Modifier = 
+  LocalModifier
+/ AccessModifier
+/ "override"
+;
+
+generic LocalModifier = 
+  "abstract"
+/ "final"
+/ "sealed"
+/ "implicit"
+/ "lazy"
+;
+
+generic AccessModifier = ( "private" / "protected" ) AccessQualifier? ;
+
+generic AccessQualifier = "[" ( Id / "this" ) "]" ;
+
+generic Annotation = '@' AnnotationExpr nl? ;
+
+generic AnnotationExpr = Constr ( void:nl? void:"{" NameValuePair* void:"}" )?;
+
+generic NameValuePair = "val" Id "=" PrefixExpr;
+
+generic TemplateBody = nl? "{" SelfType? TemplateStat? ( void:semi TemplateStat )* "}" ;
+
+generic TemplateStat = 
+  Import
+/ Annotation* Modifier* Def
+/ Annotation* Modifier* Dcl
+/ Expr
+;
+
+generic SelfType = 
+  Id        ( void:":" Type )? "=>"
+/ void:"this" void:":" Type    "=>"
+;
+
+generic Import = "import" ImportExpr ( void:"," ImportExpr )* ;
+
+generic ImportExpr = StableId "." ( Id / "_" / ImportSelectors );
+
+generic ImportSelectors = "{" ( ImportSelector void:"," )* ( ImportSelector / "_" ) "}" ;
+
+generic ImportSelector = Id ( void:"=>" Id / void:"=>" "_" )? ;
+
+generic Dcl = 
+  "val" ValDcl
+/ "var" VarDcl
+/ "def" FunDcl
+/ "type" void:nl* TypeDcl
+;
+
+generic ValDcl = Ids void:":" Type ;
+generic VarDcl = Ids void:":" Type ;
+generic FunDcl = FunSig ( void:":" Type )? ;
+
+generic FunSig = Id FunTypeParamClause? ParamClauses ;
+
+generic TypeDcl = Id TypeParamClause? ( void:">:" Type )? ( void:"<:" Type )? ;
+
+generic PatVarDef = 
+  "val" PatDef
+/ "var" VarDef
+;
+
+generic Def = 
+  PatVarDef
+/ void:"def" FunDef
+/ void:"type" void:nl* TypeDef
+/ TmplDef
+;
+
+generic PatDef = Pattern2 ( void:"," Pattern2 )* ( void:":" Type )? "=" Expr ;
+
+generic VarDef = 
+  PatDef
+/ Ids ":" Type "=" "_"
+;
+
+generic FunDef = 
+  FunSig ( void:":" Type )? "=" Expr
+/ FunSig nl? "{" Block "}"
+/ "this" ParamClause ParamClauses ( void:"=" ConstrExpr / void:nl? ConstrBlock ) 
+;
+
+generic TypeDef = Id TypeParamClause? void:"=" Type ;
+
+generic TmplDef =
+  "case"? "class"  ClassDef
+/ "case"? "object" ObjectDef
+/         "trait"  TraitDef
+;
+
+generic ClassDef  = Id TypeParamClause? Annotation* AccessModifier? ClassParamClauses ClassTemplateOpt ;
+generic TraitDef  = Id TypeParamClause? TraitTemplateOpt ;
+generic ObjectDef = Id ClassTemplateOpt ;
+
+generic ClassTemplateOpt = Extends ClassTemplate / ( void:"extends" TemplateBody / void:"<:" TemplateBody )? ;
+generic TraitTemplateOpt = Extends TraitTemplate / ( void:"extends" TemplateBody / void:"<:" TemplateBody )? ;
+
+generic Extends = "extends" / "<:" ;
+
+generic ClassTemplate = ( void:"{" EarlyDefs? void:"}" void:"with" )? ClassParents TemplateBody? ;
+generic TraitTemplate = ( void:"{" EarlyDefs? void:"}" void:"with" )? TraitParents TemplateBody? ;
+
+generic ClassParents = Constr    ( void:"with" AnnotType )* ;
+generic TraitParents = AnnotType ( void:"with" AnnotType )* ;
+
+generic Constr = AnnotType ArgumentExprs* ;
+
+generic EarlyDefs = EarlyDef ( void:semi EarlyDef )* ;
+generic EarlyDef = Annotation* Modifier* PatVarDef ;
+
+generic ConstrExpr = 
+  SelfInvocation
+/ ConstrBlock
+;
+
+generic ConstrBlock = "{" SelfInvocation ( void:semi BlockStat )* "}" ;
+
+generic SelfInvocation = void:"this" ArgumentExprs ArgumentExprs* ;
+
+generic TopStatSeq = TopStat? ( void:semi TopStat? )* ;
+
+generic TopStat = 
+  Annotation* Modifier* TmplDef
+/ Import
+/ Packaging
+;
+
+generic Packaging = void:"package" QualId void:nl? void:"{" TopStatSeq void:"}" ;
+
+public generic CompilationUnit = ( void:"package" QualId void:semi )? TopStatSeq;
+

@@ -56,7 +56,7 @@ option flatten;
 
 public generic Token = 
   Keyword               
-/ XmlBlock              
+/ XmlExpr              
 / BlockComment   
 / LineComment           
 / Identifier           
@@ -68,7 +68,16 @@ public generic Token =
 / EOF
 ;
 
+// ----- Literal
 
-transient generic XmlBlock =
+transient generic Literal =
+  IntegerLiteral
+/ FloatingPointLiteral
+/ CharacterLiteral
+/ StringLiteral
+/ SymbolLiteral
+;
+
+transient generic XmlExpr =
   &( ' ' / '(' / '{' ) ( Ws / Separator ) XmlElement ;
 

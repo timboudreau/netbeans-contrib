@@ -48,16 +48,6 @@ import org.netbeans.modules.scala.editing.rats.Character;
 import org.netbeans.modules.scala.editing.rats.Identifier;
 
 
-// ----- Literal
-
-transient generic Literal =
-  IntegerLiteral
-/ FloatingPointLiteral
-/ CharacterLiteral
-/ StringLiteral
-/ SymbolLiteral
-;
-
 // ----- Integer literals
 
 transient Generic IntegerLiteral = integerLiteral;

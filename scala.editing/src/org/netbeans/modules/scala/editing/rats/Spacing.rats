@@ -65,7 +65,7 @@ transient String lineComment =
 ;
 
 transient generic Nl = nl ;
-transient Generic Ws = ws ;
+transient generic Ws = ws ;
 
 transient String nl = "\r\n" / "\r" / "\n" ;
 transient String ws = ( " " / "\f" )+ ;

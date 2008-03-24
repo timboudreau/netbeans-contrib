@@ -12,7 +12,17 @@
             <arg value="-in"/>
             <arg value="${src.dir}"/>
             <arg value="LexerScala.rats"/>
-        </java>
+       </java>
+
+       <echo message="Rebuilding grammar parser... ${rats.package.dir}"/>
+       <java fork="yes"
+             dir="${src.dir}/${rats.package.dir}"
+             classname="xtc.parser.Rats"
+             classpath="${rats.jar}">
+            <arg value="-in"/>
+            <arg value="${src.dir}"/>
+            <arg value="ParserScala.rats"/>
+       </java>
     </target>
     
 </project>
