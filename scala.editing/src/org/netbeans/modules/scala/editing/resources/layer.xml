@@ -103,12 +103,10 @@
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.JsFormatter"/>
                 </file>
                 -->
-                <!--
                 <file name="parser.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Parser"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaParser"/>
                 </file>
-                -->
                 <!--
                 <file name="completion.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Completable"/>
