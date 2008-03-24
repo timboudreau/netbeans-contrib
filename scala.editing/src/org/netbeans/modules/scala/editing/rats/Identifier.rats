@@ -42,79 +42,33 @@
  * 
  * @author Caoyuan Deng
  */
-module org.netbeans.modules.scala.editing.rats.LexerXmlScala;
+module org.netbeans.modules.scala.editing.rats.Identifier;
 
-header {
-    import org.netbeans.modules.scala.editing.lexer.ScalaXmlTokenId;
-}
+import org.netbeans.modules.scala.editing.rats.Character;
 
-transient String xmlBlock =
-  &( ' ' / '(' / '{' ) ( w / separator ) XmlElement ;
-//
-transient String XmlElement =
-  XmlEmptyElemTag
-/ XmlSTag XmlContent XmlETag
+
+// ----- Identifier
+
+transient generic Identifier = id ;
+
+transient String opchar = ![\u0020\u0009\u000D\u000A0-9a-zA-Z$_()\[\]{}.`'";,] [\u0020-\u007F] ;
+
+transient String op = opchar opchar* ;
+transient String varid = lower idrest? ;
+transient String plainid = 
+  ( upper / [$_] ) idrest?
+/ varid
+/ op
 ;
 
-transient String XmlEmptyElemTag = '<' XmlName ( w XmlAttribute )* w? "/>";
-
-transient String XmlSTag = '<'  XmlName ( w XmlAttribute )* w? '>' ;
-transient String XmlETag = "</" XmlName w? '>' ;
-transient String XmlContent = 
-  XmlCharData? 
-  ( ( XmlElement 
-    / XmlReference 
-    / XmlCDSect 
-    / XmlPI 
-    / XmlComment
-    ) 
-    XmlCharData?
-  )*
+transient String id =
+  plainid
+/ [`] ( ![`] stringChar )+ [`]
 ;
 
-transient String XmlCharData =  
-  !( "]]>" ) ( ![<&] _ )+
+transient String idrest = 
+  ( letter / digit )+ ( '_' op )? 
+/ ( '_' op )
 ;
 
-transient String XmlComment = 
-  "<!--" 
-  ( !( '-' ) XmlChar
-  / '-' !( '-' ) XmlChar
-  )* 
-  "-->"
-;
 
-transient String XmlAttribute = XmlName '=' XmlAttValue ;
-transient String XmlAttValue = 
-  '"' ( ![<&"] _ / XmlReference )* '"'
-/ "'" ( ![<&'] _ / XmlReference )* "'"
-;
-
-transient String XmlReference = XmlEntityRef / XmlCharRef ;
-transient String XmlEntityRef = '&' XmlName ';' ;
-transient String XmlCharRef = 
-  "&#"  [0-9]+ ';'
-/ "&#x" [0-9a-fA-F]+ ';'
-;
-
-transient String XmlCDSect = XmlCDStart XmlCData XmlCDEnd ;
-transient String XmlCDStart = "<![CDATA[" ;
-transient String XmlCData = !( XmlChar* "]]>" XmlChar* ) XmlChar* ;
-transient String XmlCDEnd = "]]>" ;
-
-transient String XmlPI= 
-  "<?" XmlPITarget 
-  ( w
-    ( !( XmlChar* "?>" XmlChar* ) XmlChar* 
-    )
-  )?
-  "?>"
-;
-
-transient String XmlPITarget = !( ( 'X' / 'x' ) ( 'M' / 'm' ) ( 'L' / 'l' ) ) XmlName ;
-
-transient String XmlNameStartChar = ':' / [A-Z] / '_' / [a-z] ;
-transient String XmlNameChar = XmlNameStartChar / '-' / '.' / [0-9] ;
-transient String XmlName = XmlNameStartChar XmlNameChar* ;
-
-transient String XmlChar = [\u0001-\uD7FF] / [\uE000-\uFFFD] ;

@@ -42,33 +42,122 @@
  * 
  * @author Caoyuan Deng
  */
-module org.netbeans.modules.scala.editing.rats.LexerScala;
+module org.netbeans.modules.scala.editing.rats.Keyword;
 
-import org.netbeans.modules.scala.editing.rats.Character;
 import org.netbeans.modules.scala.editing.rats.Identifier;
-import org.netbeans.modules.scala.editing.rats.Keyword;
-import org.netbeans.modules.scala.editing.rats.Literal;
-import org.netbeans.modules.scala.editing.rats.Spacing;
-import org.netbeans.modules.scala.editing.rats.Symbol;
-import org.netbeans.modules.scala.editing.rats.Xml;
 
-option flatten;
+body {
+  static {
+    add(SCALA_KEYWORDS, new String[] {
+      "abstract",
+      "case",
+      "catch", 
+      "class", 
+      "def", 
+      "do", 
+      "else", 
+      "extends", 
+      "false", 
+      "final", 
+      "finally", 
+      "for", 
+      "forSome", 
+      "if", 
+      "implicit", 
+      "import", 
+      "lazy", 
+      "match", 
+      "new", 
+      "null", 
+      "object", 
+      "override", 
+      "package", 
+      "private", 
+      "protected", 
+      "requires", 
+      "return", 
+      "sealed",
+      "super",
+      "this",
+      "throw", 
+      "trait", 
+      "try", 
+      "true", 
+      "type", 
+      "val", 
+      "var", 
+      "while", 
+      "with", 
+      "yield", 
+      "_", 
+      ":", 
+      "=", 
+      "=>", 
+      "<-", 
+      "<:",
+      "<%",
+      ">:",
+      "#",
+      "@" 
+    });
+  }
+}
 
-public generic Token = 
-  Keyword               
-/ XmlBlock              
-/ BlockComment   
-/ LineComment           
-/ Identifier           
-/ Nl                   
-/ Ws                  
-/ Literal
-/ Separator
-/ Error      
-/ EOF
+option setOfString(SCALA_KEYWORDS);
+
+// ----- Keywords
+
+transient generic Keyword = keyword ;
+transient String keyword =
+  "abstract" !(idrest)
+/ "case" !(idrest)
+/ "catch" !(idrest)
+/ "class" !(idrest)
+/ "def" !(idrest)
+/ "do" !(idrest)
+/ "else" !(idrest)
+/ "extends" !(idrest)
+/ "false" !(idrest)
+/ "final" !(idrest)
+/ "finally" !(idrest)
+/ "for" !(idrest)
+/ "forSome" !(idrest)
+/ "if" !(idrest)
+/ "implicit" !(idrest)
+/ "import" !(idrest)
+/ "lazy" !(idrest)
+/ "match" !(idrest)
+/ "new" !(idrest)
+/ "null" !(idrest)
+/ "object" !(idrest)
+/ "override" !(idrest)
+/ "package" !(idrest)
+/ "private" !(idrest)
+/ "protected" !(idrest)
+/ "requires" !(idrest)
+/ "return" !(idrest)
+/ "sealed" !(idrest)
+/ "super" !(idrest)
+/ "this" !(idrest)
+/ "throw" !(idrest)
+/ "trait" !(idrest)
+/ "try" !(idrest)
+/ "true" !(idrest)
+/ "type" !(idrest)
+/ "val" !(idrest)
+/ "var" !(idrest)
+/ "while" !(idrest)
+/ "with" !(idrest)
+/ "yield" !(idrest)
+/ "_" !(idrest)
+/ ":" !(idrest)
+/ "=" !(idrest)
+/ "=>" !(idrest)
+/ "<-" !(idrest)
+/ "<:" !(idrest)
+/ "<%" !(idrest)
+/ ">:" !(idrest)
+/ "#" !(idrest)
+/ "@" !(idrest)
 ;
-
-
-transient generic XmlBlock =
-  &( ' ' / '(' / '{' ) ( Ws / Separator ) XmlElement ;
 

@@ -143,7 +143,7 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
          */
         LexerScala scanner = new LexerScala(lexerInputReader, "<current>");
         try {
-            Result r = scanner.ptoken(0);
+            Result r = scanner.pToken(0);
             if (r.hasValue()) {
                 GNode node = (GNode) r.semanticValue();
                 flattenToTokenSteam(node);

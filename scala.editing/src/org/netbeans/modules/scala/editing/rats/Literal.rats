@@ -42,33 +42,61 @@
  * 
  * @author Caoyuan Deng
  */
-module org.netbeans.modules.scala.editing.rats.LexerScala;
+module org.netbeans.modules.scala.editing.rats.Literal;
 
 import org.netbeans.modules.scala.editing.rats.Character;
 import org.netbeans.modules.scala.editing.rats.Identifier;
-import org.netbeans.modules.scala.editing.rats.Keyword;
-import org.netbeans.modules.scala.editing.rats.Literal;
-import org.netbeans.modules.scala.editing.rats.Spacing;
-import org.netbeans.modules.scala.editing.rats.Symbol;
-import org.netbeans.modules.scala.editing.rats.Xml;
 
-option flatten;
 
-public generic Token = 
-  Keyword               
-/ XmlBlock              
-/ BlockComment   
-/ LineComment           
-/ Identifier           
-/ Nl                   
-/ Ws                  
-/ Literal
-/ Separator
-/ Error      
-/ EOF
+// ----- Literal
+
+transient generic Literal =
+  IntegerLiteral
+/ FloatingPointLiteral
+/ CharacterLiteral
+/ StringLiteral
+/ SymbolLiteral
 ;
 
+// ----- Integer literals
 
-transient generic XmlBlock =
-  &( ' ' / '(' / '{' ) ( Ws / Separator ) XmlElement ;
+transient Generic IntegerLiteral = integerLiteral;
+transient String integerLiteral =
+  hexNumeral     integerTypeSuffix?     
+/ octalNumeral   integerTypeSuffix? 
+/ decimalNumeral integerTypeSuffix?
+;
+
+transient String integerTypeSuffix = [lL] ;
+
+// ----- Floating point literals
+
+transient generic FloatingPointLiteral = floatingPointLiteral ;
+transient String floatingPointLiteral =
+  digit+ '.' digit* exponent? floatTypeSuffix?
+/        '.' digit+ exponent? floatTypeSuffix?
+/ digit+            exponent  floatTypeSuffix?
+/ digit+            exponent? floatTypeSuffix
+;
+
+transient String exponent = [eE] [+\-]? digit+ ;
+
+transient String floatTypeSuffix = [fFdD] ;
+
+// ----- Character and string constants
+
+transient generic CharacterLiteral = characterLiteral ;
+transient String characterLiteral = ['] characterChar ['] ;
+
+transient generic StringLiteral = stringLiteral ;
+transient String stringLiteral = 
+  ["] ["] ["] multiLineChar* ["] ["] ["]
+/ ["] stringChar* ["] 
+;
+transient String multiLineChar = ["]? ["]? !["] _ ;
+
+// ------ Symbol constant
+
+transient generic SymbolLiteral = symbolLiteral;
+transient String symbolLiteral = ['] plainid ;
 

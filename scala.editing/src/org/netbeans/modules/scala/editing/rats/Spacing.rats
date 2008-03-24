@@ -42,33 +42,36 @@
  * 
  * @author Caoyuan Deng
  */
-module org.netbeans.modules.scala.editing.rats.LexerScala;
+module org.netbeans.modules.scala.editing.rats.Spacing;
 
-import org.netbeans.modules.scala.editing.rats.Character;
-import org.netbeans.modules.scala.editing.rats.Identifier;
-import org.netbeans.modules.scala.editing.rats.Keyword;
-import org.netbeans.modules.scala.editing.rats.Literal;
-import org.netbeans.modules.scala.editing.rats.Spacing;
-import org.netbeans.modules.scala.editing.rats.Symbol;
-import org.netbeans.modules.scala.editing.rats.Xml;
 
-option flatten;
-
-public generic Token = 
-  Keyword               
-/ XmlBlock              
-/ BlockComment   
-/ LineComment           
-/ Identifier           
-/ Nl                   
-/ Ws                  
-/ Literal
-/ Separator
-/ Error      
-/ EOF
+transient generic BlockComment = 
+  "/*" 
+  ( BlockComment
+  / blockCommentChar
+  )*
+  "*/"
 ;
 
+transient String blockCommentChar =
+  ( '*' !'/'
+  / !'*' _ 
+  )
+; 
 
-transient generic XmlBlock =
-  &( ' ' / '(' / '{' ) ( Ws / Separator ) XmlElement ;
+transient generic LineComment = lineComment ;
+transient String lineComment = 
+  "//" (![\n\r] _)*
+;
+
+transient generic Nl = nl ;
+transient Generic Ws = ws ;
+
+transient String nl = "\r\n" / "\r" / "\n" ;
+transient String ws = ( " " / "\f" )+ ;
+
+transient generic Error = error ;
+transient String error = _+ ;
+
+transient void EOF = !_ ;
 

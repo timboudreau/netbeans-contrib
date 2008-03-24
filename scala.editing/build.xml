@@ -4,7 +4,7 @@
     <import file="../../nbbuild/templates/projectized.xml"/>
     
     <target name="rats" depends="init" description="Scala Scanner">
-       <echo message="Rebuilding token scanner... ${rats.jar}"/>
+       <echo message="Rebuilding token scanner... ${rats.package.dir}"/>
        <java fork="yes"
              dir="${src.dir}/${rats.package.dir}"
              classname="xtc.parser.Rats"

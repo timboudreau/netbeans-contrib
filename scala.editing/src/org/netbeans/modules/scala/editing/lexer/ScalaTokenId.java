@@ -88,6 +88,7 @@ public enum ScalaTokenId implements TokenId {
     XmlSlashGt("xml"),
     XmlEq("separator"),
     XmlComment("comment"),
+    XmlWs("whitespace"),
     
     
     NEW("keyword"),
