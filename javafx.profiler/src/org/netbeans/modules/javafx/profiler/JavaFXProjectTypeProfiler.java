@@ -138,7 +138,7 @@ public final class JavaFXProjectTypeProfiler extends AbstractProjectTypeProfiler
     private static final String SOCKETS_CATEGORY = NbBundle.getMessage(JavaFXProjectTypeProfiler.class,
                                                                        "JavaFXProjectTypeProfiler_SocketsCategory"); // NOI18N
                                                                                                                    // -----
-    public static final ErrorManager err = ErrorManager.getDefault().getInstance("org.netbeans.modules.profiler.javafx"); // NOI18N
+    public static final ErrorManager err = ErrorManager.getDefault().getInstance("org.netbeans.modules.javafx.profiler"); // NOI18N
     private static final String JavaFX_PROJECT_NAMESPACE_40 = "http://www.netbeans.org/ns/javafx-project/1"; // NOI18N
     private static final String JavaFX_PROJECT_NAMESPACE_41 = "http://www.netbeans.org/ns/javafx-project/2"; // NOI18N
     private static final String JavaFX_PROJECT_NAMESPACE_50 = "http://www.netbeans.org/ns/javafx-project/3"; // NOI18N

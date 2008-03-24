@@ -60,7 +60,7 @@ public class JavaAppletIntegrationProvider extends AbstractIntegrationProvider {
 
     // -----
     // I18N String constants
-    private static final ResourceBundle messages = ResourceBundle.getBundle("org.netbeans.modules.profiler.javafx.Bundle"); // NOI18N
+    private static final ResourceBundle messages = ResourceBundle.getBundle("org.netbeans.modules.javafx.profiler.Bundle"); // NOI18N
     private static final String APPLET_WORKDIR_WINDOWS_MESSAGE = messages.getString("JavaAppletIntegrationProvider_AppletWorkDirWindowsMessage"); // NOI18N
     private static final String APPLET_WORKDIR_UNIXES_MESSAGE = messages.getString("JavaAppletIntegrationProvider_AppletWorkDirUnixesMessage"); // NOI18N
     private static final String OPERA_REMOTE_ATTACH_WARNING_MESSAGE = messages.getString("JavaAppletIntegrationProvider_OperaRemoteAttachWarningMessage"); // NOI18N

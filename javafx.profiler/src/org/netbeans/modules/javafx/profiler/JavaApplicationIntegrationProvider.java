@@ -60,7 +60,7 @@ public class JavaApplicationIntegrationProvider extends AbstractIntegrationProvi
 
     // -----
     // I18N String constants
-    private static final ResourceBundle messages = ResourceBundle.getBundle("org.netbeans.modules.profiler.javafx.Bundle"); // NOI18N
+    private static final ResourceBundle messages = ResourceBundle.getBundle("org.netbeans.modules.javafx.profiler.Bundle"); // NOI18N
     private static final String MANUAL_REMOTE_STEP3_MESSAGE = messages.getString("JavaApplicationIntegrationProvider_ManualRemoteStep3Message"); // NOI18N
     private static final String MANUAL_REMOTE_STEP4_MESSAGE = messages.getString("JavaApplicationIntegrationProvider_ManualRemoteStep4Message"); // NOI18N
     private static final String MANUAL_REMOTE_HINT_MESSAGE = messages.getString("JavaApplicationIntegrationProvider_ManualRemoteHintMessage"); // NOI18N
