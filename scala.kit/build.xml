@@ -4,6 +4,7 @@
     <import file="../../nbbuild/templates/projectized.xml"/>
     
     <target name="scala-build">
+	<ant dir="../../contrib/libs.xtc"/>
         <ant dir="../../contrib/languages.execution"/>
         <ant dir="../../contrib/scala.editing"/>
         <ant dir="../../contrib/scala.project"/>
@@ -20,6 +21,7 @@
         <ant dir="../../contrib/scala.project" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/scala.editing" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/languages.execution" inheritAll="false" target="clean"/>
+	<ant dir="../../contrib/libs.xtc" inheritAll="false" target="clean"/>
         <ant target="clean"/>
     </target>
 

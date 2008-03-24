@@ -1,0 +1,435 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * 
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * 
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ * 
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ */
+
+/*
+ * Definition of Scala lexical tokens.
+ * 
+ * @author Caoyuan Deng
+ */
+module org.netbeans.modules.scala.editing.rats.ParserScala;
+
+import org.netbeans.modules.scala.editing.rats.Character;
+import org.netbeans.modules.scala.editing.rats.Identifier;
+import org.netbeans.modules.scala.editing.rats.Keyword;
+import org.netbeans.modules.scala.editing.rats.Literal;
+import org.netbeans.modules.scala.editing.rats.Spacing;
+import org.netbeans.modules.scala.editing.rats.Symbol;
+import org.netbeans.modules.scala.editing.rats.Xml;
+
+option flatten;
+
+transient generic XmlExpr =
+  &( ' ' / "(" / "{" ) ( Ws / Separator ) XmlElement ;
+
+transient generic Literal =
+  "-" IntegerLiteral
+/ "-" FloatingPointLiteral
+/ BooleanLiteral
+/ CharacterLiteral
+/ StringLiteral
+/ SymbolLiteral
+;
+
+transient generic BooleanLiteral = "true" / "false";
+transient generic NullLiteral = "null" ;
+
+transient String semi = ";" / nl+ ;
+
+generic QualId = Id ( void:"." Id )* ;
+generic Ids = Id ( void:"," Id )* ;
+
+generic Path =
+  StableId
+/ ( Id void:"." )? "this"
+;
+
+generic StableId = 
+  Id ( void:"." Id )*
+/ ( Id void:"." )? "this" ( void:"." Id )*
+/ ( Id void:"." )? "super" ClassQualifier? ( void:"." Id )*
+;
+
+generic ClassQualifier = "[" Id "]";
+
+generic Type = 
+  InfixType void:"=>" Type
+/ InfixType ExistentialClause?
+/ void:"(" ( void:"=>" Type )? void:")" void:"=>" Type
+;
+
+generic ExistentialClause = "forSome" void:"{" ExistentialDcl ( void:semi ExistentialDcl )* void:"}";
+
+transient generic ExistentialDcl = 
+  void:"type" TypeDcl
+/ void:"val"  ValDcl
+;
+
+generic InfixType = CompoundType InfixTypeRest* ;
+generic InfixTypeRest = Id void:nl? CompoundType ;
+
+generic CompoundType = 
+  AnnotType ( void:"with" AnnotType )* Refinement?
+/ Refinement
+;
+
+generic AnnotType = Annotation* SimpleType ;
+
+generic SimpleType = 
+  StableId TypeArgs* ( void:"#" Id )*
+/ Path void:"." void:"type" TypeArgs* ( void:"#" Id )*
+/ void:"(" Types void:","? void:")" TypeArgs* ( void:"#" Id )*
+;
+
+transient generic TypeArgs = "[" Types "]" ;
+
+transient generic Types = Type ( void:"," Type )* ;
+
+transient generic Refinement = void:nl? void:"{" RefineStat? ( void:semi RefineStat? )* void:"}" ;
+
+generic RefineStat = 
+  void:"type" TypeDef
+/ Dcl
+;
+
+generic TypePat = Type ;
+
+generic Ascription = 
+  void:":" CompoundType
+/ void:":" Annotation Annotation*
+/ void:":" "_" "*"
+;
+
+generic Expr = 
+  ( Bindings / Id ) void:"=>" Expr
+/ ExprNotFun;
+
+generic ExprNotFun = 
+  void:"if" "(" Expr ")" void:nl* Expr ( void:semi? void:"else" Expr )?
+/ void:"while" "(" Expr ")" void:nl* Expr
+/ void:"try" "{" Block "}" ( void:"catch" void:"{" CaseClauses void:"}" )? ( void:"finally" Expr )?
+/ void:"do" Expr void:semi? void:"while" void:"(" Expr void:")"
+/ void:"for" ( void:"(" Enumerators void:")" / void:"{" Enumerators void:"}" ) void:nl* void:"yield"? Expr
+/ void:"throw" Expr
+/ void:"return" Expr?
+/ ( SimpleExpr void:"." )? Id void:"=" Expr
+/ SimpleExpr ArgumentExprs void:"=" Expr
+/ PostfixExpr Ascription
+/ PostfixExpr void:"match" void:"{" CaseClauses void:"}"
+/ PostfixExpr
+;
+
+generic PostfixExpr = InfixExpr ( Id void:nl? )? ;
+
+generic InfixExpr = PrefixExpr InfixExprRest* ;
+generic InfixExprRest = Id void:nl? PrefixExpr;
+
+generic PrefixExpr = ( "-" / "+" / "~" / "!" )? SimpleExpr ;
+
+generic SimpleExpr = 
+  SimplePathExpr
+/ SimpleLiteralExpr
+/ SimpleWildCardExpr
+/ SimpleTupleExpr
+/ SimpleBlockExpr
+/ SimpleNewExpr
+/ XmlExpr
+;
+
+transient generic SimplePathExpr     = Path      TypeArgs? SimpleExprRest*;
+transient generic SimpleLiteralExpr  = Literal   TypeArgs? SimpleExprRest*;
+transient generic SimpleWildCardExpr = "_"       TypeArgs? SimpleExprRest*;
+transient generic SimpleTupleExpr    = ParenExpr TypeArgs? SimpleExprRest*;
+transient generic SimpleBlockExpr    = BlockExpr TypeArgs? SimpleExprRest*;
+transient generic SimpleNewExpr      = NewExpr   TypeArgs? SimpleExprRest*;
+
+transient generic SimpleExprRest = 
+  PathRest+
+/ ArgumentExprs+
+/ "_";
+
+transient generic PathRest = void:"." Path TypeArgs? ;
+
+transient generic NewExpr = void:"new" ( ClassTemplate / TemplateBody ) ;
+
+transient generic Exprs = Expr ( void:"," Expr )*;
+
+generic ArgumentExprs = 
+  ParenExpr
+/ nl? BlockExpr
+;
+
+transient generic ParenExpr = void:"(" ( Exprs void:","? )? void:")";
+
+generic BlockExpr = 
+  void:"{" CaseClauses void:"}"
+/ void:"{" Block void:"}"
+;
+
+generic Block = ( BlockStat? void:semi )* ResultExpr? ;
+
+transient generic BlockStat = 
+  Import
+/ void:"implicit"? Def
+/ LocalModifier* TmplDef
+/ ExprNotFun
+;
+
+generic ResultExpr = 
+  <ResultNotFun> ExprNotFun
+/ <FunResult>    ( Bindings / ResultBinding ) void:"=>" Block
+;
+
+generic ResultBinding = Id void:":" CompoundType ;
+
+transient generic Enumerators = Generator ( void:semi Enumerator )*;
+
+transient generic Enumerator = 
+  Generator
+/ Guard
+/ "val" Pattern1 "=" Expr
+;
+
+transient generic Generator = Pattern1 "<-" Expr Guard? ;
+
+transient generic CaseClauses = CaseClause CaseClause* ;
+transient generic CaseClause = void:"case" Pattern Guard? void:"=>" Block ;
+
+transient generic Guard = void:"if" PostfixExpr;
+
+transient generic Pattern = Pattern1 ( void:"|" Pattern1 )* ;
+
+generic Pattern1 = 
+  varid ":" TypePat
+/ "_"   ":" TypePat
+/ Pattern2
+;
+
+generic Pattern2 = 
+  varid ( void:"@" Pattern3 )?
+/ Pattern3
+;
+
+transient generic Pattern3 = 
+  SimplePattern Pattern3Rest+
+/ SimplePattern
+;
+transient generic Pattern3Rest = Id void:nl? SimplePattern ;
+
+transient generic SimplePattern = 
+  "_":Keyword
+/ Literal
+/ TuplePattern
+/ StableId TuplePattern
+/ StableId
+/ varid
+;
+
+transient generic TuplePattern = void:"(" Patterns? void:")" ;
+
+transient generic Patterns = Pattern ( void:"," Pattern )* ( "," "_" "*" / "," )? ;
+
+transient generic TypeParamClause = "[" VariantTypeParam ( void:"," VariantTypeParam )* "]" ;
+
+transient generic FunTypeParamClause = "[" TypeParam ( void:"," TypeParam )* "]" ;
+
+transient generic VariantTypeParam = ( "+" / "-" ) TypeParam ;
+
+transient generic TypeParam = ( Id / "_" ) TypeParamClause? ( void:">:" Type )? ( void:"<:" Type )? ( void:"<%" Type )? ;
+
+transient generic ParamClauses = ParamClause* ( void:nl? void:"(" void:"implicit" Params void:")" )? ;
+
+transient generic ParamClause = nl? "(" Params? ")" ;
+
+transient generic Params = Param ( void:"," Param )* ;
+
+transient generic Param = Annotation* Id ( void:":" ParamType )? ;
+
+transient generic ParamType = 
+  Type void:"*"
+/ Type
+/ "=>" Type
+;
+
+generic ClassParamClauses = ClassParamClause* ( void:nl? void:"(" void:"implicit" ClassParams void:")" )? ;
+
+generic ClassParamClause = nl? "(" ClassParams? ")" ;
+
+generic ClassParams = ClassParam ( void:"," ClassParam )* ;
+
+generic ClassParam = Annotation* ( Modifier* ( <Val> void:"val" / <Var> void:"var" ) )? Id ( void:":" ParamType )? ;
+
+generic Bindings = void:"(" Binding ( void:"," Binding )* void:")" ;
+
+transient generic Binding = Id ( void:":" Type )? ;
+
+transient generic Modifier = 
+  LocalModifier
+/ AccessModifier
+/ "override"
+;
+
+transient generic LocalModifier = 
+  "abstract"
+/ "final"
+/ "sealed"
+/ "implicit"
+/ "lazy"
+;
+
+transient generic AccessModifier = ( "private" / "protected" ) AccessQualifier? ;
+
+transient generic AccessQualifier = "[" ( Id / "this" ) "]" ;
+
+generic Annotation = '@' AnnotationExpr nl? ;
+
+generic AnnotationExpr = Constr ( void:nl? void:"{" NameValuePair* void:"}" )?;
+
+generic NameValuePair = "val" Id "=" PrefixExpr;
+
+generic TemplateBody = nl? "{" SelfType? TemplateStat? ( void:semi TemplateStat )* "}" ;
+
+transient generic TemplateStat = 
+  Import
+/ Annotation* Modifier* Def
+/ Annotation* Modifier* Dcl
+/ Expr
+;
+
+transient generic SelfType = 
+  Id        ( void:":" Type )? "=>"
+/ void:"this" void:":" Type    "=>"
+;
+
+transient generic Import = "import" ImportExpr ( void:"," ImportExpr )* ;
+
+transient generic ImportExpr = StableId "." ( Id / "_" / ImportSelectors );
+
+transient generic ImportSelectors = "{" ( ImportSelector void:"," )* ( ImportSelector / "_" ) "}" ;
+
+transient generic ImportSelector = Id ( void:"=>" Id / void:"=>" "_" )? ;
+
+generic Dcl = 
+  "val" ValDcl
+/ "var" VarDcl
+/ "def" FunDcl
+/ "type" void:nl* TypeDcl
+;
+
+generic ValDcl = Ids void:":" Type ;
+generic VarDcl = Ids void:":" Type ;
+generic FunDcl = FunSig ( void:":" Type )? ;
+
+generic FunSig = Id FunTypeParamClause? ParamClauses ;
+
+generic TypeDcl = Id TypeParamClause? ( void:">:" Type )? ( void:"<:" Type )? ;
+
+generic PatVarDef = 
+  "val" PatDef
+/ "var" VarDef
+;
+
+generic Def = 
+  PatVarDef
+/ void:"def" FunDef
+/ void:"type" void:nl* TypeDef
+/ TmplDef
+;
+
+generic PatDef = Pattern2 ( void:"," Pattern2 )* ( void:":" Type )? "=" Expr ;
+
+generic VarDef = 
+  PatDef
+/ Ids ":" Type "=" "_"
+;
+
+generic FunDef = 
+  FunSig ( void:":" Type )? "=" Expr
+/ FunSig nl? "{" Block "}"
+/ "this" ParamClause ParamClauses ( void:"=" ConstrExpr / void:nl? ConstrBlock ) 
+;
+
+generic TypeDef = Id TypeParamClause? void:"=" Type ;
+
+transient generic TmplDef =
+  "case"? "class"  ClassDef
+/ "case"? "object" ObjectDef
+/         "trait"  TraitDef
+;
+
+transient generic ClassDef  = Id TypeParamClause? Annotation* AccessModifier? ClassParamClauses ClassTemplateOpt ;
+transient generic TraitDef  = Id TypeParamClause? TraitTemplateOpt ;
+transient generic ObjectDef = Id ClassTemplateOpt ;
+
+transient generic ClassTemplateOpt = Extends ClassTemplate / ( void:"extends" TemplateBody / void:"<:" TemplateBody )? ;
+transient generic TraitTemplateOpt = Extends TraitTemplate / ( void:"extends" TemplateBody / void:"<:" TemplateBody )? ;
+
+transient generic Extends = "extends" / "<:" ;
+
+transient generic ClassTemplate = ( void:"{" EarlyDefs? void:"}" void:"with" )? ClassParents TemplateBody? ;
+transient generic TraitTemplate = ( void:"{" EarlyDefs? void:"}" void:"with" )? TraitParents TemplateBody? ;
+
+transient generic ClassParents = Constr    ( void:"with" AnnotType )* ;
+transient generic TraitParents = AnnotType ( void:"with" AnnotType )* ;
+
+transient generic Constr = AnnotType ArgumentExprs* ;
+
+transient generic EarlyDefs = EarlyDef ( void:semi EarlyDef )* ;
+transient generic EarlyDef = Annotation* Modifier* PatVarDef ;
+
+transient generic ConstrExpr = 
+  SelfInvocation
+/ ConstrBlock
+;
+
+transient generic ConstrBlock = "{" SelfInvocation ( void:semi BlockStat )* "}" ;
+
+transient generic SelfInvocation = void:"this" ArgumentExprs ArgumentExprs* ;
+
+transient generic TopStatSeq = TopStat? ( void:semi TopStat? )* ;
+
+transient generic TopStat = 
+  Annotation* Modifier* TmplDef
+/ Import
+/ Packaging
+;
+
+transient generic Packaging = void:"package" QualId void:nl? void:"{" TopStatSeq void:"}" ;
+
+public generic CompilationUnit = ( void:"package" QualId void:semi )? TopStatSeq;
+
