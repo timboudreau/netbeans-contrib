@@ -38,7 +38,7 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.profiler.javafx.selector;
+package org.netbeans.modules.javafx.profiler.selector;
 
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.profiler.selector.spi.SelectionTreeBuilder;

@@ -38,7 +38,7 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.profiler.javafx;
+package org.netbeans.modules.javafx.profiler;
 
 import org.netbeans.lib.profiler.common.AttachSettings;
 import org.netbeans.lib.profiler.common.integration.IntegrationUtils;

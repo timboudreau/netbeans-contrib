@@ -38,7 +38,7 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.profiler.javafx;
+package org.netbeans.modules.javafx.profiler;
 
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;

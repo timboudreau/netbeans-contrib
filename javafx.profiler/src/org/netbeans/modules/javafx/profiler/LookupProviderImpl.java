@@ -38,7 +38,7 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.profiler.javafx;
+package org.netbeans.modules.javafx.profiler;
 
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.DataFilesProviderImplementation;
