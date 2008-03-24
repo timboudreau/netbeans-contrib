@@ -3,7 +3,7 @@
     <description>Builds, tests, and runs the project org.netbeans.modules.fortress.editing</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
     
-    <target name="rats" depends="init" description="Fortress Token">
+    <target name="rats" depends="init" description="Fortress Scanner">
        <echo message="Rebuilding token scanner... ${rats.jar}"/>
        <java fork="yes"
              dir="${src.dir}/${rats.package.dir}"

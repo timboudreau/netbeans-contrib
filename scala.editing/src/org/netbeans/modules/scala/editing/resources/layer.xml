@@ -1,145 +1,278 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
-
-Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
-
-
-The contents of this file are subject to the terms of either the GNU
-General Public License Version 2 only ("GPL") or the Common
-Development and Distribution License("CDDL") (collectively, the
-"License"). You may not use this file except in compliance with the
-License. You can obtain a copy of the License at
-http://www.netbeans.org/cddl-gplv2.html
-or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
-specific language governing permissions and limitations under the
-License.  When distributing the software, include this License Header
-Notice in each file and include the License file at
-nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
-particular file as subject to the "Classpath" exception as provided
-by Sun in the GPL Version 2 section of the License file that
-accompanied this code. If applicable, add the following below the
-License Header, with the fields enclosed by brackets [] replaced by
-your own identifying information:
-"Portions Copyrighted [year] [name of copyright owner]"
-
-Contributor(s):
-
-The Original Software is NetBeans. The Initial Developer of the Original
-Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
-Microsystems, Inc. All Rights Reserved.
-
-If you wish your version of this file to be governed by only the CDDL
-or only the GPL Version 2, indicate your decision by adding
-"[Contributor] elects to include this software in this distribution
-under the [CDDL or GPL Version 2] license." If you do not indicate a
-single choice of license, a recipient has the option to distribute
-your version of this file under either the CDDL, the GPL Version 2 or
-to extend the choice of license to its licensees as provided above.
-However, if you add GPL Version 2 code and therefore, elected the GPL
-Version 2 license, then the option applies only if the new code is
-made subject to such option by the copyright holder.
--->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-    <folder name="Navigator">
-        <folder name="Panels">
-            <folder name="text">
-                <folder name="x-scala">
-                    <file name="org-netbeans-modules-languages-features-LanguagesNavigator.instance"/>
-                </folder>
-            </folder>
-        </folder>
-    </folder>
-    
-    <folder name="Services">
-        <folder name="MIMEResolver">
-            <file name="ScalaResolver.xml" url="ScalaResolver.xml">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.resources.Bundle"/>
-                <attr name="position" intvalue="1000"/>
-            </file>
-        </folder>
-    </folder>
-    
     <folder name="Editors">
         <folder name="text">
             <folder name="x-scala">
-                <folder name="FontsColors">
-                    <folder name="NetBeans">
-                        <folder name="Defaults">
-                            <file name="FontAndColors.xml" url="FontAndColors.xml">
-                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.resources.Bundle"/>
-                            </file>
-                        </folder>
-                    </folder>
-                </folder>
-                <folder name="Popup">
-                    <file name="org-netbeans-modules-refactoring-api-ui-WhereUsedAction.instance">
-                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.refactoring.api.ui.RefactoringActionsFactory.whereUsedAction"/>
-                        <attr name="position" intvalue="700"/>
-                    </file>
-                    <file name="org-netbeans-modules-refactoring-api-ui-RSMEditorAction.instance">
-                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.refactoring.api.ui.RefactoringActionsFactory.editorSubmenuAction"/>
-                        <attr name="position" intvalue="800"/>
-                    </file>
-                    <file name="SeparatorBeforeWhereUsedAction.instance">
-                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-                        <attr name="position" intvalue="600"/>
-                    </file>
-                    <file name="SeparatorAfterSelectInPopupAction.instance">
-                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-                        <attr name="position" intvalue="900"/>
-                    </file>        
-                </folder>
-                <folder name="FoldManager">
-                    <file name="org-netbeans-modules-languages-features-LanguagesFoldManager$Factory.instance"/>
-                </folder>
-                <folder name="SideBar">
-                    <file name="org-netbeans-modules-languages-features-CodeFoldingSideBarFactory.instance">
-                        <attr name="position" intvalue="1500"/>
-                    </file>
-                </folder>
-                <folder name="UpToDateStatusProvider">
-                    <file name="org-netbeans-modules-languages-features-UpToDateStatusProviderFactoryImpl.instance"/>
-                </folder>
-                <file name="Settings.settings" url="LanguagesOptions.settings"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.resources.Bundle"/>
-                <file name="language.nbs" url="Scala.nbs">
-                    <attr name="icon" stringvalue="org/netbeans/modules/scala/editing/resources/scala16x16.png"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.Bundle"/>
+
+                <file name="language.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.scala.editing.lexer.ScalaTokenId.language"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
                 </file>
-            </folder>
-            <!--folder name="x-string">
+                
+                <!-- TODO - this should not be necessary; I'm doing this now to work around
+                    bugs in color initialization -->
                 <folder name="FontsColors">
                     <folder name="NetBeans">
                         <folder name="Defaults">
-                            <file name="FontAndColors.xml" url="FontAndColorsString.xml">
+                            <file name="coloring.xml" url="fontsColors.xml">
                                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.Bundle"/>
                             </file>
                         </folder>
                     </folder>
                 </folder>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.Bundle"/>
-                <file name="language.nbs" url="String.nbs"/>
-                <folder name="FoldManager">
-                    <file name="org-netbeans-modules-languages-features-LanguagesFoldManager$Factory.instance"/>
+                
+                <folder name="CodeTemplates">
+                    <folder name="Defaults">
+                        <file name="codetemplates.xml" url="codetemplates.xml">
+                            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.Bundle"/>
+                        </file>
+                    </folder>
                 </folder>
-                <folder name="SideBar">
-                    <file name="org-netbeans-modules-languages-features-CodeFoldingSideBarFactory.instance">
-                        <attr name="position" intvalue="1500"/>
+
+                <folder name="Keybindings">
+                    <folder name="NetBeans">
+                        <folder name="Defaults">
+                            <file name="org-netbeans-modules-scala-editing-keybindings.xml" url="DefaultKeyBindings.xml"/>
+                            <!--
+                            <file name="org-netbeans-modules-javascript-editing-keybindings-mac.xml" url="DefaultKeyBindings-Mac.xml">
+                                <attr name="nbeditor-settings-targetOS" stringvalue="OS_MAC"/>
+                            </file>
+                            -->
+                        </folder>
+                    </folder>
+                </folder>
+                <!--
+                <folder name="Popup">
+                    <file name="org-netbeans-modules-scala-editing-RunScriptAction.instance">
+                        <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.RunScriptAction"/>
+                        <attr name="position" intvalue="801"/>
                     </file>
                 </folder>
-                <folder name="UpToDateStatusProvider">
-                    <file name="org-netbeans-modules-languages-features-UpToDateStatusProviderFactoryImpl.instance"/>
-                </folder>
-            </folder-->
-        </folder>
-    </folder>
-        
-    <!--folder name="OptionsDialog">
-        <folder name="PreviewExamples">
-            <folder name="text">
-                <file name="x-scala" url="ScalaExample.scala"/>
+                -->
             </folder>
         </folder>
-    </folder-->
+    </folder>
+  
+    <!--
+    <folder name="OptionsDialog">
+        <folder name="PreviewExamples">
+            <folder name="text">
+                <file name="x-scala" url="ScalaExample"/>
+            </folder>
+        </folder>
+        <folder name="Advanced">
+            <file name="ScalaOptions.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.options.ScalaOptions"/>
+            </file>
+        </folder>                
+        <file name="JsOptions.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.modules.javascript.editing.JsOptionsCategory"/>
+            <attr name="position" intvalue="305"/>
+        </file>             
+    </folder>
+    -->
+    <!--
+    <folder name="org.netbeans.modules.javascript.editing">
+        <folder name="options">
+            <file name="Formatting.instance">
+                <attr name="position" intvalue="150"/>
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.javascript.editing.options.FormatingAdvancedOption"/>
+            </file>
+        </folder>
+    </folder>
+    -->
+    
+    <folder name="GsfPlugins">
+        <folder name="text">
+            <folder name="x-scala">
+                <file name="language.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.GsfLanguage"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaLanguage"/>
+                </file>
+                <!--
+                <file name="bracket.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.BracketCompletion"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaBracketCompleter"/>
+                </file>
+                -->
+                <!--
+                <file name="formatter.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Formatter"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.JsFormatter"/>
+                </file>
+                -->
+                <!--
+                <file name="parser.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Parser"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaParser"/>
+                </file>
+                -->
+                <!--
+                <file name="completion.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Completable"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaCodeCompletion"/>
+                </file>
+                <file name="structure.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.StructureScanner"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaStructureAnalyzer"/>
+                </file>
+                -->
+                <!--
+                <file name="indexer.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Indexer"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaIndexer"/>
+                </file>
+
+                <file name="declarationfinder.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.DeclarationFinder"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaDeclarationFinder"/>
+                </file>
+                <file name="semantic.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.SemanticAnalyzer"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaSemanticAnalyzer"/>
+                </file>
+                <file name="occurrences.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.OccurrencesFinder"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaOccurrenceFinder"/>
+                </file>
+                <file name="renamer.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.InstantRenamer"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaInstantRenamer"/>
+                </file>
+                -->
+            </folder>
+        </folder>
+    </folder>
+    
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-scala">
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/scala/editing/resources/scala16x16.png"/>
+                <attr name="iconBase" stringvalue="org/netbeans/modules/scala/editing/resources/scala16x16.png"/>
+                <folder name="Actions">
+                    <file name="OpenAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.OpenAction"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="Separator1.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="CutAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.CutAction"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>     
+                    <file name="CopyAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.CopyAction"/>
+                        <attr name="position" intvalue="400"/>
+                    </file>
+                    <file name="PasteAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.PasteAction"/>
+                        <attr name="position" intvalue="500"/>
+                    </file>
+                    <file name="Separator2.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="600"/>
+                    </file>
+                    <file name="NewAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.NewAction"/>
+                        <attr name="position" intvalue="700"/>
+                    </file>
+                    <file name="DeleteAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.DeleteAction"/>
+                        <attr name="position" intvalue="800"/>
+                    </file>
+                    <file name="RenameAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.RenameAction"/>
+                        <attr name="position" intvalue="900"/>
+                    </file>
+                    <file name="Separator3.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1000"/>
+                    </file>
+                    <file name="SaveAsTemplateAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.SaveAsTemplateAction"/>
+                        <attr name="position" intvalue="1100"/>
+                    </file>
+                    <file name="Separator4.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1200"/>
+                    </file>
+                    <file name="FileSystemAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.FileSystemAction"/>
+                        <attr name="position" intvalue="1300"/>
+                    </file>
+                    <file name="Separator5.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1400"/>
+                    </file> 
+                    <file name="ToolsAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.ToolsAction"/>
+                        <attr name="position" intvalue="1500"/>
+                    </file> 
+                    <file name="PropertiesAction.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.PropertiesAction"/>
+                        <attr name="position" intvalue="1600"/>
+                    </file> 
+                </folder>            
+            </folder>
+        </folder>
+    </folder>
+    <!--
+    <folder name="Actions">
+        <folder name="Edit">
+            <file name="org-netbeans-modules-javascript-editing-ReflowParagraphAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.javascript.editing.ReflowParagraphAction"/>
+            </file>
+        </folder>
+    </folder>
+    -->
+    <!--
+    <folder name="Templates">
+        <folder name="Other">
+            <file name="javascript.js" url="jstemplate.js">
+                <attr name="position" intvalue="400"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javascript.editing.Bundle"/>
+                <attr name="templateCategory" stringvalue="simple-files"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/javascript/editing/javascript.html"/>
+            </file>
+            <file name="json.json" url="jsontemplate.json">
+                <attr name="position" intvalue="450"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javascript.editing.Bundle"/>
+                <attr name="templateCategory" stringvalue="simple-files"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/javascript/editing/json.html"/>
+            </file>
+        </folder>
+        <folder name="JSP_Servlet">
+            <file name="javascript.shadow">
+                <attr name="originalFile" stringvalue="Templates/Other/javascript.js"/>
+                <attr name="position" intvalue="700"/>
+                <attr name="templateCategory" stringvalue="web-types"/>
+            </file>
+            <file name="json.shadow">
+                <attr name="originalFile" stringvalue="Templates/Other/json.json"/>
+                <attr name="position" intvalue="750"/>
+                <attr name="templateCategory" stringvalue="web-types"/>
+            </file>
+        </folder>
+        <folder name="Ruby">
+            <file name="javascript.shadow">
+                <attr name="originalFile" stringvalue="Templates/Other/javascript.js"/>
+                <attr name="position" intvalue="703"/>
+                <attr name="templateCategory" stringvalue="ruby"/>
+            </file>
+            <file name="json.shadow">
+                <attr name="originalFile" stringvalue="Templates/Other/json.json"/>
+                <attr name="position" intvalue="750"/>
+                <attr name="templateCategory" stringvalue="ruby"/>
+            </file>
+        </folder>
+    </folder>
+    -->
 </filesystem>
