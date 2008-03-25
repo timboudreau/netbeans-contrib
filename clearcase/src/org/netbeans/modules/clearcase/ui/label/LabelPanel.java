@@ -32,40 +32,50 @@ public class LabelPanel extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         jLabel4 = new javax.swing.JLabel();
 
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.jLabel1.text")); // NOI18N
+        jLabel1.setLabelFor(labelTextField);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.jLabel1.text")); // NOI18N
 
         labelTextField.setText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.labelTextField.text")); // NOI18N
+        labelTextField.setToolTipText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.labelTextField.toolTipText")); // NOI18N
         labelTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 labelTextFieldActionPerformed(evt);
             }
         });
 
-        browseButton.setText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.browseButton.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(browseButton, org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.browseButton.text")); // NOI18N
+        browseButton.setToolTipText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.browseButton.toolTipText")); // NOI18N
         browseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 browseButtonActionPerformed(evt);
             }
         });
 
-        jLabel2.setText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.jLabel2.text")); // NOI18N
+        jLabel2.setLabelFor(versionTextField);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.jLabel2.text")); // NOI18N
 
         versionTextField.setText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.versionTextField.text")); // NOI18N
+        versionTextField.setToolTipText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.versionTextField.toolTipText")); // NOI18N
 
-        jLabel3.setText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.jLabel3.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.jLabel3.text")); // NOI18N
 
-        recurseCheckBox.setText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.recurseCheckBox.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(recurseCheckBox, org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.recurseCheckBox.text")); // NOI18N
+        recurseCheckBox.setToolTipText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.recurseCheckBox.toolTipText")); // NOI18N
 
-        replaceCheckBox.setText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.replaceCheckBox.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(replaceCheckBox, org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.replaceCheckBox.text")); // NOI18N
+        replaceCheckBox.setToolTipText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.replaceCheckBox.toolTipText")); // NOI18N
 
-        followCheckBox.setText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.followCheckBox.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(followCheckBox, org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.followCheckBox.text")); // NOI18N
+        followCheckBox.setToolTipText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.followCheckBox.toolTipText")); // NOI18N
 
         commentTextArea.setColumns(20);
         commentTextArea.setRows(4);
+        commentTextArea.setToolTipText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.commentTextArea.toolTipText")); // NOI18N
         jScrollPane1.setViewportView(commentTextArea);
 
         recentMessagesButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/clearcase/resources/icons/recent_messages.png"))); // NOI18N
-        recentMessagesButton.setText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.recentMessagesButton.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(recentMessagesButton, org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.recentMessagesButton.text")); // NOI18N
+        recentMessagesButton.setToolTipText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.recentMessagesButton.toolTipText")); // NOI18N
         recentMessagesButton.setBorderPainted(false);
         recentMessagesButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         recentMessagesButton.addActionListener(new java.awt.event.ActionListener() {
@@ -74,7 +84,8 @@ public class LabelPanel extends javax.swing.JPanel {
             }
         });
 
-        jLabel4.setText(org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.jLabel4.text")); // NOI18N
+        jLabel4.setLabelFor(commentTextArea);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(LabelPanel.class, "LabelPanel.jLabel4.text")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -96,7 +107,7 @@ public class LabelPanel extends javax.swing.JPanel {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(layout.createSequentialGroup()
-                                .add(labelTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 347, Short.MAX_VALUE)
+                                .add(labelTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(browseButton))
                             .add(layout.createSequentialGroup()
@@ -106,7 +117,7 @@ public class LabelPanel extends javax.swing.JPanel {
                     .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 504, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(jLabel4)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 418, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 432, Short.MAX_VALUE)
                         .add(recentMessagesButton)))
                 .addContainerGap())
         );
