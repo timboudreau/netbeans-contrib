@@ -82,6 +82,9 @@ import org.openide.filesystems.FileObject;
  */
 public class JavaFieldRenameTransaction extends RenameTransaction {
 
+    // String name used by the schema2bean model to retrive the name attribute vaules
+    private final String nameAttrib = "Name"; // NOI18N
+    
     private String className;
 
     public JavaFieldRenameTransaction(java.util.Set<FileObject> files, String className, String origFieldName, String newFieldName) {
@@ -132,32 +135,32 @@ public class JavaFieldRenameTransaction extends RenameTransaction {
     private void refactoringMyClasses(MyClass[] myClazz) {
         for (int ci = 0; ci < myClazz.length; ci++) {
             MyClass myClzz = myClazz[ci];
-            String clsName = myClzz.getAttributeValue("name"); // NOI18N
+            String clsName = myClzz.getAttributeValue(nameAttrib);
             if (clsName != null && clsName.equals(className)) {
 
                 // <id name="">
                 Id id = myClzz.getId();
                 if (id != null) {
-                    String idPropName = id.getAttributeValue("Name");
+                    String idPropName = id.getAttributeValue(nameAttrib);
                     if (idPropName != null && idPropName.equals(origName)) {
-                        id.setAttributeValue("Name", newName);
+                        id.setAttributeValue(nameAttrib, newName);
                     }
                 }
 
                 // <class version="">
                 Version ver = myClzz.getVersion();
                 if (ver != null) {
-                    String versionName = ver.getAttributeValue("Name");
+                    String versionName = ver.getAttributeValue(nameAttrib);
                     if (versionName != null && versionName.equals(origName)) {
-                        ver.setAttributeValue("Name", newName);
+                        ver.setAttributeValue(nameAttrib, newName);
                     }
                 }
 
                 Timestamp tstamp = myClzz.getTimestamp();
                 if (tstamp != null) {
-                    String timestamp = tstamp.getAttributeValue("Name");
+                    String timestamp = tstamp.getAttributeValue(nameAttrib);
                     if (timestamp != null && timestamp.equals(origName)) {
-                        tstamp.setAttributeValue("Name", newName);
+                        tstamp.setAttributeValue(nameAttrib, newName);
                     }
                 }
 
@@ -178,11 +181,11 @@ public class JavaFieldRenameTransaction extends RenameTransaction {
                 refactoringSets(myClzz.getSet());
 
                 refactoringLists(myClzz.getList());
-                
+
                 refactoringArrays(myClzz.getArray());
-                
+
                 refactoringBags(myClzz.getBag());
-                
+
                 refactoringIdbags(myClzz.getIdbag());
 
                 refactoringDynamicComponents(myClzz.getDynamicComponent());
@@ -197,6 +200,127 @@ public class JavaFieldRenameTransaction extends RenameTransaction {
 
                 refactoringOneToOnes(myClzz.getOneToOne());
             }
+
+            // <class> element can have <subclass>, <joined-subclass> and/or <union-sbuclass> elements
+            refactoringSubclasses(myClzz.getSubclass());
+            refactoringJoinedSubclasses(myClzz.getJoinedSubclass());
+            refactoringUnionSubclasses(myClzz.getUnionSubclass());
+        }
+    }
+
+    private void refactoringSubclasses(Subclass[] subclazz) {
+        // <property name="">
+        for (int i = 0; i < subclazz.length; i++) {
+
+            String clsName = subclazz[i].getAttributeValue(nameAttrib);
+            if (clsName != null && clsName.equals(className)) {
+
+                refactoringProperty(subclazz[i].getProperty2());
+
+                // <join><property name="">
+                refactoringJoins(subclazz[i].getJoin());
+
+                refactoringMaps(subclazz[i].getMap());
+
+                refactoringDynamicComponents(subclazz[i].getDynamicComponent());
+
+                refactoringComponents(subclazz[i].getComponent());
+
+                refactoringSets(subclazz[i].getSet());
+
+                refactoringLists(subclazz[i].getList());
+
+                refactoringArrays(subclazz[i].getArray());
+
+                refactoringBags(subclazz[i].getBag());
+
+                refactoringIdbags(subclazz[i].getIdbag());
+
+                refactoringAnys(subclazz[i].getAny());
+
+                refactoringManyToOnes(subclazz[i].getManyToOne());
+
+                refactoringOneToOnes(subclazz[i].getOneToOne());
+            }
+
+            // <subclass> elements can be contained inside <subclass> element
+            refactoringSubclasses(subclazz[i].getSubclass());
+        }
+    }
+
+    private void refactoringJoinedSubclasses(JoinedSubclass[] joinedSubclazz) {
+        // <property name="">
+        for (int i = 0; i < joinedSubclazz.length; i++) {
+
+            String clsName = joinedSubclazz[i].getAttributeValue(nameAttrib);
+            if (clsName != null && clsName.equals(className)) {
+                refactoringProperty(joinedSubclazz[i].getProperty2());
+
+                refactoringMaps(joinedSubclazz[i].getMap());
+
+                refactoringDynamicComponents(joinedSubclazz[i].getDynamicComponent());
+
+                refactoringComponents(joinedSubclazz[i].getComponent());
+
+                refactoringSets(joinedSubclazz[i].getSet());
+
+                refactoringLists(joinedSubclazz[i].getList());
+
+                refactoringArrays(joinedSubclazz[i].getArray());
+
+                refactoringBags(joinedSubclazz[i].getBag());
+
+                refactoringIdbags(joinedSubclazz[i].getIdbag());
+
+                refactoringAnys(joinedSubclazz[i].getAny());
+
+                refactoringManyToOnes(joinedSubclazz[i].getManyToOne());
+
+                refactoringPropertiez(joinedSubclazz[i].getProperties());
+
+                refactoringOneToOnes(joinedSubclazz[i].getOneToOne());
+            }
+
+            // <joined-subclass> elements can be contained inside <joined-subclass> 
+            refactoringJoinedSubclasses(joinedSubclazz[i].getJoinedSubclass());
+        }
+    }
+
+    private void refactoringUnionSubclasses(UnionSubclass[] unionSubclazz) {
+        // <property name="">
+        for (int i = 0; i < unionSubclazz.length; i++) {
+
+            String clsName = unionSubclazz[i].getAttributeValue(nameAttrib);
+            if (clsName != null && clsName.equals(className)) {
+                refactoringProperty(unionSubclazz[i].getProperty2());
+
+                refactoringMaps(unionSubclazz[i].getMap());
+
+                refactoringDynamicComponents(unionSubclazz[i].getDynamicComponent());
+
+                refactoringComponents(unionSubclazz[i].getComponent());
+
+                refactoringSets(unionSubclazz[i].getSet());
+
+                refactoringLists(unionSubclazz[i].getList());
+
+                refactoringArrays(unionSubclazz[i].getArray());
+
+                refactoringBags(unionSubclazz[i].getBag());
+
+                refactoringIdbags(unionSubclazz[i].getIdbag());
+
+                refactoringAnys(unionSubclazz[i].getAny());
+
+                refactoringManyToOnes(unionSubclazz[i].getManyToOne());
+
+                refactoringPropertiez(unionSubclazz[i].getProperties());
+
+                refactoringOneToOnes(unionSubclazz[i].getOneToOne());
+            }
+
+            // <union-subclass> elements can be inside <union-subclass> 
+            refactoringUnionSubclasses(unionSubclazz[i].getUnionSubclass());
         }
     }
 
@@ -206,9 +330,9 @@ public class JavaFieldRenameTransaction extends RenameTransaction {
         }
 
         if (compositeId != null) {
-            String compositeIdPropName = compositeId.getAttributeValue("Name");
+            String compositeIdPropName = compositeId.getAttributeValue(nameAttrib);
             if (compositeIdPropName != null && compositeIdPropName.equals(origName)) {
-                compositeId.setAttributeValue("Name", newName);
+                compositeId.setAttributeValue(nameAttrib, newName);
             }
 
             //<composite-id><key-property name="">
@@ -222,9 +346,9 @@ public class JavaFieldRenameTransaction extends RenameTransaction {
 
     private void refactoringKeyManyToOne(KeyManyToOne[] keyManyToOnes) {
         for (int i = 0; i < keyManyToOnes.length; i++) {
-            String name = keyManyToOnes[i].getAttributeValue("Name");
+            String name = keyManyToOnes[i].getAttributeValue(nameAttrib);
             if (name != null && name.equals(origName)) {
-                keyManyToOnes[i].setAttributeValue("Name", newName);
+                keyManyToOnes[i].setAttributeValue(nameAttrib, newName);
             }
         }
     }
@@ -232,9 +356,9 @@ public class JavaFieldRenameTransaction extends RenameTransaction {
     private void refactoringMaps(Map[] maps) {
         for (int i = 0; i < maps.length; i++) {
             // <map name="">
-            String mapName = maps[i].getAttributeValue("Name");
+            String mapName = maps[i].getAttributeValue(nameAttrib);
             if (mapName != null && mapName.equals(origName)) {
-                maps[i].setAttributeValue("Name", newName);
+                maps[i].setAttributeValue(nameAttrib, newName);
             }
 
             CompositeMapKey mKey = maps[i].getCompositeMapKey();
@@ -255,120 +379,11 @@ public class JavaFieldRenameTransaction extends RenameTransaction {
 
     private void refactoringKeyProperty(KeyProperty[] keyProps) {
         for (int i = 0; i < keyProps.length; i++) {
-            String keyPropName = keyProps[i].getAttributeValue("Name");
+            String keyPropName = keyProps[i].getAttributeValue(nameAttrib);
             if (keyPropName != null && keyPropName.equals(origName)) {
-                keyProps[i].setAttributeValue("Name", newName);
+                keyProps[i].setAttributeValue(nameAttrib, newName);
             }
         }
-    }
-
-    private void refactoringSubclasses(Subclass[] subclazz) {
-        // <property name="">
-        for (int i = 0; i < subclazz.length; i++) {
-
-            String clsName = subclazz[i].getAttributeValue("Name");
-            if (clsName != null && clsName.equals(className)) {
-
-                refactoringProperty(subclazz[i].getProperty2());
-
-                // <join><property name="">
-                refactoringJoins(subclazz[i].getJoin());
-
-                refactoringMaps(subclazz[i].getMap());
-
-                refactoringDynamicComponents(subclazz[i].getDynamicComponent());
-
-                refactoringComponents(subclazz[i].getComponent());
-
-                refactoringSets(subclazz[i].getSet());
-
-                refactoringLists(subclazz[i].getList());
-                
-                refactoringArrays(subclazz[i].getArray());
-                
-                refactoringBags(subclazz[i].getBag());
-                
-                refactoringIdbags(subclazz[i].getIdbag());
-
-                refactoringAnys(subclazz[i].getAny());
-
-                refactoringManyToOnes(subclazz[i].getManyToOne());
-
-                refactoringOneToOnes(subclazz[i].getOneToOne());
-            }
-        }
-    }
-
-    private void refactoringJoinedSubclasses(JoinedSubclass[] joinedSubclazz) {
-        // <property name="">
-        for (int i = 0; i < joinedSubclazz.length; i++) {
-
-            String clsName = joinedSubclazz[i].getAttributeValue("Name");
-            if (clsName != null && clsName.equals(className)) {
-                refactoringProperty(joinedSubclazz[i].getProperty2());
-
-                refactoringMaps(joinedSubclazz[i].getMap());
-
-                refactoringDynamicComponents(joinedSubclazz[i].getDynamicComponent());
-
-                refactoringComponents(joinedSubclazz[i].getComponent());
-
-                refactoringSets(joinedSubclazz[i].getSet());
-
-                refactoringLists(joinedSubclazz[i].getList());
-                
-                refactoringArrays(joinedSubclazz[i].getArray());
-                
-                refactoringBags(joinedSubclazz[i].getBag());
-                
-                refactoringIdbags(joinedSubclazz[i].getIdbag());
-
-                refactoringAnys(joinedSubclazz[i].getAny());
-
-                refactoringManyToOnes(joinedSubclazz[i].getManyToOne());
-
-                refactoringPropertiez(joinedSubclazz[i].getProperties());
-
-                refactoringOneToOnes(joinedSubclazz[i].getOneToOne());
-            }
-        }
-
-    }
-
-    private void refactoringUnionSubclasses(UnionSubclass[] unionSubclazz) {
-        // <property name="">
-        for (int i = 0; i < unionSubclazz.length; i++) {
-
-            String clsName = unionSubclazz[i].getAttributeValue("Name");
-            if (clsName != null && clsName.equals(className)) {
-                refactoringProperty(unionSubclazz[i].getProperty2());
-
-                refactoringMaps(unionSubclazz[i].getMap());
-
-                refactoringDynamicComponents(unionSubclazz[i].getDynamicComponent());
-
-                refactoringComponents(unionSubclazz[i].getComponent());
-
-                refactoringSets(unionSubclazz[i].getSet());
-
-                refactoringLists(unionSubclazz[i].getList());
-                
-                refactoringArrays(unionSubclazz[i].getArray());
-                
-                refactoringBags(unionSubclazz[i].getBag());
-                
-                refactoringIdbags(unionSubclazz[i].getIdbag());
-
-                refactoringAnys(unionSubclazz[i].getAny());
-
-                refactoringManyToOnes(unionSubclazz[i].getManyToOne());
-
-                refactoringPropertiez(unionSubclazz[i].getProperties());
-
-                refactoringOneToOnes(unionSubclazz[i].getOneToOne());
-            }
-        }
-
     }
 
     private void refactoringNaturalId(NaturalId nId) {
@@ -399,9 +414,9 @@ public class JavaFieldRenameTransaction extends RenameTransaction {
     private void refactoringProperty(Property[] clazzProps) {
         // <property name="">
         for (int pi = 0; pi < clazzProps.length; pi++) {
-            String propName = clazzProps[pi].getAttributeValue("name"); // NOI18N
+            String propName = clazzProps[pi].getAttributeValue(nameAttrib);
             if (propName.equals(origName)) {
-                clazzProps[pi].setAttributeValue("name", newName); // NOI18N
+                clazzProps[pi].setAttributeValue(nameAttrib, newName); 
                 break;
             }
         }
@@ -414,9 +429,9 @@ public class JavaFieldRenameTransaction extends RenameTransaction {
             refactoringMaps(thisComp.getMap());
 
             refactoringSets(thisComp.getSet());
-            
+
             refactoringArrays(thisComp.getArray());
-            
+
             refactoringBags(thisComp.getBag());
 
             refactoringAnys(thisComp.getAny());
@@ -434,9 +449,9 @@ public class JavaFieldRenameTransaction extends RenameTransaction {
             refactoringMaps(thisComp.getMap());
 
             refactoringSets(thisComp.getSet());
-            
+
             refactoringArrays(thisComp.getArray());
-            
+
             refactoringBags(thisComp.getBag());
 
             refactoringAnys(thisComp.getAny());
@@ -449,58 +464,58 @@ public class JavaFieldRenameTransaction extends RenameTransaction {
 
     private void refactoringSets(Set[] sets) {
         for (int i = 0; i < sets.length; i++) {
-            String nameValue = sets[i].getAttributeValue("Name");
+            String nameValue = sets[i].getAttributeValue(nameAttrib);
             if (nameValue != null && nameValue.equals(origName)) {
-                sets[i].setAttributeValue("Name", newName);
+                sets[i].setAttributeValue(nameAttrib, newName);
             }
-            
+
             refactoringCompositeElement(sets[i].getCompositeElement());
         }
     }
 
     private void refactoringLists(List[] lists) {
         for (int i = 0; i < lists.length; i++) {
-            String nameValue = lists[i].getAttributeValue("Name");
+            String nameValue = lists[i].getAttributeValue(nameAttrib);
             if (nameValue != null && nameValue.equals(origName)) {
-                lists[i].setAttributeValue("Name", newName);
+                lists[i].setAttributeValue(nameAttrib, newName);
             }
-            
+
             refactoringCompositeElement(lists[i].getCompositeElement());
         }
     }
 
     private void refactoringAnys(Any[] anys) {
         for (int i = 0; i < anys.length; i++) {
-            String name = anys[i].getAttributeValue("Name");
+            String name = anys[i].getAttributeValue(nameAttrib);
             if (name != null && name.equals(origName)) {
-                anys[i].setAttributeValue("Name", newName);
+                anys[i].setAttributeValue(nameAttrib, newName);
             }
         }
     }
 
     private void refactoringManyToOnes(ManyToOne[] manyToOnes) {
         for (int i = 0; i < manyToOnes.length; i++) {
-            String name = manyToOnes[i].getAttributeValue("Name");
+            String name = manyToOnes[i].getAttributeValue(nameAttrib);
             if (name != null && name.equals(origName)) {
-                manyToOnes[i].setAttributeValue("Name", newName);
+                manyToOnes[i].setAttributeValue(nameAttrib, newName);
             }
         }
     }
-    
+
     private void refactoringArrays(Array[] arrays) {
-        for( int i = 0; i < arrays.length; i ++ ) {
+        for (int i = 0; i < arrays.length; i++) {
             refactoringCompositeElement(arrays[i].getCompositeElement());
         }
     }
-    
+
     private void refactoringBags(Bag[] bags) {
-        for( int i = 0; i < bags.length; i ++ ) {
+        for (int i = 0; i < bags.length; i++) {
             refactoringCompositeElement(bags[i].getCompositeElement());
         }
     }
-    
+
     private void refactoringIdbags(Idbag[] idbags) {
-        for( int i = 0; i > idbags.length; i ++ ) {
+        for (int i = 0; i > idbags.length; i++) {
             refactoringCompositeElement(idbags[i].getCompositeElement());
         }
     }
@@ -531,9 +546,9 @@ public class JavaFieldRenameTransaction extends RenameTransaction {
 
     private void refactoringOneToOnes(OneToOne[] oneToOnes) {
         for (int i = 0; i < oneToOnes.length; i++) {
-            String name = oneToOnes[i].getAttributeValue("Name");
+            String name = oneToOnes[i].getAttributeValue(nameAttrib);
             if (name != null && name.equals(origName)) {
-                oneToOnes[i].setAttributeValue("Name", newName);
+                oneToOnes[i].setAttributeValue(nameAttrib, newName);
             }
         }
     }
