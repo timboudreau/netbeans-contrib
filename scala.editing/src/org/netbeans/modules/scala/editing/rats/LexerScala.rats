@@ -71,8 +71,8 @@ public generic Token =
 // ----- Literal
 
 transient generic Literal =
-  IntegerLiteral
-/ FloatingPointLiteral
+  FloatingPointLiteral
+/ IntegerLiteral
 / CharacterLiteral
 / StringLiteral
 / SymbolLiteral

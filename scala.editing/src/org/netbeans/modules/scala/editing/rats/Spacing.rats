@@ -64,11 +64,13 @@ transient String lineComment =
   "//" (![\n\r] _)*
 ;
 
-transient generic Nl = nl ;
-transient generic Ws = ws ;
+transient generic Nl = n ;
+transient generic Ws = w ;
 
-transient String nl = "\r\n" / "\r" / "\n" ;
-transient String ws = ( " " / "\f" )+ ;
+transient void IGNORE = ( w / lineComment / BlockComment )*;
+
+transient String n = "\r\n" / "\r" / "\n" ;
+transient String w = ( " " / "\f" )+ ;
 
 transient generic Error = error ;
 transient String error = _+ ;

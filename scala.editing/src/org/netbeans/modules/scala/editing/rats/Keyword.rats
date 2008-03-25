@@ -45,6 +45,7 @@
 module org.netbeans.modules.scala.editing.rats.Keyword;
 
 import org.netbeans.modules.scala.editing.rats.Identifier;
+import org.netbeans.modules.scala.editing.rats.Spacing;
 
 body {
   static {
@@ -107,6 +108,7 @@ option setOfString(SCALA_KEYWORDS);
 
 // ----- Keywords
 
+String key = keyword IGNORE ;
 transient generic Keyword = keyword ;
 transient String keyword =
   "abstract" !(idrest)

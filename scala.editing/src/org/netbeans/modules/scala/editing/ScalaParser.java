@@ -369,26 +369,37 @@ public class ScalaParser implements Parser {
 
         Node node = null;
         try {
+            ParseError error = null;
             Result r = parser.pCompilationUnit(0);
             if (r.hasValue()) {
                 SemanticValue v = (SemanticValue) r;
                 node = (Node) v.value;
+                if (node == null) {
+                    error = r.parseError();
+                    System.out.println("Null node!");
+                } else if (r.index < source.length()) {
+                    System.out.println("parsed index=" + r.index + ", source length=" + source.length());
+                    error = r.parseError();
+                    //error = new ParseError("Syntax Error", r.index + 1);
+                }
+                
                 //String dump = NodeUtil.dump((AbstractNode) node);
                 //System.out.println(dump);
-            } else {
+            }
+            
+            if (error != null) {
                 if (!ignoreErrors) {
                     int start = 0;
-                    ParseError e = r.parseError();
-                    if (e.index != -1) {
+                    if (error.index != -1) {
                         //Location location = parser.location(e.index);
                         //start = getOffset(context, location.line - 1, location.column);
-                        start = e.index;
+                        start = error.index;
                     }
-                    notifyError(context, "SYNTAX_ERROR", e.msg,
-                            start, start, sanitizing, Severity.ERROR, new Object[]{e.index, e});
+                    notifyError(context, "SYNTAX_ERROR", error.msg,
+                            start, start, sanitizing, Severity.ERROR, new Object[]{error.index, error});
                 }
 
-                System.err.println(r.parseError().msg);
+                System.err.println(error.msg);
             }
         } catch (IOException e) {
             e.printStackTrace();

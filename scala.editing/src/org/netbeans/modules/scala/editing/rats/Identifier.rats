@@ -45,12 +45,13 @@
 module org.netbeans.modules.scala.editing.rats.Identifier;
 
 import org.netbeans.modules.scala.editing.rats.Character;
+import org.netbeans.modules.scala.editing.rats.Spacing;
 
 
 // ----- Identifier
 
+transient generic Id = id IGNORE ;
 transient generic Identifier = id ;
-transient generic Id = id ;
 
 transient String opchar = ![\u0020\u0009\u000D\u000A0-9a-zA-Z$_()\[\]{}.`'";,] [\u0020-\u007F] ;
 
