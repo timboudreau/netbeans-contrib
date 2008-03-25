@@ -98,11 +98,14 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
         cbHijackAfterUnreserved = new javax.swing.JCheckBox();
         cbHijackAfterReserved = new javax.swing.JCheckBox();
 
+        jLabel1.setLabelFor(taExecutable);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.jLabel1.text")); // NOI18N
 
         taExecutable.setText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.taExecutable.text")); // NOI18N
+        taExecutable.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.taExecutable.toolTipText")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(bBrowse, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.bBrowse.text")); // NOI18N
+        bBrowse.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.bBrowse.toolTipText")); // NOI18N
         bBrowse.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bBrowseActionPerformed(evt);
@@ -113,6 +116,7 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
 
         buttonGroup1.add(rbDisabled);
         org.openide.awt.Mnemonics.setLocalizedText(rbDisabled, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbDisabled.text")); // NOI18N
+        rbDisabled.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbDisabled.toolTipText")); // NOI18N
         rbDisabled.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rbDisabledActionPerformed(evt);
@@ -121,6 +125,7 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
 
         buttonGroup1.add(rbPrompt);
         org.openide.awt.Mnemonics.setLocalizedText(rbPrompt, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbPrompt.text")); // NOI18N
+        rbPrompt.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbPrompt.toolTipText")); // NOI18N
         rbPrompt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rbPromptActionPerformed(evt);
@@ -129,12 +134,15 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
 
         buttonGroup1.add(rbHijack);
         org.openide.awt.Mnemonics.setLocalizedText(rbHijack, NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbHijack.text")); // NOI18N
+        rbHijack.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbHijack.toolTipText")); // NOI18N
 
         buttonGroup1.add(rbUnreserved);
         org.openide.awt.Mnemonics.setLocalizedText(rbUnreserved, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbUnreserved.text")); // NOI18N
+        rbUnreserved.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbUnreserved.toolTipText")); // NOI18N
 
         buttonGroup1.add(rbReserved);
         org.openide.awt.Mnemonics.setLocalizedText(rbReserved, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbReserved.text")); // NOI18N
+        rbReserved.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbReserved.toolTipText")); // NOI18N
         rbReserved.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rbReservedActionPerformed(evt);
@@ -142,6 +150,7 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
         });
 
         org.openide.awt.Mnemonics.setLocalizedText(cbFallback, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbFallback.text")); // NOI18N
+        cbFallback.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbFallback.toolTipText")); // NOI18N
         cbFallback.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbFallbackActionPerformed(evt);
@@ -150,9 +159,11 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.jLabel3.text")); // NOI18N
 
+        jLabel4.setLabelFor(taLabelFormat);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.jLabel4.text")); // NOI18N
 
         taLabelFormat.setText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.taLabelFormat.text")); // NOI18N
+        taLabelFormat.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.taLabelFormat.toolTipText")); // NOI18N
         taLabelFormat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 taLabelFormatActionPerformed(evt);
@@ -160,6 +171,7 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
         });
 
         org.openide.awt.Mnemonics.setLocalizedText(bAddVariable, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.bAddVariable.text")); // NOI18N
+        bAddVariable.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.bAddVariable.toolTipText")); // NOI18N
         bAddVariable.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bAddVariableActionPerformed(evt);
@@ -169,6 +181,7 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
         org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.jLabel5.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(cbCheckinViewPrivate, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbCheckinViewPrivate.text")); // NOI18N
+        cbCheckinViewPrivate.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbCheckinViewPrivate.toolTipText")); // NOI18N
         cbCheckinViewPrivate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbCheckinViewPrivateActionPerformed(evt);
@@ -176,8 +189,10 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
         });
 
         org.openide.awt.Mnemonics.setLocalizedText(cbHijackAfterUnreserved, NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbHijackAfterUnreserved.text")); // NOI18N
+        cbHijackAfterUnreserved.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbHijackAfterUnreserved.toolTipText")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(cbHijackAfterReserved, NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbHijackAfterReserved.text")); // NOI18N
+        cbHijackAfterReserved.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbHijackAfterReserved.toolTipText")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
