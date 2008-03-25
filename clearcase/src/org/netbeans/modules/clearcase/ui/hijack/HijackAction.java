@@ -126,6 +126,7 @@ public class HijackAction extends AbstractAction {
     private void performUnhijack(File [] files) {
         String contextTitle = Utils.getContextDisplayName(context);
         JButton unHijackButton = new JButton(); 
+        unHijackButton.setToolTipText(NbBundle.getMessage(HijackAction.class, "TT_UnhijackAction"));
         UnhijackPanel panel = new UnhijackPanel();
 
         panel.cbKeep.setEnabled(false);
@@ -148,6 +149,7 @@ public class HijackAction extends AbstractAction {
         panel.putClientProperty("DialogDescriptor", dd); // NOI18N
         final Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);        
         dialog.addWindowListener(new DialogBoundsPreserver(ClearcaseModuleConfig.getPreferences(), "unhijack.dialog")); // NOI18N       
+        dialog.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(HijackAction.class, "ACSD_UnhijackDialog")); // NOI18N
         dialog.pack();        
         dialog.setVisible(true);
         

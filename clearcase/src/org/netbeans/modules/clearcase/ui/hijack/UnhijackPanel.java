@@ -81,6 +81,7 @@ public class UnhijackPanel extends javax.swing.JPanel {
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(UnhijackPanel.class, "UnhijackPanel.jLabel1.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(cbKeep, org.openide.util.NbBundle.getMessage(UnhijackPanel.class, "UnhijackPanel.cbKeep.text")); // NOI18N
+        cbKeep.setToolTipText(org.openide.util.NbBundle.getMessage(UnhijackPanel.class, "UnhijackPanel.cbKeep.toolTipText")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
