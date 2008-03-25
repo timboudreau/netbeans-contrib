@@ -43,6 +43,8 @@ import com.sun.javafx.api.JavafxcTask;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javac.util.JavacFileManager;
 import com.sun.tools.javafx.api.JavafxcTool;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -53,17 +55,36 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.JTextComponent;
 import javax.tools.JavaFileObject;
+import org.netbeans.api.editor.EditorRegistry;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenHierarchyEvent;
+import org.netbeans.api.lexer.TokenHierarchyListener;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -71,6 +92,13 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
+import org.netbeans.lib.editor.util.swing.PositionRegion;
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileChangeListener;
+import org.openide.filesystems.FileEvent;
+import org.openide.filesystems.FileRenameEvent;
+import org.openide.util.RequestProcessor;
+import org.openide.util.WeakListeners;
 
 /**
  * A class representing JavaFX source.
@@ -138,6 +166,32 @@ public final class JavaFXSource {
     private JavaFXSource(ClasspathInfo cpInfo, Collection<? extends FileObject> files) throws IOException {
         this.cpInfo = cpInfo;
         this.files = Collections.unmodifiableList(new ArrayList<FileObject>(files));   //Create a defensive copy, prevent modification
+        
+        this.reparseDelay = REPARSE_DELAY;
+        this.fileChangeListener = new FileChangeListenerImpl ();
+        boolean multipleSources = this.files.size() > 1, filterAssigned = false;
+        for (Iterator<? extends FileObject> it = this.files.iterator(); it.hasNext();) {
+            FileObject file = it.next();
+            try {
+                Logger.getLogger("TIMER").log(Level.FINE, "JavaSource",
+                    new Object[] {file, this});
+                if (!multipleSources) {
+                    file.addFileChangeListener(FileUtil.weakFileChangeListener(this.fileChangeListener,file));
+                    this.assignDocumentListener(DataObject.find(file));
+                    this.dataObjectListener = new DataObjectListener(file);                                        
+                }
+            } catch (DataObjectNotFoundException donf) {
+                if (multipleSources) {
+                    LOGGER.warning("Ignoring non existent file: " + FileUtil.getFileDisplayName(file));     //NOI18N
+                    it.remove();
+                }
+                else {
+                    throw donf;
+                }
+            }
+        }
+        this.cpInfo.addChangeListener(WeakListeners.change(this.listener, this.cpInfo));
+        
     }
     
     
@@ -198,7 +252,7 @@ public final class JavaFXSource {
         return null;
     }
 
-    public void runUserActionTask( final Task<CompilationInfo> task, final boolean shared) throws IOException {
+    public void runUserActionTask( final Task<? super CompilationController> task, final boolean shared) throws IOException {
         if (task == null) {
             throw new IllegalArgumentException ("Task cannot be null");     //NOI18N
         }
@@ -306,10 +360,82 @@ out:            for (Iterator<Collection<Request>> it = finishedRequests.values(
             }
         }        
     }
+    
+    /**
+     * Not synchronized, only sets the atomic state and clears the listeners
+     *
+     */
+    private void resetStateImpl() {
+        if (!k24) {
+            Request r = rst.getAndSet(null);
+            currentRequest.cancelCompleted(r);
+            synchronized (INTERNAL_LOCK) {
+                boolean reschedule, updateIndex;
+                synchronized (this) {
+                    reschedule = (this.flags & RESCHEDULE_FINISHED_TASKS) != 0;
+                    updateIndex = (this.flags & UPDATE_INDEX) != 0;
+                    this.flags&=~(RESCHEDULE_FINISHED_TASKS|CHANGE_EXPECTED|UPDATE_INDEX);
+                }            
+                Collection<Request> cr;            
+                if (reschedule) {                
+                    if ((cr=JavaFXSource.finishedRequests.remove(this)) != null && cr.size()>0)  {
+                        JavaFXSource.requests.addAll(cr);
+                    }
+                }
+                if ((cr=JavaFXSource.waitingRequests.remove(this)) != null && cr.size()>0)  {
+                    JavaFXSource.requests.addAll(cr);
+                }
+            }          
+        }
+    }
+    
+    
+    private static final RequestProcessor RP = new RequestProcessor ("JavaSource-event-collector",1);       //NOI18N
+    
+    private final RequestProcessor.Task resetTask = RP.create(new Runnable() {
+        public void run() {
+            resetStateImpl();
+        }
+    });
+
+    private void resetState(boolean invalidate, boolean updateIndex) {
+        boolean invalid;
+        synchronized (this) {
+            invalid = (this.flags & INVALID) != 0;
+            this.flags|=CHANGE_EXPECTED;
+            if (invalidate) {
+                this.flags|=(INVALID|RESCHEDULE_FINISHED_TASKS);
+                if (this.currentInfo != null) {
+//                    this.currentInfo.setChangedMethod (changedMethod);
+                }
+            }
+            if (updateIndex) {
+                this.flags|=UPDATE_INDEX;
+            }            
+        }
+        Request r = currentRequest.getTaskToCancel (invalidate);
+        if (r != null) {
+            r.task.cancel();
+            Request oldR = rst.getAndSet(r);
+            assert oldR == null;
+        }
+        if (!k24) {
+            resetTask.schedule(reparseDelay);
+        }
+    }
+    private final AtomicReference<Request> rst = new AtomicReference<JavaFXSource.Request> ();
+    private volatile boolean k24;
 
     private int flags = 0;   
 
     private static final int INVALID = 1;
+    private static final int CHANGE_EXPECTED = INVALID<<1;
+    private static final int RESCHEDULE_FINISHED_TASKS = CHANGE_EXPECTED<<1;
+    private static final int UPDATE_INDEX = RESCHEDULE_FINISHED_TASKS<<1;
+    private static final int IS_CLASS_FILE = UPDATE_INDEX<<1;
+    
+    private static final int REPARSE_DELAY = 500;
+    private int reparseDelay;
     
     private static final Pattern excludedTasks;
     private static final Pattern includedTasks;
@@ -320,10 +446,30 @@ out:            for (Iterator<Collection<Request>> it = finishedRequests.values(
     private final static Collection<CancellableTask> toRemove = new LinkedList<CancellableTask> ();
     private final static SingleThreadFactory factory = new SingleThreadFactory ();
     private final static CurrentRequestReference currentRequest = new CurrentRequestReference ();
-//    private final static EditorRegistryListener editorRegistryListener = new EditorRegistryListener ();
-//    private final static List<DeferredTask> todo = Collections.synchronizedList(new LinkedList<DeferredTask>());    
+    private final static EditorRegistryListener editorRegistryListener = new EditorRegistryListener ();
+    private final static List<DeferredTask> todo = Collections.synchronizedList(new LinkedList<DeferredTask>());    
 //    //Only single thread can operate on the single javac
     private final static ReentrantLock javacLock = new ReentrantLock (true);
+    
+    private final FileChangeListener fileChangeListener;
+    private DocListener listener;
+    private DataObjectListener dataObjectListener;
+    
+    private CompilationController currentInfo;
+    private java.util.Stack<CompilationInfo> infoStack = new java.util.Stack<CompilationInfo> ();
+    
+    static {
+        Executors.newSingleThreadExecutor(factory).submit (new CompilationJob());
+    }  
+    private void assignDocumentListener(final DataObject od) throws IOException {
+        EditorCookie.Observable ec = od.getCookie(EditorCookie.Observable.class);            
+        if (ec != null) {
+            this.listener = new DocListener (ec);
+        } else {
+            LOGGER.log(Level.WARNING,String.format("File: %s has no EditorCookie.Observable", FileUtil.getFileDisplayName (od.getPrimaryFile())));      //NOI18N
+        }
+    }
+    
     
     private static class Request {
         private final CancellableTask<? extends CompilationInfo> task;
@@ -625,5 +771,521 @@ out:            for (Iterator<Collection<Request>> it = finishedRequests.values(
             e.printStackTrace();
         }
         includedTasks = _includedTasks;
-    }   
+    }  
+    
+    private static class CompilationJob implements Runnable {        
+        
+        @SuppressWarnings ("unchecked") //NOI18N
+        public void run () {
+            try {
+                while (true) {                   
+                    try {
+                        synchronized (INTERNAL_LOCK) {
+                            //Clean up toRemove tasks
+                            if (!toRemove.isEmpty()) {
+                                for (Iterator<Collection<Request>> it = finishedRequests.values().iterator(); it.hasNext();) {
+                                    Collection<Request> cr = it.next ();
+                                    for (Iterator<Request> it2 = cr.iterator(); it2.hasNext();) {
+                                        Request fr = it2.next();
+                                        if (toRemove.remove(fr.task)) {
+                                            it2.remove();
+                                        }
+                                    }
+                                    if (cr.size()==0) {
+                                        it.remove();
+                                    }
+                                }
+                            }
+                        }
+                        Request r = JavaFXSource.requests.poll(2,TimeUnit.SECONDS);
+                        if (r != null) {
+                            currentRequest.setCurrentTask(r);
+                            try {                            
+                                JavaFXSource js = r.JavaFXSource;
+                                if (js == null) {
+                                    assert r.phase == null;
+                                    assert r.reschedule == false;
+                                    javacLock.lock ();
+                                    try {
+                                        try {
+                                            r.task.run (null);
+                                        } finally {
+                                            currentRequest.clearCurrentTask();
+                                            boolean cancelled = requests.contains(r);
+                                            if (!cancelled) {
+                                                DeferredTask[] _todo;
+                                                synchronized (todo) {
+                                                    _todo = todo.toArray(new DeferredTask[todo.size()]);
+                                                    todo.clear();
+                                                }
+                                                for (DeferredTask rq : _todo) {
+                                                    try {
+                                                        rq.js.runUserActionTask(rq.task, rq.shared);                                                        
+                                                    } finally {
+                                                        rq.sync.taskFinished();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } catch (RuntimeException re) {
+                                        Exceptions.printStackTrace(re);
+                                    }
+                                    finally {
+                                        javacLock.unlock();
+                                    }
+                                }
+                                else {
+                                    assert js.files.size() <= 1;
+                                    boolean jsInvalid;
+                                    CompilationController ci;
+                                    synchronized (INTERNAL_LOCK) {
+                                        //jl:what does this comment mean?
+                                        //Not only the finishedRequests for the current request.JavaFXSource should be cleaned,
+                                        //it will cause a starvation
+                                        if (toRemove.remove(r.task)) {
+                                            continue;
+                                        }
+                                        synchronized (js) {                     
+                                            boolean changeExpected = (js.flags & CHANGE_EXPECTED) != 0;
+                                            if (changeExpected) {
+                                                //Skeep the task, another invalidation is comming
+                                                Collection<Request> rc = JavaFXSource.waitingRequests.get (r.JavaFXSource);
+                                                if (rc == null) {
+                                                    rc = new LinkedList<Request> ();
+                                                    JavaFXSource.waitingRequests.put (r.JavaFXSource, rc);
+                                                }
+                                                rc.add(r);
+                                                continue;
+                                            }
+                                            jsInvalid = js.currentInfo == null || (js.flags & INVALID)!=0;
+                                            ci = js.currentInfo;
+                                            
+                                        }
+                                    }
+                                    try {
+                                        //createCurrentInfo has to be out of synchronized block, it aquires an editor lock                                    
+                                        if (jsInvalid) {
+                                            ci = createCurrentInfo (js, null);
+                                            synchronized (js) {
+                                                if (js.currentInfo == null || (js.flags & INVALID) != 0) {
+                                                    js.currentInfo = ci;
+                                                    js.flags &= ~INVALID;
+                                                }
+                                                else {
+                                                    ci = js.currentInfo;
+                                                }
+                                            }
+                                        }                                    
+                                        assert ci != null;
+                                        javacLock.lock();
+                                        try {
+                                            boolean shouldCall;
+                                            try {
+                                                final Phase phase = js.moveToPhase (r.phase, ci, true);
+                                                shouldCall = phase.compareTo(r.phase)>=0;
+                                            } finally {
+                                            }                                            
+                                            if (shouldCall) {
+                                                synchronized (js) {
+                                                    shouldCall &= (js.flags & INVALID)==0;
+                                                }
+                                                if (shouldCall) {
+                                                    //The state (or greater) was reached and document was not modified during moveToPhase
+                                                    try {
+                                                        final long startTime = System.currentTimeMillis();
+                                                        final CompilationInfo clientCi = new CompilationInfo(js);
+                                                        try {
+                                                            ((CancellableTask<CompilationInfo>)r.task).run (clientCi); //XXX: How to do it in save way?
+                                                        } finally {
+//                                                            clientCi.invalidate();
+                                                        }
+                                                        final long endTime = System.currentTimeMillis();
+                                                        if (LOGGER.isLoggable(Level.FINEST)) {
+                                                            LOGGER.finest(String.format("executed task: %s in %d ms.",  //NOI18N
+                                                                r.task.getClass().toString(), (endTime-startTime)));
+                                                        }
+                                                    } catch (Exception re) {
+                                                        Exceptions.printStackTrace (re);
+                                                    }
+                                                }
+                                            }
+                                        } finally {
+                                            javacLock.unlock();
+                                        }
+
+                                        if (r.reschedule) {                                            
+                                            synchronized (INTERNAL_LOCK) {
+                                                boolean canceled = currentRequest.setCurrentTask(null);
+                                                synchronized (js) {
+                                                    if ((js.flags & INVALID)!=0 || canceled) {
+                                                        //The JavaFXSource was changed or canceled rechedule it now
+                                                        JavaFXSource.requests.add(r);
+                                                    }
+                                                    else {
+                                                        //Up to date JavaFXSource add it to the finishedRequests
+                                                        Collection<Request> rc = JavaFXSource.finishedRequests.get (r.JavaFXSource);
+                                                        if (rc == null) {
+                                                            rc = new LinkedList<Request> ();
+                                                            JavaFXSource.finishedRequests.put (r.JavaFXSource, rc);
+                                                        }
+                                                        rc.add(r);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } catch (IOException invalidFile) {
+                                        //Ideally the requests should be removed by JavaFXSourceTaskFactory and task should be put to finishedRequests,
+                                        //but the reality is different, the task cannot be put to finished request because of possible memory leak
+                                    }
+                                }
+                            } finally {
+                                currentRequest.setCurrentTask(null);                   
+                            }
+                        } 
+                    } catch (Throwable e) {
+                        if (e instanceof InterruptedException) {
+                            throw (InterruptedException)e;
+                        }
+                        else if (e instanceof ThreadDeath) {
+                            throw (ThreadDeath)e;
+                        }
+                        else {
+                            Exceptions.printStackTrace(e);
+                        }
+                    }                    
+                }
+            } catch (InterruptedException ie) {
+                ie.printStackTrace();
+                // stop the service.
+            }
+        }                        
+    }
+    
+    private class DocListener implements PropertyChangeListener, ChangeListener, TokenHierarchyListener {
+        
+        private EditorCookie.Observable ec;
+        private TokenHierarchyListener lexListener;
+        private volatile Document document;
+        
+        public DocListener (EditorCookie.Observable ec) {
+            assert ec != null;
+            this.ec = ec;
+            this.ec.addPropertyChangeListener(WeakListeners.propertyChange(this, this.ec));
+            Document doc = ec.getDocument();            
+            if (doc != null) {
+                TokenHierarchy th = TokenHierarchy.get(doc);
+                th.addTokenHierarchyListener(lexListener = WeakListeners.create(TokenHierarchyListener.class, this,th));
+                document = doc;
+            }            
+        }
+                                   
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (EditorCookie.Observable.PROP_DOCUMENT.equals(evt.getPropertyName())) {
+                Object old = evt.getOldValue();                
+                if (old instanceof Document && lexListener != null) {
+                    TokenHierarchy th = TokenHierarchy.get((Document) old);
+                    th.removeTokenHierarchyListener(lexListener);
+                    lexListener = null;
+                }                
+                Document doc = ec.getDocument();                
+                if (doc != null) {
+                    TokenHierarchy th = TokenHierarchy.get(doc);
+                    th.addTokenHierarchyListener(lexListener = WeakListeners.create(TokenHierarchyListener.class, this,th));
+                    this.document = doc;    //set before rescheduling task to avoid race condition
+                    resetState(true, false);
+                }
+                else {
+                    //reset document
+                    this.document = doc;
+                }
+            }
+        }
+
+        public void stateChanged(ChangeEvent e) {
+            JavaFXSource.this.resetState(true, false);
+        }
+        
+        public void tokenHierarchyChanged(TokenHierarchyEvent evt) {
+            JavaFXSource.this.resetState(true, true);
+        }        
+    }
+    
+    private static class EditorRegistryListener implements CaretListener, PropertyChangeListener {
+                        
+        private Request request;
+        private JTextComponent lastEditor;
+        
+        public EditorRegistryListener () {
+            EditorRegistry.addPropertyChangeListener(new PropertyChangeListener() {
+                public void propertyChange(PropertyChangeEvent evt) {
+                    editorRegistryChanged();
+                }
+            });
+            editorRegistryChanged();
+        }
+                
+        public void editorRegistryChanged() {
+            final JTextComponent editor = EditorRegistry.lastFocusedComponent();
+            if (lastEditor != editor) {
+                if (lastEditor != null) {
+                    lastEditor.removeCaretListener(this);
+                    lastEditor.removePropertyChangeListener(this);
+                    final Document doc = lastEditor.getDocument();
+                    JavaFXSource js = null;
+                    if (doc != null) {
+                        js = forDocument(doc);
+                    }
+                    if (js != null) {
+                        js.k24 = false;
+                    }                   
+                }
+                lastEditor = editor;
+                if (lastEditor != null) {                    
+                    lastEditor.addCaretListener(this);
+                    lastEditor.addPropertyChangeListener(this);
+                }
+            }
+        }
+        
+        public void caretUpdate(CaretEvent event) {
+            if (lastEditor != null) {
+                Document doc = lastEditor.getDocument();
+                if (doc != null) {
+                    JavaFXSource js = forDocument(doc);
+                    if (js != null) {
+                        js.resetState(false, false);
+                    }
+                }
+            }
+        }
+
+        public void propertyChange(final PropertyChangeEvent evt) {
+            String propName = evt.getPropertyName();
+            if ("completion-active".equals(propName)) {
+                JavaFXSource js = null;
+                final Document doc = lastEditor.getDocument();
+                if (doc != null) {
+                    js = forDocument(doc);
+                }
+                if (js != null) {
+                    Object rawValue = evt.getNewValue();
+                    assert rawValue instanceof Boolean;
+                    if (rawValue instanceof Boolean) {
+                        final boolean value = (Boolean)rawValue;
+                        if (value) {
+                            assert this.request == null;
+                            this.request = currentRequest.getTaskToCancel(false);
+                            if (this.request != null) {
+                                this.request.task.cancel();
+                            }
+                            js.k24 = true;
+                        }
+                        else {                    
+                            Request _request = this.request;
+                            this.request = null;                            
+                            js.k24 = false;
+                            js.resetTask.schedule(js.reparseDelay);
+                            currentRequest.cancelCompleted(_request);
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
+    
+    private class FileChangeListenerImpl extends FileChangeAdapter {                
+        
+        public @Override void fileChanged(final FileEvent fe) {
+            JavaFXSource.this.resetState(true, false);
+        }        
+
+        public @Override void fileRenamed(FileRenameEvent fe) {
+            JavaFXSource.this.resetState(true, false);
+        }        
+    }
+    
+    private final class DataObjectListener implements PropertyChangeListener {
+        
+        private DataObject dobj;
+        private final FileObject fobj;
+        private PropertyChangeListener wlistener;
+        
+        public DataObjectListener(FileObject fo) throws DataObjectNotFoundException {
+            this.fobj = fo;
+            this.dobj = DataObject.find(fo);
+            wlistener = WeakListeners.propertyChange(this, dobj);
+            this.dobj.addPropertyChangeListener(wlistener);
+        }
+        
+        public void propertyChange(PropertyChangeEvent pce) {
+            DataObject invalidDO = (DataObject) pce.getSource();
+            if (invalidDO != dobj)
+                return;
+            if (DataObject.PROP_VALID.equals(pce.getPropertyName())) {
+                handleInvalidDataObject(invalidDO);
+            } else if (pce.getPropertyName() == null && !dobj.isValid()) {
+                handleInvalidDataObject(invalidDO);
+            }
+        }
+        
+        private void handleInvalidDataObject(final DataObject invalidDO) {
+            RequestProcessor.getDefault().post(new Runnable() {
+                public void run() {
+                    handleInvalidDataObjectImpl(invalidDO);
+                }
+            });
+        }
+        
+        private void handleInvalidDataObjectImpl(DataObject invalidDO) {
+            invalidDO.removePropertyChangeListener(wlistener);
+            if (fobj.isValid()) {
+                // file object still exists try to find new data object
+                try {
+                    DataObject dobjNew = DataObject.find(fobj);
+                    synchronized (DataObjectListener.this) {
+                        if (dobjNew == dobj) {
+                            return;
+                        }
+                        dobj = dobjNew;
+                        dobj.addPropertyChangeListener(wlistener);
+                    }
+                    assignDocumentListener(dobjNew);
+                    resetState(true, true);
+                } catch (DataObjectNotFoundException e) {
+                    //Ignore - invalidated after fobj.isValid () was called
+                } catch (IOException ex) {
+                    // should not occur
+                    LOGGER.log(Level.SEVERE,ex.getMessage(),ex);
+                }
+            }
+        } 
+    }
+    
+    static final class DeferredTask {
+        final JavaFXSource js;
+        final Task<CompilationController> task;
+        final boolean shared;
+        final ScanSync sync;
+        
+        public DeferredTask (final JavaFXSource js, final Task<CompilationController> task, final boolean shared, final ScanSync sync) {
+            assert js != null;
+            assert task != null;
+            assert sync != null;
+            
+            this.js = js;
+            this.task = task;
+            this.shared = shared;
+            this.sync = sync;
+        }
+    }
+    static final class DocPositionRegion extends PositionRegion {
+        
+        private final Document doc;
+        
+        public DocPositionRegion (final Document doc, final int startPos, final int endPos) throws BadLocationException {
+            super (doc,startPos,endPos);
+            assert doc != null;
+            this.doc = doc;
+        }
+        
+        public Document getDocument () {
+            return this.doc;
+        }
+        
+        public String getText () {
+            final String[] result = new String[1];
+            this.doc.render(new Runnable() {
+                public void run () {
+                    try {
+                        result[0] = doc.getText(getStartOffset(), getLength());
+                    } catch (BadLocationException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
+            });
+            return result[0];
+        }
+        
+    }        
+    static final class ScanSync implements Future<Void> {
+        
+        private Task<CompilationController> task;
+        private final CountDownLatch sync;
+        private final AtomicBoolean canceled;
+        
+        public ScanSync (final Task<CompilationController> task) {
+            assert task != null;
+            this.task = task;
+            this.sync = new CountDownLatch (1);
+            this.canceled = new AtomicBoolean (false);
+        }
+
+        public boolean cancel(boolean mayInterruptIfRunning) {
+            if (this.sync.getCount() == 0) {
+                return false;
+            }
+            synchronized (todo) {
+                boolean _canceled = canceled.getAndSet(true);
+                if (!_canceled) {
+                    for (Iterator<DeferredTask> it = todo.iterator(); it.hasNext();) {
+                        DeferredTask task = it.next();
+                        if (task.task == this.task) {
+                            it.remove();
+                            return true;
+                        }
+                    }
+                }
+            }            
+            return false;
+        }
+
+        public boolean isCancelled() {
+            return this.canceled.get();
+        }
+
+        public synchronized boolean isDone() {
+            return this.sync.getCount() == 0;
+        }
+
+        public Void get() throws InterruptedException, ExecutionException {
+            this.sync.await();
+            return null;
+        }
+
+        public Void get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+            this.sync.await(timeout, unit);
+            return null;
+        }
+        
+        private void taskFinished () {
+            this.sync.countDown();
+        }            
+    }
+    /**
+     * Returns a {@link JavaSource} instance associated to the given {@link javax.swing.Document},
+     * it returns null if the {@link Document} is not
+     * associated with data type providing the {@link JavaSource}.
+     * @param doc {@link Document} for which the {@link JavaSource} should be found/created.
+     * @return {@link JavaSource} or null
+     * @throws {@link IllegalArgumentException} if doc is null
+     */
+    public static JavaFXSource forDocument(Document doc) throws IllegalArgumentException {
+        if (doc == null) {
+            throw new IllegalArgumentException ("doc == null");  //NOI18N
+        }
+        Reference<?> ref = (Reference<?>) doc.getProperty(JavaFXSource.class);
+        JavaFXSource js = ref != null ? (JavaFXSource) ref.get() : null;
+        if (js == null) {
+            Object source = doc.getProperty(Document.StreamDescriptionProperty);
+            
+            if (source instanceof DataObject) {
+                DataObject dObj = (DataObject) source;
+                if (dObj != null) {
+                    js = forFileObject(dObj.getPrimaryFile());
+                }
+            }
+        }
+        return js;
+    }
 }

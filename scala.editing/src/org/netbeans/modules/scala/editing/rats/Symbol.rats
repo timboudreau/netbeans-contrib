@@ -44,6 +44,18 @@
  */
 module org.netbeans.modules.scala.editing.rats.Symbol;
 
+import org.netbeans.modules.scala.editing.rats.Spacing;
+
+transient String sep = 
+  IGNORE_N ")":separator IGNORE
+/ IGNORE_N "]":separator IGNORE
+/ IGNORE_N "}":separator IGNORE
+/          ",":separator IGNORE 
+/          ".":separator IGNORE 
+/          ";":separator IGNORE 
+/          "[":separator IGNORE 
+/              separator IGNORE_N
+;
 
 transient generic Separator = separator ;
 transient String separator = 
@@ -56,5 +68,6 @@ transient String separator =
 / ","
 / ";"
 / "."
+/ "|"
 ;
 

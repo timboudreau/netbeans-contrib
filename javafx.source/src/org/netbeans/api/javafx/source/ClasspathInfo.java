@@ -39,6 +39,7 @@
 
 package org.netbeans.api.javafx.source;
 
+import javax.swing.event.ChangeListener;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -50,6 +51,10 @@ public class ClasspathInfo {
     static ClasspathInfo create(FileObject fileObject) {
         return new ClasspathInfo();
 //        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    void addChangeListener(ChangeListener change) {
+        // TODO
     }
 
 }
