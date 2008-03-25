@@ -64,13 +64,29 @@ transient String lineComment =
   "//" (![\n\r] _)*
 ;
 
-transient generic Nl = n ;
-transient generic Ws = w ;
+// ----- Meaningful newline
+
+transient void N = n ( w / lineComment / BlockComment )*;
+
+// ----- ignorable including nl
+
+transient void IGNORE_N = ( n / w / lineComment / BlockComment )*;
+
+// ----- Globe ignorable
 
 transient void IGNORE = ( w / lineComment / BlockComment )*;
 
+
+// ------ Spacing tokens
+
+transient generic Nl = n ;
+transient generic Ws = w ;
+
+
+// ----- Spacing elements
+
 transient String n = "\r\n" / "\r" / "\n" ;
-transient String w = ( " " / "\f" )+ ;
+transient String w = ( " " / "\f" / "\t" )+ ;
 
 transient generic Error = error ;
 transient String error = _+ ;

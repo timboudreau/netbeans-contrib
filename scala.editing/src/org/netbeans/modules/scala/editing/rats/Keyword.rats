@@ -108,9 +108,48 @@ option setOfString(SCALA_KEYWORDS);
 
 // ----- Keywords
 
-String key = keyword IGNORE ;
-transient generic Keyword = keyword ;
-transient String keyword =
+
+/*
+ * The tokens that can terminate a statement are: literals, identifiers and the following
+ * delimiters and reserved words:
+ *   this null true false return type <xmlstart> _ 
+ *   ) ] }
+ * 
+ * The tokens that can begin a statement are all Scala tokens except the following delimiters
+ * and reserved words (do not consumer following n+):
+ *   catch else extends finally forSome match requires with yield # _ = => <- <: <% >: : 
+ *   , . ; [ ) ] }
+ */
+String key =
+  IGNORE_N "this"     :keyword IGNORE_N
+/ IGNORE_N "null"     :keyword IGNORE_N
+/ IGNORE_N "true"     :keyword IGNORE_N
+/ IGNORE_N "false"    :keyword IGNORE_N
+/ IGNORE_N "return"   :keyword IGNORE_N
+/ IGNORE_N "type"     :keyword IGNORE_N
+/ IGNORE_N "_"        :keyword IGNORE
+/          "catch"    :keyword IGNORE
+/          "else"     :keyword IGNORE
+/          "extends"  :keyword IGNORE
+/          "finally"  :keyword IGNORE
+/          "forSome"  :keyword IGNORE
+/          "match"    :keyword IGNORE
+/          "requires" :keyword IGNORE
+/          "with"     :keyword IGNORE
+/          "yield"    :keyword IGNORE
+/          "=>"       :keyword IGNORE
+/          "<-"       :keyword IGNORE
+/          "<:"       :keyword IGNORE
+/          "<%"       :keyword IGNORE
+/          ">:"       :keyword IGNORE
+/          "#"        :keyword IGNORE
+/          "="        :keyword IGNORE
+/          ":"        :keyword IGNORE
+/                      keyword IGNORE_N
+;
+
+generic Keyword = keyword ;
+String keyword =
   "abstract" !(idrest)
 / "case" !(idrest)
 / "catch" !(idrest)
@@ -151,15 +190,15 @@ transient String keyword =
 / "while" !(idrest)
 / "with" !(idrest)
 / "yield" !(idrest)
-/ "_" !(idrest)
-/ ":" !(idrest)
-/ "=" !(idrest)
-/ "=>" !(idrest)
-/ "<-" !(idrest)
-/ "<:" !(idrest)
-/ "<%" !(idrest)
-/ ">:" !(idrest)
-/ "#" !(idrest)
-/ "@" !(idrest)
+/ "=>"
+/ "<-"
+/ "<:"
+/ "<%"
+/ ">:"
+/ "="
+/ "_"
+/ ":"
+/ "#" 
+/ "@" 
 ;
 

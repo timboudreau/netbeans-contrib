@@ -380,11 +380,12 @@ public class ScalaParser implements Parser {
                 } else if (r.index < source.length()) {
                     System.out.println("parsed index=" + r.index + ", source length=" + source.length());
                     error = r.parseError();
-                    //error = new ParseError("Syntax Error", r.index + 1);
                 }
                 
                 //String dump = NodeUtil.dump((AbstractNode) node);
                 //System.out.println(dump);
+            } else {
+                error = r.parseError();
             }
             
             if (error != null) {
