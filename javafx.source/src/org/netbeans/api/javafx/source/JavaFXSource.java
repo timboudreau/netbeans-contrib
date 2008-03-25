@@ -198,7 +198,7 @@ public final class JavaFXSource {
         return null;
     }
 
-    public void runUserActionTask( final Task<CompilationInfo> task, final boolean shared) throws IOException {
+    public void runUserActionTask( final Task<? super CompilationController> task, final boolean shared) throws IOException {
         if (task == null) {
             throw new IllegalArgumentException ("Task cannot be null");     //NOI18N
         }
