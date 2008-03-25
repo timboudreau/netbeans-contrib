@@ -390,8 +390,8 @@ jarsigner.storepass=${jarsigner.storepass}
     </target>
 
     <target name="build-netbeans">
-	<antcall target="build-tools-group"/>
-
+	<!-- <antcall target="build-tools-group"/>
+  -->
     <build-product dir="C_Compiler"/>
     	
                
