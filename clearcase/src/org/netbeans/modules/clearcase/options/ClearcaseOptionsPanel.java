@@ -98,11 +98,15 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
         cbHijackAfterUnreserved = new javax.swing.JCheckBox();
         cbHijackAfterReserved = new javax.swing.JCheckBox();
 
+        jLabel1.setLabelFor(taExecutable);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.jLabel1.text")); // NOI18N
 
         taExecutable.setText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.taExecutable.text")); // NOI18N
+        taExecutable.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.taExecutable.toolTipText")); // NOI18N
+        taExecutable.setMinimumSize(new java.awt.Dimension(0, 0));
 
         org.openide.awt.Mnemonics.setLocalizedText(bBrowse, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.bBrowse.text")); // NOI18N
+        bBrowse.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.bBrowse.toolTipText")); // NOI18N
         bBrowse.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bBrowseActionPerformed(evt);
@@ -113,6 +117,7 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
 
         buttonGroup1.add(rbDisabled);
         org.openide.awt.Mnemonics.setLocalizedText(rbDisabled, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbDisabled.text")); // NOI18N
+        rbDisabled.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbDisabled.toolTipText")); // NOI18N
         rbDisabled.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rbDisabledActionPerformed(evt);
@@ -121,6 +126,7 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
 
         buttonGroup1.add(rbPrompt);
         org.openide.awt.Mnemonics.setLocalizedText(rbPrompt, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbPrompt.text")); // NOI18N
+        rbPrompt.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbPrompt.toolTipText")); // NOI18N
         rbPrompt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rbPromptActionPerformed(evt);
@@ -129,12 +135,15 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
 
         buttonGroup1.add(rbHijack);
         org.openide.awt.Mnemonics.setLocalizedText(rbHijack, NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbHijack.text")); // NOI18N
+        rbHijack.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbHijack.toolTipText")); // NOI18N
 
         buttonGroup1.add(rbUnreserved);
         org.openide.awt.Mnemonics.setLocalizedText(rbUnreserved, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbUnreserved.text")); // NOI18N
+        rbUnreserved.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbUnreserved.toolTipText")); // NOI18N
 
         buttonGroup1.add(rbReserved);
         org.openide.awt.Mnemonics.setLocalizedText(rbReserved, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbReserved.text")); // NOI18N
+        rbReserved.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.rbReserved.toolTipText")); // NOI18N
         rbReserved.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rbReservedActionPerformed(evt);
@@ -142,6 +151,7 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
         });
 
         org.openide.awt.Mnemonics.setLocalizedText(cbFallback, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbFallback.text")); // NOI18N
+        cbFallback.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbFallback.toolTipText")); // NOI18N
         cbFallback.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbFallbackActionPerformed(evt);
@@ -150,9 +160,11 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.jLabel3.text")); // NOI18N
 
+        jLabel4.setLabelFor(taLabelFormat);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.jLabel4.text")); // NOI18N
 
         taLabelFormat.setText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.taLabelFormat.text")); // NOI18N
+        taLabelFormat.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.taLabelFormat.toolTipText")); // NOI18N
         taLabelFormat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 taLabelFormatActionPerformed(evt);
@@ -160,6 +172,7 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
         });
 
         org.openide.awt.Mnemonics.setLocalizedText(bAddVariable, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.bAddVariable.text")); // NOI18N
+        bAddVariable.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.bAddVariable.toolTipText")); // NOI18N
         bAddVariable.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 bAddVariableActionPerformed(evt);
@@ -169,6 +182,7 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
         org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.jLabel5.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(cbCheckinViewPrivate, org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbCheckinViewPrivate.text")); // NOI18N
+        cbCheckinViewPrivate.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbCheckinViewPrivate.toolTipText")); // NOI18N
         cbCheckinViewPrivate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cbCheckinViewPrivateActionPerformed(evt);
@@ -176,69 +190,65 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
         });
 
         org.openide.awt.Mnemonics.setLocalizedText(cbHijackAfterUnreserved, NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbHijackAfterUnreserved.text")); // NOI18N
+        cbHijackAfterUnreserved.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbHijackAfterUnreserved.toolTipText")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(cbHijackAfterReserved, NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbHijackAfterReserved.text")); // NOI18N
+        cbHijackAfterReserved.setToolTipText(org.openide.util.NbBundle.getMessage(ClearcaseOptionsPanel.class, "ClearcaseOptionsPanel.cbHijackAfterReserved.toolTipText")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(jLabel1)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(taExecutable, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 530, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(bBrowse))
-            .add(layout.createSequentialGroup()
                 .add(2, 2, 2)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(jLabel4)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(taLabelFormat, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 590, Short.MAX_VALUE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(bAddVariable))
-                            .add(layout.createSequentialGroup()
-                                .add(10, 10, 10)
-                                .add(cbCheckinViewPrivate)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
-                            .add(layout.createSequentialGroup()
-                                .add(jLabel5)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jSeparator3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 712, Short.MAX_VALUE))
-                            .add(layout.createSequentialGroup()
-                                .add(jLabel3)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jSeparator2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 667, Short.MAX_VALUE))
-                            .add(layout.createSequentialGroup()
-                                .add(10, 10, 10)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(rbHijack)
-                                    .add(rbUnreserved)
-                                    .add(layout.createSequentialGroup()
-                                        .add(21, 21, 21)
-                                        .add(cbHijackAfterUnreserved))
-                                    .add(rbReserved)
-                                    .add(layout.createSequentialGroup()
-                                        .add(21, 21, 21)
-                                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                            .add(cbHijackAfterReserved)
-                                            .add(cbFallback))))
-                                .add(363, 363, 363)))
-                        .addContainerGap())
+                        .add(10, 10, 10)
+                        .add(cbCheckinViewPrivate))
                     .add(layout.createSequentialGroup()
-                        .add(jLabel2)
+                        .add(10, 10, 10)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(rbHijack)
+                            .add(rbUnreserved)
+                            .add(layout.createSequentialGroup()
+                                .add(21, 21, 21)
+                                .add(cbHijackAfterUnreserved))
+                            .add(rbReserved)
+                            .add(layout.createSequentialGroup()
+                                .add(21, 21, 21)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(cbHijackAfterReserved)
+                                    .add(cbFallback)))))
+                    .add(layout.createSequentialGroup()
+                        .add(3, 3, 3)
+                        .add(jLabel4)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 640, Short.MAX_VALUE))
+                        .add(taLabelFormat, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 161, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(bAddVariable, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 109, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
                         .add(10, 10, 10)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(rbPrompt)
-                            .add(rbDisabled))
-                        .add(474, 474, 474))))
+                            .add(rbDisabled)))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel2)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel3)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jSeparator2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel5)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jSeparator3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE))))
+            .add(layout.createSequentialGroup()
+                .add(jLabel1)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(taExecutable, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(bBrowse))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -247,10 +257,13 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
                     .add(jLabel1)
                     .add(bBrowse)
                     .add(taExecutable, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(13, 13, 13)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(13, 13, 13)
+                        .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .add(20, 20, 20)
+                        .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(rbDisabled)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -267,27 +280,28 @@ class ClearcaseOptionsPanel extends javax.swing.JPanel {
                 .add(cbFallback)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(cbHijackAfterReserved)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel3)
                     .add(layout.createSequentialGroup()
-                        .add(6, 6, 6)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jLabel3))
+                    .add(layout.createSequentialGroup()
+                        .add(10, 10, 10)
                         .add(jSeparator2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel4)
                     .add(bAddVariable)
                     .add(taLabelFormat, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(18, 18, 18)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(layout.createSequentialGroup()
                         .add(jLabel5)
                         .add(2, 2, 2))
                     .add(layout.createSequentialGroup()
                         .add(jSeparator3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)))
                 .add(cbCheckinViewPrivate)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

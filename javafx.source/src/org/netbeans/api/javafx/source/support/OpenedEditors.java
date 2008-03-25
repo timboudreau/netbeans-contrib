@@ -195,7 +195,7 @@ class OpenedEditors implements PropertyChangeListener {
      *         contains <code>FileUtil.getMIMEType(f)</code>.
      *     </li>
      *     <li>If the <code>type</code> is not annotated with the {@link SupportedMimeTypes} annotation,
-     *         the file is supported if <code>FileUtil.getMIMEType(f) == "text/x-java"</code>.
+     *         the file is supported if <code>FileUtil.getMIMEType(f) == "text/x-fx"</code>.
      * </ul>
      *
      * @param files the list of files to filter
@@ -209,7 +209,7 @@ class OpenedEditors implements PropertyChangeListener {
         boolean            allowJavaExtension = false;
         
         if (mimeTypes == null) {
-            mimeTypes = new String[] {"text/x-java"};
+            mimeTypes = new String[] {"text/x-fx"};
             allowJavaExtension = true;
         }
         

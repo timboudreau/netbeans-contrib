@@ -145,7 +145,7 @@ public class NbServiceTagCreateAction extends WizardAction {
                 createSTNetBeans(product);
             } else if (uid.equals("glassfish")) {
                 createSTGlassFish(product, true);
-            } else if (uid.equals("sjsas")) {
+            } else if (uid.equals("ss-base")) {
                 createSTGlassFish(product, false);
             } else if (uid.equals("jdk")) {
                 jdkProduct = product;

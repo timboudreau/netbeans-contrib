@@ -102,8 +102,8 @@ public class NbRegistrationAction extends WizardAction {
                         productId = productId + "gf";
                         gfProduct = product;
                         productsToRegister.add(gfProduct);
-                    } else if (uid.equals("sjsas")) {
-                        productId = productId + "as";
+                    } else if (uid.equals("ss-base")) {
+                        productId = productId + "ss";
                         asProduct = product;
                         productsToRegister.add(asProduct);
                     }

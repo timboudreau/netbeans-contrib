@@ -390,6 +390,10 @@ jarsigner.storepass=${jarsigner.storepass}
     </target>
 
     <target name="build-netbeans">
+	<!-- <antcall target="build-tools-group"/>
+  -->
+    <build-product dir="C_Compiler"/>
+    	
                
         <echo message="BUILDING NB-BASE =========================================="/>
         <ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
@@ -406,7 +410,7 @@ jarsigner.storepass=${jarsigner.storepass}
             
             <property
                 name="release.parent.uid"
-                value=""/>
+                value="tools-group"/>
             <property
                 name="release.parent.version"
                 value=""/>
@@ -414,30 +418,6 @@ jarsigner.storepass=${jarsigner.storepass}
                 name="release.parent.platforms"
                 value=""/>
         </ant>
-     <!--
-         <ant dir="${nbi.netbeans.dir}/infra/products/native" target="release-all">
-            <property 
-                name="basedir" 
-                value="${nbi.netbeans.dir}/infra/products/native"/>
-            <property 
-                name="environment.properties" 
-                value="${environment.properties}"/>
-            
-            <property
-                name="dist.dir"
-                value="${output.dir}/components"/>
-            
-            <property
-                name="release.parent.uid"
-                value=""/>
-            <property
-                name="release.parent.version"
-                value=""/>
-            <property
-                name="release.parent.platforms"
-                value=""/>
-        </ant>
-        -->
 	<echo message="BUILDING NB-CND =========================================="/>
         <ant dir="${nbi.netbeans.dir}/infra/products/nb-cnd" target="release-all">
             <property 
@@ -486,25 +466,45 @@ jarsigner.storepass=${jarsigner.storepass}
                 value=""/>
         </ant>
 	
-        <build-product dir="C_Compiler"/>
         <build-product dir="C++_Compiler"/>
         <build-product dir="Fortran_95_Compiler"/>
         <build-product dir="DBX_Debugging_Tools"/>
         <build-product dir="build_tools"/>
         <build-product dir="X-Designer"/>
-        <build-product dir="demos"/>
-        <build-product dir="external_editors"/>
+        
+	<!--<build-product dir="demos"/>
+        --><build-product dir="external_editors"/>
         <build-product dir="support_files"/>
         <build-product dir="Performance_Library"/>
         <build-product dir="Third-party_Source"/>
-	
+     </target>
+
+      <target name="build-tools-group">
+        <echo message="BUILDING TOOLS-GROUP ==================================="/>
+        <ant dir="${nbi.netbeans.dir}/infra/groups/tools-group" target="release-all">
+            <property 
+                name="basedir" 
+                value="${nbi.netbeans.dir}/infra/groups/tools-group"/>
+            <property 
+                name="environment.properties" 
+                value="${environment.properties}"/>
+            
+            <property
+                name="release.parent.uid"
+                value=""/>
+            <property
+                name="release.parent.version"
+                value=""/>
+            <property
+                name="release.parent.platforms"
+                value=""/>
+        </ant>
      </target>
 
      <macrodef name="build-product">
          <attribute name="dir"/>
-         <sequential>
-		
-                <ant dir="${nbi.netbeans.dir}/infra/products/native" target="release-all">
+         <sequential>	
+            <ant dir="${nbi.netbeans.dir}/infra/products/native" target="release-all">
 	    <property 
                 name="build.properties" 
                 value="${nbi.netbeans.dir}/infra/products/native/@{dir}/build.properties"/>
@@ -518,7 +518,11 @@ jarsigner.storepass=${jarsigner.storepass}
             <property
                 name="dist.dir"
                 value="${output.dir}/components"/>
-            
+		<!--
+            <property
+                name="product.platforms"
+                value="solaris-x86"/>
+            -->
             <property
                 name="release.parent.uid"
                 value=""/>
@@ -533,28 +537,28 @@ jarsigner.storepass=${jarsigner.storepass}
      </macrodef>
     <target name="generate-netbeans-cpp-bundles">
         <!-- C/C++ bundles -->
-        <!--
+        
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="linux" 
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-linux.sh">
             <component uid="ss-base" version="1.0.0.0.0"/>
-            <component uid="ssi-nativepackages" version="1.0.0.0.0"/>                           
             <component uid="nb-base" version="${nb.full.version}"/>
             <component uid="nb-cnd" version="${nb.full.version}"/>
-	     <component uid="C Compiler" version="1.0.0.0.0"/>
- <component uid="C++ Compiler" version="1.0.0.0.0"/>
- <component uid="Fortran 95 Compiler" version="1.0.0.0.0"/>
- <component uid="DBX Debugging Tools" version="1.0.0.0.0"/>
- <component uid="build tools" version="1.0.0.0.0"/>
- <component uid="X-Designer" version="1.0.0.0.0"/>
- <component uid="demos" version="1.0.0.0.0"/>
- <component uid="external editors" version="1.0.0.0.0"/>
- <component uid="support files" version="1.0.0.0.0"/>
- <component uid="Performance Library" version="1.0.0.0.0"/>
- <component uid="Third-party Source" version="1.0.0.0.0"/>
+	    <component uid="cc" version="1.0.0.0.0"/>
+	    <component uid="cpp" version="1.0.0.0.0"/>
+    	    <component uid="fortran" version="1.0.0.0.0"/>
+    	    <component uid="dbx" version="1.0.0.0.0"/>
+    	    <component uid="dmake" version="1.0.0.0.0"/>
+    	    <component uid="x-designer" version="1.0.0.0.0"/>
+    	<!--    <component uid="demos" version="1.0.0.0.0"/>
+    	    --><component uid="ex-editors" version="1.0.0.0.0"/>
+    	    <component uid="support-files" version="1.0.0.0.0"/>
+    	    <component uid="perf-lib" version="1.0.0.0.0"/>
+    	    <component uid="third-party-source" version="1.0.0.0.0"/>
+
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
-        -->
+        
 	
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-x86" 
@@ -563,33 +567,41 @@ jarsigner.storepass=${jarsigner.storepass}
             
 	    <component uid="nb-base" version="${nb.full.version}"/>
             <component uid="nb-cnd" version="${nb.full.version}"/>
+	    <component uid="cc" version="1.0.0.0.0"/>            
+	    <component uid="cpp" version="1.0.0.0.0"/>
+    	    <component uid="fortran" version="1.0.0.0.0"/>
+    	    <component uid="dbx" version="1.0.0.0.0"/>
+    	    <component uid="dmake" version="1.0.0.0.0"/>
+    	    <component uid="x-designer" version="1.0.0.0.0"/>
+    	<!--    <component uid="demos" version="1.0.0.0.0"/>
+    	    --><component uid="ex-editors" version="1.0.0.0.0"/>
+    	    <component uid="support-files" version="1.0.0.0.0"/>
+    	    <component uid="perf-lib" version="1.0.0.0.0"/>
+    	    <component uid="third-party-source" version="1.0.0.0.0"/>
             
-	    <component uid="c-compiler" version="1.0.0.0.0"/>
-	    <component uid="c---compiler" version="1.0.0.0.0"/>
-	    <component uid="fortran--compiler" version="1.0.0.0.0"/>
-	    <component uid="dbx-debugging-tools" version="1.0.0.0.0"/>
-	    <component uid="build-tools" version="1.0.0.0.0"/>
-	    <component uid="x-designer" version="1.0.0.0.0"/>
-	    <component uid="demos" version="1.0.0.0.0"/>
-	    <component uid="external-editors" version="1.0.0.0.0"/>
-	    <component uid="support-files" version="1.0.0.0.0"/>
-            <component uid="performance-library" version="1.0.0.0.0"/>
-	    <component uid="third-party-source" version="1.0.0.0.0"/>
-	    
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
-	
-        <!--
+        
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-sparc" 
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-sparc.sh">            
             <component uid="ss-base" version="1.0.0.0.0"/>
-            <component uid="ssi-nativepackages" version="1.0.0.0.0"/>               
             <component uid="nb-base" version="${nb.full.version}"/>
             <component uid="nb-cnd" version="${nb.full.version}"/>
+	    <component uid="cc" version="1.0.0.0.0"/>            
+	    <component uid="cpp" version="1.0.0.0.0"/>
+    	    <component uid="fortran" version="1.0.0.0.0"/>
+    	    <component uid="dbx" version="1.0.0.0.0"/>
+    	    <component uid="dmake" version="1.0.0.0.0"/>
+    	    <component uid="x-designer" version="1.0.0.0.0"/>
+    	    <component uid="ex-editors" version="1.0.0.0.0"/>
+    	    <component uid="support-files" version="1.0.0.0.0"/>
+    	    <component uid="perf-lib" version="1.0.0.0.0"/>
+    	    <component uid="third-party-source" version="1.0.0.0.0"/>
+
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
-        -->
+    
 	
     </target>
     
