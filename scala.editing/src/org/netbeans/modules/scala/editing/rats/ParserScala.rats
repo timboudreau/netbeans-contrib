@@ -132,7 +132,7 @@ generic TypePat = Type ;
 generic Ascription = 
   void:":":key CompoundType
 / void:":":key Annotation Annotation*
-/ void:":":key "_":key "*"
+/ void:":":key "_":key "*":op
 ;
 
 generic Expr = 
@@ -253,7 +253,7 @@ transient generic Pattern3 =
 transient generic CallPatternTail = Id N? SimplePattern ;
 
 transient generic SimplePattern =
-  "_":key
+  "_":key ( "*":op )?
 / Literal
 / TuplePattern
 / StableId TuplePattern
@@ -262,7 +262,10 @@ transient generic SimplePattern =
 
 transient generic TuplePattern = void:"(":sep Patterns? void:")":sep ;
 
-transient generic Patterns = Pattern ( void:",":sep Pattern )* ( ",":sep "_":key "*" / ",":sep )? ;
+transient generic Patterns = 
+  Pattern ( void:",":sep Pattern )* ( ",":sep "_":key "*":op / ",":sep )? 
+/ "_":key "*":op
+;
 
 transient generic TypeParamClause = void:"[":sep VariantTypeParam ( void:",":sep VariantTypeParam )* void:"]":sep ;
 
@@ -281,7 +284,7 @@ transient generic Params = Param ( void:",":sep Param )* ;
 transient generic Param = Annotation* Id ( void:":":key ParamType )? ;
 
 transient generic ParamType = 
-  Type "*"
+  Type "*":op
 / Type
 / "=>":key Type
 ;
