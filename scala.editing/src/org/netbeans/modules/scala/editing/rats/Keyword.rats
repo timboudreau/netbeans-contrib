@@ -111,41 +111,41 @@ option setOfString(SCALA_KEYWORDS);
 
 /*
  * The tokens that can terminate a statement are: literals, identifiers and the following
- * delimiters and reserved words:
+ * delimiters and reserved words (do not consumer following newline)
  *   this null true false return type <xmlstart> _ 
  *   ) ] }
  * 
  * The tokens that can begin a statement are all Scala tokens except the following delimiters
- * and reserved words (do not consumer following n+):
+ * and reserved words (do not consumer preceding n+):
  *   catch else extends finally forSome match requires with yield # _ = => <- <: <% >: : 
  *   , . ; [ ) ] }
  */
 String key =
-  IGNORE_N "this"     :keyword IGNORE_N
-/ IGNORE_N "null"     :keyword IGNORE_N
-/ IGNORE_N "true"     :keyword IGNORE_N
-/ IGNORE_N "false"    :keyword IGNORE_N
-/ IGNORE_N "return"   :keyword IGNORE_N
-/ IGNORE_N "type"     :keyword IGNORE_N
+  IGNORE_N "this"     :keyword IGNORE
+/ IGNORE_N "null"     :keyword IGNORE
+/ IGNORE_N "true"     :keyword IGNORE
+/ IGNORE_N "false"    :keyword IGNORE
+/ IGNORE_N "return"   :keyword IGNORE
+/ IGNORE_N "type"     :keyword IGNORE
 / IGNORE_N "_"        :keyword IGNORE
-/          "catch"    :keyword IGNORE
-/          "else"     :keyword IGNORE
-/          "extends"  :keyword IGNORE
-/          "finally"  :keyword IGNORE
-/          "forSome"  :keyword IGNORE
-/          "match"    :keyword IGNORE
-/          "requires" :keyword IGNORE
-/          "with"     :keyword IGNORE
-/          "yield"    :keyword IGNORE
-/          "=>"       :keyword IGNORE
-/          "<-"       :keyword IGNORE
-/          "<:"       :keyword IGNORE
-/          "<%"       :keyword IGNORE
-/          ">:"       :keyword IGNORE
-/          "#"        :keyword IGNORE
-/          "="        :keyword IGNORE
-/          ":"        :keyword IGNORE
-/                      keyword IGNORE_N
+/          "catch"    :keyword IGNORE_N
+/          "else"     :keyword IGNORE_N
+/          "extends"  :keyword IGNORE_N
+/          "finally"  :keyword IGNORE_N
+/          "forSome"  :keyword IGNORE_N
+/          "match"    :keyword IGNORE_N
+/          "requires" :keyword IGNORE_N
+/          "with"     :keyword IGNORE_N
+/          "yield"    :keyword IGNORE_N
+/          "=>"       :keyword IGNORE_N
+/          "<-"       :keyword IGNORE_N
+/          "<:"       :keyword IGNORE_N
+/          "<%"       :keyword IGNORE_N
+/          ">:"       :keyword IGNORE_N
+/          "#"        :keyword IGNORE_N
+/          "="        :keyword IGNORE_N
+/          ":"        :keyword IGNORE_N
+/ IGNORE_N             keyword IGNORE_N
 ;
 
 generic Keyword = keyword ;

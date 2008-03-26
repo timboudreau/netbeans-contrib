@@ -50,11 +50,11 @@ transient String sep =
   IGNORE_N ")":separator IGNORE
 / IGNORE_N "]":separator IGNORE
 / IGNORE_N "}":separator IGNORE
-/          ",":separator IGNORE 
-/          ".":separator IGNORE 
-/          ";":separator IGNORE 
-/          "[":separator IGNORE 
-/              separator IGNORE_N
+/          ",":separator IGNORE_N 
+/          ".":separator IGNORE_N 
+/          ";":separator IGNORE_N 
+/          "[":separator IGNORE_N 
+/ IGNORE_N     separator IGNORE_N
 ;
 
 transient generic Separator = separator ;

@@ -58,10 +58,10 @@ transient generic XmlExpr =
 transient generic Literal =
   ( "-":opid )? FloatingPointLiteral IGNORE
 / ( "-":opid )? IntegerLiteral       IGNORE
-/             BooleanLiteral       IGNORE
-/             CharacterLiteral     IGNORE
-/             StringLiteral        IGNORE
-/             SymbolLiteral        IGNORE
+/               BooleanLiteral       IGNORE
+/               CharacterLiteral     IGNORE
+/               StringLiteral        IGNORE
+/               SymbolLiteral        IGNORE
 ;
 
 transient generic BooleanLiteral = "true":key / "false":key;
