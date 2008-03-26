@@ -54,6 +54,9 @@ import org.netbeans.modules.scala.editing.rats.Literal;
 transient generic Id = id IGNORE ;
 transient generic VarId = varid IGNORE;
 
+// ----- used for "-":opid etc, where need SemanticValue to be String
+transient String opid = op IGNORE;
+
 // ----- token
 transient generic Identifier = id ;
 

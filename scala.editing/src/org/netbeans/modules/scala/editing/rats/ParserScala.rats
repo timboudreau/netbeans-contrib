@@ -56,8 +56,8 @@ transient generic XmlExpr =
   &( ' ' / "(" / "{" ) ( void:sep / IGNORE ) XmlElement ;
 
 transient generic Literal =
-  ( "-":Id )? FloatingPointLiteral IGNORE
-/ ( "-":Id )? IntegerLiteral       IGNORE
+  ( "-":opid )? FloatingPointLiteral IGNORE
+/ ( "-":opid )? IntegerLiteral       IGNORE
 /             BooleanLiteral       IGNORE
 /             CharacterLiteral     IGNORE
 /             StringLiteral        IGNORE
@@ -157,11 +157,11 @@ generic PostfixExpr = InfixExpr ( Id ( N) ? )? ;
 generic InfixExpr = PrefixExpr InfixExprRest* ;
 generic InfixExprRest = Id N? PrefixExpr;
 
-generic PrefixExpr = ( "-":Id / "+":Id / "~":Id / "!":Id )? SimpleExpr ;
+generic PrefixExpr = ( "-":opid / "+":opid / "~":opid / "!":opid )? SimpleExpr ;
 
 generic SimpleExpr = 
-  SimplePathExpr
-/ SimpleLiteralExpr
+  SimpleLiteralExpr
+/ SimplePathExpr
 / SimpleWildCardExpr
 / SimpleTupleExpr
 / SimpleBlockExpr
@@ -265,7 +265,7 @@ transient generic TypeParamClause = void:"[":sep VariantTypeParam ( void:",":sep
 
 transient generic FunTypeParamClause = void:"[":sep TypeParam ( void:",":sep TypeParam )* void:"]":sep ;
 
-transient generic VariantTypeParam = ( "+":Id / "-":Id ) TypeParam ;
+transient generic VariantTypeParam = ( "+":opid / "-":opid ) TypeParam ;
 
 transient generic TypeParam = ( Id / "_":sep ) TypeParamClause? ( void:">:":key Type )? ( void:"<:":key Type )? ( void:"<%":key Type )? ;
 
