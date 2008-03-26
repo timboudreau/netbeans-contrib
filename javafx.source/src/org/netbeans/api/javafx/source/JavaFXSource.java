@@ -146,14 +146,15 @@ public final class JavaFXSource {
                 System.err.println("Parsed to: ");
                 for (CompilationUnitTree cut : trees) {
                     System.err.println("  cut:" + cut);
+                    cc.setCompilationUnit(cut);
                 }
-                
                 /*                assert trees != null : "Did not parse anything";        //NOI18N
                 Iterator<? extends CompilationUnitTree> it = trees.iterator();
                 assert it.hasNext();
                 CompilationUnitTree unit = it.next();
                 currentInfo.setCompilationUnit(unit);
 */
+                cc.phase = Phase.PARSED;
         }
         return phase;
     }
@@ -895,7 +896,7 @@ out:            for (Iterator<Collection<Request>> it = finishedRequests.values(
                                                         final long startTime = System.currentTimeMillis();
                                                         final CompilationInfo clientCi = new CompilationInfo(js);
                                                         try {
-                                                            ((CancellableTask<CompilationInfo>)r.task).run (clientCi); //XXX: How to do it in save way?
+                                                            ((CancellableTask<CompilationInfo>)r.task).run (ci); //XXX: How to do it in save way?
                                                         } finally {
 //                                                            clientCi.invalidate();
                                                         }

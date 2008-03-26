@@ -38,51 +38,15 @@
  */
 
 /*
- * Definition of Scala lexical tokens.
+ * Definition of Scala State.
  * 
  * @author Caoyuan Deng
  */
-module org.netbeans.modules.scala.editing.rats.LexerScala;
+module org.netbeans.modules.scala.editing.rats.State;
 
-import org.netbeans.modules.scala.editing.rats.Character;
-import org.netbeans.modules.scala.editing.rats.Identifier;
-import org.netbeans.modules.scala.editing.rats.Keyword;
-import org.netbeans.modules.scala.editing.rats.Literal;
-import org.netbeans.modules.scala.editing.rats.Spacing;
-import org.netbeans.modules.scala.editing.rats.Symbol;
-import org.netbeans.modules.scala.editing.rats.Xml;
+option stateful(ParserState);
 
-option flatten;
-
-public generic Token = 
-  Keyword               
-/ XmlExpr              
-/ BlockComment   
-/ LineComment           
-/ Identifier           
-/ Nl                   
-/ Ws                  
-/ Literal
-/ Separator
-/ Error      
-/ EOF
-;
-
-// ----- Literal
-
-transient generic Literal =
-  FloatingPointLiteral
-/ IntegerLiteral
-/ CharacterLiteral
-/ StringLiteral
-/ SymbolLiteral
-;
-
-transient generic XmlExpr =
-  Ws            XmlElement
-/ "(":Separator XmlElement ")":Separator 
-/ "{":Separator XmlElement "}":Separator
-;
-
-//  &( ' ' / '(' / '{' ) ( Ws / Separator ) XmlElement ;
-
+transient void ENTER_NL_ENABLE  = { yyState.enterNewlineEnable();  } ;
+transient void EXIT_NL_ENABLE   = { yyState.exitNewlineEnable();   } ;
+transient void ENTER_NL_DISABLE = { yyState.enterNewlineDisable(); } ;
+transient void EXIT_NL_DISABLE  = { yyState.exitNewlineDisable();  } ;

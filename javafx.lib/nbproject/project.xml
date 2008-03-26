@@ -69,6 +69,7 @@ made subject to such option by the copyright holder.
             </module-dependencies>
             <public-packages>
                 <package>com.sun.javafx.api</package>
+                <package>com.sun.javafx.api.tree</package>
                 <package>com.sun.source.tree</package>
                 <package>com.sun.source.util</package>
                 <package>com.sun.tools.javac.tree</package>
@@ -79,7 +80,11 @@ made subject to such option by the copyright holder.
                 <package>javax.lang.model.type</package>
                 <package>javax.tools</package>
                 <package>org.jdesktop.layout</package>
+                <package>org.antlr.runtime</package>
+                <package>org.antlr.runtime.tree</package>
+	      <package>com.sun.tools.javafx.antlr</package>
             </public-packages>
         </data>
     </configuration>
 </project>
+

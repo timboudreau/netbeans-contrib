@@ -42,6 +42,7 @@
 package org.netbeans.modules.javafx.editor;
 
 import java.util.List;
+import java.util.ArrayList;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.javafx.lexer.JavaFXTokenId;
@@ -145,7 +146,7 @@ public final class JavaFXBracesMatcher implements BracesMatcher, BracesMatcherFa
             JavaFXTokenId lookingForId = getTokenId(matchingChar);
             int counter = 0;
             
-            for(TokenSequenceIterator tsi = new TokenSequenceIterator(list, backward); tsi.hasMore(); ) {
+            for(TokenSequenceIterator tsi = new TokenSequenceIterator(new ArrayList<TokenSequence<? extends TokenId>>(list), backward); tsi.hasMore(); ) {
                 TokenSequence<? extends TokenId> sq = tsi.getSequence();
                 
                 if (originId == sq.token().id()) {
@@ -190,7 +191,7 @@ public final class JavaFXBracesMatcher implements BracesMatcher, BracesMatcherFa
             }
         }
         
-        return sequences;
+        return new ArrayList<TokenSequence<? extends TokenId>>(sequences);
     }
     
     private static final class TokenSequenceIterator {

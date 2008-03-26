@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -37,52 +37,29 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-/*
- * Definition of Scala lexical tokens.
- * 
- * @author Caoyuan Deng
+package org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners;
+
+import java.util.List;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.AppContext;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners.util.LayerXMLHelper;
+
+/**
+ *
+ * @author satyaranjan
  */
-module org.netbeans.modules.scala.editing.rats.LexerScala;
-
-import org.netbeans.modules.scala.editing.rats.Character;
-import org.netbeans.modules.scala.editing.rats.Identifier;
-import org.netbeans.modules.scala.editing.rats.Keyword;
-import org.netbeans.modules.scala.editing.rats.Literal;
-import org.netbeans.modules.scala.editing.rats.Spacing;
-import org.netbeans.modules.scala.editing.rats.Symbol;
-import org.netbeans.modules.scala.editing.rats.Xml;
-
-option flatten;
-
-public generic Token = 
-  Keyword               
-/ XmlExpr              
-/ BlockComment   
-/ LineComment           
-/ Identifier           
-/ Nl                   
-/ Ws                  
-/ Literal
-/ Separator
-/ Error      
-/ EOF
-;
-
-// ----- Literal
-
-transient generic Literal =
-  FloatingPointLiteral
-/ IntegerLiteral
-/ CharacterLiteral
-/ StringLiteral
-/ SymbolLiteral
-;
-
-transient generic XmlExpr =
-  Ws            XmlElement
-/ "(":Separator XmlElement ")":Separator 
-/ "{":Separator XmlElement "}":Separator
-;
-
-//  &( ' ' / '(' / '{' ) ( Ws / Separator ) XmlElement ;
-
+public class PortletXMLChangeEventNotificationHelper {
+    
+    public static void firePortletAddEvent(PortletContext context,AppContext appContext,String webInf)
+    {
+        List<PortletXMLChangeListener> portletXMLListeners = LayerXMLHelper.getRegisteredPortletXMLListeners();
+        if(portletXMLListeners == null || portletXMLListeners.size() == 0)
+            return;
+        
+        for(PortletXMLChangeListener listener:portletXMLListeners)
+        {
+            if(listener == null) continue;
+            listener.addPortlet(context, appContext, webInf);
+        }
+    }
+}

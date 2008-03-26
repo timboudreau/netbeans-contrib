@@ -63,6 +63,7 @@ import xtc.parser.ParseError;
 import xtc.parser.Result;
 import xtc.parser.SemanticValue;
 import xtc.tree.Node;
+import xtc.tree.Printer;
 
 /**
  * Wrapper around com.sun.fortress.parser.Fortress to parse a buffer into an AST.
@@ -377,17 +378,21 @@ public class ScalaParser implements Parser {
                 if (node == null) {
                     error = r.parseError();
                     System.out.println("Null node!");
-                } else if (r.index < source.length()) {
-                    System.out.println("parsed index=" + r.index + ", source length=" + source.length());
-                    error = r.parseError();
+                } else {
+                    //Printer printer = new Printer(System.out);
+                    //parser.dump(printer);
+                    if (r.index < source.length()) {
+                        System.out.println("parsed index=" + r.index + ", source length=" + source.length());
+                        error = r.parseError();
+                    }
                 }
-                
-                //String dump = NodeUtil.dump((AbstractNode) node);
-                //System.out.println(dump);
+
+            //String dump = NodeUtil.dump((AbstractNode) node);
+            //System.out.println(dump);
             } else {
                 error = r.parseError();
             }
-            
+
             if (error != null) {
                 if (!ignoreErrors) {
                     int start = 0;
@@ -425,8 +430,8 @@ public class ScalaParser implements Parser {
     private ScalaParserResult createParseResult(ParserFile file, Node rootNode, ParserResult.AstTreeNode ast, List<Integer> linesOffset) {
         return new ScalaParserResult(this, file, rootNode, ast, linesOffset);
     }
-    
-    private List<Integer> computeLinesOffset(String source) {       
+
+    private List<Integer> computeLinesOffset(String source) {
         int length = source.length();
 
         List<Integer> linesOffset = new ArrayList<Integer>(length / 25);
@@ -440,8 +445,8 @@ public class ScalaParser implements Parser {
                 line++;
             }
         }
-        
-        return linesOffset;       
+
+        return linesOffset;
     }
 
     protected void notifyError(Context context, String key, String message,

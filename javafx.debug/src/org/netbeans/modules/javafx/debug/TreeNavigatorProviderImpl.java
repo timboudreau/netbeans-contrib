@@ -199,7 +199,7 @@ public class TreeNavigatorProviderImpl implements NavigatorPanel {
         }
 
         public void run(CompilationInfo info) {
-            manager.setRootContext(TreeNode.getTree(info, new TreePath(null /*info.getCompilationUnit()*/)));
+            manager.setRootContext(TreeNode.getTree(info, new TreePath(info.getCompilationUnit())));
         }
         
     }

@@ -40,6 +40,7 @@
 package org.netbeans.api.javafx.source;
 
 import com.sun.javafx.api.JavafxcTask;
+import com.sun.source.tree.CompilationUnitTree;
 
 /**
  *
@@ -48,6 +49,7 @@ import com.sun.javafx.api.JavafxcTask;
 public class CompilationInfo {
     final JavaFXSource source;
     private JavafxcTask cTask;
+    private CompilationUnitTree compilationUnit;    
     
     JavaFXSource.Phase phase = JavaFXSource.Phase.MODIFIED;
 
@@ -65,4 +67,26 @@ public class CompilationInfo {
         }
         return cTask;
     }
+
+    /**
+     * Returns the javafxc tree representing the source file.
+     * @return {@link CompilationUnitTree} the compilation unit cantaining the top level classes contained in the,
+     * javafx source file.
+     * 
+     * @throws java.lang.IllegalStateException  when the phase is less than {@link JavaFXSource.Phase#PARSED}
+     */
+    public CompilationUnitTree getCompilationUnit() {
+//        if (this.jfo == null) {
+//            throw new IllegalStateException ();
+//        }
+        if (phase.lessThan(JavaFXSource.Phase.PARSED))
+            throw new IllegalStateException("Cannot call getCompilationInfo() if current phase < JavaFXSource.Phase.PARSED. You must call toPhase(Phase.PARSED) first.");//NOI18N
+        return compilationUnit;
+    }
+    
+    void setCompilationUnit(CompilationUnitTree compilationUnit) {
+        assert this.compilationUnit == null;
+        this.compilationUnit = compilationUnit;
+    }
+
 }

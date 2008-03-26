@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -37,52 +37,61 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-/*
- * Definition of Scala lexical tokens.
- * 
+package org.netbeans.modules.scala.editing.rats;
+
+import java.util.Stack;
+import xtc.util.State;
+
+/**
+ *
  * @author Caoyuan Deng
  */
-module org.netbeans.modules.scala.editing.rats.LexerScala;
+public class ParserState implements State {
+    
+    public static final int NL_ENABLE  = 0;
+    public static final int NL_DISABLE = 1;    
+    
+    public Stack<Integer> states = new Stack<Integer>();
+    
+    private int state;
+    
+    public int state() {
+        return states.empty() ? NL_ENABLE : states.peek();
+    }        
 
-import org.netbeans.modules.scala.editing.rats.Character;
-import org.netbeans.modules.scala.editing.rats.Identifier;
-import org.netbeans.modules.scala.editing.rats.Keyword;
-import org.netbeans.modules.scala.editing.rats.Literal;
-import org.netbeans.modules.scala.editing.rats.Spacing;
-import org.netbeans.modules.scala.editing.rats.Symbol;
-import org.netbeans.modules.scala.editing.rats.Xml;
+    public void enterNewlineEnable() {
+        states.push(NL_ENABLE);
+    }
+    
+    public void exitNewlineEnable() {
+        states.pop();
+    }
+    
+    public void enterNewlineDisable() {
+        states.push(NL_DISABLE);
+    }
+    
+    public void exitNewlineDisable() {
+        states.pop();
+    }
+    
+    public void start() {
+        
+    }
 
-option flatten;
+    public void commit() {
 
-public generic Token = 
-  Keyword               
-/ XmlExpr              
-/ BlockComment   
-/ LineComment           
-/ Identifier           
-/ Nl                   
-/ Ws                  
-/ Literal
-/ Separator
-/ Error      
-/ EOF
-;
+    }
 
-// ----- Literal
+    public void abort() {
+        
+    }
+    
+    public void reset(String arg0) {
+        states.clear();
+    }
 
-transient generic Literal =
-  FloatingPointLiteral
-/ IntegerLiteral
-/ CharacterLiteral
-/ StringLiteral
-/ SymbolLiteral
-;
+}
 
-transient generic XmlExpr =
-  Ws            XmlElement
-/ "(":Separator XmlElement ")":Separator 
-/ "{":Separator XmlElement "}":Separator
-;
 
-//  &( ' ' / '(' / '{' ) ( Ws / Separator ) XmlElement ;
 
