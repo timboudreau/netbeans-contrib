@@ -149,7 +149,7 @@ class Cleartool {
         String vobRoot = System.getProperty("org.netbeans.modules.clearcase.client.mockup.vobRoot");
         Process ct;
         if (vobRoot == null || vobRoot.trim().equals("")) {
-            ct = Runtime.getRuntime().exec(getCleartoolExecutablePath());
+            ct = Runtime.getRuntime().exec(ClearcaseModuleConfig.getExecutablePath());
             Logger.getLogger(Cleartool.class.getName()).fine("Cleartool: shell process running");
         } else {
             ct = new CleartoolMockup(vobRoot);
@@ -314,7 +314,4 @@ class Cleartool {
         }
     };
 
-    public static String getCleartoolExecutablePath() {
-        return ClearcaseModuleConfig.getPreferences().get(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, "cleartool");
-    }
 }
