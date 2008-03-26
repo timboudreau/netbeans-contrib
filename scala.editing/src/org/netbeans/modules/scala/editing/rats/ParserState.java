@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -37,67 +37,61 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-/*
- * Definition of Scala lexical tokens.
- * 
+package org.netbeans.modules.scala.editing.rats;
+
+import java.util.Stack;
+import xtc.util.State;
+
+/**
+ *
  * @author Caoyuan Deng
  */
-module org.netbeans.modules.scala.editing.rats.Spacing;
+public class ParserState implements State {
+    
+    public static final int NL_ENABLE  = 0;
+    public static final int NL_DISABLE = 1;    
+    
+    public Stack<Integer> states = new Stack<Integer>();
+    
+    private int state;
+    
+    public int state() {
+        return states.empty() ? NL_ENABLE : states.peek();
+    }        
+
+    public void enterNewlineEnable() {
+        states.push(NL_ENABLE);
+    }
+    
+    public void exitNewlineEnable() {
+        states.pop();
+    }
+    
+    public void enterNewlineDisable() {
+        states.push(NL_DISABLE);
+    }
+    
+    public void exitNewlineDisable() {
+        states.pop();
+    }
+    
+    public void start() {
+        
+    }
+
+    public void commit() {
+
+    }
+
+    public void abort() {
+        
+    }
+    
+    public void reset(String arg0) {
+        states.clear();
+    }
+
+}
 
 
-transient generic BlockComment = 
-  "/*" 
-  ( BlockComment
-  / blockCommentChar
-  )*
-  "*/"
-;
-
-transient String blockCommentChar =
-  ( '*' !'/'
-  / !'*' _ 
-  )
-; 
-
-transient generic LineComment = lineComment ;
-transient String lineComment = 
-  "//" (![\n\r] _)*
-;
-
-// ----- Meaningful newline
-
-transient void N = ( w / lineComment / BlockComment )* n;
-
-// ----- ignorable including nl
-
-transient void IGNORE_TILL_N = ( ( w / lineComment / BlockComment )* n+ )? ;
-
-transient void IGNORE_N = ( n / w / lineComment / BlockComment )* ;
-
-// ----- Globe ignorable
-
-/* @Note: should put before Keyword, Symbol, Literal and Identifier only, 
- * don't put after above tokens. 
- */
-transient void IGNORE = 
-  &{ yyState.state() == ParserState.NL_ENABLE  } ( w / lineComment / BlockComment )* 
-/ &{ yyState.state() == ParserState.NL_DISABLE } ( w / lineComment / BlockComment / n )* 
-;
-
-
-// ------ Spacing tokens
-
-transient generic Nl = n ;
-transient generic Ws = w ;
-
-
-// ----- Spacing elements
-
-transient String n = "\r\n" / "\r" / "\n" ;
-transient String w = ( " " / "\f" / "\t" )+ ;
-
-transient generic Error = error ;
-transient String error = _+ ;
-
-transient void EOF = !_ ;
 

@@ -38,66 +38,15 @@
  */
 
 /*
- * Definition of Scala lexical tokens.
+ * Definition of Scala State.
  * 
  * @author Caoyuan Deng
  */
-module org.netbeans.modules.scala.editing.rats.Spacing;
+module org.netbeans.modules.scala.editing.rats.State;
 
+option stateful(ParserState);
 
-transient generic BlockComment = 
-  "/*" 
-  ( BlockComment
-  / blockCommentChar
-  )*
-  "*/"
-;
-
-transient String blockCommentChar =
-  ( '*' !'/'
-  / !'*' _ 
-  )
-; 
-
-transient generic LineComment = lineComment ;
-transient String lineComment = 
-  "//" (![\n\r] _)*
-;
-
-// ----- Meaningful newline
-
-transient void N = ( w / lineComment / BlockComment )* n;
-
-// ----- ignorable including nl
-
-transient void IGNORE_TILL_N = ( ( w / lineComment / BlockComment )* n+ )? ;
-
-transient void IGNORE_N = ( n / w / lineComment / BlockComment )* ;
-
-// ----- Globe ignorable
-
-/* @Note: should put before Keyword, Symbol, Literal and Identifier only, 
- * don't put after above tokens. 
- */
-transient void IGNORE = 
-  &{ yyState.state() == ParserState.NL_ENABLE  } ( w / lineComment / BlockComment )* 
-/ &{ yyState.state() == ParserState.NL_DISABLE } ( w / lineComment / BlockComment / n )* 
-;
-
-
-// ------ Spacing tokens
-
-transient generic Nl = n ;
-transient generic Ws = w ;
-
-
-// ----- Spacing elements
-
-transient String n = "\r\n" / "\r" / "\n" ;
-transient String w = ( " " / "\f" / "\t" )+ ;
-
-transient generic Error = error ;
-transient String error = _+ ;
-
-transient void EOF = !_ ;
-
+transient void ENTER_NL_ENABLE  = { yyState.enterNewlineEnable();  } ;
+transient void EXIT_NL_ENABLE   = { yyState.exitNewlineEnable();   } ;
+transient void ENTER_NL_DISABLE = { yyState.enterNewlineDisable(); } ;
+transient void EXIT_NL_DISABLE  = { yyState.exitNewlineDisable();  } ;

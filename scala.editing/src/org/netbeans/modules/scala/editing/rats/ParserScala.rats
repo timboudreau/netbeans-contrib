@@ -52,6 +52,8 @@ import org.netbeans.modules.scala.editing.rats.Spacing;
 import org.netbeans.modules.scala.editing.rats.Symbol;
 import org.netbeans.modules.scala.editing.rats.Xml;
 
+import org.netbeans.modules.scala.editing.rats.State;
+
 /* @Note: We cannot consumer every token's tail whitespace (leave it for XmlExpr 
  * to detect a preceding whitespace, instead, we consumer every token's preceding
  * whitespace and ignore it. 
@@ -61,8 +63,6 @@ transient generic XmlExpr =
 / void:"(":sep XmlElement void:")":sep 
 / void:"{":sep XmlElement void:"}":sep
 ;
-
-//  &( ' ' / "(" / "{" ) ( void:sep / IGNORE ) XmlElement ;
 
 transient generic Literal =
   IGNORE ( "-":op )? FloatingPointLiteral 
@@ -162,7 +162,8 @@ generic ExprNotFun =
 / PostfixExpr
 ;
 
-generic PostfixExpr = InfixExpr ( Id ( N) ? )? ;
+/* @DocError in ScalaReference: InfixExpr ( Id N? )? */
+generic PostfixExpr = InfixExpr Id? ;
 
 generic InfixExpr = PrefixExpr InfixExprRest* ;
 generic InfixExprRest = Id N? PrefixExpr;
@@ -202,7 +203,11 @@ generic ArgumentExprs =
 / N? BlockExpr
 ;
 
-transient generic ParenExpr = void:"(":sep ( Exprs ( void:",":sep )? )? void:")":sep;
+transient generic ParenExpr = 
+  void:"(":sep ENTER_NL_DISABLE
+  ( Exprs ( void:",":sep )? )? 
+  EXIT_NL_DISABLE void:")":sep 
+;
 
 generic BlockExpr = 
   void:"{":sep CaseClauses void:"}":sep

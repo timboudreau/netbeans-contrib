@@ -52,17 +52,17 @@ import org.netbeans.modules.scala.editing.rats.Literal;
 
 // ----- Identifier
 
-transient generic Id = IGNORE id ;
-transient generic VarId = IGNORE varid;
+transient generic Id    = IGNORE id ;
+transient generic VarId = IGNORE varid ;
 
 // ----- used for "-":op etc, where needs op's SemanticValue to be String
-transient String op = IGNORE opid;
+transient String op = IGNORE opid ;
 
 // ----- token
 transient generic Identifier = id ;
 
 transient String opid    = v:( opchar+ )                  &{ !contains(SCALA_KEYWORDS, toText(v)) } ;
-transient String varid   = v:( lower idrest? )            &{ !contains(SCALA_KEYWORDS, toText(v)) } ;
+transient String varid   = v:( lower            idrest? ) &{ !contains(SCALA_KEYWORDS, toText(v)) } ;
 transient String upperid = v:( ( upper / [$_] ) idrest? ) &{ !contains(SCALA_KEYWORDS, toText(v)) } ;
 
 transient String plainid =
