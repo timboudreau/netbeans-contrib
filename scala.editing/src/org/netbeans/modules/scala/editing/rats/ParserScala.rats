@@ -52,8 +52,6 @@ import org.netbeans.modules.scala.editing.rats.Spacing;
 import org.netbeans.modules.scala.editing.rats.Symbol;
 import org.netbeans.modules.scala.editing.rats.Xml;
 
-option dump;
-
 transient generic XmlExpr =
   &( ' ' / "(" / "{" ) ( void:sep / IGNORE ) XmlElement ;
 
@@ -61,6 +59,7 @@ transient generic Literal =
   ( "-":op )? FloatingPointLiteral IGNORE
 / ( "-":op )? IntegerLiteral       IGNORE
 /             BooleanLiteral       IGNORE
+/             NullLiteral          IGNORE
 /             CharacterLiteral     IGNORE
 /             StringLiteral        IGNORE
 /             SymbolLiteral        IGNORE
@@ -252,6 +251,7 @@ transient generic Pattern3 =
 / <SimplePattern> SimplePattern;
 transient generic CallPatternTail = Id N? SimplePattern ;
 
+/* Error in ScalaReference: "_":key */
 transient generic SimplePattern =
   "_":key ( "*":op )?
 / Literal
