@@ -44,7 +44,6 @@ package org.netbeans.modules.portalpack.visualweb.ui;
 // Use local copy now
 // import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectUtils;
 // import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectConstants;
-
 import org.netbeans.modules.web.api.webmodule.ExtenderController;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.modules.web.api.webmodule.WebFrameworks;
@@ -72,6 +71,9 @@ import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.libraries.Library;
 import org.netbeans.api.project.libraries.LibraryManager;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.AppContext;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners.PortletXMLChangeEventNotificationHelper;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.InitParamType;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletInfoType;
@@ -112,6 +114,7 @@ public class PageIterator implements TemplateWizard.Iterator {
 
         // Creating steps.
         Object prop = wizard.getProperty("WizardPanel_contentData"); // NOI18N
+
         String[] beforeSteps = null;
         if (prop != null && prop instanceof String[]) {
             beforeSteps = (String[]) prop;
@@ -124,7 +127,9 @@ public class PageIterator implements TemplateWizard.Iterator {
                 steps[i] = jc.getName();
             }
             jc.putClientProperty("WizardPanel_contentSelectedIndex", new Integer(i)); // NOI18N
+
             jc.putClientProperty("WizardPanel_contentData", steps); // NOI18N
+
         }
 
         // no support for non-web project
@@ -151,6 +156,7 @@ public class PageIterator implements TemplateWizard.Iterator {
         for (int pageIndex = 1;; pageIndex++) {
             String name = prefix + pageIndex;
             if ((jspDir.getFileObject(name + "." + ext) == null) && ((javaDir == null) || (javaDir.getFileObject(name + ".java") == null))) { // NOI18N
+
                 wizard.setTargetName(name);
                 return;
             }
@@ -198,74 +204,99 @@ public class PageIterator implements TemplateWizard.Iterator {
 
                     // Create portlet.xml if not exist
                     File filePortlet = new File(FileUtil.toFile(webModule.getWebInf()), "portlet.xml"); // NOI18N
+
                     if (!filePortlet.exists()) {
                         String content = JsfProjectUtils.readResource(Thread.currentThread().getContextClassLoader().getResourceAsStream("org/netbeans/modules/portalpack/visualweb/templates/portlet.xml.template"), "UTF-8"); // NOI18N
+
                         content = content.replace("${page_name}", targetName + "." + template.getExt()); // NOI18N
+
                         content = content.replace("${portlet_name}", ProjectUtils.getInformation(project).getDisplayName()); // NOI18N
+
                         FileObject target = FileUtil.createData(webModule.getWebInf(), "portlet.xml"); // NOI18N
+
                         JsfProjectUtils.createFile(target, content, "UTF-8"); //NOI18N
-                    }else{
+
+                        //fire portlet add event
+                        PortletContext context = new PortletContext();
+                        context.setPortletName("VisualWebJSF");
+                        context.setPortletClass("com.sun.faces.portlet.FacesPortlet");
+                        if (webModule.getWebInf() != null) {
+                            String webInfPath = FileUtil.toFile(webModule.getWebInf()).getAbsolutePath();
+                            PortletXMLChangeEventNotificationHelper.firePortletAddEvent(context, new AppContext(), webInfPath);
+                        }
+                    } else {
                         //If portlet.xml exists, may be created by PortletSupport framework.
                         //Check if a JSF portlet entry is there in portlet.xml.
                         //If yes, then do nothing in portlet.xml
                         //If no then add an entry for JSF portlet
                         PortletApp portletApp = getPortletApp(filePortlet);
-                        if(portletApp != null && !isJSFPortletEntryPresent(portletApp))
-                        {
+                        if (portletApp != null && !isJSFPortletEntryPresent(portletApp)) {
                             PortletType portletType = portletApp.newPortletType();
                             portletType.addDescription("Created By Visual Web");
                             portletType.setPortletName("VisualWebJSF");
                             portletType.addDisplayName("Visual Web JSF Portlet");
                             portletType.setPortletClass("com.sun.faces.portlet.FacesPortlet"); //NOI18N
+
                             InitParamType initParam = portletType.newInitParamType();
                             initParam.setDescription(new String[]{"Portlet Init View Page"});
                             initParam.setName("com.sun.faces.portlet.INIT_VIEW"); //NOI18N
+
                             initParam.setValue("/" + targetName + "." + template.getExt()); //NOI18N
-                            
+
                             portletType.addInitParam(initParam);
                             portletType.setExpirationCache(0);
-                            
+
                             SupportsType support = portletType.newSupportsType();
                             support.setMimeType("text/html"); //NOI18N
+
                             support.addPortletMode("VIEW");   //NOI18N
-                            
+
                             portletType.addSupports(support);
                             portletType.setSupportedLocale(new String[]{"en"}); //NOI18N
-                            
+
                             PortletInfoType portletInfo = portletType.newPortletInfoType();
                             portletInfo.setTitle(ProjectUtils.getInformation(project).getDisplayName());
                             portletInfo.setShortTitle(ProjectUtils.getInformation(project).getDisplayName());
-                            
+
                             portletType.setPortletInfo(portletInfo);
-                            
+
                             //add VisualJSFPortlet page as the first portlet entry in portlet.xml
                             PortletType[] portletTypes = portletApp.getPortlet();
-                            if (portletTypes.length == 0)
-                                
+                            if (portletTypes.length == 0) {
                                 portletApp.addPortlet(portletType);
-                            
-                            else {
-                                
+                            } else {
+
                                 PortletType firstPortlet = portletApp.getPortlet(0);
                                 portletApp.setPortlet(0, portletType);
                                 portletApp.addPortlet(firstPortlet);
-                                    
-                                
+
+
                             }
-                            
+
                             savePortletXML(portletApp, filePortlet);
-    
+
+                            //fire add portlet event
+                            PortletContext context = new PortletContext();
+                            context.setPortletName("VisualWebJSF");
+                            context.setPortletClass("com.sun.faces.portlet.FacesPortlet");
+                            if (webModule.getWebInf() != null) {
+                                String webInfPath = FileUtil.toFile(webModule.getWebInf()).getAbsolutePath();
+                                PortletXMLChangeEventNotificationHelper.firePortletAddEvent(context, new AppContext(), webInfPath);
+                            }
+
                         }
-                        
+
                     }
 
                     // Add OpenPortal JSF Portlet Bridge Support library
                     ClassPath cp = ClassPath.getClassPath(webModule.getDocumentBase(), ClassPath.COMPILE);
                     if (cp.findResource("com/sun/faces/portlet/FacesPortlet.class") == null) { //NOI18N
+
                         Library libBridge = LibraryManager.getDefault().getLibrary("jsf-portlet-runtime-1.2"); // NOI18N
+
                         if (libBridge != null) {
                             try {
-                                JsfProjectUtils.addLibraryReferences(project, new Library[] { libBridge }, ClassPath.EXECUTE);
+                                JsfProjectUtils.addLibraryReferences(project, new Library[]{libBridge                                        }, ClassPath.EXECUTE);
                             } catch (IOException ioExceptoin) {
                             }
                         }
@@ -275,6 +306,7 @@ public class PageIterator implements TemplateWizard.Iterator {
                     result = extender.extend(webModule);
 
                     if (dir.getFileObject(targetName + "." + template.getExt()) != null) { // NOI18N
+
                         return result;
                     }
                 }
@@ -289,9 +321,11 @@ public class PageIterator implements TemplateWizard.Iterator {
             } else {
                 Map<String, String> templateParameters = new HashMap<String, String>();
                 templateParameters.put("j2eePlatformVersion", JsfProjectUtils.getJ2eePlatformVersion(project)); //NOI18N
+
                 templateParameters.put("sourceLevel", JsfProjectUtils.getSourceLevel(project)); //NOI18N
 
                 if ("jsp".equals(template.getExt())) { // NOI18N
+
                     FileObject webDocbase = JsfProjectUtils.getDocumentRoot(project);
                     String folder;
                     if (dir == webDocbase) {
@@ -328,23 +362,22 @@ public class PageIterator implements TemplateWizard.Iterator {
         }
         return result;
     }
-    
-    private boolean isJSFPortletEntryPresent(PortletApp portletApp)
-    {
-            if (portletApp == null) {
-                return false;
+
+    private boolean isJSFPortletEntryPresent(PortletApp portletApp) {
+        if (portletApp == null) {
+            return false;
+        }
+        PortletType[] portletTypes = portletApp.getPortlet();
+        for (PortletType portletType : portletTypes) {
+            if (portletType.getPortletClass().equals("com.sun.faces.portlet.FacesPortlet")) { //NOI18N
+
+                return true;
             }
-            PortletType[] portletTypes = portletApp.getPortlet();
-            for (PortletType portletType : portletTypes) {
-                if (portletType.getPortletClass().equals("com.sun.faces.portlet.FacesPortlet")) { //NOI18N
-                    return true;
-                }
-            }
+        }
         return false;
     }
-    
-    private PortletApp getPortletApp(File portletXml)
-    {
+
+    private PortletApp getPortletApp(File portletXml) {
         try {
             if (!portletXml.exists()) {
                 return null;
@@ -354,44 +387,44 @@ public class PageIterator implements TemplateWizard.Iterator {
                 return null;
             }
             return portletApp;
-            
+
         } catch (Exception ex) {
             return null;
         }
     }
-    
-    private void savePortletXML(PortletApp portletApp,File portletXML)
-    {
+
+    private void savePortletXML(PortletApp portletApp, File portletXML) {
         try {
             FileObject fileObject = FileUtil.toFileObject(portletXML);
             FileLock lock = fileObject.lock();
             OutputStream out = fileObject.getOutputStream(lock);
-          
+
             portletApp.write(out);
-            try{
-                 out.flush();
-                 out.close();
-            }catch(Exception e){
-                
+            try {
+                out.flush();
+                out.close();
+            } catch (Exception e) {
             }
-            
+
             lock.releaseLock();
-            
-        } catch (IOException ex) {  
-           DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(PageIterator.class, "TXT_CantUpdatePortletXML")));
+
+        } catch (IOException ex) {
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(PageIterator.class, "TXT_CantUpdatePortletXML")));
         }
-        
+
     }
 
     public void previousPanel() {
-        if (!hasPrevious())
+        if (!hasPrevious()) {
             throw new NoSuchElementException();
+        }
         index--;
     }
 
     public void nextPanel() {
-        if (!hasNext())
+        if (!hasNext()) {
             throw new NoSuchElementException();
+        }
         index++;
     }
 
@@ -412,7 +445,6 @@ public class PageIterator implements TemplateWizard.Iterator {
     }
 
     // If nothing unusual changes in the middle of the wizard, simply:
-
     public final void addChangeListener(ChangeListener l) {
     }
 
@@ -425,6 +457,7 @@ public class PageIterator implements TemplateWizard.Iterator {
             before = new String[0];
         } else if (before.length > 0) {
             diff = ("...".equals(before[before.length - 1])) ? 1 : 0; // NOI18N
+
         }
         String[] res = new String[(before.length - diff) + panels.length];
         for (int i = 0; i < res.length; i++) {
