@@ -61,20 +61,17 @@ class ClearcaseOptionsController extends OptionsPanelController {
 
     public void update() {
         setOdc(ClearcaseModuleConfig.getOnDemandCheckout());
-        panel.taExecutable.setText(ClearcaseModuleConfig.getPreferences().get(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, "cleartool"));
-        panel.cbCheckinViewPrivate.setSelected(ClearcaseModuleConfig.getPreferences().getBoolean(ClearcaseModuleConfig.PROP_ADD_VIEWPRIVATE, true));
-        panel.taLabelFormat.setText(
-                ClearcaseModuleConfig.getPreferences().get(
-                        ClearcaseModuleConfig.PROP_LABEL_FORMAT, 
-                        "[{" + ClearcaseAnnotator.ANNOTATION_STATUS + "}; {" + ClearcaseAnnotator.ANNOTATION_VERSION + "}]"));
+        panel.taExecutable.setText(ClearcaseModuleConfig.getExecutablePath());
+        panel.cbCheckinViewPrivate.setSelected(ClearcaseModuleConfig.getAddViewPrivate());
+        panel.taLabelFormat.setText(ClearcaseModuleConfig.getLabelsFormat());
     }
 
     public void applyChanges() {
         if (!isValid()) return;
         ClearcaseModuleConfig.setOnDemandCheckout(getOdc());
-        ClearcaseModuleConfig.getPreferences().put(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, panel.taExecutable.getText().trim());
-        ClearcaseModuleConfig.getPreferences().putBoolean(ClearcaseModuleConfig.PROP_ADD_VIEWPRIVATE, panel.cbCheckinViewPrivate.isSelected());
-        ClearcaseModuleConfig.getPreferences().put(ClearcaseModuleConfig.PROP_LABEL_FORMAT, panel.taLabelFormat.getText().trim());
+        ClearcaseModuleConfig.putExecutablePath(panel.taExecutable.getText().trim());
+        ClearcaseModuleConfig.putAddViewPrivate(panel.cbCheckinViewPrivate.isSelected());
+        ClearcaseModuleConfig.putLabelsFormat(panel.taLabelFormat.getText().trim());
         Clearcase.getInstance().getAnnotator().refresh();
     }
 
@@ -87,6 +84,9 @@ class ClearcaseOptionsController extends OptionsPanelController {
 
     public boolean isChanged() {
         if (getOdc() != ClearcaseModuleConfig.getOnDemandCheckout()) return true;
+        if (!panel.taExecutable.getText().trim().equals(ClearcaseModuleConfig.getExecutablePath())) return true;
+        if (panel.cbCheckinViewPrivate.isSelected() != ClearcaseModuleConfig.getAddViewPrivate()) return true;
+        if (!panel.taLabelFormat.getText().trim().equals(ClearcaseModuleConfig.getLabelsFormat())) return true;        
         return false;
     }
 

@@ -379,7 +379,7 @@ public class FileStatusCache {
      * or IDE thinks it should be.
      */
     private boolean isIgnored(final File file) {        
-        if (!ClearcaseModuleConfig.getPreferences().getBoolean(ClearcaseModuleConfig.PROP_ADD_VIEWPRIVATE, true)) {
+        if (!ClearcaseModuleConfig.getAddViewPrivate()) {
             return true;
         }
         if(ClearcaseModuleConfig.isIgnored(file)) {
