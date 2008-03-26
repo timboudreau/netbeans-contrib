@@ -52,6 +52,8 @@ import org.netbeans.modules.scala.editing.rats.Spacing;
 import org.netbeans.modules.scala.editing.rats.Symbol;
 import org.netbeans.modules.scala.editing.rats.Xml;
 
+option dump;
+
 transient generic XmlExpr =
   &( ' ' / "(" / "{" ) ( void:sep / IGNORE ) XmlElement ;
 
@@ -205,16 +207,17 @@ transient generic BlockStat =
   Import
 / ( void:"implicit":key )? Def
 / LocalModifier* TmplDef
-/ ExprNotFun
+/ !ResultFunExpr ExprNotFun
 / 
 ;
 
-generic ResultExpr = 
-  <ResultNotFun> ExprNotFun
-/ <FunResult>    ( Bindings / ResultBinding ) void:"=>":key Block
+generic ResultExpr =
+  ResultFunExpr
+/ ExprNotFun
 ;
 
-generic ResultBinding = Id void:":":sep CompoundType ;
+generic ResultFunExpr = ( Bindings / ResultBinding ) void:"=>":key Block ;
+generic ResultBinding = Id void:":":key CompoundType ;
 
 transient generic Enumerators = Generator ( SEMI Enumerator )*;
 
@@ -234,8 +237,8 @@ transient generic Guard = void:"if":key PostfixExpr;
 transient generic Pattern = Pattern1 ( void:"|":sep Pattern1 )* ;
 
 generic Pattern1 = 
-  VarId   void:":":sep TypePat
-/ "_":key void:":":sep TypePat
+  VarId   void:":":key TypePat
+/ "_":key void:":":key TypePat
 / Pattern2
 ;
 
