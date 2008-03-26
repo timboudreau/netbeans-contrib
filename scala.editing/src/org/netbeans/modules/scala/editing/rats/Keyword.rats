@@ -121,31 +121,31 @@ option setOfString(SCALA_KEYWORDS);
  *   , . ; [ ) ] }
  */
 String key =
-  IGNORE_N "this"     :keyword IGNORE
-/ IGNORE_N "null"     :keyword IGNORE
-/ IGNORE_N "true"     :keyword IGNORE
-/ IGNORE_N "false"    :keyword IGNORE
-/ IGNORE_N "return"   :keyword IGNORE
-/ IGNORE_N "type"     :keyword IGNORE
-/ IGNORE_N "_"        :keyword IGNORE
-/          "catch"    :keyword IGNORE_N
-/          "else"     :keyword IGNORE_N
-/          "extends"  :keyword IGNORE_N
-/          "finally"  :keyword IGNORE_N
-/          "forSome"  :keyword IGNORE_N
-/          "match"    :keyword IGNORE_N
-/          "requires" :keyword IGNORE_N
-/          "with"     :keyword IGNORE_N
-/          "yield"    :keyword IGNORE_N
-/          "=>"       :keyword IGNORE_N
-/          "<-"       :keyword IGNORE_N
-/          "<:"       :keyword IGNORE_N
-/          "<%"       :keyword IGNORE_N
-/          ">:"       :keyword IGNORE_N
-/          "#"        :keyword IGNORE_N
-/          "="        :keyword IGNORE_N
-/          ":"        :keyword IGNORE_N
-/ IGNORE_N             keyword IGNORE_N
+  IGNORE   "catch"    :keyword IGNORE_TILL_N
+/ IGNORE   "else"     :keyword IGNORE_TILL_N
+/ IGNORE   "extends"  :keyword IGNORE_TILL_N
+/ IGNORE   "finally"  :keyword IGNORE_TILL_N
+/ IGNORE   "forSome"  :keyword IGNORE_TILL_N
+/ IGNORE   "match"    :keyword IGNORE_TILL_N
+/ IGNORE   "requires" :keyword IGNORE_TILL_N
+/ IGNORE   "with"     :keyword IGNORE_TILL_N
+/ IGNORE   "yield"    :keyword IGNORE_TILL_N
+/ IGNORE   "=>"       :keyword IGNORE_TILL_N
+/ IGNORE   "<-"       :keyword IGNORE_TILL_N
+/ IGNORE   "<:"       :keyword IGNORE_TILL_N
+/ IGNORE   "<%"       :keyword IGNORE_TILL_N
+/ IGNORE   ">:"       :keyword IGNORE_TILL_N
+/ IGNORE   "#"        :keyword IGNORE_TILL_N
+/ IGNORE   "="        :keyword IGNORE_TILL_N
+/ IGNORE   ":"        :keyword IGNORE_TILL_N
+/ IGNORE_N "this"     :keyword 
+/ IGNORE_N "null"     :keyword 
+/ IGNORE_N "true"     :keyword 
+/ IGNORE_N "false"    :keyword 
+/ IGNORE_N "return"   :keyword 
+/ IGNORE_N "type"     :keyword 
+/ IGNORE_N "_"        :keyword 
+/ IGNORE_N             keyword IGNORE_TILL_N
 ;
 
 generic Keyword = keyword ;

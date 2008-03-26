@@ -66,15 +66,17 @@ transient String lineComment =
 
 // ----- Meaningful newline
 
-transient void N = n ( w / lineComment / BlockComment )*;
+transient void N = ( w / lineComment / BlockComment )* n;
 
 // ----- ignorable including nl
 
-transient void IGNORE_N = ( n / w / lineComment / BlockComment )*;
+transient void IGNORE_TILL_N = ( ( w / lineComment / BlockComment )* n+ )? ;
+
+transient void IGNORE_N = ( n / w / lineComment / BlockComment )* ;
 
 // ----- Globe ignorable
 
-transient void IGNORE = ( w / lineComment / BlockComment )*;
+transient void IGNORE = ( w / lineComment / BlockComment )* ;
 
 
 // ------ Spacing tokens
