@@ -41,22 +41,39 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 
-<project name="org.netbeans.modules.javafx.lexer" default="grammar" basedir=".">
-<!--<project name="org.netbeans.modules.javafx.lexer" default="netbeans" basedir=".">-->
+<project name="ANTLRLexer" default="gen" basedir=".">
+    <property file="${basedir}/nbproject/private/user-private.properties"/>
+    <path id="antlr.class.path">
+        <fileset dir="${antlr.dir}" includes="**/*.jar"/>
+    </path>
 
-    <import file="../../nbbuild/templates/projectized.xml"/>
 
-    <target name="_verifyGrammar" if="jfxc.grammar.available">
-        <echo message="This verification is not implemented yet!" />
+    <target name="gen">
+        <delete failonerror="false">
+            <fileset dir="${antlr.generated.dir}" includes="${antlr.grammarv3}*"/>
+        </delete>
+        <mkdir dir="${antlr.generated.dir}"/>
+        <uptodate property="parserv3.uptodate" srcfile="${jfxc.grammar}"
+                  targetfile="${antlr.generated.dir}/${antlr.grammarv3}Lexer.java"/>
+        <property name="local.grammar" value="${antlr.generated.dir}/${antlr.grammarv3}.g"/>
+        <copy file="${jfxc.grammar}" todir="${antlr.generated.dir}">
+            <filterset>
+                <filter token="lexer.package" value="org.netbeans.lib.javafx.lexer"/>
+            </filterset>
+        </copy>
+        <antcall target="_generate-parserv3"/>
+        <delete>
+            <fileset dir="${antlr.generated.dir}" includes="${antlr.grammarv3}Parser*"/>
+        </delete>
     </target>
 
+    <target name="_generate-parserv3" unless="parserv3.uptodate">
 
-    <target name="grammar" description="Verify current implementation against current JFX grammar." >
-        <property file="${basedir}/nbproject/private/user-private.properties" />
-        <echo message="Loading grammar ${jfxc.grammar}" />
-        <available file="${jfxc.grammar}" type="file" property="jfxc.grammar.available"/>
-        <antcall target="_verifyGrammar" />
-        <antcall target="netbeans" />
+        <java classname="org.antlr.Tool" classpathref="antlr.class.path" fork="true">
+            <arg value="-o"/>
+            <arg value="${antlr.generated.dir}"/>
+            <arg value="${local.grammar}"/>
+            <jvmarg value="-Xmx256m"/>
+        </java>
     </target>
-
 </project>

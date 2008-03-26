@@ -414,7 +414,7 @@ public enum JavaFXTokenId implements TokenId {
     public enum JavaLike {
         /** 
          * The same token is defined in the 
-         * {@link org.netbeans.api.java.lexer.JavaFXTokenId}.
+         * {@link org.netbeans.api.javafx.lexer.JavaFXTokenId}.
          * 
          * Note, the token can have another identifier.
          */

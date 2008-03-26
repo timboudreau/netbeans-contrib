@@ -52,16 +52,26 @@ import org.netbeans.modules.scala.editing.rats.Spacing;
 import org.netbeans.modules.scala.editing.rats.Symbol;
 import org.netbeans.modules.scala.editing.rats.Xml;
 
+/* @Note: We cannot consumer every token's tail whitespace (leave it for XmlExpr 
+ * to detect a preceding whitespace, instead, we consumer every token's preceding
+ * whitespace and ignore it. 
+ */
 transient generic XmlExpr =
-  &( ' ' / "(" / "{" ) ( void:sep / IGNORE ) XmlElement ;
+  void:w       XmlElement
+/ void:"(":sep XmlElement void:")":sep 
+/ void:"{":sep XmlElement void:"}":sep
+;
+
+//  &( ' ' / "(" / "{" ) ( void:sep / IGNORE ) XmlElement ;
 
 transient generic Literal =
-  ( "-":Id )? FloatingPointLiteral IGNORE
-/ ( "-":Id )? IntegerLiteral       IGNORE
-/             BooleanLiteral       IGNORE
-/             CharacterLiteral     IGNORE
-/             StringLiteral        IGNORE
-/             SymbolLiteral        IGNORE
+  IGNORE ( "-":op )? FloatingPointLiteral 
+/ IGNORE ( "-":op )? IntegerLiteral
+/ IGNORE             BooleanLiteral
+/ IGNORE             NullLiteral          
+/ IGNORE             CharacterLiteral     
+/ IGNORE             StringLiteral        
+/ IGNORE             SymbolLiteral
 ;
 
 transient generic BooleanLiteral = "true":key / "false":key;
@@ -130,7 +140,7 @@ generic TypePat = Type ;
 generic Ascription = 
   void:":":key CompoundType
 / void:":":key Annotation Annotation*
-/ void:":":key "_":key "*"
+/ void:":":key "_":key "*":op
 ;
 
 generic Expr = 
@@ -157,16 +167,16 @@ generic PostfixExpr = InfixExpr ( Id ( N) ? )? ;
 generic InfixExpr = PrefixExpr InfixExprRest* ;
 generic InfixExprRest = Id N? PrefixExpr;
 
-generic PrefixExpr = ( "-":Id / "+":Id / "~":Id / "!":Id )? SimpleExpr ;
+generic PrefixExpr = ( "-":op / "+":op / "~":op / "!":op )? SimpleExpr ;
 
 generic SimpleExpr = 
-  SimplePathExpr
+  XmlExpr
 / SimpleLiteralExpr
+/ SimplePathExpr
 / SimpleWildCardExpr
 / SimpleTupleExpr
 / SimpleBlockExpr
 / SimpleNewExpr
-/ XmlExpr
 ;
 
 transient generic SimplePathExpr     = Path      TypeArgs? SimpleExprRest*;
@@ -205,16 +215,18 @@ transient generic BlockStat =
   Import
 / ( void:"implicit":key )? Def
 / LocalModifier* TmplDef
+/ !ResultFunExpr ExprNotFun
+/ 
+;
+
+generic ResultExpr =
+  ResultFunExpr
 / ExprNotFun
-/ IGNORE
 ;
 
-generic ResultExpr = 
-  <ResultNotFun> ExprNotFun
-/ <FunResult>    ( Bindings / ResultBinding ) void:"=>":key Block
-;
-
-generic ResultBinding = Id void:":":sep CompoundType ;
+generic ResultFunExpr = ( Bindings / ResultBinding ) void:"=>":key Block ;
+/* @DocError in ScalaReference: Id void:":":key CompoundType */
+generic ResultBinding = Id ( void:":":key CompoundType )? ;
 
 transient generic Enumerators = Generator ( SEMI Enumerator )*;
 
@@ -234,8 +246,8 @@ transient generic Guard = void:"if":key PostfixExpr;
 transient generic Pattern = Pattern1 ( void:"|":sep Pattern1 )* ;
 
 generic Pattern1 = 
-  VarId   void:":":sep TypePat
-/ "_":key void:":":sep TypePat
+  VarId   void:":":key TypePat
+/ "_":key void:":":key TypePat
 / Pattern2
 ;
 
@@ -249,8 +261,9 @@ transient generic Pattern3 =
 / <SimplePattern> SimplePattern;
 transient generic CallPatternTail = Id N? SimplePattern ;
 
+/* @DocError in ScalaReference: "_":key */
 transient generic SimplePattern =
-  "_":key
+  "_":key ( "*":op )?
 / Literal
 / TuplePattern
 / StableId TuplePattern
@@ -259,13 +272,16 @@ transient generic SimplePattern =
 
 transient generic TuplePattern = void:"(":sep Patterns? void:")":sep ;
 
-transient generic Patterns = Pattern ( void:",":sep Pattern )* ( ",":sep "_":key "*" / ",":sep )? ;
+transient generic Patterns = 
+  Pattern ( void:",":sep Pattern )* ( ",":sep "_":key "*":op / ",":sep )? 
+/ "_":key "*":op
+;
 
 transient generic TypeParamClause = void:"[":sep VariantTypeParam ( void:",":sep VariantTypeParam )* void:"]":sep ;
 
 transient generic FunTypeParamClause = void:"[":sep TypeParam ( void:",":sep TypeParam )* void:"]":sep ;
 
-transient generic VariantTypeParam = ( "+":Id / "-":Id ) TypeParam ;
+transient generic VariantTypeParam = ( "+":op / "-":op ) TypeParam ;
 
 transient generic TypeParam = ( Id / "_":sep ) TypeParamClause? ( void:">:":key Type )? ( void:"<:":key Type )? ( void:"<%":key Type )? ;
 
@@ -278,7 +294,7 @@ transient generic Params = Param ( void:",":sep Param )* ;
 transient generic Param = Annotation* Id ( void:":":key ParamType )? ;
 
 transient generic ParamType = 
-  Type "*"
+  Type "*":op
 / Type
 / "=>":key Type
 ;
@@ -437,11 +453,11 @@ transient generic TopStat =
   Import
 / Packaging
 / Annotation* Modifier* TmplDef
-/ IGNORE
+/ 
 ;
 
 transient generic Packaging = void:"package":key QualId N? void:"{":sep TopStatSeq void:"}":sep ;
 transient generic Package   = void:"package":key QualId SEMI ;
 
-public generic CompilationUnit = Package? TopStatSeq;
+public generic CompilationUnit = Package? TopStatSeq IGNORE_N;
 

@@ -7,7 +7,7 @@
         <folder name="text">
             <folder name="x-fx">
                 <file name="language.instance">
-                    <attr name="instanceCreate" methodvalue="org.netbeans.api.javafx.lexer.JavaFXTokenId.language"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.api.javafx.lexer.JFXTokenId.language"/>
                     <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
                 </file>
             </folder>
