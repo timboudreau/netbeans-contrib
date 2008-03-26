@@ -79,5 +79,10 @@ transient generic Literal =
 ;
 
 transient generic XmlExpr =
-  &( ' ' / '(' / '{' ) ( Ws / Separator ) XmlElement ;
+  Ws            XmlElement
+/ "(":Separator XmlElement ")":Separator 
+/ "{":Separator XmlElement "}":Separator
+;
+
+//  &( ' ' / '(' / '{' ) ( Ws / Separator ) XmlElement ;
 
