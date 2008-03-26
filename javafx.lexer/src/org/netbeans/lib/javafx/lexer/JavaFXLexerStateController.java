@@ -58,7 +58,7 @@ import java.util.logging.Logger;
  */
 public class JavaFXLexerStateController {
 
-    private static final boolean DEBUG = false; 
+    private static final boolean DEBUG = false;
     private static final Logger LOG = DEBUG ?
             Logger.getLogger(JavaFXLexerStateController.class.getName()) : null;
 
@@ -79,7 +79,7 @@ public class JavaFXLexerStateController {
     }
     
     public Object getState() {
-        if(DEBUG) LOG.log(Level.INFO, 
+        if(DEBUG) LOG.log(Level.INFO,
                           "JavaFXLexer has requested for state [{0}]",
                           quoteStack);
         if(quoteStack == null) {
