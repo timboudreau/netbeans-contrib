@@ -76,7 +76,6 @@ public class Label implements ActionListener, DocumentListener {
         
         labelButton = new JButton(); 
         labelButton.setEnabled(false);
-        JButton cancelButton = new JButton(NbBundle.getMessage(Label.class, "LabelAction_Cancel")); //NOI18N
                 
         panel.recurseCheckBox.setSelected(ClearcaseModuleConfig.getLabelRecurse());      
         panel.replaceCheckBox.setSelected(ClearcaseModuleConfig.getLabelReplace());      
@@ -93,11 +92,12 @@ public class Label implements ActionListener, DocumentListener {
         panel.putClientProperty("contentTitle", contextTitle);  // NOI18N
         panel.putClientProperty("DialogDescriptor", dd); // NOI18N
         
-        dd.setOptions(new Object[] {labelButton, cancelButton}); // NOI18N
+        dd.setOptions(new Object[] {labelButton, DialogDescriptor.CANCEL_OPTION}); // NOI18N
         dd.setHelpCtx(new HelpCtx(LabelAction.class));
         
         final Dialog dialog = DialogDisplayer.getDefault().createDialog(dd);        
         dialog.addWindowListener(new DialogBoundsPreserver(ClearcaseModuleConfig.getPreferences(), "label.dialog")); // NOI18N       
+        dialog.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(Label.class, "ACSD_LabelDialog")); // NOI18N
         dialog.pack();        
         dialog.setVisible(true);                
                 

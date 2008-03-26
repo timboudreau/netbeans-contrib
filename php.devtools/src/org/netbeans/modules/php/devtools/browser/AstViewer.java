@@ -79,6 +79,7 @@ import org.netbeans.modules.gsf.LanguageRegistry;
 import org.netbeans.modules.gsf.api.*;
 
 import org.netbeans.modules.gsf.spi.DefaultParserFile;
+import org.netbeans.modules.php.editor.PHPLanguage;
 import org.netbeans.modules.php.editor.parser.PHPParseResult;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
@@ -342,7 +343,7 @@ public class AstViewer extends TopComponent {
 
         String mimeType = (String)doc.getProperty("mimeType");
         System.out.println("mimetype: " + mimeType);
-        if (mimeType == null || !mimeType.equals("text/x-php")) {
+        if (mimeType == null || !mimeType.equals(PHPLanguage.PHP_MIME_TYPE)) {
             DefaultTreeModel model = new EmptyTreeModel();
             tree.setModel(model);
 
