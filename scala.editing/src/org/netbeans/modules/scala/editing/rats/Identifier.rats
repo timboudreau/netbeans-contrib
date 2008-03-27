@@ -77,7 +77,7 @@ transient String id =
 ;
 
 transient String idrest = 
-  ( letter / [$_] / digit )+ ( '_' opid )? 
+  ( letter / '$' / '_' !opid / digit )+ ( '_' opid )? 
 / ( '_' opid )
 ;
 
