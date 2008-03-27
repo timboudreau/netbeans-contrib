@@ -271,9 +271,11 @@ transient generic Generator = Pattern1 "<-":key Expr Guard? ;
 transient generic CaseClauses = CaseClause CaseClause* ;
 /* @Hacking greedy Pattern will consumer latest "=>" to try to recognize as FunType,
  * we should extract lastest "=>" Expr from PatternWFunType as Block
+ * 
+ * A case token can begin a statement only if followed by a class or object token
  */
 transient generic CaseClause = 
-  void:"case":key 
+  SKIP_N void:"case":key 
   ( PatternWFunType Block   // temporary solution
   / Pattern Guard? void:"=>":key Block 
   )
