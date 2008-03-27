@@ -37,8 +37,9 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.api.javafx.source;
+package org.netbeans.modules.javafx.source.scheduler;
 
+import org.netbeans.api.javafx.source.*;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,18 +53,32 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.WeakHashMap;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import org.netbeans.api.javafx.source.JavaFXSource.Phase;
 import org.openide.util.Exceptions;
+import org.netbeans.modules.javafx.source.scheduler.Request.RequestComparator;
 
 /**
  * 
  * @author David Strupl (initially copied from Java Source module JavaSource.java)
  */
-class CompilationJob implements Runnable {
+public class CompilationJob implements Runnable {
+    static final Logger LOGGER = Logger.getLogger(CompilationJob.class.getName());
     private final static List<DeferredTask> todo = Collections.synchronizedList(new LinkedList<DeferredTask>());    
 //    //Only single thread can operate on the single javac
     private final static ReentrantLock javacLock = new ReentrantLock (true);
+    public static final Object INTERNAL_LOCK = new Object();
+    public final static PriorityBlockingQueue<Request> requests = new PriorityBlockingQueue<Request> (10, new RequestComparator());
+    public final static Map<JavaFXSource,Collection<Request>> finishedRequests = new WeakHashMap<JavaFXSource,Collection<Request>>();
+    public final static Map<JavaFXSource,Collection<Request>> waitingRequests = new WeakHashMap<JavaFXSource,Collection<Request>>();
+    public final static Collection<CancellableTask> toRemove = new LinkedList<CancellableTask> ();
+    public final static CurrentRequestReference currentRequest = new CurrentRequestReference ();
 
     CompilationJob() {
         super();
@@ -74,13 +89,13 @@ class CompilationJob implements Runnable {
         try {
             while (true) {
                 try {
-                    synchronized (JavaFXSource.INTERNAL_LOCK) {
-                        if (!JavaFXSource.toRemove.isEmpty()) {
-                            for (Iterator<Collection<Request>> it = JavaFXSource.finishedRequests.values().iterator(); it.hasNext();) {
+                    synchronized (INTERNAL_LOCK) {
+                        if (!toRemove.isEmpty()) {
+                            for (Iterator<Collection<Request>> it = finishedRequests.values().iterator(); it.hasNext();) {
                                 Collection<Request> cr = it.next();
                                 for (Iterator<Request> it2 = cr.iterator(); it2.hasNext();) {
                                     Request fr = it2.next();
-                                    if (JavaFXSource.toRemove.remove(fr.task)) {
+                                    if (toRemove.remove(fr.task)) {
                                         it2.remove();
                                     }
                                 }
@@ -90,9 +105,9 @@ class CompilationJob implements Runnable {
                             }
                         }
                     }
-                    Request r = JavaFXSource.requests.poll(2, TimeUnit.SECONDS);
+                    Request r = requests.poll(2, TimeUnit.SECONDS);
                     if (r != null) {
-                        JavaFXSource.currentRequest.setCurrentTask(r);
+                        currentRequest.setCurrentTask(r);
                         try {
                             JavaFXSource js = r.source;
                             if (js == null) {
@@ -103,8 +118,8 @@ class CompilationJob implements Runnable {
                                     try {
                                         r.task.run(null);
                                     } finally {
-                                        JavaFXSource.currentRequest.clearCurrentTask();
-                                        boolean cancelled = JavaFXSource.requests.contains(r);
+                                        currentRequest.clearCurrentTask();
+                                        boolean cancelled = requests.contains(r);
                                         if (!cancelled) {
                                             DeferredTask[] _todo;
                                             synchronized (todo) {
@@ -129,20 +144,20 @@ class CompilationJob implements Runnable {
                                 assert js.files.size() <= 1;
                                 boolean jsInvalid;
                                 CompilationController ci;
-                                synchronized (JavaFXSource.INTERNAL_LOCK) {
+                                synchronized (INTERNAL_LOCK) {
                                     //jl:what does this comment mean?
                                     //Not only the finishedRequests for the current request.JavaFXSource should be cleaned,
                                     //it will cause a starvation
-                                    if (JavaFXSource.toRemove.remove(r.task)) {
+                                    if (toRemove.remove(r.task)) {
                                         continue;
                                     }
                                     synchronized (js) {
                                         boolean changeExpected = (js.flags & JavaFXSource.CHANGE_EXPECTED) != 0;
                                         if (changeExpected) {
-                                            Collection<Request> rc = JavaFXSource.waitingRequests.get(r.source);
+                                            Collection<Request> rc = waitingRequests.get(r.source);
                                             if (rc == null) {
                                                 rc = new LinkedList<Request>();
-                                                JavaFXSource.waitingRequests.put(r.source, rc);
+                                                waitingRequests.put(r.source, rc);
                                             }
                                             rc.add(r);
                                             continue;
@@ -186,8 +201,8 @@ class CompilationJob implements Runnable {
                                                     } finally {
                                                     }
                                                     final long endTime = System.currentTimeMillis();
-                                                    if (JavaFXSource.LOGGER.isLoggable(Level.FINEST)) {
-                                                        JavaFXSource.LOGGER.finest(String.format("executed task: %s in %d ms.", r.task.getClass().toString(), endTime - startTime));
+                                                    if (LOGGER.isLoggable(Level.FINEST)) {
+                                                        LOGGER.finest(String.format("executed task: %s in %d ms.", r.task.getClass().toString(), endTime - startTime));
                                                     }
                                                 } catch (Exception re) {
                                                     Exceptions.printStackTrace(re);
@@ -198,16 +213,16 @@ class CompilationJob implements Runnable {
                                         javacLock.unlock();
                                     }
                                     if (r.reschedule) {
-                                        synchronized (JavaFXSource.INTERNAL_LOCK) {
-                                            boolean canceled = JavaFXSource.currentRequest.setCurrentTask(null);
+                                        synchronized (INTERNAL_LOCK) {
+                                            boolean canceled = currentRequest.setCurrentTask(null);
                                             synchronized (js) {
                                                 if ((js.flags & JavaFXSource.INVALID) != 0 || canceled) {
-                                                    JavaFXSource.requests.add(r);
+                                                    requests.add(r);
                                                 } else {
-                                                    Collection<Request> rc = JavaFXSource.finishedRequests.get(r.source);
+                                                    Collection<Request> rc = finishedRequests.get(r.source);
                                                     if (rc == null) {
                                                         rc = new LinkedList<Request>();
-                                                        JavaFXSource.finishedRequests.put(r.source, rc);
+                                                        finishedRequests.put(r.source, rc);
                                                     }
                                                     rc.add(r);
                                                 }
@@ -218,7 +233,7 @@ class CompilationJob implements Runnable {
                                 }
                             }
                         } finally {
-                            JavaFXSource.currentRequest.setCurrentTask(null);
+                            currentRequest.setCurrentTask(null);
                         }
                     }
                 } catch (Throwable e) {

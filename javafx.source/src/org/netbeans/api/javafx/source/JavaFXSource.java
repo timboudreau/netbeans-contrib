@@ -62,7 +62,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.text.Document;
 import javax.tools.JavaFileObject;
-import org.netbeans.api.javafx.source.Request.RequestComparator;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -76,6 +75,12 @@ import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileRenameEvent;
 import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListeners;
+import org.netbeans.modules.javafx.source.scheduler.DocListener;
+import org.netbeans.modules.javafx.source.scheduler.CurrentRequestReference;
+import org.netbeans.modules.javafx.source.scheduler.DataObjectListener;
+import org.netbeans.modules.javafx.source.scheduler.CompilationJob;
+import org.netbeans.modules.javafx.source.scheduler.Request;
+
 
 /**
  * A class representing JavaFX source.
@@ -109,40 +114,35 @@ public final class JavaFXSource {
     private static Map<FileObject, Reference<JavaFXSource>> file2Source = new WeakHashMap<FileObject, Reference<JavaFXSource>>();
     static final Logger LOGGER = Logger.getLogger(JavaFXSource.class.getName());
     private final ClasspathInfo cpInfo;
-    final Collection<? extends FileObject> files;
+    public final Collection<? extends FileObject> files;
     private final AtomicReference<Request> rst = new AtomicReference<Request> ();
-    volatile boolean k24;
+    public volatile boolean k24;
 
-    int flags = 0;   
+    public int flags = 0;   
 
-    static final int INVALID = 1;
-    static final int CHANGE_EXPECTED = INVALID<<1;
-    private static final int RESCHEDULE_FINISHED_TASKS = CHANGE_EXPECTED<<1;
-    private static final int UPDATE_INDEX = RESCHEDULE_FINISHED_TASKS<<1;
-    private static final int IS_CLASS_FILE = UPDATE_INDEX<<1;
+    public static final int INVALID = 1;
+    public static final int CHANGE_EXPECTED = INVALID<<1;
+    public static final int RESCHEDULE_FINISHED_TASKS = CHANGE_EXPECTED<<1;
+    public static final int UPDATE_INDEX = RESCHEDULE_FINISHED_TASKS<<1;
+    public static final int IS_CLASS_FILE = UPDATE_INDEX<<1;
     
     private static final int REPARSE_DELAY = 500;
-    int reparseDelay;
+    public int reparseDelay;
     
     private static final Pattern excludedTasks;
     private static final Pattern includedTasks;
-    static final Object INTERNAL_LOCK = new Object();
-    final static PriorityBlockingQueue<Request> requests = new PriorityBlockingQueue<Request> (10, new RequestComparator());
-    final static Map<JavaFXSource,Collection<Request>> finishedRequests = new WeakHashMap<JavaFXSource,Collection<Request>>();
-    final static Map<JavaFXSource,Collection<Request>> waitingRequests = new WeakHashMap<JavaFXSource,Collection<Request>>();
-    final static Collection<CancellableTask> toRemove = new LinkedList<CancellableTask> ();
     
-    final static CurrentRequestReference currentRequest = new CurrentRequestReference ();
+    
     
     private final FileChangeListener fileChangeListener;
     private DocListener listener;
     private DataObjectListener dataObjectListener;
     
-    CompilationController currentInfo;
-    
+    public CompilationController currentInfo;
+
     private static final RequestProcessor RP = new RequestProcessor ("JavaFXSource-event-collector",1);       //NOI18N
     
-    final RequestProcessor.Task resetTask = RP.create(new Runnable() {
+    public final RequestProcessor.Task resetTask = RP.create(new Runnable() {
         public void run() {
             resetStateImpl();
         }
@@ -188,7 +188,7 @@ public final class JavaFXSource {
         return task;
   }
 
-    Phase moveToPhase(Phase phase, CompilationController cc, boolean b) throws IOException {
+    public Phase moveToPhase(Phase phase, CompilationController cc, boolean b) throws IOException {
         if (cc.phase.lessThan(Phase.PARSED)) {
                 Iterable<? extends CompilationUnitTree> trees = cc.getJavafxcTask().parse();
 //                new JavaFileObject[] {currentInfo.jfo});
@@ -324,7 +324,7 @@ public final class JavaFXSource {
         }
     }
 
-    static CompilationController createCurrentInfo (final JavaFXSource js, final String javafxc) throws IOException {                
+    public static CompilationController createCurrentInfo (final JavaFXSource js, final String javafxc) throws IOException {                
         CompilationController info = new CompilationController(js);//js, binding, javac);
         return info;
     }
@@ -364,9 +364,9 @@ public final class JavaFXSource {
                 return;
             }
         }
-        synchronized (INTERNAL_LOCK) {
-            toRemove.add (task);
-            Collection<Request> rqs = finishedRequests.get(this);
+        synchronized (CompilationJob.INTERNAL_LOCK) {
+            CompilationJob.toRemove.add (task);
+            Collection<Request> rqs = CompilationJob.finishedRequests.get(this);
             if (rqs != null) {
                 for (Iterator<Request> it = rqs.iterator(); it.hasNext(); ) {
                     Request rq = it.next();
@@ -383,16 +383,16 @@ public final class JavaFXSource {
      * @task to reschedule
      */
     void rescheduleTask(CancellableTask<CompilationInfo> task) {
-        synchronized (INTERNAL_LOCK) {
-            Request request = currentRequest.getTaskToCancel (task);
+        synchronized (CompilationJob.INTERNAL_LOCK) {
+            Request request = CompilationJob.currentRequest.getTaskToCancel (task);
             if ( request == null) {                
-out:            for (Iterator<Collection<Request>> it = finishedRequests.values().iterator(); it.hasNext();) {
+out:            for (Iterator<Collection<Request>> it = CompilationJob.finishedRequests.values().iterator(); it.hasNext();) {
                     Collection<Request> cr = it.next ();
                     for (Iterator<Request> it2 = cr.iterator(); it2.hasNext();) {
                         Request fr = it2.next();
                         if (task == fr.task) {
                             it2.remove();
-                            requests.add(fr);
+                            CompilationJob.requests.add(fr);
                             if (cr.size()==0) {
                                 it.remove();
                             }
@@ -402,7 +402,7 @@ out:            for (Iterator<Collection<Request>> it = finishedRequests.values(
                 }
             }
             else {
-                currentRequest.cancelCompleted(request);
+                CompilationJob.currentRequest.cancelCompleted(request);
             }
         }        
     }
@@ -414,8 +414,8 @@ out:            for (Iterator<Collection<Request>> it = finishedRequests.values(
     private void resetStateImpl() {
         if (!k24) {
             Request r = rst.getAndSet(null);
-            currentRequest.cancelCompleted(r);
-            synchronized (INTERNAL_LOCK) {
+            CompilationJob.currentRequest.cancelCompleted(r);
+            synchronized (CompilationJob.INTERNAL_LOCK) {
                 boolean reschedule, updateIndex;
                 synchronized (this) {
                     reschedule = (this.flags & RESCHEDULE_FINISHED_TASKS) != 0;
@@ -424,19 +424,19 @@ out:            for (Iterator<Collection<Request>> it = finishedRequests.values(
                 }            
                 Collection<Request> cr;            
                 if (reschedule) {                
-                    if ((cr=JavaFXSource.finishedRequests.remove(this)) != null && cr.size()>0)  {
-                        requests.addAll(cr);
+                    if ((cr=CompilationJob.finishedRequests.remove(this)) != null && cr.size()>0)  {
+                        CompilationJob.requests.addAll(cr);
                     }
                 }
-                if ((cr=JavaFXSource.waitingRequests.remove(this)) != null && cr.size()>0)  {
-                    requests.addAll(cr);
+                if ((cr=CompilationJob.waitingRequests.remove(this)) != null && cr.size()>0)  {
+                    CompilationJob.requests.addAll(cr);
                 }
             }          
         }
     }
     
 
-    void resetState(boolean invalidate, boolean updateIndex) {
+    public void resetState(boolean invalidate, boolean updateIndex) {
         boolean invalid;
         synchronized (this) {
             invalid = (this.flags & INVALID) != 0;
@@ -451,7 +451,7 @@ out:            for (Iterator<Collection<Request>> it = finishedRequests.values(
                 this.flags|=UPDATE_INDEX;
             }            
         }
-        Request r = currentRequest.getTaskToCancel (invalidate);
+        Request r = CompilationJob.currentRequest.getTaskToCancel (invalidate);
         if (r != null) {
             r.task.cancel();
             Request oldR = rst.getAndSet(r);
@@ -462,7 +462,7 @@ out:            for (Iterator<Collection<Request>> it = finishedRequests.values(
         }
     }
     
-    void assignDocumentListener(final DataObject od) throws IOException {
+    public void assignDocumentListener(final DataObject od) throws IOException {
         EditorCookie.Observable ec = od.getCookie(EditorCookie.Observable.class);            
         if (ec != null) {
             this.listener = new DocListener (ec,this);
@@ -475,17 +475,17 @@ out:            for (Iterator<Collection<Request>> it = finishedRequests.values(
     private static void handleAddRequest (final Request nr) {
         assert nr != null;
         //Issue #102073 - removed running task which is readded is not performed
-        synchronized (INTERNAL_LOCK) {            
-            toRemove.remove(nr.task);
-            requests.add (nr);
+        synchronized (CompilationJob.INTERNAL_LOCK) {            
+            CompilationJob.toRemove.remove(nr.task);
+            CompilationJob.requests.add (nr);
         }
-        Request request = currentRequest.getTaskToCancel(nr.priority);
+        Request request = CompilationJob.currentRequest.getTaskToCancel(nr.priority);
         try {
             if (request != null) {
                 request.task.cancel();
             }
         } finally {
-            currentRequest.cancelCompleted(request);
+            CompilationJob.currentRequest.cancelCompleted(request);
         }
     }
     

@@ -37,8 +37,9 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.api.javafx.source;
+package org.netbeans.modules.javafx.source.scheduler;
 
+import org.netbeans.api.javafx.source.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -53,7 +54,7 @@ import org.openide.util.WeakListeners;
  * 
  * @author David Strupl (initially copied from Java Source module JavaSource.java)
  */
-final class DataObjectListener implements PropertyChangeListener {
+public final class DataObjectListener implements PropertyChangeListener {
 
     private DataObject dobj;
     private final FileObject fobj;
@@ -107,7 +108,7 @@ final class DataObjectListener implements PropertyChangeListener {
             } catch (DataObjectNotFoundException e) {
             } catch (IOException ex) {
                 // should not occur
-                JavaFXSource.LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                CompilationJob.LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
     }

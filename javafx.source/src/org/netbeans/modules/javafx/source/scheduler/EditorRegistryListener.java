@@ -37,8 +37,9 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.api.javafx.source;
+package org.netbeans.modules.javafx.source.scheduler;
 
+import org.netbeans.api.javafx.source.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.event.CaretEvent;
@@ -51,7 +52,7 @@ import org.netbeans.api.editor.EditorRegistry;
  * 
  * @author David Strupl (initially copied from Java Source module JavaSource.java)
  */
-class EditorRegistryListener implements CaretListener, PropertyChangeListener {
+public class EditorRegistryListener implements CaretListener, PropertyChangeListener {
     
     private final static EditorRegistryListener singleton = new EditorRegistryListener ();
 
@@ -119,7 +120,7 @@ class EditorRegistryListener implements CaretListener, PropertyChangeListener {
                     final boolean value = (Boolean) rawValue;
                     if (value) {
                         assert this.request == null;
-                        this.request = JavaFXSource.currentRequest.getTaskToCancel(false);
+                        this.request = CompilationJob.currentRequest.getTaskToCancel(false);
                         if (this.request != null) {
                             this.request.task.cancel();
                         }
@@ -129,7 +130,7 @@ class EditorRegistryListener implements CaretListener, PropertyChangeListener {
                         this.request = null;
                         js.k24 = false;
                         js.resetTask.schedule(js.reparseDelay);
-                        JavaFXSource.currentRequest.cancelCompleted(_request);
+                        CompilationJob.currentRequest.cancelCompleted(_request);
                     }
                 }
             }

@@ -37,8 +37,9 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.api.javafx.source;
+package org.netbeans.modules.javafx.source.scheduler;
 
+import org.netbeans.api.javafx.source.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,7 +51,7 @@ import org.netbeans.api.javafx.source.JavaFXSource.Priority;
  * 
  * @author David Strupl (initially copied from Java Source module JavaSource.java)
  */
-final class CurrentRequestReference {
+public final class CurrentRequestReference {
     private final static SingleThreadFactory factory = new SingleThreadFactory ();
     static {
         Executors.newSingleThreadExecutor(factory).submit (new CompilationJob());
@@ -73,16 +74,16 @@ final class CurrentRequestReference {
     private final AtomicBoolean canceled;
     private boolean mayCancelJavac;
 
-    CurrentRequestReference() {
+    public CurrentRequestReference() {
         super();
         this.canceled = new AtomicBoolean();
     }
 
-    boolean setCurrentTask(Request reference) throws InterruptedException {
+    public boolean setCurrentTask(Request reference) throws InterruptedException {
         boolean result = false;
-        synchronized (JavaFXSource.INTERNAL_LOCK) {
+        synchronized (CompilationJob.INTERNAL_LOCK) {
             while (this.canceledReference != null) {
-                JavaFXSource.INTERNAL_LOCK.wait();
+                CompilationJob.INTERNAL_LOCK.wait();
             }
             result = this.canceled.getAndSet(false);
             this.mayCancelJavac = false;
@@ -101,16 +102,16 @@ final class CurrentRequestReference {
      * pending tasks into the array, it cannot use setCurrentTaks (null) since it is under javac lock
      * and the setCurrentTaks methods may block the caller thread => deadlock.
      */
-    void clearCurrentTask() {
-        synchronized (JavaFXSource.INTERNAL_LOCK) {
+    public void clearCurrentTask() {
+        synchronized (CompilationJob.INTERNAL_LOCK) {
             this.reference = null;
         }
     }
 
-    Request getTaskToCancel(final Priority priority) {
+    public Request getTaskToCancel(final Priority priority) {
         Request request = null;
         if (!factory.isDispatchThread(Thread.currentThread())) {
-            synchronized (JavaFXSource.INTERNAL_LOCK) {
+            synchronized (CompilationJob.INTERNAL_LOCK) {
                 if (this.reference != null && priority.compareTo(this.reference.priority) < 0) {
                     assert this.canceledReference == null;
                     request = this.reference;
@@ -124,10 +125,10 @@ final class CurrentRequestReference {
         return request;
     }
 
-    Request getTaskToCancel(final boolean mayCancelJavac) {
+    public Request getTaskToCancel(final boolean mayCancelJavac) {
         Request request = null;
         if (!factory.isDispatchThread(Thread.currentThread())) {
-            synchronized (JavaFXSource.INTERNAL_LOCK) {
+            synchronized (CompilationJob.INTERNAL_LOCK) {
                 if (this.reference != null) {
                     assert this.canceledReference == null;
                     request = this.reference;
@@ -147,10 +148,10 @@ final class CurrentRequestReference {
         return request;
     }
 
-    Request getTaskToCancel(final CancellableTask task) {
+    public Request getTaskToCancel(final CancellableTask task) {
         Request request = null;
         if (!factory.isDispatchThread(Thread.currentThread())) {
-            synchronized (JavaFXSource.INTERNAL_LOCK) {
+            synchronized (CompilationJob.INTERNAL_LOCK) {
                 if (this.reference != null && task == this.reference.task) {
                     assert this.canceledReference == null;
                     request = this.reference;
@@ -163,10 +164,10 @@ final class CurrentRequestReference {
         return request;
     }
 
-    Request getTaskToCancel() {
+    public Request getTaskToCancel() {
         Request request = null;
         if (!factory.isDispatchThread(Thread.currentThread())) {
-            synchronized (JavaFXSource.INTERNAL_LOCK) {
+            synchronized (CompilationJob.INTERNAL_LOCK) {
                 request = this.reference;
                 if (request != null) {
                     assert this.canceledReference == null;
@@ -180,12 +181,12 @@ final class CurrentRequestReference {
         return request;
     }
 
-    boolean getUserTaskToCancel(Request[] request) {
+    public boolean getUserTaskToCancel(Request[] request) {
         assert request != null;
         assert request.length == 1;
         boolean result = false;
         if (!factory.isDispatchThread(Thread.currentThread())) {
-            synchronized (JavaFXSource.INTERNAL_LOCK) {
+            synchronized (CompilationJob.INTERNAL_LOCK) {
                 request[0] = this.reference;
                 if (request[0] != null) {
                     result = request[0].phase == null;
@@ -202,8 +203,8 @@ final class CurrentRequestReference {
         return result;
     }
 
-    boolean isCanceled() {
-        synchronized (JavaFXSource.INTERNAL_LOCK) {
+    public boolean isCanceled() {
+        synchronized (CompilationJob.INTERNAL_LOCK) {
             return this.canceled.get();
         }
     }
@@ -213,7 +214,7 @@ final class CurrentRequestReference {
     }
 
     boolean isInterruptJavac() {
-        synchronized (JavaFXSource.INTERNAL_LOCK) {
+        synchronized (CompilationJob.INTERNAL_LOCK) {
             boolean ret = mayCancelJavac && 
                     canceledReference != null &&
                     canceledReference.source != null &&
@@ -222,18 +223,18 @@ final class CurrentRequestReference {
         }
     }
 
-    long getCancelTime() {
-        synchronized (JavaFXSource.INTERNAL_LOCK) {
+    public long getCancelTime() {
+        synchronized (CompilationJob.INTERNAL_LOCK) {
             return this.cancelTime;
         }
     }
 
-    void cancelCompleted(final Request request) {
+    public void cancelCompleted(final Request request) {
         if (request != null) {
-            synchronized (JavaFXSource.INTERNAL_LOCK) {
+            synchronized (CompilationJob.INTERNAL_LOCK) {
                 assert request == this.canceledReference;
                 this.canceledReference = null;
-                JavaFXSource.INTERNAL_LOCK.notify();
+                CompilationJob.INTERNAL_LOCK.notify();
             }
         }
     }

@@ -37,8 +37,9 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.api.javafx.source;
+package org.netbeans.modules.javafx.source.scheduler;
 
+import org.netbeans.api.javafx.source.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.event.ChangeEvent;
@@ -54,7 +55,7 @@ import org.openide.util.WeakListeners;
  * 
  * @author David Strupl (initially copied from Java Source module JavaSource.java)
  */
-class DocListener implements PropertyChangeListener, ChangeListener, TokenHierarchyListener {
+public class DocListener implements PropertyChangeListener, ChangeListener, TokenHierarchyListener {
 
     private EditorCookie.Observable ec;
     private TokenHierarchyListener lexListener;

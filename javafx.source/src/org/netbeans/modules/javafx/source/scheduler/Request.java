@@ -36,8 +36,9 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.api.javafx.source;
+package org.netbeans.modules.javafx.source.scheduler;
 
+import org.netbeans.api.javafx.source.*;
 import java.util.Comparator;
 import org.netbeans.api.javafx.source.JavaFXSource.Phase;
 import org.netbeans.api.javafx.source.JavaFXSource.Priority;
@@ -47,13 +48,13 @@ import org.netbeans.api.javafx.source.JavaFXSource.Priority;
  * @author David Strupl (initially copied from Java Source module JavaSource.java)
  */
 
-class Request {
+public class Request {
 
-    final CancellableTask<? extends CompilationInfo> task;
+    public final CancellableTask<? extends CompilationInfo> task;
     final JavaFXSource source;        //XXX: Maybe week, depends on the semantics
 
-    final Phase phase;
-    final Priority priority;
+    public final Phase phase;
+    public final Priority priority;
     final boolean reschedule;
 
     public Request(final CancellableTask<? extends CompilationInfo> task, final JavaFXSource source,
@@ -95,7 +96,7 @@ class Request {
         }
     }
 
-    static class RequestComparator implements Comparator<Request> {
+    public static class RequestComparator implements Comparator<Request> {
 
         public int compare(Request r1, Request r2) {
             assert r1 != null && r2 != null;
