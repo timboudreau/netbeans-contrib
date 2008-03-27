@@ -395,7 +395,7 @@ generic AnnotationExpr = Constr ( N? void:"{":sep NameValuePair* void:"}":sep )?
 
 generic NameValuePair = void:"val":key Id void:"=":key PrefixExpr;
 
-generic TemplateBody = N? void:"{":sep SelfType? ( TemplateStat SEMI )* void:"}":sep ;
+generic TemplateBody = N? void:"{":sep SelfType? TemplateStat ( SEMI TemplateStat )* void:"}":sep ;
 
 transient generic TemplateStat = 
   Import
