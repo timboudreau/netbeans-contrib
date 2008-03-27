@@ -125,12 +125,15 @@ generic CompoundType =
 generic AnnotType = Annotation* SimpleType ;
 
 generic SimpleType = 
-  StableId                                          TypeArgs* ( void:"#":key Id )*
-/ Path void:".":sep void:"type":key                 TypeArgs* ( void:"#":key Id )*
-/ void:"(":sep Types ( void:",":sep )? void:")":sep TypeArgs* ( void:"#":key Id )*
+  StableId                          TypeArgs* ( void:"#":key Id )*
+/ Path void:".":sep void:"type":key TypeArgs* ( void:"#":key Id )*
+/ TupleType                         TypeArgs* ( void:"#":key Id )*
 ;
 
-transient generic TypeArgs = void:"[":sep Types void:"]":sep ;
+generic TupleType = void:"(":sep Types ( void:",":sep )? void:")":sep ;
+
+/* @DocError in ScalaReference: TypeArgs can be [_] */
+transient generic TypeArgs = void:"[":sep ( Types / "_":key ) void:"]":sep ;
 
 transient generic Types = Type ( void:",":sep Type )* ;
 
@@ -362,8 +365,8 @@ generic ClassParams = ClassParam ( void:",":sep ClassParam )* ;
 generic ClassParam = Annotation* ( Modifier* ( <Val> void:"val":key / <Var> void:"var":key ) )? Id ( void:":":key ParamType )? ;
 generic ValOrVar = ;
 
-generic Bindings = void:"(":sep Binding ( void:",":sep Binding )* void:")":sep ;
-
+/* @DocError in ScalaReference: void:"(":sep Binding ( void:",":sep Binding )* void:")":sep */
+transient generic Bindings = void:"(":sep Binding? ( void:",":sep Binding )* void:")":sep ;
 transient generic Binding = Id ( void:":":key Type )? ;
 
 transient generic Modifier = 
