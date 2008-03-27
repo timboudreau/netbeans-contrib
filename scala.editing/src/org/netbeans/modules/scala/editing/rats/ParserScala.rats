@@ -342,7 +342,7 @@ transient generic FunTypeParamClause = void:"[":sep TypeParam ( void:",":sep Typ
 
 transient generic VariantTypeParam = ( "+":op / "-":op )? TypeParam ;
 
-transient generic TypeParam = ( Id / "_":sep ) TypeParamClause? ( void:">:":key Type )? ( void:"<:":key Type )? ( void:"<%":key Type )? ;
+transient generic TypeParam = ( Id / "_":key ) TypeParamClause? ( void:">:":key Type )? ( void:"<:":key Type )? ( void:"<%":key Type )? ;
 
 transient generic ParamClauses = ParamClause* ( N? void:"(":sep void:"implicit":sep Params void:")":sep )? ;
 
