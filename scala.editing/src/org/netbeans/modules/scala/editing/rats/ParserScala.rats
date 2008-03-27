@@ -245,7 +245,11 @@ generic BlockExpr =
 / void:"{":sep Block       void:"}":sep
 ;
 
-generic Block = ( BlockStat SEMI )* ResultExpr? ;
+generic Block = 
+  ENTER_NL_ENABLE 
+  ( BlockStat SEMI )* ResultExpr?
+  EXIT_NL_ENABLE 
+;
 
 transient generic BlockStat = 
   Import
