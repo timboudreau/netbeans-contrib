@@ -72,8 +72,8 @@ transient String plainid =
 ;
 
 transient String id =
-  plainid
-/ [`] ( ![`] stringChar )+ [`]
+  [`] ( ![`] stringChar )+ [`]
+/ plainid
 ;
 
 transient String idrest = 

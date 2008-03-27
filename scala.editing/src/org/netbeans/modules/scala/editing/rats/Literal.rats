@@ -88,5 +88,11 @@ transient String multiLineChar = ["]? ["]? !["] _ ;
 // ------ Symbol constant
 
 transient generic SymbolLiteral = symbolLiteral;
-transient String symbolLiteral = ['] plainid ;
-
+transient String symbolLiteral = 
+  ['] 
+  ( opchar+
+  / lower idrest?
+  / upper idrest?
+  / [$_]  idrest?
+  )
+;
