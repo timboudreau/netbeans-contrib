@@ -40,8 +40,36 @@
  */
 package org.netbeans.modules.javafx.debug;
 
+import com.sun.javafx.api.tree.BindExpressionTree;
+import com.sun.javafx.api.tree.BlockExpressionTree;
+import com.sun.javafx.api.tree.ClassDeclarationTree;
+import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.javafx.api.tree.ForExpressionTree;
+import com.sun.javafx.api.tree.FunctionDefinitionTree;
+import com.sun.javafx.api.tree.FunctionValueTree;
+import com.sun.javafx.api.tree.IndexofTree;
+import com.sun.javafx.api.tree.InitDefinitionTree;
 import com.sun.javafx.api.tree.InstantiateTree;
+import com.sun.javafx.api.tree.InterpolateTree;
+import com.sun.javafx.api.tree.InterpolateValueTree;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
+import com.sun.javafx.api.tree.ObjectLiteralPartTree;
+import com.sun.javafx.api.tree.OnReplaceTree;
+import com.sun.javafx.api.tree.SequenceDeleteTree;
+import com.sun.javafx.api.tree.SequenceEmptyTree;
+import com.sun.javafx.api.tree.SequenceExplicitTree;
+import com.sun.javafx.api.tree.SequenceIndexedTree;
+import com.sun.javafx.api.tree.SequenceInsertTree;
+import com.sun.javafx.api.tree.SequenceRangeTree;
+import com.sun.javafx.api.tree.SequenceSliceTree;
+import com.sun.javafx.api.tree.SetAttributeToObjectTree;
+import com.sun.javafx.api.tree.StringExpressionTree;
+import com.sun.javafx.api.tree.TimeLiteralTree;
+import com.sun.javafx.api.tree.TriggerTree;
+import com.sun.javafx.api.tree.TypeAnyTree;
+import com.sun.javafx.api.tree.TypeClassTree;
+import com.sun.javafx.api.tree.TypeFunctionalTree;
+import com.sun.javafx.api.tree.TypeUnknownTree;
 import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ArrayAccessTree;
 import com.sun.source.tree.ArrayTypeTree;
@@ -82,6 +110,7 @@ import com.sun.source.tree.ReturnTree;
 import com.sun.source.tree.SwitchTree;
 import com.sun.source.tree.SynchronizedTree;
 import com.sun.source.tree.ThrowTree;
+import com.sun.source.tree.Tree;
 import com.sun.source.tree.TryTree;
 import com.sun.source.tree.TypeCastTree;
 import com.sun.source.tree.TypeParameterTree;
@@ -90,17 +119,13 @@ import com.sun.source.tree.VariableTree;
 import com.sun.source.tree.WhileLoopTree;
 import com.sun.source.tree.WildcardTree;
 import com.sun.source.util.TreePath;
-import com.sun.source.util.TreePathScanner;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import javax.lang.model.element.Element;
 import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.javafx.source.CompilationInfo;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.util.NbBundle;
 
 /**
  *
@@ -183,6 +208,366 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
         
         public FindChildrenTreeVisitor(CompilationInfo info) {
             this.info = info;
+        }
+
+        @Override
+        public Void visitBindExpression(BindExpressionTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitBindExpression(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitBlockExpression(BlockExpressionTree tree, List<Node> d) {
+                        List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitBlockExpression(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitClassDeclaration(ClassDeclarationTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitClassDeclaration(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitForExpression(ForExpressionTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitForExpression(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitForExpressionInClause(ForExpressionInClauseTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitForExpressionInClause(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitFunctionDefinition(FunctionDefinitionTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitFunctionDefinition(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitFunctionValue(FunctionValueTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitFunctionValue(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitIndexof(IndexofTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitIndexof(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitInitDefinition(InitDefinitionTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitInitDefinition(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitInterpolate(InterpolateTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitInterpolate(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitInterpolateValue(InterpolateValueTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitInterpolateValue(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitObjectLiteralPart(ObjectLiteralPartTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitObjectLiteralPart(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitOnReplace(OnReplaceTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitOnReplace(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitPostInitDefinition(InitDefinitionTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitPostInitDefinition(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitSequenceDelete(SequenceDeleteTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitSequenceDelete(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitSequenceEmpty(SequenceEmptyTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitSequenceEmpty(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitSequenceExplicit(SequenceExplicitTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitSequenceExplicit(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitSequenceIndexed(SequenceIndexedTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitSequenceIndexed(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitSequenceInsert(SequenceInsertTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitSequenceInsert(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitSequenceRange(SequenceRangeTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitSequenceRange(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitSequenceSlice(SequenceSliceTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitSequenceSlice(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitSetAttributeToObject(SetAttributeToObjectTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitSetAttributeToObject(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitStringExpression(StringExpressionTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitStringExpression(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitTimeLiteral(TimeLiteralTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitOther(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitTrigger(TriggerTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitTrigger(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitTypeAny(TypeAnyTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitTypeAny(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitTypeClass(TypeClassTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitTypeClass(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitTypeFunctional(TypeFunctionalTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitTypeFunctional(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitTypeUnknown(TypeUnknownTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitTypeUnknown(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitOther(Tree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitOther(tree, d);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
         }
         
         @Override
