@@ -8,6 +8,8 @@ import org.antlr.runtime.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.Writer;
+import java.io.PrintStream;
 
 public class v3Lexer extends Lexer {
     public static final int COMMA = 80;
@@ -255,7 +257,18 @@ public class v3Lexer extends Lexer {
     }
 
     public void setBraceQuoteTracker(BraceQuoteTracker stack) {
+        System.err.println("================= setting new BQ stack ==================");
+        System.err.println("New Stack: " + stack);
         BraceQuoteTracker.quoteStack = stack;
+    }
+
+
+    public RecognizerSharedState getSharedState() {
+        return state;
+    }
+
+    public void setSharedState(RecognizerSharedState state) {
+        this.state = state;
     }
 
     /**
@@ -268,14 +281,17 @@ public class v3Lexer extends Lexer {
         private boolean percentIsFormat;
         private BraceQuoteTracker next;
 
-        private BraceQuoteTracker(BraceQuoteTracker prev, char quote, boolean percentIsFormat) {
+        BraceQuoteTracker(BraceQuoteTracker prev, char quote, boolean percentIsFormat) {
+            System.err.print("new brace stack level: " + prev);
             this.quote = quote;
             this.percentIsFormat = percentIsFormat;
             this.braceDepth = 1;
             this.next = prev;
+            System.err.println(" is => " + this);
         }
-
+        
         static void enterBrace(int quote, boolean percentIsFormat) {
+            System.err.println("Entering brace...");
             if (quote == 0) {  // exisiting string expression or non string expression
                 if (quoteStack != null) {
                     ++quoteStack.braceDepth;
@@ -290,6 +306,7 @@ public class v3Lexer extends Lexer {
          * Return quote kind if we are reentering a quote
          */
         static char leaveBrace() {
+            System.err.println("Leaving brace...");
             if (quoteStack != null && --quoteStack.braceDepth == 0) {
                 return quoteStack.quote;
             }
@@ -297,11 +314,14 @@ public class v3Lexer extends Lexer {
         }
 
         static boolean rightBraceLikeQuote(int quote) {
-            return quoteStack != null && quoteStack.braceDepth == 1 && (quote == 0 || quoteStack.quote == (char) quote);
+            final boolean b = quoteStack != null && quoteStack.braceDepth == 1 && (quote == 0 || quoteStack.quote == (char) quote);
+            System.err.println("rightBraceLikeQuote: " + b);
+            return b;
         }
 
         static void leaveQuote() {
             assert (quoteStack != null && quoteStack.braceDepth == 0);
+            System.err.println("Leaving quote");
             quoteStack = quoteStack.next; // pop
         }
 
@@ -314,7 +334,44 @@ public class v3Lexer extends Lexer {
         }
 
         static boolean inBraceQuote() {
-            return quoteStack != null;
+            final boolean b = quoteStack != null;
+            System.err.println("inBraceQuote: " + b);
+            return b;
+        }
+
+        static void printStack(PrintStream p, BraceQuoteTracker stack) {
+            if (stack == null) {
+                p.println("No stack information");
+            } else {
+                p.println(stack.toString());
+            }
+        }
+
+
+        public String toString() {
+            return "BQT[" +
+                    "depth=" + braceDepth +
+                    ", quote=" + Integer.toString(quote) +
+                    ", pif=" + percentIsFormat +
+                    ", next=" + next +
+                    ']';
+        }
+
+
+        public int getBraceDepth() {
+            return braceDepth;
+        }
+
+        public char getQuote() {
+            return quote;
+        }
+
+        public boolean isPercentIsFormat() {
+            return percentIsFormat;
+        }
+
+        public BraceQuoteTracker getNext() {
+            return next;
         }
     }
 
