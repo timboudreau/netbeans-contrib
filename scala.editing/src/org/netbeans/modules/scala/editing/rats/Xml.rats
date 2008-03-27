@@ -65,11 +65,11 @@ transient generic XmlETag = XmlLtSlash XmlName XmlWs? XmlGt ;
 transient generic XmlAttribute = XmlWs XmlName XmlWs? XmlEq XmlWs? XmlAttValue ;
 
 transient generic XmlContent =
-  ( XmlCharData
+  ( XmlCDSect
+  / XmlPI        
+  / XmlCharData
   / XmlElement
   / XmlReference
-  / XmlCDSect
-  / XmlPI        
   / XmlComment   
   )*
 ;
@@ -88,18 +88,19 @@ transient String xmlAttValue =
 / ['] ( ![<&'] _ / XmlReference )* [']
 ;
 
-transient String scalaExpr = '{' ( !"}" _ )* '}' ;
+transient String scalaExpr = '{' ( !'}' _ )* '}' ;
 
 transient String XmlCharData =  
-  !( "]]>" ) ( ![<&] _ )+
+  !( "]]>" ) xmlCharDataChar+
 ;
 
+transient String xmlCharDataChar = ![<&] _ ;
 
 transient generic XmlComment = xmlComment;
 transient String xmlComment = 
   "<!--" 
-  ( !( '-' ) xmlChar
-  / '-' !( '-' ) xmlChar
+  ( !'-' xmlChar
+  / '-' !'-' xmlChar
   )* 
   "-->"
 ;
@@ -113,14 +114,21 @@ transient String XmlCharRef =
 
 transient String XmlCDSect = XmlCDStart XmlCData XmlCDEnd ;
 transient String XmlCDStart = "<![CDATA[" ;
-transient String XmlCData = !( "]]>" ) xmlChar* ;
-transient String XmlCDEnd = "]]>" ;
+transient String XmlCDEnd   = "]]>" ;
+transient String XmlCData = 
+  ( ![\]>] xmlChar
+  / ']' !']' xmlChar
+  / "]]" !'>' xmlChar
+  )*
+;
 
 transient String XmlPI= 
   "<?" XmlPITarget 
   ( xmlWs
-    ( !( xmlChar* "?>" xmlChar* ) xmlChar* 
-    )
+    ( ![?>] xmlChar
+    / '?' !'>' xmlChar
+    / !'?' '>' xmlChar
+    )*
   )?
   "?>"
 ;
