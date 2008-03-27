@@ -381,7 +381,8 @@ public class TreeCreator implements Visitor {
     }
 
     public void visit(Comment comment) {
-        TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode, "Not Implemented Comment");
+        TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode, 
+                "" + comment.getCommentType(), comment.getStartOffset(), comment.getEndOffset());
         parentNode.addChild(adapter);
         TreeASTNodeAdapter helpParent = parentNode;
         parentNode = adapter;
@@ -896,6 +897,15 @@ public class TreeCreator implements Visitor {
         TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode, "Program", program.getStartOffset(), program.getEndOffset());
         parentNode.addChild(adapter);
         TreeASTNodeAdapter helpParent = parentNode;
+        
+        if (program.getComments() != null) {
+            TreeASTNodeAdapter comments = new TreeASTNodeAdapter(adapter, "Comments");
+            adapter.addChild(comments);
+            parentNode = comments;
+            for (Comment comment : program.getComments()) {
+                comment.accept(this);
+            }
+        }
         parentNode = adapter;
         List<Statement> statements = program.getStatements();
         for (Statement statement : statements) {
