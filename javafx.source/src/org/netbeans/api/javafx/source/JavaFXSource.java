@@ -51,10 +51,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -76,9 +74,9 @@ import org.openide.filesystems.FileRenameEvent;
 import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListeners;
 import org.netbeans.modules.javafx.source.scheduler.DocListener;
-import org.netbeans.modules.javafx.source.scheduler.CurrentRequestReference;
 import org.netbeans.modules.javafx.source.scheduler.DataObjectListener;
 import org.netbeans.modules.javafx.source.scheduler.CompilationJob;
+import org.netbeans.modules.javafx.source.scheduler.EditorRegistryListener;
 import org.netbeans.modules.javafx.source.scheduler.Request;
 
 
@@ -110,47 +108,47 @@ public final class JavaFXSource {
         LOW,
         MIN
     };
-    
-    private static Map<FileObject, Reference<JavaFXSource>> file2Source = new WeakHashMap<FileObject, Reference<JavaFXSource>>();
-    static final Logger LOGGER = Logger.getLogger(JavaFXSource.class.getName());
-    private final ClasspathInfo cpInfo;
-    public final Collection<? extends FileObject> files;
-    private final AtomicReference<Request> rst = new AtomicReference<Request> ();
-    public volatile boolean k24;
 
-    public int flags = 0;   
-
+    // flags:
     public static final int INVALID = 1;
     public static final int CHANGE_EXPECTED = INVALID<<1;
     public static final int RESCHEDULE_FINISHED_TASKS = CHANGE_EXPECTED<<1;
     public static final int UPDATE_INDEX = RESCHEDULE_FINISHED_TASKS<<1;
     public static final int IS_CLASS_FILE = UPDATE_INDEX<<1;
     
-    private static final int REPARSE_DELAY = 500;
-    public int reparseDelay;
+    private static Map<FileObject, Reference<JavaFXSource>> file2Source = new WeakHashMap<FileObject, Reference<JavaFXSource>>();
+    private static final RequestProcessor RP = new RequestProcessor ("JavaFXSource-event-collector",1);       //NOI18N
+    static final Logger LOGGER = Logger.getLogger(JavaFXSource.class.getName());
     
+    private static final int REPARSE_DELAY = 500;
     private static final Pattern excludedTasks;
     private static final Pattern includedTasks;
+
+    // all the following should be private:
+    public int flags = 0;
+    public volatile boolean k24;
+    public CompilationController currentInfo;
     
+    public final Collection<? extends FileObject> files;
+    public final int reparseDelay;
     
-    
+    private final ClasspathInfo cpInfo;
+    private final AtomicReference<Request> rst = new AtomicReference<Request> ();
     private final FileChangeListener fileChangeListener;
+    
     private DocListener listener;
     private DataObjectListener dataObjectListener;
-    
-    public CompilationController currentInfo;
-
-    private static final RequestProcessor RP = new RequestProcessor ("JavaFXSource-event-collector",1);       //NOI18N
     
     public final RequestProcessor.Task resetTask = RP.create(new Runnable() {
         public void run() {
             resetStateImpl();
         }
     });
-    /**
-     * Init the maps
-     */
+    
     static {
+        // Start listening on the editor registry:
+        EditorRegistryListener.singleton.toString();
+//        Init the maps
 //        phase2Message.put (Phase.PARSED,"Parsed");                              //NOI18N
 //        phase2Message.put (Phase.ELEMENTS_RESOLVED,"Signatures Attributed");    //NOI18N
 //        phase2Message.put (Phase.RESOLVED, "Attributed");                       //NOI18N
@@ -220,12 +218,12 @@ public final class JavaFXSource {
         for (Iterator<? extends FileObject> it = this.files.iterator(); it.hasNext();) {
             FileObject file = it.next();
             try {
-                Logger.getLogger("TIMER").log(Level.FINE, "JavaSource",
+                Logger.getLogger("TIMER").log(Level.FINE, "JavaFXSource",
                     new Object[] {file, this});
                 if (!multipleSources) {
                     file.addFileChangeListener(FileUtil.weakFileChangeListener(this.fileChangeListener,file));
-                    this.assignDocumentListener(DataObject.find(file));
-                    this.dataObjectListener = new DataObjectListener(file,this);                                        
+                    assignDocumentListener(DataObject.find(file));
+                    dataObjectListener = new DataObjectListener(file,this);                                        
                 }
             } catch (DataObjectNotFoundException donf) {
                 if (multipleSources) {
@@ -237,7 +235,7 @@ public final class JavaFXSource {
                 }
             }
         }
-        this.cpInfo.addChangeListener(WeakListeners.change(this.listener, this.cpInfo));
+        this.cpInfo.addChangeListener(WeakListeners.change(listener, this.cpInfo));
         
     }
     
@@ -465,7 +463,7 @@ out:            for (Iterator<Collection<Request>> it = CompilationJob.finishedR
     public void assignDocumentListener(final DataObject od) throws IOException {
         EditorCookie.Observable ec = od.getCookie(EditorCookie.Observable.class);            
         if (ec != null) {
-            this.listener = new DocListener (ec,this);
+            listener = new DocListener (ec,this);
         } else {
             LOGGER.log(Level.WARNING,String.format("File: %s has no EditorCookie.Observable", FileUtil.getFileDisplayName (od.getPrimaryFile())));      //NOI18N
         }

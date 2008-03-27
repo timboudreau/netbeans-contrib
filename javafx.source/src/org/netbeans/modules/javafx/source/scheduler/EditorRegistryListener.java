@@ -54,12 +54,12 @@ import org.netbeans.api.editor.EditorRegistry;
  */
 public class EditorRegistryListener implements CaretListener, PropertyChangeListener {
     
-    private final static EditorRegistryListener singleton = new EditorRegistryListener ();
+    public final static EditorRegistryListener singleton = new EditorRegistryListener ();
 
     private Request request;
     private JTextComponent lastEditor;
 
-    public EditorRegistryListener() {
+    private EditorRegistryListener() {
         super();
         EditorRegistry.addPropertyChangeListener(new PropertyChangeListener() {
 

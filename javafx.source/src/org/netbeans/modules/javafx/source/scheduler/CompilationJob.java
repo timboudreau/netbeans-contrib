@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -58,7 +57,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import org.netbeans.api.javafx.source.JavaFXSource.Phase;
 import org.openide.util.Exceptions;
@@ -84,7 +82,6 @@ public class CompilationJob implements Runnable {
         super();
     }
 
-    @SuppressWarnings(value = "unchecked")
     public void run() {
         try {
             while (true) {
@@ -195,11 +192,7 @@ public class CompilationJob implements Runnable {
                                             if (shouldCall) {
                                                 try {
                                                     final long startTime = System.currentTimeMillis();
-                                                    final CompilationInfo clientCi = new CompilationInfo(js);
-                                                    try {
-                                                        ((CancellableTask<CompilationInfo>) r.task).run(ci);
-                                                    } finally {
-                                                    }
+                                                    r.task.run(ci);
                                                     final long endTime = System.currentTimeMillis();
                                                     if (LOGGER.isLoggable(Level.FINEST)) {
                                                         LOGGER.finest(String.format("executed task: %s in %d ms.", r.task.getClass().toString(), endTime - startTime));

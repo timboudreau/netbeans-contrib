@@ -50,14 +50,14 @@ import org.netbeans.api.javafx.source.JavaFXSource.Priority;
 
 public class Request {
 
-    public final CancellableTask<? extends CompilationInfo> task;
+    public final CancellableTask<CompilationInfo> task;
     final JavaFXSource source;        //XXX: Maybe week, depends on the semantics
 
     public final Phase phase;
     public final Priority priority;
     final boolean reschedule;
 
-    public Request(final CancellableTask<? extends CompilationInfo> task, final JavaFXSource source,
+    public Request(final CancellableTask<CompilationInfo> task, final JavaFXSource source,
             final Phase phase, final Priority priority, final boolean reschedule) {
         assert task != null;
         this.task = task;

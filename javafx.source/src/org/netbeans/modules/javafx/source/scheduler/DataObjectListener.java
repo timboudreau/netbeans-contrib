@@ -59,11 +59,11 @@ public final class DataObjectListener implements PropertyChangeListener {
     private DataObject dobj;
     private final FileObject fobj;
     private PropertyChangeListener wlistener;
-    JavaFXSource outer;
+    private JavaFXSource source;
 
     public DataObjectListener(FileObject fo, JavaFXSource outer) throws DataObjectNotFoundException {
         super();
-        this.outer = outer;
+        this.source = outer;
         this.fobj = fo;
         this.dobj = DataObject.find(fo);
         wlistener = WeakListeners.propertyChange(this, dobj);
@@ -103,8 +103,8 @@ public final class DataObjectListener implements PropertyChangeListener {
                     dobj = dobjNew;
                     dobj.addPropertyChangeListener(wlistener);
                 }
-                outer.assignDocumentListener(dobjNew);
-                outer.resetState(true, true);
+                source.assignDocumentListener(dobjNew);
+                source.resetState(true, true);
             } catch (DataObjectNotFoundException e) {
             } catch (IOException ex) {
                 // should not occur
