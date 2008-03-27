@@ -70,16 +70,16 @@ transient void N = ( w / lineComment / BlockComment )* n;
 
 // ----- ignorable including nl
 
-transient void IGNORE_TILL_N = ( ( w / lineComment / BlockComment )* n+ )? ;
+transient void SKIP_TILL_N = ( ( w / lineComment / BlockComment )* n+ )? ;
 
-transient void IGNORE_N = ( n / w / lineComment / BlockComment )* ;
+transient void SKIP_N = ( n / w / lineComment / BlockComment )* ;
 
 // ----- Globe ignorable
 
 /* @Note: should put before Keyword, Symbol, Literal and Identifier only, 
  * don't put after above tokens. 
  */
-transient void IGNORE = 
+transient void SKIP = 
   &{ yyState.state() == ParserState.NL_ENABLE  } ( w / lineComment / BlockComment )* 
 / &{ yyState.state() == ParserState.NL_DISABLE } ( w / lineComment / BlockComment / n )* 
 ;

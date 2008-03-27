@@ -65,13 +65,13 @@ transient generic XmlExpr =
 ;
 
 transient generic Literal =
-  IGNORE ( "-":op )? FloatingPointLiteral 
-/ IGNORE ( "-":op )? IntegerLiteral
-/ IGNORE             BooleanLiteral
-/ IGNORE             NullLiteral          
-/ IGNORE             CharacterLiteral     
-/ IGNORE             StringLiteral        
-/ IGNORE             SymbolLiteral
+  SKIP ( "-":op )? FloatingPointLiteral 
+/ SKIP ( "-":op )? IntegerLiteral
+/ SKIP             BooleanLiteral
+/ SKIP             NullLiteral          
+/ SKIP             CharacterLiteral     
+/ SKIP             StringLiteral        
+/ SKIP             SymbolLiteral
 ;
 
 transient generic BooleanLiteral = "true":key / "false":key;
@@ -464,5 +464,5 @@ transient generic TopStat =
 transient generic Packaging = void:"package":key QualId N? void:"{":sep TopStatSeq void:"}":sep ;
 transient generic Package   = void:"package":key QualId SEMI ;
 
-public generic CompilationUnit = Package? TopStatSeq IGNORE_N;
+public generic CompilationUnit = Package? TopStatSeq SKIP_N;
 

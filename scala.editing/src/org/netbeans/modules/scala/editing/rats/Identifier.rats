@@ -52,11 +52,11 @@ import org.netbeans.modules.scala.editing.rats.Literal;
 
 // ----- Identifier
 
-transient generic Id    = IGNORE id ;
-transient generic VarId = IGNORE varid ;
+transient generic Id    = SKIP id ;
+transient generic VarId = SKIP varid ;
 
 // ----- used for "-":op etc, where needs op's SemanticValue to be String
-transient String op = IGNORE opid ;
+transient String op     = SKIP opid ;
 
 // ----- token
 transient generic Identifier = id ;
@@ -77,8 +77,8 @@ transient String id =
 ;
 
 transient String idrest = 
-  ( letter / digit )+ ( '_' opid )? 
+  ( letter / [$_] / digit )+ ( '_' opid )? 
 / ( '_' opid )
 ;
 
-transient String opchar = ![\u0020\u0009\u000D\u000A0-9a-zA-Z$_()\[\]{}.`'";,] [\u0020-\u007F] ;
+transient String opchar = [!%&+\-<=>?@\\^`|~#:/*] ;
