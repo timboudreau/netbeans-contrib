@@ -111,42 +111,42 @@ option setOfString(SCALA_KEYWORDS);
 
 /*
  * The tokens that can terminate a statement are: literals, identifiers and the following
- * delimiters and reserved words (do not consumer following newline)
+ * delimiters and reserved words (means only following tokens cannot consumer following newline)
  *   this null true false return type <xmlstart> _ 
  *   ) ] }
  * 
  * The tokens that can begin a statement are all Scala tokens except the following delimiters
- * and reserved words (do not consumer preceding n+):
+ * and reserved words (means only following tokens can consumer preceding n+):
  *   catch else extends finally forSome match requires with yield # _ = => <- <: <% >: : 
  *   , . ; [ ) ] }
  */
 String key =
-  SKIP   "catch"    :keyword SKIP_TILL_N
-/ SKIP   "else"     :keyword SKIP_TILL_N
-/ SKIP   "extends"  :keyword SKIP_TILL_N
-/ SKIP   "finally"  :keyword SKIP_TILL_N
-/ SKIP   "forSome"  :keyword SKIP_TILL_N
-/ SKIP   "match"    :keyword SKIP_TILL_N
-/ SKIP   "requires" :keyword SKIP_TILL_N
-/ SKIP   "with"     :keyword SKIP_TILL_N
-/ SKIP   "yield"    :keyword SKIP_TILL_N
-/ SKIP   "=>"       :keyword SKIP_TILL_N
-/ SKIP   "\u21D2"   :keyword SKIP_TILL_N
-/ SKIP   "<-"       :keyword SKIP_TILL_N
-/ SKIP   "<:"       :keyword SKIP_TILL_N
-/ SKIP   "<%"       :keyword SKIP_TILL_N
-/ SKIP   ">:"       :keyword SKIP_TILL_N
-/ SKIP   "#"        :keyword SKIP_TILL_N
-/ SKIP   "="        :keyword SKIP_TILL_N
-/ SKIP   ":"        :keyword SKIP_TILL_N
-/ SKIP_N "this"     :keyword 
-/ SKIP_N "null"     :keyword 
-/ SKIP_N "true"     :keyword 
-/ SKIP_N "false"    :keyword 
-/ SKIP_N "return"   :keyword 
-/ SKIP_N "type"     :keyword 
-/ SKIP_N "_"        :keyword 
-/ SKIP_N             keyword SKIP_TILL_N
+  SKIP_N "catch"    :keyword SKIP_TILL_N
+/ SKIP_N "else"     :keyword SKIP_TILL_N
+/ SKIP_N "extends"  :keyword SKIP_TILL_N
+/ SKIP_N "finally"  :keyword SKIP_TILL_N
+/ SKIP_N "forSome"  :keyword SKIP_TILL_N
+/ SKIP_N "match"    :keyword SKIP_TILL_N
+/ SKIP_N "requires" :keyword SKIP_TILL_N
+/ SKIP_N "with"     :keyword SKIP_TILL_N
+/ SKIP_N "yield"    :keyword SKIP_TILL_N
+/ SKIP_N "=>"       :keyword SKIP_TILL_N
+/ SKIP_N "\u21D2"   :keyword SKIP_TILL_N
+/ SKIP_N "<-"       :keyword SKIP_TILL_N
+/ SKIP_N "<:"       :keyword SKIP_TILL_N
+/ SKIP_N "<%"       :keyword SKIP_TILL_N
+/ SKIP_N ">:"       :keyword SKIP_TILL_N
+/ SKIP_N "#"        :keyword SKIP_TILL_N
+/ SKIP_N "="        :keyword SKIP_TILL_N
+/ SKIP_N ":"        :keyword SKIP_TILL_N
+/ SKIP   "this"     :keyword 
+/ SKIP   "null"     :keyword 
+/ SKIP   "true"     :keyword 
+/ SKIP   "false"    :keyword 
+/ SKIP   "return"   :keyword 
+/ SKIP   "type"     :keyword 
+/ SKIP   "_"        :keyword 
+/ SKIP               keyword SKIP_TILL_N
 ;
 
 generic Keyword = keyword ;

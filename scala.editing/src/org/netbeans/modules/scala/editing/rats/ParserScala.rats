@@ -512,5 +512,5 @@ transient generic TopStat =
 transient generic Packaging = void:"package":key QualId N? void:"{":sep TopStatSeq void:"}":sep ;
 transient generic Package   = void:"package":key QualId SEMI ;
 
-public generic CompilationUnit = Package? TopStatSeq SKIP_N;
+public generic CompilationUnit = SKIP_N Package? TopStatSeq SKIP_N;
 
