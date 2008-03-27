@@ -38,7 +38,7 @@
  */
 
 /*
- * Definition of Scala lexical tokens.
+ * Definition of Scala Grammar Definition.
  * 
  * @author Caoyuan Deng
  */
@@ -103,6 +103,12 @@ generic Type =
 generic FunType =
   void:"(":sep ( void:"=>":key Type )? void:")":sep void:"=>":key Type
 / InfixType void:"=>":key Type
+;
+
+/* in CaseClause, we should leave the latest "=>" for ( "=>" Block ) */
+generic FunTypeInCaseClause =
+  void:"(":sep ( void:"=>":key Type )? void:")":sep void:"=>":key ( NotFunType void:"=>":key )*
+/ InfixType void:"=>":key ( NotFunType void:"=>":key )*
 ;
 
 generic NotFunType = InfixType ExistentialClause? ;
@@ -270,48 +276,43 @@ transient generic Generator = Pattern1 "<-":key Expr Guard? ;
 
 transient generic CaseClauses = CaseClause CaseClause* ;
 /* @Hacking greedy Pattern will consumer latest "=>" to try to recognize as FunType,
- * we should extract lastest "=>" Expr from PatternWFunType as Block
+ * we should leave lastest "=>" for Block by define a FunTypeInCaseClause 
  * 
  * A case token can begin a statement only if followed by a class or object token
  */
-transient generic CaseClause = 
+generic CaseClause =   
   SKIP_N void:"case":key 
-  ( PatternWFunType Block   // temporary solution
+  ( ( VarId / "_":key ) void:":":key FunTypeInCaseClause Block
   / Pattern Guard? void:"=>":key Block 
   )
 ;
 
 transient generic Guard = void:"if":key PostfixExpr ;
 
-transient generic Pattern = Pattern1 ( void:"|":sep Pattern1 )* ;
-
-generic Pattern1 = 
-  PatternWType
-/ PatternWoType
+transient generic Pattern = 
+  AlternatePattern
+/ Pattern1 
 ;
 
-generic PatternWType =
-  PatternWFunType
-/ PatternWNotFunType
+transient generic AlternatePattern = Pattern1 ( void:"|":sep Pattern1 )+ ;
+
+generic Pattern1 =
+  TypedPattern
+/ NoTypedPattern
 ;
 
-generic PatternWFunType =
-  VarId   void:":":key FunType
-/ "_":key void:":":key FunType
-;
-
-generic PatternWNotFunType =
-  VarId   void:":":key NotFunType
-/ "_":key void:":":key NotFunType
+generic TypedPattern =
+  VarId   void:":":key Type
+/ "_":key void:":":key Type
 ;
 
 // ----- Pattern2
-generic PatternWoType =
-  PatternWAt
+generic NoTypedPattern =
+  AtPattern
 / Pattern3
 ;
 
-generic PatternWAt = VarId void:"@":key Pattern3 ;
+generic AtPattern = VarId void:"@":key Pattern3 ;
 
 generic Pattern3 = 
   <InfixPattern>  SimplePattern InfixPatternTail+
@@ -365,7 +366,6 @@ generic ClassParamClause = N? void:"(":sep ClassParams? void:")":sep ;
 generic ClassParams = ClassParam ( void:",":sep ClassParam )* ;
 
 generic ClassParam = Annotation* ( Modifier* ( <Val> void:"val":key / <Var> void:"var":key ) )? Id ( void:":":key ParamType )? ;
-generic ValOrVar = ;
 
 /* @DocError in ScalaReference: void:"(":sep Binding ( void:",":sep Binding )* void:")":sep */
 transient generic Bindings = void:"(":sep Binding? ( void:",":sep Binding )* void:")":sep ;
@@ -445,7 +445,7 @@ generic Def =
 / TmplDef
 ;
 
-transient generic PatDef = PatternWoType ( void:",":sep PatternWoType )* ( void:":":key Type )? "=":key Expr ;
+transient generic PatDef = NoTypedPattern ( void:",":sep NoTypedPattern )* ( void:":":key Type )? "=":key Expr ;
 
 generic VarDef = 
   PatDef
