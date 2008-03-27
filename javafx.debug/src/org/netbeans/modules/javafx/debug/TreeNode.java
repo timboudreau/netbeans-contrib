@@ -119,6 +119,11 @@ import com.sun.source.tree.VariableTree;
 import com.sun.source.tree.WhileLoopTree;
 import com.sun.source.tree.WildcardTree;
 import com.sun.source.util.TreePath;
+import com.sun.source.util.TreePathScanner;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javafx.tree.JavafxPretty;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.lang.model.type.TypeMirror;
@@ -144,6 +149,16 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
         
         return result.get(0);
     }
+    
+    private static String treeToString(Tree t) {
+        StringWriter s = new StringWriter();
+        try {
+            new JavafxPretty(s, false).printExpr((JCTree)t);
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
+        return s.toString();
+    }
 
     /** Creates a new instance of TreeNode */
     public TreeNode(CompilationInfo info, TreePath tree, List<Node> nodes) {
@@ -152,7 +167,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
         this.info = info;
         // TODO:
 //        this.synthetic = info.getTreeUtilities().isSynthetic(tree);
-        setDisplayName(tree.getLeaf().getKind().toString() + ":" + tree.getLeaf().toString()); //NOI18N
+        setDisplayName(tree.getLeaf().getKind() + ":" + treeToString(tree.getLeaf())); //NOI18N
         setIconBaseWithExtension("org/netbeans/modules/java/debug/resources/tree.png"); //NOI18N
     }
 
