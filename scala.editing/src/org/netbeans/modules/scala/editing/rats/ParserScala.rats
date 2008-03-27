@@ -257,7 +257,7 @@ generic Pattern1 =
 ;
 
 generic Pattern2 = 
-  VarId ( void:"@":key Pattern3 )?
+  VarId void:"@":key Pattern3
 / Pattern3
 ;
 
