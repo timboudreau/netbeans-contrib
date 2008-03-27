@@ -52,25 +52,24 @@ import java.io.File;
  * @author Maros Sandor
  */
 public class ClearcaseModuleConfig {
-    
-
+       
     public enum OnDemandCheckout { Disabled, Prompt, Unreserved, UnreservedWithFallback, Hijack, 
         Reserved, ReservedWithUnreservedFallback, ReservedWithHijackFallback, ReservedWithBothFallbacks };
     
     public static final String PROP_IGNORED_PATTERNS            = "ignoredPatterns";            // NOI18N
     public static final String PROP_COMMIT_EXCLUSIONS           = "commitExclusions";           // NOI18N    
-    public static final String PROP_CLEARTOOL_EXECUTABLE        = "cleartoolExecutablePath";    // NOI18N    
-    public static final String PROP_LABEL_FORMAT                = "labelFormat";                // NOI18N    
-    public static final String PROP_ADD_VIEWPRIVATE             = "addViewPrivate";             // NOI18N    
+    private static final String PROP_CLEARTOOL_EXECUTABLE       = "cleartoolExecutablePath";    // NOI18N    
+    private static final String PROP_LABELS_FORMAT              = "labelsFormat";               // NOI18N    
+    private static final String PROP_ADD_VIEWPRIVATE            = "addViewPrivate";             // NOI18N    
     
     private static final String PROP_ONDEMAND_CHECKOUT          = "onDemandCheckout";           // NOI18N        
     private static final String PROP_PRESERVE_TIME_CHECKIN      = "preserveTimeCheckin";        // NOI18N    
     private static final String PROP_CHECKIN_ADDED_FILES        = "checkInAddedFiles";          // NOI18N    
     private static final String PROP_FORCE_UNMODIFIED_CHECKIN   = "forceUnmodifiedCheckin";     // NOI18N    
     
-    private static String PROP_LABEL_FOLLOW                     = "LabelFollow";                // NOI18N    
-    private static String PROP_LABEL_REPLACE                    = "LabelReplace";               // NOI18N    
-    private static String PROP_LABEL_RECURSE                    = "LabelRecurse";               // NOI18N    
+    private static String PROP_LABEL_FOLLOW                     = "labelFollow";                // NOI18N    
+    private static String PROP_LABEL_REPLACE                    = "labelReplace";               // NOI18N    
+    private static String PROP_LABEL_RECURSE                    = "labelRecurse";               // NOI18N    
     
     private static Set<String> exclusions;
     
@@ -82,7 +81,33 @@ public class ClearcaseModuleConfig {
     static {
         ignoredFilePatterns.addAll(toPatterns(Utils.getStringList(getPreferences(), PROP_IGNORED_PATTERNS)));
     }
+    
+    public static String getExecutablePath() {
+        return getPreferences().get(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, "cleartool").trim();
+    }
 
+    public static boolean getAddViewPrivate() {
+        return getPreferences().getBoolean(ClearcaseModuleConfig.PROP_ADD_VIEWPRIVATE, true);
+    }
+
+    public static String getLabelsFormat() {
+        return ClearcaseModuleConfig.getPreferences().get(
+                        ClearcaseModuleConfig.PROP_LABELS_FORMAT, 
+                        "[{" + ClearcaseAnnotator.ANNOTATION_STATUS + "}; {" + ClearcaseAnnotator.ANNOTATION_VERSION + "}]"); // NOI18N
+    }
+
+    public static void putExecutablePath(String path) {
+        getPreferences().put(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, path);
+    }
+
+    public static void putAddViewPrivate(boolean add) {
+        getPreferences().putBoolean(ClearcaseModuleConfig.PROP_ADD_VIEWPRIVATE, add);
+    }
+
+    public static void putLabelsFormat(String format) {
+        getPreferences().put(ClearcaseModuleConfig.PROP_LABELS_FORMAT, format);
+    }
+    
     public static boolean getLabelFollow() {
         return getPreferences().getBoolean(PROP_LABEL_FOLLOW, true);
     }

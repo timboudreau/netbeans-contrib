@@ -52,7 +52,6 @@ import org.netbeans.modules.clearcase.ui.add.AddAction;
 import org.netbeans.modules.clearcase.ui.add.AddToRepositoryAction;
 import org.netbeans.modules.clearcase.ui.checkout.CheckoutAction;
 import org.netbeans.modules.clearcase.ui.update.UpdateAction;
-import org.netbeans.modules.clearcase.ui.update.MergeAction;
 import org.netbeans.modules.clearcase.ui.diff.DiffAction;
 import org.netbeans.modules.clearcase.ui.IgnoreAction;
 import org.netbeans.modules.clearcase.ui.history.ViewRevisionAction;
@@ -134,7 +133,7 @@ public class ClearcaseAnnotator extends VCSAnnotator {
     }
 
     public void refresh() {
-        String string = ClearcaseModuleConfig.getPreferences().get(ClearcaseModuleConfig.PROP_LABEL_FORMAT, "");
+        String string = ClearcaseModuleConfig.getLabelsFormat();
         if (string != null && !string.trim().equals("")) {            
             string = string.replaceAll("\\{" + ANNOTATION_STATUS  + "\\}", "\\{0\\}");           // NOI18N    
             string = string.replaceAll("\\{" + ANNOTATION_VERSION + "\\}", "\\{1\\}");           // NOI18N

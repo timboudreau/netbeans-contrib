@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -37,66 +37,19 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-/*
- * Definition of Scala lexical tokens.
- * 
- * @author Caoyuan Deng
+package org.netbeans.modules.spellchecker.hunspell;
+import com.sun.jna.Library;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+
+/**
+ *
+ * @author Jan Lahoda
  */
-module org.netbeans.modules.scala.editing.rats.Spacing;
+public interface C extends Library {
 
-
-transient generic BlockComment = 
-  "/*" 
-  ( BlockComment
-  / blockCommentChar
-  )*
-  "*/"
-;
-
-transient String blockCommentChar =
-  ( '*' !'/'
-  / !'*' _ 
-  )
-; 
-
-transient generic LineComment = lineComment ;
-transient String lineComment = 
-  "//" (![\n\r] _)*
-;
-
-// ----- Meaningful newline
-
-transient void N = ( w / lineComment / BlockComment )* n;
-
-// ----- Skip including nl but will leave all ( w / lineComment / BlockComment )* before latest n
-transient void SKIP_TILL_N = ( ( w / lineComment / BlockComment )* n+ )* ;
-
-transient void SKIP_N = ( n / w / lineComment / BlockComment )* ;
-
-// ----- Globe Skip
-
-/* @Note: should put before Keyword, Symbol, Literal and Identifier only, 
- * don't put after above tokens. 
- */
-transient void SKIP = 
-  &{ yyState.state() == ParserState.NL_ENABLE  } ( w / lineComment / BlockComment )* 
-/ &{ yyState.state() == ParserState.NL_DISABLE } ( w / lineComment / BlockComment / n )* 
-;
-
-
-// ------ Spacing tokens
-
-transient generic Nl = n ;
-transient generic Ws = w ;
-
-
-// ----- Spacing elements
-
-transient String n = "\r\n" / "\r" / "\n" ;
-transient String w = ( " " / "\f" / "\t" )+ ;
-
-transient generic Error = error ;
-transient String error = _+ ;
-
-transient void EOF = !_ ;
-
+    public void free(Pointer p);
+    
+    C INSTANCE = (C) Native.loadLibrary("c", C.class);
+    
+}

@@ -40,6 +40,8 @@
  */
 package org.netbeans.modules.javafx.debug;
 
+import com.sun.javafx.api.tree.InstantiateTree;
+import com.sun.javafx.api.tree.JavaFXTreePathScanner;
 import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ArrayAccessTree;
 import com.sun.source.tree.ArrayTypeTree;
@@ -175,7 +177,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
         
     }
     
-    private static class FindChildrenTreeVisitor extends TreePathScanner<Void, List<Node>> {
+    private static class FindChildrenTreeVisitor extends JavaFXTreePathScanner<Void, List<Node>> {
         
         private CompilationInfo info;
         
@@ -330,6 +332,18 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             addCorrespondingComments(below);
             super.visitConditionalExpression(tree, below);
             
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        @Override
+        public Void visitInstantiate(InstantiateTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitInstantiate(tree, below);
+
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
         }

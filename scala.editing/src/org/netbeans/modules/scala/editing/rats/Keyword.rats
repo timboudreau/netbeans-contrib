@@ -111,94 +111,98 @@ option setOfString(SCALA_KEYWORDS);
 
 /*
  * The tokens that can terminate a statement are: literals, identifiers and the following
- * delimiters and reserved words (do not consumer following newline)
+ * delimiters and reserved words (means only following tokens cannot consumer following newline)
  *   this null true false return type <xmlstart> _ 
  *   ) ] }
  * 
  * The tokens that can begin a statement are all Scala tokens except the following delimiters
- * and reserved words (do not consumer preceding n+):
+ * and reserved words (means only following tokens can consumer preceding n+):
  *   catch else extends finally forSome match requires with yield # _ = => <- <: <% >: : 
  *   , . ; [ ) ] }
  */
 String key =
-  IGNORE   "catch"    :keyword IGNORE_TILL_N
-/ IGNORE   "else"     :keyword IGNORE_TILL_N
-/ IGNORE   "extends"  :keyword IGNORE_TILL_N
-/ IGNORE   "finally"  :keyword IGNORE_TILL_N
-/ IGNORE   "forSome"  :keyword IGNORE_TILL_N
-/ IGNORE   "match"    :keyword IGNORE_TILL_N
-/ IGNORE   "requires" :keyword IGNORE_TILL_N
-/ IGNORE   "with"     :keyword IGNORE_TILL_N
-/ IGNORE   "yield"    :keyword IGNORE_TILL_N
-/ IGNORE   "=>"       :keyword IGNORE_TILL_N
-/ IGNORE   "<-"       :keyword IGNORE_TILL_N
-/ IGNORE   "<:"       :keyword IGNORE_TILL_N
-/ IGNORE   "<%"       :keyword IGNORE_TILL_N
-/ IGNORE   ">:"       :keyword IGNORE_TILL_N
-/ IGNORE   "#"        :keyword IGNORE_TILL_N
-/ IGNORE   "="        :keyword IGNORE_TILL_N
-/ IGNORE   ":"        :keyword IGNORE_TILL_N
-/ IGNORE_N "this"     :keyword 
-/ IGNORE_N "null"     :keyword 
-/ IGNORE_N "true"     :keyword 
-/ IGNORE_N "false"    :keyword 
-/ IGNORE_N "return"   :keyword 
-/ IGNORE_N "type"     :keyword 
-/ IGNORE_N "_"        :keyword 
-/ IGNORE_N             keyword IGNORE_TILL_N
+  SKIP_N "catch"    :keyword SKIP_TILL_N
+/ SKIP_N "else"     :keyword SKIP_TILL_N
+/ SKIP_N "extends"  :keyword SKIP_TILL_N
+/ SKIP_N "finally"  :keyword SKIP_TILL_N
+/ SKIP_N "forSome"  :keyword SKIP_TILL_N
+/ SKIP_N "match"    :keyword SKIP_TILL_N
+/ SKIP_N "requires" :keyword SKIP_TILL_N
+/ SKIP_N "with"     :keyword SKIP_TILL_N
+/ SKIP_N "yield"    :keyword SKIP_TILL_N
+/ SKIP_N "=>"       :keyword SKIP_TILL_N
+/ SKIP_N "\u21D2"   :keyword SKIP_TILL_N
+/ SKIP_N "<-"       :keyword SKIP_TILL_N
+/ SKIP_N "<:"       :keyword SKIP_TILL_N
+/ SKIP_N "<%"       :keyword SKIP_TILL_N
+/ SKIP_N ">:"       :keyword SKIP_TILL_N
+/ SKIP_N "#"        :keyword SKIP_TILL_N
+/ SKIP_N "="        :keyword SKIP_TILL_N
+/ SKIP_N ":"        :keyword SKIP_TILL_N
+/ SKIP   "this"     :keyword 
+/ SKIP   "null"     :keyword 
+/ SKIP   "true"     :keyword 
+/ SKIP   "false"    :keyword 
+/ SKIP   "return"   :keyword 
+/ SKIP   "type"     :keyword 
+/ SKIP   "_"        :keyword 
+/ SKIP               keyword SKIP_TILL_N
 ;
 
 generic Keyword = keyword ;
 String keyword =
-  "abstract" !(idrest)
-/ "case" !(idrest)
-/ "catch" !(idrest)
-/ "class" !(idrest)
-/ "def" !(idrest)
-/ "do" !(idrest)
-/ "else" !(idrest)
-/ "extends" !(idrest)
-/ "false" !(idrest)
-/ "final" !(idrest)
-/ "finally" !(idrest)
-/ "for" !(idrest)
-/ "forSome" !(idrest)
-/ "if" !(idrest)
-/ "implicit" !(idrest)
-/ "import" !(idrest)
-/ "lazy" !(idrest)
-/ "match" !(idrest)
-/ "new" !(idrest)
-/ "null" !(idrest)
-/ "object" !(idrest)
-/ "override" !(idrest)
-/ "package" !(idrest)
-/ "private" !(idrest)
-/ "protected" !(idrest)
-/ "requires" !(idrest)
-/ "return" !(idrest)
-/ "sealed" !(idrest)
-/ "super" !(idrest)
-/ "this" !(idrest)
-/ "throw" !(idrest)
-/ "trait" !(idrest)
-/ "try" !(idrest)
-/ "true" !(idrest)
-/ "type" !(idrest)
-/ "val" !(idrest)
-/ "var" !(idrest)
-/ "while" !(idrest)
-/ "with" !(idrest)
-/ "yield" !(idrest)
-/ "=>"
-/ "<-"
-/ "<:"
-/ "<%"
-/ ">:"
-/ "="
-/ "_"
-/ ":"
-/ "#" 
-/ "@" 
+  !( ['] )
+  ( "abstract" !( idrest )
+  / "case" !( idrest )
+  / "catch" !( idrest )
+  / "class" !( idrest )
+  / "def" !( idrest )
+  / "do" !( idrest )
+  / "else" !( idrest )
+  / "extends" !( idrest )
+  / "false" !( idrest )
+  / "final" !( idrest )
+  / "finally" !( idrest )
+  / "for" !( idrest )
+  / "forSome" !( idrest )
+  / "if" !( idrest )
+  / "implicit" !( idrest )
+  / "import" !( idrest )
+  / "lazy" !( idrest )
+  / "match" !( idrest )
+  / "new" !( idrest )
+  / "null" !( idrest )
+  / "object" !( idrest )
+  / "override" !( idrest )
+  / "package" !( idrest )
+  / "private" !( idrest )
+  / "protected" !( idrest )
+  / "requires" !( idrest )
+  / "return" !( idrest )
+  / "sealed" !( idrest )
+  / "super" !( idrest )
+  / "this" !( idrest )
+  / "throw" !( idrest )
+  / "trait" !( idrest )
+  / "try" !( idrest )
+  / "true" !( idrest )
+  / "type" !( idrest )
+  / "val" !( idrest )
+  / "var" !( idrest )
+  / "while" !( idrest )
+  / "with" !( idrest )
+  / "yield" !( idrest )
+  / "_" !( idrest )
+  / "=>"
+  / "<-"
+  / "<:"
+  / "<%"
+  / ">:"
+  / "="
+  / ":"
+  / "#" 
+  / "@" 
+  / "\u21D2"
+  )
 ;
 

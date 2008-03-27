@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.clearcase.options;
 
+import java.io.File;
 import org.netbeans.spi.options.OptionsPanelController;
 import org.netbeans.modules.clearcase.ClearcaseModuleConfig;
 import org.openide.util.Lookup;
@@ -48,7 +49,9 @@ import org.openide.util.HelpCtx;
 import javax.swing.*;
 import java.beans.PropertyChangeListener;
 import org.netbeans.modules.clearcase.Clearcase;
-import org.netbeans.modules.clearcase.ClearcaseAnnotator;
+import org.netbeans.modules.clearcase.FileInformation;
+import org.netbeans.modules.clearcase.FileStatusCache;
+import org.netbeans.modules.versioning.util.Utils;
 
 /**
  * Clearcase Options Controller.
@@ -61,21 +64,27 @@ class ClearcaseOptionsController extends OptionsPanelController {
 
     public void update() {
         setOdc(ClearcaseModuleConfig.getOnDemandCheckout());
-        panel.taExecutable.setText(ClearcaseModuleConfig.getPreferences().get(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, "cleartool"));
-        panel.cbCheckinViewPrivate.setSelected(ClearcaseModuleConfig.getPreferences().getBoolean(ClearcaseModuleConfig.PROP_ADD_VIEWPRIVATE, true));
-        panel.taLabelFormat.setText(
-                ClearcaseModuleConfig.getPreferences().get(
-                        ClearcaseModuleConfig.PROP_LABEL_FORMAT, 
-                        "[{" + ClearcaseAnnotator.ANNOTATION_STATUS + "}; {" + ClearcaseAnnotator.ANNOTATION_VERSION + "}]"));
+        panel.taExecutable.setText(ClearcaseModuleConfig.getExecutablePath());
+        panel.cbCheckinViewPrivate.setSelected(ClearcaseModuleConfig.getAddViewPrivate());
+        panel.taLabelFormat.setText(ClearcaseModuleConfig.getLabelsFormat());
     }
 
     public void applyChanges() {
         if (!isValid()) return;
         ClearcaseModuleConfig.setOnDemandCheckout(getOdc());
-        ClearcaseModuleConfig.getPreferences().put(ClearcaseModuleConfig.PROP_CLEARTOOL_EXECUTABLE, panel.taExecutable.getText().trim());
-        ClearcaseModuleConfig.getPreferences().putBoolean(ClearcaseModuleConfig.PROP_ADD_VIEWPRIVATE, panel.cbCheckinViewPrivate.isSelected());
-        ClearcaseModuleConfig.getPreferences().put(ClearcaseModuleConfig.PROP_LABEL_FORMAT, panel.taLabelFormat.getText().trim());
-        Clearcase.getInstance().getAnnotator().refresh();
+        ClearcaseModuleConfig.putExecutablePath(panel.taExecutable.getText().trim());
+        boolean refreshIgnored = isAddViewPrivateChanged();
+        boolean refreshAnnotations = isLabelsFormatChanged();
+        
+        ClearcaseModuleConfig.putAddViewPrivate(panel.cbCheckinViewPrivate.isSelected());
+        ClearcaseModuleConfig.putLabelsFormat(panel.taLabelFormat.getText().trim());
+        
+        if(refreshIgnored) {
+            refreshIgnored();            
+        }   
+        if (refreshAnnotations) {
+            Clearcase.getInstance().getAnnotator().refresh();
+        }
     }
 
     public void cancel() {
@@ -87,6 +96,9 @@ class ClearcaseOptionsController extends OptionsPanelController {
 
     public boolean isChanged() {
         if (getOdc() != ClearcaseModuleConfig.getOnDemandCheckout()) return true;
+        if (!panel.taExecutable.getText().trim().equals(ClearcaseModuleConfig.getExecutablePath())) return true;
+        if (isAddViewPrivateChanged()) return true;
+        if (isLabelsFormatChanged()) return true;        
         return false;
     }
 
@@ -102,6 +114,14 @@ class ClearcaseOptionsController extends OptionsPanelController {
         } else {
             return panel.cbHijackAfterReserved.isSelected() ?  ClearcaseModuleConfig.OnDemandCheckout.ReservedWithHijackFallback : ClearcaseModuleConfig.OnDemandCheckout.Reserved;
         }
+    }
+
+    private boolean isAddViewPrivateChanged() {
+        return panel.cbCheckinViewPrivate.isSelected() != ClearcaseModuleConfig.getAddViewPrivate();
+    }
+
+    private boolean isLabelsFormatChanged() {
+        return !panel.taLabelFormat.getText().trim().equals(ClearcaseModuleConfig.getLabelsFormat());
     }
 
     private void setOdc(ClearcaseModuleConfig.OnDemandCheckout odc) {
@@ -131,4 +151,16 @@ class ClearcaseOptionsController extends OptionsPanelController {
 
     public void removePropertyChangeListener(PropertyChangeListener propertyChangeListener) {
     }
+    
+    private void refreshIgnored() {
+        Utils.post(new Runnable() {
+            public void run() {
+                FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
+                int includeStatus = ClearcaseModuleConfig.getAddViewPrivate() ? FileInformation.STATUS_NOTVERSIONED_IGNORED : FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY;
+                File[] files = cache.listFiles(null, includeStatus);
+                cache.refreshLater(files);
+            }
+        });
+    }
+    
 }

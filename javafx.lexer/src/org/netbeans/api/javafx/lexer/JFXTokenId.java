@@ -179,7 +179,7 @@ public enum JFXTokenId implements TokenId {
     LET("keyword", 21),
     ON_DELETE_ELEMENT(null, 117),
     FIRST("keyword", 58),
-    UNKNOWN("error", 200);
+    UNKNOWN(null, 200);
 
     public static final String UNIVERSAL_CATEGORY = "DEMONIC";
     private final String primaryCategory;
@@ -270,6 +270,11 @@ public enum JFXTokenId implements TokenId {
                     } else {
                         return null;
                     }
+                case QUOTE_LBRACE_STRING_LITERAL:
+                case RBRACE_QUOTE_STRING_LITERAL:
+                case RBRACE_LBRACE_STRING_LITERAL:
+                case DoubleQuoteBody:
+                case SingleQuoteBody:
                 case STRING_LITERAL:
                     return LanguageEmbedding.create(JavaStringTokenId.language(), 1,
                             (token.partType() == PartType.COMPLETE) ? 1 : 0);
