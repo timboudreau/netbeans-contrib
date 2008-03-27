@@ -358,7 +358,7 @@ transient generic SelfType =
 
 transient generic Import = "import":key ImportExpr ( void:",":sep ImportExpr )* ;
 
-transient generic ImportExpr = StableId void:".":sep ( Id / "_":key / ImportSelectors );
+transient generic ImportExpr = StableId ( void:".":sep ( "_":key / ImportSelectors ) )?;
 
 transient generic ImportSelectors = void:"{":sep ( ImportSelector void:",":sep )* ( ImportSelector / "_":key ) void:"}":sep ;
 
