@@ -148,19 +148,37 @@ generic Expr =
 / ExprNotFun;
 
 generic ExprNotFun = 
-  void:"if"    :key void:"(":sep Expr  void:")":sep N* Expr ( SEMI? void:"else":key Expr )?
-/ void:"while" :key void:"(":sep Expr  void:")":sep N* Expr
-/ void:"try"   :key void:"{":sep Block void:"}":sep ( void:"catch":key void:"{":sep CaseClauses void:"}":sep )? ( void:"finally":key Expr )?
-/ void:"do"    :key Expr SEMI? void:"while":key void:"(":sep Expr void:")":sep
-/ void:"for"   :key ( void:"(":sep Enumerators void:")":sep / void:"{":sep Enumerators void:"}":sep ) N* ( void:"yield":key) ? Expr
-/ void:"throw" :key Expr
-/ void:"return":key Expr?
-/ ( SimpleExpr void:".":sep )? Id void:"=":key Expr
-/ SimpleExpr ArgumentExprs void:"=":key Expr
-/ PostfixExpr Ascription
-/ PostfixExpr void:"match":key void:"{":sep CaseClauses void:"}":sep
+  IfExpr
+/ WhileExpr
+/ TryExpr
+/ DoExpr
+/ ForExpr
+/ ThrowExpr
+/ ReturnExpr
+/ AssignmentExpr
+/ AscriptionExpr
+/ MatchExpr
 / PostfixExpr
 ;
+
+generic IfExpr = void:"if":key void:"(":sep Expr  void:")":sep N* Expr ( SEMI? void:"else":key Expr )? ;
+generic WhileExpr = void:"while":key void:"(":sep Expr  void:")":sep N* Expr ;
+generic TryExpr = void:"try":key void:"{":sep Block void:"}":sep ( void:"catch":key void:"{":sep CaseClauses void:"}":sep )? ( void:"finally":key Expr )? ;
+generic DoExpr = void:"do":key Expr SEMI? void:"while":key void:"(":sep Expr void:")":sep ;
+generic ForExpr = void:"for":key ( void:"(":sep Enumerators void:")":sep / void:"{":sep Enumerators void:"}":sep ) N* ( void:"yield":key) ? Expr ;
+generic ThrowExpr = void:"throw" :key Expr ;
+generic ReturnExpr = void:"return":key Expr? ;
+
+/*
+generic AssignmentExpr = 
+  ( SimpleExpr void:".":sep )? Id void:"=":key Expr
+/ SimpleExpr ArgumentExprs void:"=":key Expr
+;
+*/
+generic AssignmentExpr = SimpleExpr void:"=":key Expr ;
+generic AscriptionExpr = PostfixExpr Ascription ;
+generic MatchExpr      = PostfixExpr void:"match":key void:"{":sep CaseClauses void:"}":sep ;
+
 
 /* @DocError in ScalaReference: InfixExpr ( Id N? )? */
 generic PostfixExpr = InfixExpr Id? ;
