@@ -402,7 +402,7 @@ transient generic TemplateStat =
 / Annotation* Modifier* Def
 / Annotation* Modifier* Dcl
 / Expr
-/
+/ 
 ;
 
 transient generic SelfType = 
@@ -506,7 +506,7 @@ transient generic ConstrBlock = void:"{":sep SelfInvocation ( SEMI BlockStat )* 
 
 transient generic SelfInvocation = void:"this":key ArgumentExprs ArgumentExprs* ;
 
-transient generic TopStatSeq = TopStat ( TopStat SEMI )* ;
+transient generic TopStatSeq = TopStat ( SEMI TopStat )* ;
 
 transient generic TopStat = 
   Import

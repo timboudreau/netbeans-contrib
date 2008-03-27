@@ -68,13 +68,12 @@ transient String lineComment =
 
 transient void N = ( w / lineComment / BlockComment )* n;
 
-// ----- ignorable including nl
-
-transient void SKIP_TILL_N = ( ( w / lineComment / BlockComment )* n+ )? ;
+// ----- Skip including nl but will leave all ( w / lineComment / BlockComment )* before latest n
+transient void SKIP_TILL_N = ( ( w / lineComment / BlockComment )* n+ )* ;
 
 transient void SKIP_N = ( n / w / lineComment / BlockComment )* ;
 
-// ----- Globe ignorable
+// ----- Globe Skip
 
 /* @Note: should put before Keyword, Symbol, Literal and Identifier only, 
  * don't put after above tokens. 
