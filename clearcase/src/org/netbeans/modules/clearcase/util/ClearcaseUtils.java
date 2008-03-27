@@ -271,7 +271,7 @@ public class ClearcaseUtils {
             return getComparableStatus(i1.getStatus()) - getComparableStatus(i2.getStatus());
         }
     }
-    
+       
     /**
      * Gets integer status that can be used in comparators. The more important the status is for the user,
      * the lower value it has. Conflict is 0, unknown status is 100.
@@ -279,27 +279,31 @@ public class ClearcaseUtils {
      * @return status constant suitable for 'by importance' comparators
      */
     public static int getComparableStatus(int status) {
-        return 0;
-        // XXX
-//        if (0 != (status & FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY)) {
-//            return 12;
-//        } else if (0 != (status & FileInformation.STATUS_VERSIONED_CHECKEDOUT)) {
-//            return 16;
-//        } else if (0 != (status & FileInformation.STATUS_VERSIONED_HIJACKED)) {
-//            return 22;    
-//        } else if (0 != (status & FileInformation.STATUS_VERSIONED_MODIFIEDINREPOSITORY)) {
-//            return 32;
-//        } else if (0 != (status & FileInformation.STATUS_VERSIONED_UPTODATE)) {
-//            return 50;
-//        } else if (0 != (status & FileInformation.STATUS_NOTVERSIONED_EXCLUDED)) {
-//            return 100;
-//        } else if (0 != (status & FileInformation.STATUS_NOTVERSIONED_NOTMANAGED)) {
-//            return 101;
-//        } else if (status == FileInformation.STATUS_UNKNOWN) {
-//            return 102;
-//        } else {
-//            throw new IllegalArgumentException("Uncomparable status: " + status); // NOI18N
-//        }
+        if (0 != (status & FileInformation.STATUS_VERSIONED_CHECKEDOUT_BUT_REMOVED)) {
+            return 10;
+        } else if (0 != (status & FileInformation.STATUS_VERSIONED_LOADED_BUT_MISSING)) {
+            return 20;
+        } else if (0 != (status & FileInformation.STATUS_NOTVERSIONED_NEWLOCALLY)) {
+            return 30;
+        } else if (0 != (status & FileInformation.STATUS_NOTVERSIONED_ECLIPSED)) {
+            return 40;    
+        } else if (0 != (status & FileInformation.STATUS_VERSIONED_HIJACKED)) {
+            return 50;
+        } else if (0 != (status & FileInformation.STATUS_VERSIONED_CHECKEDOUT)) {
+            return 60;
+        } else if (0 != (status & FileInformation.STATUS_UNRESERVED)) {
+            return 70;
+        } else if (0 != (status & FileInformation.STATUS_VERSIONED_UPTODATE)) {
+            return 80;
+        } else if (0 != (status & FileInformation.STATUS_NOTVERSIONED_IGNORED)) {
+            return 90;
+        } else if (0 != (status & FileInformation.STATUS_NOTVERSIONED_NOTMANAGED)) {
+            return 100;
+        } else if (status == FileInformation.STATUS_UNKNOWN) {
+            return 150;
+        } else {
+            throw new IllegalArgumentException("Uncomparable status: " + status); // NOI18N
+        }
     }
     
     /**
