@@ -191,7 +191,7 @@ String keyword =
 / "while" !(idrest)
 / "with" !(idrest)
 / "yield" !(idrest)
-/ "_"
+/ "_" !(idrest)
 / "=>"
 / "<-"
 / "<:"
