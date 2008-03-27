@@ -186,7 +186,6 @@ generic AssignmentExpr = SimpleExpr void:"=":key Expr ;
 generic AscriptionExpr = PostfixExpr Ascription ;
 generic MatchExpr      = PostfixExpr void:"match":key void:"{":sep CaseClauses void:"}":sep ;
 
-
 /* @DocError in ScalaReference: InfixExpr ( Id N? )? */
 generic PostfixExpr = InfixExpr Id? ;
 
@@ -205,12 +204,13 @@ generic SimpleExpr =
 / SimpleNewExpr
 ;
 
-transient generic SimplePathExpr     = Path      TypeArgs? SimpleExprRest*;
-transient generic SimpleLiteralExpr  = Literal   TypeArgs? SimpleExprRest*;
-transient generic SimpleWildCardExpr = "_":key   TypeArgs? SimpleExprRest*;
-transient generic SimpleTupleExpr    = ParenExpr TypeArgs? SimpleExprRest*;
-transient generic SimpleBlockExpr    = BlockExpr TypeArgs? SimpleExprRest*;
-transient generic SimpleNewExpr      = NewExpr   TypeArgs? SimpleExprRest*;
+/* @DocError in ScalaReference : There is non SimpleExpr with ( void:":":key Type ) */
+transient generic SimplePathExpr     = Path      TypeArgs? SimpleExprRest* ( void:":":key Type )?;
+transient generic SimpleLiteralExpr  = Literal   TypeArgs? SimpleExprRest* ;
+transient generic SimpleWildCardExpr = "_":key   TypeArgs? SimpleExprRest* ;
+transient generic SimpleTupleExpr    = ParenExpr TypeArgs? SimpleExprRest* ( void:":":key Type )?;
+transient generic SimpleBlockExpr    = BlockExpr TypeArgs? SimpleExprRest* ;
+transient generic SimpleNewExpr      = NewExpr   TypeArgs? SimpleExprRest* ;
 
 transient generic SimpleExprRest = 
   PathRest+
