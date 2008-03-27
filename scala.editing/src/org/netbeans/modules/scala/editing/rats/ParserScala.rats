@@ -83,14 +83,14 @@ generic QualId = Id ( void:".":sep Id )* ;
 generic Ids    = Id ( void:",":sep Id )* ;
 
 generic Path =
-  StableId
-/ ( Id void:".":sep )? "this":key
+  ( Id void:".":sep )? "this":key
+/ StableId
 ;
 
 generic StableId = 
-  Id ( void:".":sep Id )*
-/ ( Id void:".":sep )? "this" :key                 ( void:".":key Id )*
+  ( Id void:".":sep )? "this" :key                 ( void:".":key Id )*
 / ( Id void:".":sep )? "super":key ClassQualifier? ( void:".":key Id )*
+/ Id ( void:".":sep Id )*
 ;
 
 generic ClassQualifier = void:"[":sep Id void:"]":sep;
@@ -125,8 +125,8 @@ generic CompoundType =
 generic AnnotType = Annotation* SimpleType ;
 
 generic SimpleType = 
-  StableId                          TypeArgs* ( void:"#":key Id )*
-/ Path void:".":sep void:"type":key TypeArgs* ( void:"#":key Id )*
+  Path void:".":sep void:"type":key TypeArgs* ( void:"#":key Id )*
+/ StableId                          TypeArgs* ( void:"#":key Id )*
 / TupleType                         TypeArgs* ( void:"#":key Id )*
 ;
 
