@@ -151,56 +151,58 @@ String key =
 
 generic Keyword = keyword ;
 String keyword =
-  "abstract" !(idrest)
-/ "case" !(idrest)
-/ "catch" !(idrest)
-/ "class" !(idrest)
-/ "def" !(idrest)
-/ "do" !(idrest)
-/ "else" !(idrest)
-/ "extends" !(idrest)
-/ "false" !(idrest)
-/ "final" !(idrest)
-/ "finally" !(idrest)
-/ "for" !(idrest)
-/ "forSome" !(idrest)
-/ "if" !(idrest)
-/ "implicit" !(idrest)
-/ "import" !(idrest)
-/ "lazy" !(idrest)
-/ "match" !(idrest)
-/ "new" !(idrest)
-/ "null" !(idrest)
-/ "object" !(idrest)
-/ "override" !(idrest)
-/ "package" !(idrest)
-/ "private" !(idrest)
-/ "protected" !(idrest)
-/ "requires" !(idrest)
-/ "return" !(idrest)
-/ "sealed" !(idrest)
-/ "super" !(idrest)
-/ "this" !(idrest)
-/ "throw" !(idrest)
-/ "trait" !(idrest)
-/ "try" !(idrest)
-/ "true" !(idrest)
-/ "type" !(idrest)
-/ "val" !(idrest)
-/ "var" !(idrest)
-/ "while" !(idrest)
-/ "with" !(idrest)
-/ "yield" !(idrest)
-/ "_" !(idrest)
-/ "=>"
-/ "<-"
-/ "<:"
-/ "<%"
-/ ">:"
-/ "="
-/ ":"
-/ "#" 
-/ "@" 
-/ "\u21D2"
+  !( ['] )
+  ( "abstract" !( idrest )
+  / "case" !( idrest )
+  / "catch" !( idrest )
+  / "class" !( idrest )
+  / "def" !( idrest )
+  / "do" !( idrest )
+  / "else" !( idrest )
+  / "extends" !( idrest )
+  / "false" !( idrest )
+  / "final" !( idrest )
+  / "finally" !( idrest )
+  / "for" !( idrest )
+  / "forSome" !( idrest )
+  / "if" !( idrest )
+  / "implicit" !( idrest )
+  / "import" !( idrest )
+  / "lazy" !( idrest )
+  / "match" !( idrest )
+  / "new" !( idrest )
+  / "null" !( idrest )
+  / "object" !( idrest )
+  / "override" !( idrest )
+  / "package" !( idrest )
+  / "private" !( idrest )
+  / "protected" !( idrest )
+  / "requires" !( idrest )
+  / "return" !( idrest )
+  / "sealed" !( idrest )
+  / "super" !( idrest )
+  / "this" !( idrest )
+  / "throw" !( idrest )
+  / "trait" !( idrest )
+  / "try" !( idrest )
+  / "true" !( idrest )
+  / "type" !( idrest )
+  / "val" !( idrest )
+  / "var" !( idrest )
+  / "while" !( idrest )
+  / "with" !( idrest )
+  / "yield" !( idrest )
+  / "_" !( idrest )
+  / "=>"
+  / "<-"
+  / "<:"
+  / "<%"
+  / ">:"
+  / "="
+  / ":"
+  / "#" 
+  / "@" 
+  / "\u21D2"
+  )
 ;
 

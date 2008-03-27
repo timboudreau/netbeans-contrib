@@ -316,7 +316,8 @@ transient generic InfixPatternTail = Id N? SimplePattern ;
 
 /* @DocError in ScalaReference: "_":key */
 transient generic SimplePattern =
-  "_":key ( "*":op )?
+  XmlExpr
+/ "_":key ( "*":op )?
 / Literal
 / TuplePattern
 / StableId TuplePattern
