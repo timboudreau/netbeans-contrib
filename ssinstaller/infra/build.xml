@@ -393,7 +393,6 @@ jarsigner.storepass=${jarsigner.storepass}
 	<!-- <antcall target="build-tools-group"/>
   -->
     <build-product dir="C_Compiler"/>
-    	
                
         <echo message="BUILDING NB-BASE =========================================="/>
         <ant dir="${nbi.netbeans.dir}/infra/products/nb-base" target="release-all">
@@ -418,6 +417,7 @@ jarsigner.storepass=${jarsigner.storepass}
                 name="release.parent.platforms"
                 value=""/>
         </ant>
+
 	<echo message="BUILDING NB-CND =========================================="/>
         <ant dir="${nbi.netbeans.dir}/infra/products/nb-cnd" target="release-all">
             <property 
@@ -441,7 +441,6 @@ jarsigner.storepass=${jarsigner.storepass}
                 name="release.parent.platforms"
                 value=""/>
         </ant>
-         
         
          <ant dir="${nbi.netbeans.dir}/infra/products/ss-base" target="release-all">
             <property 
@@ -465,18 +464,22 @@ jarsigner.storepass=${jarsigner.storepass}
                 name="release.parent.platforms"
                 value=""/>
         </ant>
-	
+
+
         <build-product dir="C++_Compiler"/>
         <build-product dir="Fortran_95_Compiler"/>
         <build-product dir="DBX_Debugging_Tools"/>
         <build-product dir="build_tools"/>
         <build-product dir="X-Designer"/>
         
-	<!--<build-product dir="demos"/>
-        --><build-product dir="external_editors"/>
+	<build-product dir="external_editors"/>
         <build-product dir="support_files"/>
         <build-product dir="Performance_Library"/>
         <build-product dir="Third-party_Source"/>
+	
+		
+	<!--<build-product dir="demos"/>
+        -->
      </target>
 
       <target name="build-tools-group">
@@ -537,28 +540,24 @@ jarsigner.storepass=${jarsigner.storepass}
      </macrodef>
     <target name="generate-netbeans-cpp-bundles">
         <!-- C/C++ bundles -->
-        
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="linux" 
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-linux.sh">
             <component uid="ss-base" version="1.0.0.0.0"/>
             <component uid="nb-base" version="${nb.full.version}"/>
-            <component uid="nb-cnd" version="${nb.full.version}"/>
+	    <component uid="nb-cnd" version="${nb.full.version}"/>
 	    <component uid="cc" version="1.0.0.0.0"/>
 	    <component uid="cpp" version="1.0.0.0.0"/>
     	    <component uid="fortran" version="1.0.0.0.0"/>
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
     	    <component uid="x-designer" version="1.0.0.0.0"/>
-    	<!--    <component uid="demos" version="1.0.0.0.0"/>
-    	    --><component uid="ex-editors" version="1.0.0.0.0"/>
+    	    <component uid="ex-editors" version="1.0.0.0.0"/>
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
-
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
-        
 	
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-x86" 
@@ -566,22 +565,19 @@ jarsigner.storepass=${jarsigner.storepass}
             <component uid="ss-base" version="1.0.0.0.0"/>
             
 	    <component uid="nb-base" version="${nb.full.version}"/>
-            <component uid="nb-cnd" version="${nb.full.version}"/>
+	    <component uid="nb-cnd" version="${nb.full.version}"/>
 	    <component uid="cc" version="1.0.0.0.0"/>            
 	    <component uid="cpp" version="1.0.0.0.0"/>
     	    <component uid="fortran" version="1.0.0.0.0"/>
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
     	    <component uid="x-designer" version="1.0.0.0.0"/>
-    	<!--    <component uid="demos" version="1.0.0.0.0"/>
-    	    --><component uid="ex-editors" version="1.0.0.0.0"/>
+    	    <component uid="ex-editors" version="1.0.0.0.0"/>
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
-            
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
-        
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-sparc" 
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-sparc.sh">            
@@ -601,7 +597,6 @@ jarsigner.storepass=${jarsigner.storepass}
 
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
-    
 	
     </target>
     

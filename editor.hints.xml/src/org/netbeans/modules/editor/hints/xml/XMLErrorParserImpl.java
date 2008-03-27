@@ -50,9 +50,8 @@ import javax.swing.text.Document;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.netbeans.api.xml.services.UserCatalog;
-import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
-import org.netbeans.spi.editor.hints.ProvidersList;
+import org.netbeans.spi.editor.hints.Severity;
 import org.netbeans.spi.editor.hints.support.ErrorParserSupport;
 import org.openide.ErrorManager;
 import org.openide.xml.EntityCatalog;
@@ -77,9 +76,6 @@ public final class XMLErrorParserImpl extends ErrorParserSupport {
     }
 
     public List parseForErrors(final Document doc) {
-        if (!ProvidersList.isProviderEnabled(XMLProviderDescription.XML_ERROR_PROVIDER))
-            return Collections.EMPTY_LIST;
-        
         final List result = new ArrayList();
 
         try {
@@ -132,17 +128,17 @@ public final class XMLErrorParserImpl extends ErrorParserSupport {
             
             reader.setErrorHandler(new ErrorHandler() {
                 public void error(SAXParseException exception) throws SAXException {
-                    int severity = ProvidersList.getErrorSeverity(XMLProviderDescription.XML_ERROR_PROVIDER, XMLProviderDescription.KEY_XML_ERROR);
+                    Severity severity = Severity.ERROR;
                     
                     result.add(ErrorDescriptionFactory.createErrorDescription(severity, exception.getMessage(), doc, exception.getLineNumber()));
                 }
                 public void fatalError(SAXParseException exception) throws SAXException {
-                    int severity = ProvidersList.getErrorSeverity(XMLProviderDescription.XML_ERROR_PROVIDER, XMLProviderDescription.KEY_XML_FATAL_ERROR);
+                    Severity severity = Severity.ERROR;
                     
                     result.add(ErrorDescriptionFactory.createErrorDescription(severity, exception.getMessage(), doc, exception.getLineNumber()));
                 }
                 public void warning(SAXParseException exception) throws SAXException {
-                    int severity = ProvidersList.getErrorSeverity(XMLProviderDescription.XML_ERROR_PROVIDER, XMLProviderDescription.KEY_XML_WARNING);
+                    Severity severity = Severity.WARNING;
                     
                     result.add(ErrorDescriptionFactory.createErrorDescription(severity, exception.getMessage(), doc, exception.getLineNumber()));
                 }

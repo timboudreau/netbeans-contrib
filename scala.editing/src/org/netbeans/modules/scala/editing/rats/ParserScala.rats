@@ -38,7 +38,7 @@
  */
 
 /*
- * Definition of Scala lexical tokens.
+ * Definition of Scala Grammar Definition.
  * 
  * @author Caoyuan Deng
  */
@@ -52,6 +52,8 @@ import org.netbeans.modules.scala.editing.rats.Spacing;
 import org.netbeans.modules.scala.editing.rats.Symbol;
 import org.netbeans.modules.scala.editing.rats.Xml;
 
+import org.netbeans.modules.scala.editing.rats.State;
+
 /* @Note: We cannot consumer every token's tail whitespace (leave it for XmlExpr 
  * to detect a preceding whitespace, instead, we consumer every token's preceding
  * whitespace and ignore it. 
@@ -62,16 +64,14 @@ transient generic XmlExpr =
 / void:"{":sep XmlElement void:"}":sep
 ;
 
-//  &( ' ' / "(" / "{" ) ( void:sep / IGNORE ) XmlElement ;
-
 transient generic Literal =
-  IGNORE ( "-":op )? FloatingPointLiteral 
-/ IGNORE ( "-":op )? IntegerLiteral
-/ IGNORE             BooleanLiteral
-/ IGNORE             NullLiteral          
-/ IGNORE             CharacterLiteral     
-/ IGNORE             StringLiteral        
-/ IGNORE             SymbolLiteral
+  SKIP ( "-":op )? FloatingPointLiteral 
+/ SKIP ( "-":op )? IntegerLiteral
+/ SKIP             BooleanLiteral
+/ SKIP             NullLiteral          
+/ SKIP             CharacterLiteral     
+/ SKIP             StringLiteral        
+/ SKIP             SymbolLiteral
 ;
 
 transient generic BooleanLiteral = "true":key / "false":key;
@@ -83,23 +83,35 @@ generic QualId = Id ( void:".":sep Id )* ;
 generic Ids    = Id ( void:",":sep Id )* ;
 
 generic Path =
-  StableId
-/ ( Id void:".":sep )? "this":key
+  ( Id void:".":sep )? "this":key
+/ StableId
 ;
 
 generic StableId = 
-  Id ( void:".":sep Id )*
-/ ( Id void:".":sep )? "this" :key                 ( void:".":key Id )*
+  ( Id void:".":sep )? "this" :key                 ( void:".":key Id )*
 / ( Id void:".":sep )? "super":key ClassQualifier? ( void:".":key Id )*
+/ Id ( void:".":sep Id )*
 ;
 
 generic ClassQualifier = void:"[":sep Id void:"]":sep;
 
 generic Type = 
-  InfixType void:"=>":key Type
-/ InfixType ExistentialClause?
-/ void:"(" ( void:"=>":key Type )? void:")" void:"=>":key Type
+  FunType
+/ NotFunType
 ;
+
+generic FunType =
+  void:"(":sep ( void:"=>":key Type )? void:")":sep void:"=>":key Type
+/ InfixType void:"=>":key Type
+;
+
+/* in CaseClause, we should leave the latest "=>" for ( "=>" Block ) */
+generic FunTypeInCaseClause =
+  void:"(":sep ( void:"=>":key Type )? void:")":sep void:"=>":key ( NotFunType void:"=>":key )*
+/ InfixType void:"=>":key ( NotFunType void:"=>":key )*
+;
+
+generic NotFunType = InfixType ExistentialClause? ;
 
 generic ExistentialClause = "forSome":key void:"{":sep ExistentialDcl ( SEMI ExistentialDcl )* void:"}":sep;
 
@@ -119,12 +131,15 @@ generic CompoundType =
 generic AnnotType = Annotation* SimpleType ;
 
 generic SimpleType = 
-  StableId TypeArgs* ( void:"#":key Id )*
-/ Path void:".":sep void:"type" TypeArgs* ( void:"#":key Id )*
-/ void:"(":sep Types ( void:",":sep )? void:")":sep TypeArgs* ( void:"#":key Id )*
+  Path void:".":sep void:"type":key TypeArgs* ( void:"#":key Id )*
+/ StableId                          TypeArgs* ( void:"#":key Id )*
+/ TupleType                         TypeArgs* ( void:"#":key Id )*
 ;
 
-transient generic TypeArgs = void:"[":sep Types void:"]":sep ;
+generic TupleType = void:"(":sep Types ( void:",":sep )? void:")":sep ;
+
+/* @DocError in ScalaReference: TypeArgs can be [_] */
+transient generic TypeArgs = void:"[":sep ( Types / "_":key ) void:"]":sep ;
 
 transient generic Types = Type ( void:",":sep Type )* ;
 
@@ -135,8 +150,6 @@ generic RefineStat =
 / Dcl
 ;
 
-generic TypePat = Type ;
-
 generic Ascription = 
   void:":":key CompoundType
 / void:":":key Annotation Annotation*
@@ -145,24 +158,42 @@ generic Ascription =
 
 generic Expr = 
   ( Bindings / Id ) void:"=>":key Expr
-/ ExprNotFun;
+/ NotFunExpr;
 
-generic ExprNotFun = 
-  void:"if"    :key void:"(":sep Expr  void:")":sep N* Expr ( SEMI? void:"else":key Expr )?
-/ void:"while" :key void:"(":sep Expr  void:")":sep N* Expr
-/ void:"try"   :key void:"{":sep Block void:"}":sep ( void:"catch":key void:"{":sep CaseClauses void:"}":sep )? ( void:"finally":key Expr )?
-/ void:"do"    :key Expr SEMI? void:"while":key void:"(":sep Expr void:")":sep
-/ void:"for"   :key ( void:"(":sep Enumerators void:")":sep / void:"{":sep Enumerators void:"}":sep ) N* ( void:"yield":key) ? Expr
-/ void:"throw" :key Expr
-/ void:"return":key Expr?
-/ ( SimpleExpr void:".":sep )? Id void:"=":key Expr
-/ SimpleExpr ArgumentExprs void:"=":key Expr
-/ PostfixExpr Ascription
-/ PostfixExpr void:"match":key void:"{":sep CaseClauses void:"}":sep
+generic NotFunExpr = 
+  IfExpr
+/ WhileExpr
+/ TryExpr
+/ DoExpr
+/ ForExpr
+/ ThrowExpr
+/ ReturnExpr
+/ AssignmentExpr
+/ AscriptionExpr
+/ MatchExpr
 / PostfixExpr
 ;
 
-generic PostfixExpr = InfixExpr ( Id ( N) ? )? ;
+generic IfExpr = void:"if":key void:"(":sep Expr  void:")":sep N* Expr ( SEMI? void:"else":key Expr )? ;
+generic WhileExpr = void:"while":key void:"(":sep Expr  void:")":sep N* Expr ;
+generic TryExpr = void:"try":key void:"{":sep Block void:"}":sep ( void:"catch":key void:"{":sep CaseClauses void:"}":sep )? ( void:"finally":key Expr )? ;
+generic DoExpr = void:"do":key Expr SEMI? void:"while":key void:"(":sep Expr void:")":sep ;
+generic ForExpr = void:"for":key ( void:"(":sep Enumerators void:")":sep / void:"{":sep Enumerators void:"}":sep ) N* ( void:"yield":key) ? Expr ;
+generic ThrowExpr = void:"throw" :key Expr ;
+generic ReturnExpr = void:"return":key Expr? ;
+
+/*
+generic AssignmentExpr = 
+  ( SimpleExpr void:".":sep )? Id void:"=":key Expr
+/ SimpleExpr ArgumentExprs void:"=":key Expr
+;
+*/
+generic AssignmentExpr = SimpleExpr void:"=":key Expr ;
+generic AscriptionExpr = PostfixExpr Ascription ;
+generic MatchExpr      = PostfixExpr void:"match":key void:"{":sep CaseClauses void:"}":sep ;
+
+/* @DocError in ScalaReference: InfixExpr ( Id N? )? */
+generic PostfixExpr = InfixExpr Id? ;
 
 generic InfixExpr = PrefixExpr InfixExprRest* ;
 generic InfixExprRest = Id N? PrefixExpr;
@@ -179,12 +210,13 @@ generic SimpleExpr =
 / SimpleNewExpr
 ;
 
-transient generic SimplePathExpr     = Path      TypeArgs? SimpleExprRest*;
-transient generic SimpleLiteralExpr  = Literal   TypeArgs? SimpleExprRest*;
-transient generic SimpleWildCardExpr = "_":key   TypeArgs? SimpleExprRest*;
-transient generic SimpleTupleExpr    = ParenExpr TypeArgs? SimpleExprRest*;
-transient generic SimpleBlockExpr    = BlockExpr TypeArgs? SimpleExprRest*;
-transient generic SimpleNewExpr      = NewExpr   TypeArgs? SimpleExprRest*;
+/* @DocError in ScalaReference : There is non SimpleExpr with ( void:":":key Type ) */
+transient generic SimplePathExpr     = Path      TypeArgs? SimpleExprRest* ( void:":":key Type )?;
+transient generic SimpleLiteralExpr  = Literal   TypeArgs? SimpleExprRest* ;
+transient generic SimpleWildCardExpr = "_":key   TypeArgs? SimpleExprRest* ;
+transient generic SimpleTupleExpr    = ParenExpr TypeArgs? SimpleExprRest* ( void:":":key Type )?;
+transient generic SimpleBlockExpr    = BlockExpr TypeArgs? SimpleExprRest* ;
+transient generic SimpleNewExpr      = NewExpr   TypeArgs? SimpleExprRest* ;
 
 transient generic SimpleExprRest = 
   PathRest+
@@ -202,26 +234,34 @@ generic ArgumentExprs =
 / N? BlockExpr
 ;
 
-transient generic ParenExpr = void:"(":sep ( Exprs ( void:",":sep )? )? void:")":sep;
+transient generic ParenExpr = 
+  void:"(":sep ENTER_NL_DISABLE
+  ( Exprs ( void:",":sep )? )? 
+  EXIT_NL_DISABLE void:")":sep 
+;
 
 generic BlockExpr = 
   void:"{":sep CaseClauses void:"}":sep
 / void:"{":sep Block       void:"}":sep
 ;
 
-generic Block = ( BlockStat SEMI )* ResultExpr? ;
+generic Block = 
+  ENTER_NL_ENABLE 
+  ( BlockStat SEMI )* ResultExpr?
+  EXIT_NL_ENABLE 
+;
 
 transient generic BlockStat = 
   Import
 / ( void:"implicit":key )? Def
 / LocalModifier* TmplDef
-/ !ResultFunExpr ExprNotFun
+/ !ResultFunExpr NotFunExpr
 / 
 ;
 
 generic ResultExpr =
   ResultFunExpr
-/ ExprNotFun
+/ NotFunExpr
 ;
 
 generic ResultFunExpr = ( Bindings / ResultBinding ) void:"=>":key Block ;
@@ -239,31 +279,55 @@ transient generic Enumerator =
 transient generic Generator = Pattern1 "<-":key Expr Guard? ;
 
 transient generic CaseClauses = CaseClause CaseClause* ;
-transient generic CaseClause = void:"case":key Pattern Guard? void:"=>":key Block ;
-
-transient generic Guard = void:"if":key PostfixExpr;
-
-transient generic Pattern = Pattern1 ( void:"|":sep Pattern1 )* ;
-
-generic Pattern1 = 
-  VarId   void:":":key TypePat
-/ "_":key void:":":key TypePat
-/ Pattern2
+/* @Hacking greedy Pattern will consumer latest "=>" to try to recognize as FunType,
+ * we should leave lastest "=>" for Block by define a FunTypeInCaseClause 
+ * 
+ * A case token can begin a statement only if followed by a class or object token
+ */
+generic CaseClause =   
+  SKIP_N void:"case":key 
+  ( ( VarId / "_":key ) void:":":key FunTypeInCaseClause Block
+  / Pattern Guard? void:"=>":key Block 
+  )
 ;
 
-generic Pattern2 = 
-  VarId ( void:"@":key Pattern3 )?
+transient generic Guard = void:"if":key PostfixExpr ;
+
+transient generic Pattern = 
+  AlternatePattern
+/ Pattern1 
+;
+
+transient generic AlternatePattern = Pattern1 ( void:"|":sep Pattern1 )+ ;
+
+generic Pattern1 =
+  TypedPattern
+/ NoTypedPattern
+;
+
+generic TypedPattern =
+  VarId   void:":":key Type
+/ "_":key void:":":key Type
+;
+
+// ----- Pattern2
+generic NoTypedPattern =
+  AtPattern
 / Pattern3
 ;
 
-transient generic Pattern3 = 
-  <CallPattern>   SimplePattern CallPatternTail+
+generic AtPattern = VarId void:"@":key Pattern3 ;
+
+generic Pattern3 = 
+  <InfixPattern>  SimplePattern InfixPatternTail+
 / <SimplePattern> SimplePattern;
-transient generic CallPatternTail = Id N? SimplePattern ;
+
+transient generic InfixPatternTail = Id N? SimplePattern ;
 
 /* @DocError in ScalaReference: "_":key */
 transient generic SimplePattern =
-  "_":key ( "*":op )?
+  XmlExpr
+/ "_":key ( "*":op )?
 / Literal
 / TuplePattern
 / StableId TuplePattern
@@ -281,9 +345,9 @@ transient generic TypeParamClause = void:"[":sep VariantTypeParam ( void:",":sep
 
 transient generic FunTypeParamClause = void:"[":sep TypeParam ( void:",":sep TypeParam )* void:"]":sep ;
 
-transient generic VariantTypeParam = ( "+":op / "-":op ) TypeParam ;
+transient generic VariantTypeParam = ( "+":op / "-":op )? TypeParam ;
 
-transient generic TypeParam = ( Id / "_":sep ) TypeParamClause? ( void:">:":key Type )? ( void:"<:":key Type )? ( void:"<%":key Type )? ;
+transient generic TypeParam = ( Id / "_":key ) TypeParamClause? ( void:">:":key Type )? ( void:"<:":key Type )? ( void:"<%":key Type )? ;
 
 transient generic ParamClauses = ParamClause* ( N? void:"(":sep void:"implicit":sep Params void:")":sep )? ;
 
@@ -306,10 +370,9 @@ generic ClassParamClause = N? void:"(":sep ClassParams? void:")":sep ;
 generic ClassParams = ClassParam ( void:",":sep ClassParam )* ;
 
 generic ClassParam = Annotation* ( Modifier* ( <Val> void:"val":key / <Var> void:"var":key ) )? Id ( void:":":key ParamType )? ;
-generic ValOrVar = ;
 
-generic Bindings = void:"(":sep Binding ( void:",":sep Binding )* void:")":sep ;
-
+/* @DocError in ScalaReference: void:"(":sep Binding ( void:",":sep Binding )* void:")":sep */
+transient generic Bindings = void:"(":sep Binding? ( void:",":sep Binding )* void:")":sep ;
 transient generic Binding = Id ( void:":":key Type )? ;
 
 transient generic Modifier = 
@@ -336,14 +399,14 @@ generic AnnotationExpr = Constr ( N? void:"{":sep NameValuePair* void:"}":sep )?
 
 generic NameValuePair = void:"val":key Id void:"=":key PrefixExpr;
 
-generic TemplateBody = N? void:"{":sep SelfType? ( TemplateStat SEMI )* void:"}":sep ;
+generic TemplateBody = N? void:"{":sep SelfType? TemplateStat ( SEMI TemplateStat )* void:"}":sep ;
 
 transient generic TemplateStat = 
   Import
 / Annotation* Modifier* Def
 / Annotation* Modifier* Dcl
 / Expr
-/
+/ 
 ;
 
 transient generic SelfType = 
@@ -353,7 +416,7 @@ transient generic SelfType =
 
 transient generic Import = "import":key ImportExpr ( void:",":sep ImportExpr )* ;
 
-transient generic ImportExpr = StableId void:".":sep ( Id / "_":key / ImportSelectors );
+transient generic ImportExpr = StableId ( void:".":sep ( "_":key / ImportSelectors ) )?;
 
 transient generic ImportSelectors = void:"{":sep ( ImportSelector void:",":sep )* ( ImportSelector / "_":key ) void:"}":sep ;
 
@@ -386,7 +449,7 @@ generic Def =
 / TmplDef
 ;
 
-transient generic PatDef = Pattern2 ( void:",":sep Pattern2 )* ( void:":":key Type )? "=":key Expr ;
+transient generic PatDef = NoTypedPattern ( void:",":sep NoTypedPattern )* ( void:":":key Type )? "=":key Expr ;
 
 generic VarDef = 
   PatDef
@@ -447,7 +510,7 @@ transient generic ConstrBlock = void:"{":sep SelfInvocation ( SEMI BlockStat )* 
 
 transient generic SelfInvocation = void:"this":key ArgumentExprs ArgumentExprs* ;
 
-transient generic TopStatSeq = TopStat ( TopStat SEMI )* ;
+transient generic TopStatSeq = TopStat ( SEMI TopStat )* ;
 
 transient generic TopStat = 
   Import
@@ -459,5 +522,5 @@ transient generic TopStat =
 transient generic Packaging = void:"package":key QualId N? void:"{":sep TopStatSeq void:"}":sep ;
 transient generic Package   = void:"package":key QualId SEMI ;
 
-public generic CompilationUnit = Package? TopStatSeq IGNORE_N;
+public generic CompilationUnit = SKIP_N Package? TopStatSeq SKIP_N;
 

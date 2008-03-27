@@ -1,9 +1,8 @@
-
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -21,13 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -38,64 +31,67 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.editor.hints.xml;
 
-import java.util.Arrays;
-import java.util.List;
-import org.netbeans.spi.editor.hints.ErrorDescription;
-import org.netbeans.spi.editor.hints.ProviderDescription;
-import org.openide.util.NbBundle;
+package org.netbeans.modules.scala.editing.rats;
+
+import java.util.Stack;
+import xtc.util.State;
 
 /**
  *
- * @author Jan Lahoda
+ * @author Caoyuan Deng
  */
-public class XMLProviderDescription implements ProviderDescription {
-
-    public static final String KEY_XML_FATAL_ERROR = "fatal-error";
-    public static final String KEY_XML_ERROR       = "error";
-    public static final String KEY_XML_WARNING     = "warning";
-
-    public static final String XML_ERROR_PROVIDER  = "org-netbeans-modules-editor-hints-xml";
+public class ParserState implements State {
     
-    /**
-     * Creates a new instance of XMLProviderDescription
-     */
-    public XMLProviderDescription() {
+    public static final int NL_ENABLE  = 0;
+    public static final int NL_DISABLE = 1;    
+    
+    public Stack<Integer> states = new Stack<Integer>();
+    
+    private int state;
+    
+    public int state() {
+        return states.empty() ? NL_ENABLE : states.peek();
+    }        
+
+    public void enterNewlineEnable() {
+        states.push(NL_ENABLE);
     }
     
-    public String getKey() {
-        return XML_ERROR_PROVIDER;
+    public void exitNewlineEnable() {
+        states.pop();
     }
-
-    public String getDisplayName() {
-        return NbBundle.getMessage(XMLProviderDescription.class, "LBL_Error_Provider");
+    
+    public void enterNewlineDisable() {
+        states.push(NL_DISABLE);
     }
-
-    public boolean getDefaultState() {
-        return true;
+    
+    public void exitNewlineDisable() {
+        states.pop();
     }
-
-    public List getSupportedErrorKeys() {
-        return Arrays.asList(new String[] {
-            KEY_XML_FATAL_ERROR,
-            KEY_XML_ERROR,
-            KEY_XML_WARNING,
-        });
-    }
-
-    public String getErrorDisplayName(String key) {
-        return NbBundle.getMessage(XMLProviderDescription.class, "LBL_Error-" + key);
-    }
-
-    public int getErrorDefaultSeverity(String key) {
-        if (KEY_XML_WARNING.equals(key))
-            return ErrorDescription.SEVERITY_WARNING;
-        
-        return ErrorDescription.SEVERITY_ERROR;
+    
+    public void start() {
         
     }
 
+    public void commit() {
+
+    }
+
+    public void abort() {
+        
+    }
     
+    public void reset(String arg0) {
+        states.clear();
+    }
+
 }
+
+
+

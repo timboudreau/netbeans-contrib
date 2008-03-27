@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -510,7 +510,7 @@ COMMENT
     ;
 
 LINE_COMMENT
-    : '//' ~('\n'|'\r')* '\r'? '\n'? {$channel=HIDDEN;}
+    : '//' ~('\n'|'\r')* '\r'? ('\n' | EOF) {$channel=HIDDEN;}
     ;
 
 LAST_TOKEN

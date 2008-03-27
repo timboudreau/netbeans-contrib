@@ -63,7 +63,7 @@ import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.editor.Registry;
-import org.netbeans.modules.editorhints.*;
+import org.netbeans.modules.editor.hints.HintsUI;
 import org.netbeans.spi.editor.errorstripe.UpToDateStatus;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.HintsController;
