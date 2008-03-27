@@ -99,8 +99,8 @@ transient String xmlCharDataChar = ![<&] _ ;
 transient generic XmlComment = xmlComment;
 transient String xmlComment = 
   "<!--" 
-  ( !'-' xmlChar
-  / '-' !'-' xmlChar
+  ( '-' !'-'
+  / !'-' xmlChar
   )* 
   "-->"
 ;
@@ -112,28 +112,16 @@ transient String XmlCharRef =
 / "&#x" [0-9a-fA-F]+ ';'
 ;
 
-transient String XmlCDSect = XmlCDStart XmlCData XmlCDEnd ;
-transient String XmlCDStart = "<![CDATA[" ;
-transient String XmlCDEnd   = "]]>" ;
-transient String XmlCData = 
-  ( ![\]>] xmlChar
-  / ']' !']' xmlChar
-  / "]]" !'>' xmlChar
-  )*
-;
+transient generic XmlCDSect = XmlCDStart XmlCData XmlCDEnd ;
+transient generic XmlCDStart = "<![CDATA[" ;
+transient generic XmlCDEnd   = "]]>" ;
+transient generic XmlCData = xmlCDataChar* ;
+String xmlCDataChar = !( "]]>" ) xmlChar ;
 
-transient String XmlPI= 
-  "<?" XmlPITarget 
-  ( xmlWs
-    ( ![?>] xmlChar
-    / '?' !'>' xmlChar
-    / !'?' '>' xmlChar
-    )*
-  )?
-  "?>"
-;
+transient String XmlPI= "<?" xmlPITarget xmlPIChar* "?>" ;
+String xmlPIChar = !( "?>" ) xmlChar ;
 
-transient String XmlPITarget = !( ( 'X' / 'x' ) ( 'M' / 'm' ) ( 'L' / 'l' ) ) xmlName ;
+transient String xmlPITarget = !( ( 'X' / 'x' ) ( 'M' / 'm' ) ( 'L' / 'l' ) ) xmlName ;
 
 transient String xmlChar = [\u0001-\uD7FF] / [\uE000-\uFFFD] ;
 
