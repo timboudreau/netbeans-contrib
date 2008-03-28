@@ -87,7 +87,7 @@ public final class ParseError extends Result {
    * @param index The index of the parse error.
    */
   public ParseError select(final String msg, final int index) {
-    return (this.index <= index)? new ParseError(msg, index) : this;
+    return (this.index < index)? new ParseError(msg, index) : this;
   }
 
   public SemanticValue createValue(final Object value, final ParseError error) {
