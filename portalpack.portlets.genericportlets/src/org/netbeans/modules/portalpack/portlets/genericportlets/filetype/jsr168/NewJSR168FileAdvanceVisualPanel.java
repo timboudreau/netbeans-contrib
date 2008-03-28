@@ -65,10 +65,13 @@ public class NewJSR168FileAdvanceVisualPanel extends javax.swing.JPanel implemen
         helpJspTf = new javax.swing.JTextField();
         isCreateJsps = new javax.swing.JCheckBox();
 
+        lblView.setLabelFor(viewJspTf);
         lblView.setText(org.openide.util.NbBundle.getBundle(NewJSR168FileAdvanceVisualPanel.class).getString("NewJSR168FileAdvanceVisualPanel.lblView.text")); // NOI18N
 
+        lblEdit.setLabelFor(editJspTf);
         lblEdit.setText(org.openide.util.NbBundle.getBundle(NewJSR168FileAdvanceVisualPanel.class).getString("NewJSR168FileAdvanceVisualPanel.lblEdit.text")); // NOI18N
 
+        lblHelp.setLabelFor(helpJspTf);
         lblHelp.setText(org.openide.util.NbBundle.getBundle(NewJSR168FileAdvanceVisualPanel.class).getString("NewJSR168FileAdvancePanel.lblHelp.text")); // NOI18N
 
         isCreateJsps.setText(org.openide.util.NbBundle.getBundle(NewJSR168FileAdvanceVisualPanel.class).getString("LBL_CREATE_JSPS")); // NOI18N
@@ -117,6 +120,19 @@ public class NewJSR168FileAdvanceVisualPanel extends javax.swing.JPanel implemen
                     .add(helpJspTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        lblView.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "NewJSR168FileAdvanceVisualPanel.lblView.text")); // NOI18N
+        lblView.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "ACSD_VIEW_JSP")); // NOI18N
+        viewJspTf.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "NewJSR168FileAdvanceVisualPanel.lblView.text")); // NOI18N
+        viewJspTf.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "ACSD_VIEW_JSP")); // NOI18N
+        lblEdit.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "NewJSR168FileAdvanceVisualPanel.lblEdit.text")); // NOI18N
+        lblEdit.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "ACSD_EDIT_JSP")); // NOI18N
+        editJspTf.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "NewJSR168FileAdvanceVisualPanel.lblEdit.text")); // NOI18N
+        editJspTf.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "ACSD_EDIT_JSP")); // NOI18N
+        lblHelp.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "NewJSR168FileAdvancePanel.lblHelp.text")); // NOI18N
+        lblHelp.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "ACSD_HELP_JSP")); // NOI18N
+        isCreateJsps.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "LBL_CREATE_JSPS")); // NOI18N
+        isCreateJsps.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "ACSD_CREATE_JSPS")); // NOI18N
     }// </editor-fold>//GEN-END:initComponents
 
     private void isCreateJspsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_isCreateJspsItemStateChanged
