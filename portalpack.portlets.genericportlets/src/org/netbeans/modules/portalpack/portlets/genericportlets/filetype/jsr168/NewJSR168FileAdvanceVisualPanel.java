@@ -46,6 +46,7 @@ public class NewJSR168FileAdvanceVisualPanel extends javax.swing.JPanel implemen
         viewJspTf.getDocument().addDocumentListener(this);
         editJspTf.getDocument().addDocumentListener(this);
         helpJspTf.getDocument().addDocumentListener(this);
+        setName(NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "TTL_JSP_PANEL"));
     }
     
     /** This method is called from within the constructor to
