@@ -28,6 +28,7 @@ import javax.swing.text.Document;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.openide.WizardDescriptor;
 import javax.swing.JPanel;
+import org.openide.util.NbBundle;
 
 public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements DocumentListener{
     
@@ -43,8 +44,9 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
         portletDescTf.getDocument().addDocumentListener(this);
     }
     
+    @Override
     public String getName() {
-        return "Step #1";
+        return NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "TTL_NEW_PORTLET");
     }
     
     /** This method is called from within the constructor to
