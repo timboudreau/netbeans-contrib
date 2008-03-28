@@ -74,18 +74,19 @@ made subject to such option by the copyright holder.
                 <package>com.sun.source.util</package>
                 <package>com.sun.tools.javac.tree</package>
                 <package>com.sun.tools.javac.util</package>
+                <package>com.sun.tools.javafx.antlr</package>
                 <package>com.sun.tools.javafx.api</package>
-                <package>com.sun.tools.javafx.tree</package>
                 <package>com.sun.tools.javafx.main</package>
+                <package>com.sun.tools.javafx.tree</package>
+                <package>javax.lang.model</package>
                 <package>javax.lang.model.element</package>
                 <package>javax.lang.model.type</package>
+                <package>javax.lang.model.util</package>
                 <package>javax.tools</package>
-                <package>org.jdesktop.layout</package>
                 <package>org.antlr.runtime</package>
                 <package>org.antlr.runtime.tree</package>
-	      <package>com.sun.tools.javafx.antlr</package>
+                <package>org.jdesktop.layout</package>
             </public-packages>
         </data>
     </configuration>
 </project>
-

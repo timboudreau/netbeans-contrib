@@ -54,6 +54,7 @@ import org.netbeans.spi.navigator.NavigatorPanel;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
+import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
@@ -129,11 +130,13 @@ public class ElementNavigatorProviderImpl implements NavigatorPanel {
         }
 
         public void run(CompilationInfo info) {
-            manager.setRootContext(ElementNode.getTree(info,
-                   /* info.getTrees().getElement(new TreePath(info.getCompilationUnit())) */ null
-                ));
+            Node n = ElementNode.getTree(info,
+                   info.getTrees().getElement(new TreePath(info.getCompilationUnit()))
+                );
+            if (n != null) {
+                manager.setRootContext(n);
+            }
         }
         
     }
-    
 }
