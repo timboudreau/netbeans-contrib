@@ -67,6 +67,7 @@ public enum ScalaTokenId implements TokenId {
 
     Keyword("keyword"),
     Identifier("identifier"),
+    DocComment("comment"),
     BlockComment("comment"),
     LineComment("comment"),
     Ws("whitespace"),

@@ -56,7 +56,8 @@ option flatten;
 
 public generic Token = 
   Keyword               
-/ XmlExpr              
+/ XmlExpr
+/ DocComment
 / BlockComment   
 / LineComment           
 / Identifier           

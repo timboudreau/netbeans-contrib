@@ -379,6 +379,7 @@ public class ScalaParser implements Parser {
                     error = r.parseError();
                     System.out.println("Null node!");
                 } else {
+                    
                     //Printer printer = new Printer(System.out);
                     //parser.dump(printer);
                     if (r.index < source.length()) {

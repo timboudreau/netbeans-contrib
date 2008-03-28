@@ -465,9 +465,11 @@ generic FunDef =
 generic TypeDef = Id TypeParamClause? void:"=":key Type ;
 
 generic TmplDef =
-  ( "case":key )? void:"class" :key ClassDef
-/ ( "case":key )? void:"object":key ObjectDef
-/                 void:"trait" :key TraitDef
+  DocComment*
+  ( ( "case":key )? void:"class" :key ClassDef
+  / ( "case":key )? void:"object":key ObjectDef
+  /                 void:"trait" :key TraitDef
+  )
 ;
 
 transient generic ClassDef  = Id TypeParamClause? Annotation* AccessModifier? ClassParamClauses ClassTemplateOpt ;
@@ -522,5 +524,5 @@ transient generic TopStat =
 transient generic Packaging = void:"package":key QualId N? void:"{":sep TopStatSeq void:"}":sep ;
 transient generic Package   = void:"package":key QualId SEMI ;
 
-public generic CompilationUnit = SKIP_N Package? TopStatSeq SKIP_N;
+public generic CompilationUnit = SKIP_N DocComment* Package? TopStatSeq EOF;
 
