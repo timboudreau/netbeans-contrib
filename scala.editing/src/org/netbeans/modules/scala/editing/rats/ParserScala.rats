@@ -174,8 +174,8 @@ generic NotFunExpr =
 / PostfixExpr
 ;
 
-generic IfExpr = void:"if":key void:"(":sep Expr  void:")":sep N* Expr ( SEMI? void:"else":key Expr )? ;
-generic WhileExpr = void:"while":key void:"(":sep Expr  void:")":sep N* Expr ;
+generic IfExpr = void:"if":key void:"(":sep Expr void:")":sep N* Expr ( SEMI? void:"else":key Expr )? ;
+generic WhileExpr = void:"while":key void:"(":sep Expr void:")":sep N* Expr ;
 generic TryExpr = void:"try":key void:"{":sep Block void:"}":sep ( void:"catch":key void:"{":sep CaseClauses void:"}":sep )? ( void:"finally":key Expr )? ;
 generic DoExpr = void:"do":key Expr SEMI? void:"while":key void:"(":sep Expr void:")":sep ;
 generic ForExpr = void:"for":key ( void:"(":sep Enumerators void:")":sep / void:"{":sep Enumerators void:"}":sep ) N* ( void:"yield":key) ? Expr ;
@@ -298,7 +298,7 @@ transient generic Pattern =
 / Pattern1 
 ;
 
-transient generic AlternatePattern = Pattern1 ( void:"|":sep Pattern1 )+ ;
+transient generic AlternatePattern = Pattern1 void:"|":sep Pattern1 ( void:"|":sep Pattern1 )* ;
 
 generic Pattern1 =
   TypedPattern
@@ -319,7 +319,7 @@ generic NoTypedPattern =
 generic AtPattern = VarId void:"@":key Pattern3 ;
 
 generic Pattern3 = 
-  <InfixPattern>  SimplePattern InfixPatternTail+
+  <InfixPattern>  SimplePattern InfixPatternTail InfixPatternTail*
 / <SimplePattern> SimplePattern;
 
 transient generic InfixPatternTail = Id N? SimplePattern ;

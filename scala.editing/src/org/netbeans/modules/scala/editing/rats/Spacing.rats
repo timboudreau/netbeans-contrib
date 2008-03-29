@@ -74,9 +74,13 @@ transient String lineComment =
 transient void N = ( w / DocComment / BlockComment / lineComment )* n;
 
 // ----- Skip including nl but will leave all ( w / DocComment / BlockComment / lineComment )* before latest n
-transient void SKIP_TILL_N = ( ( w / DocComment / BlockComment / lineComment )* n+ )* ;
+transient void SKIP_TILL_N = 
+  ( ( w / DocComment / BlockComment / lineComment )* n+ )* 
+;
 
-transient void SKIP_N = ( n / w / DocComment / BlockComment / lineComment )* ;
+transient void SKIP_N = 
+  ( n / w / DocComment / BlockComment / lineComment )* 
+;
 
 // ----- Globe Skip
 
