@@ -86,8 +86,6 @@ transient String xmlAttValue =
 / ['] ( ![<&'] _ / XmlReference )* [']
 ;
 
-transient String scalaExpr = '{' ( !'}' _ )* '}' ;
-
 transient generic XmlCharData =  xmlCharData ;
 transient String xmlCharData =  
   xmlCharDataChar+
@@ -116,6 +114,11 @@ transient generic XmlCDStart = "<![CDATA[" ;
 transient generic XmlCDEnd   = "]]>" ;
 transient generic XmlCData = xmlCDData ;
 String xmlCDData = xmlCDataChar*;
+/* @Note: !String can be applied only to single char, for example: 
+ *     !"]]>" char, 
+ * rather than
+ *     !"]]>" ( char+ / char* )
+ */
 String xmlCDataChar = !( "]]>" ) xmlChar ;
 
 transient String XmlPI= "<?" xmlPITarget xmlPIChar* "?>" ;
