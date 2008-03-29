@@ -52,11 +52,37 @@ import org.netbeans.modules.scala.editing.rats.Spacing;
 import org.netbeans.modules.scala.editing.rats.Symbol;
 import org.netbeans.modules.scala.editing.rats.Xml;
 
+modify org.netbeans.modules.scala.editing.rats.Xml;
+
 option flatten;
 
-public generic Token = 
-  Keyword               
-/ XmlExpr
+// ----- Modify XmlContent in Xml.rats
+generic XmlContent +=
+  <ScalaToken> ScalaToken
+/ <XmlCDSect>  ...
+;
+
+// ----- Modify XmlAttValue in Xml.rats
+generic XmlAttValue +=
+  <XmlAttValue> ...
+/ <ScalaToken>  ScalaToken
+;
+
+// ----- Modify XmlCharData in Xml.rats
+generic XmlCharData := xmlCharDataInScala;
+
+/* @Note: If we modify xmlCharDataChar in Xml.rats, we cannot add transient */
+transient String xmlCharDataInScala = xmlCharDataCharInScala+;
+transient String xmlCharDataCharInScala =
+  "{{"
+/ "}}"
+/ !( [<&] / "]]>" / [{}] ) _ 
+;
+
+// ----- public entrance
+public generic Token =
+  Keyword
+/ XmlToken
 / DocComment
 / BlockComment   
 / LineComment           
@@ -65,8 +91,34 @@ public generic Token =
 / Ws                  
 / Literal
 / Separator
-/ Error      
-/ EOF
+/ Error
+/ EOF    
+;
+
+
+generic ScalaToken = 
+  &'{' Separator !'{' 
+  ( TokenInBrace  
+  / !( [{}] / EOF ) Token
+  )+ 
+  &'}' Separator !'}' 
+;
+
+// ----- nested { ... } in ScalaToken
+generic TokenInBrace = 
+  &'{' Separator 
+  ( TokenInBrace
+  / ( !( [{}] / EOF ) Token )
+  )*
+  &'}' Separator
+;
+
+// ----- XmlToken
+
+transient generic XmlToken =
+  Ws                 XmlElement
+/ &'(' Separator Ws? XmlElement Ws? &')' Separator 
+/ &'{' Separator Ws? XmlElement Ws? &'}' Separator
 ;
 
 // ----- Literal
@@ -79,8 +131,3 @@ transient generic Literal =
 / SymbolLiteral
 ;
 
-transient generic XmlExpr =
-  Ws                 XmlElement
-/ &'(' Separator Ws? XmlElement Ws? &')' Separator 
-/ &'{' Separator Ws? XmlElement Ws? &'}' Separator
-;

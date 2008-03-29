@@ -54,7 +54,36 @@ import org.netbeans.modules.scala.editing.rats.Xml;
 
 import org.netbeans.modules.scala.editing.rats.State;
 
+modify org.netbeans.modules.scala.editing.rats.Xml;
+
 option withLocation;
+
+/* @Note: Modified productions should always be put at the beginning 
+ */
+
+// ----- Modify XmlContent in Xml.rats
+generic XmlContent +=
+  <ScalaExpr> ScalaExpr
+/ <XmlCDSect> ...
+;
+
+// ----- Modify XmlAttValue in Xml.rats
+generic XmlAttValue +=
+  <XmlAttValue> ...
+/ <ScalaExpr>   ScalaExpr
+;
+
+// ----- Modify XmlCharData in Xml.rats
+generic XmlCharData := xmlCharDataInScala;
+
+/* @Note: If we modify xmlCharDataChar in Xml.rats, we cannot add transient */
+transient String xmlCharDataInScala = xmlCharDataCharInScala+;
+transient String xmlCharDataCharInScala =
+  "{{"
+/ "}}"
+/ !( [<&] / "]]>" / [{}] ) _ 
+;
+
 
 /* @Note: We cannot consumer every token's tail whitespace (leave it for XmlExpr 
  * to detect a preceding whitespace, instead, we consumer every token's preceding
@@ -65,6 +94,38 @@ transient generic XmlExpr =
 / void:"(":sep XmlElement void:")":sep 
 / void:"{":sep XmlElement void:"}":sep
 ;
+
+// ----- XmlPattern
+
+transient generic XmlPattern = 
+  void:w       XmlElementP
+/ void:"(":sep XmlElementP void:")":sep 
+/ void:"{":sep XmlElementP void:"}":sep
+;
+
+generic XmlContentP = 
+  <ScalaPatterns> ScalaPatterns
+/ <XmlCDSect>     XmlCDSect
+/ <XmlPI>         XmlPI        
+/ <XmlCharData>   XmlCharData
+/ <XmlElement>    XmlElementP
+/ <XmlReference>  XmlReference
+/ <XmlComment>    XmlComment
+;
+
+transient generic XmlElementP =
+  XmlEmptyElemTagP
+/ XmlSTagP XmlContentP* XmlETag
+;
+
+transient generic XmlEmptyElemTagP = XmlLt XmlName XmlWs? XmlSlashGt ;
+transient generic XmlSTagP = XmlLt XmlName XmlWs? XmlGt ;
+
+transient generic ScalaExpr     = void:"{":sep !(void:"{":sep ) Expr     void:"}":sep !(void:"}":sep );
+transient generic ScalaPatterns = void:"{":sep !(void:"{":sep ) Patterns void:"}":sep !(void:"}":sep );
+
+
+// ----- Literal
 
 transient generic Literal =
   SKIP ( "-":op )? FloatingPointLiteral 
@@ -328,7 +389,7 @@ transient generic InfixPatternTail = id N? SimplePattern ;
 
 /* @DocError in ScalaReference: "_":key */
 transient generic SimplePattern =
-  XmlExpr
+  XmlPattern
 / "_":key ( "*":op )?
 / Literal
 / TuplePattern
