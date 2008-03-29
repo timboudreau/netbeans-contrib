@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -36,76 +36,73 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.scala.editing.nodes;
 
-/*
- * Definition of Scala lexical tokens.
- * 
+import java.util.Iterator;
+import xtc.tree.Annotation;
+import xtc.tree.GNode;
+import xtc.tree.Visitor;
+import xtc.util.Pair;
+
+/**
+ *
  * @author Caoyuan Deng
  */
-module org.netbeans.modules.scala.editing.rats.Spacing;
+public class AstVisitor extends Visitor {
 
-transient generic DocComment =
-  "/**" 
-  blockCommentChar*
-  "*/"
-;
+    private int indentLevel;
 
-transient generic BlockComment = 
-  "/*" ![*]
-  ( BlockComment
-  / blockCommentChar
-  )*
-  "*/"
-;
+    public AstVisitor() {
+    }
 
-transient String blockCommentChar =
-  ( '*' !'/'
-  / !'*' _ 
-  )
-; 
+    private String indent() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < indentLevel; i++) {
+            sb.append("  ");
+        }
+        return sb.toString();
+    }
 
-transient generic LineComment = lineComment ;
-transient String lineComment = 
-  "//" (![\n\r] _)*
-;
+    public void accept(GNode node) {
+        dispatch(node);
+    }
 
-// ----- Meaningful newline
+    public void visit(GNode node) {
+        System.out.println(indent() + "{" + node.getName() + "}");
+        indentLevel++;
+        for (Iterator itr = node.iterator(); itr.hasNext();) {
+            Object o = itr.next();
+            if (o instanceof GNode) {
+                dispatch((GNode) o);
+            } else if (o instanceof Pair) {
+                visit((Pair) o);
+            }
+        }
+        indentLevel--;
+    }
 
-transient void N = ( w / DocComment / BlockComment / lineComment )* n;
+    public void visit(Pair pair) {
+        System.out.println(indent() + "[");
+        indentLevel++;
+        for (Iterator itr = pair.iterator(); itr.hasNext();) {
+            Object o = itr.next();
+            if (o instanceof GNode) {
+                dispatch((GNode) o);
+            } else if (o instanceof Pair) {
+                visit((Pair) o);
+            }
+        }
+        indentLevel--;
+        System.out.println(indent() + "]");
+    }
 
-// ----- Skip including nl but will leave all ( w / DocComment / BlockComment / lineComment )* before latest n
-transient void SKIP_TILL_N = 
-  ( ( w / DocComment / BlockComment / lineComment )* n+ )* 
-;
+    @Override
+    public Object visit(Annotation a) {
+        System.out.println(indent() + "@" + a.toString());
+        return null;
+    }
 
-transient void SKIP_N = 
-  ( w / DocComment / BlockComment / lineComment / n )* 
-;
-
-// ----- Globe Skip
-
-/* @Note: should put before Keyword, Symbol, Literal and Identifier only, 
- * don't put after above tokens. 
- */
-transient void SKIP = 
-  &{ yyState.state() == ParserState.NL_ENABLE  } ( w / DocComment / BlockComment / lineComment )* 
-/ &{ yyState.state() == ParserState.NL_DISABLE } ( w / DocComment / BlockComment / lineComment / n )* 
-;
-
-
-// ------ Spacing tokens
-
-transient generic Nl = n ;
-transient generic Ws = w ;
-
-
-// ----- Spacing elements
-
-transient String n = "\r\n" / "\r" / "\n" ;
-transient String w = ( " " / "\f" / "\t" )+ ;
-
-transient generic Error = error ;
-transient String error = _+ ;
-
-transient void EOF = !_ ;
-
+    public void visitCompilationUnit(final GNode n) {
+        visit(n);
+    }
+}
