@@ -68,7 +68,7 @@ public class AstVisitor extends Visitor {
     }
 
     public void visit(GNode node) {
-        System.out.println(indent() + "{" + node.getName() + "}");
+        //System.out.println(indent() + "{" + node.getName() + "}");
         indentLevel++;
         for (Iterator itr = node.iterator(); itr.hasNext();) {
             Object o = itr.next();
@@ -82,7 +82,7 @@ public class AstVisitor extends Visitor {
     }
 
     public void visit(Pair pair) {
-        System.out.println(indent() + "[");
+        //System.out.println(indent() + "[");
         indentLevel++;
         for (Iterator itr = pair.iterator(); itr.hasNext();) {
             Object o = itr.next();
@@ -93,7 +93,7 @@ public class AstVisitor extends Visitor {
             }
         }
         indentLevel--;
-        System.out.println(indent() + "]");
+        //System.out.println(indent() + "]");
     }
 
     @Override
@@ -105,4 +105,23 @@ public class AstVisitor extends Visitor {
     public void visitCompilationUnit(final GNode n) {
         visit(n);
     }
+    
+    public void visitClassDef(final GNode n) {
+        String id = (String) n.get(0);
+        System.out.println("Class:" + id);
+        visit(n);
+    }
+
+    public void visitTraitDef(final GNode n) {
+        String id = (String) n.get(0);
+        System.out.println("Trait:" + id);
+        visit(n);
+    }
+
+    public void visitObjectDef(final GNode n) {
+        String id = (String) n.get(0);
+        System.out.println("Object:" + id);
+        visit(n);
+    }
+    
 }

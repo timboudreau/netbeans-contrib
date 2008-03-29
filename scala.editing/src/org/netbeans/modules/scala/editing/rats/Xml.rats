@@ -115,7 +115,8 @@ transient String XmlCharRef =
 transient generic XmlCDSect = XmlCDStart XmlCData XmlCDEnd ;
 transient generic XmlCDStart = "<![CDATA[" ;
 transient generic XmlCDEnd   = "]]>" ;
-transient generic XmlCData = xmlCDataChar* ;
+transient generic XmlCData = xmlCDData ;
+String xmlCDData = xmlCDataChar*;
 String xmlCDataChar = !( "]]>" ) xmlChar ;
 
 transient String XmlPI= "<?" xmlPITarget xmlPIChar* "?>" ;

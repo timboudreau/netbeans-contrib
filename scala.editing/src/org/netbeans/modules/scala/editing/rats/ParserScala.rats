@@ -54,6 +54,8 @@ import org.netbeans.modules.scala.editing.rats.Xml;
 
 import org.netbeans.modules.scala.editing.rats.State;
 
+option withLocation;
+
 /* @Note: We cannot consumer every token's tail whitespace (leave it for XmlExpr 
  * to detect a preceding whitespace, instead, we consumer every token's preceding
  * whitespace and ignore it. 
@@ -79,21 +81,21 @@ transient generic NullLiteral = "null" ;
 
 transient void SEMI = ";":sep N* / N+ ;
 
-generic QualId = Id ( void:".":sep Id )* ;
-generic Ids    = Id ( void:",":sep Id )* ;
+generic QualId = id ( void:".":sep id )* ;
+generic Ids    = id ( void:",":sep id )* ;
 
 generic Path =
-  ( Id void:".":sep )? "this":key
+  ( id void:".":sep )? "this":key
 / StableId
 ;
 
 generic StableId = 
-  ( Id void:".":sep )? "this" :key                 ( void:".":key Id )*
-/ ( Id void:".":sep )? "super":key ClassQualifier? ( void:".":key Id )*
-/ Id ( void:".":sep Id )*
+  ( id void:".":sep )? "this" :key                 ( void:".":key id )*
+/ ( id void:".":sep )? "super":key ClassQualifier? ( void:".":key id )*
+/ id ( void:".":sep id )*
 ;
 
-generic ClassQualifier = void:"[":sep Id void:"]":sep;
+generic ClassQualifier = void:"[":sep id void:"]":sep;
 
 generic Type = 
   FunType
@@ -121,7 +123,7 @@ transient generic ExistentialDcl =
 ;
 
 generic InfixType = CompoundType InfixTypeRest* ;
-generic InfixTypeRest = Id N? CompoundType ;
+generic InfixTypeRest = id N? CompoundType ;
 
 generic CompoundType = 
   AnnotType ( void:"with":key AnnotType )* Refinement?
@@ -131,9 +133,9 @@ generic CompoundType =
 generic AnnotType = Annotation* SimpleType ;
 
 generic SimpleType = 
-  Path void:".":sep void:"type":key TypeArgs* ( void:"#":key Id )*
-/ StableId                          TypeArgs* ( void:"#":key Id )*
-/ TupleType                         TypeArgs* ( void:"#":key Id )*
+  Path void:".":sep void:"type":key TypeArgs* ( void:"#":key id )*
+/ StableId                          TypeArgs* ( void:"#":key id )*
+/ TupleType                         TypeArgs* ( void:"#":key id )*
 ;
 
 generic TupleType = void:"(":sep Types ( void:",":sep )? void:")":sep ;
@@ -157,7 +159,7 @@ generic Ascription =
 ;
 
 generic Expr = 
-  ( Bindings / Id ) void:"=>":key Expr
+  ( Bindings / id ) void:"=>":key Expr
 / NotFunExpr;
 
 generic NotFunExpr = 
@@ -184,7 +186,7 @@ generic ReturnExpr = void:"return":key Expr? ;
 
 /*
 generic AssignmentExpr = 
-  ( SimpleExpr void:".":sep )? Id void:"=":key Expr
+  ( SimpleExpr void:".":sep )? id void:"=":key Expr
 / SimpleExpr ArgumentExprs void:"=":key Expr
 ;
 */
@@ -192,11 +194,11 @@ generic AssignmentExpr = SimpleExpr void:"=":key Expr ;
 generic AscriptionExpr = PostfixExpr Ascription ;
 generic MatchExpr      = PostfixExpr void:"match":key void:"{":sep CaseClauses void:"}":sep ;
 
-/* @DocError in ScalaReference: InfixExpr ( Id N? )? */
-generic PostfixExpr = InfixExpr Id? ;
+/* @DocError in ScalaReference: InfixExpr ( id N? )? */
+generic PostfixExpr = InfixExpr id? ;
 
 generic InfixExpr = PrefixExpr InfixExprRest* ;
-generic InfixExprRest = Id N? PrefixExpr;
+generic InfixExprRest = id N? PrefixExpr;
 
 generic PrefixExpr = ( "-":op / "+":op / "~":op / "!":op )? SimpleExpr ;
 
@@ -265,8 +267,8 @@ generic ResultExpr =
 ;
 
 generic ResultFunExpr = ( Bindings / ResultBinding ) void:"=>":key Block ;
-/* @DocError in ScalaReference: Id void:":":key CompoundType */
-generic ResultBinding = Id ( void:":":key CompoundType )? ;
+/* @DocError in ScalaReference: id void:":":key CompoundType */
+generic ResultBinding = id ( void:":":key CompoundType )? ;
 
 transient generic Enumerators = Generator ( SEMI Enumerator )*;
 
@@ -286,7 +288,7 @@ transient generic CaseClauses = CaseClause CaseClause* ;
  */
 generic CaseClause =   
   SKIP_N void:"case":key 
-  ( ( VarId / "_":key ) void:":":key FunTypeInCaseClause Block
+  ( ( varId / "_":key ) void:":":key FunTypeInCaseClause Block
   / Pattern Guard? void:"=>":key Block 
   )
 ;
@@ -306,7 +308,7 @@ generic Pattern1 =
 ;
 
 generic TypedPattern =
-  VarId   void:":":key Type
+  varId   void:":":key Type
 / "_":key void:":":key Type
 ;
 
@@ -316,13 +318,13 @@ generic NoTypedPattern =
 / Pattern3
 ;
 
-generic AtPattern = VarId void:"@":key Pattern3 ;
+generic AtPattern = varId void:"@":key Pattern3 ;
 
 generic Pattern3 = 
   <InfixPattern>  SimplePattern InfixPatternTail InfixPatternTail*
 / <SimplePattern> SimplePattern;
 
-transient generic InfixPatternTail = Id N? SimplePattern ;
+transient generic InfixPatternTail = id N? SimplePattern ;
 
 /* @DocError in ScalaReference: "_":key */
 transient generic SimplePattern =
@@ -347,7 +349,7 @@ transient generic FunTypeParamClause = void:"[":sep TypeParam ( void:",":sep Typ
 
 transient generic VariantTypeParam = ( "+":op / "-":op )? TypeParam ;
 
-transient generic TypeParam = ( Id / "_":key ) TypeParamClause? ( void:">:":key Type )? ( void:"<:":key Type )? ( void:"<%":key Type )? ;
+transient generic TypeParam = ( id / "_":key ) TypeParamClause? ( void:">:":key Type )? ( void:"<:":key Type )? ( void:"<%":key Type )? ;
 
 transient generic ParamClauses = ParamClause* ( N? void:"(":sep void:"implicit":sep Params void:")":sep )? ;
 
@@ -355,7 +357,7 @@ transient generic ParamClause = N? void:"(":sep Params? void:")":sep ;
 
 transient generic Params = Param ( void:",":sep Param )* ;
 
-transient generic Param = Annotation* Id ( void:":":key ParamType )? ;
+transient generic Param = Annotation* id ( void:":":key ParamType )? ;
 
 transient generic ParamType = 
   Type "*":op
@@ -369,11 +371,11 @@ generic ClassParamClause = N? void:"(":sep ClassParams? void:")":sep ;
 
 generic ClassParams = ClassParam ( void:",":sep ClassParam )* ;
 
-generic ClassParam = Annotation* ( Modifier* ( <Val> void:"val":key / <Var> void:"var":key ) )? Id ( void:":":key ParamType )? ;
+generic ClassParam = Annotation* ( Modifier* ( <Val> void:"val":key / <Var> void:"var":key ) )? id ( void:":":key ParamType )? ;
 
 /* @DocError in ScalaReference: void:"(":sep Binding ( void:",":sep Binding )* void:")":sep */
 transient generic Bindings = void:"(":sep Binding? ( void:",":sep Binding )* void:")":sep ;
-transient generic Binding = Id ( void:":":key Type )? ;
+transient generic Binding = id ( void:":":key Type )? ;
 
 transient generic Modifier = 
   LocalModifier
@@ -391,13 +393,13 @@ transient generic LocalModifier =
 
 transient generic AccessModifier = ( "private":key / "protected":key ) AccessQualifier? ;
 
-transient generic AccessQualifier = void:"[":sep ( Id / "this":key ) void:"]":sep ;
+transient generic AccessQualifier = void:"[":sep ( id / "this":key ) void:"]":sep ;
 
 generic Annotation = "@":key AnnotationExpr N? ;
 
 generic AnnotationExpr = Constr ( N? void:"{":sep NameValuePair* void:"}":sep )?;
 
-generic NameValuePair = void:"val":key Id void:"=":key PrefixExpr;
+generic NameValuePair = void:"val":key id void:"=":key PrefixExpr;
 
 generic TemplateBody = N? void:"{":sep SelfType? TemplateStat ( SEMI TemplateStat )* void:"}":sep ;
 
@@ -410,7 +412,7 @@ transient generic TemplateStat =
 ;
 
 transient generic SelfType = 
-  Id       ( void:":":key Type )? void:"=>":key
+  id       ( void:":":key Type )? void:"=>":key
 / "this":key void:":":key Type    void:"=>":key
 ;
 
@@ -420,7 +422,7 @@ transient generic ImportExpr = StableId ( void:".":sep ( "_":key / ImportSelecto
 
 transient generic ImportSelectors = void:"{":sep ( ImportSelector void:",":sep )* ( ImportSelector / "_":key ) void:"}":sep ;
 
-transient generic ImportSelector = Id ( void:"=>":key Id / void:"=>":key "_":key )? ;
+transient generic ImportSelector = id ( void:"=>":key id / void:"=>":key "_":key )? ;
 
 generic Dcl = 
   void:"val" :key ValDcl
@@ -433,9 +435,9 @@ generic ValDcl = Ids      void:":":key Type ;
 generic VarDcl = Ids      void:":":key Type ;
 generic FunDcl = FunSig ( void:":":key Type )? ;
 
-generic FunSig = Id FunTypeParamClause? ParamClauses ;
+generic FunSig = id FunTypeParamClause? ParamClauses ;
 
-transient generic TypeDcl = Id TypeParamClause? ( void:">:":key Type )? ( void:"<:":key Type )? ;
+transient generic TypeDcl = id TypeParamClause? ( void:">:":key Type )? ( void:"<:":key Type )? ;
 
 generic PatVarDef = 
   void:"val":key PatDef
@@ -462,7 +464,7 @@ generic FunDef =
 / "this":key ParamClause ParamClauses ( void:"=":key ConstrExpr / N? ConstrBlock ) 
 ;
 
-generic TypeDef = Id TypeParamClause? void:"=":key Type ;
+generic TypeDef = id TypeParamClause? void:"=":key Type ;
 
 generic TmplDef =
   DocComment*
@@ -472,9 +474,9 @@ generic TmplDef =
   )
 ;
 
-transient generic ClassDef  = Id TypeParamClause? Annotation* AccessModifier? ClassParamClauses ClassTemplateOpt ;
-transient generic TraitDef  = Id TypeParamClause? TraitTemplateOpt ;
-transient generic ObjectDef = Id ClassTemplateOpt ;
+transient generic ClassDef  = id TypeParamClause? Annotation* AccessModifier? ClassParamClauses ClassTemplateOpt ;
+transient generic TraitDef  = id TypeParamClause? TraitTemplateOpt ;
+transient generic ObjectDef = id ClassTemplateOpt ;
 
 transient generic ClassTemplateOpt = 
   Extends ClassTemplate 
