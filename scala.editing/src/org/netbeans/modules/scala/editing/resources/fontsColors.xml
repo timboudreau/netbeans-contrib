@@ -12,28 +12,26 @@
 
     <fontcolor name="xml" foreColor="2E92C7"/>
 
-    <fontcolor name="INT_LITERAL" default="number"/>
-    <fontcolor name="FLOAT_LITERAL" default="number"/>
-    <fontcolor name="ANY_OPERATOR" default="operator"/>
+    <fontcolor name="IntegerLiteral" default="number"/>
+    <fontcolor name="FloatingPointLiteral" default="number"/>
+    <fontcolor name="Operator" default="operator"/>
     <fontcolor name="INSTANCE_VAR" default="field"/>
     <fontcolor name="GLOBAL_VAR" foreColor="black">
         <font style="italic"/>
     </fontcolor>
-    <fontcolor name="STRING_LITERAL" default="string"/>
-    <fontcolor name="DOUBLE_LITERAL" default="number"/>
-    <fontcolor name="BLOCK_COMMENT" default="comment"/>
-    <fontcolor name="DOCUMENTATION" default="comment"/>
-    <fontcolor name="LONG_LITERAL" default="number"/>
+    <fontcolor name="StringLiteral" default="string"/>
+    <fontcolor name="BlockComment" default="comment"/>
+    <fontcolor name="LineComment" default="comment"/>
+    <fontcolor name="DocComment" default="comment"/>
     <fontcolor name="REGEXP_LITERAL" foreColor="9933CC"/>
-    <fontcolor name="ERROR" default="error"/>
-    <fontcolor name="LINE_COMMENT" default="comment"/>
+    <fontcolor name="Error" default="error"/>
     <fontcolor name="CONSTANT" foreColor="black">
         <font style="italic"/>
     </fontcolor>
     <fontcolor name="TYPE_SYMBOL" foreColor="2E92C7"/>
-    <fontcolor name="IDENTIFIER" default="identifier"/>
-    <fontcolor name="WHITESPACE" default="whitespace"/>
-    <fontcolor name="ANY_KEYWORD" default="keyword"/>
+    <fontcolor name="Identifier" default="identifier"/>
+    <fontcolor name="Ws" default="whitespace"/>
+    <fontcolor name="Keyword" default="keyword"/>
     <fontcolor name="TODO" foreColor="ff99006b">
         <font style="bold"/>
     </fontcolor>

@@ -268,11 +268,11 @@ public class ScalaLexUtilities {
 
     
     public static Token<?extends ScalaTokenId> findNextNonWsNonComment(TokenSequence<?extends ScalaTokenId> ts) {
-        return findNext(ts, Arrays.asList(ScalaTokenId.Ws, ScalaTokenId.Nl, ScalaTokenId.EOL, ScalaTokenId.LineComment, ScalaTokenId.BlockComment, ScalaTokenId.DocComment));
+        return findNext(ts, Arrays.asList(ScalaTokenId.Ws, ScalaTokenId.Nl, ScalaTokenId.LineComment, ScalaTokenId.BlockComment, ScalaTokenId.DocComment));
     }
 
     public static Token<?extends ScalaTokenId> findPreviousNonWsNonComment(TokenSequence<?extends ScalaTokenId> ts) {
-        return findPrevious(ts, Arrays.asList(ScalaTokenId.Ws, ScalaTokenId.Nl, ScalaTokenId.EOL, ScalaTokenId.LineComment, ScalaTokenId.BlockComment, ScalaTokenId.DocComment));
+        return findPrevious(ts, Arrays.asList(ScalaTokenId.Ws, ScalaTokenId.Nl, ScalaTokenId.LineComment, ScalaTokenId.BlockComment, ScalaTokenId.DocComment));
     }
     
     public static Token<? extends ScalaTokenId> findNext(TokenSequence<?extends ScalaTokenId> ts, List<ScalaTokenId> ignores) {
@@ -320,8 +320,8 @@ public class ScalaLexUtilities {
 //        if (id == ScalaTokenId.WHITESPACE) {
 //            while (ts.moveNext() && ts.token().id() == ScalaTokenId.WHITESPACE) {}
 //        }
-        if (id == ScalaTokenId.Ws || id == ScalaTokenId.EOL) {
-            while ((back ? ts.movePrevious() : ts.moveNext()) && (ts.token().id() == ScalaTokenId.Ws || ts.token().id() == ScalaTokenId.EOL)) {}
+        if (id == ScalaTokenId.Ws || id == ScalaTokenId.Nl) {
+            while ((back ? ts.movePrevious() : ts.moveNext()) && (ts.token().id() == ScalaTokenId.Ws || ts.token().id() == ScalaTokenId.Nl)) {}
         }
 
         // if current token is not left parenthesis
@@ -1431,7 +1431,6 @@ public class ScalaLexUtilities {
         switch (id) {
             case Ws:
             case Nl: 
-            case EOL: 
             case LineComment:
             case BlockComment:
             case DocComment:

@@ -205,7 +205,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                     return -1;
                 } else {
                     // look at the beginning of next line if there is case or default
-                    ScalaLexUtilities.findNextIncluding(ts, Collections.singletonList(ScalaTokenId.EOL));
+                    ScalaLexUtilities.findNextIncluding(ts, Collections.singletonList(ScalaTokenId.Nl));
                     ScalaLexUtilities.findNextNonWsNonComment(ts);
                     if (ts.token().id() == ScalaTokenId.CASE || ts.token().id() == ScalaTokenId.DEFAULT) {
                         return 0;
@@ -247,7 +247,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             } else if ((range = ScalaLexUtilities.getMultilineRange(doc, ts)) != OffsetRange.NONE) {
                 // we found braceless block, let's record it in the stack
                 stack.push(new StackItem(true, range));
-            } else if (id == ScalaTokenId.EOL) {
+            } else if (id == ScalaTokenId.Nl) {
 
                 if (!indentOnly) {
                     TokenSequence<? extends ScalaTokenId> ts2 = ScalaLexUtilities.getPositionedSequence(doc, ts.offset());

@@ -79,7 +79,6 @@ public enum ScalaTokenId implements TokenId {
     Operator("operator"),
     Separator("separator"),
     Error("error"),
-    EOL("whitespace"),
     
     LParen("separator"),
     RParen("separator"),
