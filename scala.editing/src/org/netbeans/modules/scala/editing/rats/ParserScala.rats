@@ -523,7 +523,7 @@ generic VarDef =
 generic FunDef = 
   FunSig ( void:":":key Type )? "=":key Expr
 / FunSig N? void:"{":sep Block void:"}":sep
-/ This ParamClause ParamClauses ( void:"=":key ConstrExpr / N? ConstrBlock ) @ConstructorFunDef
+/ ThisKey ParamClause ParamClauses ( void:"=":key ConstrExpr / N? ConstrBlock ) @ConstructorFunDef
 ;
 
 generic TypeDef = Id TypeParamClause? void:"=":key Type ;

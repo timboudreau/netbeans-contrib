@@ -75,11 +75,11 @@ import org.openide.util.Exceptions;
  * @author Caoyuan Deng
  */
 public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
+
     private boolean embeddedJavaScript;
     private CodeStyle codeStyle;
     private int rightMarginOverride = -1;
     private int embeddededIndent = 0;
-    
     /**
      * <p>
      * Stack describing indentation of blocks defined by '{', '[' and blocks
@@ -101,13 +101,13 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
     public ScalaFormatter() {
         this.codeStyle = CodeStyle.getDefault(null);
     }
-    
+
     public ScalaFormatter(CodeStyle codeStyle, int rightMarginOverride) {
         assert codeStyle != null;
         this.codeStyle = codeStyle;
         this.rightMarginOverride = rightMarginOverride;
     }
-    
+
     public boolean needsParserResult() {
         return true;
     }
@@ -115,21 +115,22 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
     public void reformat(Document document, int startOffset, int endOffset, CompilationInfo info) {
         reindent(document, startOffset, endOffset, info, false);
     }
+
     public void reindent(Document document, int startOffset, int endOffset) {
         reindent(document, startOffset, endOffset, null, true);
     }
-    
+
     public int indentSize() {
         return codeStyle.getIndentSize();
     }
-    
+
     public int hangingIndentSize() {
         return codeStyle.getContinuationIndentSize();
     }
 
     /** Compute the initial balance of brackets at the given offset. */
     private int getFormatStableStart(BaseDocument doc, int offset) {
-        TokenSequence<?extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
+        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
         if (ts == null) {
             return 0;
         }
@@ -143,11 +144,10 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         // Look backwards to find a suitable context - a class, module or method definition
         // which we will assume is properly indented and balanced
         do {
-            Token<?extends ScalaTokenId> token = ts.token();
+            Token<? extends ScalaTokenId> token = ts.token();
             TokenId id = token.id();
-            String text = token.text().toString();
 
-            if (text.equals("def") || text.equals("object") || text.equals("trait") || text.equals("class")) {
+            if (id == ScalaTokenId.Def || id == ScalaTokenId.Object || id == ScalaTokenId.Trait || id == ScalaTokenId.Class) {
                 return ts.offset();
             }
         } while (ts.movePrevious());
@@ -171,7 +171,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 
         return ts.offset();
     }
-    
+
     private int getBracketBalanceDelta(TokenId id) {
         if (id == ScalaTokenId.LParen || id == ScalaTokenId.LBracket) {
             return 1;
@@ -180,7 +180,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         }
         return 0;
     }
-    
+
     private int getTokenBalanceDelta(TokenId id, BaseDocument doc, TokenSequence<? extends ScalaTokenId> ts, boolean indentOnly) {
         try {
             OffsetRange range = OffsetRange.NONE;
@@ -188,33 +188,36 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                 // block with braces, just record it to stack and return 1
                 stack.push(new StackItem(false, new OffsetRange(ts.offset(), ts.offset())));
                 return 1;
-            } else if (id == ScalaTokenId.CASE || id == ScalaTokenId.DEFAULT) {
-                
+            } else if (id == ScalaTokenId.Case) {
+
                 int index = ts.index();
-                
-                // find colon ':'
-                ScalaLexUtilities.findNextIncluding(ts, Collections.singletonList(ScalaTokenId.COLON));
+
+                // find '=>'
+                ScalaLexUtilities.findNextIncluding(ts, Collections.singletonList(ScalaTokenId.RArrow));
 
                 // skip whitespaces, comments and newlines
                 Token<? extends ScalaTokenId> token = ScalaLexUtilities.findNextNonWsNonComment(ts);
                 ScalaTokenId tokenId = token.id();
-                
-                if (tokenId == ScalaTokenId.CASE || tokenId == ScalaTokenId.DEFAULT) {
+
+                if (tokenId == ScalaTokenId.Case) {
                     return 0;
                 } else if (tokenId == ScalaTokenId.RBrace) {
                     return -1;
                 } else {
-                    // look at the beginning of next line if there is case or default
-                    ScalaLexUtilities.findNextIncluding(ts, Collections.singletonList(ScalaTokenId.Nl));
+                    // look at the beginning of next line if there is case 
+                    Token<? extends ScalaTokenId> nlOrMatch = ScalaLexUtilities.findNextIncluding(ts, Arrays.asList(ScalaTokenId.Nl, ScalaTokenId.LBrace));
+                    if (nlOrMatch.id() == ScalaTokenId.LBrace) {
+                        return 1;
+                    }
                     ScalaLexUtilities.findNextNonWsNonComment(ts);
-                    if (ts.token().id() == ScalaTokenId.CASE || ts.token().id() == ScalaTokenId.DEFAULT) {
+                    if (ts.token().id() == ScalaTokenId.Case) {
                         return 0;
                     }
                 }
 
                 ts.moveIndex(index);
                 ts.moveNext();
-                
+
                 return 1;
             } else if (id == ScalaTokenId.RBracket || id == ScalaTokenId.RBrace) {
                 /*
@@ -255,26 +258,24 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                     Token<? extends ScalaTokenId> nextToken = ScalaLexUtilities.findNextNonWsNonComment(ts2);
                     TokenId tokenId = nextToken == null ? null : nextToken.id();
                     if (tokenId == ScalaTokenId.RBrace) {
-                        // if it is end of 'switch'
+                        // if it is end of 'match'
                         OffsetRange offsetRange = ScalaLexUtilities.findBwd(doc, ts2, ScalaTokenId.LBrace, ScalaTokenId.RBrace);
                         if (offsetRange != OffsetRange.NONE) {
                             ts2.movePrevious();
-                            if (ScalaLexUtilities.skipParenthesis(ts2, true)) {
-                                Token<? extends ScalaTokenId> token = ts2.token();
-                                token = ScalaLexUtilities.findPreviousNonWsNonComment(ts2);
-                                if (token.id() == ScalaTokenId.SWITCH) {
-                                    return -1;
-                                }
+                            Token<? extends ScalaTokenId> token = ts2.token();
+                            token = ScalaLexUtilities.findPreviousNonWsNonComment(ts2);
+                            if (token.id() == ScalaTokenId.Match) {
+                                return -1;
                             }
                         }
-                    } else if (tokenId == ScalaTokenId.CASE || tokenId == ScalaTokenId.DEFAULT) {
+                    } else if (tokenId == ScalaTokenId.Case) {
                         ts2 = ScalaLexUtilities.getPositionedSequence(doc, ts.offset());
                         Token<? extends ScalaTokenId> prevToken = ScalaLexUtilities.findPreviousNonWsNonComment(ts2);
                         if (prevToken.id() != ScalaTokenId.LBrace) {
                             // it must be case or default
                             ts2 = ScalaLexUtilities.getPositionedSequence(doc, ts.offset());
-                            prevToken = ScalaLexUtilities.findPreviousIncluding(ts2, 
-                                    Arrays.asList(ScalaTokenId.CASE, ScalaTokenId.DEFAULT));
+                            prevToken = ScalaLexUtilities.findPreviousIncluding(ts2,
+                                    Arrays.asList(ScalaTokenId.Case));
                             int beginLine = Utilities.getLineOffset(doc, ts2.offset());
                             int eolLine = Utilities.getLineOffset(doc, ts.offset());
                             if (beginLine != eolLine) {
@@ -283,7 +284,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                         }
                     }
                 }
-                
+
                 // other
                 if (!stack.empty()) {
                     if (stack.peek().braceless) {
@@ -320,7 +321,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         }
         return 0;
     }
-    
+
     @SuppressWarnings("unchecked")
     private int getTokenBalance(BaseDocument doc, int begin, int end, boolean includeKeywords, boolean indentOnly) {
         int balance = 0;
@@ -328,7 +329,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         TokenSequence<? extends ScalaTokenId> ts = null;
 
         if (embeddedJavaScript) {
-            TokenHierarchy<Document> th = TokenHierarchy.get((Document)doc);
+            TokenHierarchy<Document> th = TokenHierarchy.get((Document) doc);
             for (TokenSequence<?> embeddedTS : th.embeddedTokenSequences(begin, false)) {
                 if (ScalaMimeResolver.MIME_TYPE.equals(embeddedTS.language().mimeType())) {
                     ts = (TokenSequence<? extends ScalaTokenId>) embeddedTS;
@@ -337,7 +338,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         } else {
             ts = ScalaLexUtilities.getTokenSequence(doc, begin);
         }
-        
+
         if (ts == null) {
             try {
                 // remember indent of previous html tag
@@ -355,7 +356,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         }
 
         do {
-            Token<?extends ScalaTokenId> token = ts.token();
+            Token<? extends ScalaTokenId> token = ts.token();
             if (token == null) {
                 break;
             }
@@ -371,7 +372,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 
         return balance;
     }
-    
+
     /** 
      * Get the first token on the given line. Similar to ScalaLexUtilities.getToken(doc, lineBegin)
      * except (a) it computes the line begin from the offset itself, and more importantly,
@@ -392,7 +393,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                 TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, lineBegin);
                 if (ts != null) {
                     ts.moveNext();
-                    Token<?extends ScalaTokenId> token = ts.token();
+                    Token<? extends ScalaTokenId> token = ts.token();
                     while (token != null && token.id() == ScalaTokenId.Ws) {
                         if (!ts.moveNext()) {
                             return null;
@@ -405,36 +406,35 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                 return ScalaLexUtilities.getToken(doc, lineBegin);
             }
         }
-        
+
         return null;
     }
-    
+
     private int isEndIndent(BaseDocument doc, int offset) throws BadLocationException {
         int lineBegin = Utilities.getRowFirstNonWhite(doc, offset);
 
         if (lineBegin != -1) {
-            Token<?extends ScalaTokenId> token = getFirstToken(doc, offset);
-            
+            Token<? extends ScalaTokenId> token = getFirstToken(doc, offset);
+
             if (token == null) {
                 return 0;
             }
-            
+
             TokenId id = token.id();
 
             // If the line starts with an end-marker, such as "end", "}", "]", etc.,
             // find the corresponding opening marker, and indent the line to the same
             // offset as the beginning of that line.
-            if (/*(ScalaLexUtilities.isIndentToken(id) && !ScalaLexUtilities.isBeginToken(id, doc, offset)) || ScalaLexUtilities.isEndToken(id, doc, offset) ||*/
-                id == ScalaTokenId.RBrace || id == ScalaTokenId.RBracket || id == ScalaTokenId.RParen) {
+            if (/*(ScalaLexUtilities.isIndentToken(id) && !ScalaLexUtilities.isBeginToken(id, doc, offset)) || ScalaLexUtilities.isEndToken(id, doc, offset) ||*/id == ScalaTokenId.RBrace || id == ScalaTokenId.RBracket || id == ScalaTokenId.RParen) {
                 int indents = 1;
-                
+
                 // Check if there are multiple end markers here... if so increase indent level.
                 // This should really do an iteration... for now just handling the most common
                 // scenario in JavaScript where we have }) in object literals
                 int lineEnd = Utilities.getRowEnd(doc, offset);
                 int newOffset = offset;
                 while (newOffset < lineEnd) {
-                    newOffset = newOffset+token.length();
+                    newOffset = newOffset + token.length();
                     if (newOffset < doc.getLength()) {
                         token = ScalaLexUtilities.getToken(doc, newOffset);
                         if (token != null) {
@@ -442,22 +442,22 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                             if (id == ScalaTokenId.Ws) {
                                 continue;
                             /*} else if ((ScalaLexUtilities.isIndentToken(id) && !ScalaLexUtilities.isBeginToken(id, doc, offset)) || ScalaLexUtilities.isEndToken(id, doc, offset) ||
-                                id == ScalaTokenId.RBRACE || id == ScalaTokenId.RBRACKET || id == ScalaTokenId.RPAREN) {
-                                indents++;*/
+                            id == ScalaTokenId.RBRACE || id == ScalaTokenId.RBRACKET || id == ScalaTokenId.RPAREN) {
+                            indents++;*/
                             } else {
                                 break;
                             }
                         }
                     }
                 }
-                
+
                 return indents;
             }
         }
-        
+
         return 0;
     }
-    
+
     private static boolean isLineContinued(BaseDocument doc, int offset, int bracketBalance) throws BadLocationException {
         // TODO RHTML - this isn't going to work for rhtml embedded strings...
         offset = Utilities.getRowLastNonWhite(doc, offset);
@@ -465,34 +465,34 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             return false;
         }
 
-        TokenSequence<?extends ScalaTokenId> ts = ScalaLexUtilities.getPositionedSequence(doc, offset);
-        Token<?extends ScalaTokenId> token = (ts != null ? ts.token() : null);
+        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getPositionedSequence(doc, offset);
+        Token<? extends ScalaTokenId> token = (ts != null ? ts.token() : null);
 
         if (token != null) {
             TokenId id = token.id();
-            
+
             // http://www.netbeans.org/issues/show_bug.cgi?id=115279
             boolean isContinuationOperator = (id == ScalaTokenId.NONUNARY_OP || id == ScalaTokenId.Dot);
-            
+
             if (ts.offset() == offset && token.length() > 1 && token.text().toString().startsWith("\\")) {
                 // Continued lines have different token types
                 isContinuationOperator = true;
             }
-            
+
             /* No line continuations with comma in JavaScrip - this misformats nested object literals
              * like those used in prototype and isn't necesary for real JavaScript code (since we
              * always have parentheses in parameter lists etc. to help with indentation
             if (token.length() == 1 && id == ScalaTokenId.IDENTIFIER && token.text().toString().equals(",")) {
-                // If there's a comma it's a continuation operator, but inside arrays, hashes or parentheses
-                // parameter lists we should not treat it as such since we'd "double indent" the items, and
-                // NOT the first item (where there's no comma, e.g. you'd have
-                //  foo(
-                //    firstarg,
-                //      secondarg,  # indented both by ( and hanging indent ,
-                //      thirdarg)
-                if (bracketBalance == 0) {
-                    isContinuationOperator = true;
-                }
+            // If there's a comma it's a continuation operator, but inside arrays, hashes or parentheses
+            // parameter lists we should not treat it as such since we'd "double indent" the items, and
+            // NOT the first item (where there's no comma, e.g. you'd have
+            //  foo(
+            //    firstarg,
+            //      secondarg,  # indented both by ( and hanging indent ,
+            //      thirdarg)
+            if (bracketBalance == 0) {
+            isContinuationOperator = true;
+            }
             }
              */
             if (id == ScalaTokenId.NONUNARY_OP && ",".equals(token.text().toString())) {
@@ -505,18 +505,18 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                 //      thirdarg)
                 isContinuationOperator = (bracketBalance == 0);
             }
-            
-            if (id == ScalaTokenId.COLON) {
+
+            if (id == ScalaTokenId.RArrow) {
                 TokenSequence<? extends ScalaTokenId> ts2 = ScalaLexUtilities.getPositionedSequence(doc, ts.offset());
                 Token<? extends ScalaTokenId> foundToken = ScalaLexUtilities.findPreviousIncluding(ts2,
-                        Arrays.asList(ScalaTokenId.CASE, ScalaTokenId.DEFAULT, ScalaTokenId.COLON));
-                if (foundToken != null && (foundToken.id() == ScalaTokenId.CASE || foundToken.id() == ScalaTokenId.DEFAULT)) {
+                        Arrays.asList(ScalaTokenId.Case, ScalaTokenId.RArrow));
+                if (foundToken != null && (foundToken.id() == ScalaTokenId.Case)) {
                     isContinuationOperator = false;
                 } else {
                     isContinuationOperator = true;
                 }
             }
-            
+
 //            if (isContinuationOperator) {
 //                // Make sure it's not a case like this:
 //                //    alias eql? ==
@@ -537,19 +537,19 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 //                    return true;
 //                }
 //            }
-            
+
             return isContinuationOperator;
         }
-        
-        
+
+
         return false;
     }
 
     private void reindent(Document document, int startOffset, int endOffset, CompilationInfo info, boolean indentOnly) {
         embeddedJavaScript = false;
-        
+
         try {
-            BaseDocument doc = (BaseDocument)document; // document.getText(0, document.getLength())
+            BaseDocument doc = (BaseDocument) document; // document.getText(0, document.getLength())
 
             if (indentOnly && embeddedJavaScript) {
                 // Make sure we're not messing with indentation in HTML
@@ -564,17 +564,18 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             if (endOffset > doc.getLength()) {
                 endOffset = doc.getLength();
             }
-            
-                startOffset = Utilities.getRowStart(doc, startOffset);
+
+            startOffset = Utilities.getRowStart(doc, startOffset);
             int lineStart = startOffset;//Utilities.getRowStart(doc, startOffset);
+
             int initialOffset = 0;
             int initialIndent = 0;
             if (startOffset > 0) {
-                int prevOffset = Utilities.getRowStart(doc, startOffset-1);
+                int prevOffset = Utilities.getRowStart(doc, startOffset - 1);
                 initialOffset = getFormatStableStart(doc, prevOffset);
                 initialIndent = ScalaLexUtilities.getLineIndent(doc, initialOffset);
             }
-            
+
             // Build up a set of offsets and indents for lines where I know I need
             // to adjust the offset. I will then go back over the document and adjust
             // lines that are different from the intended indent. By doing piecemeal
@@ -591,11 +592,11 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             boolean indentEmptyLines = (startOffset != 0 || endOffset != doc.getLength());
 
             boolean includeEnd = endOffset == doc.getLength() || indentOnly;
-            
+
             // TODO - remove initialbalance etc.
-            computeIndents(doc, initialIndent, initialOffset, endOffset, info, 
+            computeIndents(doc, initialIndent, initialOffset, endOffset, info,
                     offsets, indents, indentEmptyLines, includeEnd, indentOnly);
-            
+
             try {
                 doc.atomicLock();
 
@@ -605,14 +606,14 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                 for (int i = indents.size() - 1; i >= 0; i--) {
                     int indent = indents.get(i);
                     int lineBegin = offsets.get(i);
-                    
+
                     if (lineBegin < lineStart) {
                         // We're now outside the region that the user wanted reformatting;
                         // these offsets were computed to get the correct continuation context etc.
                         // for the formatter
                         break;
                     }
-                    
+
                     if (lineBegin == lineStart && i > 0) {
                         // Look at the previous line, and see how it's indented
                         // in the buffer.  If it differs from the computed position,
@@ -622,13 +623,13 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                         // in the middle of "incorrectly" indented code (e.g. different
                         // size than the IDE is using) and the newline position ending
                         // up "out of sync"
-                        int prevOffset = offsets.get(i-1);
-                        int prevIndent = indents.get(i-1);
+                        int prevOffset = offsets.get(i - 1);
+                        int prevIndent = indents.get(i - 1);
                         int actualPrevIndent = ScalaLexUtilities.getLineIndent(doc, prevOffset);
                         if (actualPrevIndent != prevIndent) {
                             // For blank lines, indentation may be 0, so don't adjust in that case
                             if (!(Utilities.isRowEmpty(doc, prevOffset) || Utilities.isRowWhite(doc, prevOffset))) {
-                                indent = actualPrevIndent + (indent-prevIndent);
+                                indent = actualPrevIndent + (indent - prevIndent);
                             }
                         }
                     }
@@ -640,7 +641,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                         editorFormatter.changeRowIndent(doc, lineBegin, indent);
                     }
                 }
-                
+
                 if (!indentOnly && codeStyle.reformatComments()) {
                     reformatComments(doc, startOffset, endOffset);
                 }
@@ -655,8 +656,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
     public void computeIndents(BaseDocument doc, int initialIndent, int startOffset, int endOffset, CompilationInfo info,
             List<Integer> offsets,
             List<Integer> indents,
-            boolean indentEmptyLines, boolean includeEnd, boolean indentOnly
-        ) {
+            boolean indentEmptyLines, boolean includeEnd, boolean indentOnly) {
         // PENDING:
         // The reformatting APIs in NetBeans should be lexer based. They are still
         // based on the old TokenID apis. Once we get a lexer version, convert this over.
@@ -677,17 +677,18 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 
             // State:
             int offset = Utilities.getRowStart(doc, startOffset); // The line's offset
+
             int end = endOffset;
-            
+
             int indentSize = codeStyle.getIndentSize();
             int hangingIndentSize = codeStyle.getContinuationIndentSize();
-            
+
             // Pending - apply comment formatting too?
 
             // XXX Look up RHTML too
             //int indentSize = EditorOptions.get(RubyInstallation.RUBY_MIME_TYPE).getSpacesPerTab();
             //int hangingIndentSize = indentSize;
-            
+
 
             // Build up a set of offsets and indents for lines where I know I need
             // to adjust the offset. I will then go back over the document and adjust
@@ -706,7 +707,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 //            if (embeddedJavaScript) {
 //                indentHtml = codeStyle.indentHtml();
 //            }
-            
+
             int originallockCommentIndention = 0;
             int adjustedBlockCommentIndention = 0;
 
@@ -719,14 +720,14 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                     initialIndent = embeddededIndent + indentSize;
                 }
 
-                
+
                 final int IN_CODE = 0;
                 final int IN_LITERAL = 1;
                 final int IN_BLOCK_COMMENT_START = 2;
                 final int IN_BLOCK_COMMENT_MIDDLE = 3;
                 int lineType = IN_CODE;
                 int pos = Utilities.getRowFirstNonWhite(doc, offset);
-                TokenSequence<?extends ScalaTokenId> ts = null;
+                TokenSequence<? extends ScalaTokenId> ts = null;
 
                 if (pos != -1) {
                     // I can't look at the first position on the line, since
@@ -742,7 +743,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                                 lineType = IN_BLOCK_COMMENT_START;
                                 originallockCommentIndention = ScalaLexUtilities.getLineIndent(doc, offset);
                             } else {
-                                lineType =  IN_BLOCK_COMMENT_MIDDLE;
+                                lineType = IN_BLOCK_COMMENT_MIDDLE;
                             }
                         } else if (id == ScalaTokenId.NONUNARY_OP) {
                             // If a line starts with a non unary operator we can
@@ -760,23 +761,23 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                         lineType = IN_LITERAL;
                     }
                 }
-                
+
                 int hangingIndent = continued ? (hangingIndentSize) : 0;
 
                 if (lineType == IN_LITERAL) {
                     // Skip this line - leave formatting as it is prior to reformatting 
                     indent = ScalaLexUtilities.getLineIndent(doc, offset);
-                    
-                    // No compound indent for JavaScript          
-                    //                    if (embeddedJavaScript && indentHtml && balance > 0) {
-                    //                        indent += balance * indentSize;
-                    //                    }
+
+                // No compound indent for JavaScript          
+                //                    if (embeddedJavaScript && indentHtml && balance > 0) {
+                //                        indent += balance * indentSize;
+                //                    }
                 } else if (lineType == IN_BLOCK_COMMENT_MIDDLE) {
-                    if (doc.getText(pos,1).charAt(0) == '*') {
+                    if (doc.getText(pos, 1).charAt(0) == '*') {
                         // *-lines get indented to be flushed with the * in /*, other lines
                         // get indented to be aligned with the presumably indented text content!
                         //indent = ScalaLexUtilities.getLineIndent(doc, ts.offset())+1;
-                        indent = adjustedBlockCommentIndention+1;
+                        indent = adjustedBlockCommentIndention + 1;
                     } else {
                         // Leave indentation of comment blocks alone since they probably correspond
                         // to commented out code - we don't want to lose the indentation.
@@ -787,13 +788,13 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                         indent = ScalaLexUtilities.getLineIndent(doc, offset);
                     }
                 } else if ((endIndents = isEndIndent(doc, offset)) > 0) {
-                    indent = (balance-endIndents) * indentSize + hangingIndent + initialIndent;
+                    indent = (balance - endIndents) * indentSize + hangingIndent + initialIndent;
                 } else {
                     assert lineType == IN_CODE || lineType == IN_BLOCK_COMMENT_START;
                     indent = balance * indentSize + hangingIndent + initialIndent;
-                    
+
 //                    System.out.println("### indent " + indent + " = " + balance + " * " + indentSize + " + " + hangingIndent + " + " + initialIndent);
-                    
+
                     if (lineType == IN_BLOCK_COMMENT_START) {
                         adjustedBlockCommentIndention = indent;
                     }
@@ -802,13 +803,13 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                 if (indent < 0) {
                     indent = 0;
                 }
-                
+
                 int lineBegin = Utilities.getRowFirstNonWhite(doc, offset);
 
                 // Insert whitespace on empty lines too -- needed for abbreviations expansion
                 if (lineBegin != -1 || indentEmptyLines) {
                     // Don't do a hanging indent if we're already indenting beyond the parent level?
-                    
+
                     indents.add(Integer.valueOf(indent));
                     offsets.add(Integer.valueOf(offset));
                 }
@@ -828,7 +829,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             Exceptions.printStackTrace(ble);
         }
     }
-    
+
     void reformatComments(BaseDocument doc, int start, int end) {
         int rightMargin = rightMarginOverride;
         if (rightMargin == -1) {
@@ -844,7 +845,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 //        action.reflowComments(doc, start, end, rightMargin);
         throw new RuntimeException("Not yet implemented!");
     }
-    
+
     /**
      * Ensure that the editor-settings for tabs match our code style, since the
      * primitive "doc.getFormatter().changeRowIndent" calls will be using
@@ -861,17 +862,15 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
      * One item in indent stack, see description of stack variable
      */
     private static final class StackItem {
-        
+
         private StackItem(boolean braceless, OffsetRange range) {
             this.braceless = braceless;
             this.range = range;
         }
-        
         /**
          * true for block without optional curly braces, false otherwise
          */
         private final boolean braceless;
-        
         /**
          * For braceless blocks it is range from statement beginning (e.g. |if...)
          * to end of line where curly brace would be (e.g. if(...) |\n )<br>
@@ -879,10 +878,9 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
          * both - beginning and end of range (e.g. OffsetRange[ts.token(), ts.token()])
          */
         private final OffsetRange range;
-        
+
         public String toString() {
             return "StackItem[" + braceless + "," + range + "]";
         }
     }
-    
 }

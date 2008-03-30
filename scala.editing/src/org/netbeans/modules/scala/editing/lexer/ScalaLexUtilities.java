@@ -79,7 +79,7 @@ public class ScalaLexUtilities {
      * can be statement modifiers, those luckily have different token ids so are not a problem
      * here.
      */
-    private static final Set<String> END_PAIRS = new HashSet<String>();
+    private static final Set<ScalaTokenId> END_PAIRS = new HashSet<ScalaTokenId>();
 
     /**
      * Tokens that should cause indentation of the next line. This is true for all {@link #END_PAIRS},
@@ -87,18 +87,18 @@ public class ScalaLexUtilities {
      * structure for indentation.
      *
      */
-    private static final Set<String> INDENT_WORDS = new HashSet<String>();
+    private static final Set<ScalaTokenId> INDENT_WORDS = new HashSet<ScalaTokenId>();
 
     static {
-        INDENT_WORDS.add("class");
-        INDENT_WORDS.add("object");
-        INDENT_WORDS.add("trait");
-        INDENT_WORDS.add("do");
-        INDENT_WORDS.add("for");
-        INDENT_WORDS.add("while");
-        INDENT_WORDS.add("case");
-        INDENT_WORDS.add("if");
-        INDENT_WORDS.add("else");
+        INDENT_WORDS.add(ScalaTokenId.Class);
+        INDENT_WORDS.add(ScalaTokenId.Object);
+        INDENT_WORDS.add(ScalaTokenId.Trait);
+        INDENT_WORDS.add(ScalaTokenId.Do);
+        INDENT_WORDS.add(ScalaTokenId.For);
+        INDENT_WORDS.add(ScalaTokenId.While);
+        INDENT_WORDS.add(ScalaTokenId.Case);
+        INDENT_WORDS.add(ScalaTokenId.If);
+        INDENT_WORDS.add(ScalaTokenId.Else);
 
         INDENT_WORDS.addAll(END_PAIRS);
         // Add words that are not matched themselves with an "end",
@@ -554,15 +554,16 @@ public class ScalaLexUtilities {
 
     private static OffsetRange findMultilineRange(TokenSequence<? extends ScalaTokenId> ts) {
         int startOffset = ts.offset();
-        ScalaTokenId id = ts.token().id();
+        Token<? extends ScalaTokenId> token = ts.token();
+        ScalaTokenId id = token.id();
         switch (id) {
-            case ELSE:
+            case Else:
                 ts.moveNext();
                 id = ts.token().id();
                 break;
-            case IF:
-            case FOR:
-            case WHILE:
+            case If:
+            case For:
+            case While:
                 ts.moveNext();
                 if (!skipParenthesis(ts, false)) {
                     return OffsetRange.NONE;
