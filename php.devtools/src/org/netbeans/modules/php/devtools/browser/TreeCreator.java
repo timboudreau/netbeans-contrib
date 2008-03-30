@@ -1163,4 +1163,20 @@ public class TreeCreator implements Visitor {
                 node.getStartOffset(), node.getEndOffset());
         parentNode.addChild(adapter);
     }
+
+    public void visit(PHPDocBlock node) {
+        TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode, 
+                "PHPDocComment", node.getStartOffset(), node.getEndOffset());
+        parentNode.addChild(adapter);
+        adapter.addChild(new TreeASTNodeAdapter(adapter, node.getDescription()));
+        if (node.getTags() != null) {
+            for (PHPDocTag tag : node.getTags()) {
+                adapter.addChild(new TreeASTNodeAdapter(adapter, 
+                        tag.getKind() + " " + tag.getValue()));
+            }
+        }
+        TreeASTNodeAdapter helpParent = parentNode;
+        parentNode = adapter;
+        parentNode = helpParent;
+    }
 }
