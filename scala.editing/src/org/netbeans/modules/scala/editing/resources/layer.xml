@@ -91,18 +91,14 @@
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.GsfLanguage"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaLanguage"/>
                 </file>
-                <!--
                 <file name="bracket.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.BracketCompletion"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaBracketCompleter"/>
                 </file>
-                -->
-                <!--
                 <file name="formatter.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Formatter"/>
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.JsFormatter"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaFormatter"/>
                 </file>
-                -->
                 <file name="parser.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Parser"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaParser"/>
