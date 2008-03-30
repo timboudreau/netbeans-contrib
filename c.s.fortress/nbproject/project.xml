@@ -8,6 +8,10 @@
                 <runtime-relative-path>ext/plt.jar</runtime-relative-path>
                 <binary-origin>external/plt.jar</binary-origin>
             </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jsr166y.jar</runtime-relative-path>
+                <binary-origin>external/jsr166y.jar</binary-origin>
+            </class-path-extension>
             <module-dependencies>
                 <dependency>
                     <code-name-base>xtc</code-name-base>
