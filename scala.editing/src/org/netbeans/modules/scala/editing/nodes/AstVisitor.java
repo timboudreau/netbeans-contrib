@@ -41,6 +41,7 @@ package org.netbeans.modules.scala.editing.nodes;
 import java.util.Iterator;
 import xtc.tree.Annotation;
 import xtc.tree.GNode;
+import xtc.tree.Node;
 import xtc.tree.Visitor;
 import xtc.util.Pair;
 
@@ -63,7 +64,7 @@ public class AstVisitor extends Visitor {
         return sb.toString();
     }
 
-    public void accept(GNode node) {
+    public void accept(Node node) {
         dispatch(node);
     }
 
@@ -102,26 +103,31 @@ public class AstVisitor extends Visitor {
         return null;
     }
 
-    public void visitCompilationUnit(final GNode n) {
-        visit(n);
+    public void visitCompilationUnit(final GNode that) {
+        visit(that);
     }
     
-    public void visitClassDef(final GNode n) {
-        String id = (String) n.get(0);
-        System.out.println("Class:" + id);
-        visit(n);
+    public void visitClassDef(final GNode that) {
+        visit(that);
     }
 
-    public void visitTraitDef(final GNode n) {
-        String id = (String) n.get(0);
-        System.out.println("Trait:" + id);
-        visit(n);
+    public void visitTraitDef(final GNode that) {
+        visit(that);
     }
 
-    public void visitObjectDef(final GNode n) {
-        String id = (String) n.get(0);
-        System.out.println("Object:" + id);
-        visit(n);
+    public void visitObjectDef(final GNode that) {
+        visit(that);
     }
     
+    public void visitFunDcl(final GNode that) {
+        visit(that);
+    }
+    
+    public void visitFunDef(final GNode that) {
+        visit(that);
+    }
+    
+    public void visitConstructorFunDef(final GNode that) {
+        visit(that);
+    }
 }

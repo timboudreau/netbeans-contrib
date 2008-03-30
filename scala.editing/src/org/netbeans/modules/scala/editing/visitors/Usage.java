@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -37,48 +37,20 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-/*
- * Definition of Scala lexical tokens.
- * 
+package org.netbeans.modules.scala.editing.visitors;
+
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.OffsetRange;
+import xtc.tree.Node;
+
+/**
+ *
  * @author Caoyuan Deng
  */
-module org.netbeans.modules.scala.editing.rats.Identifier;
-
-import org.netbeans.modules.scala.editing.rats.Character;
-import org.netbeans.modules.scala.editing.rats.Keyword;
-import org.netbeans.modules.scala.editing.rats.Spacing;
-import org.netbeans.modules.scala.editing.rats.Literal;
-
-
-// ----- Identifier
-
-transient generic Id    = SKIP identifier ;
-transient generic VarId = SKIP varIdentifier ;
-
-// ----- used for "-":op etc, where needs op's SemanticValue to be String
-transient String op     = SKIP opIdentifier ;
-
-// ----- token
-transient generic Identifier = identifier ;
-
-transient String opIdentifier    = v:( opchar+ )                  &{ !contains(SCALA_KEYWORDS, toText(v)) } ;
-transient String varIdentifier   = v:( lower            idrest? ) &{ !contains(SCALA_KEYWORDS, toText(v)) } ;
-transient String upperIdentifier = v:( ( upper / [$_] ) idrest? ) &{ !contains(SCALA_KEYWORDS, toText(v)) } ;
-
-transient String plainid =
-  upperIdentifier
-/ varIdentifier
-/ opIdentifier
-;
-
-transient String identifier =
-  [`] ( ![`] stringChar )+ [`]
-/ plainid
-;
-
-transient String idrest = 
-  ( letter / '$' / '_' !opIdentifier / digit )+ ( '_' opIdentifier )? 
-/ ( '_' opIdentifier )
-;
-
-transient String opchar = [!%&+\-<=>?@\\^`|~#:/*] ;
+public class Usage extends Signature {
+    
+    public Usage(Node node, Node nameNode, OffsetRange nameRange, ElementKind kind) {
+        super(node, nameNode, nameRange, kind);
+    }
+    
+}

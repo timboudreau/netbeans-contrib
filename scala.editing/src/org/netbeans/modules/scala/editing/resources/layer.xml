@@ -112,11 +112,11 @@
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Completable"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaCodeCompletion"/>
                 </file>
+                -->
                 <file name="structure.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.StructureScanner"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaStructureAnalyzer"/>
                 </file>
-                -->
                 <!--
                 <file name="indexer.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Indexer"/>
@@ -127,10 +127,12 @@
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.DeclarationFinder"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaDeclarationFinder"/>
                 </file>
+                -->
                 <file name="semantic.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.SemanticAnalyzer"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaSemanticAnalyzer"/>
                 </file>
+                <!--
                 <file name="occurrences.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.OccurrencesFinder"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaOccurrenceFinder"/>
