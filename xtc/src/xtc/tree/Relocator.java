@@ -55,7 +55,7 @@ public class Relocator extends Visitor {
 
     final int line = n.location.line - baseLine - 1 + markedLine;
     if ((line != n.location.line) || (! n.location.file.equals(markedFile))) {
-      n.location = new Location(markedFile, line, n.location.column);
+      n.location = new Location(markedFile, line, n.location.column, n.location.offset, n.location.endOffset);
     }
   }
 
