@@ -47,7 +47,7 @@ import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
-//import org.netbeans.modules.j2ee.sun.api.SunURIManager;
+import org.netbeans.modules.j2ee.sun.api.SunURIManager;
 import org.netbeans.modules.portalpack.servers.core.common.ServerConstants;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
@@ -365,7 +365,6 @@ public abstract class PSDeploymentManager implements DeploymentManager {
        return PSStartServerFactory.getPSStartServerHandler(this);
    }
    
-  /* Uncomment this method for NetBeans 6.1
    public DeploymentManager getJ2EEContainerDeploymentManager()
    {
        if(psconfig.getServerType() != null && 
@@ -376,7 +375,7 @@ public abstract class PSDeploymentManager implements DeploymentManager {
            return props.getDeploymentManager();
        }
        return null;
-   }*/
+   }
    
    public boolean isShowServerLogSupported()
    {
