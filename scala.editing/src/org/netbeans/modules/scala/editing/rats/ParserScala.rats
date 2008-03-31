@@ -54,6 +54,37 @@ import org.netbeans.modules.scala.editing.rats.Xml;
 
 import org.netbeans.modules.scala.editing.rats.State;
 
+modify org.netbeans.modules.scala.editing.rats.Xml;
+
+option withLocation;
+
+/* @Note: Modified productions should always be put at the beginning 
+ */
+
+// ----- Modify XmlContent in Xml.rats
+generic XmlContent +=
+  <ScalaExpr> ScalaExpr
+/ <XmlCDSect> ...
+;
+
+// ----- Modify XmlAttValue in Xml.rats
+generic XmlAttValue +=
+  <XmlAttValue> ...
+/ <ScalaExpr>   ScalaExpr
+;
+
+// ----- Modify XmlCharData in Xml.rats
+generic XmlCharData := xmlCharDataInScala;
+
+/* @Note: If we modify xmlCharDataChar in Xml.rats, we cannot add transient */
+transient String xmlCharDataInScala = xmlCharDataCharInScala+;
+transient String xmlCharDataCharInScala =
+  "{{"
+/ "}}"
+/ !( [<&] / "]]>" / [{}] ) _ 
+;
+
+
 /* @Note: We cannot consumer every token's tail whitespace (leave it for XmlExpr 
  * to detect a preceding whitespace, instead, we consumer every token's preceding
  * whitespace and ignore it. 
@@ -63,6 +94,39 @@ transient generic XmlExpr =
 / void:"(":sep XmlElement void:")":sep 
 / void:"{":sep XmlElement void:"}":sep
 ;
+
+// ----- XmlPattern
+
+transient generic XmlPattern = 
+  void:w       XmlElementP
+/ void:"(":sep XmlElementP void:")":sep 
+/ void:"{":sep XmlElementP void:"}":sep
+;
+
+generic XmlContentP = 
+  <ScalaPatterns> ScalaPatterns
+/ <XmlCDSect>     XmlCDSect
+/ <XmlPI>         XmlPI        
+/ <XmlCharData>   XmlCharData
+/ <XmlElement>    XmlElementP
+/ <XmlReference>  XmlReference
+/ <XmlComment>    XmlComment
+;
+
+transient generic XmlElementP =
+  XmlEmptyElemTagP
+/ XmlSTagP XmlContentP* XmlETag
+;
+
+transient generic XmlEmptyElemTagP = XmlLt XmlEmptyTagName XmlWs? XmlSlashGt ;
+transient generic XmlSTagP = XmlLt XmlSTagName XmlWs? XmlGt ;
+
+/* @DocError in ScalaReference: ScalaExpr ::= '{' expr '}' */
+transient generic ScalaExpr     = void:"{":sep !(void:"{":sep ) Block    void:"}":sep !(void:"}":sep );
+transient generic ScalaPatterns = void:"{":sep !(void:"{":sep ) Patterns void:"}":sep !(void:"}":sep );
+
+
+// ----- Literal
 
 transient generic Literal =
   SKIP ( "-":op )? FloatingPointLiteral 
@@ -174,8 +238,8 @@ generic NotFunExpr =
 / PostfixExpr
 ;
 
-generic IfExpr = void:"if":key void:"(":sep Expr  void:")":sep N* Expr ( SEMI? void:"else":key Expr )? ;
-generic WhileExpr = void:"while":key void:"(":sep Expr  void:")":sep N* Expr ;
+generic IfExpr = void:"if":key void:"(":sep Expr void:")":sep N* Expr ( SEMI? void:"else":key Expr )? ;
+generic WhileExpr = void:"while":key void:"(":sep Expr void:")":sep N* Expr ;
 generic TryExpr = void:"try":key void:"{":sep Block void:"}":sep ( void:"catch":key void:"{":sep CaseClauses void:"}":sep )? ( void:"finally":key Expr )? ;
 generic DoExpr = void:"do":key Expr SEMI? void:"while":key void:"(":sep Expr void:")":sep ;
 generic ForExpr = void:"for":key ( void:"(":sep Enumerators void:")":sep / void:"{":sep Enumerators void:"}":sep ) N* ( void:"yield":key) ? Expr ;
@@ -298,7 +362,7 @@ transient generic Pattern =
 / Pattern1 
 ;
 
-transient generic AlternatePattern = Pattern1 ( void:"|":sep Pattern1 )+ ;
+transient generic AlternatePattern = Pattern1 void:"|":sep Pattern1 ( void:"|":sep Pattern1 )* ;
 
 generic Pattern1 =
   TypedPattern
@@ -319,14 +383,14 @@ generic NoTypedPattern =
 generic AtPattern = VarId void:"@":key Pattern3 ;
 
 generic Pattern3 = 
-  <InfixPattern>  SimplePattern InfixPatternTail+
+  <InfixPattern>  SimplePattern InfixPatternTail InfixPatternTail*
 / <SimplePattern> SimplePattern;
 
 transient generic InfixPatternTail = Id N? SimplePattern ;
 
 /* @DocError in ScalaReference: "_":key */
 transient generic SimplePattern =
-  XmlExpr
+  XmlPattern
 / "_":key ( "*":op )?
 / Literal
 / TuplePattern
@@ -459,15 +523,17 @@ generic VarDef =
 generic FunDef = 
   FunSig ( void:":":key Type )? "=":key Expr
 / FunSig N? void:"{":sep Block void:"}":sep
-/ "this":key ParamClause ParamClauses ( void:"=":key ConstrExpr / N? ConstrBlock ) 
+/ ThisKey ParamClause ParamClauses ( void:"=":key ConstrExpr / N? ConstrBlock ) @ConstructorFunDef
 ;
 
 generic TypeDef = Id TypeParamClause? void:"=":key Type ;
 
 generic TmplDef =
-  ( "case":key )? void:"class" :key ClassDef
-/ ( "case":key )? void:"object":key ObjectDef
-/                 void:"trait" :key TraitDef
+  DocComment*
+  ( ( "case":key )? void:"class" :key ClassDef
+  / ( "case":key )? void:"object":key ObjectDef
+  /                 void:"trait" :key TraitDef
+  )
 ;
 
 transient generic ClassDef  = Id TypeParamClause? Annotation* AccessModifier? ClassParamClauses ClassTemplateOpt ;
@@ -522,5 +588,5 @@ transient generic TopStat =
 transient generic Packaging = void:"package":key QualId N? void:"{":sep TopStatSeq void:"}":sep ;
 transient generic Package   = void:"package":key QualId SEMI ;
 
-public generic CompilationUnit = SKIP_N Package? TopStatSeq SKIP_N;
+public generic CompilationUnit = SKIP_N DocComment* Package? TopStatSeq EOF;
 

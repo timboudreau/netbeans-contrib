@@ -44,34 +44,51 @@
  */
 module org.netbeans.modules.scala.editing.rats.Spacing;
 
-
-transient generic BlockComment = 
-  "/*" 
-  ( BlockComment
-  / blockCommentChar
-  )*
-  "*/"
+transient generic DocComment =
+  DocCommentStart
+  ( DocCommentData / Nl )*
+  DocCommentEnd
 ;
 
-transient String blockCommentChar =
+transient generic DocCommentStart = "/**" ;
+transient generic DocCommentEnd   = "*/" ;
+transient generic DocCommentData  = blockedCommentData ;
+
+transient generic BlockComment = 
+  BlockCommentStart
+  ( BlockComment / BlockCommentData / Nl )*
+  BlockCommentEnd
+;
+
+transient generic BlockCommentStart = "/*" ![*] ;
+transient generic BlockCommentEnd   = "*/" ;
+transient generic BlockCommentData  = blockedCommentData ;
+
+/* We'll split blocked comment to lines */
+transient String blockedCommentData =
   ( '*' !'/'
-  / !'*' _ 
-  )
-; 
+  / ![*\r\n] _
+  )+
+;
+
 
 transient generic LineComment = lineComment ;
 transient String lineComment = 
-  "//" (![\n\r] _)*
+  "//" ( ![\r\n] _ )*
 ;
 
 // ----- Meaningful newline
 
-transient void N = ( w / lineComment / BlockComment )* n;
+transient void N = ( w / DocComment / BlockComment / lineComment )* n;
 
-// ----- Skip including nl but will leave all ( w / lineComment / BlockComment )* before latest n
-transient void SKIP_TILL_N = ( ( w / lineComment / BlockComment )* n+ )* ;
+// ----- Skip including nl but will leave all ( w / DocComment / BlockComment / lineComment )* before latest n
+transient void SKIP_TILL_N = 
+  ( ( w / DocComment / BlockComment / lineComment )* n+ )* 
+;
 
-transient void SKIP_N = ( n / w / lineComment / BlockComment )* ;
+transient void SKIP_N = 
+  ( w / DocComment / BlockComment / lineComment / n )* 
+;
 
 // ----- Globe Skip
 
@@ -79,8 +96,8 @@ transient void SKIP_N = ( n / w / lineComment / BlockComment )* ;
  * don't put after above tokens. 
  */
 transient void SKIP = 
-  &{ yyState.state() == ParserState.NL_ENABLE  } ( w / lineComment / BlockComment )* 
-/ &{ yyState.state() == ParserState.NL_DISABLE } ( w / lineComment / BlockComment / n )* 
+  &{ yyState.state() == ParserState.NL_ENABLE  } ( w / DocComment / BlockComment / lineComment )* 
+/ &{ yyState.state() == ParserState.NL_DISABLE } ( w / DocComment / BlockComment / lineComment / n )* 
 ;
 
 

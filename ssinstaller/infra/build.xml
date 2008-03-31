@@ -39,6 +39,9 @@
     <property file="${basedir}/build.properties"/>
     
     <target name="build" depends="init,-build"/>
+
+    <target name="bundle" depends="-init-ml,-init-sources,-init,-init-properties,generate-bundles"/>
+
     
     <target name="init" depends="-clean,-init-ml,-init-sources,-get-sources,-init,-init-properties,-post-init-clean"/>
 
@@ -657,11 +660,12 @@ jarsigner.storepass=${jarsigner.storepass}
         <antcall target="build-engine"/>
 
         <antcall target="build-netbeans"/>
-            
+            <!--
 	<antcall target="generate-bundles"/>
-
+	    
 	<delete dir="${output.dir}/registry-temp"/>        
         <delete dir="${output.dir}/components"/>
+        -->
     </target>
 
     <target name="replace">

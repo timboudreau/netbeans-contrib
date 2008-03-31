@@ -190,8 +190,14 @@ public class AddEventPanel extends javax.swing.JDialog {
         DialogDisplayer.getDefault().notify(nd);
         return;
     }
-    
-    if(namespace == null || namespace.length() ==0) namespace = null;
+    if(qNameCB.isSelected())
+    {
+         if(namespace == null || namespace.length() ==0){
+             NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(AddRenderParameterPanel.class, "NOT_A_VALID_NAMESPACE"),NotifyDescriptor.ERROR_MESSAGE);
+             DialogDisplayer.getDefault().notify(nd);
+             return;
+         }
+    }
     //QName qName = null;
 
    /* if((prefix == null || prefix.length() == 0) && namespace == null)

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.namespace.QName;
@@ -576,26 +577,63 @@ public class PortletXmlEventingHelper {
             }
 
             if (sourceQName.getLocalPart().endsWith(".") && targetQName.getLocalPart().endsWith(".")) {
-
-                if (sourceQName.getLocalPart().startsWith(targetQName.getLocalPart()) || targetQName.getLocalPart().startsWith(sourceQName.getLocalPart())) {
+                if(sourceQName.getLocalPart().endsWith(".."))
+                {
+                    if( _checkForEventEqualityWith2Dots(sourceQName, targetQName))
+                        return true;
+                            
+                }
+                
+                if(targetQName.getLocalPart().endsWith("..")) {
+                    if(_checkForEventEqualityWith2Dots(targetQName, sourceQName))
+                        return true;
+                }
+                
+                //Both source and target event localName have only one "." at the end
+                
+                if(sourceQName.getLocalPart().equals(targetQName.getLocalPart()))
+                    return true;
+                else
+                    return false;
+                /*if (sourceQName.getLocalPart().startsWith(targetQName.getLocalPart()) || targetQName.getLocalPart().startsWith(sourceQName.getLocalPart())) {
                     return true;
                 } else {
                     return false;
-                }
+                }*/
             } else {
                 if (sourceQName.getLocalPart().endsWith(".")) {
                     String localPart = sourceQName.getLocalPart();
+                    if(localPart.endsWith(".."))
+                    {
+                        return _checkForEventEqualityWith2Dots(sourceQName, targetQName);
+                    }
                     //localPart = localPart.substring(0,localPart.length()-1);
-                    if (targetQName.getLocalPart().startsWith(localPart)) {
-                        return true;
+                    if (targetQName.getLocalPart().startsWith(localPart) ) {
+                        StringTokenizer sourceTok = new StringTokenizer(localPart,".");
+                        StringTokenizer targetTok = new StringTokenizer(targetQName.getLocalPart(),".");
+                        
+                        if(targetTok.countTokens() == sourceTok.countTokens() + 1)
+                            return true;
+                        else
+                            return false;
                     } else {
                         return false;
                     }
                 } else {
                     String localPart = targetQName.getLocalPart();
+                    if(localPart.endsWith(".."))
+                    {
+                        return _checkForEventEqualityWith2Dots(targetQName, sourceQName);
+                    }
                     //localPart = localPart.substring(0,localPart.length()-1);
                     if (sourceQName.getLocalPart().startsWith(localPart)) {
-                        return true;
+                        StringTokenizer sourceTok = new StringTokenizer(sourceQName.getLocalPart(),".");
+                        StringTokenizer targetTok = new StringTokenizer(targetQName.getLocalPart(),".");
+                        
+                        if(sourceTok.countTokens() == targetTok.countTokens() + 1)
+                            return true;
+                        else
+                            return false;
                     } else {
                         return false;
                     }
@@ -607,6 +645,21 @@ public class PortletXmlEventingHelper {
 
         return false;
 
+    }
+    
+    private static boolean _checkForEventEqualityWith2Dots(QName sourceQName, QName targetQName) {
+        if(!sourceQName.getLocalPart().endsWith(".."))
+            return false;
+        int length = sourceQName.getLocalPart().length();
+        if (length - 1 < 0) {
+            return false;
+        }
+        String localNameWith1Dot = sourceQName.getLocalPart().substring(0, length - 1);
+        if (targetQName.getLocalPart().startsWith(localNameWith1Dot)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void save() {
