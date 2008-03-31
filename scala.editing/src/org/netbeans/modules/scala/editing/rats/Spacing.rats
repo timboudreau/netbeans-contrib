@@ -45,28 +45,36 @@
 module org.netbeans.modules.scala.editing.rats.Spacing;
 
 transient generic DocComment =
-  "/**" 
-  blockCommentChar*
-  "*/"
+  DocCommentStart
+  ( DocCommentData / Nl )*
+  DocCommentEnd
 ;
+
+transient generic DocCommentStart = "/**" ;
+transient generic DocCommentEnd   = "*/" ;
+transient generic DocCommentData  = blockedCommentData ;
 
 transient generic BlockComment = 
-  "/*" ![*]
-  ( BlockComment
-  / blockCommentChar
-  )*
-  "*/"
+  BlockCommentStart
+  ( BlockComment / BlockCommentData / Nl )*
+  BlockCommentEnd
 ;
 
-transient String blockCommentChar =
+transient generic BlockCommentStart = "/*" ![*] ;
+transient generic BlockCommentEnd   = "*/" ;
+transient generic BlockCommentData  = blockedCommentData ;
+
+/* We'll split blocked comment to lines */
+transient String blockedCommentData =
   ( '*' !'/'
-  / !'*' _ 
-  )
-; 
+  / ![*\r\n] _
+  )+
+;
+
 
 transient generic LineComment = lineComment ;
 transient String lineComment = 
-  "//" (![\n\r] _)*
+  "//" ( ![\r\n] _ )*
 ;
 
 // ----- Meaningful newline
