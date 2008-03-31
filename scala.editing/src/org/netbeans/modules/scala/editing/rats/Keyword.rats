@@ -94,6 +94,7 @@ body {
       ":", 
       "=", 
       "=>", 
+      "\u21D2",
       "<-", 
       "<:",
       "<%",
@@ -108,6 +109,7 @@ option setOfString(SCALA_KEYWORDS);
 
 // ----- Keywords
 
+generic ThisKey = "this":key ;
 
 /*
  * The tokens that can terminate a statement are: literals, identifiers and the following
@@ -149,7 +151,61 @@ String key =
 / SKIP               keyword SKIP_TILL_N
 ;
 
-generic Keyword = keyword ;
+generic Keyword =
+  "abstract"  :keyword @Abstract
+/ "case"      :keyword @Case
+/ "catch"     :keyword @Catch
+/ "class"     :keyword @Class
+/ "def"       :keyword @Def
+/ "do"        :keyword @Do
+/ "else"      :keyword @Else
+/ "extends"   :keyword @Extends
+/ "false"     :keyword @False
+/ "final"     :keyword @Final
+/ "finally"   :keyword @Finally
+/ "for"       :keyword @For
+/ "forSome"   :keyword @ForSome
+/ "if"        :keyword @If
+/ "implicit"  :keyword @Implicit
+/ "import"    :keyword @Import
+/ "lazy"      :keyword @Lazy
+/ "match"     :keyword @Match
+/ "new"       :keyword @New
+/ "null"      :keyword @Null
+/ "object"    :keyword @Object
+/ "override"  :keyword @Override
+/ "package"   :keyword @Package
+/ "private"   :keyword @Private
+/ "protected" :keyword @Protected
+/ "requires"  :keyword @Requires
+/ "return"    :keyword @Return
+/ "sealed"    :keyword @Sealed
+/ "super"     :keyword @Super
+/ "this"      :keyword @This
+/ "throw"     :keyword @Throw
+/ "trait"     :keyword @Trait
+/ "try"       :keyword @Try
+/ "true"      :keyword @True
+/ "type"      :keyword @Type
+/ "val"       :keyword @Val
+/ "var"       :keyword @Var
+/ "while"     :keyword @While
+/ "with"      :keyword @With
+/ "yield"     :keyword @Yield
+/ "_"         :keyword @Wild
+/ "=>"        :keyword @RArrow
+/ "\u21D2"    :keyword @RArrow
+/ "<-"        :keyword @LArrow
+/ "<:"        :keyword @UBound
+/ "<%"        :keyword @VBound
+/ ">:"        :keyword @LBound
+/ "="         :keyword @Eq
+/ ":"         :keyword @Colon
+/ "#"         :keyword @Pan
+/ "@"         :keyword @At 
+;
+
+
 String keyword =
   !( ['] )
   ( "abstract"  !( idrest )
@@ -193,16 +249,16 @@ String keyword =
   / "with"      !( idrest )
   / "yield"     !( idrest )
   / "_"         !( idrest )
-  / "=>"        !( opid )
-  / "<-"        !( opid )
-  / "<:"        !( opid )
-  / "<%"        !( opid )
-  / ">:"        !( opid )
-  / "="         !( opid )
-  / ":"         !( opid )
-  / "#"         !( opid )
-  / "@"         !( opid )
-  / "\u21D2"    !( opid )
+  / "=>"        !( opIdentifier )
+  / "<-"        !( opIdentifier )
+  / "<:"        !( opIdentifier )
+  / "<%"        !( opIdentifier )
+  / ">:"        !( opIdentifier )
+  / "="         !( opIdentifier )
+  / ":"         !( opIdentifier )
+  / "#"         !( opIdentifier )
+  / "@"         !( opIdentifier )
+  / "\u21D2"    !( opIdentifier )
   )
 ;
 

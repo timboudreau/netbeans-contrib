@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: xtc
+OpenIDE-Module-Localizing-Bundle: xtc/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.13.2
+

@@ -999,6 +999,7 @@ public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.Br
                 final int rowFirstNonWhite = Utilities.getRowFirstNonWhite(doc, offset);
                 // Ensure that this token is at the beginning of the line
                 if (ts.offset() > rowFirstNonWhite) {
+                    return;
                 }
 
                 OffsetRange begin;

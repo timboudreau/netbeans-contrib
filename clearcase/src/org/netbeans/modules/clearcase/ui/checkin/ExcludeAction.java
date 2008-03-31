@@ -106,7 +106,7 @@ public class ExcludeAction extends AbstractAction {
                 if(file == null) {
                     file = root;
                 }
-                exclusions.add(file.getAbsolutePath());
+                exclusions.add(root.getAbsolutePath());
             }                                
             boolean excluded = ClearcaseModuleConfig.isExcludedFromCommit(file.getAbsolutePath());
             if(excluded) {

@@ -48,7 +48,7 @@ module org.netbeans.modules.scala.editing.rats.Xml;
 
 transient generic XmlElement =
   XmlEmptyElemTag
-/ XmlSTag XmlContent XmlETag
+/ XmlSTag XmlContent* XmlETag
 ;
 
 transient generic XmlLt = "<";
@@ -65,13 +65,12 @@ transient generic XmlETag = XmlLtSlash XmlName XmlWs? XmlGt ;
 transient generic XmlAttribute = XmlWs XmlName XmlWs? XmlEq XmlWs? XmlAttValue ;
 
 transient generic XmlContent =
-  ( XmlCDSect
-  / XmlPI        
-  / XmlCharData
-  / XmlElement
-  / XmlReference
-  / XmlComment   
-  )*
+  <XmlCDSect>    XmlCDSect
+/ <XmlPI>        XmlPI        
+/ <XmlCharData>  XmlCharData
+/ <XmlElement>   XmlElement
+/ <XmlReference> XmlReference
+/ <XmlComment>   XmlComment
 ;
 
 transient generic XmlName = xmlName ;
@@ -80,21 +79,19 @@ transient String XmlNameStartChar = ':' / [A-Z] / '_' / [a-z] ;
 transient String XmlNameChar = XmlNameStartChar / '-' / '.' / [0-9] ;
 
 transient generic XmlAttValue = 
-  xmlAttValue 
-/ scalaExpr
-;
+  <XmlAttValue> xmlAttValue;
+
 transient String xmlAttValue = 
   ["] ( ![<&"] _ / XmlReference )* ["]
 / ['] ( ![<&'] _ / XmlReference )* [']
 ;
 
-transient String scalaExpr = '{' ( !'}' _ )* '}' ;
-
-transient String XmlCharData =  
-  !( "]]>" ) xmlCharDataChar+
+transient generic XmlCharData =  xmlCharData ;
+transient String xmlCharData =  
+  xmlCharDataChar+
 ;
 
-transient String xmlCharDataChar = ![<&] _ ;
+transient String xmlCharDataChar = !( [<&] / "]]>" ) _ ;
 
 transient generic XmlComment = xmlComment;
 transient String xmlComment = 
@@ -115,7 +112,13 @@ transient String XmlCharRef =
 transient generic XmlCDSect = XmlCDStart XmlCData XmlCDEnd ;
 transient generic XmlCDStart = "<![CDATA[" ;
 transient generic XmlCDEnd   = "]]>" ;
-transient generic XmlCData = xmlCDataChar* ;
+transient generic XmlCData = xmlCDData ;
+String xmlCDData = xmlCDataChar*;
+/* @Note: !String can be applied only to single char, for example: 
+ *     !"]]>" char, 
+ * rather than
+ *     !"]]>" ( char+ / char* )
+ */
 String xmlCDataChar = !( "]]>" ) xmlChar ;
 
 transient String XmlPI= "<?" xmlPITarget xmlPIChar* "?>" ;
