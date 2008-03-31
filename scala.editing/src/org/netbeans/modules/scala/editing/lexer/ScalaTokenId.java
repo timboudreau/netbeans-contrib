@@ -91,7 +91,10 @@ public enum ScalaTokenId implements TokenId {
     Semicolon("separator"),
     Bar("separator"),
     
-    XmlName("xml"),
+    XmlEmptyTagName("xml"),
+    XmlSTagName("xml"),
+    XmlETagName("xml"),
+    XmlAttName("xml"),
     XmlAttValue("string"),
     XmlLt("xml"),
     XmlGt("xml"),

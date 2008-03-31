@@ -118,8 +118,8 @@ transient generic XmlElementP =
 / XmlSTagP XmlContentP* XmlETag
 ;
 
-transient generic XmlEmptyElemTagP = XmlLt XmlName XmlWs? XmlSlashGt ;
-transient generic XmlSTagP = XmlLt XmlName XmlWs? XmlGt ;
+transient generic XmlEmptyElemTagP = XmlLt XmlEmptyTagName XmlWs? XmlSlashGt ;
+transient generic XmlSTagP = XmlLt XmlSTagName XmlWs? XmlGt ;
 
 /* @DocError in ScalaReference: ScalaExpr ::= '{' expr '}' */
 transient generic ScalaExpr     = void:"{":sep !(void:"{":sep ) Block    void:"}":sep !(void:"}":sep );

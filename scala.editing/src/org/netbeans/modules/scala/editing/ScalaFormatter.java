@@ -95,6 +95,11 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         matchingset.add(ScalaTokenId.Case);
         matchingset.add(ScalaTokenId.RBrace);
 
+        matchingset = new HashSet<ScalaTokenId>();
+        BRACE_MATCH_MAP.put(ScalaTokenId.XmlLt, matchingset);
+        matchingset.add(ScalaTokenId.XmlSlashGt);
+        matchingset.add(ScalaTokenId.XmlLtSlash);
+
 //        matchingset = new HashSet<ScalaTokenId>();
 //        BRACE_MATCH_MAP.put(ScalaTokenId.If, matchingset);
 //        matchingset.add(ScalaTokenId.LBrace);
@@ -449,7 +454,8 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                         // match/add brace
                         if (id.primaryCategory().equals("keyword") ||
                                 id.primaryCategory().equals("separator") ||
-                                id.primaryCategory().equals("operator")) {
+                                id.primaryCategory().equals("operator") ||
+                                id.primaryCategory().equals("xml")) {
 
                             Brace justClosedBrace = null;
 
@@ -493,7 +499,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                                             indent = justClosedBrace.offsetOnline;
                                         }
                                     }
-                                    
+
                                 }
                             }
 
@@ -507,12 +513,12 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                                 newBrace.onProcessingLine = true;
                                 openingBraces.add(newBrace);
                             }
-                        } else if ((id == ScalaTokenId.StringLiteral && offset < lineBegin) ||
-                                id == ScalaTokenId.LineComment || id == ScalaTokenId.DocComment || id == ScalaTokenId.BlockComment ||
-                                id == ScalaTokenId.XmlCDData || id == ScalaTokenId.XmlCharData) {
+                        } else if (id == ScalaTokenId.LineComment || id == ScalaTokenId.DocComment || id == ScalaTokenId.BlockComment ||
+                                id == ScalaTokenId.XmlCDData ||
+                                (id == ScalaTokenId.StringLiteral && offset < lineBegin)) {
                             /** 
                              * A literal string with more than one line is a whole token and when goes
-                             * to second or followed lines, will has offset < lineBegin
+                             * to second or following lines, will has offset < lineBegin
                              */
                             if (notWhiteIdx == 0 || notWhiteIdx == -1) {
                                 // No indentation for literal strings in Erlang, since they can
@@ -555,9 +561,9 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             isContinueLine = false;
         } else {
             isContinueLine = false; // default
-            
+
             TokenId id = latestNotWhiteToken.id();
-            
+
             if (id == ScalaTokenId.Comma) {
                 //we have special case
                 if (latestOpening != null && latestOpening.isLatestOnLine && (latestOpeningId == ScalaTokenId.LParen ||
@@ -583,7 +589,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         } else {
             // Reset continueIndent
             continueIndent = -1;
-            
+
             if (latestOpening == null) {
                 // All braces resolved
                 nextIndent = 0;
