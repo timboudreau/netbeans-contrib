@@ -41,62 +41,65 @@
 package org.netbeans.modules.scala.editing;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
 
 /**
- * Formatting and indentation for JavaScript
- * 
- * @todo dojo.js.uncompressed.js:5786 indentation
- * @todo Handle block comments - similar to multiline literals but should be indented by a relative amount
- * @todo Handle XML/E4X content
- * @todo Use the Context.modifyIndent() method to change line indents instead of
- *   the current document/formatter method
- * @todo Indent block comments properly: See if the first char is "*", and if so, indent it one extra
- *   char somehow such that it lines up with the * in /*
+ * Formatting and indentation.
  *
- * @author Tor Norbye
- * @author Martin Adamek
+ *
  * @author Caoyuan Deng
  */
 public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 
-    private boolean embeddedJavaScript;
     private CodeStyle codeStyle;
     private int rightMarginOverride = -1;
+    private boolean embeddedJavaScript;
     private int embeddededIndent = 0;
-    /**
-     * <p>
-     * Stack describing indentation of blocks defined by '{', '[' and blocks
-     * with missing optional curly braces '{'. See also getBracketBalanceDelta()
-     * </p>
-     * For example:
-     * <pre>
-     * if (true)        // [ StackItem[block=true] ]
-     *   if (true) {    // [ StackItem[block=true], StackItem[block=false] ]
-     *     if (true)    // [ StackItem[block=true], StackItem[block=false], StackItem[block=true] ]
-     *       foo();     // [ StackItem[block=true], StackItem[block=false] ]
-     *     bar();       // [ StackItem[block=true], StackItem[block=false] ]
-     *   }              // [ StackItem[block=true] ]
-     * fooBar();        // [ ]
-     * </pre>
-     */
-    private Stack<StackItem> stack = new Stack<StackItem>();
+    private static final Map<ScalaTokenId, Set<ScalaTokenId>> BRACE_MATCH_MAP =
+            new HashMap<ScalaTokenId, Set<ScalaTokenId>>();
+    
+
+    static {
+        Set<ScalaTokenId> matchingset = new HashSet<ScalaTokenId>();
+        BRACE_MATCH_MAP.put(ScalaTokenId.LParen, matchingset);
+        matchingset.add(ScalaTokenId.RParen);
+
+        matchingset = new HashSet<ScalaTokenId>();
+        BRACE_MATCH_MAP.put(ScalaTokenId.LBrace, matchingset);
+        matchingset.add(ScalaTokenId.RBrace);
+
+        matchingset = new HashSet<ScalaTokenId>();
+        BRACE_MATCH_MAP.put(ScalaTokenId.LBracket, matchingset);
+        matchingset.add(ScalaTokenId.RBracket);
+
+        matchingset = new HashSet<ScalaTokenId>();
+        BRACE_MATCH_MAP.put(ScalaTokenId.Case, matchingset);
+        matchingset.add(ScalaTokenId.Case);
+        matchingset.add(ScalaTokenId.RBrace);
+
+        matchingset = new HashSet<ScalaTokenId>();
+        BRACE_MATCH_MAP.put(ScalaTokenId.If, matchingset);
+        matchingset.add(ScalaTokenId.Else);
+        matchingset.add(ScalaTokenId.LBrace);
+    }
 
     public ScalaFormatter() {
         this.codeStyle = CodeStyle.getDefault(null);
@@ -109,15 +112,15 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
     }
 
     public boolean needsParserResult() {
-        return true;
-    }
-
-    public void reformat(Document document, int startOffset, int endOffset, CompilationInfo info) {
-        reindent(document, startOffset, endOffset, info, false);
+        return false;
     }
 
     public void reindent(Document document, int startOffset, int endOffset) {
         reindent(document, startOffset, endOffset, null, true);
+    }
+
+    public void reformat(Document document, int startOffset, int endOffset, CompilationInfo info) {
+        reindent(document, startOffset, endOffset, info, false);
     }
 
     public int indentSize() {
@@ -172,209 +175,8 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         return ts.offset();
     }
 
-    private int getBracketBalanceDelta(TokenId id) {
-        if (id == ScalaTokenId.LParen || id == ScalaTokenId.LBracket) {
-            return 1;
-        } else if (id == ScalaTokenId.RParen || id == ScalaTokenId.RBracket) {
-            return -1;
-        }
-        return 0;
-    }
-
-    private int getTokenBalanceDelta(TokenId id, BaseDocument doc, TokenSequence<? extends ScalaTokenId> ts, boolean indentOnly) {
-        try {
-            OffsetRange range = OffsetRange.NONE;
-            if (id == ScalaTokenId.LBracket || id == ScalaTokenId.LBrace) {
-                // block with braces, just record it to stack and return 1
-                stack.push(new StackItem(false, new OffsetRange(ts.offset(), ts.offset())));
-                return 1;
-            } else if (id == ScalaTokenId.Case) {
-
-                int index = ts.index();
-
-                // find '=>'
-                ScalaLexUtilities.findNextIncluding(ts, Collections.singletonList(ScalaTokenId.RArrow));
-
-                // skip whitespaces, comments and newlines
-                Token<? extends ScalaTokenId> token = ScalaLexUtilities.findNextNonWsNonComment(ts);
-                ScalaTokenId tokenId = token.id();
-
-                if (tokenId == ScalaTokenId.Case) {
-                    return 0;
-                } else if (tokenId == ScalaTokenId.RBrace) {
-                    return -1;
-                } else {
-                    // look at the beginning of next line if there is case 
-                    Token<? extends ScalaTokenId> nlOrMatch = ScalaLexUtilities.findNextIncluding(ts, Arrays.asList(ScalaTokenId.Nl, ScalaTokenId.LBrace));
-                    if (nlOrMatch.id() == ScalaTokenId.LBrace) {
-                        return 1;
-                    }
-                    ScalaLexUtilities.findNextNonWsNonComment(ts);
-                    if (ts.token().id() == ScalaTokenId.Case) {
-                        return 0;
-                    }
-                }
-
-                ts.moveIndex(index);
-                ts.moveNext();
-
-                return 1;
-            } else if (id == ScalaTokenId.RBracket || id == ScalaTokenId.RBrace) {
-                /*
-                 * End of braces block.
-                 * If we are not on same line where block started, try to push 
-                 * all braceless blocks from stack and decrease indent for them,
-                 * otherwise just decrese indent by 1.
-                 * For example:
-                 * if (true)
-                 *   if (true)
-                 *     if (true)
-                 *       foo();     // we should decrease indent by 3 levels
-                 * 
-                 * but:
-                 * if (true)
-                 *   if (true)
-                 *     if (map[0]) // at ']' we should decrease only by 1
-                 *       foo();
-                 */
-                int delta = -1;
-                StackItem lastPop = stack.empty() ? null : stack.pop();
-                if (lastPop != null && Utilities.getLineOffset(doc, lastPop.range.getStart()) != Utilities.getLineOffset(doc, ts.offset())) {
-                    int blocks = 0;
-                    while (!stack.empty() && stack.pop().braceless) {
-                        blocks++;
-                    }
-                    delta -= blocks;
-                }
-                return delta;
-            } else if ((range = ScalaLexUtilities.getMultilineRange(doc, ts)) != OffsetRange.NONE) {
-                // we found braceless block, let's record it in the stack
-                stack.push(new StackItem(true, range));
-            } else if (id == ScalaTokenId.Nl) {
-
-                if (!indentOnly) {
-                    TokenSequence<? extends ScalaTokenId> ts2 = ScalaLexUtilities.getPositionedSequence(doc, ts.offset());
-                    // skip whitespaces and newlines
-                    Token<? extends ScalaTokenId> nextToken = ScalaLexUtilities.findNextNonWsNonComment(ts2);
-                    TokenId tokenId = nextToken == null ? null : nextToken.id();
-                    if (tokenId == ScalaTokenId.RBrace) {
-                        // if it is end of 'match'
-                        OffsetRange offsetRange = ScalaLexUtilities.findBwd(doc, ts2, ScalaTokenId.LBrace, ScalaTokenId.RBrace);
-                        if (offsetRange != OffsetRange.NONE) {
-                            ts2.movePrevious();
-                            Token<? extends ScalaTokenId> token = ts2.token();
-                            token = ScalaLexUtilities.findPreviousNonWsNonComment(ts2);
-                            if (token.id() == ScalaTokenId.Match) {
-                                return -1;
-                            }
-                        }
-                    } else if (tokenId == ScalaTokenId.Case) {
-                        ts2 = ScalaLexUtilities.getPositionedSequence(doc, ts.offset());
-                        Token<? extends ScalaTokenId> prevToken = ScalaLexUtilities.findPreviousNonWsNonComment(ts2);
-                        if (prevToken.id() != ScalaTokenId.LBrace) {
-                            // it must be case or default
-                            ts2 = ScalaLexUtilities.getPositionedSequence(doc, ts.offset());
-                            prevToken = ScalaLexUtilities.findPreviousIncluding(ts2,
-                                    Arrays.asList(ScalaTokenId.Case));
-                            int beginLine = Utilities.getLineOffset(doc, ts2.offset());
-                            int eolLine = Utilities.getLineOffset(doc, ts.offset());
-                            if (beginLine != eolLine) {
-                                return -1;
-                            }
-                        }
-                    }
-                }
-
-                // other
-                if (!stack.empty()) {
-                    if (stack.peek().braceless) {
-                        // end of line after braceless block start
-                        OffsetRange stackOffset = stack.peek().range;
-                        if (stackOffset.containsInclusive(ts.offset())) {
-                            if (indentOnly) {
-                                // enter pressed in braceless block
-                                return 1;
-                            }
-                            // we are in the braceless block statement
-                            int stackEndLine = Utilities.getLineOffset(doc, stackOffset.getEnd());
-                            int offsetLine = Utilities.getLineOffset(doc, ts.offset());
-                            if (stackEndLine == offsetLine) {
-                                // if we are at the last line of braceless block statement
-                                // increse indent by 1
-                                return 1;
-                            }
-                        } else {
-                            // we are not in braceless block statement,
-                            // let's decrease indent for all braceless blocks in top of stack (if any)
-                            int blocks = 0;
-                            while (!stack.empty() && stack.peek().braceless) {
-                                blocks++;
-                                stack.pop();
-                            }
-                            return -blocks;
-                        }
-                    }
-                }
-            }
-        } catch (BadLocationException ble) {
-            Exceptions.printStackTrace(ble);
-        }
-        return 0;
-    }
-
-    @SuppressWarnings("unchecked")
-    private int getTokenBalance(BaseDocument doc, int begin, int end, boolean includeKeywords, boolean indentOnly) {
-        int balance = 0;
-
-        TokenSequence<? extends ScalaTokenId> ts = null;
-
-        if (embeddedJavaScript) {
-            TokenHierarchy<Document> th = TokenHierarchy.get((Document) doc);
-            for (TokenSequence<?> embeddedTS : th.embeddedTokenSequences(begin, false)) {
-                if (ScalaMimeResolver.MIME_TYPE.equals(embeddedTS.language().mimeType())) {
-                    ts = (TokenSequence<? extends ScalaTokenId>) embeddedTS;
-                }
-            }
-        } else {
-            ts = ScalaLexUtilities.getTokenSequence(doc, begin);
-        }
-
-        if (ts == null) {
-            try {
-                // remember indent of previous html tag
-                embeddededIndent = Utilities.getRowIndent(doc, begin);
-            } catch (BadLocationException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-            return 0;
-        }
-
-        ts.move(begin);
-
-        if (!ts.moveNext()) {
-            return 0;
-        }
-
-        do {
-            Token<? extends ScalaTokenId> token = ts.token();
-            if (token == null) {
-                break;
-            }
-            TokenId id = token.id();
-
-            if (includeKeywords) {
-                int delta = getTokenBalanceDelta(id, doc, ts, indentOnly);
-                balance += delta;
-            } else {
-                balance += getBracketBalanceDelta(id);
-            }
-        } while (ts.moveNext() && (ts.offset() < end));
-
-        return balance;
-    }
-
-    /** 
-     * Get the first token on the given line. Similar to ScalaLexUtilities.getToken(doc, lineBegin)
+    /**
+     * Get the first token on the given line. Similar to LexUtilities.getToken(doc, lineBegin)
      * except (a) it computes the line begin from the offset itself, and more importantly,
      * (b) it handles RHTML tokens specially; e.g. if a line begins with
      * {@code
@@ -382,182 +184,24 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
      * }
      * then the "if" embedded token will be returned rather than the RHTML delimiter, or even
      * the whitespace token (which is the first Ruby token in the embedded sequence).
-     *    
-     * </pre>   
+     *
+     * </pre>
      */
-    private Token<? extends ScalaTokenId> getFirstToken(BaseDocument doc, int offset) throws BadLocationException {
+    private Token getFirstTokenOnLine(BaseDocument doc, int offset) throws BadLocationException {
         int lineBegin = Utilities.getRowFirstNonWhite(doc, offset);
 
         if (lineBegin != -1) {
-            if (embeddedJavaScript) {
-                TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, lineBegin);
-                if (ts != null) {
-                    ts.moveNext();
-                    Token<? extends ScalaTokenId> token = ts.token();
-                    while (token != null && token.id() == ScalaTokenId.Ws) {
-                        if (!ts.moveNext()) {
-                            return null;
-                        }
-                        token = ts.token();
-                    }
-                    return token;
-                }
-            } else {
-                return ScalaLexUtilities.getToken(doc, lineBegin);
-            }
+            return ScalaLexUtilities.getToken(doc, lineBegin);
         }
 
         return null;
     }
 
-    private int isEndIndent(BaseDocument doc, int offset) throws BadLocationException {
-        int lineBegin = Utilities.getRowFirstNonWhite(doc, offset);
-
-        if (lineBegin != -1) {
-            Token<? extends ScalaTokenId> token = getFirstToken(doc, offset);
-
-            if (token == null) {
-                return 0;
-            }
-
-            TokenId id = token.id();
-
-            // If the line starts with an end-marker, such as "end", "}", "]", etc.,
-            // find the corresponding opening marker, and indent the line to the same
-            // offset as the beginning of that line.
-            if (/*(ScalaLexUtilities.isIndentToken(id) && !ScalaLexUtilities.isBeginToken(id, doc, offset)) || ScalaLexUtilities.isEndToken(id, doc, offset) ||*/id == ScalaTokenId.RBrace || id == ScalaTokenId.RBracket || id == ScalaTokenId.RParen) {
-                int indents = 1;
-
-                // Check if there are multiple end markers here... if so increase indent level.
-                // This should really do an iteration... for now just handling the most common
-                // scenario in JavaScript where we have }) in object literals
-                int lineEnd = Utilities.getRowEnd(doc, offset);
-                int newOffset = offset;
-                while (newOffset < lineEnd) {
-                    newOffset = newOffset + token.length();
-                    if (newOffset < doc.getLength()) {
-                        token = ScalaLexUtilities.getToken(doc, newOffset);
-                        if (token != null) {
-                            id = token.id();
-                            if (id == ScalaTokenId.Ws) {
-                                continue;
-                            /*} else if ((ScalaLexUtilities.isIndentToken(id) && !ScalaLexUtilities.isBeginToken(id, doc, offset)) || ScalaLexUtilities.isEndToken(id, doc, offset) ||
-                            id == ScalaTokenId.RBRACE || id == ScalaTokenId.RBRACKET || id == ScalaTokenId.RPAREN) {
-                            indents++;*/
-                            } else {
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                return indents;
-            }
-        }
-
-        return 0;
-    }
-
-    private static boolean isLineContinued(BaseDocument doc, int offset, int bracketBalance) throws BadLocationException {
-        // TODO RHTML - this isn't going to work for rhtml embedded strings...
-        offset = Utilities.getRowLastNonWhite(doc, offset);
-        if (offset == -1) {
-            return false;
-        }
-
-        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getPositionedSequence(doc, offset);
-        Token<? extends ScalaTokenId> token = (ts != null ? ts.token() : null);
-
-        if (token != null) {
-            TokenId id = token.id();
-
-            // http://www.netbeans.org/issues/show_bug.cgi?id=115279
-            boolean isContinuationOperator = (id == ScalaTokenId.NONUNARY_OP || id == ScalaTokenId.Dot);
-
-            if (ts.offset() == offset && token.length() > 1 && token.text().toString().startsWith("\\")) {
-                // Continued lines have different token types
-                isContinuationOperator = true;
-            }
-
-            /* No line continuations with comma in JavaScrip - this misformats nested object literals
-             * like those used in prototype and isn't necesary for real JavaScript code (since we
-             * always have parentheses in parameter lists etc. to help with indentation
-            if (token.length() == 1 && id == ScalaTokenId.IDENTIFIER && token.text().toString().equals(",")) {
-            // If there's a comma it's a continuation operator, but inside arrays, hashes or parentheses
-            // parameter lists we should not treat it as such since we'd "double indent" the items, and
-            // NOT the first item (where there's no comma, e.g. you'd have
-            //  foo(
-            //    firstarg,
-            //      secondarg,  # indented both by ( and hanging indent ,
-            //      thirdarg)
-            if (bracketBalance == 0) {
-            isContinuationOperator = true;
-            }
-            }
-             */
-            if (id == ScalaTokenId.NONUNARY_OP && ",".equals(token.text().toString())) {
-                // If there's a comma it's a continuation operator, but inside arrays, hashes or parentheses
-                // parameter lists we should not treat it as such since we'd "double indent" the items, and
-                // NOT the first item (where there's no comma, e.g. you'd have
-                //  foo(
-                //    firstarg,
-                //      secondarg,  # indented both by ( and hanging indent ,
-                //      thirdarg)
-                isContinuationOperator = (bracketBalance == 0);
-            }
-
-            if (id == ScalaTokenId.RArrow) {
-                TokenSequence<? extends ScalaTokenId> ts2 = ScalaLexUtilities.getPositionedSequence(doc, ts.offset());
-                Token<? extends ScalaTokenId> foundToken = ScalaLexUtilities.findPreviousIncluding(ts2,
-                        Arrays.asList(ScalaTokenId.Case, ScalaTokenId.RArrow));
-                if (foundToken != null && (foundToken.id() == ScalaTokenId.Case)) {
-                    isContinuationOperator = false;
-                } else {
-                    isContinuationOperator = true;
-                }
-            }
-
-//            if (isContinuationOperator) {
-//                // Make sure it's not a case like this:
-//                //    alias eql? ==
-//                // or
-//                //    def ==
-//                token = ScalaLexUtilities.getToken(doc, Utilities.getRowFirstNonWhite(doc, offset));
-//                if (token != null) {
-//                    id = token.id();
-//                    if (id == ScalaTokenId.DEF || id == ScalaTokenId.ANY_KEYWORD && token.text().toString().equals("alias")) { // NOI18N
-//                        return false;
-//                    }
-//                }
-//
-//                return true;
-//            } else if (id == ScalaTokenId.ANY_KEYWORD) {
-//                String text = token.text().toString();
-//                if ("or".equals(text) || "and".equals(text)) { // NOI18N
-//                    return true;
-//                }
-//            }
-
-            return isContinuationOperator;
-        }
-
-
-        return false;
-    }
-
     private void reindent(Document document, int startOffset, int endOffset, CompilationInfo info, boolean indentOnly) {
-        embeddedJavaScript = false;
+
 
         try {
             BaseDocument doc = (BaseDocument) document; // document.getText(0, document.getLength())
-
-            if (indentOnly && embeddedJavaScript) {
-                // Make sure we're not messing with indentation in HTML
-                Token<? extends ScalaTokenId> token = ScalaLexUtilities.getToken(doc, startOffset);
-                if (token == null) {
-                    return;
-                }
-            }
 
             syncOptions(doc, codeStyle);
 
@@ -566,7 +210,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             }
 
             startOffset = Utilities.getRowStart(doc, startOffset);
-            int lineStart = startOffset;//Utilities.getRowStart(doc, startOffset);
+            int lineStart = startOffset; //Utilities.getRowStart(doc, startOffset);
 
             int initialOffset = 0;
             int initialIndent = 0;
@@ -589,13 +233,15 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             // When we're formatting sections, include whitespace on empty lines; this
             // is used during live code template insertions for example. However, when
             // wholesale formatting a whole document, leave these lines alone.
-            boolean indentEmptyLines = (startOffset != 0 || endOffset != doc.getLength());
+            boolean indentEmptyLines = startOffset != 0 || endOffset != doc.getLength();
 
+            // In case of indentOnly (use press <enter>), the endOffset will be the 
+            // position of newline inserted, to compute the new added line's indent,
+            // we need includeEnd.
             boolean includeEnd = endOffset == doc.getLength() || indentOnly;
 
             // TODO - remove initialbalance etc.
-            computeIndents(doc, initialIndent, initialOffset, endOffset, info,
-                    offsets, indents, indentEmptyLines, includeEnd, indentOnly);
+            computeIndents(doc, initialIndent, initialOffset, endOffset, info, offsets, indents, indentEmptyLines, includeEnd);
 
             try {
                 doc.atomicLock();
@@ -643,7 +289,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                 }
 
                 if (!indentOnly && codeStyle.reformatComments()) {
-                    reformatComments(doc, startOffset, endOffset);
+//                    reformatComments(doc, startOffset, endOffset);
                 }
             } finally {
                 doc.atomicUnlock();
@@ -653,19 +299,15 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         }
     }
 
-    public void computeIndents(BaseDocument doc, int initialIndent, int startOffset, int endOffset, CompilationInfo info,
-            List<Integer> offsets,
-            List<Integer> indents,
-            boolean indentEmptyLines, boolean includeEnd, boolean indentOnly) {
+    public void computeIndents(BaseDocument doc, int initialIndent, int startOffset, int endOffset, CompilationInfo info, List<Integer> offsets, List<Integer> indents, boolean indentEmptyLines, boolean includeEnd) {
         // PENDING:
         // The reformatting APIs in NetBeans should be lexer based. They are still
         // based on the old TokenID apis. Once we get a lexer version, convert this over.
         // I just need -something- in place until that is provided.
-
         try {
             // Algorithm:
             // Iterate over the range.
-            // Accumulate a token balance ( {,(,[, and keywords like class, case, etc. increases the balance, 
+            // Accumulate a token balance ( {,(,[, and keywords like class, case, etc. increases the balance,
             //      },),] and "end" decreases it
             // If the line starts with an end marker, indent the line to the level AFTER the token
             // else indent the line to the level BEFORE the token (the level being the balance * indentationSize)
@@ -674,22 +316,15 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             // add a "hanging indent" modifier.
             // At the end of the day, we're recording a set of line offsets and indents.
             // This can be used either to reformat the buffer, or indent a new line.
-
             // State:
             int offset = Utilities.getRowStart(doc, startOffset); // The line's offset
 
             int end = endOffset;
 
-            int indentSize = codeStyle.getIndentSize();
-            int hangingIndentSize = codeStyle.getContinuationIndentSize();
-
             // Pending - apply comment formatting too?
-
             // XXX Look up RHTML too
             //int indentSize = EditorOptions.get(RubyInstallation.RUBY_MIME_TYPE).getSpacesPerTab();
             //int hangingIndentSize = indentSize;
-
-
             // Build up a set of offsets and indents for lines where I know I need
             // to adjust the offset. I will then go back over the document and adjust
             // lines that are different from the intended indent. By doing piecemeal
@@ -697,155 +332,367 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             // a lot of things will work better: breakpoints and other line annotations
             // will be left in place, semantic coloring info will not be temporarily
             // damaged, and the caret will stay roughly where it belongs.
-
             // The token balance at the offset
-            int balance = 0;
-            // The bracket balance at the offset ( parens, bracket, brace )
-            int bracketBalance = 0;
-            boolean continued = false;
-//            boolean indentHtml = false;
-//            if (embeddedJavaScript) {
-//                indentHtml = codeStyle.indentHtml();
-//            }
+            int indent = 0; // The indentation to be used for the current line
 
-            int originallockCommentIndention = 0;
-            int adjustedBlockCommentIndention = 0;
+            int prevIndent = 0;
+            int nextIndent = 0;
+            int continueIndent = -1;
 
-            int endIndents;
+            Stack<Brace> openingBraces = new Stack<Brace>();
+
             while ((!includeEnd && offset < end) || (includeEnd && offset <= end)) {
-                int indent; // The indentation to be used for the current line
+                int lineBegin = Utilities.getRowFirstNonWhite(doc, offset);
+                int lineEnd = Utilities.getRowEnd(doc, offset);
 
-                if (embeddedJavaScript) {
-                    // now using JavaScript indent size to indent from <SCRIPT> tag; should it be HTML?
-                    initialIndent = embeddededIndent + indentSize;
+                if (lineBegin != -1) {
+                    int[] results = computeLineIndent(indent, prevIndent, continueIndent,
+                            openingBraces, doc, lineBegin, lineEnd);
+
+                    indent = results[0];
+                    nextIndent = results[1];
+                    continueIndent = results[2];
                 }
 
-
-                final int IN_CODE = 0;
-                final int IN_LITERAL = 1;
-                final int IN_BLOCK_COMMENT_START = 2;
-                final int IN_BLOCK_COMMENT_MIDDLE = 3;
-                int lineType = IN_CODE;
-                int pos = Utilities.getRowFirstNonWhite(doc, offset);
-                TokenSequence<? extends ScalaTokenId> ts = null;
-
-                if (pos != -1) {
-                    // I can't look at the first position on the line, since
-                    // for a string array that is indented, the indentation portion
-                    // is recorded as a blank identifier
-                    ts = ScalaLexUtilities.getPositionedSequence(doc, pos, false);
-
-                    if (ts != null) {
-                        TokenId id = ts.token().id();
-                        // We don't have multiline string literals in JavaScript!
-                        if (id == ScalaTokenId.BlockComment || id == ScalaTokenId.DocComment) {
-                            if (ts.offset() == pos) {
-                                lineType = IN_BLOCK_COMMENT_START;
-                                originallockCommentIndention = ScalaLexUtilities.getLineIndent(doc, offset);
-                            } else {
-                                lineType = IN_BLOCK_COMMENT_MIDDLE;
-                            }
-                        } else if (id == ScalaTokenId.NONUNARY_OP) {
-                            // If a line starts with a non unary operator we can
-                            // assume it's a continuation from a previous line
-                            continued = true;
-                        } else if (id == ScalaTokenId.StringLiteral || id == ScalaTokenId.STRING_END ||
-                                id == ScalaTokenId.REGEXP_LITERAL || id == ScalaTokenId.REGEXP_END) {
-                            // You can get multiline literals in JavaScript by inserting a \ at the end
-                            // of the line
-                            lineType = IN_LITERAL;
-                        }
-                    } else {
-                        // No ruby token -- leave the formatting alone!
-                        // (Probably in an RHTML file on a line with no JavaScript)
-                        lineType = IN_LITERAL;
-                    }
-                }
-
-                int hangingIndent = continued ? (hangingIndentSize) : 0;
-
-                if (lineType == IN_LITERAL) {
-                    // Skip this line - leave formatting as it is prior to reformatting 
+                if (indent == -1) {
+                    // Skip this line - leave formatting as it is prior to reformatting
                     indent = ScalaLexUtilities.getLineIndent(doc, offset);
-
-                // No compound indent for JavaScript          
-                //                    if (embeddedJavaScript && indentHtml && balance > 0) {
-                //                        indent += balance * indentSize;
-                //                    }
-                } else if (lineType == IN_BLOCK_COMMENT_MIDDLE) {
-                    if (doc.getText(pos, 1).charAt(0) == '*') {
-                        // *-lines get indented to be flushed with the * in /*, other lines
-                        // get indented to be aligned with the presumably indented text content!
-                        //indent = ScalaLexUtilities.getLineIndent(doc, ts.offset())+1;
-                        indent = adjustedBlockCommentIndention + 1;
-                    } else {
-                        // Leave indentation of comment blocks alone since they probably correspond
-                        // to commented out code - we don't want to lose the indentation.
-                        // Possibly, I could shift the code all relative to the first line
-                        // in the commented out block... A possible later enhancement.
-                        // This shifts by the starting line which is wrong - should use the first comment line
-                        //indent = ScalaLexUtilities.getLineIndent(doc, offset)-originallockCommentIndention+adjustedBlockCommentIndention;
-                        indent = ScalaLexUtilities.getLineIndent(doc, offset);
-                    }
-                } else if ((endIndents = isEndIndent(doc, offset)) > 0) {
-                    indent = (balance - endIndents) * indentSize + hangingIndent + initialIndent;
-                } else {
-                    assert lineType == IN_CODE || lineType == IN_BLOCK_COMMENT_START;
-                    indent = balance * indentSize + hangingIndent + initialIndent;
-
-//                    System.out.println("### indent " + indent + " = " + balance + " * " + indentSize + " + " + hangingIndent + " + " + initialIndent);
-
-                    if (lineType == IN_BLOCK_COMMENT_START) {
-                        adjustedBlockCommentIndention = indent;
-                    }
                 }
 
                 if (indent < 0) {
                     indent = 0;
                 }
 
-                int lineBegin = Utilities.getRowFirstNonWhite(doc, offset);
-
                 // Insert whitespace on empty lines too -- needed for abbreviations expansion
                 if (lineBegin != -1 || indentEmptyLines) {
-                    // Don't do a hanging indent if we're already indenting beyond the parent level?
-
                     indents.add(Integer.valueOf(indent));
                     offsets.add(Integer.valueOf(offset));
                 }
 
-                int endOfLine = Utilities.getRowEnd(doc, offset) + 1;
-
-                if (lineBegin != -1) {
-                    balance += getTokenBalance(doc, lineBegin, endOfLine, true, indentOnly);
-                    int bracketDelta = getTokenBalance(doc, lineBegin, endOfLine, false, indentOnly);
-                    bracketBalance += bracketDelta;
-                    continued = isLineContinued(doc, offset, bracketBalance);
-                }
-
-                offset = endOfLine;
+                // Shift to next line
+                offset = lineEnd + 1;
+                prevIndent = indent;
+                indent = nextIndent;
             }
         } catch (BadLocationException ble) {
             Exceptions.printStackTrace(ble);
         }
     }
 
-    void reformatComments(BaseDocument doc, int start, int end) {
-        int rightMargin = rightMarginOverride;
-        if (rightMargin == -1) {
-            CodeStyle style = codeStyle;
-            if (style == null) {
-                style = CodeStyle.getDefault(null);
-            }
+    private class Brace {
 
-            rightMargin = style.getRightMargin();
+        Token token;
+        int offsetOnline; // offset on it's line after indent
+
+        int ordinalOnline; // ordinal on its line (we only count non-white tokens 
+
+        boolean isLatestOnLine; // last one on this line?
+
+        boolean onProcessingLine; // on the processing line?
+
+
+        @Override
+        public String toString() {
+            return token.text().toString();
         }
-
-//        ReflowParagraphAction action = new ReflowParagraphAction();
-//        action.reflowComments(doc, start, end, rightMargin);
-        throw new RuntimeException("Not yet implemented!");
     }
 
+    /**
+     * Compute indent for next line, and adjust this line's indent if necessary 
+     * @return int[]
+     *      int[0] - adjusted indent of this line
+     *      int[1] - indent for next line
+     */
+    private int[] computeLineIndent(int indent, int prevIndent, int continueIndent,
+            Stack<Brace> openingBraces, BaseDocument doc, int lineBegin, int lineEnd) {
+
+        // Well, a new line begin
+        for (Brace brace : openingBraces) {
+            brace.onProcessingLine = false;
+        }
+
+        //StringBuilder sb = new StringBuilder(); // for debug
+        // Compute new balance and adjust indent of this line
+
+        // token ordinal on this line (we only count non-white tokens, 
+        // if ordinal == 0, means the first non-white token on this line
+        int notWhiteIdx = -1;
+        Token latestNotWhiteToken = null;
+
+        TokenSequence ts = ScalaLexUtilities.getTokenSequence(doc, lineBegin);
+        if (ts != null) {
+            try {
+                ts.move(lineBegin);
+                do {
+                    Token token = ts.token();
+                    if (token != null) {
+
+                        int offset = ts.offset();
+                        TokenId id = token.id();
+                        String name = token.id().name();
+                        String text = token.text().toString();
+
+                        //sb.append(text); // for debug
+
+                        if (!(id == ScalaTokenId.Ws || id == ScalaTokenId.Nl ||
+                                id == ScalaTokenId.LineComment ||
+                                id == ScalaTokenId.DocComment ||
+                                id == ScalaTokenId.BlockComment)) {
+
+                            notWhiteIdx++;
+                            latestNotWhiteToken = token;
+                        }
+
+                        if (id.primaryCategory().equals("keyword") || id.primaryCategory().equals("separator") || id.primaryCategory().equals("operator")) {
+                            Brace justClosedBrace = null;
+
+                            if (!openingBraces.isEmpty()) {
+                                Brace brace = openingBraces.peek();
+                                TokenId braceId = brace.token.id();
+
+                                Set<ScalaTokenId> matchingIds = BRACE_MATCH_MAP.get(braceId);
+                                assert matchingIds != null;
+                                if (matchingIds.contains(id)) {
+                                    // matched
+
+                                    int numClosed;
+
+                                    // we may need to lookahead 2 steps for some cases:
+                                    if (braceId == ScalaTokenId.Case) {
+                                        Brace backup = openingBraces.pop();
+
+                                        numClosed = 1; // default
+
+                                        if (!openingBraces.isEmpty()) {
+                                            TokenId lookaheadId = openingBraces.peek().token.id();
+                                            // if resolved is "=>", we may have matched two braces:
+                                            if (id == ScalaTokenId.RBrace) {
+                                                numClosed = 2;
+                                            }
+                                        } else if (braceId == ScalaTokenId.Catch) {
+                                            /** in case of: catch Expr
+                                             *     test() ->
+                                             *         catch 1+2.
+                                             */
+                                            numClosed = 0;
+                                        }
+
+                                        openingBraces.push(backup);
+                                    } else if (id == ScalaTokenId.RParen || id == ScalaTokenId.RBracket || id == ScalaTokenId.RBrace) {
+                                        numClosed = 1;
+                                    } else {
+                                        numClosed = 1;
+                                    }
+
+
+                                    for (int i = 0; i < numClosed; i++) {
+                                        justClosedBrace = openingBraces.pop();
+                                    }
+
+                                    if (notWhiteIdx == 0) {
+                                        // At the beginning of this line
+                                        if (id == ScalaTokenId.Case ||
+                                                id == ScalaTokenId.RParen ||
+                                                id == ScalaTokenId.RBracket ||
+                                                id == ScalaTokenId.RBrace) {
+                                            indent = openingBraces.size() * indentSize();
+                                        } else {
+                                            indent = justClosedBrace.offsetOnline;
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Add new unresolved brace
+                            if (BRACE_MATCH_MAP.containsKey(id)) {
+                                boolean isBrace = false;
+                                if (text.equals("catch") &&
+                                        (justClosedBrace == null || justClosedBrace != null && !justClosedBrace.token.text().toString().equals("try"))) {
+                                    // don't add this catch as brace. Example:
+                                    //     case catch ets:update_counter(Ets, Key, 1) of
+                                    //         {'EXIT', {badarg, _}} -> ets:insert(Ets, {Key, 1});
+                                    //         _ -> ok
+                                    //     end.                  
+                                    isBrace = false;
+                                } else {
+                                    isBrace = true;
+                                }
+
+                                if (isBrace) {
+                                    Brace newBrace = new Brace();
+                                    newBrace.token = token;
+                                    // will add indent of this line later
+                                    newBrace.offsetOnline = offset - lineBegin;
+                                    newBrace.ordinalOnline = notWhiteIdx;
+                                    newBrace.onProcessingLine = true;
+                                    openingBraces.add(newBrace);
+                                }
+                            }
+                        } else if ((id == ScalaTokenId.StringLiteral && offset < lineBegin) ||
+                                id == ScalaTokenId.LineComment || id == ScalaTokenId.DocComment || id == ScalaTokenId.BlockComment ||
+                                id == ScalaTokenId.XmlCDData || id == ScalaTokenId.XmlCharData) {
+                            /** 
+                             * A literal string with more than one line is a whole token and when goes
+                             * to second or followed lines, will has offset < lineBegin
+                             */
+                            if (notWhiteIdx == 0 || notWhiteIdx == -1) {
+                                // No indentation for literal strings in Erlang, since they can
+                                // contain newlines. Leave it as is. 
+                                indent = -1;
+                            }
+                        } else if (name.equals("stop")) {
+                            if (notWhiteIdx == 0) {
+                                // will to the begin of line (indent = 0)
+                                indent = 0;
+                            }
+                            openingBraces.empty();
+                        }
+                    }
+                } while (ts.moveNext() && ts.offset() < lineEnd);
+            } catch (AssertionError e) {
+                DataObject dobj = (DataObject) doc.getProperty(Document.StreamDescriptionProperty);
+                if (dobj != null) {
+                    Exceptions.attachMessage(e, FileUtil.getFileDisplayName(dobj.getPrimaryFile()));
+                }
+
+                throw e;
+            }
+        }
+
+        // Now we've got the final indent of this line, adjust offset for new added
+        // braces (which should be on this line)
+        for (Brace brace : openingBraces) {
+            if (brace.onProcessingLine) {
+                brace.offsetOnline += indent;
+                if (brace.ordinalOnline == notWhiteIdx) {
+                    brace.isLatestOnLine = true;
+                }
+            }
+        }
+
+        // Compute indent for next line
+        int nextIndent;
+        Brace latestOpening = openingBraces.size() > 0 ? openingBraces.get(openingBraces.size() - 1) : null;
+        TokenId latestOpeningId = latestOpening != null ? latestOpening.token.id() : null;
+
+        // decide if next line is new or continued continute line        
+        boolean isContinueLine;
+        if (latestNotWhiteToken == null) {
+            // empty line or comment line
+            isContinueLine = false;
+        } else {
+            TokenId id = latestNotWhiteToken.id();
+            String text = latestNotWhiteToken.text().toString();
+
+            if (id == ScalaTokenId.RArrow ||
+                    text.equals("if") ||
+                    text.equals("case") ||
+                    text.equals("of") ||
+                    text.equals("try") ||
+                    text.equals("catch") ||
+                    text.equals("after") ||
+                    text.equals("begin") ||
+                    text.equals("receive") ||
+                    text.equals("fun") ||
+                    text.equals("end") ||
+                    id == ScalaTokenId.RParen ||
+                    id == ScalaTokenId.RBracket ||
+                    id == ScalaTokenId.RBrace) {
+
+                isContinueLine = false;
+            } else if (id == ScalaTokenId.Comma) {
+                //we have special case
+                if (latestOpening != null && latestOpening.isLatestOnLine && (latestOpeningId == ScalaTokenId.LParen ||
+                        latestOpeningId == ScalaTokenId.LBracket ||
+                        latestOpeningId == ScalaTokenId.LBrace)) {
+
+                    isContinueLine = true;
+                } else {
+                    // default
+                    isContinueLine = false;
+                }
+            } else if (id == ScalaTokenId.LParen ||
+                    id == ScalaTokenId.LBracket ||
+                    id == ScalaTokenId.LBrace) {
+                // the last unresolved brace is "(", "[", "{" 
+                // and it's of cource also the lastest non white token on this line
+                isContinueLine = false;
+            } else {
+                // default
+                isContinueLine = false;
+            }
+        }
+
+        // Compute or reset continue indent
+        if (isContinueLine) {
+            if (continueIndent == -1) {
+                // new continue indent
+                continueIndent = indent + codeStyle.getContinuationIndentSize();
+            } else {
+                // keep the same continue indent
+                continueIndent = continueIndent;
+            }
+        } else {
+            // Reset continueIndent
+            continueIndent = -1;
+        }
+
+        if (isContinueLine) {
+            // Continue line
+            nextIndent = continueIndent;
+        } else {
+            if (latestOpening == null) {
+                // All braces resolved
+                nextIndent = 0;
+            } else {
+                int offset = latestOpening.offsetOnline;
+                TokenId id = latestOpening.token.id();
+                if (id == ScalaTokenId.RArrow) {
+                    Brace nearestHangableBrace = null;
+                    int depth1 = 0;
+                    for (int i = openingBraces.size() - 1; i >= 0; i--) {
+                        Brace brace = openingBraces.get(i);
+                        depth1++;
+                        if (brace.token.id() != ScalaTokenId.RArrow) {
+                            nearestHangableBrace = brace;
+                            break;
+                        }
+                    }
+
+                    if (nearestHangableBrace != null) {
+                        // Hang it from this brace
+                        nextIndent = nearestHangableBrace.offsetOnline + depth1 * indentSize();
+                    } else {
+                        nextIndent = openingBraces.size() * indentSize();
+                    }
+                } else if ((id == ScalaTokenId.LParen ||
+                        id == ScalaTokenId.LBracket ||
+                        id == ScalaTokenId.LBrace) && !latestOpening.isLatestOnLine) {
+                    nextIndent = offset + latestOpening.token.text().toString().length();
+                } else {
+                    // default
+                    nextIndent = openingBraces.size() * indentSize();
+                }
+            }
+        }
+
+        return new int[]{indent, nextIndent, continueIndent};
+    }
+
+//    void reformatComments(BaseDocument doc, int start, int end) {
+//        int rightMargin = rightMarginOverride;
+//        if (rightMargin == -1) {
+//            CodeStyle style = codeStyle;
+//            if (style == null) {
+//                style = CodeStyle.getDefault(null);
+//            }
+//
+//            rightMargin = style.getRightMargin();
+//        }
+//
+//        ReflowParagraphAction action = new ReflowParagraphAction();
+//        action.reflowComments(doc, start, end, rightMargin);
+//    }
     /**
      * Ensure that the editor-settings for tabs match our code style, since the
      * primitive "doc.getFormatter().changeRowIndent" calls will be using
@@ -855,32 +702,6 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         org.netbeans.editor.Formatter formatter = doc.getFormatter();
         if (formatter.getSpacesPerTab() != style.getIndentSize()) {
             formatter.setSpacesPerTab(style.getIndentSize());
-        }
-    }
-
-    /**
-     * One item in indent stack, see description of stack variable
-     */
-    private static final class StackItem {
-
-        private StackItem(boolean braceless, OffsetRange range) {
-            this.braceless = braceless;
-            this.range = range;
-        }
-        /**
-         * true for block without optional curly braces, false otherwise
-         */
-        private final boolean braceless;
-        /**
-         * For braceless blocks it is range from statement beginning (e.g. |if...)
-         * to end of line where curly brace would be (e.g. if(...) |\n )<br>
-         * For braces and brackets blocks it is offset of beginning of token for 
-         * both - beginning and end of range (e.g. OffsetRange[ts.token(), ts.token()])
-         */
-        private final OffsetRange range;
-
-        public String toString() {
-            return "StackItem[" + braceless + "," + range + "]";
         }
     }
 }
