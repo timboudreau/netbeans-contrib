@@ -112,6 +112,7 @@ import com.sun.source.tree.SwitchTree;
 import com.sun.source.tree.SynchronizedTree;
 import com.sun.source.tree.ThrowTree;
 import com.sun.source.tree.Tree;
+import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.TryTree;
 import com.sun.source.tree.TypeCastTree;
 import com.sun.source.tree.TypeParameterTree;
@@ -161,7 +162,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
         } catch (IOException e) {
             throw new AssertionError(e);
         }
-        if (t instanceof JavaFXTree) {
+        if (t instanceof JavaFXTree && t.getKind() == Kind.OTHER) {
             JavaFXTree jfxt = (JavaFXTree)t;
             k = jfxt.getJavaFXKind();
         }
@@ -169,7 +170,12 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
         if (k != null) {
             res = k.toString();
         } else {
-            res = t.getKind().toString();
+            res = String.valueOf(t.getKind());
+            // XXX:debugging
+            if (res.equals("null")) {
+                System.err.println("Tree with null kind:" + t.getClass().getName() + "@" + Integer.toHexString(System.identityHashCode(t)));
+//                System.err.println("  is " + t);
+            }
         }
         res += ":" + s.toString();
         return res;
@@ -244,7 +250,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitBindExpression(tree, d);
+            super.visitBindExpression(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -256,7 +262,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitBlockExpression(tree, d);
+            super.visitBlockExpression(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -268,7 +274,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitClassDeclaration(tree, d);
+            super.visitClassDeclaration(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -280,7 +286,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitForExpression(tree, d);
+            super.visitForExpression(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -292,7 +298,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitForExpressionInClause(tree, d);
+            super.visitForExpressionInClause(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -304,7 +310,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitFunctionDefinition(tree, d);
+            super.visitFunctionDefinition(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -316,7 +322,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitFunctionValue(tree, d);
+            super.visitFunctionValue(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -328,7 +334,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitIndexof(tree, d);
+            super.visitIndexof(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -340,7 +346,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitInitDefinition(tree, d);
+            super.visitInitDefinition(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -352,7 +358,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitInterpolate(tree, d);
+            super.visitInterpolate(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -364,7 +370,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitInterpolateValue(tree, d);
+            super.visitInterpolateValue(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -376,7 +382,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitObjectLiteralPart(tree, d);
+            super.visitObjectLiteralPart(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -388,7 +394,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitOnReplace(tree, d);
+            super.visitOnReplace(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -400,7 +406,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitPostInitDefinition(tree, d);
+            super.visitPostInitDefinition(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -412,7 +418,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitSequenceDelete(tree, d);
+            super.visitSequenceDelete(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -424,7 +430,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitSequenceEmpty(tree, d);
+            super.visitSequenceEmpty(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -436,7 +442,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitSequenceExplicit(tree, d);
+            super.visitSequenceExplicit(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -448,7 +454,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitSequenceIndexed(tree, d);
+            super.visitSequenceIndexed(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -460,7 +466,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitSequenceInsert(tree, d);
+            super.visitSequenceInsert(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -472,7 +478,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitSequenceRange(tree, d);
+            super.visitSequenceRange(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -484,7 +490,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitSequenceSlice(tree, d);
+            super.visitSequenceSlice(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -496,7 +502,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitSetAttributeToObject(tree, d);
+            super.visitSetAttributeToObject(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -508,7 +514,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitStringExpression(tree, d);
+            super.visitStringExpression(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -520,7 +526,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitOther(tree, d);
+            super.visitOther(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -532,7 +538,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitTrigger(tree, d);
+            super.visitTrigger(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -544,7 +550,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitTypeAny(tree, d);
+            super.visitTypeAny(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -556,7 +562,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitTypeClass(tree, d);
+            super.visitTypeClass(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -568,7 +574,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitTypeFunctional(tree, d);
+            super.visitTypeFunctional(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -580,7 +586,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitTypeUnknown(tree, d);
+            super.visitTypeUnknown(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -592,7 +598,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             
             addCorrespondingType(below);
             addCorrespondingComments(below);
-            super.visitOther(tree, d);
+            super.visitOther(tree, below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;

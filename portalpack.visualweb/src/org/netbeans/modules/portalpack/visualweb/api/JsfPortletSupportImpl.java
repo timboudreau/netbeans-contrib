@@ -46,7 +46,7 @@ import java.io.File;
 import java.text.MessageFormat;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletModeType;
-import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectConstants;
+//import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectConstants; 
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
@@ -58,7 +58,9 @@ import org.openide.util.NbBundle;
  */
 public class JsfPortletSupportImpl implements JsfPortletSupport {
     private Project project;
-
+    /** The following variables should be removed post Nb 6.1 to use JsfProjectConstant.PATH_WEB_INF*/
+    public static final String PATH_WEB_INF = "web/WEB-INF";  // NOI18N
+    public static final String PATH_DOC_ROOT = "web";  // NOI18N
     /**
      * This constructor needs to be as FAST as possible since it will be called
      * by a static method each time someone simply CHECKS for portlet support on
@@ -301,7 +303,7 @@ public class JsfPortletSupportImpl implements JsfPortletSupport {
      */
     
     public File getPortletDD() throws JsfPortletSupportException {
-        FileObject portletDDFO = project.getProjectDirectory().getFileObject(JsfProjectConstants.PATH_WEB_INF + "/portlet.xml");  // NOI18N
+        FileObject portletDDFO = project.getProjectDirectory().getFileObject(/*JsfProjectConstants.*/PATH_WEB_INF + "/portlet.xml");  // NOI18N
         if(null == portletDDFO) {
             String message = MessageFormat.format(NbBundle.getMessage(JsfPortletSupportImpl.class, "MSG_JsfPortletSupportImpl_PORTLETDDNOTFOUND"),
                     new Object[] {project.getProjectDirectory().getName()});
@@ -322,7 +324,7 @@ public class JsfPortletSupportImpl implements JsfPortletSupport {
      */
     public String getPortletPageFolderPath(FileObject inFO) {
         String returnPath = null;
-        FileObject webRoot = project.getProjectDirectory().getFileObject(JsfProjectConstants.PATH_DOC_ROOT);
+        FileObject webRoot = project.getProjectDirectory().getFileObject(/*JsfProjectConstants.*/PATH_DOC_ROOT);
         if(webRoot == null) {
             return null;
         }
