@@ -41,6 +41,7 @@ package org.netbeans.api.javafx.source;
 
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.source.tree.CompilationUnitTree;
+import com.sun.tools.javafx.api.JavafxcTrees;
 
 /**
  *
@@ -59,6 +60,10 @@ public class CompilationInfo {
 
     public JavaFXSource.Phase getPhase() {
         return phase;
+    }
+
+    public JavafxcTrees getTrees() {
+         return JavafxcTrees.instance(getJavafxcTask());
     }
 
     JavafxcTask getJavafxcTask() {
