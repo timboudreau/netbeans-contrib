@@ -1205,7 +1205,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             Element el = info.getTrees().getElement(getCurrentPath());
             
             if (el != null) {
-                below.add(new ElementNode(info, el, Collections.EMPTY_LIST));
+//                below.add(new ElementNode(info, el, Collections.EMPTY_LIST));
             } else {
                 below.add(new NotFoundElementNode(NbBundle.getMessage(TreeNode.class, "Cannot_Resolve_Element")));
             }

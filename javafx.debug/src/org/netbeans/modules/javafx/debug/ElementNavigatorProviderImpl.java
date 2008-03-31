@@ -130,12 +130,12 @@ public class ElementNavigatorProviderImpl implements NavigatorPanel {
         }
 
         public void run(CompilationInfo info) {
-            Node n = ElementNode.getTree(info,
-                   info.getTrees().getElement(new TreePath(info.getCompilationUnit()))
-                );
-            if (n != null) {
-                manager.setRootContext(n);
-            }
+//            Node n = ElementNode.getTree(info,
+//                   info.getTrees().getElement(new TreePath(info.getCompilationUnit()))
+//                );
+//            if (n != null) {
+//                manager.setRootContext(n);
+//            }
         }
         
     }

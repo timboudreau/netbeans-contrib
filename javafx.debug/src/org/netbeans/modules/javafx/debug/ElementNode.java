@@ -40,16 +40,16 @@
  */
 package org.netbeans.modules.javafx.debug;
 
-import com.sun.source.tree.Tree;
+//import com.sun.source.tree.Tree;
 import java.util.ArrayList;
 import java.util.List;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.TypeParameterElement;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.util.ElementScanner6;
+//import javax.lang.model.element.Element;
+//import javax.lang.model.element.ExecutableElement;
+//import javax.lang.model.element.PackageElement;
+//import javax.lang.model.element.TypeElement;
+//import javax.lang.model.element.TypeParameterElement;
+//import javax.lang.model.element.VariableElement;
+//import javax.lang.model.util.ElementScanner6;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -61,48 +61,52 @@ import org.netbeans.api.javafx.source.CompilationInfo;
  */
 public class ElementNode extends AbstractNode implements OffsetProvider {
     
-    private Element element;
+//    private Element element;
     private CompilationInfo info;
     
 //    public static Node getTree(CompilationInfo info) {
 //        return getTree(info, info.getElement(info.getTree().getTypeDecls().get(0)));
 //    }
     
-    public static Node getTree(CompilationInfo info, Element element) {
-        if (element == null) {
-            return null;
-        }
-        List<Node> result = new ArrayList<Node>();
-        
-        new FindChildrenElementVisitor(info).scan(element, result);
-        
-        return result.get(0);
+//    public static Node getTree(CompilationInfo info, Element element) {
+//        if (element == null) {
+//            return null;
+//        }
+//        List<Node> result = new ArrayList<Node>();
+//        
+//        new FindChildrenElementVisitor(info).scan(element, result);
+//        
+//        return result.get(0);
+//    }
+    
+    public ElementNode() {
+        super(Children.LEAF);
     }
-
+            
     /** Creates a new instance of TreeNode */
-    public ElementNode(CompilationInfo info, Element element, List<Node> nodes) {
-        super(nodes.isEmpty() ? Children.LEAF: new NodeChilren(nodes));
-        this.element = element;
-        this.info = info;
-        setDisplayName(element.getKind().toString() + ":" + element.toString()); //NOI18N
-        setIconBaseWithExtension("org/netbeans/modules/java/debug/resources/element.png"); //NOI18N
-    }
+//    public ElementNode(CompilationInfo info, Element element, List<Node> nodes) {
+//        super(nodes.isEmpty() ? Children.LEAF: new NodeChilren(nodes));
+//        this.element = element;
+//        this.info = info;
+//        setDisplayName(element.getKind().toString() + ":" + element.toString()); //NOI18N
+//        setIconBaseWithExtension("org/netbeans/modules/java/debug/resources/element.png"); //NOI18N
+//    }
 
     public int getStart() {
-        Tree tree = info.getTrees().getTree(element);
-        
-        if (tree != null)
-            return (int)info.getTrees().getSourcePositions().getStartPosition(info.getCompilationUnit(), tree);
-        else
+//        Tree tree = info.getTrees().getTree(element);
+//        
+//        if (tree != null)
+//            return (int)info.getTrees().getSourcePositions().getStartPosition(info.getCompilationUnit(), tree);
+//        else
             return -1;
     }
     
     public int getEnd() {
-        Tree tree = info.getTrees().getTree(element);
-        
-        if (tree != null)
-            return (int)info.getTrees().getSourcePositions().getEndPosition(info.getCompilationUnit(), tree);
-        else
+//        Tree tree = info.getTrees().getTree(element);
+//        
+//        if (tree != null)
+//            return (int)info.getTrees().getSourcePositions().getEndPosition(info.getCompilationUnit(), tree);
+//        else
             return -1;
     }
 
@@ -122,63 +126,63 @@ public class ElementNode extends AbstractNode implements OffsetProvider {
         
     }
     
-    private static class FindChildrenElementVisitor extends ElementScanner6<Void, List<Node>> {
-        
-        private CompilationInfo info;
-        
-        public FindChildrenElementVisitor(CompilationInfo info) {
-            this.info = info;
-        }
-        
-        @Override
-        public Void visitPackage(PackageElement e, List<Node> p) {
-            List<Node> below = new ArrayList<Node>();
-
-            super.visitPackage(e, below);
-
-            p.add(new ElementNode(info, e, below));
-            return null;
-        }
-        
-        @Override
-        public Void visitType(TypeElement e, List<Node> p) {
-            List<Node> below = new ArrayList<Node>();
-
-            super.visitType(e, below);
-
-            p.add(new ElementNode(info, e, below));
-            return null;
-        }
-        
-        @Override
-        public Void visitVariable(VariableElement e, List<Node> p) {
-            List<Node> below = new ArrayList<Node>();
-
-            super.visitVariable(e, below);
-
-            p.add(new ElementNode(info, e, below));
-            return null;
-        }
-        
-        @Override
-        public Void visitExecutable(ExecutableElement e, List<Node> p) {
-            List<Node> below = new ArrayList<Node>();
-
-            super.visitExecutable(e, below);
-
-            p.add(new ElementNode(info, e, below));
-            return null;
-        }
-        
-        @Override
-        public Void visitTypeParameter(TypeParameterElement e, List<Node> p) {
-            List<Node> below = new ArrayList<Node>();
-
-            super.visitTypeParameter(e, below);
-
-            p.add(new ElementNode(info, e, below));
-            return null;
-        }
-        
-    }
+//    private static class FindChildrenElementVisitor extends ElementScanner6<Void, List<Node>> {
+//        
+//        private CompilationInfo info;
+//        
+//        public FindChildrenElementVisitor(CompilationInfo info) {
+//            this.info = info;
+//        }
+//        
+//        @Override
+//        public Void visitPackage(PackageElement e, List<Node> p) {
+//            List<Node> below = new ArrayList<Node>();
+//
+//            super.visitPackage(e, below);
+//
+//            p.add(new ElementNode(info, e, below));
+//            return null;
+//        }
+//        
+//        @Override
+//        public Void visitType(TypeElement e, List<Node> p) {
+//            List<Node> below = new ArrayList<Node>();
+//
+//            super.visitType(e, below);
+//
+//            p.add(new ElementNode(info, e, below));
+//            return null;
+//        }
+//        
+//        @Override
+//        public Void visitVariable(VariableElement e, List<Node> p) {
+//            List<Node> below = new ArrayList<Node>();
+//
+//            super.visitVariable(e, below);
+//
+//            p.add(new ElementNode(info, e, below));
+//            return null;
+//        }
+//        
+//        @Override
+//        public Void visitExecutable(ExecutableElement e, List<Node> p) {
+//            List<Node> below = new ArrayList<Node>();
+//
+//            super.visitExecutable(e, below);
+//
+//            p.add(new ElementNode(info, e, below));
+//            return null;
+//        }
+//        
+//        @Override
+//        public Void visitTypeParameter(TypeParameterElement e, List<Node> p) {
+//            List<Node> below = new ArrayList<Node>();
+//
+//            super.visitTypeParameter(e, below);
+//
+//            p.add(new ElementNode(info, e, below));
+//            return null;
+//        }
+//        
+//    }
 }
