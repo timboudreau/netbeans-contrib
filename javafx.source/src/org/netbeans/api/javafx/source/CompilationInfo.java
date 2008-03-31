@@ -62,6 +62,10 @@ public class CompilationInfo {
         return phase;
     }
 
+    /**
+     * Return the {@link Trees} service of the javafxc represented by this {@link CompilationInfo}.
+     * @return javafxc Trees service
+     */
     public JavafxcTrees getTrees() {
          return JavafxcTrees.instance(getJavafxcTask());
     }
