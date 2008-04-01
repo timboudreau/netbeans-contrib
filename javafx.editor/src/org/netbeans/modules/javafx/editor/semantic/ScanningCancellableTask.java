@@ -38,66 +38,88 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.api.javafx.source.support;
+package org.netbeans.modules.javafx.editor.semantic;
 
-import com.sun.javafx.api.tree.JavaFXTreePathScanner;
 import com.sun.source.tree.Tree;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.netbeans.api.javafx.source.CancellableTask;
+import org.netbeans.api.javafx.source.support.CancellableTreePathScanner;
+import org.netbeans.api.javafx.source.support.CancellableTreeScanner;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class CancellableTreePathScanner<R,P> extends JavaFXTreePathScanner<R,P> {
+public abstract class ScanningCancellableTask<T> implements CancellableTask<T> {
 
-    private final AtomicBoolean internalCanceled;
-    private final AtomicBoolean canceled;
+    protected AtomicBoolean canceled = new AtomicBoolean();
 
-    /**Construct a new CancellableTreePathScanner which can be canceled by calling
-     * the {@link #cancel} method.
-     */
-    public CancellableTreePathScanner() {
-        this(null);
+    /** Creates a new instance of ScanningCancellableTask */
+    protected ScanningCancellableTask() {
     }
 
-    /**Construct a new CancellableTreePath Scanner which can be canceled either by calling
-     * the {@link #cancel} method, or by setting <code>true</code> into the provided
-     * <code>canceled</code> {@link AtomicBoolean}.
-     * 
-     * @param canceled an {@link AtomicBoolean} through which this scanner can be canceled.
-     *                 The scanner never changes the state of the {@link AtomicBoolean}.
-     * @since 0.29
-     */
-    public CancellableTreePathScanner(AtomicBoolean canceled) {
-        this.canceled = canceled;
+    public final synchronized void cancel() {
+        canceled.set(true);
         
-        this.internalCanceled = new AtomicBoolean();
+        if (pathScanner != null) {
+            pathScanner.cancel();
+        }
+        if (scanner != null) {
+            scanner.cancel();
+        }
     }
 
-    protected boolean isCanceled() {
-        return internalCanceled.get() || (canceled != null && canceled.get());
+    public abstract void run(T parameter) throws Exception;
+    
+    protected final synchronized boolean isCancelled() {
+        return canceled.get();
     }
-
-    public void cancel() {
-        internalCanceled.set(true);
+    
+    protected final synchronized void resume() {
+        canceled.set(false);
     }
-
-    /** @inheritDoc
-     */
-    public R scan(Tree tree, P p) {
-        if (isCanceled())
+    
+    private CancellableTreePathScanner pathScanner;
+    private CancellableTreeScanner     scanner;
+    
+    protected <R, P> R scan(CancellableTreePathScanner<R, P> scanner, Tree toScan, P p) {
+        if (isCancelled())
             return null;
         
-        return super.scan(tree, p);
+        try {
+            synchronized (this) {
+                this.pathScanner = scanner;
+            }
+            
+            if (isCancelled())
+                return null;
+            
+            return scanner.scan(toScan, p);
+        } finally {
+            synchronized (this) {
+                this.pathScanner = null;
+            }
+        }
     }
 
-    /** @inheritDoc
-     */
-    public R scan(Iterable<? extends Tree> trees, P p) {
-        if (isCanceled())
+    protected <R, P> R scan(CancellableTreeScanner<R, P> scanner, Tree toScan, P p) {
+        if (isCancelled())
             return null;
         
-        return super.scan(trees, p);
+        try {
+            synchronized (this) {
+                this.scanner = scanner;
+            }
+            
+            if (isCancelled())
+                return null;
+            
+            return scanner.scan(toScan, p);
+        } finally {
+            synchronized (this) {
+                this.scanner = null;
+            }
+        }
     }
-
+    
 }

@@ -38,66 +38,23 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.api.javafx.source.support;
+package org.netbeans.modules.javafx.editor.fold;
 
-import com.sun.javafx.api.tree.JavaFXTreePathScanner;
-import com.sun.source.tree.Tree;
-import java.util.concurrent.atomic.AtomicBoolean;
+import org.netbeans.spi.editor.fold.FoldManager;
+import org.netbeans.spi.editor.fold.FoldManagerFactory;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class CancellableTreePathScanner<R,P> extends JavaFXTreePathScanner<R,P> {
+public class JavaFXElementFoldManagerFactory implements FoldManagerFactory {
 
-    private final AtomicBoolean internalCanceled;
-    private final AtomicBoolean canceled;
-
-    /**Construct a new CancellableTreePathScanner which can be canceled by calling
-     * the {@link #cancel} method.
-     */
-    public CancellableTreePathScanner() {
-        this(null);
+    /** Creates a new instance of JavaFXElementFoldManagerFactory */
+    public JavaFXElementFoldManagerFactory() {
     }
 
-    /**Construct a new CancellableTreePath Scanner which can be canceled either by calling
-     * the {@link #cancel} method, or by setting <code>true</code> into the provided
-     * <code>canceled</code> {@link AtomicBoolean}.
-     * 
-     * @param canceled an {@link AtomicBoolean} through which this scanner can be canceled.
-     *                 The scanner never changes the state of the {@link AtomicBoolean}.
-     * @since 0.29
-     */
-    public CancellableTreePathScanner(AtomicBoolean canceled) {
-        this.canceled = canceled;
-        
-        this.internalCanceled = new AtomicBoolean();
-    }
-
-    protected boolean isCanceled() {
-        return internalCanceled.get() || (canceled != null && canceled.get());
-    }
-
-    public void cancel() {
-        internalCanceled.set(true);
-    }
-
-    /** @inheritDoc
-     */
-    public R scan(Tree tree, P p) {
-        if (isCanceled())
-            return null;
-        
-        return super.scan(tree, p);
-    }
-
-    /** @inheritDoc
-     */
-    public R scan(Iterable<? extends Tree> trees, P p) {
-        if (isCanceled())
-            return null;
-        
-        return super.scan(trees, p);
+    public FoldManager createFoldManager() {
+        return new JavaFXElementFoldManager();
     }
 
 }
