@@ -303,7 +303,7 @@ public class Clearcase {
     
     public void getOriginalFile(File workingCopy, File originalFile) {
         FileInformation info = Clearcase.getInstance().getFileStatusCache().getInfo(workingCopy);        
-        if ((info.getStatus() & FileInformation.STATUS_DIFFABLE) == 0) return;
+        if (!workingCopy.exists() || ((info.getStatus() & FileInformation.STATUS_DIFFABLE) == 0) ) return;
         try {
             File original = VersionsCache.getInstance().getRemoteFile(workingCopy, VersionsCache.REVISION_BASE, true);
             if (original == null) {

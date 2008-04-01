@@ -31,13 +31,11 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUt
 import java.io.*;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.DataContext;
-import org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners.PortletXMLChangeListener;
-import org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners.util.LayerXMLHelper;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners.PortletXMLChangeEventNotificationHelper;
 
 
 /**
@@ -108,15 +106,7 @@ public abstract class NewPortletCreateComponent {
     private void firePortletAddEvent(PortletContext context,
             AppContext appContext,String className,String webInf)
     {
-        List<PortletXMLChangeListener> portletXMLListeners = LayerXMLHelper.getRegisteredPortletXMLListeners();
-        if(portletXMLListeners == null || portletXMLListeners.size() == 0)
-            return;
-        
-        for(PortletXMLChangeListener listener:portletXMLListeners)
-        {
-            if(listener == null) continue;
-            listener.addPortlet(context, appContext, webInf);
-        }
+       PortletXMLChangeEventNotificationHelper.firePortletAddEvent(context, appContext, webInf);
     }
     
     protected abstract void refreshPath(String modulePath);

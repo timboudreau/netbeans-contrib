@@ -141,7 +141,7 @@ public class NbRegistrationAction extends WizardAction {
     }
 
     private boolean showRegistrationPage(String productId, List <Product> productsToRegister) throws IOException {
-        LogManager.logEntry("... show registration page");
+        LogManager.logEntry("... show registration page for:" + productId);
         RegistrationData regData = NbServiceTagSupport.getRegistrationData();
         URL url = NbConnectionSupport.getRegistrationURL(regData.getRegistrationURN(), productId);
         boolean succeed = NbConnectionSupport.postRegistrationData(url, regData);

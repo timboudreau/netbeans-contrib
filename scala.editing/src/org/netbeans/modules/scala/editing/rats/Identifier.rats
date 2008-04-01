@@ -45,40 +45,40 @@
 module org.netbeans.modules.scala.editing.rats.Identifier;
 
 import org.netbeans.modules.scala.editing.rats.Character;
+import org.netbeans.modules.scala.editing.rats.Keyword;
 import org.netbeans.modules.scala.editing.rats.Spacing;
 import org.netbeans.modules.scala.editing.rats.Literal;
 
 
 // ----- Identifier
 
-transient generic Id = id IGNORE ;
-transient generic VarId = varid IGNORE;
+transient generic Id    = SKIP identifier ;
+transient generic VarId = SKIP varIdentifier ;
+
+// ----- used for "-":op etc, where needs op's SemanticValue to be String
+transient String op     = SKIP opIdentifier ;
 
 // ----- token
-transient generic Identifier = id ;
+transient generic Identifier = identifier ;
 
-transient String opchar = ![\u0020\u0009\u000D\u000A0-9a-zA-Z$_()\[\]{}.`'";,] [\u0020-\u007F] ;
+transient String opIdentifier    = v:( opchar+ )                  &{ !contains(SCALA_KEYWORDS, toText(v)) } ;
+transient String varIdentifier   = v:( lower            idrest? ) &{ !contains(SCALA_KEYWORDS, toText(v)) } ;
+transient String upperIdentifier = v:( ( upper / [$_] ) idrest? ) &{ !contains(SCALA_KEYWORDS, toText(v)) } ;
 
-transient String op = 
-  !( "=>" / "<-" / "<:" / "<%" / ">:" / "_" / ":" / "=" / "#" / "@" )
-  opchar+ 
+transient String plainid =
+  upperIdentifier
+/ varIdentifier
+/ opIdentifier
 ;
 
-transient String varid = lower idrest? ;
-transient String plainid = 
-  ( upper / [$_] ) idrest?
-/ varid
-/ op
-;
-
-transient String id =
-  plainid
-/ [`] ( ![`] stringChar )+ [`]
+transient String identifier =
+  [`] ( ![`] stringChar )+ [`]
+/ plainid
 ;
 
 transient String idrest = 
-  ( letter / digit )+ ( '_' op )? 
-/ ( '_' op )
+  ( letter / '$' / '_' !opIdentifier / digit )+ ( '_' opIdentifier )? 
+/ ( '_' opIdentifier )
 ;
 
-
+transient String opchar = [!%&+\-<=>?@\\^`|~#:/*] ;

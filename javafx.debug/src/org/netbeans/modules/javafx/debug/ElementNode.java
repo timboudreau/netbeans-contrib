@@ -43,7 +43,7 @@ package org.netbeans.modules.javafx.debug;
 //import com.sun.source.tree.Tree;
 import java.util.ArrayList;
 import java.util.List;
-import javax.lang.model.element.Element;
+//import javax.lang.model.element.Element;
 //import javax.lang.model.element.ExecutableElement;
 //import javax.lang.model.element.PackageElement;
 //import javax.lang.model.element.TypeElement;
@@ -61,29 +61,36 @@ import org.netbeans.api.javafx.source.CompilationInfo;
  */
 public class ElementNode extends AbstractNode implements OffsetProvider {
     
-    private Element element;
+//    private Element element;
     private CompilationInfo info;
     
 //    public static Node getTree(CompilationInfo info) {
 //        return getTree(info, info.getElement(info.getTree().getTypeDecls().get(0)));
 //    }
     
-    public static Node getTree(CompilationInfo info, Element element) {
-        List<Node> result = new ArrayList<Node>();
-        
+//    public static Node getTree(CompilationInfo info, Element element) {
+//        if (element == null) {
+//            return null;
+//        }
+//        List<Node> result = new ArrayList<Node>();
+//        
 //        new FindChildrenElementVisitor(info).scan(element, result);
-        
-        return result.get(0);
+//        
+//        return result.get(0);
+//    }
+    
+    public ElementNode() {
+        super(Children.LEAF);
     }
-
+            
     /** Creates a new instance of TreeNode */
-    public ElementNode(CompilationInfo info, Element element, List<Node> nodes) {
-        super(nodes.isEmpty() ? Children.LEAF: new NodeChilren(nodes));
-        this.element = element;
-        this.info = info;
-        setDisplayName(element.getKind().toString() + ":" + element.toString()); //NOI18N
-        setIconBaseWithExtension("org/netbeans/modules/java/debug/resources/element.png"); //NOI18N
-    }
+//    public ElementNode(CompilationInfo info, Element element, List<Node> nodes) {
+//        super(nodes.isEmpty() ? Children.LEAF: new NodeChilren(nodes));
+//        this.element = element;
+//        this.info = info;
+//        setDisplayName(element.getKind().toString() + ":" + element.toString()); //NOI18N
+//        setIconBaseWithExtension("org/netbeans/modules/java/debug/resources/element.png"); //NOI18N
+//    }
 
     public int getStart() {
 //        Tree tree = info.getTrees().getTree(element);
@@ -127,6 +134,7 @@ public class ElementNode extends AbstractNode implements OffsetProvider {
 //            this.info = info;
 //        }
 //        
+//        @Override
 //        public Void visitPackage(PackageElement e, List<Node> p) {
 //            List<Node> below = new ArrayList<Node>();
 //
@@ -136,6 +144,7 @@ public class ElementNode extends AbstractNode implements OffsetProvider {
 //            return null;
 //        }
 //        
+//        @Override
 //        public Void visitType(TypeElement e, List<Node> p) {
 //            List<Node> below = new ArrayList<Node>();
 //
@@ -145,6 +154,7 @@ public class ElementNode extends AbstractNode implements OffsetProvider {
 //            return null;
 //        }
 //        
+//        @Override
 //        public Void visitVariable(VariableElement e, List<Node> p) {
 //            List<Node> below = new ArrayList<Node>();
 //
@@ -154,6 +164,7 @@ public class ElementNode extends AbstractNode implements OffsetProvider {
 //            return null;
 //        }
 //        
+//        @Override
 //        public Void visitExecutable(ExecutableElement e, List<Node> p) {
 //            List<Node> below = new ArrayList<Node>();
 //
@@ -163,6 +174,7 @@ public class ElementNode extends AbstractNode implements OffsetProvider {
 //            return null;
 //        }
 //        
+//        @Override
 //        public Void visitTypeParameter(TypeParameterElement e, List<Node> p) {
 //            List<Node> below = new ArrayList<Node>();
 //

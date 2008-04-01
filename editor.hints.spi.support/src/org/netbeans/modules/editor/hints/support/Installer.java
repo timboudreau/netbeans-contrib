@@ -51,7 +51,6 @@ public class Installer extends ModuleInstall {
     
     public void restored() {
         HintsOperator.getDefault();
-        ProjectsListener.getDefault();
     }
     
 }

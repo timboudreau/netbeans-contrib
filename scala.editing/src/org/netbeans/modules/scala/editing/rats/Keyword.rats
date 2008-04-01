@@ -94,6 +94,7 @@ body {
       ":", 
       "=", 
       "=>", 
+      "\u21D2",
       "<-", 
       "<:",
       "<%",
@@ -108,97 +109,156 @@ option setOfString(SCALA_KEYWORDS);
 
 // ----- Keywords
 
+generic ThisKey = "this":key ;
 
 /*
  * The tokens that can terminate a statement are: literals, identifiers and the following
- * delimiters and reserved words:
+ * delimiters and reserved words (means only following tokens cannot consumer following newline)
  *   this null true false return type <xmlstart> _ 
  *   ) ] }
  * 
  * The tokens that can begin a statement are all Scala tokens except the following delimiters
- * and reserved words (do not consumer following n+):
+ * and reserved words (means only following tokens can consumer preceding n+):
  *   catch else extends finally forSome match requires with yield # _ = => <- <: <% >: : 
  *   , . ; [ ) ] }
  */
 String key =
-  IGNORE_N "this"     :keyword IGNORE_N
-/ IGNORE_N "null"     :keyword IGNORE_N
-/ IGNORE_N "true"     :keyword IGNORE_N
-/ IGNORE_N "false"    :keyword IGNORE_N
-/ IGNORE_N "return"   :keyword IGNORE_N
-/ IGNORE_N "type"     :keyword IGNORE_N
-/ IGNORE_N "_"        :keyword IGNORE
-/          "catch"    :keyword IGNORE
-/          "else"     :keyword IGNORE
-/          "extends"  :keyword IGNORE
-/          "finally"  :keyword IGNORE
-/          "forSome"  :keyword IGNORE
-/          "match"    :keyword IGNORE
-/          "requires" :keyword IGNORE
-/          "with"     :keyword IGNORE
-/          "yield"    :keyword IGNORE
-/          "=>"       :keyword IGNORE
-/          "<-"       :keyword IGNORE
-/          "<:"       :keyword IGNORE
-/          "<%"       :keyword IGNORE
-/          ">:"       :keyword IGNORE
-/          "#"        :keyword IGNORE
-/          "="        :keyword IGNORE
-/          ":"        :keyword IGNORE
-/                      keyword IGNORE_N
+  SKIP_N "catch"    :keyword SKIP_TILL_N
+/ SKIP_N "else"     :keyword SKIP_TILL_N
+/ SKIP_N "extends"  :keyword SKIP_TILL_N
+/ SKIP_N "finally"  :keyword SKIP_TILL_N
+/ SKIP_N "forSome"  :keyword SKIP_TILL_N
+/ SKIP_N "match"    :keyword SKIP_TILL_N
+/ SKIP_N "requires" :keyword SKIP_TILL_N
+/ SKIP_N "with"     :keyword SKIP_TILL_N
+/ SKIP_N "yield"    :keyword SKIP_TILL_N
+/ SKIP_N "=>"       :keyword SKIP_TILL_N
+/ SKIP_N "\u21D2"   :keyword SKIP_TILL_N
+/ SKIP_N "<-"       :keyword SKIP_TILL_N
+/ SKIP_N "<:"       :keyword SKIP_TILL_N
+/ SKIP_N "<%"       :keyword SKIP_TILL_N
+/ SKIP_N ">:"       :keyword SKIP_TILL_N
+/ SKIP_N "#"        :keyword SKIP_TILL_N
+/ SKIP_N "="        :keyword SKIP_TILL_N
+/ SKIP_N ":"        :keyword SKIP_TILL_N
+/ SKIP   "this"     :keyword 
+/ SKIP   "null"     :keyword 
+/ SKIP   "true"     :keyword 
+/ SKIP   "false"    :keyword 
+/ SKIP   "return"   :keyword 
+/ SKIP   "type"     :keyword 
+/ SKIP   "_"        :keyword 
+/ SKIP               keyword SKIP_TILL_N
 ;
 
-generic Keyword = keyword ;
+generic Keyword =
+  "abstract"  :keyword @Abstract
+/ "case"      :keyword @Case
+/ "catch"     :keyword @Catch
+/ "class"     :keyword @Class
+/ "def"       :keyword @Def
+/ "do"        :keyword @Do
+/ "else"      :keyword @Else
+/ "extends"   :keyword @Extends
+/ "false"     :keyword @False
+/ "final"     :keyword @Final
+/ "finally"   :keyword @Finally
+/ "for"       :keyword @For
+/ "forSome"   :keyword @ForSome
+/ "if"        :keyword @If
+/ "implicit"  :keyword @Implicit
+/ "import"    :keyword @Import
+/ "lazy"      :keyword @Lazy
+/ "match"     :keyword @Match
+/ "new"       :keyword @New
+/ "null"      :keyword @Null
+/ "object"    :keyword @Object
+/ "override"  :keyword @Override
+/ "package"   :keyword @Package
+/ "private"   :keyword @Private
+/ "protected" :keyword @Protected
+/ "requires"  :keyword @Requires
+/ "return"    :keyword @Return
+/ "sealed"    :keyword @Sealed
+/ "super"     :keyword @Super
+/ "this"      :keyword @This
+/ "throw"     :keyword @Throw
+/ "trait"     :keyword @Trait
+/ "try"       :keyword @Try
+/ "true"      :keyword @True
+/ "type"      :keyword @Type
+/ "val"       :keyword @Val
+/ "var"       :keyword @Var
+/ "while"     :keyword @While
+/ "with"      :keyword @With
+/ "yield"     :keyword @Yield
+/ "_"         :keyword @Wild
+/ "=>"        :keyword @RArrow
+/ "\u21D2"    :keyword @RArrow
+/ "<-"        :keyword @LArrow
+/ "<:"        :keyword @UBound
+/ "<%"        :keyword @VBound
+/ ">:"        :keyword @LBound
+/ "="         :keyword @Eq
+/ ":"         :keyword @Colon
+/ "#"         :keyword @Pan
+/ "@"         :keyword @At 
+;
+
+
 String keyword =
-  "abstract" !(idrest)
-/ "case" !(idrest)
-/ "catch" !(idrest)
-/ "class" !(idrest)
-/ "def" !(idrest)
-/ "do" !(idrest)
-/ "else" !(idrest)
-/ "extends" !(idrest)
-/ "false" !(idrest)
-/ "final" !(idrest)
-/ "finally" !(idrest)
-/ "for" !(idrest)
-/ "forSome" !(idrest)
-/ "if" !(idrest)
-/ "implicit" !(idrest)
-/ "import" !(idrest)
-/ "lazy" !(idrest)
-/ "match" !(idrest)
-/ "new" !(idrest)
-/ "null" !(idrest)
-/ "object" !(idrest)
-/ "override" !(idrest)
-/ "package" !(idrest)
-/ "private" !(idrest)
-/ "protected" !(idrest)
-/ "requires" !(idrest)
-/ "return" !(idrest)
-/ "sealed" !(idrest)
-/ "super" !(idrest)
-/ "this" !(idrest)
-/ "throw" !(idrest)
-/ "trait" !(idrest)
-/ "try" !(idrest)
-/ "true" !(idrest)
-/ "type" !(idrest)
-/ "val" !(idrest)
-/ "var" !(idrest)
-/ "while" !(idrest)
-/ "with" !(idrest)
-/ "yield" !(idrest)
-/ "=>"
-/ "<-"
-/ "<:"
-/ "<%"
-/ ">:"
-/ "="
-/ "_"
-/ ":"
-/ "#" 
-/ "@" 
+  !( ['] )
+  ( "abstract"  !( idrest )
+  / "case"      !( idrest )
+  / "catch"     !( idrest )
+  / "class"     !( idrest )
+  / "def"       !( idrest )
+  / "do"        !( idrest )
+  / "else"      !( idrest )
+  / "extends"   !( idrest )
+  / "false"     !( idrest )
+  / "final"     !( idrest )
+  / "finally"   !( idrest )
+  / "for"       !( idrest )
+  / "forSome"   !( idrest )
+  / "if"        !( idrest )
+  / "implicit"  !( idrest )
+  / "import"    !( idrest )
+  / "lazy"      !( idrest )
+  / "match"     !( idrest )
+  / "new"       !( idrest )
+  / "null"      !( idrest )
+  / "object"    !( idrest )
+  / "override"  !( idrest )
+  / "package"   !( idrest )
+  / "private"   !( idrest )
+  / "protected" !( idrest )
+  / "requires"  !( idrest )
+  / "return"    !( idrest )
+  / "sealed"    !( idrest )
+  / "super"     !( idrest )
+  / "this"      !( idrest )
+  / "throw"     !( idrest )
+  / "trait"     !( idrest )
+  / "try"       !( idrest )
+  / "true"      !( idrest )
+  / "type"      !( idrest )
+  / "val"       !( idrest )
+  / "var"       !( idrest )
+  / "while"     !( idrest )
+  / "with"      !( idrest )
+  / "yield"     !( idrest )
+  / "_"         !( idrest )
+  / "=>"        !( opIdentifier )
+  / "<-"        !( opIdentifier )
+  / "<:"        !( opIdentifier )
+  / "<%"        !( opIdentifier )
+  / ">:"        !( opIdentifier )
+  / "="         !( opIdentifier )
+  / ":"         !( opIdentifier )
+  / "#"         !( opIdentifier )
+  / "@"         !( opIdentifier )
+  / "\u21D2"    !( opIdentifier )
+  )
 ;
 

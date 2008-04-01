@@ -57,11 +57,13 @@ import org.netbeans.modules.gsf.api.Severity;
 import org.netbeans.modules.gsf.api.SourceFileReader;
 import org.netbeans.modules.gsf.spi.DefaultError;
 import org.netbeans.modules.gsf.api.TranslatedSource;
+import org.netbeans.modules.scala.editing.nodes.AstVisitor;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.util.Exceptions;
 import xtc.parser.ParseError;
 import xtc.parser.Result;
 import xtc.parser.SemanticValue;
+import xtc.tree.GNode;
 import xtc.tree.Node;
 
 /**
@@ -367,27 +369,19 @@ public class ScalaParser implements Parser {
             context.errorOffset = -1;
         }
 
-        Node node = null;
+        GNode node = null;
         try {
             ParseError error = null;
             Result r = parser.pCompilationUnit(0);
             if (r.hasValue()) {
                 SemanticValue v = (SemanticValue) r;
-                node = (Node) v.value;
-                if (node == null) {
-                    error = r.parseError();
-                    System.out.println("Null node!");
-                } else if (r.index < source.length()) {
-                    System.out.println("parsed index=" + r.index + ", source length=" + source.length());
-                    error = r.parseError();
-                }
-                
-                //String dump = NodeUtil.dump((AbstractNode) node);
-                //System.out.println(dump);
+                node = (GNode) v.value;
+                AstVisitor visitor = new AstVisitor();
+                visitor.accept(node);
             } else {
                 error = r.parseError();
             }
-            
+
             if (error != null) {
                 if (!ignoreErrors) {
                     int start = 0;
@@ -425,8 +419,8 @@ public class ScalaParser implements Parser {
     private ScalaParserResult createParseResult(ParserFile file, Node rootNode, ParserResult.AstTreeNode ast, List<Integer> linesOffset) {
         return new ScalaParserResult(this, file, rootNode, ast, linesOffset);
     }
-    
-    private List<Integer> computeLinesOffset(String source) {       
+
+    private List<Integer> computeLinesOffset(String source) {
         int length = source.length();
 
         List<Integer> linesOffset = new ArrayList<Integer>(length / 25);
@@ -440,8 +434,8 @@ public class ScalaParser implements Parser {
                 line++;
             }
         }
-        
-        return linesOffset;       
+
+        return linesOffset;
     }
 
     protected void notifyError(Context context, String key, String message,

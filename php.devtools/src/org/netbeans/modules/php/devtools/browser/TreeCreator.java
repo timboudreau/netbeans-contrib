@@ -381,7 +381,8 @@ public class TreeCreator implements Visitor {
     }
 
     public void visit(Comment comment) {
-        TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode, "Not Implemented Comment");
+        TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode, 
+                "" + comment.getCommentType(), comment.getStartOffset(), comment.getEndOffset());
         parentNode.addChild(adapter);
         TreeASTNodeAdapter helpParent = parentNode;
         parentNode = adapter;
@@ -896,6 +897,15 @@ public class TreeCreator implements Visitor {
         TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode, "Program", program.getStartOffset(), program.getEndOffset());
         parentNode.addChild(adapter);
         TreeASTNodeAdapter helpParent = parentNode;
+        
+        if (program.getComments() != null) {
+            TreeASTNodeAdapter comments = new TreeASTNodeAdapter(adapter, "Comments");
+            adapter.addChild(comments);
+            parentNode = comments;
+            for (Comment comment : program.getComments()) {
+                comment.accept(this);
+            }
+        }
         parentNode = adapter;
         List<Statement> statements = program.getStatements();
         for (Statement statement : statements) {
@@ -1152,5 +1162,21 @@ public class TreeCreator implements Visitor {
                 "ASTNode - this node shouldn't appear in the tree.",
                 node.getStartOffset(), node.getEndOffset());
         parentNode.addChild(adapter);
+    }
+
+    public void visit(PHPDocBlock node) {
+        TreeASTNodeAdapter adapter = new TreeASTNodeAdapter(parentNode, 
+                "PHPDocComment", node.getStartOffset(), node.getEndOffset());
+        parentNode.addChild(adapter);
+        adapter.addChild(new TreeASTNodeAdapter(adapter, node.getDescription()));
+        if (node.getTags() != null) {
+            for (PHPDocTag tag : node.getTags()) {
+                adapter.addChild(new TreeASTNodeAdapter(adapter, 
+                        tag.getKind() + " " + tag.getValue()));
+            }
+        }
+        TreeASTNodeAdapter helpParent = parentNode;
+        parentNode = adapter;
+        parentNode = helpParent;
     }
 }

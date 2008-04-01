@@ -117,7 +117,7 @@ public class FileStatusCache {
      * Lists <b>interesting files</b> that are known to be inside given folders.     
      * <p>This method returns both folders and files.
      *
-     * @param context context to examine
+     * @param context context to examine. If null all files applying to the given status will be returned
      * @param includeStatus limit returned files to those having one of supplied statuses
      * @return File [] array of interesting files
      */
@@ -134,23 +134,28 @@ public class FileStatusCache {
                 if ((info.getStatus() & includeStatus) == 0) {                    
                     continue;
                 }
-                                                    
-                for (File root : context.getRootFiles()) {
-                    if (VersioningSupport.isFlat(root)) {
-                        if (file.equals(root) || file.getParentFile().equals(root)) {
-                            set.add(file);
-                            break;
+                
+                if(context != null) {
+                    for (File root : context.getRootFiles()) {
+                        if (VersioningSupport.isFlat(root)) {
+                            if (file.equals(root) || file.getParentFile().equals(root)) {
+                                set.add(file);
+                                break;
+                            }
+                        } else {
+                            if (Utils.isAncestorOrEqual(root, file)) {
+                                set.add(file);
+                                break;
+                            }   
                         }
-                    } else {
-                        if (Utils.isAncestorOrEqual(root, file)) {
-                            set.add(file);
-                            break;
-                        }   
                     }
+                } else {
+                    set.add(file);
                 }
             }
         }
-        if (context.getExclusions().size() > 0) {
+        
+        if (context != null && context.getExclusions().size() > 0) {
             for (Iterator i = context.getExclusions().iterator(); i.hasNext();) {
                 File excluded = (File) i.next();
                 for (Iterator j = set.iterator(); j.hasNext();) {
@@ -379,7 +384,7 @@ public class FileStatusCache {
      * or IDE thinks it should be.
      */
     private boolean isIgnored(final File file) {        
-        if (!ClearcaseModuleConfig.getPreferences().getBoolean(ClearcaseModuleConfig.PROP_ADD_VIEWPRIVATE, true)) {
+        if (!ClearcaseModuleConfig.getAddViewPrivate()) {
             return true;
         }
         if(ClearcaseModuleConfig.isIgnored(file)) {
@@ -487,7 +492,7 @@ public class FileStatusCache {
                 return;
            } 
         }                              
-        listenerSupport.fireVersioningEvent(EVENT_FILE_STATUS_CHANGED, new Object [] { file, oldInfo, newInfo });                
+        listenerSupport.fireVersioningEvent(EVENT_FILE_STATUS_CHANGED, new Object [] { file, oldInfo, newInfo != null ? newInfo : FILE_INFORMATION_UNKNOWN });                
     }    
     
     private RequestProcessor getRequestProcessor() {        

@@ -99,33 +99,7 @@ made subject to such option by the copyright holder.
         </copy>
     </target>
 
-    <target name="init" depends="projectized.init,prepare-saxon">
-        <copy file="ext/saxon8.jar" todir="${cluster}/modules/ext"/>
-    </target>
-
-    <available file="ext/saxon8.jar" property="download-saxon"/>
-    <available file="ext/MPL-1.0.txt" property="download-mpl"/>
-    <available file="ext/saxon8.jar" property="has-saxon"/>
-    
-    <target name="-download-saxon" unless="download-saxon">
-        <mkdir dir="ext"/>
-        <get dest="ext/saxon-dist.zip" src="${saxon.dist}"/>
-    </target>
-    <target name="-download-mpl" unless="download-mpl">
-        <mkdir dir="ext"/>
-        <get src="http://www.mozilla.org/MPL/MPL-1.0.txt" dest="ext/MPL-1.0.txt"/>
-    </target>
-    
-    <target name="prepare-saxon" depends="-download-saxon" unless="has-saxon">
-        <mkdir dir="ext"/>
-        <unzip src="ext/saxon-dist.zip" dest="ext">
-            <patternset>
-                <include name="saxon8.jar"/>
-            </patternset>
-        </unzip>
-    </target>
-
-    <target name="nbm" depends="init,netbeans,-nbm-prompt-for-storepass,-download-mpl" description="Build NBM archive.">
+    <target name="nbm" depends="init,netbeans,-nbm-prompt-for-storepass" description="Build NBM archive.">
         <mkdir dir="build"/>
         <property name="nbm.target.cluster" value=""/> <!-- fallback -->
         <makenbm file="build/${nbm}"
@@ -146,8 +120,8 @@ made subject to such option by the copyright holder.
                 <file location="external/docbook-xsl-${libs.docbook-xsl.version}-license.txt"/>
                 <text>For the included DocBook XML DTD:</text>
                 <file location="external/docbook-xml-${libs.docbook-xml.version}-license.txt"/>
-                <text>For the included Saxon 8 XSLT processor:</text>
-                <file location="ext/MPL-1.0.txt"/>
+                <text>For the included Saxon 9 XSLT processor:</text>
+                <file location="external/saxonb9-0-0-4j-license.txt"/>
                 <text>For the included Solbook XML DTD:</text>
                 <file location="external/solbook-xml-${libs.solbook-xml.version}-license.txt"/>
             </license>

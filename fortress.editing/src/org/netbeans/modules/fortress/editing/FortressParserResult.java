@@ -136,9 +136,9 @@ public class FortressParserResult extends ParserResult {
             Node node = getRootNode();
             assert node != null : "Attempted to get definition visitor for broken source";
 
-            SignatureVisitor definitionVisitor = new SignatureVisitor(node, linesOffset);
-            node.accept(definitionVisitor);
-            rootScope = definitionVisitor.getRootScope();
+            SignatureVisitor signatureVisitor = new SignatureVisitor(node, linesOffset);
+            node.accept(signatureVisitor);
+            rootScope = signatureVisitor.getRootScope();
         }
 
         return rootScope;

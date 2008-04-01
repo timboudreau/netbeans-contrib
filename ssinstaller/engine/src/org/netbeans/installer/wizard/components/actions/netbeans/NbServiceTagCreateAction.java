@@ -35,12 +35,14 @@
  */
 package org.netbeans.installer.wizard.components.actions.netbeans;
 
+import java.util.logging.Level;
 import org.netbeans.modules.servicetag.ServiceTag;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -63,6 +65,7 @@ import org.netbeans.installer.utils.exceptions.InitializationException;
 import org.netbeans.installer.utils.exceptions.NativeException;
 import org.netbeans.installer.wizard.components.WizardAction;
 import org.netbeans.modules.reglib.BrowserSupport;
+import org.netbeans.modules.reglib.NbBundle;
 import org.netbeans.modules.reglib.NbServiceTagSupport;
 import org.netbeans.modules.reglib.StatusData;
 import static org.netbeans.installer.utils.helper.DetailedStatus.INSTALLED_SUCCESSFULLY;
@@ -146,7 +149,7 @@ public class NbServiceTagCreateAction extends WizardAction {
             } else if (uid.equals("glassfish")) {
                 createSTGlassFish(product, true);
             } else if (uid.equals("ss-base")) {
-                createSTGlassFish(product, false);
+                createSTSunStudio(product, true);
             } else if (uid.equals("jdk")) {
                 jdkProduct = product;
             }
@@ -179,7 +182,7 @@ public class NbServiceTagCreateAction extends WizardAction {
             LogManager.log(e);
         }
     }
-
+   
     public static void setNetBeansStatus(boolean register) {
         StatusData sd = (register) ? 
             new StatusData(StatusData.STATUS_REGISTERED, StatusData.DEFAULT_DELAY):
@@ -295,7 +298,185 @@ public class NbServiceTagCreateAction extends WizardAction {
             LogManager.log(e);
         }
     }
+    
+            /**
+     * Return the NetBeans service tag from local registration data.
+     * Return null if srevice tag is not found.
+     * 
+     * @return a service tag for 
+     */
+    private static ServiceTag getRegistredServiceTag (String productURN) throws IOException {        
+        Collection<ServiceTag> svcTags = org.netbeans.modules.servicetag.Registry.getSystemRegistry().findServiceTags(productURN);
+        for (ServiceTag st : svcTags) {
+            if (productURN.equals(st.getProductURN())) {
+                return st;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Create new service tag instance for NetBeans
+     * @param svcTagSource
+     * @return
+     * @throws java.io.IOException
+     */
+    private static ServiceTag newSSServiceTag (String svcTagSource) throws IOException {
+        // Determine the product URN and name
+        String productURN, productName, parentURN, parentName, version;
 
+        productURN = ResourceUtils.getString(NbServiceTagCreateAction.class,"servicetag.ss.urn");
+        productName = ResourceUtils.getString(NbServiceTagCreateAction.class,"servicetag.ss.name");
+        version = ResourceUtils.getString(NbServiceTagCreateAction.class,"servicetag.ss.version");
+        parentURN = ResourceUtils.getString(NbServiceTagCreateAction.class,"servicetag.ss.parent.urn");
+        parentName = ResourceUtils.getString(NbServiceTagCreateAction.class,"servicetag.ss.parent.name");
+
+        return ServiceTag.newInstance(ServiceTag.generateInstanceURN(),
+                                      productName,
+                                      version,
+                                      productURN,
+                                      parentName,
+                                      parentURN,
+                                      "test",
+                                      "Sun Mic",
+                                      System.getProperty("os.arch"),
+                                      "global",
+                                      svcTagSource);
+    }
+    
+
+    private void createSTSunStudio(Product ssProduct, boolean createInstallationST) {
+        try {
+            String productURN = ResourceUtils.getString(NbServiceTagCreateAction.class,"servicetag.ss.urn");
+            if (null == getRegistredServiceTag(productURN)) {
+                ServiceTag st = newSSServiceTag(productURN);
+                org.netbeans.modules.servicetag.Registry.getSystemRegistry().addServiceTag(st);
+            }
+            // NbServiceTagSupport.writeRegistrationXml();
+        } catch (Exception ex) {
+            LogManager.log("The service tags registration is not supported. " , ex);
+        }
+       // NbServiceTagSupport.writeRegistrationXml();
+    }
+    /*
+    private void createSTSunStudio(Product ssProduct, boolean createInstallationST) {
+        LogManager.log("... create ST for Sun Studio");
+        File location = ssProduct.getInstallationLocation();
+        File gfJavaHome = SystemUtils.getCurrentJavaHome();//default
+        try {
+            gfJavaHome = GlassFishUtils.getJavaHome(location);
+        } catch (IOException e) {
+            LogManager.log(e);
+        }
+
+        if (createInstallationST) {
+            File ant = new File(location, "lib/ant/bin/ant" + (SystemUtils.isWindows() ? ".bat" : ""));
+            File registryXml = new File(location, "registry.xml");
+            try {
+                final String[] command = {
+                    ant.getAbsolutePath(),
+                    (SystemUtils.isWindows() ? "" : "--noconfig"),
+                    "-v",
+                    "-f",
+                    registryXml.getAbsolutePath(),
+                    "-Dinstall.home=" + location.getAbsolutePath(),
+                    "-Dsource=" + source
+                };
+                if(!SystemUtils.isWindows()) {
+                    SystemUtils.correctFilesPermissions(ant);
+                }
+                SystemUtils.setEnvironmentVariable("JAVA_HOME",gfJavaHome.getPath());
+                SystemUtils.executeCommand(location, command);
+            } catch (IOException e) {
+                LogManager.log(e);
+            } catch (NativeException e) {
+                LogManager.log(e);
+            }
+        }
+
+
+
+        try {
+            // usually netbeans is installed first, so netbeans.home should be already installed
+            // if not - that means that only GF/AS was installed and NB not - then 
+            // do not add ST info to NB ST and do not initialize 
+            // instance_urn & product_defined_inst_id in the GF/AS ST
+            ServiceTag gfST = null;
+            if (System.getProperty("netbeans.home") != null) {
+                // java.home system variable usually points to private jre with MacOS exception
+                final File javaHome = (!SystemUtils.isMacOS()) ? new File(gfJavaHome, "jre") : gfJavaHome;
+                gfST = NbServiceTagSupport.createGfServiceTag(source,
+                        javaHome.getAbsolutePath(),
+                        JavaUtils.getVersion(gfJavaHome).toJdkStyle(),
+                        location.getAbsolutePath());
+            }
+            File gfReg = new File(location, "lib/registration/servicetag-registry.xml");
+
+            if (gfReg.exists()) {
+                Map<String, Object> map = new HashMap<String, Object>();
+                if (gfST != null) {
+                    String urn = gfST.getInstanceURN();
+                    LogManager.log("... GF instanceUrn : " + urn);
+                    if (urn != null && !urn.equals("")) {
+                        map.put("<instance_urn/>", "<instance_urn>" + urn + "</instance_urn>");
+                        map.put("<instance_urn></instance_urn>", "<instance_urn>" + urn + "</instance_urn>");
+                    }
+                    // specific to ST that is created by AppServer itself and stored in the installation image
+                    // platform_arch and product_defined_inst_id are not set in AS install image
+                    map.put("<platform_arch></platform_arch>",
+                            "<platform_arch>" + gfST.getPlatformArch() + "</platform_arch>");
+                    map.put("<product_defined_inst_id></product_defined_inst_id>",
+                            "<product_defined_inst_id>" + gfST.getProductDefinedInstanceID() + "</product_defined_inst_id>");
+
+                } else {
+                    map.put("<platform_arch></platform_arch>",
+                            "<platform_arch>" + System.getProperty("os.arch") + "</platform_arch>");
+                }
+                map.put("<source>Sun Java System Application Server Native Packages</source>",
+                        "<source>" + source + "</source>");
+                // AppServer installation image has this incorrect vendor
+                map.put("Sun Micosystems Inc.",
+                        "Sun Microsystems Inc.");
+                FileUtils.modifyFile(gfReg, map);
+            }
+        } catch (IOException e) {
+            LogManager.log(e);
+        }
+    }*/
+    
+    /**
+     * Create new service tag instance for GlassFish
+     * @param svcTagSource
+     * @return
+     * @throws java.io.IOException
+     */
+
+    private static String SS_VERSION  = "12.0";
+    private static ServiceTag newSSServiceTag
+    (String svcTagSource, String jdkHomeUsedByGlassfish, String jdkVersionUsedByGlassfish, String glassfishHome) throws IOException {
+        // Determine the product URN and name
+        String productURN, productName, parentURN, parentName;
+
+        productURN = NbBundle.getMessage(NbServiceTagSupport.class,"servicetag.ss.urn");
+        productName = NbBundle.getMessage(NbServiceTagSupport.class,"servicetag.s.name");
+        
+        parentURN = NbBundle.getMessage(NbServiceTagSupport.class,"servicetag.ss.parent.urn");
+        parentName = NbBundle.getMessage(NbServiceTagSupport.class,"servicetag.ss.parent.name");
+
+        return ServiceTag.newInstance(ServiceTag.generateInstanceURN(),
+                                      productName,
+                                      SS_VERSION,
+                                      productURN,
+                                      parentName,
+                                      parentURN,
+                                     // getGfProductDefinedId(jdkHomeUsedByGlassfish, jdkVersionUsedByGlassfish, glassfishHome),
+                                      "ss-id",
+                                      "Sun Microsystems Inc.",
+                                      System.getProperty("os.arch"),
+                                      "global",
+                                      svcTagSource);
+    }
+    
     private void createSTJDK(Product jdkProduct) {
         final String classpath = System.getProperty("java.class.path");
 

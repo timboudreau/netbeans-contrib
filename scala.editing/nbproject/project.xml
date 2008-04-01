@@ -6,12 +6,11 @@
             <code-name-base>org.netbeans.modules.scala.editing</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>org.netbeans.libs.xtc</code-name-base>
+                    <code-name-base>org.netbeans.libs.javacapi</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <release-version>1</release-version>
-                        <specification-version>1.13.2</specification-version>
+                        <specification-version>0.6</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -30,6 +29,15 @@
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>1.20</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.editor.mimelookup</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.9</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -124,10 +132,19 @@
                         <specification-version>6.18</specification-version>
                     </run-dependency>
                 </dependency>
+                <dependency>
+                    <code-name-base>xtc</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.13.2</specification-version>
+                    </run-dependency>
+                </dependency>
             </module-dependencies>
             <public-packages>
                 <package>org.netbeans.modules.scala.editing</package>
                 <package>org.netbeans.modules.scala.editing.semantic</package>
+                <package>org.netbeans.modules.scala.editing.visitors</package>
             </public-packages>
         </data>
     </configuration>

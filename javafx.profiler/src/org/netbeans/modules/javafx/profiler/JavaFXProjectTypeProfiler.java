@@ -256,35 +256,22 @@ public final class JavaFXProjectTypeProfiler extends AbstractProjectTypeProfiler
     }
 
     public boolean checkProjectCanBeProfiled(final Project project, final FileObject profiledClassFile) {
-        return true;
-/*        if (profiledClassFile == null) {
+        if (profiledClassFile == null) {
             final PropertyEvaluator pp = getProjectProperties(project);
             String profiledClass = pp.getProperty("main.class"); // NOI18N
 
-            if ((profiledClass == null) || "".equals(profiledClass)
-                    || (SourceUtils.findFileObjectByClassName(profiledClass, project) == null)) { // NOI18N
+            if ((profiledClass == null) || "".equals(profiledClass)) { // NOI18N
                 mainClassSetManually = ProjectUtilities.selectMainClass(project, null, ProjectUtilities.getProjectName(project),
                                                                         -1);
-
-                //        Profiler.getDefault().displayError("No class to profile. To set up main class for a Project, go to \n" +
-                //            "Project | Properties and select the main class in the Running Project section.");
                 if (mainClassSetManually == null) {
                     return false;
                 }
             }
-*/
-            // the following code to check the main class is way too slow to perform here
-            /*      if (profiledClass != null && !"".equals(profiledClass)) {
-               final FileObject fo = SourceUtilities.findFileForClass(new String[] { profiledClass, "" }, true);
-               if (fo == null) res = false;
-               else res = (SourceUtilities.hasMainMethod(fo) || SourceUtilities.isApplet(fo));
-               } */
-/*            
+
             return true;
         } else {
             return isFileObjectSupported(project, profiledClassFile);
         }
- */
     }
 
     public boolean checkProjectIsModifiedForProfiler(final Project project) {
@@ -433,6 +420,7 @@ public final class JavaFXProjectTypeProfiler extends AbstractProjectTypeProfiler
         return true;
     }
 
+    @Override
     public void configurePropertiesForProfiling(final Properties props, final Project project, final FileObject profiledClassFile) {
         if (profiledClassFile == null) {
             if (mainClassSetManually != null) {
@@ -492,6 +480,7 @@ public final class JavaFXProjectTypeProfiler extends AbstractProjectTypeProfiler
         }
     }
 
+    @Override
     public void setupProjectSessionSettings(final Project project, final SessionSettings ss) {
         final PropertyEvaluator pp = getProjectProperties(project);
 
@@ -513,14 +502,17 @@ public final class JavaFXProjectTypeProfiler extends AbstractProjectTypeProfiler
         ss.setJVMArgs((jvmArgs != null) ? jvmArgs : ""); // NOI18N
     }
 
+    @Override
     public boolean supportsSettingsOverride() {
         return true; // supported for JavaFX project
     }
 
+    @Override
     public boolean supportsUnintegrate(Project project) {
         return true;
     }
 
+    @Override
     public void unintegrateProfiler(Project project) {
         ProjectUtilities.unintegrateProfiler(project);
     }

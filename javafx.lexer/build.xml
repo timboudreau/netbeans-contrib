@@ -41,8 +41,22 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 
-<project name="org.netbeans.modules.javafx.lexer" default="netbeans" basedir=".">
+<project name="org.netbeans.modules.javafx.lexer" default="grammar" basedir=".">
+<!--<project name="org.netbeans.modules.javafx.lexer" default="netbeans" basedir=".">-->
 
     <import file="../../nbbuild/templates/projectized.xml"/>
+
+    <target name="_verifyGrammar" if="jfxc.grammar.available">
+        <echo message="This verification is not implemented yet!" />
+    </target>
+
+
+    <target name="grammar" description="Verify current implementation against current JFX grammar." >
+        <property file="${basedir}/nbproject/private/user-private.properties" />
+        <echo message="Loading grammar ${jfxc.grammar}" />
+        <available file="${jfxc.grammar}" type="file" property="jfxc.grammar.available"/>
+        <antcall target="_verifyGrammar" />
+        <antcall target="netbeans" />
+    </target>
 
 </project>
