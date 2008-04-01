@@ -48,9 +48,11 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.*;
+//import static org.netbeans.modules.javafx.editor.JavaFXTokenContext.*;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
+import java.util.Arrays;
 
 
 /**
@@ -103,9 +105,9 @@ class BracketCompletion {
 
     private static <T extends TokenId> TokenSequence<T> getTokenSequence(BaseDocument doc, int dotPos) {
         TokenHierarchy<BaseDocument> th = TokenHierarchy.get(doc);
-        TokenSequence<T> seq = (TokenSequence<T>) th.tokenSequence();
+        TokenSequence<?> seq =  th.tokenSequence();
         seq.move(dotPos);
-        return seq;
+        return (TokenSequence<T>) seq;
     }
 
     private static void moveSemicolon(BaseDocument doc, int dotPos, Caret caret) throws BadLocationException {
@@ -179,7 +181,7 @@ class BracketCompletion {
                 braceDepth--;
             } else if (tid == JFXTokenId.RBRACE) {
                 braceDepth++;
-            } else if (tid == JavaFXTokenContext.SEMICOLON) {
+            } else if (tid == JFXTokenId.SEMI) {
                 if (semicolonFound) { // one semicolon already found
                     return false;
                 }
@@ -257,21 +259,23 @@ class BracketCompletion {
                 // or comments
                 final TokenSequence<JFXTokenId> ts = getTokenSequence(doc, caretOffset);
                 Token<JFXTokenId> token = ts.moveNext() ? ts.token() : null;
-
+               
                 addRightBrace = true; // suppose that right brace should be added
 
                 // Disable right brace adding if caret not positioned within whitespace
                 // or line comment
-                int off = (caretOffset - ts.offset());
-                if (token != null && off > 0 && off < token.length()) { // caret contained in token
-                    switch (token.id()) {
-                        case WS:
-                        case LINE_COMMENT:
-                            break; // the above tokens are OK
+                if (token != null) {  //fix #131648
+                    int off = (caretOffset - ts.offset());
+                    if (off > 0 && off < token.length()) { // caret contained in token
+                        switch (token.id()) {
+                            case WS:
+                            case LINE_COMMENT:
+                                break; // the above tokens are OK
 
-                        default:
-                            // Disable brace adding for the remaining ones
-                            addRightBrace = false;
+                            default:
+                                // Disable brace adding for the remaining ones
+                                addRightBrace = false;
+                        }
                     }
                 }
 
@@ -735,6 +739,7 @@ class BracketCompletion {
 
     /**
      * Returns true if bracket completion is enabled in options.
+     * @return true if bracket completion is enabled
      */
     private static boolean completionSettingEnabled() {
         //return ((Boolean)Settings.getValue(JavaFXEditorKit.class, JavaSettingsNames.PAIR_CHARACTERS_COMPLETION)).booleanV
@@ -744,6 +749,8 @@ class BracketCompletion {
     /**
      * Returns for an opening bracket or quote the appropriate closing
      * character.
+     * @param bracket bracket to match
+     * @return matching opposite bracket
      */
     private static char matching(char bracket) {
         switch (bracket) {
@@ -767,9 +774,10 @@ class BracketCompletion {
      *
      * @param doc    the document
      * @param dotPos position to be tested
+     * @return true if matched.
      */
     static boolean posWithinString(BaseDocument doc, int dotPos) {
-        return posWithinQuotes(doc, dotPos, '\"', JavaFXTokenContext.STRING_LITERAL);
+        return posWithinQuotes(doc, dotPos, '\"', JFXTokenId.STRING_LITERAL, JFXTokenId.DoubleQuoteBody);
     }
 
     /**
@@ -780,15 +788,14 @@ class BracketCompletion {
      *
      * @param doc    the document
      * @param dotPos position to be tested
+     * @param quote expected quote
+     * @param tokenID id of expected token
+     * @return true if matched.
      */
-    static boolean posWithinQuotes(BaseDocument doc, int dotPos, char quote, TokenID tokenID) {
+    static boolean posWithinQuotes(BaseDocument doc, int dotPos, char quote, TokenId... tokenID) {
         try {
-            MyTokenProcessor proc = new MyTokenProcessor();
-            doc.getSyntaxSupport().tokenizeText(proc,
-                    dotPos - 1,
-                    doc.getLength(), true);
-            return proc.tokenID == tokenID &&
-                    (dotPos - proc.tokenStart == 1 || doc.getChars(dotPos - 1, 1)[0] != quote);
+            JFXTokenId tid = tokenAt(doc, dotPos);
+            return tid != null && Arrays.asList(tokenID).contains(tid) && doc.getChars(dotPos - 1, 1)[0] != quote;
         } catch (BadLocationException ex) {
             return false;
         }
@@ -796,14 +803,11 @@ class BracketCompletion {
 
     static boolean posWithinAnyQuote(BaseDocument doc, int dotPos) {
         try {
-            MyTokenProcessor proc = new MyTokenProcessor();
-            doc.getSyntaxSupport().tokenizeText(proc,
-                    dotPos - 1,
-                    doc.getLength(), true);
-            if (proc.tokenID == JavaFXTokenContext.STRING_LITERAL ||
-                    proc.tokenID == JavaFXTokenContext.CHAR_LITERAL) {
+            TokenSequence<JFXTokenId> ts = getTokenSequence(doc, dotPos);
+            JFXTokenId tid = ts.moveNext() ? ts.token().id() : null;
+            if (insideString(tid)) {
                 char[] ch = doc.getChars(dotPos - 1, 1);
-                return dotPos - proc.tokenStart == 1 || (ch[0] != '\"' && ch[0] != '\'');
+                return dotPos - ts.offset()   == 1 || (ch[0] != '\"' && ch[0] != '\'');
             }
             return false;
         } catch (BadLocationException ex) {
@@ -812,19 +816,24 @@ class BracketCompletion {
     }
 
 
+/*
     static boolean isUnclosedStringAtLineEnd(BaseDocument doc, int dotPos) {
         try {
             MyTokenProcessor proc = new MyTokenProcessor();
             doc.getSyntaxSupport().tokenizeText(proc, Utilities.getRowLastNonWhite(doc, dotPos), doc.getLength(), true);
-            return proc.tokenID == JavaFXTokenContext.STRING_LITERAL;
+            return proc.tokenID == STRING_LITERAL;
         } catch (BadLocationException ex) {
             return false;
         }
     }
+*/
 
-    /**
+/*
+    */
+/**
      * A token processor used to find out the length of a token.
      */
+/*
     static class MyTokenProcessor implements TokenProcessor {
         public TokenID tokenID = null;
         public int tokenStart = -1;
@@ -857,10 +866,12 @@ class BracketCompletion {
             return offs + bufferStartPos;
         }
     }
+*/
 
     /**
      * Token processor for finding of balance of brackets and braces.
      */
+/*
     private static class BalanceTokenProcessor implements TokenProcessor {
 
         private TokenID leftTokenID;
@@ -897,6 +908,7 @@ class BracketCompletion {
         }
 
     }
+*/
 
 
 }
