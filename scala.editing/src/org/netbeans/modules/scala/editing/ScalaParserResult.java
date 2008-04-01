@@ -134,8 +134,12 @@ public class ScalaParserResult extends ParserResult {
     public Scope getRootScope() {
         if (rootScope == null) {
             Node node = getRootNode();
-            assert node != null : "Attempted to get definition visitor for broken source";
-
+            
+            if (node == null) {
+                System.err.println("Attempted to get definition visitor for broken source");
+                return null;
+            }
+            
             SignatureVisitor signatureVisitor = new SignatureVisitor(node, linesOffset);
             signatureVisitor.accept(node);
             rootScope = signatureVisitor.getRootScope();

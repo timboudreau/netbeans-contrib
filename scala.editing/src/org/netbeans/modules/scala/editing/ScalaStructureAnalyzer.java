@@ -73,15 +73,19 @@ public class ScalaStructureAnalyzer implements StructureScanner {
     public List<? extends StructureItem> scan(CompilationInfo info, HtmlFormatter formatter) {
         ScalaParserResult result = AstUtilities.getParserResult(info);
         if (result == null) {
-            Collections.emptyList();
+            return Collections.emptyList();
         }
 
         Node root = result.getRootNode();
         if (root == null) {
-            Collections.emptyList();
+            return Collections.emptyList();
         }
 
         Scope rootScope = result.getRootScope();
+        if (rootScope == null) {
+            return Collections.emptyList();
+        }
+        
         List<StructureItem> items = new ArrayList<StructureItem>();
 
         for (Definition definition : rootScope.getDefinitions()) {
@@ -103,6 +107,10 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         }
 
         Scope rootScope = result.getRootScope();
+        if (rootScope == null) {
+            return Collections.emptyMap();
+        }
+
         Map<String, List<OffsetRange>> folds = new HashMap<String, List<OffsetRange>>();
         List<OffsetRange> codeblocks = new ArrayList<OffsetRange>();
         folds.put("codeblocks", codeblocks); // NOI18N

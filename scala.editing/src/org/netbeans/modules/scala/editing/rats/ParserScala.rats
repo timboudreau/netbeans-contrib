@@ -459,8 +459,10 @@ transient generic AccessQualifier = void:"[":sep ( Id / "this":key ) void:"]":se
 
 generic Annotation = "@":key AnnotationExpr N? ;
 
-generic AnnotationExpr = Constr ( N? void:"{":sep NameValuePair* void:"}":sep )?;
+/* @DocError in ScalaReference: AnnotationExpr = Constr ( N? void:"{":sep NameValuePair* void:"}":sep )? */
+generic AnnotationExpr = Constr ( N? void:"{":sep NameValuePairs* void:"}":sep )?;
 
+generic NameValuePairs = NameValuePair ( void:",":sep NameValuePair )* ;
 generic NameValuePair = void:"val":key Id void:"=":key PrefixExpr;
 
 generic TemplateBody = N? void:"{":sep SelfType? TemplateStat ( SEMI TemplateStat )* void:"}":sep ;
