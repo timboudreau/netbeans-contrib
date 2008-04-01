@@ -492,7 +492,7 @@ public class FileStatusCache {
                 return;
            } 
         }                              
-        listenerSupport.fireVersioningEvent(EVENT_FILE_STATUS_CHANGED, new Object [] { file, oldInfo, newInfo });                
+        listenerSupport.fireVersioningEvent(EVENT_FILE_STATUS_CHANGED, new Object [] { file, oldInfo, newInfo != null ? newInfo : FILE_INFORMATION_UNKNOWN });                
     }    
     
     private RequestProcessor getRequestProcessor() {        
