@@ -92,7 +92,7 @@ public generic Token =
 / Literal
 / Separator
 / Error
-/ EOF    
+/ EOF
 ;
 
 
