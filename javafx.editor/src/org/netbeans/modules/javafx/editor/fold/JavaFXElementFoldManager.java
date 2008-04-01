@@ -40,6 +40,13 @@
  */
 package org.netbeans.modules.javafx.editor.fold;
 
+import com.sun.javafx.api.tree.ClassDeclarationTree;
+import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.javafx.api.tree.ForExpressionTree;
+import com.sun.javafx.api.tree.FunctionDefinitionTree;
+import com.sun.javafx.api.tree.InstantiateTree;
+import com.sun.javafx.api.tree.ObjectLiteralPartTree;
+import com.sun.javafx.api.tree.TriggerTree;
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
@@ -175,6 +182,17 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
         return SettingsUtil.getBoolean(org.netbeans.editor.Utilities.getKitClass(tc), settingName, false);
     }
     
+    private static void dumpPositions(Tree tree, int start, int end) {
+        System.err.println("decl = " + tree);
+        System.err.println("startOffset = " + start);
+        System.err.println("endOffset = " + end);
+        
+        if (start == (-1) || end == (-1)) {
+            System.err.println("ERROR: the positions are outside document.");
+        }
+
+    }
+    
     static final class JavaFXElementFoldTask extends ScanningCancellableTask<CompilationInfo> {
         
         //XXX: this will hold JavaFXElementFoldTask as long as the FileObject exists:
@@ -215,7 +233,7 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
             long startTime = System.currentTimeMillis();
 
             final CompilationUnitTree cu = info.getCompilationUnit();
-            final JavaElementFoldVisitor v = manager.new JavaElementFoldVisitor(info, cu, info.getTrees().getSourcePositions());
+            final JavaFXElementFoldVisitor v = manager.new JavaFXElementFoldVisitor(info, cu, info.getTrees().getSourcePositions());
             
             scan(v, cu, null);
             
@@ -334,15 +352,15 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
     private Fold initialCommentFold;
     private Fold importsFold;
     
-    private final class JavaElementFoldVisitor extends CancellableTreePathScanner<Object, Object> {
-        
+    private final class JavaFXElementFoldVisitor extends CancellableTreePathScanner<Object, Object> {
+
         private List<FoldInfo> folds = new ArrayList<JavaFXElementFoldManager.FoldInfo>();
         private CompilationInfo info;
         private CompilationUnitTree cu;
         private SourcePositions sp;
         private boolean stopped;
         
-        public JavaElementFoldVisitor(CompilationInfo info, CompilationUnitTree cu, SourcePositions sp) {
+        public JavaFXElementFoldVisitor(CompilationInfo info, CompilationUnitTree cu, SourcePositions sp) {
             this.info = info;
             this.cu = cu;
             this.sp = sp;
@@ -387,8 +405,11 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
         private void handleJavadoc(Tree t) throws BadLocationException, ConcurrentModificationException {
             int start = (int) sp.getStartPosition(cu, t);
             
-            if (start == (-1))
+            if (start == (-1)) {
+                // debug:
+                dumpPositions(t, start, -15);
                 return ;
+            }
             
             TokenHierarchy<?> th = info.getTokenHierarchy();
             if (th == null) {
@@ -422,8 +443,12 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
                     int start = (int)sp.getStartPosition(cu, node);
                     int end   = (int)sp.getEndPosition(cu, node);
                     
-                    if (start != (-1) && end != (-1))
+                    if (start != (-1) && end != (-1)) {
                         folds.add(new FoldInfo(doc, start, end, CODE_BLOCK_FOLD_TEMPLATE, foldCodeBlocksPreset));
+                    } else {
+                        // debug:
+                        dumpPositions(node, start, end);
+                    }
                 }
                 
                 handleJavadoc(javadocTree != null ? javadocTree : node);
@@ -445,15 +470,16 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
 
         @Override
         public Object visitClass(ClassTree node, Object p) {
-            super.visitClass(node, Boolean.TRUE);
+            super.visitClass(node, p);
             try {
-                if (p == Boolean.TRUE) {
-                    Document doc = operation.getHierarchy().getComponent().getDocument();
-                    int start = findBodyStart(node, cu, sp, doc);
-                    int end   = (int)sp.getEndPosition(cu, node);
-                    
-                    if (start != (-1) && end != (-1))
-                        folds.add(new FoldInfo(doc, start, end, CODE_BLOCK_FOLD_TEMPLATE, foldInnerClassesPreset));
+                Document doc = operation.getHierarchy().getComponent().getDocument();
+                int start = findBodyStart(node, cu, sp, doc);
+                int end   = (int)sp.getEndPosition(cu, node);
+
+                if (start != (-1) && end != (-1)) {
+                    folds.add(new FoldInfo(doc, start, end, CODE_BLOCK_FOLD_TEMPLATE, foldInnerClassesPreset));
+                } else {
+                    dumpPositions(node, start, end);
                 }
                 
                 handleJavadoc(node);
@@ -465,6 +491,85 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
                 stopped = true;
             }
             return null;
+        }
+
+        @Override
+        public Object visitInstantiate(InstantiateTree node, Object p) {
+            super.visitInstantiate(node, p);
+            try {
+                Document doc = operation.getHierarchy().getComponent().getDocument();
+                int start = findBodyStart(node, cu, sp, doc);
+                int end   = (int)sp.getEndPosition(cu, node);
+
+                if (start != (-1) && end != (-1)) {
+                    folds.add(new FoldInfo(doc, start, end, CODE_BLOCK_FOLD_TEMPLATE, foldInnerClassesPreset));
+                } else {
+                    dumpPositions(node, start, end);
+                }
+                
+                handleJavadoc(node);
+            } catch (BadLocationException e) {
+                //the document probably changed, stop
+                stopped = true;
+            } catch (ConcurrentModificationException e) {
+                //from TokenSequence, document probably changed, stop
+                stopped = true;
+            }
+            return null;
+        }
+
+        @Override
+        public Object visitObjectLiteralPart(ObjectLiteralPartTree node, Object p) {
+            super.visitObjectLiteralPart(node, p);
+            handleTree(node.getExpression(), null, true);
+            return null;
+        }
+
+        @Override
+        public Object visitClassDeclaration(ClassDeclarationTree node, Object p) {
+            super.visitClassDeclaration(node, p);
+            try {
+                Document doc = operation.getHierarchy().getComponent().getDocument();
+                int start = findBodyStart(node, cu, sp, doc);
+                int end   = (int)sp.getEndPosition(cu, node);
+
+                if (start != (-1) && end != (-1)) {
+                    folds.add(new FoldInfo(doc, start, end, CODE_BLOCK_FOLD_TEMPLATE, foldInnerClassesPreset));
+                } else {
+                    dumpPositions(node, start, end);
+                }
+                
+                handleJavadoc(node);
+            } catch (BadLocationException e) {
+                //the document probably changed, stop
+                stopped = true;
+            } catch (ConcurrentModificationException e) {
+                //from TokenSequence, document probably changed, stop
+                stopped = true;
+            }
+            return null;
+        }
+
+        @Override
+        public Object visitForExpression(ForExpressionTree arg0, Object arg1) {
+            return super.visitForExpression(arg0, arg1);
+        }
+
+        @Override
+        public Object visitForExpressionInClause(ForExpressionInClauseTree arg0, Object arg1) {
+            return super.visitForExpressionInClause(arg0, arg1);
+        }
+
+        @Override
+        public Object visitFunctionDefinition(FunctionDefinitionTree node, Object p) {
+            super.visitFunctionDefinition(node, p);
+            handleTree(node.getFunctionValue(), node, false);
+            return null;
+        }
+
+        @Override
+        public Object visitTrigger(TriggerTree arg0, Object arg1) {
+            return super.visitTrigger(arg0, arg1);
         }
         
         @Override
@@ -579,9 +684,6 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
         
     }
     public static int findBodyStart(final Tree cltree, final CompilationUnitTree cu, final SourcePositions positions, final Document doc) {
-        Kind kind = cltree.getKind();
-        if (kind != Kind.CLASS && kind != Kind.METHOD)
-            throw new IllegalArgumentException("Unsupported kind: "+ kind);
         final int[] result = new int[1];
         
         doc.render(new Runnable() {
@@ -598,18 +700,14 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
         int end   = (int)positions.getEndPosition(cu, cltree);
         
         if (start == (-1) || end == (-1)) {
+            // debug:
+            dumpPositions(cltree, start, end);
             return -1;
         }
         
         if (start > doc.getLength() || end > doc.getLength()) {
-//            if (DEBUG) {
-                System.err.println("Log: position outside document: ");
-                System.err.println("decl = " + cltree);
-                System.err.println("startOffset = " + start);
-                System.err.println("endOffset = " + end);
-                Thread.dumpStack();
-//            }
-            
+            // debug:
+            dumpPositions(cltree, start, end);
             return (-1);
         }
         try {
