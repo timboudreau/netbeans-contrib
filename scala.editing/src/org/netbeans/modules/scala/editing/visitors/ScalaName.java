@@ -39,17 +39,40 @@
 
 package org.netbeans.modules.scala.editing.visitors;
 
-import javax.lang.model.element.Element;
-import org.netbeans.modules.gsf.api.OffsetRange;
+import javax.lang.model.element.Name;
 
 /**
  *
- * @author Caoyuan Deng
+ * @author dcaoyuan
  */
-public class Usage extends Signature {
+public class ScalaName implements Name {
     
-    public Usage(Element element, OffsetRange nameRange) {
-        super(element, nameRange);
+    private String name;
+    
+    public ScalaName(String name) {
+        this.name = name;
+        name.subSequence(0, name.length());
+    }
+
+    public boolean contentEquals(CharSequence arg0) {
+        return name.contentEquals(arg0);
+    }
+
+    public int length() {
+        return name.length();
+    }
+
+    public char charAt(int arg0) {
+        return name.charAt(arg0);
+    }
+
+    public CharSequence subSequence(int arg0, int arg1) {
+        return name.subSequence(arg0, arg1);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
     
 }

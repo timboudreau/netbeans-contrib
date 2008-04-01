@@ -312,7 +312,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
             }
         }
         
-        if ((id == ScalaTokenId.BlockComment || id == ScalaTokenId.DocComment) && offset > ts.offset()) {
+        if ((ScalaLexUtilities.isBlockComment(id) || ScalaLexUtilities.isDocComment(id)) && offset > ts.offset()) {
             // Continue *'s
             int begin = Utilities.getRowFirstNonWhite(doc, offset);
             int end = Utilities.getRowEnd(doc, offset)+1;
@@ -1387,7 +1387,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
         // eol - true if the caret is at the end of line (ignoring whitespaces)
         boolean eol = lastNonWhite < dotPos;
 
-        if (token.id() == ScalaTokenId.BlockComment || token.id() == ScalaTokenId.DocComment || token.id() == ScalaTokenId.LineComment) {
+        if (ScalaLexUtilities.isComment(token.id())) {
             return false;
         } else if ((token.id() == ScalaTokenId.Ws) && eol && ((dotPos - 1) > 0)) {
             // check if the caret is at the very end of the line comment
@@ -1613,7 +1613,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
             if (ts != null) {
                 Token<?extends ScalaTokenId> token = ts.token();
 
-                if (token != null && (token.id() == ScalaTokenId.BlockComment || token.id() == ScalaTokenId.DocComment)) {
+                if (token != null && (ScalaLexUtilities.isBlockComment(token.id()) || ScalaLexUtilities.isDocComment(token.id()))) {
                     // First add a range for the current line
                     int begin = ts.offset();
                     int end = begin+token.length();

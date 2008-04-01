@@ -40,8 +40,6 @@
  */
 package org.netbeans.modules.scala.debugger.projects;
 
-import com.sun.source.tree.Scope;
-import com.sun.source.tree.VariableTree;
 
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
@@ -66,31 +64,17 @@ import javax.swing.text.StyledDocument;
 import javax.swing.JEditorPane;
 
 import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.Tree;
-import com.sun.source.tree.ImportTree;
-import com.sun.source.tree.MemberSelectTree;
-import com.sun.source.util.SourcePositions;
-import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
-import com.sun.source.util.Trees;
 
-import javax.lang.model.util.Elements;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.debugger.jpda.LineBreakpoint;
 
 import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.ClasspathInfo;
-import org.netbeans.api.java.source.CompilationController;
-import org.netbeans.api.java.source.ElementUtilities;
 import org.netbeans.editor.Coloring;
 import org.netbeans.modules.editor.highlights.spi.Highlight;
 
@@ -112,15 +96,17 @@ import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 
 import org.netbeans.api.java.source.JavaSource;
-import org.netbeans.api.java.source.JavaSource.Phase;
-import org.netbeans.api.java.source.Task;
 
-import org.netbeans.api.languages.ParserManager;
 import org.netbeans.editor.JumpList;
-import org.netbeans.modules.scala.editing.semantic.ScalaContext;
-import org.netbeans.modules.scala.editing.semantic.ScalaSemanticAnalyser;
-import org.netbeans.modules.scala.editing.semantic.Template;
-import org.netbeans.modules.scala.editing.semantic.Packaging;
+import org.netbeans.modules.gsf.api.CancellableTask;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.scala.editing.ScalaMimeResolver;
+import org.netbeans.modules.scala.editing.ScalaParserResult;
+import org.netbeans.modules.scala.editing.visitors.Definition;
+import org.netbeans.modules.scala.editing.visitors.Scope;
+import org.netbeans.napi.gsfret.source.CompilationController;
+import org.netbeans.napi.gsfret.source.Phase;
+import org.netbeans.napi.gsfret.source.Source;
 import org.netbeans.spi.debugger.jpda.EditorContext;
 import org.netbeans.spi.debugger.jpda.SourcePathProvider;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
@@ -716,14 +702,15 @@ public class EditorContextImpl extends EditorContext {
     private static TypeElement getTypeElement(CompilationController ci,
             String binaryName,
             String[] classExcludeNames) {
-        ClassScanner cs = new ClassScanner(ci.getTrees(), ci.getElements(),
-                binaryName, classExcludeNames);
-        TypeElement te = cs.scan(ci.getCompilationUnit(), null);
-        if (te != null) {
-            return te;
-        } else {
-            return null;
-        }
+//        ClassScanner cs = new ClassScanner(ci.getTrees(), ci.getElements(),
+//                binaryName, classExcludeNames);
+//        TypeElement te = cs.scan(ci.getCompilationUnit(), null);
+//        if (te != null) {
+//            return te;
+//        } else {
+//            return null;
+//        }
+        return null;
     }
 
     /**
@@ -751,7 +738,7 @@ public class EditorContextImpl extends EditorContext {
             FileObject fo,
             final String className,
             final String fieldName) {
-        JavaSource js = JavaSource.forFileObject(fo);
+        Source js = Source.forFileObject(fo);
         if (js == null) {
             return -1;
         }
@@ -773,30 +760,29 @@ public class EditorContextImpl extends EditorContext {
                     if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {//TODO: ELEMENTS_RESOLVED may be sufficient
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
                                 "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
-                                "\nDiagnostics = " + ci.getDiagnostics() +
                                 "\nFree memory = " + Runtime.getRuntime().freeMemory());
                         return;
                     }
-                    Elements elms = ci.getElements();
-                    TypeElement classElement = getTypeElement(ci, className, null);
-                    if (classElement == null) {
-                        return;
-                    }
-                    List classMemberElements = elms.getAllMembers(classElement);
-                    for (Iterator it = classMemberElements.iterator(); it.hasNext();) {
-                        Element elm = (Element) it.next();
-                        if (elm.getKind() == ElementKind.FIELD) {
-                            String name = ((VariableElement) elm).getSimpleName().toString();
-                            if (name.equals(fieldName)) {
-                                SourcePositions positions = ci.getTrees().getSourcePositions();
-                                Tree tree = ci.getTrees().getTree(elm);
-                                int pos = (int) positions.getStartPosition(ci.getCompilationUnit(), tree);
-                                EditorCookie editor = (EditorCookie) dataObject.getCookie(EditorCookie.class);
-                                result[0] = NbDocument.findLineNumber(editor.openDocument(), pos) + 1;
-                            //return elms.getSourcePosition(elm).getLine();
-                            }
-                        }
-                    }
+//                    Elements elms = ci.getElements();
+//                    TypeElement classElement = getTypeElement(ci, className, null);
+//                    if (classElement == null) {
+//                        return;
+//                    }
+//                    List classMemberElements = elms.getAllMembers(classElement);
+//                    for (Iterator it = classMemberElements.iterator(); it.hasNext();) {
+//                        Element elm = (Element) it.next();
+//                        if (elm.getKind() == ElementKind.FIELD) {
+//                            String name = ((VariableElement) elm).getSimpleName().toString();
+//                            if (name.equals(fieldName)) {
+//                                SourcePositions positions = ci.getTrees().getSourcePositions();
+//                                Tree tree = ci.getTrees().getTree(elm);
+//                                int pos = (int) positions.getStartPosition(ci.getCompilationUnit(), tree);
+//                                EditorCookie editor = (EditorCookie) dataObject.getCookie(EditorCookie.class);
+//                                result[0] = NbDocument.findLineNumber(editor.openDocument(), pos) + 1;
+//                            //return elms.getSourcePosition(elm).getLine();
+//                            }
+//                        }
+//                    }
                 }
             }, true);
         } catch (IOException ioex) {
@@ -867,7 +853,7 @@ public class EditorContextImpl extends EditorContext {
             final String[] classExcludeNames,
             final String methodName,
             final String methodSignature) {
-        JavaSource js = JavaSource.forFileObject(fo);
+        Source js = Source.forFileObject(fo);
         if (js == null) {
             return new int[]{};
         }
@@ -888,36 +874,35 @@ public class EditorContextImpl extends EditorContext {
                 public void run(CompilationController ci) throws Exception {
                     if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {//TODO: ELEMENTS_RESOLVED may be sufficient
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
-                                "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
-                                "\nDiagnostics = " + ci.getDiagnostics() +
+                                "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +                                
                                 "\nFree memory = " + Runtime.getRuntime().freeMemory());
                         return;
                     }
-                    TypeElement classElement = getTypeElement(ci, className, classExcludeNames);
-                    if (classElement == null) {
-                        return;
-                    }
-                    List classMemberElements = ci.getElements().getAllMembers(classElement);
-                    for (Iterator it = classMemberElements.iterator(); it.hasNext();) {
-                        Element elm = (Element) it.next();
-                        if (elm.getKind() == ElementKind.METHOD || elm.getKind() == ElementKind.CONSTRUCTOR) {
-                            String name;
-                            if (elm.getKind() == ElementKind.CONSTRUCTOR && !methodName.equals("<init>")) {
-                                name = elm.getEnclosingElement().getSimpleName().toString();
-                            } else {
-                                name = elm.getSimpleName().toString();
-                            }
-                            if (name.equals(methodName)) {
-                                if (methodSignature == null || egualMethodSignatures(methodSignature, createSignature((ExecutableElement) elm))) {
-                                    SourcePositions positions = ci.getTrees().getSourcePositions();
-                                    Tree tree = ci.getTrees().getTree(elm);
-                                    int pos = (int) positions.getStartPosition(ci.getCompilationUnit(), tree);
-                                    EditorCookie editor = (EditorCookie) dataObject.getCookie(EditorCookie.class);
-                                    result.add(new Integer(NbDocument.findLineNumber(editor.openDocument(), pos) + 1));
-                                }
-                            }
-                        }
-                    }
+//                    TypeElement classElement = getTypeElement(ci, className, classExcludeNames);
+//                    if (classElement == null) {
+//                        return;
+//                    }
+//                    List classMemberElements = ci.getElements().getAllMembers(classElement);
+//                    for (Iterator it = classMemberElements.iterator(); it.hasNext();) {
+//                        Element elm = (Element) it.next();
+//                        if (elm.getKind() == ElementKind.METHOD || elm.getKind() == ElementKind.CONSTRUCTOR) {
+//                            String name;
+//                            if (elm.getKind() == ElementKind.CONSTRUCTOR && !methodName.equals("<init>")) {
+//                                name = elm.getEnclosingElement().getSimpleName().toString();
+//                            } else {
+//                                name = elm.getSimpleName().toString();
+//                            }
+//                            if (name.equals(methodName)) {
+//                                if (methodSignature == null || egualMethodSignatures(methodSignature, createSignature((ExecutableElement) elm))) {
+//                                    SourcePositions positions = ci.getTrees().getSourcePositions();
+//                                    Tree tree = ci.getTrees().getTree(elm);
+//                                    int pos = (int) positions.getStartPosition(ci.getCompilationUnit(), tree);
+//                                    EditorCookie editor = (EditorCookie) dataObject.getCookie(EditorCookie.class);
+//                                    result.add(new Integer(NbDocument.findLineNumber(editor.openDocument(), pos) + 1));
+//                                }
+//                            }
+//                        }
+//                    }
                 }
             }, true);
         } catch (IOException ioex) {
@@ -957,7 +942,7 @@ public class EditorContextImpl extends EditorContext {
         if (dataObject == null) {
             return null;
         }
-        JavaSource js = JavaSource.forFileObject(dataObject.getPrimaryFile());
+        Source js = Source.forFileObject(dataObject.getPrimaryFile());
         if (js == null) {
             return null;
         }
@@ -969,111 +954,111 @@ public class EditorContextImpl extends EditorContext {
         //final int currentOffset = org.netbeans.editor.Registry.getMostActiveComponent().getCaretPosition();
         final String[] currentMethodPtr = new String[]{null, null, null        };
         final Future<Void> scanFinished;
-        try {
-            scanFinished = js.runWhenScanFinished(new CancellableTask<CompilationController>() {
-
-                public void cancel() {
-                }
-
-                public void run(CompilationController ci) throws Exception {
-                    if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {//TODO: ELEMENTS_RESOLVED may be sufficient
-                        ErrorManager.getDefault().log(ErrorManager.WARNING,
-                                "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
-                                "\nDiagnostics = " + ci.getDiagnostics() +
-                                "\nFree memory = " + Runtime.getRuntime().freeMemory());
-                        return;
-                    }
-                    int offset = currentOffset;
-                    //Scope scope = ci.getTreeUtilities().scopeFor(offset);
-                    String text = ci.getText();
-                    int l = text.length();
-                    char c = 0;
-                    while (offset < l && (c = text.charAt(offset)) != '(' && c != ')' && c != '\n' && c != '\r') {
-                        offset++;
-                    }
-                    if (offset >= l) {
-                        return;
-                    }
-                    if (c == '(') {
-                        offset--;
-                    }
-
-                    Tree tree = ci.getTreeUtilities().pathFor(offset).getLeaf();
-                    if (tree.getKind() == Tree.Kind.METHOD) {
-                        Element el = ci.getTrees().getElement(ci.getTrees().getPath(ci.getCompilationUnit(), tree));
-
-                        //Element el = ci.getTrees().getElement(ci.getTreeUtilities().pathFor(offset));
-                        if (el != null && (el.getKind() == ElementKind.METHOD || el.getKind() == ElementKind.CONSTRUCTOR)) {
-                            currentMethodPtr[0] = el.getSimpleName().toString();
-                            if (currentMethodPtr[0].equals("<init>")) {
-                                // The constructor name is the class name:
-                                currentMethodPtr[0] = el.getEnclosingElement().getSimpleName().toString();
-                            }
-                            currentMethodPtr[1] = createSignature((ExecutableElement) el);
-                            Element enclosingClassElement = el;
-                            TypeElement te = null; // SourceUtils.getEnclosingTypeElement(el);
-                            while (enclosingClassElement != null) {
-                                ElementKind kind = enclosingClassElement.getKind();
-                                if (kind == ElementKind.CLASS || kind == ElementKind.INTERFACE) {
-                                    te = (TypeElement) enclosingClassElement;
-                                    break;
-                                } else {
-                                    enclosingClassElement = enclosingClassElement.getEnclosingElement();
-                                }
-                            }
-                            if (te != null) {
-                                currentMethodPtr[2] = ElementUtilities.getBinaryName(te);
-                            }
-                        }
-                    }
-                }
-            }, true);
-            if (!scanFinished.isDone()) {
-                if (java.awt.EventQueue.isDispatchThread()) {
-                    // Hack: We should not wait for the scan in AWT!
-                    //       Thus we throw IllegalComponentStateException,
-                    //       which returns the data upon call to getMessage()
-                    throw new java.awt.IllegalComponentStateException() {
-
-                        private void waitScanFinished() {
-                            try {
-                                scanFinished.get();
-                            } catch (InterruptedException iex) {
-                            } catch (java.util.concurrent.ExecutionException eex) {
-                                ErrorManager.getDefault().notify(eex);
-                            }
-                        }
-
-                        public String getMessage() {
-                            waitScanFinished();
-                            return currentMethodPtr[0];
-                        }
-
-                        public String getLocalizedMessage() {
-                            waitScanFinished();
-                            return currentMethodPtr[1];
-                        }
-                    };
-                } else {
-                    try {
-                        scanFinished.get();
-                    } catch (InterruptedException iex) {
-                        return null;
-                    } catch (java.util.concurrent.ExecutionException eex) {
-                        ErrorManager.getDefault().notify(eex);
-                        return null;
-                    }
-                }
-            }
-        } catch (IOException ioex) {
-            ErrorManager.getDefault().notify(ioex);
-            return null;
-        }
-        if (currentMethodPtr[0] != null) {
-            return currentMethodPtr;
-        } else {
-            return null;
-        }
+//        try {
+//            scanFinished = js.runWhenScanFinished(new CancellableTask<CompilationController>() {
+//
+//                public void cancel() {
+//                }
+//
+//                public void run(CompilationController ci) throws Exception {
+//                    if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {//TODO: ELEMENTS_RESOLVED may be sufficient
+//                        ErrorManager.getDefault().log(ErrorManager.WARNING,
+//                                "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
+//                                "\nFree memory = " + Runtime.getRuntime().freeMemory());
+//                        return;
+//                    }
+//                    int offset = currentOffset;
+//                    //Scope scope = ci.getTreeUtilities().scopeFor(offset);
+//                    String text = ci.getText();
+//                    int l = text.length();
+//                    char c = 0;
+//                    while (offset < l && (c = text.charAt(offset)) != '(' && c != ')' && c != '\n' && c != '\r') {
+//                        offset++;
+//                    }
+//                    if (offset >= l) {
+//                        return;
+//                    }
+//                    if (c == '(') {
+//                        offset--;
+//                    }
+//
+//                    Tree tree = ci.getTreeUtilities().pathFor(offset).getLeaf();
+//                    if (tree.getKind() == Tree.Kind.METHOD) {
+//                        Element el = ci.getTrees().getElement(ci.getTrees().getPath(ci.getCompilationUnit(), tree));
+//
+//                        //Element el = ci.getTrees().getElement(ci.getTreeUtilities().pathFor(offset));
+//                        if (el != null && (el.getKind() == ElementKind.METHOD || el.getKind() == ElementKind.CONSTRUCTOR)) {
+//                            currentMethodPtr[0] = el.getSimpleName().toString();
+//                            if (currentMethodPtr[0].equals("<init>")) {
+//                                // The constructor name is the class name:
+//                                currentMethodPtr[0] = el.getEnclosingElement().getSimpleName().toString();
+//                            }
+//                            currentMethodPtr[1] = createSignature((ExecutableElement) el);
+//                            Element enclosingClassElement = el;
+//                            TypeElement te = null; // SourceUtils.getEnclosingTypeElement(el);
+//                            while (enclosingClassElement != null) {
+//                                ElementKind kind = enclosingClassElement.getKind();
+//                                if (kind == ElementKind.CLASS || kind == ElementKind.INTERFACE) {
+//                                    te = (TypeElement) enclosingClassElement;
+//                                    break;
+//                                } else {
+//                                    enclosingClassElement = enclosingClassElement.getEnclosingElement();
+//                                }
+//                            }
+//                            if (te != null) {
+//                                currentMethodPtr[2] = ElementUtilities.getBinaryName(te);
+//                            }
+//                        }
+//                    }
+//                }
+//            }, true);
+//            if (!scanFinished.isDone()) {
+//                if (java.awt.EventQueue.isDispatchThread()) {
+//                    // Hack: We should not wait for the scan in AWT!
+//                    //       Thus we throw IllegalComponentStateException,
+//                    //       which returns the data upon call to getMessage()
+//                    throw new java.awt.IllegalComponentStateException() {
+//
+//                        private void waitScanFinished() {
+//                            try {
+//                                scanFinished.get();
+//                            } catch (InterruptedException iex) {
+//                            } catch (java.util.concurrent.ExecutionException eex) {
+//                                ErrorManager.getDefault().notify(eex);
+//                            }
+//                        }
+//
+//                        public String getMessage() {
+//                            waitScanFinished();
+//                            return currentMethodPtr[0];
+//                        }
+//
+//                        public String getLocalizedMessage() {
+//                            waitScanFinished();
+//                            return currentMethodPtr[1];
+//                        }
+//                    };
+//                } else {
+//                    try {
+//                        scanFinished.get();
+//                    } catch (InterruptedException iex) {
+//                        return null;
+//                    } catch (java.util.concurrent.ExecutionException eex) {
+//                        ErrorManager.getDefault().notify(eex);
+//                        return null;
+//                    }
+//                }
+//            }
+//        } catch (IOException ioex) {
+//            ErrorManager.getDefault().notify(ioex);
+//            return null;
+//        }
+//        if (currentMethodPtr[0] != null) {
+//            return currentMethodPtr;
+//        } else {
+//            return null;
+//        }
+        return null;
     }
 
     private static String createSignature(ExecutableElement elm) {
@@ -1131,7 +1116,7 @@ public class EditorContextImpl extends EditorContext {
         if (fileObject == null) {
             return null;
         }
-        //        JavaSource js = JavaSource.forFileObject(dataObject.getPrimaryFile());
+        Source source = Source.forFileObject(dataObject.getPrimaryFile());
         //        if (js == null) return "";
         if (!"text/x-scala".equals(fileObject.getMIMEType())) {
             /** Should return null instead of "" here, 
@@ -1151,60 +1136,47 @@ public class EditorContextImpl extends EditorContext {
             ErrorManager.getDefault().notify(ex);
             return "";
         }
-        final int offset = NbDocument.findLineOffset(doc, lineNumber - 1);
+        try {
+            final int offset = NbDocument.findLineOffset(doc, lineNumber - 1);
+            final String[] result = new String[] {""};
+            source.runUserActionTask(new CancellableTask<CompilationController>() {
+                
+                public void cancel() {
+                }
+                
+                public void run(CompilationController ci) throws Exception {
+                    if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {//TODO: ELEMENTS_RESOLVED may be sufficient
+                        ErrorManager.getDefault().log(ErrorManager.WARNING,
+                                "Unable to resolve "+ci.getFileObject()+" to phase "+Phase.RESOLVED+", current phase = "+ci.getPhase()+
+                                "\nFree memory = "+Runtime.getRuntime().freeMemory());
+                        return;
+                    }
+                    Scope rootScope = ((ScalaParserResult)ci.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, offset)).getRootScope();
+                    Definition tmpl = rootScope.getEnclosingDefinition(ElementKind.CLASS, offset);
+                    if (tmpl == null) {
+                        ErrorManager.getDefault().log(ErrorManager.WARNING,
+                                "No enclosing class for "+ci.getFileObject()+", offset = "+offset);
+                    }
 
-        /** @todo run in a thread */
-        ScalaContext rootCtx = ScalaSemanticAnalyser.getCurrentRootCtx(doc);
-        Template tmpl = rootCtx.getEnclosingDefinition(Template.class, offset);
-        if (tmpl == null) {
+                    String className = tmpl.getName();
+
+                    Element enclosingPackge = tmpl.getPackageElement();
+                    if (enclosingPackge == null) {
+                        result[0] = className;
+                    } else {
+                        result[0] = enclosingPackge.getSimpleName() + "." + className;
+                    }
+
+                }
+            }, true);
+            return result[0];
+        } catch (IOException ioex) {
+            ErrorManager.getDefault().notify(ioex);
             return "";
+        } catch (IndexOutOfBoundsException ioobex) {
+            //XXX: log the exception?
+            return null;
         }
-
-        String className = "";
-        if (tmpl.getKind() == Template.Kind.OBJECT) {
-            className = tmpl.getName() + "$";
-        } else {
-            className = tmpl.getName();
-        }
-        
-        Packaging enclosingPackge = tmpl.getEnclosingPackage();
-        if (enclosingPackge == null) {
-            return className;
-        } else {
-            return enclosingPackge.getPackageName() + "." + className;
-        }
-//        try {
-//            final int offset = NbDocument.findLineOffset(doc, lineNumber - 1);
-//            final String[] result = new String[] {""};
-//            js.runUserActionTask(new CancellableTask<CompilationController>() {
-//                public void cancel() {
-//                }
-//                public void run(CompilationController ci) throws Exception {
-//                    if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {//TODO: ELEMENTS_RESOLVED may be sufficient
-//                        ErrorManager.getDefault().log(ErrorManager.WARNING,
-//                                "Unable to resolve "+ci.getFileObject()+" to phase "+Phase.RESOLVED+", current phase = "+ci.getPhase()+
-//                                "\nDiagnostics = "+ci.getDiagnostics()+
-//                                "\nFree memory = "+Runtime.getRuntime().freeMemory());
-//                        return;
-//                    }
-//                    Scope scope = ci.getTreeUtilities().scopeFor(offset);
-//                    TypeElement te = scope.getEnclosingClass();
-//                    if (te != null) {
-//                        result[0] = ElementUtilities.getBinaryName(te);
-//                    } else {
-//                        ErrorManager.getDefault().log(ErrorManager.WARNING,
-//                                "No enclosing class for "+ci.getFileObject()+", offset = "+offset);
-//                    }
-//                }
-//            }, true);
-//            return result[0];
-//        } catch (IOException ioex) {
-//            ErrorManager.getDefault().notify(ioex);
-//            return "";
-//        } catch (IndexOutOfBoundsException ioobex) {
-//            //XXX: log the exception?
-//            return null;
-//        }
         /*
     SourceCookie.Editor sc = (SourceCookie.Editor) dataObject.getCookie 
     (SourceCookie.Editor.class);
@@ -1251,7 +1223,7 @@ public class EditorContextImpl extends EditorContext {
             return null;
         }
 
-        JavaSource js = JavaSource.forFileObject(dataObject.getPrimaryFile());
+        Source js = Source.forFileObject(dataObject.getPrimaryFile());
         if (js == null) {
             return null;
         }
@@ -1278,52 +1250,51 @@ public class EditorContextImpl extends EditorContext {
                     if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {//TODO: ELEMENTS_RESOLVED may be sufficient
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
                                 "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
-                                "\nDiagnostics = " + ci.getDiagnostics() +
                                 "\nFree memory = " + Runtime.getRuntime().freeMemory());
                         return;
                     }
-                    Scope scope = ci.getTreeUtilities().scopeFor(offset);
-                    Element method = scope.getEnclosingMethod();
-                    if (method == null) {
-                        ops[0] = new Operation[]{};
-                        return;
-                    }
-                    Tree methodTree = ci.getTrees().getTree(method);
-                    CompilationUnitTree cu = ci.getCompilationUnit();
-                    ExpressionScanner scanner = new ExpressionScanner(lineNumber, cu, ci.getTrees().getSourcePositions());
-                    ExpressionScanner.ExpressionsInfo info = new ExpressionScanner.ExpressionsInfo();
-                    List<Tree> expTrees = methodTree.accept(scanner, info);
-
-                    //com.sun.source.tree.ExpressionTree expTree = scanner.getExpressionTree();
-                    if (expTrees == null || expTrees.size() == 0) {
-                        ops[0] = new Operation[]{};
-                        return;
-                    }
-                    //Tree[] expTrees = expTreeSet.toArray(new Tree[0]);
-                    SourcePositions sp = ci.getTrees().getSourcePositions();
-                    int treeStartLine =
-                            (int) cu.getLineMap().getLineNumber(
-                            sp.getStartPosition(cu, expTrees.get(0)));
-                    int treeEndLine =
-                            (int) cu.getLineMap().getLineNumber(
-                            sp.getEndPosition(cu, expTrees.get(expTrees.size() - 1)));
-
-                    int[] indexes = bytecodeProvider.indexAtLines(treeStartLine, treeEndLine);
-                    if (indexes == null) {
-                        return;
-                    }
-                    Map<Tree, Operation> nodeOperations = new HashMap<Tree, Operation>();
-                    ops[0] = AST2Bytecode.matchSourceTree2Bytecode(
-                            cu,
-                            ci,
-                            expTrees, info, bytecodeProvider.byteCodes(),
-                            indexes,
-                            bytecodeProvider.constantPool(),
-                            new OperationCreationDelegateImpl(),
-                            nodeOperations);
-                    if (ops[0] != null) {
-                        assignNextOperations(methodTree, cu, ci, bytecodeProvider, expTrees, info, nodeOperations);
-                    }
+//                    Scope scope = ci.getTreeUtilities().scopeFor(offset);
+//                    Element method = scope.getEnclosingMethod();
+//                    if (method == null) {
+//                        ops[0] = new Operation[]{};
+//                        return;
+//                    }
+//                    Tree methodTree = ci.getTrees().getTree(method);
+//                    CompilationUnitTree cu = ci.getCompilationUnit();
+//                    ExpressionScanner scanner = new ExpressionScanner(lineNumber, cu, ci.getTrees().getSourcePositions());
+//                    ExpressionScanner.ExpressionsInfo info = new ExpressionScanner.ExpressionsInfo();
+//                    List<Tree> expTrees = methodTree.accept(scanner, info);
+//
+//                    //com.sun.source.tree.ExpressionTree expTree = scanner.getExpressionTree();
+//                    if (expTrees == null || expTrees.size() == 0) {
+//                        ops[0] = new Operation[]{};
+//                        return;
+//                    }
+//                    //Tree[] expTrees = expTreeSet.toArray(new Tree[0]);
+//                    SourcePositions sp = ci.getTrees().getSourcePositions();
+//                    int treeStartLine =
+//                            (int) cu.getLineMap().getLineNumber(
+//                            sp.getStartPosition(cu, expTrees.get(0)));
+//                    int treeEndLine =
+//                            (int) cu.getLineMap().getLineNumber(
+//                            sp.getEndPosition(cu, expTrees.get(expTrees.size() - 1)));
+//
+//                    int[] indexes = bytecodeProvider.indexAtLines(treeStartLine, treeEndLine);
+//                    if (indexes == null) {
+//                        return;
+//                    }
+//                    Map<Tree, Operation> nodeOperations = new HashMap<Tree, Operation>();
+//                    ops[0] = AST2Bytecode.matchSourceTree2Bytecode(
+//                            cu,
+//                            ci,
+//                            expTrees, info, bytecodeProvider.byteCodes(),
+//                            indexes,
+//                            bytecodeProvider.constantPool(),
+//                            new OperationCreationDelegateImpl(),
+//                            nodeOperations);
+//                    if (ops[0] != null) {
+//                        assignNextOperations(methodTree, cu, ci, bytecodeProvider, expTrees, info, nodeOperations);
+//                    }
                 }
             }, true);
         } catch (IOException ioex) {
@@ -1356,42 +1327,42 @@ public class EditorContextImpl extends EditorContext {
                     }
                 }
                 if (op != null) {
-                    for (Tree t : nextNodes) {
-                        EditorContext.Operation nextOp = nodeOperations.get(t);
-                        if (nextOp == null) {
-                            SourcePositions sp = ci.getTrees().getSourcePositions();
-                            int treeStartLine =
-                                    (int) cu.getLineMap().getLineNumber(
-                                    sp.getStartPosition(cu, t));
-                            ExpressionScanner scanner = new ExpressionScanner(treeStartLine, cu, ci.getTrees().getSourcePositions());
-                            ExpressionScanner.ExpressionsInfo newInfo = new ExpressionScanner.ExpressionsInfo();
-                            List<Tree> newExpTrees = methodTree.accept(scanner, newInfo);
-                            treeStartLine =
-                                    (int) cu.getLineMap().getLineNumber(
-                                    sp.getStartPosition(cu, newExpTrees.get(0)));
-                            int treeEndLine =
-                                    (int) cu.getLineMap().getLineNumber(
-                                    sp.getEndPosition(cu, newExpTrees.get(newExpTrees.size() - 1)));
-
-                            int[] indexes = bytecodeProvider.indexAtLines(treeStartLine, treeEndLine);
-                            Map<Tree, Operation> newNodeOperations = new HashMap<Tree, Operation>();
-                            Operation[] newOps = AST2Bytecode.matchSourceTree2Bytecode(
-                                    cu,
-                                    ci,
-                                    newExpTrees, newInfo, bytecodeProvider.byteCodes(),
-                                    indexes,
-                                    bytecodeProvider.constantPool(),
-                                    new OperationCreationDelegateImpl(),
-                                    newNodeOperations);
-                            nextOp = newNodeOperations.get(t);
-                            if (nextOp == null) {
-                                // Next operation not found
-                                System.err.println("Next operation not found!");
-                                continue;
-                            }
-                        }
-                        addNextOperationTo(op, nextOp);
-                    }
+//                    for (Tree t : nextNodes) {
+//                        EditorContext.Operation nextOp = nodeOperations.get(t);
+//                        if (nextOp == null) {
+//                            SourcePositions sp = ci.getTrees().getSourcePositions();
+//                            int treeStartLine =
+//                                    (int) cu.getLineMap().getLineNumber(
+//                                    sp.getStartPosition(cu, t));
+//                            ExpressionScanner scanner = new ExpressionScanner(treeStartLine, cu, ci.getTrees().getSourcePositions());
+//                            ExpressionScanner.ExpressionsInfo newInfo = new ExpressionScanner.ExpressionsInfo();
+//                            List<Tree> newExpTrees = methodTree.accept(scanner, newInfo);
+//                            treeStartLine =
+//                                    (int) cu.getLineMap().getLineNumber(
+//                                    sp.getStartPosition(cu, newExpTrees.get(0)));
+//                            int treeEndLine =
+//                                    (int) cu.getLineMap().getLineNumber(
+//                                    sp.getEndPosition(cu, newExpTrees.get(newExpTrees.size() - 1)));
+//
+//                            int[] indexes = bytecodeProvider.indexAtLines(treeStartLine, treeEndLine);
+//                            Map<Tree, Operation> newNodeOperations = new HashMap<Tree, Operation>();
+//                            Operation[] newOps = AST2Bytecode.matchSourceTree2Bytecode(
+//                                    cu,
+//                                    ci,
+//                                    newExpTrees, newInfo, bytecodeProvider.byteCodes(),
+//                                    indexes,
+//                                    bytecodeProvider.constantPool(),
+//                                    new OperationCreationDelegateImpl(),
+//                                    newNodeOperations);
+//                            nextOp = newNodeOperations.get(t);
+//                            if (nextOp == null) {
+//                                // Next operation not found
+//                                System.err.println("Next operation not found!");
+//                                continue;
+//                            }
+//                        }
+//                        addNextOperationTo(op, nextOp);
+//                    }
                 }
             }
         }
@@ -1429,7 +1400,7 @@ public class EditorContextImpl extends EditorContext {
         if (dataObject == null) {
             return null;
         }
-        JavaSource js = JavaSource.forFileObject(dataObject.getPrimaryFile());
+        Source js = Source.forFileObject(dataObject.getPrimaryFile());
         if (js == null) {
             return null;
         }
@@ -1444,23 +1415,22 @@ public class EditorContextImpl extends EditorContext {
                     if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
                                 "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
-                                "\nDiagnostics = " + ci.getDiagnostics() +
                                 "\nFree memory = " + Runtime.getRuntime().freeMemory());
                         return;
                     }
                     int offset = operation.getMethodEndPosition().getOffset();
-                    Scope scope = ci.getTreeUtilities().scopeFor(offset);
-                    Element method = scope.getEnclosingMethod();
-                    if (method == null) {
-                        return;
-                    }
-                    Tree methodTree = ci.getTrees().getTree(method);
-                    CompilationUnitTree cu = ci.getCompilationUnit();
-                    MethodArgumentsScanner scanner =
-                            new MethodArgumentsScanner(offset, cu, ci.getTrees().getSourcePositions(), true,
-                            new OperationCreationDelegateImpl());
-                    args[0] = methodTree.accept(scanner, null);
-                    args[0] = scanner.getArguments();
+//                    Scope scope = ci.getTreeUtilities().scopeFor(offset);
+//                    Element method = scope.getEnclosingMethod();
+//                    if (method == null) {
+//                        return;
+//                    }
+//                    Tree methodTree = ci.getTrees().getTree(method);
+//                    CompilationUnitTree cu = ci.getCompilationUnit();
+//                    MethodArgumentsScanner scanner =
+//                            new MethodArgumentsScanner(offset, cu, ci.getTrees().getSourcePositions(), true,
+//                            new OperationCreationDelegateImpl());
+//                    args[0] = methodTree.accept(scanner, null);
+//                    args[0] = scanner.getArguments();
                 }
             }, true);
         } catch (IOException ioex) {
@@ -1476,7 +1446,7 @@ public class EditorContextImpl extends EditorContext {
         if (dataObject == null) {
             return null;
         }
-        JavaSource js = JavaSource.forFileObject(dataObject.getPrimaryFile());
+        Source js = Source.forFileObject(dataObject.getPrimaryFile());
         if (js == null) {
             return null;
         }
@@ -1503,22 +1473,21 @@ public class EditorContextImpl extends EditorContext {
                     if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
                                 "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
-                                "\nDiagnostics = " + ci.getDiagnostics() +
                                 "\nFree memory = " + Runtime.getRuntime().freeMemory());
                         return;
                     }
-                    Scope scope = ci.getTreeUtilities().scopeFor(offset);
-                    Element clazz = scope.getEnclosingClass();
-                    if (clazz == null) {
-                        return;
-                    }
-                    Tree methodTree = ci.getTrees().getTree(clazz);
-                    CompilationUnitTree cu = ci.getCompilationUnit();
-                    MethodArgumentsScanner scanner =
-                            new MethodArgumentsScanner(methodLineNumber, cu, ci.getTrees().getSourcePositions(), false,
-                            new OperationCreationDelegateImpl());
-                    args[0] = methodTree.accept(scanner, null);
-                    args[0] = scanner.getArguments();
+//                    Scope scope = ci.getTreeUtilities().scopeFor(offset);
+//                    Element clazz = scope.getEnclosingClass();
+//                    if (clazz == null) {
+//                        return;
+//                    }
+//                    Tree methodTree = ci.getTrees().getTree(clazz);
+//                    CompilationUnitTree cu = ci.getCompilationUnit();
+//                    MethodArgumentsScanner scanner =
+//                            new MethodArgumentsScanner(methodLineNumber, cu, ci.getTrees().getSourcePositions(), false,
+//                            new OperationCreationDelegateImpl());
+//                    args[0] = methodTree.accept(scanner, null);
+//                    args[0] = scanner.getArguments();
                 }
             }, true);
         } catch (IOException ioex) {
@@ -1541,7 +1510,7 @@ public class EditorContextImpl extends EditorContext {
         if (dataObject == null) {
             return new String[0];
         }
-        JavaSource js = JavaSource.forFileObject(dataObject.getPrimaryFile());
+        Source js = Source.forFileObject(dataObject.getPrimaryFile());
         if (js == null) {
             return new String[0];
         }
@@ -1556,17 +1525,16 @@ public class EditorContextImpl extends EditorContext {
                     if (ci.toPhase(Phase.PARSED).compareTo(Phase.PARSED) < 0) {
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
                                 "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
-                                "\nDiagnostics = " + ci.getDiagnostics() +
                                 "\nFree memory = " + Runtime.getRuntime().freeMemory());
                         return;
                     }
-                    List importDecl = ci.getCompilationUnit().getImports();
-                    int i = 0;
-                    for (Iterator it = importDecl.iterator(); it.hasNext(); i++) {
-                        ImportTree itree = (ImportTree) it.next();
-                        String importStr = itree.getQualifiedIdentifier().toString();
-                        imports.add(importStr);
-                    }
+//                    List importDecl = ci.getCompilationUnit().getImports();
+//                    int i = 0;
+//                    for (Iterator it = importDecl.iterator(); it.hasNext(); i++) {
+//                        ImportTree itree = (ImportTree) it.next();
+//                        String importStr = itree.getQualifiedIdentifier().toString();
+//                        imports.add(importStr);
+//                    }
                 }
             }, true);
         } catch (IOException ioex) {
@@ -1837,168 +1805,168 @@ public class EditorContextImpl extends EditorContext {
         //final int currentOffset = org.netbeans.editor.Registry.getMostActiveComponent().getCaretPosition();
         final String[] currentElementPtr = new String[]{null        };
         final Future<Void> scanFinished;
-        try {
-            scanFinished = js.runWhenScanFinished(new CancellableTask<CompilationController>() {
-
-                public void cancel() {
-                }
-
-                public void run(CompilationController ci) throws Exception {
-                    if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {//TODO: ELEMENTS_RESOLVED may be sufficient
-                        ErrorManager.getDefault().log(ErrorManager.WARNING,
-                                "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
-                                "\nDiagnostics = " + ci.getDiagnostics() +
-                                "\nFree memory = " + Runtime.getRuntime().freeMemory());
-                        return;
-                    }
-                    Element el = null;
-                    if (kind == ElementKind.CLASS) {
-                        boolean isMemberClass = false;
-                        if (selectedIdentifier != null) {
-                            Tree tree = ci.getTreeUtilities().pathFor(currentOffset).getLeaf();
-                            if (tree.getKind() == Tree.Kind.MEMBER_SELECT) {
-                                MemberSelectTree mst = (MemberSelectTree) tree;
-                                el = ci.getTrees().getElement(ci.getTrees().getPath(ci.getCompilationUnit(), mst.getExpression()));
-                                TypeMirror tm = el.asType();
-                                if (tm.getKind().equals(TypeKind.DECLARED)) {
-                                    currentElementPtr[0] = tm.toString();
-                                    isMemberClass = true;
-                                }
-                            }
-                        }
-                        if (!isMemberClass) {
-                            TreePath currentPath = ci.getTreeUtilities().pathFor(currentOffset);
-                            Tree tree = currentPath.getLeaf();
-                            TypeElement te;
-                            if (tree.getKind() == Tree.Kind.CLASS) {
-                                te = (TypeElement) ci.getTrees().getElement(currentPath);
-                            } else {
-                                Scope scope = ci.getTreeUtilities().scopeFor(currentOffset);
-                                te = scope.getEnclosingClass();
-                            }
-                            if (te != null) {
-                                currentElementPtr[0] = ElementUtilities.getBinaryName(te);
-                            }
-                            el = te;
-                        }
-                    } else if (kind == ElementKind.METHOD) {
-                        Scope scope = ci.getTreeUtilities().scopeFor(currentOffset);
-                        el = scope.getEnclosingMethod();
-                        if (el != null) {
-                            currentElementPtr[0] = el.getSimpleName().toString();
-                            if (currentElementPtr[0].equals("<init>")) {
-                                // The constructor name is the class name:
-                                currentElementPtr[0] = el.getEnclosingElement().getSimpleName().toString();
-                            }
-                        }
-                    } else if (kind == ElementKind.FIELD) {
-                        int offset = currentOffset;
-
-                        if (selectedIdentifier == null) {
-                            String text = ci.getText();
-                            int l = text.length();
-                            char c = 0; // Search for the end of the field declaration
-                            while (offset < l && (c = text.charAt(offset)) != ';' && c != ',' && c != '\n' && c != '\r') {
-                                offset++;
-                            }
-                            if (offset < l && c == ';' || c == ',') { // we have it, but there might be '=' sign somewhere before
-                                int endOffset = --offset;
-                                int setOffset = -1;
-                                while (offset >= 0 && (c = text.charAt(offset)) != ';' && c != ',' && c != '\n' && c != '\r') {
-                                    if (c == '=') {
-                                        setOffset = offset;
-                                    }
-                                    offset--;
-                                }
-                                if (setOffset > -1) {
-                                    offset = setOffset;
-                                } else {
-                                    offset = endOffset;
-                                }
-                                while (offset >= 0 && Character.isWhitespace(text.charAt(offset))) {
-                                    offset--;
-                                }
-                            }
-                            if (offset < 0) {
-                                offset = 0;
-                            }
-                        }
-                        Tree tree = ci.getTreeUtilities().pathFor(offset).getLeaf();
-                        if (tree.getKind() == Tree.Kind.VARIABLE) {
-                            el = ci.getTrees().getElement(ci.getTrees().getPath(ci.getCompilationUnit(), tree));
-                            if (el.getKind() == ElementKind.FIELD || el.getKind() == ElementKind.ENUM_CONSTANT) {
-                                currentElementPtr[0] = ((VariableTree) tree).getName().toString();
-                            }
-                        } else if (tree.getKind() == Tree.Kind.IDENTIFIER && selectedIdentifier != null) {
-                            IdentifierTree it = (IdentifierTree) tree;
-                            String fieldName = it.getName().toString();
-                            Scope scope = ci.getTreeUtilities().scopeFor(offset);
-                            TypeElement te = scope.getEnclosingClass();
-                            List<? extends Element> enclosedElms = te.getEnclosedElements();
-                            for (Element elm : enclosedElms) {
-                                if (elm.getKind().equals(ElementKind.FIELD) && elm.getSimpleName().contentEquals(fieldName)) {
-                                    currentElementPtr[0] = fieldName;
-                                    break;
-                                }
-                            }
-
-                        } else if (tree.getKind() == Tree.Kind.MEMBER_SELECT && selectedIdentifier != null) {
-                            MemberSelectTree mst = (MemberSelectTree) tree;
-                            String fieldName = mst.getIdentifier().toString();
-                            el = ci.getTrees().getElement(ci.getTrees().getPath(ci.getCompilationUnit(), mst.getExpression()));
-                            if (el.asType().getKind().equals(TypeKind.DECLARED)) {
-                                List<? extends Element> enclosedElms = ((DeclaredType) el.asType()).asElement().getEnclosedElements();
-                                for (Element elm : enclosedElms) {
-                                    if (elm.getKind().equals(ElementKind.FIELD) && elm.getSimpleName().contentEquals(fieldName)) {
-                                        currentElementPtr[0] = fieldName;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (elementPtr != null) {
-                        elementPtr[0] = el;
-                    }
-                }
-            }, true);
-            if (!scanFinished.isDone()) {
-                if (java.awt.EventQueue.isDispatchThread()) {
-                    // Hack: We should not wait for the scan in AWT!
-                    //       Thus we throw IllegalComponentStateException,
-                    //       which returns the data upon call to getMessage()
-                    throw new java.awt.IllegalComponentStateException() {
-
-                        private void waitScanFinished() {
-                            try {
-                                scanFinished.get();
-                            } catch (InterruptedException iex) {
-                            } catch (java.util.concurrent.ExecutionException eex) {
-                                ErrorManager.getDefault().notify(eex);
-                            }
-                        }
-
-                        public String getMessage() {
-                            waitScanFinished();
-                            return currentElementPtr[0];
-                        }
-                    };
-                } else {
-                    try {
-                        scanFinished.get();
-                    } catch (InterruptedException iex) {
-                        return null;
-                    } catch (java.util.concurrent.ExecutionException eex) {
-                        ErrorManager.getDefault().notify(eex);
-                        return null;
-                    }
-                }
-            }
-        } catch (IOException ioex) {
-            ErrorManager.getDefault().notify(ioex);
+//        try {
+//            scanFinished = js.runWhenScanFinished(new CancellableTask<CompilationController>() {
+//
+//                public void cancel() {
+//                }
+//
+//                public void run(CompilationController ci) throws Exception {
+//                    if (ci.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {//TODO: ELEMENTS_RESOLVED may be sufficient
+//                        ErrorManager.getDefault().log(ErrorManager.WARNING,
+//                                "Unable to resolve " + ci.getFileObject() + " to phase " + Phase.RESOLVED + ", current phase = " + ci.getPhase() +
+//                                "\nFree memory = " + Runtime.getRuntime().freeMemory());
+//                        return;
+//                    }
+//                    Element el = null;
+//                    if (kind == ElementKind.CLASS) {
+//                        boolean isMemberClass = false;
+//                        if (selectedIdentifier != null) {
+//                            Tree tree = ci.getTreeUtilities().pathFor(currentOffset).getLeaf();
+//                            if (tree.getKind() == Tree.Kind.MEMBER_SELECT) {
+//                                MemberSelectTree mst = (MemberSelectTree) tree;
+//                                el = ci.getTrees().getElement(ci.getTrees().getPath(ci.getCompilationUnit(), mst.getExpression()));
+//                                TypeMirror tm = el.asType();
+//                                if (tm.getKind().equals(TypeKind.DECLARED)) {
+//                                    currentElementPtr[0] = tm.toString();
+//                                    isMemberClass = true;
+//                                }
+//                            }
+//                        }
+//                        if (!isMemberClass) {
+//                            TreePath currentPath = ci.getTreeUtilities().pathFor(currentOffset);
+//                            Tree tree = currentPath.getLeaf();
+//                            TypeElement te;
+//                            if (tree.getKind() == Tree.Kind.CLASS) {
+//                                te = (TypeElement) ci.getTrees().getElement(currentPath);
+//                            } else {
+//                                Scope scope = ci.getTreeUtilities().scopeFor(currentOffset);
+//                                te = scope.getEnclosingClass();
+//                            }
+//                            if (te != null) {
+//                                currentElementPtr[0] = ElementUtilities.getBinaryName(te);
+//                            }
+//                            el = te;
+//                        }
+//                    } else if (kind == ElementKind.METHOD) {
+//                        Scope scope = ci.getTreeUtilities().scopeFor(currentOffset);
+//                        el = scope.getEnclosingMethod();
+//                        if (el != null) {
+//                            currentElementPtr[0] = el.getSimpleName().toString();
+//                            if (currentElementPtr[0].equals("<init>")) {
+//                                // The constructor name is the class name:
+//                                currentElementPtr[0] = el.getEnclosingElement().getSimpleName().toString();
+//                            }
+//                        }
+//                    } else if (kind == ElementKind.FIELD) {
+//                        int offset = currentOffset;
+//
+//                        if (selectedIdentifier == null) {
+//                            String text = ci.getText();
+//                            int l = text.length();
+//                            char c = 0; // Search for the end of the field declaration
+//                            while (offset < l && (c = text.charAt(offset)) != ';' && c != ',' && c != '\n' && c != '\r') {
+//                                offset++;
+//                            }
+//                            if (offset < l && c == ';' || c == ',') { // we have it, but there might be '=' sign somewhere before
+//                                int endOffset = --offset;
+//                                int setOffset = -1;
+//                                while (offset >= 0 && (c = text.charAt(offset)) != ';' && c != ',' && c != '\n' && c != '\r') {
+//                                    if (c == '=') {
+//                                        setOffset = offset;
+//                                    }
+//                                    offset--;
+//                                }
+//                                if (setOffset > -1) {
+//                                    offset = setOffset;
+//                                } else {
+//                                    offset = endOffset;
+//                                }
+//                                while (offset >= 0 && Character.isWhitespace(text.charAt(offset))) {
+//                                    offset--;
+//                                }
+//                            }
+//                            if (offset < 0) {
+//                                offset = 0;
+//                            }
+//                        }
+//                        Tree tree = ci.getTreeUtilities().pathFor(offset).getLeaf();
+//                        if (tree.getKind() == Tree.Kind.VARIABLE) {
+//                            el = ci.getTrees().getElement(ci.getTrees().getPath(ci.getCompilationUnit(), tree));
+//                            if (el.getKind() == ElementKind.FIELD || el.getKind() == ElementKind.ENUM_CONSTANT) {
+//                                currentElementPtr[0] = ((VariableTree) tree).getName().toString();
+//                            }
+//                        } else if (tree.getKind() == Tree.Kind.IDENTIFIER && selectedIdentifier != null) {
+//                            IdentifierTree it = (IdentifierTree) tree;
+//                            String fieldName = it.getName().toString();
+//                            Scope scope = ci.getTreeUtilities().scopeFor(offset);
+//                            TypeElement te = scope.getEnclosingClass();
+//                            List<? extends Element> enclosedElms = te.getEnclosedElements();
+//                            for (Element elm : enclosedElms) {
+//                                if (elm.getKind().equals(ElementKind.FIELD) && elm.getSimpleName().contentEquals(fieldName)) {
+//                                    currentElementPtr[0] = fieldName;
+//                                    break;
+//                                }
+//                            }
+//
+//                        } else if (tree.getKind() == Tree.Kind.MEMBER_SELECT && selectedIdentifier != null) {
+//                            MemberSelectTree mst = (MemberSelectTree) tree;
+//                            String fieldName = mst.getIdentifier().toString();
+//                            el = ci.getTrees().getElement(ci.getTrees().getPath(ci.getCompilationUnit(), mst.getExpression()));
+//                            if (el.asType().getKind().equals(TypeKind.DECLARED)) {
+//                                List<? extends Element> enclosedElms = ((DeclaredType) el.asType()).asElement().getEnclosedElements();
+//                                for (Element elm : enclosedElms) {
+//                                    if (elm.getKind().equals(ElementKind.FIELD) && elm.getSimpleName().contentEquals(fieldName)) {
+//                                        currentElementPtr[0] = fieldName;
+//                                        break;
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                    if (elementPtr != null) {
+//                        elementPtr[0] = el;
+//                    }
+//                }
+//            }, true);
+//            if (!scanFinished.isDone()) {
+//                if (java.awt.EventQueue.isDispatchThread()) {
+//                    // Hack: We should not wait for the scan in AWT!
+//                    //       Thus we throw IllegalComponentStateException,
+//                    //       which returns the data upon call to getMessage()
+//                    throw new java.awt.IllegalComponentStateException() {
+//
+//                        private void waitScanFinished() {
+//                            try {
+//                                scanFinished.get();
+//                            } catch (InterruptedException iex) {
+//                            } catch (java.util.concurrent.ExecutionException eex) {
+//                                ErrorManager.getDefault().notify(eex);
+//                            }
+//                        }
+//
+//                        public String getMessage() {
+//                            waitScanFinished();
+//                            return currentElementPtr[0];
+//                        }
+//                    };
+//                } else {
+//                    try {
+//                        scanFinished.get();
+//                    } catch (InterruptedException iex) {
+//                        return null;
+//                    } catch (java.util.concurrent.ExecutionException eex) {
+//                        ErrorManager.getDefault().notify(eex);
+//                        return null;
+//                    }
+//                }
+//            }
+//        } catch (IOException ioex) {
+//            ErrorManager.getDefault().notify(ioex);
+//            return null;
+//        }
+//        return currentElementPtr[0];
             return null;
-        }
-        return currentElementPtr[0];
     }
 
     private JEditorPane getCurrentEditor() {

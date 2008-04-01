@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.clearcase;
 
+import org.netbeans.modules.clearcase.client.status.FileEntry;
 import org.netbeans.modules.clearcase.util.ClearcaseUtils;
 import org.netbeans.modules.clearcase.client.*;
 import org.openide.util.NbBundle;
@@ -78,7 +79,11 @@ public class VersionsCache implements NotificationListener {
         if (REVISION_CURRENT.equals(revision)) {
             return workingCopy.exists() ? workingCopy : null;
         } else if (REVISION_BASE.equals(revision)) {
-            revision = Clearcase.getInstance().getFileStatusCache().getInfo(workingCopy).getFileEntry(Clearcase.getInstance().getClient(), workingCopy).getVersionSelector();
+            FileInformation info = Clearcase.getInstance().getFileStatusCache().getInfo(workingCopy);
+            if (info == null) return null;
+            FileEntry fileEntry = info.getFileEntry(Clearcase.getInstance().getClient(), workingCopy);
+            if (fileEntry == null) return null;
+            revision = fileEntry.getVersionSelector();
             if (revision == null) return null;
         }
         String revisionSpec = ClearcaseUtils.getExtendedName(workingCopy, revision);  

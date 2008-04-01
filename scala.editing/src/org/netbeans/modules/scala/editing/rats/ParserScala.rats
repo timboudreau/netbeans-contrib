@@ -118,8 +118,8 @@ transient generic XmlElementP =
 / XmlSTagP XmlContentP* XmlETag
 ;
 
-transient generic XmlEmptyElemTagP = XmlLt XmlName XmlWs? XmlSlashGt ;
-transient generic XmlSTagP = XmlLt XmlName XmlWs? XmlGt ;
+transient generic XmlEmptyElemTagP = XmlLt XmlEmptyTagName XmlWs? XmlSlashGt ;
+transient generic XmlSTagP = XmlLt XmlSTagName XmlWs? XmlGt ;
 
 /* @DocError in ScalaReference: ScalaExpr ::= '{' expr '}' */
 transient generic ScalaExpr     = void:"{":sep !(void:"{":sep ) Block    void:"}":sep !(void:"}":sep );
@@ -459,8 +459,10 @@ transient generic AccessQualifier = void:"[":sep ( Id / "this":key ) void:"]":se
 
 generic Annotation = "@":key AnnotationExpr N? ;
 
-generic AnnotationExpr = Constr ( N? void:"{":sep NameValuePair* void:"}":sep )?;
+/* @DocError in ScalaReference: AnnotationExpr = Constr ( N? void:"{":sep NameValuePair* void:"}":sep )? */
+generic AnnotationExpr = Constr ( N? void:"{":sep NameValuePairs* void:"}":sep )?;
 
+generic NameValuePairs = NameValuePair ( void:",":sep NameValuePair )* ;
 generic NameValuePair = void:"val":key Id void:"=":key PrefixExpr;
 
 generic TemplateBody = N? void:"{":sep SelfType? TemplateStat ( SEMI TemplateStat )* void:"}":sep ;

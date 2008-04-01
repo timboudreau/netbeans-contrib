@@ -72,4 +72,9 @@ public class GetCommand extends ClearcaseCommand {
         arguments.add(destination);
         arguments.add(revisionSpec);
     }
+
+    @Override
+    protected boolean isErrorMessage(String s) {
+        return !s.equals("cleartool: Error: Operation \"get cleartext\" failed: not a ClearCase object.");
+    }       
 }

@@ -95,6 +95,19 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         matchingset.add(ScalaTokenId.Case);
         matchingset.add(ScalaTokenId.RBrace);
 
+        matchingset = new HashSet<ScalaTokenId>();
+        BRACE_MATCH_MAP.put(ScalaTokenId.DocCommentStart, matchingset);
+        matchingset.add(ScalaTokenId.DocCommentEnd);
+
+        matchingset = new HashSet<ScalaTokenId>();
+        BRACE_MATCH_MAP.put(ScalaTokenId.BlockCommentStart, matchingset);
+        matchingset.add(ScalaTokenId.BlockCommentEnd);
+
+        matchingset = new HashSet<ScalaTokenId>();
+        BRACE_MATCH_MAP.put(ScalaTokenId.XmlLt, matchingset);
+        matchingset.add(ScalaTokenId.XmlSlashGt);
+        matchingset.add(ScalaTokenId.XmlLtSlash);
+
 //        matchingset = new HashSet<ScalaTokenId>();
 //        BRACE_MATCH_MAP.put(ScalaTokenId.If, matchingset);
 //        matchingset.add(ScalaTokenId.LBrace);
@@ -437,10 +450,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 
                         //sb.append(text); // for debug
 
-                        if (!(id == ScalaTokenId.Ws || id == ScalaTokenId.Nl ||
-                                id == ScalaTokenId.LineComment ||
-                                id == ScalaTokenId.DocComment ||
-                                id == ScalaTokenId.BlockComment)) {
+                        if (!ScalaLexUtilities.isWsComment(id)) {
 
                             notWhiteIdx++;
                             latestNotWhiteToken = token;
@@ -449,7 +459,9 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                         // match/add brace
                         if (id.primaryCategory().equals("keyword") ||
                                 id.primaryCategory().equals("separator") ||
-                                id.primaryCategory().equals("operator")) {
+                                id.primaryCategory().equals("operator") ||
+                                id.primaryCategory().equals("xml") ||
+                                id.primaryCategory().equals("comment")) {
 
                             Brace justClosedBrace = null;
 
@@ -493,11 +505,11 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                                             indent = justClosedBrace.offsetOnline;
                                         }
                                     }
-                                    
+
                                 }
                             }
 
-                            // Add new unresolved brace
+                            // Add new opening brace
                             if (BRACE_MATCH_MAP.containsKey(id)) {
                                 Brace newBrace = new Brace();
                                 newBrace.token = token;
@@ -507,16 +519,14 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
                                 newBrace.onProcessingLine = true;
                                 openingBraces.add(newBrace);
                             }
-                        } else if ((id == ScalaTokenId.StringLiteral && offset < lineBegin) ||
-                                id == ScalaTokenId.LineComment || id == ScalaTokenId.DocComment || id == ScalaTokenId.BlockComment ||
-                                id == ScalaTokenId.XmlCDData || id == ScalaTokenId.XmlCharData) {
+                        } else if (id == ScalaTokenId.XmlCDData ||
+                                (id == ScalaTokenId.StringLiteral && offset < lineBegin)) {
                             /** 
                              * A literal string with more than one line is a whole token and when goes
-                             * to second or followed lines, will has offset < lineBegin
+                             * to second or following lines, will has offset < lineBegin
                              */
                             if (notWhiteIdx == 0 || notWhiteIdx == -1) {
-                                // No indentation for literal strings in Erlang, since they can
-                                // contain newlines. Leave it as is. 
+                                // No indentation for literal strings from 2nd line. 
                                 indent = -1;
                             }
                         }
@@ -555,9 +565,9 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
             isContinueLine = false;
         } else {
             isContinueLine = false; // default
-            
+
             TokenId id = latestNotWhiteToken.id();
-            
+
             if (id == ScalaTokenId.Comma) {
                 //we have special case
                 if (latestOpening != null && latestOpening.isLatestOnLine && (latestOpeningId == ScalaTokenId.LParen ||
@@ -583,14 +593,13 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
         } else {
             // Reset continueIndent
             continueIndent = -1;
-            
+
             if (latestOpening == null) {
                 // All braces resolved
                 nextIndent = 0;
             } else {
                 int offset = latestOpening.offsetOnline;
-                TokenId id = latestOpening.token.id();
-                if (id == ScalaTokenId.RArrow) {
+                if (latestOpeningId == ScalaTokenId.RArrow) {
                     Brace nearestHangableBrace = null;
                     int depth1 = 0;
                     for (int i = openingBraces.size() - 1; i >= 0; i--) {
@@ -604,17 +613,24 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 
                     if (nearestHangableBrace != null) {
                         // Hang it from this brace
-                        nextIndent = nearestHangableBrace.offsetOnline + depth1 * indentSize();
-                    } else {
-                        nextIndent = openingBraces.size() * indentSize();
+                        nextIndent = nearestHangableBrace.offsetOnline + depth1 * indentSize();                        
+                    } else {                        
+                        nextIndent = openingBraces.size() * indentSize();                        
                     }
-                } else if ((id == ScalaTokenId.LParen ||
-                        id == ScalaTokenId.LBracket ||
-                        id == ScalaTokenId.LBrace) && !latestOpening.isLatestOnLine) {
+                } else if ((latestOpeningId == ScalaTokenId.LParen ||
+                        latestOpeningId == ScalaTokenId.LBracket ||
+                        latestOpeningId == ScalaTokenId.LBrace) && !latestOpening.isLatestOnLine) {
+                    
                     nextIndent = offset + latestOpening.token.text().toString().length();
+                    
+                } else if (latestOpeningId == ScalaTokenId.BlockCommentStart || 
+                        latestOpeningId == ScalaTokenId.DocCommentStart) {
+                    
+                    nextIndent = offset + 1;
+                    
                 } else {
                     // default
-                    nextIndent = openingBraces.size() * indentSize();
+                    nextIndent = openingBraces.size() * indentSize();                    
                 }
             }
         }

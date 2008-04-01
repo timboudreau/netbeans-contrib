@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
@@ -256,6 +257,58 @@ public class Scope implements Iterable<Scope> {
             findUsagesInScope(child, definition, usages);
         }
     }
+    
+    
+    private boolean contains(int offset) {
+        return offset >= range.getStart() && offset < range.getEnd();
+    }
+    
+    public Scope getClosestScope(int offset) {
+        Scope result = null;
+        
+        if (scopes != null) {
+            /** search children first */
+            for (Scope child : scopes) {
+                if (child.contains(offset)) {
+                    result = child.getClosestScope(offset);
+		    break;
+		}
+	    }  
+	}
+	if (result != null) {
+            return result;
+	} else {
+            if (this.contains(offset)) {
+                return this;
+	    } else {
+                /* we should return null here, since it may under a parent context's call, 
+		 * we shall tell the parent there is none in this and children of this
+		 */
+                return null; 
+	    } 
+	}
+    }
+    
+    
+    public Definition getEnclosingDefinition(ElementKind kind, int offset) {
+        Scope context = getClosestScope(offset);
+        return context.getEnclosingDefinitionRecursively(kind);
+    }
+    
+    private Definition getEnclosingDefinitionRecursively(ElementKind kind) {
+        Definition binding = getBindingDefinition();
+        if (binding != null && binding.getKind() == kind) {
+            return binding;
+        } else {
+            Scope parentScope = getParent();
+            if (parentScope != null) {
+                return parentScope.getEnclosingDefinitionRecursively(kind);
+            } else {
+                return null;
+            }
+        }        
+    }
+       
 
     @Override
     public String toString() {

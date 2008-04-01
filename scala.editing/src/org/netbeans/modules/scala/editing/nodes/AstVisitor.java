@@ -107,6 +107,10 @@ public class AstVisitor extends Visitor {
         visit(that);
     }
     
+    public void visitPackage(final GNode that) {
+        visit(that);
+    }
+    
     public void visitClassDef(final GNode that) {
         visit(that);
     }
