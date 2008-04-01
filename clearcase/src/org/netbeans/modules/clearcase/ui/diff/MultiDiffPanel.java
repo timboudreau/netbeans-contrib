@@ -311,8 +311,12 @@ class MultiDiffPanel extends javax.swing.JPanel implements ActionListener, Versi
         File file = (File) event.getParams()[0];
         FileInformation oldInfo = (FileInformation) event.getParams()[1];
         FileInformation newInfo = (FileInformation) event.getParams()[2];
-        if (oldInfo == null) {
+        if (oldInfo == null && newInfo == null) {
+            return false;
+        } else if (oldInfo == null) {
             if ((newInfo.getStatus() & displayStatuses) == 0) return false;
+        } else if (newInfo == null) {
+            if ((oldInfo.getStatus() & displayStatuses) == 0) return false;
         } else {
             if ((oldInfo.getStatus() & displayStatuses) + (newInfo.getStatus() & displayStatuses) == 0) return false;
         }
