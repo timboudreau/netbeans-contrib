@@ -24,7 +24,6 @@
 ^other/calpane/Info$
 ^other/calpane/calpane\.nbm$
 ^doap/\.build\.xml\.swp$
-^docbook/ext$
 ^editor.hints.i18n/javadoc$
 ^other/focusmodule/manifest-subst\.mf$
 ^other/granular-junit/dist$
