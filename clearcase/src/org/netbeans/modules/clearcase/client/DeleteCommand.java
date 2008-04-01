@@ -51,8 +51,6 @@ import java.io.File;
  */
 public class DeleteCommand extends FilesCommand {
          
-    private String stringValue;
-    
     /**
      * Creates a Delete command.
      *      
@@ -66,5 +64,10 @@ public class DeleteCommand extends FilesCommand {
         arguments.add("rmname");                
         arguments.add("-force");
         addFileArguments(arguments);
+    }
+
+    @Override
+    protected boolean isErrorMessage(String s) {
+        return !s.startsWith("cleartool: Error: Pathname not found:");  // NOI18N
     }
 }
