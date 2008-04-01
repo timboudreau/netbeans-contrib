@@ -33,6 +33,7 @@ import javax.swing.event.TableModelListener;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.FilterContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.CodeGenConstants;
 import org.openide.WizardDescriptor;
+import org.openide.util.NbBundle;
 
 public final class NewFilterWizardVisualPanel1 extends JPanel implements DocumentListener {
 
@@ -49,7 +50,7 @@ public final class NewFilterWizardVisualPanel1 extends JPanel implements Documen
     }
 
     public String getName() {
-        return "Step #1";
+        return NbBundle.getMessage(NewFilterWizardVisualPanel1.class, "TTL_NEW_FILTER");
     }
 
     public void initData() {

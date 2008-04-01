@@ -57,7 +57,22 @@ String sep =
 / SKIP       separator SKIP_TILL_N
 ;
 
-transient generic Separator = separator ;
+
+// ----- For lexer token
+
+transient generic Separator = 
+  "{":separator @LBrace
+/ "}":separator @RBrace
+/ "(":separator @LParen
+/ ")":separator @RParen
+/ "[":separator @LBracket
+/ "]":separator @RBracket
+/ ",":separator @Comma
+/ ".":separator @Dot
+/ ";":separator @Semicolon
+/ "|":separator @Bar
+;
+
 transient String separator = 
   "("
 / ")"
@@ -70,4 +85,6 @@ transient String separator =
 / "."
 / "|"
 ;
+
+
 
