@@ -37,70 +37,67 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.api.javafx.source;
+package org.netbeans.modules.scala.editing.visitors;
 
-import com.sun.javafx.api.JavafxcTask;
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.tools.javafx.api.JavafxcTrees;
-import org.netbeans.api.lexer.TokenHierarchy;
+import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.Set;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ElementVisitor;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.Name;
+import javax.lang.model.type.TypeMirror;
 
 /**
  *
- * @author nenik
+ * @author dcaoyuan
  */
-public class CompilationInfo {
-    final JavaFXSource source;
-    private JavafxcTask cTask;
-    private CompilationUnitTree compilationUnit;    
+public class ScalaElement implements Element {
     
-    JavaFXSource.Phase phase = JavaFXSource.Phase.MODIFIED;
-
-    public CompilationInfo(JavaFXSource source) {
-        this.source = source;
-    }
-
-    public JavaFXSource.Phase getPhase() {
-        return phase;
-    }
-
-    /**
-     * Return the {@link Trees} service of the javafxc represented by this {@link CompilationInfo}.
-     * @return javafxc Trees service
-     */
-    public JavafxcTrees getTrees() {
-         return JavafxcTrees.instance(getJavafxcTask());
-    }
-
-    JavafxcTask getJavafxcTask() {
-        if (cTask == null) {
-            cTask = source.createJavafxcTask();
-        }
-        return cTask;
-    }
-
-    /**
-     * Returns the javafxc tree representing the source file.
-     * @return {@link CompilationUnitTree} the compilation unit cantaining the top level classes contained in the,
-     * javafx source file.
-     * 
-     * @throws java.lang.IllegalStateException  when the phase is less than {@link JavaFXSource.Phase#PARSED}
-     */
-    public CompilationUnitTree getCompilationUnit() {
-//        if (this.jfo == null) {
-//            throw new IllegalStateException ();
-//        }
-        if (phase.lessThan(JavaFXSource.Phase.PARSED))
-            throw new IllegalStateException("Cannot call getCompilationInfo() if current phase < JavaFXSource.Phase.PARSED. You must call toPhase(Phase.PARSED) first.");//NOI18N
-        return compilationUnit;
-    }
-
-    public TokenHierarchy getTokenHierarchy() {
-        return source.getTokenHierarchy();
-    }
+    private ElementKind kind;
+    private Name name;
     
-    void setCompilationUnit(CompilationUnitTree compilationUnit) {
-        assert this.compilationUnit == null;
-        this.compilationUnit = compilationUnit;
+    public ScalaElement(Name name, ElementKind kind) {
+        this.name = name;
+        this.kind = kind;
+    }
+
+    public TypeMirror asType() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public ElementKind getKind() {
+        return kind;
+    }
+
+    public List<? extends AnnotationMirror> getAnnotationMirrors() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public <A extends Annotation> A getAnnotation(Class<A> arg0) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public Set<Modifier> getModifiers() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public Name getSimpleName() {
+        return name;
+    }
+
+    public Element getEnclosingElement() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public List<? extends Element> getEnclosedElements() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public <R, P> R accept(ElementVisitor<R, P> arg0, P arg1) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

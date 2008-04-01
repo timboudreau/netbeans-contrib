@@ -106,16 +106,17 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
     }
 
     public Token<ScalaTokenId> nextToken() {
-        /** 
-         * @Note: don't let Rats! handle EOF, which may not properly handle input's
-         * readLength when meets LexerInput.EOF
-         */
-        if (input.read() == LexerInput.EOF) {
-            return null;
-        }
-        input.backup(1);
 
         if (!tokenStreamItr.hasNext()) {
+            /** 
+             * @Note: don't let Rats! handle EOF, which may not properly handle input's
+             * readLength when meets LexerInput.EOF
+             */
+            if (input.read() == LexerInput.EOF) {
+                return null;
+            }
+            input.backup(1);
+            
             tokenStream.clear();
             scanTokens();
             tokenStreamItr = tokenStream.iterator();
@@ -123,16 +124,26 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
         }
 
         if (tokenStreamItr.hasNext()) {
-            TokenInfo tokeninfo = tokenStreamItr.next();
+            TokenInfo tokenInfo = tokenStreamItr.next();
 
-            for (int i = 0; i < tokeninfo.length; i++) {
+            for (int i = 0; i < tokenInfo.length; i++) {
                 input.read();
             }
-            return tokenFactory.createToken(tokeninfo.id);
+
+            int tokenLength = input.readLength();
+
+            return createToken(tokenInfo.id, tokenLength);
         } else {
-            assert false : "unrecgnozied input" + input.read();
+            assert false : "unrecognized input" + input.read();
             return null;
         }
+    }
+
+    private Token<ScalaTokenId> createToken(ScalaTokenId id, int length) {
+        String fixedText = id.fixedText();
+
+        return (fixedText != null) ? tokenFactory.getFlyweightToken(id, fixedText)
+                : tokenFactory.createToken(id, length);
     }
 
     private Result scanTokens() {
@@ -159,7 +170,8 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
     }
 
     private void flattenToTokenSteam(GNode node) {
-        assert (node.size() > 0) : "This generic node:" + node.getName() + " is defined with non generic child!";
+        assert (node.size() > 0) : "This generic node:" + node.getName() +
+                " is defined with non generic child!, it seems it has a void child, check you rats file.";
 
         for (int i = 0; i < node.size(); i++) {
             Object child = node.get(i);
@@ -167,7 +179,7 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
                 /** child may be null */
                 continue;
             }
-            
+
             if (child instanceof GNode) {
                 flattenToTokenSteam((GNode) child);
             } else if (child instanceof Pair) {
@@ -237,5 +249,4 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
             return "(id=" + id + ", length=" + length + ")";
         }
     }
-
 }

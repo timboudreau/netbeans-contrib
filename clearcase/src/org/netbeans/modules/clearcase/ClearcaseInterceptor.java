@@ -46,6 +46,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import org.netbeans.modules.clearcase.client.ClearcaseClient;
@@ -178,20 +180,20 @@ public class ClearcaseInterceptor extends VCSInterceptor {
                 from.renameTo(to);
             } else {
                 
-                // 1. checkout parents if needed                
-                ClearcaseUtils.ensureMutable(client, fromParent);                
-                FileEntry toParentEntry = ClearcaseUtils.readEntry(client, toParent);                
-                if (toParentEntry.isViewPrivate()) {
-                    // 'from' is versioned, 'to'-s parent isn't. 
-                    // we have to add it to source control
-                    exec(new MkElemCommand(new File[] { toParent }, null, MkElemCommand.Checkout.Default, false),false);                                        
-                } else {
-                    if(!fromParent.equals(toParent)) {
-                        ClearcaseUtils.ensureMutable(client, toParent, toParentEntry);
-                    }    
+                // 1. add parents if needed
+                List<File> newParents = getViewPrivateParents(toParent);
+                if(newParents.size() > 0) {
+                    Collections.sort(newParents);        
+                    exec(new MkElemCommand(newParents.toArray(new File[newParents.size()]), null, MkElemCommand.Checkout.Default, false),false);                                        
                 }
+                
+                // 2. checkout parents if needed                
+                ClearcaseUtils.ensureMutable(client, fromParent);                                
+                if(!fromParent.equals(toParent)) {
+                    ClearcaseUtils.ensureMutable(client, toParent);
+                }    
             
-                // 2. move the file
+                // 3. move the file
                 exec(new MoveCommand(from, to),false);               
                 
             }    
@@ -262,5 +264,21 @@ public class ClearcaseInterceptor extends VCSInterceptor {
     
     private void exec(ClearcaseCommand command, boolean notifyErrors) {        
         Clearcase.getInstance().getClient().exec(command, notifyErrors);
-    }        
+    }
+
+    private List<File> getViewPrivateParents(File parent) {
+        List<File> ret = new ArrayList<File>();
+        if(parent == null) {
+            return ret;
+        }
+        FileEntry parentEntry = ClearcaseUtils.readEntry(client, parent);                        
+        if (parentEntry.isViewPrivate()) {
+            ret.add(parent);
+            parent = parent.getParentFile();
+            if(parent != null) {
+                ret.addAll(getViewPrivateParents(parent));
+            }
+        } 
+        return ret;
+    }
 }

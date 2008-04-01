@@ -105,7 +105,7 @@ public class ListStatus extends ExecutionUnit {
     public Collection<FileEntry> getOutput() {
         return output.values();
     }
-    
+
     private void listCheckouts() {
         add(new LSCOCommand());
     }
@@ -120,7 +120,13 @@ public class ListStatus extends ExecutionUnit {
             }
             arguments.add(file.getAbsoluteFile());
         }
-       
+
+        @Override
+        protected boolean isErrorMessage(String s) {
+            s = s.toLowerCase();
+            return !(s.startsWith("cleartool: error: unable to access") && s.endsWith("no such file or directory."));            
+        }
+               
         @Override
         public void outputText(String line) {
             FileEntry fe = parseLSOutput(line); 
@@ -221,6 +227,12 @@ public class ListStatus extends ExecutionUnit {
             arguments.add("-cview");            
             arguments.add(file.getAbsoluteFile());
         }
+
+        @Override
+        protected boolean isErrorMessage(String s) {
+            s = s.toLowerCase();
+            return !s.startsWith("cleartool: error: pathname not found:");
+        }        
         
         @Override
         public void outputText(String line) {
@@ -259,5 +271,5 @@ public class ListStatus extends ExecutionUnit {
             }        
         }
     }
-    
+
 }

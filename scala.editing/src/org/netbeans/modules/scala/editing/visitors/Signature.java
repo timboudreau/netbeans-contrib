@@ -40,13 +40,14 @@ package org.netbeans.modules.scala.editing.visitors;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.lang.model.element.Element;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.openide.filesystems.FileObject;
-import xtc.tree.Node;
+
 
 /**
  *
@@ -54,18 +55,17 @@ import xtc.tree.Node;
  */
 public class Signature implements ElementHandle {
 
-    private Node node;
-    private Node nameNode;
-    private ElementKind kind;
+    private Element element;
+    private javax.lang.model.element.ElementKind kind;
     private Set<Modifier> mods;
     private OffsetRange nameRange;
     private Scope enclosingScope;
     private String name;
+    private Element packageElement;
 
-    public Signature(Node node, Node nameNode, OffsetRange nameRange, ElementKind kind) {
-        this.node = node;
-        this.nameNode = nameNode;
-        this.name = nameNode.getString(0);
+    public Signature(Element element, OffsetRange nameRange) {
+        this.element = element;
+        this.name = element.getSimpleName().toString();
 
         /**
          * @Note: nameNode always includes preceding whitespace, but not includes
@@ -76,16 +76,10 @@ public class Signature implements ElementHandle {
         int adjust = nameRange.getLength() - name.length();
         this.nameRange = adjust > 0 ? new OffsetRange(nameRange.getStart() + adjust, nameRange.getEnd())
                 : nameRange;
-
-        this.kind = kind;
     }
-
-    public Node getNode() {
-        return node;
-    }
-
-    public Node getNameNode() {
-        return nameNode;
+    
+    public Element getElement() {
+        return element;
     }
 
     public String getName() {
@@ -97,7 +91,24 @@ public class Signature implements ElementHandle {
     }
 
     public ElementKind getKind() {
-        return kind;
+        switch (element.getKind()) {
+            case CLASS:
+                return ElementKind.CLASS;
+            case METHOD:
+                return ElementKind.METHOD;
+            case CONSTRUCTOR:
+                return ElementKind.CONSTRUCTOR;
+            default:
+                return ElementKind.OTHER;
+        }
+    }
+    
+    public void setPackageElement(Element packageElement) {
+        this.packageElement = packageElement;
+    }
+    
+    public Element getPackageElement() {
+        return packageElement;
     }
 
     /**
@@ -153,4 +164,6 @@ public class Signature implements ElementHandle {
     public String getIn() {
         return null;
     }
+    
+
 }
