@@ -1154,26 +1154,17 @@ public class EditorContextImpl extends EditorContext {
                     Scope rootScope = ((ScalaParserResult)ci.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, offset)).getRootScope();
                     Definition tmpl = rootScope.getEnclosingDefinition(ElementKind.CLASS, offset);
                     if (tmpl == null) {
-                        tmpl = rootScope.getEnclosingDefinition(ElementKind.MODULE, offset); // Object
-                    }
-                    if (tmpl == null) {
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
                                 "No enclosing class for "+ci.getFileObject()+", offset = "+offset);
                     }
 
-                    String className = "";
-                    if (tmpl.getKind() == ElementKind.MODULE) { 
-                        // MODULE should be Object
-                        className = tmpl.getName() + "$";
-                    } else {
-                        className = tmpl.getName();
-                    }
+                    String className = tmpl.getName();
 
-                    Definition enclosingPackge = rootScope.getEnclosingDefinition(ElementKind.PACKAGE, offset);
+                    Element enclosingPackge = tmpl.getPackageElement();
                     if (enclosingPackge == null) {
                         result[0] = className;
                     } else {
-                        result[0] = enclosingPackge.getName() + "." + className;
+                        result[0] = enclosingPackge.getSimpleName() + "." + className;
                     }
 
                 }

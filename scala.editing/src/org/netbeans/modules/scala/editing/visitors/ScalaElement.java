@@ -39,17 +39,65 @@
 
 package org.netbeans.modules.scala.editing.visitors;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.Set;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
-import org.netbeans.modules.gsf.api.OffsetRange;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ElementVisitor;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.Name;
+import javax.lang.model.type.TypeMirror;
 
 /**
  *
- * @author Caoyuan Deng
+ * @author dcaoyuan
  */
-public class Usage extends Signature {
+public class ScalaElement implements Element {
     
-    public Usage(Element element, OffsetRange nameRange) {
-        super(element, nameRange);
+    private ElementKind kind;
+    private Name name;
+    
+    public ScalaElement(Name name, ElementKind kind) {
+        this.name = name;
+        this.kind = kind;
     }
-    
+
+    public TypeMirror asType() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public ElementKind getKind() {
+        return kind;
+    }
+
+    public List<? extends AnnotationMirror> getAnnotationMirrors() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public <A extends Annotation> A getAnnotation(Class<A> arg0) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public Set<Modifier> getModifiers() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public Name getSimpleName() {
+        return name;
+    }
+
+    public Element getEnclosingElement() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public List<? extends Element> getEnclosedElements() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public <R, P> R accept(ElementVisitor<R, P> arg0, P arg1) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }
