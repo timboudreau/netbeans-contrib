@@ -353,8 +353,8 @@ public class NbServiceTagCreateAction extends WizardAction {
                 org.netbeans.modules.servicetag.Registry.getSystemRegistry().addServiceTag(st);
             }
             // NbServiceTagSupport.writeRegistrationXml();
-        } catch (IOException ex) {
-            Logger.getLogger(NbServiceTagCreateAction.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            LogManager.log("The service tags registration is not supported. " , ex);
         }
        // NbServiceTagSupport.writeRegistrationXml();
     }
