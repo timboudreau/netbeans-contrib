@@ -95,6 +95,9 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         }
 
         Scope rootScope = result.getRootScope();
+        if (rootScope == null) {
+            return;
+        }
         
         Map<OffsetRange, ColoringAttributes> highlights = new HashMap<OffsetRange, ColoringAttributes>(100);
         visitScopeRecursively(info, rootScope, highlights);
