@@ -231,7 +231,7 @@ public class ListStatus extends ExecutionUnit {
         @Override
         protected boolean isErrorMessage(String s) {
             s = s.toLowerCase();
-            return s.startsWith("cleartool: error: pathname not found:");
+            return !s.startsWith("cleartool: error: pathname not found:");
         }        
         
         @Override

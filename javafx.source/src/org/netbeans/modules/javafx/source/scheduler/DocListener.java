@@ -104,4 +104,8 @@ public class DocListener implements PropertyChangeListener, ChangeListener, Toke
     public void tokenHierarchyChanged(TokenHierarchyEvent evt) {
         source.resetState(true, true);
     }
+    
+    public Document getDocument() {
+        return document;
+    }
 }

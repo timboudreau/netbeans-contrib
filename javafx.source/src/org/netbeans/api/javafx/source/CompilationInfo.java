@@ -42,6 +42,7 @@ package org.netbeans.api.javafx.source;
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javafx.api.JavafxcTrees;
+import org.netbeans.api.lexer.TokenHierarchy;
 
 /**
  *
@@ -91,6 +92,10 @@ public class CompilationInfo {
         if (phase.lessThan(JavaFXSource.Phase.PARSED))
             throw new IllegalStateException("Cannot call getCompilationInfo() if current phase < JavaFXSource.Phase.PARSED. You must call toPhase(Phase.PARSED) first.");//NOI18N
         return compilationUnit;
+    }
+
+    public TokenHierarchy getTokenHierarchy() {
+        return source.getTokenHierarchy();
     }
     
     void setCompilationUnit(CompilationUnitTree compilationUnit) {
