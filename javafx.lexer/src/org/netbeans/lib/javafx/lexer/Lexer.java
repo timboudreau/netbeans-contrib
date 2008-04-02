@@ -57,7 +57,6 @@ import java.util.logging.Logger;
  * @author Rastislav Komara (<a href="mailto:rastislav.komara@sun.com">RKo</a>)
  */
 abstract class Lexer extends org.antlr.runtime.Lexer {
-    List<Token> tokens = new ArrayList<Token>();
     public final BraceQuoteTracker NULL_BQT = new BraceQuoteTracker(null, '\'', false);
     private BraceQuoteTracker quoteStack = NULL_BQT;
 
@@ -72,27 +71,6 @@ abstract class Lexer extends org.antlr.runtime.Lexer {
         super(input);
     }
 
-    /**
-     * Allow emitting more than one token from a lexer rule
-     */
-    public void emit(Token token) {
-        state.token = token;
-        tokens.add(token);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Token nextToken() {
-        if (tokens.size() > 0) {
-            return tokens.remove(0);
-        }
-        super.nextToken();
-        if (tokens.size() == 0) {
-            emit(Token.EOF_TOKEN);
-        }
-        return tokens.remove(0);
-    }
 
     /**
      * Gets 'braceQuoteTracker'.
