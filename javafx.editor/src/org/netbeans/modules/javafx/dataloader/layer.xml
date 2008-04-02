@@ -94,6 +94,16 @@ made subject to such option by the copyright holder.
                         </folder>
                     </folder>
                 </folder>
+
+                <folder name="Keybindings">
+                    <folder name="NetBeans">
+                        <folder name="Defaults">
+                            <file name="org-netbeans-modules-javafx-editor-keybindings.xml" url="DefaultKeyBindings.xml"/> 
+                        </folder>
+                    </folder>
+                </folder>
+
+
                 <folder name="Toolbars">
                     <folder name="Default">
                         <file name="comment">
