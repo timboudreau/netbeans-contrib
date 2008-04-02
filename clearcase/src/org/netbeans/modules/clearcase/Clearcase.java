@@ -306,7 +306,7 @@ public class Clearcase {
         if (!workingCopy.exists() || ((info.getStatus() & FileInformation.STATUS_DIFFABLE) == 0) ) return;
         try {
             File original = VersionsCache.getInstance().getRemoteFile(workingCopy, VersionsCache.REVISION_BASE, true);
-            if (original == null) {
+            if (original == null && workingCopy.exists()) {
                 throw new IOException("Unable to get BASE revision of " + workingCopy);
             }
             Utils.copyStreamsCloseAll(new FileOutputStream(originalFile), new FileInputStream(original));
