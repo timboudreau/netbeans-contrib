@@ -106,7 +106,7 @@ public class AstViewer extends TopComponent {
 
     /** path to the icon used by the component and its open action */
     //    static final String ICON_PATH = "SET/PATH/TO/ICON/HERE";
-    private static final String PREFERRED_ID = "AstViewer";
+    private static final String PREFERRED_ID = "PHPAstViewer";
     private JTree tree;
 
     //    private Listener listener;

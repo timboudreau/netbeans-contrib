@@ -10,7 +10,7 @@
         <folder name="Window">
             <folder name="Other">
                 <attr name="position" intvalue="1650"/>
-                <file name="AstViewerAction.shadow">
+                <file name="PHPAstViewerAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-php-devtools-browser-AstViewerAction.instance"/>
                     <attr name="position" intvalue="305"/>
                 </file>
@@ -19,7 +19,7 @@
     </folder>
     <folder name="Windows2">
         <folder name="Components">
-            <file name="AstViewer.settings" url="AstViewerSettings.xml"/>
+            <file name="PHPAstViewer.settings" url="AstViewerSettings.xml"/>
         </folder>
     </folder>
 </filesystem>
