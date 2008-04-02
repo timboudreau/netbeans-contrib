@@ -183,7 +183,7 @@ public class HighlightSections {
     }
 
     private static final class Layer extends DrawLayer.AbstractLayer {
-        private static final String NAME = "browser-highlight-layer"; // NOI18N
+        private static final String NAME = "php-browser-highlight-layer"; // NOI18N
 
         // just below the highlight whitespace layer (see whitespace highlighting module)
         private static final int VISIBILITY = 7990;
