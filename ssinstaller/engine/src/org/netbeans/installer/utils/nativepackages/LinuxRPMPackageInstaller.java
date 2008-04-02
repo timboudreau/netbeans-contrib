@@ -9,8 +9,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.utils.LogManager;
+import org.netbeans.installer.utils.SystemUtils;
 import org.netbeans.installer.utils.exceptions.InstallationException;
 import org.netbeans.installer.utils.exceptions.UninstallationException;
+import org.netbeans.installer.utils.helper.Platform;
 
 /**
  *
@@ -24,6 +26,11 @@ public class LinuxRPMPackageInstaller implements NativePackageInstaller {
     private String target = null;
     
     public void install(String pathToPackage, Product product) throws InstallationException {
+        Platform platform = Platform.LINUX_X64;
+        if ( SystemUtils.getCurrentPlatform().equals(Platform.LINUX_X86) 
+                && pathToPackage.contains("x86_64")) {
+            return;
+        }
         String value = product.getProperty(PACKAGES_COUNTER);
         int counter = parseInteger(value) + 1;
         String packageName = getPackageName(pathToPackage);
@@ -32,11 +39,28 @@ public class LinuxRPMPackageInstaller implements NativePackageInstaller {
                 LogManager.log("executing command: rpm -i " + pathToPackage + (target == null? "": " --root " + target));
                 Process p = null;
                 if (target == null) {
-                    p = new ProcessBuilder("rpm", "-i", pathToPackage).start();
+                    p = new ProcessBuilder("rpm", "-i", "--nodeps", pathToPackage).start();
                 } else {
-                    p = new ProcessBuilder("rpm", "-i", pathToPackage, "--root", target).start();
+                    p = new ProcessBuilder("rpm", "-i", "--nodeps", pathToPackage,"--relocate" , "/opt/sun=" + target).start();
                 }
-                if (p.waitFor() != 0) throw new InstallationException("'rpm -i' returned " + String.valueOf(p.exitValue()));
+                
+                if (p.waitFor() != 0) {
+                    String line;
+                    StringBuffer message = new StringBuffer();
+                    message.append("Error = ");
+                    BufferedReader input =
+                            new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                    while ((line = input.readLine()) != null) {
+                        message.append(line);
+                    }
+                    message.append("\n Output = ");
+                    input =
+                            new BufferedReader(new InputStreamReader(p.getInputStream()));
+                    while ((line = input.readLine()) != null) {
+                        message.append(line);
+                    }
+                    throw new InstallationException("Error native. " + message);
+                }
                 product.setProperty(PACKAGE + String.valueOf(counter), packageName);        
                 product.setProperty(PACKAGES_COUNTER, String.valueOf(counter));        
             } catch (InterruptedException ex) {
@@ -54,11 +78,11 @@ public class LinuxRPMPackageInstaller implements NativePackageInstaller {
         arguments.add("-e");
         for(int packageNumber=1; packageNumber<=parseInteger(packagesValue); packageNumber++) {
             arguments.add(product.getProperty(PACKAGE + String.valueOf(packageNumber)));
-        }
+        }/*
         if (target != null) {
             arguments.add("--root");
             arguments.add(target);
-        }
+        }*/
         try {
             LogManager.log("executing command: " + listToString(arguments));
             Process p = new ProcessBuilder(arguments).start();

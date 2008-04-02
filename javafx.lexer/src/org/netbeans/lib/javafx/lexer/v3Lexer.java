@@ -8,6 +8,8 @@ import org.antlr.runtime.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.io.Writer;
 import java.io.PrintStream;
 
@@ -257,8 +259,6 @@ public class v3Lexer extends Lexer {
     }
 
     public void setBraceQuoteTracker(BraceQuoteTracker stack) {
-        System.err.println("================= setting new BQ stack ==================");
-        System.err.println("New Stack: " + stack);
         BraceQuoteTracker.quoteStack = stack;
     }
 
@@ -275,6 +275,7 @@ public class v3Lexer extends Lexer {
      * Track "He{"l{"l"}o"} world" quotes
      */
     static class BraceQuoteTracker {
+        private static Logger log = Logger.getLogger(BraceQuoteTracker.class.getName());
         private static BraceQuoteTracker quoteStack = null;
         private int braceDepth;
         private char quote;
@@ -282,23 +283,23 @@ public class v3Lexer extends Lexer {
         private BraceQuoteTracker next;
 
         BraceQuoteTracker(BraceQuoteTracker prev, char quote, boolean percentIsFormat) {
-            System.err.print("new brace stack level: " + prev);
             this.quote = quote;
             this.percentIsFormat = percentIsFormat;
             this.braceDepth = 1;
             this.next = prev;
-            System.err.println(" is => " + this);
+//            if (log.isLoggable(Level.INFO)) log.info("PUSH: " + prev + " => " + this);
         }
         
         static void enterBrace(int quote, boolean percentIsFormat) {
-            System.err.println("Entering brace...");
             if (quote == 0) {  // exisiting string expression or non string expression
                 if (quoteStack != null) {
+                    if (log.isLoggable(Level.INFO)) log.info("+B");
                     ++quoteStack.braceDepth;
                     quoteStack.percentIsFormat = percentIsFormat;
                 }
             } else {
                 quoteStack = new BraceQuoteTracker(quoteStack, (char) quote, percentIsFormat); // push
+                if (log.isLoggable(Level.INFO)) log.info("+B PUSH => " + quoteStack);
             }
         }
 
@@ -306,7 +307,7 @@ public class v3Lexer extends Lexer {
          * Return quote kind if we are reentering a quote
          */
         static char leaveBrace() {
-            System.err.println("Leaving brace...");
+            if (log.isLoggable(Level.INFO)) log.info("-B");
             if (quoteStack != null && --quoteStack.braceDepth == 0) {
                 return quoteStack.quote;
             }
@@ -315,14 +316,14 @@ public class v3Lexer extends Lexer {
 
         static boolean rightBraceLikeQuote(int quote) {
             final boolean b = quoteStack != null && quoteStack.braceDepth == 1 && (quote == 0 || quoteStack.quote == (char) quote);
-            System.err.println("rightBraceLikeQuote: " + b);
+//            if (log.isLoggable(Level.INFO)) log.info("rightBraceLikeQuote: " + b);
             return b;
         }
 
         static void leaveQuote() {
             assert (quoteStack != null && quoteStack.braceDepth == 0);
-            System.err.println("Leaving quote");
             quoteStack = quoteStack.next; // pop
+            if (log.isLoggable(Level.INFO)) log.info("+\" POP => " + quoteStack);
         }
 
         static boolean percentIsFormat() {
@@ -335,16 +336,8 @@ public class v3Lexer extends Lexer {
 
         static boolean inBraceQuote() {
             final boolean b = quoteStack != null;
-            System.err.println("inBraceQuote: " + b);
+            if (log.isLoggable(Level.INFO)) log.info("inBraceQuote: " + b);
             return b;
-        }
-
-        static void printStack(PrintStream p, BraceQuoteTracker stack) {
-            if (stack == null) {
-                p.println("No stack information");
-            } else {
-                p.println(stack.toString());
-            }
         }
 
 
@@ -372,6 +365,16 @@ public class v3Lexer extends Lexer {
 
         public BraceQuoteTracker getNext() {
             return next;
+        }
+
+        /**
+         * Sets brace depth for actual record. Brace depth should be counted from current depth in stack. But. If there
+         * are 2 similar braces in sequence only depht is increased, not number of levels.
+         *
+         * @param depth the number of quotes in line.
+         */
+        void setBraceDepth(int depth) {
+            this.braceDepth = depth;
         }
     }
 
