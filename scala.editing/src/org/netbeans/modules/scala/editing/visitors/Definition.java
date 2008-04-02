@@ -39,9 +39,8 @@
 
 package org.netbeans.modules.scala.editing.visitors;
 
-import org.netbeans.modules.gsf.api.ElementKind;
+import javax.lang.model.element.Element;
 import org.netbeans.modules.gsf.api.OffsetRange;
-import xtc.tree.Node;
 
 /**
  *
@@ -51,8 +50,8 @@ public class Definition extends Signature {
     
     private Scope bindingScope;
     
-    public Definition(Node node, Node nameNode, OffsetRange nameRange, ElementKind kind) {
-        super(node, nameNode, nameRange, kind);
+    public Definition(Element element, OffsetRange nameRange) {
+        super(element, nameRange);
     }
     
     /**

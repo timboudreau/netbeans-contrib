@@ -38,15 +38,16 @@
  */
 package org.netbeans.modules.scala.editing.visitors;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
-import org.netbeans.modules.gsf.api.ElementKind;
+import javax.lang.model.element.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.nodes.AstVisitor;
 import xtc.tree.GNode;
 import xtc.tree.Location;
 import xtc.tree.Node;
-
 
 /**
  *
@@ -57,6 +58,7 @@ public class SignatureVisitor extends AstVisitor {
     private Scope rootScope;
     private Stack<Scope> scopeStack = new Stack<Scope>();
     private List<Integer> linesOffset;
+    private ScalaElement packageElement = null;
 
     public SignatureVisitor(Node rootNode, List<Integer> linesOffset) {
         this.linesOffset = linesOffset;
@@ -75,9 +77,58 @@ public class SignatureVisitor extends AstVisitor {
     }
 
     @Override
+    public void visitPackage(GNode that) {
+        GNode qualId = that.getGeneric(0);
+        List<String> idNames = visitQualId(qualId);
+        StringBuilder sb = new StringBuilder();
+        for (Iterator<String> itr = idNames.iterator(); itr.hasNext();) {
+            sb.append(itr.next());
+            if (itr.hasNext()) {
+                sb.append(".");
+            }
+        }
+        
+        String name = sb.toString();
+        ScalaElement e = new ScalaElement(new ScalaName(name), ElementKind.PACKAGE);
+        Definition definition = new Definition(e, getRange(qualId));
+        Scope scope = new Scope(definition, getRange(that));
+
+        packageElement = e;
+
+        scopeStack.peek().addDefinition(definition);
+        scopeStack.peek().addScope(scope);
+        scopeStack.push(scope);
+        super.visitPackage(that);
+        scopeStack.pop();
+    }
+
+    public List<String> visitQualId(GNode that) {
+        List<String> idNames = new ArrayList<String>();
+        
+        String first = visitId(that.getGeneric(0));
+        idNames.add(first);
+
+        List others = that.getList(1).list();
+        if (others != null) {
+            for (Object id : others) {
+                idNames.add(visitId((GNode) id));
+            }
+        }
+        
+        return idNames;
+    }
+
+    public String visitId(GNode that) {
+        return that.getString(0);
+    }
+
+    @Override
     public void visitClassDef(GNode that) {
-        Node name = that.getGeneric(0);
-        Definition definition = new Definition(that, name, getRange(name), ElementKind.CLASS);
+        Node id = that.getGeneric(0);
+        String name = id.getString(0);
+        ScalaElement e = new ScalaElement(new ScalaName(name), ElementKind.CLASS);
+        Definition definition = new Definition(e, getRange(id));
+        definition.setPackageElement(packageElement);
         Scope scope = new Scope(definition, getRange(that));
 
         scopeStack.peek().addDefinition(definition);
@@ -89,35 +140,43 @@ public class SignatureVisitor extends AstVisitor {
 
     @Override
     public void visitTraitDef(GNode that) {
-        Node name = that.getGeneric(0);
-        Definition definition = new Definition(that, name, getRange(name), ElementKind.MODULE);
+        Node id = that.getGeneric(0);
+        String name = id.getString(0);
+        ScalaElement e = new ScalaElement(new ScalaName(name), ElementKind.CLASS);
+        Definition definition = new Definition(e, getRange(id));
+        definition.setPackageElement(packageElement);
         Scope scope = new Scope(definition, getRange(that));
 
         scopeStack.peek().addDefinition(definition);
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
         super.visitTraitDef(that);
-        scopeStack.pop();        
+        scopeStack.pop();
     }
 
     @Override
     public void visitObjectDef(GNode that) {
-        Node name = that.getGeneric(0);
-        Definition definition = new Definition(that, name, getRange(name), ElementKind.CLASS);
+        Node id = that.getGeneric(0);
+        String name = id.getString(0) + "$";
+        ScalaElement e = new ScalaElement(new ScalaName(name), ElementKind.CLASS);
+        Definition definition = new Definition(e, getRange(id));
+        definition.setPackageElement(packageElement);
         Scope scope = new Scope(definition, getRange(that));
 
         scopeStack.peek().addDefinition(definition);
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
         super.visitObjectDef(that);
-        scopeStack.pop();        
+        scopeStack.pop();
     }
 
     @Override
     public void visitFunDcl(GNode that) {
         Node funSig = that.getGeneric(0);
-        Node name = funSig.getGeneric(0);
-        Definition definition = new Definition(that, name, getRange(name), ElementKind.METHOD);
+        Node id = funSig.getGeneric(0);
+        String name = id.getString(0);
+        ScalaElement e = new ScalaElement(new ScalaName(name), ElementKind.METHOD);
+        Definition definition = new Definition(e, getRange(id));
         Scope scope = new Scope(definition, getRange(that));
 
         scopeStack.peek().addDefinition(definition);
@@ -131,8 +190,10 @@ public class SignatureVisitor extends AstVisitor {
     @Override
     public void visitFunDef(GNode that) {
         Node funSig = that.getGeneric(0);
-        Node name = funSig.getGeneric(0);
-        Definition definition = new Definition(that, name, getRange(name), ElementKind.METHOD);
+        Node id = funSig.getGeneric(0);
+        String name = id.getString(0);
+        ScalaElement e = new ScalaElement(new ScalaName(name), ElementKind.METHOD);
+        Definition definition = new Definition(e, getRange(id));
         Scope scope = new Scope(definition, getRange(that));
 
         scopeStack.peek().addDefinition(definition);
@@ -145,8 +206,11 @@ public class SignatureVisitor extends AstVisitor {
 
     @Override
     public void visitConstructorFunDef(GNode that) {
-        Node name = that.getGeneric(0); // This("this")
-        Definition definition = new Definition(that, name, getRange(name), ElementKind.CONSTRUCTOR);
+        Node id = that.getGeneric(0); // This("this")
+
+        String name = id.getString(0);
+        ScalaElement e = new ScalaElement(new ScalaName(name), ElementKind.CONSTRUCTOR);
+        Definition definition = new Definition(e, getRange(id));
         Scope scope = new Scope(definition, getRange(that));
 
         scopeStack.peek().addDefinition(definition);
@@ -156,6 +220,4 @@ public class SignatureVisitor extends AstVisitor {
         super.visitConstructorFunDef(that);
         scopeStack.pop();
     }
-
-    
 }

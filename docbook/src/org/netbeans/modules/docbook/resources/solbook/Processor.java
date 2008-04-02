@@ -354,7 +354,7 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
     }
 
     private static TransformerFactory createSaxonTransformerFactory() throws Exception {
-        File f = InstalledFileLocator.getDefault().locate("modules/ext/saxon8.jar", "org.netbeans.modules.docbook", false);
+        File f = InstalledFileLocator.getDefault().locate("modules/ext/saxon.jar", "org.netbeans.modules.docbook", false);
         ClassLoader loader = new URLClassLoader(new URL[] {f.toURI().toURL()});
         Class c = Class.forName("net.sf.saxon.TransformerFactoryImpl", true, loader);
         return (TransformerFactory) c.newInstance();

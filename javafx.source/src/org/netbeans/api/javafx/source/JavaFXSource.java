@@ -60,6 +60,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.text.Document;
 import javax.tools.JavaFileObject;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -469,6 +470,13 @@ out:            for (Iterator<Collection<Request>> it = CompilationJob.finishedR
         }
     }
     
+    public TokenHierarchy getTokenHierarchy() {
+        if ((listener == null) || (listener.getDocument() == null)) {
+            return null;
+        }
+        TokenHierarchy th = TokenHierarchy.get(listener.getDocument());
+        return th;
+    }
     
     private static void handleAddRequest (final Request nr) {
         assert nr != null;
