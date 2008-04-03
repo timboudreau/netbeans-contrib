@@ -512,6 +512,12 @@ is divided into following sections:
                             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${{jpda.address}}"/>
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
+                                <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
+                                    <path path="${{platform.bootcp}}"/>
+                                </xsl:if>    
+                                <xsl:if test="not(/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform)">
+                                    <path path="${{libs.JavaFXUserLib.classpath}}"/>
+                                </xsl:if>    
                                 <path path="@{{classpath}}"/>
                             </classpath>
                             <syspropertyset>
@@ -545,7 +551,12 @@ is divided into following sections:
                             <!--arg line="${{main.class}}"/-->
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
-                                <!--path path="${{run.classpath}}:${{libs.JavaFXUserLib.classpath}}"/-->
+                                <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
+                                    <path path="${{platform.bootcp}}"/>
+                                </xsl:if>    
+                                <xsl:if test="not(/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform)">
+                                    <path path="${{libs.JavaFXUserLib.classpath}}"/>
+                                </xsl:if>    
                                 <path path="${{run.classpath}}"/>
                             </classpath>
                             <syspropertyset>
@@ -583,6 +594,12 @@ is divided into following sections:
                             <arg line="@{{srcdir}}"/>
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
+                                <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
+                                    <path path="${{platform.bootcp}}"/>
+                                </xsl:if>    
+                                <xsl:if test="not(/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform)">
+                                    <path path="${{libs.JavaFXUserLib.classpath}}"/>
+                                </xsl:if>    
                                 <path path="${{build.classpath}}"/>
                             </classpath>
                             <syspropertyset>
