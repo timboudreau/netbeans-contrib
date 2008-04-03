@@ -236,13 +236,11 @@ public class JavaFXProjectGenerator {
         ep.setProperty("run.classpath", new String[] { // NOI18N
             "${javac.classpath}:", // NOI18N
             "${build.classes.dir}:", // NOI18N
-            "${"+JavaFXProjectProperties.FX_LIBS +"}" // NOI18N
         });
         ep.setProperty("build.classpath", new String[] { // NOI18N
             "${javac.classpath}:", // NOI18N
             "${src.dir}:", // NOI18N
             "${build.classes.dir}:", // NOI18N
-            "${"+JavaFXProjectProperties.FX_LIBS +"}" // NOI18N
         });
         ep.setProperty("debug.classpath", new String[] { // NOI18N
             "${run.classpath}", // NOI18N
@@ -282,7 +280,7 @@ public class JavaFXProjectGenerator {
         ep.setProperty("build.test.results.dir", "${build.dir}/test/results"); // NOI18N
         ep.setProperty("build.classes.excludes", "**/*.java,**/*.form,**/*.fx"); // NOI18N
         ep.setProperty("dist.javadoc.dir", "${dist.dir}/javadoc"); // NOI18N
-        ep.setProperty("platform.active", "default_platform"); // NOI18N
+        ep.setProperty("platform.active", "default_fx_platform"); // NOI18N
 
         ep.setProperty("run.jvmargs", ""); // NOI18N
         ep.setComment("run.jvmargs", new String[] {

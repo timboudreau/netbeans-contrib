@@ -50,6 +50,14 @@ public class CompilationController extends CompilationInfo {
     public CompilationController(JavaFXSource source) {
         super(source);
     }
+
+    public String getText() {
+        return source.getText();
+    }
+
+    public TreeUtilities getTreeUtilities() {
+        return new TreeUtilities(this);
+    }
     
     /** Moves the state to required phase. If given state was already reached 
      * the state is not changed. The method will throw exception if a state is 

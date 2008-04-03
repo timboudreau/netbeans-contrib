@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.a11ychecker;
 
+import java.awt.Component;
 import java.awt.Insets;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -49,6 +50,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.AbstractButton;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -94,7 +96,7 @@ import org.openide.util.NbBundle;
 import org.openide.windows.CloneableTopComponent;
 
 /**
- * This class finds out current form intace and provides handlers
+ * This class finds out current form instance and provides handlers
  * @author Max Sauer
  * @author Martin Novak
  */
@@ -120,9 +122,9 @@ public class FormHandler {
     public static final String DISP_MNEMONIC_PROP = "displayedMnemonic";	// NOI18N
     public static final String MNEMONIC_PROP = "mnemonic";	// NOI18N
     public static final String TEXT_PROP = "text";	// NOI18N
+    public static final String ICON_PROP = "icon";	// NOI18N
     public static final String WINDOWS_OS = "windows";	// NOI18N
     public static final String FORM_NAME = "Form";	// NOI18N
-    public static final int USER_CODE=666;
     
     public FormHandler(TopComponent tc) {
 
@@ -149,12 +151,6 @@ public class FormHandler {
         }
     }
 
-    //    /**
-    //     * Returns formeditorsuppor for this instance
-    //     */
-    //    public FormEditorSupport getFormEditorSupport() {
-    //        return fes;
-    //    }
     /**
      * Returns linked list of unbounded Labels
      */
@@ -171,13 +167,13 @@ public class FormHandler {
     //	frmToolBar.add(a11yResultButton);
     }
 
-    public void printListOfComponents() {
+    public void printListOfComponents(List<RADComponent> l) {
         //component list
-        FormModel model = fes.getFormModel();
-        List<RADComponent> list = model.getComponentList();
-        Iterator<RADComponent> compIterator = list.iterator();
+		// mozna vyuzit, ze nektere nejsou focusable?
+        Iterator<RADComponent> compIterator = l.iterator();
         while (compIterator.hasNext()) {
             RADComponent curr = compIterator.next();
+			System.out.println(curr.getName()+ " focusable=" + ((Component) curr.getBeanInstance()).isFocusable());
         }
     }
 
@@ -282,10 +278,6 @@ public class FormHandler {
                     if (curr.getName().equals(FORM_NAME)) {
                         try {
                             Property traversalPolicy = curr.getPropertyByName(TAB_TRAV_PROP);
-//							if (traversalPolicy == null) {
-//								addInfo(TAB_TRAV_CAT, "This won't most probably happen", curr.getName());
-//								continue;
-//							}
                             Object v = traversalPolicy.getValue();
                             if (!(v instanceof org.netbeans.modules.a11ychecker.traverse.MyTraversalPolicy)) {
                                 addInfo(TAB_TRAV_CAT, NbBundle.getMessage(FormHandler.class, "Not_our_tabTraversal"), curr.getName());  	// NOI18N
@@ -313,27 +305,35 @@ public class FormHandler {
                     }
                     //check a11y description
                     Property a11yDesc = curr.getPropertyByName(A11Y_DESC_PROP);
-                    if (getPropertyString(a11yDesc) == null || getPropertyString(a11yDesc).equals("")) {
-                        addError(A11Y_DESC_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_desc_needed"), curr.getName());	// NOI18N
-                    } else {
-                        Property ttt = curr.getPropertyByName(TOOLTIP_PROP);
-                        if (getPropertyString(a11yDesc).equals(getPropertyString(ttt))) {
-                            addInfo(A11Y_DESC_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_desc_copied"), curr.getName());	// NOI18N
-                        }
-                    }
+					if(getUserCode(a11yDesc)!=null) {
+						addInfo(A11Y_DESC_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_desc_usercode"), curr.getName());
+					} else {
+						if (getPropertyString(a11yDesc) == null || getPropertyString(a11yDesc).equals("")) {
+							addError(A11Y_DESC_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_desc_needed"), curr.getName());	// NOI18N
+						} else {
+							Property ttt = curr.getPropertyByName(TOOLTIP_PROP);
+							if (getPropertyString(a11yDesc).equals(getPropertyString(ttt))) {
+								addInfo(A11Y_DESC_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_desc_copied"), curr.getName());	// NOI18N
+							}
+						}
+					}
                     //check a11y name
                     Property a11yName = curr.getPropertyByName(A11Y_NAME_PROP);
-                    if (getPropertyString(a11yName) == null || getPropertyString(a11yName).equals("")) {
-                        addError(A11Y_NAME_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_name_needed"), curr.getName());	// NOI18N
-                    } else {
-                        Property text = curr.getPropertyByName(TEXT_PROP);
-                        if (text != null) {
-                            //  if it actualy has some text, check whether it is the same as a11y name
-                            if (getPropertyString(a11yName).equals(getPropertyString(text))) {
-                                addInfo(A11Y_NAME_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_name_copied"), curr.getName());	// NOI18N
-                            }
-                        }
-                    }
+					if(getUserCode(a11yName)!=null) {
+						addInfo(A11Y_NAME_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_name_usercode"), curr.getName());
+					} else {
+						if (getPropertyString(a11yName) == null || getPropertyString(a11yName).equals("")) {
+							addError(A11Y_NAME_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_name_needed"), curr.getName());	// NOI18N
+						} else {
+							Property text = curr.getPropertyByName(TEXT_PROP);
+							if (text != null) {
+								//  if it actualy has some text, check whether it is the same as a11y name
+								if (getPropertyString(a11yName).equals(getPropertyString(text))) {
+									addInfo(A11Y_NAME_CAT, NbBundle.getMessage(FormHandler.class, "Accessible_name_copied"), curr.getName());	// NOI18N
+								}
+							}
+						}
+					}
 
 
                     //check label for
@@ -377,11 +377,19 @@ public class FormHandler {
                         mnemonic = curr.getPropertyByName(MNEMONIC_PROP);
                     }
                     if (mnemonic != null) {
+						//does the component have icon?
+						Property icon=curr.getPropertyByName(ICON_PROP);
+						boolean hasIcon=isIcon(icon);
                         // is this defined by usercode?
-                        if (isUserCode(mnemonic)) {
+                        if (getUserCode(mnemonic) != null) {
                             addInfo(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_usercode"), curr.getName());
                         } else if (getPropertyInteger(mnemonic) == null || getPropertyInteger(mnemonic).equals(0)) {
-                            addError(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_needed"), curr.getName());	// NOI18N
+							if (hasIcon) 
+							// only warning for components with icon as those usually don't have shortcut
+								addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_needed"), curr.getName());	// NOI18N
+							else
+							// error otherwise
+								addError(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_needed"), curr.getName());	// NOI18N
                         } else {
                             int code = getPropertyInteger(mnemonic);
                             if (!((code >= 97 && code <= 122) || (code >= 65 && code <= 90))) {
@@ -393,7 +401,7 @@ public class FormHandler {
                             s = s.toLowerCase();
                             //check whether component has some text at all
                             if (t == null || t.equals("")) {
-                                //                                TODO pridat mozna novou kategorii text a ten pak umoznit nastavit v dialogu?
+//                                TODO pridat mozna novou kategorii text a ten pak umoznit nastavit v dialogu?
                                 addWarning(MNEMONIC_CAT, NbBundle.getMessage(FormHandler.class, "Mnemonic_for_no_text"), curr.getName());	// NOI18N
 //                                continue; //takhle to odhali i duplikaty mnemonik
                             } else {
@@ -466,7 +474,7 @@ public class FormHandler {
                 RADComponent curr = compIterator.next();
                 if (curr instanceof org.netbeans.modules.form.RADVisualComponent) {
                     Class bc = curr.getBeanClass();
-                    if (isComponentClassToCheck(bc)) {
+                    if (isComponentClassToCheckLabelFor(bc)) {
                         if (!labelForMap.containsKey(curr.getName())) {
                             if (bc.equals(JTextField.class) || bc.equals(JTextArea.class) || bc.equals(JFormattedTextField.class) || bc.equals(JPasswordField.class) || bc.equals(JTextPane.class) || bc.equals(JEditorPane.class)) {
                                 //                                these should be listed as error
@@ -492,7 +500,7 @@ public class FormHandler {
      *  the JFrame, JTabbedPane, JSplitPane, JForm, JPanel components
      *  @return true if it does, false otherwise
      */
-    private static boolean isComponentClassToCheck(Class bc) {
+    private static boolean isComponentClassToCheckLabelFor(Class bc) {
         if (!bc.equals(JLabel.class) && !bc.equals(JButton.class) && !bc.equals(JToggleButton.class) && !bc.equals(JCheckBox.class) && !bc.equals(JRadioButton.class) && !bc.equals(JFrame.class) && !bc.equals(JSeparator.class) && !bc.equals(JSplitPane.class) && !bc.equals(JTabbedPane.class) && !bc.equals(JMenuBar.class) && !bc.equals(JMenu.class) && !bc.equals(JMenuItem.class) && !bc.equals(JCheckBoxMenuItem.class) && !bc.equals(JPopupMenu.class) && !bc.equals(JRadioButtonMenuItem.class) && !bc.equals(JFrame.class) && !bc.equals(JPanel.class) && !bc.equals(JScrollPane.class) && !bc.equals(JTable.class)) {
             return true;
         }
@@ -557,11 +565,13 @@ public class FormHandler {
         return null;
     }
     
+	//TODO - mozna bude potreba neco podobneho pro bundly (asi ne) a definici z jine property (asi ano)
+		
     /**
      * @param property property tested for usecode presence
-     * @return true if Property contains userCode
+     * @return usercode String if property is defined by userCode, null otherwise
      */
-    public static boolean isUserCode(Property property) {
+    public static String getUserCode(Property property) {
         if (property != null) {
             try {
                 Object value = property.getValue();
@@ -569,7 +579,7 @@ public class FormHandler {
                 if (value instanceof RADConnectionDesignValue) {
                     String p = ((RADConnectionDesignValue) value).getCode();
                     if (p != null && !p.equals("")) {
-                        return true;
+                        return p;
                     }
                 }
             } catch (IllegalAccessException ex) {
@@ -578,7 +588,7 @@ public class FormHandler {
                 Exceptions.printStackTrace(ex);
             }
         } 
-        return false;
+        return null;
     }
     
     /**
@@ -600,5 +610,22 @@ public class FormHandler {
         button.setFocusPainted(false);
         button.setMargin(new Insets(0, 0, 0, 0));
     }
+
+	private boolean isIcon(Property icon) {
+		if (icon != null) {
+			Object value = null;
+			try {
+				value = icon.getValue();
+			} catch (IllegalAccessException ex) {
+				Exceptions.printStackTrace(ex);
+			} catch (InvocationTargetException ex) {
+				Exceptions.printStackTrace(ex);
+			}
+			if (value!=null) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
 
