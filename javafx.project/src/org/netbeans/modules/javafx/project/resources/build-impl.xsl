@@ -512,6 +512,7 @@ is divided into following sections:
                             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${{jpda.address}}"/>
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
+                                <path path="${{platform.bootcp}}"/>
                                 <path path="@{{classpath}}"/>
                             </classpath>
                             <syspropertyset>
@@ -545,7 +546,7 @@ is divided into following sections:
                             <!--arg line="${{main.class}}"/-->
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
-                                <!--path path="${{run.classpath}}:${{libs.JavaFXUserLib.classpath}}"/-->
+                                <path path="${{platform.bootcp}}"/>
                                 <path path="${{run.classpath}}"/>
                             </classpath>
                             <syspropertyset>
@@ -583,6 +584,7 @@ is divided into following sections:
                             <arg line="@{{srcdir}}"/>
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
+                                <path path="${{platform.bootcp}}"/>
                                 <path path="${{build.classpath}}"/>
                             </classpath>
                             <syspropertyset>
