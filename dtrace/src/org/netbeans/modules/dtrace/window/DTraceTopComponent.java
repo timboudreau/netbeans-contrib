@@ -50,6 +50,7 @@ import javax.swing.ListModel;
 import org.netbeans.modules.dtrace.dialogs.CreateDialog;
 import org.netbeans.modules.dtrace.script.BuildScripts;
 import org.netbeans.modules.dtrace.data.DScriptDataNode;
+import org.netbeans.modules.dtrace.dialogs.CheckOSDialog;
 import org.netbeans.modules.dtrace.execution.ScriptExecutor;
 import org.netbeans.modules.dtrace.script.Script;
 import org.netbeans.modules.dtrace.script.ScriptLibrary;
@@ -75,24 +76,25 @@ final class DTraceTopComponent extends TopComponent {
     private static DTraceTopComponent instance;
     /** path to the icon used by the component and its open action */
     static final String ICON_PATH = "org/netbeans/modules/dtrace/resources/run.gif";
-    
     private static final String PREFERRED_ID = "DTraceTopComponent";
     private ScriptExecutor scriptExecutor;
     private final PropertySheet propertySheet = new PropertySheet();
     
     private DTraceTopComponent() {
-        initComponents();
+        initComponents();       
         jPanel2.add(propertySheet);
         setName(NbBundle.getMessage(DTraceTopComponent.class, "CTL_DTraceTopComponent"));
         setToolTipText(NbBundle.getMessage(DTraceTopComponent.class, "HINT_DTraceTopComponent"));
         setIcon(Utilities.loadImage(ICON_PATH, true));
+        
         if (categoryComboBox.getModel().getSize() > 0) {
             categoryComboBox.setSelectedIndex(0);
         }
+        
         scriptsListSelectionChanged();
         scriptExecutor = new ScriptExecutor();
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -329,7 +331,7 @@ final class DTraceTopComponent extends TopComponent {
                 }
             }
         }
-        
+       
         startButton.setEnabled(scriptsList.getSelectedIndex() != -1);
         if (scriptsList.getSelectedIndex() == -1) {
             return;
@@ -421,6 +423,10 @@ final class DTraceTopComponent extends TopComponent {
     
     public void componentOpened() {
         // TODO add custom code on component opening
+        if (Utilities.getOperatingSystem() != Utilities.OS_SOLARIS) {
+            CheckOSDialog checkOSDialog = new CheckOSDialog(null, true);
+            checkOSDialog.setVisible(true);
+        }
     }
     
     public void componentClosed() {
