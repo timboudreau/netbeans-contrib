@@ -170,14 +170,11 @@ public class FormHandler {
     public void printListOfComponents(List<RADComponent> l) {
         //component list
 		// mozna vyuzit, ze nektere nejsou focusable?
-        FormModel model = fes.getFormModel();
-		System.out.println("");
         Iterator<RADComponent> compIterator = l.iterator();
         while (compIterator.hasNext()) {
             RADComponent curr = compIterator.next();
 			System.out.println(curr.getName()+ " focusable=" + ((Component) curr.getBeanInstance()).isFocusable());
         }
-		System.out.println("");
     }
 
     /**
