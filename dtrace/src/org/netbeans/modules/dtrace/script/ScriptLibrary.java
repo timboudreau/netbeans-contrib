@@ -253,24 +253,7 @@ public class ScriptLibrary implements Runnable {
         if (!scriptFile.exists()) {
             return;
         }
-/*
-        idx2 = path.lastIndexOf("modules");     
-        if (idx2 != -1) {
-            String modulePath = path.substring(0, idx2);
-            path = new StringBuffer(modulePath);
-        }
-        
-        StringBuffer origPath = new StringBuffer(path.toString());
-        path.append("dtrace-gui-102007/DTraceScripts.tar");
-        File scriptFile = new File(path.toString());
-        if (!scriptFile.exists()) {
-            origPath.append("extra/dtrace-gui-102007/DTraceScripts.tar");
-            scriptFile = new File(origPath.toString());
-            if (!scriptFile.exists()) {
-                return;
-            }
-        } 
- */
+
         String command = "/bin/cp " + path + " " + userHomeDir;
         try {
             p = Runtime.getRuntime().exec(command);
@@ -293,7 +276,6 @@ public class ScriptLibrary implements Runnable {
             }
         }      
       
-        //command = "/usr/sbin/tar xvf DTraceScripts.tar";
         command = "/bin/unzip DTraceScripts.zip";
         try {
             File userHomeDirFile = new File(userHomeDir);
