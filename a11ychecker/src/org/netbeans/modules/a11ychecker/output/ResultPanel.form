@@ -27,7 +27,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="1172" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="706" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="13" max="-2" attributes="0"/>
@@ -36,7 +36,7 @@
                       <Component id="warningCheckBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
                       <Component id="infoCheckBox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="747" max="32767" attributes="0"/>
+                      <EmptySpace pref="239" max="32767" attributes="0"/>
                       <Component id="autoI18nCheckBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="TraversalEditorButton" linkSize="1" min="-2" pref="18" max="-2" attributes="0"/>
@@ -158,7 +158,6 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/org/netbeans/modules/a11ychecker/output/refreshIcon.png"/>
         </Property>
-        <Property name="mnemonic" type="int" value="114"/>
         <Property name="toolTipText" type="java.lang.String" value="Refresh table to reflect current state of designed form."/>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -194,7 +193,6 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/org/netbeans/modules/a11ychecker/output/traversalPolicyIcon.png"/>
         </Property>
-        <Property name="mnemonic" type="int" value="116"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/a11ychecker/output/Bundle.properties" key="ResultPanel.TraversalEditorButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
