@@ -41,6 +41,7 @@
 
 package org.netbeans.modules.javafx.project.ui.customizer;
 
+import org.netbeans.modules.javafx.platform.PlatformUiSupport;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -66,12 +67,16 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import org.netbeans.api.java.platform.JavaPlatform;
+import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.queries.FileEncodingQuery;
 import org.netbeans.modules.java.api.common.SourceRoots;
 import org.netbeans.modules.java.api.common.ant.UpdateHelper;
-import org.netbeans.modules.java.api.common.ui.PlatformUiSupport;
+import org.netbeans.modules.javafx.platform.PlatformUiSupport.PlatformKey;
+import org.netbeans.modules.javafx.platform.PlatformUiSupport.SourceLevelKey;
+import org.netbeans.modules.javafx.platform.platformdefinition.Util;
 import org.netbeans.modules.javafx.project.JavaFXProject;
 import org.netbeans.modules.javafx.project.JavaFXProjectType;
 import org.netbeans.modules.javafx.project.JavaFXProjectUtil;
@@ -88,10 +93,14 @@ import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.modules.SpecificationVersion;
 import org.openide.util.Mutex;
 import org.openide.util.MutexException;
 import org.openide.util.NbBundle;
+import org.openide.util.Parameters;
 import org.openide.util.Utilities;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * @author Petr Hrebejk
@@ -336,7 +345,7 @@ public class JavaFXProjectProperties {
         JAVAC_TEST_CLASSPATH_MODEL = ClassPathUiSupport.createListModel( cs.itemsIterator( (String)projectProperties.get( JAVAC_TEST_CLASSPATH ) ) );
         RUN_CLASSPATH_MODEL = ClassPathUiSupport.createListModel( cs.itemsIterator( (String)projectProperties.get( RUN_CLASSPATH ) ) );
         RUN_TEST_CLASSPATH_MODEL = ClassPathUiSupport.createListModel( cs.itemsIterator( (String)projectProperties.get( RUN_TEST_CLASSPATH ) ) );
-        PLATFORM_MODEL = PlatformUiSupport.createPlatformComboBoxModel (evaluator.getProperty(JAVA_PLATFORM));
+        PLATFORM_MODEL = PlatformUiSupport.createPlatformComboBoxModel (evaluator.getProperty(JAVA_PLATFORM), "JavaFX"); //NOI18N
         PLATFORM_LIST_RENDERER = PlatformUiSupport.createPlatformListCellRenderer();
         JAVAC_SOURCE_MODEL = PlatformUiSupport.createSourceLevelComboBoxModel (PLATFORM_MODEL, evaluator.getProperty(JAVAC_SOURCE), evaluator.getProperty(JAVAC_TARGET));
         JAVAC_SOURCE_RENDERER = PlatformUiSupport.createSourceLevelListCellRenderer ();
@@ -506,7 +515,7 @@ public class JavaFXProjectProperties {
         projectProperties.setProperty( RUN_TEST_CLASSPATH, run_test_cp );
         
         //Handle platform selection and javac.source javac.target properties
-        PlatformUiSupport.storePlatform (projectProperties, updateHelper, JavaFXProjectType.PROJECT_CONFIGURATION_NAMESPACE, PLATFORM_MODEL.getSelectedItem(), JAVAC_SOURCE_MODEL.getSelectedItem());
+        storePlatform (projectProperties, updateHelper, JavaFXProjectType.PROJECT_CONFIGURATION_NAMESPACE, PLATFORM_MODEL.getSelectedItem(), JAVAC_SOURCE_MODEL.getSelectedItem());
                                 
         // Handle other special cases
         if ( NO_DEPENDENCIES_MODEL.isSelected() ) { // NOI18N
@@ -532,6 +541,143 @@ public class JavaFXProjectProperties {
         }
     }
     
+    /**
+     * Like {@link #storePlatform(EditableProperties, UpdateHelper, Object, Object)}, but platform name may be
+     * <code>null</code> (in such case the default platform is used).
+     * @param props project's shared properties.
+     * @param helper {@link UpdateHelper} that is capable to upgrade project metadata if needed.
+     * @param projectConfigurationNamespace project configuration namespace.
+     * @param platformName platform name to store, can be <code>null</code>.
+     * @param sourceLevel specification version to store.
+     */
+    public static void storePlatform(EditableProperties props, UpdateHelper helper,
+            String projectConfigurationNamespace, String platformName, SpecificationVersion sourceLevel) {
+        Parameters.notNull("props", props); //NOI18N
+        Parameters.notNull("helper", helper); //NOI18N
+        Parameters.notNull("projectConfigurationNamespace", projectConfigurationNamespace); //NOI18N
+        Parameters.notNull("sourceLevel", sourceLevel); //NOI18N
+
+        PlatformUiSupport.PlatformKey platformKey;
+        if (platformName != null) {
+            platformKey = new PlatformKey(PlatformUiSupport.findPlatform(platformName));
+        } else {
+            platformKey = new PlatformKey(JavaPlatformManager.getDefault().getDefaultPlatform());
+        }
+        storePlatform(props, helper, projectConfigurationNamespace, platformKey, new PlatformUiSupport.SourceLevelKey(sourceLevel));
+    }
+
+    /**
+     * Stores active platform, <i>javac.source</i> and <i>javac.target</i> into the project's metadata.
+     * @param props project's shared properties
+     * @param helper {@link UpdateHelper} that is capable to upgrade project metadata if needed.
+     * @param projectConfigurationNamespace project configuration namespace.
+     * @param platformKey the {@link PlatformKey} got from the platform model.
+     * @param sourceLevelKey {@link SourceLevelKey} representing source level; can be <code>null</code>.
+     */
+    public static void storePlatform(EditableProperties props, UpdateHelper helper,
+            String projectConfigurationNamespace, Object platformKey, Object sourceLevelKey) {
+        Parameters.notNull("props", props); //NOI18N
+        Parameters.notNull("helper", helper); //NOI18N
+        Parameters.notNull("projectConfigurationNamespace", projectConfigurationNamespace); //NOI18N
+        Parameters.notNull("platformKey", platformKey); //NOI18N
+
+        assert platformKey instanceof PlatformKey;
+
+        final String javaPlatformKey = "platform.active"; //NOI18N
+        final String javacSourceKey = "javac.source"; //NOI18N
+        final String javacTargetKey = "javac.target"; //NOI18N
+
+        PlatformKey pk = (PlatformKey) platformKey;
+        JavaPlatform platform = PlatformUiSupport.getPlatform(pk);
+        // null means active broken (unresolved) platform, no need to do anything
+        if (platform == null) {
+            return;
+        }
+
+        SpecificationVersion jdk13 = new SpecificationVersion("1.3"); //NOI18N
+        String platformAntName = platform.getProperties().get("platform.ant.name"); //NOI18N
+        assert platformAntName != null;
+        props.put(javaPlatformKey, platformAntName);
+        Element root = helper.getPrimaryConfigurationData(true);
+        boolean changed = false;
+        NodeList explicitPlatformNodes =
+                root.getElementsByTagNameNS(projectConfigurationNamespace, "explicit-platform"); //NOI18N
+
+        if (pk.isDefaultPlatform()) {
+            if (explicitPlatformNodes.getLength() == 1) {
+                root.removeChild(explicitPlatformNodes.item(0));
+                changed = true;
+            }
+        } else {
+            Element explicitPlatform;
+            switch (explicitPlatformNodes.getLength()) {
+                case 0:
+                    explicitPlatform = root.getOwnerDocument().createElementNS(
+                            projectConfigurationNamespace, "explicit-platform"); //NOI18N
+                    NodeList sourceRootNodes = root.getElementsByTagNameNS(
+                            projectConfigurationNamespace, "source-roots"); //NOI18N
+                    assert sourceRootNodes.getLength() == 1 : "Broken project.xml file";
+
+                    root.insertBefore(explicitPlatform, sourceRootNodes.item(0));
+                    changed = true;
+                    break;
+                case 1:
+                    explicitPlatform = (Element) explicitPlatformNodes.item(0);
+                    break;
+                default:
+                    throw new AssertionError("Broken project.xml file");
+            }
+            String explicitSourceAttrValue = explicitPlatform.getAttribute("explicit-source-supported"); //NOI18N
+            if (jdk13.compareTo(platform.getSpecification().getVersion()) >= 0
+                    && !"false".equals(explicitSourceAttrValue)) { //NOI18N
+                explicitPlatform.setAttribute("explicit-source-supported", "false"); //NOI18N
+                changed = true;
+            } else if (jdk13.compareTo(platform.getSpecification().getVersion()) < 0
+                    && !"true".equals(explicitSourceAttrValue)) { //NOI18N
+                explicitPlatform.setAttribute("explicit-source-supported", "true"); //NOI18N
+                changed = true;
+            }
+            boolean javac = Util.findTool("javac", platform.getInstallFolders()) != null;
+            if (javac != Boolean.parseBoolean(explicitPlatform.getAttribute("explicit-javac-supported"))) { //NOI18N
+                explicitPlatform.setAttribute("explicit-javac-supported", Boolean.toString(javac)); //NOI18N
+                changed = true;
+            }
+        }
+
+        SpecificationVersion sourceLevel;
+        if (sourceLevelKey == null) {
+            sourceLevel = platform.getSpecification().getVersion();
+        } else {
+            assert sourceLevelKey instanceof SourceLevelKey;
+            sourceLevel = ((SourceLevelKey) sourceLevelKey).getSourceLevel();
+        }
+        String javacSource = sourceLevel.toString();
+        String javacTarget = javacSource;
+
+        //Issue #116490
+        // Customizer value | -source | -target
+        // JDK 1.2            1.2        1.1
+        // JDK 1.3            1.3        1.1
+        // JDK 1.4            1.4        1.4
+        // JDK 5              1.5        1.5
+        // JDK 6              1.6        1.6  - java 1.6 brings JLS changes - @Override, encoding
+        // JDK 7              1.7        1.7  - should bring a new language features
+        if (jdk13.compareTo(sourceLevel) >= 0) {
+            javacTarget = "1.1"; //NOI18N
+        }
+
+        if (!javacSource.equals(props.getProperty(javacSourceKey))) {
+            props.setProperty(javacSourceKey, javacSource);
+        }
+        if (!javacTarget.equals(props.getProperty(javacTargetKey))) {
+            props.setProperty(javacTargetKey, javacTarget);
+        }
+
+        if (changed) {
+            helper.putPrimaryConfigurationData(root, true);
+        }
+    }
+
     /** Finds out what are new and removed project dependencies and 
      * applyes the info to the project
      */

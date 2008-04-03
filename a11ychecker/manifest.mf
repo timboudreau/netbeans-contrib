@@ -3,5 +3,5 @@ OpenIDE-Module: org.netbeans.modules.a11ychecker
 OpenIDE-Module-Install: org/netbeans/modules/a11ychecker/traverse/Installer.class
 OpenIDE-Module-Layer: org/netbeans/modules/a11ychecker/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/a11ychecker/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Specification-Version: 1.1
 
