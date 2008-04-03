@@ -85,7 +85,7 @@ public class ViewRevisionAction extends AbstractAction implements Runnable {
         FileStatusCache cache = Clearcase.getInstance().getFileStatusCache();
         for (File file : ctx.getRootFiles()) {
             if (file.isDirectory()) continue;
-            if (cache.getInfo(file).getStatus() == FileInformation.STATUS_UNKNOWN) return true;
+            if ((cache.getInfo(file).getStatus() & FileInformation.STATUS_VERSIONED) != 0) return true;
         }
         return false;
     }

@@ -63,6 +63,7 @@ class ViewRevisionPanel extends javax.swing.JPanel {
         rbBranch.setSelected(ClearcaseModuleConfig.getPreferences().getBoolean(VIEW_BRANCH, true));
         rbTrunk.setSelected(ClearcaseModuleConfig.getPreferences().getBoolean(VIEW_TRUNK_HEAD, false));
         tfTagName.setText(ClearcaseModuleConfig.getPreferences().get(VIEW_BRANCH_NAME, ""));
+        bBrowse.setVisible(false);        
         refreshComponents();
     }
 

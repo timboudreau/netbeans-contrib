@@ -551,13 +551,10 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
         }
 
         @Override
-        public Object visitForExpression(ForExpressionTree arg0, Object arg1) {
-            return super.visitForExpression(arg0, arg1);
-        }
-
-        @Override
-        public Object visitForExpressionInClause(ForExpressionInClauseTree arg0, Object arg1) {
-            return super.visitForExpressionInClause(arg0, arg1);
+        public Object visitForExpression(ForExpressionTree node, Object p) {
+            super.visitForExpression(node, p);
+            handleTree(node.getBodyExpression(), node, false);
+            return null;
         }
 
         @Override
@@ -568,8 +565,10 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
         }
 
         @Override
-        public Object visitTrigger(TriggerTree arg0, Object arg1) {
-            return super.visitTrigger(arg0, arg1);
+        public Object visitTrigger(TriggerTree node, Object p) {
+            super.visitTrigger(node, p);
+            handleTree(node.getExpressionTree(), node, false);
+            return null;
         }
         
         @Override
