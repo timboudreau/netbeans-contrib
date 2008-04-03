@@ -41,7 +41,20 @@
 
 package org.netbeans.modules.javafx.editor;
 
+import java.io.IOException;
+import java.util.EnumSet;
+import java.util.Set;
 import javax.swing.text.Document;
+import org.netbeans.api.javafx.lexer.JFXTokenId;
+import org.netbeans.api.javafx.source.CompilationController;
+import org.netbeans.api.javafx.source.JavaFXSource;
+import org.netbeans.api.javafx.source.JavaFXSource.Phase;
+import org.netbeans.api.javafx.source.Task;
+import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenSequence;
+import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
 
 /**
  *
@@ -55,7 +68,90 @@ public class GoToSupport {
 
     public static void goTo(Document doc, int offset, boolean goToSource) {
         System.err.println("go to at " + offset);
-//        performGoTo(doc, offset, goToSource, false, false);
+        performGoTo(doc, offset, goToSource, false, false);
+    }
+
+    public static String getGoToElementTooltip(Document doc, final int offset, final boolean goToSource) {
+        return performGoTo(doc, offset, goToSource, true, false);
+    }
+
+    private static FileObject getFileObject(Document doc) {
+        DataObject od = (DataObject) doc.getProperty(Document.StreamDescriptionProperty);
+        return od != null ? od.getPrimaryFile() : null;
+    }
+
+    private static String performGoTo(final Document doc, final int offset, final boolean goToSource, final boolean tooltip, final boolean javadoc) {
+        try {
+            final FileObject fo = getFileObject(doc);
+            
+            if (fo == null)
+                return null;
+            
+            JavaFXSource js = JavaFXSource.forFileObject(fo);
+            
+            if (js == null)
+                return null;
+            
+            final String[] result = new String[1];
+            
+            js.runUserActionTask(new Task<CompilationController>() {
+                public void run(CompilationController controller) throws Exception {
+                    if (controller.toPhase(Phase.PARSED).lessThan(Phase.PARSED))
+                        return;
+
+                    Token<JFXTokenId>[] token = new Token[1];
+                    int[] span = getIdentifierSpan(doc, offset, token);
+
+                    if (span == null) {
+//                        CALLER.beep(goToSource, javadoc);
+System.err.println("not an identifier");
+                        return ;
+                    }
+                    
+                    if (token[0] != null) result[0] = token[0].text().toString(); // XXX
+
+                }
+            }, true);
+            
+            return result[0];
+        } catch (IOException ioe) {
+            throw new IllegalStateException(ioe);
+        }
+    }
+    
+    private static final Set<JFXTokenId> USABLE_TOKEN_IDS = EnumSet.of(JFXTokenId.IDENTIFIER, JFXTokenId.THIS, JFXTokenId.SUPER);
+
+    public static int[] getIdentifierSpan(Document doc, int offset, Token<JFXTokenId>[] token) {
+        if (getFileObject(doc) == null) {
+            //do nothing if FO is not attached to the document - the goto would not work anyway:
+            return null;
+        }
+        
+        TokenHierarchy th = TokenHierarchy.get(doc);
+        TokenSequence<JFXTokenId> ts = (TokenSequence<JFXTokenId>) th.tokenSequence();
+
+        if (ts == null)
+            return null;
+        
+        ts.move(offset);
+        if (!ts.moveNext())
+            return null;
+        
+        Token<JFXTokenId> t = ts.token();
+        
+        if (!USABLE_TOKEN_IDS.contains(t.id())) {
+            ts.move(offset - 1);
+            if (!ts.moveNext())
+                return null;
+            t = ts.token();
+            if (!USABLE_TOKEN_IDS.contains(t.id()))
+                return null;
+        }
+        
+        if (token != null)
+            token[0] = t;
+        
+        return new int [] {ts.offset(), ts.offset() + t.length()};
     }
 
 }

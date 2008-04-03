@@ -41,6 +41,7 @@ package org.netbeans.modules.javafx.source.scheduler;
 
 import org.netbeans.api.javafx.source.*;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -243,6 +244,76 @@ public class CompilationJob implements Runnable {
             ie.printStackTrace();
         }
     }
+    
+    public static Future<Void> runWhenScanFinished (final JavaFXSource source, final Task<CompilationController> task, final boolean shared) throws IOException {
+        assert task != null;
+        final ScanSync sync = new ScanSync (task);
+        final DeferredTask r = new DeferredTask (source,task,shared,sync);
+        //0) Add speculatively task to be performed at the end of background scan
+        todo.add (r);
+//        if (RepositoryUpdater.getDefault().isScanInProgress()) {
+//            return sync;
+//        }
+        //1) Try to aquire javac lock, if successfull no task is running
+        //   perform the given taks synchronously if it wasn't already performed
+        //   by background scan.
+        final boolean locked = javacLock.tryLock();
+        if (locked) {
+            try {
+                if (todo.remove(r)) {
+                    try {
+                        source.runUserActionTask(task, shared);
+                    } finally {
+                        sync.taskFinished();
+                    }
+                }
+            } finally {
+                javacLock.unlock();
+            }
+        }
+        else {
+            //Otherwise interrupt currently running task and try to aquire lock
+            do {
+                final Request[] request = new Request[1];
+                boolean isScanner = currentRequest.getUserTaskToCancel(request);
+                try {
+                    if (isScanner) {
+                        return sync;
+                    }
+                    if (request[0] != null) {
+                        request[0].task.cancel();
+                    }
+                    if (javacLock.tryLock(100, TimeUnit.MILLISECONDS)) {
+                        try {
+                            if (todo.remove(r)) {
+                                try {
+                                    source.runUserActionTask(task, shared);
+                                    return sync;
+                                } finally {
+                                    sync.taskFinished();
+                                }
+                            }
+                            else {
+                                return sync;
+                            }
+                        } finally {
+                            javacLock.unlock();
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    throw (InterruptedIOException) new InterruptedIOException ().initCause(e);
+                }
+                finally {
+                    if (!isScanner) {
+                        currentRequest.cancelCompleted(request[0]);
+                    }
+                }
+            } while (true);            
+        }
+        return sync;
+    }
+
+    
     static final class DeferredTask {
         final JavaFXSource js;
         final Task<CompilationController> task;
