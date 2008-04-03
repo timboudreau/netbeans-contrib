@@ -56,6 +56,12 @@ made subject to such option by the copyright holder.
             <folder name="x-fx">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.dataloader.Bundle"/>
                 
+                <folder name="HyperlinkProviders">
+                    <file name="JavaFXHyperlinkProvider.instance">
+                        <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.editor.JavaFXHyperlinkProvider"/>
+                        <attr name="instanceOf" stringvalue="org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt"/>
+                    </file>
+                </folder>
                 <folder name="CompletionProviders">
                     <file name="org-netbeans-modules-javafx-editor-JavaFXCompletionProvider.instance"/>
                 </folder>
