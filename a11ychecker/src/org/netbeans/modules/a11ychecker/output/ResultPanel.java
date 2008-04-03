@@ -418,54 +418,6 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
     }
 
     /**
-     * XXX remove
-     * obsolete
-     * Shows property editor for a component
-     * @param comp the component which property is edited
-     * @param beanPropertyName which property
-     */
-    private void showEditor(RADComponent comp, String beanPropertyName) {
-        try {
-            RADProperty props[] = comp.getAllBeanProperties();
-            RADProperty rProp = comp.getBeanProperty("icon");   //NOI18N
-            //java.util.List actionProps = comp.getActionProperties();
-//            RADComponentNode rNode = new RADComponentNode(comp);
-//            FormProperty fProp = rNode.getProperty(beanPropertyName);
-//            Action[] actions = rNode.getActions(false);
-
-//            java.util.List actionProps = comp.getActionProperties();
-//                Iterator iter = actionProps.iterator();
-//                while (iter.hasNext()) {
-//                    final RADProperty prop = (RADProperty)iter.next();
-//                    Action action = PropertyAction.createIfEditable(prop);
-//                    if (action != null) {
-//                        action.actionPerformed(null);
-//                    }
-//                }
-
-//            ((Action)Array.get(actions, 17)).actionPerformed(null);
-//            
-//            for (int i = 0; i < actions.length; i++) {
-//                Action action = actions[i];
-//                if(action instanceof org.netbeans.modules.form.actions.PropertyAction) {
-//                    System.out.println("### PrppertyAction " + action);
-//                    ((PropertyAction) action).actionPerformed(null);
-//                }
-//            }
-
-
-            FormProperty prop = comp.getBeanProperty(beanPropertyName);
-            //new PropertyAction(prop).actionPerformed(null);
-
-            Action action = PropertyAction.createIfEditable(prop);
-            action.actionPerformed(null);
-
-        } catch (Throwable th) {
-            th.printStackTrace();
-        }
-    }
-
-    /**
      * Sets up dialog for editing LabelFor
      */
     private DialogDescriptor createLabelForEditorDescriptor(final FormDesigner formDesigner, final LabelForPropertyPanel panel, final String header, final RADVisualComponent rvc) {
