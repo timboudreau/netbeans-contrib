@@ -96,7 +96,7 @@ import org.openide.util.NbBundle;
 import org.openide.windows.CloneableTopComponent;
 
 /**
- * This class finds out current form intace and provides handlers
+ * This class finds out current form instance and provides handlers
  * @author Max Sauer
  * @author Martin Novak
  */
