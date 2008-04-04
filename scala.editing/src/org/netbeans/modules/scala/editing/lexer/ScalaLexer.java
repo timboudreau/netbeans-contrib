@@ -113,7 +113,7 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
             tokenStream.clear();
             scanTokens();
             tokenStreamItr = tokenStream.iterator();
-
+            
             /** 
              * @Bug of LexerInput.backup(int) ?
              * backup(0) will cause input.readLength() increase 1
@@ -132,16 +132,23 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
                 return null;
             }
 
+            // read token's chars according to tokenInfo.length
             for (int i = 0; i < tokenInfo.length; i++) {
                 input.read();
             }
 
-            if (lookahead > tokenInfo.length) {
-                lookahead -= tokenInfo.length;
-                for (int i = 0; i < lookahead; i++) {
+            // see if needs to lookahead, if true, perform it
+            lookahead -= tokenInfo.length;
+            // to cheat incremently lexer, we needs to lookahead one more char when
+            // tokenStream.size() > 1 (batched tokens that are not context free),
+            // so, when modification happens extractly behind latest token, will
+            // force lexer relexer from the 1st token of tokenStream
+            int lookahead1 = tokenStream.size() > 1 ? lookahead + 1 : lookahead;
+            if (lookahead1 > 0) {                
+                for (int i = 0; i < lookahead1; i++) {
                     input.read();
                 }
-                input.backup(lookahead);
+                input.backup(lookahead1);
             }
 
             int tokenLength = input.readLength();
