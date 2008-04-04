@@ -72,6 +72,7 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
      * item, so we should have a global one.
      */
     private Iterator<TokenInfo> tokenStreamItr = tokenStream.iterator();
+    private int lookahead;
 
     private ScalaLexer() {
     }
@@ -99,6 +100,7 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
          */
         tokenStream.clear();
         tokenStreamItr = tokenStream.iterator();
+        lookahead = 0;
     }
 
     public Object state() {
@@ -116,8 +118,9 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
              * @Bug of LexerInput.backup(int) ?
              * backup(0) will cause input.readLength() increase 1
              */
-            if (input.readLength() > 0) {
-                input.backup(input.readLength());
+            lookahead = input.readLength();
+            if (lookahead > 0) {
+                input.backup(lookahead);
             }
         }
 
@@ -125,11 +128,20 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
             TokenInfo tokenInfo = tokenStreamItr.next();
 
             if (tokenInfo.length == 0) {
-                return null; // EOF
+                // EOF
+                return null;
             }
 
             for (int i = 0; i < tokenInfo.length; i++) {
                 input.read();
+            }
+
+            if (lookahead > tokenInfo.length) {
+                lookahead -= tokenInfo.length;
+                for (int i = 0; i < lookahead; i++) {
+                    input.read();
+                }
+                input.backup(lookahead);
             }
 
             int tokenLength = input.readLength();
@@ -143,7 +155,7 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
     private Token<ScalaTokenId> createToken(ScalaTokenId id, int length) {
         String fixedText = id.fixedText();
 
-        return (fixedText != null)
+        return fixedText != null
                 ? tokenFactory.getFlyweightToken(id, fixedText)
                 : tokenFactory.createToken(id, length);
     }
@@ -179,7 +191,8 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
              * 
              * And in Rats!, EOF is !_, the input.readLength() will return 0
              */
-            assert (input.readLength() == 0) : "This generic node: " + node.getName() +
+            assert (input.readLength() == 0) :
+                    "This generic node: " + node.getName() +
                     " is a void node, this should happen only on EOF. Check you rats file.";
 
             TokenInfo tokenInfo = new TokenInfo();
@@ -201,7 +214,8 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
             if (child instanceof GNode) {
                 flattenToTokenStream((GNode) child);
             } else if (child instanceof Pair) {
-                assert false : "Pair:" + child + " to be process, do you add 'flatten' option on grammar file?";
+                assert false :
+                        "Pair:" + child + " to be process, do you add 'flatten' option on grammar file?";
             } else if (child instanceof String) {
                 int length = ((String) child).length();
                 TokenInfo tokenInfo = new TokenInfo();
