@@ -1,12 +1,12 @@
 try{
 <#if qname == "">
-String ${EVENT_NAME}_Event = "${EVENT_NAME}";
+String ${EVENT_VAR_NAME}_Event = "${EVENT_NAME}";
 <#if VALUE_TYPE != ''>
-${VALUE_TYPE} ${EVENT_NAME}_Data = null;
+${VALUE_TYPE} ${EVENT_VAR_NAME}_Data = null;
 <#else>
-java.io.Serializable ${EVENT_NAME}_Data = null;
+java.io.Serializable ${EVENT_VAR_NAME}_Data = null;
 </#if>
-${RESPONSE}.setEvent(${EVENT_NAME}_Event,${EVENT_NAME}_Data);
+${RESPONSE}.setEvent(${EVENT_VAR_NAME}_Event,${EVENT_VAR_NAME}_Data);
 <#else>
 <#if NAMESPACE == '' && PREFIX == '' >
 javax.xml.namespace.QName qName = new javax.xml.namespace.QName("${LOCALPART}");
@@ -18,11 +18,11 @@ javax.xml.namespace.QName qName = javax.xml.namespace.new QName("${NAMESPACE}","
 javax.xml.namespace.QName qName = new javax.xml.namespace.QName("${NAMESPACE}","${LOCALPART}","${PREFIX}");
 </#if>
 <#if VALUE_TYPE != ''>
-${VALUE_TYPE} ${LOCALPART}_Data = null;
+${VALUE_TYPE} ${EVENT_VAR_NAME}_Data = null;
 <#else>
-java.io.Serializable ${LOCALPART}_Data = null;
+java.io.Serializable ${EVENT_VAR_NAME}_Data = null;
 </#if>
-${RESPONSE}.setEvent(qName,${LOCALPART}_Data);
+${RESPONSE}.setEvent(qName,${EVENT_VAR_NAME}_Data);
 </#if>
 }catch(Exception e){
     e.printStackTrace();

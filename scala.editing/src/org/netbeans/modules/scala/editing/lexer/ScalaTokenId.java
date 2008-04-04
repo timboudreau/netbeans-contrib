@@ -73,8 +73,9 @@ public enum ScalaTokenId implements TokenId {
     DocCommentData(null, "comment"),
     BlockCommentStart(null, "comment"),
     BlockCommentEnd(null, "comment"),    
-    BlockCommentData(null, "comment"),    
-    LineComment(null, "comment"),    
+    BlockCommentData(null, "comment"),
+    CommentTag(null, "comment"),
+    LineComment(null, "comment"),
     
     Ws(null, "whitespace"),
     Nl(null, "whitespace"),

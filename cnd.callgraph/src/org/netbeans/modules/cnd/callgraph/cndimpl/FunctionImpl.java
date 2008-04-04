@@ -116,15 +116,22 @@ public class FunctionImpl implements Function {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof FunctionImpl) {
-            return getDeclaration().equals(((FunctionImpl) obj).getDeclaration());
+        CsmFunction f = getDeclaration();
+        if (f != null) {
+            if (obj instanceof FunctionImpl) {
+                return f.equals(((FunctionImpl) obj).getDeclaration());
+            }
         }
         return super.equals(obj);
     }
 
     @Override
     public int hashCode() {
-        return getDeclaration().hashCode();
+        CsmFunction f = getDeclaration();
+        if (f != null) {
+            return f.hashCode();
+        }
+        return super.hashCode();
     }
 
 }

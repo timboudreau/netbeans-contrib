@@ -116,7 +116,7 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
                 return null;
             }
             input.backup(1);
-            
+
             tokenStream.clear();
             scanTokens();
             tokenStreamItr = tokenStream.iterator();
@@ -142,7 +142,8 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
     private Token<ScalaTokenId> createToken(ScalaTokenId id, int length) {
         String fixedText = id.fixedText();
 
-        return (fixedText != null) ? tokenFactory.getFlyweightToken(id, fixedText)
+        return (fixedText != null)
+                ? tokenFactory.getFlyweightToken(id, fixedText)
                 : tokenFactory.createToken(id, length);
     }
 

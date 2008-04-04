@@ -296,9 +296,13 @@ public class JavaCodeUtil {
                     map.put("PREFIX", qName.getPrefix());
                 }
                 map.put("LOCALPART", qName.getLocalPart());
+                String eventDataVarName = qName.getLocalPart().replace(".","_");
+                map.put("EVENT_VAR_NAME", eventDataVarName);
             } else {
                 map.put("qname", "");
                 map.put("EVENT_NAME", event.getName());
+                String eventDataVarName = event.getName().replace(".", "_");
+                map.put("EVENT_VAR_NAME", eventDataVarName);
             }
             if (responseVariableName != null) {
                 map.put("RESPONSE", responseVariableName);

@@ -46,21 +46,22 @@ import org.antlr.runtime.ANTLRReaderStream;
 import org.antlr.runtime.RecognizerSharedState;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.spi.lexer.Lexer;
 import org.netbeans.spi.lexer.LexerInput;
 import org.netbeans.spi.lexer.LexerRestartInfo;
 import org.netbeans.spi.lexer.TokenFactory;
-import static org.netbeans.lib.javafx.lexer.v3Lexer.BraceQuoteTracker;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Rastislav Komara (<a href="mailto:rastislav.komara@sun.com">RKo</a>)
  * @todo documentation
  */
-public class JFXLexer implements Lexer<JFXTokenId> {
-    private v3Lexer lexer;
+public class JFXLexer implements org.netbeans.spi.lexer.Lexer {
+    private static Logger log = Logger.getLogger(JFXLexer.class.getName());
+    private Lexer lexer;
     private TokenFactory<JFXTokenId> tokenFactory;
     private ANTLRReaderStream input;
     private LexerRestartInfo<JFXTokenId> info;
@@ -69,10 +70,11 @@ public class JFXLexer implements Lexer<JFXTokenId> {
     private boolean released;
 
     public JFXLexer() {
-        this.lexer = new v3Lexer();        
+        this.lexer = new v3Lexer();
     }
 
     public void restart(LexerRestartInfo<JFXTokenId> info) throws IOException {
+        if (log.isLoggable(Level.INFO)) log.info("Restarting lexer: " + info);
         this.info = info;
         released = false;
     }
@@ -81,7 +83,7 @@ public class JFXLexer implements Lexer<JFXTokenId> {
         if (released) return null;
         if (info != null) {
             try {
-                lexerInput = info.input();                
+                lexerInput = info.input();
                 final LexerInputStream reader = new LexerInputStream();
                 reader.setLexerInput(lexerInput);
 
@@ -89,11 +91,11 @@ public class JFXLexer implements Lexer<JFXTokenId> {
                 lexer = new v3Lexer(input);
                 final LexerState ls = (LexerState) info.state();
                 if (ls != null) {
-//                    input.setLine(ls.getLine());
-                    System.err.print("State in: ");
-                    BraceQuoteTracker.printStack(System.err, ls.getTracker());
-                    lexer.setBraceQuoteTracker(ls.getTracker());
-//                    lexer.setSharedState(ls.getSharedState());
+                    final Lexer.BraceQuoteTracker bqt = ls.getTracker(lexer);
+                    if (log.isLoggable(Level.INFO) && bqt != null) {
+                        log.info("StateIn: " + bqt.toString());
+                    }
+                    lexer.setBraceQuoteTracker(bqt);
                 }
                 tokenFactory = info.tokenFactory();
                 info = null;
@@ -105,8 +107,8 @@ public class JFXLexer implements Lexer<JFXTokenId> {
         final org.antlr.runtime.Token token = lexer.nextToken();
         if (token.getType() == v3Lexer.EOF) {
             if (lexerInput.readLength() > 0) {
-                System.err.println("Fallback token jfxt:" + lastType);
-                return tokenFactory.createToken(JFXTokenId.UNKNOWN, lexerInput.readLength()); 
+                log.warning("Fallback token jfxt:" + JFXTokenId.UNKNOWN);
+                return tokenFactory.createToken(JFXTokenId.UNKNOWN, lexerInput.readLength());
             }
             return null;
         }
@@ -121,9 +123,10 @@ public class JFXLexer implements Lexer<JFXTokenId> {
     }
 
     public Object state() {
-        final BraceQuoteTracker bqt = lexer.getBraceQuoteTracker();
-        System.err.print("StateOut: ");
-        BraceQuoteTracker.printStack(System.err, bqt);
+        final Lexer.BraceQuoteTracker bqt = lexer.getBraceQuoteTracker();
+        if (log.isLoggable(Level.INFO) && bqt != null) {
+//            log.info("StateOut: " + bqt.toString());
+        }
         if (bqt == null) {
             return null;
         }
@@ -154,7 +157,7 @@ public class JFXLexer implements Lexer<JFXTokenId> {
         private final BQLexerContainer state;
         private final RecognizerSharedState sharedState;
 
-        private LexerState(int line, v3Lexer.BraceQuoteTracker tracker, RecognizerSharedState sharedState) {
+        private LexerState(int line, Lexer.BraceQuoteTracker tracker, RecognizerSharedState sharedState) {
             this.line = line;
             this.state = BQLexerContainer.freezeState(tracker);
             this.sharedState = sharedState;
@@ -164,8 +167,8 @@ public class JFXLexer implements Lexer<JFXTokenId> {
             return line;
         }
 
-        public v3Lexer.BraceQuoteTracker getTracker() {
-            return BQLexerContainer.unfreezeState(state);
+        public Lexer.BraceQuoteTracker getTracker(Lexer lexer) {
+            return BQLexerContainer.unfreezeState(state, lexer);
         }
 
         public RecognizerSharedState getSharedState() {
@@ -187,19 +190,20 @@ public class JFXLexer implements Lexer<JFXTokenId> {
         }
 
 
-        static BQLexerContainer freezeState(BraceQuoteTracker t) {
+        static BQLexerContainer freezeState(Lexer.BraceQuoteTracker t) {
             BQLexerContainer root = null;
-            while ( t != null) {
+            while (t != null) {
                 root = new BQLexerContainer(t.getBraceDepth(), t.getQuote(), t.isPercentIsFormat(), root);
                 t = t.getNext();
             }
             return root;
         }
 
-        static BraceQuoteTracker unfreezeState(BQLexerContainer c) {
-            BraceQuoteTracker root = null;
+        static Lexer.BraceQuoteTracker unfreezeState(BQLexerContainer c, Lexer lexer) {
+            Lexer.BraceQuoteTracker root = null;
             while (c != null) {
-                root = new BraceQuoteTracker(root, c.quote, c.percentIsFormat);
+                root = lexer.createBQT(root, c.quote, c.percentIsFormat);
+                root.setBraceDepth(c.braceDepth);
                 c = c.previous;
             }
             return root;

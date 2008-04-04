@@ -81,7 +81,7 @@ made subject to such option by the copyright holder.
                   <!-- Add Set As Initial Page action -->
                   <file name="SetPortletModeAction.instance">
                      <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.visualweb.actions.SetAsInitialAction"/>
-                     <attr name="position" intvalue="100"/>
+                     <attr name="position" intvalue="150"/>
                    </file>
                 </folder>
                </folder>

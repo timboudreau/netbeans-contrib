@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.javafx.editor;
 
+import java.awt.event.ActionEvent;
 import java.util.Map;
 import javax.swing.Action;
 import javax.swing.text.Document;
@@ -54,7 +55,11 @@ import org.openide.loaders.DataObject;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.editor.Syntax;
 import org.netbeans.api.java.queries.SourceLevelQuery;
+import org.netbeans.editor.BaseAction;
+import org.netbeans.editor.BaseKit;
 import org.netbeans.editor.Formatter;
+import org.netbeans.editor.LocaleSupport;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -110,6 +115,7 @@ public class JavaFXEditorKit extends LexerEditorKit{
 //            resetAction,
             new JavaDefaultKeyTypedAction(),
             new JavaDeleteCharAction(deletePrevCharAction, false),
+            new JavaFXGoToSourceAction(),
             new JavaInsertBreakAction()
         };
         return TextAction.augmentList(superActions, javafxActions);
@@ -385,6 +391,33 @@ public class JavaFXEditorKit extends LexerEditorKit{
         protected void charBackspaced(BaseDocument doc, int dotPos, Caret caret, char ch)
         throws BadLocationException {
             BracketCompletion.charBackspaced(doc, dotPos, caret, ch);
+        }
+    }
+
+    private static class JavaFXGoToSourceAction extends BaseAction {
+
+        static final long serialVersionUID =-6440495023918097760L;
+
+        public JavaFXGoToSourceAction() {
+            super(gotoSourceAction,
+                  ABBREV_RESET | MAGIC_POSITION_RESET | UNDO_MERGE_RESET
+                  | SAVE_POSITION
+                 );
+            putValue(TRIMMED_TEXT, LocaleSupport.getString("goto-source-trimmed"));  //NOI18N            
+        }
+
+        public void actionPerformed(ActionEvent evt, JTextComponent target) {
+            if (target != null && (target.getDocument() instanceof BaseDocument)) {
+                GoToSupport.goTo((BaseDocument) target.getDocument(), target.getCaretPosition(), true);
+            }
+        }
+        
+        public String getPopupMenuText(JTextComponent target) {
+            return NbBundle.getBundle(JavaFXEditorKit.class).getString("goto_source_open_source_not_formatted"); //NOI18N
+        }
+        
+        protected Class getShortDescriptionBundleClass() {
+            return BaseKit.class;
         }
     }
     

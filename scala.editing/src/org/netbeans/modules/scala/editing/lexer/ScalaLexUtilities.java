@@ -1455,7 +1455,8 @@ public class ScalaLexUtilities {
     public static boolean isDocComment(TokenId id) {
         if (id == ScalaTokenId.DocCommentStart ||
                 id == ScalaTokenId.DocCommentEnd ||
-                id == ScalaTokenId.DocCommentData) {
+                id == ScalaTokenId.DocCommentData ||
+                id == ScalaTokenId.CommentTag) {
             return true;
         } else {
             return false;
@@ -1466,7 +1467,8 @@ public class ScalaLexUtilities {
     public static boolean isBlockComment(TokenId id) {
         if (id == ScalaTokenId.BlockCommentStart ||
                 id == ScalaTokenId.BlockCommentEnd ||
-                id == ScalaTokenId.BlockCommentData) {
+                id == ScalaTokenId.BlockCommentData ||
+                id == ScalaTokenId.CommentTag) {
             return true;
         } else {
             return false;
