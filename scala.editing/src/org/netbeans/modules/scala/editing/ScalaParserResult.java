@@ -44,6 +44,8 @@ import java.util.List;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
+import org.netbeans.modules.scala.editing.visitors.Scope;
+import org.netbeans.modules.scala.editing.visitors.SignatureVisitor;
 import xtc.tree.Node;
 
 /**
@@ -60,7 +62,7 @@ public class ScalaParserResult extends ParserResult {
     private String sanitizedContents;
     private ScalaParser.Sanitize sanitized;
     private boolean commentsAdded;
-    //private Scope rootScope;
+    private Scope rootScope;
     private List<Integer> linesOffset;
 
     public ScalaParserResult(ScalaParser parser, ParserFile file, Node rootNode, AstTreeNode ast, List<Integer> linesOffset) {
@@ -129,18 +131,22 @@ public class ScalaParserResult extends ParserResult {
         this.commentsAdded = commentsAdded;
     }
 
-//    public Scope getRootScope() {
-//        if (rootScope == null) {
-//            Node node = getRootNode();
-//            assert node != null : "Attempted to get definition visitor for broken source";
-//
-//            SignatureVisitor definitionVisitor = new SignatureVisitor(node, linesOffset);
-//            node.accept(definitionVisitor);
-//            rootScope = definitionVisitor.getRootScope();
-//        }
-//
-//        return rootScope;
-//    }
+    public Scope getRootScope() {
+        if (rootScope == null) {
+            Node node = getRootNode();
+            
+            if (node == null) {
+                System.err.println("Attempted to get definition visitor for broken source");
+                return null;
+            }
+            
+            SignatureVisitor signatureVisitor = new SignatureVisitor(node, linesOffset);
+            signatureVisitor.accept(node);
+            rootScope = signatureVisitor.getRootScope();
+        }
+
+        return rootScope;
+    }
 
     @Override
     public String toString() {

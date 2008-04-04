@@ -50,20 +50,19 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import javax.tools.JavaFileObject;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -71,11 +70,24 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileChangeListener;
+import org.openide.filesystems.FileEvent;
+import org.openide.filesystems.FileRenameEvent;
+import org.openide.util.RequestProcessor;
+import org.openide.util.WeakListeners;
+import org.netbeans.modules.javafx.source.scheduler.DocListener;
+import org.netbeans.modules.javafx.source.scheduler.DataObjectListener;
+import org.netbeans.modules.javafx.source.scheduler.CompilationJob;
+import org.netbeans.modules.javafx.source.scheduler.EditorRegistryListener;
+import org.netbeans.modules.javafx.source.scheduler.Request;
+
 
 /**
  * A class representing JavaFX source.
  * 
  * @author nenik
+ * @author David Strupl
  */
 public final class JavaFXSource {
 
@@ -100,6 +112,73 @@ public final class JavaFXSource {
         MIN
     };
 
+    // flags:
+    public static final int INVALID = 1;
+    public static final int CHANGE_EXPECTED = INVALID<<1;
+    public static final int RESCHEDULE_FINISHED_TASKS = CHANGE_EXPECTED<<1;
+    public static final int UPDATE_INDEX = RESCHEDULE_FINISHED_TASKS<<1;
+    public static final int IS_CLASS_FILE = UPDATE_INDEX<<1;
+    
+    private static Map<FileObject, Reference<JavaFXSource>> file2Source = new WeakHashMap<FileObject, Reference<JavaFXSource>>();
+    private static final RequestProcessor RP = new RequestProcessor ("JavaFXSource-event-collector",1);       //NOI18N
+    static final Logger LOGGER = Logger.getLogger(JavaFXSource.class.getName());
+    
+    private static final int REPARSE_DELAY = 500;
+    private static final Pattern excludedTasks;
+    private static final Pattern includedTasks;
+
+    // all the following should be private:
+    public int flags = 0;
+    public volatile boolean k24;
+    public CompilationController currentInfo;
+    
+    public final Collection<? extends FileObject> files;
+    public final int reparseDelay;
+    
+    private final ClasspathInfo cpInfo;
+    private final AtomicReference<Request> rst = new AtomicReference<Request> ();
+    private final FileChangeListener fileChangeListener;
+    
+    private DocListener listener;
+    private DataObjectListener dataObjectListener;
+    
+    public final RequestProcessor.Task resetTask = RP.create(new Runnable() {
+        public void run() {
+            resetStateImpl();
+        }
+    });
+    
+    static {
+        // Start listening on the editor registry:
+        EditorRegistryListener.singleton.toString();
+//        Init the maps
+//        phase2Message.put (Phase.PARSED,"Parsed");                              //NOI18N
+//        phase2Message.put (Phase.ELEMENTS_RESOLVED,"Signatures Attributed");    //NOI18N
+//        phase2Message.put (Phase.RESOLVED, "Attributed");                       //NOI18N
+        
+        //Initialize the excludedTasks
+        Pattern _excludedTasks = null;
+        try {
+            String excludedValue= System.getProperty("org.netbeans.api.java.source.JavaFXSource.excludedTasks");      //NOI18N
+            if (excludedValue != null) {
+                _excludedTasks = Pattern.compile(excludedValue);
+            }
+        } catch (PatternSyntaxException e) {
+            e.printStackTrace();
+        }
+        excludedTasks = _excludedTasks;
+        Pattern _includedTasks = null;
+        try {
+            String includedValue= System.getProperty("org.netbeans.api.java.source.JavaFXSource.includedTasks");      //NOI18N
+            if (includedValue != null) {
+                _includedTasks = Pattern.compile(includedValue);
+            }
+        } catch (PatternSyntaxException e) {
+            e.printStackTrace();
+        }
+        includedTasks = _includedTasks;
+    }  
+
     JavafxcTask createJavafxcTask() {
         JavafxcTool tool = JavafxcTool.create();
         JavacFileManager fileManager = tool.getStandardFileManager(null, null, Charset.defaultCharset());
@@ -110,7 +189,7 @@ public final class JavaFXSource {
         return task;
   }
 
-    Phase moveToPhase(Phase phase, CompilationController cc, boolean b) throws IOException {
+    public Phase moveToPhase(Phase phase, CompilationController cc, boolean b) throws IOException {
         if (cc.phase.lessThan(Phase.PARSED)) {
                 Iterable<? extends CompilationUnitTree> trees = cc.getJavafxcTask().parse();
 //                new JavaFileObject[] {currentInfo.jfo});
@@ -118,26 +197,49 @@ public final class JavaFXSource {
                 System.err.println("Parsed to: ");
                 for (CompilationUnitTree cut : trees) {
                     System.err.println("  cut:" + cut);
+                    cc.setCompilationUnit(cut);
                 }
-                
                 /*                assert trees != null : "Did not parse anything";        //NOI18N
                 Iterator<? extends CompilationUnitTree> it = trees.iterator();
                 assert it.hasNext();
                 CompilationUnitTree unit = it.next();
                 currentInfo.setCompilationUnit(unit);
 */
+                cc.phase = Phase.PARSED;
         }
         return phase;
     }
 
-    private static Map<FileObject, Reference<JavaFXSource>> file2Source = new WeakHashMap<FileObject, Reference<JavaFXSource>>();
-    private static final Logger LOGGER = Logger.getLogger(JavaFXSource.class.getName());
-    private final ClasspathInfo cpInfo;
-    private final Collection<? extends FileObject> files;
     
     private JavaFXSource(ClasspathInfo cpInfo, Collection<? extends FileObject> files) throws IOException {
         this.cpInfo = cpInfo;
         this.files = Collections.unmodifiableList(new ArrayList<FileObject>(files));   //Create a defensive copy, prevent modification
+        
+        this.reparseDelay = REPARSE_DELAY;
+        this.fileChangeListener = new FileChangeListenerImpl ();
+        boolean multipleSources = this.files.size() > 1, filterAssigned = false;
+        for (Iterator<? extends FileObject> it = this.files.iterator(); it.hasNext();) {
+            FileObject file = it.next();
+            try {
+                Logger.getLogger("TIMER").log(Level.FINE, "JavaFXSource",
+                    new Object[] {file, this});
+                if (!multipleSources) {
+                    file.addFileChangeListener(FileUtil.weakFileChangeListener(this.fileChangeListener,file));
+                    assignDocumentListener(DataObject.find(file));
+                    dataObjectListener = new DataObjectListener(file,this);                                        
+                }
+            } catch (DataObjectNotFoundException donf) {
+                if (multipleSources) {
+                    LOGGER.warning("Ignoring non existent file: " + FileUtil.getFileDisplayName(file));     //NOI18N
+                    it.remove();
+                }
+                else {
+                    throw donf;
+                }
+            }
+        }
+        this.cpInfo.addChangeListener(WeakListeners.change(listener, this.cpInfo));
+        
     }
     
     
@@ -198,7 +300,7 @@ public final class JavaFXSource {
         return null;
     }
 
-    public void runUserActionTask( final Task<CompilationInfo> task, final boolean shared) throws IOException {
+    public void runUserActionTask( final Task<? super CompilationController> task, final boolean shared) throws IOException {
         if (task == null) {
             throw new IllegalArgumentException ("Task cannot be null");     //NOI18N
         }
@@ -208,7 +310,6 @@ public final class JavaFXSource {
         if (this.files.size()<=1) {                        
             // XXX: cancel pending tasks
 
-            CompilationInfo currentInfo = null;
             // XXX: validity check
             final CompilationController clientController = createCurrentInfo (this, null);
             try {
@@ -224,7 +325,7 @@ public final class JavaFXSource {
         }
     }
 
-    private static CompilationController createCurrentInfo (final JavaFXSource js, final String javafxc) throws IOException {                
+    public static CompilationController createCurrentInfo (final JavaFXSource js, final String javafxc) throws IOException {                
         CompilationController info = new CompilationController(js);//js, binding, javac);
         return info;
     }
@@ -264,9 +365,9 @@ public final class JavaFXSource {
                 return;
             }
         }
-        synchronized (INTERNAL_LOCK) {
-            toRemove.add (task);
-            Collection<Request> rqs = finishedRequests.get(this);
+        synchronized (CompilationJob.INTERNAL_LOCK) {
+            CompilationJob.toRemove.add (task);
+            Collection<Request> rqs = CompilationJob.finishedRequests.get(this);
             if (rqs != null) {
                 for (Iterator<Request> it = rqs.iterator(); it.hasNext(); ) {
                     Request rq = it.next();
@@ -283,16 +384,16 @@ public final class JavaFXSource {
      * @task to reschedule
      */
     void rescheduleTask(CancellableTask<CompilationInfo> task) {
-        synchronized (INTERNAL_LOCK) {
-            JavaFXSource.Request request = currentRequest.getTaskToCancel (task);
+        synchronized (CompilationJob.INTERNAL_LOCK) {
+            Request request = CompilationJob.currentRequest.getTaskToCancel (task);
             if ( request == null) {                
-out:            for (Iterator<Collection<Request>> it = finishedRequests.values().iterator(); it.hasNext();) {
+out:            for (Iterator<Collection<Request>> it = CompilationJob.finishedRequests.values().iterator(); it.hasNext();) {
                     Collection<Request> cr = it.next ();
                     for (Iterator<Request> it2 = cr.iterator(); it2.hasNext();) {
                         Request fr = it2.next();
                         if (task == fr.task) {
                             it2.remove();
-                            JavaFXSource.requests.add(fr);
+                            CompilationJob.requests.add(fr);
                             if (cr.size()==0) {
                                 it.remove();
                             }
@@ -302,328 +403,165 @@ out:            for (Iterator<Collection<Request>> it = finishedRequests.values(
                 }
             }
             else {
-                currentRequest.cancelCompleted(request);
-            }
-        }        
-    }
-
-    private int flags = 0;   
-
-    private static final int INVALID = 1;
-    
-    private static final Pattern excludedTasks;
-    private static final Pattern includedTasks;
-    private static final Object INTERNAL_LOCK = new Object();
-    private final static PriorityBlockingQueue<Request> requests = new PriorityBlockingQueue<Request> (10, new RequestComparator());
-    private final static Map<JavaFXSource,Collection<Request>> finishedRequests = new WeakHashMap<JavaFXSource,Collection<Request>>();
-    private final static Map<JavaFXSource,Collection<Request>> waitingRequests = new WeakHashMap<JavaFXSource,Collection<Request>>();
-    private final static Collection<CancellableTask> toRemove = new LinkedList<CancellableTask> ();
-    private final static SingleThreadFactory factory = new SingleThreadFactory ();
-    private final static CurrentRequestReference currentRequest = new CurrentRequestReference ();
-//    private final static EditorRegistryListener editorRegistryListener = new EditorRegistryListener ();
-//    private final static List<DeferredTask> todo = Collections.synchronizedList(new LinkedList<DeferredTask>());    
-//    //Only single thread can operate on the single javac
-    private final static ReentrantLock javacLock = new ReentrantLock (true);
-    
-    private static class Request {
-        private final CancellableTask<? extends CompilationInfo> task;
-        private final JavaFXSource JavaFXSource;        //XXX: Maybe week, depends on the semantics
-        private final Phase phase;
-        private final Priority priority;
-        private final boolean reschedule;
-        
-        public Request (final CancellableTask<? extends CompilationInfo> task, final JavaFXSource JavaFXSource,
-            final Phase phase, final Priority priority, final boolean reschedule) {
-            assert task != null;
-            this.task = task;
-            this.JavaFXSource = JavaFXSource;
-            this.phase = phase;
-            this.priority = priority;
-            this.reschedule = reschedule;
-        }
-        
-        public @Override String toString () {            
-            if (reschedule) {
-                return String.format("Periodic request for phase: %s with priority: %s to perform: %s", phase.name(), priority, task.toString());   //NOI18N
-            }
-            else {
-                return String.format("One time request for phase: %s with priority: %s to perform: %s", phase != null ? phase.name() : "<null>", priority, task.toString());   //NOI18N
-            }
-        }
-        
-        public @Override int hashCode () {
-            return this.priority.ordinal();
-        }
-        
-        public @Override boolean equals (Object other) {
-            if (other instanceof Request) {
-                Request otherRequest = (Request) other;
-                return priority == otherRequest.priority
-                    && reschedule == otherRequest.reschedule
-                    && (phase == null ? otherRequest.phase == null : phase.equals (otherRequest.phase))
-                    && task.equals(otherRequest.task);                       
-            }
-            else {
-                return false;
+                CompilationJob.currentRequest.cancelCompleted(request);
             }
         }        
     }
     
-    private static class RequestComparator implements Comparator<Request> {
-        public int compare (Request r1, Request r2) {
-            assert r1 != null && r2 != null;
-            return r1.priority.compareTo (r2.priority);
+    /**
+     * Not synchronized, only sets the atomic state and clears the listeners
+     *
+     */
+    private void resetStateImpl() {
+        if (!k24) {
+            Request r = rst.getAndSet(null);
+            CompilationJob.currentRequest.cancelCompleted(r);
+            synchronized (CompilationJob.INTERNAL_LOCK) {
+                boolean reschedule, updateIndex;
+                synchronized (this) {
+                    reschedule = (this.flags & RESCHEDULE_FINISHED_TASKS) != 0;
+                    updateIndex = (this.flags & UPDATE_INDEX) != 0;
+                    this.flags&=~(RESCHEDULE_FINISHED_TASKS|CHANGE_EXPECTED|UPDATE_INDEX);
+                }            
+                Collection<Request> cr;            
+                if (reschedule) {                
+                    if ((cr=CompilationJob.finishedRequests.remove(this)) != null && cr.size()>0)  {
+                        CompilationJob.requests.addAll(cr);
+                    }
+                }
+                if ((cr=CompilationJob.waitingRequests.remove(this)) != null && cr.size()>0)  {
+                    CompilationJob.requests.addAll(cr);
+                }
+            }          
         }
     }
+    
+
+    public void resetState(boolean invalidate, boolean updateIndex) {
+        boolean invalid;
+        synchronized (this) {
+            invalid = (this.flags & INVALID) != 0;
+            this.flags|=CHANGE_EXPECTED;
+            if (invalidate) {
+                this.flags|=(INVALID|RESCHEDULE_FINISHED_TASKS);
+                if (this.currentInfo != null) {
+//                    this.currentInfo.setChangedMethod (changedMethod);
+                }
+            }
+            if (updateIndex) {
+                this.flags|=UPDATE_INDEX;
+            }            
+        }
+        Request r = CompilationJob.currentRequest.getTaskToCancel (invalidate);
+        if (r != null) {
+            r.task.cancel();
+            Request oldR = rst.getAndSet(r);
+            assert oldR == null;
+        }
+        if (!k24) {
+            resetTask.schedule(reparseDelay);
+        }
+    }
+    
+    public void assignDocumentListener(final DataObject od) throws IOException {
+        EditorCookie.Observable ec = od.getCookie(EditorCookie.Observable.class);            
+        if (ec != null) {
+            listener = new DocListener (ec,this);
+        } else {
+            LOGGER.log(Level.WARNING,String.format("File: %s has no EditorCookie.Observable", FileUtil.getFileDisplayName (od.getPrimaryFile())));      //NOI18N
+        }
+    }
+    
+    public TokenHierarchy getTokenHierarchy() {
+        if ((listener == null) || (listener.getDocument() == null)) {
+            return null;
+        }
+        TokenHierarchy th = TokenHierarchy.get(listener.getDocument());
+        return th;
+    }
+    
+    String getText() {
+        if ((listener == null) || (listener.getDocument() == null)) {
+            return "";
+        }
+        try {
+            return listener.getDocument().getText(0, listener.getDocument().getLength());
+        } catch (BadLocationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return "";
+    }
+    
     private static void handleAddRequest (final Request nr) {
         assert nr != null;
         //Issue #102073 - removed running task which is readded is not performed
-        synchronized (INTERNAL_LOCK) {            
-            toRemove.remove(nr.task);
-            requests.add (nr);
+        synchronized (CompilationJob.INTERNAL_LOCK) {            
+            CompilationJob.toRemove.remove(nr.task);
+            CompilationJob.requests.add (nr);
         }
-        JavaFXSource.Request request = currentRequest.getTaskToCancel(nr.priority);
+        Request request = CompilationJob.currentRequest.getTaskToCancel(nr.priority);
         try {
             if (request != null) {
                 request.task.cancel();
             }
         } finally {
-            currentRequest.cancelCompleted(request);
-        }
-    }
-    /**
-     *  Only encapsulates current request. May be trasformed into 
-     *  JavaFXSource private static methods, but it may be less readable.
-     */
-    private static final class CurrentRequestReference {                        
-        
-        private static JavaFXSource.Request DUMMY_RQ = new JavaFXSource.Request (new CancellableTask<CompilationInfo>() { public void cancel (){}; public void run (CompilationInfo info){}},null,null,null,false);
-        
-        private JavaFXSource.Request reference;
-        private JavaFXSource.Request canceledReference;
-        private long cancelTime;
-        private final AtomicBoolean canceled;
-        private boolean mayCancelJavac;
-        
-        CurrentRequestReference () {
-            this.canceled = new AtomicBoolean();
-        }
-        
-        boolean setCurrentTask (JavaFXSource.Request reference) throws InterruptedException {
-            boolean result = false;
-            synchronized (INTERNAL_LOCK) {
-                while (this.canceledReference!=null) {
-                    INTERNAL_LOCK.wait();
-                }
-                result = this.canceled.getAndSet(false);
-                this.mayCancelJavac = false;
-                this.cancelTime = 0;
-                this.reference = reference;                
-            }
-            return result;
-        }
-        
-        /**
-         * Prevents race-condition in runWhenScanFinished. This method may be called only from
-         * the Java-Source-Worker-Thread right after the initial scan finished. The problem was
-         * that the task was added into the todo after the todo was drained into the list of pending
-         * tasks but the getTaskToCancel thought that the task is still the RepositoryUpdater. So the
-         * Java-Source-Worker-Thread has to clean the task after calling RU.run but before draining the
-         * pending tasks into the array, it cannot use setCurrentTaks (null) since it is under javac lock
-         * and the setCurrentTaks methods may block the caller thread => deadlock.
-         */ 
-        void clearCurrentTask () {
-            synchronized (INTERNAL_LOCK) {
-                this.reference = null;
-            }
-        }
-        
-        JavaFXSource.Request getTaskToCancel (final Priority priority) {
-            JavaFXSource.Request request = null;
-            if (!factory.isDispatchThread(Thread.currentThread())) {
-                synchronized (INTERNAL_LOCK) {
-                    if (this.reference != null && priority.compareTo(this.reference.priority) < 0) {
-                        assert this.canceledReference == null;
-                        request = this.reference;
-                        this.canceledReference = request;
-                        this.reference = null;
-                        this.canceled.set(true);                    
-                        this.cancelTime = System.currentTimeMillis();
-                    }
-                }
-            }
-            return request;
-        }
-        
-        JavaFXSource.Request getTaskToCancel (final boolean mayCancelJavac) {
-            JavaFXSource.Request request = null;
-            if (!factory.isDispatchThread(Thread.currentThread())) {
-                synchronized (INTERNAL_LOCK) {
-                    if (this.reference != null) {
-                        assert this.canceledReference == null;
-                        request = this.reference;
-                        this.canceledReference = request;
-                        this.reference = null;
-                        this.canceled.set(true);
-                        this.mayCancelJavac = mayCancelJavac;
-                        this.cancelTime = System.currentTimeMillis();
-                    }
-                    else if (canceledReference == null)  {
-                        request = DUMMY_RQ;
-                        this.canceledReference = request;
-                        this.mayCancelJavac = mayCancelJavac;
-                        this.cancelTime = System.currentTimeMillis();
-                    }
-                }
-            }
-            return request;
-        }
-        
-        JavaFXSource.Request getTaskToCancel (final CancellableTask task) {
-            JavaFXSource.Request request = null;
-            if (!factory.isDispatchThread(Thread.currentThread())) {
-                synchronized (INTERNAL_LOCK) {
-                    if (this.reference != null && task == this.reference.task) {
-                        assert this.canceledReference == null;
-                        request = this.reference;
-                        this.canceledReference = request;
-                        this.reference = null;
-                        this.canceled.set(true);
-                    }
-                }
-            }
-            return request;
-        }
-        
-        JavaFXSource.Request getTaskToCancel () {
-            JavaFXSource.Request request = null;
-            if (!factory.isDispatchThread(Thread.currentThread())) {                
-                synchronized (INTERNAL_LOCK) {
-                     request = this.reference;
-                    if (request != null) {
-                        assert this.canceledReference == null;
-                        this.canceledReference = request;
-                        this.reference = null;
-                        this.canceled.set(true);
-                        this.cancelTime = System.currentTimeMillis();
-                    }
-                }
-            }
-            return request;
-        }
-        
-        /**
-         * Called by {@link JavaFXSource#runWhenScanFinished} to find out which
-         * task is currently running. Returns true when the running task in backgroud
-         * scan otherwise returns false. The caller is expected not to call cancel on
-         * the background scanner, so this method do not reset reference and do not set
-         * cancelled flag when running task is background scan. But it sets the canceledReference
-         * to prevent java source thread to dispatch next queued task.
-         * @param request is filled by currently running task or null when there is no running task.
-         * @return true when running task is background scan
-         */
-        boolean getUserTaskToCancel (JavaFXSource.Request[] request) {
-            assert request != null;
-            assert request.length == 1;
-            boolean result = false;
-            if (!factory.isDispatchThread(Thread.currentThread())) {                
-                synchronized (INTERNAL_LOCK) {
-                     request[0] = this.reference;
-                    if (request[0] != null) {
-                        result = request[0].phase == null;
-                        assert this.canceledReference == null;                        
-                        if (!result) {
-                            this.canceledReference = request[0];
-                            this.reference = null;                        
-                        }
-                        this.canceled.set(result);
-                        this.cancelTime = System.currentTimeMillis();
-                    }
-                }
-            }
-            return result;
-        }
-        
-        boolean isCanceled () {
-            synchronized (INTERNAL_LOCK) {
-                return this.canceled.get();
-            }
-        }
-        
-        AtomicBoolean getCanceledRef () {
-            return this.canceled;
-        }
-        
-        boolean isInterruptJavac () {
-            synchronized (INTERNAL_LOCK) {
-                boolean ret = this.mayCancelJavac && 
-                        this.canceledReference != null &&
-                        this.canceledReference.JavaFXSource != null &&
-                        (this.canceledReference.JavaFXSource.flags & INVALID) != 0;
-                return ret;
-            }
-        }
-        
-        long getCancelTime () {
-            synchronized (INTERNAL_LOCK) {
-                return this.cancelTime;
-            }
-        }
-        
-        void cancelCompleted (final JavaFXSource.Request request) {
-            if (request != null) {
-                synchronized (INTERNAL_LOCK) {
-                    assert request == this.canceledReference;
-                    this.canceledReference = null;
-                    INTERNAL_LOCK.notify();
-                }
-            }
+            CompilationJob.currentRequest.cancelCompleted(request);
         }
     }
     
-    private static class SingleThreadFactory implements ThreadFactory {
-        
-        private Thread t;
-        
-        public Thread newThread(Runnable r) {
-            assert this.t == null;
-            this.t = new Thread (r,"Java Source Worker Thread");     //NOI18N
-            return this.t;
-        }
-        
-        public boolean isDispatchThread (Thread t) {
-            assert t != null;
-            return this.t == t;
-        }
-    }
-/**
-     * Init the maps
+        /**
+     * Performs the given task when the scan finished. When no background scan is running
+     * it performs the given task synchronously. When the background scan is active it queues
+     * the given task and returns, the task is performed when the background scan completes by
+     * the thread doing the background scan.
+     * @param task to be performed
+     * @param shared if true the java compiler may be reused by other {@link org.netbeans.api.java.source.CancellableTasks},
+     * the value false may have negative impact on the IDE performance.
+     * @return {@link Future} which can be used to find out the sate of the task {@link Future#isDone} or {@link Future#isCancelled}.
+     * The caller may cancel the task using {@link Future#cancel} or wait until the task is performed {@link Future#get}.
+     * @throws IOException encapsulating the exception thrown by {@link CancellableTasks#run}
+     * @since 0.12
      */
-    static {
-//        phase2Message.put (Phase.PARSED,"Parsed");                              //NOI18N
-//        phase2Message.put (Phase.ELEMENTS_RESOLVED,"Signatures Attributed");    //NOI18N
-//        phase2Message.put (Phase.RESOLVED, "Attributed");                       //NOI18N
+    public Future<Void> runWhenScanFinished (final Task<CompilationController> task, final boolean shared) throws IOException {
+        return CompilationJob.runWhenScanFinished(this, task, shared);
+    }
+
+    /**
+     * Returns a {@link JavaSource} instance associated to the given {@link javax.swing.Document},
+     * it returns null if the {@link Document} is not
+     * associated with data type providing the {@link JavaSource}.
+     * @param doc {@link Document} for which the {@link JavaSource} should be found/created.
+     * @return {@link JavaSource} or null
+     * @throws {@link IllegalArgumentException} if doc is null
+     */
+    public static JavaFXSource forDocument(Document doc) throws IllegalArgumentException {
+        if (doc == null) {
+            throw new IllegalArgumentException ("doc == null");  //NOI18N
+        }
+        Reference<?> ref = (Reference<?>) doc.getProperty(JavaFXSource.class);
+        JavaFXSource js = ref != null ? (JavaFXSource) ref.get() : null;
+        if (js == null) {
+            Object source = doc.getProperty(Document.StreamDescriptionProperty);
+            
+            if (source instanceof DataObject) {
+                DataObject dObj = (DataObject) source;
+                if (dObj != null) {
+                    js = forFileObject(dObj.getPrimaryFile());
+                }
+            }
+        }
+        return js;
+    }
+    
+    private class FileChangeListenerImpl extends FileChangeAdapter {                
         
-        //Initialize the excludedTasks
-        Pattern _excludedTasks = null;
-        try {
-            String excludedValue= System.getProperty("org.netbeans.api.java.source.JavaFXSource.excludedTasks");      //NOI18N
-            if (excludedValue != null) {
-                _excludedTasks = Pattern.compile(excludedValue);
-            }
-        } catch (PatternSyntaxException e) {
-            e.printStackTrace();
-        }
-        excludedTasks = _excludedTasks;
-        Pattern _includedTasks = null;
-        try {
-            String includedValue= System.getProperty("org.netbeans.api.java.source.JavaFXSource.includedTasks");      //NOI18N
-            if (includedValue != null) {
-                _includedTasks = Pattern.compile(includedValue);
-            }
-        } catch (PatternSyntaxException e) {
-            e.printStackTrace();
-        }
-        includedTasks = _includedTasks;
-    }   
+        public @Override void fileChanged(final FileEvent fe) {
+            resetState(true, false);
+        }        
+
+        public @Override void fileRenamed(FileRenameEvent fe) {
+            resetState(true, false);
+        }        
+    }
+
 }

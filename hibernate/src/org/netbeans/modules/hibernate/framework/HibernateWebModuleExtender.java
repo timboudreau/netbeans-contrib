@@ -175,19 +175,17 @@ public class HibernateWebModuleExtender extends WebModuleExtender {
                         String propName = sessionFactory.getAttributeValue(SessionFactory.PROPERTY2, index++, "name");  //NOI18N
                         if(dialect.contains(propName)) {
                             configPanel.setDialect(propValue);
-                        }                 
+                        }
+                        if (url.contains(propName)) {
+                            configPanel.setDatabaseConnection(propValue);
+                        }
                     }
                     
                 } catch (DataObjectNotFoundException ex) {
                     Exceptions.printStackTrace(ex);
                 }
                 
-            } else {
-                // There's no default hibernate configuration file.
-                // Clear the fields and disable the panel.
-                configPanel.setSessionName("");
-                configPanel.setDialect("");                
-            }
+            } 
             configPanel.disable();
         }
     }

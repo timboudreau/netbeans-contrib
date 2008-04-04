@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
@@ -58,6 +59,7 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
         super(NbBundle.getMessage(JSR168WebFrameworkProvider.class, "LBL_PORTLET_FRAMEWORK"),NbBundle.getMessage(JSR168WebFrameworkProvider.class, "LBL_PORTLET_FRAMEWORK_DESC"));
     }
     
+    @Override
     public WebModuleExtender createWebModuleExtender(WebModule wm, ExtenderController controller) {
         
         boolean customizer = (wm != null && isInWebModule(wm));
@@ -128,8 +130,16 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
         FileObject webInfObj = wm.getWebInf();
         
         File portletXml = new File(FileUtil.toFile(webInfObj),"portlet.xml");
-        return portletXml.exists();
-       
+        
+        ClassPath cp = ClassPath.getClassPath(wm.getDocumentBase(), ClassPath.COMPILE);
+        
+        if (cp == null || cp.findResource("javax/portlet/GenericPortlet.class") == null) { //NOI18N
+            return false;
+        }
+        if(!portletXml.exists())
+            return false;
+        
+        return true;
     }
 
     public File[] getConfigurationFiles(WebModule wm) {

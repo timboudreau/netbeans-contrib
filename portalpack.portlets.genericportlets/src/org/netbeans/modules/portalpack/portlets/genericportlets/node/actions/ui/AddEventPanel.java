@@ -183,6 +183,13 @@ public class AddEventPanel extends javax.swing.JDialog {
         DialogDisplayer.getDefault().notify(nd);
         return;
     }
+    
+    if(localPart.endsWith("."))
+    {
+        NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(AddRenderParameterPanel.class, "DOT_NOT_ALLOWED_AT_END_OF_LOCALPART"),NotifyDescriptor.ERROR_MESSAGE);
+        DialogDisplayer.getDefault().notify(nd);
+        return;
+    }
     String value = valueType.getText();
     if(value == null || value.trim().length() == 0 || !CoreUtil.validatePackageName(value))
     {
@@ -190,8 +197,14 @@ public class AddEventPanel extends javax.swing.JDialog {
         DialogDisplayer.getDefault().notify(nd);
         return;
     }
-    
-    if(namespace == null || namespace.length() ==0) namespace = null;
+    if(qNameCB.isSelected())
+    {
+         if(namespace == null || namespace.length() ==0){
+             NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(AddRenderParameterPanel.class, "NOT_A_VALID_NAMESPACE"),NotifyDescriptor.ERROR_MESSAGE);
+             DialogDisplayer.getDefault().notify(nd);
+             return;
+         }
+    }
     //QName qName = null;
 
    /* if((prefix == null || prefix.length() == 0) && namespace == null)

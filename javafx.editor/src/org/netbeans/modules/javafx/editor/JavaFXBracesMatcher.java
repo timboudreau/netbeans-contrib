@@ -42,9 +42,10 @@
 package org.netbeans.modules.javafx.editor;
 
 import java.util.List;
+import java.util.ArrayList;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.netbeans.api.javafx.lexer.JavaFXTokenId;
+import org.netbeans.api.javafx.lexer.JFXTokenId;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
@@ -60,11 +61,13 @@ import org.netbeans.spi.editor.bracesmatching.support.BracesMatcherSupport;
  */
 public final class JavaFXBracesMatcher implements BracesMatcher, BracesMatcherFactory {
     private static final char [] PAIRS = new char [] { '(', ')', '[', ']', '{', '}' }; //NOI18N
-    private static final JavaFXTokenId [] PAIR_TOKEN_IDS = new JavaFXTokenId [] { 
-        JavaFXTokenId.LPAREN, JavaFXTokenId.RPAREN, 
-        JavaFXTokenId.LBRACKET, JavaFXTokenId.RBRACKET, 
-        JavaFXTokenId.LBRACE, JavaFXTokenId.RBRACE
+    private static final JFXTokenId[] PAIR_TOKEN_IDS = new JFXTokenId [] { 
+        JFXTokenId.LPAREN, JFXTokenId.RPAREN,
+        JFXTokenId.LBRACKET, JFXTokenId.RBRACKET, 
+        JFXTokenId.LBRACE, JFXTokenId.RBRACE,
+        JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, JFXTokenId.RBRACE_QUOTE_STRING_LITERAL
     };
+    
     
     private final MatcherContext context;
     
@@ -107,16 +110,16 @@ public final class JavaFXBracesMatcher implements BracesMatcher, BracesMatcherFa
     public int[] findMatches() throws InterruptedException, BadLocationException {
         TokenHierarchy<Document> th = TokenHierarchy.get(context.getDocument());
         List<TokenSequence<? extends TokenId>> sequences = getEmbeddedTokenSequences(
-            th, originOffset, backward, JavaFXTokenId.language());
+            th, originOffset, backward, JFXTokenId.language());
 
         if (!sequences.isEmpty()) {
             // Check special tokens
             TokenSequence<? extends TokenId> seq = sequences.get(sequences.size() - 1);
             seq.move(originOffset);
             if (seq.moveNext()) {
-                if (seq.token().id() == JavaFXTokenId.STRING_LITERAL ||
-                    seq.token().id() == JavaFXTokenId.BLOCK_COMMENT ||
-                    seq.token().id() == JavaFXTokenId.LINE_COMMENT
+                if (seq.token().id() == JFXTokenId.STRING_LITERAL ||
+                    seq.token().id() == JFXTokenId.COMMENT ||
+                    seq.token().id() == JFXTokenId.LINE_COMMENT
                 ) {
                     int offset = BracesMatcherSupport.matchChar(
                         context.getDocument(), 
@@ -141,11 +144,11 @@ public final class JavaFXBracesMatcher implements BracesMatcher, BracesMatcherFa
                 list = th.tokenSequenceList(seq.languagePath(), originOffset + 1, context.getDocument().getLength());
             }
             
-            JavaFXTokenId originId = getTokenId(originChar);
-            JavaFXTokenId lookingForId = getTokenId(matchingChar);
+            JFXTokenId originId = getTokenId(originChar);
+            JFXTokenId lookingForId = getTokenId(matchingChar);
             int counter = 0;
             
-            for(TokenSequenceIterator tsi = new TokenSequenceIterator(list, backward); tsi.hasMore(); ) {
+            for(TokenSequenceIterator tsi = new TokenSequenceIterator(new ArrayList<TokenSequence<? extends TokenId>>(list), backward); tsi.hasMore(); ) {
                 TokenSequence<? extends TokenId> sq = tsi.getSequence();
                 
                 if (originId == sq.token().id()) {
@@ -167,7 +170,7 @@ public final class JavaFXBracesMatcher implements BracesMatcher, BracesMatcherFa
     // private implementation
     // -----------------------------------------------------
     
-    private JavaFXTokenId getTokenId(char ch) {
+    private JFXTokenId getTokenId(char ch) {
         for(int i = 0; i < PAIRS.length; i++) {
             if (PAIRS[i] == ch) {
                 return PAIR_TOKEN_IDS[i];
@@ -190,7 +193,7 @@ public final class JavaFXBracesMatcher implements BracesMatcher, BracesMatcherFa
             }
         }
         
-        return sequences;
+        return new ArrayList<TokenSequence<? extends TokenId>>(sequences);
     }
     
     private static final class TokenSequenceIterator {

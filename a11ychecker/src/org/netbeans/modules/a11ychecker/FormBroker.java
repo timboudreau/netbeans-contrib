@@ -125,7 +125,6 @@ public final class FormBroker {
 
             public void run() {
                 prepareCurrent();
-//		System.out.println("############# Change! hit.");
 
             }
         };

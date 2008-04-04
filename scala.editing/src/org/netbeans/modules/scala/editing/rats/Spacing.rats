@@ -44,33 +44,81 @@
  */
 module org.netbeans.modules.scala.editing.rats.Spacing;
 
+import org.netbeans.modules.scala.editing.rats.Character;
 
-transient generic BlockComment = 
-  "/*" 
-  ( BlockComment
-  / blockCommentChar
-  )*
-  "*/"
+transient generic DocComment =
+  DocCommentStart
+  ( DocComment / BlockComment / CommentTag / DocCommentData / Nl )*
+  DocCommentEnd
 ;
 
-transient String blockCommentChar =
-  ( '*' !'/'
-  / !'*' _ 
-  )
-; 
+transient generic DocCommentStart = "/**" ;
+transient generic DocCommentEnd   = "*/" ;
+transient generic DocCommentData  = blockedCommentData ;
+
+transient generic BlockComment = 
+  BlockCommentStart
+  ( DocComment / BlockComment / CommentTag / BlockCommentData / Nl )*
+  BlockCommentEnd
+;
+
+transient generic BlockCommentStart = "/*" ![*] ;
+transient generic BlockCommentEnd   = "*/" ;
+transient generic BlockCommentData  = blockedCommentData ;
+
+/* We'll split blocked comment to lines */
+transient String blockedCommentData =
+  ( !( commentTag 
+     / "*/" 
+     / "/*" 
+     / [\r\n] 
+     ) 
+    _ 
+  )+
+;
+
+transient generic CommentTag = commentTag ;
+transient String commentTag = '@' letter+ ;
 
 transient generic LineComment = lineComment ;
 transient String lineComment = 
-  "//" (![\n\r] _)*
+  "//" ( ![\r\n] _ )*
 ;
+
+// ----- Meaningful newline
+
+transient void N = ( w / DocComment / BlockComment / lineComment )* n;
+
+// ----- Skip including nl but will leave all ( w / DocComment / BlockComment / lineComment )* before latest n
+transient void SKIP_TILL_N = 
+  ( ( w / DocComment / BlockComment / lineComment )* n+ )* 
+;
+
+transient void SKIP_N = 
+  ( w / DocComment / BlockComment / lineComment / n )* 
+;
+
+// ----- Globe Skip
+
+/* @Note: should put before Keyword, Symbol, Literal and Identifier only, 
+ * don't put after above tokens. 
+ */
+transient void SKIP = 
+  &{ yyState.state() == ParserState.NL_ENABLE  } ( w / DocComment / BlockComment / lineComment )* 
+/ &{ yyState.state() == ParserState.NL_DISABLE } ( w / DocComment / BlockComment / lineComment / n )* 
+;
+
+
+// ------ Spacing tokens
 
 transient generic Nl = n ;
 transient generic Ws = w ;
 
-transient void IGNORE = ( w / lineComment / BlockComment )*;
+
+// ----- Spacing elements
 
 transient String n = "\r\n" / "\r" / "\n" ;
-transient String w = ( " " / "\f" )+ ;
+transient String w = ( " " / "\f" / "\t" )+ ;
 
 transient generic Error = error ;
 transient String error = _+ ;

@@ -103,6 +103,7 @@ class MappingPanel extends JPanel implements ActionListener,
 	this.deployData = deployData; 
         this.deployData.setName(parent.getFilterName());
 	this.parent = parent; 
+        setName(NbBundle.getMessage(MappingPanel.class,"TTL_FILTER_MAPPING"));
 	initComponents ();
         TableColumn column = table.getColumnModel().getColumn(1);
         List availablePortlets = parent.getAvailablePortlets();
