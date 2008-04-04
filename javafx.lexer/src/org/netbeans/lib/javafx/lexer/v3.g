@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -182,164 +182,65 @@ package org.netbeans.lib.javafx.lexer;
 
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Log;
-import com.sun.tools.javafx.antlr.StringLiteralProcessor;
+
 }
 
 @header {
 package org.netbeans.lib.javafx.lexer;
 
 import com.sun.tools.javac.util.Context;
-import com.sun.tools.javafx.antlr.StringLiteralProcessor;
 import org.antlr.runtime.tree.*;
 import org.antlr.runtime.*;
+
 }
 
 @lexer::members {
-    /** The log to be used for error diagnostics.
-     */
-    private Log log;
-    
     static final byte NO_INSERT_SEMI = 0; // default
-    static final byte INSERT_SEMI = 1; 
-    static final byte IGNORE_FOR_SEMI = 2; 
-    static final byte[] semiKind = new byte[LAST_TOKEN];
-    { 
-      for (int i = SEMI_INSERT_START; i < SEMI_INSERT_END; ++i) {
-          semiKind[i] = INSERT_SEMI;
-      }
-      semiKind[RBRACE] = INSERT_SEMI;
-      semiKind[STRING_LITERAL] = INSERT_SEMI;
-      semiKind[QUOTE_LBRACE_STRING_LITERAL] = INSERT_SEMI;
-      semiKind[DECIMAL_LITERAL] = INSERT_SEMI;
-      semiKind[OCTAL_LITERAL] = INSERT_SEMI;
-      semiKind[HEX_LITERAL] = INSERT_SEMI;
-      semiKind[TIME_LITERAL] = INSERT_SEMI;
-      semiKind[FLOATING_POINT_LITERAL] = INSERT_SEMI;
-      semiKind[IDENTIFIER] = INSERT_SEMI;
-      
-      semiKind[WS] = IGNORE_FOR_SEMI;
-      semiKind[COMMENT] = IGNORE_FOR_SEMI;
-      semiKind[LINE_COMMENT] = IGNORE_FOR_SEMI;
-    }
-      
-    int previousTokenType = -1;
+        static final byte INSERT_SEMI = 1; 
+        static final byte IGNORE_FOR_SEMI = 2; 
+        static final byte[] semiKind = new byte[LAST_TOKEN];
+        { 
+          for (int i = SEMI_INSERT_START; i < SEMI_INSERT_END; ++i) {
+              semiKind[i] = INSERT_SEMI;
+          }
+          semiKind[RBRACE] = INSERT_SEMI;
+          semiKind[STRING_LITERAL] = INSERT_SEMI;
+          semiKind[QUOTE_LBRACE_STRING_LITERAL] = INSERT_SEMI;
+          semiKind[DECIMAL_LITERAL] = INSERT_SEMI;
+          semiKind[OCTAL_LITERAL] = INSERT_SEMI;
+          semiKind[HEX_LITERAL] = INSERT_SEMI;
+          semiKind[TIME_LITERAL] = INSERT_SEMI;
+          semiKind[FLOATING_POINT_LITERAL] = INSERT_SEMI;
+          semiKind[IDENTIFIER] = INSERT_SEMI;
+          
+          semiKind[WS] = IGNORE_FOR_SEMI;
+          semiKind[COMMENT] = IGNORE_FOR_SEMI;
+          semiKind[LINE_COMMENT] = IGNORE_FOR_SEMI;
+        }
 
-    List tokens = new ArrayList();
-    
     public v3Lexer(Context context, CharStream input) {
-    	this(input);
-        this.log = Log.instance(context);
-    }
-    
-    /** Allow emitting more than one token from a lexer rule
-     */
-    public void emit(Token token) {
-        //int ttype = token.getType();
-        //System.err.println("::: " + ttype + " --- " + token.getText());
-        /*if (previousTokenType == RBRACE && (ttype == EOF || semiKind[ttype] == INSERT_SEMI)) {
-            Token syntheticSemi = new CommonToken(token);
-            syntheticSemi.setType(SEMI);
-            syntheticSemi.setText("beginning of new statement");
-            state.token = syntheticSemi;
-            tokens.add(syntheticSemi);
-            //System.err.println("INSERTING in front of: " + ttype);
-        } else */ {
-            state.token = token;
+        	this(input);
+            this.log = Log.instance(context);
         }
-    	tokens.add(token);
-
-        //if (ttype != EOF && semiKind[ttype] != IGNORE_FOR_SEMI) {
-          //  previousTokenType = ttype;
-        //}
-    }
-    public Token nextToken() {
-        if ( tokens.size() > 0 ) {
-            return (Token)tokens.remove(0);
-        }
-    	super.nextToken();
-        if ( tokens.size()==0 ) {
-            emit(Token.EOF_TOKEN);
-        }
-        Token cur = (Token)tokens.remove(0);
-        return cur;
-    }    
-    
-    public BraceQuoteTracker getBraceQuoteTracker() {
-        return BraceQuoteTracker.quoteStack;
-    }
-
-    public void setBraceQuoteTracker(BraceQuoteTracker stack) {
-        BraceQuoteTracker.quoteStack = stack;
-    }
-
-    
-    /** Track "He{"l{"l"}o"} world" quotes
-     */
-    static class BraceQuoteTracker {
-        private static BraceQuoteTracker quoteStack = null;
-        private int braceDepth;
-        private char quote;
-        private boolean percentIsFormat;
-        private BraceQuoteTracker next;
-        private BraceQuoteTracker(BraceQuoteTracker prev, char quote, boolean percentIsFormat) {
-            this.quote = quote;
-            this.percentIsFormat = percentIsFormat;
-            this.braceDepth = 1;
-            this.next = prev;
-        }
-        static void enterBrace(int quote, boolean percentIsFormat) {
-            if (quote == 0) {  // exisiting string expression or non string expression
-                if (quoteStack != null) {
-                    ++quoteStack.braceDepth;
-                    quoteStack.percentIsFormat = percentIsFormat;
-                }
-            } else {
-                quoteStack = new BraceQuoteTracker(quoteStack, (char)quote, percentIsFormat); // push
-            }
-        }
-        /** Return quote kind if we are reentering a quote
-         * */
-        static char leaveBrace() {
-            if (quoteStack != null && --quoteStack.braceDepth == 0) {
-                return quoteStack.quote;
-            }
-            return 0;
-        }
-        static boolean rightBraceLikeQuote(int quote) {
-            return quoteStack != null && quoteStack.braceDepth == 1 && (quote == 0 || quoteStack.quote == (char)quote);
-        }
-        static void leaveQuote() {
-            assert (quoteStack != null && quoteStack.braceDepth == 0);
-            quoteStack = quoteStack.next; // pop
-        }
-        static boolean percentIsFormat() {
-            return quoteStack != null && quoteStack.percentIsFormat;
-        }
-        static void resetPercentIsFormat() {
-            quoteStack.percentIsFormat = false;
-        }
-        static boolean inBraceQuote() {
-            return quoteStack != null;
-        }
-    }
-    
-    void processString() {
-    	// setText(StringLiteralProcessor.convert( log, getCharIndex(), getText() ));
-  	setText(getText());
-    }
-
-    void processTranslationKey() {
-        String text = getText().substring(2); // remove '##'
-        if (text.length() > 0) {
- //           text = StringLiteralProcessor.convert( log, getCharIndex(), text );
-        }
-        setText(text);
-    }
 
     // quote context --
-    static final int CUR_QUOTE_CTX	= 0;	// 0 = use current quote context
-    static final int SNG_QUOTE_CTX	= 1;	// 1 = single quote quote context
-    static final int DBL_QUOTE_CTX	= 2;	// 2 = double quote quote context
+        static final int CUR_QUOTE_CTX	= 0;	// 0 = use current quote context
+        static final int SNG_QUOTE_CTX	= 1;	// 1 = single quote quote context
+        static final int DBL_QUOTE_CTX	= 2;	// 2 = double quote quote context
+     
+
+    protected int getSyntheticSemiType() {
+        return SEMI;
+    }
+
+    protected boolean verifyCurrentType(int ttype) {
+        return ttype != EOF && semiKind[ttype] != IGNORE_FOR_SEMI;
+    }
+
+    protected boolean verifyPreviousType(int ttype, int previousTokenType) {
+        return previousTokenType == RBRACE && (ttype == EOF || semiKind[ttype] == INSERT_SEMI);
+    }
+
  }
 
 @members {
@@ -371,28 +272,28 @@ QUOTE_LBRACE_STRING_LITERAL 	: '"' DoubleQuoteBody '{'   	{ processString(); }
 				| '\'' SingleQuoteBody '{'   	{ processString(); }
 				  NextIsPercent[SNG_QUOTE_CTX] 
 				;
-LBRACE				: '{'				{ BraceQuoteTracker.enterBrace(0, false); } 
+LBRACE				: '{'				{ enterBrace(0, false); } 
 				;
-RBRACE_QUOTE_STRING_LITERAL 	:				{ BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) }?=>
-				  '}' DoubleQuoteBody '"'	{ BraceQuoteTracker.leaveBrace(); 
-				         			  BraceQuoteTracker.leaveQuote(); 
+RBRACE_QUOTE_STRING_LITERAL 	:				{ rightBraceLikeQuote(DBL_QUOTE_CTX) }?=>
+				  '}' DoubleQuoteBody '"'	{ leaveBrace(); 
+				         			  leaveQuote(); 
 				         			  processString(); }
-				|				{ BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) }?=>
-				  '}' SingleQuoteBody '\''	{ BraceQuoteTracker.leaveBrace(); 
-				         			  BraceQuoteTracker.leaveQuote(); 
+				|				{ rightBraceLikeQuote(SNG_QUOTE_CTX) }?=>
+				  '}' SingleQuoteBody '\''	{ leaveBrace(); 
+				         			  leaveQuote(); 
 				         			  processString(); }
 				;
-RBRACE_LBRACE_STRING_LITERAL 	:				{ BraceQuoteTracker.rightBraceLikeQuote(DBL_QUOTE_CTX) }?=>
-				  '}' DoubleQuoteBody '{'	{ BraceQuoteTracker.leaveBrace(); 
+RBRACE_LBRACE_STRING_LITERAL 	:				{ rightBraceLikeQuote(DBL_QUOTE_CTX) }?=>
+				  '}' DoubleQuoteBody '{'	{ leaveBrace(); 
 				         			  processString(); }
 				   NextIsPercent[CUR_QUOTE_CTX]	
-				|				{ BraceQuoteTracker.rightBraceLikeQuote(SNG_QUOTE_CTX) }?=>
-				  '}' SingleQuoteBody '{'	{ BraceQuoteTracker.leaveBrace(); 
+				|				{ rightBraceLikeQuote(SNG_QUOTE_CTX) }?=>
+				  '}' SingleQuoteBody '{'	{ leaveBrace(); 
 				         			  processString(); }
 				   NextIsPercent[CUR_QUOTE_CTX]	
 				;
-RBRACE				:				{ !BraceQuoteTracker.rightBraceLikeQuote(CUR_QUOTE_CTX) }?=>
-				  '}'				{ BraceQuoteTracker.leaveBrace(); }
+RBRACE				:				{ !rightBraceLikeQuote(CUR_QUOTE_CTX) }?=>
+				  '}'				{ leaveBrace(); }
 				;
 fragment
 DoubleQuoteBody  :	 (~('{' |'"'|'\\')|'\\' .)*  ;
@@ -403,11 +304,11 @@ SingleQuoteBody  :	 (~('{' |'\''|'\\')|'\\' .)*  ;
 fragment
 NextIsPercent[int quoteContext]
 	 			: ((' '|'\r'|'\t'|'\u000C'|'\n')* '%')=>
-	 							{ BraceQuoteTracker.enterBrace(quoteContext, true); }
-				|				{ BraceQuoteTracker.enterBrace(quoteContext, false); }
+	 							{ enterBrace(quoteContext, true); }
+				|				{ enterBrace(quoteContext, false); }
 				;
-FORMAT_STRING_LITERAL		: 				{ BraceQuoteTracker.percentIsFormat() }?=>
-				  '%' (~' ')* 			{ BraceQuoteTracker.resetPercentIsFormat(); }
+FORMAT_STRING_LITERAL		: 				{ percentIsFormat() }?=>
+				  '%' (~' ')* 			{ resetPercentIsFormat(); }
 				;
 TRANSLATION_KEY                 : '##' 
                                   ( 
@@ -510,7 +411,7 @@ COMMENT
     ;
 
 LINE_COMMENT
-    : '//' ~('\n'|'\r')* '\r'? '\n'? {$channel=HIDDEN;}
+    : '//' ~('\n'|'\r')* '\r'? ('\n' | EOF) {$channel=HIDDEN;}
     ;
 
 LAST_TOKEN
