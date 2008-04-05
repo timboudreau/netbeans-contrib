@@ -47,7 +47,6 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.openide.filesystems.FileObject;
 
-
 /**
  *
  * @author Caoyuan Deng
@@ -63,19 +62,10 @@ public class Element implements ElementHandle {
 
     public Element(String name, OffsetRange nameRange, ElementKind kind) {
         this.name = name;
+        this.nameRange = nameRange;
         this.kind = kind;
-
-        /**
-         * @Note: nameNode always includes preceding whitespace, but not includes
-         * following whitespace (endOffset is correct), but nameString has strip 
-         * the whitespace, so we should adjust nameRange according to the endOffset.
-         * 
-         * Strip whitespaces and adjust nameRange */
-        int adjust = nameRange.getLength() - name.length();
-        this.nameRange = adjust > 0 ? new OffsetRange(nameRange.getStart() + adjust, nameRange.getEnd())
-                : nameRange;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -87,11 +77,11 @@ public class Element implements ElementHandle {
     public ElementKind getKind() {
         return kind;
     }
-    
+
     public void setPackageElement(Element packageElement) {
         this.packageElement = packageElement;
     }
-    
+
     public Element getPackageElement() {
         return packageElement;
     }
@@ -149,6 +139,4 @@ public class Element implements ElementHandle {
     public String getIn() {
         return null;
     }
-    
-
 }

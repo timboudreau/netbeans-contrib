@@ -123,19 +123,19 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
 
     private void visitScopeRecursively(CompilationInfo info, Scope scope, Map<OffsetRange, ColoringAttributes> highlights) {
         for (Element definition : scope.getDefinitions()) {
-            OffsetRange range = definition.getNameRange();
+            OffsetRange nameRange = definition.getNameRange();
             switch (definition.getKind()) {
                 case MODULE:
-                    highlights.put(range, ColoringAttributes.CLASS);
+                    highlights.put(nameRange, ColoringAttributes.CLASS);
                     break;
                 case CLASS:
-                    highlights.put(range, ColoringAttributes.CLASS);
+                    highlights.put(nameRange, ColoringAttributes.CLASS);
                     break;
                 case METHOD:
-                    highlights.put(range, ColoringAttributes.METHOD);
+                    highlights.put(nameRange, ColoringAttributes.METHOD);
                     break;
                 case FIELD:
-                    highlights.put(range, ColoringAttributes.FIELD);
+                    highlights.put(nameRange, ColoringAttributes.FIELD);
                     break;
                 default:
             }

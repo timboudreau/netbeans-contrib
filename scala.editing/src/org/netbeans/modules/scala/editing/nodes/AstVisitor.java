@@ -38,7 +38,11 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Stack;
+import org.netbeans.modules.scala.editing.visitors.Element;
 import xtc.tree.Annotation;
 import xtc.tree.GNode;
 import xtc.tree.Node;
@@ -52,8 +56,35 @@ import xtc.util.Pair;
 public class AstVisitor extends Visitor {
 
     private int indentLevel;
+    protected Stack<GNode> astPath = new Stack<GNode>();
 
     public AstVisitor() {
+    }
+    
+    protected String getAstPathString() {
+        StringBuilder sb = new StringBuilder();
+        
+        for (Iterator<GNode> itr = astPath.iterator(); itr.hasNext();) {
+            sb.append(itr.next().getName());
+            if (itr.hasNext()) {
+                sb.append(".");
+            }
+        }
+        
+        return sb.toString();
+    }
+    
+    protected GNode findNearsetNode(String name) {
+        GNode result = null;
+        
+        for (Iterator<GNode> itr = astPath.iterator(); itr.hasNext();) {
+            GNode node = itr.next();
+            if (node.getName().equals(name)) {
+                result = node;
+            }
+        }
+        
+        return result;
     }
 
     private String indent() {
@@ -69,6 +100,7 @@ public class AstVisitor extends Visitor {
     }
 
     public void visit(GNode node) {
+        astPath.push(node);
         //System.out.println(indent() + "{" + node.getName() + "}");
         indentLevel++;
         for (Iterator itr = node.iterator(); itr.hasNext();) {
@@ -80,6 +112,7 @@ public class AstVisitor extends Visitor {
             }
         }
         indentLevel--;
+        astPath.pop();
     }
 
     public void visit(Pair pair) {
@@ -110,6 +143,26 @@ public class AstVisitor extends Visitor {
     public void visitPackage(final GNode that) {
         visit(that);
     }
+
+    public List<Element> visitQualId(GNode that) {
+        visit(that);
+        return null;
+    }
+
+    public List<Element> visitIds(GNode that) {
+        visit(that);
+        return null;
+    }
+
+    public List<Element> visitStableId(GNode that) {
+        visit(that);
+        return null;
+    }
+
+    public Element visitId(GNode that) {
+        visit(that);
+        return null;
+    }    
     
     public void visitClassDef(final GNode that) {
         visit(that);
@@ -139,16 +192,37 @@ public class AstVisitor extends Visitor {
         visit(that);
     }
     
-    public void visitValDef(final GNode that) {
-        visit(that);
-    }
-
     public void visitVarDcl(final GNode that) {
         visit(that);
     }
     
+    public void visitValDef(final GNode that) {
+        visit(that);
+    }
+
     public void visitVarDef(final GNode that) {
         visit(that);
     }
     
+    public List<Element> visitIdPattern(GNode that) {
+        visit(that);
+        return null;
+    }
+    
+    public String visitModifier(GNode that) {
+        visit(that);
+        return null;
+    }
+    
+    
+    public String visitLocalModifier(GNode that) {
+        visit(that);
+        return null;
+    }
+
+    public String visitAccessModifier(GNode that) {
+        visit(that);
+        return null;
+    }
+
 }

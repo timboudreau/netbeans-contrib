@@ -383,8 +383,8 @@ generic NoTypedPattern =
 generic AtPattern = VarId void:"@":key Pattern3 ;
 
 generic Pattern3 = 
-  <InfixPattern>  SimplePattern InfixPatternTail InfixPatternTail*
-/ <SimplePattern> SimplePattern;
+  SimplePattern InfixPatternTail InfixPatternTail*
+/ SimplePattern;
 
 transient generic InfixPatternTail = Id N? SimplePattern ;
 
@@ -394,8 +394,8 @@ transient generic SimplePattern =
 / "_":key ( "*":op )?
 / Literal
 / TuplePattern
-/ StableId TuplePattern
-/ StableId
+/ StableId TuplePattern @CallPattern
+/ StableId              @IdPattern
 ;
 
 transient generic TuplePattern = void:"(":sep Patterns? void:")":sep ;
@@ -504,7 +504,7 @@ generic FunSig = Id FunTypeParamClause? ParamClauses ;
 transient generic TypeDcl = Id TypeParamClause? ( void:">:":key Type )? ( void:"<:":key Type )? ;
 
 generic PatVarDef = 
-  void:"val":key PatDef
+  void:"val":key ValDef
 / void:"var":key VarDef
 ;
 
@@ -516,6 +516,8 @@ generic Def =
 ;
 
 transient generic PatDef = NoTypedPattern ( void:",":sep NoTypedPattern )* ( void:":":key Type )? "=":key Expr ;
+
+generic ValDef = PatDef ;
 
 generic VarDef = 
   PatDef

@@ -140,7 +140,7 @@ public class ScalaParserResult extends ParserResult {
                 return null;
             }
             
-            ElementVisitor signatureVisitor = new ElementVisitor(node, linesOffset);
+            ElementVisitor signatureVisitor = new ElementVisitor(node, source, linesOffset);
             signatureVisitor.accept(node);
             rootScope = signatureVisitor.getRootScope();
         }
