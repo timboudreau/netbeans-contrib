@@ -1160,11 +1160,11 @@ public class EditorContextImpl extends EditorContext {
 
                     String className = tmpl.getName();
 
-                    Element enclosingPackge = tmpl.getPackageElement();
+                    org.netbeans.modules.gsf.api.ElementHandle enclosingPackge = tmpl.getPackageElement();
                     if (enclosingPackge == null) {
                         result[0] = className;
                     } else {
-                        result[0] = enclosingPackge.getSimpleName() + "." + className;
+                        result[0] = enclosingPackge.getName() + "." + className;
                     }
 
                 }

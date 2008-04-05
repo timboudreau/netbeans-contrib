@@ -134,4 +134,21 @@ public class AstVisitor extends Visitor {
     public void visitConstructorFunDef(final GNode that) {
         visit(that);
     }
+
+    public void visitValDcl(final GNode that) {
+        visit(that);
+    }
+    
+    public void visitValDef(final GNode that) {
+        visit(that);
+    }
+
+    public void visitVarDcl(final GNode that) {
+        visit(that);
+    }
+    
+    public void visitVarDef(final GNode that) {
+        visit(that);
+    }
+    
 }

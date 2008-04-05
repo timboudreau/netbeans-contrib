@@ -45,7 +45,7 @@ import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.SemanticAnalyzer;
 import org.netbeans.modules.scala.editing.visitors.Scope;
-import org.netbeans.modules.scala.editing.visitors.Signature;
+import org.netbeans.modules.scala.editing.visitors.Element;
 import xtc.tree.Node;
 
 /**
@@ -122,7 +122,7 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
     }
 
     private void visitScopeRecursively(CompilationInfo info, Scope scope, Map<OffsetRange, ColoringAttributes> highlights) {
-        for (Signature definition : scope.getDefinitions()) {
+        for (Element definition : scope.getDefinitions()) {
             OffsetRange range = definition.getNameRange();
             switch (definition.getKind()) {
                 case MODULE:

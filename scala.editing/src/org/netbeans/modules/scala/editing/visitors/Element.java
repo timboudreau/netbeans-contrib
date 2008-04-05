@@ -40,7 +40,6 @@ package org.netbeans.modules.scala.editing.visitors;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.lang.model.element.Element;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Modifier;
@@ -53,19 +52,18 @@ import org.openide.filesystems.FileObject;
  *
  * @author Caoyuan Deng
  */
-public class Signature implements ElementHandle {
+public class Element implements ElementHandle {
 
-    private Element element;
-    private javax.lang.model.element.ElementKind kind;
-    private Set<Modifier> mods;
-    private OffsetRange nameRange;
-    private Scope enclosingScope;
     private String name;
+    private OffsetRange nameRange;
+    private ElementKind kind;
+    private Scope enclosingScope;
     private Element packageElement;
+    private Set<Modifier> mods;
 
-    public Signature(Element element, OffsetRange nameRange) {
-        this.element = element;
-        this.name = element.getSimpleName().toString();
+    public Element(String name, OffsetRange nameRange, ElementKind kind) {
+        this.name = name;
+        this.kind = kind;
 
         /**
          * @Note: nameNode always includes preceding whitespace, but not includes
@@ -78,10 +76,6 @@ public class Signature implements ElementHandle {
                 : nameRange;
     }
     
-    public Element getElement() {
-        return element;
-    }
-
     public String getName() {
         return name;
     }
@@ -91,16 +85,7 @@ public class Signature implements ElementHandle {
     }
 
     public ElementKind getKind() {
-        switch (element.getKind()) {
-            case CLASS:
-                return ElementKind.CLASS;
-            case METHOD:
-                return ElementKind.METHOD;
-            case CONSTRUCTOR:
-                return ElementKind.CONSTRUCTOR;
-            default:
-                return ElementKind.OTHER;
-        }
+        return kind;
     }
     
     public void setPackageElement(Element packageElement) {

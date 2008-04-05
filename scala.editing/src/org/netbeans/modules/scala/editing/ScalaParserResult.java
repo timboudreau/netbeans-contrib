@@ -45,7 +45,7 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.scala.editing.visitors.Scope;
-import org.netbeans.modules.scala.editing.visitors.SignatureVisitor;
+import org.netbeans.modules.scala.editing.visitors.ElementVisitor;
 import xtc.tree.Node;
 
 /**
@@ -140,7 +140,7 @@ public class ScalaParserResult extends ParserResult {
                 return null;
             }
             
-            SignatureVisitor signatureVisitor = new SignatureVisitor(node, linesOffset);
+            ElementVisitor signatureVisitor = new ElementVisitor(node, linesOffset);
             signatureVisitor.accept(node);
             rootScope = signatureVisitor.getRootScope();
         }

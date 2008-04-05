@@ -118,7 +118,7 @@ public abstract class AstElement implements Element, ElementHandle {
     }
     
     public String getMimeType() {
-        return "text/x-fortress"; // NOI18N
+        return "text/x-scala"; // NOI18N
     }
     
 }

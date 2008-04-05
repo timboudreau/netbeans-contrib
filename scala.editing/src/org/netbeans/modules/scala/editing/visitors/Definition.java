@@ -39,26 +39,21 @@
 
 package org.netbeans.modules.scala.editing.visitors;
 
-import javax.lang.model.element.Element;
+import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class Definition extends Signature {
+public class Definition extends Element {
     
     private Scope bindingScope;
     
-    public Definition(Element element, OffsetRange nameRange) {
-        super(element, nameRange);
-    }
-    
-    /**
-     * @Note: bindingScope will be set when new {@link Scope#Scope(Definition, OffsetRange)}
-     */
-    protected void setBindingScope(Scope bindingScope) {
+    public Definition(String name, OffsetRange nameRange, Scope bindingScope, ElementKind kind) {
+        super(name, nameRange, kind);
         this.bindingScope = bindingScope;
+        this.bindingScope.setBindingDefinition(this);
     }
     
     public Scope getBindingScope() {

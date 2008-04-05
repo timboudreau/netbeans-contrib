@@ -39,17 +39,17 @@
 
 package org.netbeans.modules.scala.editing.visitors;
 
-import javax.lang.model.element.Element;
+import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class Usage extends Signature {
+public class Usage extends Element {
     
-    public Usage(Element element, OffsetRange nameRange) {
-        super(element, nameRange);
+    public Usage(String name, OffsetRange nameRange, ElementKind kind) {
+        super(name, nameRange, kind);
     }
     
 }

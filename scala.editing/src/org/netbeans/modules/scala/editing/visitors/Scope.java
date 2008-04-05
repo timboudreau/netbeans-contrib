@@ -52,7 +52,7 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public class Scope implements Iterable<Scope> {
 
-    private final Definition bindingDefinition;
+    private Definition bindingDefinition;
     private Scope parent;
     private List<Scope> scopes;
     private List<Definition> definitions;
@@ -62,15 +62,14 @@ public class Scope implements Iterable<Scope> {
     private boolean usagesSorted;
     private OffsetRange range;
 
-    public Scope(Definition bindingDefinition, OffsetRange range) {
-        if (bindingDefinition != null) {
-            bindingDefinition.setBindingScope(this);
-        }
-        
-        this.bindingDefinition = bindingDefinition;
+    public Scope(OffsetRange range) {
         this.range = range;
     }
 
+    public void setBindingDefinition(Definition bindingDefinition) {
+        this.bindingDefinition = bindingDefinition;        
+    }
+    
     public Definition getBindingDefinition() {
         return bindingDefinition;
     }
@@ -136,7 +135,7 @@ public class Scope implements Iterable<Scope> {
         }
     }
 
-    public Signature getSignature(int offset) {
+    public Element getElement(int offset) {
         if (definitions != null) {
             if (!definitionsSorted) {
                 Collections.sort(definitions, new SignatureComparator());
@@ -192,7 +191,7 @@ public class Scope implements Iterable<Scope> {
                 } else if (offset >= middle.getRange().getEnd()) {
                     low = mid + 1;
                 } else {
-                    return middle.getSignature(offset);
+                    return middle.getElement(offset);
                 }
             }
         }
@@ -200,19 +199,19 @@ public class Scope implements Iterable<Scope> {
         return null;
     }
 
-    public List<Signature> findOccurrences(Signature signature) {
+    public List<Element> findOccurrences(Element element) {
         Definition definition = null;
-        if (signature instanceof Definition) {
-            definition = (Definition) signature;
-        } else if (signature instanceof Usage) {
-            definition = findDefinition((Usage) signature);
+        if (element instanceof Definition) {
+            definition = (Definition) element;
+        } else if (element instanceof Usage) {
+            definition = findDefinition((Usage) element);
         }
 
         if (definition == null) {
             return Collections.emptyList();
         }
 
-        List<Signature> occurrences = new ArrayList<Signature>();
+        List<Element> occurrences = new ArrayList<Element>();
         occurrences.add(definition);
 
         findUsages(definition, occurrences);
@@ -241,12 +240,12 @@ public class Scope implements Iterable<Scope> {
         return null;
     }
 
-    public void findUsages(Definition definition, List<Signature> usages) {
+    public void findUsages(Definition definition, List<Element> usages) {
         Scope enclosingScope = definition.getEnclosingScope();
         findUsagesInScope(enclosingScope, definition, usages);
     }
 
-    private void findUsagesInScope(Scope scope, Definition definition, List<Signature> usages) {
+    private void findUsagesInScope(Scope scope, Definition definition, List<Element> usages) {
         for (Usage usage : scope.getUsages()) {
             if (definition.getName().equals(usage.getName())) {
                 usages.add(usage);
@@ -322,9 +321,9 @@ public class Scope implements Iterable<Scope> {
         }
     }
 
-    private static class SignatureComparator implements Comparator<Signature> {
+    private static class SignatureComparator implements Comparator<Element> {
 
-        public int compare(Signature o1, Signature o2) {
+        public int compare(Element o1, Element o2) {
             return o1.getNameRange().getStart() < o2.getNameRange().getStart() ? -1 : 1;
         }
     }
