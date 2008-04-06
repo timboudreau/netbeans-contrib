@@ -38,6 +38,9 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
@@ -46,26 +49,75 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author Caoyuan Deng
  */
-public class AstDefinition extends AstElement {
+public class Function extends AstDefinition {
 
-    private AstScope bindingScope;
+    private List<Type> typeParams;
+    private List<Var> params;
 
-    public AstDefinition(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
-        super(name, nameRange, kind);
-        this.bindingScope = bindingScope;
-        this.bindingScope.setBindingDefinition(this);
+    public Function(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
+        super(name, nameRange, bindingScope, kind);
     }
 
-    public AstScope getBindingScope() {
-        assert bindingScope != null : "Each definition should set binding scope!";
-        return bindingScope;
+    public void setTypeParam(List<Type> typeParams) {
+        this.typeParams = typeParams;
     }
 
-    public OffsetRange getRange() {
-        return getBindingScope().getRange();
+    public List<Type> getTypeParam() {
+        return typeParams == null ? Collections.<Type>emptyList() : typeParams;
     }
 
+    public void setParam(List<Var> params) {
+        this.params = params;
+    }
+
+    public List<Var> getParams() {
+        return params == null ? Collections.<Var>emptyList() : params;
+    }
+
+    @Override
     public void htmlFormat(HtmlFormatter formatter) {
-        formatter.appendText(getName());
+        super.htmlFormat(formatter);
+        if (getTypeParam().size() > 0) {
+            formatter.appendHtml("[");
+
+            for (Iterator<Type> itr = getTypeParam().iterator(); itr.hasNext();) {
+                Type typeParam = itr.next();
+                typeParam.htmlFormat(formatter);
+
+                if (itr.hasNext()) {
+                    formatter.appendHtml(", ");
+                }
+            }
+
+            formatter.appendHtml("]");
+        }
+
+        formatter.appendHtml("(");
+        if (getParams().size() > 0) {
+            formatter.parameters(true);
+
+            for (Iterator<Var> itr = getParams().iterator(); itr.hasNext();) {
+                Var param = itr.next();
+                param.htmlFormat(formatter);
+
+                Type type = param.getType();
+                if (type != null) {
+                    formatter.appendHtml(":");
+                    type.htmlFormat(formatter);
+                }
+
+                if (itr.hasNext()) {
+                    formatter.appendHtml(", ");
+                }
+            }
+
+            formatter.parameters(false);
+        }
+        formatter.appendHtml(")");
+
+        if (getType() != null) {
+            formatter.appendHtml(" : ");
+            getType().htmlFormat(formatter);
+        }
     }
 }

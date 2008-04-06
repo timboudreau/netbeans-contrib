@@ -39,10 +39,8 @@
 package org.netbeans.modules.scala.editing;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -184,12 +182,15 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 
         public String getHtml() {
             formatter.reset();
+            definition.htmlFormat(formatter);
+            return formatter.getText();
+//            formatter.reset();
 //            boolean strike = signature.getModifiers().contains(Modifier.DEPRECATED);
 //            if (strike) {
 //                formatter.deprecated(true);
 //            }
 
-            formatter.appendText(getName());
+//            formatter.appendText(getName());
 
 //            if (strike) {
 //                formatter.deprecated(false);
@@ -269,7 +270,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 //
 //            }
 
-            return formatter.getText();
+//            return formatter.getText();
         }
 
 //        private String getTypeHtml(Type type) {

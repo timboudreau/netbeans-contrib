@@ -189,12 +189,27 @@ public class AstVisitor extends Visitor {
         visit(that);
     }
     
-    public List<AstElement> visitParams(final GNode that) {
+    public Function visitFunSig(final GNode that) {
         visit(that);
         return null;
     }
     
-    public AstElement visitParam(final GNode that) {
+    public List<Var> visitParamClauses(final GNode that) {
+        visit(that);
+        return null;
+    }
+    
+    public List<Var> visitParamClause(final GNode that) {
+        visit(that);
+        return null;
+    }
+
+    public List<Var> visitParams(final GNode that) {
+        visit(that);
+        return null;
+    }
+    
+    public Var visitParam(final GNode that) {
         visit(that);
         return null;
     }

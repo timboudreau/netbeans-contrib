@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Stack;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.scala.editing.nodes.AstVisitor;
 import xtc.tree.GNode;
 import xtc.tree.Location;
 import xtc.tree.Node;
@@ -131,10 +130,8 @@ public class AstElementVisitor extends AstVisitor {
         ids.add(first);
 
         List others = that.getList(1).list();
-        if (others != null) {
-            for (Object id : others) {
-                ids.add(visitId((GNode) id));
-            }
+        for (Object id : others) {
+            ids.add(visitId((GNode) id));
         }
 
         super.visitQualId(that);
@@ -149,10 +146,8 @@ public class AstElementVisitor extends AstVisitor {
         ids.add(first);
 
         List others = that.getList(1).list();
-        if (others != null) {
-            for (Object id : others) {
-                ids.add(visitId((GNode) id));
-            }
+        for (Object id : others) {
+            ids.add(visitId((GNode) id));
         }
 
         super.visitIds(that);
@@ -249,13 +244,10 @@ public class AstElementVisitor extends AstVisitor {
 
     @Override
     public void visitFunDcl(GNode that) {
-        Node funSig = that.getGeneric(0);
-        Node id = funSig.getGeneric(0);
-        String name = id.getString(0);
-        AstScope scope = new AstScope(getRange(that));
-        AstDefinition definition = new AstDefinition(name, getNameRange(name, id), scope, ElementKind.METHOD);
+        Function function = visitFunSig(that.getGeneric(0));
+        AstScope scope = function.getBindingScope();
 
-        scopeStack.peek().addDefinition(definition);
+        scopeStack.peek().addDefinition(function);
         scopeStack.peek().addScope(scope);
 
         scopeStack.push(scope);
@@ -265,13 +257,10 @@ public class AstElementVisitor extends AstVisitor {
 
     @Override
     public void visitFunDef(GNode that) {
-        Node funSig = that.getGeneric(0);
-        Node id = funSig.getGeneric(0);
-        String name = id.getString(0);
-        AstScope scope = new AstScope(getRange(that));
-        AstDefinition definition = new AstDefinition(name, getNameRange(name, id), scope, ElementKind.METHOD);
+        Function function = visitFunSig(that.getGeneric(0));
+        AstScope scope = function.getBindingScope();
 
-        scopeStack.peek().addDefinition(definition);
+        scopeStack.peek().addDefinition(function);
         scopeStack.peek().addScope(scope);
 
         scopeStack.push(scope);
@@ -280,28 +269,90 @@ public class AstElementVisitor extends AstVisitor {
     }
 
     @Override
-    public AstElement visitParam(GNode that) {
+    public Function visitFunSig(GNode that) {
+        super.visitFunSig(that);
+        AstElement id = visitId(that.getGeneric(0));
+        List<Var> params = visitParamClauses(that.getGeneric(2));
+
+        AstScope scope = new AstScope(getRange(that));
+        Function function = new Function(id.getName(), id.getNameRange(), scope, ElementKind.METHOD);
+        function.setParam(params);
+
+        for (Var param : params) {
+            scope.addDefinition(param);
+        }
+
+        return function;
+    }
+
+    @Override
+    public List<Var> visitParamClauses(GNode that) {
+        super.visitParamClauses(that);
+
+        List<Var> params = new ArrayList<Var>();
+
+        List paramClauseNodes = that.getList(0).list();
+        for (Object paramClauseNode : paramClauseNodes) {
+            params.addAll(visitParamClause((GNode) paramClauseNode));
+        }
+
+        return params;
+    }
+
+    @Override
+    public List<Var> visitParamClause(GNode that) {
+        super.visitParamClause(that);
+        GNode paramsNode = that.getGeneric(0);
+        if (paramsNode != null) {
+            return visitParams(paramsNode);
+        } else {
+            return Collections.<Var>emptyList();
+        }
+    }
+
+    @Override
+    public List<Var> visitParams(GNode that) {
+        List<Var> params = new ArrayList<Var>();
+
+        Var first = visitParam(that.getGeneric(0));
+        params.add(first);
+
+        List others = that.getList(1).list();
+        for (Object param : others) {
+            params.add(visitParam((GNode) param));
+        }
+
+        super.visitParams(that);
+        return params;
+    }
+
+    @Override
+    public Var visitParam(GNode that) {
         List annotations = that.getList(0).list();
         AstElement id = visitId(that.getGeneric(1));
         AstScope scope = new AstScope(getRange(that));
-        AstDefinition definition = new AstDefinition(id.getName(), id.getNameRange(), scope, ElementKind.PARAMETER);
-
-        scopeStack.peek().addDefinition(definition);
-        scopeStack.peek().addScope(scope);
+        Var var = new Var(id.getName(), id.getNameRange(), scope, ElementKind.PARAMETER);
 
         super.visitParam(that);
-        return id;
+        return var;
     }
 
     @Override
     public void visitConstructorFunDef(GNode that) {
-        Node id = that.getGeneric(0); // This("this")
+        AstElement id = visitId(that.getGeneric(0)); // // This("this")
+        List<Var> params = visitParamClause(that.getGeneric(1));
+        List<Var> paramsOther = visitParamClauses(that.getGeneric(2));
+        params.addAll(paramsOther);
 
-        String name = id.getString(0);
         AstScope scope = new AstScope(getRange(that));
-        AstDefinition definition = new AstDefinition(name, getNameRange(name, id), scope, ElementKind.METHOD);
+        Function function = new Function(id.getName(), id.getNameRange(), scope, ElementKind.METHOD);
+        function.setParam(params);
 
-        scopeStack.peek().addDefinition(definition);
+        for (Var param : params) {
+            scope.addDefinition(param);
+        }
+        
+        scopeStack.peek().addDefinition(function);
         scopeStack.peek().addScope(scope);
 
         scopeStack.push(scope);
