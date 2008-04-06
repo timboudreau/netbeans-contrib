@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,91 +34,34 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+
 package org.netbeans.modules.scala.editing.nodes;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import org.netbeans.modules.gsf.api.Element;
-import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.Modifier;
-import org.openide.filesystems.FileObject;
-import xtc.tree.Node;
+import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public abstract class AstElement implements Element, ElementHandle {
-
-    protected final Node node;
-    protected List<AstElement> children;
-    protected String name;
-    protected Set<Modifier> modifiers;
-    private String in;
+public class AstDefinition extends AstElement {
     
-    public AstElement(Node node) {
-        this.node = node;
+    private AstScope bindingScope;
+    
+    public AstDefinition(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
+        super(name, nameRange, kind);
+        this.bindingScope = bindingScope;
+        this.bindingScope.setBindingDefinition(this);
     }
     
-    public List<AstElement> getChildren() {
-        if (children == null) {
-            return Collections.<AstElement>emptyList();
-        }
-
-        return children;
-    }
-
-    public void addChild(AstElement child) {
-        if (children == null) {
-            children = new ArrayList<AstElement>();
-        }
-
-        children.add(child);
-    }
-
-    public abstract String getName();
-
-    public Node getNode() {
-        return node;
+    public AstScope getBindingScope() {
+        assert bindingScope != null : "Each definition should set binding scope!";
+        return bindingScope;
     }
     
-    public String getIn() {
-        return in;
+    public OffsetRange getRange() {
+        return getBindingScope().getRange();
     }
-
-    public ElementKind getKind() {
-        return ElementKind.OTHER;
-    }
-
-    public Set<Modifier> getModifiers() {
-        return Collections.<Modifier>emptySet();
-    }
-
-    public void setIn(String in) {
-        this.in = in;
-    }
-    
-    public boolean signatureEquals (final ElementHandle handle) {
-        if (handle instanceof AstElement) {
-                return this.equals(handle);
-            }
-        return false;
-    }
-    
-    // FIXME: This is an empty implementations to make a 
-    // AstElement a ElementHandle. Seems not to affect others. Sure?
-    
-    public FileObject getFileObject() {
-        return null;
-    }
-    
-    public String getMimeType() {
-        return "text/x-scala"; // NOI18N
-    }
-    
 }

@@ -47,8 +47,8 @@ import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.InstantRenamer;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
-import org.netbeans.modules.scala.editing.visitors.Element;
-import org.netbeans.modules.scala.editing.visitors.Scope;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.openide.util.NbBundle;
 import xtc.tree.Node;
 
@@ -77,9 +77,9 @@ public class ScalaInstantRenamer implements InstantRenamer {
         }
 
         ScalaParserResult result = AstUtilities.getParserResult(info);
-        Scope rootScope = result.getRootScope();
+        AstScope rootScope = result.getRootScope();
         
-        Element closest = rootScope.getElement(caretOffset);
+        AstElement closest = rootScope.getElement(caretOffset);
 
         switch (closest.getKind()) {
             case FIELD:
@@ -104,14 +104,14 @@ public class ScalaInstantRenamer implements InstantRenamer {
             return Collections.emptySet();
         }
 
-        Scope rootScope = result.getRootScope();
+        AstScope rootScope = result.getRootScope();
         
-        Element closest = rootScope.getElement(caretOffset);
+        AstElement closest = rootScope.getElement(caretOffset);
 
-        List<Element> occurrences = rootScope.findOccurrences(closest);
+        List<AstElement> occurrences = rootScope.findOccurrences(closest);
         
         Set<OffsetRange> regions = new HashSet<OffsetRange>();
-            for (Element element : occurrences) {
+            for (AstElement element : occurrences) {
                 regions.add(element.getNameRange());
             }
         

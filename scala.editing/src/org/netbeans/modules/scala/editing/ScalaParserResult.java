@@ -44,8 +44,8 @@ import java.util.List;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
-import org.netbeans.modules.scala.editing.visitors.Scope;
-import org.netbeans.modules.scala.editing.visitors.ElementVisitor;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.AstElementVisitor;
 import xtc.tree.Node;
 
 /**
@@ -62,7 +62,7 @@ public class ScalaParserResult extends ParserResult {
     private String sanitizedContents;
     private ScalaParser.Sanitize sanitized;
     private boolean commentsAdded;
-    private Scope rootScope;
+    private AstScope rootScope;
     private List<Integer> linesOffset;
 
     public ScalaParserResult(ScalaParser parser, ParserFile file, Node rootNode, AstTreeNode ast, List<Integer> linesOffset) {
@@ -131,7 +131,7 @@ public class ScalaParserResult extends ParserResult {
         this.commentsAdded = commentsAdded;
     }
 
-    public Scope getRootScope() {
+    public AstScope getRootScope() {
         if (rootScope == null) {
             Node node = getRootNode();
             
@@ -140,7 +140,7 @@ public class ScalaParserResult extends ParserResult {
                 return null;
             }
             
-            ElementVisitor signatureVisitor = new ElementVisitor(node, source, linesOffset);
+            AstElementVisitor signatureVisitor = new AstElementVisitor(node, source, linesOffset);
             signatureVisitor.accept(node);
             rootScope = signatureVisitor.getRootScope();
         }

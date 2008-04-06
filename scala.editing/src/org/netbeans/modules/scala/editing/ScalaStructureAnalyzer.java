@@ -55,8 +55,8 @@ import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.StructureItem;
 import org.netbeans.modules.gsf.api.StructureScanner;
-import org.netbeans.modules.scala.editing.visitors.Definition;
-import org.netbeans.modules.scala.editing.visitors.Scope;
+import org.netbeans.modules.scala.editing.nodes.AstDefinition;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
 import xtc.tree.Node;
 
 /**
@@ -81,14 +81,14 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             return Collections.emptyList();
         }
 
-        Scope rootScope = result.getRootScope();
+        AstScope rootScope = result.getRootScope();
         if (rootScope == null) {
             return Collections.emptyList();
         }
         
         List<StructureItem> items = new ArrayList<StructureItem>();
 
-        for (Definition definition : rootScope.getDefinitions()) {
+        for (AstDefinition definition : rootScope.getDefinitions()) {
             items.add(new ScalaStructureItem(definition, info, formatter));
         }
 
@@ -106,7 +106,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             Collections.emptyMap();
         }
 
-        Scope rootScope = result.getRootScope();
+        AstScope rootScope = result.getRootScope();
         if (rootScope == null) {
             return Collections.emptyMap();
         }
@@ -164,11 +164,11 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 
     private class ScalaStructureItem implements StructureItem {
 
-        private Definition definition;
+        private AstDefinition definition;
         private CompilationInfo info;
         private HtmlFormatter formatter;
 
-        private ScalaStructureItem(Definition definition, CompilationInfo info, HtmlFormatter formatter) {
+        private ScalaStructureItem(AstDefinition definition, CompilationInfo info, HtmlFormatter formatter) {
             this.definition = definition;
             this.info = info;
             this.formatter = formatter;
@@ -397,12 +397,12 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         }
 
         public List<? extends StructureItem> getNestedItems() {
-            List<Definition> nested = definition.getBindingScope().getDefinitions();
+            List<AstDefinition> nested = definition.getBindingScope().getDefinitions();
 
             if ((nested != null) && (nested.size() > 0)) {
                 List<ScalaStructureItem> children = new ArrayList<ScalaStructureItem>(nested.size());
 
-                for (Definition child : nested) {
+                for (AstDefinition child : nested) {
                     children.add(new ScalaStructureItem(child, info, formatter));
                 }
 

@@ -37,7 +37,7 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.editing.visitors;
+package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
@@ -46,9 +46,9 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author Caoyuan Deng
  */
-public class Usage extends Element {
+public class AstUsage extends AstElement {
     
-    public Usage(String name, OffsetRange nameRange, ElementKind kind) {
+    public AstUsage(String name, OffsetRange nameRange, ElementKind kind) {
         super(name, nameRange, kind);
     }
     

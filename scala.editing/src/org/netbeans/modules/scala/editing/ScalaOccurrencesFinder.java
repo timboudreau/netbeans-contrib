@@ -50,8 +50,8 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
-import org.netbeans.modules.scala.editing.visitors.Element;
-import org.netbeans.modules.scala.editing.visitors.Scope;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.openide.util.Exceptions;
 import xtc.tree.Node;
 
@@ -109,14 +109,14 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
             return;
         }
 
-        Scope rootScope = result.getRootScope();
+        AstScope rootScope = result.getRootScope();
         if (rootScope == null) {
             return;
         }
 
         Map<OffsetRange, ColoringAttributes> highlights = new HashMap<OffsetRange, ColoringAttributes>(100);
 
-        Element closest = rootScope.getElement(caretPosition);
+        AstElement closest = rootScope.getElement(caretPosition);
 
         int astOffset = AstUtilities.getAstOffset(info, caretPosition);
         if (astOffset == -1) {
@@ -219,8 +219,8 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
         }
 
         if (closest != null) {
-            List<Element> _occurrences = rootScope.findOccurrences(closest);
-            for (Element signature : _occurrences) {
+            List<AstElement> _occurrences = rootScope.findOccurrences(closest);
+            for (AstElement signature : _occurrences) {
                 highlights.put(signature.getNameRange(), ColoringAttributes.MARK_OCCURRENCES);
             }
             closest = null;

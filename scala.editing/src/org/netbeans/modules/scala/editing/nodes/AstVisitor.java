@@ -42,7 +42,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
-import org.netbeans.modules.scala.editing.visitors.Element;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
 import xtc.tree.Annotation;
 import xtc.tree.GNode;
 import xtc.tree.Node;
@@ -144,27 +144,27 @@ public class AstVisitor extends Visitor {
         visit(that);
     }
 
-    public List<Element> visitQualId(GNode that) {
+    public List<AstElement> visitQualId(GNode that) {
         visit(that);
         return null;
     }
 
-    public List<Element> visitIds(GNode that) {
+    public List<AstElement> visitIds(GNode that) {
         visit(that);
         return null;
     }
 
-    public List<Element> visitPath(GNode that) {
+    public List<AstElement> visitPath(GNode that) {
         visit(that);
         return null;
     }
 
-    public List<Element> visitStableId(GNode that) {
+    public List<AstElement> visitStableId(GNode that) {
         visit(that);
         return null;
     }
 
-    public Element visitId(GNode that) {
+    public AstElement visitId(GNode that) {
         visit(that);
         return null;
     }    
@@ -189,12 +189,12 @@ public class AstVisitor extends Visitor {
         visit(that);
     }
     
-    public List<Element> visitParams(final GNode that) {
+    public List<AstElement> visitParams(final GNode that) {
         visit(that);
         return null;
     }
     
-    public Element visitParam(final GNode that) {
+    public AstElement visitParam(final GNode that) {
         visit(that);
         return null;
     }
@@ -203,12 +203,12 @@ public class AstVisitor extends Visitor {
         visit(that);
     }
 
-    public List<Element> visitClassParams(final GNode that) {
+    public List<AstElement> visitClassParams(final GNode that) {
         visit(that);
         return null;
     }
     
-    public Element visitClassParam(final GNode that) {
+    public AstElement visitClassParam(final GNode that) {
         visit(that);
         return null;
     }
@@ -229,7 +229,7 @@ public class AstVisitor extends Visitor {
         visit(that);
     }
     
-    public List<Element> visitIdPattern(GNode that) {
+    public List<AstElement> visitIdPattern(GNode that) {
         visit(that);
         return null;
     }

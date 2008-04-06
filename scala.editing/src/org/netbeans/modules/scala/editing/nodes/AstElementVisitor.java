@@ -36,7 +36,7 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.visitors;
+package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,25 +54,25 @@ import xtc.tree.Node;
  *
  * @author Caoyuan Deng
  */
-public class ElementVisitor extends AstVisitor {
+public class AstElementVisitor extends AstVisitor {
 
-    private Scope rootScope;
+    private AstScope rootScope;
     private List<Integer> linesOffset;
     private String source;
-    private Stack<Scope> scopeStack = new Stack<Scope>();
-    private Definition packageElement = null;
+    private Stack<AstScope> scopeStack = new Stack<AstScope>();
+    private AstDefinition packageElement = null;
     private boolean containsValDfn;
     private boolean containsVarDfn;
 
-    public ElementVisitor(Node rootNode, String source, List<Integer> linesOffset) {
+    public AstElementVisitor(Node rootNode, String source, List<Integer> linesOffset) {
         this.source = source;
         this.linesOffset = linesOffset;
         // set linesOffset before call getRange(Node)
-        this.rootScope = new Scope(getRange(rootNode));
+        this.rootScope = new AstScope(getRange(rootNode));
         scopeStack.push(rootScope);
     }
 
-    public Scope getRootScope() {
+    public AstScope getRootScope() {
         return rootScope;
     }
 
@@ -101,9 +101,9 @@ public class ElementVisitor extends AstVisitor {
     @Override
     public void visitPackage(GNode that) {
         GNode qualId = that.getGeneric(0);
-        List<Element> ids = visitQualId(qualId);
+        List<AstElement> ids = visitQualId(qualId);
         StringBuilder sb = new StringBuilder();
-        for (Iterator<Element> itr = ids.iterator(); itr.hasNext();) {
+        for (Iterator<AstElement> itr = ids.iterator(); itr.hasNext();) {
             sb.append(itr.next().getName());
             if (itr.hasNext()) {
                 sb.append(".");
@@ -111,8 +111,8 @@ public class ElementVisitor extends AstVisitor {
         }
 
         String name = sb.toString();
-        Scope scope = new Scope(getRange(that));
-        Definition definition = new Definition(name, getRange(qualId), scope, ElementKind.PACKAGE);
+        AstScope scope = new AstScope(getRange(that));
+        AstDefinition definition = new AstDefinition(name, getRange(qualId), scope, ElementKind.PACKAGE);
 
         packageElement = definition;
 
@@ -124,10 +124,10 @@ public class ElementVisitor extends AstVisitor {
     }
 
     @Override
-    public List<Element> visitQualId(GNode that) {
-        List<Element> ids = new ArrayList<Element>();
+    public List<AstElement> visitQualId(GNode that) {
+        List<AstElement> ids = new ArrayList<AstElement>();
 
-        Element first = visitId(that.getGeneric(0));
+        AstElement first = visitId(that.getGeneric(0));
         ids.add(first);
 
         List others = that.getList(1).list();
@@ -142,10 +142,10 @@ public class ElementVisitor extends AstVisitor {
     }
 
     @Override
-    public List<Element> visitIds(GNode that) {
-        List<Element> ids = new ArrayList<Element>();
+    public List<AstElement> visitIds(GNode that) {
+        List<AstElement> ids = new ArrayList<AstElement>();
 
-        Element first = visitId(that.getGeneric(0));
+        AstElement first = visitId(that.getGeneric(0));
         ids.add(first);
 
         List others = that.getList(1).list();
@@ -160,17 +160,17 @@ public class ElementVisitor extends AstVisitor {
     }
 
     @Override
-    public List<Element> visitPath(GNode that) {
+    public List<AstElement> visitPath(GNode that) {
         super.visitPath(that);
 
         GNode first = that.getGeneric(0);
         if (first == null || first.getName().equals("Id")) {
-            List<Element> ids = new ArrayList<Element>();
+            List<AstElement> ids = new ArrayList<AstElement>();
             if (first != null) {
                 ids.add(visitId(first));
             }
             GNode thisKey = that.getGeneric(1);
-            ids.add(new Element("this", getNameRange("this", thisKey), ElementKind.VARIABLE));
+            ids.add(new AstElement("this", getNameRange("this", thisKey), ElementKind.VARIABLE));
             return ids;
         } else if (first.getName().equals("StableId")) {
             return visitStableId(first);
@@ -180,10 +180,10 @@ public class ElementVisitor extends AstVisitor {
     }
 
     @Override
-    public List<Element> visitStableId(GNode that) {
-        List<Element> ids = new ArrayList<Element>();
+    public List<AstElement> visitStableId(GNode that) {
+        List<AstElement> ids = new ArrayList<AstElement>();
 
-        Element first = visitId(that.getGeneric(0));
+        AstElement first = visitId(that.getGeneric(0));
         ids.add(first);
 
         List others = that.getList(1).list();
@@ -196,18 +196,18 @@ public class ElementVisitor extends AstVisitor {
     }
 
     @Override
-    public Element visitId(GNode that) {
+    public AstElement visitId(GNode that) {
         super.visitId(that);
         String name = that.getString(0);
-        return new Element(name, getNameRange(name, that), ElementKind.VARIABLE);
+        return new AstElement(name, getNameRange(name, that), ElementKind.VARIABLE);
     }
 
     @Override
     public void visitClassDef(GNode that) {
         Node id = that.getGeneric(0);
         String name = id.getString(0);
-        Scope scope = new Scope(getRange(that));
-        Definition definition = new Definition(name, getNameRange(name, id), scope, ElementKind.CLASS);
+        AstScope scope = new AstScope(getRange(that));
+        AstDefinition definition = new AstDefinition(name, getNameRange(name, id), scope, ElementKind.CLASS);
         definition.setPackageElement(packageElement);
 
         scopeStack.peek().addDefinition(definition);
@@ -221,8 +221,8 @@ public class ElementVisitor extends AstVisitor {
     public void visitTraitDef(GNode that) {
         Node id = that.getGeneric(0);
         String name = id.getString(0);
-        Scope scope = new Scope(getRange(that));
-        Definition definition = new Definition(name, getNameRange(name, id), scope, ElementKind.MODULE);
+        AstScope scope = new AstScope(getRange(that));
+        AstDefinition definition = new AstDefinition(name, getNameRange(name, id), scope, ElementKind.MODULE);
         definition.setPackageElement(packageElement);
 
         scopeStack.peek().addDefinition(definition);
@@ -236,8 +236,8 @@ public class ElementVisitor extends AstVisitor {
     public void visitObjectDef(GNode that) {
         Node id = that.getGeneric(0);
         String name = id.getString(0) + "$";
-        Scope scope = new Scope(getRange(that));
-        Definition definition = new Definition(name, getNameRange(name, id), scope, ElementKind.CLASS);
+        AstScope scope = new AstScope(getRange(that));
+        AstDefinition definition = new AstDefinition(name, getNameRange(name, id), scope, ElementKind.CLASS);
         definition.setPackageElement(packageElement);
 
         scopeStack.peek().addDefinition(definition);
@@ -252,8 +252,8 @@ public class ElementVisitor extends AstVisitor {
         Node funSig = that.getGeneric(0);
         Node id = funSig.getGeneric(0);
         String name = id.getString(0);
-        Scope scope = new Scope(getRange(that));
-        Definition definition = new Definition(name, getNameRange(name, id), scope, ElementKind.METHOD);
+        AstScope scope = new AstScope(getRange(that));
+        AstDefinition definition = new AstDefinition(name, getNameRange(name, id), scope, ElementKind.METHOD);
 
         scopeStack.peek().addDefinition(definition);
         scopeStack.peek().addScope(scope);
@@ -268,8 +268,8 @@ public class ElementVisitor extends AstVisitor {
         Node funSig = that.getGeneric(0);
         Node id = funSig.getGeneric(0);
         String name = id.getString(0);
-        Scope scope = new Scope(getRange(that));
-        Definition definition = new Definition(name, getNameRange(name, id), scope, ElementKind.METHOD);
+        AstScope scope = new AstScope(getRange(that));
+        AstDefinition definition = new AstDefinition(name, getNameRange(name, id), scope, ElementKind.METHOD);
 
         scopeStack.peek().addDefinition(definition);
         scopeStack.peek().addScope(scope);
@@ -280,11 +280,11 @@ public class ElementVisitor extends AstVisitor {
     }
 
     @Override
-    public Element visitParam(GNode that) {
+    public AstElement visitParam(GNode that) {
         List annotations = that.getList(0).list();
-        Element id = visitId(that.getGeneric(1));
-        Scope scope = new Scope(getRange(that));
-        Definition definition = new Definition(id.getName(), id.getNameRange(), scope, ElementKind.PARAMETER);
+        AstElement id = visitId(that.getGeneric(1));
+        AstScope scope = new AstScope(getRange(that));
+        AstDefinition definition = new AstDefinition(id.getName(), id.getNameRange(), scope, ElementKind.PARAMETER);
 
         scopeStack.peek().addDefinition(definition);
         scopeStack.peek().addScope(scope);
@@ -298,8 +298,8 @@ public class ElementVisitor extends AstVisitor {
         Node id = that.getGeneric(0); // This("this")
 
         String name = id.getString(0);
-        Scope scope = new Scope(getRange(that));
-        Definition definition = new Definition(name, getNameRange(name, id), scope, ElementKind.METHOD);
+        AstScope scope = new AstScope(getRange(that));
+        AstDefinition definition = new AstDefinition(name, getNameRange(name, id), scope, ElementKind.METHOD);
 
         scopeStack.peek().addDefinition(definition);
         scopeStack.peek().addScope(scope);
@@ -310,11 +310,11 @@ public class ElementVisitor extends AstVisitor {
     }
 
     @Override
-    public Element visitClassParam(GNode that) {
+    public AstElement visitClassParam(GNode that) {
         List annotations = that.getList(0).list();
-        Element id = visitId(that.getGeneric(2));
-        Scope scope = new Scope(getRange(that));
-        Definition definition = new Definition(id.getName(), id.getNameRange(), scope, ElementKind.PARAMETER);
+        AstElement id = visitId(that.getGeneric(2));
+        AstScope scope = new AstScope(getRange(that));
+        AstDefinition definition = new AstDefinition(id.getName(), id.getNameRange(), scope, ElementKind.PARAMETER);
 
         scopeStack.peek().addDefinition(definition);
         scopeStack.peek().addScope(scope);
@@ -327,9 +327,9 @@ public class ElementVisitor extends AstVisitor {
     public void visitValDcl(GNode that) {
         GNode ids = that.getGeneric(0);
 
-        for (Element id : visitIds(ids)) {
-            Scope scope = new Scope(getRange(that));
-            Definition definition = new Definition(id.getName(), id.getNameRange(), scope, ElementKind.FIELD);
+        for (AstElement id : visitIds(ids)) {
+            AstScope scope = new AstScope(getRange(that));
+            AstDefinition definition = new AstDefinition(id.getName(), id.getNameRange(), scope, ElementKind.FIELD);
 
             scopeStack.peek().addDefinition(definition);
             scopeStack.peek().addScope(scope);
@@ -342,9 +342,9 @@ public class ElementVisitor extends AstVisitor {
     public void visitVarDcl(GNode that) {
         GNode ids = that.getGeneric(0);
 
-        for (Element id : visitIds(ids)) {
-            Scope scope = new Scope(getRange(that));
-            Definition definition = new Definition(id.getName(), id.getNameRange(), scope, ElementKind.FIELD);
+        for (AstElement id : visitIds(ids)) {
+            AstScope scope = new AstScope(getRange(that));
+            AstDefinition definition = new AstDefinition(id.getName(), id.getNameRange(), scope, ElementKind.FIELD);
 
             scopeStack.peek().addDefinition(definition);
             scopeStack.peek().addScope(scope);
@@ -368,9 +368,9 @@ public class ElementVisitor extends AstVisitor {
     }
 
     @Override
-    public List<Element> visitIdPattern(GNode that) {
+    public List<AstElement> visitIdPattern(GNode that) {
         GNode stableId = that.getGeneric(0);
-        List<Element> ids = visitStableId(stableId);
+        List<AstElement> ids = visitStableId(stableId);
         if (containsValDfn || containsVarDfn) {
             GNode dfnNode = null;
             if (containsValDfn) {
@@ -379,10 +379,10 @@ public class ElementVisitor extends AstVisitor {
                 dfnNode = findNearsetNode("VarDef");
             }
 
-            Scope scope = new Scope(getRange(dfnNode));
+            AstScope scope = new AstScope(getRange(dfnNode));
             /** fetch id is the name @Todo path */
-            Element id = ids.get(ids.size() - 1);
-            Definition definition = new Definition(id.getName(), id.getNameRange(), scope, ElementKind.FIELD);
+            AstElement id = ids.get(ids.size() - 1);
+            AstDefinition definition = new AstDefinition(id.getName(), id.getNameRange(), scope, ElementKind.FIELD);
 
             scopeStack.peek().addDefinition(definition);
             scopeStack.peek().addScope(scope);
@@ -426,9 +426,9 @@ public class ElementVisitor extends AstVisitor {
     @Override
     public void visitSimplePathExpr(GNode that) {
         GNode path = that.getGeneric(0);
-        List<Element> ids = visitPath(path);
-        Element first = ids.get(0);
-        Usage usage = new Usage(first.getName(), first.getNameRange(), ElementKind.VARIABLE);
+        List<AstElement> ids = visitPath(path);
+        AstElement first = ids.get(0);
+        AstUsage usage = new AstUsage(first.getName(), first.getNameRange(), ElementKind.VARIABLE);
 
         scopeStack.peek().addUsage(usage);
         super.visitSimplePathExpr(that);
