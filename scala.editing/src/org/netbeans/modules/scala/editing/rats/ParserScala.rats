@@ -395,7 +395,7 @@ transient generic VariantTypeParam = ( "+":op / "-":op )? TypeParam ;
 
 transient generic TypeParam = ( Id / "_":key ) TypeParamClause? ( void:">:":key Type )? ( void:"<:":key Type )? ( void:"<%":key Type )? ;
 
-transient generic ParamClauses = ParamClause* ( N? void:"(":sep void:"implicit":sep Params void:")":sep )? ;
+transient generic ParamClauses = ParamClause* ( N? void:"(":sep void:"implicit":key Params void:")":sep )? ;
 
 transient generic ParamClause = N? void:"(":sep Params? void:")":sep ;
 
@@ -415,7 +415,7 @@ generic ClassParamClause = N? void:"(":sep ClassParams? void:")":sep ;
 
 generic ClassParams = ClassParam ( void:",":sep ClassParam )* ;
 
-generic ClassParam = Annotation* ( Modifier* ( <Val> void:"val":key / <Var> void:"var":key ) )? Id ( void:":":key ParamType )? ;
+generic ClassParam = Annotation* ( Modifier* ( void:"val":key / void:"var":key ) )? Id ( void:":":key ParamType )? ;
 
 /* @DocError in ScalaReference: void:"(":sep Binding ( void:",":sep Binding )* void:")":sep */
 transient generic Bindings = void:"(":sep Binding? ( void:",":sep Binding )* void:")":sep ;

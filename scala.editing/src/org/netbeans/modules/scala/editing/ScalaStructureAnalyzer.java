@@ -383,6 +383,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
                 case GLOBAL:
                 case PACKAGE:
                 case PROPERTY:
+                case PARAMETER:
                     return true;
 
                 case FILE:

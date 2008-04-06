@@ -160,7 +160,7 @@ public class ElementVisitor extends AstVisitor {
     }
 
     @Override
-    public List<Element> visitPath(GNode that) {        
+    public List<Element> visitPath(GNode that) {
         super.visitPath(that);
 
         GNode first = that.getGeneric(0);
@@ -171,11 +171,11 @@ public class ElementVisitor extends AstVisitor {
             }
             GNode thisKey = that.getGeneric(1);
             ids.add(new Element("this", getNameRange("this", thisKey), ElementKind.VARIABLE));
-            return ids;            
+            return ids;
         } else if (first.getName().equals("StableId")) {
-            return visitStableId(first);            
+            return visitStableId(first);
         }
-        
+
         return Collections.emptyList();
     }
 
@@ -280,6 +280,20 @@ public class ElementVisitor extends AstVisitor {
     }
 
     @Override
+    public Element visitParam(GNode that) {
+        List annotations = that.getList(0).list();
+        Element id = visitId(that.getGeneric(1));
+        Scope scope = new Scope(getRange(that));
+        Definition definition = new Definition(id.getName(), id.getNameRange(), scope, ElementKind.PARAMETER);
+
+        scopeStack.peek().addDefinition(definition);
+        scopeStack.peek().addScope(scope);
+
+        super.visitParam(that);
+        return id;
+    }
+
+    @Override
     public void visitConstructorFunDef(GNode that) {
         Node id = that.getGeneric(0); // This("this")
 
@@ -293,6 +307,20 @@ public class ElementVisitor extends AstVisitor {
         scopeStack.push(scope);
         super.visitConstructorFunDef(that);
         scopeStack.pop();
+    }
+
+    @Override
+    public Element visitClassParam(GNode that) {
+        List annotations = that.getList(0).list();
+        Element id = visitId(that.getGeneric(2));
+        Scope scope = new Scope(getRange(that));
+        Definition definition = new Definition(id.getName(), id.getNameRange(), scope, ElementKind.PARAMETER);
+
+        scopeStack.peek().addDefinition(definition);
+        scopeStack.peek().addScope(scope);
+
+        super.visitParam(that);
+        return id;
     }
 
     @Override
@@ -399,12 +427,10 @@ public class ElementVisitor extends AstVisitor {
     public void visitSimplePathExpr(GNode that) {
         GNode path = that.getGeneric(0);
         List<Element> ids = visitPath(path);
-        Element latest = ids.get(ids.size() - 1);
-        Usage usage = new Usage(latest.getName(), latest.getNameRange(), ElementKind.VARIABLE);
-        
+        Element first = ids.get(0);
+        Usage usage = new Usage(first.getName(), first.getNameRange(), ElementKind.VARIABLE);
+
         scopeStack.peek().addUsage(usage);
         super.visitSimplePathExpr(that);
     }
-    
-    
 }

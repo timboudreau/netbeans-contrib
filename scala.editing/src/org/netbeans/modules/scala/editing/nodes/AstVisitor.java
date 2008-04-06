@@ -189,8 +189,28 @@ public class AstVisitor extends Visitor {
         visit(that);
     }
     
+    public List<Element> visitParams(final GNode that) {
+        visit(that);
+        return null;
+    }
+    
+    public Element visitParam(final GNode that) {
+        visit(that);
+        return null;
+    }
+    
     public void visitConstructorFunDef(final GNode that) {
         visit(that);
+    }
+
+    public List<Element> visitClassParams(final GNode that) {
+        visit(that);
+        return null;
+    }
+    
+    public Element visitClassParam(final GNode that) {
+        visit(that);
+        return null;
     }
 
     public void visitValDcl(final GNode that) {
