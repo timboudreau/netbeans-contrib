@@ -39,6 +39,7 @@
 package org.netbeans.modules.scala.editing.visitors;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -156,6 +157,26 @@ public class ElementVisitor extends AstVisitor {
 
         super.visitIds(that);
         return ids;
+    }
+
+    @Override
+    public List<Element> visitPath(GNode that) {        
+        super.visitPath(that);
+
+        GNode first = that.getGeneric(0);
+        if (first == null || first.getName().equals("Id")) {
+            List<Element> ids = new ArrayList<Element>();
+            if (first != null) {
+                ids.add(visitId(first));
+            }
+            GNode thisKey = that.getGeneric(1);
+            ids.add(new Element("this", getNameRange("this", thisKey), ElementKind.VARIABLE));
+            return ids;            
+        } else if (first.getName().equals("StableId")) {
+            return visitStableId(first);            
+        }
+        
+        return Collections.emptyList();
     }
 
     @Override
@@ -373,4 +394,17 @@ public class ElementVisitor extends AstVisitor {
         super.visitAccessModifier(that);
         return that.getString(0);
     }
+
+    @Override
+    public void visitSimplePathExpr(GNode that) {
+        GNode path = that.getGeneric(0);
+        List<Element> ids = visitPath(path);
+        Element latest = ids.get(ids.size() - 1);
+        Usage usage = new Usage(latest.getName(), latest.getNameRange(), ElementKind.VARIABLE);
+        
+        scopeStack.peek().addUsage(usage);
+        super.visitSimplePathExpr(that);
+    }
+    
+    
 }

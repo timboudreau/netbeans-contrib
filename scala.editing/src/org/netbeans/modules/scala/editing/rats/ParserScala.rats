@@ -147,12 +147,12 @@ generic QualId = Id ( void:".":sep Id )* ;
 generic Ids    = Id ( void:",":sep Id )* ;
 
 generic Path =
-  ( Id void:".":sep )? "this":key
+  ( Id void:".":sep )? ThisKey
 / StableId
 ;
 
 generic StableId = 
-  ( Id void:".":sep )? "this" :key                 ( void:".":key Id )*
+  ( Id void:".":sep )? ThisKey                     ( void:".":key Id )*
 / ( Id void:".":sep )? "super":key ClassQualifier? ( void:".":key Id )*
 / Id ( void:".":sep Id )*
 ;
@@ -225,26 +225,18 @@ generic Expr =
 / NotFunExpr;
 
 generic NotFunExpr = 
-  IfExpr
-/ WhileExpr
-/ TryExpr
-/ DoExpr
-/ ForExpr
-/ ThrowExpr
-/ ReturnExpr
-/ AssignmentExpr
-/ AscriptionExpr
-/ MatchExpr
+  void:"if"    :key void:"(":sep Expr void:")":sep N* Expr ( SEMI? void:"else":key Expr )? @IfExpr
+/ void:"while" :key void:"(":sep Expr void:")":sep N* Expr                                 @WhileExpr
+/ void:"try"   :key void:"{":sep Block void:"}":sep ( void:"catch":key void:"{":sep CaseClauses void:"}":sep )? ( void:"finally":key Expr )? @TryExpr
+/ void:"do"    :key Expr SEMI? void:"while":key void:"(":sep Expr void:")":sep             @DoExpr
+/ void:"for"   :key ( void:"(":sep Enumerators void:")":sep / void:"{":sep Enumerators void:"}":sep ) N* ( void:"yield":key) ? Expr          @ForExpr
+/ void:"throw" :key Expr        @ThrowExpr
+/ void:"return":key Expr?       @ReturnExpr
+/ SimpleExpr  void:"=":key Expr @AssignmentExpr
+/ PostfixExpr Ascription        @AscriptionExpr
+/ PostfixExpr void:"match":key void:"{":sep CaseClauses void:"}":sep  @MatchExpr
 / PostfixExpr
 ;
-
-generic IfExpr = void:"if":key void:"(":sep Expr void:")":sep N* Expr ( SEMI? void:"else":key Expr )? ;
-generic WhileExpr = void:"while":key void:"(":sep Expr void:")":sep N* Expr ;
-generic TryExpr = void:"try":key void:"{":sep Block void:"}":sep ( void:"catch":key void:"{":sep CaseClauses void:"}":sep )? ( void:"finally":key Expr )? ;
-generic DoExpr = void:"do":key Expr SEMI? void:"while":key void:"(":sep Expr void:")":sep ;
-generic ForExpr = void:"for":key ( void:"(":sep Enumerators void:")":sep / void:"{":sep Enumerators void:"}":sep ) N* ( void:"yield":key) ? Expr ;
-generic ThrowExpr = void:"throw" :key Expr ;
-generic ReturnExpr = void:"return":key Expr? ;
 
 /*
 generic AssignmentExpr = 
@@ -252,9 +244,6 @@ generic AssignmentExpr =
 / SimpleExpr ArgumentExprs void:"=":key Expr
 ;
 */
-generic AssignmentExpr = SimpleExpr void:"=":key Expr ;
-generic AscriptionExpr = PostfixExpr Ascription ;
-generic MatchExpr      = PostfixExpr void:"match":key void:"{":sep CaseClauses void:"}":sep ;
 
 /* @DocError in ScalaReference: InfixExpr ( Id N? )? */
 generic PostfixExpr = InfixExpr Id? ;
@@ -264,23 +253,16 @@ generic InfixExprRest = Id N? PrefixExpr;
 
 generic PrefixExpr = ( "-":op / "+":op / "~":op / "!":op )? SimpleExpr ;
 
+/* @DocError in ScalaReference : There is non SimpleExpr with ( void:":":key Type ) */
 generic SimpleExpr = 
   XmlExpr
-/ SimpleLiteralExpr
-/ SimplePathExpr
-/ SimpleWildCardExpr
-/ SimpleTupleExpr
-/ SimpleBlockExpr
-/ SimpleNewExpr
+/ Literal   TypeArgs? SimpleExprRest*                        @SimpleLiteralExpr
+/ Path      TypeArgs? SimpleExprRest* ( void:":":key Type )? @SimplePathExpr
+/ "_":key   TypeArgs? SimpleExprRest*                        @SimpleWildCardExpr
+/ ParenExpr TypeArgs? SimpleExprRest* ( void:":":key Type )? @SimpleTupleExpr
+/ BlockExpr TypeArgs? SimpleExprRest*                        @SimpleBlockExpr
+/ NewExpr   TypeArgs? SimpleExprRest*                        @SimpleNewExpr
 ;
-
-/* @DocError in ScalaReference : There is non SimpleExpr with ( void:":":key Type ) */
-transient generic SimplePathExpr     = Path      TypeArgs? SimpleExprRest* ( void:":":key Type )?;
-transient generic SimpleLiteralExpr  = Literal   TypeArgs? SimpleExprRest* ;
-transient generic SimpleWildCardExpr = "_":key   TypeArgs? SimpleExprRest* ;
-transient generic SimpleTupleExpr    = ParenExpr TypeArgs? SimpleExprRest* ( void:":":key Type )?;
-transient generic SimpleBlockExpr    = BlockExpr TypeArgs? SimpleExprRest* ;
-transient generic SimpleNewExpr      = NewExpr   TypeArgs? SimpleExprRest* ;
 
 transient generic SimpleExprRest = 
   PathRest+

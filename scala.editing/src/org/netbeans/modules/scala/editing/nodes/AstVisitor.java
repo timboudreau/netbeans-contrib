@@ -154,6 +154,11 @@ public class AstVisitor extends Visitor {
         return null;
     }
 
+    public List<Element> visitPath(GNode that) {
+        visit(that);
+        return null;
+    }
+
     public List<Element> visitStableId(GNode that) {
         visit(that);
         return null;
@@ -223,6 +228,10 @@ public class AstVisitor extends Visitor {
     public String visitAccessModifier(GNode that) {
         visit(that);
         return null;
+    }
+    
+    public void visitSimplePathExpr(GNode that) {
+        visit(that);        
     }
 
 }
