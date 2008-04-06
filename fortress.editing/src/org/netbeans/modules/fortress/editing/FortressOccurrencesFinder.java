@@ -60,13 +60,13 @@ import org.openide.util.Exceptions;
  *
  * @author Caoyuan Deng
  */
-public class FortressOccurrenceFinder implements OccurrencesFinder {
+public class FortressOccurrencesFinder implements OccurrencesFinder {
 
     private boolean cancelled;
     private int caretPosition;
     private Map<OffsetRange, ColoringAttributes> occurrences;
 
-    public FortressOccurrenceFinder() {
+    public FortressOccurrencesFinder() {
     }
 
     public Map<OffsetRange, ColoringAttributes> getOccurrences() {
