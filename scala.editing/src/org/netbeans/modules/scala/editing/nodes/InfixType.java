@@ -36,8 +36,10 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
@@ -46,40 +48,38 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author Caoyuan Deng
  */
-public class Var extends AstDefinition {
-
-    boolean val;
-    boolean implicate;
-
-    public Var(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
-        super(name, nameRange, bindingScope, kind);
+public class InfixType extends TypeRef {
+    
+    private List<TypeRef> types;
+    private List<String> ops;
+    
+    public InfixType(String name, OffsetRange nameRange, ElementKind kind) {
+        super(name, nameRange, kind);
     }
-
-    public void setVal() {
-        val = true;
+    
+    public void setTypes(List<TypeRef> types) {
+        this.types = types;
     }
-
-    public boolean isVal() {
-        return val;
+    
+    public List<TypeRef> getTypes() {
+        return types;
     }
-
-    public void setImplicate() {
-        implicate = true;
+    
+    public void setOps(List<String> ops) {
+        this.ops = ops;
     }
-
-    public boolean getImplicate() {
-        return implicate;
+    
+    public List<String> getOps() {
+        return ops;
     }
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
-        super.htmlFormat(formatter);
-        TypeRef type = getType();
-        if (type != null) {
-            formatter.type(true);
-            formatter.appendHtml(" :");
-            type.htmlFormat(formatter);
-            formatter.type(false);
+        types.get(0).htmlFormat(formatter);
+        for (int i = 1; i < types.size(); i++) {
+            formatter.appendText(ops.get(i - 1));
+            types.get(i).htmlFormat(formatter);
         }
-    }
+    }        
+
 }

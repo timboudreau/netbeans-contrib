@@ -44,42 +44,54 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
- * @author Caoyuan Deng
+ * @author dcaoyuan
  */
-public class Var extends AstDefinition {
+public class WrappedType extends TypeRef {
+    
+    public enum More {
 
-    boolean val;
-    boolean implicate;
+        Pure,
+        Star,
+        Arrow,
+    }
+           
+    private More more;
+    private TypeRef wrappedType;
 
-    public Var(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
-        super(name, nameRange, bindingScope, kind);
+    public WrappedType(String name, OffsetRange nameRange, ElementKind kind) {
+        super(name, nameRange, kind);
     }
 
-    public void setVal() {
-        val = true;
+    public void setWrappedType(TypeRef wrappedType) {
+        this.wrappedType = wrappedType;
     }
 
-    public boolean isVal() {
-        return val;
+    public TypeRef getWrappedType() {
+        return wrappedType;
     }
 
-    public void setImplicate() {
-        implicate = true;
+    public void setMore(More more) {
+        this.more = more;
     }
 
-    public boolean getImplicate() {
-        return implicate;
+    public More getMore() {
+        return more;
     }
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-        TypeRef type = getType();
-        if (type != null) {
-            formatter.type(true);
-            formatter.appendHtml(" :");
-            type.htmlFormat(formatter);
-            formatter.type(false);
+        switch (more) {
+            case Star:
+                wrappedType.htmlFormat(formatter);
+                formatter.appendText("*");
+                break;
+            case Arrow:
+                formatter.appendText("\u21D2");
+                wrappedType.htmlFormat(formatter);
+                break;
+            default:
+                wrappedType.htmlFormat(formatter);                
         }
     }
 }

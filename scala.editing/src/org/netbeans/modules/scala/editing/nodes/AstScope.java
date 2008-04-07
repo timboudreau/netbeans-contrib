@@ -138,7 +138,7 @@ public class AstScope implements Iterable<AstScope> {
     public AstElement getElement(int offset) {
         if (definitions != null) {
             if (!definitionsSorted) {
-                Collections.sort(definitions, new SignatureComparator());
+                Collections.sort(definitions, new ElementComparator());
                 definitionsSorted = true;
             }
             int low = 0;
@@ -158,7 +158,7 @@ public class AstScope implements Iterable<AstScope> {
 
         if (usages != null) {
             if (!usagesSorted) {
-                Collections.sort(usages, new SignatureComparator());
+                Collections.sort(usages, new ElementComparator());
                 usagesSorted = true;
             }
             int low = 0;
@@ -321,7 +321,7 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
-    private static class SignatureComparator implements Comparator<AstElement> {
+    private static class ElementComparator implements Comparator<AstElement> {
 
         public int compare(AstElement o1, AstElement o2) {
             return o1.getNameRange().getStart() < o2.getNameRange().getStart() ? -1 : 1;

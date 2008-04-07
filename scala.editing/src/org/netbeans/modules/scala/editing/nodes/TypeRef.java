@@ -36,50 +36,23 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class Var extends AstDefinition {
+public class TypeRef extends AstUsage {
+    
+    private List<String> annotations;
 
-    boolean val;
-    boolean implicate;
-
-    public Var(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
-        super(name, nameRange, bindingScope, kind);
+    public TypeRef(String name, OffsetRange nameRange, ElementKind kind) {
+        super(name, nameRange, kind);
     }
 
-    public void setVal() {
-        val = true;
-    }
-
-    public boolean isVal() {
-        return val;
-    }
-
-    public void setImplicate() {
-        implicate = true;
-    }
-
-    public boolean getImplicate() {
-        return implicate;
-    }
-
-    @Override
-    public void htmlFormat(HtmlFormatter formatter) {
-        super.htmlFormat(formatter);
-        TypeRef type = getType();
-        if (type != null) {
-            formatter.type(true);
-            formatter.appendHtml(" :");
-            type.htmlFormat(formatter);
-            formatter.type(false);
-        }
-    }
 }

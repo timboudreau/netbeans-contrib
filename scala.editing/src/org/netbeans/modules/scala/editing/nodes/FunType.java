@@ -36,6 +36,7 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.modules.gsf.api.ElementKind;
@@ -46,40 +47,46 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author Caoyuan Deng
  */
-public class Var extends AstDefinition {
-
-    boolean val;
-    boolean implicate;
-
-    public Var(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
-        super(name, nameRange, bindingScope, kind);
+public class FunType extends TypeRef {
+    
+    private TypeRef lhs;
+    private TypeRef rhs;
+    
+    public FunType(String name, OffsetRange nameRange, ElementKind kind) {
+        super(name, nameRange, kind);
     }
-
-    public void setVal() {
-        val = true;
+    
+    public void setLhs(TypeRef lhs) {
+        this.lhs = lhs;
     }
-
-    public boolean isVal() {
-        return val;
+    
+    public TypeRef getLhs() {
+        return lhs;
     }
-
-    public void setImplicate() {
-        implicate = true;
+    
+    public void setRhs(TypeRef rhs) {
+        this.rhs = rhs;
     }
-
-    public boolean getImplicate() {
-        return implicate;
+    
+    public TypeRef getRhs() {
+        return rhs;
     }
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-        TypeRef type = getType();
-        if (type != null) {
-            formatter.type(true);
-            formatter.appendHtml(" :");
-            type.htmlFormat(formatter);
-            formatter.type(false);
+        if (lhs == null) {
+            formatter.appendText("(");
+            formatter.appendText(")");
+        } else if (lhs instanceof WrappedType && ((WrappedType)lhs).getMore() == WrappedType.More.Arrow) {
+            formatter.appendText("(");
+            lhs.htmlFormat(formatter);
+            formatter.appendText(")");
+        } else {
+            lhs.htmlFormat(formatter);
         }
-    }
+        formatter.appendText("\u21D2");
+        rhs.htmlFormat(formatter);
+    }    
+
 }

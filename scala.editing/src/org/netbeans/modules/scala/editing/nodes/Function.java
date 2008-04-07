@@ -51,19 +51,19 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public class Function extends AstDefinition {
 
-    private List<Type> typeParams;
+    private List<TypeRef> typeParams;
     private List<Var> params;
 
     public Function(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
         super(name, nameRange, bindingScope, kind);
     }
 
-    public void setTypeParam(List<Type> typeParams) {
+    public void setTypeParam(List<TypeRef> typeParams) {
         this.typeParams = typeParams;
     }
 
-    public List<Type> getTypeParam() {
-        return typeParams == null ? Collections.<Type>emptyList() : typeParams;
+    public List<TypeRef> getTypeParam() {
+        return typeParams == null ? Collections.<TypeRef>emptyList() : typeParams;
     }
 
     public void setParam(List<Var> params) {
@@ -80,8 +80,8 @@ public class Function extends AstDefinition {
         if (getTypeParam().size() > 0) {
             formatter.appendHtml("[");
 
-            for (Iterator<Type> itr = getTypeParam().iterator(); itr.hasNext();) {
-                Type typeParam = itr.next();
+            for (Iterator<TypeRef> itr = getTypeParam().iterator(); itr.hasNext();) {
+                TypeRef typeParam = itr.next();
                 typeParam.htmlFormat(formatter);
 
                 if (itr.hasNext()) {
@@ -100,12 +100,6 @@ public class Function extends AstDefinition {
                 Var param = itr.next();
                 param.htmlFormat(formatter);
 
-                Type type = param.getType();
-                if (type != null) {
-                    formatter.appendHtml(":");
-                    type.htmlFormat(formatter);
-                }
-
                 if (itr.hasNext()) {
                     formatter.appendHtml(", ");
                 }
@@ -116,7 +110,7 @@ public class Function extends AstDefinition {
         formatter.appendHtml(")");
 
         if (getType() != null) {
-            formatter.appendHtml(" : ");
+            formatter.appendHtml(" :");
             getType().htmlFormat(formatter);
         }
     }

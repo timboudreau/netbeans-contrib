@@ -38,48 +38,61 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
- * @author Caoyuan Deng
+ * @author dcaoyuan
  */
-public class Var extends AstDefinition {
+public class SimpleType extends TypeRef {
 
-    boolean val;
-    boolean implicate;
+    private List<String> annotations;
+    private List<List<TypeRef>> typeArgsList;
 
-    public Var(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
-        super(name, nameRange, bindingScope, kind);
+    public SimpleType(String name, OffsetRange nameRange, ElementKind kind) {
+        super(name, nameRange, kind);
     }
 
-    public void setVal() {
-        val = true;
+    public void setAnnotations(List<String> annotations) {
+        this.annotations = annotations;
     }
 
-    public boolean isVal() {
-        return val;
+    public List<String> getAnnotations() {
+        return annotations;
     }
 
-    public void setImplicate() {
-        implicate = true;
+    public void setTypeArgsList(List<List<TypeRef>> typeArgsList) {
+        this.typeArgsList = typeArgsList;
     }
 
-    public boolean getImplicate() {
-        return implicate;
+    public List<List<TypeRef>> getTypeArgsList() {
+        return typeArgsList == null ? Collections.<List<TypeRef>>emptyList() : typeArgsList;
     }
 
-    @Override
-    public void htmlFormat(HtmlFormatter formatter) {
-        super.htmlFormat(formatter);
-        TypeRef type = getType();
-        if (type != null) {
-            formatter.type(true);
-            formatter.appendHtml(" :");
-            type.htmlFormat(formatter);
-            formatter.type(false);
+    public void htmlFormatTypeArgs(HtmlFormatter formatter) {
+        if (getTypeArgsList() == null) {
+            return;
+        }
+
+        for (List<TypeRef> typeArgs : getTypeArgsList()) {
+            formatter.appendText("[");
+            if (typeArgs.size() == 0) {
+                // wildcard
+                formatter.appendText("_");
+            } else {
+                for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
+                    itr.next().htmlFormat(formatter);
+                    if (itr.hasNext()) {
+                        formatter.appendText(", ");
+                    }
+                }
+            }
+            formatter.appendText("]");
         }
     }
 }

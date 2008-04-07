@@ -38,11 +38,9 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
 import xtc.tree.Annotation;
 import xtc.tree.GNode;
 import xtc.tree.Node;
@@ -253,8 +251,7 @@ public class AstVisitor extends Visitor {
         visit(that);
         return null;
     }
-    
-    
+        
     public String visitLocalModifier(GNode that) {
         visit(that);
         return null;
@@ -265,8 +262,18 @@ public class AstVisitor extends Visitor {
         return null;
     }
     
-    public void visitSimplePathExpr(GNode that) {
+    public void visitSimpleIdExpr(GNode that) {
         visit(that);        
+    }
+    
+    public TypeRef visitAnnotType(GNode that) {
+        visit(that);
+        return null;
+    }
+    
+    public TypeRef visitSimpleIdType(GNode that) {
+        visit(that);
+        return null;
     }
 
 }

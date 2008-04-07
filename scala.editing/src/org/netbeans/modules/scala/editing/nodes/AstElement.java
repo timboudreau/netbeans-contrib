@@ -43,6 +43,7 @@ import java.util.Set;
 import org.netbeans.modules.gsf.api.Element;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
@@ -60,7 +61,7 @@ public class AstElement implements Element, ElementHandle {
     private AstScope enclosingScope;
     private AstElement packageElement;
     private Set<Modifier> mods;
-    private Type type;
+    private TypeRef type;
     
     public AstElement(String name, OffsetRange nameRange, ElementKind kind) {
         this.name = name;
@@ -88,11 +89,11 @@ public class AstElement implements Element, ElementHandle {
         return packageElement;
     }
 
-    public void setType(Type type) {
+    public void setType(TypeRef type) {
         this.type = type;
     }
     
-    public Type getType() {
+    public TypeRef getType() {
         return type;
     }
     
@@ -112,6 +113,9 @@ public class AstElement implements Element, ElementHandle {
         return enclosingScope;
     }
 
+    public void htmlFormat(HtmlFormatter formatter) {
+    }    
+    
     public String getMimeType() {
         return ScalaMimeResolver.MIME_TYPE;
     }

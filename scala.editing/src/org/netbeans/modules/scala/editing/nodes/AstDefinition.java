@@ -65,7 +65,9 @@ public class AstDefinition extends AstElement {
         return getBindingScope().getRange();
     }
 
+    @Override
     public void htmlFormat(HtmlFormatter formatter) {
+        super.htmlFormat(formatter);
         formatter.appendText(getName());
     }
 }

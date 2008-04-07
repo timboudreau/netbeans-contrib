@@ -165,8 +165,8 @@ generic Type =
 ;
 
 generic FunType =
-  void:"(":sep ( void:"=>":key Type )? void:")":sep void:"=>":key Type
-/ InfixType void:"=>":key Type
+  void:"(":sep ( void:"=>":key Type )? void:")":sep void:"=>":key Type @CallByNameFunType
+/ InfixType void:"=>":key Type                                         @NormalFunType
 ;
 
 /* in CaseClause, we should leave the latest "=>" for ( "=>" Block ) */
@@ -195,12 +195,10 @@ generic CompoundType =
 generic AnnotType = Annotation* SimpleType ;
 
 generic SimpleType = 
-  Path void:".":sep void:"type":key TypeArgs* ( void:"#":key Id )*
-/ StableId                          TypeArgs* ( void:"#":key Id )*
-/ TupleType                         TypeArgs* ( void:"#":key Id )*
+  Path void:".":sep void:"type":key                 TypeArgs* ( void:"#":key Id )* @SimpleSingletonType
+/ StableId                                          TypeArgs* ( void:"#":key Id )* @SimpleIdType
+/ void:"(":sep Types ( void:",":sep )? void:")":sep TypeArgs* ( void:"#":key Id )* @SimpleTupleType
 ;
-
-generic TupleType = void:"(":sep Types ( void:",":sep )? void:")":sep ;
 
 /* @DocError in ScalaReference: TypeArgs can be [_] */
 transient generic TypeArgs = void:"[":sep ( Types / "_":key ) void:"]":sep ;
@@ -257,7 +255,7 @@ generic PrefixExpr = ( "-":op / "+":op / "~":op / "!":op )? SimpleExpr ;
 generic SimpleExpr = 
   XmlExpr
 / Literal   TypeArgs? SimpleExprRest*                        @SimpleLiteralExpr
-/ Path      TypeArgs? SimpleExprRest* ( void:":":key Type )? @SimplePathExpr
+/ Path      TypeArgs? SimpleExprRest* ( void:":":key Type )? @SimpleIdExpr
 / "_":key   TypeArgs? SimpleExprRest*                        @SimpleWildCardExpr
 / ParenExpr TypeArgs? SimpleExprRest* ( void:":":key Type )? @SimpleTupleExpr
 / BlockExpr TypeArgs? SimpleExprRest*                        @SimpleBlockExpr

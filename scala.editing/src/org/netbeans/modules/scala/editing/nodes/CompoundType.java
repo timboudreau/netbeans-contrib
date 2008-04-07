@@ -38,6 +38,8 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.Iterator;
+import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
@@ -46,40 +48,30 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author Caoyuan Deng
  */
-public class Var extends AstDefinition {
+public class CompoundType extends TypeRef {
 
-    boolean val;
-    boolean implicate;
+    private List<TypeRef> types;
 
-    public Var(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
-        super(name, nameRange, bindingScope, kind);
+    public CompoundType(String name, OffsetRange nameRange, ElementKind kind) {
+        super(name, nameRange, kind);
     }
 
-    public void setVal() {
-        val = true;
+    public void setTypes(List<TypeRef> types) {
+        this.types = types;
     }
 
-    public boolean isVal() {
-        return val;
-    }
-
-    public void setImplicate() {
-        implicate = true;
-    }
-
-    public boolean getImplicate() {
-        return implicate;
+    public List<TypeRef> getTypes() {
+        return types;
     }
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
-        super.htmlFormat(formatter);
-        TypeRef type = getType();
-        if (type != null) {
-            formatter.type(true);
-            formatter.appendHtml(" :");
-            type.htmlFormat(formatter);
-            formatter.type(false);
+        types.get(0).htmlFormat(formatter);
+        for (Iterator<TypeRef> itr = types.iterator(); itr.hasNext();) {
+            itr.next().htmlFormat(formatter);
+            if (itr.hasNext()) {
+                formatter.appendText(" with ");
+            }
         }
     }
 }
