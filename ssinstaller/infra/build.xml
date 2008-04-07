@@ -288,6 +288,7 @@ release.url=http://${glassfish.host}:${glassfish.http.port}${context.path}/admin
 release.registry=NetBeans
 
 packaged.data.dir=${nbi.cache.dir}/packaged
+packaged.data.dir.release=${output.dir}/packaged
 downloads.cache.dir=${nbi.cache.dir}/raw
 
 binary.cache.host=${binary.cache.host}
@@ -581,6 +582,31 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
+
+        <!-- Added by Igor Nikiforov -->
+        <delete file="${output.dir}/registry-temp/bundles.list" />
+        <create-bundle root="${output.dir}/registry-temp" 
+                       platform="solaris-x86" 
+                       target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-x86-external.sh">
+            <component uid="ss-base" version="1.0.0.0.0"/>
+            
+	    <component uid="nb-base" version="${nb.full.version}"/>
+	    <component uid="nb-cnd" version="${nb.full.version}"/>
+	    <component uid="cc" version="1.0.0.0.0"/>            
+	    <component uid="cpp" version="1.0.0.0.0"/>
+    	    <component uid="fortran" version="1.0.0.0.0"/>
+    	    <component uid="dbx" version="1.0.0.0.0"/>
+    	    <component uid="dmake" version="1.0.0.0.0"/>
+    	    <component uid="x-designer" version="1.0.0.0.0"/>
+    	    <component uid="ex-editors" version="1.0.0.0.0"/>
+    	    <component uid="support-files" version="1.0.0.0.0"/>
+    	    <component uid="perf-lib" version="1.0.0.0.0"/>
+    	    <component uid="third-party-source" version="1.0.0.0.0"/>
+                                 <property name="product.data.all.location" value="file:///tmp" />
+	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
+        </create-bundle>
+        <!-- End of addition -->
+
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-sparc" 
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-sparc.sh">            
@@ -644,7 +670,10 @@ jarsigner.storepass=${jarsigner.storepass}
 	<delete dir="${output.dir}"/>    
         <mkdir dir="${output.dir}"/>
         <mkdir dir="${output.dir}/bundles"/>
-        <mkdir dir="${output.dir}/components"/>        
+        <mkdir dir="${output.dir}/components"/>    
+        <!-- Added by Igor Nikiforov -->
+        <mkdir dir="${output.dir}/packaged"/>        
+        <!-- End of addition -->    
     </target>
 
     <target name="generate-bundles">
