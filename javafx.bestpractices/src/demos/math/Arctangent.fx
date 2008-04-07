@@ -29,6 +29,7 @@ Frame {
     title : "Arctangent"
     width : 200
     height : 232
+    onClose : function() { java.lang.System.exit( 0 ); }
 }
 
 class Eye extends CompositeNode {
