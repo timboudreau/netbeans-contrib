@@ -42,12 +42,12 @@
 package org.netbeans.lib.javafx.lexer;
 
 import com.sun.tools.javac.util.Log;
-import org.antlr.runtime.CharStream;
-import org.antlr.runtime.RecognitionException;
-import org.antlr.runtime.RecognizerSharedState;
+import org.antlr.runtime.*;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Lexer base class provide user code for grammar. This code is called from antlr generated lexer. The main
@@ -63,7 +63,25 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
      */
     protected Log log;
     private static Logger logger = Logger.getLogger(Lexer.class.getName());
+    private List<Token> tokens = new ArrayList<Token>();
 //    private boolean errorRecovery;
+
+
+    public void emit(Token token) {
+        state.token = token;
+        tokens.add(token);
+    }
+
+    public Token nextToken() {
+        if ( tokens.size() > 0 ) {
+            return tokens.remove(0);
+        }
+        super.nextToken();
+        if ( tokens.size()==0 ) {
+            emit(Token.EOF_TOKEN);
+        }
+        return tokens.remove(0);
+    }
 
 
     protected Lexer(org.antlr.runtime.CharStream charStream, org.antlr.runtime.RecognizerSharedState recognizerSharedState) {
@@ -105,6 +123,13 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
         return state;
     }
 
+    /**
+     * If error is reported we are in trouble. If we loose track of tokens and reach inconsistent state the best to do
+     * is try to recover it just by skipping several characters and starts from beginning. Better then failing
+     * application down.
+     * 
+     * @param e exeption occured during lexing.
+     */
     @Override
     public void reportError(RecognitionException e) {
         logger.severe(getErrorMessage(e, getTokenNames()) + " Trying to recover from error. " + e.getClass().getSimpleName());

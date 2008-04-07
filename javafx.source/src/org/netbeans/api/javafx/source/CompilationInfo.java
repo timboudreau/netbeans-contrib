@@ -64,7 +64,7 @@ public class CompilationInfo {
     }
 
     /**
-     * Return the {@link Trees} service of the javafxc represented by this {@link CompilationInfo}.
+     * Return the {@link com.sun.source.util.Trees} service of the javafxc represented by this {@link CompilationInfo}.
      * @return javafxc Trees service
      */
     public JavafxcTrees getTrees() {

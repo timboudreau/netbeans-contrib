@@ -43,9 +43,6 @@ package org.netbeans.modules.javafx.editor;
 import java.awt.event.ActionEvent;
 import java.util.Map;
 import javax.swing.Action;
-import javax.swing.text.Document;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.TextAction;
 import org.netbeans.editor.BaseDocument;
 import javax.swing.text.*;
 import org.netbeans.editor.Settings;
@@ -390,7 +387,7 @@ public class JavaFXEditorKit extends LexerEditorKit{
         @Override
         protected void charBackspaced(BaseDocument doc, int dotPos, Caret caret, char ch)
         throws BadLocationException {
-            BracketCompletion.charBackspaced(doc, dotPos, caret, ch);
+            BracketCompletion.charBackspaced(doc, dotPos, ch);
         }
     }
 

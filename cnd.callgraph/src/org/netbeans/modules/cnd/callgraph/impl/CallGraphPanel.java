@@ -44,10 +44,6 @@ package org.netbeans.modules.cnd.callgraph.impl;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
-import java.awt.event.HierarchyEvent;
-import java.awt.event.HierarchyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
@@ -59,8 +55,6 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 import org.netbeans.api.visual.graph.layout.GraphLayout;
 import org.netbeans.api.visual.graph.layout.GridGraphLayout;
 import org.netbeans.api.visual.layout.LayoutFactory;
@@ -99,6 +93,7 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
         actions = new Action[]{new RefreshAction(),
                                null, new WhoIsCalledAction(), new WhoCallsAction(),
                                null, new ExportAction(scene, this)};
+        scene.setExportAction(actions[actions.length-1]);
         root = new AbstractNode(children){
             @Override
             public Action[] getActions(boolean context) {

@@ -48,8 +48,35 @@ made subject to such option by the copyright holder.
     <attr name="Templates\Project\Samples\Web\position" intvalue="300"/>
     
     <folder name="demos">
+        <folder name="color">
+            <file name="GradientSample" url="/demos/color/GradientSample.fx"/>
+            <file name="ColorWheel" url="/demos/color/ColorWheel.fx"/>
+        </folder>
         <folder name="math">
             <file name="Arctangent" url="/demos/math/Arctangent.fx"/>
+            <file name="Distance1D" url="/demos/math/Distance1D.fx"/>
+            <file name="Distance2D" url="/demos/math/Distance2D.fx"/>
+            <file name="Sine" url="/demos/math/Sine.fx"/>
+            <file name="SineWave" url="/demos/math/SineWave.fx"/>
+        </folder>
+        <folder name="forms">
+            <file name="PointsAndLines" url="/demos/forms/PointsAndLines.fx"/>
+            <file name="ShapePrimitives" url="/demos/forms/ShapePrimitives.fx"/>
+        </folder>
+        <folder name="image">
+            <file name="BackgroundImage" url="/demos/image/BackgroundImage.fx"/>
+            <file name="Displaying" url="/demos/image/Displaying.fx"/>
+            <file name="Transparency" url="/demos/image/Transparency.fx"/>
+        </folder>
+        <folder name="input">
+            <file name="Clock" url="/demos/input/Clock.fx"/>
+            <file name="Constrain" url="/demos/input/Constrain.fx"/>
+            <file name="Easing" url="/demos/input/Easing.fx"/>
+            <file name="Milliseconds" url="/demos/input/Milliseconds.fx"/>
+            <file name="Mouse1D" url="/demos/input/Mouse1D.fx"/>
+            <file name="Mouse2D" url="/demos/input/Mouse2D.fx"/>
+            <file name="MousePress" url="/demos/input/MousePress.fx"/>
+            <file name="StoringInput" url="/demos/input/StoringInput.fx"/>
         </folder>
     </folder>
     
@@ -59,62 +86,95 @@ made subject to such option by the copyright holder.
                 <folder name="JavaFX">
                     <folder name="Best Practices">
                         <folder name="Math">
-                            <file name="Arctangent" url="../../../../../../math/Arctangent.fx">
+                            <file name="Arctangent" url="../../../../../../demos/math/Arctangent.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
                                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
                                 <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
                                 <attr name="file" stringvalue="demos/math/Arctangent"/>
                             </file>
-                            <file name="Distance 1D" url="">
+                            <file name="Distance 1D" url="../../../../../../demos/math/Distance1D.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/math/Distance1D"/>
                             </file>
-                            <file name="Distance 2D" url="">
+                            <file name="Distance 2D" url="../../../../../../demos/math/Distance2D.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/math/Distance2D"/>
                             </file>
-                            <file name="Sine" url="">
+                            <file name="Sine" url="../../../../../../demos/math/Sine.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/math/Sine"/>
                             </file>
-                            <file name="SineWave" url="">
+                            <file name="SineWave" url="../../../../../../demos/math/SineWave.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/math/SineWave"/>
                             </file>
                         </folder>
                         <folder name="Color">
-                            <file name="Linear Gradient" url="">
+                            <file name="Linear Gradient" url="../../../../../../demos/color/GradientSample.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/color/GradientSample"/>
                             </file>
-                            <file name="Color Wheel" url="">
+                            <file name="Color Wheel" url="../../../../../../demos/color/ColorWheel.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/color/ColorWheel"/>
                             </file>
                         </folder>
-                        <folder name="Form">
-                            <file name="Points and Lines" url="">
+                        <folder name="Forms">
+                            <file name="Points and Lines" url="../../../../../../demos/forms/PointsAndLines.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/forms/PointsAndLines"/>
                             </file>
-                            <file name="Shape primitives" url="">
+                            <file name="Shape primitives" url="../../../../../../demos/forms/ShapePrimitives.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/forms/ShapePrimitives"/>
                             </file>
                         </folder>
                         <folder name="Image">
-                            <file name="Displaying" url="">
+                            <file name="Displaying" url="../../../../../../demos/image/Displaying.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/image/Displaying"/>
                             </file>
-                            <file name="Background image" url="">
+                            <file name="Background image" url="../../../../../../demos/image/BackgroundImage.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/image/BackgroundImage"/>
                             </file>
-                            <file name="Transparency" url="">
+                            <file name="Transparency" url="../../../../../../demos/image/Transparency.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/image/Transparency"/>
                             </file>
                         </folder>
                         <folder name="Transform">
@@ -146,37 +206,61 @@ made subject to such option by the copyright holder.
                             </file>
                         </folder>
                         <folder name="Input">
-                            <file name="Mouse 1D" url="">
+                            <file name="Mouse 1D" url="../../../../../../demos/input/Mouse1D.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/input/Mouse1D"/>
                             </file>
-                            <file name="Mouse 2D" url="">
+                            <file name="Mouse 2D" url="../../../../../../demos/input/Mouse2D.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/input/Mouse2D"/>
                             </file>
-                            <file name="Mouse press" url="">
+                            <file name="Mouse Press" url="../../../../../../demos/input/MousePress.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/input/MousePress"/>
                             </file>
-                            <file name="Easing" url="">
+                            <file name="Easing" url="../../../../../../demos/input/Easing.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/input/Easing"/>
                             </file>
-                            <file name="Constrain" url="">
+                            <file name="Constrain" url="../../../../../../demos/input/Constrain.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/input/Constrain"/>
                             </file>
-                            <file name="Storing input" url="">
+                            <file name="Storing input" url="../../../../../../demos/input/StoringInput.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/input/StoringInput"/>
                             </file>
-                            <file name="Milliseconds" url="">
+                            <file name="Milliseconds" url="../../../../../../demos/input/Milliseconds.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/input/Milliseconds"/>
                             </file>
-                            <file name="Clock" url="">
+                            <file name="Clock" url="../../../../../../demos/input/Clock.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/input/Clock"/>
                             </file>
                         </folder>
                         <folder name="Simulation">

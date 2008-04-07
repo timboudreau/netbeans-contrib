@@ -672,7 +672,9 @@ is divided into following sections:
                              srcdir="${{src.dir}}" target="${{javac.target}}"
                              bootclasspath="${{platform.bootcp}}"
                              classpath="${{build.classes.dir}}:${{javac.classpath}}"
-                             compilerclasspath="${{platform.bootcp}}"/>
+                             compilerclasspath="${{platform.bootcp}}">
+                        <compilerarg line="${{javac.compilerargs}}"/>
+                    </javafxc>
                 </xsl:if>
                 <xsl:if test="not(/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform)">
                     <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask" classpath="${{libs.JavaFXUserLib.classpath}}"/>
@@ -684,7 +686,9 @@ is divided into following sections:
                              srcdir="${{src.dir}}" target="${{javac.target}}"
                              bootclasspath="${{libs.JavaFXUserLib.classpath}}"
                              classpath="${{build.classes.dir}}:${{javac.classpath}}"
-                             compilerclasspath="${{libs.JavaFXUserLib.classpath}}"/>
+                             compilerclasspath="${{libs.JavaFXUserLib.classpath}}">
+                        <compilerarg line="${{javac.compilerargs}}"/>
+                    </javafxc>
                 </xsl:if>
             </target>
             <target name="-compile-fx-single">
@@ -698,7 +702,9 @@ is divided into following sections:
                              srcdir="${{src.dir}}" target="${{javac.target}}"
                              bootclasspath="${{platform.bootcp}}"
                              classpath="${{build.classes.dir}}:${{javac.classpath}}"
-                             compilerclasspath="${{platform.bootcp}}"/>
+                             compilerclasspath="${{platform.bootcp}}">
+                        <compilerarg line="${{javac.compilerargs}}"/>
+                    </javafxc>
                 </xsl:if>
                 <xsl:if test="not(/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform)">
                     <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask" classpath="${{libs.JavaFXUserLib.classpath}}"/>
@@ -710,7 +716,9 @@ is divided into following sections:
                              srcdir="${{src.dir}}" target="${{javac.target}}"
                              bootclasspath="${{libs.JavaFXUserLib.classpath}}"
                              classpath="${{build.classes.dir}}:${{javac.classpath}}"
-                             compilerclasspath="${{libs.JavaFXUserLib.classpath}}"/>
+                             compilerclasspath="${{libs.JavaFXUserLib.classpath}}">
+                        <compilerarg line="${{javac.compilerargs}}"/>
+                    </javafxc>
                 </xsl:if>
             </target>
 

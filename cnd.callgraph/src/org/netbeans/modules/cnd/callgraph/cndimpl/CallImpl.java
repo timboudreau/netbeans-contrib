@@ -54,11 +54,13 @@ public class CallImpl implements Call {
     private Function owner;
     private CsmReference reference;
     private Function function;
+    private boolean nameOrder;
     
-    public CallImpl(CsmFunction owner, CsmReference reference, CsmFunction function){
+    public CallImpl(CsmFunction owner, CsmReference reference, CsmFunction function, boolean nameOrder){
         this.owner = new FunctionImpl(owner);
         this.reference = reference;
         this.function = new FunctionImpl(function);
+        this.nameOrder = nameOrder;
     }
 
     public Object getReferencedCall() {
@@ -78,6 +80,14 @@ public class CallImpl implements Call {
     }
 
     public int compareTo(Call o) {
-        return getCallee().getName().compareTo(o.getCallee().getName());
+        if (nameOrder) {
+            return getCallee().getName().compareTo(o.getCallee().getName());
+        }
+        int diff = reference.getStartOffset() - ((CallImpl)o).reference.getStartOffset();
+        if (diff == 0) {
+             return getCallee().getName().compareTo(o.getCallee().getName());
+       }
+        return diff;
     }
+    
 }

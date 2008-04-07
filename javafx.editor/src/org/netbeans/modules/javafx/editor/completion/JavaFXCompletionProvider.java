@@ -41,10 +41,14 @@
 
 package org.netbeans.modules.javafx.editor.completion;
 
+import com.sun.javafx.api.tree.JavaFXTree;
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.source.tree.*;
 import com.sun.source.util.*;
 
+import com.sun.source.util.TaskEvent.Kind;
 import com.sun.tools.javafx.api.JavafxcTrees;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Future;
@@ -188,66 +192,76 @@ public class JavaFXCompletionProvider implements CompletionProvider {
         private static final String EMPTY = ""; //NOI18N
         
         private static final String ABSTRACT_KEYWORD = "abstract"; //NOI18N
+        private static final String AFTER_KEYWORD = "after"; //NOI18N
+        private static final String AND_KEYWORD = "and"; //NOI18N
+        private static final String AS_KEYWORD = "as"; //NOI18N
         private static final String ASSERT_KEYWORD = "assert"; //NOI18N
-        private static final String BOOLEAN_KEYWORD = "boolean"; //NOI18N
+        private static final String ATTRIBUTE_KEYWORD = "attribute"; //NOI18N
+        private static final String BEFORE_KEYWORD = "before"; //NOI18N
+        private static final String BIND_KEYWORD = "bind"; //NOI18N
+        private static final String BOUND_KEYWORD = "bound"; //NOI18N
         private static final String BREAK_KEYWORD = "break"; //NOI18N
-        private static final String BYTE_KEYWORD = "byte"; //NOI18N
-        private static final String CASE_KEYWORD = "case"; //NOI18N
         private static final String CATCH_KEYWORD = "catch"; //NOI18N
-        private static final String CHAR_KEYWORD = "char"; //NOI18N
         private static final String CLASS_KEYWORD = "class"; //NOI18N
         private static final String CONTINUE_KEYWORD = "continue"; //NOI18N
-        private static final String DEFAULT_KEYWORD = "default"; //NOI18N
-        private static final String DOUBLE_KEYWORD = "double"; //NOI18N
-        private static final String ENUM_KEYWORD = "enum"; //NOI18N
+        private static final String DELETE_KEYWORD = "delete"; //NOI18N
+        private static final String ELSE_KEYWORD = "else"; //NOI18N
+        private static final String EXCLUSIVE_KEYWORD = "exclusive"; //NOI18N
         private static final String EXTENDS_KEYWORD = "extends"; //NOI18N
         private static final String FALSE_KEYWORD = "false"; //NOI18N
-        private static final String FINAL_KEYWORD = "final"; //NOI18N
         private static final String FINALLY_KEYWORD = "finally"; //NOI18N
-        private static final String FLOAT_KEYWORD = "float"; //NOI18N
+        private static final String FIRST_KEYWORD = "first"; //NOI18N
         private static final String FOR_KEYWORD = "for"; //NOI18N
+        private static final String FROM_KEYWORD = "from"; //NOI18N
+        private static final String FUNCTION_KEYWORD = "function"; //NOI18N
         private static final String IF_KEYWORD = "if"; //NOI18N
-        private static final String IMPLEMENTS_KEYWORD = "implements"; //NOI18N
         private static final String IMPORT_KEYWORD = "import"; //NOI18N
+        private static final String INDEXOF_KEYWORD = "indexof"; //NOI18N
+        private static final String INIT_KEYWORD = "init"; //NOI18N
+        private static final String IN_KEYWORD = "in"; //NOI18N
+        private static final String INSERT_KEYWORD = "insert"; //NOI18N
         private static final String INSTANCEOF_KEYWORD = "instanceof"; //NOI18N
-        private static final String INT_KEYWORD = "int"; //NOI18N
-        private static final String INTERFACE_KEYWORD = "interface"; //NOI18N
-        private static final String LONG_KEYWORD = "long"; //NOI18N
-        private static final String NATIVE_KEYWORD = "native"; //NOI18N
+        private static final String INTO_KEYWORD = "into"; //NOI18N
+        private static final String INVERSE_KEYWORD = "inverse"; //NOI18N
+        private static final String LAST_KEYWORD = "last"; //NOI18N
+        private static final String LAZY_KEYWORD = "lazy"; //NOI18N
+        private static final String LET_KEYWORD = "let"; //NOI18N
         private static final String NEW_KEYWORD = "new"; //NOI18N
+        private static final String NOT_KEYWORD = "not"; //NOI18N
         private static final String NULL_KEYWORD = "null"; //NOI18N
+        private static final String ON_KEYWORD = "on"; //NOI18N
+        private static final String OR_KEYWORD = "or"; //NOI18N
+        private static final String OVERRIDE_KEYWORD = "override"; //NOI18N  
         private static final String PACKAGE_KEYWORD = "package"; //NOI18N
         private static final String PRIVATE_KEYWORD = "private"; //NOI18N
         private static final String PROTECTED_KEYWORD = "protected"; //NOI18N
         private static final String PUBLIC_KEYWORD = "public"; //NOI18N
+        private static final String READONLY_KEYWORD = "readonly"; //NOI18N
+        private static final String REPLACE_KEYWORD = "replace"; //NOI18N
         private static final String RETURN_KEYWORD = "return"; //NOI18N
-        private static final String SHORT_KEYWORD = "short"; //NOI18N
+        private static final String REVERSE_KEYWORD = "reverse"; //NOI18N
+        private static final String SIZEOF_KEYWORD = "sizeof"; //NOI18N
         private static final String STATIC_KEYWORD = "static"; //NOI18N
-        private static final String STRICT_KEYWORD = "strictfp"; //NOI18N
+        private static final String STEP_KEYWORD = "step"; //NOI18N
         private static final String SUPER_KEYWORD = "super"; //NOI18N
-        private static final String SWITCH_KEYWORD = "switch"; //NOI18N
-        private static final String SYNCHRONIZED_KEYWORD = "synchronized"; //NOI18N
+        private static final String THEN_KEYWORD = "then"; //NOI18N
         private static final String THIS_KEYWORD = "this"; //NOI18N
         private static final String THROW_KEYWORD = "throw"; //NOI18N
-        private static final String THROWS_KEYWORD = "throws"; //NOI18N
         private static final String TRANSIENT_KEYWORD = "transient"; //NOI18N
         private static final String TRUE_KEYWORD = "true"; //NOI18N
         private static final String TRY_KEYWORD = "try"; //NOI18N
-        private static final String VOID_KEYWORD = "void"; //NOI18N
-        private static final String VOLATILE_KEYWORD = "volatile"; //NOI18N
+        private static final String TWEEN_KEYWORD = "tween"; //NOI18N
+        private static final String TYPEOF_KEYWORD = "typeof"; //NOI18N
+        private static final String VAR_KEYWORD = "var"; //NOI18N
+        private static final String WHERE_KEYWORD = "where"; //NOI18N
         private static final String WHILE_KEYWORD = "while"; //NOI18N
+        private static final String WITH_KEYWORD = "with"; //NOI18N
         
         private static final String JAVA_LANG_OBJECT = "java.lang.Object"; //NOI18N
         private static final String JAVA_LANG_ITERABLE = "java.lang.Iterable"; //NOI18N
 
-        private static final String[] PRIM_KEYWORDS = new String[] {
-            BOOLEAN_KEYWORD, BYTE_KEYWORD, CHAR_KEYWORD, DOUBLE_KEYWORD,
-            FLOAT_KEYWORD, INT_KEYWORD, LONG_KEYWORD, SHORT_KEYWORD
-        };
-        
         private static final String[] STATEMENT_KEYWORDS = new String[] {
-            FOR_KEYWORD, SWITCH_KEYWORD, SYNCHRONIZED_KEYWORD, TRY_KEYWORD,
-            VOID_KEYWORD, WHILE_KEYWORD
+            FOR_KEYWORD, TRY_KEYWORD, WHILE_KEYWORD
         };
         
         private static final String[] STATEMENT_SPACE_KEYWORDS = new String[] {
@@ -255,15 +269,13 @@ public class JavaFXCompletionProvider implements CompletionProvider {
         };
         
         private static final String[] BLOCK_KEYWORDS = new String[] {
-            ASSERT_KEYWORD, CLASS_KEYWORD, FINAL_KEYWORD, NEW_KEYWORD,
-            THROW_KEYWORD
+            ASSERT_KEYWORD, CLASS_KEYWORD, NEW_KEYWORD, THROW_KEYWORD
         };
 
         private static final String[] CLASS_BODY_KEYWORDS = new String[] {
-            ABSTRACT_KEYWORD, CLASS_KEYWORD, ENUM_KEYWORD, FINAL_KEYWORD,
-            INTERFACE_KEYWORD, NATIVE_KEYWORD, PRIVATE_KEYWORD, PROTECTED_KEYWORD,
-            PUBLIC_KEYWORD, STATIC_KEYWORD, STRICT_KEYWORD, SYNCHRONIZED_KEYWORD,
-            TRANSIENT_KEYWORD, VOID_KEYWORD, VOLATILE_KEYWORD
+            ABSTRACT_KEYWORD, ATTRIBUTE_KEYWORD,
+            CLASS_KEYWORD, PRIVATE_KEYWORD, PROTECTED_KEYWORD,
+            PUBLIC_KEYWORD, STATIC_KEYWORD, TRANSIENT_KEYWORD
         };
         
         private List<JavaFXCompletionItem> results;
@@ -414,148 +426,229 @@ public class JavaFXCompletionProvider implements CompletionProvider {
                 }
             }
         }
-        
+
         private void resolveCompletion(CompilationController controller) throws IOException {
             Env env = getCompletionEnvironment(controller, true);
             results = new ArrayList<JavaFXCompletionItem>();
             anchorOffset = env.getOffset();
             TreePath path = env.getPath();
-            switch(path.getLeaf().getKind()) {
-                case COMPILATION_UNIT:
-                    insideCompilationUnit(env);
-                    break;
-                case IMPORT:
-                    insideImport(env);
-                    break;
-                case CLASS:
-                    insideClass(env);
-                    break;
-                case VARIABLE:
-                    insideVariable(env);
-                    break;
-                case METHOD:
-                    insideMethod(env);
-                    break;
-                case MODIFIERS:
-                    insideModifiers(env, path);
-                    break;
-                case ANNOTATION:
-                    break;
-                case TYPE_PARAMETER:
-                    break;
-                case PARAMETERIZED_TYPE:
-                    break;
-                case UNBOUNDED_WILDCARD:
-                case EXTENDS_WILDCARD:
-                case SUPER_WILDCARD:
-                    TreePath parentPath = path.getParentPath();
-                    
-                    break;
-                case BLOCK:
-                    insideBlock(env);
-                    break;
-                case MEMBER_SELECT:
-                    insideMemberSelect(env);
-                    break;
-                case METHOD_INVOCATION:
-                    insideMethodInvocation(env);
-                    break;
-                case NEW_CLASS:
-                    break;
-                case ASSERT:
-                case RETURN:
-                case THROW:                    
-                    localResult(env);
-                    addValueKeywords(env);
-                    break;
-                case CATCH:
-                    break;
-                case IF:
-                    insideIf(env);
-                    break;
-                case WHILE_LOOP:
-                    insideWhile(env);
-                    break;
-                case FOR_LOOP:
-                    insideFor(env);
-                    break;
-                case ENHANCED_FOR_LOOP:
-                    insideForEach(env);
-                    break;
-                case SWITCH:
-                    insideSwitch(env);
-                    break;
-                case CASE:
-                    insideCase(env);
-                    break;
-                case PARENTHESIZED:
-                    insideParens(env);
-                    break;
-                case TYPE_CAST:
-                    insideExpression(env, path);
-                    break;
-                case INSTANCE_OF:
-                    insideTypeCheck(env);
-                    break;
-                case ARRAY_ACCESS:
-                    insideArrayAccess(env);
-                    break;
-                case NEW_ARRAY:
-                    insideNewArray(env);
-                    break;
-                case ASSIGNMENT:
-                    insideAssignment(env);
-                    break;
-                case MULTIPLY_ASSIGNMENT:
-                case DIVIDE_ASSIGNMENT:
-                case REMAINDER_ASSIGNMENT:
-                case PLUS_ASSIGNMENT:
-                case MINUS_ASSIGNMENT:
-                case LEFT_SHIFT_ASSIGNMENT:
-                case RIGHT_SHIFT_ASSIGNMENT:
-                case UNSIGNED_RIGHT_SHIFT_ASSIGNMENT:
-                case AND_ASSIGNMENT:
-                case XOR_ASSIGNMENT:
-                case OR_ASSIGNMENT:
-                    insideCompoundAssignment(env);
-                    break;
-                case PREFIX_INCREMENT:
-                case PREFIX_DECREMENT:
-                case UNARY_PLUS:
-                case UNARY_MINUS:
-                case BITWISE_COMPLEMENT:
-                case LOGICAL_COMPLEMENT:
-                    localResult(env);
-                    break;
-                case AND:
-                case CONDITIONAL_AND:
-                case CONDITIONAL_OR:
-                case DIVIDE:
-                case EQUAL_TO:
-                case GREATER_THAN:
-                case GREATER_THAN_EQUAL:
-                case LEFT_SHIFT:
-                case LESS_THAN:
-                case LESS_THAN_EQUAL:
-                case MINUS:
-                case MULTIPLY:
-                case NOT_EQUAL_TO:
-                case OR:
-                case PLUS:
-                case REMAINDER:
-                case RIGHT_SHIFT:
-                case UNSIGNED_RIGHT_SHIFT:
-                case XOR:
-                    insideBinaryTree(env);
-                    break;
-                case CONDITIONAL_EXPRESSION:
-                    break;
-                case EXPRESSION_STATEMENT:
-                    insideExpressionStatement(env);
-                    break;
+            Tree t = path.getLeaf();
+            if (t instanceof JavaFXTree && t.getKind() == Tree.Kind.OTHER) {
+                JavaFXTree jfxt = (JavaFXTree)t;
+                JavaFXKind k = jfxt.getJavaFXKind();
+                switch (k)  {
+                    case BIND_EXPRESSION :
+                        // inside bind
+                        break;
+                    case BLOCK_EXPRESSION :
+                        // inside block
+                        break;
+                    case CLASS_DECLARATION:
+                        insideClassDeclaration(env);
+                        break;
+                    case FOR_EXPRESSION: 
+                        break;
+                    case FOR_EXPRESSION_IN_CLAUSE:
+                        break;
+                    case FUNCTION_DEFINITION: 
+                        break;
+                    case FUNCTION_VALUE: 
+                        break;
+                    case INIT_DEFINITION:
+                        break;
+                    case INSTANTIATE:
+                        break;
+                    case INTERPOLATE:
+                        break;
+                    case INTERPOLATE_VALUE:
+                        break;
+                    case KEYFRAME_LITERAL:
+                        break;
+                    case OBJECT_LITERAL_PART:
+                        insideObjectLiteralPart(env);
+                        break;
+                    case ON_REPLACE:
+                        break;
+                    case POSTINIT_DEFINITION:
+                        break;
+                    case SEQUENCE_DELETE:
+                        break;
+                    case SEQUENCE_EMPTY:
+                        break;
+                    case SEQUENCE_EXPLICIT:
+                        break;
+                    case SEQUENCE_INDEXED:
+                        break;
+                    case SEQUENCE_INSERT: 
+                        break;
+                    case SEQUENCE_RANGE:
+                        break;
+                    case SEQUENCE_SLICE:
+                        break;
+                    case SET_ATTRIBUTE_TO_OBJECT:
+                        break;
+                    case STRING_EXPRESSION:
+                        break;
+                    case TIME_LITERAL:
+                        break;
+                    case TRIGGER_WRAPPER:
+                        break;
+                    case TYPE_ANY:
+                        break;
+                    case TYPE_CLASS:
+                        break;
+                    case TYPE_FUNCTIONAL:
+                        break;
+                    case TYPE_UNKNOWN:
+                        break;
+                }
+            } else {
+                switch(t.getKind()) {
+                    case COMPILATION_UNIT:
+                        insideCompilationUnit(env);
+                        break;
+                    case IMPORT:
+                        insideImport(env);
+                        break;
+                    case CLASS:
+                        insideClass(env);
+                        break;
+                    case VARIABLE:
+                        insideVariable(env);
+                        break;
+                    case METHOD:
+                        insideMethod(env);
+                        break;
+                    case MODIFIERS:
+                        insideModifiers(env, path);
+                        break;
+                    case ANNOTATION:
+                        break;
+                    case TYPE_PARAMETER:
+                        break;
+                    case PARAMETERIZED_TYPE:
+                        break;
+                    case UNBOUNDED_WILDCARD:
+                    case EXTENDS_WILDCARD:
+                    case SUPER_WILDCARD:
+                        TreePath parentPath = path.getParentPath();
+
+                        break;
+                    case BLOCK:
+                        insideBlock(env);
+                        break;
+                    case MEMBER_SELECT:
+                        insideMemberSelect(env);
+                        break;
+                    case METHOD_INVOCATION:
+                        insideMethodInvocation(env);
+                        break;
+                    case NEW_CLASS:
+                        break;
+                    case ASSERT:
+                    case RETURN:
+                    case THROW:                    
+                        localResult(env);
+                        addValueKeywords(env);
+                        break;
+                    case CATCH:
+                        break;
+                    case IF:
+                        insideIf(env);
+                        break;
+                    case WHILE_LOOP:
+                        insideWhile(env);
+                        break;
+                    case FOR_LOOP:
+                        insideFor(env);
+                        break;
+                    case ENHANCED_FOR_LOOP:
+                        insideForEach(env);
+                        break;
+                    case SWITCH:
+                        insideSwitch(env);
+                        break;
+                    case CASE:
+                        insideCase(env);
+                        break;
+                    case PARENTHESIZED:
+                        insideParens(env);
+                        break;
+                    case TYPE_CAST:
+                        insideExpression(env, path);
+                        break;
+                    case INSTANCE_OF:
+                        insideTypeCheck(env);
+                        break;
+                    case ARRAY_ACCESS:
+                        insideArrayAccess(env);
+                        break;
+                    case NEW_ARRAY:
+                        insideNewArray(env);
+                        break;
+                    case ASSIGNMENT:
+                        insideAssignment(env);
+                        break;
+                    case MULTIPLY_ASSIGNMENT:
+                    case DIVIDE_ASSIGNMENT:
+                    case REMAINDER_ASSIGNMENT:
+                    case PLUS_ASSIGNMENT:
+                    case MINUS_ASSIGNMENT:
+                    case LEFT_SHIFT_ASSIGNMENT:
+                    case RIGHT_SHIFT_ASSIGNMENT:
+                    case UNSIGNED_RIGHT_SHIFT_ASSIGNMENT:
+                    case AND_ASSIGNMENT:
+                    case XOR_ASSIGNMENT:
+                    case OR_ASSIGNMENT:
+                        insideCompoundAssignment(env);
+                        break;
+                    case PREFIX_INCREMENT:
+                    case PREFIX_DECREMENT:
+                    case UNARY_PLUS:
+                    case UNARY_MINUS:
+                    case BITWISE_COMPLEMENT:
+                    case LOGICAL_COMPLEMENT:
+                        localResult(env);
+                        break;
+                    case AND:
+                    case CONDITIONAL_AND:
+                    case CONDITIONAL_OR:
+                    case DIVIDE:
+                    case EQUAL_TO:
+                    case GREATER_THAN:
+                    case GREATER_THAN_EQUAL:
+                    case LEFT_SHIFT:
+                    case LESS_THAN:
+                    case LESS_THAN_EQUAL:
+                    case MINUS:
+                    case MULTIPLY:
+                    case NOT_EQUAL_TO:
+                    case OR:
+                    case PLUS:
+                    case REMAINDER:
+                    case RIGHT_SHIFT:
+                    case UNSIGNED_RIGHT_SHIFT:
+                    case XOR:
+                        insideBinaryTree(env);
+                        break;
+                    case CONDITIONAL_EXPRESSION:
+                        break;
+                    case EXPRESSION_STATEMENT:
+                        insideExpressionStatement(env);
+                        break;
+                }
             }
         }
         
+        private void insideObjectLiteralPart(JavaFXCompletionQuery.Env env) {
+            
+        }
+        
+        private void insideClassDeclaration(JavaFXCompletionQuery.Env env) {
+            addKeywordsForClassBody(env);
+        }
+
+
         private void insideCompilationUnit(Env env) throws IOException {
             int offset = env.getOffset();
             SourcePositions sourcePositions = env.getSourcePositions();
@@ -624,7 +717,7 @@ public class JavaFXCompletionProvider implements CompletionProvider {
                 int extPos = (int)sourcePositions.getEndPosition(root, ext);
                 if (extPos != Diagnostic.NOPOS && offset > extPos) {
                     TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(env, extPos + 1, offset);
-                    addKeyword(env, IMPLEMENTS_KEYWORD, SPACE, false);
+                    //addKeyword(env, IMPLEMENTS_KEYWORD, SPACE, false);
                     return;
                 }
             }
@@ -767,16 +860,6 @@ public class JavaFXCompletionProvider implements CompletionProvider {
                 int parEnd = headerText.indexOf(')', parStart); //NOI18N
                 if (parEnd > parStart) {
                     headerText = headerText.substring(parEnd + 1).trim();
-                    if (THROWS_KEYWORD.equals(headerText)) {
-                        if (queryType == COMPLETION_QUERY_TYPE && mth.getBody() != null) {
-                            controller.toPhase(Phase.RESOLVED);
-                        }
-                    } else if (DEFAULT_KEYWORD.equals(headerText)) {
-                        addLocalConstantsAndTypes(env);
-                    } else {
-                        Tree mthParent = path.getParentPath().getLeaf();
-                        addKeyword(env, THROWS_KEYWORD, SPACE, false);
-                    }
                 } else {
                     for (VariableTree param : mth.getParameters()) {
                         int parPos = (int)sourcePositions.getEndPosition(root, param);
@@ -798,7 +881,8 @@ public class JavaFXCompletionProvider implements CompletionProvider {
             int offset = env.getOffset();
             ModifiersTree mods = (ModifiersTree)modPath.getLeaf();
             Set<Modifier> m = EnumSet.noneOf(Modifier.class);
-            TokenSequence<JFXTokenId> ts = env.getController().getTreeUtilities().tokensFor(mods, env.getSourcePositions());
+            final TokenSequence<?> idTokenSequence = env.getController().getTreeUtilities().tokensFor(mods, env.getSourcePositions());
+            TokenSequence<JFXTokenId> ts = (TokenSequence<JFXTokenId>) idTokenSequence;
             JFXTokenId lastNonWhitespaceTokenId = null;
             while(ts.moveNext() && ts.offset() < offset) {
                 lastNonWhitespaceTokenId = ts.token().id();
@@ -956,7 +1040,6 @@ public class JavaFXCompletionProvider implements CompletionProvider {
                 addMethodArguments(env, mi);
             addLocalMembersAndVars(env);
             addValueKeywords(env);
-            addPrimitiveTypeKeywords(env);
         }
         
         private void insideIf(Env env) throws IOException {
@@ -1008,7 +1091,6 @@ public class JavaFXCompletionProvider implements CompletionProvider {
             }
             if (lastTree == null) {
                 addLocalFieldsAndVars(env);
-                addPrimitiveTypeKeywords(env);
             } else {
                 TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(env, lastTreePos, offset);
                 if (last != null && last.token().id() == JFXTokenId.SEMI) {
@@ -1084,8 +1166,8 @@ public class JavaFXCompletionProvider implements CompletionProvider {
                 } else {
                     TokenSequence<JFXTokenId> ts = findLastNonWhitespaceToken(env, st, offset);
                     if (ts != null && ts.token().id() == JFXTokenId.LBRACE) {
-                        addKeyword(env, CASE_KEYWORD, SPACE, false);
-                        addKeyword(env, DEFAULT_KEYWORD, COLON, false);
+//                        addKeyword(env, CASE_KEYWORD, SPACE, false);
+//                        addKeyword(env, DEFAULT_KEYWORD, COLON, false);
                     }
                 }
             }
@@ -1146,7 +1228,6 @@ public class JavaFXCompletionProvider implements CompletionProvider {
                     }
                 }
                 addLocalMembersAndVars(env);
-                addPrimitiveTypeKeywords(env);
                 addValueKeywords(env);
             } else {
                 insideExpression(env, new TreePath(path, exp));
@@ -1485,6 +1566,9 @@ public class JavaFXCompletionProvider implements CompletionProvider {
             Element e = controller.getTrees().getElement(exPath);
             TypeMirror tm = controller.getTrees().getTypeMirror(exPath);
             if (e == null) {
+                if (tm == null) {
+                    return;
+                }
                 if (tm.getKind() == TypeKind.DECLARED || tm.getKind() == TypeKind.ARRAY || tm.getKind() == TypeKind.ERROR) {
                     addKeyword(env, INSTANCEOF_KEYWORD, SPACE, false);
                 }
@@ -1517,7 +1601,6 @@ public class JavaFXCompletionProvider implements CompletionProvider {
         
         private void localResult(Env env) throws IOException {
             addLocalMembersAndVars(env);
-            addPrimitiveTypeKeywords(env);
         }
         
         private void addLocalConstantsAndTypes(final Env env) throws IOException {
@@ -1557,9 +1640,9 @@ public class JavaFXCompletionProvider implements CompletionProvider {
             SourcePositions sourcePositions = env.getSourcePositions();
             kws.add(ABSTRACT_KEYWORD);
             kws.add(CLASS_KEYWORD);
-            kws.add(ENUM_KEYWORD);
-            kws.add(FINAL_KEYWORD);
-            kws.add(INTERFACE_KEYWORD);
+//            kws.add(ENUM_KEYWORD);
+//            kws.add(FINAL_KEYWORD);
+//            kws.add(INTERFACE_KEYWORD);
             boolean beforeAnyClass = true;
             boolean beforePublicClass = true;
             for(Tree t : cu.getTypeDecls()) {
@@ -1599,7 +1682,6 @@ public class JavaFXCompletionProvider implements CompletionProvider {
             for (String kw : CLASS_BODY_KEYWORDS)
                 if (startsWith(kw, prefix))
                     results.add(JavaFXCompletionItem.createKeywordItem(kw, SPACE, anchorOffset, false));
-            addPrimitiveTypeKeywords(env);
         }
         
         private void addKeywordsForBlock(Env env) {
@@ -1639,10 +1721,10 @@ public class JavaFXCompletionProvider implements CompletionProvider {
                         }
                         if (! caseAdded && (lastCase == null || lastCase.getExpression() != null)) {
                             caseAdded = true;
-                            if (startsWith(CASE_KEYWORD, prefix))
-                                results.add(JavaFXCompletionItem.createKeywordItem(CASE_KEYWORD, SPACE, anchorOffset, false));
-                            if (startsWith(DEFAULT_KEYWORD, prefix))
-                                results.add(JavaFXCompletionItem.createKeywordItem(DEFAULT_KEYWORD, COLON, anchorOffset, false));
+//                            if (startsWith(CASE_KEYWORD, prefix))
+//                                results.add(JavaFXCompletionItem.createKeywordItem(CASE_KEYWORD, SPACE, anchorOffset, false));
+//                            if (startsWith(DEFAULT_KEYWORD, prefix))
+//                                results.add(JavaFXCompletionItem.createKeywordItem(DEFAULT_KEYWORD, COLON, anchorOffset, false));
                         }
                         if (!breakAdded && startsWith(BREAK_KEYWORD, prefix)) {
                             breakAdded = true;
@@ -1729,14 +1811,6 @@ public class JavaFXCompletionProvider implements CompletionProvider {
                 results.add(JavaFXCompletionItem.createKeywordItem(NEW_KEYWORD, SPACE, anchorOffset, false));
         }
 
-        private void addPrimitiveTypeKeywords(Env env) {
-            String prefix = env.getPrefix();
-            for (String kw : PRIM_KEYWORDS) {
-                if (startsWith(kw, prefix))
-                    results.add(JavaFXCompletionItem.createKeywordItem(kw, null, anchorOffset, false));
-            }
-        }
-        
         private void addClassModifiers(Env env, Set<Modifier> modifiers) {
             String prefix = env.getPrefix();
             List<String> kws = new ArrayList<String>();
@@ -1745,11 +1819,8 @@ public class JavaFXCompletionProvider implements CompletionProvider {
             }
             if (!modifiers.contains(FINAL) && !modifiers.contains(ABSTRACT)) {
                 kws.add(ABSTRACT_KEYWORD);
-                kws.add(FINAL_KEYWORD);
             }
             kws.add(CLASS_KEYWORD);
-            kws.add(INTERFACE_KEYWORD);
-            kws.add(ENUM_KEYWORD);
             for (String kw : kws) {
                 if (startsWith(kw, prefix))
                     results.add(JavaFXCompletionItem.createKeywordItem(kw, SPACE, anchorOffset, false));
@@ -1760,9 +1831,9 @@ public class JavaFXCompletionProvider implements CompletionProvider {
             String prefix = env.getPrefix();
             List<String> kws = new ArrayList<String>();
             if (isLocal) {
-                if (!modifiers.contains(FINAL)) {
-                    kws.add(FINAL_KEYWORD);
-                }
+//                if (!modifiers.contains(FINAL)) {
+//                    kws.add(FINAL_KEYWORD);
+//                }
             } else {
                 if (!modifiers.contains(PUBLIC) && !modifiers.contains(PROTECTED) && !modifiers.contains(PRIVATE)) {
                     kws.add(PUBLIC_KEYWORD);
@@ -1771,26 +1842,14 @@ public class JavaFXCompletionProvider implements CompletionProvider {
                 }
                 if (!modifiers.contains(FINAL) && !modifiers.contains(ABSTRACT)) {
                     kws.add(ABSTRACT_KEYWORD);
-                    kws.add(FINAL_KEYWORD);
                 }
                 if (!modifiers.contains(STATIC)) {
                     kws.add(STATIC_KEYWORD);
                 }
                 kws.add(CLASS_KEYWORD);
-                kws.add(INTERFACE_KEYWORD);
-                kws.add(ENUM_KEYWORD);
-                kws.add(NATIVE_KEYWORD);
-                kws.add(STRICT_KEYWORD);
-                kws.add(SYNCHRONIZED_KEYWORD);
                 kws.add(TRANSIENT_KEYWORD);
-                kws.add(VOID_KEYWORD);
-                kws.add(VOLATILE_KEYWORD);
             }
             for (String kw : kws) {
-                if (startsWith(kw, prefix))
-                    results.add(JavaFXCompletionItem.createKeywordItem(kw, SPACE, anchorOffset, false));
-            }
-            for (String kw : PRIM_KEYWORDS) {
                 if (startsWith(kw, prefix))
                     results.add(JavaFXCompletionItem.createKeywordItem(kw, SPACE, anchorOffset, false));
             }
@@ -2232,49 +2291,6 @@ public class JavaFXCompletionProvider implements CompletionProvider {
             return withinAnonymousOrLocalClass(parentPath);
         }
         
-        private class SourcePositionsImpl extends TreeScanner<Void, Tree> implements SourcePositions {
-            
-            private Tree root;
-            private SourcePositions original;
-            private SourcePositions modified;
-            private int startOffset;
-            private int endOffset;
-            
-            private boolean found;
-            
-            private SourcePositionsImpl(Tree root, SourcePositions original, SourcePositions modified, int startOffset, int endOffset) {
-                this.root = root;
-                this.original = original;
-                this.modified = modified;
-                this.startOffset = startOffset;
-                this.endOffset = endOffset;
-            }
-            
-            public long getStartPosition(CompilationUnitTree compilationUnitTree, Tree tree) {
-                if (tree == root)
-                    return startOffset;
-                found = false;
-                scan(root, tree);
-                return found ? modified.getStartPosition(compilationUnitTree, tree) + startOffset : original.getStartPosition(compilationUnitTree, tree);
-            }
-
-            public long getEndPosition(CompilationUnitTree compilationUnitTree, Tree tree) {
-                if (endOffset >= 0 && (tree == root))
-                    return endOffset;
-                found = false;
-                scan(root, tree);
-                return found ? modified.getEndPosition(compilationUnitTree, tree) + startOffset : original.getEndPosition(compilationUnitTree, tree);
-            }
-
-            public Void scan(Tree node, Tree p) {
-                if (node == p)
-                    found = true;
-                else
-                    super.scan(node, p);
-                return null;
-            }
-        }
-                
         private static Pattern camelCasePattern = Pattern.compile("(?:\\p{javaUpperCase}(?:\\p{javaLowerCase}|\\p{Digit}|\\.|\\$)*){2,}"); // NOI18N
         
         private class Env {
