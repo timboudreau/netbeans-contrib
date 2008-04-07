@@ -42,11 +42,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import javax.swing.JPanel;
+import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.helper.swing.NbiLabel;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.helper.swing.NbiButton;
 import org.netbeans.installer.utils.helper.swing.NbiCheckBox;
-import org.netbeans.installer.utils.helper.swing.NbiDirectoryChooser;
 import org.netbeans.installer.utils.helper.swing.NbiTextField;
 import org.netbeans.installer.wizard.components.panels.DestinationPanel;
 import org.netbeans.installer.wizard.components.panels.DestinationPanel.DestinationPanelUi;
@@ -142,7 +142,8 @@ public class SSBasePanel extends DestinationPanel {
         @Override
         protected String validateInput() {
             String errorMessage = super.validateInput();
-            return errorMessage;
+            LogManager.log("GGGGGGGGGGG=" + errorMessage);
+            return null;
         }
         
         // private //////////////////////////////////////////////////////////////////

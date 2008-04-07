@@ -42,6 +42,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.LinkedList;
 import java.util.List;
 import org.netbeans.installer.product.Registry;
@@ -126,7 +128,30 @@ public class NbPostInstallSummaryPanel extends WizardPanel {
         
         return wizardUi;
     }
+
+        
+    static void moveFilesFromRoot() {
+        final Registry registry = Registry.getInstance();
+            
+            if (registry.getProducts(INSTALLED_SUCCESSFULLY).size() +
+                registry.getProducts(INSTALLED_WITH_WARNINGS).size() > 0 && registry.getProducts("ss-base").size() > 0) {
+            File root = registry.getProducts("ss-base").get(0).getInstallationLocation();
+            for (File filetoMove : root.listFiles(new FilenameFilter() {
+
+                public boolean accept(File dir, String name) {
+                    return name.endsWith("install.sh") || name.startsWith("LICENSE");
+                }
+            })) {
+                LogManager.log("Moving: " + filetoMove + " to " + root.getAbsolutePath() + File.separator 
+                        + "SUNWspro" + File.separator  + filetoMove.getName());
+                filetoMove.renameTo(new File(root.getAbsolutePath() + File.separator 
+                        + "SUNWspro" + File.separator  + filetoMove.getName()));  
+            }
+            new File(root, "dummy").delete();
+        }
+    }
     
+
     /////////////////////////////////////////////////////////////////////////////////
     // Inner Classes
     public static class NbPostInstallSummaryPanelUi extends WizardPanelUi {
@@ -134,7 +159,7 @@ public class NbPostInstallSummaryPanel extends WizardPanel {
         
         public NbPostInstallSummaryPanelUi(NbPostInstallSummaryPanel component) {
             super(component);
-            
+            moveFilesFromRoot();
             this.component = component;
         }
         
