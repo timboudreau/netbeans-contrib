@@ -46,7 +46,6 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.SemanticAnalyzer;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
-import xtc.tree.Node;
 
 /**
  *  
@@ -82,11 +81,6 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
 
         ScalaParserResult result = AstUtilities.getParserResult(info);
         if (result == null) {
-            return;
-        }
-
-        Node root = result.getRootNode();
-        if (root == null) {
             return;
         }
 

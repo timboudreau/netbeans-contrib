@@ -50,7 +50,6 @@ import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.openide.util.NbBundle;
-import xtc.tree.Node;
 
 /**
  * Handle instant rename for Fortress
@@ -63,7 +62,7 @@ public class ScalaInstantRenamer implements InstantRenamer {
     }
 
     public boolean isRenameAllowed(CompilationInfo info, int caretOffset, String[] explanationRetValue) {
-        Node root = AstUtilities.getRoot(info);
+        AstScope root = AstUtilities.getRoot(info);
 
         if (root == null) {
             explanationRetValue[0] = NbBundle.getMessage(ScalaInstantRenamer.class, "NoRenameWithErrors");

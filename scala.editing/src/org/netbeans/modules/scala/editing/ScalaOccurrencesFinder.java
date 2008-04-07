@@ -53,7 +53,6 @@ import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.openide.util.Exceptions;
-import xtc.tree.Node;
 
 /**
  *
@@ -97,11 +96,6 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
 
         ScalaParserResult result = AstUtilities.getParserResult(info);
         if (result == null) {
-            return;
-        }
-
-        Node root = result.getRootNode();
-        if (root == null) {
             return;
         }
 

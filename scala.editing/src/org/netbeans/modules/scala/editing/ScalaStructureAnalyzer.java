@@ -55,7 +55,6 @@ import org.netbeans.modules.gsf.api.StructureItem;
 import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.scala.editing.nodes.AstDefinition;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import xtc.tree.Node;
 
 /**
  *
@@ -71,11 +70,6 @@ public class ScalaStructureAnalyzer implements StructureScanner {
     public List<? extends StructureItem> scan(CompilationInfo info, HtmlFormatter formatter) {
         ScalaParserResult result = AstUtilities.getParserResult(info);
         if (result == null) {
-            return Collections.emptyList();
-        }
-
-        Node root = result.getRootNode();
-        if (root == null) {
             return Collections.emptyList();
         }
 
@@ -97,11 +91,6 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         ScalaParserResult result = AstUtilities.getParserResult(info);
         if (result == null) {
             Collections.emptyList();
-        }
-
-        Node root = result.getRootNode();
-        if (root == null) {
-            Collections.emptyMap();
         }
 
         AstScope rootScope = result.getRootScope();
