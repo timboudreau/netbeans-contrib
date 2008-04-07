@@ -123,7 +123,7 @@ public class CallModelImpl implements CallModel {
             }
             List<Call> res = new ArrayList<Call>();
             for(Map.Entry<CsmFunction,CsmReference> r : set.entrySet()){
-                res.add(new CallImpl(r.getKey(), r.getValue(), getFunctionDeclaration((CsmFunction)owner)));
+                res.add(new CallImpl(r.getKey(), r.getValue(), getFunctionDeclaration((CsmFunction)owner), true));
             }
             return res;
         } else {
@@ -190,7 +190,7 @@ public class CallModelImpl implements CallModel {
             });
             List<Call> res = new ArrayList<Call>();
             for(Map.Entry<CsmFunction,CsmReference> r : set.entrySet()){
-                res.add(new CallImpl( getFunctionDeclaration(((CsmFunction)owner)), r.getValue(),r.getKey()));
+                res.add(new CallImpl( getFunctionDeclaration(((CsmFunction)owner)), r.getValue(),r.getKey(), false));
             }
             return res;
         } else {
