@@ -42,11 +42,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Stack;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.OffsetRange;
 import xtc.tree.GNode;
-import xtc.tree.Location;
 import xtc.tree.Node;
 
 /**
@@ -172,10 +169,10 @@ public class AstElementVisitor extends AstVisitor {
         Node id = that.getGeneric(0);
         String name = id.getString(0);
         AstScope scope = new AstScope(getRange(that));
-        AstDefinition definition = new AstDefinition(name, getNameRange(name, id), scope, ElementKind.CLASS);
-        definition.setPackageElement(packageElement);
+        ClassTemplate classTmpl = new ClassTemplate(name, getNameRange(name, id), scope);
+        classTmpl.setPackageElement(packageElement);
 
-        scopeStack.peek().addDefinition(definition);
+        scopeStack.peek().addDefinition(classTmpl);
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
         visitNode(that, true);
@@ -186,10 +183,10 @@ public class AstElementVisitor extends AstVisitor {
         Node id = that.getGeneric(0);
         String name = id.getString(0);
         AstScope scope = new AstScope(getRange(that));
-        AstDefinition definition = new AstDefinition(name, getNameRange(name, id), scope, ElementKind.MODULE);
-        definition.setPackageElement(packageElement);
+        TraitTamplate traitTmpl = new TraitTamplate(name, getNameRange(name, id), scope);
+        traitTmpl.setPackageElement(packageElement);
 
-        scopeStack.peek().addDefinition(definition);
+        scopeStack.peek().addDefinition(traitTmpl);
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
         visitNode(that, true);
@@ -198,12 +195,12 @@ public class AstElementVisitor extends AstVisitor {
 
     public void visitObjectDef(GNode that) {
         Node id = that.getGeneric(0);
-        String name = id.getString(0) + "$";
+        String name = id.getString(0);
         AstScope scope = new AstScope(getRange(that));
-        AstDefinition definition = new AstDefinition(name, getNameRange(name, id), scope, ElementKind.CLASS);
-        definition.setPackageElement(packageElement);
+        ObjectTemplate objectTmpl = new ObjectTemplate(name, getNameRange(name, id), scope);
+        objectTmpl.setPackageElement(packageElement);
 
-        scopeStack.peek().addDefinition(definition);
+        scopeStack.peek().addDefinition(objectTmpl);
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
         visitNode(that, true);
@@ -249,7 +246,7 @@ public class AstElementVisitor extends AstVisitor {
         List<Var> params = visitParamClauses(that.getGeneric(2));
 
         AstScope scope = new AstScope(getRange(that));
-        Function function = new Function(id.getName(), id.getNameRange(), scope, ElementKind.METHOD);
+        Function function = new Function(id.getName(), id.getNameRange(), scope);
         function.setParam(params);
 
         for (Var param : params) {
@@ -353,7 +350,7 @@ public class AstElementVisitor extends AstVisitor {
         params.addAll(paramsOther);
 
         AstScope scope = new AstScope(getRange(that));
-        Function function = new Function(id.getName(), id.getNameRange(), scope, ElementKind.METHOD);
+        Function function = new Function(id.getName(), id.getNameRange(), scope);
         function.setParam(params);
 
         for (Var param : params) {

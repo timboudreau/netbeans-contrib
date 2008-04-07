@@ -104,6 +104,7 @@ import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.ScalaParserResult;
 import org.netbeans.modules.scala.editing.nodes.AstDefinition;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.Template;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source;
@@ -1152,19 +1153,19 @@ public class EditorContextImpl extends EditorContext {
                         return;
                     }
                     AstScope rootScope = ((ScalaParserResult)ci.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, offset)).getRootScope();
-                    AstDefinition tmpl = rootScope.getEnclosingDefinition(ElementKind.CLASS, offset);
+                    Template tmpl = rootScope.getEnclosingDefinition(Template.class, offset);
                     if (tmpl == null) {
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
                                 "No enclosing class for "+ci.getFileObject()+", offset = "+offset);
                     }
 
-                    String className = tmpl.getName();
+                    String className = tmpl.getClassName();
 
-                    org.netbeans.modules.gsf.api.ElementHandle enclosingPackge = tmpl.getPackageElement();
-                    if (enclosingPackge == null) {
+                    org.netbeans.modules.gsf.api.Element enclosingPackage = tmpl.getPackageElement();
+                    if (enclosingPackage == null) {
                         result[0] = className;
                     } else {
-                        result[0] = enclosingPackge.getName() + "." + className;
+                        result[0] = enclosingPackage.getName() + "." + className;
                     }
 
                 }

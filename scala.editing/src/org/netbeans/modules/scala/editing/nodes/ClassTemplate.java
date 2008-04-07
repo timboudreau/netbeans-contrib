@@ -36,82 +36,24 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+
 package org.netbeans.modules.scala.editing.nodes;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class Function extends AstDefinition {
-
-    private List<TypeRef> typeParams;
-    private List<Var> params;
-
-    public Function(String name, OffsetRange nameRange, AstScope bindingScope) {
-        super(name, nameRange, bindingScope, ElementKind.METHOD);
+public class ClassTemplate extends Template {
+    
+    public ClassTemplate(String name, OffsetRange nameRange, AstScope bindingScope) {
+        super(name, nameRange, bindingScope, ElementKind.CLASS);
     }
 
-    public void setTypeParam(List<TypeRef> typeParams) {
-        this.typeParams = typeParams;
+    public String getClassName() {
+        return getName();
     }
-
-    public List<TypeRef> getTypeParam() {
-        return typeParams == null ? Collections.<TypeRef>emptyList() : typeParams;
-    }
-
-    public void setParam(List<Var> params) {
-        this.params = params;
-    }
-
-    public List<Var> getParams() {
-        return params == null ? Collections.<Var>emptyList() : params;
-    }
-
-    @Override
-    public void htmlFormat(HtmlFormatter formatter) {
-        super.htmlFormat(formatter);
-        if (getTypeParam().size() > 0) {
-            formatter.appendHtml("[");
-
-            for (Iterator<TypeRef> itr = getTypeParam().iterator(); itr.hasNext();) {
-                TypeRef typeParam = itr.next();
-                typeParam.htmlFormat(formatter);
-
-                if (itr.hasNext()) {
-                    formatter.appendHtml(", ");
-                }
-            }
-
-            formatter.appendHtml("]");
-        }
-
-        formatter.appendHtml("(");
-        if (getParams().size() > 0) {
-            formatter.parameters(true);
-
-            for (Iterator<Var> itr = getParams().iterator(); itr.hasNext();) {
-                Var param = itr.next();
-                param.htmlFormat(formatter);
-
-                if (itr.hasNext()) {
-                    formatter.appendHtml(", ");
-                }
-            }
-
-            formatter.parameters(false);
-        }
-        formatter.appendHtml(")");
-
-        if (getType() != null) {
-            formatter.appendHtml(" :");
-            getType().htmlFormat(formatter);
-        }
-    }
+    
 }

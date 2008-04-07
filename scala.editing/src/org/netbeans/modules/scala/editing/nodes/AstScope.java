@@ -43,7 +43,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
@@ -289,19 +288,19 @@ public class AstScope implements Iterable<AstScope> {
     }
     
     
-    public AstDefinition getEnclosingDefinition(ElementKind kind, int offset) {
+    public <T extends AstDefinition> T getEnclosingDefinition(Class<T> clazz, int offset) {
         AstScope context = getClosestScope(offset);
-        return context.getEnclosingDefinitionRecursively(kind);
+        return context.getEnclosingDefinitionRecursively(clazz);
     }
     
-    private AstDefinition getEnclosingDefinitionRecursively(ElementKind kind) {
+    private <T extends AstDefinition> T getEnclosingDefinitionRecursively(Class<T> clazz) {
         AstDefinition binding = getBindingDefinition();
-        if (binding != null && binding.getKind() == kind) {
-            return binding;
+        if (binding != null && clazz.isInstance(binding)) {
+            return (T) binding;
         } else {
             AstScope parentScope = getParent();
             if (parentScope != null) {
-                return parentScope.getEnclosingDefinitionRecursively(kind);
+                return parentScope.getEnclosingDefinitionRecursively(clazz);
             } else {
                 return null;
             }
