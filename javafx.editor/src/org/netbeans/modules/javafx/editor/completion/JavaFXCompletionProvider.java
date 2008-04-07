@@ -45,6 +45,7 @@ import com.sun.source.tree.*;
 import com.sun.source.util.*;
 
 import com.sun.tools.javafx.api.JavafxcTrees;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Future;
@@ -798,7 +799,8 @@ public class JavaFXCompletionProvider implements CompletionProvider {
             int offset = env.getOffset();
             ModifiersTree mods = (ModifiersTree)modPath.getLeaf();
             Set<Modifier> m = EnumSet.noneOf(Modifier.class);
-            TokenSequence<JFXTokenId> ts = env.getController().getTreeUtilities().tokensFor(mods, env.getSourcePositions());
+            final TokenSequence<?> idTokenSequence = env.getController().getTreeUtilities().tokensFor(mods, env.getSourcePositions());
+            TokenSequence<JFXTokenId> ts = (TokenSequence<JFXTokenId>) idTokenSequence;
             JFXTokenId lastNonWhitespaceTokenId = null;
             while(ts.moveNext() && ts.offset() < offset) {
                 lastNonWhitespaceTokenId = ts.token().id();

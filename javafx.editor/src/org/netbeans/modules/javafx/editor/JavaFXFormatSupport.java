@@ -47,6 +47,8 @@ import org.netbeans.editor.TokenItem;
 import org.netbeans.editor.ext.FormatTokenPosition;
 import org.netbeans.editor.ext.ExtFormatSupport;
 import org.netbeans.editor.ext.FormatWriter;
+import static org.netbeans.modules.javafx.editor.JavaFXTokenContext.*;
+
 
 /**
 * Java indentation services are located here
@@ -60,7 +62,7 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
     private TokenContextPath tokenContextPath;
 
     public JavaFXFormatSupport(FormatWriter formatWriter) {
-        this(formatWriter, JavaFXTokenContext.contextPath);
+        this(formatWriter, contextPath);
     }
 
     public JavaFXFormatSupport(FormatWriter formatWriter, TokenContextPath tokenContextPath) {
@@ -75,12 +77,12 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
     public boolean isComment(TokenItem token, int offset) {
         TokenID tokenID = token.getTokenID();
         return (token.getTokenContextPath() == tokenContextPath
-                && (tokenID == JavaFXTokenContext.LINE_COMMENT
-                    || tokenID == JavaFXTokenContext.BLOCK_COMMENT));
+                && (tokenID == LINE_COMMENT
+                    || tokenID == BLOCK_COMMENT));
     }
 
     public boolean isMultiLineComment(TokenItem token) {
-        return (token.getTokenID() == JavaFXTokenContext.BLOCK_COMMENT);
+        return (token.getTokenID() == BLOCK_COMMENT);
     }
 
     public boolean isMultiLineComment(FormatTokenPosition pos) {
@@ -97,7 +99,7 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
     }
 
     public TokenID getWhitespaceTokenID() {
-        return JavaFXTokenContext.WHITESPACE;
+        return WHITESPACE;
     }
 
     public TokenContextPath getWhitespaceTokenContextPath() {
@@ -105,10 +107,10 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
     }
 
     public boolean canModifyWhitespace(TokenItem inToken) {
-        if (inToken.getTokenContextPath() == JavaFXTokenContext.contextPath) {
+        if (inToken.getTokenContextPath() == contextPath) {
             switch (inToken.getTokenID().getNumericID()) {
-                case JavaFXTokenContext.BLOCK_COMMENT_ID:
-                case JavaFXTokenContext.WHITESPACE_ID:
+                case BLOCK_COMMENT_ID:
+                case WHITESPACE_ID:
                     return true;
             }
         }
@@ -138,55 +140,55 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
             if (t.getTokenContextPath() == tokenContextPath) {
 
                 switch (t.getTokenID().getNumericID()) {
-                    case JavaFXTokenContext.SEMICOLON_ID:
+                    case SEMICOLON_ID:
                         if (!isForLoopSemicolon(t)) {
                             return (lit != null) ? lit : t;
                         }
                         break;
 
-                    case JavaFXTokenContext.LBRACE_ID:
-                    case JavaFXTokenContext.ELSE_ID:
+                    case LBRACE_ID:
+                    case ELSE_ID:
                         return (lit != null) ? lit : t;
                         
-                    case JavaFXTokenContext.RBRACE_ID:
+                    case RBRACE_ID:
                         // Check whether this is an array initialization block
                         if (!isArrayInitializationBraceBlock(t, null)) {
                             return (lit != null) ? lit : t;
                         } else { // skip the array initialization block
-                            t = findMatchingToken(t, null, JavaFXTokenContext.LBRACE, true);
+                            t = findMatchingToken(t, null, LBRACE, true);
                         }
                         break;
 
-                    case JavaFXTokenContext.COLON_ID:
-                        TokenItem tt = findAnyToken(t, null, new TokenID[] {/*JavaFXTokenContext.CASE, JavaFXTokenContext.DEFAULT,*/ JavaFXTokenContext.FOR, JavaFXTokenContext.QUESTION, JavaFXTokenContext.ASSERT}, t.getTokenContextPath(), true);
+                    case COLON_ID:
+                        TokenItem tt = findAnyToken(t, null, new TokenID[] {/*JavaFXTokenContext.CASE, JavaFXTokenContext.DEFAULT,*/ FOR, QUESTION, ASSERT}, t.getTokenContextPath(), true);
                         if (tt != null) {
                             switch (tt.getTokenID().getNumericID()) {
                                 /*case JavaFXTokenContext.CASE_ID:
                                 case JavaFXTokenContext.DEFAULT_ID:*/
-                                case JavaFXTokenContext.FOR_ID:
+                                case FOR_ID:
                                     return (lit != null) ? lit : t;
                             }
                         }
                         break;
 
-                    case JavaFXTokenContext.DO_ID:
+                    case DO_ID:
                     /*case JavaFXTokenContext.SWITCH_ID:
                     case JavaFXTokenContext.CASE_ID:
                     case JavaFXTokenContext.DEFAULT_ID:*/
                         return t;
 
-                    case JavaFXTokenContext.FOR_ID:
-                    case JavaFXTokenContext.IF_ID:
-                    case JavaFXTokenContext.WHILE_ID:
+                    case FOR_ID:
+                    case IF_ID:
+                    case WHILE_ID:
                         /* Try to find the statement after ( ... )
                          * If it exists, then the first important
                          * token after it is the stmt start. Otherwise
                          * it's this token.
                          */
-                        if (lit != null && lit.getTokenID() == JavaFXTokenContext.LPAREN) {
+                        if (lit != null && lit.getTokenID() == LPAREN) {
                             // Find matching right paren in fwd dir
                             TokenItem mt = findMatchingToken(lit, token,
-                                    JavaFXTokenContext.RPAREN, false);
+                                    RPAREN, false);
                             if (mt != null && mt.getNext() != null) {
                                 mt = findImportantToken(mt.getNext(), token, false);
                                 if (mt != null) {
@@ -222,7 +224,7 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
      */
     public TokenItem findIf(TokenItem elseToken) {
         if (elseToken == null || !tokenEquals(elseToken,
-                    JavaFXTokenContext.ELSE, tokenContextPath)
+                    ELSE, tokenContextPath)
         ) {
             throw new IllegalArgumentException("Only accept 'else'."); // NOI18N
         }
@@ -236,32 +238,32 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
             }
             
             switch (elseToken.getTokenID().getNumericID()) {
-                case JavaFXTokenContext.LBRACE_ID:
+                case LBRACE_ID:
                     if (--braceDepth < 0) {
                         return null; // no corresponding right brace
                     }
                     break;
 
-                case JavaFXTokenContext.RBRACE_ID:
+                case RBRACE_ID:
                     braceDepth++;
                     break;
 
-                case JavaFXTokenContext.ELSE_ID:
+                case ELSE_ID:
                     if (braceDepth == 0) {
                         elseDepth++;
                     }
                     break;
 
-                case JavaFXTokenContext.SEMICOLON_ID:
-                case JavaFXTokenContext.COLON_ID:
-                case JavaFXTokenContext.DO_ID:
+                case SEMICOLON_ID:
+                case COLON_ID:
+                case DO_ID:
                 // case JavaFXTokenContext.CASE_ID:
                 // case JavaFXTokenContext.DEFAULT_ID:
-                case JavaFXTokenContext.FOR_ID:
-                case JavaFXTokenContext.WHILE_ID:
+                case FOR_ID:
+                case WHILE_ID:
                     break;
 
-                case JavaFXTokenContext.IF_ID:
+                case IF_ID:
                     if (braceDepth == 0) {
                         if (elseDepth-- == 0) {
                             return elseToken; // successful search
@@ -325,7 +327,7 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
      */
     public TokenItem findTry(TokenItem catchToken) {
         if (catchToken == null || 
-             (!tokenEquals(catchToken, JavaFXTokenContext.CATCH,
+             (!tokenEquals(catchToken, CATCH,
                tokenContextPath))
         ) {
             throw new IllegalArgumentException("Only accept 'catch'."); // NOI18N
@@ -339,17 +341,17 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
             }
             
             switch (catchToken.getTokenID().getNumericID()) {
-                case JavaFXTokenContext.LBRACE_ID:
+                case LBRACE_ID:
                     if (--braceDepth < 0) {
                         return null; // no corresponding right brace
                     }
                     break;
 
-                case JavaFXTokenContext.RBRACE_ID:
+                case RBRACE_ID:
                     braceDepth++;
                     break;
 
-                case JavaFXTokenContext.TRY_ID:
+                case TRY_ID:
                     if (braceDepth == 0) {
                         return catchToken;
                     }
@@ -375,7 +377,7 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
         TokenItem t = findStatement(token);
         if (t != null) {
             switch (t.getTokenID().getNumericID()) {
-                case JavaFXTokenContext.SEMICOLON_ID: // ';' found
+                case SEMICOLON_ID: // ';' found
                     TokenItem scss = findStatement(t);
                     
                     // fix for issue 14274
@@ -383,22 +385,22 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                         return token;
                     
                     switch (scss.getTokenID().getNumericID()) {
-                        case JavaFXTokenContext.LBRACE_ID: // '{' then ';'
-                        case JavaFXTokenContext.RBRACE_ID: // '}' then ';'
-                        case JavaFXTokenContext.COLON_ID: // ':' then ';'
+                        case LBRACE_ID: // '{' then ';'
+                        case RBRACE_ID: // '}' then ';'
+                        case COLON_ID: // ':' then ';'
                         // case JavaFXTokenContext.CASE_ID: // 'case' then ';'
                         // case JavaFXTokenContext.DEFAULT_ID:
-                        case JavaFXTokenContext.SEMICOLON_ID: // ';' then ';'
+                        case SEMICOLON_ID: // ';' then ';'
                             return t; // return ';'
 
-                        case JavaFXTokenContext.DO_ID:
-                        case JavaFXTokenContext.FOR_ID:
-                        case JavaFXTokenContext.IF_ID:
-                        case JavaFXTokenContext.WHILE_ID:
+                        case DO_ID:
+                        case FOR_ID:
+                        case IF_ID:
+                        case WHILE_ID:
                         // case JavaFXTokenContext.SYNCHRONIZED_ID:
                             return findStatementStart(t, outermost);
 
-                        case JavaFXTokenContext.ELSE_ID: // 'else' then ';'
+                        case ELSE_ID: // 'else' then ';'
                             // Find the corresponding 'if'
                             TokenItem ifss = findIf(scss);
                             if (ifss != null) { // 'if' ... 'else' then ';'
@@ -412,20 +414,20 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                             TokenItem bscss = findStatement(scss);
                             if (bscss != null) {
                                 switch (bscss.getTokenID().getNumericID()) {
-                                    case JavaFXTokenContext.SEMICOLON_ID: // ';' then stmt ending with ';'
-                                    case JavaFXTokenContext.LBRACE_ID:
-                                    case JavaFXTokenContext.RBRACE_ID:
-                                    case JavaFXTokenContext.COLON_ID:
+                                    case SEMICOLON_ID: // ';' then stmt ending with ';'
+                                    case LBRACE_ID:
+                                    case RBRACE_ID:
+                                    case COLON_ID:
                                         return scss; // 
 
-                                    case JavaFXTokenContext.DO_ID:
-                                    case JavaFXTokenContext.FOR_ID:
-                                    case JavaFXTokenContext.IF_ID:
-                                    case JavaFXTokenContext.WHILE_ID:
+                                    case DO_ID:
+                                    case FOR_ID:
+                                    case IF_ID:
+                                    case WHILE_ID:
                                     // case JavaFXTokenContext.SYNCHRONIZED_ID:
                                         return findStatementStart(bscss, outermost);
 
-                                    case JavaFXTokenContext.ELSE_ID:
+                                    case ELSE_ID:
                                         // Find the corresponding 'if'
                                         ifss = findIf(bscss);
                                         if (ifss != null) { // 'if' ... 'else' ... ';'
@@ -440,18 +442,18 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                             return scss;
                     } // semicolon servicing end
 
-                case JavaFXTokenContext.LBRACE_ID: // '{' found
+                case LBRACE_ID: // '{' found
                     return token; // return original token
 
-                case JavaFXTokenContext.RBRACE_ID: // '}' found
+                case RBRACE_ID: // '}' found
                     TokenItem lb = findMatchingToken(t, null,
-                            JavaFXTokenContext.LBRACE, true);
+                            LBRACE, true);
                     if (lb != null) { // valid matching left-brace
                         // Find a stmt-start of the '{'
                         TokenItem lbss = findStatement(lb);
                         if (lbss != null) {
                             switch (lbss.getTokenID().getNumericID()) {
-                                case JavaFXTokenContext.ELSE_ID: // 'else {'
+                                case ELSE_ID: // 'else {'
                                     // Find the corresponding 'if'
                                     TokenItem ifss = findIf(lbss);
                                     if (ifss != null) { // valid 'if'
@@ -460,7 +462,7 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                                         return lbss; // return 'else'
                                     }
 
-                                case JavaFXTokenContext.CATCH_ID: // 'catch (...) {'
+                                case CATCH_ID: // 'catch (...) {'
                                     // Find the corresponding 'try'
                                     TokenItem tryss = findTry(lbss);
                                     if (tryss != null) { // valid 'try'
@@ -469,17 +471,17 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                                         return lbss; // return 'catch'
                                     }
                                     
-                                case JavaFXTokenContext.DO_ID:
-                                case JavaFXTokenContext.FOR_ID:
-                                case JavaFXTokenContext.IF_ID:
-                                case JavaFXTokenContext.WHILE_ID:
+                                case DO_ID:
+                                case FOR_ID:
+                                case IF_ID:
+                                case WHILE_ID:
                                 // case JavaFXTokenContext.SYNCHRONIZED_ID:
                                     return findStatementStart(lbss, outermost);
 
                             }
                             
                             // another hack to prevent problem described in issue 17033
-                            if (lbss.getTokenID().getNumericID() == JavaFXTokenContext.LBRACE_ID) {
+                            if (lbss.getTokenID().getNumericID() == LBRACE_ID) {
                                 return t; // return right brace
                             }
                             
@@ -489,20 +491,20 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                     }
                     return t; // return right brace
 
-                case JavaFXTokenContext.COLON_ID:
+                case COLON_ID:
                 // case JavaFXTokenContext.CASE_ID:
                 // case JavaFXTokenContext.DEFAULT_ID:
                     return token;
 
-                case JavaFXTokenContext.ELSE_ID:
+                case ELSE_ID:
                     // Find the corresponding 'if'
                     TokenItem ifss = findIf(t);
                     return (ifss != null) ? findStatementStart(ifss, outermost) : t;
 
-                case JavaFXTokenContext.DO_ID:
-                case JavaFXTokenContext.FOR_ID:
-                case JavaFXTokenContext.IF_ID:
-                case JavaFXTokenContext.WHILE_ID:
+                case DO_ID:
+                case FOR_ID:
+                case IF_ID:
+                case WHILE_ID:
                 // case JavaFXTokenContext.SYNCHRONIZED_ID:
                     if (!outermost) {
                         return t;
@@ -510,7 +512,7 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                         return findStatementStart(t, outermost);
                     }
                     
-                case JavaFXTokenContext.IDENTIFIER_ID:
+                case IDENTIFIER_ID:
                     return t;
                 default:
                     return t;
@@ -560,29 +562,29 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
         // First check the given token
         if (token != null) {
             switch (token.getTokenID().getNumericID()) {
-                case JavaFXTokenContext.ELSE_ID:
+                case ELSE_ID:
                     TokenItem ifss = findIf(token);
                     if (ifss != null) {
                         indent = getTokenIndent(ifss);
                     }
                     break;
 
-                case JavaFXTokenContext.LBRACE_ID:
+                case LBRACE_ID:
                     TokenItem stmt = findStatement(token);
                     if (stmt == null) {
                         indent = 0;
 
                     } else {
                         switch (stmt.getTokenID().getNumericID()) {
-                            case JavaFXTokenContext.DO_ID:
-                            case JavaFXTokenContext.FOR_ID:
-                            case JavaFXTokenContext.IF_ID:
-                            case JavaFXTokenContext.WHILE_ID:
-                            case JavaFXTokenContext.ELSE_ID:
+                            case DO_ID:
+                            case FOR_ID:
+                            case IF_ID:
+                            case WHILE_ID:
+                            case ELSE_ID:
                                 indent = getTokenIndent(stmt);
                                 break;
                                 
-                            case JavaFXTokenContext.LBRACE_ID:
+                            case LBRACE_ID:
                                 indent = getTokenIndent(stmt) + getShiftWidth();
                                 break;
                                 
@@ -598,7 +600,7 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                                 } else { // valid statement
                                     indent = getTokenIndent(stmt);
                                     switch (stmt.getTokenID().getNumericID()) {
-                                        case JavaFXTokenContext.LBRACE_ID:
+                                        case LBRACE_ID:
                                             indent += getShiftWidth();
                                             break;
                                     }
@@ -607,9 +609,9 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                     }
                     break;
 
-                case JavaFXTokenContext.RBRACE_ID:
+                case RBRACE_ID:
                     TokenItem rbmt = findMatchingToken(token, null,
-                                JavaFXTokenContext.LBRACE, true);
+                                LBRACE, true);
                     if (rbmt != null) { // valid matching left-brace
                         TokenItem t = findStatement(rbmt);
                         boolean forceFirstNonWhitespace = false;
@@ -618,9 +620,9 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
 
                         } else {
                             switch (t.getTokenID().getNumericID()) {
-                                case JavaFXTokenContext.SEMICOLON_ID:
-                                case JavaFXTokenContext.LBRACE_ID:
-                                case JavaFXTokenContext.RBRACE_ID:
+                                case SEMICOLON_ID:
+                                case LBRACE_ID:
+                                case RBRACE_ID:
                                 {
                                     t = rbmt;
                                     forceFirstNonWhitespace = true;
@@ -658,13 +660,13 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                 }
                 
                 switch (t.getTokenID().getNumericID()) {
-                    case JavaFXTokenContext.SEMICOLON_ID: // semicolon found
+                    case SEMICOLON_ID: // semicolon found
                         TokenItem tt = findStatementStart(token);
                         indent = getTokenIndent(tt);
                             
                         break;
 
-                    case JavaFXTokenContext.LBRACE_ID:
+                    case LBRACE_ID:
                         TokenItem lbss = findStatementStart(t, false);
                         if (lbss == null) {
                             lbss = t;
@@ -672,7 +674,7 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                         indent = getTokenIndent(lbss) + getShiftWidth();
                         break;
 
-                    case JavaFXTokenContext.RBRACE_ID:
+                    case RBRACE_ID:
                         if (true) {
                             TokenItem t3 = findStatementStart(token);
                             indent = getTokenIndent(t3);
@@ -689,13 +691,13 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                          *  one level back.
                          */
                         TokenItem rbmt = findMatchingToken(t, null,
-                                JavaFXTokenContext.LBRACE, true);
+                                LBRACE, true);
                         if (rbmt != null) { // valid matching left-brace
                             // Check whether there's a indent stmt
                             TokenItem t6 = findStatement(rbmt);
                             if (t6 != null) {
                                 switch (t6.getTokenID().getNumericID()) {
-                                    case JavaFXTokenContext.ELSE_ID:
+                                    case ELSE_ID:
                                         /* Check the following situation:
                                          * if (t1)
                                          *   if (t2)
@@ -711,24 +713,24 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                                             TokenItem t7 = findStatement(t6);
                                             if (t7 != null) {
                                                 switch (t7.getTokenID().getNumericID()) {
-                                                    case JavaFXTokenContext.DO_ID:
-                                                    case JavaFXTokenContext.FOR_ID:
-                                                    case JavaFXTokenContext.IF_ID:
-                                                    case JavaFXTokenContext.WHILE_ID:
+                                                    case DO_ID:
+                                                    case FOR_ID:
+                                                    case IF_ID:
+                                                    case WHILE_ID:
                                                         indent = getTokenIndent(t7);
                                                         break;
 
-                                                    case JavaFXTokenContext.ELSE_ID:
+                                                    case ELSE_ID:
                                                         indent = getTokenIndent(findStatementStart(t6));
                                                 }
                                             }
                                         }
                                         break;
 
-                                    case JavaFXTokenContext.DO_ID:
-                                    case JavaFXTokenContext.FOR_ID:
-                                    case JavaFXTokenContext.IF_ID:
-                                    case JavaFXTokenContext.WHILE_ID:
+                                    case DO_ID:
+                                    case FOR_ID:
+                                    case IF_ID:
+                                    case WHILE_ID:
                                         /* Check the following:
                                          * if (t1)
                                          *   if (t2) {
@@ -738,21 +740,21 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                                         TokenItem t7 = findStatement(t6);
                                         if (t7 != null) {
                                             switch (t7.getTokenID().getNumericID()) {
-                                                case JavaFXTokenContext.DO_ID:
-                                                case JavaFXTokenContext.FOR_ID:
-                                                case JavaFXTokenContext.IF_ID:
-                                                case JavaFXTokenContext.WHILE_ID:
+                                                case DO_ID:
+                                                case FOR_ID:
+                                                case IF_ID:
+                                                case WHILE_ID:
                                                     indent = getTokenIndent(t7);
                                                     break;
 
-                                                case JavaFXTokenContext.ELSE_ID:
+                                                case ELSE_ID:
                                                     indent = getTokenIndent(findStatementStart(t6));
 
                                             }
                                         }
                                         break;
 
-                                    case JavaFXTokenContext.LBRACE_ID: // '{' ... '{'
+                                    case LBRACE_ID: // '{' ... '{'
                                         indent = getTokenIndent(rbmt);
                                         break;
 
@@ -769,9 +771,9 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                         }
                         break;
 
-                    case JavaFXTokenContext.COLON_ID:
-                        TokenItem ttt = findAnyToken(t, null, new TokenID[] {/*JavaFXTokenContext.CASE, JavaFXTokenContext.DEFAULT,*/ JavaFXTokenContext.FOR, JavaFXTokenContext.QUESTION, JavaFXTokenContext.ASSERT}, t.getTokenContextPath(), true);
-                        if (ttt != null && ttt.getTokenID().getNumericID() == JavaFXTokenContext.QUESTION_ID) {
+                    case COLON_ID:
+                        TokenItem ttt = findAnyToken(t, null, new TokenID[] {/*JavaFXTokenContext.CASE, JavaFXTokenContext.DEFAULT,*/ FOR, QUESTION, ASSERT}, t.getTokenContextPath(), true);
+                        if (ttt != null && ttt.getTokenID().getNumericID() == QUESTION_ID) {
                             indent = getTokenIndent(ttt) + getShiftWidth();
                         } else {
                             // Indent of line with ':' plus one indent level
@@ -779,23 +781,23 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                         }
                         break;
 
-                    case JavaFXTokenContext.QUESTION_ID:
-                    case JavaFXTokenContext.DO_ID:
-                    case JavaFXTokenContext.ELSE_ID:
+                    case QUESTION_ID:
+                    case DO_ID:
+                    case ELSE_ID:
                         indent = getTokenIndent(t) + getShiftWidth();
                         break;
 
-                    case JavaFXTokenContext.RPAREN_ID:
+                    case RPAREN_ID:
                         // Try to find the matching left paren
-                        TokenItem rpmt = findMatchingToken(t, null, JavaFXTokenContext.LPAREN, true);
+                        TokenItem rpmt = findMatchingToken(t, null, LPAREN, true);
                         if (rpmt != null) {
                             rpmt = findImportantToken(rpmt, null, true);
                             // Check whether there are the indent changing kwds
                             if (rpmt != null && rpmt.getTokenContextPath() == tokenContextPath) {
                                 switch (rpmt.getTokenID().getNumericID()) {
-                                    case JavaFXTokenContext.FOR_ID:
-                                    case JavaFXTokenContext.IF_ID:
-                                    case JavaFXTokenContext.WHILE_ID:
+                                    case FOR_ID:
+                                    case IF_ID:
+                                    case WHILE_ID:
                                         // Indent one level
                                         indent = getTokenIndent(rpmt) + getShiftWidth();
                                         break;
@@ -993,7 +995,7 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
      */
     public boolean isForLoopSemicolon(TokenItem token) {
         if (token == null || !tokenEquals(token,
-                    JavaFXTokenContext.SEMICOLON, tokenContextPath)
+                    SEMICOLON, tokenContextPath)
         ) {
             throw new IllegalArgumentException("Only accept ';'."); // NOI18N
         }
@@ -1003,12 +1005,12 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
         boolean semicolonFound = false; // next semicolon
         token = token.getPrevious(); // ignore this semicolon
         while (token != null) {
-            if (tokenEquals(token, JavaFXTokenContext.LPAREN, tokenContextPath)) {
+            if (tokenEquals(token, LPAREN, tokenContextPath)) {
                 if (parDepth == 0) { // could be a 'for ('
                     FormatTokenPosition tp = getPosition(token, 0);
                     tp = findImportant(tp, null, false, true);
                     if (tp != null && tokenEquals(tp.getToken(),
-                            JavaFXTokenContext.FOR, tokenContextPath)
+                            FOR, tokenContextPath)
                     ) {
                         return true;
                     }
@@ -1018,19 +1020,19 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                     parDepth--;
                 }
 
-            } else if (tokenEquals(token, JavaFXTokenContext.RPAREN, tokenContextPath)) {
+            } else if (tokenEquals(token, RPAREN, tokenContextPath)) {
                 parDepth++;
 
-            } else if (tokenEquals(token, JavaFXTokenContext.LBRACE, tokenContextPath)) {
+            } else if (tokenEquals(token, LBRACE, tokenContextPath)) {
                 if (braceDepth == 0) { // unclosed left brace
                     return false;
                 }
                 braceDepth--;
 
-            } else if (tokenEquals(token, JavaFXTokenContext.RBRACE, tokenContextPath)) {
+            } else if (tokenEquals(token, RBRACE, tokenContextPath)) {
                 braceDepth++;
 
-            } else if (tokenEquals(token, JavaFXTokenContext.SEMICOLON, tokenContextPath)) {
+            } else if (tokenEquals(token, SEMICOLON, tokenContextPath)) {
                 if (semicolonFound) { // one semicolon already found
                     return false;
                 }
@@ -1058,12 +1060,12 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
         token = token.getPrevious();
 
         while (token != null && token != limitToken) {
-            if (tokenEquals(token, JavaFXTokenContext.LPAREN, tokenContextPath)) {
+            if (tokenEquals(token, LPAREN, tokenContextPath)) {
                 if (--depth < 0) {
                     return true;
                 }
 
-            } else if (tokenEquals(token, JavaFXTokenContext.RPAREN, tokenContextPath)) {
+            } else if (tokenEquals(token, RPAREN, tokenContextPath)) {
                 depth++;
             }
             token = token.getPrevious();
@@ -1086,11 +1088,11 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
 
         while (token != null && token != limitToken && token.getTokenContextPath() == tokenContextPath) {
             switch (token.getTokenID().getNumericID()) {
-                case JavaFXTokenContext.RBRACKET_ID:
+                case RBRACKET_ID:
                     depth++;
                     break;
 
-                case JavaFXTokenContext.LBRACKET_ID:
+                case LBRACKET_ID:
                     depth--;
                     if (depth < 0) {
                         TokenItem prev = findImportantToken(token, limitToken, true);
@@ -1099,16 +1101,16 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
                         // either "String array = { "a", "b", ... }"
                         // or     "String array = new String[] { "a", "b", ... }"
                         return (prev != null && prev.getTokenContextPath() == tokenContextPath
-                                && (JavaFXTokenContext.EQ.equals(prev.getTokenID())));
+                                && (EQ.equals(prev.getTokenID())));
                     }
                     break;
 
                 // Array initialization block should not contain statements or ';'
-                case JavaFXTokenContext.DO_ID:
-                case JavaFXTokenContext.FOR_ID:
-                case JavaFXTokenContext.IF_ID:
-                case JavaFXTokenContext.WHILE_ID:
-                case JavaFXTokenContext.SEMICOLON_ID:
+                case DO_ID:
+                case FOR_ID:
+                case IF_ID:
+                case WHILE_ID:
+                case SEMICOLON_ID:
                     if (depth == 0) {
                         return false;
                     }
@@ -1195,7 +1197,7 @@ public class JavaFXFormatSupport extends ExtFormatSupport {
         // under the "f" and not under the "{" as expected
         FormatTokenPosition eolp = findNextEOL(ftp);
         TokenItem rbmt = findMatchingToken(ftp.getToken(), 
-            eolp != null ? eolp.getToken() : null, JavaFXTokenContext.RBRACE, false);
+            eolp != null ? eolp.getToken() : null, RBRACE, false);
         if (rbmt != null)
             return ftp;
         

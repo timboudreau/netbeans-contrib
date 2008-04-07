@@ -105,6 +105,13 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
         return state;
     }
 
+    /**
+     * If error is reported we are in trouble. If we loose track of tokens and reach inconsistent state the best to do
+     * is try to recover it just by skipping several characters and starts from beginning. Better then failing
+     * application down.
+     * 
+     * @param e exeption occured during lexing.
+     */
     @Override
     public void reportError(RecognitionException e) {
         logger.severe(getErrorMessage(e, getTokenNames()) + " Trying to recover from error. " + e.getClass().getSimpleName());
