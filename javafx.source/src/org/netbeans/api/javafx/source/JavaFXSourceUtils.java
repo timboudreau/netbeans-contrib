@@ -46,6 +46,7 @@ import com.sun.source.tree.Tree;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javafx.api.JavafxcTool;
 import com.sun.tools.javafx.api.JavafxcTrees;
+import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
@@ -86,7 +87,7 @@ public class JavaFXSourceUtils {
                 addPath = addPath.substring(6, addPath.length()-2);
                 if (cp!=null){
                     if (!cp.contains(addPath))
-                        cp += "," + addPath;
+                        cp += File.pathSeparatorChar + addPath;
                 }else{
                     cp = addPath;
                 }
