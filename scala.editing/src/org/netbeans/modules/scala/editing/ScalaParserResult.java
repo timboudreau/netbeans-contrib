@@ -46,7 +46,7 @@ import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.AstElementVisitor;
-import xtc.tree.Node;
+import xtc.tree.GNode;
 
 /**
  *
@@ -56,7 +56,7 @@ public class ScalaParserResult extends ParserResult {
 
     private ParserFile file;
     private AstTreeNode ast;
-    private Node rootNode;
+    private GNode rootNode;
     private String source;
     private OffsetRange sanitizedRange = OffsetRange.NONE;
     private String sanitizedContents;
@@ -65,7 +65,7 @@ public class ScalaParserResult extends ParserResult {
     private AstScope rootScope;
     private List<Integer> linesOffset;
 
-    public ScalaParserResult(ScalaParser parser, ParserFile file, Node rootNode, AstTreeNode ast, List<Integer> linesOffset) {
+    public ScalaParserResult(ScalaParser parser, ParserFile file, GNode rootNode, AstTreeNode ast, List<Integer> linesOffset) {
         super(parser, file, ScalaMimeResolver.MIME_TYPE);
         this.file = file;
         this.rootNode = rootNode;
@@ -84,7 +84,7 @@ public class ScalaParserResult extends ParserResult {
     /** 
      * The root node of the AST produced by the parser.
      */
-    public Node getRootNode() {
+    public GNode getRootNode() {
         return rootNode;
     }
 
@@ -133,15 +133,14 @@ public class ScalaParserResult extends ParserResult {
 
     public AstScope getRootScope() {
         if (rootScope == null) {
-            Node node = getRootNode();
             
-            if (node == null) {
+            if (rootNode == null) {
                 System.err.println("Attempted to get definition visitor for broken source");
                 return null;
             }
             
-            AstElementVisitor signatureVisitor = new AstElementVisitor(node, source, linesOffset);
-            signatureVisitor.accept(node);
+            AstElementVisitor signatureVisitor = new AstElementVisitor(rootNode, source, linesOffset);
+            signatureVisitor.visit(rootNode);
             rootScope = signatureVisitor.getRootScope();
         }
 

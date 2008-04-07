@@ -41,8 +41,10 @@ package org.netbeans.modules.scala.editing.nodes;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import org.netbeans.modules.gsf.api.OffsetRange;
 import xtc.tree.Annotation;
 import xtc.tree.GNode;
+import xtc.tree.Location;
 import xtc.tree.Node;
 import xtc.tree.Visitor;
 import xtc.util.Pair;
@@ -51,37 +53,115 @@ import xtc.util.Pair;
  *
  * @author Caoyuan Deng
  */
-public class AstVisitor extends Visitor {
+public abstract class AstVisitor extends Visitor {
 
+    private AstScope rootScope;
+    private List<Integer> linesOffset;
+    private String source;
     private int indentLevel;
     protected Stack<GNode> astPath = new Stack<GNode>();
+    protected Stack<AstScope> scopeStack = new Stack<AstScope>();
 
-    public AstVisitor() {
+    public AstVisitor(Node rootNode, String source, List<Integer> linesOffset) {
+        this.source = source;
+        this.linesOffset = linesOffset;
+        // set linesOffset before call getRange(Node)
+        this.rootScope = new AstScope(getRange(rootNode));
+        scopeStack.push(rootScope);
     }
+    public void visit(GNode node) {
+        visitNode(node, true);
+    }
+
+    public void visitNode(GNode node, boolean alsoChildren) {
+        astPath.push(node);
+        indentLevel++;
+
+        if (alsoChildren) {
+            for (Iterator itr = node.iterator(); itr.hasNext();) {
+                Object o = itr.next();
+                if (o instanceof GNode) {
+                    dispatch((GNode) o);
+                } else if (o instanceof Pair) {
+                    visitPair((Pair) o);
+                }
+            }
+        }
+
+        indentLevel--;
+        astPath.pop();
+    }
+
+    private void visitPair(Pair pair) {
+        //System.out.println(indent() + "[");
+        indentLevel++;
+        for (Iterator itr = pair.iterator(); itr.hasNext();) {
+            Object o = itr.next();
+            if (o instanceof GNode) {
+                dispatch((GNode) o);
+            } else if (o instanceof Pair) {
+                visitPair((Pair) o);
+            }
+        }
+        indentLevel--;
+    //System.out.println(indent() + "]");
+    }
+
+    @Override
+    public Object visit(Annotation a) {
+        System.out.println(indent() + "@" + a.toString());
+        return null;
+    }
+
+    public AstScope getRootScope() {
+        return rootScope;
+    }    
     
+    protected OffsetRange getRange(Node node) {
+        Location loc = node.getLocation();
+        return new OffsetRange(loc.offset, loc.endOffset);
+    }
+
+    /**
+     * @Note: nameNode may contains preceding void productions, and may also contains
+     * following void productions, but nameString has stripped the void productions,
+     * so we should adjust nameRange according to name and its length.
+     */
+    protected OffsetRange getNameRange(String name, Node node) {
+        Location loc = node.getLocation();
+        int length = name.length();
+        for (int i = loc.offset; i < loc.endOffset; i++) {
+            if (source.substring(i, i + length).equals(name)) {
+                return new OffsetRange(i, i + length);
+            }
+        }
+
+        return new OffsetRange(loc.offset, loc.endOffset);
+    }
+
     protected String getAstPathString() {
         StringBuilder sb = new StringBuilder();
-        
+
         for (Iterator<GNode> itr = astPath.iterator(); itr.hasNext();) {
             sb.append(itr.next().getName());
             if (itr.hasNext()) {
                 sb.append(".");
             }
         }
-        
+
         return sb.toString();
     }
-    
+
     protected GNode findNearsetNode(String name) {
         GNode result = null;
-        
+
         for (Iterator<GNode> itr = astPath.iterator(); itr.hasNext();) {
             GNode node = itr.next();
             if (node.getName().equals(name)) {
                 result = node;
             }
         }
-        
+
         return result;
     }
 
@@ -91,189 +171,6 @@ public class AstVisitor extends Visitor {
             sb.append("  ");
         }
         return sb.toString();
-    }
-
-    public void accept(Node node) {
-        dispatch(node);
-    }
-
-    public void visit(GNode node) {
-        astPath.push(node);
-        //System.out.println(indent() + "{" + node.getName() + "}");
-        indentLevel++;
-        for (Iterator itr = node.iterator(); itr.hasNext();) {
-            Object o = itr.next();
-            if (o instanceof GNode) {
-                dispatch((GNode) o);
-            } else if (o instanceof Pair) {
-                visit((Pair) o);
-            }
-        }
-        indentLevel--;
-        astPath.pop();
-    }
-
-    public void visit(Pair pair) {
-        //System.out.println(indent() + "[");
-        indentLevel++;
-        for (Iterator itr = pair.iterator(); itr.hasNext();) {
-            Object o = itr.next();
-            if (o instanceof GNode) {
-                dispatch((GNode) o);
-            } else if (o instanceof Pair) {
-                visit((Pair) o);
-            }
-        }
-        indentLevel--;
-        //System.out.println(indent() + "]");
-    }
-
-    @Override
-    public Object visit(Annotation a) {
-        System.out.println(indent() + "@" + a.toString());
-        return null;
-    }
-
-    public void visitCompilationUnit(final GNode that) {
-        visit(that);
-    }
-    
-    public void visitPackage(final GNode that) {
-        visit(that);
-    }
-
-    public List<AstElement> visitQualId(GNode that) {
-        visit(that);
-        return null;
-    }
-
-    public List<AstElement> visitIds(GNode that) {
-        visit(that);
-        return null;
-    }
-
-    public List<AstElement> visitPath(GNode that) {
-        visit(that);
-        return null;
-    }
-
-    public List<AstElement> visitStableId(GNode that) {
-        visit(that);
-        return null;
-    }
-
-    public AstElement visitId(GNode that) {
-        visit(that);
-        return null;
-    }    
-    
-    public void visitClassDef(final GNode that) {
-        visit(that);
-    }
-
-    public void visitTraitDef(final GNode that) {
-        visit(that);
-    }
-
-    public void visitObjectDef(final GNode that) {
-        visit(that);
-    }
-    
-    public void visitFunDcl(final GNode that) {
-        visit(that);
-    }
-    
-    public void visitFunDef(final GNode that) {
-        visit(that);
-    }
-    
-    public Function visitFunSig(final GNode that) {
-        visit(that);
-        return null;
-    }
-    
-    public List<Var> visitParamClauses(final GNode that) {
-        visit(that);
-        return null;
-    }
-    
-    public List<Var> visitParamClause(final GNode that) {
-        visit(that);
-        return null;
-    }
-
-    public List<Var> visitParams(final GNode that) {
-        visit(that);
-        return null;
-    }
-    
-    public Var visitParam(final GNode that) {
-        visit(that);
-        return null;
-    }
-    
-    public void visitConstructorFunDef(final GNode that) {
-        visit(that);
-    }
-
-    public List<AstElement> visitClassParams(final GNode that) {
-        visit(that);
-        return null;
-    }
-    
-    public AstElement visitClassParam(final GNode that) {
-        visit(that);
-        return null;
-    }
-
-    public void visitValDcl(final GNode that) {
-        visit(that);
-    }
-    
-    public void visitVarDcl(final GNode that) {
-        visit(that);
-    }
-    
-    public void visitValDef(final GNode that) {
-        visit(that);
-    }
-
-    public void visitVarDef(final GNode that) {
-        visit(that);
-    }
-    
-    public List<AstElement> visitIdPattern(GNode that) {
-        visit(that);
-        return null;
-    }
-    
-    public String visitModifier(GNode that) {
-        visit(that);
-        return null;
-    }
-        
-    public String visitLocalModifier(GNode that) {
-        visit(that);
-        return null;
-    }
-
-    public String visitAccessModifier(GNode that) {
-        visit(that);
-        return null;
-    }
-    
-    public void visitSimpleIdExpr(GNode that) {
-        visit(that);        
-    }
-    
-    public TypeRef visitAnnotType(GNode that) {
-        visit(that);
-        return null;
-    }
-    
-    public TypeRef visitSimpleIdType(GNode that) {
-        visit(that);
-        return null;
     }
 
 }

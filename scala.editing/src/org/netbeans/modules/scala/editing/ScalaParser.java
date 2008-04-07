@@ -57,14 +57,12 @@ import org.netbeans.modules.gsf.api.Severity;
 import org.netbeans.modules.gsf.api.SourceFileReader;
 import org.netbeans.modules.gsf.spi.DefaultError;
 import org.netbeans.modules.gsf.api.TranslatedSource;
-import org.netbeans.modules.scala.editing.nodes.AstVisitor;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.util.Exceptions;
 import xtc.parser.ParseError;
 import xtc.parser.Result;
 import xtc.parser.SemanticValue;
 import xtc.tree.GNode;
-import xtc.tree.Node;
 
 /**
  * Wrapper around com.sun.fortress.parser.Fortress to parse a buffer into an AST.
@@ -376,14 +374,12 @@ public class ScalaParser implements Parser {
             if (r.hasValue()) {
                 SemanticValue v = (SemanticValue) r;
                 node = (GNode) v.value;
-                AstVisitor visitor = new AstVisitor();
-                visitor.accept(node);
             } else {
                 error = r.parseError();
             }
 
             if (error != null) {
-                if (!ignoreErrors) {
+                if (! ignoreErrors) {
                     int start = 0;
                     if (error.index != -1) {
                         //Location location = parser.location(e.index);
@@ -399,7 +395,7 @@ public class ScalaParser implements Parser {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (IllegalArgumentException e) {
-            // An internal exception thrown by Fortress, just catch it and notify
+            // An internal exception thrown by ParserScala, just catch it and notify
             notifyError(context, "SYNTAX_ERROR", e.getMessage(),
                     0, 0, sanitizing, Severity.ERROR, new Object[]{e});
         }
@@ -416,7 +412,7 @@ public class ScalaParser implements Parser {
         }
     }
 
-    private ScalaParserResult createParseResult(ParserFile file, Node rootNode, ParserResult.AstTreeNode ast, List<Integer> linesOffset) {
+    private ScalaParserResult createParseResult(ParserFile file, GNode rootNode, ParserResult.AstTreeNode ast, List<Integer> linesOffset) {
         return new ScalaParserResult(this, file, rootNode, ast, linesOffset);
     }
 
