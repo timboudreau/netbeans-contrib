@@ -327,7 +327,6 @@ public enum JFXTokenId implements TokenId {
         protected EmbeddingPresence embeddingPresence(JFXTokenId id) {
             switch (id) {
                 case COMMENT:
-                    return EmbeddingPresence.ALWAYS_QUERY;
                 case QUOTE_LBRACE_STRING_LITERAL:
                 case RBRACE_QUOTE_STRING_LITERAL:
                 case RBRACE_LBRACE_STRING_LITERAL:
