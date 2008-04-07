@@ -178,13 +178,19 @@ public class CallModelImpl implements CallModel {
                             return;
                         }
                     }
-                    CsmObject o = r.getReferencedObject();
-                    if (CsmKindUtilities.isFunction(o) &&
-                        !CsmKindUtilities.isFunction(r.getOwner())){
-                        o = getFunctionDeclaration((CsmFunction)o);
-                        if (!set.containsKey(o)) {
-                            set.put((CsmFunction)o, r);
+                    try {
+                        CsmObject o = r.getReferencedObject();
+                        if (CsmKindUtilities.isFunction(o) &&
+                            !CsmKindUtilities.isFunction(r.getOwner())){
+                            o = getFunctionDeclaration((CsmFunction)o);
+                            if (!set.containsKey(o)) {
+                                set.put((CsmFunction)o, r);
+                            }
                         }
+                    } catch (AssertionError e){
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             });

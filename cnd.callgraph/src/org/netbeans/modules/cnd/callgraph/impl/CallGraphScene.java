@@ -76,6 +76,7 @@ public class CallGraphScene extends GraphScene<Function,Call> {
     private WidgetAction hoverAction = createWidgetHoverAction();
     private WidgetAction popupAction = ActionFactory.createPopupMenuAction(new MyPopupMenuProvider());
     private Font defaultItalicFont;
+    private Action exportAction;
 
     
     private CallModel callModel;
@@ -89,6 +90,8 @@ public class CallGraphScene extends GraphScene<Function,Call> {
         router = RouterFactory.createOrthogonalSearchRouter (mainLayer, connectionLayer);
         defaultItalicFont = new Font(getDefaultFont().getName(),
                               Font.ITALIC, getDefaultFont().getSize());
+        getActions().addAction(popupAction);
+        getActions().addAction(ActionFactory.createWheelPanAction());
     }
     
     public void setLayout(SceneLayout sceneLayout){
@@ -233,6 +236,10 @@ public class CallGraphScene extends GraphScene<Function,Call> {
     protected void attachEdgeTargetAnchor(Call edge, Function oldTargetNode, Function targetNode) {
         Widget w = targetNode != null ? findWidget(targetNode) : null;
         ((ConnectionWidget) findWidget(edge)).setTargetAnchor(AnchorFactory.createRectangularAnchor(w));
+    }
+
+    public void setExportAction(Action exportAction) {
+        this.exportAction = exportAction;
     }
 
     private static class NodeEditProvider implements EditProvider {
@@ -428,6 +435,9 @@ public class CallGraphScene extends GraphScene<Function,Call> {
                 menu.add(new GoToReferenceAction(f,0));
                 menu.add(new ExpandCallees(f));
                 menu.add(new ExpandCallers(f));
+            } else if (widget instanceof CallGraphScene) {
+                menu = new JPopupMenu();
+                menu.add(exportAction);
             }
             return menu;
         }
