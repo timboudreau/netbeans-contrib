@@ -426,7 +426,7 @@ public class JavaFXCompletionProvider implements CompletionProvider {
                 }
             }
         }
-        
+
         private void resolveCompletion(CompilationController controller) throws IOException {
             Env env = getCompletionEnvironment(controller, true);
             results = new ArrayList<JavaFXCompletionItem>();
@@ -444,6 +444,7 @@ public class JavaFXCompletionProvider implements CompletionProvider {
                         // inside block
                         break;
                     case CLASS_DECLARATION:
+                        insideClassDeclaration(env);
                         break;
                     case FOR_EXPRESSION: 
                         break;
@@ -464,6 +465,7 @@ public class JavaFXCompletionProvider implements CompletionProvider {
                     case KEYFRAME_LITERAL:
                         break;
                     case OBJECT_LITERAL_PART:
+                        insideObjectLiteralPart(env);
                         break;
                     case ON_REPLACE:
                         break;
@@ -638,6 +640,15 @@ public class JavaFXCompletionProvider implements CompletionProvider {
             }
         }
         
+        private void insideObjectLiteralPart(JavaFXCompletionQuery.Env env) {
+            
+        }
+        
+        private void insideClassDeclaration(JavaFXCompletionQuery.Env env) {
+            addKeywordsForClassBody(env);
+        }
+
+
         private void insideCompilationUnit(Env env) throws IOException {
             int offset = env.getOffset();
             SourcePositions sourcePositions = env.getSourcePositions();
@@ -1555,6 +1566,9 @@ public class JavaFXCompletionProvider implements CompletionProvider {
             Element e = controller.getTrees().getElement(exPath);
             TypeMirror tm = controller.getTrees().getTypeMirror(exPath);
             if (e == null) {
+                if (tm == null) {
+                    return;
+                }
                 if (tm.getKind() == TypeKind.DECLARED || tm.getKind() == TypeKind.ARRAY || tm.getKind() == TypeKind.ERROR) {
                     addKeyword(env, INSTANCEOF_KEYWORD, SPACE, false);
                 }
@@ -2277,49 +2291,6 @@ public class JavaFXCompletionProvider implements CompletionProvider {
             return withinAnonymousOrLocalClass(parentPath);
         }
         
-        private class SourcePositionsImpl extends TreeScanner<Void, Tree> implements SourcePositions {
-            
-            private Tree root;
-            private SourcePositions original;
-            private SourcePositions modified;
-            private int startOffset;
-            private int endOffset;
-            
-            private boolean found;
-            
-            private SourcePositionsImpl(Tree root, SourcePositions original, SourcePositions modified, int startOffset, int endOffset) {
-                this.root = root;
-                this.original = original;
-                this.modified = modified;
-                this.startOffset = startOffset;
-                this.endOffset = endOffset;
-            }
-            
-            public long getStartPosition(CompilationUnitTree compilationUnitTree, Tree tree) {
-                if (tree == root)
-                    return startOffset;
-                found = false;
-                scan(root, tree);
-                return found ? modified.getStartPosition(compilationUnitTree, tree) + startOffset : original.getStartPosition(compilationUnitTree, tree);
-            }
-
-            public long getEndPosition(CompilationUnitTree compilationUnitTree, Tree tree) {
-                if (endOffset >= 0 && (tree == root))
-                    return endOffset;
-                found = false;
-                scan(root, tree);
-                return found ? modified.getEndPosition(compilationUnitTree, tree) + startOffset : original.getEndPosition(compilationUnitTree, tree);
-            }
-
-            public Void scan(Tree node, Tree p) {
-                if (node == p)
-                    found = true;
-                else
-                    super.scan(node, p);
-                return null;
-            }
-        }
-                
         private static Pattern camelCasePattern = Pattern.compile("(?:\\p{javaUpperCase}(?:\\p{javaLowerCase}|\\p{Digit}|\\.|\\$)*){2,}"); // NOI18N
         
         private class Env {
