@@ -52,6 +52,7 @@ import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.spi.glassfish.AppDesc;
+import org.netbeans.spi.glassfish.ResourceDesc;
 
 
 /**
@@ -196,17 +197,17 @@ public abstract class ServerCommand {
     /**
      * Command to list applications current deployed on the server.
      */
-    public static final class ListCommand extends ServerCommand {
+    public static final class ListAppsCommand extends ServerCommand {
         
         private final String container;
-        private Manifest list = null;
-        private Map<String, List<AppDesc>> appMap = null; 
+        private Manifest list;
+        private Map<String, List<AppDesc>> appMap; 
         
-        public ListCommand() {
+        public ListAppsCommand() {
             this(null);
         }
         
-        public ListCommand(final String container) {
+        public ListAppsCommand(final String container) {
             this.container = container;
         }
         
@@ -244,47 +245,55 @@ public abstract class ServerCommand {
                 return false;
             }
             
-            String containerDesc = list.getMainAttributes().getValue("children"); // NOI18N
-            if(containerDesc == null || containerDesc.length() == 0) {
-                // no containers running...
+            String appsList = list.getMainAttributes().getValue("children"); // NOI18N
+            if(appsList == null || appsList.length() == 0) {
+                // no applications deployed...
                 return true;
             }
 
-            String [] containers = containerDesc.split(","); // NOI18N
-            for(String c: containers) {
-                if(skipContainer(c)) {
+            String [] apps = appsList.split("[,;]"); // NOI18N
+            for(String appKey: apps) {
+                if("null".equals(appKey)) {
+                    Logger.getLogger("glassfish").log(Level.WARNING, 
+                            "list-applications contains an invalid result.  " +
+                            "Check server log for possible exceptions.");
                     continue;
                 }
                 
-                // get container attributes
-                Attributes contAttr = list.getAttributes(c);
-                String appDesc = contAttr.getValue("children"); // NOI18N
+                Attributes appAttrs = list.getAttributes(appKey);
+                if(appAttrs == null) {
+                    continue;
+                }
+                
+                String engine = appAttrs.getValue("nb-engine_value");
+                if(skipContainer(engine)) {
+                    continue;
+                }
+                
+                String name = appAttrs.getValue("nb-name_value");
+                if(name == null || name.length() == 0) {
+                    Logger.getLogger("glassfish").log(Level.FINE, "Skipping application with no name..."); // FIXME better log message.
+                    continue;
+                }
+                
+                String path = appAttrs.getValue("nb-location_value");
+                if(path.startsWith("file:")) {
+                    path = path.substring(5);
+                }
 
-                // !PW XXX Do we want/need to show empty containers?
-                if(appDesc == null) {
-                    // no apps currently deployed in this container
-                    continue;
-                }
-                
-                String [] apps = appDesc.split(","); // NOI18N
-                List<AppDesc> appList = new ArrayList<AppDesc>(apps.length);
-                for(String app: apps) {
-                    Attributes appAttr = list.getAttributes(app);
-                    String name = appAttr.getValue("message"); // NOI18N
-                    String path = appAttr.getValue("Source_value"); // NOI18N
-                    if(path.startsWith("file:")) {
-                        path = new String(path.substring(5));
-                    }
-                    appList.add(new AppDesc(name, path));
-                }
-                
+                // Add app to proper list in result map
                 if(appMap == null) {
                     appMap = new HashMap<String, List<AppDesc>>();
                 }
+                List<AppDesc> appList = appMap.get(engine);
+                if(appList == null) {
+                    appList = new ArrayList<AppDesc>();
+                    appMap.put(engine, appList);
+                }
                 
-                appMap.put(c, appList);
+                appList.add(new AppDesc(name, path));
             }
-            
+
             return true;
         }
     
@@ -298,8 +307,82 @@ public abstract class ServerCommand {
             return container != null ? !container.equals(currentContainer) :
                 "security_ContractProvider".equals(currentContainer);
         }
-    
         
+    };
+    
+    /**
+     * Command to list resources of various types currently available on the server.
+     */
+    public static final class ListResourcesCommand extends ServerCommand {
+
+        private final String command;
+        private Manifest list;
+        private List<ResourceDesc> resList;
+
+        public ListResourcesCommand(String resourceCommandSuffix) {
+            command = "list-" + resourceCommandSuffix + "s"; // NOI18N
+        }
+        
+        public List<ResourceDesc> getResourceList() {
+            if(resList != null) {
+                return Collections.unmodifiableList(resList);
+            } else {
+                return Collections.emptyList();
+            }
+        }
+        
+        @Override
+        public String getCommand() { 
+            return command;
+        }
+        
+        @Override
+        public void readManifest(Manifest manifest) throws IOException {
+            list = manifest;
+        }
+        
+        @Override
+        public boolean processResponse() {
+            if(list == null) {
+                return false;
+            }
+            
+            String resourceList = list.getMainAttributes().getValue("children"); // NOI18N
+            if(resourceList == null || resourceList.length() == 0) {
+                // no resources running...
+                return true;
+            }
+
+            String [] resources = resourceList.split("[,;]"); // NOI18N
+            for(String r: resources) {
+                if(skipResource(r)) {
+                    continue;
+                }
+
+                // get container attributes
+                Attributes resourceAttr = list.getAttributes(r);
+                if(resourceAttr != null) {
+                    String name = resourceAttr.getValue("message"); // NOI18N
+
+                    if(name != null && name.length() > 0) {
+                        if(resList == null) {
+                            resList = new ArrayList<ResourceDesc>();
+                        }
+
+                        resList.add(new ResourceDesc(name));
+                    }
+                } else {
+                    Logger.getLogger("glassfish").log(Level.FINE, "No resource attributes returned for " + r);
+                }
+            }
+            
+            return true;
+        }
+
+        private boolean skipResource(String r) {
+            return false;
+        }
+    
     };
     
     /**

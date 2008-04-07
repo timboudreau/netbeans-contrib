@@ -178,62 +178,69 @@ tokens {
 }
 
 @lexer::header {
-package @lexer.package@;
+package com.sun.tools.javafx.antlr;
 
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Log;
-import com.sun.tools.javafx.antlr.StringLiteralProcessor;
+
 }
 
 @header {
-package @lexer.package@;
+package com.sun.tools.javafx.antlr;
 
 import com.sun.tools.javac.util.Context;
-import com.sun.tools.javafx.antlr.StringLiteralProcessor;
 import org.antlr.runtime.tree.*;
 import org.antlr.runtime.*;
+
 }
 
 @lexer::members {
-    /** The log to be used for error diagnostics.
-     */
-    private Log log;
-    
     static final byte NO_INSERT_SEMI = 0; // default
-    static final byte INSERT_SEMI = 1; 
-    static final byte IGNORE_FOR_SEMI = 2; 
-    static final byte[] semiKind = new byte[LAST_TOKEN];
-    { 
-      for (int i = SEMI_INSERT_START; i < SEMI_INSERT_END; ++i) {
-          semiKind[i] = INSERT_SEMI;
-      }
-      semiKind[RBRACE] = INSERT_SEMI;
-      semiKind[STRING_LITERAL] = INSERT_SEMI;
-      semiKind[QUOTE_LBRACE_STRING_LITERAL] = INSERT_SEMI;
-      semiKind[DECIMAL_LITERAL] = INSERT_SEMI;
-      semiKind[OCTAL_LITERAL] = INSERT_SEMI;
-      semiKind[HEX_LITERAL] = INSERT_SEMI;
-      semiKind[TIME_LITERAL] = INSERT_SEMI;	
-      semiKind[FLOATING_POINT_LITERAL] = INSERT_SEMI;
-      semiKind[IDENTIFIER] = INSERT_SEMI;
-      
-      semiKind[WS] = IGNORE_FOR_SEMI;
-      semiKind[COMMENT] = IGNORE_FOR_SEMI;
-      semiKind[LINE_COMMENT] = IGNORE_FOR_SEMI;
-    }
-      
-    int previousTokenType = -1;
+        static final byte INSERT_SEMI = 1; 
+        static final byte IGNORE_FOR_SEMI = 2; 
+        static final byte[] semiKind = new byte[LAST_TOKEN];
+        { 
+          for (int i = SEMI_INSERT_START; i < SEMI_INSERT_END; ++i) {
+              semiKind[i] = INSERT_SEMI;
+          }
+          semiKind[RBRACE] = INSERT_SEMI;
+          semiKind[STRING_LITERAL] = INSERT_SEMI;
+          semiKind[QUOTE_LBRACE_STRING_LITERAL] = INSERT_SEMI;
+          semiKind[DECIMAL_LITERAL] = INSERT_SEMI;
+          semiKind[OCTAL_LITERAL] = INSERT_SEMI;
+          semiKind[HEX_LITERAL] = INSERT_SEMI;
+          semiKind[TIME_LITERAL] = INSERT_SEMI;
+          semiKind[FLOATING_POINT_LITERAL] = INSERT_SEMI;
+          semiKind[IDENTIFIER] = INSERT_SEMI;
+          
+          semiKind[WS] = IGNORE_FOR_SEMI;
+          semiKind[COMMENT] = IGNORE_FOR_SEMI;
+          semiKind[LINE_COMMENT] = IGNORE_FOR_SEMI;
+        }
 
-    
     public v3Lexer(Context context, CharStream input) {
-    	this(input);
-        this.log = Log.instance(context);
-    }
-       
+        	this(input);
+            this.log = Log.instance(context);
+        }
+
     // quote context --
-    static final int CUR_QUOTE_CTX	= 0;	// 0 = use current quote context
-    static final int SNG_QUOTE_CTX	= 1;	// 1 = single quote quote context
-    static final int DBL_QUOTE_CTX	= 2;	// 2 = double quote quote context
+        static final int CUR_QUOTE_CTX	= 0;	// 0 = use current quote context
+        static final int SNG_QUOTE_CTX	= 1;	// 1 = single quote quote context
+        static final int DBL_QUOTE_CTX	= 2;	// 2 = double quote quote context
+     
+
+    protected int getSyntheticSemiType() {
+        return SEMI;
+    }
+
+    protected boolean verifyCurrentType(int ttype) {
+        return ttype != EOF && semiKind[ttype] != IGNORE_FOR_SEMI;
+    }
+
+    protected boolean verifyPreviousType(int ttype, int previousTokenType) {
+        return previousTokenType == RBRACE && (ttype == EOF || semiKind[ttype] == INSERT_SEMI);
+    }
+
  }
 
 @members {

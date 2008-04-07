@@ -42,6 +42,10 @@
 package org.netbeans.modules.cnd.callgraph.impl;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -49,6 +53,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import org.netbeans.api.visual.graph.layout.GraphLayout;
 import org.netbeans.api.visual.graph.layout.GridGraphLayout;
@@ -78,6 +83,7 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
     private CallModel model;
     private boolean isCalls = true;
     private CallGraphScene scene = new CallGraphScene();
+    private static double dividerLocation = 0.5;
     
     /** Creates new form CallGraphPanel */
     public CallGraphPanel() {
@@ -87,6 +93,7 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
         actions = new Action[]{new RefreshAction(),
                                null, new WhoIsCalledAction(), new WhoCallsAction(),
                                null, new ExportAction(scene, this)};
+        scene.setExportAction(actions[actions.length-1]);
         root = new AbstractNode(children){
             @Override
             public Action[] getActions(boolean context) {
@@ -94,7 +101,27 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
             }
         };
         getExplorerManager().setRootContext(root);
-        jSplitPane1.setDividerLocation(0.5);
+        addComponentListener(new ComponentListener() {
+            public void componentResized(ComponentEvent e) {
+                jSplitPane1.setDividerLocation(dividerLocation);
+            }
+            public void componentMoved(ComponentEvent e) {
+            }
+            public void componentShown(ComponentEvent e) {
+            }
+            public void componentHidden(ComponentEvent e) {
+            }
+        });
+        jSplitPane1.addPropertyChangeListener(
+                        new PropertyChangeListener(){
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (JSplitPane.DIVIDER_LOCATION_PROPERTY.equals(evt.getPropertyName())) {
+                   dividerLocation = ((double)jSplitPane1.getDividerLocation())/
+                   ((double)(jSplitPane1.getWidth() - jSplitPane1.getDividerSize()));
+                }
+            }
+        });
+        
         initGraph();
     }
     

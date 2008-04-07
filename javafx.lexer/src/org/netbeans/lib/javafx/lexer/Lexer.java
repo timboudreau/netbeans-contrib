@@ -41,12 +41,11 @@
 
 package org.netbeans.lib.javafx.lexer;
 
+import com.sun.tools.javac.util.Log;
 import org.antlr.runtime.CharStream;
+import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.RecognizerSharedState;
-import org.antlr.runtime.Token;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,9 +55,16 @@ import java.util.logging.Logger;
  *
  * @author Rastislav Komara (<a href="mailto:rastislav.komara@sun.com">RKo</a>)
  */
-abstract class Lexer extends org.antlr.runtime.Lexer {
+public abstract class Lexer extends org.antlr.runtime.Lexer {
     public final BraceQuoteTracker NULL_BQT = new BraceQuoteTracker(null, '\'', false);
     private BraceQuoteTracker quoteStack = NULL_BQT;
+    /**
+     * The log to be used for error diagnostics.
+     */
+    protected Log log;
+    private static Logger logger = Logger.getLogger(Lexer.class.getName());
+//    private boolean errorRecovery;
+
 
     protected Lexer(org.antlr.runtime.CharStream charStream, org.antlr.runtime.RecognizerSharedState recognizerSharedState) {
         super(charStream, recognizerSharedState);
@@ -97,6 +103,19 @@ abstract class Lexer extends org.antlr.runtime.Lexer {
      */
     public RecognizerSharedState getSharedState() {
         return state;
+    }
+
+    /**
+     * If error is reported we are in trouble. If we loose track of tokens and reach inconsistent state the best to do
+     * is try to recover it just by skipping several characters and starts from beginning. Better then failing
+     * application down.
+     * 
+     * @param e exeption occured during lexing.
+     */
+    @Override
+    public void reportError(RecognitionException e) {
+        logger.severe(getErrorMessage(e, getTokenNames()) + " Trying to recover from error. " + e.getClass().getSimpleName());
+        recover(e);
     }
 
     /**

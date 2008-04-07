@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+
+The contents of this file are subject to the terms of either the GNU
+General Public License Version 2 only ("GPL") or the Common
+Development and Distribution License("CDDL") (collectively, the
+"License"). You may not use this file except in compliance with the
+License. You can obtain a copy of the License at
+http://www.netbeans.org/cddl-gplv2.html
+or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+specific language governing permissions and limitations under the
+License.  When distributing the software, include this License Header
+Notice in each file and include the License file at
+nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+particular file as subject to the "Classpath" exception as provided
+by Sun in the GPL Version 2 section of the License file that
+accompanied this code. If applicable, add the following below the
+License Header, with the fields enclosed by brackets [] replaced by
+your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+Contributor(s):
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+
+If you wish your version of this file to be governed by only the CDDL
+or only the GPL Version 2, indicate your decision by adding
+"[Contributor] elects to include this software in this distribution
+under the [CDDL or GPL Version 2] license." If you do not indicate a
+single choice of license, a recipient has the option to distribute
+your version of this file under either the CDDL, the GPL Version 2 or
+to extend the choice of license to its licensees as provided above.
+However, if you add GPL Version 2 code and therefore, elected the GPL
+Version 2 license, then the option applies only if the new code is
+made subject to such option by the copyright holder.
+-->
+
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <attr name="Templates\Project\Samples\ApiSupport\position" intvalue="500"/>
+    <attr name="Templates\Project\Samples\Enterprise\position" intvalue="400"/>
+    <attr name="Templates\Project\Samples\Standard\position" intvalue="100"/>
+    <attr name="Templates\Project\Samples\Web\position" intvalue="300"/>
+    
+    <folder name="demos">
+        <folder name="math">
+            <file name="Arctangent" url="/demos/math/Arctangent.fx"/>
+        </folder>
+    </folder>
+    
+    <folder name="Templates">
+        <folder name="Project">
+            <folder name="Samples">
+                <folder name="JavaFX">
+                    <folder name="Best Practices">
+                        <folder name="Math">
+                            <file name="Arctangent" url="../../../../../../math/Arctangent.fx">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
+                                <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/math/Arctangent"/>
+                            </file>
+                            <file name="Distance 1D" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Distance 2D" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Sine" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="SineWave" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                        </folder>
+                        <folder name="Color">
+                            <file name="Linear Gradient" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Color Wheel" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                        </folder>
+                        <folder name="Form">
+                            <file name="Points and Lines" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Shape primitives" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                        </folder>
+                        <folder name="Image">
+                            <file name="Displaying" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Background image" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Transparency" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                        </folder>
+                        <folder name="Transform">
+                            <file name="Translate" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Scale" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Rotate" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                        </folder>
+                        <folder name="Motion">
+                            <file name="Linear" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Bouncy bubbles" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Collision" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                        </folder>
+                        <folder name="Input">
+                            <file name="Mouse 1D" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Mouse 2D" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Mouse press" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Easing" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Constrain" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Storing input" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Milliseconds" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Clock" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                        </folder>
+                        <folder name="Simulation">
+                            <file name="Simple particle system" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Smoke particle system" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                            <file name="Flocks" url="">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="template" boolvalue="true"/>
+                            </file>
+                        </folder>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

@@ -53,14 +53,20 @@ package org.netbeans.modules.dtrace.script;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Properties;
+import org.openide.execution.ExecutionEngine;
+import org.openide.execution.ExecutorTask;
+import org.openide.util.Utilities;
+import org.openide.windows.IOProvider;
+import org.openide.windows.InputOutput;
 
 /**
  *
  * @author nassern
  */
-public class ScriptLibrary {
+public class ScriptLibrary implements Runnable {
 
     private StringBuffer preDefScriptDir;
     private StringBuffer usrDefScriptDir;
@@ -69,6 +75,8 @@ public class ScriptLibrary {
     private FileFilter fileFilter;
     private FileFilter dirFilter;
     private boolean grayOut;
+    private Process p;
+    static final String ScriptLibrary_Path = "/org/netbeans/modules/dtrace/script/ScriptLibrary.class";
     
     public ScriptLibrary() {
         preDefScriptDir = new StringBuffer();
@@ -98,6 +106,10 @@ public class ScriptLibrary {
             usrDefScriptDir.append("/");
             usrDefScriptDir.append("DTraceScripts");
         } 
+        
+        if (Utilities.getOperatingSystem() == Utilities.OS_SOLARIS) {       
+            installScripts();
+        }
         
         fileFilter = new FileFilter() {
             public boolean accept(File file) {
@@ -152,6 +164,21 @@ public class ScriptLibrary {
             }
         };
     }
+   
+    public void installScripts() {
+        File scriptDir = new File(preDefScriptDir.toString());      
+        if (scriptDir != null && scriptDir.exists()) {
+            return;
+        }
+        
+        synchronized (this) { 
+            String procName = "Install DTraceScripts";
+            InputOutput io = IOProvider.getDefault().getIO(procName, true);
+            io.select();            
+            ExecutorTask task = ExecutionEngine.getDefault().execute(procName, this, io);
+            task.waitFinished();
+        }
+    }
     
     public boolean getGrayOut() {
         return grayOut;
@@ -205,5 +232,92 @@ public class ScriptLibrary {
         File dir = new File(dirName);        
         File[] files = dir.listFiles(fileFilter);
         return files;
+    }
+
+    public void run() {       
+        java.net.URL url = ScriptLibrary.class.getResource(ScriptLibrary_Path);
+        if (url == null) {
+            return;
+        }
+            
+        StringBuffer path = new StringBuffer(url.getPath());
+        int idx1 = path.lastIndexOf(":");           
+        int idx2 = path.indexOf("org-netbeans-modules-dtrace.jar!");
+        if (idx1 != -1 && idx2 != -1) {
+            String modulePath = path.substring(idx1 + 1, idx2);
+            path = new StringBuffer(modulePath);
+        }
+      
+        path.append("ext/DTraceScripts.zip");
+        File scriptFile = new File(path.toString());
+        if (!scriptFile.exists()) {
+            return;
+        }
+
+        String command = "/bin/cp " + path + " " + userHomeDir;
+        try {
+            p = Runtime.getRuntime().exec(command);
+        } catch(IOException ex) {
+            ex.printStackTrace();
+        }
+        
+        int retCode = 0;
+        try {
+            retCode = p.waitFor();                 
+        } catch (InterruptedException ex) {
+            // We've interupted the process. Kill it and wait for the process to finish.
+            p.destroy();
+            while (retCode < 0) {
+                try {
+                    retCode= p.waitFor();
+                } catch (InterruptedException ex1) {
+                    ex1.getStackTrace();
+                }
+            }
+        }      
+      
+        command = "/bin/unzip DTraceScripts.zip";
+        try {
+            File userHomeDirFile = new File(userHomeDir);
+            p = Runtime.getRuntime().exec(command, null, userHomeDirFile);
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        
+        try {
+            retCode = p.waitFor();                 
+        } catch (InterruptedException ex) {
+            // We've interupted the process. Kill it and wait for the process to finish.
+            p.destroy();
+            while (retCode < 0) {
+                try {
+                    retCode= p.waitFor();
+                } catch (InterruptedException ex1) {
+                    ex1.getStackTrace();
+                }
+            }
+        }        
+
+        command = "/bin/chmod -R 755 DTraceScripts";
+        try {
+            File userHomeDirFile = new File(userHomeDir);
+            p = Runtime.getRuntime().exec(command, null, userHomeDirFile);
+        } catch(IOException ex) {
+            ex.printStackTrace();
+        }
+        
+        try {
+            retCode = p.waitFor();                 
+        } catch (InterruptedException ex) {
+            // We've interupted the process. Kill it and wait for the process to finish.
+            p.destroy();
+            while (retCode < 0) {
+                try {
+                    retCode= p.waitFor();
+                } catch (InterruptedException ex1) {
+                    ex1.getStackTrace();
+                }
+            }
+        }    
     }
 }

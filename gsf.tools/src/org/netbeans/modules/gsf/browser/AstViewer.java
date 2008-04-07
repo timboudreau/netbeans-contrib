@@ -220,7 +220,7 @@ public class AstViewer extends TopComponent {
     }
 
     public int getPersistenceType() {
-        return TopComponent.PERSISTENCE_ALWAYS;
+        return TopComponent.PERSISTENCE_NEVER;
     }
 
     public void componentOpened() {

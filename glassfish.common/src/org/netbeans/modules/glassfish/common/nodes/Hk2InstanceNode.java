@@ -49,19 +49,26 @@ import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.modules.glassfish.common.GlassfishInstance;
+import org.netbeans.modules.glassfish.common.actions.DebugAction;
+import org.netbeans.modules.glassfish.common.actions.PropertiesAction;
 import org.netbeans.modules.glassfish.common.actions.RemoveServerAction;
+import org.netbeans.modules.glassfish.common.actions.RestartAction;
 import org.netbeans.modules.glassfish.common.actions.StartServerAction;
 import org.netbeans.modules.glassfish.common.actions.StopServerAction;
 import org.netbeans.modules.glassfish.common.actions.ViewAdminConsoleAction;
 import org.netbeans.modules.glassfish.common.nodes.actions.RefreshModulesAction;
+import org.netbeans.modules.glassfish.common.nodes.actions.RefreshModulesCookie;
 import org.netbeans.spi.glassfish.GlassfishModule;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
-import org.openide.nodes.Node;
 import org.openide.util.Mutex;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.util.WeakListeners;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
+import org.openide.util.lookup.ProxyLookup;
 
 
 /**
@@ -91,24 +98,32 @@ public class Hk2InstanceNode extends AbstractNode implements ChangeListener { //
     
 
     private final GlassfishInstance serverInstance;
+    private final InstanceContent instanceContent;
     private volatile String displayName = null;
     private volatile String shortDesc = null;
+
+    public Hk2InstanceNode(final GlassfishInstance instance, boolean isFullNode) {
+        this(instance, new InstanceContent(), isFullNode);
+    }
     
-    public Hk2InstanceNode(final GlassfishInstance instance, boolean showChildren) {
-        super(showChildren ? new Children.Array() : Children.LEAF, instance.getLookup());
+    private Hk2InstanceNode(final GlassfishInstance instance, final InstanceContent ic, boolean isFullNode) {
+        super(isFullNode ? new Hk2InstanceChildren(instance) : Children.LEAF, 
+                new ProxyLookup(new AbstractLookup(ic), instance.getLookup()));
         serverInstance = instance;
+        instanceContent = ic;
         setIconBaseWithExtension(ICON_BASE);
         
-        if(showChildren) {
-            getChildren().add(new Node[] {
-                new Hk2ItemNode(instance.getLookup(), 
-                        new Hk2ApplicationsChildren(instance.getLookup()),
-                        NbBundle.getMessage(Hk2InstanceNode.class, "LBL_Apps"),
-                        Hk2ItemNode.J2EE_APPLICATION_FOLDER)
+        if(isFullNode) {
+            serverInstance.addChangeListener(WeakListeners.change(this, serverInstance));
+            instanceContent.add(new RefreshModulesCookie() {
+                public void refresh() {
+                    Children children = getChildren();
+                    if(children instanceof Refreshable) {
+                        ((Refreshable) children).updateKeys();
+                    }
+                }
             });
         }
-        
-        serverInstance.addChangeListener(this);
     }
 
     @Override
@@ -130,31 +145,23 @@ public class Hk2InstanceNode extends AbstractNode implements ChangeListener { //
 
     @Override
     public Action[] getActions(boolean context) {
+        // !PW Commented actions are place holders for when those features are available.
         return new Action[] {
             SystemAction.get(StartServerAction.class),
+            SystemAction.get(DebugAction.class),
+//            SystemAction.get(ProfileAction.class),
+            SystemAction.get(RestartAction.class),
             SystemAction.get(StopServerAction.class),
             SystemAction.get(RefreshModulesAction.class),
             null,
             SystemAction.get(RemoveServerAction.class),
             null,
-            SystemAction.get(ViewAdminConsoleAction.class)
+            SystemAction.get(ViewAdminConsoleAction.class),
+//            SystemAction.get(ViewServerLogAction.class),
+//            SystemAction.get(ViewUpdateCenterAction.class),
+            null,
+            SystemAction.get(PropertiesAction.class)
         };
-        
-        // Instance node candidate actions (borrowed list from j2eeserver module
-//        SystemAction.get(StartAction.class),
-//        SystemAction.get(DebugAction.class)
-//        SystemAction.get(ProfileAction.class)
-//        SystemAction.get(RestartAction.class),
-//        SystemAction.get(StopAction.class),
-//        SystemAction.get(RefreshAction.class),
-//        null,
-//        SystemAction.get(RemoveInstanceAction.class)
-        // Target node candidat actions (again from j2eeserver module)
-        // ... TBD ...
-        // Properties action
-//        SystemAction.get(CustomizerAction.class)
-        
-        
     }
 
     @Override
@@ -204,10 +211,10 @@ public class Hk2InstanceNode extends AbstractNode implements ChangeListener { //
                 badge = Utilities.loadImage(WAITING_ICON);
                 break;
             case STOPPED:
-                badge = Utilities.loadImage(SUSPENDED_ICON);
+//                badge = Utilities.loadImage(SUSPENDED_ICON);
                 break;
             case STOPPED_JVM_BP:
-                badge = Utilities.loadImage(DEBUGGING_ICON);
+                badge = Utilities.loadImage(SUSPENDED_ICON);
                 break;
             case STOPPING:
                 badge = Utilities.loadImage(WAITING_ICON);

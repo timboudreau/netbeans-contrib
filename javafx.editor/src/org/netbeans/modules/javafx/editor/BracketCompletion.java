@@ -85,12 +85,17 @@ class BracketCompletion {
             return;
         }
 
-        if (ch == ')' || ch == ']' || ch == '(' || ch == '[') {
+        if (ch == ')' || ch == ']' || ch == '(' || ch == '[' || ch == '{' || ch == '}') {
             TokenId tidAtDot = tokenAt(doc, dotPos);
 
             if (tidAtDot == JFXTokenId.RBRACKET || tidAtDot == JFXTokenId.RPAREN) {
                 skipClosingBracket(doc, caret, ch);
-            } else if (tidAtDot == JFXTokenId.LBRACKET || tidAtDot == JFXTokenId.LPAREN) {
+            } else if (tidAtDot == JFXTokenId.LBRACKET
+                    || tidAtDot == JFXTokenId.LPAREN
+                    || tidAtDot == JFXTokenId.STRING_LITERAL
+                    || tidAtDot == JFXTokenId.QUOTE_LBRACE_STRING_LITERAL
+                    || tidAtDot == JFXTokenId.RBRACE_LBRACE_STRING_LITERAL
+                    || tidAtDot == JFXTokenId.RBRACE_QUOTE_STRING_LITERAL) {
                 completeOpeningBracket(doc, dotPos, caret, ch);
             }
         } else if (ch == ';') {
@@ -129,12 +134,11 @@ class BracketCompletion {
             }
         }
 
-        int bolPos = Utilities.getRowStart(doc, dotPos);
+//        int bolPos = Utilities.getRowStart(doc, dotPos);
         // reset to dot
         seq.move(dotPos);
         seq.moveNext();
-        if (isForLoopSemicolon(seq) || posWithinAnyQuote(doc, dotPos)) {
-            System.err.println("  inside for loop or quotes");
+        if (posWithinAnyQuote(doc, dotPos)) {
             return;
         }
         doc.remove(dotPos, 1);
@@ -142,63 +146,6 @@ class BracketCompletion {
         caret.setDot(lastParenPos + 1);
     }
 
-    private static boolean isForLoopSemicolon(TokenSequence<? extends TokenId> seq) {
-        System.err.println("isForLoopSemicolon:");
-        if (seq == null) return false;
-        System.err.println("  first=" + seq.token());
-        if (seq.token().id() != JFXTokenId.SEMI) return false;
-
-        int parDepth = 0; // parenthesis depth
-        int braceDepth = 0; // brace depth
-        boolean semicolonFound = false; // next semicolon
-        while (seq.movePrevious()) {
-            TokenId tid = seq.token().id();
-            System.err.println("  tid=" + tid);
-            if (tid == JFXTokenId.LPAREN) {
-                if (parDepth == 0) { // could be a 'for ('
-                    // body intentionally empty
-                    while (seq.movePrevious()) {
-                        switch ((JFXTokenId) seq.token().id()) {
-                            case FOR:
-                                return true;
-                            case WS:
-                            case COMMENT:
-                            case LINE_COMMENT:
-                                continue;
-                            default:
-                                return false;
-                        }
-                    }
-                } else { // non-zero depth
-                    parDepth--;
-                }
-            } else if (tid == JFXTokenId.RPAREN) {
-                parDepth++;
-            } else if (tid == JFXTokenId.LBRACE) {
-                if (braceDepth == 0) { // unclosed left brace
-                    return false;
-                }
-                braceDepth--;
-            } else if (tid == JFXTokenId.RBRACE) {
-                braceDepth++;
-            } else if (tid == JFXTokenId.SEMI) {
-                if (semicolonFound) { // one semicolon already found
-                    return false;
-                }
-                semicolonFound = true;
-            }
-            // "while" moves to previous
-        }
-        return false;
-    }
-
-    /*            TokenHierarchy<Document> th = TokenHierarchy.get(context.getDocument());
-            List<TokenSequence<? extends TokenId>> sequences = getEmbeddedTokenSequences(
-                th, originOffset, backward, JFXTokenId.language());
-
-            if (!sequences.isEmpty()) {
-    */
-    //
     /**
      * Hook called after a character *ch* was backspace-deleted from
      * *doc*. The function possibly removes bracket or quote pair if
@@ -206,15 +153,12 @@ class BracketCompletion {
      *
      * @param doc    the document
      * @param dotPos position of the change
-     * @param caret  caret
      * @param ch     the character that was deleted
+     * @throws javax.swing.text.BadLocationException if operation is called out of document range.
      */
-    static void charBackspaced(BaseDocument doc,
-                               int dotPos,
-                               Caret caret,
-                               char ch) throws BadLocationException {
+    static void charBackspaced(BaseDocument doc, int dotPos, char ch) throws BadLocationException {
         if (completionSettingEnabled()) {
-            if (ch == '(' || ch == '[') {
+            if (ch == '(' || ch == '[' || ch == '{') {
                 TokenId tidAtDot = tokenAt(doc, dotPos);
                 if ((tidAtDot == JFXTokenId.RBRACKET && tokenBalance(doc, JFXTokenId.LBRACKET, JFXTokenId.RBRACKET) != 0) ||
                         (tidAtDot == JFXTokenId.RPAREN && tokenBalance(doc, JFXTokenId.LPAREN, JFXTokenId.RPAREN) != 0)) {
@@ -693,9 +637,10 @@ class BracketCompletion {
      *
      * @param doc    the document
      * @param dotPos position to be tested
+     * @return true if we can use completition.
+     * @throws javax.swing.text.BadLocationException if position is out of document range
      */
-    private static boolean isCompletablePosition(BaseDocument doc, int dotPos)
-            throws BadLocationException {
+    private static boolean isCompletablePosition(BaseDocument doc, int dotPos) throws BadLocationException {
         if (dotPos == doc.getLength()) // there's no other character to test
             return true;
         else {
@@ -712,6 +657,7 @@ class BracketCompletion {
                     chr == '\t' ||
                     chr == ';');
         }
+//        return true;
     }
 
     private static boolean isQuoteCompletablePosition(BaseDocument doc, int dotPos)
@@ -762,6 +708,8 @@ class BracketCompletion {
                 return '\"'; // NOI18N
             case '\'':
                 return '\'';
+            case '{':
+                return '}';
             default:
                 return ' ';
         }

@@ -287,7 +287,9 @@ made subject to such option by the copyright holder.
                     </test-dependency>
                 </test-type>
             </test-dependencies>
-            <public-packages/>
+            <public-packages>
+                <package>org.netbeans.modules.javafx.project</package>
+            </public-packages>
         </data>
     </configuration>
 </project>
