@@ -69,27 +69,32 @@ public abstract class AstVisitor extends Visitor {
         this.rootScope = new AstScope(getRange(rootNode));
         scopeStack.push(rootScope);
     }
+
     public void visit(GNode node) {
-        visitNode(node, true);
+        enter(node);
+        visitChildren(node);
+        exit(node);
     }
 
-    public void visitNode(GNode node, boolean alsoChildren) {
-        astPath.push(node);
+    protected void enter(GNode node) {
         indentLevel++;
+        astPath.push(node);
+    }
 
-        if (alsoChildren) {
-            for (Iterator itr = node.iterator(); itr.hasNext();) {
-                Object o = itr.next();
-                if (o instanceof GNode) {
-                    dispatch((GNode) o);
-                } else if (o instanceof Pair) {
-                    visitPair((Pair) o);
-                }
-            }
-        }
-
+    protected void exit(GNode node) {
         indentLevel--;
         astPath.pop();
+    }
+
+    protected void visitChildren(GNode node) {
+        for (Iterator itr = node.iterator(); itr.hasNext();) {
+            Object o = itr.next();
+            if (o instanceof GNode) {
+                dispatch((GNode) o);
+            } else if (o instanceof Pair) {
+                visitPair((Pair) o);
+            }
+        }
     }
 
     private void visitPair(Pair pair) {
@@ -115,8 +120,8 @@ public abstract class AstVisitor extends Visitor {
 
     public AstScope getRootScope() {
         return rootScope;
-    }    
-    
+    }
+
     protected OffsetRange getRange(Node node) {
         Location loc = node.getLocation();
         return new OffsetRange(loc.offset, loc.endOffset);
@@ -172,5 +177,4 @@ public abstract class AstVisitor extends Visitor {
         }
         return sb.toString();
     }
-
 }
