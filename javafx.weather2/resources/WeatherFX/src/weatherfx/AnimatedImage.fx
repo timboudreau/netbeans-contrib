@@ -51,24 +51,77 @@ public class AnimatedImage extends ImageView {
     public attribute baseName: String;
     public attribute extension: String;
     
-    public attribute imagesCount: Integer;    
-    public attribute frameDelay: Number;
+    public attribute imagesCount: Integer = 0;    
+    public attribute frameDelay: Number = 100;
     
-    public attribute images: Image*;
-    private attribute animating: Boolean;
+    public attribute images: Image[];
+    private attribute animating: Boolean = false;
     private attribute animate: Boolean;
     
-    public operation playAnimation(doit:Boolean);
-    private operation animateImages();
-    private operation loadImages();
+    public function playAnimation( doit: Boolean ): Void {
+        if (animate <> doit)  {        
+            animate = doit;
+            if (animate) {
+                if (images == null) {
+                        loadImages();
+                    }
+                /*
+                 * FIXME
+                 * 
+                do later {    
+                    animateImages();
+                }
+                 */
+            }
+        }        
+    }
+    
+    private function animateImages(): Void {
+        /*
+        do {
+            if (not animating) {
+                animating = true;
+                while (animate) {
+                    var imgs = sizeof images - 1;
+                    if (imgs > 0) {
+                        for (i in [0..imgs]) {
+                            do later {                    
+                                image = images[i];
+                                //System.out.println("Animating {baseURL}:{image}");
+                            }
+                            Thread.sleep(frameDelay);
+                            if (not animate) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            animating = false;
+            }
+        } 
+         */       
+    }
+    
+    private function loadImages(): Void {
+        /*
+        //System.out.println("Loading images: {baseName}");
+        if (baseURL <> null) {
+            //System.out.println("Loading images :{baseName}:{extension}");
+            var count = imagesCount - 1;
+            images = foreach (i in [0..count]) Image {
+                var idx = i format as <<%03d>>
+                url: "{baseURL}/{baseName}{idx}.{extension}" 
+            }; 
+            if (sizeof images > 0) {
+                image = images[0];
+            }
+            //System.out.println("Images loaded: {baseName}:{sizeof images}");
+        } 
+         */       
+    }
 }
 
-
-attribute AnimatedImage.frameDelay = 100;
-attribute AnimatedImage.animating = false;
-attribute AnimatedImage.imagesCount = 0;
-
-
+/*
 trigger on AnimatedImage.parentCanvasElement[oldValue] = newValue {
     //System.out.println("Just a test: {oldValue} : {newValue}");
     if (newValue == null) {
@@ -79,60 +132,4 @@ trigger on AnimatedImage.parentCanvasElement[oldValue] = newValue {
         playAnimation(true);
     }
 }
-
-operation AnimatedImage.playAnimation(doit:Boolean) {
-    if (animate <> doit)  {        
-        animate = doit;
-        if (animate) {
-            if (images == null) {
-                    loadImages();
-                }
-            do later {    
-                animateImages();
-            }
-        }
-    }
-}
-
-
-
-operation AnimatedImage.loadImages() {
-    //System.out.println("Loading images: {baseName}");
-    if (baseURL <> null) {
-        //System.out.println("Loading images :{baseName}:{extension}");
-        var count = imagesCount - 1;
-        images = foreach (i in [0..count]) Image {
-            var idx = i format as <<%03d>>
-            url: "{baseURL}/{baseName}{idx}.{extension}" 
-        }; 
-        if (sizeof images > 0) {
-            image = images[0];
-        }
-        //System.out.println("Images loaded: {baseName}:{sizeof images}");
-    }
-}
-
-
-operation AnimatedImage.animateImages() {
-    do {
-        if (not animating) {
-            animating = true;
-            while (animate) {
-                var imgs = sizeof images - 1;
-                if (imgs > 0) {
-                    for (i in [0..imgs]) {
-                        do later {                    
-                            image = images[i];
-                            //System.out.println("Animating {baseURL}:{image}");
-                        }
-                        Thread.sleep(frameDelay);
-                        if (not animate) {
-                            break;
-                        }
-                    }
-                }
-            }
-        animating = false;
-        }
-    }
-}
+ */
