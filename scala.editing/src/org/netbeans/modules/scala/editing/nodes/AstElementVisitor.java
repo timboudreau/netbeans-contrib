@@ -60,7 +60,7 @@ public class AstElementVisitor extends AstVisitor {
         super(rootNode, source, linesOffset);
     }
 
-    public void visitPackage(GNode that) {
+    public Packaging visitPackage(GNode that) {
         GNode qualId = that.getGeneric(0);
         List<AstElement> ids = visitQualId(qualId);
         StringBuilder sb = new StringBuilder();
@@ -82,9 +82,11 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.push(scope);
         visitNode(that, true);
         /** @Note do not pop this packaging's scope, since topstats are not it's children */
+        
+        return packaging;
     }
 
-    public void visitPackaging(GNode that) {
+    public Packaging visitPackaging(GNode that) {
         GNode qualId = that.getGeneric(0);
         List<AstElement> ids = visitQualId(qualId);
         StringBuilder sb = new StringBuilder();
@@ -105,6 +107,8 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
+        
+        return packaging;
     }
 
     public List<AstElement> visitQualId(GNode that) {
@@ -187,7 +191,7 @@ public class AstElementVisitor extends AstVisitor {
         return new AstElement(name, getNameRange(name, that), ElementKind.VARIABLE);
     }
 
-    public void visitClassDef(GNode that) {
+    public ClassTemplate visitClassDef(GNode that) {
         AstElement id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
         ClassTemplate classTmpl = new ClassTemplate(id.getName(), id.getNameRange(), scope);
@@ -197,9 +201,11 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
+        
+        return classTmpl;
     }
 
-    public void visitTraitDef(GNode that) {
+    public TraitTemplate visitTraitDef(GNode that) {
         AstElement id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
         TraitTemplate traitTmpl = new TraitTemplate(id.getName(), id.getNameRange(), scope);
@@ -209,9 +215,11 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
+        
+        return traitTmpl;
     }
 
-    public void visitObjectDef(GNode that) {
+    public ObjectTemplate visitObjectDef(GNode that) {
         AstElement id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
         ObjectTemplate objectTmpl = new ObjectTemplate(id.getName(), id.getNameRange(), scope);
@@ -221,9 +229,11 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
+        
+        return objectTmpl;
     }
 
-    public void visitTypeDcl(GNode that) {
+    public Type visitTypeDcl(GNode that) {
         AstElement id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
         Type type = new Type(id.getName(), id.getNameRange(), scope);
@@ -233,9 +243,11 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
+        
+        return type;
     }
     
-    public void visitTypeDef(GNode that) {
+    public Type visitTypeDef(GNode that) {
         AstElement id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
         Type type = new Type(id.getName(), id.getNameRange(), scope);
@@ -245,9 +257,11 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
+        
+        return type;
     }
 
-    public void visitFunDcl(GNode that) {
+    public Function visitFunDcl(GNode that) {
         Function function = visitFunSig(that.getGeneric(0));
         GNode typeNode = that.getGeneric(1);
         if (typeNode != null) {
@@ -261,9 +275,11 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
+        
+        return function;
     }
 
-    public void visitFunDef(GNode that) {
+    public Function visitFunDef(GNode that) {
         Function function = visitFunSig(that.getGeneric(0));
         GNode secondNode = that.getGeneric(1);
         if (secondNode != null && secondNode.getName().equals("Type")) {
@@ -276,6 +292,8 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
+        
+        return function;
     }
 
     public Function visitFunSig(GNode that) {
@@ -379,7 +397,7 @@ public class AstElementVisitor extends AstVisitor {
         return type;
     }
 
-    public void visitConstructorFunDef(GNode that) {
+    public Function visitConstructorFunDef(GNode that) {
         AstElement id = visitId(that.getGeneric(0)); // // This("this")
 
         List<Var> params = visitParamClause(that.getGeneric(1));
@@ -399,6 +417,8 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
+        
+        return function;
     }
 
     public AstElement visitClassParam(GNode that) {
