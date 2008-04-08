@@ -52,7 +52,7 @@ public class WrappedType extends TypeRef {
 
         Pure,
         Star,
-        Arrow,
+        ByName,
     }
            
     private More more;
@@ -86,7 +86,7 @@ public class WrappedType extends TypeRef {
                 wrappedType.htmlFormat(formatter);
                 formatter.appendText("*");
                 break;
-            case Arrow:
+            case ByName:
                 formatter.appendText("\u21D2");
                 wrappedType.htmlFormat(formatter);
                 break;

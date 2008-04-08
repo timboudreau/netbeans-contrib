@@ -83,7 +83,7 @@ public class AstElementVisitor extends AstVisitor {
 
         scopeStack.push(scope);
         visitChildren(that);
-        /** @Note do not pop this packaging's scope, since topstats are not it's children */
+        /** @Note do not pop this packaging's scope, since topstats are not its children */
         
         exit(that);
         return packaging;
@@ -536,7 +536,7 @@ public class AstElementVisitor extends AstVisitor {
             }
         } else {
             typeNode = that.getGeneric(1);
-            more = WrappedType.More.Arrow;
+            more = WrappedType.More.ByName;
         }
         TypeRef wrappedType = visitType(typeNode);
         WrappedType type = new WrappedType(wrappedType.getName(), wrappedType.getNameRange(), ElementKind.CLASS);

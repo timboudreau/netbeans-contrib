@@ -78,7 +78,7 @@ public class FunType extends TypeRef {
         if (lhs == null) {
             formatter.appendText("(");
             formatter.appendText(")");
-        } else if (lhs instanceof WrappedType && ((WrappedType)lhs).getMore() == WrappedType.More.Arrow) {
+        } else if (lhs instanceof WrappedType && ((WrappedType)lhs).getMore() == WrappedType.More.ByName) {
             formatter.appendText("(");
             lhs.htmlFormat(formatter);
             formatter.appendText(")");
