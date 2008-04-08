@@ -14,6 +14,7 @@ import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jellytools.nodes.ProjectRootNode;
 import org.netbeans.jemmy.TimeoutExpiredException;
 import org.netbeans.jemmy.operators.JButtonOperator;
+import org.netbeans.jemmy.operators.JCheckBoxOperator;
 import org.netbeans.jemmy.operators.JDialogOperator;
 import org.netbeans.jemmy.operators.JMenuBarOperator;
 import org.netbeans.jemmy.operators.JRadioButtonOperator;
@@ -53,7 +54,7 @@ public class JavaFXSmokeTest extends JellyTestCase{
 
     public static NbTestSuite suite() {
         NbTestSuite suite = new NbTestSuite();
-        //suite.addTest(new JavaFXSmokeTest("testLoadModule"));
+        suite.addTest(new JavaFXSmokeTest("testLoadModule"));
         suite.addTest(new JavaFXSmokeTest("testProjectCreation"));
         suite.addTest(new JavaFXSmokeTest("testMainFile"));
         suite.addTest(new JavaFXSmokeTest("testEditor"));
@@ -141,8 +142,16 @@ public class JavaFXSmokeTest extends JellyTestCase{
 
         JDialogOperator ideInstaller = new JDialogOperator("NetBeans IDE Installer");
         new JButtonOperator(ideInstaller, "Next >").pushNoBlock();
+        Util.sleep(1000);
 
-        new JRadioButtonOperator(ideInstaller).push();
+        
+        ideInstaller = new JDialogOperator("NetBeans IDE Installer");
+        
+        //System.out.println("[check box] select");
+        //Util.showComponents(ideInstaller);
+        new JCheckBoxOperator(ideInstaller).doClick();
+        //System.out.println("[check box] install");
+        
         new JButtonOperator(ideInstaller, "Install").pushNoBlock();
 
         new JButtonOperator(new JDialogOperator("Validation Warning"), "Continue").push();
