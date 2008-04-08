@@ -51,7 +51,7 @@ public class Util {
     }
 
     public static File getXtestNBMsPath() {
-        return new File(new File(XTEST_DATA_PATH).getParentFile().getParentFile().getParentFile().getParentFile(), "JavaFXSuite/build/updates");
+        return new File(new File(XTEST_DATA_PATH).getParentFile().getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(), "nbbuild/nbms/javafx");
     }
 
     public static String getSampleText(String example) {

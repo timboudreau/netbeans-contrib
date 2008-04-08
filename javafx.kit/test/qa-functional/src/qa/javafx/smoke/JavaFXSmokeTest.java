@@ -6,10 +6,12 @@ import org.netbeans.jellytools.Bundle;
 import org.netbeans.jellytools.JellyTestCase;
 import org.netbeans.jellytools.MainWindowOperator;
 import org.netbeans.jellytools.NewProjectWizardOperator;
+import org.netbeans.jellytools.OutputTabOperator;
 import org.netbeans.jellytools.ProjectsTabOperator;
 import org.netbeans.jellytools.TopComponentOperator;
 import org.netbeans.jellytools.actions.OpenAction;
 import org.netbeans.jellytools.nodes.Node;
+import org.netbeans.jellytools.nodes.ProjectRootNode;
 import org.netbeans.jemmy.TimeoutExpiredException;
 import org.netbeans.jemmy.operators.JButtonOperator;
 import org.netbeans.jemmy.operators.JDialogOperator;
@@ -41,6 +43,10 @@ public class JavaFXSmokeTest extends JellyTestCase{
 
     protected static final String PROJECT_NAME_HELLO_WORLD = "HelloWorld";
 
+    public static final String  BUILD_SUCCESSFUL = "BUILD SUCCESSFUL";
+    public static final String  BUILD_FAILED = "BUILD FAILED";
+
+    
     public JavaFXSmokeTest(String name) {
         super(name);
     }
@@ -51,6 +57,7 @@ public class JavaFXSmokeTest extends JellyTestCase{
         suite.addTest(new JavaFXSmokeTest("testProjectCreation"));
         suite.addTest(new JavaFXSmokeTest("testMainFile"));
         suite.addTest(new JavaFXSmokeTest("testEditor"));
+        suite.addTest(new JavaFXSmokeTest("testProjectBuilding"));
         //suite.addTest(new JavaFXSmokeTest("testPreviewMode"));
         return suite;
     }
@@ -108,20 +115,29 @@ public class JavaFXSmokeTest extends JellyTestCase{
 
         System.out.println("[add plugins]");
 
+        String nbms = "";
         for (File file : nbmList) {
+            nbms += "\"" + file.getAbsolutePath() + "\" ";
+        }
+        //for (File file : nbmList) {
 
             new JButtonOperator(pluginManager, "Add Plugins...").push();
 
             JDialogOperator addPlugins = new JDialogOperator("Add Plugins");
             JTextFieldOperator textField = new JTextFieldOperator(addPlugins);
-            textField.setText(file.getAbsolutePath());
+            //textField.setText(file.getAbsolutePath());
+            textField.setText(nbms);
             new JButtonOperator(addPlugins, "Open").push();
-            System.out.println("[load] \"" + file.getAbsolutePath() + "\"");
+            //System.out.println("[load] \"" + file.getAbsolutePath() + "\"");
+            System.out.println("[load] \"" + nbms + "\"");
 
-            Util.sleep();
-        }
-
+            //Util.sleep();
+        //}
+            Util.sleep(2000);
+            
+ 
         new JButtonOperator(pluginManager, "Install").pushNoBlock();
+           //Util.sleep(900000);
 
         JDialogOperator ideInstaller = new JDialogOperator("NetBeans IDE Installer");
         new JButtonOperator(ideInstaller, "Next >").pushNoBlock();
@@ -181,5 +197,31 @@ public class JavaFXSmokeTest extends JellyTestCase{
         //Util.showComponents(main);
     }
 
+    public void testProjectBuilding() {
+        JMenuBarOperator menuBar = new JMenuBarOperator(MainWindowOperator.getDefault());
+        menuBar.pushMenuNoBlock("Window|Output|Output");
 
+        
+        ProjectRootNode projectNode = new ProjectRootNode(ProjectsTabOperator.invoke().tree(), PROJECT_NAME_HELLO_WORLD);
+        projectNode.buildProject();
+        Util.sleep(1000);
+        
+        OutputTabOperator output = new OutputTabOperator(PROJECT_NAME_HELLO_WORLD + " (jar) ");
+
+        String outputText = output.getText();
+
+        int timeout = 120;
+        
+        while ( !( outputText.contains(BUILD_FAILED) || outputText.contains(BUILD_SUCCESSFUL) || timeout < 0)  ){
+            outputText = output.getText();
+            timeout--;
+            Util.sleep(1000);
+        }
+
+        
+        //System.out.println("[output] " + outputText);
+        assertTrue("", outputText.contains(BUILD_SUCCESSFUL));
+        
+        
+    }
 }
