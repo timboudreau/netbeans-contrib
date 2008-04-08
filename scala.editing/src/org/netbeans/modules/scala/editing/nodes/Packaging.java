@@ -39,21 +39,54 @@
 
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class TraitTamplate extends Template {
+public class Packaging extends AstDefinition {
     
-    public TraitTamplate(String name, OffsetRange nameRange, AstScope bindingScope) {
-        super(name, nameRange, bindingScope, ElementKind.MODULE);
+    private List<AstElement> ids;
+    private List<List<AstElement>> imports;
+    private boolean top;
+    
+    public Packaging(String name, OffsetRange nameRange, AstScope bindingScope) {
+        super(name, nameRange, bindingScope, ElementKind.PACKAGE);
+    }
+    
+    public void setIds(List<AstElement> ids) {
+        this.ids = ids;
+    }
+    
+    public List<AstElement> getIds() {
+        return ids == null ? Collections.<AstElement>emptyList() : ids;
+    }
+    
+    public void setImports(List<List<AstElement>> imports) {
+        this.imports = imports;
+    }
+    
+    public List<List<AstElement>> getImports() {
+        return imports;
+    }
+    
+    public void setTop() {
+        top = true;
+    }
+    
+    public boolean isTop() {
+        return top;
     }
 
-    public String getClassName() {
-        return getName();
-    }
-    
+    @Override
+    public void htmlFormat(HtmlFormatter formatter) {
+        super.htmlFormat(formatter);
+    }        
+
 }

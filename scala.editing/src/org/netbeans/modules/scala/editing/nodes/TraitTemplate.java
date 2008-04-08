@@ -46,10 +46,14 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author Caoyuan Deng
  */
-public class Type extends AstDefinition {
+public class TraitTemplate extends Template {
     
-    public Type(String name, OffsetRange nameRange, AstScope bindingScope) {
-        super(name, nameRange, bindingScope, ElementKind.CLASS);
+    public TraitTemplate(String name, OffsetRange nameRange, AstScope bindingScope) {
+        super(name, nameRange, bindingScope, ElementKind.MODULE);
     }
 
+    public String getClassName() {
+        return getName();
+    }
+    
 }

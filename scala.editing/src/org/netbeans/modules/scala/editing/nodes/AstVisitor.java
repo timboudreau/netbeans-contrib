@@ -55,10 +55,10 @@ import xtc.util.Pair;
  */
 public abstract class AstVisitor extends Visitor {
 
-    private AstScope rootScope;
     private List<Integer> linesOffset;
-    private String source;
     private int indentLevel;
+    private String source;
+    protected AstScope rootScope;
     protected Stack<GNode> astPath = new Stack<GNode>();
     protected Stack<AstScope> scopeStack = new Stack<AstScope>();
 

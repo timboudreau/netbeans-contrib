@@ -371,12 +371,12 @@ public class ScalaStructureAnalyzer implements StructureScanner {
                 case VARIABLE:
                 case OTHER:
                 case GLOBAL:
-                case PACKAGE:
                 case PROPERTY:
                 case PARAMETER:
                     return true;
 
                 case FILE:
+                case PACKAGE:
                 case MODULE:
                 case CLASS:
                     return false;

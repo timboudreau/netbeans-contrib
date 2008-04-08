@@ -115,6 +115,7 @@ public class AstScope implements Iterable<AstScope> {
             definitions = new ArrayList<AstDefinition>();
         }
         definitions.add(definition);
+        addScope(definition.getBindingScope());
         definition.setEnclosingScope(this);
     }
 
@@ -289,8 +290,8 @@ public class AstScope implements Iterable<AstScope> {
     
     
     public <T extends AstDefinition> T getEnclosingDefinition(Class<T> clazz, int offset) {
-        AstScope context = getClosestScope(offset);
-        return context.getEnclosingDefinitionRecursively(clazz);
+        AstScope scope = getClosestScope(offset);
+        return scope.getEnclosingDefinitionRecursively(clazz);
     }
     
     private <T extends AstDefinition> T getEnclosingDefinitionRecursively(Class<T> clazz) {

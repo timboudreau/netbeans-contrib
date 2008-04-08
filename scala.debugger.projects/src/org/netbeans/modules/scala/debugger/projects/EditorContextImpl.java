@@ -104,6 +104,7 @@ import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.ScalaParserResult;
 import org.netbeans.modules.scala.editing.nodes.AstDefinition;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.Packaging;
 import org.netbeans.modules.scala.editing.nodes.Template;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
@@ -1161,7 +1162,7 @@ public class EditorContextImpl extends EditorContext {
 
                     String className = tmpl.getClassName();
 
-                    org.netbeans.modules.gsf.api.Element enclosingPackage = tmpl.getPackageElement();
+                    Packaging enclosingPackage = tmpl.getPackageElement();
                     if (enclosingPackage == null) {
                         result[0] = className;
                     } else {

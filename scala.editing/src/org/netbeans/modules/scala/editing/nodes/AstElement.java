@@ -59,7 +59,6 @@ public class AstElement implements Element, ElementHandle {
     private OffsetRange nameRange;
     private ElementKind kind;
     private AstScope enclosingScope;
-    private AstElement packageElement;
     private Set<Modifier> mods;
     private TypeRef type;
     
@@ -80,13 +79,13 @@ public class AstElement implements Element, ElementHandle {
     public ElementKind getKind() {
         return kind;
     }
-
-    public void setPackageElement(AstElement packageElement) {
-        this.packageElement = packageElement;
+    
+    public <T extends AstDefinition> T getEnclosingDefinition(Class<T> clazz) {
+        return enclosingScope.getEnclosingDefinition(clazz, getNameRange().getStart());
     }
 
-    public AstElement getPackageElement() {
-        return packageElement;
+    public Packaging getPackageElement() {
+        return getEnclosingDefinition(Packaging.class);
     }
 
     public void setType(TypeRef type) {
@@ -109,7 +108,7 @@ public class AstElement implements Element, ElementHandle {
      * @return the scope that encloses this item 
      */
     public AstScope getEnclosingScope() {
-        assert enclosingScope != null : "Each signature should set enclosing scope!";
+        assert enclosingScope != null : "Each element should set enclosing scope!";
         return enclosingScope;
     }
 

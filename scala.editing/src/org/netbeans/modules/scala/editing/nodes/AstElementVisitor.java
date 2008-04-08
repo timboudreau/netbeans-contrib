@@ -52,7 +52,6 @@ import xtc.tree.Node;
  */
 public class AstElementVisitor extends AstVisitor {
 
-    private AstDefinition packageElement = null;
     private boolean containsValDfn;
     private boolean containsVarDfn;
     private TypeRef varType;
@@ -73,13 +72,36 @@ public class AstElementVisitor extends AstVisitor {
         }
 
         String name = sb.toString();
+        AstScope scope = new AstScope(rootScope.getRange());
+        Packaging packaging = new Packaging(name, getNameRange(name, qualId), scope);
+        packaging.setTop();
+        packaging.setIds(ids);
+
+        rootScope.addDefinition(packaging);
+        
+        scopeStack.push(scope);
+        visitNode(that, true);
+        /** @Note do not pop this packaging's scope, since topstats are not it's children */
+    }
+
+    public void visitPackaging(GNode that) {
+        GNode qualId = that.getGeneric(0);
+        List<AstElement> ids = visitQualId(qualId);
+        StringBuilder sb = new StringBuilder();
+        for (Iterator<AstElement> itr = ids.iterator(); itr.hasNext();) {
+            sb.append(itr.next().getName());
+            if (itr.hasNext()) {
+                sb.append(".");
+            }
+        }
+
+        String name = sb.toString();
         AstScope scope = new AstScope(getRange(that));
-        AstDefinition definition = new AstDefinition(name, getRange(qualId), scope, ElementKind.PACKAGE);
+        Packaging packaging = new Packaging(name, getNameRange(name, qualId), scope);
+        packaging.setIds(ids);
 
-        packageElement = definition;
-
-        scopeStack.peek().addDefinition(definition);
-        scopeStack.peek().addScope(scope);
+        rootScope.addDefinition(packaging);
+        
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
@@ -166,42 +188,60 @@ public class AstElementVisitor extends AstVisitor {
     }
 
     public void visitClassDef(GNode that) {
-        Node id = that.getGeneric(0);
-        String name = id.getString(0);
+        AstElement id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
-        ClassTemplate classTmpl = new ClassTemplate(name, getNameRange(name, id), scope);
-        classTmpl.setPackageElement(packageElement);
+        ClassTemplate classTmpl = new ClassTemplate(id.getName(), id.getNameRange(), scope);
 
         scopeStack.peek().addDefinition(classTmpl);
-        scopeStack.peek().addScope(scope);
+
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
     }
 
     public void visitTraitDef(GNode that) {
-        Node id = that.getGeneric(0);
-        String name = id.getString(0);
+        AstElement id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
-        TraitTamplate traitTmpl = new TraitTamplate(name, getNameRange(name, id), scope);
-        traitTmpl.setPackageElement(packageElement);
+        TraitTemplate traitTmpl = new TraitTemplate(id.getName(), id.getNameRange(), scope);
 
         scopeStack.peek().addDefinition(traitTmpl);
-        scopeStack.peek().addScope(scope);
+        
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
     }
 
     public void visitObjectDef(GNode that) {
-        Node id = that.getGeneric(0);
-        String name = id.getString(0);
+        AstElement id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
-        ObjectTemplate objectTmpl = new ObjectTemplate(name, getNameRange(name, id), scope);
-        objectTmpl.setPackageElement(packageElement);
+        ObjectTemplate objectTmpl = new ObjectTemplate(id.getName(), id.getNameRange(), scope);
 
         scopeStack.peek().addDefinition(objectTmpl);
-        scopeStack.peek().addScope(scope);
+        
+        scopeStack.push(scope);
+        visitNode(that, true);
+        scopeStack.pop();
+    }
+
+    public void visitTypeDcl(GNode that) {
+        AstElement id = visitId(that.getGeneric(0));
+        AstScope scope = new AstScope(getRange(that));
+        Type type = new Type(id.getName(), id.getNameRange(), scope);
+
+        scopeStack.peek().addDefinition(type);
+        
+        scopeStack.push(scope);
+        visitNode(that, true);
+        scopeStack.pop();
+    }
+    
+    public void visitTypeDef(GNode that) {
+        AstElement id = visitId(that.getGeneric(0));
+        AstScope scope = new AstScope(getRange(that));
+        Type type = new Type(id.getName(), id.getNameRange(), scope);
+
+        scopeStack.peek().addDefinition(type);
+        
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
@@ -217,8 +257,7 @@ public class AstElementVisitor extends AstVisitor {
         AstScope scope = function.getBindingScope();
 
         scopeStack.peek().addDefinition(function);
-        scopeStack.peek().addScope(scope);
-
+        
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
@@ -234,8 +273,6 @@ public class AstElementVisitor extends AstVisitor {
         AstScope scope = function.getBindingScope();
 
         scopeStack.peek().addDefinition(function);
-        scopeStack.peek().addScope(scope);
-
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
@@ -358,7 +395,6 @@ public class AstElementVisitor extends AstVisitor {
         }
 
         scopeStack.peek().addDefinition(function);
-        scopeStack.peek().addScope(scope);
 
         scopeStack.push(scope);
         visitNode(that, true);
@@ -378,7 +414,6 @@ public class AstElementVisitor extends AstVisitor {
         }
 
         scopeStack.peek().addDefinition(var);
-        scopeStack.peek().addScope(scope);
 
         visitNode(that, true);
 
@@ -396,7 +431,6 @@ public class AstElementVisitor extends AstVisitor {
             val.setType(type);
 
             scopeStack.peek().addDefinition(val);
-            scopeStack.peek().addScope(scope);
         }
 
         visitNode(that, true);
@@ -412,7 +446,6 @@ public class AstElementVisitor extends AstVisitor {
             var.setType(type);
 
             scopeStack.peek().addDefinition(var);
-            scopeStack.peek().addScope(scope);
         }
 
         visitNode(that, true);
@@ -467,7 +500,6 @@ public class AstElementVisitor extends AstVisitor {
             }
 
             scopeStack.peek().addDefinition(var);
-            scopeStack.peek().addScope(scope);
         }
 
         visitNode(that, true);
