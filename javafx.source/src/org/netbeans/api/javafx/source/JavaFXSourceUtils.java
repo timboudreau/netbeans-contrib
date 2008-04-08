@@ -39,12 +39,10 @@
 
 package org.netbeans.api.javafx.source;
 
-import com.sun.javafx.api.JavafxcTask;
 import com.sun.javafx.api.tree.JavaFXTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.util.TreePath;
-import com.sun.tools.javafx.api.JavafxcTool;
 import com.sun.tools.javafx.api.JavafxcTrees;
 import java.io.File;
 import java.io.IOException;
@@ -55,12 +53,9 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import javax.tools.DiagnosticCollector;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
 import org.netbeans.api.project.libraries.LibraryManager;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.URLMapper;
 import org.openide.util.Exceptions;
 
@@ -74,25 +69,7 @@ public class JavaFXSourceUtils {
         if (file == null) {
             return false;
         }
-        try{
-            String cp = System.getProperty("env.class.path");
-            LibraryManager lm = LibraryManager.getDefault();
-            List<URL> libs = lm.getLibrary("JavaFXUserLib").getContent("classpath");
-            for(int i=0;i < libs.size();i++){
-                FileObject fo = URLMapper.findFileObject(libs.get(i));
-                String addPath = fo.getURL().getFile();
-                addPath = addPath.substring(6, addPath.length()-2);
-                if (cp!=null){
-                    if (!cp.contains(addPath))
-                        cp += File.pathSeparatorChar + addPath;
-                }else{
-                    cp = addPath;
-                }
-            }
-            System.setProperty("env.class.path", cp);
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+        System.setProperty("env.class.path", getAdditionalCP(System.getProperty("env.class.path")));
         
         JavaFXSource js = JavaFXSource.forFileObject(file);
         if (js == null) {
@@ -139,64 +116,28 @@ public class JavaFXSourceUtils {
         }
         return result[0];
 
-        
-/*        
-        try{
-            JavafxcTool tool = JavafxcTool.create();
-            DiagnosticCollector diag = new DiagnosticCollector(); 
-            
-            String cp = System.getProperty("env.class.path");
-            
-            LibraryManager lm = LibraryManager.getDefault();
-            List<URL> libs = lm.getLibrary("JavaFXUserLib").getContent("classpath");
-            for(int i=0;i < libs.size();i++){
-                FileObject fo = URLMapper.findFileObject(libs.get(i));
-                String addPath = fo.getURL().getFile();
-                addPath = addPath.substring(6, addPath.length()-2);
-                if (cp!=null){
-                    if (!cp.contains(addPath))
-                        cp += File.pathSeparatorChar + addPath;
-                }else{
-                    cp = addPath;
-                }
-            }
-            
-            System.setProperty("env.class.path", cp);
-            
-            StandardJavaFileManager fileManager = tool.getStandardFileManager(diag, null, null);
-            Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(FileUtil.toFile(file));
-            JavafxcTask javafxTask = tool.getTask(null, fileManager, diag, null, fileObjects);
-            List<? extends CompilationUnitTree> treeList = (List)javafxTask.analyze();
-
-            Types types = javafxTask.getTypes();
-            Elements elements = javafxTask.getElements();
-            TypeElement fxapplet = elements.getTypeElement("javafx.ui.Applet");     //NOI18N
-            TypeElement applet = elements.getTypeElement("java.applet.Applet");     //NOI18N
-            TypeElement japplet = elements.getTypeElement("javax.swing.JApplet");   //NOI18N
-            
-            JavafxcTrees trees = JavafxcTrees.instance(javafxTask);
-            CompilationUnitTree tree = treeList.iterator().next();
-            
-            List<? extends Tree> topLevels = tree.getTypeDecls();
-            for (Tree topLevel : topLevels) {
-                if (((JavaFXTree)topLevel).getJavaFXKind() == JavaFXTree.JavaFXKind.CLASS_DECLARATION) {
-                    TypeElement type = (TypeElement) trees.getElement(TreePath.getPath(tree, topLevel));
-                    if (type != null) {
-                        Set<Modifier> modifiers = type.getModifiers();
-                                    if (modifiers.contains(Modifier.PUBLIC) && 
-                                        ((applet != null && types.isSubtype(type.asType(), applet.asType())) 
-                                        || (fxapplet != null && types.isSubtype(type.asType(), fxapplet.asType()))
-                                        || (japplet != null && types.isSubtype(type.asType(), japplet.asType())))) {
-                                            return true;
-                                    }
-                    }
-                }
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return false;
-*/        
     }    
+    
+    public static String getAdditionalCP(String cp) {
+        LibraryManager lm = LibraryManager.getDefault();
+        List<URL> libs = lm.getLibrary("JavaFXUserLib").getContent("classpath");
+        for (int i = 0; i < libs.size(); i++) {
+            FileObject fo = URLMapper.findFileObject(libs.get(i));
+            String addPath = null;
+            try {
+                addPath = fo.getURL().getFile();
+            } catch (FileStateInvalidException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            addPath = addPath.substring(6, addPath.length()-2);
+            if (cp != null) {
+                if (!cp.contains(addPath))
+                    cp += File.pathSeparatorChar + addPath;
+            } else {
+                cp = addPath;
+            }
+        }
+        return cp;
+    }
     
 }
