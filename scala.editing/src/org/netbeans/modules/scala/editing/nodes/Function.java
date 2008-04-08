@@ -54,8 +54,8 @@ public class Function extends AstDefinition {
     private List<TypeRef> typeParams;
     private List<Var> params;
 
-    public Function(String name, OffsetRange nameRange, AstScope bindingScope) {
-        super(name, nameRange, bindingScope, ElementKind.METHOD);
+    public Function(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
+        super(name, nameRange, bindingScope, kind);
     }
 
     public void setTypeParam(List<TypeRef> typeParams) {

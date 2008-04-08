@@ -67,11 +67,19 @@ public class AstElement implements Element, ElementHandle {
         this.nameRange = nameRange;
         this.kind = kind;
     }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getName() {
         return name;
     }
 
+    public void setNameRange(OffsetRange nameRange) {
+        this.nameRange = nameRange;
+    }
+    
     public OffsetRange getNameRange() {
         return nameRange;
     }

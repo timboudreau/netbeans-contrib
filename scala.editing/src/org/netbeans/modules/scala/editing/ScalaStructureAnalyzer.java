@@ -77,11 +77,13 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         if (rootScope == null) {
             return Collections.emptyList();
         }
-        
+
         List<StructureItem> items = new ArrayList<StructureItem>();
 
         for (AstDefinition definition : rootScope.getDefinitions()) {
-            items.add(new ScalaStructureItem(definition, info, formatter));
+            if (definition.getKind() != ElementKind.PARAMETER) {
+                items.add(new ScalaStructureItem(definition, info, formatter));
+            }
         }
 
         return items;
@@ -347,7 +349,6 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 //
 //            return argStr;
 //        }
-        
         public ElementHandle getElementHandle() {
             return definition;
         }
@@ -393,7 +394,9 @@ public class ScalaStructureAnalyzer implements StructureScanner {
                 List<ScalaStructureItem> children = new ArrayList<ScalaStructureItem>(nested.size());
 
                 for (AstDefinition child : nested) {
-                    children.add(new ScalaStructureItem(child, info, formatter));
+                    if (child.getKind() != ElementKind.PARAMETER) {
+                        children.add(new ScalaStructureItem(child, info, formatter));
+                    }
                 }
 
                 return children;
@@ -452,5 +455,4 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             return null;
         }
     }
-    
 }

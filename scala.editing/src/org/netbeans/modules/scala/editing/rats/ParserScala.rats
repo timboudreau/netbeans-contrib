@@ -505,7 +505,7 @@ generic VarDef =
 ;
 
 generic FunDef = 
-  FunSig ( void:":":key Type )? "=":key Expr
+  FunSig ( void:":":key Type )? void:"=":key Expr
 / FunSig N? void:"{":sep Block void:"}":sep
 / ThisKey ParamClause ParamClauses ( void:"=":key ConstrExpr / N? ConstrBlock ) @ConstructorFunDef
 ;
@@ -521,8 +521,8 @@ generic TmplDef =
 ;
 
 transient generic ClassDef  = Id TypeParamClause? Annotation* AccessModifier? ClassParamClauses ClassTemplateOpt ;
-transient generic TraitDef  = Id TypeParamClause? TraitTemplateOpt ;
-transient generic ObjectDef = Id ClassTemplateOpt ;
+transient generic TraitDef  = Id TypeParamClause?                                               TraitTemplateOpt ;
+transient generic ObjectDef = Id                                                                ClassTemplateOpt ;
 
 transient generic ClassTemplateOpt = 
   Extends ClassTemplate 

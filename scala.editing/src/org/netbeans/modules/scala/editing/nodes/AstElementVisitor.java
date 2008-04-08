@@ -78,11 +78,10 @@ public class AstElementVisitor extends AstVisitor {
         packaging.setIds(ids);
 
         rootScope.addDefinition(packaging);
-        
+
         scopeStack.push(scope);
         visitNode(that, true);
         /** @Note do not pop this packaging's scope, since topstats are not it's children */
-        
         return packaging;
     }
 
@@ -103,11 +102,11 @@ public class AstElementVisitor extends AstVisitor {
         packaging.setIds(ids);
 
         rootScope.addDefinition(packaging);
-        
+
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
-        
+
         return packaging;
     }
 
@@ -192,17 +191,98 @@ public class AstElementVisitor extends AstVisitor {
     }
 
     public ClassTemplate visitClassDef(GNode that) {
-        AstElement id = visitId(that.getGeneric(0));
+        AstScope currScope = scopeStack.peek();
         AstScope scope = new AstScope(getRange(that));
+        scopeStack.push(scope);
+        
+        AstElement id = visitId(that.getGeneric(0));
+        GNode typeParamClauseNode = that.getGeneric(1);
+        if (typeParamClauseNode != null) {
+            visitNode(typeParamClauseNode, true);
+        }
+        List<Function> constructors = visitClassParamClauses(that.getGeneric(4));
+        for (Function constructor : constructors) {
+            constructor.setName(id.getName());
+            constructor.setNameRange(id.getNameRange());
+        }
+        visitNode(that.getGeneric(5), true); // ClassTemplateOpt
+
         ClassTemplate classTmpl = new ClassTemplate(id.getName(), id.getNameRange(), scope);
 
-        scopeStack.peek().addDefinition(classTmpl);
+        currScope.addDefinition(classTmpl);
 
-        scopeStack.push(scope);
-        visitNode(that, true);
+        visitNode(that, false);
         scopeStack.pop();
-        
+
         return classTmpl;
+    }
+
+    public List<Function> visitClassParamClauses(GNode that) {
+        List<Function> constructors = new ArrayList<Function>();
+
+        List classParamClauseNodes = that.getList(0).list();
+        for (Object classParamClauseNode : classParamClauseNodes) {
+            constructors.add(visitClassParamClause((GNode) classParamClauseNode));
+        }
+
+        visitNode(that, false);
+
+        return constructors;
+    }
+
+    public Function visitClassParamClause(GNode that) {
+        List<Var> params = null;
+        GNode classParamsNode = that.getGeneric(0);
+        if (classParamsNode != null) {
+            params = visitClassParams(classParamsNode);
+        } else {
+            params = Collections.<Var>emptyList();
+        }
+
+        AstScope scope = new AstScope(getRange(that));
+        Function constructor = new Function("this", getRange(that), scope, ElementKind.CONSTRUCTOR);
+        constructor.setParam(params);
+
+        scopeStack.peek().addDefinition(constructor);
+
+        visitNode(that, false);
+
+        return constructor;
+    }
+
+    public List<Var> visitClassParams(GNode that) {
+        List<Var> params = new ArrayList<Var>();
+
+        Var first = visitClassParam(that.getGeneric(0));
+        params.add(first);
+
+        List others = that.getList(1).list();
+        for (Object param : others) {
+            params.add(visitClassParam((GNode) param));
+        }
+
+        visitNode(that, false);
+
+        return params;
+    }
+
+    public Var visitClassParam(GNode that) {
+        List annotations = that.getList(0).list();
+        AstElement id = visitId(that.getGeneric(2));
+        AstScope scope = new AstScope(getRange(that));
+        Var param = new Var(id.getName(), id.getNameRange(), scope, ElementKind.PARAMETER);
+
+        GNode paramTypeNode = that.getGeneric(3);
+        if (paramTypeNode != null) {
+            TypeRef type = visitParamType(paramTypeNode);
+            param.setType(type);
+        }
+
+        scopeStack.peek().addDefinition(param);
+
+        visitNode(that, false);
+
+        return param;
     }
 
     public TraitTemplate visitTraitDef(GNode that) {
@@ -211,11 +291,11 @@ public class AstElementVisitor extends AstVisitor {
         TraitTemplate traitTmpl = new TraitTemplate(id.getName(), id.getNameRange(), scope);
 
         scopeStack.peek().addDefinition(traitTmpl);
-        
+
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
-        
+
         return traitTmpl;
     }
 
@@ -225,11 +305,11 @@ public class AstElementVisitor extends AstVisitor {
         ObjectTemplate objectTmpl = new ObjectTemplate(id.getName(), id.getNameRange(), scope);
 
         scopeStack.peek().addDefinition(objectTmpl);
-        
+
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
-        
+
         return objectTmpl;
     }
 
@@ -239,76 +319,109 @@ public class AstElementVisitor extends AstVisitor {
         Type type = new Type(id.getName(), id.getNameRange(), scope);
 
         scopeStack.peek().addDefinition(type);
-        
+
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
-        
+
         return type;
     }
-    
+
     public Type visitTypeDef(GNode that) {
         AstElement id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
         Type type = new Type(id.getName(), id.getNameRange(), scope);
 
         scopeStack.peek().addDefinition(type);
-        
+
         scopeStack.push(scope);
         visitNode(that, true);
         scopeStack.pop();
-        
+
         return type;
     }
 
-    public Function visitFunDcl(GNode that) {
+    public void visitFunDcl(GNode that) {
+        AstScope currScope = scopeStack.peek();
+        AstScope scope = new AstScope(getRange(that));
+        scopeStack.push(scope);
+
         Function function = visitFunSig(that.getGeneric(0));
         GNode typeNode = that.getGeneric(1);
         if (typeNode != null) {
             TypeRef type = visitType(typeNode);
             function.setType(type);
         }
-        AstScope scope = function.getBindingScope();
 
-        scopeStack.peek().addDefinition(function);
-        
-        scopeStack.push(scope);
-        visitNode(that, true);
+        currScope.addDefinition(function);
+
+        visitNode(that, false);
         scopeStack.pop();
-        
-        return function;
+
     }
 
     public Function visitFunDef(GNode that) {
+        AstScope currScope = scopeStack.peek();
+        AstScope scope = new AstScope(getRange(that));
+        scopeStack.push(scope);
+
         Function function = visitFunSig(that.getGeneric(0));
         GNode secondNode = that.getGeneric(1);
-        if (secondNode != null && secondNode.getName().equals("Type")) {
-            TypeRef type = visitType(secondNode);
-            function.setType(type);
-        }
-        AstScope scope = function.getBindingScope();
+        if (secondNode != null) {
+            if (secondNode.getName().equals("Type")) {
+                TypeRef type = visitType(secondNode);
+                function.setType(type);
+                visitNode(that.getGeneric(2), true); // Expr
 
-        scopeStack.peek().addDefinition(function);
-        scopeStack.push(scope);
+            } else {
+                // Block
+                visitNode(secondNode, true);
+            }
+        }
+
+        currScope.addDefinition(function);
+
         visitNode(that, true);
         scopeStack.pop();
-        
+
+        return function;
+    }
+
+    public Function visitConstructorFunDef(GNode that) {
+        AstElement id = visitId(that.getGeneric(0)); // // This("this")
+
+        List<Var> params = visitParamClause(that.getGeneric(1));
+        List<Var> paramsOther = visitParamClauses(that.getGeneric(2));
+        params.addAll(paramsOther);
+
+        visitNode(that.getGeneric(3), true);
+
+
+        AstScope scope = new AstScope(getRange(that));
+        Function function = new Function(id.getName(), id.getNameRange(), scope, ElementKind.CONSTRUCTOR);
+        function.setParam(params);
+
+        scopeStack.peek().addDefinition(function);
+
+        scopeStack.push(scope);
+        visitNode(that, false);
+        scopeStack.pop();
+
         return function;
     }
 
     public Function visitFunSig(GNode that) {
         AstElement id = visitId(that.getGeneric(0));
+        GNode funTypeParamClauseNode = that.getGeneric(1);
+        if (funTypeParamClauseNode != null) {
+            visitNode(funTypeParamClauseNode, true);
+        }
         List<Var> params = visitParamClauses(that.getGeneric(2));
 
-        AstScope scope = new AstScope(getRange(that));
-        Function function = new Function(id.getName(), id.getNameRange(), scope);
+        Function function = new Function(id.getName(), id.getNameRange(), scopeStack.peek(), ElementKind.METHOD);
         function.setParam(params);
 
-        for (Var param : params) {
-            scope.addDefinition(param);
-        }
-
-        visitNode(that, true);
+        visitNode(that, false);
 
         return function;
     }
@@ -321,7 +434,7 @@ public class AstElementVisitor extends AstVisitor {
             params.addAll(visitParamClause((GNode) paramClauseNode));
         }
 
-        visitNode(that, true);
+        visitNode(that, false);
 
         return params;
     }
@@ -336,7 +449,7 @@ public class AstElementVisitor extends AstVisitor {
             params = Collections.<Var>emptyList();
         }
 
-        visitNode(that, true);
+        visitNode(that, false);
 
         return params;
     }
@@ -352,7 +465,7 @@ public class AstElementVisitor extends AstVisitor {
             params.add(visitParam((GNode) param));
         }
 
-        visitNode(that, true);
+        visitNode(that, false);
 
         return params;
     }
@@ -361,17 +474,19 @@ public class AstElementVisitor extends AstVisitor {
         List annotations = that.getList(0).list();
         AstElement id = visitId(that.getGeneric(1));
         AstScope scope = new AstScope(getRange(that));
-        Var var = new Var(id.getName(), id.getNameRange(), scope, ElementKind.PARAMETER);
+        Var param = new Var(id.getName(), id.getNameRange(), scope, ElementKind.PARAMETER);
 
         GNode paramTypeNode = that.getGeneric(2);
         if (paramTypeNode != null) {
             TypeRef type = visitParamType(paramTypeNode);
-            var.setType(type);
+            param.setType(type);
         }
 
-        visitNode(that, true);
+        scopeStack.peek().addDefinition(param);
 
-        return var;
+        visitNode(that, false);
+
+        return param;
     }
 
     public TypeRef visitParamType(GNode that) {
@@ -395,49 +510,6 @@ public class AstElementVisitor extends AstVisitor {
         visitNode(that, false);
 
         return type;
-    }
-
-    public Function visitConstructorFunDef(GNode that) {
-        AstElement id = visitId(that.getGeneric(0)); // // This("this")
-
-        List<Var> params = visitParamClause(that.getGeneric(1));
-        List<Var> paramsOther = visitParamClauses(that.getGeneric(2));
-        params.addAll(paramsOther);
-
-        AstScope scope = new AstScope(getRange(that));
-        Function function = new Function(id.getName(), id.getNameRange(), scope);
-        function.setParam(params);
-
-        for (Var param : params) {
-            scope.addDefinition(param);
-        }
-
-        scopeStack.peek().addDefinition(function);
-
-        scopeStack.push(scope);
-        visitNode(that, true);
-        scopeStack.pop();
-        
-        return function;
-    }
-
-    public AstElement visitClassParam(GNode that) {
-        List annotations = that.getList(0).list();
-        GNode paramTypeNode = that.getGeneric(3);
-        AstElement id = visitId(that.getGeneric(2));
-        AstScope scope = new AstScope(getRange(that));
-        Var var = new Var(id.getName(), id.getNameRange(), scope, ElementKind.PARAMETER);
-
-        if (paramTypeNode != null) {
-            TypeRef type = visitParamType(paramTypeNode);
-            var.setType(type);
-        }
-
-        scopeStack.peek().addDefinition(var);
-
-        visitNode(that, true);
-
-        return id;
     }
 
     public void visitValDcl(GNode that) {
