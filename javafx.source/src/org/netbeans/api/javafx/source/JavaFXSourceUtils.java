@@ -47,6 +47,7 @@ import com.sun.source.util.TreePath;
 import com.sun.tools.javafx.api.JavafxcTool;
 import com.sun.tools.javafx.api.JavafxcTrees;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
@@ -61,6 +62,7 @@ import org.netbeans.api.project.libraries.LibraryManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -72,7 +74,73 @@ public class JavaFXSourceUtils {
         if (file == null) {
             return false;
         }
+        try{
+            String cp = System.getProperty("env.class.path");
+            LibraryManager lm = LibraryManager.getDefault();
+            List<URL> libs = lm.getLibrary("JavaFXUserLib").getContent("classpath");
+            for(int i=0;i < libs.size();i++){
+                FileObject fo = URLMapper.findFileObject(libs.get(i));
+                String addPath = fo.getURL().getFile();
+                addPath = addPath.substring(6, addPath.length()-2);
+                if (cp!=null){
+                    if (!cp.contains(addPath))
+                        cp += File.pathSeparatorChar + addPath;
+                }else{
+                    cp = addPath;
+                }
+            }
+            System.setProperty("env.class.path", cp);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
         
+        JavaFXSource js = JavaFXSource.forFileObject(file);
+        if (js == null) {
+            return false;
+        }
+        final boolean[] result = new boolean[] {false};
+        try {
+            js.runUserActionTask(new CancellableTask<CompilationController>() {
+                
+                public void run(CompilationController control) throws Exception {
+                    if (JavaFXSource.Phase.ELEMENTS_RESOLVED.compareTo(control.toPhase(JavaFXSource.Phase.ELEMENTS_RESOLVED))<=0) {
+                        control.getJavafxcTask().analyze();
+                        
+                        Elements elements = control.getElements();
+                        JavafxcTrees trees = control.getTrees();
+                        Types types = control.getTypes();
+                        TypeElement fxapplet = elements.getTypeElement("javafx.ui.Applet");     //NOI18N
+                        TypeElement applet = elements.getTypeElement("java.applet.Applet");     //NOI18N
+                        TypeElement japplet = elements.getTypeElement("javax.swing.JApplet");   //NOI18N
+                        CompilationUnitTree cu = control.getCompilationUnit();
+                        List<? extends Tree> topLevels = cu.getTypeDecls();
+                        for (Tree topLevel : topLevels) {
+                            if (((JavaFXTree)topLevel).getJavaFXKind() == JavaFXTree.JavaFXKind.CLASS_DECLARATION) {
+                                TypeElement type = (TypeElement) trees.getElement(TreePath.getPath(cu, topLevel));
+                                if (type != null) {
+                                    Set<Modifier> modifiers = type.getModifiers();
+                                    if (modifiers.contains(Modifier.PUBLIC) && 
+                                        ((applet != null && types.isSubtype(type.asType(), applet.asType())) 
+                                        || (fxapplet != null && types.isSubtype(type.asType(), fxapplet.asType()))
+                                        || (japplet != null && types.isSubtype(type.asType(), japplet.asType())))) {
+                                            result[0] = true;
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                public void cancel() {}
+            }, true);
+        } catch (IOException ioe) {
+            Exceptions.printStackTrace(ioe);
+        }
+        return result[0];
+
+        
+/*        
         try{
             JavafxcTool tool = JavafxcTool.create();
             DiagnosticCollector diag = new DiagnosticCollector(); 
@@ -127,8 +195,8 @@ public class JavaFXSourceUtils {
         }catch(Exception e){
             e.printStackTrace();
         }
-        
         return false;
+*/        
     }    
     
 }
