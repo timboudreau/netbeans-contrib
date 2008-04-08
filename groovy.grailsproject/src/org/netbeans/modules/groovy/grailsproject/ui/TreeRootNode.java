@@ -79,6 +79,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import org.netbeans.modules.groovy.grailsproject.GrailsProject;
 import org.netbeans.api.project.Project;
+import org.netbeans.spi.project.ui.support.CommonProjectActions;
 
 
 /**
@@ -101,6 +102,10 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
 
         String pathName = g.getName();
         String dirName = getDirName(g);
+        
+//        LOG.setLevel(Level.FINEST);
+//        LOG.log(Level.FINEST, "Pathname : " + pathName);
+//        LOG.log(Level.FINEST, "Dirname  : " + dirName);
 
         if (dirName.startsWith("conf")) {
             category = SourceCategory.CONFIGURATION;
@@ -118,6 +123,8 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
             category = SourceCategory.UTIL;
         } else if (dirName.startsWith("lib")) {
             category = SourceCategory.LIB;
+        } else if (dirName.startsWith("test")) {
+            category = SourceCategory.TESTS;
         } else if (dirName.startsWith("views")) {
             category = SourceCategory.VIEWS;
         }
@@ -170,7 +177,7 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
 
         switch (category) {
             case CONFIGURATION:
-                // do nothing.
+                result.add(CommonProjectActions.newFileAction());
                 break;
             case CONTROLLERS:
                 result.add(new NewArtifactAction(project, SourceCategory.CONTROLLERS, "Create new controller"));
@@ -179,13 +186,17 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
                 result.add(new NewArtifactAction(project, SourceCategory.DOMAIN, "Create new Domain Class"));
                 break;
             case MESSAGES:
-                result.add(org.netbeans.spi.project.ui.support.CommonProjectActions.newFileAction());
+                result.add(CommonProjectActions.newFileAction());
+                break;
+            case TESTS:
+                result.add(CommonProjectActions.newFileAction());
                 break;
             case SERVICES:
                 result.add(new NewArtifactAction(project, SourceCategory.SERVICES, "Create a new Service"));
                 break;
             case TAGLIB:
                 result.add(new NewArtifactAction(project, SourceCategory.TAGLIB, "Create new Tag Library"));
+                result.add(CommonProjectActions.newFileAction());
                 break;
             case UTIL:          
                 break;

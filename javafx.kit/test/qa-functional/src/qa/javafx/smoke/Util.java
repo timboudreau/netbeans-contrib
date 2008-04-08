@@ -51,7 +51,7 @@ public class Util {
     }
 
     public static File getXtestNBMsPath() {
-        return new File(new File(XTEST_DATA_PATH).getParentFile().getParentFile().getParentFile().getParentFile(), "JavaFXSuite/build/updates");
+        return new File(new File(XTEST_DATA_PATH).getParentFile().getParentFile().getParentFile().getParentFile().getParentFile().getParentFile(), "nbbuild/nbms/javafx");
     }
 
     public static String getSampleText(String example) {
@@ -174,7 +174,7 @@ public class Util {
         if (FLAG_SHOW_DETAIL_INFORMATION) {
             if (comp instanceof JButton) {
                 JButton button = (JButton) comp;
-                System.out.println(blank + "[button] { tooltip: " + button.getToolTipText() + "}");
+                System.out.println(blank + "[button] { tooltip: " + button.getToolTipText() + " text:" + button.getText() + "}");
             } else if (comp instanceof JTextComponent) {
                 JTextComponent textComponent = (JTextComponent) comp;
                 System.out.println(blank + "[text]");

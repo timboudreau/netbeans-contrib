@@ -43,7 +43,6 @@ package org.netbeans.modules.javafx.profiler;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.java.platform.Specification;
-// import org.netbeans.modules.javafx.project.JavaFXProject;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
@@ -59,8 +58,14 @@ import org.netbeans.modules.profiler.AbstractProjectTypeProfiler;
 import org.netbeans.modules.profiler.ui.ProfilerDialogs;
 import org.netbeans.modules.profiler.utils.AppletSupport;
 import org.netbeans.modules.profiler.utils.ProjectUtilities;
+import org.netbeans.modules.profiler.projectsupport.utilities.SourceUtils;
+import org.netbeans.modules.javafx.project.JavaFXProject;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
-import org.netbeans.spi.project.support.ant.*;
+import org.netbeans.spi.project.support.ant.PropertyEvaluator;
+import org.netbeans.spi.project.support.ant.PropertyProvider;
+import org.netbeans.spi.project.support.ant.GeneratedFilesHelper;
+import org.netbeans.spi.project.support.ant.AntProjectHelper;
+import org.netbeans.spi.project.support.ant.PropertyUtils;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileLock;
@@ -70,14 +75,18 @@ import org.openide.modules.InstalledFileLocator;
 import org.openide.util.NbBundle;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Element;
-import java.io.*;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.BufferedInputStream;
+import java.io.OutputStreamWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Map;
 import java.util.Properties;
 import javax.swing.event.ChangeListener;
-import org.netbeans.modules.profiler.projectsupport.utilities.SourceUtils;
-
 
 /**
  * @author Tomas Hurka
@@ -164,7 +173,7 @@ public final class JavaFXProjectTypeProfiler extends AbstractProjectTypeProfiler
             !"fx".equals(fo.getExt())) {
             return false; // NOI18N
         }
-
+        
         if (JAVA_MIME_TYPE.equals(fo.getMIMEType()))
             return SourceUtils.isRunnable(fo);
             
@@ -481,16 +490,18 @@ public final class JavaFXProjectTypeProfiler extends AbstractProjectTypeProfiler
                 final String profiledClass = SourceUtils.getToplevelClassName(profiledClassFile);
                 if (null != profiledClass) {
                     props.setProperty("profile.class", profiledClass); //NOI18N
+                    final String clazz = FileUtil.getRelativePath(ProjectUtilities.getRootOf(ProjectUtilities.getSourceRoots(project),
+                                                                                     profiledClassFile), profiledClassFile);
+                    props.setProperty("javac.includes", clazz); //NOI18N
                 } else {
-                    //FileObject[] sourceRoots = project.getSourceRoots().getRoots();
-                    //FileObject[] files = findSourcesAndPackages( context, sourceRoots);
-                    //boolean recursive = (context.lookup(NonRecursiveFolder.class) == null);
-                    //if (files != null) {
-                    //     p.setProperty("javac.includes", ActionUtils.antIncludesList(files, getRoot(sourceRoots,files[0]), recursive)); // NOI18N
-                    // temporary solution; need to be fixed
-                    
-                    props.setProperty("profile.class", projectProps.getProperty("main.class"));
-                    props.setProperty("javac.includes", projectProps.getProperty("main.class"));                    
+                    if (project instanceof JavaFXProject) {
+                        JavaFXProject projectJFX = (JavaFXProject)project;
+                        String clazz = FileUtil.getRelativePath(getRoot(projectJFX.getSourceRoots().getRoots(),profiledClassFile), profiledClassFile);
+                        props.setProperty("javac.includes", clazz); // NOI18N
+                        clazz = clazz.substring(0, clazz.length() - 3);
+                        clazz = clazz.replace('/','.');
+                        props.setProperty("profile.class", clazz); //NOI18N
+                    }
                 }
             }
         }
@@ -628,6 +639,17 @@ public final class JavaFXProjectTypeProfiler extends AbstractProjectTypeProfiler
                                                                          });
 
         return pe;
+    }
+
+    private FileObject getRoot(FileObject[] roots, FileObject file) {
+        FileObject srcDir = null;
+        for (int i=0; i< roots.length; i++) {
+            if (FileUtil.isParentOf(roots[i],file) || roots[i].equals(file)) {
+                srcDir = roots[i];
+                break;
+            }
+        }
+        return srcDir;
     }
 
     private void setupMarks(final Project project) {
