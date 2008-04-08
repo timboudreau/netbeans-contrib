@@ -59,24 +59,6 @@
     ============================================================================= -->
 
 
-    <target name=".clean">
-        <!-- for each of the defined platforms set the appropriate property
-             and execute the clean-up procedure -->
-        <for-each list="${native.platforms}" property="platform">
-            <antcall target=".clean-native"/>
-        </for-each>
-        
-        <!-- attempt to run the clean-up procedure on the netbeans project -->
-        <antcall target=".clean-nbproject"/>
-        
-        <!-- delete the local working directory -->
-<!--        <delete dir="${work.dir}" includeemptydirs="true"/> -->
-	<exec executable="rm">
-          <arg line="-R"/>
-          <arg line="${work.dir}"/>
-	</exec>
-    </target>
-
 <target name="-build" depends="-build-engine,.build">
         <!-- init the required disk space -->
         <set property="product.disk.space" 
