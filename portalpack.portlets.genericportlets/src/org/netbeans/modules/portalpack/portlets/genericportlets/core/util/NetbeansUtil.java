@@ -33,13 +33,18 @@ import org.netbeans.api.project.libraries.Library;
 import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletXMLFactory;
 import org.netbeans.modules.schema2beans.BaseBean;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.modules.web.project.api.WebPropertyEvaluator;
 import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -246,5 +251,42 @@ public class NetbeansUtil {
         else
             logger.log(Level.SEVERE,"FileObject is null : "+file);
     }
+    
+     public static PortletApp getPortletApp(File portletXml) {
+        try {
+            if (!portletXml.exists()) {
+                return null;
+            }
+            PortletApp portletApp = PortletXMLFactory.createGraph(portletXml);
+            if (portletApp == null) {
+                return null;
+            }
+            return portletApp;
+
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    public static boolean savePortletXML(PortletApp portletApp, File portletXML) {
+        try {
+            FileObject fileObject = FileUtil.toFileObject(portletXML);
+            FileLock lock = fileObject.lock();
+            OutputStream out = fileObject.getOutputStream(lock);
+
+            portletApp.write(out);
+            try {
+                out.flush();
+                out.close();
+            } catch (Exception e) {
+            }
+
+            lock.releaseLock();
+            return true;
+        } catch (IOException ex) {
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(NetbeansUtil.class, "TXT_CantUpdatePortletXML")));
+            return false;
+        }
+   }
 }
 

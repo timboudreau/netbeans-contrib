@@ -324,6 +324,7 @@ Microsystems, Inc. All Rights Reserved.
             </module-dependencies>
             <friend-packages>
                 <friend>org.netbeans.modules.portalpack.servers.liferay</friend>
+                <friend>org.netbeans.modules.portalpack.servers.liferay.portlets.ruby</friend>
                 <friend>org.netbeans.modules.portalpack.visualweb</friend>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.core</package>
                 <package>org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen</package>
