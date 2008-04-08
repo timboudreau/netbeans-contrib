@@ -3,10 +3,9 @@ package qa.javafx.smoke;
 import java.io.File;
 import java.io.FileFilter;
 import org.netbeans.jellytools.Bundle;
-import org.netbeans.junit.NbTestCase;
+import org.netbeans.jellytools.JellyTestCase;
 import org.netbeans.jellytools.MainWindowOperator;
 import org.netbeans.jellytools.NewProjectWizardOperator;
-import org.netbeans.jellytools.ProjectsTabOperator;
 import org.netbeans.jellytools.ProjectsTabOperator;
 import org.netbeans.jellytools.TopComponentOperator;
 import org.netbeans.jellytools.actions.OpenAction;
@@ -20,7 +19,6 @@ import org.netbeans.jemmy.operators.JTabbedPaneOperator;
 import org.netbeans.jemmy.operators.JTableOperator;
 import org.netbeans.jemmy.operators.JTextComponentOperator;
 import org.netbeans.jemmy.operators.JTextFieldOperator;
-import org.netbeans.jemmy.operators.JTreeOperator;
 import org.netbeans.junit.NbTestSuite;
 
 //import org.junit.Test;
@@ -39,7 +37,7 @@ import org.netbeans.junit.NbTestSuite;
  */
 
 
-public class JavaFXSmokeTest extends NbTestCase{
+public class JavaFXSmokeTest extends JellyTestCase{  
 
     protected static final String PROJECT_NAME_HELLO_WORLD = "HelloWorld";
 
@@ -145,6 +143,7 @@ public class JavaFXSmokeTest extends NbTestCase{
         new JTextFieldOperator(projectWizard, 0).setText(PROJECT_NAME_HELLO_WORLD);
         new JTextFieldOperator(projectWizard, 1).setText(System.getProperty("netbeans.user"));
         projectWizard.finish();
+        
     }
 
     public void testMainFile() {

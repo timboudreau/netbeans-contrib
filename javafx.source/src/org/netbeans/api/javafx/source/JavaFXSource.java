@@ -194,9 +194,7 @@ public final class JavaFXSource {
                 Iterable<? extends CompilationUnitTree> trees = cc.getJavafxcTask().parse();
 //                new JavaFileObject[] {currentInfo.jfo});
 
-                System.err.println("Parsed to: ");
                 for (CompilationUnitTree cut : trees) {
-                    System.err.println("  cut:" + cut);
                     cc.setCompilationUnit(cut);
                 }
                 /*                assert trees != null : "Did not parse anything";        //NOI18N
