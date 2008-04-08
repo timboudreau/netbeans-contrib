@@ -28,15 +28,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-/*
- * WeatherModel.fx
- *
- * Created on Oct 1, 2007, 12:40:12 PM
- */
-
 package weatherfx;
 
-import weatherfx.service.YahooWeatherService as YWS;
+import weatherfx.service.YahooWeatherService;
 import java.lang.System;
 
 /**
@@ -45,106 +39,95 @@ import java.lang.System;
  * @author breh
  */
 
-
-UNKONWN:Integer = 0;
-CLEAR:Integer = 1;
-CLOUDS:Integer = 2;
-RAIN:Integer = 3;
-SNOW:Integer = 4;
-THUNDER:Integer = 5;
-MOON:Integer = 6;
-
-
 public class WeatherModel {
 
-    public operation loadFromYWS(yws:YWS);
-    public function windInformation(): String;
+    public static attribute UNKNOWN : Integer = 0;
+    public static attribute CLEAR : Integer = 1;
+    public static attribute CLOUDS : Integer = 2;
+    public static attribute RAIN : Integer = 3;
+    public static attribute SNOW : Integer = 4;
+    public static attribute THUNDER : Integer = 5;
+    public static attribute MOON : Integer = 6;
+    
+    public function loadFromYWS( yws: YahooWeatherService ): Void {
+        cityName = yws.getCityName();
+        temperature = yws.getTemp();
 
-    public attribute cityName:String;
-    public attribute temperature:Number;    
-    public attribute windSpeed:Number;
-    public attribute windDirection:Number;    
+        windSpeed = yws.getWindSpeed();
+        windDirection = yws.getWindDirection(); 
+        todayConditionCode = translateConditionCode(yws.getConditionCode());
+        todayLows = yws.getLowsTemp(0);
+        todayHighs = yws.getHighsTemp(0);
 
-    public attribute todayLows:Number;
-    public attribute todayHighs:Number;   
+        tomorrowConditionCode = translateConditionCode(yws.getConditionCode(1));    
+        tomorrowLows = yws.getLowsTemp(1);
+        tomorrowHighs = yws.getHighsTemp(1);
+        //System.out.println("conditions: {cityName} {yws.getConditionCode()} {yws.getConditionCode(1)} {todayConditionCode}");
+    }
+    
+    public function windInformation(): String {
+        return translateDirectionToString( windDirection ).concat( windSpeed.toString());
+    }
+    
+    private function translateDirectionToString( dir: Number ): String {
+        var windDirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"];
+        dir = dir % 360;    
+        var i = ((dir + 22.5 ) / 45).intValue();
+        return windDirs[i];
+    }
+
+    public attribute cityName: String;
+    public attribute temperature: Number;    
+    public attribute windSpeed: Number;
+    public attribute windDirection: Number;    
+
+    public attribute todayLows: Number;
+    public attribute todayHighs: Number;   
     public attribute todayConditionCode: Integer;
 
-    public attribute tomorrowLows:Number;
-    public attribute tomorrowHighs:Number;    
+    public attribute tomorrowLows: Number;
+    public attribute tomorrowHighs: Number;    
     public attribute tomorrowConditionCode: Integer;
 
-    private function translateConditionCode(conditionCode:Integer):Integer;
-    
-}
-
-
-operation WeatherModel.translateDirectionToString(dir:Number):String {
-    var windDirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"];
-    dir = dir % 360;    
-    var i = ((dir + 22.5 ) / 45).intValue();
-    return windDirs[i];
-}
-
-function WeatherModel.windInformation() {
-     return translateDirectionToString(windDirection).concat(windSpeed.toString());
-}
-
-
-function WeatherModel.translateConditionCode(code:Integer) {
-    return 
-        if ((code >= 0) and ( code < 5))  then
-            THUNDER:Integer
-        else if ((code >= 5) and (code < 9)) then
-            SNOW:Integer
-        else if ((code >= 9) and (code < 13)) then
-            RAIN:Integer
-        else if ((code >= 13) and (code < 19)) then
-            SNOW:Integer            
-        else if ((code >= 19) and (code < 26)) then
-            CLEAR:Integer                        
-        else if ((code >= 26) and (code < 31)) then
-            CLOUDS:Integer
-        else if (code == 31) then
-            MOON:Integer
-        else if (code == 32) then
-            CLEAR:Integer
-        else if (code == 33) then
-            MOON:Integer            
-        else if (code == 34) then
-            CLEAR:Integer            
-        else if (code == 35) then
-            RAIN:Integer              
-        else if (code == 36) then
-            CLEAR:Integer
-        else if ((code >= 37) and (code < 40)) then
-            THUNDER:Integer
-        else if ((code >= 41) and (code < 44)) then
-            SNOW:Integer
-        else if (code == 44) then 
-            CLOUDS:Integer
-        else if (code == 45) then 
-            THUNDER:Integer
-        else if (code == 46) then 
-            SNOW:Integer
-        else if (code == 47) then 
-            THUNDER:Integer            
-        else UNKNOWN:Integer
-    ;
-}
-
-operation WeatherModel.loadFromYWS(yws:YWS) {
-    cityName = yws.getCityName();
-    temperature = yws.getTemp();
-
-    windSpeed = yws.getWindSpeed();
-    windDirection = yws.getWindDirection(); 
-    todayConditionCode = translateConditionCode(yws.getConditionCode());
-    todayLows = yws.getLowsTemp(0);
-    todayHighs = yws.getHighsTemp(0);
-
-    tomorrowConditionCode = translateConditionCode(yws.getConditionCode(1));    
-    tomorrowLows = yws.getLowsTemp(1);
-    tomorrowHighs = yws.getHighsTemp(1);
-    //System.out.println("conditions: {cityName} {yws.getConditionCode()} {yws.getConditionCode(1)} {todayConditionCode}");
-
+    private function translateConditionCode( code: Integer ): Integer {
+        return 
+            if ((code >= 0) and ( code < 5))  then
+                THUNDER
+            else if ((code >= 5) and (code < 9)) then
+                SNOW
+            else if ((code >= 9) and (code < 13)) then
+                RAIN
+            else if ((code >= 13) and (code < 19)) then
+                SNOW            
+            else if ((code >= 19) and (code < 26)) then
+                CLEAR                        
+            else if ((code >= 26) and (code < 31)) then
+                CLOUDS
+            else if (code == 31) then
+                MOON
+            else if (code == 32) then
+                CLEAR
+            else if (code == 33) then
+                MOON            
+            else if (code == 34) then
+                CLEAR            
+            else if (code == 35) then
+                RAIN              
+            else if (code == 36) then
+                CLEAR
+            else if ((code >= 37) and (code < 40)) then
+                THUNDER
+            else if ((code >= 41) and (code < 44)) then
+                SNOW
+            else if (code == 44) then 
+                CLOUDS
+            else if (code == 45) then 
+                THUNDER
+            else if (code == 46) then 
+                SNOW
+            else if (code == 47) then 
+                THUNDER            
+            else UNKNOWN
+        ;
+    }
 }
