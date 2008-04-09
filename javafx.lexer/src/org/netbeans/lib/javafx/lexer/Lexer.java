@@ -43,7 +43,6 @@ package org.netbeans.lib.javafx.lexer;
 
 import com.sun.tools.javac.util.Log;
 import org.antlr.runtime.*;
-import org.netbeans.api.javafx.lexer.JFXTokenId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -149,14 +148,7 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
     @Override
     public void recover(RecognitionException re) {
         final BitSet bitSet = computeErrorRecoverySet();
-        try {
-            recoverFromMismatchedSet(input, re, bitSet);
-        } catch (RecognitionException e) {
-            //we try to recover but we are unsuccessfull. Consuming until success.
-            logger.severe(getErrorMessage(e, getTokenNames()) + " Consuming until after " + e.getClass().getSimpleName());
-            consumeUntil(input, bitSet);
-        }
-//        super.recover(input, re);
+        consumeUntil(input, bitSet);
     }
 
     /**
