@@ -129,6 +129,8 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
             category = SourceCategory.SCRIPTS;
         } else if (dirName.startsWith("src")) {
             category = SourceCategory.SRC;
+        } else if (dirName.startsWith("web-app")) {
+            category = SourceCategory.WEBAPP;
         } else if (dirName.startsWith("views")) {
             category = SourceCategory.VIEWS;
         }
@@ -198,6 +200,9 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
             case SRC:
                 result.add(CommonProjectActions.newFileAction());
                 break;
+            case WEBAPP:
+                result.add(CommonProjectActions.newFileAction());
+                break;
             case SCRIPTS:
                 result.add(new NewArtifactAction(project, SourceCategory.SCRIPTS, "Create a new Command Script"));
                 break;
@@ -214,9 +219,12 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
                 result.add(new AddLibraryAction((Project)project, "Add Library"));
                 break;
             case VIEWS:
-                // we don't create views on the "Views and Layouts" logical view, but by selecting a Domain Class
-                // and invoking the action in the context-menu of the domain-class.
-                // result.add(new NewArtifactAction(project, SourceCategory.VIEWS, "Create a new View"));
+                /* Usually, you don't directly create views on the "Views and Layouts" logical view, 
+                   but select a Domain Class and invoke the action in the context-menu of the domain-class.
+                   But some users might want to be able to hand-craft what's in the views directory,
+                   therfore we add newFileAction() here (see # 131775, 131777) */
+                
+                result.add(CommonProjectActions.newFileAction());
                 break;
         }
 
