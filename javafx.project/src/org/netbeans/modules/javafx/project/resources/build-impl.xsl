@@ -122,13 +122,6 @@ is divided into following sections:
             
             <target name="-do-init">
                 <xsl:attribute name="depends">-pre-init,-init-private,-init-user,-init-project,-init-macrodef-property</xsl:attribute>
-                <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform/@explicit-javac-supported ='true'">
-                    <javafxproject1:property name="platform.javac.tmp" value="platforms.${{platform.active}}.javac"/>
-                    <condition property="platform.javac" value="${{platform.home}}/bin/javac">
-                        <equals arg1="${{platform.javac.tmp}}" arg2="$${{platforms.${{platform.active}}.javac}}"/>
-                    </condition>
-                    <property name="platform.javac" value="${{platform.javac.tmp}}"/>
-                </xsl:if>
                 <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
                     <javafxproject1:property name="platform.home" value="platforms.${{platform.active}}.home"/>
                     <javafxproject1:property name="platform.bootcp" value="platforms.${{platform.active}}.bootclasspath"/>
@@ -142,6 +135,15 @@ is divided into following sections:
                         <equals arg1="${{platform.javadoc.tmp}}" arg2="$${{platforms.${{platform.active}}.javadoc}}"/>
                     </condition>
                     <property name="platform.javadoc" value="${{platform.javadoc.tmp}}"/>
+                </xsl:if>
+                <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform/@explicit-javac-supported ='true'">
+                    <javafxproject1:property name="platform.javac.tmp" value="platforms.${{platform.active}}.javac"/>
+                    <condition property="platform.javac" value="${{platform.home}}/bin/javac">
+                        <equals arg1="${{platform.javac.tmp}}" arg2="$${{platforms.${{platform.active}}.javac}}"/>
+                    </condition>
+                    <property name="platform.javac" value="${{platform.javac.tmp}}"/>
+                </xsl:if>
+                <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
                     <condition property="platform.invalid" value="true">
                         <or>
                             <contains string="${{platform.java}}" substring="$${{platforms."/>
