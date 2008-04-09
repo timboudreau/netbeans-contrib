@@ -8,7 +8,7 @@
 		<init-param>
                         <description>Portlet init view page</description>
 			<name>com.sun.faces.portlet.INIT_VIEW</name>
-                        <value>/${page_name}</value>
+                        <value>${page_name}</value>
 		</init-param>
 		<expiration-cache>0</expiration-cache>
 		<supports>
@@ -16,6 +16,7 @@
 			<portlet-mode>VIEW</portlet-mode>
 		</supports>
 		<supported-locale>en</supported-locale>
+                <resource-bundle>messages</resource-bundle>
 		<portlet-info>
                         <title>${portlet_name}</title>
                         <short-title>${portlet_name}</short-title>
