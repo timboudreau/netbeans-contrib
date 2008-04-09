@@ -36,42 +36,40 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.visitors;
+package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class Scope implements Iterable<Scope> {
+public class AstScope implements Iterable<AstScope> {
 
-    private final Definition bindingDefinition;
-    private Scope parent;
-    private List<Scope> scopes;
-    private List<Definition> definitions;
-    private List<Usage> usages;
+    private AstDefinition bindingDefinition;
+    private AstScope parent;
+    private List<AstScope> scopes;
+    private List<AstDefinition> definitions;
+    private List<AstUsage> usages;
     private boolean scopesSorted;
     private boolean definitionsSorted;
     private boolean usagesSorted;
     private OffsetRange range;
 
-    public Scope(Definition bindingDefinition, OffsetRange range) {
-        if (bindingDefinition != null) {
-            bindingDefinition.setBindingScope(this);
-        }
-        
-        this.bindingDefinition = bindingDefinition;
+    public AstScope(OffsetRange range) {
         this.range = range;
     }
 
-    public Definition getBindingDefinition() {
+    public void setBindingDefinition(AstDefinition bindingDefinition) {
+        this.bindingDefinition = bindingDefinition;        
+    }
+    
+    public AstDefinition getBindingDefinition() {
         return bindingDefinition;
     }
 
@@ -79,74 +77,75 @@ public class Scope implements Iterable<Scope> {
         return range;
     }
 
-    public Scope getParent() {
+    public AstScope getParent() {
         return parent;
     }
 
-    public List<Scope> getScopes() {
+    public List<AstScope> getScopes() {
         if (scopes == null) {
             return Collections.emptyList();
         }
         return scopes;
     }
 
-    public List<Definition> getDefinitions() {
+    public List<AstDefinition> getDefinitions() {
         if (definitions == null) {
             return Collections.emptyList();
         }
         return definitions;
     }
 
-    public List<Usage> getUsages() {
+    public List<AstUsage> getUsages() {
         if (usages == null) {
             return Collections.emptyList();
         }
         return usages;
     }
 
-    void addScope(Scope scope) {
+    void addScope(AstScope scope) {
         if (scopes == null) {
-            scopes = new ArrayList<Scope>();
+            scopes = new ArrayList<AstScope>();
         }
         scopes.add(scope);
         scope.parent = this;
     }
 
-    void addDefinition(Definition definition) {
+    void addDefinition(AstDefinition definition) {
         if (definitions == null) {
-            definitions = new ArrayList<Definition>();
+            definitions = new ArrayList<AstDefinition>();
         }
         definitions.add(definition);
+        addScope(definition.getBindingScope());
         definition.setEnclosingScope(this);
     }
 
-    void addUsage(Usage usage) {
+    void addUsage(AstUsage usage) {
         if (usages == null) {
-            usages = new ArrayList<Usage>();
+            usages = new ArrayList<AstUsage>();
         }
         usages.add(usage);
         usage.setEnclosingScope(this);
     }
 
-    public Iterator<Scope> iterator() {
+    public Iterator<AstScope> iterator() {
         if (scopes != null) {
             return scopes.iterator();
         } else {
-            return Collections.<Scope>emptySet().iterator();
+            return Collections.<AstScope>emptySet().iterator();
         }
     }
 
-    public Signature getSignature(int offset) {
+    public AstElement getElement(int offset) {
         if (definitions != null) {
             if (!definitionsSorted) {
-                Collections.sort(definitions, new SignatureComparator());
+                Collections.sort(definitions, new ElementComparator());
                 definitionsSorted = true;
             }
             int low = 0;
             int high = definitions.size() - 1;
             while (low <= high) {
                 int mid = (low + high) >> 1;
-                Definition middle = definitions.get(mid);
+                AstDefinition middle = definitions.get(mid);
                 if (offset < middle.getNameRange().getStart()) {
                     high = mid - 1;
                 } else if (offset >= middle.getNameRange().getEnd()) {
@@ -159,14 +158,14 @@ public class Scope implements Iterable<Scope> {
 
         if (usages != null) {
             if (!usagesSorted) {
-                Collections.sort(usages, new SignatureComparator());
+                Collections.sort(usages, new ElementComparator());
                 usagesSorted = true;
             }
             int low = 0;
             int high = usages.size() - 1;
             while (low <= high) {
                 int mid = (low + high) >> 1;
-                Usage middle = usages.get(mid);
+                AstUsage middle = usages.get(mid);
                 if (offset < middle.getNameRange().getStart()) {
                     high = mid - 1;
                 } else if (offset >= middle.getNameRange().getEnd()) {
@@ -186,13 +185,13 @@ public class Scope implements Iterable<Scope> {
             int high = scopes.size() - 1;
             while (low <= high) {
                 int mid = (low + high) >> 1;
-                Scope middle = scopes.get(mid);
+                AstScope middle = scopes.get(mid);
                 if (offset < middle.getRange().getStart()) {
                     high = mid - 1;
                 } else if (offset >= middle.getRange().getEnd()) {
                     low = mid + 1;
                 } else {
-                    return middle.getSignature(offset);
+                    return middle.getElement(offset);
                 }
             }
         }
@@ -200,19 +199,19 @@ public class Scope implements Iterable<Scope> {
         return null;
     }
 
-    public List<Signature> findOccurrences(Signature signature) {
-        Definition definition = null;
-        if (signature instanceof Definition) {
-            definition = (Definition) signature;
-        } else if (signature instanceof Usage) {
-            definition = findDefinition((Usage) signature);
+    public List<AstElement> findOccurrences(AstElement element) {
+        AstDefinition definition = null;
+        if (element instanceof AstDefinition) {
+            definition = (AstDefinition) element;
+        } else if (element instanceof AstUsage) {
+            definition = findDefinition((AstUsage) element);
         }
 
         if (definition == null) {
             return Collections.emptyList();
         }
 
-        List<Signature> occurrences = new ArrayList<Signature>();
+        List<AstElement> occurrences = new ArrayList<AstElement>();
         occurrences.add(definition);
 
         findUsages(definition, occurrences);
@@ -220,20 +219,20 @@ public class Scope implements Iterable<Scope> {
         return occurrences;
     }
 
-    public Definition findDefinition(Usage usage) {
-        Scope closestScope = usage.getEnclosingScope();
+    public AstDefinition findDefinition(AstUsage usage) {
+        AstScope closestScope = usage.getEnclosingScope();
         return findDefinitionInScope(closestScope, usage);
     }
 
-    private Definition findDefinitionInScope(Scope scope, Usage usage) {
-        for (Definition definition : scope.getDefinitions()) {
+    private AstDefinition findDefinitionInScope(AstScope scope, AstUsage usage) {
+        for (AstDefinition definition : scope.getDefinitions()) {
             /** @todo also compare arity etc */
             if (definition.getName().equals(usage.getName())) {
                 return definition;
             }
         }
 
-        Scope parentScope = scope.getParent();
+        AstScope parentScope = scope.getParent();
         if (parentScope != null) {
             return parentScope.findDefinitionInScope(parentScope, usage);
         }
@@ -241,19 +240,19 @@ public class Scope implements Iterable<Scope> {
         return null;
     }
 
-    public void findUsages(Definition definition, List<Signature> usages) {
-        Scope enclosingScope = definition.getEnclosingScope();
+    public void findUsages(AstDefinition definition, List<AstElement> usages) {
+        AstScope enclosingScope = definition.getEnclosingScope();
         findUsagesInScope(enclosingScope, definition, usages);
     }
 
-    private void findUsagesInScope(Scope scope, Definition definition, List<Signature> usages) {
-        for (Usage usage : scope.getUsages()) {
+    private void findUsagesInScope(AstScope scope, AstDefinition definition, List<AstElement> usages) {
+        for (AstUsage usage : scope.getUsages()) {
             if (definition.getName().equals(usage.getName())) {
                 usages.add(usage);
             }
         }
 
-        for (Scope child : scope.getScopes()) {
+        for (AstScope child : scope.getScopes()) {
             findUsagesInScope(child, definition, usages);
         }
     }
@@ -263,12 +262,12 @@ public class Scope implements Iterable<Scope> {
         return offset >= range.getStart() && offset < range.getEnd();
     }
     
-    public Scope getClosestScope(int offset) {
-        Scope result = null;
+    public AstScope getClosestScope(int offset) {
+        AstScope result = null;
         
         if (scopes != null) {
             /** search children first */
-            for (Scope child : scopes) {
+            for (AstScope child : scopes) {
                 if (child.contains(offset)) {
                     result = child.getClosestScope(offset);
 		    break;
@@ -290,19 +289,19 @@ public class Scope implements Iterable<Scope> {
     }
     
     
-    public Definition getEnclosingDefinition(ElementKind kind, int offset) {
-        Scope context = getClosestScope(offset);
-        return context.getEnclosingDefinitionRecursively(kind);
+    public <T extends AstDefinition> T getEnclosingDefinition(Class<T> clazz, int offset) {
+        AstScope scope = getClosestScope(offset);
+        return scope.getEnclosingDefinitionRecursively(clazz);
     }
     
-    private Definition getEnclosingDefinitionRecursively(ElementKind kind) {
-        Definition binding = getBindingDefinition();
-        if (binding != null && binding.getKind() == kind) {
-            return binding;
+    private <T extends AstDefinition> T getEnclosingDefinitionRecursively(Class<T> clazz) {
+        AstDefinition binding = getBindingDefinition();
+        if (binding != null && clazz.isInstance(binding)) {
+            return (T) binding;
         } else {
-            Scope parentScope = getParent();
+            AstScope parentScope = getParent();
             if (parentScope != null) {
-                return parentScope.getEnclosingDefinitionRecursively(kind);
+                return parentScope.getEnclosingDefinitionRecursively(clazz);
             } else {
                 return null;
             }
@@ -315,16 +314,16 @@ public class Scope implements Iterable<Scope> {
         return "Scope(Binding=" + bindingDefinition + "," + getRange() + ",defs=" + getDefinitions() + ",usages=" + getUsages() + ")";
     }
 
-    private static class ScopeComparator implements Comparator<Scope> {
+    private static class ScopeComparator implements Comparator<AstScope> {
 
-        public int compare(Scope o1, Scope o2) {
+        public int compare(AstScope o1, AstScope o2) {
             return o1.getRange().getStart() < o2.getRange().getStart() ? -1 : 1;
         }
     }
 
-    private static class SignatureComparator implements Comparator<Signature> {
+    private static class ElementComparator implements Comparator<AstElement> {
 
-        public int compare(Signature o1, Signature o2) {
+        public int compare(AstElement o1, AstElement o2) {
             return o1.getNameRange().getStart() < o2.getNameRange().getStart() ? -1 : 1;
         }
     }

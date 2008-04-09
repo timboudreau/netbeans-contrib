@@ -102,6 +102,10 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
 
         String pathName = g.getName();
         String dirName = getDirName(g);
+        
+//        LOG.setLevel(Level.FINEST);
+//        LOG.log(Level.FINEST, "Pathname : " + pathName);
+//        LOG.log(Level.FINEST, "Dirname  : " + dirName);
 
         if (dirName.startsWith("conf")) {
             category = SourceCategory.CONFIGURATION;
@@ -119,6 +123,10 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
             category = SourceCategory.UTIL;
         } else if (dirName.startsWith("lib")) {
             category = SourceCategory.LIB;
+        } else if (dirName.startsWith("test")) {
+            category = SourceCategory.TESTS;
+        } else if (dirName.startsWith("scripts")) {
+            category = SourceCategory.SCRIPTS;
         } else if (dirName.startsWith("views")) {
             category = SourceCategory.VIEWS;
         }
@@ -181,6 +189,12 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
                 break;
             case MESSAGES:
                 result.add(CommonProjectActions.newFileAction());
+                break;
+            case TESTS:
+                result.add(CommonProjectActions.newFileAction());
+                break;
+            case SCRIPTS:
+                result.add(new NewArtifactAction(project, SourceCategory.SCRIPTS, "Create a new Command Script"));
                 break;
             case SERVICES:
                 result.add(new NewArtifactAction(project, SourceCategory.SERVICES, "Create a new Service"));

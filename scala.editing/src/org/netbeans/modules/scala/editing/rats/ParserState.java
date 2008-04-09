@@ -51,28 +51,30 @@ public class ParserState implements State {
     public static final int NL_ENABLE  = 0;
     public static final int NL_DISABLE = 1;    
     
-    public Stack<Integer> states = new Stack<Integer>();
+    private Stack<Integer> newlineStates = new Stack<Integer>();
     
-    private int state;
-    
-    public int state() {
-        return states.empty() ? NL_ENABLE : states.peek();
-    }        
-
     public void enterNewlineEnable() {
-        states.push(NL_ENABLE);
+        newlineStates.push(NL_ENABLE);
     }
     
-    public void exitNewlineEnable() {
-        states.pop();
+    public boolean newlineEnable() {
+        return newlineStates.empty() ? true : newlineStates.peek() == NL_ENABLE;
     }
     
     public void enterNewlineDisable() {
-        states.push(NL_DISABLE);
+        newlineStates.push(NL_DISABLE);
     }
     
     public void exitNewlineDisable() {
-        states.pop();
+        newlineStates.pop();
+    }
+    
+    public boolean newlineDisable() {
+        return ! newlineEnable();
+    }
+
+    public void exitNewlineEnable() {
+        newlineStates.pop();
     }
     
     public void start() {
@@ -88,7 +90,7 @@ public class ParserState implements State {
     }
     
     public void reset(String arg0) {
-        states.clear();
+        newlineStates.clear();
     }
 
 }

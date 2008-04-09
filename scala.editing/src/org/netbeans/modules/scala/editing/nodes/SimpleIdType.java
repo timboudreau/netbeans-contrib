@@ -37,19 +37,45 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.editing.visitors;
+package org.netbeans.modules.scala.editing.nodes;
 
-import javax.lang.model.element.Element;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class Usage extends Signature {
+public class SimpleIdType extends SimpleType {
     
-    public Usage(Element element, OffsetRange nameRange) {
-        super(element, nameRange);
+    private List<AstElement> ids;
+    
+    public SimpleIdType(String name, OffsetRange nameRange, ElementKind kind) {
+        super(name, nameRange, kind);
     }
+    
+    public void setIds(List<AstElement> ids) {
+        this.ids = ids;
+    }
+    
+    public List<AstElement> getIds() {
+        return ids == null ? Collections.<AstElement>emptyList() : ids;
+    }
+
+    @Override
+    public void htmlFormat(HtmlFormatter formatter) {
+        super.htmlFormat(formatter);
+        for (Iterator<AstElement> itr = getIds().iterator(); itr.hasNext();) {
+            formatter.appendText(itr.next().getName());
+            if (itr.hasNext()) {
+                formatter.appendText(".");
+            }
+        }
+        htmlFormatTypeArgs(formatter);
+    }        
     
 }

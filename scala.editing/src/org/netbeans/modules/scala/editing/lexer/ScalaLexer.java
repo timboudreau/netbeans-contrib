@@ -72,6 +72,7 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
      * item, so we should have a global one.
      */
     private Iterator<TokenInfo> tokenStreamItr = tokenStream.iterator();
+    private int lookahead;
 
     private ScalaLexer() {
     }
@@ -99,6 +100,7 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
          */
         tokenStream.clear();
         tokenStreamItr = tokenStream.iterator();
+        lookahead = 0;
     }
 
     public Object state() {
@@ -108,30 +110,48 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
     public Token<ScalaTokenId> nextToken() {
 
         if (!tokenStreamItr.hasNext()) {
-            /** 
-             * @Note: don't let Rats! handle EOF, which may not properly handle input's
-             * readLength when meets LexerInput.EOF
-             */
-            if (input.read() == LexerInput.EOF) {
-                return null;
-            }
-            input.backup(1);
-
             tokenStream.clear();
             scanTokens();
             tokenStreamItr = tokenStream.iterator();
-            input.backup(input.readLength());
+            
+            /** 
+             * @Bug of LexerInput.backup(int) ?
+             * backup(0) will cause input.readLength() increase 1
+             */
+            lookahead = input.readLength();
+            if (lookahead > 0) {
+                input.backup(lookahead);
+            }
         }
 
         if (tokenStreamItr.hasNext()) {
             TokenInfo tokenInfo = tokenStreamItr.next();
 
+            if (tokenInfo.length == 0) {
+                // EOF
+                return null;
+            }
+
+            // read token's chars according to tokenInfo.length
             for (int i = 0; i < tokenInfo.length; i++) {
                 input.read();
             }
 
-            int tokenLength = input.readLength();
+            // see if needs to lookahead, if true, perform it
+            lookahead -= tokenInfo.length;
+            // to cheat incremently lexer, we needs to lookahead one more char when
+            // tokenStream.size() > 1 (batched tokens that are not context free),
+            // so, when modification happens extractly behind latest token, will
+            // force lexer relexer from the 1st token of tokenStream
+            int lookahead1 = tokenStream.size() > 1 ? lookahead + 1 : lookahead;
+            if (lookahead1 > 0) {                
+                for (int i = 0; i < lookahead1; i++) {
+                    input.read();
+                }
+                input.backup(lookahead1);
+            }
 
+            int tokenLength = input.readLength();
             return createToken(tokenInfo.id, tokenLength);
         } else {
             assert false : "unrecognized input" + input.read();
@@ -142,7 +162,7 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
     private Token<ScalaTokenId> createToken(ScalaTokenId id, int length) {
         String fixedText = id.fixedText();
 
-        return (fixedText != null)
+        return fixedText != null
                 ? tokenFactory.getFlyweightToken(id, fixedText)
                 : tokenFactory.createToken(id, length);
     }
@@ -158,7 +178,7 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
             Result r = scanner.pToken(0);
             if (r.hasValue()) {
                 GNode node = (GNode) r.semanticValue();
-                flattenToTokenSteam(node);
+                flattenToTokenStream(node);
                 return r;
             } else {
                 System.err.println(r.parseError().msg);
@@ -170,9 +190,26 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
         }
     }
 
-    private void flattenToTokenSteam(GNode node) {
-        assert (node.size() > 0) : "This generic node:" + node.getName() +
-                " is defined with non generic child!, it seems it has a void child, check you rats file.";
+    private void flattenToTokenStream(GNode node) {
+        if (node.size() == 0) {
+            /** @Note: 
+             * When node.size() == 0, it's a void node. This should be limited to 
+             * EOF when you define lexical rats.
+             * 
+             * And in Rats!, EOF is !_, the input.readLength() will return 0
+             */
+            assert (input.readLength() == 0) :
+                    "This generic node: " + node.getName() +
+                    " is a void node, this should happen only on EOF. Check you rats file.";
+
+            TokenInfo tokenInfo = new TokenInfo();
+            tokenInfo.length = 0;
+            tokenInfo.id = null;
+            tokenStream.add(tokenInfo);
+
+            return;
+        }
+
 
         for (int i = 0; i < node.size(); i++) {
             Object child = node.get(i);
@@ -182,9 +219,10 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
             }
 
             if (child instanceof GNode) {
-                flattenToTokenSteam((GNode) child);
+                flattenToTokenStream((GNode) child);
             } else if (child instanceof Pair) {
-                assert false : "Pair:" + child + " to be process, do you add 'flatten' option on grammar file?";
+                assert false :
+                        "Pair:" + child + " to be process, do you add 'flatten' option on grammar file?";
             } else if (child instanceof String) {
                 int length = ((String) child).length();
                 TokenInfo tokenInfo = new TokenInfo();
@@ -213,7 +251,7 @@ public class ScalaLexer implements Lexer<ScalaTokenId> {
      */
     private static class LexerInputReader extends Reader {
 
-        private LexerInput input;
+        private final LexerInput input;
 
         LexerInputReader(LexerInput input) {
             this.input = input;

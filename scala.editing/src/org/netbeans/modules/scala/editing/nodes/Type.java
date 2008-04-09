@@ -37,32 +37,19 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.editing.visitors;
+package org.netbeans.modules.scala.editing.nodes;
 
-import javax.lang.model.element.Element;
+import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class Definition extends Signature {
+public class Type extends AstDefinition {
     
-    private Scope bindingScope;
-    
-    public Definition(Element element, OffsetRange nameRange) {
-        super(element, nameRange);
+    public Type(String name, OffsetRange nameRange, AstScope bindingScope) {
+        super(name, nameRange, bindingScope, ElementKind.CLASS);
     }
-    
-    /**
-     * @Note: bindingScope will be set when new {@link Scope#Scope(Definition, OffsetRange)}
-     */
-    protected void setBindingScope(Scope bindingScope) {
-        this.bindingScope = bindingScope;
-    }
-    
-    public Scope getBindingScope() {
-        assert bindingScope != null : "Each definition should set binding scope!";
-        return bindingScope;
-    }
+
 }

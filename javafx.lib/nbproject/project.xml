@@ -70,6 +70,7 @@ made subject to such option by the copyright holder.
             <public-packages>
                 <package>com.sun.javafx.api</package>
                 <package>com.sun.javafx.api.tree</package>
+                <package>com.sun.javafx.runtime.sequence</package>
                 <package>com.sun.source.tree</package>
                 <package>com.sun.source.util</package>
                 <package>com.sun.tools.javac.tree</package>
@@ -77,6 +78,7 @@ made subject to such option by the copyright holder.
                 <package>com.sun.tools.javafx.antlr</package>
                 <package>com.sun.tools.javafx.api</package>
                 <package>com.sun.tools.javafx.main</package>
+                <package>com.sun.tools.javafx.script</package>
                 <package>com.sun.tools.javafx.tree</package>
                 <package>javax.lang.model</package>
                 <package>javax.lang.model.element</package>

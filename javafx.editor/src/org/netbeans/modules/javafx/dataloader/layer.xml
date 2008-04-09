@@ -112,6 +112,12 @@ made subject to such option by the copyright holder.
 
                 <folder name="Toolbars">
                     <folder name="Default">
+                        <file name="toggle-fx-preview-execution">
+                            <attr name="position" intvalue="1100"/>
+                        </file>
+                        <file name="toggle-reset-fx-preview-execution">
+                            <attr name="position" intvalue="1200"/>
+                        </file>
                         <file name="comment">
                             <attr name="position" intvalue="20200"/>
                         </file>

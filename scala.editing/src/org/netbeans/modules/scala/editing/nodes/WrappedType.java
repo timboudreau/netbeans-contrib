@@ -36,43 +36,62 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.scala.editing.nodes;
 
-package org.netbeans.modules.scala.editing.visitors;
-
-import javax.lang.model.element.Name;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author dcaoyuan
  */
-public class ScalaName implements Name {
+public class WrappedType extends TypeRef {
     
-    private String name;
-    
-    public ScalaName(String name) {
-        this.name = name;
-        name.subSequence(0, name.length());
+    public enum More {
+
+        Pure,
+        Star,
+        ByName,
+    }
+           
+    private More more;
+    private TypeRef wrappedType;
+
+    public WrappedType(String name, OffsetRange nameRange, ElementKind kind) {
+        super(name, nameRange, kind);
     }
 
-    public boolean contentEquals(CharSequence arg0) {
-        return name.contentEquals(arg0);
+    public void setWrappedType(TypeRef wrappedType) {
+        this.wrappedType = wrappedType;
     }
 
-    public int length() {
-        return name.length();
+    public TypeRef getWrappedType() {
+        return wrappedType;
     }
 
-    public char charAt(int arg0) {
-        return name.charAt(arg0);
+    public void setMore(More more) {
+        this.more = more;
     }
 
-    public CharSequence subSequence(int arg0, int arg1) {
-        return name.subSequence(arg0, arg1);
+    public More getMore() {
+        return more;
     }
 
     @Override
-    public String toString() {
-        return name;
+    public void htmlFormat(HtmlFormatter formatter) {
+        super.htmlFormat(formatter);
+        switch (more) {
+            case Star:
+                wrappedType.htmlFormat(formatter);
+                formatter.appendText("*");
+                break;
+            case ByName:
+                formatter.appendText("\u21D2");
+                wrappedType.htmlFormat(formatter);
+                break;
+            default:
+                wrappedType.htmlFormat(formatter);                
+        }
     }
-    
 }
