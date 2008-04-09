@@ -49,7 +49,11 @@ import org.netbeans.installer.utils.helper.ExecutionMode;
 import org.netbeans.installer.utils.helper.Platform;
 import org.netbeans.installer.wizard.components.WizardComponent;
 import org.netbeans.installer.wizard.components.WizardSequence;
-import org.netbeans.installer.wizard.components.actions.CreateBundleAction;
+// Modified by Igor Nikiforov
+// Former content
+//import org.netbeans.installer.wizard.components.actions.CreateBundleAction;
+import org.netbeans.installer.wizard.components.actions.sunstudio.CreateBundleAction;
+// End of modifictaon
 import org.netbeans.installer.wizard.components.actions.CreateMacOSAppLauncherAction;
 import org.netbeans.installer.wizard.components.actions.CreateNativeLauncherAction;
 import org.netbeans.installer.wizard.components.actions.DownloadConfigurationLogicAction;

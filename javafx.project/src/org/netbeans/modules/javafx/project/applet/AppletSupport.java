@@ -56,6 +56,7 @@ import org.netbeans.api.java.classpath.ClassPath.Entry;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.javafx.source.JavaFXSourceUtils;
 import org.netbeans.modules.javafx.project.JavaFXProjectUtil;
 import org.openide.*;
 import org.openide.modules.SpecificationVersion;
@@ -139,11 +140,8 @@ public class AppletSupport {
     }    
 
     public static boolean isJavaFXApplet(final FileObject file) {
-        if (file == null) {
-            return false;
-        }
-        
-        return false; //not implemented yet > disabled
+        // this code was moved to the JavaFX Source module because in this module the wrong classes (from javac lib) are loaded
+        return JavaFXSourceUtils.isJavaFXApplet(file);
     }    
     
     

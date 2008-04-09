@@ -56,11 +56,13 @@ made subject to such option by the copyright holder.
         <uptodate property="parserv3.uptodate" srcfile="${jfxc.grammar}"
                   targetfile="${antlr.generated.dir}/${antlr.grammarv3}Lexer.java"/>
         <property name="local.grammar" value="${antlr.generated.dir}/${antlr.grammarv3}.g"/>
-        <copy file="${jfxc.grammar}" todir="${antlr.generated.dir}">
-            <filterset>
-                <filter token="lexer.package" value="org.netbeans.lib.javafx.lexer"/>
-            </filterset>
-        </copy>
+
+        <copy file="${jfxc.grammar}" todir="${antlr.generated.dir}"/>
+        <replace dir="${antlr.generated.dir}">
+            <include name="*.g"/>
+            <replacetoken><![CDATA[package com.sun.tools.javafx.antlr;]]></replacetoken>
+            <replacevalue><![CDATA[package org.netbeans.lib.javafx.lexer;]]></replacevalue>
+        </replace>
         <antcall target="_generate-parserv3"/>
         <delete>
             <fileset dir="${antlr.generated.dir}" includes="${antlr.grammarv3}Parser*"/>

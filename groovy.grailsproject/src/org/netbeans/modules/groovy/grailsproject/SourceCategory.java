@@ -41,6 +41,8 @@ public enum SourceCategory {    NONE,
                                 TAGLIB,
                                 UTIL,
                                 VIEWS,
+                                TESTS,
+                                SCRIPTS,
                                 LIB;
 
 }

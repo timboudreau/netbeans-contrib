@@ -53,11 +53,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.tools.JavaFileObject;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -192,9 +194,7 @@ public final class JavaFXSource {
                 Iterable<? extends CompilationUnitTree> trees = cc.getJavafxcTask().parse();
 //                new JavaFileObject[] {currentInfo.jfo});
 
-                System.err.println("Parsed to: ");
                 for (CompilationUnitTree cut : trees) {
-                    System.err.println("  cut:" + cut);
                     cc.setCompilationUnit(cut);
                 }
                 /*                assert trees != null : "Did not parse anything";        //NOI18N
@@ -478,6 +478,18 @@ out:            for (Iterator<Collection<Request>> it = CompilationJob.finishedR
         return th;
     }
     
+    String getText() {
+        if ((listener == null) || (listener.getDocument() == null)) {
+            return "";
+        }
+        try {
+            return listener.getDocument().getText(0, listener.getDocument().getLength());
+        } catch (BadLocationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return "";
+    }
+    
     private static void handleAddRequest (final Request nr) {
         assert nr != null;
         //Issue #102073 - removed running task which is readded is not performed
@@ -495,7 +507,23 @@ out:            for (Iterator<Collection<Request>> it = CompilationJob.finishedR
         }
     }
     
-    
+        /**
+     * Performs the given task when the scan finished. When no background scan is running
+     * it performs the given task synchronously. When the background scan is active it queues
+     * the given task and returns, the task is performed when the background scan completes by
+     * the thread doing the background scan.
+     * @param task to be performed
+     * @param shared if true the java compiler may be reused by other {@link org.netbeans.api.java.source.CancellableTasks},
+     * the value false may have negative impact on the IDE performance.
+     * @return {@link Future} which can be used to find out the sate of the task {@link Future#isDone} or {@link Future#isCancelled}.
+     * The caller may cancel the task using {@link Future#cancel} or wait until the task is performed {@link Future#get}.
+     * @throws IOException encapsulating the exception thrown by {@link CancellableTasks#run}
+     * @since 0.12
+     */
+    public Future<Void> runWhenScanFinished (final Task<CompilationController> task, final boolean shared) throws IOException {
+        return CompilationJob.runWhenScanFinished(this, task, shared);
+    }
+
     /**
      * Returns a {@link JavaSource} instance associated to the given {@link javax.swing.Document},
      * it returns null if the {@link Document} is not

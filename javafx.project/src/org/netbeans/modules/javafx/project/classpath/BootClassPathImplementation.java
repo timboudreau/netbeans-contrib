@@ -62,7 +62,6 @@ final class BootClassPathImplementation implements ClassPathImplementation, Prop
 
     private static final String PLATFORM_ACTIVE = "platform.active";        //NOI18N
     private static final String ANT_NAME = "platform.ant.name";             //NOI18N
-    private static final String J2SE = "j2se";                              //NOI18N
 
     private final PropertyEvaluator evaluator;
     private JavaPlatformManager platformManager;

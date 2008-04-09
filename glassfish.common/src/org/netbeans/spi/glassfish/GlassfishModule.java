@@ -70,10 +70,15 @@ public interface GlassfishModule {
     public static final String DEBUG_MODE = "debugMode"; // NOI18N
     public static final String PROFILE_MODE = "profileMode"; // NOI18N
     
+    public static final String COMET_FLAG = "v3.grizzly.cometSupport"; // NOI18N
+    
     // Contract provider constants (identify the different containers in V3)
-    public static final String WEB_CONTAINER = "web_ContractProvider";
-    public static final String JRUBY_CONTAINER = "jruby_ContractProvider";
+    public static final String WEB_CONTAINER = "web"; // NOI18N
+    public static final String JRUBY_CONTAINER = "jruby"; // NOI18N
 
+    // Resource types
+    public static final String JDBC_RESOURCE = "jdbc-resource"; // NOI18N
+    public static final String JDBC_CONNECTION_POOL = "jdbc-connection-pool"; // NOI18N
     
     /**
      * Enum for the current state of the server (stopped, running, etc.)

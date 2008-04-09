@@ -187,7 +187,7 @@ public class JavaFXProjectUtil {
             return pm.getDefaultPlatform();
         }
         else {
-            JavaPlatform[] installedPlatforms = pm.getPlatforms(null, new Specification ("j2se",null));   //NOI18N
+            JavaPlatform[] installedPlatforms = pm.getPlatforms(null, new Specification ("JavaFX",null));   //NOI18N
             for (int i=0; i<installedPlatforms.length; i++) {
                 String antName = (String) installedPlatforms[i].getProperties().get("platform.ant.name");        //NOI18N
                 if (antName != null && antName.equals(activePlatformId)) {

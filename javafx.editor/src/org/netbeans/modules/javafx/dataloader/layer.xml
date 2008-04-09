@@ -56,6 +56,12 @@ made subject to such option by the copyright holder.
             <folder name="x-fx">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.dataloader.Bundle"/>
                 
+                <folder name="HyperlinkProviders">
+                    <file name="JavaFXHyperlinkProvider.instance">
+                        <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.editor.JavaFXHyperlinkProvider"/>
+                        <attr name="instanceOf" stringvalue="org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt"/>
+                    </file>
+                </folder>
                 <folder name="CompletionProviders">
                     <file name="org-netbeans-modules-javafx-editor-JavaFXCompletionProvider.instance"/>
                 </folder>
@@ -94,8 +100,24 @@ made subject to such option by the copyright holder.
                         </folder>
                     </folder>
                 </folder>
+
+                <folder name="Keybindings">
+                    <folder name="NetBeans">
+                        <folder name="Defaults">
+                            <file name="org-netbeans-modules-javafx-editor-keybindings.xml" url="DefaultKeyBindings.xml"/> 
+                        </folder>
+                    </folder>
+                </folder>
+
+
                 <folder name="Toolbars">
                     <folder name="Default">
+                        <file name="toggle-fx-preview-execution">
+                            <attr name="position" intvalue="1100"/>
+                        </file>
+                        <file name="toggle-reset-fx-preview-execution">
+                            <attr name="position" intvalue="1200"/>
+                        </file>
                         <file name="comment">
                             <attr name="position" intvalue="20200"/>
                         </file>
@@ -103,6 +125,11 @@ made subject to such option by the copyright holder.
                             <attr name="position" intvalue="20300"/>
                         </file>
                     </folder>
+                </folder>
+                
+                <folder name="CompletionProviders">
+                    <file name="org-netbeans-modules-javafx-editor-completion-JavaFXCompletionProvider.instance"/>
+                <!--    <file name="org-netbeans-modules-java-editor-javadoc-JavadocCompletionProvider.instance"/> -->
                 </folder>
 
                 <file name="EditorKit.instance">

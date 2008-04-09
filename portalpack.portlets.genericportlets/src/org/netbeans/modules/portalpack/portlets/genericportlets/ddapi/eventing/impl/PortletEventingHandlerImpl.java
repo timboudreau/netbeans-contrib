@@ -230,6 +230,12 @@ public class PortletEventingHandlerImpl implements PortletEventingHandler {
             }
             //create body
             MethodInfo processEventMethod = JavaCodeUtil.getHandleProcessEventMethod(methods);
+            if(processEventMethod != null)
+            {
+                NotifyDescriptor nd = new NotifyDescriptor.Message(
+                        NbBundle.getMessage(PortletEventingHandlerImpl.class, "MSG_WARNING_PROCESS_EVENT_METHOD_EXISTS"), NotifyDescriptor.WARNING_MESSAGE);
+                DialogDisplayer.getDefault().notifyLater(nd);
+            }
             
             JavaCodeUtil.addProcessEventCode(fileObjs[0], portletClassName, processEventMethod, eventDialog.getSuggestedMethodName(), event);
             
@@ -261,6 +267,7 @@ public class PortletEventingHandlerImpl implements PortletEventingHandler {
         } else {
             eventName = event.getName();
         }
+        eventName = eventName.replace(".", "_");
         String prefix = "handleProcess" + eventName + "Event";
 
         List list = new ArrayList();

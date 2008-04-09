@@ -59,13 +59,11 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
-import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
@@ -87,7 +85,6 @@ import org.netbeans.modules.form.FormModel;
 import org.netbeans.modules.form.FormProperty;
 import org.netbeans.modules.form.FormSettings;
 import org.netbeans.modules.form.RADComponent;
-import org.netbeans.modules.form.RADProperty;
 import org.netbeans.modules.form.RADVisualComponent;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -347,14 +344,21 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
                     mnemonic = comp.getPropertyByName(FormHandler.MNEMONIC_PROP);
                 }
                 if (mnemonic != null) {
-                    if (FormHandler.isUserCode(mnemonic)) {
+                    if (FormHandler.getUserCode(mnemonic) != null) {
                         NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getBundle(ResultPanel.class).getString("MSG_UserCodeNotSupported")); // NOI18N
                         DialogDisplayer.getDefault().notify(nd);
                         return;
                     }
                     Property text = comp.getPropertyByName(FormHandler.TEXT_PROP);
-                    String t = FormHandler.getPropertyString(text);
-                    descriptor = createPropertyEditorDescriptor((PropertyPanel) panel, NbBundle.getMessage(ResultPanel.class, "mnemonic_dialog", propertyName, comp.getName(), t), prop);     //NOI18N
+					String userCode=FormHandler.getUserCode(text);
+					if (userCode == null) {
+//						normal string
+						String t = FormHandler.getPropertyString(text);
+						descriptor = createPropertyEditorDescriptor((PropertyPanel) panel, NbBundle.getMessage(ResultPanel.class, "mnemonic_dialog_normal", propertyName, comp.getName(), t), prop);     //NOI18N
+					} else {
+//						usercode
+						descriptor = createPropertyEditorDescriptor((PropertyPanel) panel, NbBundle.getMessage(ResultPanel.class, "mnemonic_dialog_usercode", propertyName, comp.getName(), userCode), prop);     //NOI18N
+					}
                     int code = FormHandler.getPropertyInteger(mnemonic);
                     if (code != 0) {
                         String s = "" + (char) code;
@@ -408,54 +412,6 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
      */
     public void setAutoI18nCBSelected(boolean s) {
         autoI18nCheckBox.setSelected(s);
-    }
-
-    /**
-     * XXX remove
-     * obsolete
-     * Shows property editor for a component
-     * @param comp the component which property is edited
-     * @param beanPropertyName which property
-     */
-    private void showEditor(RADComponent comp, String beanPropertyName) {
-        try {
-            RADProperty props[] = comp.getAllBeanProperties();
-            RADProperty rProp = comp.getBeanProperty("icon");   //NOI18N
-            //java.util.List actionProps = comp.getActionProperties();
-//            RADComponentNode rNode = new RADComponentNode(comp);
-//            FormProperty fProp = rNode.getProperty(beanPropertyName);
-//            Action[] actions = rNode.getActions(false);
-
-//            java.util.List actionProps = comp.getActionProperties();
-//                Iterator iter = actionProps.iterator();
-//                while (iter.hasNext()) {
-//                    final RADProperty prop = (RADProperty)iter.next();
-//                    Action action = PropertyAction.createIfEditable(prop);
-//                    if (action != null) {
-//                        action.actionPerformed(null);
-//                    }
-//                }
-
-//            ((Action)Array.get(actions, 17)).actionPerformed(null);
-//            
-//            for (int i = 0; i < actions.length; i++) {
-//                Action action = actions[i];
-//                if(action instanceof org.netbeans.modules.form.actions.PropertyAction) {
-//                    System.out.println("### PrppertyAction " + action);
-//                    ((PropertyAction) action).actionPerformed(null);
-//                }
-//            }
-
-
-            FormProperty prop = comp.getBeanProperty(beanPropertyName);
-            //new PropertyAction(prop).actionPerformed(null);
-
-            Action action = PropertyAction.createIfEditable(prop);
-            action.actionPerformed(null);
-
-        } catch (Throwable th) {
-            th.printStackTrace();
-        }
     }
 
     /**
@@ -640,7 +596,6 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         errorCheckBox.setSelected(true);
         errorCheckBox.setText("Errors:");
         errorCheckBox.setToolTipText("Show or hide errors");
-        errorCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         errorCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
         errorCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -652,7 +607,6 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         warningCheckBox.setSelected(true);
         warningCheckBox.setText("Warnings:");
         warningCheckBox.setToolTipText("Show or hide warnings");
-        warningCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         warningCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
         warningCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -664,7 +618,6 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         infoCheckBox.setSelected(true);
         infoCheckBox.setText("Information:");
         infoCheckBox.setToolTipText("Show or hide infos");
-        infoCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         infoCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
         infoCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -673,7 +626,6 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         });
 
         checkButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/a11ychecker/output/refreshIcon.png"))); // NOI18N
-        checkButton.setMnemonic('r');
         checkButton.setToolTipText("Refresh table to reflect current state of designed form.");
         checkButton.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         checkButton.addActionListener(new java.awt.event.ActionListener() {
@@ -691,7 +643,6 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         });
 
         TraversalEditorButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/a11ychecker/output/traversalPolicyIcon.png"))); // NOI18N
-        TraversalEditorButton.setMnemonic('t');
         TraversalEditorButton.setText(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.TraversalEditorButton.text")); // NOI18N
         TraversalEditorButton.setToolTipText(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.TraversalEditorButton.toolTipText")); // NOI18N
         TraversalEditorButton.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -709,7 +660,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .addContainerGap()
-                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 1058, Short.MAX_VALUE))
+                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 706, Short.MAX_VALUE))
                     .add(layout.createSequentialGroup()
                         .add(13, 13, 13)
                         .add(errorCheckBox)
@@ -717,7 +668,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
                         .add(warningCheckBox)
                         .add(34, 34, 34)
                         .add(infoCheckBox)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 645, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 239, Short.MAX_VALUE)
                         .add(autoI18nCheckBox)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(TraversalEditorButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)

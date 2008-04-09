@@ -42,6 +42,8 @@ package org.netbeans.api.javafx.source;
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javafx.api.JavafxcTrees;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import org.netbeans.api.lexer.TokenHierarchy;
 
 /**
@@ -64,13 +66,21 @@ public class CompilationInfo {
     }
 
     /**
-     * Return the {@link Trees} service of the javafxc represented by this {@link CompilationInfo}.
+     * Return the {@link com.sun.source.util.Trees} service of the javafxc represented by this {@link CompilationInfo}.
      * @return javafxc Trees service
      */
     public JavafxcTrees getTrees() {
          return JavafxcTrees.instance(getJavafxcTask());
     }
 
+    public Types getTypes() {
+         return getJavafxcTask().getTypes();
+    }
+    
+    public Elements getElements() {
+	return getJavafxcTask().getElements();
+    }
+    
     JavafxcTask getJavafxcTask() {
         if (cTask == null) {
             cTask = source.createJavafxcTask();

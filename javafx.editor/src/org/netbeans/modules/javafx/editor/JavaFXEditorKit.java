@@ -40,21 +40,33 @@
  */
 package org.netbeans.modules.javafx.editor;
 
+import java.awt.Component;
+import java.awt.event.ActionEvent;
 import java.util.Map;
 import javax.swing.Action;
-import javax.swing.text.Document;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.TextAction;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JToggleButton;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentEvent.ElementChange;
+import javax.swing.event.DocumentEvent.EventType;
 import org.netbeans.editor.BaseDocument;
 import javax.swing.text.*;
 import org.netbeans.editor.Settings;
 import org.netbeans.editor.SettingsNames;
+import org.netbeans.modules.javafx.preview.JavaFXModel;
 import org.netbeans.modules.lexer.editorbridge.LexerEditorKit;
 import org.openide.loaders.DataObject;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.editor.Syntax;
 import org.netbeans.api.java.queries.SourceLevelQuery;
+import org.netbeans.editor.BaseAction;
+import org.netbeans.editor.BaseKit;
 import org.netbeans.editor.Formatter;
+import org.netbeans.editor.LocaleSupport;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -101,21 +113,21 @@ public class JavaFXEditorKit extends LexerEditorKit{
     @Override
     protected Action[] createActions() {
         Action[] superActions = super.createActions();
-//        ResetFXPreviewExecution resetAction = new ResetFXPreviewExecution();
+        ResetFXPreviewExecution resetAction = new ResetFXPreviewExecution();
         Action[] javafxActions = new Action[] {
             new CommentAction("//"),
             new UncommentAction("//"),
-//TODO XXX removed preview, reset, and error detection buttons            
-//            new ToggleFXPreviewExecution(resetAction),
-//            resetAction,
+            new ToggleFXPreviewExecution(resetAction),
+            resetAction,
             new JavaDefaultKeyTypedAction(),
             new JavaDeleteCharAction(deletePrevCharAction, false),
+            new JavaFXGoToSourceAction(),
             new JavaInsertBreakAction()
         };
         return TextAction.augmentList(superActions, javafxActions);
     }
     
-/*    
+    
     public static class ToggleFXPreviewExecution extends BaseAction implements org.openide.util.actions.Presenter.Toolbar {
         PreviewButton b = null;
         ResetFXPreviewExecution resetAction = null;
@@ -139,7 +151,7 @@ public class JavaFXEditorKit extends LexerEditorKit{
                     resetAction.setActionButtonEnabled(true);
                     doc.enableExecution(true);
                     putValue(SHORT_DESCRIPTION,NbBundle.getBundle(JavaFXEditorKit.class).getString("disable-fx-preview-execution"));
-                    JavaFXPier.showPreview(doc);
+                    JavaFXModel.showPreview(doc, false);
                 }
             }else{
                 b.setSelected(!b.isSelected());
@@ -234,10 +246,7 @@ public class JavaFXEditorKit extends LexerEditorKit{
         
         public void actionPerformed(ActionEvent evt, JTextComponent target) {
             JavaFXDocument doc = getJavaFXDocument(target);
-            
-            if(doc != null && doc.executionAllowed()){
-                JavaFXPier.showPreview(doc);
-            }
+            JavaFXModel.showPreview(doc, true);
         }
         
         private JavaFXDocument getJavaFXDocument(JTextComponent comp){
@@ -265,7 +274,7 @@ public class JavaFXEditorKit extends LexerEditorKit{
             return b;
         }
     }    
-*/    
+    
     public static class JavaDefaultKeyTypedAction extends ExtDefaultKeyTypedAction {
 
         @Override
@@ -384,7 +393,34 @@ public class JavaFXEditorKit extends LexerEditorKit{
         @Override
         protected void charBackspaced(BaseDocument doc, int dotPos, Caret caret, char ch)
         throws BadLocationException {
-            BracketCompletion.charBackspaced(doc, dotPos, caret, ch);
+            BracketCompletion.charBackspaced(doc, dotPos, ch);
+        }
+    }
+
+    private static class JavaFXGoToSourceAction extends BaseAction {
+
+        static final long serialVersionUID =-6440495023918097760L;
+
+        public JavaFXGoToSourceAction() {
+            super(gotoSourceAction,
+                  ABBREV_RESET | MAGIC_POSITION_RESET | UNDO_MERGE_RESET
+                  | SAVE_POSITION
+                 );
+            putValue(TRIMMED_TEXT, LocaleSupport.getString("goto-source-trimmed"));  //NOI18N            
+        }
+
+        public void actionPerformed(ActionEvent evt, JTextComponent target) {
+            if (target != null && (target.getDocument() instanceof BaseDocument)) {
+                GoToSupport.goTo((BaseDocument) target.getDocument(), target.getCaretPosition(), true);
+            }
+        }
+        
+        public String getPopupMenuText(JTextComponent target) {
+            return NbBundle.getBundle(JavaFXEditorKit.class).getString("goto_source_open_source_not_formatted"); //NOI18N
+        }
+        
+        protected Class getShortDescriptionBundleClass() {
+            return BaseKit.class;
         }
     }
     

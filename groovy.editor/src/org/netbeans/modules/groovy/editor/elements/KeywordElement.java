@@ -40,11 +40,7 @@
  */
 package org.netbeans.modules.groovy.editor.elements;
 
-import java.util.Collections;
-import java.util.Set;
-import org.netbeans.modules.gsf.api.Element;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.Modifier;
 
 /**
  * Element describing a Groovy keyword
@@ -52,7 +48,7 @@ import org.netbeans.modules.gsf.api.Modifier;
  * @author Tor Norbye
  * @author Gopala Krishnan S
  */
-public class KeywordElement implements Element {
+public class KeywordElement extends GroovyElement {
     private final String name;
 
     /** Creates a new instance of DefaultComKeyword */
@@ -68,11 +64,4 @@ public class KeywordElement implements Element {
         return ElementKind.KEYWORD;
     }
 
-    public Set<Modifier> getModifiers() {
-        return Collections.emptySet();
-    }
-
-    public String getIn() {
-        return null;
-    }
 }

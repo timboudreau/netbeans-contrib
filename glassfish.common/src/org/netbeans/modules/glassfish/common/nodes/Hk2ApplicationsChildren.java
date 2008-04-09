@@ -41,7 +41,6 @@
 
 package org.netbeans.modules.glassfish.common.nodes;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -51,13 +50,11 @@ import java.util.logging.Logger;
 import org.netbeans.modules.glassfish.common.CommandRunner;
 import org.netbeans.spi.glassfish.AppDesc;
 import org.netbeans.spi.glassfish.Decorator;
-import org.netbeans.spi.glassfish.DecoratorFactory;
 import org.netbeans.spi.glassfish.GlassfishModule;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
-import org.openide.util.lookup.Lookups;
 
 
 /**
@@ -89,7 +86,7 @@ public class Hk2ApplicationsChildren extends Children.Keys<Object> implements Re
                         java.util.Map<String, List<AppDesc>> appMap = mgr.getApplications(null);
                         for(Entry<String, List<AppDesc>> entry: appMap.entrySet()) {
                             List<AppDesc> apps = entry.getValue();
-                            Decorator decorator = findDecorator(entry.getKey(), Hk2ItemNode.J2EE_APPLICATION);
+                            Decorator decorator = DecoratorManager.findDecorator(entry.getKey(), Hk2ItemNode.J2EE_APPLICATION);
                             for(AppDesc app: apps) {
                                 keys.add(new Hk2ItemNode(lookup, app, decorator));
                             }
@@ -102,31 +99,6 @@ public class Hk2ApplicationsChildren extends Children.Keys<Object> implements Re
                 }
             }
         }, 0);
-    }
-    
-    private static volatile java.util.Map<String, Decorator> decoratorMap;
-    
-    private static synchronized void initDecorators() {
-        if(decoratorMap != null) {
-            return;
-        }
-        
-        // Find all decorator support, categorize by type.
-        decoratorMap = new HashMap<String, Decorator>();;
-        for (DecoratorFactory decoratorFactory : 
-                Lookups.forPath("Servers/GlassFish").lookupAll(DecoratorFactory.class)) {
-            java.util.Map<String, Decorator> map = decoratorFactory.getAllDecorators();
-            decoratorMap.putAll(map);
-        }
-    }
-    
-    private Decorator findDecorator(String type, Decorator defaultDecorator) {
-        if(decoratorMap == null) {
-            initDecorators();
-        }
-        
-        Decorator d = decoratorMap.get(type);
-        return d != null ? d : defaultDecorator;
     }
     
     @Override

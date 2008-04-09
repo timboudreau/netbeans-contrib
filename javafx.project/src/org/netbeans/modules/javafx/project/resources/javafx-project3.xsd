@@ -65,6 +65,14 @@ made subject to such option by the copyright holder.
                                 </xsd:restriction>
                             </xsd:simpleType>
                         </xsd:attribute>
+                        <xsd:attribute name="explicit-javac-supported" use="optional">
+                            <xsd:simpleType>
+                                <xsd:restriction base="xsd:NMTOKEN">
+                                    <xsd:enumeration value="true"/>
+                                    <xsd:enumeration value="false"/>
+                                </xsd:restriction>
+                            </xsd:simpleType>
+                        </xsd:attribute>
                     </xsd:complexType>
                 </xsd:element>
                 <xsd:element name="web-service-clients" minOccurs="0" type="webServiceClientsType"/>

@@ -59,6 +59,7 @@ public final class Factory {
      * 
      * @param fo file object describing the iterator
      * @return the Feature On Demand-ready iterator
+     * @throws java.io.IOException 
      */
     public static WizardDescriptor.InstantiatingIterator newProject (FileObject fo) throws IOException {
         return FeatureOnDemanWizardIterator.newProject(fo);
@@ -68,6 +69,8 @@ public final class Factory {
      * initialization.
      * 
      * @param fo file object to read the action from
+     * @return
+     * @throws java.io.IOException 
      */
     public static ActionListener newAction(FileObject fo) throws IOException {
         return new FeatureAction(fo);

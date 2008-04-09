@@ -65,7 +65,7 @@ public final class JavaFXBracesMatcher implements BracesMatcher, BracesMatcherFa
         JFXTokenId.LPAREN, JFXTokenId.RPAREN,
         JFXTokenId.LBRACKET, JFXTokenId.RBRACKET, 
         JFXTokenId.LBRACE, JFXTokenId.RBRACE,
-        JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, JFXTokenId.RBRACE_QUOTE_STRING_LITERAL
+        JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, JFXTokenId.RBRACE_LBRACE_STRING_LITERAL
     };
     
     
@@ -117,13 +117,16 @@ public final class JavaFXBracesMatcher implements BracesMatcher, BracesMatcherFa
             TokenSequence<? extends TokenId> seq = sequences.get(sequences.size() - 1);
             seq.move(originOffset);
             if (seq.moveNext()) {
-                if (seq.token().id() == JFXTokenId.STRING_LITERAL ||
-                    seq.token().id() == JFXTokenId.COMMENT ||
-                    seq.token().id() == JFXTokenId.LINE_COMMENT
-                ) {
+                final TokenId id = seq.token().id();
+                if (id == JFXTokenId.STRING_LITERAL ||
+                    id == JFXTokenId.QUOTE_LBRACE_STRING_LITERAL ||
+                    id == JFXTokenId.RBRACE_QUOTE_STRING_LITERAL ||
+                    id == JFXTokenId.RBRACE_LBRACE_STRING_LITERAL ||
+                    id == JFXTokenId.COMMENT ||
+                    id == JFXTokenId.LINE_COMMENT ) {
                     int offset = BracesMatcherSupport.matchChar(
                         context.getDocument(), 
-                        backward ? originOffset : originOffset + 1, 
+                        backward ? originOffset : originOffset /*+ 1*/, 
                         backward ? seq.offset() : seq.offset() + seq.token().length(), 
                         originChar,
                         matchingChar);
@@ -180,8 +183,7 @@ public final class JavaFXBracesMatcher implements BracesMatcher, BracesMatcherFa
     }
     
     public static List<TokenSequence<? extends TokenId>> getEmbeddedTokenSequences(
-        TokenHierarchy<?> th, int offset, boolean backwardBias, Language<? extends TokenId> language
-    ) {
+        TokenHierarchy<?> th, int offset, boolean backwardBias, Language<? extends TokenId> language) {
         List<TokenSequence<?>> sequences = th.embeddedTokenSequences(offset, backwardBias);
 
         for(int i = sequences.size() - 1; i >= 0; i--) {

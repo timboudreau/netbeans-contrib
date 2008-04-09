@@ -58,6 +58,7 @@
       Default
     ============================================================================= -->
 
+
 <target name="-build" depends="-build-engine,.build">
         <!-- init the required disk space -->
         <set property="product.disk.space" 
@@ -311,7 +312,12 @@
                     arg2="${current.disk.space}" 
                     property="product.disk.space"/>
             </if>
-            
+
+            <!-- Added by Igor Nikiforov -->
+            <copy file="${current.file}" 
+            	tofile="${packaged.data.dir.release}/${product.uid},${product.version},${product.platforms},${i}.jar"/>
+            <!-- End of addition -->                 
+
             <!-- sign the resulting jar file -->
             <if property="jarsigner.enabled" value="true">
                 <signjar 
