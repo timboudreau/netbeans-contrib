@@ -387,7 +387,7 @@ class BracketCompletion {
         // Examine token at the caret offset
 //        TokenItem token = ((ExtSyntaxSupport) doc.getSyntaxSupport()).getTokenChain(
 //                caretOffset, caretOffset + 1);
-        final TokenSequence<?> ts = getTokenSequence(doc, caretOffset + 1);
+        final TokenSequence<?> ts = getTokenSequence(doc, caretOffset);
         Token<?> token = ts.moveNext() ? ts.token() : null;
 
         // Check whether character follows the bracket is the same bracket

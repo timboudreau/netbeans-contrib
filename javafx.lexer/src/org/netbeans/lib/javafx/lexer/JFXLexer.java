@@ -45,8 +45,8 @@ import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.ANTLRReaderStream;
 import org.antlr.runtime.RecognizerSharedState;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
-import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.PartType;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.spi.lexer.LexerInput;
 import org.netbeans.spi.lexer.LexerRestartInfo;
 import org.netbeans.spi.lexer.TokenFactory;
@@ -76,7 +76,7 @@ public class JFXLexer implements org.netbeans.spi.lexer.Lexer {
 
     public void restart(LexerRestartInfo<JFXTokenId> info) throws IOException {
         if (log.isLoggable(Level.INFO)) log.info("Restarting lexer: " + info);
-        this.info = info;        
+        this.info = info;
         released = false;
     }
 
