@@ -60,13 +60,44 @@ public class TemplatesImpl implements PrivilegedTemplates  , RecommendedTemplate
         this.dirName =  TreeRootNode.getDirName(g);
     }
     
-    private static final String[] PRIVILEGED_NAMES = new String[] {
+    private static final String[] PROPERTIES_FILE = new String[] {
         "Templates/Other/properties.properties"
+    };
+    
+    private static final String[] GROOVY_TEMPLATES = new String[] {
+        "Templates/Groovy/GroovyClass.groovy",
+        "Templates/Other/Folder"
+    };
+
+    private static final String[] GSP_TEMPLATES = new String[] {
+        "Templates/Groovy/_view.gsp",
+        "Templates/Other/Folder"
+    };
+
+    private static final String[] FOLDER_ONLY = new String[] {
+        "Templates/Other/Folder"
+    };
+
+    private static final String[] GROOVY_FILE = new String[] {
+        "Templates/Groovy/GroovyClass.groovy"
     };
 
     public String[] getPrivilegedTemplates() {
-        
-        return PRIVILEGED_NAMES;
+        if (dirName.startsWith("conf")) {
+            return GROOVY_TEMPLATES;
+        } else if (dirName.startsWith("taglib")) {
+            return GROOVY_FILE;
+        } else if (dirName.startsWith("test")) {
+            return FOLDER_ONLY;
+        } else if (dirName.startsWith("src")) {
+            return FOLDER_ONLY;
+        } else if (dirName.startsWith("views")) {
+            return GSP_TEMPLATES;
+        } else if (dirName.startsWith("web-app")) {
+            return GSP_TEMPLATES;
+        } else {
+            return PROPERTIES_FILE;
+        }
     }
     
     private static final String[] TYPES = new String[] { 

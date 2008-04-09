@@ -130,6 +130,7 @@ is divided into following sections:
                             <arg line="${{application.args}}"/>
                             <classpath>
                                 <path path="${{run.classpath}}"/>
+                                <path path="${{libs.JavaFXUserLib.classpath}}"/>
                             </classpath>
                             <syspropertyset>
                                 <propertyref prefix="run-sys-prop."/>
@@ -160,6 +161,7 @@ is divided into following sections:
                 <nbprofiledirect>
                     <classpath>
                         <path path="${{run.classpath}}"/>
+                        <path path="${{libs.JavaFXUserLib.classpath}}"/>
                     </classpath>
                 </nbprofiledirect>
                 <profile/>
@@ -173,6 +175,7 @@ is divided into following sections:
                 <nbprofiledirect>
                     <classpath>
                         <path path="${{run.classpath}}"/>
+                        <path path="${{libs.JavaFXUserLib.classpath}}"/>
                     </classpath>
                 </nbprofiledirect>
               <profile classname="${{profile.class}}"/>
@@ -190,6 +193,7 @@ is divided into following sections:
                 <nbprofiledirect>
                     <classpath>
                         <path path="${{run.classpath}}"/>
+                        <path path="${{libs.JavaFXUserLib.classpath}}"/>
                     </classpath>
                 </nbprofiledirect>
 

@@ -509,6 +509,12 @@ is divided into following sections:
                             </xsl:if>
                             <arg line="${{main.class}}"/>
                             <jvmarg line="${{debug-args-line}}"/>
+                            <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
+                                <jvmarg value="-Djava.library.path=${{platform.bootcp}}"/>
+                            </xsl:if>    
+                            <xsl:if test="not(/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform)">
+                                <jvmarg value="-Djava.library.path=${{libs.JavaFXUserLib.classpath}}"/>
+                            </xsl:if>    
                             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${{jpda.address}}"/>
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
@@ -547,8 +553,12 @@ is divided into following sections:
                             <xsl:attribute name="dir">${work.dir}</xsl:attribute>
                             <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
                                 <xsl:attribute name="jvm">${platform.java}</xsl:attribute>
+                                <jvmarg value="-Djava.library.path=${{platform.bootcp}}"/>
                             </xsl:if>
                             <!--arg line="${{main.class}}"/-->
+                            <xsl:if test="not(/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform)">
+                                <jvmarg value="-Djava.library.path=${{libs.JavaFXUserLib.classpath}}"/>
+                            </xsl:if>    
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
                                 <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
@@ -590,7 +600,12 @@ is divided into following sections:
                             <xsl:attribute name="dir">${work.dir}</xsl:attribute>
                             <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
                                 <xsl:attribute name="jvm">${platform.java}</xsl:attribute>
+                                <jvmarg value="-Djava.library.path=${{platform.bootcp}}"/>
                             </xsl:if>
+                            <!--arg line="${{main.class}}"/-->
+                            <xsl:if test="not(/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform)">
+                                <jvmarg value="-Djava.library.path=${{libs.JavaFXUserLib.classpath}}"/>
+                            </xsl:if>    
                             <arg line="@{{srcdir}}"/>
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>

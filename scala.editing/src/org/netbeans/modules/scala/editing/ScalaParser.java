@@ -57,14 +57,14 @@ import org.netbeans.modules.gsf.api.Severity;
 import org.netbeans.modules.gsf.api.SourceFileReader;
 import org.netbeans.modules.gsf.spi.DefaultError;
 import org.netbeans.modules.gsf.api.TranslatedSource;
-import org.netbeans.modules.scala.editing.nodes.AstVisitor;
+import org.netbeans.modules.scala.editing.nodes.AstElementVisitor;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.util.Exceptions;
 import xtc.parser.ParseError;
 import xtc.parser.Result;
 import xtc.parser.SemanticValue;
 import xtc.tree.GNode;
-import xtc.tree.Node;
 
 /**
  * Wrapper around com.sun.fortress.parser.Fortress to parse a buffer into an AST.
@@ -288,7 +288,7 @@ public class ScalaParser implements Parser {
 
         switch (sanitizing) {
             case NEVER:
-                return createParseResult(context.file, null, null, computeLinesOffset(context.source));
+                return createParseResult(context.file, null, null);
 
             case NONE:
 
@@ -338,7 +338,7 @@ public class ScalaParser implements Parser {
             case MISSING_END:
             default:
                 // We're out of tricks - just return the failed parse result
-                return createParseResult(context.file, null, null, computeLinesOffset(context.source));
+                return createParseResult(context.file, null, null);
         }
     }
 
@@ -369,15 +369,17 @@ public class ScalaParser implements Parser {
             context.errorOffset = -1;
         }
 
-        GNode node = null;
+        AstScope rootScope = null;
         try {
             ParseError error = null;
             Result r = parser.pCompilationUnit(0);
             if (r.hasValue()) {
                 SemanticValue v = (SemanticValue) r;
-                node = (GNode) v.value;
-                AstVisitor visitor = new AstVisitor();
-                visitor.accept(node);
+                GNode node = (GNode) v.value;
+                
+                AstElementVisitor signatureVisitor = new AstElementVisitor(node, source, computeLinesOffset(source));
+                signatureVisitor.visit(node);
+                rootScope = signatureVisitor.getRootScope();
             } else {
                 error = r.parseError();
             }
@@ -399,15 +401,15 @@ public class ScalaParser implements Parser {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (IllegalArgumentException e) {
-            // An internal exception thrown by Fortress, just catch it and notify
+            // An internal exception thrown by ParserScala, just catch it and notify
             notifyError(context, "SYNTAX_ERROR", e.getMessage(),
                     0, 0, sanitizing, Severity.ERROR, new Object[]{e});
         }
 
 
-        if (node != null) {
+        if (rootScope != null) {
             context.sanitized = sanitizing;
-            ScalaParserResult r = createParseResult(context.file, node, null, computeLinesOffset(source));
+            ScalaParserResult r = createParseResult(context.file, rootScope, null);
             r.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents);
             r.setSource(source);
             return r;
@@ -416,8 +418,8 @@ public class ScalaParser implements Parser {
         }
     }
 
-    private ScalaParserResult createParseResult(ParserFile file, Node rootNode, ParserResult.AstTreeNode ast, List<Integer> linesOffset) {
-        return new ScalaParserResult(this, file, rootNode, ast, linesOffset);
+    private ScalaParserResult createParseResult(ParserFile file, AstScope rootScope, ParserResult.AstTreeNode ast) {
+        return new ScalaParserResult(this, file, rootScope, ast);
     }
 
     private List<Integer> computeLinesOffset(String source) {

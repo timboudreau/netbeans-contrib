@@ -127,17 +127,15 @@
                 <file name="semantic.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.SemanticAnalyzer"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaSemanticAnalyzer"/>
-                </file>
-                <!--
+                </file>                
                 <file name="occurrences.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.OccurrencesFinder"/>
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaOccurrenceFinder"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaOccurrencesFinder"/>
                 </file>
                 <file name="renamer.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.InstantRenamer"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaInstantRenamer"/>
                 </file>
-                -->
             </folder>
         </folder>
     </folder>

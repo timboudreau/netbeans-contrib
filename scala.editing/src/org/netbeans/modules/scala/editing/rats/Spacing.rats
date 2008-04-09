@@ -104,8 +104,9 @@ transient void SKIP_N =
  * don't put after above tokens. 
  */
 transient void SKIP = 
-  &{ yyState.state() == ParserState.NL_ENABLE  } ( w / DocComment / BlockComment / lineComment )* 
-/ &{ yyState.state() == ParserState.NL_DISABLE } ( w / DocComment / BlockComment / lineComment / n )* 
+  &{ yyState.newlineEnable() } 
+  ( w / DocComment / BlockComment / lineComment )* 
+/ ( w / DocComment / BlockComment / lineComment / n )* 
 ;
 
 

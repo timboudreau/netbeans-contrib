@@ -580,7 +580,7 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
-                                 <property name="product.data.all.location" value="file:///net/endif.russia.sun.com/export/home1/vesta/src/dist_new/packaged" />
+                                 <property name="product.data.all.location" value="http://endif.russia.sun.com/installer/packaged" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
         <!-- End of addition -->	
@@ -623,7 +623,7 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
-                                 <property name="product.data.all.location" value="file:///net/endif.russia.sun.com/export/home1/vesta/src/dist_new/packaged" />
+                                 <property name="product.data.all.location" value="http://endif.russia.sun.com/installer/packaged" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
         <!-- End of addition -->
@@ -665,7 +665,7 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
-                                 <property name="product.data.all.location" value="file:///net/endif.russia.sun.com/export/home1/vesta/src/dist_new/packaged" />
+                                 <property name="product.data.all.location" value="http://endif.russia.sun.com/installer/packaged" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
         <!-- End of addition -->

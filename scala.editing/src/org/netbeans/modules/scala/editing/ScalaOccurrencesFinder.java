@@ -36,37 +36,35 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.fortress.editing;
+package org.netbeans.modules.scala.editing;
 
-import com.sun.fortress.nodes.Node;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.swing.text.BadLocationException;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OccurrencesFinder;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.fortress.editing.lexer.FortressLexUtilities;
-import org.netbeans.modules.fortress.editing.lexer.FortressTokenId;
-import org.netbeans.modules.fortress.editing.visitors.Scope;
-import org.netbeans.modules.fortress.editing.visitors.Signature;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
+import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.openide.util.Exceptions;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class FortressOccurrenceFinder implements OccurrencesFinder {
+public class ScalaOccurrencesFinder implements OccurrencesFinder {
 
     private boolean cancelled;
     private int caretPosition;
     private Map<OffsetRange, ColoringAttributes> occurrences;
 
-    public FortressOccurrenceFinder() {
+    public ScalaOccurrencesFinder() {
     }
 
     public Map<OffsetRange, ColoringAttributes> getOccurrences() {
@@ -96,13 +94,8 @@ public class FortressOccurrenceFinder implements OccurrencesFinder {
             return;
         }
 
-        FortressParserResult result = AstUtilities.getParserResult(info);
+        ScalaParserResult result = AstUtilities.getParserResult(info);
         if (result == null) {
-            return;
-        }
-
-        Node root = result.getRootNode();
-        if (root == null) {
             return;
         }
 
@@ -110,11 +103,14 @@ public class FortressOccurrenceFinder implements OccurrencesFinder {
             return;
         }
 
-        Scope rootScope = result.getRootScope();
+        AstScope rootScope = result.getRootScope();
+        if (rootScope == null) {
+            return;
+        }
 
         Map<OffsetRange, ColoringAttributes> highlights = new HashMap<OffsetRange, ColoringAttributes>(100);
 
-        Signature closest = rootScope.getSignature(caretPosition);
+        AstElement closest = rootScope.getElement(caretPosition);
 
         int astOffset = AstUtilities.getAstOffset(info, caretPosition);
         if (astOffset == -1) {
@@ -151,9 +147,9 @@ public class FortressOccurrenceFinder implements OccurrencesFinder {
                 try {
                     int length = doc.getLength();
                     OffsetRange astRange = closest.getNameRange();
-                    OffsetRange lexRange = FortressLexUtilities.getLexerOffsets(info, astRange);
+                    OffsetRange lexRange = ScalaLexUtilities.getLexerOffsets(info, astRange);
                     int lexStartPos = lexRange.getStart();
-                    int lexEndPos = lexRange.getEnd();
+                    int lexEndPos   = lexRange.getEnd();
 
                     // If the buffer was just modified where a lot of text was deleted,
                     // the parse tree positions could be pointing outside the valid range
@@ -168,7 +164,7 @@ public class FortressOccurrenceFinder implements OccurrencesFinder {
                     // this case, the full def node is selected, which typically spans
                     // lines. This should trigger if you put the caret on the method definition
                     // line, unless it's in a comment there.
-                    org.netbeans.api.lexer.Token<? extends FortressTokenId> token = FortressLexUtilities.getToken(doc, caretPosition);
+                    org.netbeans.api.lexer.Token<? extends ScalaTokenId> token = ScalaLexUtilities.getToken(doc, caretPosition);
                     //boolean isFunctionKeyword = (token != null) && token.id() == JsTokenId.FUNCTION;
                     boolean isMethodName = closest.getKind() == ElementKind.METHOD;
                 //boolean isReturn = closest.getType() == Token.RETURN && astOffset < closest.getSourceStart() + "return".length();
@@ -217,8 +213,8 @@ public class FortressOccurrenceFinder implements OccurrencesFinder {
         }
 
         if (closest != null) {
-            List<Signature> _occurrences = rootScope.findOccurrences(closest);
-            for (Signature signature : _occurrences) {
+            List<AstElement> _occurrences = rootScope.findOccurrences(closest);
+            for (AstElement signature : _occurrences) {
                 highlights.put(signature.getNameRange(), ColoringAttributes.MARK_OCCURRENCES);
             }
             closest = null;
@@ -232,7 +228,7 @@ public class FortressOccurrenceFinder implements OccurrencesFinder {
             if (result.getTranslatedSource() != null) {
                 Map<OffsetRange, ColoringAttributes> translated = new HashMap<OffsetRange, ColoringAttributes>(2 * highlights.size());
                 for (Map.Entry<OffsetRange, ColoringAttributes> entry : highlights.entrySet()) {
-                    OffsetRange range = FortressLexUtilities.getLexerOffsets(info, entry.getKey());
+                    OffsetRange range = ScalaLexUtilities.getLexerOffsets(info, entry.getKey());
                     if (range != OffsetRange.NONE) {
                         translated.put(range, entry.getValue());
                     }

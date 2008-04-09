@@ -36,33 +36,50 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.scala.editing.nodes;
 
-package org.netbeans.modules.scala.editing.visitors;
-
-import javax.lang.model.element.Element;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class Definition extends Signature {
-    
-    private Scope bindingScope;
-    
-    public Definition(Element element, OffsetRange nameRange) {
-        super(element, nameRange);
+public class Var extends AstDefinition {
+
+    boolean val;
+    boolean implicate;
+
+    public Var(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
+        super(name, nameRange, bindingScope, kind);
     }
-    
-    /**
-     * @Note: bindingScope will be set when new {@link Scope#Scope(Definition, OffsetRange)}
-     */
-    protected void setBindingScope(Scope bindingScope) {
-        this.bindingScope = bindingScope;
+
+    public void setVal() {
+        val = true;
     }
-    
-    public Scope getBindingScope() {
-        assert bindingScope != null : "Each definition should set binding scope!";
-        return bindingScope;
+
+    public boolean isVal() {
+        return val;
+    }
+
+    public void setImplicate() {
+        implicate = true;
+    }
+
+    public boolean getImplicate() {
+        return implicate;
+    }
+
+    @Override
+    public void htmlFormat(HtmlFormatter formatter) {
+        super.htmlFormat(formatter);
+        TypeRef type = getType();
+        if (type != null) {
+            formatter.type(true);
+            formatter.appendHtml(" :");
+            type.htmlFormat(formatter);
+            formatter.type(false);
+        }
     }
 }

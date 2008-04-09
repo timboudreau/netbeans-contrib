@@ -40,13 +40,10 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import java.util.List;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
-import org.netbeans.modules.scala.editing.visitors.Scope;
-import org.netbeans.modules.scala.editing.visitors.SignatureVisitor;
-import xtc.tree.Node;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
 
 /**
  *
@@ -56,21 +53,18 @@ public class ScalaParserResult extends ParserResult {
 
     private ParserFile file;
     private AstTreeNode ast;
-    private Node rootNode;
     private String source;
     private OffsetRange sanitizedRange = OffsetRange.NONE;
     private String sanitizedContents;
     private ScalaParser.Sanitize sanitized;
     private boolean commentsAdded;
-    private Scope rootScope;
-    private List<Integer> linesOffset;
+    private AstScope rootScope;
 
-    public ScalaParserResult(ScalaParser parser, ParserFile file, Node rootNode, AstTreeNode ast, List<Integer> linesOffset) {
+    public ScalaParserResult(ScalaParser parser, ParserFile file, AstScope rootScope, AstTreeNode ast) {
         super(parser, file, ScalaMimeResolver.MIME_TYPE);
         this.file = file;
-        this.rootNode = rootNode;
+        this.rootScope = rootScope;
         this.ast = ast;
-        this.linesOffset = linesOffset;
     }
 
     public ParserResult.AstTreeNode getAst() {
@@ -79,13 +73,6 @@ public class ScalaParserResult extends ParserResult {
 
     public void setAst(AstTreeNode ast) {
         this.ast = ast;
-    }
-
-    /** 
-     * The root node of the AST produced by the parser.
-     */
-    public Node getRootNode() {
-        return rootNode;
     }
 
     public String getSource() {
@@ -131,25 +118,12 @@ public class ScalaParserResult extends ParserResult {
         this.commentsAdded = commentsAdded;
     }
 
-    public Scope getRootScope() {
-        if (rootScope == null) {
-            Node node = getRootNode();
-            
-            if (node == null) {
-                System.err.println("Attempted to get definition visitor for broken source");
-                return null;
-            }
-            
-            SignatureVisitor signatureVisitor = new SignatureVisitor(node, linesOffset);
-            signatureVisitor.accept(node);
-            rootScope = signatureVisitor.getRootScope();
-        }
-
+    public AstScope getRootScope() {
         return rootScope;
     }
 
     @Override
     public String toString() {
-        return "ParseResult(file=" + getFile() + ",rootnode=" + rootNode + ")";
+        return "ParseResult(file=" + getFile() + ",rootScope=" + rootScope + ")";
     }
 }

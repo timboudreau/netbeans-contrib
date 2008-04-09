@@ -28,18 +28,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-/*
- * LoadingScreen.fx
- *
- * Created on Oct 15, 2007, 10:48:12 PM
- */
-
 package weatherfx;
 
 import javafx.ui.UIElement;
 import javafx.ui.*;
 import javafx.ui.canvas.*;
-
 
 /**
  * Class holding graphics data for the loading screen. Original imported from Adobe Illustrator
@@ -48,134 +41,134 @@ import javafx.ui.canvas.*;
  * @author breh
  */
 
-
 public class LoadingScreen extends CompositeNode {    
-    public function SVGID_1_(): LinearGradient;
+    
+    public function SVGID_1_(): LinearGradient {
+        return 
+            LinearGradient {
+                startX: 117.1709
+                endX: 117.1709
+                startY: 77.7261
+                endY: -6.5569
+                stops: [
+                    Stop {
+                        offset: 0.0
+                        color: Color.rgba(0x1A, 0x1A, 0x1A, 0xff)
+                    },
+                    Stop {
+                        offset: 0.2234
+                        color: Color.rgba(0x0F, 0x0F, 0x0F, 0xff)
+                    },
+                    Stop {
+                        offset: 0.6046
+                        color: Color.rgba(0x04, 0x04, 0x04, 0xff)
+                    },
+                    Stop {
+                        offset: 1.0
+                        color: Color.rgba(0x00, 0x00, 0x00, 0xff)
+                    },
+                ]
+        };
+    }
+    
+    function composeNode(): Node {
+        return Group { 
+            content:[
+                Path {
+                    d: [
+                        MoveTo {
+                            x: 233.841
+                            y: 75.336
+                            absolute: true
+                        },
+                        CurveTo {
+                            x1: 0.0
+                            y1: 3.907
+                            x2: -1.516
+                            y2: 7.076
+                            x3: -3.383
+                            y3: 7.076
+                            smooth: false
+                            absolute: false
+                        },
+                        HLine {
+                            x: 3.887
+                            absolute: true
+                        },
+                        CurveTo {
+                            x1: -1.871
+                            y1: 0.0
+                            x2: -3.387
+                            y2: -3.169
+                            x3: -3.387
+                            y3: -7.076
+                            smooth: false
+                            absolute: false
+                        },
+                        VLine {
+                            y: 7.576
+                            absolute: true
+                        },
+                        CurveTo {
+                            x1: 0.5
+                            y1: 3.667
+                            x2: 2.016
+                            y2: 0.5
+                            x3: 3.887
+                            y3: 0.5
+                            smooth: false
+                            absolute: true
+                        },
+                        HLine {
+                            x: 226.571
+                            absolute: false
+                        },
+                        CurveTo {
+                            x1: 1.867
+                            y1: 0.0
+                            x2: 3.383
+                            y2: 3.167
+                            x3: 3.383
+                            y3: 7.076
+                            smooth: false
+                            absolute: false
+                        },
+                        VLine {
+                            y: 75.336
+                            absolute: true
+                        },
+                        ClosePath {},
+                    ]
+                    fill: SVGID_1_()
+                    stroke: Color.rgba(0x00, 0x00, 0x00, 0xff)
+                },
+                Text {
+                    verticalAlignment: Alignment.BASELINE
+                    content: 'looking at the sky....'
+                    font: Font {faceName: 'Arial', style: FontStyle.BOLD, size: 12.0}
+                    fill: Color.rgba(0xFF, 0xFF, 0xFF, 0xff)
+                    transform: [
+                        Matrix.matrix(1.0, 0.0, 0.0, 1.0, 4.3374, 77.7271),
+                    ]
+                    x: 0.0
+                    y: 0.0
+                },
+                /*
+                Text {
+                    verticalAlignment: BASELINE
+                    content: 'once loaded the weather would be nice'
+                    x: 0.0
+                    y: 0.0
+                },
+                Text {
+                    verticalAlignment: BASELINE
+                    content: 'to fade to the weather layout...'
+                    x: 0.0
+                    y: 14.4
+                },*/
+            ]
+        };
+    }
 }
 
-
-
-function LoadingScreen.SVGID_1_() = [
-    LinearGradient {
-        gradientUnits: USER_SPACE_ON_USE
-        x1: 117.1709
-        x2: 117.1709
-        y1: 77.7261
-        y2: -6.5569
-        stops: [
-            Stop {
-                offset: 0.0
-                color: rgba(0x1A, 0x1A, 0x1A, 0xff)
-            },
-            Stop {
-                offset: 0.2234
-                color: rgba(0x0F, 0x0F, 0x0F, 0xff)
-            },
-            Stop {
-                offset: 0.6046
-                color: rgba(0x04, 0x04, 0x04, 0xff)
-            },
-            Stop {
-                offset: 1.0
-                color: rgba(0x00, 0x00, 0x00, 0xff)
-            },
-        ]
-    },
-];
-
-function LoadingScreen.composeNode() = 
-Group { content:[
-        Path {
-            d: [
-                MoveTo {
-                    x: 233.841
-                    y: 75.336
-                    absolute: true
-                },
-                CurveTo {
-                    x1: 0.0
-                    y1: 3.907
-                    x2: -1.516
-                    y2: 7.076
-                    x3: -3.383
-                    y3: 7.076
-                    smooth: false
-                    absolute: false
-                },
-                HLine {
-                    x: 3.887
-                    absolute: true
-                },
-                CurveTo {
-                    x1: -1.871
-                    y1: 0.0
-                    x2: -3.387
-                    y2: -3.169
-                    x3: -3.387
-                    y3: -7.076
-                    smooth: false
-                    absolute: false
-                },
-                VLine {
-                    y: 7.576
-                    absolute: true
-                },
-                CurveTo {
-                    x1: 0.5
-                    y1: 3.667
-                    x2: 2.016
-                    y2: 0.5
-                    x3: 3.887
-                    y3: 0.5
-                    smooth: false
-                    absolute: true
-                },
-                HLine {
-                    x: 226.571
-                    absolute: false
-                },
-                CurveTo {
-                    x1: 1.867
-                    y1: 0.0
-                    x2: 3.383
-                    y2: 3.167
-                    x3: 3.383
-                    y3: 7.076
-                    smooth: false
-                    absolute: false
-                },
-                VLine {
-                    y: 75.336
-                    absolute: true
-                },
-                ClosePath {},
-            ]
-            fill: SVGID_1_()
-            stroke: rgba(0x00, 0x00, 0x00, 0xff)
-        },
-        Text {
-            verticalAlignment: BASELINE
-            content: 'looking at the sky....'
-            font: Font {faceName: 'Arial', style: BOLD, size: 12.0}
-            fill: rgba(0xFF, 0xFF, 0xFF, 0xff)
-            transform: [
-                matrix(1.0, 0.0, 0.0, 1.0, 4.3374, 77.7271),
-            ]
-            x: 0.0
-            y: 0.0
-        },
-        /*
-        Text {
-            verticalAlignment: BASELINE
-            content: 'once loaded the weather would be nice'
-            x: 0.0
-            y: 0.0
-        },
-        Text {
-            verticalAlignment: BASELINE
-            content: 'to fade to the weather layout...'
-            x: 0.0
-            y: 14.4
-        },*/
-]};
 LoadingScreen {}

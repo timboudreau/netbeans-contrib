@@ -40,7 +40,7 @@ import java.lang.System;
 import java.lang.Thread;
 import javafx.ui.*;
 import javafx.ui.canvas.*;
-import weatherfx.service.YahooWeatherService as YWS;
+import weatherfx.service.YahooWeatherService;
 
 /**
  * Main class of the app
@@ -55,36 +55,39 @@ var weather3 = Weather{};
 //var canvasViewport = CanvasViewport{currentWidth: 50 currentHeight: 50};
 
 var f = Frame {
-    background: black
+    background: Color.BLACK
     content: Box {
-        orientation: VERTICAL:Orientation
+        orientation: Orientation.VERTICAL
         content: [
             //Canvas { content: weather1 viewport: canvasViewport scaleToFit: true},
-            Canvas { content: weather1},
-            Canvas { content: weather2},
-            Canvas { content: weather3}
+            Canvas { content: weather1 },
+            Canvas { content: weather2 },
+            Canvas { content: weather3 }
         ]
     }
     title: "WeatherFX"
-    onClose: operation() { System.exit(0); }
+    onClose: function() { System.exit(0); }
     resizable: false
     centerOnScreen:true
     visible:true    
 };
 
 
-operation showWeather(weatherCode:String, weather:Weather) {
+function showWeather( weatherCode : String, weather : Weather ): Void {
+    // FIXME
+    /*
     do later {
-        var yws:YWS;     
+        var YahooWeatherService:YahooWeatherService;     
         do {
-            yws = new YWS(weatherCode, false);
+            YahooWeatherService = new YahooWeatherService( weatherCode, false );
             do later {
                 var wm = WeatherModel{};
-                wm.loadFromYWS(yws);
+                wm.loadFromYahooWeatherService(YahooWeatherService);
                 weather.weatherModel = wm;
             }
         }
     }
+     */
 }
 
 
@@ -92,5 +95,3 @@ operation showWeather(weatherCode:String, weather:Weather) {
 showWeather("EZXX0012",weather1);
 showWeather("FRXX0076",weather2);
 showWeather("94303",weather3);
-
-return f;

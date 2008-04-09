@@ -36,68 +36,62 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.scala.editing.nodes;
 
-package org.netbeans.modules.scala.editing.visitors;
-
-import java.lang.annotation.Annotation;
-import java.util.List;
-import java.util.Set;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ElementVisitor;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.Name;
-import javax.lang.model.type.TypeMirror;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author dcaoyuan
  */
-public class ScalaElement implements Element {
+public class WrappedType extends TypeRef {
     
-    private ElementKind kind;
-    private Name name;
-    
-    public ScalaElement(Name name, ElementKind kind) {
-        this.name = name;
-        this.kind = kind;
+    public enum More {
+
+        Pure,
+        Star,
+        ByName,
+    }
+           
+    private More more;
+    private TypeRef wrappedType;
+
+    public WrappedType(String name, OffsetRange nameRange, ElementKind kind) {
+        super(name, nameRange, kind);
     }
 
-    public TypeMirror asType() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void setWrappedType(TypeRef wrappedType) {
+        this.wrappedType = wrappedType;
     }
 
-    public ElementKind getKind() {
-        return kind;
+    public TypeRef getWrappedType() {
+        return wrappedType;
     }
 
-    public List<? extends AnnotationMirror> getAnnotationMirrors() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void setMore(More more) {
+        this.more = more;
     }
 
-    public <A extends Annotation> A getAnnotation(Class<A> arg0) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public More getMore() {
+        return more;
     }
 
-    public Set<Modifier> getModifiers() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    @Override
+    public void htmlFormat(HtmlFormatter formatter) {
+        super.htmlFormat(formatter);
+        switch (more) {
+            case Star:
+                wrappedType.htmlFormat(formatter);
+                formatter.appendText("*");
+                break;
+            case ByName:
+                formatter.appendText("\u21D2");
+                wrappedType.htmlFormat(formatter);
+                break;
+            default:
+                wrappedType.htmlFormat(formatter);                
+        }
     }
-
-    public Name getSimpleName() {
-        return name;
-    }
-
-    public Element getEnclosingElement() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public List<? extends Element> getEnclosedElements() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public <R, P> R accept(ElementVisitor<R, P> arg0, P arg1) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
 }

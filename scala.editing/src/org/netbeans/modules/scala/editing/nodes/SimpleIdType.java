@@ -37,42 +37,45 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.editing.visitors;
+package org.netbeans.modules.scala.editing.nodes;
 
-import javax.lang.model.element.Name;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
-public class ScalaName implements Name {
+public class SimpleIdType extends SimpleType {
     
-    private String name;
+    private List<AstElement> ids;
     
-    public ScalaName(String name) {
-        this.name = name;
-        name.subSequence(0, name.length());
+    public SimpleIdType(String name, OffsetRange nameRange, ElementKind kind) {
+        super(name, nameRange, kind);
     }
-
-    public boolean contentEquals(CharSequence arg0) {
-        return name.contentEquals(arg0);
+    
+    public void setIds(List<AstElement> ids) {
+        this.ids = ids;
     }
-
-    public int length() {
-        return name.length();
-    }
-
-    public char charAt(int arg0) {
-        return name.charAt(arg0);
-    }
-
-    public CharSequence subSequence(int arg0, int arg1) {
-        return name.subSequence(arg0, arg1);
+    
+    public List<AstElement> getIds() {
+        return ids == null ? Collections.<AstElement>emptyList() : ids;
     }
 
     @Override
-    public String toString() {
-        return name;
-    }
+    public void htmlFormat(HtmlFormatter formatter) {
+        super.htmlFormat(formatter);
+        for (Iterator<AstElement> itr = getIds().iterator(); itr.hasNext();) {
+            formatter.appendText(itr.next().getName());
+            if (itr.hasNext()) {
+                formatter.appendText(".");
+            }
+        }
+        htmlFormatTypeArgs(formatter);
+    }        
     
 }

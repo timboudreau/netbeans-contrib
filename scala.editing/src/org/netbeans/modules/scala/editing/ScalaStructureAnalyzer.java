@@ -39,10 +39,8 @@
 package org.netbeans.modules.scala.editing;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,9 +53,8 @@ import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.StructureItem;
 import org.netbeans.modules.gsf.api.StructureScanner;
-import org.netbeans.modules.scala.editing.visitors.Definition;
-import org.netbeans.modules.scala.editing.visitors.Scope;
-import xtc.tree.Node;
+import org.netbeans.modules.scala.editing.nodes.AstDefinition;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
 
 /**
  *
@@ -76,20 +73,17 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             return Collections.emptyList();
         }
 
-        Node root = result.getRootNode();
-        if (root == null) {
-            return Collections.emptyList();
-        }
-
-        Scope rootScope = result.getRootScope();
+        AstScope rootScope = result.getRootScope();
         if (rootScope == null) {
             return Collections.emptyList();
         }
-        
+
         List<StructureItem> items = new ArrayList<StructureItem>();
 
-        for (Definition definition : rootScope.getDefinitions()) {
-            items.add(new ScalaStructureItem(definition, info, formatter));
+        for (AstDefinition definition : rootScope.getDefinitions()) {
+            if (definition.getKind() != ElementKind.PARAMETER) {
+                items.add(new ScalaStructureItem(definition, info, formatter));
+            }
         }
 
         return items;
@@ -101,12 +95,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             Collections.emptyList();
         }
 
-        Node root = result.getRootNode();
-        if (root == null) {
-            Collections.emptyMap();
-        }
-
-        Scope rootScope = result.getRootScope();
+        AstScope rootScope = result.getRootScope();
         if (rootScope == null) {
             return Collections.emptyMap();
         }
@@ -164,11 +153,11 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 
     private class ScalaStructureItem implements StructureItem {
 
-        private Definition definition;
+        private AstDefinition definition;
         private CompilationInfo info;
         private HtmlFormatter formatter;
 
-        private ScalaStructureItem(Definition definition, CompilationInfo info, HtmlFormatter formatter) {
+        private ScalaStructureItem(AstDefinition definition, CompilationInfo info, HtmlFormatter formatter) {
             this.definition = definition;
             this.info = info;
             this.formatter = formatter;
@@ -184,12 +173,15 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 
         public String getHtml() {
             formatter.reset();
+            definition.htmlFormat(formatter);
+            return formatter.getText();
+//            formatter.reset();
 //            boolean strike = signature.getModifiers().contains(Modifier.DEPRECATED);
 //            if (strike) {
 //                formatter.deprecated(true);
 //            }
 
-            formatter.appendText(getName());
+//            formatter.appendText(getName());
 
 //            if (strike) {
 //                formatter.deprecated(false);
@@ -269,7 +261,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 //
 //            }
 
-            return formatter.getText();
+//            return formatter.getText();
         }
 
 //        private String getTypeHtml(Type type) {
@@ -357,7 +349,6 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 //
 //            return argStr;
 //        }
-        
         public ElementHandle getElementHandle() {
             return definition;
         }
@@ -381,11 +372,12 @@ public class ScalaStructureAnalyzer implements StructureScanner {
                 case VARIABLE:
                 case OTHER:
                 case GLOBAL:
-                case PACKAGE:
                 case PROPERTY:
+                case PARAMETER:
                     return true;
 
                 case FILE:
+                case PACKAGE:
                 case MODULE:
                 case CLASS:
                     return false;
@@ -396,13 +388,15 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         }
 
         public List<? extends StructureItem> getNestedItems() {
-            List<Definition> nested = definition.getBindingScope().getDefinitions();
+            List<AstDefinition> nested = definition.getBindingScope().getDefinitions();
 
             if ((nested != null) && (nested.size() > 0)) {
                 List<ScalaStructureItem> children = new ArrayList<ScalaStructureItem>(nested.size());
 
-                for (Definition child : nested) {
-                    children.add(new ScalaStructureItem(child, info, formatter));
+                for (AstDefinition child : nested) {
+                    if (child.getKind() != ElementKind.PARAMETER) {
+                        children.add(new ScalaStructureItem(child, info, formatter));
+                    }
                 }
 
                 return children;
@@ -461,5 +455,4 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             return null;
         }
     }
-    
 }

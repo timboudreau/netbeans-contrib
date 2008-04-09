@@ -43,7 +43,6 @@ package org.netbeans.modules.scala.editing;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.text.BadLocationException;
@@ -63,9 +62,8 @@ import org.netbeans.editor.Utilities;
 import org.netbeans.modules.gsf.api.BracketCompletion;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
-import org.netbeans.modules.scala.util.NbUtilities;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.openide.util.Exceptions;
-import xtc.tree.Node;
 
 
 /** 
@@ -1555,7 +1553,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
     }
 
     public List<OffsetRange> findLogicalRanges(CompilationInfo info, int caretOffset) {
-        Node root = AstUtilities.getRoot(info);
+        AstScope root = AstUtilities.getRoot(info);
 
         if (root == null) {
             return Collections.emptyList();

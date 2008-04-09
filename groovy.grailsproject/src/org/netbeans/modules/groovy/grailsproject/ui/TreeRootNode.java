@@ -79,6 +79,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import org.netbeans.modules.groovy.grailsproject.GrailsProject;
 import org.netbeans.api.project.Project;
+import org.netbeans.spi.project.ui.support.CommonProjectActions;
 
 
 /**
@@ -101,6 +102,10 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
 
         String pathName = g.getName();
         String dirName = getDirName(g);
+        
+//        LOG.setLevel(Level.FINEST);
+//        LOG.log(Level.FINEST, "Pathname : " + pathName);
+//        LOG.log(Level.FINEST, "Dirname  : " + dirName);
 
         if (dirName.startsWith("conf")) {
             category = SourceCategory.CONFIGURATION;
@@ -118,6 +123,14 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
             category = SourceCategory.UTIL;
         } else if (dirName.startsWith("lib")) {
             category = SourceCategory.LIB;
+        } else if (dirName.startsWith("test")) {
+            category = SourceCategory.TESTS;
+        } else if (dirName.startsWith("scripts")) {
+            category = SourceCategory.SCRIPTS;
+        } else if (dirName.startsWith("src")) {
+            category = SourceCategory.SRC;
+        } else if (dirName.startsWith("web-app")) {
+            category = SourceCategory.WEBAPP;
         } else if (dirName.startsWith("views")) {
             category = SourceCategory.VIEWS;
         }
@@ -170,7 +183,7 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
 
         switch (category) {
             case CONFIGURATION:
-                // do nothing.
+                result.add(CommonProjectActions.newFileAction());
                 break;
             case CONTROLLERS:
                 result.add(new NewArtifactAction(project, SourceCategory.CONTROLLERS, "Create new controller"));
@@ -179,13 +192,26 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
                 result.add(new NewArtifactAction(project, SourceCategory.DOMAIN, "Create new Domain Class"));
                 break;
             case MESSAGES:
-                result.add(org.netbeans.spi.project.ui.support.CommonProjectActions.newFileAction());
+                result.add(CommonProjectActions.newFileAction());
+                break;
+            case TESTS:
+                result.add(CommonProjectActions.newFileAction());
+                break;
+            case SRC:
+                result.add(CommonProjectActions.newFileAction());
+                break;
+            case WEBAPP:
+                result.add(CommonProjectActions.newFileAction());
+                break;
+            case SCRIPTS:
+                result.add(new NewArtifactAction(project, SourceCategory.SCRIPTS, "Create a new Command Script"));
                 break;
             case SERVICES:
                 result.add(new NewArtifactAction(project, SourceCategory.SERVICES, "Create a new Service"));
                 break;
             case TAGLIB:
                 result.add(new NewArtifactAction(project, SourceCategory.TAGLIB, "Create new Tag Library"));
+                result.add(CommonProjectActions.newFileAction());
                 break;
             case UTIL:          
                 break;
@@ -193,9 +219,12 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
                 result.add(new AddLibraryAction((Project)project, "Add Library"));
                 break;
             case VIEWS:
-                // we don't create views on the "Views and Layouts" logical view, but by selecting a Domain Class
-                // and invoking the action in the context-menu of the domain-class.
-                // result.add(new NewArtifactAction(project, SourceCategory.VIEWS, "Create a new View"));
+                /* Usually, you don't directly create views on the "Views and Layouts" logical view, 
+                   but select a Domain Class and invoke the action in the context-menu of the domain-class.
+                   But some users might want to be able to hand-craft what's in the views directory,
+                   therfore we add newFileAction() here (see # 131775, 131777) */
+                
+                result.add(CommonProjectActions.newFileAction());
                 break;
         }
 
