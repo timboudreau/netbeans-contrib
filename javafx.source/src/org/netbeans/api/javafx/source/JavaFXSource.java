@@ -41,7 +41,9 @@ package org.netbeans.api.javafx.source;
 
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.source.tree.CompilationUnitTree;
+import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JavacFileManager;
+import com.sun.tools.javafx.api.JavafxcTaskImpl;
 import com.sun.tools.javafx.api.JavafxcTool;
 import java.io.IOException;
 import java.lang.ref.Reference;
@@ -179,17 +181,18 @@ public final class JavaFXSource {
         includedTasks = _includedTasks;
     }  
 
-    JavafxcTask createJavafxcTask() {
+    JavafxcTaskImpl createJavafxcTask() {
         JavafxcTool tool = JavafxcTool.create();
         JavacFileManager fileManager = tool.getStandardFileManager(null, null, Charset.defaultCharset());
         JavaFileObject jfo = (JavaFileObject) SourceFileObject.create(files.iterator().next(), null); // XXX
-        JavafxcTask task = tool.getTask(null, fileManager, null, null, Collections.singleton(jfo));
-//            Context context = task.getContext();
+        JavafxcTaskImpl task = (JavafxcTaskImpl)tool.getTask(null, fileManager, null, null, Collections.singleton(jfo));
+        Context context = task.getContext();
+        //Messager.preRegister(context, null, DEV_NULL, DEV_NULL, DEV_NULL);
         
         return task;
   }
 
-    public Phase moveToPhase(Phase phase, CompilationController cc, boolean b) throws IOException {
+    public Phase moveToPhase(Phase phase, CompilationInfoImpl cc, boolean b) throws IOException {
         if (cc.phase.lessThan(Phase.PARSED)) {
                 Iterable<? extends CompilationUnitTree> trees = cc.getJavafxcTask().parse();
 //                new JavaFileObject[] {currentInfo.jfo});
@@ -203,7 +206,7 @@ public final class JavaFXSource {
                 CompilationUnitTree unit = it.next();
                 currentInfo.setCompilationUnit(unit);
 */
-                cc.phase = Phase.PARSED;
+                cc.setPhase(Phase.PARSED);
         }
         return phase;
     }
@@ -323,8 +326,9 @@ public final class JavaFXSource {
         }
     }
 
-    public static CompilationController createCurrentInfo (final JavaFXSource js, final String javafxc) throws IOException {                
-        CompilationController info = new CompilationController(js);//js, binding, javac);
+    public static CompilationController createCurrentInfo (final JavaFXSource js, final String javafxc) throws IOException {
+        CompilationInfoImpl impl = new CompilationInfoImpl(js);
+        CompilationController info = new CompilationController(impl);//js, binding, javac);
         return info;
     }
 
