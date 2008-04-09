@@ -182,8 +182,8 @@ public class CompilationJob implements Runnable {
                                     try {
                                         boolean shouldCall;
                                         try {
-                                            final Phase phase = js.moveToPhase(r.phase, ci, true);
-                                            shouldCall = phase.compareTo(r.phase) >= 0;
+//                                            final Phase phase = js.moveToPhase(r.phase, ci, true);
+                                            final Phase phase = ci.toPhase(r.phase);                                            shouldCall = phase.compareTo(r.phase) >= 0;
                                         } finally {
                                         }
                                         if (shouldCall) {
@@ -193,7 +193,10 @@ public class CompilationJob implements Runnable {
                                             if (shouldCall) {
                                                 try {
                                                     final long startTime = System.currentTimeMillis();
-                                                    r.task.run(ci);
+                                                    // XXX: bad package, needs to hard downcast
+                                                    //final CompilationInfo clientCi = new CompilationInfo(ci.impl);
+                                                    final CompilationInfo clientCi = ci;
+                                                    r.task.run(clientCi);
                                                     final long endTime = System.currentTimeMillis();
                                                     if (LOGGER.isLoggable(Level.FINEST)) {
                                                         LOGGER.finest(String.format("executed task: %s in %d ms.", r.task.getClass().toString(), endTime - startTime));

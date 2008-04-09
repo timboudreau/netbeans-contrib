@@ -44,16 +44,16 @@ package org.netbeans.lib.javafx.lexer;
 import com.sun.tools.javac.util.Log;
 import org.antlr.runtime.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Lexer base class provide user code for grammar. This code is called from antlr generated lexer. The main
  * purpose is to cover differences between javafxc lexer customizations and this module.
  *
- * @author Rastislav Komara (<a href="mailto:rastislav.komara@sun.com">RKo</a>)
+ * @author Rastislav Komara (<a href="mailto:rastislav .komara@sun.com">RKo</a>)
  */
 public abstract class Lexer extends org.antlr.runtime.Lexer {
     public final BraceQuoteTracker NULL_BQT = new BraceQuoteTracker(null, '\'', false);
@@ -64,6 +64,7 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
     protected Log log;
     private static Logger logger = Logger.getLogger(Lexer.class.getName());
     private List<Token> tokens = new ArrayList<Token>();
+    private static final int ERROR = v3Lexer.WS;
 //    private boolean errorRecovery;
 
 
@@ -73,11 +74,12 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
     }
 
     public Token nextToken() {
-        if ( tokens.size() > 0 ) {
+        if (tokens.size() > 0) {
             return tokens.remove(0);
+
         }
         super.nextToken();
-        if ( tokens.size()==0 ) {
+        if (tokens.size() == 0) {
             emit(Token.EOF_TOKEN);
         }
         return tokens.remove(0);
@@ -127,13 +129,26 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
      * If error is reported we are in trouble. If we loose track of tokens and reach inconsistent state the best to do
      * is try to recover it just by skipping several characters and starts from beginning. Better then failing
      * application down.
-     * 
+     *
      * @param e exeption occured during lexing.
      */
     @Override
     public void reportError(RecognitionException e) {
         logger.severe(getErrorMessage(e, getTokenNames()) + " Trying to recover from error. " + e.getClass().getSimpleName());
         recover(e);
+    }
+
+
+    /**
+     * Lexers can normally match any char in it's vocabulary after matching
+     * a token, so do the easy thing and just kill a character and hope
+     * it all works out.  You can instead use the rule invocation stack
+     * to do sophisticated error recovery if you are in a fragment rule.
+     */
+    @Override
+    public void recover(RecognitionException re) {
+        final BitSet bitSet = computeErrorRecoverySet();
+        consumeUntil(input, bitSet);
     }
 
     /**
