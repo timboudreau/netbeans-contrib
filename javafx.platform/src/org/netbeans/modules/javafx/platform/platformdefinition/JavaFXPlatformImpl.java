@@ -187,7 +187,9 @@ public class JavaFXPlatformImpl extends JavaPlatform {
                 return cp;
             String pathSpec = getSystemProperties().get(SYSPROP_BOOT_CLASSPATH);
             if (installFolders.size() == 2) try {
-                String fxRT = Util.getExtensions(new File(installFolders.get(1).toURI()).getAbsolutePath());
+                String fxRT = new File(installFolders.get(1).toURI()).getAbsolutePath();
+                pathSpec = pathSpec + File.pathSeparator + fxRT;
+                fxRT = Util.getExtensions(fxRT);
                 if (fxRT != null) pathSpec = pathSpec + File.pathSeparator + fxRT;
             } catch (URISyntaxException e) {
                 Exceptions.printStackTrace(e);
