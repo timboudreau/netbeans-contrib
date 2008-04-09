@@ -51,43 +51,44 @@ import org.netbeans.api.lexer.TokenHierarchy;
  * @author nenik
  */
 public class CompilationInfo {
-    final JavaFXSource source;
-    private JavafxcTask cTask;
-    private CompilationUnitTree compilationUnit;    
-    
-    JavaFXSource.Phase phase = JavaFXSource.Phase.MODIFIED;
+    final CompilationInfoImpl impl;
 
     public CompilationInfo(JavaFXSource source) {
-        this.source = source;
+        impl = new CompilationInfoImpl(source);
+    }
+
+    CompilationInfo(CompilationInfoImpl impl) {
+        this.impl = impl;
     }
 
     public JavaFXSource.Phase getPhase() {
-        return phase;
+        return impl.getPhase();
     }
 
     /**
-     * Return the {@link com.sun.source.util.Trees} service of the javafxc represented by this {@link CompilationInfo}.
+     * Return the {@link com.sun.tools.javafx.api.JavafxcTrees} service of the javafxc represented by this {@link CompilationInfo}.
      * @return javafxc Trees service
      */
     public JavafxcTrees getTrees() {
-         return JavafxcTrees.instance(getJavafxcTask());
+        return JavafxcTrees.instance(impl.getJavafxcTask());
     }
 
     public Types getTypes() {
-         return getJavafxcTask().getTypes();
+        return impl.getJavafxcTask().getTypes();
     }
     
     public Elements getElements() {
-	return getJavafxcTask().getElements();
+	return impl.getJavafxcTask().getElements();
     }
     
-    JavafxcTask getJavafxcTask() {
-        if (cTask == null) {
-            cTask = source.createJavafxcTask();
-        }
-        return cTask;
+    /**
+     * Returns {@link JavaFXSource} for which this {@link CompilationInfo} was created.
+     * @return JavaFXSource
+     */
+    public JavaFXSource getJavaFXSource() {
+        return impl.getJavaFXSource();
     }
-
+    
     /**
      * Returns the javafxc tree representing the source file.
      * @return {@link CompilationUnitTree} the compilation unit cantaining the top level classes contained in the,
@@ -96,21 +97,11 @@ public class CompilationInfo {
      * @throws java.lang.IllegalStateException  when the phase is less than {@link JavaFXSource.Phase#PARSED}
      */
     public CompilationUnitTree getCompilationUnit() {
-//        if (this.jfo == null) {
-//            throw new IllegalStateException ();
-//        }
-        if (phase.lessThan(JavaFXSource.Phase.PARSED))
-            throw new IllegalStateException("Cannot call getCompilationInfo() if current phase < JavaFXSource.Phase.PARSED. You must call toPhase(Phase.PARSED) first.");//NOI18N
-        return compilationUnit;
+        return impl.getCompilationUnit();
+
     }
 
     public TokenHierarchy getTokenHierarchy() {
-        return source.getTokenHierarchy();
+        return impl.getTokenHierarchy();
     }
-    
-    void setCompilationUnit(CompilationUnitTree compilationUnit) {
-        assert this.compilationUnit == null;
-        this.compilationUnit = compilationUnit;
-    }
-
 }
