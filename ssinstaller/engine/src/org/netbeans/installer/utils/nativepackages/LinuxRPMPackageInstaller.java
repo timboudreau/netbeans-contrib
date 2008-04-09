@@ -38,11 +38,29 @@ public class LinuxRPMPackageInstaller implements NativePackageInstaller {
             try {
                 LogManager.log("executing command: rpm -i " + pathToPackage + (target == null? "": " --root " + target));
                 Process p = null;
+            
                 if (target == null) {
                     p = new ProcessBuilder("rpm", "-i", "--nodeps", pathToPackage).start();
                 } else {
                     p = new ProcessBuilder("rpm", "-i", "--nodeps", pathToPackage,"--relocate" , "/opt/sun=" + target).start();
                 }
+                
+                     {
+                    String line;
+                    StringBuffer message = new StringBuffer();
+                    message.append("Error = ");
+                    BufferedReader input =
+                            new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                    while ((line = input.readLine()) != null) {
+                        message.append(line);
+                    }
+                    message.append("\n Output = ");
+                    input =
+                            new BufferedReader(new InputStreamReader(p.getInputStream()));
+                    while ((line = input.readLine()) != null) {
+                        message.append(line);
+                    }
+                 }
                 
                 if (p.waitFor() != 0) {
                     String line;
