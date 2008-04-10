@@ -36,6 +36,8 @@
 
 package org.netbeans.installer.wizard.components.sequences;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,9 +46,11 @@ import org.netbeans.installer.wizard.components.panels.netbeans.NbPreInstallSumm
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.utils.ErrorManager;
+import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.helper.ExecutionMode;
 import org.netbeans.installer.utils.helper.Platform;
+import org.netbeans.installer.wizard.components.WizardAction;
 import org.netbeans.installer.wizard.components.WizardComponent;
 import org.netbeans.installer.wizard.components.WizardSequence;
 // Modified by Igor Nikiforov
@@ -153,6 +157,30 @@ public class MainSequence extends WizardSequence {
                     addChild(downloadInstallationDataAction);
                     addChild(installAction);
                     addChild(serviceTagAction);
+                
+                addChild(new WizardAction() {
+                        @Override
+                        public void execute() {
+                            final Registry registry = Registry.getInstance();
+
+                            File root = registry.getProducts("ss-base").get(0).getInstallationLocation();
+                            File tmpF = new File(root.getAbsolutePath() + File.separator + "SUNWspro");
+                            tmpF.mkdir();
+                            LogManager.log("Creating dir=" + tmpF);
+                            for (File filetoMove : root.listFiles(new FilenameFilter() {
+
+                                public boolean accept(File dir, String name) {
+                                    return name.endsWith("install.sh");
+                                }
+                            })) {
+                                LogManager.log("Moving: " + filetoMove + " to " + root.getAbsolutePath() + File.separator + "SUNWspro" + File.separator + filetoMove.getName());
+                                filetoMove.renameTo(new File(root.getAbsolutePath() + File.separator + "SUNWspro" + File.separator + filetoMove.getName()));
+                            }
+                            new File(root, "dummy").delete();
+
+                        }
+                    });
+                  
                 }
                 
                 addChild(nbPostInstallSummaryPanel);

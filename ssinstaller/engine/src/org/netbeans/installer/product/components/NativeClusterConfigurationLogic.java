@@ -14,6 +14,7 @@ import org.netbeans.installer.utils.exceptions.InstallationException;
 import org.netbeans.installer.utils.exceptions.UninstallationException;
 import org.netbeans.installer.utils.helper.FileEntry;
 import org.netbeans.installer.utils.helper.Platform;
+import org.netbeans.installer.utils.helper.Text;
 import org.netbeans.installer.utils.nativepackages.NativePackageInstaller;
 import org.netbeans.installer.utils.nativepackages.PackageType;
 import org.netbeans.installer.utils.progress.Progress;
@@ -92,5 +93,9 @@ public class NativeClusterConfigurationLogic extends ProductConfigurationLogic {
     public boolean registerInSystem() {
         return false;
     }
-    
+
+    @Override
+    public Text getLicense() {
+        return null;
+    }  
 }
