@@ -66,9 +66,9 @@ public class AstScope implements Iterable<AstScope> {
     }
 
     public void setBindingDef(AstDef bindingDef) {
-        this.bindingDef = bindingDef;        
+        this.bindingDef = bindingDef;
     }
-    
+
     public AstDef getBindingDef() {
         return bindingDef;
     }
@@ -245,54 +245,59 @@ public class AstScope implements Iterable<AstScope> {
     }
 
     private void findRefsInScope(AstScope scope, AstDef def, List<AstElement> refs) {
+        // find if there is closest override def, if so, we shoud bypass now :
+        for (AstDef _def : scope.getDefs()) {
+            if (_def != def && _def.mayEquals(def)) {
+                return;
+            }
+        }
+
         for (AstRef ref : scope.getRefs()) {
             if (def.referedBy(ref)) {
                 refs.add(ref);
             }
         }
 
-        for (AstScope child : scope.getScopes()) {
-            findRefsInScope(child, def, refs);
+        for (AstScope _scope : scope.getScopes()) {
+            findRefsInScope(_scope, def, refs);
         }
     }
-    
-    
+
     private boolean contains(int offset) {
         return offset >= range.getStart() && offset < range.getEnd();
     }
-    
+
     public AstScope getClosestScope(int offset) {
         AstScope result = null;
-        
+
         if (scopes != null) {
             /** search children first */
             for (AstScope child : scopes) {
                 if (child.contains(offset)) {
                     result = child.getClosestScope(offset);
-		    break;
-		}
-	    }  
-	}
-	if (result != null) {
+                    break;
+                }
+            }
+        }
+        if (result != null) {
             return result;
-	} else {
+        } else {
             if (this.contains(offset)) {
                 return this;
-	    } else {
+            } else {
                 /* we should return null here, since it may under a parent context's call, 
-		 * we shall tell the parent there is none in this and children of this
-		 */
-                return null; 
-	    } 
-	}
+                 * we shall tell the parent there is none in this and children of this
+                 */
+                return null;
+            }
+        }
     }
-    
-    
+
     public <T extends AstDef> T getEnclosingDef(Class<T> clazz, int offset) {
         AstScope scope = getClosestScope(offset);
         return scope.getEnclosingDefRecursively(clazz);
     }
-    
+
     private <T extends AstDef> T getEnclosingDefRecursively(Class<T> clazz) {
         AstDef binding = getBindingDef();
         if (binding != null && clazz.isInstance(binding)) {
@@ -304,13 +309,12 @@ public class AstScope implements Iterable<AstScope> {
             } else {
                 return null;
             }
-        }        
+        }
     }
-       
 
     @Override
     public String toString() {
-        return "Scope(Binding=" + bindingDef + "," + getRange() + ",defs=" + getDefs() + ",usages=" + getRefs() + ")";
+        return "Scope(Binding=" + bindingDef + "," + getRange() + ",defs=" + getDefs() + ",refs=" + getRefs() + ")";
     }
 
     private static class ScopeComparator implements Comparator<AstScope> {

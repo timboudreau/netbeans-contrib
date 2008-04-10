@@ -634,7 +634,7 @@ public class AstElementVisitor extends AstVisitor {
             AstScope scope = new AstScope(getRange(that));
             for (Id id : ids) {
                 Var var = new Var(id, scope, ElementKind.FIELD);
-                
+
                 scopeStack.peek().addDef(var);
             }
         }
@@ -664,34 +664,47 @@ public class AstElementVisitor extends AstVisitor {
     public void visitCaseClause(GNode that) {
         enter(that);
 
+        AstScope scope = new AstScope(getRange(that));
+        scopeStack.peek().addScope(scope);
+        scopeStack.push(scope);
+
         GNode what = that.getGeneric(0);
         if (what.getName().equals("Pattern")) {
             // Pattern
-            visitChildren(what);
+            List<Id> ids = visitPattern(what);
+            for (Id id : ids) {
+                Var var = new Var(id, new AstScope(id.getNameRange()), ElementKind.VARIABLE);
+
+                scopeStack.peek().addDef(var);
+            }
+
             GNode guardNode = that.getGeneric(1);
             if (guardNode != null) {
                 visitChildren(guardNode);
             }
+            // Block
+            visitBlock(that.getGeneric(2));
         } else {
             // in funType
             if (what.getName().endsWith("VarId")) {
                 Id id = visitVarId(what);
-                AstScope scope = new AstScope(getRange(that));
-                Var var = new Var(id, scope, ElementKind.VARIABLE);
+                Var var = new Var(id, new AstScope(id.getNameRange()), ElementKind.VARIABLE);
+
+                scopeStack.peek().addDef(var);
 
                 // FunTypeInCaseClause
                 visitChildren(that.getGeneric(1));
+                // Block
+                visitBlock(that.getGeneric(2));
 
-                scopeStack.peek().addDef(var);
             } else {
                 // "_" FunTypeInCaseClause
                 visitChildren(that.getGeneric(1));
             }
         }
-        // Block
-        visitChildren(that.getGeneric(2));
 
 
+        scopeStack.pop();
         exit(that);
     }
 
@@ -928,6 +941,27 @@ public class AstElementVisitor extends AstVisitor {
         return that.getString(0);
     }
 
+    public void visitBlock(GNode that) {
+        enter(that);
+        
+        AstScope scope = new AstScope(getRange(that));
+        scopeStack.peek().addScope(scope);
+        scopeStack.push(scope);
+        
+        for (Object o : that.getList(0).list()) {
+            // BlockState
+            visitChildren((GNode) o);
+        }
+        
+        GNode resultExprNode = that.getGeneric(1);       
+        if (resultExprNode != null) {
+            visitChildren(resultExprNode);
+        }
+        
+        scopeStack.pop();
+        exit(that);
+    }
+    
     public void visitSimpleIdExpr(GNode that) {
         enter(that);
 
