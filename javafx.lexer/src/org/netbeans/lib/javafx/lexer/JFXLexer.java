@@ -63,7 +63,6 @@ public class JFXLexer implements org.netbeans.spi.lexer.Lexer {
     private static Logger log = Logger.getLogger(JFXLexer.class.getName());
     private Lexer lexer;
     private TokenFactory<JFXTokenId> tokenFactory;
-    private ANTLRReaderStream input;
     protected LexerInput lexerInput;
     protected JFXTokenId lastType;
     private LexerRestartInfo<JFXTokenId> info;
@@ -82,7 +81,7 @@ public class JFXLexer implements org.netbeans.spi.lexer.Lexer {
             final LexerInputStream reader = new LexerInputStream();
             reader.setLexerInput(lexerInput);
 
-            input = new ANTLRInputStream(reader);
+            ANTLRReaderStream input = new ANTLRInputStream(reader);
             lexer = new v3Lexer(input);
             final LexerState ls = (LexerState) info.state();
             if (ls != null) {
@@ -149,7 +148,6 @@ public class JFXLexer implements org.netbeans.spi.lexer.Lexer {
 
     static class LexerInputStream extends InputStream {
         private LexerInput input;
-        private static Logger log = Logger.getLogger(LexerInputStream.class.getName());
 
         public void setLexerInput(LexerInput input) {
             this.input = input;
