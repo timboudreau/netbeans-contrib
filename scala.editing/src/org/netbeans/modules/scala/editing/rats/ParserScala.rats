@@ -223,16 +223,16 @@ generic Expr =
 / NotFunExpr;
 
 generic NotFunExpr = 
-  void:"if"    :key void:"(":sep Expr void:")":sep N* Expr ( SEMI? void:"else":key Expr )? @IfExpr
-/ void:"while" :key void:"(":sep Expr void:")":sep N* Expr                                 @WhileExpr
+  void:"if"    :key void:"(":sep Expr  void:")":sep N* Expr ( SEMI? void:"else":key Expr )? @IfExpr
+/ void:"while" :key void:"(":sep Expr  void:")":sep N* Expr                                 @WhileExpr
 / void:"try"   :key void:"{":sep Block void:"}":sep ( void:"catch":key void:"{":sep CaseClauses void:"}":sep )? ( void:"finally":key Expr )? @TryExpr
 / void:"do"    :key Expr SEMI? void:"while":key void:"(":sep Expr void:")":sep             @DoExpr
-/ void:"for"   :key ( void:"(":sep Enumerators void:")":sep / void:"{":sep Enumerators void:"}":sep ) N* ( void:"yield":key) ? Expr          @ForExpr
-/ void:"throw" :key Expr        @ThrowExpr
-/ void:"return":key Expr?       @ReturnExpr
-/ SimpleExpr  void:"=":key Expr @AssignmentExpr
-/ PostfixExpr Ascription        @AscriptionExpr
-/ PostfixExpr void:"match":key void:"{":sep CaseClauses void:"}":sep  @MatchExpr
+/ void:"for"   :key ( void:"(":sep Enumerators void:")":sep / void:"{":sep Enumerators void:"}":sep ) N* ( "yield":key )? Expr               @ForExpr
+/ void:"throw" :key Expr         @ThrowExpr
+/ void:"return":key Expr?        @ReturnExpr
+/ SimpleExpr   void:"=":key Expr @AssignmentExpr
+/ PostfixExpr  Ascription        @AscriptionExpr
+/ PostfixExpr  void:"match":key void:"{":sep CaseClauses void:"}":sep  @MatchExpr
 / PostfixExpr
 ;
 
@@ -295,9 +295,10 @@ generic Block =
   EXIT_NL_ENABLE 
 ;
 
+/* @DocError in ScalaReference: ( "implicit":key )? Def */
 transient generic BlockStat = 
   Import
-/ ( void:"implicit":key )? Def
+/ ( "implicit":key / "lazy":key )* Def
 / LocalModifier* TmplDef
 / !ResultFunExpr NotFunExpr
 / 
@@ -317,10 +318,10 @@ transient generic Enumerators = Generator ( SEMI Enumerator )*;
 transient generic Enumerator = 
   Generator
 / Guard
-/ "val":key Pattern1 "=":key Expr
+/ void:"val":key Pattern1 void:"=":key Expr
 ;
 
-transient generic Generator = Pattern1 "<-":key Expr Guard? ;
+transient generic Generator = Pattern1 void:"<-":key Expr Guard? ;
 
 transient generic CaseClauses = CaseClause CaseClause* ;
 /* @Hacking greedy Pattern will consumer latest "=>" to try to recognize as FunType,
@@ -570,7 +571,7 @@ transient generic TopStat =
 ;
 
 transient generic Packaging = void:"package":key QualId N? void:"{":sep TopStatSeq void:"}":sep ;
-transient generic Package   = void:"package":key QualId SEMI ;
+transient generic Package   = void:"package":key QualId SEMI !( "{":sep );
 
 public generic CompilationUnit = SKIP_N DocComment* Package? TopStatSeq EOF;
 
