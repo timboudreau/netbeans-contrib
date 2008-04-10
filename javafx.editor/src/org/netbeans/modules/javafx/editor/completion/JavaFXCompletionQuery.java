@@ -76,6 +76,7 @@ import org.netbeans.api.javafx.source.JavaFXSource;
 import org.netbeans.api.javafx.source.JavaFXSource.Phase;
 import org.netbeans.api.javafx.source.Task;
 import org.netbeans.api.javafx.source.TreeUtilities;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.spi.editor.completion.CompletionDocumentation;
 import org.netbeans.spi.editor.completion.CompletionItem;
@@ -1494,14 +1495,44 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
     }
 
     private void addLocalConstantsAndTypes(final Env env) throws IOException {
+        log("addLocalConstantsAndTypes: " + env.getPrefix());
+        for (String s: getIdentifiers(env)) {
+            results.add(JavaFXCompletionItem.createVariableItem(s, anchorOffset, false));
+        }
     }
 
     private void addLocalMembersAndVars(final Env env) throws IOException {
+        log("addLocalMembersAndVars: " + env.getPrefix());
+        for (String s: getIdentifiers(env)) {
+            results.add(JavaFXCompletionItem.createVariableItem(s, anchorOffset, false));
+        }
     }
 
     private void addLocalFieldsAndVars(final Env env) throws IOException {
+        log("addLocalFieldsAndVars: " + env.getPrefix());
+        for (String s: getIdentifiers(env)) {
+            results.add(JavaFXCompletionItem.createVariableItem(s, anchorOffset, false));
+        }
     }
 
+    private Set<String> getIdentifiers(Env env) {
+        Set<String> res = new HashSet<String>();
+        String prefix = env.getPrefix();
+        TokenSequence<JFXTokenId> ts = env.getController().getTokenHierarchy().tokenSequence(JFXTokenId.language());
+        while (ts.moveNext()) {
+            Token<JFXTokenId> token = ts.token();
+            if (token.id().equals(JFXTokenId.IDENTIFIER)) {
+                String s = token.text().toString();
+                if (s.length() >= 1) {
+                    if (JavaFXCompletionProvider.startsWith(s, prefix)) {
+                        res.add(s);
+                    }
+                }
+            }
+        }
+        return res;
+    }
+    
     private void addPackages(Env env, String fqnPrefix) {
     }
 
@@ -2182,17 +2213,6 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         return null;
     }
 
-    private boolean withinAnonymousOrLocalClass(TreePath path) {
-        if (path == null) {
-            return false;
-        }
-        TreePath parentPath = path.getParentPath();
-        if (path.getLeaf().getKind() == Tree.Kind.CLASS && parentPath.getLeaf().getKind() != Tree.Kind.COMPILATION_UNIT && parentPath.getLeaf().getKind() != Tree.Kind.CLASS) {
-            return true;
-        }
-        return withinAnonymousOrLocalClass(parentPath);
-    }
-    
     private static void log(String s) {
         if (LOGGABLE) {
             logger.fine(s);

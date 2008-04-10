@@ -42,6 +42,8 @@ import org.openide.modules.InstalledFileLocator;
  */
 public class GePluginProperties {
     
+    private static final Logger LOGGER = Logger.getLogger(GePluginProperties.class.getName());
+    
     private static final String PROP_USERNAME      = InstanceProperties.USERNAME_ATTR;
     private static final String PROP_PASSWORD      = InstanceProperties.PASSWORD_ATTR;
     public static final String PROPERTY_DISPLAY_NAME = InstanceProperties.DISPLAY_NAME_ATTR;
@@ -108,7 +110,7 @@ public class GePluginProperties {
                 }
             }
         } catch(MalformedURLException ex) {
-            Logger.getLogger("global").log(Level.INFO, null, ex);
+            LOGGER.log(Level.INFO, null, ex);
         }
         return list;
     }
@@ -123,7 +125,7 @@ public class GePluginProperties {
                     list.add(GePluginUtils.fileToUrl(j2eeDoc));
                 }
             } catch (MalformedURLException e) {
-                Logger.getLogger("global").log(Level.INFO, null, e);
+                LOGGER.log(Level.INFO, null, e);
             }
             return list;
         }
@@ -158,9 +160,9 @@ public class GePluginProperties {
         try {
             return isRunning(host, Integer.parseInt(port));
         } catch(NumberFormatException e) {
-            if(GeDebug.isEnabled()) {
-                GeDebug.log("org.netbeans.modules.j2ee.geronimo2.GePluginProperties", "HOST: " + host);
-                GeDebug.log("org.netbeans.modules.j2ee.geronimo2.GePluginProperties", "PORT: " + port);
+            if (LOGGER.isLoggable(Level.FINER)) {
+                LOGGER.log(Level.FINER, "HOST: " + host);
+                LOGGER.log(Level.FINER, "PORT: " + port);
             }
             return false;
         }

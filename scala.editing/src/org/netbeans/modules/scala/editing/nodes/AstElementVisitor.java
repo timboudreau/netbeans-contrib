@@ -707,15 +707,7 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.pop();
         exit(that);
     }
-
-    public void visitGenerator(GNode that) {
-        enter(that);
-
-        // Pattern1
-        visitChildren(that.getGeneric(0));
-
-        exit(that);
-    }
+    
 
     public List<Id> visitPatterns(GNode that) {
         enter(that);
@@ -961,6 +953,81 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.pop();
         exit(that);
     }
+    
+    public void visitForExpr(GNode that) {
+        enter(that);
+        
+        AstScope scope = new AstScope(getRange(that));
+        scopeStack.peek().addScope(scope);
+        scopeStack.push(scope);
+        
+        GNode enumeratorsNode = that.getGeneric(0);
+        List<Id> ids = visitEnumerators(enumeratorsNode);
+        AstScope varBindingScope = new AstScope(getRange(enumeratorsNode));
+        for (Id id : ids) {
+            Var var = new Var(id, varBindingScope, ElementKind.VARIABLE);
+            
+            scopeStack.peek().addDef(var);
+        }        
+        
+        // Expr
+        visitChildren(that.getGeneric(2));
+        
+        scopeStack.pop();
+        exit(that);
+    }
+    
+    
+    public List<Id> visitEnumerators(GNode that) {
+        enter(that);
+        
+        List<Id> ids = visitGenerator(that.getGeneric(0));
+        for (Object o : that.getList(1).list()) {
+            ids.addAll(visitEnumerator((GNode) o));
+        }
+        
+        exit(that);
+        return ids;
+    }
+    
+    public List<Id> visitEnumerator(GNode that) {
+        enter(that);
+        
+        List<Id> ids = null;
+        
+        GNode what = that.getGeneric(0);
+        if (what.getName().equals("Generator")) {
+            ids = visitGenerator(what);
+        } else if (what.getName().equals("Guard")) {
+            ids = Collections.<Id>emptyList();
+        } else {
+            // void:"val":key Pattern1 "=":key Expr
+            ids = visitPattern1(what);
+            // Expr
+            visitChildren(that.getGeneric(1));
+        }
+        
+        exit(that);
+        return ids;
+    }
+
+    public List<Id> visitGenerator(GNode that) {
+        enter(that);
+
+        // Pattern1
+        List<Id> ids = visitPattern1(that.getGeneric(0));
+        // Expr
+        visitChildren(that.getGeneric(1));
+        
+        GNode guardNode = that.getGeneric(2);
+        if (guardNode != null) {
+            visitChildren(guardNode);
+        }
+        
+        exit(that);
+        return ids;
+    }
+    
     
     public void visitSimpleIdExpr(GNode that) {
         enter(that);

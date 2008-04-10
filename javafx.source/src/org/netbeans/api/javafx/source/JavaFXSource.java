@@ -97,6 +97,7 @@ public final class JavaFXSource {
     public static enum Phase {
         MODIFIED,
         PARSED,
+        ANALYZED,
         ELEMENTS_RESOLVED,
         RESOLVED,   
         UP_TO_DATE;
@@ -197,25 +198,47 @@ public final class JavaFXSource {
         return task;
   }
 
-    public Phase moveToPhase(Phase phase, CompilationInfoImpl cc, boolean b) throws IOException {
-        if (cc.phase.lessThan(Phase.PARSED)) {
-                Iterable<? extends CompilationUnitTree> trees = cc.getJavafxcTask().parse();
-//                new JavaFileObject[] {currentInfo.jfo});
+    public Phase moveToPhase(Phase phase, CompilationInfoImpl cc, boolean cancellable) throws IOException {
+        FileObject file = getFileObject();
+        
+        if (cc.phase.lessThan(Phase.PARSED) && !phase.lessThan(Phase.PARSED)) {
+            if (cancellable && CompilationJob.currentRequest.isCanceled()) {
+                //Keep the currentPhase unchanged, it may happen that an userActionTask
+                //runnig after the phace completion task may still use it.
+                return cc.phase;
+            }
 
-                for (CompilationUnitTree cut : trees) {
-                    cc.setCompilationUnit(cut);
-                }
-                /*                assert trees != null : "Did not parse anything";        //NOI18N
-                Iterator<? extends CompilationUnitTree> it = trees.iterator();
-                assert it.hasNext();
-                CompilationUnitTree unit = it.next();
-                currentInfo.setCompilationUnit(unit);
-*/
-                cc.setPhase(Phase.PARSED);
+            long start = System.currentTimeMillis();
+            Iterable<? extends CompilationUnitTree> trees = cc.getJavafxcTask().parse();
+//                new JavaFileObject[] {currentInfo.jfo});
+            Iterator<? extends CompilationUnitTree> it = trees.iterator();
+            assert it.hasNext();
+            CompilationUnitTree unit = it.next();
+            cc.setCompilationUnit(unit);
+            assert !it.hasNext();
+            cc.setPhase(Phase.PARSED);
+            long end = System.currentTimeMillis();
+            Logger.getLogger("TIMER").log(Level.FINE, "Compilation Unit", new Object[] {file, unit}); // log the instance
+            Logger.getLogger("TIMER").log(Level.FINE, "Parsed", new Object[] {file, end-start});
+        }
+
+        if (cc.phase == Phase.PARSED && !phase.lessThan(Phase.ANALYZED)) {
+            if (cancellable && CompilationJob.currentRequest.isCanceled()) {
+                return Phase.MODIFIED;
+            }
+
+            long start = System.currentTimeMillis();
+            cc.getJavafxcTask().analyze();
+            cc.setPhase(Phase.ANALYZED);
+            long end = System.currentTimeMillis();
+            Logger.getLogger("TIMER").log(Level.FINE, "Analyzed", new Object[] {file, end-start});
         }
         return phase;
     }
 
+    private FileObject getFileObject() {
+        return files.iterator().next();
+    }
     
     private JavaFXSource(ClasspathInfo cpInfo, Collection<? extends FileObject> files) throws IOException {
         this.cpInfo = cpInfo;
