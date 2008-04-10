@@ -42,6 +42,7 @@
 package org.netbeans.api.javafx.lexer;
 
 import org.netbeans.api.java.lexer.JavaStringTokenId;
+import org.netbeans.api.java.lexer.JavadocTokenId;
 import org.netbeans.api.lexer.*;
 import org.netbeans.lib.javafx.lexer.JFXLexer;
 import org.netbeans.spi.lexer.*;
@@ -50,6 +51,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  * @author Rastislav Komara (<a href="mailto:rastislav.komara@sun.com">RKo</a>)
@@ -277,22 +280,28 @@ public enum JFXTokenId implements TokenId {
 
 
     private static final Language<JFXTokenId> language = new LanguageHierarchy<JFXTokenId>() {
-        JFXLexer lexer;
+        private Logger log = Logger.getLogger(JFXTokenId.class.getName());
+//        JFXLexer lexer;
 
         protected Collection<JFXTokenId> createTokenIds() {
             return Arrays.asList(JFXTokenId.values());
         }
 
         protected Lexer<JFXTokenId> createLexer(LexerRestartInfo<JFXTokenId> info) {
-            if (lexer == null) {
+            /*if (lexer == null) {
                 lexer = new JFXLexer();
             }
             try {
                 lexer.restart(info);
             } catch (IOException e) {
                 e.printStackTrace();
+            }*/
+            try {
+                return new JFXLexer(info);
+            } catch (IOException e) {
+                if (log.isLoggable(Level.SEVERE)) log.severe("Cannot create lexer.\n" + e);
+                throw new IllegalStateException(e);
             }
-            return lexer;
         }
 
         @Override
@@ -306,7 +315,7 @@ public enum JFXTokenId implements TokenId {
                 case COMMENT:
                     final StringBuilder tt = token.text() != null ? new StringBuilder(token.text()) : null;
                     if (tt != null && tt.toString().trim().startsWith("/**")) {
-                        return LanguageEmbedding.create(org.netbeans.api.java.lexer.JavadocTokenId.language(), 3,
+                        return LanguageEmbedding.create(JavadocTokenId.language(), 3,
                                 (token.partType() == PartType.COMPLETE) ? 2 : 0);
                     } else {
                         return null;
