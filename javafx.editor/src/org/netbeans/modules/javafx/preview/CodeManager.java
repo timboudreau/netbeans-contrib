@@ -113,6 +113,9 @@ public class CodeManager {
         options.add("-sourcepath");
         options.add(JavaFXSourceUtils.getAdditionalCP(sourceCP.toString()));
         
+        options.add("-Xbootclasspath/a:" + JavaFXSourceUtils.getAdditionalCP(""));
+//        options.add(JavaFXSourceUtils.getAdditionalCP(""));
+        
         options.add("-implicit:class");
         
         JavafxcTask task = tool.getTask(err, manager, diagnostics, options, compUnits);
