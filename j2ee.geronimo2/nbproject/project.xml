@@ -176,15 +176,7 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <public-packages>
-                <package>org.netbeans.modules.j2ee.geronimo2</package>
-                <package>org.netbeans.modules.j2ee.geronimo2.config</package>
-                <package>org.netbeans.modules.j2ee.geronimo2.customiser</package>
-                <package>org.netbeans.modules.j2ee.geronimo2.dialogs</package>
-                <package>org.netbeans.modules.j2ee.geronimo2.nodes</package>
-                <package>org.netbeans.modules.j2ee.geronimo2.nodes.actions</package>
-                <package>org.netbeans.modules.j2ee.geronimo2.util</package>
-            </public-packages>
+            <public-packages/>
         </data>
     </configuration>
 </project>

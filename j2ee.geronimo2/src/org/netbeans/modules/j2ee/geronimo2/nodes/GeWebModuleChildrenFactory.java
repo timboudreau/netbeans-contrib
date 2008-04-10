@@ -116,9 +116,7 @@ public class GeWebModuleChildrenFactory extends ChildFactory<GeWebModule> {
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
                 //TODO: Try to handle this correctly
-                System.out.println("## Aquire of nodes to display failed");
                 Logger.getLogger(GeWebModuleChildrenFactory.class.getName()).log(Level.INFO, null, e);
             }
         }

@@ -354,7 +354,7 @@ public final class GeCustomizerSupport {
                 try {
                     url = new URL(url.toExternalForm() + "/"); // NOI18N
                 } catch (MalformedURLException mue) {
-                    Logger.getLogger("global").log(Level.INFO, null, mue);
+                    Logger.getLogger(GeCustomizerSupport.class.getName()).log(Level.INFO, null, mue);
                 }
             }
             int oldSize = data.size();

@@ -70,7 +70,7 @@ public class JavaFXSourceUtils {
         if (file == null) {
             return false;
         }
-        System.setProperty("env.class.path", getAdditionalCP(System.getProperty("env.class.path")));
+//        System.setProperty("env.class.path", getAdditionalCP(System.getProperty("env.class.path")));
         
         JavaFXSource js = JavaFXSource.forFileObject(file);
         if (js == null) {

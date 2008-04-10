@@ -69,6 +69,10 @@ public class AstDef extends AstElement {
         return getName().equals(ref.getName());
     }
 
+    public boolean mayEquals(AstDef def) {
+        return this.getName().equals(def.getName());
+    }
+    
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);

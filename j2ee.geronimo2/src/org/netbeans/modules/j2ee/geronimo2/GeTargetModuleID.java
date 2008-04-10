@@ -71,7 +71,6 @@ private Target target;
     }
     //Retrieve the name of the target server.
     public java.lang.String  getWebURL() {
-        System.out.println("###");
         return context_url;//"http://" + module_id; //NOI18N
     }
     
