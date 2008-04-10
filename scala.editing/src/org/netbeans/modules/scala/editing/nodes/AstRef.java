@@ -36,38 +36,20 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class AstDefinition extends AstElement {
-
-    private AstScope bindingScope;
-
-    public AstDefinition(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
+public class AstRef extends AstElement {
+    
+    public AstRef(String name, OffsetRange nameRange, ElementKind kind) {
         super(name, nameRange, kind);
-        this.bindingScope = bindingScope;
-        this.bindingScope.setBindingDefinition(this);
     }
-
-    public AstScope getBindingScope() {
-        assert bindingScope != null : "Each definition should set binding scope!";
-        return bindingScope;
-    }
-
-    public OffsetRange getRange() {
-        return getBindingScope().getRange();
-    }
-
-    @Override
-    public void htmlFormat(HtmlFormatter formatter) {
-        super.htmlFormat(formatter);
-        formatter.appendText(getName());
-    }
+    
 }

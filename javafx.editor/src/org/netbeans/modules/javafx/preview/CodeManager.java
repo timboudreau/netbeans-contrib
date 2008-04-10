@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import java.util.Set;
+import javax.swing.text.BadLocationException;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 
@@ -28,23 +30,50 @@ import com.sun.tools.javafx.script.MemoryFileManager;
 import com.sun.javafx.runtime.sequence.Sequences;
 import com.sun.javafx.runtime.sequence.Sequence;
 import com.sun.tools.javafx.api.JavafxcTool;
+import java.io.File;
+import javax.swing.JEditorPane;
+import javax.swing.text.Document;
+import javax.tools.JavaFileManager;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.javafx.source.JavaFXSourceUtils;
+import org.netbeans.modules.javafx.dataloader.JavaFXDataObject;
+import org.netbeans.modules.javafx.editor.FXDocument;
+import org.netbeans.modules.javafx.editor.JavaFXDocument;
+import org.openide.cookies.EditorCookie;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
+import org.openide.windows.TopComponent;
 
 public class CodeManager {
 
-    public static Object execute(String className, String code, ClassPath classPath) {
+    public static Object execute(FXDocument doc) throws BadLocationException {
 
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(ToolProvider.class.getClassLoader());
         
-        Map<String, byte[]> classBytes = compile(className, code, classPath);
+        String code = doc.getText(0, doc.getLength());
+            
+        FileObject fo = ((JavaFXDocument)doc).getDataObject().getPrimaryFile();
+        
+        ClassPath sourceCP = ClassPath.getClassPath(fo, ClassPath.SOURCE);
+        ClassPath compileCP = ClassPath.getClassPath(fo, ClassPath.COMPILE);
+        ClassPath executeCP = ClassPath.getClassPath(fo, ClassPath.EXECUTE);
+        
+        if (sourceCP == null) {
+            throw new IllegalStateException("No classpath was found for folder: " + fo); // NOI18N
+        }
+        String className = sourceCP.getResourceName(fo, '.', false); // NOI18N
+
+        Map<String, byte[]> classBytes = compile(className, code, sourceCP, compileCP);
         
         Object obj = null;
         if (classBytes != null) {
             className = checkCase(classBytes, className);
             try {
-                obj = runFXFile(className, classPath, classBytes);
+                obj = runFXFile(className, executeCP, classBytes);
             } catch (Exception ex){
                 ex.printStackTrace();
             }
@@ -53,32 +82,39 @@ public class CodeManager {
         return obj;
     }
 
-    public static Map<String, byte[]> compile(String className, String code, ClassPath classPath) {
+    public static Map<String, byte[]> compile(String className, String code, ClassPath sourceCP, ClassPath compileCP) {
         PrintWriter err = new PrintWriter(System.err);
     
         List<String> options = new ArrayList<String>();
         DiagnosticCollector diagnostics = new DiagnosticCollector(); // <JavaFileObject>();
         
-        if (!code.contains("package")){
+        /*if (!code.contains("package")){
             String pack = className.substring(0, className.lastIndexOf('.'));
             code = "package " + pack + ";\n" + code;
-        }
+        }*/
+        
         List<JavaFileObject> compUnits = new ArrayList<JavaFileObject>(1);
-
+        
         compUnits.add(new FXFileObject(className, code));
 
         JavafxcTool tool = JavafxcTool.create();
-        
+/*        
         String cp = System.getProperty("env.class.path");
         System.setProperty("env.class.path", JavaFXSourceUtils.getAdditionalCP(cp));
-
+*/
         MemoryFileManager manager = new MemoryFileManager(tool.getStandardFileManager(diagnostics, null, null), ToolProvider.class.getClassLoader());
         
         options.add("-target");
         options.add("1.5");
         
         options.add("-classpath");
-        options.add(JavaFXSourceUtils.getAdditionalCP(""));
+        options.add(JavaFXSourceUtils.getAdditionalCP(compileCP.toString()));
+        
+        options.add("-sourcepath");
+        options.add(sourceCP.toString());
+        
+        options.add("-Xbootclasspath/a:" + JavaFXSourceUtils.getAdditionalCP(""));
+//        options.add(JavaFXSourceUtils.getAdditionalCP(""));
         
         options.add("-implicit:class");
         

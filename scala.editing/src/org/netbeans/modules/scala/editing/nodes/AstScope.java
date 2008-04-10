@@ -51,26 +51,26 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public class AstScope implements Iterable<AstScope> {
 
-    private AstDefinition bindingDefinition;
+    private AstDef bindingDef;
     private AstScope parent;
     private List<AstScope> scopes;
-    private List<AstDefinition> definitions;
-    private List<AstUsage> usages;
+    private List<AstDef> defs;
+    private List<AstRef> refs;
     private boolean scopesSorted;
-    private boolean definitionsSorted;
-    private boolean usagesSorted;
+    private boolean defsSorted;
+    private boolean refsSorted;
     private OffsetRange range;
 
     public AstScope(OffsetRange range) {
         this.range = range;
     }
 
-    public void setBindingDefinition(AstDefinition bindingDefinition) {
-        this.bindingDefinition = bindingDefinition;        
+    public void setBindingDef(AstDef bindingDef) {
+        this.bindingDef = bindingDef;
     }
-    
-    public AstDefinition getBindingDefinition() {
-        return bindingDefinition;
+
+    public AstDef getBindingDef() {
+        return bindingDef;
     }
 
     public OffsetRange getRange() {
@@ -88,18 +88,18 @@ public class AstScope implements Iterable<AstScope> {
         return scopes;
     }
 
-    public List<AstDefinition> getDefinitions() {
-        if (definitions == null) {
+    public List<AstDef> getDefs() {
+        if (defs == null) {
             return Collections.emptyList();
         }
-        return definitions;
+        return defs;
     }
 
-    public List<AstUsage> getUsages() {
-        if (usages == null) {
+    public List<AstRef> getRefs() {
+        if (refs == null) {
             return Collections.emptyList();
         }
-        return usages;
+        return refs;
     }
 
     void addScope(AstScope scope) {
@@ -110,21 +110,21 @@ public class AstScope implements Iterable<AstScope> {
         scope.parent = this;
     }
 
-    void addDefinition(AstDefinition definition) {
-        if (definitions == null) {
-            definitions = new ArrayList<AstDefinition>();
+    void addDef(AstDef def) {
+        if (defs == null) {
+            defs = new ArrayList<AstDef>();
         }
-        definitions.add(definition);
-        addScope(definition.getBindingScope());
-        definition.setEnclosingScope(this);
+        defs.add(def);
+        addScope(def.getBindingScope());
+        def.setEnclosingScope(this);
     }
 
-    void addUsage(AstUsage usage) {
-        if (usages == null) {
-            usages = new ArrayList<AstUsage>();
+    void addRef(AstRef ref) {
+        if (refs == null) {
+            refs = new ArrayList<AstRef>();
         }
-        usages.add(usage);
-        usage.setEnclosingScope(this);
+        refs.add(ref);
+        ref.setEnclosingScope(this);
     }
 
     public Iterator<AstScope> iterator() {
@@ -136,16 +136,16 @@ public class AstScope implements Iterable<AstScope> {
     }
 
     public AstElement getElement(int offset) {
-        if (definitions != null) {
-            if (!definitionsSorted) {
-                Collections.sort(definitions, new ElementComparator());
-                definitionsSorted = true;
+        if (defs != null) {
+            if (!defsSorted) {
+                Collections.sort(defs, new ElementComparator());
+                defsSorted = true;
             }
             int low = 0;
-            int high = definitions.size() - 1;
+            int high = defs.size() - 1;
             while (low <= high) {
                 int mid = (low + high) >> 1;
-                AstDefinition middle = definitions.get(mid);
+                AstDef middle = defs.get(mid);
                 if (offset < middle.getNameRange().getStart()) {
                     high = mid - 1;
                 } else if (offset >= middle.getNameRange().getEnd()) {
@@ -156,16 +156,16 @@ public class AstScope implements Iterable<AstScope> {
             }
         }
 
-        if (usages != null) {
-            if (!usagesSorted) {
-                Collections.sort(usages, new ElementComparator());
-                usagesSorted = true;
+        if (refs != null) {
+            if (!refsSorted) {
+                Collections.sort(refs, new ElementComparator());
+                refsSorted = true;
             }
             int low = 0;
-            int high = usages.size() - 1;
+            int high = refs.size() - 1;
             while (low <= high) {
                 int mid = (low + high) >> 1;
-                AstUsage middle = usages.get(mid);
+                AstRef middle = refs.get(mid);
                 if (offset < middle.getNameRange().getStart()) {
                     high = mid - 1;
                 } else if (offset >= middle.getNameRange().getEnd()) {
@@ -200,118 +200,121 @@ public class AstScope implements Iterable<AstScope> {
     }
 
     public List<AstElement> findOccurrences(AstElement element) {
-        AstDefinition definition = null;
-        if (element instanceof AstDefinition) {
-            definition = (AstDefinition) element;
-        } else if (element instanceof AstUsage) {
-            definition = findDefinition((AstUsage) element);
+        AstDef def = null;
+        if (element instanceof AstDef) {
+            def = (AstDef) element;
+        } else if (element instanceof AstRef) {
+            def = findDef((AstRef) element);
         }
 
-        if (definition == null) {
+        if (def == null) {
             return Collections.emptyList();
         }
 
         List<AstElement> occurrences = new ArrayList<AstElement>();
-        occurrences.add(definition);
+        occurrences.add(def);
 
-        findUsages(definition, occurrences);
+        findRefs(def, occurrences);
 
         return occurrences;
     }
 
-    public AstDefinition findDefinition(AstUsage usage) {
-        AstScope closestScope = usage.getEnclosingScope();
-        return findDefinitionInScope(closestScope, usage);
+    public AstDef findDef(AstRef ref) {
+        AstScope closestScope = ref.getEnclosingScope();
+        return findDefInScope(closestScope, ref);
     }
 
-    private AstDefinition findDefinitionInScope(AstScope scope, AstUsage usage) {
-        for (AstDefinition definition : scope.getDefinitions()) {
-            /** @todo also compare arity etc */
-            if (definition.getName().equals(usage.getName())) {
-                return definition;
+    private AstDef findDefInScope(AstScope scope, AstRef ref) {
+        for (AstDef def : scope.getDefs()) {
+            if (def.referedBy(ref)) {
+                return def;
             }
         }
 
         AstScope parentScope = scope.getParent();
         if (parentScope != null) {
-            return parentScope.findDefinitionInScope(parentScope, usage);
+            return parentScope.findDefInScope(parentScope, ref);
         }
 
         return null;
     }
 
-    public void findUsages(AstDefinition definition, List<AstElement> usages) {
-        AstScope enclosingScope = definition.getEnclosingScope();
-        findUsagesInScope(enclosingScope, definition, usages);
+    public void findRefs(AstDef def, List<AstElement> refs) {
+        AstScope enclosingScope = def.getEnclosingScope();
+        findRefsInScope(enclosingScope, def, refs);
     }
 
-    private void findUsagesInScope(AstScope scope, AstDefinition definition, List<AstElement> usages) {
-        for (AstUsage usage : scope.getUsages()) {
-            if (definition.getName().equals(usage.getName())) {
-                usages.add(usage);
+    private void findRefsInScope(AstScope scope, AstDef def, List<AstElement> refs) {
+        // find if there is closest override def, if so, we shoud bypass now :
+        for (AstDef _def : scope.getDefs()) {
+            if (_def != def && _def.mayEquals(def)) {
+                return;
             }
         }
 
-        for (AstScope child : scope.getScopes()) {
-            findUsagesInScope(child, definition, usages);
+        for (AstRef ref : scope.getRefs()) {
+            if (def.referedBy(ref)) {
+                refs.add(ref);
+            }
+        }
+
+        for (AstScope _scope : scope.getScopes()) {
+            findRefsInScope(_scope, def, refs);
         }
     }
-    
-    
+
     private boolean contains(int offset) {
         return offset >= range.getStart() && offset < range.getEnd();
     }
-    
+
     public AstScope getClosestScope(int offset) {
         AstScope result = null;
-        
+
         if (scopes != null) {
             /** search children first */
             for (AstScope child : scopes) {
                 if (child.contains(offset)) {
                     result = child.getClosestScope(offset);
-		    break;
-		}
-	    }  
-	}
-	if (result != null) {
+                    break;
+                }
+            }
+        }
+        if (result != null) {
             return result;
-	} else {
+        } else {
             if (this.contains(offset)) {
                 return this;
-	    } else {
+            } else {
                 /* we should return null here, since it may under a parent context's call, 
-		 * we shall tell the parent there is none in this and children of this
-		 */
-                return null; 
-	    } 
-	}
+                 * we shall tell the parent there is none in this and children of this
+                 */
+                return null;
+            }
+        }
     }
-    
-    
-    public <T extends AstDefinition> T getEnclosingDefinition(Class<T> clazz, int offset) {
+
+    public <T extends AstDef> T getEnclosingDef(Class<T> clazz, int offset) {
         AstScope scope = getClosestScope(offset);
-        return scope.getEnclosingDefinitionRecursively(clazz);
+        return scope.getEnclosingDefRecursively(clazz);
     }
-    
-    private <T extends AstDefinition> T getEnclosingDefinitionRecursively(Class<T> clazz) {
-        AstDefinition binding = getBindingDefinition();
+
+    private <T extends AstDef> T getEnclosingDefRecursively(Class<T> clazz) {
+        AstDef binding = getBindingDef();
         if (binding != null && clazz.isInstance(binding)) {
             return (T) binding;
         } else {
             AstScope parentScope = getParent();
             if (parentScope != null) {
-                return parentScope.getEnclosingDefinitionRecursively(clazz);
+                return parentScope.getEnclosingDefRecursively(clazz);
             } else {
                 return null;
             }
-        }        
+        }
     }
-       
 
     @Override
     public String toString() {
-        return "Scope(Binding=" + bindingDefinition + "," + getRange() + ",defs=" + getDefinitions() + ",usages=" + getUsages() + ")";
+        return "Scope(Binding=" + bindingDef + "," + getRange() + ",defs=" + getDefs() + ",refs=" + getRefs() + ")";
     }
 
     private static class ScopeComparator implements Comparator<AstScope> {

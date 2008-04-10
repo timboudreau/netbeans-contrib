@@ -36,11 +36,8 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
-import java.util.Collections;
-import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
@@ -49,43 +46,36 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author Caoyuan Deng
  */
-public class Packaging extends AstDef {
-    
-    private List<Id> ids;
-    private List<List<Id>> imports;
-    private boolean top;
-    
-    public Packaging(String name, OffsetRange nameRange, AstScope bindingScope) {
-        super(name, nameRange, bindingScope, ElementKind.PACKAGE);
-    }
-    
-    public void setIds(List<Id> ids) {
-        this.ids = ids;
-    }
-    
-    public List<Id> getIds() {
-        return ids == null ? Collections.<Id>emptyList() : ids;
-    }
-    
-    public void setImports(List<List<Id>> imports) {
-        this.imports = imports;
-    }
-    
-    public List<List<Id>> getImports() {
-        return imports;
-    }
-    
-    public void setTop() {
-        top = true;
-    }
-    
-    public boolean isTop() {
-        return top;
+public class AstDef extends AstElement {
+
+    private AstScope bindingScope;
+
+    public AstDef(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
+        super(name, nameRange, kind);
+        this.bindingScope = bindingScope;
+        this.bindingScope.setBindingDef(this);
     }
 
+    public AstScope getBindingScope() {
+        assert bindingScope != null : "Each definition should set binding scope!";
+        return bindingScope;
+    }
+
+    public OffsetRange getRange() {
+        return getBindingScope().getRange();
+    }
+    
+    public boolean referedBy(AstRef ref) {
+        return getName().equals(ref.getName());
+    }
+
+    public boolean mayEquals(AstDef def) {
+        return this.getName().equals(def.getName());
+    }
+    
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-    }        
-
+        formatter.appendText(getName());
+    }
 }

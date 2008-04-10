@@ -6,8 +6,10 @@
 package org.netbeans.modules.cnd.profiler.data;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,10 +20,10 @@ import java.util.Set;
 public class Function {
     private final String name;
     
-    private final Map<String, Object> attribs = new HashMap<String, Object>();
+    private final Map<String, Object> properties = new HashMap<String, Object>();
     
     private final Set<Function> callers = new HashSet<Function>();
-    private final Set<Function> callees = new HashSet<Function>();
+    private final Set<Function> callees = new LinkedHashSet<Function>();
 
     public Function(String name) {
         this.name = name;
@@ -31,32 +33,36 @@ public class Function {
         return name;
     }
 
+    /*
+     * Better use addCallee
+     */
     public boolean addCaller(Function foo) {
-        return callers.add(foo);
+        return foo.addCallee(this);
     }
     
     public Collection<Function> getCallers() {
-        return callers;
+        return Collections.unmodifiableCollection(callers);
     }
     
     public boolean addCallee(Function foo) {
+        foo.callers.add(this);
         return callees.add(foo);
     }
     
     public Collection<Function> getCallees() {
-        return callees;
+        return Collections.unmodifiableCollection(callees);
     }
     
     public void setAttrib(String name, Object value) {
-        attribs.put(name, value);
+        properties.put(name, value);
     }
     
     public Object getAttrib(String name) {
-        return attribs.get(name);
+        return properties.get(name);
     }
     
     public Map getAttribs() {
-        return attribs;
+        return properties;
     }
     
     @Override

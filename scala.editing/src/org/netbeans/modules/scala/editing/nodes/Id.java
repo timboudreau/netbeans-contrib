@@ -39,53 +39,18 @@
 
 package org.netbeans.modules.scala.editing.nodes;
 
-import java.util.Collections;
-import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
- *
- * @author Caoyuan Deng
+ * Id may be AstDefinition or AstUsage, so extends AstElement
+ * 
+ * @author dcaoyuan
  */
-public class Packaging extends AstDef {
-    
-    private List<Id> ids;
-    private List<List<Id>> imports;
-    private boolean top;
-    
-    public Packaging(String name, OffsetRange nameRange, AstScope bindingScope) {
-        super(name, nameRange, bindingScope, ElementKind.PACKAGE);
-    }
-    
-    public void setIds(List<Id> ids) {
-        this.ids = ids;
-    }
-    
-    public List<Id> getIds() {
-        return ids == null ? Collections.<Id>emptyList() : ids;
-    }
-    
-    public void setImports(List<List<Id>> imports) {
-        this.imports = imports;
-    }
-    
-    public List<List<Id>> getImports() {
-        return imports;
-    }
-    
-    public void setTop() {
-        top = true;
-    }
-    
-    public boolean isTop() {
-        return top;
-    }
+public class Id extends AstElement {
 
-    @Override
-    public void htmlFormat(HtmlFormatter formatter) {
-        super.htmlFormat(formatter);
-    }        
-
+    public Id(String name, OffsetRange nameRange, ElementKind kind) {
+        super(name, nameRange, kind);
+    }
+        
 }

@@ -39,17 +39,29 @@
 
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
+ * Id may be AstDefinition or AstUsage, so extends AstElement
  *
- * @author Caoyuan Deng
+ * @author dcaoyuan
  */
-public class AstUsage extends AstElement {
+public class PathId extends Id {
     
-    public AstUsage(String name, OffsetRange nameRange, ElementKind kind) {
+    private List<Id> paths;
+    
+    public PathId(String name, OffsetRange nameRange, ElementKind kind) {
         super(name, nameRange, kind);
+    }    
+
+    public void setPaths(List<Id> paths) {
+        this.paths = paths;
+    }
+    
+    public List<Id> getPaths() {
+        return paths;
     }
     
 }

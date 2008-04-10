@@ -52,24 +52,24 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public class SimpleIdType extends SimpleType {
     
-    private List<AstElement> ids;
+    private List<Id> paths;
     
     public SimpleIdType(String name, OffsetRange nameRange, ElementKind kind) {
         super(name, nameRange, kind);
     }
     
-    public void setIds(List<AstElement> ids) {
-        this.ids = ids;
+    public void setPaths(List<Id> ids) {
+        this.paths = ids;
     }
     
-    public List<AstElement> getIds() {
-        return ids == null ? Collections.<AstElement>emptyList() : ids;
+    public List<Id> getPaths() {
+        return paths == null ? Collections.<Id>emptyList() : paths;
     }
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-        for (Iterator<AstElement> itr = getIds().iterator(); itr.hasNext();) {
+        for (Iterator<Id> itr = getPaths().iterator(); itr.hasNext();) {
             formatter.appendText(itr.next().getName());
             if (itr.hasNext()) {
                 formatter.appendText(".");

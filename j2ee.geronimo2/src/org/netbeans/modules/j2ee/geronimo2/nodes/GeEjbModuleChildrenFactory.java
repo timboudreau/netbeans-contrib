@@ -113,9 +113,7 @@ public class GeEjbModuleChildrenFactory extends ChildFactory<GeEjbModule> {
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
-                //TODO: Try to handle this correctly
-                System.out.println("## Aquire of nodes to display failed");
+                // TODO: Try to handle this correctly
                 Logger.getLogger(GeWebModuleChildrenFactory.class.getName()).log(Level.INFO, null, e);
             }
         }

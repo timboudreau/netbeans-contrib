@@ -46,7 +46,7 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author Caoyuan Deng
  */
-public abstract class Template extends AstDefinition {
+public abstract class Template extends AstDef {
 
     public Template(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
         super(name, nameRange, bindingScope, kind);
@@ -54,4 +54,16 @@ public abstract class Template extends AstDefinition {
     
     public abstract String getClassName();    
 
+    
+    @Override
+    public boolean referedBy(AstRef ref) {
+        switch (ref.getKind()) {
+            // Should be TypeRef @Todo case class
+            case CLASS:
+                return getName().equals(ref.getName());
+            default:
+                return false;
+        }
+    }
+    
 }

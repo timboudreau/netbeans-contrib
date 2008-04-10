@@ -56,6 +56,7 @@ import javax.lang.model.util.Types;
 import org.netbeans.api.project.libraries.LibraryManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
 import org.openide.util.Exceptions;
 
@@ -69,7 +70,7 @@ public class JavaFXSourceUtils {
         if (file == null) {
             return false;
         }
-        System.setProperty("env.class.path", getAdditionalCP(System.getProperty("env.class.path")));
+//        System.setProperty("env.class.path", getAdditionalCP(System.getProperty("env.class.path")));
         
         JavaFXSource js = JavaFXSource.forFileObject(file);
         if (js == null) {
@@ -123,18 +124,20 @@ public class JavaFXSourceUtils {
         List<URL> libs = lm.getLibrary("JavaFXUserLib").getContent("classpath");
         for (int i = 0; i < libs.size(); i++) {
             FileObject fo = URLMapper.findFileObject(libs.get(i));
-            String addPath = null;
+            File f;
             try {
-                addPath = fo.getURL().getFile();
+                f = FileUtil.archiveOrDirForURL(fo.getURL());
+                if (cp != null) {
+                    if (!cp.contains(f.getAbsolutePath())){
+                        if (!cp.equals(""))
+                            cp += File.pathSeparatorChar;
+                        cp += f.getAbsolutePath();
+                    }
+                } else {
+                    cp = f.getAbsolutePath();
+                }
             } catch (FileStateInvalidException ex) {
                 Exceptions.printStackTrace(ex);
-            }
-            addPath = addPath.substring(6, addPath.length()-2);
-            if (cp != null) {
-                if (!cp.contains(addPath))
-                    cp += File.pathSeparatorChar + addPath;
-            } else {
-                cp = addPath;
             }
         }
         return cp;

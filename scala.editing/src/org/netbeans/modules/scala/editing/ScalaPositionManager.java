@@ -46,7 +46,7 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.gsf.api.PositionManager;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
-import org.netbeans.modules.scala.editing.nodes.AstDefinition;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
 
 /**
  *
@@ -58,8 +58,8 @@ public class ScalaPositionManager implements PositionManager {
         OffsetRange range = OffsetRange.NONE;
 
         if (object instanceof AstElement) {
-            if (object instanceof AstDefinition) {
-                range = ((AstDefinition) object).getRange();
+            if (object instanceof AstDef) {
+                range = ((AstDef) object).getRange();
             } else {
                 range = ((AstElement) object).getNameRange();
             }

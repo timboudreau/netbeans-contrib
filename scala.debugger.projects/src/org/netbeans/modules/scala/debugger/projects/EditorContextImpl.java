@@ -102,7 +102,7 @@ import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.ScalaParserResult;
-import org.netbeans.modules.scala.editing.nodes.AstDefinition;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.Packaging;
 import org.netbeans.modules.scala.editing.nodes.Template;
@@ -1154,7 +1154,7 @@ public class EditorContextImpl extends EditorContext {
                         return;
                     }
                     AstScope rootScope = ((ScalaParserResult)ci.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, offset)).getRootScope();
-                    Template tmpl = rootScope.getEnclosingDefinition(Template.class, offset);
+                    Template tmpl = rootScope.getEnclosingDef(Template.class, offset);
                     if (tmpl == null) {
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
                                 "No enclosing class for "+ci.getFileObject()+", offset = "+offset);
