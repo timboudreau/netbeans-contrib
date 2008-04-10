@@ -56,6 +56,7 @@ import javax.lang.model.util.Types;
 import org.netbeans.api.project.libraries.LibraryManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
 import org.openide.util.Exceptions;
 
