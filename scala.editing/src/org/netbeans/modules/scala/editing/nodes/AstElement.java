@@ -40,7 +40,6 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.netbeans.modules.gsf.api.Element;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
@@ -53,7 +52,7 @@ import org.openide.filesystems.FileObject;
  *
  * @author Caoyuan Deng
  */
-public class AstElement implements Element, ElementHandle {
+public class AstElement implements ElementHandle {
 
     private String name;
     private OffsetRange nameRange;
@@ -88,8 +87,8 @@ public class AstElement implements Element, ElementHandle {
         return kind;
     }
     
-    public <T extends AstDefinition> T getEnclosingDefinition(Class<T> clazz) {
-        return enclosingScope.getEnclosingDefinition(clazz, getNameRange().getStart());
+    public <T extends AstDef> T getEnclosingDefinition(Class<T> clazz) {
+        return enclosingScope.getEnclosingDef(clazz, getNameRange().getStart());
     }
 
     public Packaging getPackageElement() {
@@ -160,4 +159,10 @@ public class AstElement implements Element, ElementHandle {
     public String getIn() {
         return null;
     }
+
+    @Override
+    public String toString() {
+        return getName() + "(kind=" + getKind() + ", type=" + getType() + ")";
+    }
+        
 }
