@@ -82,7 +82,7 @@ public class JavaFXSourceUtils {
                 
                 public void run(CompilationController control) throws Exception {
                     if (JavaFXSource.Phase.ELEMENTS_RESOLVED.compareTo(control.toPhase(JavaFXSource.Phase.ELEMENTS_RESOLVED))<=0) {
-                        control.impl.getJavafxcTask().analyze();
+                        //control.impl.getJavafxcTask().analyze();
                         
                         Elements elements = control.getElements();
                         JavafxcTrees trees = control.getTrees();

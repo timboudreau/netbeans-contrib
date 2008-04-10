@@ -177,10 +177,10 @@ public class AppletSupport {
                 distJAR = distJAR.substring(distJAR.indexOf('/') + 1);
                 String libs = distJAR + ",lib/javafxrt.jar,lib/Scenario.jar";
                 path = path.substring(0, path.length()-3);
-                fillInFile(writer, path.replaceAll("/", "."), " archive=\"" + libs + "\""); // NOI18N
+                fillInFile(writer, path.replaceAll("/", "."), " archive=\"" + libs + "\"", true); // NOI18N
             }else{
                 path = path.substring(0, path.length()-5);
-                fillInFile(writer, path + "." + CLASS_EXT, "codebase=\"" + codebase + "\""); // NOI18N
+                fillInFile(writer, path + "." + CLASS_EXT, "codebase=\"" + codebase + "\"", false); // NOI18N
             }
         } finally {
             lock.releaseLock();
@@ -280,7 +280,7 @@ public class AppletSupport {
     * @param file is a file to be filled
     * @param name is name of the applet                                     
     */
-    private static void fillInFile(PrintWriter writer, String name, String codebase) {
+    private static void fillInFile(PrintWriter writer, String name, String codebase, boolean isFX) {
         ResourceBundle bundle = NbBundle.getBundle(AppletSupport.class);
 
         writer.println("<HTML>"); // NOI18N
@@ -300,16 +300,19 @@ public class AppletSupport {
         writer.println("<HR WIDTH=\"100%\"></H3>\n"); // NOI18N
 
         writer.println("<P>"); // NOI18N
-//        String codebase = getCodebase (name);
         if (codebase == null)
             writer.print("<APPLET code="); // NOI18N
         else
             writer.print("<APPLET " + codebase + " code="); // NOI18N
-        writer.print ("\""); // NOI18N
-        writer.print(name);
-        writer.print ("\""); // NOI18N
-
-        writer.println(" width=350 height=200></APPLET>"); // NOI18N
+        if (isFX){
+            writer.print ("\"javafx.ui.Applet\""); // NOI18N
+            writer.println(" width=350 height=200>"); // NOI18N
+            writer.println("<param name=\"AppletClass\" value=\"" + name + "\">"); // NOI18N
+            writer.println("</APPLET>"); // NOI18N
+        }else{
+            writer.print ("\"" + name + "\""); // NOI18N
+            writer.println(" width=350 height=200></APPLET>"); // NOI18N
+        }
         writer.println("</P>\n"); // NOI18N
 
         writer.print("<HR WIDTH=\"100%\"><FONT SIZE=-1><I>"); // NOI18N
