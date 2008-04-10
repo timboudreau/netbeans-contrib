@@ -209,7 +209,7 @@ public class GeDeploymentManager implements DeploymentManager/*, ProgressObject,
                 //aquire contextURL
                 String contextURL = originalIds[i].getModuleID().substring(7).replaceFirst("/\\d.*", "");
                 
-                //TODO: set proper host + port
+                // FIXME
                 wrappedIds[i].setContextURL("http://localhost:8080"+ contextURL);
             }
 

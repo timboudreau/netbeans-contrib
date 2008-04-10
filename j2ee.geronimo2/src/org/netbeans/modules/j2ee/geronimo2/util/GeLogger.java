@@ -171,7 +171,8 @@ public class GeLogger {
                     try {
                         Thread.sleep(delay);
                     } catch (InterruptedException e) {
-                        // do nothing
+                        Thread.currentThread().interrupt();
+                        break;
                     }
                 }
             } catch (IOException e) {
