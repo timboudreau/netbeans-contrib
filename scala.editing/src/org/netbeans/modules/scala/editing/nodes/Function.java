@@ -49,7 +49,7 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author Caoyuan Deng
  */
-public class Function extends AstDefinition {
+public class Function extends AstDef {
 
     private List<TypeRef> typeParams;
     private List<Var> params;

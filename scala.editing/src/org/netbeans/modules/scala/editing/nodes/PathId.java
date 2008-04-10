@@ -36,38 +36,32 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
+ * Id may be AstDefinition or AstUsage, so extends AstElement
  *
- * @author Caoyuan Deng
+ * @author dcaoyuan
  */
-public class AstDefinition extends AstElement {
-
-    private AstScope bindingScope;
-
-    public AstDefinition(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
+public class PathId extends Id {
+    
+    private List<Id> paths;
+    
+    public PathId(String name, OffsetRange nameRange, ElementKind kind) {
         super(name, nameRange, kind);
-        this.bindingScope = bindingScope;
-        this.bindingScope.setBindingDefinition(this);
-    }
+    }    
 
-    public AstScope getBindingScope() {
-        assert bindingScope != null : "Each definition should set binding scope!";
-        return bindingScope;
+    public void setPaths(List<Id> paths) {
+        this.paths = paths;
     }
-
-    public OffsetRange getRange() {
-        return getBindingScope().getRange();
+    
+    public List<Id> getPaths() {
+        return paths;
     }
-
-    @Override
-    public void htmlFormat(HtmlFormatter formatter) {
-        super.htmlFormat(formatter);
-        formatter.appendText(getName());
-    }
+    
 }

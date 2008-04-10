@@ -52,21 +52,17 @@ import xtc.tree.Node;
  */
 public class AstElementVisitor extends AstVisitor {
 
-    private boolean containsValDfn;
-    private boolean containsVarDfn;
-    private TypeRef varType;
-
     public AstElementVisitor(Node rootNode, String source, List<Integer> linesOffset) {
         super(rootNode, source, linesOffset);
     }
 
     public Packaging visitPackage(GNode that) {
         enter(that);
-        
+
         GNode qualId = that.getGeneric(0);
-        List<AstElement> ids = visitQualId(qualId);
+        PathId pathId = visitQualId(qualId);
         StringBuilder sb = new StringBuilder();
-        for (Iterator<AstElement> itr = ids.iterator(); itr.hasNext();) {
+        for (Iterator<Id> itr = pathId.getPaths().iterator(); itr.hasNext();) {
             sb.append(itr.next().getName());
             if (itr.hasNext()) {
                 sb.append(".");
@@ -77,25 +73,24 @@ public class AstElementVisitor extends AstVisitor {
         AstScope scope = new AstScope(rootScope.getRange());
         Packaging packaging = new Packaging(name, getNameRange(name, qualId), scope);
         packaging.setTop();
-        packaging.setIds(ids);
+        packaging.setIds(pathId.getPaths());
 
-        rootScope.addDefinition(packaging);
+        rootScope.addDef(packaging);
 
         scopeStack.push(scope);
         visitChildren(that);
         /** @Note do not pop this packaging's scope, since topstats are not its children */
-        
         exit(that);
         return packaging;
     }
 
     public Packaging visitPackaging(GNode that) {
         enter(that);
-        
+
         GNode qualId = that.getGeneric(0);
-        List<AstElement> ids = visitQualId(qualId);
+        PathId pathId = visitQualId(qualId);
         StringBuilder sb = new StringBuilder();
-        for (Iterator<AstElement> itr = ids.iterator(); itr.hasNext();) {
+        for (Iterator<Id> itr = pathId.getPaths().iterator(); itr.hasNext();) {
             sb.append(itr.next().getName());
             if (itr.hasNext()) {
                 sb.append(".");
@@ -105,9 +100,9 @@ public class AstElementVisitor extends AstVisitor {
         String name = sb.toString();
         AstScope scope = new AstScope(getRange(that));
         Packaging packaging = new Packaging(name, getNameRange(name, qualId), scope);
-        packaging.setIds(ids);
+        packaging.setIds(pathId.getPaths());
 
-        rootScope.addDefinition(packaging);
+        rootScope.addDef(packaging);
 
         scopeStack.push(scope);
         visitChildren(that);
@@ -117,12 +112,33 @@ public class AstElementVisitor extends AstVisitor {
         return packaging;
     }
 
-    public List<AstElement> visitQualId(GNode that) {
+    public PathId visitQualId(GNode that) {
         enter(that);
-        
-        List<AstElement> ids = new ArrayList<AstElement>();
 
-        AstElement first = visitId(that.getGeneric(0));
+        List<Id> ids = new ArrayList<Id>();
+
+        Id first = visitId(that.getGeneric(0));
+        ids.add(first);
+
+        List others = that.getList(1).list();
+        for (Object id : others) {
+            ids.add(visitId((GNode) id));
+        }
+
+        Id nameId = ids.get(ids.size() - 1);
+        PathId pathId = new PathId(nameId.getName(), nameId.getNameRange(), ElementKind.VARIABLE);
+        pathId.setPaths(ids);
+
+        exit(that);
+        return pathId;
+    }
+
+    public List<Id> visitIds(GNode that) {
+        enter(that);
+
+        List<Id> ids = new ArrayList<Id>();
+
+        Id first = visitId(that.getGeneric(0));
         ids.add(first);
 
         List others = that.getList(1).list();
@@ -134,50 +150,39 @@ public class AstElementVisitor extends AstVisitor {
         return ids;
     }
 
-    public List<AstElement> visitIds(GNode that) {
+    public PathId visitPath(GNode that) {
         enter(that);
-        
-        List<AstElement> ids = new ArrayList<AstElement>();
 
-        AstElement first = visitId(that.getGeneric(0));
-        ids.add(first);
-
-        List others = that.getList(1).list();
-        for (Object id : others) {
-            ids.add(visitId((GNode) id));
-        }
-
-        exit(that);
-        return ids;
-    }
-
-    public List<AstElement> visitPath(GNode that) {
-        enter(that);
-        
-        List<AstElement> ids = null;
+        PathId pathId = null;
 
         GNode first = that.getGeneric(0);
         if (first == null || first.getName().equals("Id")) {
-            ids = new ArrayList<AstElement>();
+            List<Id> ids = new ArrayList<Id>();
             if (first != null) {
                 ids.add(visitId(first));
             }
             GNode thisKey = that.getGeneric(1);
-            ids.add(new AstElement("this", getNameRange("this", thisKey), ElementKind.VARIABLE));
+            ids.add(new Id("this", getNameRange("this", thisKey), ElementKind.VARIABLE));
+
+            Id nameId = ids.get(ids.size() - 1);
+            pathId = new PathId(nameId.getName(), nameId.getNameRange(), ElementKind.VARIABLE);
+            pathId.setPaths(ids);
         } else if (first.getName().equals("StableId")) {
-            ids = visitStableId(first);
+            pathId = visitStableId(first);
         }
 
+
+
         exit(that);
-        return ids == null ? Collections.<AstElement>emptyList() : ids;
+        return pathId;
     }
 
-    public List<AstElement> visitStableId(GNode that) {
+    public PathId visitStableId(GNode that) {
         enter(that);
-        
-        List<AstElement> ids = new ArrayList<AstElement>();
 
-        AstElement first = visitId(that.getGeneric(0));
+        List<Id> ids = new ArrayList<Id>();
+
+        Id first = visitId(that.getGeneric(0));
         ids.add(first);
 
         List others = that.getList(1).list();
@@ -185,27 +190,40 @@ public class AstElementVisitor extends AstVisitor {
             ids.add(visitId((GNode) id));
         }
 
+        Id nameId = ids.get(ids.size() - 1);
+        PathId pathId = new PathId(nameId.getName(), nameId.getNameRange(), ElementKind.VARIABLE);
+        pathId.setPaths(ids);
+
         exit(that);
-        return ids;
+        return pathId;
     }
 
-    public AstElement visitId(GNode that) {
+    public Id visitId(GNode that) {
         enter(that);
-        
+
         String name = that.getString(0);
 
         exit(that);
-        return new AstElement(name, getNameRange(name, that), ElementKind.VARIABLE);
+        return new Id(name, getNameRange(name, that), ElementKind.VARIABLE);
+    }
+
+    public Id visitVarId(GNode that) {
+        enter(that);
+
+        String name = that.getString(0);
+
+        exit(that);
+        return new Id(name, getNameRange(name, that), ElementKind.VARIABLE);
     }
 
     public ClassTemplate visitClassDef(GNode that) {
         enter(that);
-        
+
         AstScope currScope = scopeStack.peek();
         AstScope scope = new AstScope(getRange(that));
         scopeStack.push(scope);
-        
-        AstElement id = visitId(that.getGeneric(0));
+
+        Id id = visitId(that.getGeneric(0));
         GNode typeParamClauseNode = that.getGeneric(1);
         if (typeParamClauseNode != null) {
             visitChildren(typeParamClauseNode);
@@ -219,7 +237,7 @@ public class AstElementVisitor extends AstVisitor {
 
         ClassTemplate classTmpl = new ClassTemplate(id.getName(), id.getNameRange(), scope);
 
-        currScope.addDefinition(classTmpl);
+        currScope.addDef(classTmpl);
 
         scopeStack.pop();
 
@@ -229,7 +247,7 @@ public class AstElementVisitor extends AstVisitor {
 
     public List<Function> visitClassParamClauses(GNode that) {
         enter(that);
-        
+
         List<Function> constructors = new ArrayList<Function>();
 
         List classParamClauseNodes = that.getList(0).list();
@@ -243,7 +261,7 @@ public class AstElementVisitor extends AstVisitor {
 
     public Function visitClassParamClause(GNode that) {
         enter(that);
-        
+
         List<Var> params = null;
         GNode classParamsNode = that.getGeneric(0);
         if (classParamsNode != null) {
@@ -256,7 +274,7 @@ public class AstElementVisitor extends AstVisitor {
         Function constructor = new Function("this", getRange(that), scope, ElementKind.CONSTRUCTOR);
         constructor.setParam(params);
 
-        scopeStack.peek().addDefinition(constructor);
+        scopeStack.peek().addDef(constructor);
 
         exit(that);
         return constructor;
@@ -264,7 +282,7 @@ public class AstElementVisitor extends AstVisitor {
 
     public List<Var> visitClassParams(GNode that) {
         enter(that);
-        
+
         List<Var> params = new ArrayList<Var>();
 
         Var first = visitClassParam(that.getGeneric(0));
@@ -281,11 +299,11 @@ public class AstElementVisitor extends AstVisitor {
 
     public Var visitClassParam(GNode that) {
         enter(that);
-        
+
         List annotations = that.getList(0).list();
-        AstElement id = visitId(that.getGeneric(2));
+        Id id = visitId(that.getGeneric(2));
         AstScope scope = new AstScope(getRange(that));
-        Var param = new Var(id.getName(), id.getNameRange(), scope, ElementKind.PARAMETER);
+        Var param = new Var(id, scope, ElementKind.PARAMETER);
 
         GNode paramTypeNode = that.getGeneric(3);
         if (paramTypeNode != null) {
@@ -293,7 +311,7 @@ public class AstElementVisitor extends AstVisitor {
             param.setType(type);
         }
 
-        scopeStack.peek().addDefinition(param);
+        scopeStack.peek().addDef(param);
 
         exit(that);
         return param;
@@ -301,12 +319,12 @@ public class AstElementVisitor extends AstVisitor {
 
     public TraitTemplate visitTraitDef(GNode that) {
         enter(that);
-        
-        AstElement id = visitId(that.getGeneric(0));
+
+        Id id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
         TraitTemplate traitTmpl = new TraitTemplate(id.getName(), id.getNameRange(), scope);
 
-        scopeStack.peek().addDefinition(traitTmpl);
+        scopeStack.peek().addDef(traitTmpl);
 
         scopeStack.push(scope);
         visitChildren(that);
@@ -318,12 +336,12 @@ public class AstElementVisitor extends AstVisitor {
 
     public ObjectTemplate visitObjectDef(GNode that) {
         enter(that);
-        
-        AstElement id = visitId(that.getGeneric(0));
+
+        Id id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
         ObjectTemplate objectTmpl = new ObjectTemplate(id.getName(), id.getNameRange(), scope);
 
-        scopeStack.peek().addDefinition(objectTmpl);
+        scopeStack.peek().addDef(objectTmpl);
 
         scopeStack.push(scope);
         visitChildren(that);
@@ -335,12 +353,12 @@ public class AstElementVisitor extends AstVisitor {
 
     public Type visitTypeDcl(GNode that) {
         enter(that);
-        
-        AstElement id = visitId(that.getGeneric(0));
+
+        Id id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
         Type type = new Type(id.getName(), id.getNameRange(), scope);
 
-        scopeStack.peek().addDefinition(type);
+        scopeStack.peek().addDef(type);
 
         scopeStack.push(scope);
         visitChildren(that);
@@ -352,12 +370,12 @@ public class AstElementVisitor extends AstVisitor {
 
     public Type visitTypeDef(GNode that) {
         enter(that);
-        
-        AstElement id = visitId(that.getGeneric(0));
+
+        Id id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
         Type type = new Type(id.getName(), id.getNameRange(), scope);
 
-        scopeStack.peek().addDefinition(type);
+        scopeStack.peek().addDef(type);
 
         scopeStack.push(scope);
         visitChildren(that);
@@ -369,7 +387,7 @@ public class AstElementVisitor extends AstVisitor {
 
     public void visitFunDcl(GNode that) {
         enter(that);
-        
+
         AstScope currScope = scopeStack.peek();
         AstScope scope = new AstScope(getRange(that));
         scopeStack.push(scope);
@@ -381,7 +399,7 @@ public class AstElementVisitor extends AstVisitor {
             function.setType(type);
         }
 
-        currScope.addDefinition(function);
+        currScope.addDef(function);
 
         scopeStack.pop();
 
@@ -390,7 +408,7 @@ public class AstElementVisitor extends AstVisitor {
 
     public Function visitFunDef(GNode that) {
         enter(that);
-        
+
         AstScope currScope = scopeStack.peek();
         AstScope scope = new AstScope(getRange(that));
         scopeStack.push(scope);
@@ -409,7 +427,7 @@ public class AstElementVisitor extends AstVisitor {
             }
         }
 
-        currScope.addDefinition(function);
+        currScope.addDef(function);
 
         visitChildren(that);
         scopeStack.pop();
@@ -420,8 +438,8 @@ public class AstElementVisitor extends AstVisitor {
 
     public Function visitConstructorFunDef(GNode that) {
         enter(that);
-        
-        AstElement id = visitId(that.getGeneric(0)); // // This("this")
+
+        Id id = visitId(that.getGeneric(0)); // // This("this")
 
         List<Var> params = visitParamClause(that.getGeneric(1));
         List<Var> paramsOther = visitParamClauses(that.getGeneric(2));
@@ -433,7 +451,7 @@ public class AstElementVisitor extends AstVisitor {
         Function function = new Function(id.getName(), id.getNameRange(), scope, ElementKind.CONSTRUCTOR);
         function.setParam(params);
 
-        scopeStack.peek().addDefinition(function);
+        scopeStack.peek().addDef(function);
 
         exit(that);
         return function;
@@ -441,8 +459,8 @@ public class AstElementVisitor extends AstVisitor {
 
     public Function visitFunSig(GNode that) {
         enter(that);
-        
-        AstElement id = visitId(that.getGeneric(0));
+
+        Id id = visitId(that.getGeneric(0));
         GNode funTypeParamClauseNode = that.getGeneric(1);
         if (funTypeParamClauseNode != null) {
             visitChildren(funTypeParamClauseNode);
@@ -458,7 +476,7 @@ public class AstElementVisitor extends AstVisitor {
 
     public List<Var> visitParamClauses(GNode that) {
         enter(that);
-        
+
         List<Var> params = new ArrayList<Var>();
 
         List paramClauseNodes = that.getList(0).list();
@@ -472,7 +490,7 @@ public class AstElementVisitor extends AstVisitor {
 
     public List<Var> visitParamClause(GNode that) {
         enter(that);
-        
+
         List<Var> params = null;
 
         GNode paramsNode = that.getGeneric(0);
@@ -488,7 +506,7 @@ public class AstElementVisitor extends AstVisitor {
 
     public List<Var> visitParams(GNode that) {
         enter(that);
-        
+
         List<Var> params = new ArrayList<Var>();
 
         Var first = visitParam(that.getGeneric(0));
@@ -505,11 +523,11 @@ public class AstElementVisitor extends AstVisitor {
 
     public Var visitParam(GNode that) {
         enter(that);
-        
+
         List annotations = that.getList(0).list();
-        AstElement id = visitId(that.getGeneric(1));
+        Id id = visitId(that.getGeneric(1));
         AstScope scope = new AstScope(getRange(that));
-        Var param = new Var(id.getName(), id.getNameRange(), scope, ElementKind.PARAMETER);
+        Var param = new Var(id, scope, ElementKind.PARAMETER);
 
         GNode paramTypeNode = that.getGeneric(2);
         if (paramTypeNode != null) {
@@ -517,7 +535,7 @@ public class AstElementVisitor extends AstVisitor {
             param.setType(type);
         }
 
-        scopeStack.peek().addDefinition(param);
+        scopeStack.peek().addDef(param);
 
         exit(that);
         return param;
@@ -525,7 +543,7 @@ public class AstElementVisitor extends AstVisitor {
 
     public TypeRef visitParamType(GNode that) {
         enter(that);
-        
+
         Object first = that.get(0);
         GNode typeNode = null;
         WrappedType.More more = WrappedType.More.Pure;
@@ -549,109 +567,325 @@ public class AstElementVisitor extends AstVisitor {
 
     public void visitValDcl(GNode that) {
         enter(that);
-        
-        List<AstElement> ids = visitIds(that.getGeneric(0));
+
+        List<Id> ids = visitIds(that.getGeneric(0));
         TypeRef type = visitType(that.getGeneric(1));
 
-        for (AstElement id : ids) {
+        for (Id id : ids) {
             AstScope scope = new AstScope(getRange(that));
-            Var val = new Var(id.getName(), id.getNameRange(), scope, ElementKind.FIELD);
+            Var val = new Var(id, scope, ElementKind.FIELD);
             val.setVal();
             val.setType(type);
 
-            scopeStack.peek().addDefinition(val);
+            scopeStack.peek().addDef(val);
         }
-
-        visitChildren(that);
 
         exit(that);
     }
 
     public void visitVarDcl(GNode that) {
         enter(that);
-        
-        List<AstElement> ids = visitIds(that.getGeneric(0));
+
+        List<Id> ids = visitIds(that.getGeneric(0));
         TypeRef type = visitType(that.getGeneric(1));
 
-        for (AstElement id : ids) {
+        for (Id id : ids) {
             AstScope scope = new AstScope(getRange(that));
-            Var var = new Var(id.getName(), id.getNameRange(), scope, ElementKind.FIELD);
+            Var var = new Var(id, scope, ElementKind.FIELD);
             var.setType(type);
 
-            scopeStack.peek().addDefinition(var);
+            scopeStack.peek().addDef(var);
         }
-
-        visitChildren(that);
 
         exit(that);
     }
 
     public void visitValDef(GNode that) {
         enter(that);
-        
-        containsValDfn = true;
-        visitChildren(that);
-        containsValDfn = false;
+
+        List<Id> ids = visitPatDef(that.getGeneric(0));
+        AstScope scope = new AstScope(getRange(that));
+        for (Id id : ids) {
+            Var var = new Var(id, scope, ElementKind.FIELD);
+            var.setVal();
+
+            scopeStack.peek().addDef(var);
+        }
 
         exit(that);
     }
 
     public void visitVarDef(GNode that) {
         enter(that);
-        
-        containsVarDfn = true;
-        GNode firstNode = that.getGeneric(0);
-        if (firstNode.getName().equals("Ids")) {
-            varType = visitType(that.getGeneric(1));
+
+        GNode what = that.getGeneric(0);
+        if (what.getName().equals("Ids")) {
+            List<Id> ids = visitIds(what);
+            TypeRef type = visitType(that.getGeneric(1));
+            AstScope scope = new AstScope(getRange(that));
+            for (Id id : ids) {
+                Var var = new Var(id, scope, ElementKind.FIELD);
+                var.setType(type);
+
+                scopeStack.peek().addDef(var);
+            }
         } else {
-            varType = null;
+            List<Id> ids = visitPatDef(what);
+            AstScope scope = new AstScope(getRange(that));
+            for (Id id : ids) {
+                Var var = new Var(id, scope, ElementKind.FIELD);
+                
+                scopeStack.peek().addDef(var);
+            }
         }
-        visitChildren(that);
-        varType = null;
-        containsVarDfn = false;
 
         exit(that);
     }
 
-    public void visitPatDef(GNode that) {
+    public List<Id> visitPatDef(GNode that) {
         enter(that);
-        
+
+        List<Id> ids = visitNoTypedPattern(that.getGeneric(0));
+        for (Object o : that.getList(1).list()) {
+            ids.addAll(visitNoTypedPattern((GNode) o));
+        }
+
         GNode typeNode = that.getGeneric(2);
-        varType = typeNode == null ? null : visitType(typeNode);
-        visitChildren(that);
-        varType = null;
+        TypeRef type = typeNode == null ? null : visitType(typeNode);
+        for (AstElement id : ids) {
+            id.setType(type);
+        }
+        visitChildren(that.getGeneric(3));
+
+        exit(that);
+        return ids;
+    }
+
+    public void visitCaseClause(GNode that) {
+        enter(that);
+
+        GNode what = that.getGeneric(0);
+        if (what.getName().equals("Pattern")) {
+            // Pattern
+            visitChildren(what);
+            GNode guardNode = that.getGeneric(1);
+            if (guardNode != null) {
+                visitChildren(guardNode);
+            }
+        } else {
+            // in funType
+            if (what.getName().endsWith("VarId")) {
+                Id id = visitVarId(what);
+                AstScope scope = new AstScope(getRange(that));
+                Var var = new Var(id, scope, ElementKind.VARIABLE);
+
+                // FunTypeInCaseClause
+                visitChildren(that.getGeneric(1));
+
+                scopeStack.peek().addDef(var);
+            } else {
+                // "_" FunTypeInCaseClause
+                visitChildren(that.getGeneric(1));
+            }
+        }
+        // Block
+        visitChildren(that.getGeneric(2));
+
 
         exit(that);
     }
 
-    public List<AstElement> visitIdPattern(GNode that) {
+    public void visitGenerator(GNode that) {
         enter(that);
-        
-        GNode stableId = that.getGeneric(0);
-        List<AstElement> ids = visitStableId(stableId);
-        if (containsValDfn || containsVarDfn) {
-            GNode dfnNode = null;
-            if (containsValDfn) {
-                dfnNode = findNearsetNode("ValDef");
-            } else {
-                dfnNode = findNearsetNode("VarDef");
-            }
 
-            AstScope scope = new AstScope(getRange(dfnNode));
-            /** fetch id is the name @Todo path */
-            AstElement id = ids.get(ids.size() - 1);
-            Var var = new Var(id.getName(), id.getNameRange(), scope, ElementKind.FIELD);
-            if (containsValDfn) {
-                var.setVal();
-            }
-            if (varType != null) {
-                var.setType(varType);
-            }
+        // Pattern1
+        visitChildren(that.getGeneric(0));
 
-            scopeStack.peek().addDefinition(var);
+        exit(that);
+    }
+
+    public List<Id> visitPatterns(GNode that) {
+        enter(that);
+
+        List<Id> ids = new ArrayList<Id>();
+
+        Object what = that.getGeneric(0);
+        if (what instanceof GNode) {
+            ids.addAll(visitPattern((GNode) what));
+            for (Object o : that.getList(1).list()) {
+                ids.addAll(visitPattern((GNode) o));
+            }
+        } else {
+            // "_*"
+            ids = Collections.<Id>emptyList();
         }
 
-        visitChildren(that);
+        exit(that);
+        return ids;
+    }
+
+    public List<Id> visitPattern(GNode that) {
+        enter(that);
+
+        List<Id> ids = null;
+
+        GNode what = that.getGeneric(0);
+        if (what.getName().equals("AlternatePattern")) {
+            ids = visitAlternatePattern(what);
+        } else {
+            ids = visitPattern1(what);
+        }
+
+        exit(that);
+        return ids;
+    }
+
+    public List<Id> visitAlternatePattern(GNode that) {
+        enter(that);
+
+        /** @Todo emeger ids with same name (and type) */
+        List<Id> ids = new ArrayList<Id>();
+        ids.addAll(visitPattern1(that.getGeneric(0)));
+        ids.addAll(visitPattern1(that.getGeneric(1)));
+        for (Object o : that.getList(2).list()) {
+            ids.addAll(visitPattern1((GNode) o));
+        }
+
+        exit(that);
+        return ids;
+    }
+
+    public List<Id> visitPattern1(GNode that) {
+        enter(that);
+
+        GNode what = that.getGeneric(0);
+        List<Id> ids = what.getName().equals("TypedPattern")
+                ? visitTypedPattern(what)
+                : visitNoTypedPattern(what);
+
+        exit(that);
+        return ids;
+    }
+
+    public List<Id> visitTypedPattern(GNode that) {
+        enter(that);
+
+        List<Id> ids = Collections.<Id>emptyList();
+        Object what = that.get(0);
+        if (what instanceof GNode && ((GNode) what).getName().equals("VarId")) {
+            Id id = visitVarId((GNode) what);
+            ids = new ArrayList<Id>();
+            ids.add(id);
+
+            TypeRef type = visitType(that.getGeneric(1));
+            if (id != null) {
+                id.setType(type);
+            }
+        }
+
+        exit(that);
+        return ids;
+    }
+
+    public List<Id> visitNoTypedPattern(GNode that) {
+        enter(that);
+
+        GNode what = that.getGeneric(0);
+        List<Id> ids = what.getName().equals("AtPattern")
+                ? visitAtPattern(what)
+                : visitPattern3(what);
+
+        exit(that);
+        return ids;
+    }
+
+    public List<Id> visitAtPattern(GNode that) {
+        enter(that);
+
+        List<Id> ids = new ArrayList<Id>();
+
+        ids.add(visitVarId(that.getGeneric(0)));
+        ids.addAll(visitPattern3(that.getGeneric(1)));
+
+        exit(that);
+        return ids;
+    }
+
+    public List<Id> visitPattern3(GNode that) {
+        enter(that);
+
+        List<Id> ids = new ArrayList<Id>();
+
+        ids.addAll(visitSimplePattern(that.getGeneric(0)));
+        if (that.size() == 3) {
+            GNode infixPatternTailNode = that.getGeneric(1);
+            List others = that.getList(2).list();
+            others.add(infixPatternTailNode);
+            for (Object o : others) {
+                GNode tailNode = (GNode) o;
+                ids.addAll(visitSimplePattern(tailNode.getGeneric(1)));
+            }
+        }
+
+        exit(that);
+        return ids;
+    }
+
+    public List<Id> visitSimplePattern(GNode that) {
+        enter(that);
+
+        List<Id> ids = null;
+        if (that.getName().equals("SimpleTuplePattern")) {
+            ids = visitSimpleTuplePattern(that);
+        } else if (that.getName().equals("SimpleCallPattern")) {
+            ids = visitSimpleCallPattern(that);
+        } else if (that.getName().equals("SimpleIdPattern")) {
+            ids = visitSimpleIdPattern(that);
+        } else {
+            ids = Collections.<Id>emptyList();
+        }
+
+        exit(that);
+        return ids;
+
+    }
+
+    public List<Id> visitSimpleCallPattern(GNode that) {
+        enter(that);
+
+        List<Id> ids = new ArrayList<Id>();
+
+        ids.add(visitStableId(that.getGeneric(0)));
+        List<Id> tupleIds = visitTuplePattern(that.getGeneric(1));
+        ids.addAll(tupleIds);
+
+        exit(that);
+        return ids;
+    }
+
+    public List<Id> visitSimpleTuplePattern(GNode that) {
+        enter(that);
+
+        List<Id> ids = visitTuplePattern(that.getGeneric(0));
+
+        exit(that);
+        return ids;
+    }
+
+    public List<Id> visitSimpleIdPattern(GNode that) {
+        enter(that);
+
+        List<Id> ids = new ArrayList<Id>();
+        ids.add(visitStableId(that.getGeneric(0)));
+
+        exit(that);
+        return ids;
+    }
+
+    public List<Id> visitTuplePattern(GNode that) {
+        enter(that);
+
+        List<Id> ids = visitPatterns(that.getGeneric(0));
 
         exit(that);
         return ids;
@@ -659,7 +893,7 @@ public class AstElementVisitor extends AstVisitor {
 
     public String visitModifier(GNode that) {
         enter(that);
-        
+
         String modifier = null;
 
         Object what = that.get(0);
@@ -689,19 +923,19 @@ public class AstElementVisitor extends AstVisitor {
 
     public String visitAccessModifier(GNode that) {
         enter(that);
-        
+
         exit(that);
         return that.getString(0);
     }
 
     public void visitSimpleIdExpr(GNode that) {
         enter(that);
-        
-        List<AstElement> ids = visitPath(that.getGeneric(0));
-        AstElement first = ids.get(0);
-        AstUsage usage = new AstUsage(first.getName(), first.getNameRange(), ElementKind.VARIABLE);
 
-        scopeStack.peek().addUsage(usage);
+        PathId id = visitPath(that.getGeneric(0));
+        Id first = id.getPaths().get(0);
+        IdRef idRef = new IdRef(first.getName(), first.getNameRange(), ElementKind.VARIABLE);
+
+        scopeStack.peek().addRef(idRef);
 
         visitChildren(that);
 
@@ -710,7 +944,7 @@ public class AstElementVisitor extends AstVisitor {
 
     public TypeRef visitType(GNode that) {
         enter(that);
-        
+
         TypeRef type = null;
 
         GNode node = that.getGeneric(0);
@@ -748,7 +982,7 @@ public class AstElementVisitor extends AstVisitor {
 
     public TypeRef visitInfixType(GNode that) {
         enter(that);
-        
+
         TypeRef type = null;
 
         List<TypeRef> types = new ArrayList<TypeRef>();
@@ -780,7 +1014,7 @@ public class AstElementVisitor extends AstVisitor {
 
     public TypeRef visitCompoundType(GNode that) {
         enter(that);
-        
+
         TypeRef type = null;
 
         List<TypeRef> types = new ArrayList<TypeRef>();
@@ -815,7 +1049,7 @@ public class AstElementVisitor extends AstVisitor {
 
     public TypeRef visitAnnotType(GNode that) {
         enter(that);
-        
+
         List annotations = that.getList(0).list();
         SimpleType type = visitSimpleType(that.getGeneric(1));
 
@@ -825,7 +1059,7 @@ public class AstElementVisitor extends AstVisitor {
 
     public SimpleType visitSimpleType(GNode that) {
         enter(that);
-        
+
         SimpleType type = null;
 
         if (that.getName().equals("SimpleIdType")) {
@@ -854,9 +1088,9 @@ public class AstElementVisitor extends AstVisitor {
 
     public List<TypeRef> visitTypeArgs(GNode that) {
         enter(that);
-        
+
         List<TypeRef> typeArgs = null;
-        
+
         Object what = that.get(0);
         if (what instanceof GNode) {
             typeArgs = visitTypes((GNode) what);
@@ -864,14 +1098,14 @@ public class AstElementVisitor extends AstVisitor {
             // wildcard
             typeArgs = Collections.<TypeRef>emptyList();
         }
-        
+
         exit(that);
         return typeArgs;
     }
 
     public List<TypeRef> visitTypes(GNode that) {
         enter(that);
-        
+
         List<TypeRef> types = new ArrayList<TypeRef>();
 
         TypeRef first = visitType(that.getGeneric(0));
@@ -888,13 +1122,13 @@ public class AstElementVisitor extends AstVisitor {
 
     public SimpleType visitSimpleIdType(GNode that) {
         enter(that);
-        
-        List<AstElement> ids = visitStableId(that.getGeneric(0));
-        AstElement first = ids.get(0);
-        SimpleIdType type = new SimpleIdType(first.getName(), first.getNameRange(), ElementKind.CLASS);
-        type.setIds(ids);
 
-        scopeStack.peek().addUsage(type);
+        PathId id = visitStableId(that.getGeneric(0));
+        Id first = id.getPaths().get(0);
+        SimpleIdType type = new SimpleIdType(first.getName(), first.getNameRange(), ElementKind.CLASS);
+        type.setPaths(id.getPaths());
+
+        scopeStack.peek().addRef(type);
 
         exit(that);
         return type;
@@ -902,13 +1136,13 @@ public class AstElementVisitor extends AstVisitor {
 
     public SimpleType visitSimpleSingletonType(GNode that) {
         enter(that);
-        
-        List<AstElement> ids = visitPath(that.getGeneric(0));
-        AstElement first = ids.get(0);
-        SimpleIdType type = new SimpleIdType(first.getName(), first.getNameRange(), ElementKind.CLASS);
-        type.setIds(ids);
 
-        scopeStack.peek().addUsage(type);
+        PathId id = visitPath(that.getGeneric(0));
+        Id first = id.getPaths().get(0);
+        SimpleIdType type = new SimpleIdType(first.getName(), first.getNameRange(), ElementKind.CLASS);
+        type.setPaths(id.getPaths());
+
+        scopeStack.peek().addRef(type);
 
         exit(that);
         return type;
@@ -916,13 +1150,13 @@ public class AstElementVisitor extends AstVisitor {
 
     public SimpleType visitSimpleTupleType(GNode that) {
         enter(that);
-        
+
         List<TypeRef> types = visitTypes(that.getGeneric(0));
         SimpleTupleType type = new SimpleTupleType("TupleType", getRange(that), ElementKind.CLASS);
         type.setTypes(types);
 
         for (TypeRef typeRef : types) {
-            scopeStack.peek().addUsage(typeRef);
+            scopeStack.peek().addRef(typeRef);
         }
 
         exit(that);

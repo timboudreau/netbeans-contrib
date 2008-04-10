@@ -53,7 +53,7 @@ import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.StructureItem;
 import org.netbeans.modules.gsf.api.StructureScanner;
-import org.netbeans.modules.scala.editing.nodes.AstDefinition;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 
 /**
@@ -80,9 +80,9 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 
         List<StructureItem> items = new ArrayList<StructureItem>();
 
-        for (AstDefinition definition : rootScope.getDefinitions()) {
-            if (definition.getKind() != ElementKind.PARAMETER) {
-                items.add(new ScalaStructureItem(definition, info, formatter));
+        for (AstDef def : rootScope.getDefs()) {
+            if (def.getKind() != ElementKind.PARAMETER && def.getKind() != ElementKind.VARIABLE) {
+                items.add(new ScalaStructureItem(def, info, formatter));
             }
         }
 
@@ -153,18 +153,18 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 
     private class ScalaStructureItem implements StructureItem {
 
-        private AstDefinition definition;
+        private AstDef def;
         private CompilationInfo info;
         private HtmlFormatter formatter;
 
-        private ScalaStructureItem(AstDefinition definition, CompilationInfo info, HtmlFormatter formatter) {
-            this.definition = definition;
+        private ScalaStructureItem(AstDef def, CompilationInfo info, HtmlFormatter formatter) {
+            this.def = def;
             this.info = info;
             this.formatter = formatter;
         }
 
         public String getName() {
-            return definition.getName();
+            return def.getName();
         }
 
         public String getSortText() {
@@ -173,7 +173,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 
         public String getHtml() {
             formatter.reset();
-            definition.htmlFormat(formatter);
+            def.htmlFormat(formatter);
             return formatter.getText();
 //            formatter.reset();
 //            boolean strike = signature.getModifiers().contains(Modifier.DEPRECATED);
@@ -350,19 +350,19 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 //            return argStr;
 //        }
         public ElementHandle getElementHandle() {
-            return definition;
+            return def;
         }
 
         public ElementKind getKind() {
-            return definition.getKind();
+            return def.getKind();
         }
 
         public Set<Modifier> getModifiers() {
-            return definition.getModifiers();
+            return def.getModifiers();
         }
 
         public boolean isLeaf() {
-            switch (definition.getKind()) {
+            switch (def.getKind()) {
                 case ATTRIBUTE:
                 case CONSTANT:
                 case CONSTRUCTOR:
@@ -383,18 +383,18 @@ public class ScalaStructureAnalyzer implements StructureScanner {
                     return false;
 
                 default:
-                    throw new RuntimeException("Unhandled kind: " + definition.getKind());
+                    throw new RuntimeException("Unhandled kind: " + def.getKind());
             }
         }
 
         public List<? extends StructureItem> getNestedItems() {
-            List<AstDefinition> nested = definition.getBindingScope().getDefinitions();
+            List<AstDef> nested = def.getBindingScope().getDefs();
 
             if ((nested != null) && (nested.size() > 0)) {
                 List<ScalaStructureItem> children = new ArrayList<ScalaStructureItem>(nested.size());
 
-                for (AstDefinition child : nested) {
-                    if (child.getKind() != ElementKind.PARAMETER) {
+                for (AstDef child : nested) {
+                    if (child.getKind() != ElementKind.PARAMETER  && def.getKind() != ElementKind.VARIABLE) {
                         children.add(new ScalaStructureItem(child, info, formatter));
                     }
                 }
@@ -406,11 +406,11 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         }
 
         public long getPosition() {
-            return definition.getBindingScope().getRange().getStart();
+            return def.getBindingScope().getRange().getStart();
         }
 
         public long getEndPosition() {
-            return definition.getBindingScope().getRange().getEnd();
+            return def.getBindingScope().getRange().getEnd();
         }
 
         @Override
@@ -425,7 +425,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
 
             ScalaStructureItem d = (ScalaStructureItem) o;
 
-            if (definition.getKind() != d.definition.getKind()) {
+            if (def.getKind() != d.def.getKind()) {
                 return false;
             }
 
@@ -441,7 +441,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             int hash = 7;
 
             hash = (29 * hash) + ((this.getName() != null) ? this.getName().hashCode() : 0);
-            hash = (29 * hash) + ((this.definition.getKind() != null) ? this.definition.getKind().hashCode() : 0);
+            hash = (29 * hash) + ((this.def.getKind() != null) ? this.def.getKind().hashCode() : 0);
 
             return hash;
         }

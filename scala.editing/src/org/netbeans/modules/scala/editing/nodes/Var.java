@@ -46,13 +46,14 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author Caoyuan Deng
  */
-public class Var extends AstDefinition {
+public class Var extends AstDef {
 
-    boolean val;
-    boolean implicate;
+    private boolean val;
+    private boolean implicate;
 
-    public Var(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
-        super(name, nameRange, bindingScope, kind);
+    public Var(Id id, AstScope bindingScope, ElementKind kind) {
+        super(id.getName(), id.getNameRange(), bindingScope, kind);
+        setType(id.getType());
     }
 
     public void setVal() {
@@ -69,6 +70,18 @@ public class Var extends AstDefinition {
 
     public boolean getImplicate() {
         return implicate;
+    }
+
+    @Override
+    public boolean referedBy(AstRef ref) {
+        switch (ref.getKind()) {
+            case VARIABLE:
+            case PARAMETER:
+            case FIELD:
+                return getName().equals(ref.getName());
+            default:
+                return false;
+        }
     }
 
     @Override
