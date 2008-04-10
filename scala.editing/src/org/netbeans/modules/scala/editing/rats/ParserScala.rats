@@ -295,9 +295,10 @@ generic Block =
   EXIT_NL_ENABLE 
 ;
 
+/* @DocError in ScalaReference: ( "implicit":key )? Def */
 transient generic BlockStat = 
   Import
-/ ( void:"implicit":key )? Def
+/ ( "implicit":key / "lazy":key )* Def
 / LocalModifier* TmplDef
 / !ResultFunExpr NotFunExpr
 / 
@@ -570,7 +571,7 @@ transient generic TopStat =
 ;
 
 transient generic Packaging = void:"package":key QualId N? void:"{":sep TopStatSeq void:"}":sep ;
-transient generic Package   = void:"package":key QualId SEMI ;
+transient generic Package   = void:"package":key QualId SEMI !( "{":sep );
 
 public generic CompilationUnit = SKIP_N DocComment* Package? TopStatSeq EOF;
 

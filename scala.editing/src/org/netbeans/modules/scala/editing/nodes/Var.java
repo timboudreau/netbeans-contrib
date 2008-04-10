@@ -85,6 +85,18 @@ public class Var extends AstDef {
     }
 
     @Override
+    public boolean mayEquals(AstDef def) {
+        switch (def.getKind()) {
+            case VARIABLE:
+            case PARAMETER:
+            case FIELD:
+                return getName().equals(def.getName());
+            default:
+                return false;
+        }
+    }        
+
+    @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
         TypeRef type = getType();
