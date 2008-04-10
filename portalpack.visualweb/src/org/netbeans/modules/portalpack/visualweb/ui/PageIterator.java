@@ -59,6 +59,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.List;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
 
@@ -74,6 +76,7 @@ import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.AppContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners.PortletXMLChangeEventNotificationHelper;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.InitParamType;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletInfoType;
@@ -100,6 +103,7 @@ public class PageIterator implements TemplateWizard.Iterator {
     private static final long serialVersionUID = 1L;
     private int index;
     private transient WizardDescriptor.Panel[] panels;
+    private static Logger logger = Logger.getLogger(CoreUtil.CORE_LOGGER);
 
     public void initialize(TemplateWizard wizard) {
         index = 0;
@@ -196,7 +200,7 @@ public class PageIterator implements TemplateWizard.Iterator {
                         beanPackage = JsfProjectUtils.deriveSafeName(project.getProjectDirectory().getName());
                     }
                     JsfProjectUtils.createProjectProperty(project, JsfProjectConstants.PROP_JSF_PAGEBEAN_PACKAGE, beanPackage);
-
+                    
                     // XXX JsfProjectConstants.NO_START_PAGE will be handled by visualweb under NetBeans 6.1.
                     // Note: VisualWeb will skip the start page "/" since it's already existed.
                     // JsfProjectUtils.createProjectProperty(project, JsfProjectConstants.PROP_START_PAGE, JsfProjectConstants.NO_START_PAGE);
@@ -204,11 +208,29 @@ public class PageIterator implements TemplateWizard.Iterator {
 
                     // Create portlet.xml if not exist
                     File filePortlet = new File(FileUtil.toFile(webModule.getWebInf()), "portlet.xml"); // NOI18N
+                    
+                    //create messages.properties if doesn't exis
+                    FileObject sourceRoot = JsfProjectUtils.getSourceRoot(project);
+                    if (sourceRoot != null) {
+                        try {
+                            FileObject mObj = sourceRoot.getFileObject("messages.properties");
+                            if (mObj == null) {
+                                FileObject data = sourceRoot.createData("messages", "properties");
+                             
+                                if(data == null)
+                                    logger.log(Level.WARNING,"messages.properties could not be created");
+                            }
+                        } catch (IOException ex) {
+                            //ignore any error
+                        }
+                    }
+
+                    String jsfPortletFolderRelativePath = JsfProjectUtils.getRelativePathForJsfPortlet(webModule.getDocumentBase(), dir);
 
                     if (!filePortlet.exists()) {
                         String content = JsfProjectUtils.readResource(Thread.currentThread().getContextClassLoader().getResourceAsStream("org/netbeans/modules/portalpack/visualweb/templates/portlet.xml.template"), "UTF-8"); // NOI18N
 
-                        content = content.replace("${page_name}", targetName + "." + template.getExt()); // NOI18N
+                        content = content.replace("${page_name}", jsfPortletFolderRelativePath + targetName + "." + template.getExt()); // NOI18N
 
                         content = content.replace("${portlet_name}", ProjectUtils.getInformation(project).getDisplayName()); // NOI18N
 
@@ -241,7 +263,7 @@ public class PageIterator implements TemplateWizard.Iterator {
                             initParam.setDescription(new String[]{"Portlet Init View Page"});
                             initParam.setName("com.sun.faces.portlet.INIT_VIEW"); //NOI18N
 
-                            initParam.setValue("/" + targetName + "." + template.getExt()); //NOI18N
+                            initParam.setValue(jsfPortletFolderRelativePath + targetName + "." + template.getExt()); //NOI18N
 
                             portletType.addInitParam(initParam);
                             portletType.setExpirationCache(0);
@@ -259,7 +281,8 @@ public class PageIterator implements TemplateWizard.Iterator {
                             portletInfo.setShortTitle(ProjectUtils.getInformation(project).getDisplayName());
 
                             portletType.setPortletInfo(portletInfo);
-
+                            portletType.setResourceBundle("messages");//NOI18N
+                            
                             //add VisualJSFPortlet page as the first portlet entry in portlet.xml
                             PortletType[] portletTypes = portletApp.getPortlet();
                             if (portletTypes.length == 0) {

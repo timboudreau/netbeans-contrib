@@ -26,7 +26,6 @@ import com.sun.source.tree.ModifiersTree;
 import com.sun.source.tree.NewArrayTree;
 import com.sun.source.tree.ParenthesizedTree;
 import com.sun.source.tree.PrimitiveTypeTree;
-import com.sun.source.tree.Scope;
 import com.sun.source.tree.StatementTree;
 import com.sun.source.tree.SwitchTree;
 import com.sun.source.tree.Tree;
@@ -52,11 +51,8 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import static javax.lang.model.element.Modifier.*;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
@@ -1369,9 +1365,6 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
                 case VOID:
                     break;
                 default:
-                    Element el = controller.getTrees().getElement(expPath);
-                    if (el instanceof PackageElement) {
-                    }
             }
         } else {
             insideExpression(env, tPath);
@@ -1390,139 +1383,6 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
             if (last != null) {
                 return;
             }
-        }
-        controller.toPhase(Phase.ELEMENTS_RESOLVED);
-        boolean isConst = parent.getKind() == Tree.Kind.VARIABLE && ((VariableTree) parent).getModifiers().getFlags().containsAll(EnumSet.of(FINAL, STATIC));
-        if ((parent == null || parent.getKind() != Tree.Kind.PARENTHESIZED) && (et.getKind() == Tree.Kind.PRIMITIVE_TYPE || et.getKind() == Tree.Kind.ARRAY_TYPE || et.getKind() == Tree.Kind.PARAMETERIZED_TYPE)) {
-            TypeMirror tm = controller.getTrees().getTypeMirror(exPath);
-            Scope scope = env.getScope();
-            final ExecutableElement method = scope.getEnclosingMethod();
-            return;
-        }
-        if (et.getKind() == Tree.Kind.IDENTIFIER) {
-            Element e = controller.getTrees().getElement(exPath);
-            if (e == null) {
-                return;
-            }
-            TypeMirror tm = controller.getTrees().getTypeMirror(exPath);
-            switch (e.getKind()) {
-                case ANNOTATION_TYPE:
-                case CLASS:
-                case ENUM:
-                case INTERFACE:
-                case PACKAGE:
-                    if (parent == null || parent.getKind() != Tree.Kind.PARENTHESIZED) {
-                        Scope scope = env.getScope();
-                        final ExecutableElement method = scope.getEnclosingMethod();
-                    }
-                    break;
-                case ENUM_CONSTANT:
-                case EXCEPTION_PARAMETER:
-                case FIELD:
-                case LOCAL_VARIABLE:
-                case PARAMETER:
-                    if (tm.getKind() == TypeKind.DECLARED || tm.getKind() == TypeKind.ARRAY || tm.getKind() == TypeKind.ERROR) {
-                        addKeyword(env, INSTANCEOF_KEYWORD, SPACE, false);
-                    }
-                    break;
-            }
-            return;
-        }
-        Tree exp = null;
-        if (et.getKind() == Tree.Kind.PARENTHESIZED) {
-            exp = ((ParenthesizedTree) et).getExpression();
-        } else if (et.getKind() == Tree.Kind.TYPE_CAST) {
-            if (env.getSourcePositions().getEndPosition(env.getRoot(), ((TypeCastTree) et).getType()) <= offset) {
-                exp = ((TypeCastTree) et).getType();
-            }
-        } else if (et.getKind() == Tree.Kind.ASSIGNMENT) {
-            Tree t = ((AssignmentTree) et).getExpression();
-            if (t.getKind() == Tree.Kind.PARENTHESIZED && env.getSourcePositions().getEndPosition(env.getRoot(), t) < offset) {
-                exp = ((ParenthesizedTree) t).getExpression();
-            }
-        }
-        if (exp != null) {
-            exPath = new TreePath(exPath, exp);
-            if (exp.getKind() == Tree.Kind.PRIMITIVE_TYPE || exp.getKind() == Tree.Kind.ARRAY_TYPE || exp.getKind() == Tree.Kind.PARAMETERIZED_TYPE) {
-                localResult(env);
-                addValueKeywords(env);
-                return;
-            }
-            Element e = controller.getTrees().getElement(exPath);
-            if (e == null) {
-                if (exp.getKind() == Tree.Kind.TYPE_CAST) {
-                    addKeyword(env, INSTANCEOF_KEYWORD, SPACE, false);
-                }
-                return;
-            }
-            TypeMirror tm = controller.getTrees().getTypeMirror(exPath);
-            switch (e.getKind()) {
-                case ANNOTATION_TYPE:
-                case CLASS:
-                case ENUM:
-                case INTERFACE:
-                case PACKAGE:
-                    if (exp.getKind() == Tree.Kind.IDENTIFIER) {
-                    } else if (exp.getKind() == Tree.Kind.MEMBER_SELECT) {
-                        if (tm.getKind() == TypeKind.ERROR || tm.getKind() == TypeKind.PACKAGE) {
-                            addKeyword(env, INSTANCEOF_KEYWORD, SPACE, false);
-                        }
-                        localResult(env);
-                        addValueKeywords(env);
-                    } else if (exp.getKind() == Tree.Kind.PARENTHESIZED && (tm.getKind() == TypeKind.DECLARED || tm.getKind() == TypeKind.ARRAY)) {
-                        addKeyword(env, INSTANCEOF_KEYWORD, SPACE, false);
-                    }
-                    break;
-                case ENUM_CONSTANT:
-                case EXCEPTION_PARAMETER:
-                case FIELD:
-                case LOCAL_VARIABLE:
-                case PARAMETER:
-                    if (tm.getKind() == TypeKind.DECLARED || tm.getKind() == TypeKind.ARRAY || tm.getKind() == TypeKind.ERROR) {
-                        addKeyword(env, INSTANCEOF_KEYWORD, SPACE, false);
-                    }
-                    break;
-                case CONSTRUCTOR:
-                case METHOD:
-                    if (tm.getKind() == TypeKind.DECLARED || tm.getKind() == TypeKind.ARRAY || tm.getKind() == TypeKind.ERROR) {
-                        addKeyword(env, INSTANCEOF_KEYWORD, SPACE, false);
-                    }
-            }
-            return;
-        }
-        Element e = controller.getTrees().getElement(exPath);
-        TypeMirror tm = controller.getTrees().getTypeMirror(exPath);
-        if (e == null) {
-            if (tm == null) {
-                return;
-            }
-            if (tm.getKind() == TypeKind.DECLARED || tm.getKind() == TypeKind.ARRAY || tm.getKind() == TypeKind.ERROR) {
-                addKeyword(env, INSTANCEOF_KEYWORD, SPACE, false);
-            }
-            return;
-        }
-        switch (e.getKind()) {
-            case ANNOTATION_TYPE:
-            case CLASS:
-            case ENUM:
-            case INTERFACE:
-            case PACKAGE:
-                Scope scope = env.getScope();
-                final ExecutableElement method = scope.getEnclosingMethod();
-                if (et.getKind() == Tree.Kind.MEMBER_SELECT && tm.getKind() == TypeKind.ERROR) {
-                    addKeyword(env, INSTANCEOF_KEYWORD, SPACE, false);
-                }
-                break;
-            case ENUM_CONSTANT:
-            case EXCEPTION_PARAMETER:
-            case FIELD:
-            case LOCAL_VARIABLE:
-            case PARAMETER:
-            case CONSTRUCTOR:
-            case METHOD:
-                if (tm.getKind() == TypeKind.DECLARED || tm.getKind() == TypeKind.ARRAY || tm.getKind() == TypeKind.ERROR) {
-                    addKeyword(env, INSTANCEOF_KEYWORD, SPACE, false);
-                }
         }
     }
 
@@ -2145,44 +2005,12 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         return null;
     }
 
-    private List<Tree> getArgumentsUpToPos(Env env, Iterable<? extends ExpressionTree> args, int startPos, int position) {
-        List<Tree> ret = new ArrayList<Tree>();
-        CompilationUnitTree root = env.getRoot();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        for (ExpressionTree e : args) {
-            int pos = (int) sourcePositions.getEndPosition(root, e);
-            if (pos != Diagnostic.NOPOS && position > pos) {
-                startPos = pos;
-                ret.add(e);
-            }
-        }
-        if (startPos < 0) {
-            return ret;
-        }
-        if (position > startPos) {
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(env, startPos, position);
-            if (last != null && (last.token().id() == JFXTokenId.LPAREN || last.token().id() == JFXTokenId.COMMA)) {
-                return ret;
-            }
-        }
-        return null;
-    }
-
     private Tree unwrapErrTree(Tree tree) {
         if (tree != null && tree.getKind() == Tree.Kind.ERRONEOUS) {
             Iterator<? extends Tree> it = ((ErroneousTree) tree).getErrorTrees().iterator();
             tree = it.hasNext() ? it.next() : null;
         }
         return tree;
-    }
-
-    private boolean withinScope(Env env, TypeElement e) throws IOException {
-        for (Element encl = env.getScope().getEnclosingClass(); encl != null; encl = encl.getEnclosingElement()) {
-            if (e == encl) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private String fullName(Tree tree) {
@@ -2244,7 +2072,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
                 }
             }
         }
-        return new Env(offset, prefix, controller, path, controller.getTrees().getSourcePositions(), null);
+        return new Env(offset, prefix, controller, path, controller.getTrees().getSourcePositions());
     }
 
     private Env getEnvImpl(CompilationController controller, TreePath orig, TreePath path, TreePath pPath, TreePath gpPath, int offset, String prefix, boolean upToOffset) throws IOException {
@@ -2276,12 +2104,10 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         private CompilationController controller;
         private TreePath path;
         private SourcePositions sourcePositions;
-        private Scope scope;
-        private Collection<? extends Element> refs = null;
         private boolean insideForEachExpressiion = false;
         private Set<? extends TypeMirror> smartTypes = null;
 
-        private Env(int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, Scope scope) {
+        private Env(int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions) {
             super();
             this.offset = offset;
             this.prefix = prefix;
@@ -2289,7 +2115,6 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
             this.controller = controller;
             this.path = path;
             this.sourcePositions = sourcePositions;
-            this.scope = scope;
         }
 
         public int getOffset() {
@@ -2318,14 +2143,6 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
 
         public SourcePositions getSourcePositions() {
             return sourcePositions;
-        }
-
-        public Scope getScope() throws IOException {
-            if (scope == null) {
-                controller.toPhase(Phase.ELEMENTS_RESOLVED);
-                scope = controller.getTreeUtilities().scopeFor(offset);
-            }
-            return scope;
         }
 
         public void insideForEachExpressiion() {

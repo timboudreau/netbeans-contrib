@@ -38,7 +38,6 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.portalpack.visualweb.ui;
 
 import java.io.InputStream;
@@ -88,12 +87,12 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.Netbea
 import org.netbeans.modules.portalpack.visualweb.api.JsfPortletSupport;
 import org.netbeans.modules.portalpack.visualweb.api.JsfPortletSupportImpl;
 
-
 /**
  *
  * @author Po-Ting Wu
  */
 public class JsfProjectUtils {
+
     public static boolean isWebProject(Project project) {
         if (project == null) {
             return false;
@@ -186,7 +185,7 @@ public class JsfProjectUtils {
 
         return wm.getWebInf();
     }
-    
+
     /**
      * Convenience method to obtain the source root folder.
      * @param project the Project object
@@ -202,6 +201,7 @@ public class JsfProjectUtils {
         SourceGroup[] grp = src.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
         for (int i = 0; i < grp.length; i++) {
             if ("${src.dir}".equals(grp[i].getName())) { // NOI18N
+
                 return grp[i].getRootFolder();
             }
         }
@@ -230,18 +230,18 @@ public class JsfProjectUtils {
         if (srcRoot == null) {
             return null;
         }
-        
+
         String pageBeanPackage = getProjectProperty(project, JsfProjectConstants.PROP_JSF_PAGEBEAN_PACKAGE);
         if (pageBeanPackage == null) {
             return null;
         }
-        
+
         pageBeanPackage = pageBeanPackage.replace('.', '/');
         FileObject pageBeanFolder = srcRoot.getFileObject(pageBeanPackage);
         if (pageBeanFolder != null) {
             return pageBeanFolder;
         }
-        
+
         try {
             return FileUtil.createFolder(srcRoot, pageBeanPackage);
         } catch (IOException e) {
@@ -249,7 +249,7 @@ public class JsfProjectUtils {
             return null;
         }
     }
-    
+
     /** J2EE platform version - one of the constants {@link #J2EE_13_LEVEL}, {@link #J2EE_14_LEVEL}.
      * @param project
      * @return J2EE platform version
@@ -266,7 +266,7 @@ public class JsfProjectUtils {
 
         return wm.getJ2eePlatformVersion();
     }
-    
+
     public static String getSourceLevel(Project project) {
         if (!isWebProject(project)) {
             return null;
@@ -298,20 +298,21 @@ public class JsfProjectUtils {
         }
 
         FileObject fo = webInf.getFileObject("portlet.xml");  // NOI18N
-        if (fo == null)
+
+        if (fo == null) {
             return null;
-        else {
+        } else {
             return new JsfPortletSupportImpl(project);
         }
     }
 
     public static boolean supportProjectProperty(Project project) {
         if (isWebProject(project)) {
-            AuxiliaryConfiguration ac = (AuxiliaryConfiguration)project.getLookup().lookup(AuxiliaryConfiguration.class);
+            AuxiliaryConfiguration ac = (AuxiliaryConfiguration) project.getLookup().lookup(AuxiliaryConfiguration.class);
             if (ac == null) {
                 return false;
             }
-            
+
             Element auxElement = ac.getConfigurationFragment(JsfProjectConstants.RAVE_AUX_NAME, JsfProjectConstants.RAVE_AUX_NAMESPACE, true);
             if (auxElement != null) {
                 return true;
@@ -336,46 +337,50 @@ public class JsfProjectUtils {
 
         return false;
     }
-    
+
     public static String getProjectProperty(Project project, String propName) {
         if (isWebProject(project)) {
             AuxiliaryConfiguration ac = (AuxiliaryConfiguration) project.getLookup().lookup(AuxiliaryConfiguration.class);
             if (ac == null) {
                 return "";
             }
-            
+
             Element auxElement = ac.getConfigurationFragment(JsfProjectConstants.RAVE_AUX_NAME, JsfProjectConstants.RAVE_AUX_NAMESPACE, true);
             if (auxElement == null) {  // Creator 2 project
+
                 return getCreatorProperty(project, propName);
             }
             String value = auxElement.getAttribute(propName);
             if (value == null || value.equals("")) {  // Creator 2 project
+
                 return getCreatorProperty(project, propName);
             }
             return value;
-        } else
+        } else {
             return "";
+        }
     }
-    
+
     private static String getCreatorProperty(final Project project, String propName) {
         EditableProperties props;
         /* XXX WebPropertyEvaluator in org.netbeans.modules.web.project is not accessible; need friend-package
         WebPropertyEvaluator wpe = (WebPropertyEvaluator) project.getLookup().lookup(WebPropertyEvaluator.class);
         if (wpe != null) {
-            PropertyEvaluator pe = wpe.evaluator();
-            props = new EditableProperties(pe.getProperties());
+        PropertyEvaluator pe = wpe.evaluator();
+        props = new EditableProperties(pe.getProperties());
         } else {
-        */
+         */
         props = NetbeansUtil.getWebProperties(project);
         if (props == null) {
             // Can't find anything, try to read the project.properties file directly. Shouldn't be here.
             try {
                 props = (EditableProperties) ProjectManager.mutex().readAccess(new Mutex.ExceptionAction() {
+
                     public Object run() throws Exception {
                         EditableProperties ep = new EditableProperties();
                         FileObject propFile = project.getProjectDirectory().getFileObject(AntProjectHelper.PROJECT_PROPERTIES_PATH);
                         InputStream is = propFile.getInputStream();
-            
+
                         ep.load(is);
                         is.close();
 
@@ -405,12 +410,15 @@ public class JsfProjectUtils {
 
         // Store version into the new format
         String version = props.getProperty("creator"); // NOI18N
+
         if (isCreator && version == null) {
             version = "2.0"; // NOI18N
+
         }
         if (version != null) {
             setProjectVersion(project, version);
             if (propName.equals(JsfProjectConstants.PROP_JSF_PROJECT_VERSION)) { // NOI18N
+
                 ret = version;
             }
         }
@@ -420,19 +428,20 @@ public class JsfProjectUtils {
 
     public static void createProjectProperty(Project project, String propName, String value) {
         putProjectProperty(project, propName, value, ""); // NOI18N
+
     }
-    
+
     public static void putProjectProperty(Project project, String propName, String value) {
         putProjectProperty(project, propName, value, getProjectProperty(project, propName));
     }
-    
+
     private static void putProjectProperty(Project project, String propName, String value, String oldval) {
         if (isWebProject(project)) {
             AuxiliaryConfiguration ac = (AuxiliaryConfiguration) project.getLookup().lookup(AuxiliaryConfiguration.class);
             if (ac == null) {
                 return;
             }
-            
+
             Element auxElement = ac.getConfigurationFragment(JsfProjectConstants.RAVE_AUX_NAME, JsfProjectConstants.RAVE_AUX_NAMESPACE, true);
             if (auxElement == null) {
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -488,25 +497,25 @@ public class JsfProjectUtils {
         /* XXX WebProjectLibrariesModifier in org.netbeans.modules.web.project is not accessible; need friend-package
         WebProjectLibrariesModifier wplm = (WebProjectLibrariesModifier) project.getLookup().lookup(WebProjectLibrariesModifier.class);
         if (wplm == null) {
-            // Something is wrong, shouldn't be here.
-            return addLibraryReferences(project, libraries);
+        // Something is wrong, shouldn't be here.
+        return addLibraryReferences(project, libraries);
         }
-
+        
         if (ClassPath.COMPILE.equals(type)) {
-            return wplm.addCompileLibraries(libraries);
+        return wplm.addCompileLibraries(libraries);
         } else if (ClassPath.EXECUTE.equals(type)) {
-            return wplm.addPackageLibraries(libraries, PATH_IN_WAR_LIB);
+        return wplm.addPackageLibraries(libraries, PATH_IN_WAR_LIB);
         }
-
+        
         return false;
-        */
+         */
         if (NetbeansUtil.addLibraryReferences(project, libraries, type)) {
             return true;
         }
 
         return addLibraryReferences(project, libraries);
     }
-    
+
     /**
      * Derive an identifier suitable for a java package name or context path
      * @param sourceName Original name from which to derive the name
@@ -527,20 +536,24 @@ public class JsfProjectUtils {
             }
 
             for (int i = pos; i < sourceLen; i++) {
-                if (Character.isJavaIdentifierPart(sourceName.charAt(i)))
+                if (Character.isJavaIdentifierPart(sourceName.charAt(i))) {
                     dest.append(Character.toLowerCase(sourceName.charAt(i)));
+                }
             }
         }
-        if (dest.length() == 0 || !Utilities.isJavaIdentifier(dest.toString()))
+        if (dest.length() == 0 || !Utilities.isJavaIdentifier(dest.toString())) {
             return "untitled";  // NOI18N
-        else
+
+        } else {
             return dest.toString();
+        }
     }
 
     public static String readResource(InputStream is, String encoding) throws IOException {
         // read the config from resource first
         StringBuffer sbuffer = new StringBuffer();
         String lineSep = System.getProperty("line.separator");//NOI18N
+
         BufferedReader br = new BufferedReader(new InputStreamReader(is, encoding));
         String line = br.readLine();
         while (line != null) {
@@ -552,13 +565,13 @@ public class JsfProjectUtils {
         return sbuffer.toString();
     }
 
-    public static void createFile(FileObject target, String content, String encoding) throws IOException{
+    public static void createFile(FileObject target, String content, String encoding) throws IOException {
         FileLock lock = target.lock();
         try {
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(target.getOutputStream(lock), encoding));
             bw.write(content);
             bw.close();
-            
+
         } finally {
             lock.releaseLock();
         }
@@ -569,9 +582,9 @@ public class JsfProjectUtils {
      * @return true iff the name parameter is a valid Java package name
      */
     public static boolean isValidJavaPackageName(String pkgName) {
-        if (pkgName == null)
+        if (pkgName == null) {
             return false;
-
+        }
         String[] pkg = pkgName.split("\\.");
         for (int i = 0; i < pkg.length; i++) {
             if (!Utilities.isJavaIdentifier(pkg[i])) {
@@ -597,11 +610,11 @@ public class JsfProjectUtils {
         if (n == 0) {
             return false;
         }
-        
+
         if (!Character.isJavaIdentifierStart(name.charAt(0))) {
             return false;
         }
-        
+
         for (int i = 1; i < n; i++) {
             char c = name.charAt(i);
             if (!Character.isJavaIdentifierPart(c)) {
@@ -635,5 +648,21 @@ public class JsfProjectUtils {
         String RI = NbBundle.getMessage(JsfProjectUtils.class, (count > 1) ? "LBL_MissingMany" : "LBL_MissingOne");
 
         return NbBundle.getMessage(JsfProjectUtils.class, "LBL_MissingNBM", RI, nbms);
+    }
+
+    public static String getRelativePathForJsfPortlet(FileObject docBase,FileObject jsfPortletFolder) {
+        String jsfportletFolderRelativePath = FileUtil.getRelativePath(docBase, jsfPortletFolder);
+        if (jsfportletFolderRelativePath != null) {
+            if (!jsfportletFolderRelativePath.startsWith("/") && !jsfportletFolderRelativePath.startsWith("\\")) {
+                jsfportletFolderRelativePath = "/" + jsfportletFolderRelativePath;
+            }
+            if (!jsfportletFolderRelativePath.endsWith("/") && !jsfportletFolderRelativePath.endsWith("\\")) {
+                jsfportletFolderRelativePath += "/";
+            }
+            jsfportletFolderRelativePath = jsfportletFolderRelativePath.replace("\\", "/");
+        }else
+            jsfportletFolderRelativePath = "/";
+        
+        return jsfportletFolderRelativePath;
     }
 }

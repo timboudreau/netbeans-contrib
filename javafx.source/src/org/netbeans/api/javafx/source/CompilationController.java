@@ -47,25 +47,25 @@ import java.io.IOException;
  */
 public class CompilationController extends CompilationInfo {
 
-    public CompilationController(JavaFXSource source) {
-        super(source);
+    CompilationController(CompilationInfoImpl impl) {
+        super(impl);
     }
 
     public String getText() {
-        return source.getText();
+        return getJavaFXSource().getText();
     }
 
     public TreeUtilities getTreeUtilities() {
         return new TreeUtilities(this);
     }
-    
+  
     /** Moves the state to required phase. If given state was already reached 
      * the state is not changed. The method will throw exception if a state is 
      * illegal required. Acceptable parameters for thid method are <BR>
-     * <LI>{@link org.netbeans.api.java.source.JavaSource.Phase.PARSED}
-     * <LI>{@link org.netbeans.api.java.source.JavaSource.Phase.ELEMENTS_RESOLVED}
-     * <LI>{@link org.netbeans.api.java.source.JavaSource.Phase.RESOLVED}
-     * <LI>{@link org.netbeans.api.java.source.JavaSource.Phase.UP_TO_DATE}   
+     * <LI>{@link JavaFXSource.Phase.PARSED}
+     * <LI>{@link JavaFXSource.Phase.ELEMENTS_RESOLVED}
+     * <LI>{@link JavaFXSource.Phase.RESOLVED}
+     * <LI>{@link JavaFXSource.Phase.UP_TO_DATE}   
      * @param phase The required phase
      * @return the reached state
      * @throws IllegalArgumentException in case that given state can not be 
@@ -73,13 +73,9 @@ public class CompilationController extends CompilationInfo {
      * @throws IOException when the file cannot be red
      */    
     public JavaFXSource.Phase toPhase(JavaFXSource.Phase phase ) throws IOException {
-        if (phase == JavaFXSource.Phase.MODIFIED) {
-            throw new IllegalArgumentException( "Invalid phase: " + phase );    //NOI18N
-        }
-        JavaFXSource.Phase currentPhase = source.moveToPhase(phase, this, false);
-            return currentPhase.compareTo (phase) < 0 ? currentPhase : phase;
-        }
-
+        return impl.toPhase(phase);
+    }
+        
     void invalidate() {
     }
 
