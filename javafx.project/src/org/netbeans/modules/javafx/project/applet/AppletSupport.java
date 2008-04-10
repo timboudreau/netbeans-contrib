@@ -57,6 +57,9 @@ import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.javafx.source.JavaFXSourceUtils;
+import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectManager;
+import org.netbeans.modules.javafx.project.JavaFXProject;
 import org.netbeans.modules.javafx.project.JavaFXProjectUtil;
 import org.openide.*;
 import org.openide.modules.SpecificationVersion;
@@ -148,11 +151,12 @@ public class AppletSupport {
     /**
     * @return html file with the same name as applet
     */
-    private static FileObject generateHtml(FileObject appletFile, FileObject buildDir, FileObject classesDir) throws IOException {
-        FileObject htmlFile = buildDir.getFileObject(appletFile.getName(), HTML_EXT);
+    private static FileObject generateHtml(FileObject appletFile, FileObject buildDir, FileObject classesDir, FileObject distDir) throws IOException {
+        FileObject htmlFile = distDir.getFileObject(appletFile.getName(), HTML_EXT);
         
         if (htmlFile == null) {
-            htmlFile = buildDir.createData(appletFile.getName(), HTML_EXT);
+//            htmlFile = buildDir.createData(appletFile.getName(), HTML_EXT);
+            htmlFile = distDir.createData(appletFile.getName(), HTML_EXT);
         }
         
         FileLock lock = htmlFile.lock();
@@ -168,19 +172,12 @@ public class AppletSupport {
                 codebase = classesDir.getURL().toString();
             }
             if (appletFile.getExt().equals("fx")){
-                String libs="";
-                Iterator<Entry> it = cp.entries().iterator();
-                while(it.hasNext()){
-                    Entry entry = it.next();
-                    if ((entry.getRoot().getFileSystem() instanceof JarFileSystem) && !entry.getRoot().getFileSystem().getDisplayName().contains("javafxc.jar")){
-                        libs = libs.concat(entry.getRoot().getFileSystem().getDisplayName());
-                        if (it.hasNext()){
-                            libs = libs.concat(",");
-                        }
-                    }
-                }
+                JavaFXProject project = (JavaFXProject)getProject(appletFile);
+                String distJAR = project.evaluator().getProperty("dist.jar");
+                distJAR = distJAR.substring(distJAR.indexOf('/') + 1);
+                String libs = distJAR + ",lib/javafxrt.jar,lib/Scenario.jar";
                 path = path.substring(0, path.length()-3);
-                fillInFile(writer, path.replaceAll("/", "."), "codebase=\"" + codebase + "\" archive=\"" + libs + "\""); // NOI18N
+                fillInFile(writer, path.replaceAll("/", "."), " archive=\"" + libs + "\""); // NOI18N
             }else{
                 path = path.substring(0, path.length()-5);
                 fillInFile(writer, path + "." + CLASS_EXT, "codebase=\"" + codebase + "\""); // NOI18N
@@ -223,14 +220,14 @@ public class AppletSupport {
     /**
     * @return URL of the html file with the same name as sibling
     */
-    public static URL generateHtmlFileURL(FileObject appletFile, FileObject buildDir, FileObject classesDir, String activePlatform) throws FileStateInvalidException {
+    public static URL generateHtmlFileURL(FileObject appletFile, FileObject buildDir, FileObject classesDir, FileObject distDir, String activePlatform) throws FileStateInvalidException {
         FileObject html = null;
         IOException ex = null;
         if ((appletFile == null) || (buildDir == null) || (classesDir == null)) {
             return null;
         }
         try {
-            html = generateHtml(appletFile, buildDir, classesDir);
+            html = generateHtml(appletFile, buildDir, classesDir, distDir);
             if (html!=null) {
                 return getHTMLPageURL(html, activePlatform);
             }
@@ -309,8 +306,6 @@ public class AppletSupport {
         else
             writer.print("<APPLET " + codebase + " code="); // NOI18N
         writer.print ("\""); // NOI18N
-
-       
         writer.print(name);
         writer.print ("\""); // NOI18N
 
@@ -337,4 +332,21 @@ public class AppletSupport {
         writer.println("};"); // NOI18N
         writer.flush();
     }
+    
+    private static Project getProject(FileObject fileObject){
+        Project result = null;
+        try {
+            ProjectManager pm = ProjectManager.getDefault();
+            FileObject projDir = fileObject.getParent();
+            while (!pm.isProject(projDir)) {
+                projDir = projDir.getParent();
+            }
+            result = pm.findProject(projDir);
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+        } catch (IllegalArgumentException iae) {
+        }
+        return result;
+    }
+    
 }

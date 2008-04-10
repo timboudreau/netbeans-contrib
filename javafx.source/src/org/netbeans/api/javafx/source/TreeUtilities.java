@@ -198,13 +198,23 @@ public final class TreeUtilities {
             
             public Void scan(Tree tree, Void p) {
                 if (tree != null) {
-                    if (sourcePositions.getStartPosition(getCurrentPath().getCompilationUnit(), tree) < pos && sourcePositions.getEndPosition(getCurrentPath().getCompilationUnit(), tree) >= pos) {
+                    long start = sourcePositions.getStartPosition(getCurrentPath().getCompilationUnit(), tree);
+                    long end = sourcePositions.getEndPosition(getCurrentPath().getCompilationUnit(), tree);
+                    if (start < pos && end >= pos) {
                         if (tree.getKind() == Tree.Kind.ERRONEOUS) {
                             tree.accept(this, p);
                             throw new Result(getCurrentPath());
                         }
                         super.scan(tree, p);
                         throw new Result(new TreePath(getCurrentPath(), tree));
+                    } else {
+                        if ((start == -1) || (end == -1)) {
+                            
+                            if (!isSynthetic(getCurrentPath().getCompilationUnit(), tree)) {
+                                // here we have a problem
+                                System.err.println("Cannot determine start and end for: " + tree);
+                            }
+                        }
                     }
                 }
                 return null;
