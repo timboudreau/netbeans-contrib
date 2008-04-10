@@ -390,7 +390,7 @@ public class ScalaParser implements Parser {
                     if (error.index != -1) {
                         start = error.index;
                     }
-                    notifyError(context, "SYNTAX_ERROR", "SYNTAX_ERROR",
+                    notifyError(context, "SYNTAX_ERROR", "Syntax error",
                             start, start, sanitizing, Severity.ERROR, new Object[]{error.index, error});
                 }
 
