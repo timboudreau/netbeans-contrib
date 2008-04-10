@@ -120,8 +120,7 @@ public class JavaFXSourceUtils {
     }    
     
     public static String getAdditionalCP(String cp) {
-        LibraryManager lm = LibraryManager.getDefault();
-        List<URL> libs = lm.getLibrary("JavaFXUserLib").getContent("classpath");
+        List<URL> libs = getAdditionalCP();
         for (int i = 0; i < libs.size(); i++) {
             FileObject fo = URLMapper.findFileObject(libs.get(i));
             File f;
@@ -142,5 +141,9 @@ public class JavaFXSourceUtils {
         }
         return cp;
     }
-    
+
+    public static List<URL> getAdditionalCP(){
+        LibraryManager lm = LibraryManager.getDefault();
+        return lm.getLibrary("JavaFXUserLib").getContent("classpath");
+    }
 }

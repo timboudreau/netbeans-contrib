@@ -829,6 +829,7 @@ is divided into following sections:
                 <property name="build.classes.dir.resolved" location="${{build.classes.dir}}"/>
                 <pathconvert property="run.classpath.without.build.classes.dir">
                     <path path="${{run.classpath}}"/>
+                    <path path="${{libs.JavaFXUserLib.classpath}}"/>
                     <map from="${{build.classes.dir.resolved}}" to=""/>
                 </pathconvert>        
                 <pathconvert property="jar.classpath" pathsep=" ">
@@ -1235,7 +1236,7 @@ is divided into following sections:
             </xsl:comment>
             
             <target name="run-applet">
-                <xsl:attribute name="depends">init,compile-single</xsl:attribute>
+                <xsl:attribute name="depends">init,compile,-do-jar-with-libraries</xsl:attribute>
                 <fail unless="applet.url">Must select one file in the IDE or set applet.url</fail>
                 <javafxproject1:java-run classname="sun.applet.AppletViewer">
                     <customize>
