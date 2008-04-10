@@ -44,23 +44,18 @@ package org.netbeans.modules.javafx.preview;
 import org.netbeans.modules.javafx.editor.*;
 import java.lang.reflect.Method;
 import javax.swing.JComponent;
-import org.netbeans.api.java.classpath.ClassPath;
-import org.openide.filesystems.FileObject;
+import org.netbeans.api.project.Project;
 
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+//import sun.awt.AppContext;
+import org.openide.cookies.EditorCookie;
+//import sun.awt.SunToolkit;
 
 public class PreviewThread extends Thread {
     private FXDocument doc;
 
 
     public PreviewThread(FXDocument doc) {
+        //super(new ThreadGroup("SACG"), "SACT");
         super();
         this.doc = doc;
     }
@@ -68,19 +63,11 @@ public class PreviewThread extends Thread {
     @Override
     public void run() {
         try {
-            String code = doc.getText(0, doc.getLength());
+            //SunToolkit.createNewAppContext();
+            //System.out.println("Current app context " + AppContext.getAppContext());
+            Object obj = CodeManager.execute(doc);
             
-            FileObject fo = ((JavaFXDocument)doc).getDataObject().getPrimaryFile();
-            
-            ClassPath cp = ClassPath.getClassPath(fo, ClassPath.SOURCE);
-            if (cp == null) {
-                throw new IllegalStateException("No classpath was found for folder: " + fo); // NOI18N
-            }
-            String name = cp.getResourceName(fo, '.', false); // NOI18N
-            
-            ClassPath classPath = ClassPath.getClassPath(fo, ClassPath.EXECUTE);
-            
-            Object obj = CodeManager.execute(name, code, classPath);
+
             
             JComponent comp = null;
             if (obj != null){
