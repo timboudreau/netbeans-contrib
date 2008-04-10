@@ -163,7 +163,7 @@ class GeStartRunnable implements Runnable {
         try {
             return pd.exec(null, createEnvironment(), true, new File(ip.getProperty(GePluginProperties.PROPERTY_GE_HOME)));
         } catch (java.io.IOException ioe) {
-            Logger.getLogger("global").log(Level.INFO, null, ioe);
+            LOGGER.log(Level.INFO, null, ioe);
             fireStartProgressEvent(StateType.FAILED, createProgressMessage("MSG_START_SERVER_FAILED_PD"));
             return null;
         }

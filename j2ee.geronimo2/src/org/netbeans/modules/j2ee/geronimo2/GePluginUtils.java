@@ -134,7 +134,7 @@ public class GePluginUtils {
             Element rootElement = document.getDocumentElement();
             httpPort = Integer.parseInt(rootElement.getAttributes().getNamedItem("port").getNodeValue()); // NOI18N
         } catch(Exception ex) {
-            Logger.getLogger("global").log(Level.INFO, null, ex);
+            LOGGER.log(Level.INFO, null, ex);
         }
         return httpPort;
     }
@@ -208,7 +208,7 @@ public class GePluginUtils {
             
             return true;
         } catch(Exception ex) {
-            Logger.getLogger("global").log(Level.INFO, null, ex);
+            LOGGER.log(Level.INFO, null, ex);
         }
         
         return false;
@@ -348,7 +348,7 @@ public class GePluginUtils {
                 }
             }
         }catch(Exception e){
-            Logger.getLogger("global").log(Level.INFO, null, e);
+            LOGGER.log(Level.INFO, null, e);
         }
         return paths;
     }

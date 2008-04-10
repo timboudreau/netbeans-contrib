@@ -749,7 +749,7 @@ public class GeDeploymentManager implements DeploymentManager/*, ProgressObject,
                         geDm.release();
                     }
                     catch (Exception e) {
-                        Logger.getLogger("global").log(Level.INFO, null, e); // NOI18N
+                        LOGGER.log(Level.INFO, null, e); // NOI18N
                     }
                     finally {
                         geDm = null;

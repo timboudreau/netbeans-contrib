@@ -175,13 +175,13 @@ public class GeLogger {
                     }
                 }
             } catch (IOException e) {
-                Logger.getLogger("global").log(Level.WARNING, null, e);
+                Logger.getLogger(GeLogger.class.getName()).log(Level.INFO, null, e);
             } finally {
                 // close the opened stream
                 try {
                     inputStream.close();
                 } catch (IOException e) {
-                    Logger.getLogger("global").log(Level.WARNING, null, e);
+                    Logger.getLogger(GeLogger.class.getName()).log(Level.INFO, null, e);
                 }
             }
         }

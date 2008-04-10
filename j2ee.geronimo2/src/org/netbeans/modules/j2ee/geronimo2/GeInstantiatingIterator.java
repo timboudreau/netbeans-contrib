@@ -101,7 +101,7 @@ public class GeInstantiatingIterator implements WizardDescriptor.InstantiatingIt
             //GePluginUtils.registerOracleJdbcDriver(oc4jHomeLocation);
         } catch (InstanceCreationException e){
             showInformation(e.getLocalizedMessage(), NbBundle.getMessage(GeInstantiatingIterator.class, "MSG_INSTANCE_REGISTRATION_FAILED")); //NOI18N
-            Logger.getLogger("global").log(Level.SEVERE, e.getMessage());
+            Logger.getLogger(GeInstantiatingIterator.class.getName()).log(Level.SEVERE, e.getMessage());
         }
         
         return result;

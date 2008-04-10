@@ -110,7 +110,7 @@ public class GePluginProperties {
                 }
             }
         } catch(MalformedURLException ex) {
-            Logger.getLogger("global").log(Level.INFO, null, ex);
+            LOGGER.log(Level.INFO, null, ex);
         }
         return list;
     }
@@ -125,7 +125,7 @@ public class GePluginProperties {
                     list.add(GePluginUtils.fileToUrl(j2eeDoc));
                 }
             } catch (MalformedURLException e) {
-                Logger.getLogger("global").log(Level.INFO, null, e);
+                LOGGER.log(Level.INFO, null, e);
             }
             return list;
         }
