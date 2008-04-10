@@ -53,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.Future;
@@ -185,7 +186,11 @@ public final class JavaFXSource {
         JavafxcTool tool = JavafxcTool.create();
         JavacFileManager fileManager = tool.getStandardFileManager(null, null, Charset.defaultCharset());
         JavaFileObject jfo = (JavaFileObject) SourceFileObject.create(files.iterator().next(), null); // XXX
-        JavafxcTaskImpl task = (JavafxcTaskImpl)tool.getTask(null, fileManager, null, null, Collections.singleton(jfo));
+        
+        List<String> options = new ArrayList<String>();
+        options.add("-Xbootclasspath/a:" + JavaFXSourceUtils.getAdditionalCP(""));
+        
+        JavafxcTaskImpl task = (JavafxcTaskImpl)tool.getTask(null, fileManager, null, options, Collections.singleton(jfo));
         Context context = task.getContext();
         //Messager.preRegister(context, null, DEV_NULL, DEV_NULL, DEV_NULL);
         
