@@ -63,6 +63,8 @@ import org.openide.util.Utilities;
  */
 public class GeStopRunnable implements Runnable {
 
+    private static final Logger LOGGER = Logger.getLogger(GeStopRunnable.class.getName());
+    
     private GeDeploymentManager dm;
     private GeStartServer startServer;
     private InstanceProperties ip;
@@ -156,8 +158,10 @@ public class GeStopRunnable implements Runnable {
             return null;
         }
         
-        GeDebug.log(getClass().getName(), "EXEC: " + scriptPath +
+        if (LOGGER.isLoggable(Level.FINER)) {
+            LOGGER.log(Level.FINER, "EXEC: " + scriptPath +
                 " stop --port " + adminPort + " --user " + userName + " --password " + passwd);
+        }
         
         return new NbProcessDescriptor(scriptPath, "stop --port " +
                 adminPort + " --user " + userName +" --password " + passwd); // NOI18N

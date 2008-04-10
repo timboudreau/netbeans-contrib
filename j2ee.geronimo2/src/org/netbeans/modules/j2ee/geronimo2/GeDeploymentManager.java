@@ -43,6 +43,8 @@ import org.openide.util.NbBundle;
  */
 public class GeDeploymentManager implements DeploymentManager/*, ProgressObject, Runnable*/ {
 
+    private static final Logger LOGGER = Logger.getLogger(GeDeploymentManager.class.getName());
+    
     private String uri;
     private DeploymentManager geDm;
     private GePluginProperties ip;
@@ -452,11 +454,6 @@ public class GeDeploymentManager implements DeploymentManager/*, ProgressObject,
         // install location of the instance being registered
         if (serverRoot == null)
             serverRoot = getProperties().getGeHomeLocation();
-
-        //this should never happen, indicates loop
-//        if (System.identityHashCode(originalLoader) != System.identityHashCode(GeClassLoader.getInstance(serverRoot))) {
-//            System.out.println("ERROR: loop");
-//        }
             
         Thread.currentThread().setContextClassLoader(GeClassLoader.getInstance(serverRoot));
         return originalLoader;
@@ -785,11 +782,11 @@ public class GeDeploymentManager implements DeploymentManager/*, ProgressObject,
     }
 
     public Target[] getTargets() throws IllegalStateException {
-        GeDebug.log(getClass().getName(), "getTargets for Deployment Manager");
+        LOGGER.log(Level.FINER, "getTargets for GeDeploymentManager");
         
         ClassLoader original = modifyLoader();
         try {
-                return getSynchronisedDeploymentManager().getTargets();
+            return getSynchronisedDeploymentManager().getTargets();
         } catch (DeploymentManagerCreationException ex) {
             throw new IllegalStateException(ex);
         } finally {

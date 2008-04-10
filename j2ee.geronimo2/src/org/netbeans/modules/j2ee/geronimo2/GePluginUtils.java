@@ -43,8 +43,7 @@ public class GePluginUtils {
     public static final String SERVER_XML = CONFIG_DIR + File.separator + "server.xml"; // NOI18N
     public static final String SYSTEM_JAZN_DATA_XML = CONFIG_DIR + File.separator + "system-jazn-data.xml"; // NOI18N
     
-    //--------------- checking for possible server directory -------------
-    private static Collection <String> fileRequired = new java.util.ArrayList<String>();
+    private static final Logger LOGGER = Logger.getLogger(GePluginUtils.class.getName());
 
     
     
@@ -123,13 +122,12 @@ public class GePluginUtils {
                 webSiteFilePath = webSitePath;
         }
         
-        if(GeDebug.isEnabled()) {
-            GeDebug.log("org.netbeans.modules.j2ee.geronimo2.GePluginUtils", webSite);
-        }
+        LOGGER.log(Level.FINER, webSite);
+
         File webSiteFile = new File(webSiteFilePath);
-        if(GeDebug.isEnabled()) {
-            GeDebug.log("org.netbeans.modules.j2ee.geronimo2.GePluginUtils", webSiteFile.getAbsolutePath());
-        }
+
+        LOGGER.log(Level.FINER, webSiteFile.getAbsolutePath());
+
         try {
             inputStream = new FileInputStream(webSiteFile);
             document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inputStream);
