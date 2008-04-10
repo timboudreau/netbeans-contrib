@@ -370,12 +370,12 @@ transient generic InfixPatternTail = Id N? SimplePattern ;
 
 /* @DocError in ScalaReference: "_":key */
 transient generic SimplePattern =
-  XmlPattern
-/ "_":key ( "*":op )?
-/ Literal
-/ TuplePattern
-/ StableId TuplePattern @CallPattern
-/ StableId              @IdPattern
+  XmlPattern            @SimpleXmlPattern
+/ "_":key ( "*":op )?   @SimpleWildcardPattern
+/ Literal               @SimpleLiteralPattern
+/ TuplePattern          @SimpleTuplePattern
+/ StableId TuplePattern @SimpleCallPattern
+/ StableId              @SimpleIdPattern
 ;
 
 transient generic TuplePattern = void:"(":sep Patterns? void:")":sep ;
@@ -495,7 +495,7 @@ generic Def =
 / TmplDef
 ;
 
-transient generic PatDef = NoTypedPattern ( void:",":sep NoTypedPattern )* ( void:":":key Type )? "=":key Expr ;
+transient generic PatDef = NoTypedPattern ( void:",":sep NoTypedPattern )* ( void:":":key Type )? void:"=":key Expr ;
 
 generic ValDef = PatDef ;
 

@@ -47,12 +47,12 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author Caoyuan Deng
  */
-public class TypeRef extends AstUsage {
+public class TypeRef extends AstRef {
     
     private List<String> annotations;
 
     public TypeRef(String name, OffsetRange nameRange, ElementKind kind) {
         super(name, nameRange, kind);
     }
-
+    
 }

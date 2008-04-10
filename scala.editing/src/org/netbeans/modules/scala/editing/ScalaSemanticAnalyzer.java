@@ -116,7 +116,7 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
     }
 
     private void visitScopeRecursively(CompilationInfo info, AstScope scope, Map<OffsetRange, ColoringAttributes> highlights) {
-        for (AstElement definition : scope.getDefinitions()) {
+        for (AstElement definition : scope.getDefs()) {
             OffsetRange nameRange = definition.getNameRange();
             switch (definition.getKind()) {
                 case MODULE:

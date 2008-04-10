@@ -46,7 +46,7 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author Caoyuan Deng
  */
-public class Type extends AstDefinition {
+public class Type extends AstDef {
     
     public Type(String name, OffsetRange nameRange, AstScope bindingScope) {
         super(name, nameRange, bindingScope, ElementKind.CLASS);
