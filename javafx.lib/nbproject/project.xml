@@ -56,6 +56,10 @@ made subject to such option by the copyright holder.
                 <runtime-relative-path>ext/javafx/compiler/Scenario.jar</runtime-relative-path>
                 <binary-origin>external/compiler/Scenario.jar</binary-origin>
             </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/javafx/compiler/Reprise.jar</runtime-relative-path>
+                <binary-origin>external/compiler/Reprise.jar</binary-origin>
+            </class-path-extension>
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.netbeans.libs.jsr223</code-name-base>
