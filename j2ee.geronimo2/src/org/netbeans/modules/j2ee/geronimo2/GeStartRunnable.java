@@ -30,7 +30,6 @@ import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.StateType;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
-import org.netbeans.modules.j2ee.geronimo2.GeDebug;
 import org.netbeans.modules.j2ee.geronimo2.util.GeLogger;
 import org.openide.execution.NbProcessDescriptor;
 import org.openide.filesystems.FileObject;
@@ -43,8 +42,10 @@ import org.openide.util.Utilities;
  */
 class GeStartRunnable implements Runnable {
     
-    static final String SCRIPT_UNIX = "geronimo.sh";
-    static final String SCRIPT_WIN = "geronimo.bat";
+    static final String SCRIPT_UNIX = "geronimo.sh"; // NOI18N
+    static final String SCRIPT_WIN = "geronimo.bat"; // NOI18N
+    
+    private static final Logger LOGGER = Logger.getLogger(GeStartRunnable.class.getName());
     
     private GeDeploymentManager dm;
     private String instanceName;
@@ -133,15 +134,23 @@ class GeStartRunnable implements Runnable {
         final String serverLocation = ip.getProperty(GePluginProperties.PROPERTY_GE_HOME);
         final String startScript = serverLocation + File.separator + "bin" + File.separator +
                 (Utilities.isWindows() ? SCRIPT_WIN : SCRIPT_UNIX); //NOI18N
-        GeDebug.log(getClass().getName(), "serverLocation: " + serverLocation + ", startScript: " + startScript);
         
-        if (!new File(startScript).exists()){
-            GeDebug.log(getClass().getName(), "startScript " + startScript + " doesn't exist");
+        if (LOGGER.isLoggable(Level.FINER)) {
+            LOGGER.log(Level.FINER, "serverLocation: " + serverLocation + ", startScript: " + startScript);
+        }
+        
+        if (!new File(startScript).exists()) {
+            if (LOGGER.isLoggable(Level.FINER)) {
+                LOGGER.log(Level.FINER, "startScript " + startScript + " doesn't exist");
+            }
+            
             fireStartProgressEvent(StateType.FAILED, createProgressMessage("MSG_START_SERVER_FAILED_FNF")); //NOI18N
             return null;
         }
         
-        GeDebug.log(getClass().getName(), "EXEC: " + startScript + " run ");
+        if (LOGGER.isLoggable(Level.FINER)) {
+            LOGGER.log(Level.FINER, "EXEC: " + startScript + " run ");
+        }
         return new NbProcessDescriptor(startScript, "run"); //NOI18N
     }
     
@@ -154,7 +163,7 @@ class GeStartRunnable implements Runnable {
         try {
             return pd.exec(null, createEnvironment(), true, new File(ip.getProperty(GePluginProperties.PROPERTY_GE_HOME)));
         } catch (java.io.IOException ioe) {
-            Logger.getLogger("global").log(Level.INFO, null, ioe);
+            LOGGER.log(Level.INFO, null, ioe);
             fireStartProgressEvent(StateType.FAILED, createProgressMessage("MSG_START_SERVER_FAILED_PD"));
             return null;
         }

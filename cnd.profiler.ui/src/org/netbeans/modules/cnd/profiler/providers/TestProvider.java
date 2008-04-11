@@ -42,12 +42,7 @@ public class TestProvider {
         // Call information
         f1.addCallee(f2);
         f1.addCallee(f3);
-        
         f2.addCallee(f4);
-        
-        f2.addCaller(f1);
-        f3.addCaller(f1);
-        f4.addCaller(f2);
         
         res[0] = f1;
         res[1] = f2;

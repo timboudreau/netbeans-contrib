@@ -388,11 +388,9 @@ public class ScalaParser implements Parser {
                 if (!ignoreErrors) {
                     int start = 0;
                     if (error.index != -1) {
-                        //Location location = parser.location(e.index);
-                        //start = getOffset(context, location.line - 1, location.column);
                         start = error.index;
                     }
-                    notifyError(context, "SYNTAX_ERROR", error.msg,
+                    notifyError(context, "SYNTAX_ERROR", "Syntax error",
                             start, start, sanitizing, Severity.ERROR, new Object[]{error.index, error});
                 }
 

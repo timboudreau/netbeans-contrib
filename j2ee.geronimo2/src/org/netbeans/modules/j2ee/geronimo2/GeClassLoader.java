@@ -77,19 +77,6 @@ public class GeClassLoader extends URLClassLoader {
         super(new URL[0], GeDeploymentFactory.class.getClassLoader());
         this.serverRoot = serverRoot;
         
-        //single-load
-//        try{
-//            URL[] urls = new URL[] {
-//                new File(serverRoot + "/lib/jsr88-deploymentfactory.jar").toURI().toURL(), // NOI18N
-//                new File(serverRoot + "/repository/org/apache/geronimo/modules/geronimo-deploy-jsr88/2.0.2/geronimo-deploy-jsr88-2.0.2.jar").toURI().toURL()
-//            };
-//            for (int i = 0; i < urls.length; i++) {
-//                addURL(urls[i]);
-//            }
-//        }catch(Exception e) {
-//            Logger.getLogger("global").log(Level.WARNING, null, e);
-//        }
-        
         //directory-load
         // add the required directories to the class path
         File[] directories = new File[] {

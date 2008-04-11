@@ -64,8 +64,6 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
     protected Log log;
     private static Logger logger = Logger.getLogger(Lexer.class.getName());
     private List<Token> tokens = new ArrayList<Token>();
-    private static final int ERROR = v3Lexer.WS;
-//    private boolean errorRecovery;
 
 
     public void emit(Token token) {
@@ -85,6 +83,15 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
         return tokens.remove(0);
     }
 
+
+    /**
+     * Set the complete text of this token; it wipes any previous
+     * changes to the text.
+     */
+    @Override
+    public void setText(String text) {
+//        super.setText(text);
+    }
 
     protected Lexer(org.antlr.runtime.CharStream charStream, org.antlr.runtime.RecognizerSharedState recognizerSharedState) {
         super(charStream, recognizerSharedState);
@@ -125,30 +132,19 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
         return state;
     }
 
+
+
     /**
-     * If error is reported we are in trouble. If we loose track of tokens and reach inconsistent state the best to do
-     * is try to recover it just by skipping several characters and starts from beginning. Better then failing
-     * application down.
+     * Trying to recover from error by consuming all characters until one matches correct follow token or EOF.
      *
-     * @param e exeption occured during lexing.
-     */
-    @Override
-    public void reportError(RecognitionException e) {
-        logger.severe(getErrorMessage(e, getTokenNames()) + " Trying to recover from error. " + e.getClass().getSimpleName());
-        recover(e);
-    }
-
-
-    /**
-     * Lexers can normally match any char in it's vocabulary after matching
-     * a token, so do the easy thing and just kill a character and hope
-     * it all works out.  You can instead use the rule invocation stack
-     * to do sophisticated error recovery if you are in a fragment rule.
+     * @param re Exception from which we try to recover.
      */
     @Override
     public void recover(RecognitionException re) {
+        logger.severe(getErrorMessage(re, getTokenNames()) + " Trying to recover from error. " + re.getClass().getSimpleName());
         final BitSet bitSet = computeErrorRecoverySet();
         consumeUntil(input, bitSet);
+        input.consume();
     }
 
     /**
@@ -208,7 +204,7 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
      * Track "He{"l{"l"}o"} world" quotes
      */
     /*static*/ class BraceQuoteTracker {
-        private /*static*/ Logger log = Logger.getLogger(Lexer.BraceQuoteTracker.class.getName());
+//        private /*static*/ Logger log = Logger.getLogger(Lexer.BraceQuoteTracker.class.getName());
         //        private BraceQuoteTracker quoteStack = null;
         private int braceDepth;
         private char quote;
@@ -225,13 +221,13 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
         /*static*/ void enterBrace(int quote, boolean percentIsFormat) {
             if (quote == 0) {  // exisiting string expression or non string expression
                 if (quoteStack != NULL_BQT) {
-                    if (log.isLoggable(Level.INFO)) log.info("+B");
+//                    if (log.isLoggable(Level.INFO)) log.info("+B");
                     ++quoteStack.braceDepth;
                     quoteStack.percentIsFormat = percentIsFormat;
                 }
             } else {
                 quoteStack = new Lexer.BraceQuoteTracker(quoteStack, (char) quote, percentIsFormat); // push
-                if (log.isLoggable(Level.INFO)) log.info("+B PUSH => " + quoteStack);
+//                if (log.isLoggable(Level.INFO)) log.info("+B PUSH => " + quoteStack);
             }
         }
 
@@ -241,7 +237,7 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
          * @return return quote on stack.
          */
         /*static*/ char leaveBrace() {
-            if (log.isLoggable(Level.INFO)) log.info("-B");
+//            if (log.isLoggable(Level.INFO)) log.info("-B");
             if (quoteStack != NULL_BQT && --quoteStack.braceDepth == 0) {
                 return quoteStack.quote;
             }
@@ -257,7 +253,7 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
         /*static*/ void leaveQuote() {
             assert (quoteStack != NULL_BQT && quoteStack.braceDepth == 0);
             quoteStack = quoteStack.next; // pop
-            if (log.isLoggable(Level.INFO)) log.info("+\" POP => " + quoteStack);
+//            if (log.isLoggable(Level.INFO)) log.info("+\" POP => " + quoteStack);
         }
 
         /*static*/ boolean percentIsFormat() {
@@ -270,7 +266,7 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
 
         /*static*/ boolean inBraceQuote() {
             final boolean b = quoteStack != NULL_BQT;
-            if (log.isLoggable(Level.INFO)) log.info("inBraceQuote: " + b);
+//            if (log.isLoggable(Level.INFO)) log.info("inBraceQuote: " + b);
             return b;
         }
 

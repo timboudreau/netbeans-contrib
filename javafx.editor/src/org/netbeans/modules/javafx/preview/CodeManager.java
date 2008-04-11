@@ -98,10 +98,10 @@ public class CodeManager {
         compUnits.add(new FXFileObject(className, code));
 
         JavafxcTool tool = JavafxcTool.create();
-        
+/*        
         String cp = System.getProperty("env.class.path");
         System.setProperty("env.class.path", JavaFXSourceUtils.getAdditionalCP(cp));
-
+*/
         MemoryFileManager manager = new MemoryFileManager(tool.getStandardFileManager(diagnostics, null, null), ToolProvider.class.getClassLoader());
         
         options.add("-target");
@@ -111,7 +111,10 @@ public class CodeManager {
         options.add(JavaFXSourceUtils.getAdditionalCP(compileCP.toString()));
         
         options.add("-sourcepath");
-        options.add(JavaFXSourceUtils.getAdditionalCP(sourceCP.toString()));
+        options.add(sourceCP.toString());
+        
+        options.add("-Xbootclasspath/a:" + JavaFXSourceUtils.getAdditionalCP(""));
+//        options.add(JavaFXSourceUtils.getAdditionalCP(""));
         
         options.add("-implicit:class");
         
