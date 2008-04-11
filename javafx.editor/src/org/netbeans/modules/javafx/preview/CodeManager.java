@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import java.util.Set;
 import javax.swing.text.BadLocationException;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
@@ -26,26 +25,27 @@ import com.sun.javafx.api.JavafxcTask;
 import com.sun.javafx.api.ToolProvider;
 import java.util.List;
 import javax.tools.JavaFileObject;
-import com.sun.tools.javafx.script.MemoryFileManager;
 import com.sun.javafx.runtime.sequence.Sequences;
 import com.sun.javafx.runtime.sequence.Sequence;
+import com.sun.tools.javac.util.JavacFileManager;
 import com.sun.tools.javafx.api.JavafxcTool;
-import java.io.File;
-import javax.swing.JEditorPane;
+import com.sun.tools.javafx.script.MemoryFileManager;
+import java.util.Enumeration;
 import javax.swing.text.Document;
-import javax.tools.JavaFileManager;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.javafx.source.JavaFXSourceUtils;
+import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.project.SourceGroup;
+import org.netbeans.api.project.Sources;
 import org.netbeans.modules.javafx.dataloader.JavaFXDataObject;
 import org.netbeans.modules.javafx.editor.FXDocument;
 import org.netbeans.modules.javafx.editor.JavaFXDocument;
-import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
-import org.openide.nodes.Node;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
-import org.openide.windows.TopComponent;
 
 public class CodeManager {
 
@@ -66,14 +66,18 @@ public class CodeManager {
             throw new IllegalStateException("No classpath was found for folder: " + fo); // NOI18N
         }
         String className = sourceCP.getResourceName(fo, '.', false); // NOI18N
-
-        Map<String, byte[]> classBytes = compile(className, code, sourceCP, compileCP);
+        
+        List<FileObject> fileObjects = getSourceFOList(doc);
+        
+        Map<String, byte[]> classBytes = compile(className, code, fileObjects, sourceCP, compileCP);
+        
+        //((JavaFXProject)project).addClassBytes(classBytes);
         
         Object obj = null;
         if (classBytes != null) {
             className = checkCase(classBytes, className);
             try {
-                obj = runFXFile(className, executeCP, classBytes);
+                obj = run(className, executeCP, classBytes);
             } catch (Exception ex){
                 ex.printStackTrace();
             }
@@ -81,8 +85,8 @@ public class CodeManager {
         Thread.currentThread().setContextClassLoader(orig);
         return obj;
     }
-
-    public static Map<String, byte[]> compile(String className, String code, ClassPath sourceCP, ClassPath compileCP) {
+    
+    public static Map<String, byte[]> compile(String className, String code, List<FileObject> fileObjects, ClassPath sourceCP, ClassPath compileCP) {
         PrintWriter err = new PrintWriter(System.err);
     
         List<String> options = new ArrayList<String>();
@@ -95,14 +99,27 @@ public class CodeManager {
         
         List<JavaFileObject> compUnits = new ArrayList<JavaFileObject>(1);
         
-        compUnits.add(new FXFileObject(className, code));
-
+        compUnits.add(new MemoryFileObject(className, code, Kind.SOURCE));
+        
         JavafxcTool tool = JavafxcTool.create();
-/*        
+        
         String cp = System.getProperty("env.class.path");
         System.setProperty("env.class.path", JavaFXSourceUtils.getAdditionalCP(cp));
-*/
-        MemoryFileManager manager = new MemoryFileManager(tool.getStandardFileManager(diagnostics, null, null), ToolProvider.class.getClassLoader());
+
+        JavacFileManager standardManager = tool.getStandardFileManager(diagnostics, null, null);
+        
+        MemoryClassLoader mcl = new MemoryClassLoader(compileCP);
+        
+        MemoryFileManager manager = new MemoryFileManager(standardManager, ToolProvider.class.getClassLoader());
+        
+        for (FileObject fileObject : fileObjects) {
+            Iterable<? extends JavaFileObject> javaFileObjects = standardManager.getJavaFileObjects(FileUtil.toFile(fileObject));
+            for (JavaFileObject javaFileObject : javaFileObjects) {
+                //String name = sourceCP.getResourceName(fileObject, '.', false); // NOI18N
+                //if (!contains(project.getClassBytes(), name))
+                    compUnits.add(javaFileObject);
+            }
+        }
         
         options.add("-target");
         options.add("1.5");
@@ -111,10 +128,7 @@ public class CodeManager {
         options.add(JavaFXSourceUtils.getAdditionalCP(compileCP.toString()));
         
         options.add("-sourcepath");
-        options.add(sourceCP.toString());
-        
-        options.add("-Xbootclasspath/a:" + JavaFXSourceUtils.getAdditionalCP(""));
-//        options.add(JavaFXSourceUtils.getAdditionalCP(""));
+        options.add(JavaFXSourceUtils.getAdditionalCP(sourceCP.toString()));
         
         options.add("-implicit:class");
         
@@ -131,13 +145,13 @@ public class CodeManager {
         return classBytes;
     }
         
-    public static Object runFXFile(String name, ClassPath classPath, Map<String, byte[]> classBytes) throws Exception {
+    public static Object run(String name, ClassPath classPath, Map<String, byte[]> classBytes) throws Exception {
         MemoryClassLoader memoryClassLoader = new MemoryClassLoader(classPath);
         memoryClassLoader.loadMap(classBytes);
-        return runFXFile(name, memoryClassLoader);
+        return run(name, memoryClassLoader);
     }
     
-    public static Object runFXFile(String name, ClassLoader classLoader) throws Exception {
+    public static Object run(String name, ClassLoader classLoader) throws Exception {
         Class cls = classLoader.loadClass(name); 
         Method run = cls.getDeclaredMethod("javafx$run$", Sequence.class);
         String[] commandLineArgs = new String[]{};
@@ -153,6 +167,41 @@ public class CodeManager {
             }
         }
         return name;
+    }
+    
+    private static boolean contains(Map<String, byte[]> classBytes, String name) {
+        for (String key : classBytes.keySet()) {
+            if (key.toLowerCase().contentEquals(name.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private static List<FileObject> getSourceFOList(FXDocument doc) {
+        List<FileObject> fileObjects = new ArrayList<FileObject>();
+        FileObject fo = ((JavaFXDocument)doc).getDataObject().getPrimaryFile();
+        Project project = JavaFXModel.getProject(doc);
+        Sources sources = ProjectUtils.getSources(project);
+        SourceGroup[] sourceGrupps = sources.getSourceGroups(Sources.TYPE_GENERIC);
+        for (SourceGroup srcGrupp : sourceGrupps) {
+            FileObject rootFileObject = srcGrupp.getRootFolder();
+            Enumeration <FileObject> fileObjectEnum = (Enumeration<FileObject>) rootFileObject.getChildren(true);
+            while (fileObjectEnum.hasMoreElements()) {
+                FileObject fileobject = fileObjectEnum.nextElement();
+                if (!fo.equals(fileobject)) {
+                    try {
+                        DataObject dataObject = DataObject.find(fileobject);
+                        if (dataObject instanceof JavaFXDataObject) {
+                            fileObjects.add(fileobject);
+                        }
+                    } catch (DataObjectNotFoundException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
+            }
+        }
+        return fileObjects;
     }
 }
 
@@ -224,13 +273,13 @@ class MemoryClassLoader extends ClassLoader {
     }
 }
 
-class FXFileObject extends SimpleJavaFileObject {
+class MemoryFileObject extends SimpleJavaFileObject {
 
     CharSequence code;
     String className;
 
-    public FXFileObject(String className, CharSequence code) {
-        super(toURI(className), Kind.SOURCE);
+    public MemoryFileObject(String className, CharSequence code, Kind kind) {
+        super(toURI(className), kind);
         this.code = code;
         this.className = className;
     }

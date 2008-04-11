@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,15 +34,19 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.javahints;
 
+import com.sun.source.tree.AssignmentTree;
 import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.ExpressionStatementTree;
 import com.sun.source.tree.IdentifierTree;
+import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.StatementTree;
+import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePath;
@@ -54,6 +58,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.ElementFilter;
 import org.netbeans.api.java.source.CompilationInfo;
@@ -211,16 +216,67 @@ public class FieldForUnusedParam implements TreeRule {
                     MethodTree   mt = (MethodTree) variable.getParentPath().getLeaf();
                     ClassTree    ct = (ClassTree) variable.getParentPath().getParentPath().getLeaf();
                     TreeMaker    make = wc.getTreeMaker();
+                    Name         before = null;
+                    int          index = 0;
+                    
+                    for (VariableTree p : mt.getParameters()) {
+                        if (p == vt) {
+                            if (mt.getParameters().size() > index + 1) {
+                                before = mt.getParameters().get(index + 1).getName();
+                            }
+                            
+                            break;
+                        }
+                        
+                        index++;
+                    }
                     
                     if (!existing) {
                         VariableTree field = make.Variable(make.Modifiers(EnumSet.of(Modifier.PRIVATE)), vt.getName(), vt.getType(), null);
+                        int insertPlace = -1;
+                        
+                        index = 0;
+                        
+                        for (Tree member : ct.getMembers()) {
+                            if (member.getKind() == Kind.VARIABLE && ((VariableTree) member).getName().equals(before)) {
+                                insertPlace = index;
+                                break;
+                            }
+                            
+                            index++;
+                        }
 
-                        wc.rewrite(ct, GeneratorUtilities.get(wc).insertClassMember(ct, field));
+                        wc.rewrite(ct, insertPlace != (-1) ? make.insertClassMember(ct, insertPlace, field) : GeneratorUtilities.get(wc).insertClassMember(ct, field));
                     }
                     
                     StatementTree assignment = make.ExpressionStatement(make.Assignment(make.MemberSelect(make.Identifier("this"), vt.getName()), make.Identifier(vt.getName()))); // NOI18N
                     
-                    wc.rewrite(mt.getBody(), make.addBlockStatement(mt.getBody(), assignment));
+                    int insertPlace = -1;
+
+                    index = 0;
+
+                    for (StatementTree st : mt.getBody().getStatements()) {
+                        if (st.getKind() == Kind.EXPRESSION_STATEMENT) {
+                            ExpressionStatementTree est = (ExpressionStatementTree) st;
+                            
+                            if (est.getExpression().getKind() == Kind.ASSIGNMENT) {
+                                AssignmentTree at = (AssignmentTree) est.getExpression();
+                                
+                                if (at.getVariable().getKind() == Kind.MEMBER_SELECT) {
+                                    MemberSelectTree mst = (MemberSelectTree) at.getVariable();
+                                    
+                                    if (mst.getIdentifier().equals(before) && mst.getExpression().getKind() == Kind.IDENTIFIER && ((IdentifierTree) mst.getExpression()).getName().contentEquals("this")) {
+                                        insertPlace = index;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        index++;
+                    }
+                    
+                    wc.rewrite(mt.getBody(), insertPlace != (-1) ? make.insertBlockStatement(mt.getBody(), insertPlace, assignment) : make.addBlockStatement(mt.getBody(), assignment));
                 }
             }).commit();
             
