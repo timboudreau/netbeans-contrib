@@ -218,6 +218,18 @@ public class AstScope implements Iterable<AstScope> {
 
         return occurrences;
     }
+    
+    public AstDef findDef(AstElement element) {
+        AstDef def = null;
+        
+        if (element instanceof AstDef) {
+            def = (AstDef) element;
+        } else if (element instanceof AstRef) {
+            def = findDef((AstRef) element);
+        }
+
+        return def;
+    }
 
     public AstDef findDef(AstRef ref) {
         AstScope closestScope = ref.getEnclosingScope();
