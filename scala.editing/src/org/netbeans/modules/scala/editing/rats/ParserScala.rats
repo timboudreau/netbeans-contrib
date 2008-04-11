@@ -263,8 +263,8 @@ generic SimpleExpr =
 ;
 
 transient generic SimpleExprRest = 
-  PathRest+
-/ ArgumentExprs+
+  PathRest
+/ ArgumentExprs
 / "_":key;
 
 transient generic PathRest = void:".":sep Path TypeArgs? ;

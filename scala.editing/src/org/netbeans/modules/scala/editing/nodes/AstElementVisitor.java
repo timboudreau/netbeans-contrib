@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.OffsetRange;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 
@@ -269,10 +270,10 @@ public class AstElementVisitor extends AstVisitor {
 
         String modifier = "public";
         GNode modifierNode = that.getGeneric(3);
-        if (modifierNode!= null) {
+        if (modifierNode != null) {
             modifier = visitAccessModifier(modifierNode);
         }
-        
+
         List<Function> constructors = visitClassParamClauses(that.getGeneric(4));
         for (Function constructor : constructors) {
             constructor.setName(id.getName());
@@ -460,17 +461,20 @@ public class AstElementVisitor extends AstVisitor {
             if (secondNode.getName().equals("Type")) {
                 TypeRef type = visitType(secondNode);
                 function.setType(type);
-                visitChildren(that.getGeneric(2)); // Expr
 
+                // Expr
+                visitChildren(that.getGeneric(2));
             } else {
                 // Block
                 visitChildren(secondNode);
             }
+        } else {
+            // Expr
+            visitChildren(that.getGeneric(2));
         }
 
         currScope.addDef(function);
 
-        visitChildren(that);
         scopeStack.pop();
 
         exit(that);
@@ -1067,16 +1071,117 @@ public class AstElementVisitor extends AstVisitor {
         return ids;
     }
 
+    public AstElement visitSimpleExprRest(GNode that) {
+        enter(that);
+
+        AstElement element = null;
+
+        Object what = that.get(0);
+        if (what instanceof GNode) {
+            GNode whatNode = (GNode) what;
+            if (whatNode.getName().equals("PathRest")) {
+                PathId pathId = visitPath(whatNode.getGeneric(0));
+                element = pathId;
+            } else {
+                element = visitArgumentExprs(whatNode);
+            }
+        } else {
+            element = new AstElement("_", OffsetRange.NONE, ElementKind.OTHER);
+        }
+
+        exit(that);
+        return element;
+    }
+
+    public ArgumentExprs visitArgumentExprs(GNode that) {
+        enter(that);
+
+        List<AstElement> args = null;
+        
+        GNode what = that.getGeneric(0);
+        if (what.getName().equals("ParenExpr")) {
+            args = visitParenExpr(what);
+        } else {
+            // BlockExpr
+            visitChildren(what);
+            // @Todo
+            args = Collections.<AstElement>emptyList();
+        }
+        
+        ArgumentExprs argExprs = new ArgumentExprs("args", OffsetRange.NONE, ElementKind.OTHER);
+        argExprs.setArgs(args);
+        
+        exit(that);
+        return argExprs;
+    }
+
+    public List<AstElement> visitParenExpr(GNode that) {
+        enter(that);
+
+        List<AstElement> exprs = null;
+        
+        GNode exprsNode = that.getGeneric(0);
+        if (exprsNode != null) {
+            exprs = visitExprs(exprsNode);
+        } else {
+            exprs = Collections.<AstElement>emptyList();
+        }
+
+        exit(that);
+        return exprs;
+    }
+
+    public List<AstElement> visitExprs(GNode that) {
+        enter(that);
+
+        List<AstElement> exprs = new ArrayList<AstElement>();
+        GNode first = that.getGeneric(0);
+        visitChildren(first);
+        exprs.add(new AstElement("expr", OffsetRange.NONE, ElementKind.OTHER));
+
+        for (Object o : that.getList(1).list()) {
+            visitChildren(first);
+            exprs.add(new AstElement("expr", OffsetRange.NONE, ElementKind.OTHER));
+        }
+
+        exit(that);
+        return exprs;
+    }
+
     public void visitSimpleIdExpr(GNode that) {
         enter(that);
 
         PathId id = visitPath(that.getGeneric(0));
         Id first = id.getPaths().get(0);
-        IdRef idRef = new IdRef(first.getName(), first.getNameRange(), ElementKind.VARIABLE);
 
-        scopeStack.peek().addRef(idRef);
+        List<TypeRef> typeArgs = Collections.<TypeRef>emptyList();
+        GNode typeArgsNode = that.getGeneric(1);
+        if (typeArgsNode != null) {
+            typeArgs = visitTypeArgs(typeArgsNode);
+        }
 
-        visitChildren(that);
+        List<AstElement> rest = new ArrayList<AstElement>();
+        for (Object o : that.getList(2).list()) {
+            AstElement element = visitSimpleExprRest((GNode) o);
+            rest.add(element);
+        }
+
+        if (rest.size() > 0 && rest.get(0) instanceof ArgumentExprs) {
+            FunRef funRef = new FunRef(first.getName(), first.getNameRange(), ElementKind.CALL);
+            funRef.setParams(((ArgumentExprs) rest.get(0)).getArgs());
+            
+            scopeStack.peek().addRef(funRef);
+        } else {
+            IdRef idRef = new IdRef(first.getName(), first.getNameRange(), ElementKind.VARIABLE);
+
+            scopeStack.peek().addRef(idRef);
+        }
+
+        // Type
+        GNode typeNode = that.getGeneric(3);
+        if (typeNode != null) {
+            visitChildren(typeNode);
+        }
 
         exit(that);
     }
