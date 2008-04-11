@@ -259,7 +259,7 @@ public class AstScope implements Iterable<AstScope> {
     private void findRefsInScope(AstScope scope, AstDef def, List<AstElement> refs) {
         // find if there is closest override def, if so, we shoud bypass now :
         for (AstDef _def : scope.getDefs()) {
-            if (_def != def && _def.mayEquals(def)) {
+            if (_def != def && _def.mayEqual(def)) {
                 return;
             }
         }

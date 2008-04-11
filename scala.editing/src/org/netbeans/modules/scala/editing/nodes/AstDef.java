@@ -69,7 +69,7 @@ public class AstDef extends AstElement {
         return getName().equals(ref.getName());
     }
 
-    public boolean mayEquals(AstDef def) {
+    public boolean mayEqual(AstDef def) {
         return this.getName().equals(def.getName());
     }
     
