@@ -226,7 +226,7 @@ public class AstScope implements Iterable<AstScope> {
 
     private AstDef findDefInScope(AstScope scope, AstRef ref) {
         for (AstDef def : scope.getDefs()) {
-            if (def.referedBy(ref)) {
+            if (def.referredBy(ref)) {
                 return def;
             }
         }
@@ -253,7 +253,7 @@ public class AstScope implements Iterable<AstScope> {
         }
 
         for (AstRef ref : scope.getRefs()) {
-            if (def.referedBy(ref)) {
+            if (def.referredBy(ref)) {
                 refs.add(ref);
             }
         }

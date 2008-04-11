@@ -36,7 +36,6 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.modules.gsf.api.ElementKind;
@@ -47,7 +46,7 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  * @author Caoyuan Deng
  */
 public class ClassTemplate extends Template {
-    
+
     public ClassTemplate(String name, OffsetRange nameRange, AstScope bindingScope) {
         super(name, nameRange, bindingScope, ElementKind.CLASS);
     }
@@ -55,5 +54,4 @@ public class ClassTemplate extends Template {
     public String getClassName() {
         return getName();
     }
-    
 }

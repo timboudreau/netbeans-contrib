@@ -73,7 +73,7 @@ public class Var extends AstDef {
     }
 
     @Override
-    public boolean referedBy(AstRef ref) {
+    public boolean referredBy(AstRef ref) {
         switch (ref.getKind()) {
             case VARIABLE:
             case PARAMETER:

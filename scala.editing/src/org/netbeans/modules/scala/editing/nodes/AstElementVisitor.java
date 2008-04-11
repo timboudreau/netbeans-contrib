@@ -216,6 +216,40 @@ public class AstElementVisitor extends AstVisitor {
         return new Id(name, getNameRange(name, that), ElementKind.VARIABLE);
     }
 
+    public Template visitTmplDef(GNode that) {
+        enter(that);
+
+        Template tmpl = null;
+
+        Object what = that.get(1);
+        boolean caseOne = false;
+        GNode defNode = null;
+        if (what != null && what instanceof GNode && ((GNode) what).getName().equals("TraitDef")) {
+            defNode = (GNode) what;
+        } else {
+            caseOne = what != null;
+            defNode = that.getGeneric(2);
+        }
+
+        if (defNode.getName().equals("ClassDef")) {
+            tmpl = visitClassDef(defNode);
+            if (caseOne) {
+                tmpl.setCaseOne();
+            }
+        } else if (defNode.getName().equals("ObjectDef")) {
+            tmpl = visitObjectDef(defNode);
+            if (caseOne) {
+                tmpl.setCaseOne();
+            }
+        } else {
+            tmpl = visitTraitDef((GNode) what);
+        }
+
+
+        exit(that);
+        return tmpl;
+    }
+
     public ClassTemplate visitClassDef(GNode that) {
         enter(that);
 
@@ -224,20 +258,27 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.push(scope);
 
         Id id = visitId(that.getGeneric(0));
+        ClassTemplate classTmpl = new ClassTemplate(id.getName(), id.getNameRange(), scope);
+
+        currScope.addDef(classTmpl);
+
         GNode typeParamClauseNode = that.getGeneric(1);
         if (typeParamClauseNode != null) {
             visitChildren(typeParamClauseNode);
         }
+
+        String modifier = "public";
+        GNode modifierNode = that.getGeneric(3);
+        if (modifierNode!= null) {
+            modifier = visitAccessModifier(modifierNode);
+        }
+        
         List<Function> constructors = visitClassParamClauses(that.getGeneric(4));
         for (Function constructor : constructors) {
             constructor.setName(id.getName());
             constructor.setNameRange(id.getNameRange());
         }
         visitChildren(that.getGeneric(5)); // ClassTemplateOpt
-
-        ClassTemplate classTmpl = new ClassTemplate(id.getName(), id.getNameRange(), scope);
-
-        currScope.addDef(classTmpl);
 
         scopeStack.pop();
 
@@ -707,7 +748,6 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.pop();
         exit(that);
     }
-    
 
     public List<Id> visitPatterns(GNode that) {
         enter(that);
@@ -935,66 +975,65 @@ public class AstElementVisitor extends AstVisitor {
 
     public void visitBlock(GNode that) {
         enter(that);
-        
+
         AstScope scope = new AstScope(getRange(that));
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
-        
+
         for (Object o : that.getList(0).list()) {
             // BlockState
             visitChildren((GNode) o);
         }
-        
-        GNode resultExprNode = that.getGeneric(1);       
+
+        GNode resultExprNode = that.getGeneric(1);
         if (resultExprNode != null) {
             visitChildren(resultExprNode);
         }
-        
+
         scopeStack.pop();
         exit(that);
     }
-    
+
     public void visitForExpr(GNode that) {
         enter(that);
-        
+
         AstScope scope = new AstScope(getRange(that));
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
-        
+
         GNode enumeratorsNode = that.getGeneric(0);
         List<Id> ids = visitEnumerators(enumeratorsNode);
         AstScope varBindingScope = new AstScope(getRange(enumeratorsNode));
         for (Id id : ids) {
             Var var = new Var(id, varBindingScope, ElementKind.VARIABLE);
-            
+
             scopeStack.peek().addDef(var);
-        }        
-        
+        }
+
         // Expr
         visitChildren(that.getGeneric(2));
-        
+
         scopeStack.pop();
         exit(that);
     }
-    
-    
+
     public List<Id> visitEnumerators(GNode that) {
         enter(that);
-        
+
         List<Id> ids = visitGenerator(that.getGeneric(0));
         for (Object o : that.getList(1).list()) {
             ids.addAll(visitEnumerator((GNode) o));
         }
-        
+
         exit(that);
         return ids;
     }
-    
+
     public List<Id> visitEnumerator(GNode that) {
         enter(that);
-        
+
         List<Id> ids = null;
-        
+
         GNode what = that.getGeneric(0);
         if (what.getName().equals("Generator")) {
             ids = visitGenerator(what);
@@ -1006,7 +1045,7 @@ public class AstElementVisitor extends AstVisitor {
             // Expr
             visitChildren(that.getGeneric(1));
         }
-        
+
         exit(that);
         return ids;
     }
@@ -1018,17 +1057,16 @@ public class AstElementVisitor extends AstVisitor {
         List<Id> ids = visitPattern1(that.getGeneric(0));
         // Expr
         visitChildren(that.getGeneric(1));
-        
+
         GNode guardNode = that.getGeneric(2);
         if (guardNode != null) {
             visitChildren(guardNode);
         }
-        
+
         exit(that);
         return ids;
     }
-    
-    
+
     public void visitSimpleIdExpr(GNode that) {
         enter(that);
 

@@ -36,7 +36,6 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.modules.gsf.api.ElementKind;
@@ -48,22 +47,35 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public abstract class Template extends AstDef {
 
+    private boolean caseOne;
+
     public Template(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
         super(name, nameRange, bindingScope, kind);
     }
-    
-    public abstract String getClassName();    
 
-    
+    public abstract String getClassName();
+
+    public void setCaseOne() {
+        this.caseOne = true;
+    }
+
+    public boolean isCaseOne() {
+        return caseOne;
+    }
+
     @Override
-    public boolean referedBy(AstRef ref) {
+    public boolean referredBy(AstRef ref) {
         switch (ref.getKind()) {
-            // Should be TypeRef @Todo case class
             case CLASS:
                 return getName().equals(ref.getName());
+            case VARIABLE:
+                if (isCaseOne()) {
+                    return getName().equals(ref.getName());
+                } else {
+                    return false;
+                }
             default:
                 return false;
         }
     }
-    
 }
