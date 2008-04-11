@@ -105,4 +105,9 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
             </file>
         </folder>
     </folder>
+    <folder name="org-netbeans-api-project-libraries">
+        <folder name="Libraries">
+            <file name="jemmy.xml" url="library.xml"/>
+        </folder>
+    </folder>
 </filesystem>
