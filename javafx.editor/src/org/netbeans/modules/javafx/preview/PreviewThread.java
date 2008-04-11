@@ -72,10 +72,12 @@ public class PreviewThread extends Thread {
             JComponent comp = null;
             if (obj != null){
                 Method getComponent = null;
-                try {
-                    getComponent = obj.getClass().getDeclaredMethod("getComponent");
-                } catch (NoSuchMethodException ex) {
-                    ex.printStackTrace();
+                Method[] methods = obj.getClass().getDeclaredMethods();
+                for (int i=0;i<methods.length;i++){
+                    if (methods[i].getName().equals("getComponent") || methods[i].getName().equals("getJComponent")){
+                        getComponent = methods[i];
+                        break;
+                    }
                 }
                 if (getComponent != null)
                     comp = (JComponent)getComponent.invoke(obj);
