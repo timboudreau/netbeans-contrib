@@ -305,6 +305,27 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
+    public <T extends AstDef> List<T> getDefsInScope(Class<T> clazz) {
+        List<T> result = new ArrayList<T>();
+        
+        getDefsInScopeRecursively(clazz, result);
+
+        return result;
+    }
+    
+    private <T extends AstDef> void getDefsInScopeRecursively(Class<T> clazz, List<T> result) {
+        for (AstDef def : getDefs()) {
+            if (clazz.isInstance(def)) {
+                result.add((T) def);
+            }
+        }        
+        
+        AstScope parentScope = getParent();
+        if (parentScope != null) {
+            parentScope.getDefsInScopeRecursively(clazz, result);
+        }
+    }
+    
     public <T extends AstDef> T getEnclosingDef(Class<T> clazz, int offset) {
         AstScope scope = getClosestScope(offset);
         return scope.getEnclosingDefRecursively(clazz);

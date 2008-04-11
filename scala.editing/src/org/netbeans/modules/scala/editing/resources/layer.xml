@@ -103,12 +103,10 @@
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Parser"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaParser"/>
                 </file>
-                <!--
                 <file name="completion.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Completable"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaCodeCompletion"/>
                 </file>
-                -->
                 <file name="structure.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.StructureScanner"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaStructureAnalyzer"/>
