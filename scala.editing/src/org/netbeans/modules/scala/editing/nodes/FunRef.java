@@ -45,7 +45,7 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
 public class FunRef extends AstRef {
     

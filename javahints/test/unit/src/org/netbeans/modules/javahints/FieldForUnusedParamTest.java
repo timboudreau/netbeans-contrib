@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,7 +34,7 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.javahints;
@@ -100,6 +100,22 @@ public class FieldForUnusedParamTest extends TreeRuleTestBase {
                             "     private int a;\n" +
                             "     public Test(int |a)\n" +
                             "}\n");
+    }
+    
+    public void testOrdering1() throws Exception {
+        performFixTest("test/Test.java",
+                       "package test;\n" +
+                       "public class Test {\n" +
+                       "     private int a;\n" +
+                       "     private int c;\n" +
+                       "     public Test(int a, int |b, int c) {\n" +
+                       "          this.a = a;\n" +
+                       "          this.c = c;\n" +
+                       "     }\n" +
+                       "}\n",
+                       "4:28-4:28:hint:Unused Parameter",
+                       "FixImpl:false",
+                       "package test; public class Test { private int a; private int b; private int c; public Test(int a, int b, int c) { this.a = a; this.b = b; this.c = c; } } ");
     }
     
     @Override
