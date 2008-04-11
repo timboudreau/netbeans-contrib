@@ -107,7 +107,22 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
     </folder>
     <folder name="org-netbeans-api-project-libraries">
         <folder name="Libraries">
-            <file name="jemmy.xml" url="library.xml"/>
+            <file name="jemmy.xml" url="jemmy.xml"/>
+            <file name="jellytools.xml" url="jellytools.xml"/>
+        </folder>
+    </folder>
+    <folder name="Templates">
+        <folder name="TestingTools">
+            <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/jemmysupport/testingToolsCategory.html" />
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jemmysupport.Bundle"/>
+            <file name="JellyTestCaseTest.java" url="JellyTestCase.java.template">
+                <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jemmysupport.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/jemmysupport/JUnitLogo.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/jemmysupport/JellyTestCase.html" />
+                <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.jemmysupport.JellyTestCaseWizardIterator.singleton"/>
+            </file>
         </folder>
     </folder>
 </filesystem>
