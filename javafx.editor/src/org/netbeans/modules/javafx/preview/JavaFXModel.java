@@ -219,11 +219,11 @@ public class JavaFXModel {
         }
     }
     
-    private static Project getProject(FXDocument doc){
+    public static Project getProject(FXDocument doc){
         return getProject(NbEditorUtilities.getFileObject(doc));
     }
 
-    private static Project getProject(FileObject fileObject){
+    public static Project getProject(FileObject fileObject){
         Project result = null;
         try {
             ProjectManager pm = ProjectManager.getDefault();
