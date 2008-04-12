@@ -183,10 +183,36 @@ public class AstElementVisitor extends AstVisitor {
 
         List<Id> ids = new ArrayList<Id>();
 
-        Id first = visitId(that.getGeneric(0));
-        ids.add(first);
+        GNode what = that.getGeneric(0);
+        if (what != null) {
+            Id first = visitId(what);
+            ids.add(first);
+        }
+        
+        List others = null;
+        if (that.size() == 2) {
+            // Id ( void:".":sep Id )*
+            others = that.getList(1).list();
+        } else if (that.size() == 3) {
+            // ( Id void:".":sep )? ThisKey ( void:".":key Id )*
+            Id idThis = visitId(that.getGeneric(1));
+            ids.add(idThis);
+            
+            others = that.getList(2).list();
+        } else if (that.size() == 4) {
+            // ( Id void:".":sep )? "super":key ClassQualifier? ( void:".":key Id )*
+            /** @TODO nameRange */
+            Id idSuper = new Id("super", OffsetRange.NONE, ElementKind.VARIABLE);
+            ids.add(idSuper);
+            
+            GNode classQualifierNode = that.getGeneric(2);
+            if (classQualifierNode != null) {
+                visitChildren(classQualifierNode);
+            }
+            
+            others = that.getList(3).list();
+        }
 
-        List others = that.getList(1).list();
         for (Object id : others) {
             ids.add(visitId((GNode) id));
         }
@@ -792,8 +818,9 @@ public class AstElementVisitor extends AstVisitor {
     public List<Id> visitAlternatePattern(GNode that) {
         enter(that);
 
-        /** @Todo emeger ids with same name (and type) */
         List<Id> ids = new ArrayList<Id>();
+        
+        /** @Todo emeger ids with same name (and type) */
         ids.addAll(visitPattern1(that.getGeneric(0)));
         ids.addAll(visitPattern1(that.getGeneric(1)));
         for (Object o : that.getList(2).list()) {
@@ -934,7 +961,14 @@ public class AstElementVisitor extends AstVisitor {
     public List<Id> visitTuplePattern(GNode that) {
         enter(that);
 
-        List<Id> ids = visitPatterns(that.getGeneric(0));
+        List<Id> ids = null;
+        
+        GNode patternsNode = that.getGeneric(0);
+        if (patternsNode != null) {
+            ids = visitPatterns(patternsNode);
+        } else {
+            ids = Collections.<Id>emptyList();
+        }
 
         exit(that);
         return ids;

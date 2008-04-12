@@ -93,16 +93,13 @@ public class AstElement implements ElementHandle {
     }
     
     public String getQualifiedName() {
-        return getPackageElement().getName() + "." + getName();
+        Packaging packaging = getPackageElement();
+        return packaging == null? getName() : packaging.getName() + "." + getName();
     }
 
-
-    public <T extends AstDef> T getEnclosingDefinition(Class<T> clazz) {
-        return enclosingScope.getEnclosingDef(clazz, getNameRange().getStart());
-    }
 
     public Packaging getPackageElement() {
-        return getEnclosingDefinition(Packaging.class);
+        return getEnclosingDef(Packaging.class);
     }
 
     public void setType(TypeRef type) {
@@ -113,6 +110,10 @@ public class AstElement implements ElementHandle {
         return type;
     }
 
+    public <T extends AstDef> T getEnclosingDef(Class<T> clazz) {
+        return enclosingScope.getEnclosingDef(clazz, getNameRange().getStart());
+    }    
+    
     /**
      * @Note: enclosingScope will be set when call
      *   {@link AstScope#addDefinition(Definition)} or {@link AstScope#addUsage(Usage)}
