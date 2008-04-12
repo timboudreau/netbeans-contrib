@@ -51,7 +51,7 @@ public class ObjectTemplate extends Template {
         super(name, nameRange, bindingScope, ElementKind.CLASS);
     }
 
-    public String getClassName() {
+    public String getBinaryName() {
         return getName() + "$";
     }
 }

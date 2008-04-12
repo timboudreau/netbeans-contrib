@@ -36,44 +36,40 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes;
 
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.OffsetRange;
+package org.netbeans.modules.scala.project.classpath;
+
+import java.io.File;
+import org.netbeans.modules.gsfpath.spi.classpath.ClassPathImplementation;
+import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 
 /**
- *
- * @author Caoyuan Deng
+ * Copyied from java.project
+ * ProjectClassPathSupport is a support class for creating classpath based
+ * on the list of ant properties.
+ * @since org.netbeans.modules.java.project/1 1.3
+ * @author Tomas Zezula
  */
-public abstract class Template extends AstDef {
+public class ProjectClassPathSupport {
 
-    private boolean caseOne;
-
-    public Template(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
-        super(name, nameRange, bindingScope, kind);
+    /** Creates a new instance of NewClass */
+    private ProjectClassPathSupport() {
     }
 
-    public void setCaseOne() {
-        this.caseOne = true;
-    }
 
-    public boolean isCaseOne() {
-        return caseOne;
-    }
-
-    @Override
-    public boolean referredBy(AstRef ref) {
-        switch (ref.getKind()) {
-            case CLASS:
-                return getName().equals(ref.getName());
-            case VARIABLE:
-                if (isCaseOne()) {
-                    return getName().equals(ref.getName());
-                } else {
-                    return false;
-                }
-            default:
-                return false;
-        }
+    /**
+     * Creates new classpath based on the ant property. The returned classpath
+     * listens on changes of property value.
+     * @param projectFolder {@link File} the project folder used to resolve relative paths
+     * @param evaluator {@link PropertyEvaluator} used for obtaining the value of
+     * given property and listening on value changes.
+     * @param propertyNames the names of ant properties the classpath will be build on,
+     * can't be or contain null. It can contain duplicates, in this case the duplicated property
+     * is used multiple times. The values of given properties are concatenated into a single path.
+     * @return an {@link ClassPathImplementation} based on the given ant properties.
+     */
+    public static ClassPathImplementation createPropertyBasedClassPathImplementation (File projectFolder,
+            PropertyEvaluator evaluator, String[] propertyNames) {
+        return new ProjectClassPathImplementation (projectFolder, propertyNames, evaluator);
     }
 }

@@ -87,6 +87,15 @@ public class AstElement implements ElementHandle {
     public ElementKind getKind() {
         return kind;
     }
+    
+    public String getBinaryName() {
+        return getName();
+    }
+    
+    public String getQualifiedName() {
+        return getPackageElement().getName() + "." + getName();
+    }
+
 
     public <T extends AstDef> T getEnclosingDefinition(Class<T> clazz) {
         return enclosingScope.getEnclosingDef(clazz, getNameRange().getStart());

@@ -27,8 +27,8 @@
  */
 package org.netbeans.modules.scala.project;
 
-import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.spi.java.classpath.ClassPathProvider;
+import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
+import org.netbeans.modules.gsfpath.spi.classpath.ClassPathProvider;
 import org.netbeans.spi.project.LookupMerger;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
