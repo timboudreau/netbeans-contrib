@@ -111,12 +111,10 @@
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.StructureScanner"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaStructureAnalyzer"/>
                 </file>
-                <!--
                 <file name="indexer.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Indexer"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaIndexer"/>
                 </file>
-                -->
                 <file name="declarationfinder.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.DeclarationFinder"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaDeclarationFinder"/>
