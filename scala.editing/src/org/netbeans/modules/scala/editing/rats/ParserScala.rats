@@ -140,7 +140,7 @@ generic Literal =
 transient generic BooleanLiteral = "true":key / "false":key;
 transient generic NullLiteral = "null" ;
 
-transient void SEMI = ";":sep N* / N+ ;
+transient void SEMI = void:";":sep N* / N+ ;
 
 transient generic QualId = Id ( void:".":sep Id )* ;
 transient generic Ids    = Id ( void:",":sep Id )* ;
