@@ -55,26 +55,12 @@ made subject to such option by the copyright holder.
                 <folder name="experimental">
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javahints.resources.Bundle"/>
                     <file name="org-netbeans-modules-javahints-NPECheck.instance"/>
-                    <file name="org-netbeans-modules-javahints-EqualsHint-getArrayEquals.instance">
-                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.javahints.EqualsHint.getArrayEquals"/>
-                    </file>
-                    <file name="org-netbeans-modules-javahints-EqualsHint-getIncompatibleEquals.instance">
-                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.javahints.EqualsHint.getIncompatibleEquals"/>
-                    </file>
-                    <file name="org-netbeans-modules-javahints-EqualsHint-getDelegate.instance">
-                        <attr name="nonGUI" boolvalue="true"/>
-                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.javahints.EqualsHint.getDelegate"/>
-                    </file>
-                    <file name="org-netbeans-modules-javahints-EqualsMethodHint.instance"/>
-                    <file name="org-netbeans-modules-javahints-SyncOnNonFinal.instance"/>
                     <file name="org-netbeans-modules-javahints-NoFileToURL.instance"/>
                 </folder>
             </folder>
             
             <folder name="suggestions">
                 <file name="org-netbeans-modules-javahints-NegateCondition.instance"/>
-                <file name="org-netbeans-modules-javahints-FieldForUnusedParam.instance"/>
-                <file name="org-netbeans-modules-javahints-DeclarationForInstanceOf.instance"/>
             </folder>
         </folder>
     </folder>
