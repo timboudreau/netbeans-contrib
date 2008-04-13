@@ -39,7 +39,6 @@
 
 package org.netbeans.modules.scala.editing.nodes;
 
-import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
@@ -47,49 +46,20 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author Caoyuan Deng
  */
-public class SimpleExpr extends Expr implements Postfixable {
-        
-    private AstElement base;
+public class AssignmentExpr extends Expr {
     
-    private List<TypeRef> typeArgs;
-    private List<AstElement> rest;
+    private Expr lhs;
+    private Expr rhs;
     
-    private String prefixOp;
-    private Id postfixOp;
-    
-    public SimpleExpr(String name, OffsetRange nameRange, ElementKind kind) {
+    public AssignmentExpr(String name, OffsetRange nameRange, ElementKind kind) {
         super(name, nameRange, kind);
     }
 
-    public void setBase(AstElement base) {
-        this.base = base;
+    public void setLhs(Expr lhs) {
+        this.lhs = lhs;
     }
     
-    public void setTypeArgs(List<TypeRef> typeArgs) {
-        this.typeArgs = typeArgs;
+    public void setRhs(Expr rhs) {
+        this.rhs = rhs;
     }
-    
-    public void setRest(List<AstElement> rest) {
-        this.rest = rest;
-    }
-
-    public void setPrefix(String prefixOp) {
-        this.prefixOp = prefixOp;
-    }
- 
-    public void setPostfixOp(Id postfixOp) {
-        this.postfixOp = postfixOp;
-    }
-
-    public Id getPostfixOp() {
-        return postfixOp;
-    }
-        
-    
-    @Override
-    public TypeRef getType() {
-        /* @TODO */
-        return base.getType();
-    }
-        
 }

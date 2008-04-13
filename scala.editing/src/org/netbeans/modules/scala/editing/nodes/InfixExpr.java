@@ -36,7 +36,6 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.List;
@@ -47,36 +46,32 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  *
  * @author Caoyuan Deng
  */
-public class SimpleExpr extends Expr implements Postfixable {
-        
-    private AstElement base;
-    
-    private List<TypeRef> typeArgs;
-    private List<AstElement> rest;
-    
-    private String prefixOp;
+public class InfixExpr extends Expr implements Postfixable {
+
+    private List<SimpleExpr> exprs;
+    private List<Id> ops;
     private Id postfixOp;
-    
-    public SimpleExpr(String name, OffsetRange nameRange, ElementKind kind) {
+
+    public InfixExpr(String name, OffsetRange nameRange, ElementKind kind) {
         super(name, nameRange, kind);
     }
 
-    public void setBase(AstElement base) {
-        this.base = base;
-    }
-    
-    public void setTypeArgs(List<TypeRef> typeArgs) {
-        this.typeArgs = typeArgs;
-    }
-    
-    public void setRest(List<AstElement> rest) {
-        this.rest = rest;
+    public void setExprs(List<SimpleExpr> types) {
+        this.exprs = types;
     }
 
-    public void setPrefix(String prefixOp) {
-        this.prefixOp = prefixOp;
+    public List<SimpleExpr> getExprs() {
+        return exprs;
     }
- 
+
+    public void setOps(List<Id> ops) {
+        this.ops = ops;
+    }
+
+    public List<Id> getOps() {
+        return ops;
+    }
+
     public void setPostfixOp(Id postfixOp) {
         this.postfixOp = postfixOp;
     }
@@ -84,12 +79,10 @@ public class SimpleExpr extends Expr implements Postfixable {
     public Id getPostfixOp() {
         return postfixOp;
     }
-        
     
     @Override
     public TypeRef getType() {
-        /* @TODO */
-        return base.getType();
+        return exprs.get(0).getType(); // @todo
+
     }
-        
 }

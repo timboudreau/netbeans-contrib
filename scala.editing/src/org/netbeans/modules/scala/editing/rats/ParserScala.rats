@@ -58,8 +58,7 @@ modify org.netbeans.modules.scala.editing.rats.Xml;
 
 option withLocation;
 
-/* @Note: Modified productions should always be put at the beginning 
- */
+/* @Note: Modified productions should always be put at the beginning */
 
 // ----- Modify XmlContent in Xml.rats
 generic XmlContent +=
@@ -226,7 +225,7 @@ generic NotFunExpr =
   void:"if"    :key void:"(":sep Expr  void:")":sep N* Expr ( SEMI? void:"else":key Expr )? @IfExpr
 / void:"while" :key void:"(":sep Expr  void:")":sep N* Expr                                 @WhileExpr
 / void:"try"   :key void:"{":sep Block void:"}":sep ( void:"catch":key void:"{":sep CaseClauses void:"}":sep )? ( void:"finally":key Expr )? @TryExpr
-/ void:"do"    :key Expr SEMI? void:"while":key void:"(":sep Expr void:")":sep             @DoExpr
+/ void:"do"    :key Expr SEMI? void:"while":key void:"(":sep Expr void:")":sep              @DoExpr
 / void:"for"   :key ( void:"(":sep Enumerators void:")":sep / void:"{":sep Enumerators void:"}":sep ) N* ( "yield":key )? Expr               @ForExpr
 / void:"throw" :key Expr         @ThrowExpr
 / void:"return":key Expr?        @ReturnExpr
@@ -253,7 +252,7 @@ generic PrefixExpr = ( "-":op / "+":op / "~":op / "!":op )? SimpleExpr ;
 
 /* @DocError in ScalaReference : There is non SimpleExpr with ( void:":":key Type ) */
 generic SimpleExpr = 
-  XmlExpr
+  XmlExpr                                                    @SimpleXmlExpr
 / Literal   TypeArgs? SimpleExprRest*                        @SimpleLiteralExpr
 / Path      TypeArgs? SimpleExprRest* ( void:":":key Type )? @SimpleIdExpr
 / "_":key   TypeArgs? SimpleExprRest*                        @SimpleWildCardExpr
