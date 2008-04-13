@@ -243,6 +243,43 @@ public class AstElementVisitor extends AstVisitor {
         return new Id(name, getNameRange(name, that), ElementKind.VARIABLE);
     }
 
+    public Literal visitLiteral(GNode that) {
+        enter(that);
+        
+        Literal literal = new Literal("literal", OffsetRange.NONE, ElementKind.OTHER);
+        
+        Object first = that.getGeneric(0);
+        GNode literalNode = null;
+        if (first != null) {
+            if (first instanceof GNode) {
+                literalNode = (GNode) first;
+            } else {
+                literalNode = that.getGeneric(1);
+            }
+        } else {
+            literalNode = that.getGeneric(1);
+        }
+        
+        if (literalNode.getName().equals("FloatingPointLiteral")) {
+            literal.setType(TypeRef.Float);
+        } else if (literalNode.getName().equals("IntegerLiteral")) {
+            literal.setType(TypeRef.Int);
+        } else if (literalNode.getName().equals("BooleanLiteral")) {
+            literal.setType(TypeRef.Boolean);
+        } else if (literalNode.getName().equals("NullLiteral")) {
+            literal.setType(TypeRef.Null);
+        } else if (literalNode.getName().equals("CharacterLiteral")) {
+            literal.setType(TypeRef.Char);
+        } else if (literalNode.getName().equals("StringLiteral")) {
+            literal.setType(TypeRef.String);
+        } else if (literalNode.getName().equals("SymbolLiteral")) {
+            literal.setType(TypeRef.Symbol);
+        }
+        
+        exit(that);
+        return literal;
+    }        
+    
     public Template visitTmplDef(GNode that) {
         enter(that);
 
@@ -1181,11 +1218,71 @@ public class AstElementVisitor extends AstVisitor {
         exit(that);
         return exprs;
     }
+    
 
-    public void visitSimpleIdExpr(GNode that) {
+    public SimpleExpr visitSimpleExpr(GNode that) {
+        enter(that);
+        
+        SimpleExpr expr = null;
+        
+        GNode what = that.getGeneric(0);
+        if (what.getName().equals("XmlExpr")) {
+            visitChildren(what);
+            expr = new SimpleExpr("expr", OffsetRange.NONE, ElementKind.OTHER);
+        } else if (what.getName().equals("SimpleLiteralExpr")) {
+            expr = visitSimpleLiteralExpr(what);
+        } else if (what.getName().equals("SimpleIdExpr")) {
+            expr = visitSimpleIdExpr(what);
+        } else if (what.getName().equals("SimpleWildCardExpr")) {
+            visitChildren(what);
+            expr = new SimpleExpr("expr", OffsetRange.NONE, ElementKind.OTHER);
+        } else if (what.getName().equals("SimpleTupleExpr")) {
+            visitChildren(what);
+            expr = new SimpleExpr("expr", OffsetRange.NONE, ElementKind.OTHER);
+        } else if (what.getName().equals("SimpleBlockExpr")) {
+            visitChildren(what);
+            expr = new SimpleExpr("expr", OffsetRange.NONE, ElementKind.OTHER);
+        } else if (what.getName().equals("SimpleNewExpr")) {
+            visitChildren(what);
+            expr = new SimpleExpr("expr", OffsetRange.NONE, ElementKind.OTHER);
+        }                
+        
+        exit(that);
+        return expr;
+    }
+    
+    public SimpleExpr visitSimpleLiteralExpr(GNode that) {
+        enter(that);
+        
+        SimpleExpr expr = new SimpleExpr("expr", OffsetRange.NONE, ElementKind.OTHER);
+
+        Literal literal = visitLiteral(that.getGeneric(0));
+        expr.setBaseExpr(literal);
+
+        List<TypeRef> typeArgs = Collections.<TypeRef>emptyList();
+        GNode typeArgsNode = that.getGeneric(1);
+        if (typeArgsNode != null) {
+            typeArgs = visitTypeArgs(typeArgsNode);
+        }
+
+        List<AstElement> rest = new ArrayList<AstElement>();
+        for (Object o : that.getList(2).list()) {
+            AstElement element = visitSimpleExprRest((GNode) o);
+            rest.add(element);
+        }
+
+        exit(that);
+        return expr;
+    }
+    
+    public SimpleExpr visitSimpleIdExpr(GNode that) {
         enter(that);
 
+        SimpleExpr expr = new SimpleExpr("expr", OffsetRange.NONE, ElementKind.OTHER);
+
         PathId id = visitPath(that.getGeneric(0));
+        expr.setBaseExpr(id);
+
         Id first = id.getPaths().get(0);
 
         List<TypeRef> typeArgs = Collections.<TypeRef>emptyList();
@@ -1218,6 +1315,7 @@ public class AstElementVisitor extends AstVisitor {
         }
 
         exit(that);
+        return expr;
     }
 
     public TypeRef visitType(GNode that) {

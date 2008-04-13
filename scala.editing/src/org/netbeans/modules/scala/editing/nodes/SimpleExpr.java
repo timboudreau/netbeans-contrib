@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -37,62 +37,25 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-/*
- * Definition of Scala lexical tokens.
- * 
- * @author Caoyuan Deng
+package org.netbeans.modules.scala.editing.nodes;
+
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.OffsetRange;
+
+/**
+ *
+ * @author dcaoyuan
  */
-module org.netbeans.modules.scala.editing.rats.Literal;
+public class SimpleExpr extends Expr {
+    
+    private AstElement base;
+    
+    public SimpleExpr(String name, OffsetRange nameRange, ElementKind kind) {
+        super(name, nameRange, kind);
+    }
 
-import org.netbeans.modules.scala.editing.rats.Character;
-import org.netbeans.modules.scala.editing.rats.Identifier;
-
-
-// ----- Integer literals
-
-transient generic IntegerLiteral = integerLiteral;
-transient String integerLiteral =
-  hexNumeral     integerTypeSuffix?     
-/ octalNumeral   integerTypeSuffix? 
-/ decimalNumeral integerTypeSuffix?
-;
-
-transient String integerTypeSuffix = [lL] ;
-
-// ----- Floating point literals
-
-transient generic FloatingPointLiteral = floatingPointLiteral ;
-transient String floatingPointLiteral =
-  digit+ '.' digit* exponent? floatTypeSuffix?
-/        '.' digit+ exponent? floatTypeSuffix?
-/ digit+            exponent  floatTypeSuffix?
-/ digit+            exponent? floatTypeSuffix
-;
-
-transient String exponent = [eE] [+\-]? digit+ ;
-
-transient String floatTypeSuffix = [fFdD] ;
-
-// ----- Character and string constants
-
-transient generic CharacterLiteral = characterLiteral ;
-transient String characterLiteral = ['] characterChar ['] ;
-
-transient generic StringLiteral = stringLiteral ;
-transient String stringLiteral = 
-  ["] ["] ["] multiLineChar* ["] ["] ["]
-/ ["] stringChar* ["] 
-;
-transient String multiLineChar = ["]? ["]? !["] _ ;
-
-// ------ Symbol constant
-
-transient generic SymbolLiteral = symbolLiteral;
-transient String symbolLiteral = 
-  ['] 
-  ( opchar+
-  / lower idrest?
-  / upper idrest?
-  / [$_]  idrest?
-  )
-;
+    public void setBaseExpr(AstElement base) {
+        this.base = base;
+    }
+    
+}
