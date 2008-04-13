@@ -38,6 +38,7 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import java.util.Set;
 import javax.swing.text.Document;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.DeclarationFinder;
@@ -47,11 +48,13 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.openide.util.Exceptions;
 
 /**
@@ -114,6 +117,45 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         return OffsetRange.NONE;
     }
 
+    /** Locate the method declaration for the given method call */
+    IndexedFunction findMethodDeclaration(CompilationInfo info, FunRef call, Set<IndexedFunction>[] alternativesHolder) {
+        String prefix = call.getName();
+        ScalaParserResult parseResult = AstUtilities.getParserResult(info);
+        ScalaIndex index = ScalaIndex.get(info.getIndex(ScalaMimeResolver.MIME_TYPE));
+        Set<IndexedElement> functions = index.getAllNames(prefix,
+                NameKind.EXACT_NAME, ScalaIndex.ALL_SCOPE, parseResult);
+
+        IndexedElement candidate = findBestElementMatch(info, /*name,*/ functions/*, (BaseDocument)info.getDocument(),
+                astOffset, lexOffset, path, closest, index*/);
+        if (candidate instanceof IndexedFunction) {
+            return (IndexedFunction)candidate;
+        }
+        return null;
+    }
+
+
+    private IndexedElement findBestElementMatch(CompilationInfo info, /*String name,*/ Set<IndexedElement> elements/*,
+        BaseDocument doc, int astOffset, int lexOffset, AstPath path/ Node call, JsIndex index*/) {
+        // For now no good heuristics to pick a method.
+        // Possible things to consider:
+        // -- scope - whether the method is local
+        // -- builtins should get some priority over libraries
+        // -- other methods called which can help disambiguate
+        // -- documentation?
+        if (elements.size() > 0) {
+            IndexedElement e = elements.iterator().next();
+            IndexedElement r = e.findRealFileElement();
+            if (r != null) {
+                return r;
+            }
+            
+            return e;
+        }
+        
+        return null;
+    }
+    
+    
     public DeclarationLocation findDeclaration(CompilationInfo info, int lexOffset) {
 
         final Document document;

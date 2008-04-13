@@ -41,7 +41,10 @@ package org.netbeans.modules.scala.editing;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,10 +68,12 @@ import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.scala.editing.ScalaParser.Sanitize;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.netbeans.modules.scala.editing.nodes.Var;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.filesystems.FileObject;
@@ -404,7 +409,6 @@ public class ScalaCodeCompletion implements Completable {
             }
             final TokenHierarchy<Document> th = TokenHierarchy.get(document);
             final FileObject fileObject = info.getFileObject();
-            //Call call = Call.getCallType(doc, th, lexOffset);
 
             // Carry completion context around since this logic is split across lots of methods
             // and I don't want to pass dozens of parameters from method to method; just pass
@@ -414,7 +418,7 @@ public class ScalaCodeCompletion implements Completable {
             request.formatter = formatter;
             request.lexOffset = lexOffset;
             request.astOffset = astOffset;
-            //request.index = JsIndex.get(info.getIndex(ScalaTokenId.JAVASCRIPT_MIME_TYPE));
+            request.index = ScalaIndex.get(info.getIndex(ScalaMimeResolver.MIME_TYPE));
             request.doc = doc;
             request.info = info;
             request.prefix = prefix;
@@ -423,7 +427,6 @@ public class ScalaCodeCompletion implements Completable {
             request.queryType = queryType;
             request.fileObject = fileObject;
             request.anchor = lexOffset - prefix.length();
-            //request.call = call;
 
             Token<? extends TokenId> token = ScalaLexUtilities.getToken(doc, lexOffset);
             if (token == null) {
@@ -464,6 +467,9 @@ public class ScalaCodeCompletion implements Completable {
                 final AstElement closest = root.getElement(offset);
                 request.root = root;
                 request.element = closest;
+                if (closest instanceof FunRef) {
+                    request.call = (FunRef) closest;
+                } 
             }
 
             if (root == null) {
@@ -490,9 +496,9 @@ public class ScalaCodeCompletion implements Completable {
 //            }
 
             // Try to complete methods
-//            if (completeFunctions(proposals, request)) {
-//               return proposals;
-//            }
+            if (completeFunctions(proposals, request)) {
+               return proposals;
+            }
         } finally {
             doc.readUnlock();
         }
@@ -1167,9 +1173,9 @@ public class ScalaCodeCompletion implements Completable {
         return null;
     }
 
-    /*
+    
     private boolean completeFunctions(List<CompletionProposal> proposals, CompletionRequest request) {
-        JsIndex index = request.index;
+        ScalaIndex index = request.index;
         String prefix = request.prefix;
         TokenHierarchy<Document> th = request.th;
         NameKind kind = request.kind;
@@ -1177,35 +1183,22 @@ public class ScalaCodeCompletion implements Completable {
         ScalaParserResult result = request.result;
         
         boolean includeNonFqn = true;
-        
-        // Add in inherited properties, if any...
-        // DEMO HACK, NOT YET FULLY IMPLEMENTED
-        if (request.fileObject.getName().equals("test") && request.path.contains(org.mozilla.javascript.Token.OBJECTLIT)) {
-//            String type = "YAHOO.widget.Editor";
-//            // Demo HACK
-//            Set<IndexedElement> inherited = index.getElements(prefix, type, kind, JsIndex.ALL_SCOPE, result);
-//            if (inherited.size() > 0) {
-//                matches.addAll(inherited);
-//            }
-            fqn = "YAHOO.widget.Editor";
-            includeNonFqn = false;
-        }
-        
+                
         Set<IndexedElement> matches;
         if (fqn != null) {
-            matches = index.getElements(prefix, fqn, kind, JsIndex.ALL_SCOPE, result);
+            matches = index.getElements(prefix, fqn, kind, ScalaIndex.ALL_SCOPE, result);
         } else {
 //            if (prefix.length() == 0) {
 //                proposals.clear();
 //                proposals.add(new KeywordItem("", "Type more characters to see matches", request));
 //                return true;
 //            } else {
-                matches = index.getAllNames(prefix, kind, JsIndex.ALL_SCOPE, result);
+                matches = index.getAllNames(prefix, kind, ScalaIndex.ALL_SCOPE, result);
 //            }
         }
         // Also add in non-fqn-prefixed elements
         if (includeNonFqn) {
-            Set<IndexedElement> top = index.getElements(prefix, null, kind, JsIndex.ALL_SCOPE, result);
+            Set<IndexedElement> top = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, result);
             if (top.size() > 0) {
                 matches.addAll(top);
             }
@@ -1216,7 +1209,7 @@ public class ScalaCodeCompletion implements Completable {
                 continue;
             }
             
-            JsCompletionItem item;
+            ScalaCompletionItem item;
             if (element instanceof IndexedFunction) {
                 item = new FunctionItem((IndexedFunction)element, request);
             } else {
@@ -1228,7 +1221,7 @@ public class ScalaCodeCompletion implements Completable {
 
         return true;
     }
-     */
+     
 
     /** Determine if we're trying to complete the name of a method on another object rather
      * than an inherited or local one. These should list ALL known methods, unless of course
@@ -1236,52 +1229,52 @@ public class ScalaCodeCompletion implements Completable {
      * or types inferred through data flow analysis
      *
      * @todo Look for self or this or super; these should be limited to inherited.
-     */
-//    private boolean completeObjectMethod(List<CompletionProposal> proposals, CompletionRequest request) {
-//        
-//        JsIndex index = request.index;
-//        String prefix = request.prefix;
-//        int astOffset = request.astOffset;
-//        int lexOffset = request.lexOffset;
-//        Node root = request.root;
-//        TokenHierarchy<Document> th = request.th;
-//        BaseDocument doc = request.doc;
-//        AstPath path = request.path;
-//        NameKind kind = request.kind;
-//        FileObject fileObject = request.fileObject;
-//        Node node = request.node;
-//        ScalaParserResult result = request.result;
-//        CompilationInfo info = request.info;
-//        
-//        String fqn = request.fqn;
-//        Call call = request.call;
-//
-//        TokenSequence<?extends ScalaTokenId> ts = ScalaLexUtilities.getJsTokenSequence(th, lexOffset);
-//
-//        // Look in the token stream for constructs of the type
-//        //   foo.x^
-//        // or
-//        //   foo.^
-//        // and if found, add all methods
-//        // (no keywords etc. are possible matches)
-//        if ((index != null) && (ts != null)) {
-//            boolean skipPrivate = true;
-//
+     */    
+    private boolean completeObjectMethod(List<CompletionProposal> proposals, CompletionRequest request) {
+        
+        ScalaIndex index = request.index;
+        String prefix = request.prefix;
+        int astOffset = request.astOffset;
+        int lexOffset = request.lexOffset;
+        AstScope root = request.root;
+        TokenHierarchy<Document> th = request.th;
+        BaseDocument doc = request.doc;
+        NameKind kind = request.kind;
+        FileObject fileObject = request.fileObject;
+        AstElement node = request.element;
+        ScalaParserResult result = request.result;
+        CompilationInfo info = request.info;
+        
+        String fqn = request.fqn;
+        FunRef call = request.call;
+
+        TokenSequence<?extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+
+        // Look in the token stream for constructs of the type
+        //   foo.x^
+        // or
+        //   foo.^
+        // and if found, add all methods
+        // (no keywords etc. are possible matches)
+        if ((index != null) && (ts != null)) {
+            boolean skipPrivate = true;
+
 //            if ((call == Call.LOCAL) || (call == Call.NONE)) {
 //                return false;
 //            }
-//            
-//            // If we're not sure we're only looking for a method, don't abort after this
-//            boolean done = call.isMethodExpected();
-//
-////            boolean skipInstanceMethods = call.isStatic();
-//
-//            Set<IndexedElement> elements = Collections.emptySet();
-//
-//            String type = call.getType();
-//            String lhs = call.getLhs();
-//
+            
+            // If we're not sure we're only looking for a method, don't abort after this
+            boolean done = false;//call.isMethodExpected();
+
+//            boolean skipInstanceMethods = call.isStatic();
+
+            Set<IndexedElement> elements = Collections.emptySet();
+
+            String type = call.getType().toString();
+            String lhs = "";//call.getLhs();
+
 //            if (type == null) {
+//                call.getName();
 //                Node method = AstUtilities.findLocalScope(node, path);
 //                if (method != null) {
 //                    List<Node> nodes = new ArrayList<Node>();
@@ -1346,255 +1339,255 @@ public class ScalaCodeCompletion implements Completable {
 //                    type = analyzer.getType(lhs);
 //                }
 //            }
-//
-//            // I'm not doing any data flow analysis at this point, so
-//            // I can't do anything with a LHS like "foo.". Only actual types.
-//            if ((type != null) && (type.length() > 0)) {
-//                if ("this".equals(lhs)) {
-//                    type = fqn;
+
+            // I'm not doing any data flow analysis at this point, so
+            // I can't do anything with a LHS like "foo.". Only actual types.
+            if ((type != null) && (type.length() > 0)) {
+                if ("this".equals(lhs)) {
+                    type = fqn;
+                    skipPrivate = false;
+//                } else if ("super".equals(lhs)) {
 //                    skipPrivate = false;
-////                } else if ("super".equals(lhs)) {
-////                    skipPrivate = false;
-////
-////                    IndexedClass sc = index.getSuperclass(fqn);
-////
-////                    if (sc != null) {
-////                        type = sc.getFqn();
-////                    } else {
-////                        ClassNode cls = AstUtilities.findClass(path);
-////
-////                        if (cls != null) {
-////                            type = AstUtilities.getSuperclass(cls);
-////                        }
-////                    }
-////
-////                    if (type == null) {
-////                        type = "Object"; // NOI18N
-////                    }
-//                }
 //
-//                if ((type != null) && (type.length() > 0)) {
-//                    // Possibly a class on the left hand side: try searching with the class as a qualifier.
-//                    // Try with the LHS + current FQN recursively. E.g. if we're in
-//                    // Test::Unit when there's a call to Foo.x, we'll try
-//                    // Test::Unit::Foo, and Test::Foo
-//                    while (elements.size() == 0 && fqn != null && !fqn.equals(type)) {
-//                        elements = index.getElements(prefix, fqn + "." + type, kind, JsIndex.ALL_SCOPE, result);
+//                    IndexedClass sc = index.getSuperclass(fqn);
 //
-//                        int f = fqn.lastIndexOf("::");
+//                    if (sc != null) {
+//                        type = sc.getFqn();
+//                    } else {
+//                        ClassNode cls = AstUtilities.findClass(path);
 //
-//                        if (f == -1) {
-//                            break;
-//                        } else {
-//                            fqn = fqn.substring(0, f);
+//                        if (cls != null) {
+//                            type = AstUtilities.getSuperclass(cls);
 //                        }
 //                    }
-//                    
-//                    // Add methods in the class (without an FQN)
-//                    Set<IndexedElement> m = index.getElements(prefix, type, kind, JsIndex.ALL_SCOPE, result);
 //
-//                    if (m.size() > 0) {
-//                        elements = m;
+//                    if (type == null) {
+//                        type = "Object"; // NOI18N
 //                    }
-//                }
-//            } else if (lhs != null && lhs.length() > 0) {
-//                // No type but an LHS - perhaps it's a type?
-//                Set<IndexedElement> m = index.getElements(prefix, lhs, kind, JsIndex.ALL_SCOPE, result);
-//
-//                if (m.size() > 0) {
-//                    elements = m;
-//                }
-//            }
-//
-//            // Try just the method call (e.g. across all classes). This is ignoring the 
-//            // left hand side because we can't resolve it.
-//            if ((elements.size() == 0) && (prefix.length() > 0 || type == null)) {
-////                if (prefix.length() == 0) {
-////                    proposals.clear();
-////                    proposals.add(new KeywordItem("", "Type more characters to see matches", request));
-////                    return true;
-////                } else {
-//                    elements = index.getAllNames(prefix, kind, JsIndex.ALL_SCOPE, result);
-////                }
-//            }
-//
-//            for (IndexedElement element : elements) {
-//                // Skip constructors - you don't want to call
-//                //   x.Foo !
-////                if (element.getKind() == ElementKind.CONSTRUCTOR) {
-////                    continue;
-////                }
-//                
-//                // Don't include private or protected methods on other objects
-//                if (skipPrivate && element.isPrivate()) {
-//                    continue;
-//                }
-////
-////                // We can only call static methods
-////                if (skipInstanceMethods && !method.isStatic()) {
-////                    continue;
-////                }
-////
-//                if (element.isNoDoc()) {
-//                    continue;
-//                }
-//
-//                if (element instanceof IndexedFunction) {
-//                    FunctionItem item = new FunctionItem((IndexedFunction)element, request);
-//                    proposals.add(item);
+                }
+
+                if ((type != null) && (type.length() > 0)) {
+                    // Possibly a class on the left hand side: try searching with the class as a qualifier.
+                    // Try with the LHS + current FQN recursively. E.g. if we're in
+                    // Test::Unit when there's a call to Foo.x, we'll try
+                    // Test::Unit::Foo, and Test::Foo
+                    while (elements.size() == 0 && fqn != null && !fqn.equals(type)) {
+                        elements = index.getElements(prefix, fqn + "." + type, kind, ScalaIndex.ALL_SCOPE, result);
+
+                        int f = fqn.lastIndexOf("::");
+
+                        if (f == -1) {
+                            break;
+                        } else {
+                            fqn = fqn.substring(0, f);
+                        }
+                    }
+                    
+                    // Add methods in the class (without an FQN)
+                    Set<IndexedElement> m = index.getElements(prefix, type, kind, ScalaIndex.ALL_SCOPE, result);
+
+                    if (m.size() > 0) {
+                        elements = m;
+                    }
+                }
+            } else if (lhs != null && lhs.length() > 0) {
+                // No type but an LHS - perhaps it's a type?
+                Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, result);
+
+                if (m.size() > 0) {
+                    elements = m;
+                }
+            }
+
+            // Try just the method call (e.g. across all classes). This is ignoring the 
+            // left hand side because we can't resolve it.
+            if ((elements.size() == 0) && (prefix.length() > 0 || type == null)) {
+//                if (prefix.length() == 0) {
+//                    proposals.clear();
+//                    proposals.add(new KeywordItem("", "Type more characters to see matches", request));
+//                    return true;
 //                } else {
-//                    PlainItem item = new PlainItem(request, element);
-//                    proposals.add(item);
+                    elements = index.getAllNames(prefix, kind, ScalaIndex.ALL_SCOPE, result);
 //                }
-//            }
+            }
+
+            for (IndexedElement element : elements) {
+                // Skip constructors - you don't want to call
+                //   x.Foo !
+//                if (element.getKind() == ElementKind.CONSTRUCTOR) {
+//                    continue;
+//                }
+                
+                // Don't include private or protected methods on other objects
+                if (skipPrivate && element.isPrivate()) {
+                    continue;
+                }
 //
-//            return done;
-//        }
+//                // We can only call static methods
+//                if (skipInstanceMethods && !method.isStatic()) {
+//                    continue;
+//                }
 //
-//        return false;
-//    }
+                if (element.isNoDoc()) {
+                    continue;
+                }
+
+                if (element instanceof IndexedFunction) {
+                    FunctionItem item = new FunctionItem((IndexedFunction)element, request);
+                    proposals.add(item);
+                } else {
+                    PlainItem item = new PlainItem(request, element);
+                    proposals.add(item);
+                }
+            }
+
+            return done;
+        }
+
+        return false;
+    }
     
     
     /** Determine if we're trying to complete the name for a "new" (in which case
      * we show available constructors.
      */
-//    private boolean completeNew(List<CompletionProposal> proposals, CompletionRequest request) {
-//        JsIndex index = request.index;
-//        String prefix = request.prefix;
-//        int lexOffset = request.lexOffset;
-//        TokenHierarchy<Document> th = request.th;
-//        NameKind kind = request.kind;
-//        
-//        TokenSequence<?extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
-//
-//        if ((index != null) && (ts != null)) {
-//            ts.move(lexOffset);
-//
-//            if (!ts.moveNext() && !ts.movePrevious()) {
-//                return false;
-//            }
-//
-//            if (ts.offset() == lexOffset) {
-//                // We're looking at the offset to the RIGHT of the caret
-//                // position, which could be whitespace, e.g.
-//                //  "def fo| " <-- looking at the whitespace
-//                ts.movePrevious();
-//            }
-//
-//            Token<?extends ScalaTokenId> token = ts.token();
-//
-//            if (token != null) {
-//                TokenId id = token.id();
-//
-//                // See if we're in the identifier - "foo" in "def foo"
-//                // I could also be a keyword in case the prefix happens to currently
-//                // match a keyword, such as "next"
-//                if ((id == ScalaTokenId.Identifier) || (id == ScalaTokenId.CONSTANT) || id.primaryCategory().equals("keyword")) {
-//                    if (!ts.movePrevious()) {
-//                        return false;
-//                    }
-//
-//                    token = ts.token();
-//                    id = token.id();
-//                }
-//
-//                // If we're not in the identifier we need to be in the whitespace after "def"
-//                if (id != ScalaTokenId.WHITESPACE && id != ScalaTokenId.EOL) {
-//                    // Do something about http://www.netbeans.org/issues/show_bug.cgi?id=100452 here
-//                    // In addition to checking for whitespace I should look for "Foo." here
-//                    return false;
-//                }
-//
-//                // There may be more than one whitespace; skip them
-//                while (ts.movePrevious()) {
-//                    token = ts.token();
-//
-//                    if (token.id() != ScalaTokenId.WHITESPACE) {
-//                        break;
-//                    }
-//                }
-//
-//                if (token.id() == ScalaTokenId.NEW) {
-//                    Set<IndexedElement> elements = index.getConstructors(prefix, kind, JsIndex.ALL_SCOPE);
-//                    String lhs = request.call.getLhs();
-//                    if (lhs != null && lhs.length() > 0) {
-//                        Set<IndexedElement> m = index.getElements(prefix, lhs, kind, JsIndex.ALL_SCOPE, null);
-//                        if (m.size() > 0) {
-//                            if (elements.size() == 0) {
-//                                elements = new HashSet<IndexedElement>();
-//                            }
-//                            for (IndexedElement f : m) {
-//                                if (f.getKind() == ElementKind.CONSTRUCTOR || f.getKind() == ElementKind.PACKAGE) {
-//                                    elements.add(f);
-//                                }
-//                            }
+    private boolean completeNew(List<CompletionProposal> proposals, CompletionRequest request) {
+        ScalaIndex index = request.index;
+        String prefix = request.prefix;
+        int lexOffset = request.lexOffset;
+        TokenHierarchy<Document> th = request.th;
+        NameKind kind = request.kind;
+        
+        TokenSequence<?extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+
+        if ((index != null) && (ts != null)) {
+            ts.move(lexOffset);
+
+            if (!ts.moveNext() && !ts.movePrevious()) {
+                return false;
+            }
+
+            if (ts.offset() == lexOffset) {
+                // We're looking at the offset to the RIGHT of the caret
+                // position, which could be whitespace, e.g.
+                //  "def fo| " <-- looking at the whitespace
+                ts.movePrevious();
+            }
+
+            Token<?extends ScalaTokenId> token = ts.token();
+
+            if (token != null) {
+                TokenId id = token.id();
+
+                // See if we're in the identifier - "foo" in "def foo"
+                // I could also be a keyword in case the prefix happens to currently
+                // match a keyword, such as "next"
+                if ((id == ScalaTokenId.Identifier) || (id == ScalaTokenId.CONSTANT) || id.primaryCategory().equals("keyword")) {
+                    if (!ts.movePrevious()) {
+                        return false;
+                    }
+
+                    token = ts.token();
+                    id = token.id();
+                }
+
+                // If we're not in the identifier we need to be in the whitespace after "def"
+                if (id != ScalaTokenId.Ws && id != ScalaTokenId.Nl) {
+                    // Do something about http://www.netbeans.org/issues/show_bug.cgi?id=100452 here
+                    // In addition to checking for whitespace I should look for "Foo." here
+                    return false;
+                }
+
+                // There may be more than one whitespace; skip them
+                while (ts.movePrevious()) {
+                    token = ts.token();
+
+                    if (token.id() != ScalaTokenId.Ws) {
+                        break;
+                    }
+                }
+
+                if (token.id() == ScalaTokenId.New) {
+                    Set<IndexedElement> elements = index.getConstructors(prefix, kind, ScalaIndex.ALL_SCOPE);
+                    String lhs = request.call.getName();
+                    if (lhs != null && lhs.length() > 0) {
+                        Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, null);
+                        if (m.size() > 0) {
+                            if (elements.size() == 0) {
+                                elements = new HashSet<IndexedElement>();
+                            }
+                            for (IndexedElement f : m) {
+                                if (f.getKind() == ElementKind.CONSTRUCTOR || f.getKind() == ElementKind.PACKAGE) {
+                                    elements.add(f);
+                                }
+                            }
+                        }
+                    } else if (prefix.length() > 0) {
+                        Set<IndexedElement> m = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, null);
+                        if (m.size() > 0) {
+                            if (elements.size() == 0) {
+                                elements = new HashSet<IndexedElement>();
+                            }
+                            for (IndexedElement f : m) {
+                                if (f.getKind() == ElementKind.CONSTRUCTOR || f.getKind() == ElementKind.PACKAGE) {
+                                    elements.add(f);
+                                }
+                            }
+                        }
+                    }
+
+                    for (IndexedElement element : elements) {
+                        // Hmmm, is this necessary? Filtering should happen in the getInheritedMEthods call
+                        if ((prefix.length() > 0) && !element.getName().startsWith(prefix)) {
+                            continue;
+                        }
+                        
+                        if (element.isNoDoc()) {
+                            continue;
+                        }
+
+                        
+
+//                        // For def completion, skip local methods, only include superclass and included
+//                        if ((fqn != null) && fqn.equals(method.getClz())) {
+//                            continue;
 //                        }
-//                    } else if (prefix.length() > 0) {
-//                        Set<IndexedElement> m = index.getElements(prefix, null, kind, JsIndex.ALL_SCOPE, null);
-//                        if (m.size() > 0) {
-//                            if (elements.size() == 0) {
-//                                elements = new HashSet<IndexedElement>();
-//                            }
-//                            for (IndexedElement f : m) {
-//                                if (f.getKind() == ElementKind.CONSTRUCTOR || f.getKind() == ElementKind.PACKAGE) {
-//                                    elements.add(f);
-//                                }
-//                            }
-//                        }
-//                    }
-//
-//                    for (IndexedElement element : elements) {
-//                        // Hmmm, is this necessary? Filtering should happen in the getInheritedMEthods call
-//                        if ((prefix.length() > 0) && !element.getName().startsWith(prefix)) {
+
+                        // If a method is an "initialize" method I should do something special so that
+                        // it shows up as a "constructor" (in a new() statement) but not as a directly
+                        // callable initialize method (it should already be culled because it's private)
+                        ScalaCompletionItem item;
+                        if (element instanceof IndexedFunction) {
+                            item = new FunctionItem((IndexedFunction)element, request);
+                        } else {
+                            item = new PlainItem(request, element);
+                        }
+                        // Exact matches
+//                        item.setSmart(method.isSmart());
+                        proposals.add(item);
+                    }
+
+                    return true;
+//                } else if (token.id() == ScalaTokenId.IDENTIFIER && "include".equals(token.text().toString())) {
+//                    // Module completion
+//                    Set<IndexedClass> classes = index.getClasses(prefix, kind, false, true, false);
+//                    for (IndexedClass clz : classes) {
+//                        if (clz.isNoDoc()) {
 //                            continue;
 //                        }
 //                        
-//                        if (element.isNoDoc()) {
-//                            continue;
-//                        }
-//
-//                        
-//
-////                        // For def completion, skip local methods, only include superclass and included
-////                        if ((fqn != null) && fqn.equals(method.getClz())) {
-////                            continue;
-////                        }
-//
-//                        // If a method is an "initialize" method I should do something special so that
-//                        // it shows up as a "constructor" (in a new() statement) but not as a directly
-//                        // callable initialize method (it should already be culled because it's private)
-//                        JsCompletionItem item;
-//                        if (element instanceof IndexedFunction) {
-//                            item = new FunctionItem((IndexedFunction)element, request);
-//                        } else {
-//                            item = new PlainItem(request, element);
-//                        }
-//                        // Exact matches
-////                        item.setSmart(method.isSmart());
+//                        ClassItem item = new ClassItem(clz, anchor, request);
+//                        item.setSmart(true);
 //                        proposals.add(item);
-//                    }
-//
+//                    }     
+//                    
 //                    return true;
-////                } else if (token.id() == ScalaTokenId.IDENTIFIER && "include".equals(token.text().toString())) {
-////                    // Module completion
-////                    Set<IndexedClass> classes = index.getClasses(prefix, kind, false, true, false);
-////                    for (IndexedClass clz : classes) {
-////                        if (clz.isNoDoc()) {
-////                            continue;
-////                        }
-////                        
-////                        ClassItem item = new ClassItem(clz, anchor, request);
-////                        item.setSmart(true);
-////                        proposals.add(item);
-////                    }     
-////                    
-////                    return true;
-//                }
-//            }
-//        }
-//
-//        return false;
-//    }
+                }
+            }
+        }
+
+        return false;
+    }
 
     
     public QueryType getAutoQuery(JTextComponent component, String typedText) {
@@ -1760,183 +1753,133 @@ public class ScalaCodeCompletion implements Completable {
 
     public ParameterInfo parameters(CompilationInfo info, int lexOffset,
             CompletionProposal proposal) {
-//        IndexedFunction[] methodHolder = new IndexedFunction[1];
-//        int[] paramIndexHolder = new int[1];
-//        int[] anchorOffsetHolder = new int[1];
-//        int astOffset = AstUtilities.getAstOffset(info, lexOffset);
-//        if (!computeMethodCall(info, lexOffset, astOffset,
-//                methodHolder, paramIndexHolder, anchorOffsetHolder, null)) {
-//
-//            return ParameterInfo.NONE;
-//        }
-//
-//        IndexedFunction method = methodHolder[0];
-//        if (method == null) {
-//            return ParameterInfo.NONE;
-//        }
-//        int index = paramIndexHolder[0];
-//        int anchorOffset = anchorOffsetHolder[0];
-//
-//
-//        // TODO: Make sure the caret offset is inside the arguments portion
-//        // (parameter hints shouldn't work on the method call name itself
-//        // See if we can find the method corresponding to this call
-//        //        if (proposal != null) {
-//        //            Element element = proposal.getElement();
-//        //            if (element instanceof IndexedFunction) {
-//        //                method = ((IndexedFunction)element);
-//        //            }
-//        //        }
-//
-//        List<String> params = method.getParameters();
-//
-//        if ((params != null) && (params.size() > 0)) {
-//            return new ParameterInfo(params, index, anchorOffset);
-//        }
+        IndexedFunction[] methodHolder = new IndexedFunction[1];
+        int[] paramIndexHolder = new int[1];
+        int[] anchorOffsetHolder = new int[1];
+        int astOffset = AstUtilities.getAstOffset(info, lexOffset);
+        if (!computeMethodCall(info, lexOffset, astOffset,
+                methodHolder, paramIndexHolder, anchorOffsetHolder, null)) {
+
+            return ParameterInfo.NONE;
+        }
+
+        IndexedFunction method = methodHolder[0];
+        if (method == null) {
+            return ParameterInfo.NONE;
+        }
+        int index = paramIndexHolder[0];
+        int anchorOffset = anchorOffsetHolder[0];
+
+
+        // TODO: Make sure the caret offset is inside the arguments portion
+        // (parameter hints shouldn't work on the method call name itself
+        // See if we can find the method corresponding to this call
+        //        if (proposal != null) {
+        //            Element element = proposal.getElement();
+        //            if (element instanceof IndexedFunction) {
+        //                method = ((IndexedFunction)element);
+        //            }
+        //        }
+
+        List<String> params = method.getParameters();
+
+        if ((params != null) && (params.size() > 0)) {
+            return new ParameterInfo(params, index, anchorOffset);
+        }
 
         return ParameterInfo.NONE;
     }
 
     private static int callLineStart = -1;
-//    private static IndexedFunction callMethod;
+    private static IndexedFunction callMethod;
 
     /** Compute the current method call at the given offset. Returns false if we're not in a method call. 
      * The argument index is returned in parameterIndexHolder[0] and the method being
      * called in methodHolder[0].
      */
-//    static boolean computeMethodCall(CompilationInfo info, int lexOffset, int astOffset,
-//            IndexedFunction[] methodHolder, int[] parameterIndexHolder, int[] anchorOffsetHolder,
-//            Set<IndexedFunction>[] alternativesHolder) {
-//        try {
-//            Node root = AstUtilities.getRoot(info);
-//
-//            if (root == null) {
-//                return false;
-//            }
-//
-//            IndexedFunction targetMethod = null;
-//            int index = -1;
-//
-//            AstPath path = null;
-//            // Account for input sanitation
-//            // TODO - also back up over whitespace, and if I hit the method
-//            // I'm parameter number 0
-//            int originalAstOffset = astOffset;
-//
-//            // Adjust offset to the left
-//            BaseDocument doc = (BaseDocument) info.getDocument();
-//            int newLexOffset = ScalaLexUtilities.findSpaceBegin(doc, lexOffset);
-//            if (newLexOffset < lexOffset) {
-//                astOffset -= (lexOffset-newLexOffset);
-//            }
-//
-//            ScalaParserResult rpr = AstUtilities.getParseResult(info);
-//            OffsetRange range = rpr.getSanitizedRange();
-//            if (range != OffsetRange.NONE && range.containsInclusive(astOffset)) {
-//                if (astOffset != range.getStart()) {
-//                    astOffset = range.getStart()-1;
-//                    if (astOffset < 0) {
-//                        astOffset = 0;
-//                    }
-//                    path = new AstPath(root, astOffset);
-//                }
-//            }
-//
-//            if (path == null) {
-//                path = new AstPath(root, astOffset);
-//            }
-//
-//            int currentLineStart = Utilities.getRowStart(doc, lexOffset);
-//            if (callLineStart != -1 && currentLineStart == callLineStart) {
-//                // We know the method call
-//                targetMethod = callMethod;
-//                if (targetMethod != null) {
-//                    // Somehow figure out the argument index
-//                    // Perhaps I can keep the node tree around and look in it
-//                    // (This is all trying to deal with temporarily broken
-//                    // or ambiguous calls.
-//                }
-//            }
-//            // Compute the argument index
-//
-//            Node call = null;
-//            int anchorOffset = -1;
-//
+    static boolean computeMethodCall(CompilationInfo info, int lexOffset, int astOffset,
+            IndexedFunction[] methodHolder, int[] parameterIndexHolder, int[] anchorOffsetHolder,
+            Set<IndexedFunction>[] alternativesHolder) {
+        try {
+            ScalaParserResult pResult = AstUtilities.getParserResult(info);
+            AstScope root = pResult.getRootScope();
+
+            if (root == null) {
+                return false;
+            }
+
+            IndexedFunction targetMethod = null;
+            int index = -1;
+
+            // Account for input sanitation
+            // TODO - also back up over whitespace, and if I hit the method
+            // I'm parameter number 0
+            int originalAstOffset = astOffset;
+
+            // Adjust offset to the left
+            BaseDocument doc = (BaseDocument) info.getDocument();
+            int newLexOffset = ScalaLexUtilities.findSpaceBegin(doc, lexOffset);
+            if (newLexOffset < lexOffset) {
+                astOffset -= (lexOffset-newLexOffset);
+            }
+
+            OffsetRange range = pResult.getSanitizedRange();
+            if (range != OffsetRange.NONE && range.containsInclusive(astOffset)) {
+                if (astOffset != range.getStart()) {
+                    astOffset = range.getStart()-1;
+                    if (astOffset < 0) {
+                        astOffset = 0;
+                    }                    
+                }
+            }
+
+            FunRef call = null;
+            AstElement closest = root.getElement(astOffset);
+            if (closest instanceof FunRef) {
+                call = (FunRef) closest;
+            }
+            
+
+            int currentLineStart = Utilities.getRowStart(doc, lexOffset);
+            if (callLineStart != -1 && currentLineStart == callLineStart) {
+                // We know the method call
+                targetMethod = callMethod;
+                if (targetMethod != null) {
+                    // Somehow figure out the argument index
+                    // Perhaps I can keep the node tree around and look in it
+                    // (This is all trying to deal with temporarily broken
+                    // or ambiguous calls.
+                }
+            }
+            // Compute the argument index
+
+            int anchorOffset = -1;
+
 //            if (targetMethod != null) {
 //                Iterator<Node> it = path.leafToRoot();
 //                String name = targetMethod.getName();
 //                while (it.hasNext()) {
 //                    Node node = it.next();
-////                    if (AstUtilities.isCall(node) &&
-////                            name.equals(AstUtilities.getCallName(node))) {
-////                        if (node.nodeId == NodeTypes.CALLNODE) {
-////                            Node argsNode = ((CallNode)node).getArgsNode();
-////
-////                            if (argsNode != null) {
-////                                index = AstUtilities.findArgumentIndex(argsNode, astOffset);
-////
-////                                if (index == -1 && astOffset < originalAstOffset) {
-////                                    index = AstUtilities.findArgumentIndex(argsNode, originalAstOffset);
-////                                }
-////
-////                                if (index != -1) {
-////                                    call = node;
-////                                    anchorOffset = argsNode.getPosition().getStartOffset();
-////                                }
-////                            }
-////                        } else if (node.nodeId == NodeTypes.FCALLNODE) {
-////                            Node argsNode = ((FCallNode)node).getArgsNode();
-////
-////                            if (argsNode != null) {
-////                                index = AstUtilities.findArgumentIndex(argsNode, astOffset);
-////
-////                                if (index == -1 && astOffset < originalAstOffset) {
-////                                    index = AstUtilities.findArgumentIndex(argsNode, originalAstOffset);
-////                                }
-////
-////                                if (index != -1) {
-////                                    call = node;
-////                                    anchorOffset = argsNode.getPosition().getStartOffset();
-////                                }
-////                            }
-////                        } else if (node.nodeId == NodeTypes.VCALLNODE) {
-////                            // We might be completing at the end of a method call
-////                            // and we don't have parameters yet so it just looks like
-////                            // a vcall, e.g.
-////                            //   create_table |
-////                            // This is okay as long as the caret is outside and to
-////                            // the right of this call. However
-////                            final OffsetRange callRange = AstUtilities.getCallRange(node);
-////                            AstUtilities.getCallName(node);
-////                            if (originalAstOffset > callRange.getEnd()) {
-////                                index = 0;
-////                                call = node;
-////                                anchorOffset = callRange.getEnd()+1;
-////                            }
-////                        }
-////                        
-////                        break;
-////                    }
 //                }
 //            }
-//
-//            boolean haveSanitizedComma = rpr.getSanitized() == Sanitize.EDITED_DOT ||
-//                    rpr.getSanitized() == Sanitize.ERROR_DOT;
-//            if (haveSanitizedComma) {
-//                // We only care about removed commas since that
-//                // affects the parameter count
-//                if (rpr.getSanitizedContents().indexOf(',') == -1) {
-//                    haveSanitizedComma = false;
-//                }
-//            }
-//
-//            if (call == null) {
-//                // Find the call in around the caret. Beware of 
-//                // input sanitization which could have completely
-//                // removed the current parameter (e.g. with just
-//                // a comma, or something like ", @" or ", :")
-//                // where we accidentally end up in the previous
-//                // parameter.
+
+            boolean haveSanitizedComma = pResult.getSanitized() == Sanitize.EDITED_DOT ||
+                    pResult.getSanitized() == Sanitize.ERROR_DOT;
+            if (haveSanitizedComma) {
+                // We only care about removed commas since that
+                // affects the parameter count
+                if (pResult.getSanitizedContents().indexOf(',') == -1) {
+                    haveSanitizedComma = false;
+                }
+            }
+
+            if (call == null) {
+                // Find the call in around the caret. Beware of 
+                // input sanitization which could have completely
+                // removed the current parameter (e.g. with just
+                // a comma, or something like ", @" or ", :")
+                // where we accidentally end up in the previous
+                // parameter.
 //                ListIterator<Node> it = path.leafToRoot();
 //             nodesearch:
 //                while (it.hasNext()) {
@@ -1947,174 +1890,65 @@ public class ScalaCodeCompletion implements Completable {
 //                        index = AstUtilities.findArgumentIndex(call, astOffset, path);
 //                        break;
 //                    }
-////                    if (node.nodeId == NodeTypes.CALLNODE) {
-////                        final OffsetRange callRange = AstUtilities.getCallRange(node);
-////                        if (haveSanitizedComma && originalAstOffset > callRange.getEnd() && it.hasNext()) {
-////                            for (int i = 0; i < 3; i++) {
-////                                // It's not really a peek in the sense
-////                                // that there's no reason to retry these
-////                                // nodes later
-////                                Node peek = it.next();
-////                                if (AstUtilities.isCall(peek) &&
-////                                        Utilities.getRowStart(doc, ScalaLexUtilities.getLexerOffset(info, peek.getPosition().getStartOffset())) ==
-////                                        Utilities.getRowStart(doc, lexOffset)) {
-////                                    // Use the outer method call instead
-////                                    it.previous();
-////                                    continue nodesearch;
-////                                }
-////                            }
-////                        }
-////                        
-////                        Node argsNode = ((CallNode)node).getArgsNode();
-////
-////                        if (argsNode != null) {
-////                            index = AstUtilities.findArgumentIndex(argsNode, astOffset);
-////
-////                            if (index == -1 && astOffset < originalAstOffset) {
-////                                index = AstUtilities.findArgumentIndex(argsNode, originalAstOffset);
-////                            }
-////
-////                            if (index != -1) {
-////                                call = node;
-////                                anchorOffset = argsNode.getPosition().getStartOffset();
-////
-////                                break;
-////                            }
-////                        } else {
-////                            if (originalAstOffset > callRange.getEnd()) {
-////                                index = 0;
-////                                call = node;
-////                                anchorOffset = callRange.getEnd()+1;
-////                                break;
-////                            }
-////                        }
-////                    } else if (node.nodeId == NodeTypes.FCALLNODE) {
-////                        final OffsetRange callRange = AstUtilities.getCallRange(node);
-////                        if (haveSanitizedComma && originalAstOffset > callRange.getEnd() && it.hasNext()) {
-////                            for (int i = 0; i < 3; i++) {
-////                                // It's not really a peek in the sense
-////                                // that there's no reason to retry these
-////                                // nodes later
-////                                Node peek = it.next();
-////                                if (AstUtilities.isCall(peek) &&
-////                                        Utilities.getRowStart(doc, ScalaLexUtilities.getLexerOffset(info, peek.getPosition().getStartOffset())) ==
-////                                        Utilities.getRowStart(doc, lexOffset)) {
-////                                    // Use the outer method call instead
-////                                    it.previous();
-////                                    continue nodesearch;
-////                                }
-////                            }
-////                        }
-////                        
-////                        Node argsNode = ((FCallNode)node).getArgsNode();
-////
-////                        if (argsNode != null) {
-////                            index = AstUtilities.findArgumentIndex(argsNode, astOffset);
-////
-////                            if (index == -1 && astOffset < originalAstOffset) {
-////                                index = AstUtilities.findArgumentIndex(argsNode, originalAstOffset);
-////                            }
-////
-////                            if (index != -1) {
-////                                call = node;
-////                                anchorOffset = argsNode.getPosition().getStartOffset();
-////
-////                                break;
-////                            }
-////                        }
-////                    } else if (node.nodeId == NodeTypes.VCALLNODE) {
-////                        // We might be completing at the end of a method call
-////                        // and we don't have parameters yet so it just looks like
-////                        // a vcall, e.g.
-////                        //   create_table |
-////                        // This is okay as long as the caret is outside and to
-////                        // the right of this call.
-////                        
-////                        final OffsetRange callRange = AstUtilities.getCallRange(node);
-////                        if (haveSanitizedComma && originalAstOffset > callRange.getEnd() && it.hasNext()) {
-////                            for (int i = 0; i < 3; i++) {
-////                                // It's not really a peek in the sense
-////                                // that there's no reason to retry these
-////                                // nodes later
-////                                Node peek = it.next();
-////                                if (AstUtilities.isCall(peek) &&
-////                                        Utilities.getRowStart(doc, ScalaLexUtilities.getLexerOffset(info, peek.getPosition().getStartOffset())) ==
-////                                        Utilities.getRowStart(doc, lexOffset)) {
-////                                    // Use the outer method call instead
-////                                    it.previous();
-////                                    continue nodesearch;
-////                                }
-////                            }
-////                        }
-////                        
-////                        if (originalAstOffset > callRange.getEnd()) {
-////                            index = 0;
-////                            call = node;
-////                            anchorOffset = callRange.getEnd()+1;
-////                            break;
-////                        }
-////                    }
+//
 //                }
-//            }
-//
-//            if (index != -1 && haveSanitizedComma && call != null) {
-//                Node an = null;
-////                if (call.nodeId == NodeTypes.FCALLNODE) {
-////                    an = ((FCallNode)call).getArgsNode();
-////                } else if (call.nodeId == NodeTypes.CALLNODE) {
-////                    an = ((CallNode)call).getArgsNode();
-////                }
-////                if (an != null && index < an.childNodes().size() &&
-////                        ((Node)an.childNodes().get(index)).nodeId == NodeTypes.HASHNODE) {
-////                    // We should stay within the hashnode, so counteract the
-////                    // index++ which follows this if-block
-////                    index--;
-////                }
-//
-//                // Adjust the index to account for our removed
-//                // comma
-//                index++;
-//            }
-//            
-//            if ((call == null) || (index == -1)) {
-//                callLineStart = -1;
-//                callMethod = null;
-//                return false;
-//            } else if (targetMethod == null) {
-//                // Look up the
-//                // See if we can find the method corresponding to this call
-//                targetMethod = new JsDeclarationFinder().findMethodDeclaration(info, call, path, 
-//                        alternativesHolder);
-//                if (targetMethod == null) {
-//                    return false;
+            }
+
+            if (index != -1 && haveSanitizedComma && call != null) {
+//                if (call.nodeId == NodeTypes.FCALLNODE) {
+//                    an = ((FCallNode)call).getArgsNode();
+//                } else if (call.nodeId == NodeTypes.CALLNODE) {
+//                    an = ((CallNode)call).getArgsNode();
 //                }
-//            }
-//
-//            callLineStart = currentLineStart;
-//            callMethod = targetMethod;
-//
-//            methodHolder[0] = callMethod;
-//            parameterIndexHolder[0] = index;
-//
-//            if (anchorOffset == -1) {
-//                anchorOffset = call.getSourceStart(); // TODO - compute
-//            }
-//            anchorOffsetHolder[0] = anchorOffset;
-//        } catch (IOException ex) {
-//            Exceptions.printStackTrace(ex);
-//            return false;
-//        } catch (BadLocationException ble) {
-//            Exceptions.printStackTrace(ble);
-//            return false;
-//        }
-//
-//        return true;
-//    }
+//                if (an != null && index < an.childNodes().size() &&
+//                        ((Node)an.childNodes().get(index)).nodeId == NodeTypes.HASHNODE) {
+//                    // We should stay within the hashnode, so counteract the
+//                    // index++ which follows this if-block
+//                    index--;
+//                }
+
+                // Adjust the index to account for our removed
+                // comma
+                index++;
+            }
+            
+            if ((call == null) || (index == -1)) {
+                callLineStart = -1;
+                callMethod = null;
+                return false;
+            } else if (targetMethod == null) {
+                // Look up the
+                // See if we can find the method corresponding to this call
+                targetMethod = new ScalaDeclarationFinder().findMethodDeclaration(info, call, alternativesHolder);
+                if (targetMethod == null) {
+                    return false;
+                }
+            }
+
+            callLineStart = currentLineStart;
+            callMethod = targetMethod;
+
+            methodHolder[0] = callMethod;
+            parameterIndexHolder[0] = index;
+
+            if (anchorOffset == -1) {
+                anchorOffset = call.getNameRange().getStart(); // TODO - compute
+            }
+            anchorOffsetHolder[0] = anchorOffset;
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+            return false;
+        } catch (BadLocationException ble) {
+            Exceptions.printStackTrace(ble);
+            return false;
+        }
+
+        return true;
+    }
     
     private static class CompletionRequest {
         private TokenHierarchy<Document> th;
         private CompilationInfo info;
-        //private AstPath path;
         private AstElement element;
         private AstScope root;
         private int anchor;
@@ -2122,30 +1956,30 @@ public class ScalaCodeCompletion implements Completable {
         private int astOffset;
         private BaseDocument doc;
         private String prefix;
-        //private JsIndex index;
+        private ScalaIndex index;
         private NameKind kind;
         private ScalaParserResult result;
         private QueryType queryType;
         private FileObject fileObject;
         private HtmlFormatter formatter;
-        //private Call call;
+        private FunRef call;
         private String fqn;
     }
 
-    private abstract class JsCompletionItem implements CompletionProposal {
+    private abstract class ScalaCompletionItem implements CompletionProposal {
         protected CompletionRequest request;
         protected AstElement element;
-        //protected IndexedElement indexedElement;
+        protected IndexedElement indexedElement;
 
-        private JsCompletionItem(AstElement element, CompletionRequest request) {
+        private ScalaCompletionItem(AstElement element, CompletionRequest request) {
             this.element = element;
             this.request = request;
         }
 
-//        private JsCompletionItem(CompletionRequest request, IndexedElement element) {
-//            this(element, request);
-//            this.indexedElement = element;
-//        }
+        private ScalaCompletionItem(CompletionRequest request, IndexedElement element) {
+            this(element, request);
+            this.indexedElement = element;
+        }
         
         public int getAnchorOffset() {
             return request.anchor;
@@ -2184,31 +2018,31 @@ public class ScalaCodeCompletion implements Completable {
             ElementKind kind = getKind();
             HtmlFormatter formatter = request.formatter;
             formatter.reset();
-//            boolean emphasize = (kind != ElementKind.PACKAGE && indexedElement != null) ? !indexedElement.isInherited() : false;
-//            if (emphasize) {
-//                formatter.emphasis(true);
-//            }
-//            boolean strike = indexedElement != null && indexedElement.isDeprecated();
-//            if (strike) {
-//                formatter.deprecated(true);
-//            }
+            boolean emphasize = (kind != ElementKind.PACKAGE && indexedElement != null) ? !indexedElement.isInherited() : false;
+            if (emphasize) {
+                formatter.emphasis(true);
+            }
+            boolean strike = indexedElement != null && indexedElement.isDeprecated();
+            if (strike) {
+                formatter.deprecated(true);
+            }
             formatter.name(kind, true);
             formatter.appendText(getName());
             formatter.name(kind, false);
-//            if (strike) {
-//                formatter.deprecated(false);
-//            }
-//            if (emphasize) {
-//                formatter.emphasis(false);
-//            }
+            if (strike) {
+                formatter.deprecated(false);
+            }
+            if (emphasize) {
+                formatter.emphasis(false);
+            }
 
-//            if (indexedElement != null) {
-//                String type = indexedElement.getType();
-//                if (type != null && type != Node.UNKNOWN_TYPE) {
-//                    formatter.appendHtml(" : "); // NOI18N
-//                    formatter.appendText(JsUtils.normalizeTypeString(type));
-//                }
-//            }
+            if (indexedElement != null) {
+                String type = indexedElement.getTypeString();
+                if (type != null) {
+                    formatter.appendHtml(" : "); // NOI18N
+                    formatter.appendText(type);
+                }
+            }
 
             return formatter.getText();
         }
@@ -2218,13 +2052,13 @@ public class ScalaCodeCompletion implements Completable {
             formatter.reset();
 
             if (element.getKind() == ElementKind.PACKAGE || element.getKind() == ElementKind.CLASS) {
-//                if (element instanceof IndexedElement) {
-//                    String origin = ((IndexedElement)element).getOrigin();
-//                    if (origin != null) {
-//                        formatter.appendText(origin);
-//                        return formatter.getText();
-//                    }
-//                }
+                if (element instanceof IndexedElement) {
+                    String origin = ((IndexedElement)element).getOrigin();
+                    if (origin != null) {
+                        formatter.appendText(origin);
+                        return formatter.getText();
+                    }
+                }
                 
                 return null;
             }
@@ -2235,28 +2069,28 @@ public class ScalaCodeCompletion implements Completable {
                 formatter.appendText(in);
                 return formatter.getText();
             }
-//            else if (element instanceof IndexedElement) {
-//                IndexedElement ie = (IndexedElement)element;
-//                String filename = ie.getFilenameUrl();
-//                if (filename != null) {
-//                    if (filename.indexOf("jsstubs") == -1) { // NOI18N
-//                        int index = filename.lastIndexOf('/');
-//                        if (index != -1) {
-//                            filename = filename.substring(index+1);
-//                        }
-//                        formatter.appendText(filename);
-//                        return formatter.getText();
-//                    } else {
-//                        String origin = ie.getOrigin();
-//                        if (origin != null) {
-//                            formatter.appendText(origin);
-//                            return formatter.getText();
-//                        }
-//                    }
-//                }
-//                
-//                return null;
-//            }
+            else if (element instanceof IndexedElement) {
+                IndexedElement ie = (IndexedElement)element;
+                String filename = ie.getFilenameUrl();
+                if (filename != null) {
+                    if (filename.indexOf("jsstubs") == -1) { // NOI18N
+                        int index = filename.lastIndexOf('/');
+                        if (index != -1) {
+                            filename = filename.substring(index+1);
+                        }
+                        formatter.appendText(filename);
+                        return formatter.getText();
+                    } else {
+                        String origin = ie.getOrigin();
+                        if (origin != null) {
+                            formatter.appendText(origin);
+                            return formatter.getText();
+                        }
+                    }
+                }
+                
+                return null;
+            }
             
             return null;
         }
@@ -2291,142 +2125,141 @@ public class ScalaCodeCompletion implements Completable {
         }
     }
 
-//    private class FunctionItem extends JsCompletionItem {
-//        private IndexedFunction function;
-//        FunctionItem(IndexedFunction element, CompletionRequest request) {
-//            super(request, element);
-//            this.function = element;
-//        }
-//
-//        @Override
-//        public String getInsertPrefix() {
-//            return getName();
-//        }
-//        
-//        @Override
-//        public String getLhsHtml() {
-//            ElementKind kind = getKind();
-//            HtmlFormatter formatter = request.formatter;
-//            formatter.reset();
-//            boolean strike = !SupportedBrowsers.getInstance().isSupported(function.getCompatibility());
-//            if (!strike && function.isDeprecated()) {
-//                strike = true;
-//            }
-//            if (strike) {
-//                formatter.deprecated(true);
-//            }
-//            boolean emphasize = !function.isInherited();
-//            if (emphasize) {
-//                formatter.emphasis(true);
-//            }
-//            formatter.name(kind, true);
-//            formatter.appendText(getName());
-//            formatter.name(kind, false);
-//            if (emphasize) {
-//                formatter.emphasis(false);
-//            }
-//            if (strike) {
-//                formatter.deprecated(false);
-//            }
-//            
-//            Collection<String> parameters = function.getParameters();
-//
-//            formatter.appendHtml("("); // NOI18N
-//            if ((parameters != null) && (parameters.size() > 0)) {
-//
-//                Iterator<String> it = parameters.iterator();
-//
-//                while (it.hasNext()) { // && tIt.hasNext()) {
-//                    formatter.parameters(true);
-//                    String param = it.next();
-//                    int typeIndex = param.indexOf(':');
-//                    if (typeIndex != -1) {
-//                        formatter.type(true);
-//                        // TODO - call JsUtils.normalizeTypeString() on this string?
-//                        formatter.appendText(param, typeIndex+1, param.length());
-//                        formatter.type(false);
-//                        formatter.appendHtml(" ");
-//                        
-//                        formatter.appendText(param, 0, typeIndex);
-//                    } else {
-//                        formatter.appendText(param);
-//                    }
-//                    formatter.parameters(false);
-//
-//                    if (it.hasNext()) {
-//                        formatter.appendText(", "); // NOI18N
-//                    }
-//                }
-//
-//            }
-//            formatter.appendHtml(")"); // NOI18N
-//
-//            if (indexedElement != null && indexedElement.getType() != null && 
-//                    indexedElement.getType() != Node.UNKNOWN_TYPE &&
-//                    indexedElement.getKind() != ElementKind.CONSTRUCTOR) {
-//                formatter.appendHtml(" : ");
-//                formatter.appendText(JsUtils.normalizeTypeString(indexedElement.getType()));
-//            }
-//            
-//            return formatter.getText();
-//        }
-//
-//        @Override
-//        public List<String> getInsertParams() {
-//            return function.getParameters();
-//        }
-//
-//        @Override
-//        public String getCustomInsertTemplate() {
-//            final String insertPrefix = getInsertPrefix();
-//            List<String> params = getInsertParams();
-//            String startDelimiter = "(";
-//            String endDelimiter = ")";
-//            int paramCount = params.size();
-//                
-//            StringBuilder sb = new StringBuilder();
-//            sb.append(insertPrefix);
-//            sb.append(startDelimiter);
-//            
-//            int id = 1;
-//            for (int i = 0; i < paramCount; i++) {
-//                String paramDesc = params.get(i);
-//                sb.append("${"); //NOI18N
-//                // Ensure that we don't use one of the "known" logical parameters
-//                // such that a parameter like "path" gets replaced with the source file
-//                // path!
-//                sb.append("js-cc-"); // NOI18N
-//                sb.append(Integer.toString(id++));
-//                sb.append(" default=\""); // NOI18N
-//                int typeIndex = paramDesc.indexOf(':');
-//                if (typeIndex != -1) {
-//                    sb.append(paramDesc, 0, typeIndex);
-//                } else {
-//                    sb.append(paramDesc);
-//                }
-//                sb.append("\""); // NOI18N
-//                sb.append("}"); //NOI18N
-//                if (i < paramCount-1) {
-//                    sb.append(", "); //NOI18N
-//                }
-//            }
-//            sb.append(endDelimiter);
-//            
-//            sb.append("${cursor}"); // NOI18N
-//            
-//            // Facilitate method parameter completion on this item
-//            try {
-//                callLineStart = Utilities.getRowStart(request.doc, request.anchor);
-//                callMethod = function;
-//            } catch (BadLocationException ble) {
-//                Exceptions.printStackTrace(ble);
-//            }
-//            
-//            return sb.toString();
-//        }
-//    }
+    private class FunctionItem extends ScalaCompletionItem {
+        private IndexedFunction function;
+        FunctionItem(IndexedFunction element, CompletionRequest request) {
+            super(request, element);
+            this.function = element;
+        }
 
-    private class KeywordItem extends JsCompletionItem {
+        @Override
+        public String getInsertPrefix() {
+            return getName();
+        }
+        
+        @Override
+        public String getLhsHtml() {
+            ElementKind kind = getKind();
+            HtmlFormatter formatter = request.formatter;
+            formatter.reset();
+            boolean strike = false;
+            if (!strike && function.isDeprecated()) {
+                strike = true;
+            }
+            if (strike) {
+                formatter.deprecated(true);
+            }
+            boolean emphasize = !function.isInherited();
+            if (emphasize) {
+                formatter.emphasis(true);
+            }
+            formatter.name(kind, true);
+            formatter.appendText(getName());
+            formatter.name(kind, false);
+            if (emphasize) {
+                formatter.emphasis(false);
+            }
+            if (strike) {
+                formatter.deprecated(false);
+            }
+            
+            Collection<String> parameters = function.getParameters();
+
+            formatter.appendHtml("("); // NOI18N
+            if ((parameters != null) && (parameters.size() > 0)) {
+
+                Iterator<String> it = parameters.iterator();
+
+                while (it.hasNext()) { // && tIt.hasNext()) {
+                    formatter.parameters(true);
+                    String param = it.next();
+                    int typeIndex = param.indexOf(':');
+                    if (typeIndex != -1) {
+                        formatter.type(true);
+                        // TODO - call JsUtils.normalizeTypeString() on this string?
+                        formatter.appendText(param, typeIndex+1, param.length());
+                        formatter.type(false);
+                        formatter.appendHtml(" ");
+                        
+                        formatter.appendText(param, 0, typeIndex);
+                    } else {
+                        formatter.appendText(param);
+                    }
+                    formatter.parameters(false);
+
+                    if (it.hasNext()) {
+                        formatter.appendText(", "); // NOI18N
+                    }
+                }
+
+            }
+            formatter.appendHtml(")"); // NOI18N
+
+            if (indexedElement != null && indexedElement.getType() != null && 
+                    indexedElement.getKind() != ElementKind.CONSTRUCTOR) {
+                formatter.appendHtml(" : ");
+                formatter.appendText(indexedElement.getTypeString());
+            }
+            
+            return formatter.getText();
+        }
+
+        @Override
+        public List<String> getInsertParams() {
+            return function.getParameters();
+        }
+
+        @Override
+        public String getCustomInsertTemplate() {
+            final String insertPrefix = getInsertPrefix();
+            List<String> params = getInsertParams();
+            String startDelimiter = "(";
+            String endDelimiter = ")";
+            int paramCount = params.size();
+                
+            StringBuilder sb = new StringBuilder();
+            sb.append(insertPrefix);
+            sb.append(startDelimiter);
+            
+            int id = 1;
+            for (int i = 0; i < paramCount; i++) {
+                String paramDesc = params.get(i);
+                sb.append("${"); //NOI18N
+                // Ensure that we don't use one of the "known" logical parameters
+                // such that a parameter like "path" gets replaced with the source file
+                // path!
+                sb.append("js-cc-"); // NOI18N
+                sb.append(Integer.toString(id++));
+                sb.append(" default=\""); // NOI18N
+                int typeIndex = paramDesc.indexOf(':');
+                if (typeIndex != -1) {
+                    sb.append(paramDesc, 0, typeIndex);
+                } else {
+                    sb.append(paramDesc);
+                }
+                sb.append("\""); // NOI18N
+                sb.append("}"); //NOI18N
+                if (i < paramCount-1) {
+                    sb.append(", "); //NOI18N
+                }
+            }
+            sb.append(endDelimiter);
+            
+            sb.append("${cursor}"); // NOI18N
+            
+            // Facilitate method parameter completion on this item
+            try {
+                callLineStart = Utilities.getRowStart(request.doc, request.anchor);
+                callMethod = function;
+            } catch (BadLocationException ble) {
+                Exceptions.printStackTrace(ble);
+            }
+            
+            return sb.toString();
+        }
+    }
+
+    private class KeywordItem extends ScalaCompletionItem {
         private static final String KEYWORD = "org/netbeans/modules/scala/editing/resources/scala16x16.png"; //NOI18N
         private final String keyword;
         private final String description;
@@ -2501,7 +2334,7 @@ public class ScalaCodeCompletion implements Completable {
         }
     }
 
-    private class TagItem extends JsCompletionItem {
+    private class TagItem extends ScalaCompletionItem {
         private final String tag;
         private final String description;
         private final ElementKind kind;
@@ -2570,14 +2403,15 @@ public class ScalaCodeCompletion implements Completable {
         }
     }
     
-    private class PlainItem extends JsCompletionItem {
+    private class PlainItem extends ScalaCompletionItem {
         
         PlainItem(AstElement element, CompletionRequest request) {
             super(element, request);
         }
-//        PlainItem(CompletionRequest request, IndexedElement element) {
-//            super(request, element);
-//        }
+        
+        PlainItem(CompletionRequest request, IndexedElement element) {
+            super(request, element);
+        }
     }
 
     public ElementHandle resolveLink(String link, ElementHandle elementHandle) {

@@ -63,7 +63,7 @@ import org.openide.util.Exceptions;
  * 
  * @author Tor Norbye
  */
-public abstract class IndexedElement {
+public abstract class IndexedElement extends AstElement {
     
     protected String fqn;
     protected String name;
@@ -80,6 +80,7 @@ public abstract class IndexedElement {
     protected ElementKind kind;
 
     IndexedElement(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
+        super(name, OffsetRange.NONE, null);
         this.fqn = fqn;
         this.name = name;
         this.in = in;
