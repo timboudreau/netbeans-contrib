@@ -42,6 +42,7 @@ package org.netbeans.modules.groovy.grailsproject.ui;
 import org.netbeans.spi.project.ui.PrivilegedTemplates;
 import org.netbeans.spi.project.ui.RecommendedTemplates;
 import org.netbeans.api.project.SourceGroup;
+import org.netbeans.modules.groovy.grailsproject.SourceCategory;
 
 /**
  *
@@ -60,13 +61,45 @@ public class TemplatesImpl implements PrivilegedTemplates  , RecommendedTemplate
         this.dirName =  TreeRootNode.getDirName(g);
     }
     
-    private static final String[] PRIVILEGED_NAMES = new String[] {
+    private static final String[] PROPERTIES_FILE = new String[] {
         "Templates/Other/properties.properties"
+    };
+    
+    private static final String[] GROOVY_TEMPLATES = new String[] {
+        "Templates/Groovy/GroovyClass.groovy",
+        "Templates/Other/Folder"
+    };
+
+    private static final String[] GSP_TEMPLATES = new String[] {
+        "Templates/Groovy/_view.gsp",
+        "Templates/Other/Folder"
+    };
+
+    private static final String[] FOLDER_ONLY = new String[] {
+        "Templates/Other/Folder"
+    };
+
+    private static final String[] GROOVY_FILE = new String[] {
+        "Templates/Groovy/GroovyClass.groovy"
     };
 
     public String[] getPrivilegedTemplates() {
-        
-        return PRIVILEGED_NAMES;
+        switch (TreeRootNode.getCategoryForName(dirName)) {
+            case CONFIGURATION:
+                return GROOVY_TEMPLATES;
+            case TAGLIB:
+                return GROOVY_FILE;
+            case TESTS:
+                return FOLDER_ONLY;
+            case SRC:
+                return FOLDER_ONLY;
+            case VIEWS:
+                return GSP_TEMPLATES;
+            case WEBAPP:
+                return GSP_TEMPLATES;
+            default:
+                return PROPERTIES_FILE;
+        }
     }
     
     private static final String[] TYPES = new String[] { 

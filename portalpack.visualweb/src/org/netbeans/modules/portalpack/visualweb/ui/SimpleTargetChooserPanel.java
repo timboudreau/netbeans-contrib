@@ -143,20 +143,6 @@ final class SimpleTargetChooserPanel implements WizardDescriptor.Panel, ChangeLi
             wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_NotInWebProject")); // NOI18N
             return false;
         }
-        
-        FileObject webInf = JsfProjectUtils.getWebInf(project);
-        FileObject portletXml = webInf.getFileObject("portlet", "xml");
-        
-        if(portletXml != null)
-         {
-                String version = WebDescriptorGenerator.getPortletAppVersion(FileUtil.toFile(portletXml).getAbsolutePath());
-                if (version != null && !version.equals("1.0"))  //NOI18N
-                {
-                     wizard.putProperty("WizardPanel_errorMessage",
-                           NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_NotAPortlet10Application"));
-                     return false;
-                }
-          }
         // no support for saving project properties
         if (!JsfProjectUtils.supportProjectProperty(project)) {
             wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_NotSupportProperties")); // NOI18N

@@ -23,6 +23,8 @@ import org.openide.util.NbPreferences;
  */
 public class GeDeploymentFactory implements DeploymentFactory {
     
+    private static final Logger LOGGER = Logger.getLogger(GeDeploymentFactory.class.getName());
+    
     /**
      * ge server root property
      */
@@ -82,8 +84,7 @@ public class GeDeploymentFactory implements DeploymentFactory {
     }
     
     public DeploymentFactory getGeDeploymentFactory(String uri) {
-        if (GeDebug.isEnabled())
-            System.out.println("loadDeploymentFactory");
+        LOGGER.log(Level.FINER, "getGeDeploymentFactory");
         
         DeploymentFactory factory = factories.get(uri);
         
@@ -98,8 +99,9 @@ public class GeDeploymentFactory implements DeploymentFactory {
             if (null == serverRoot)
                 serverRoot = NbPreferences.forModule(GeDeploymentFactory.class).get(PROP_SERVER_ROOT, "");
             
-            if (GeDebug.isEnabled())
-                System.out.println("loadDeplomentFactory: serverRoot=" + serverRoot);
+            if (LOGGER.isLoggable(Level.FINER)) {
+                LOGGER.log(Level.FINER, "getGeDeplomentFactory: serverRoot=" + serverRoot);
+            }
 
             GeClassLoader.getInstance(serverRoot).updateLoader();
             

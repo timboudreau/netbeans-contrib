@@ -79,6 +79,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import org.netbeans.modules.groovy.grailsproject.GrailsProject;
 import org.netbeans.api.project.Project;
+import org.netbeans.spi.project.ui.support.CommonProjectActions;
 
 
 /**
@@ -101,29 +102,52 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
 
         String pathName = g.getName();
         String dirName = getDirName(g);
+        
+//        LOG.setLevel(Level.FINEST);
+//        LOG.log(Level.FINEST, "Pathname : " + pathName);
+//        LOG.log(Level.FINEST, "Dirname  : " + dirName);
+        
+        category = getCategoryForName(dirName);
 
-        if (dirName.startsWith("conf")) {
-            category = SourceCategory.CONFIGURATION;
-        } else if (dirName.startsWith("controllers")) {
-            category = SourceCategory.CONTROLLERS;
-        } else if (dirName.startsWith("domain")) {
-            category = SourceCategory.DOMAIN;
-        } else if (dirName.startsWith("i18n")) {
-            category = SourceCategory.MESSAGES;
-        } else if (dirName.startsWith("services")) {
-            category = SourceCategory.SERVICES;
-        } else if (dirName.startsWith("taglib")) {
-            category = SourceCategory.TAGLIB;
-        } else if (dirName.startsWith("util")) {
-            category = SourceCategory.UTIL;
-        } else if (dirName.startsWith("lib")) {
-            category = SourceCategory.LIB;
-        } else if (dirName.startsWith("views")) {
-            category = SourceCategory.VIEWS;
-        }
         setShortDescription(pathName.substring(project.getProjectDirectory().getPath().length() + 1));
     }
+    
+    static SourceCategory getCategoryForName(String dirName){
+        
+        SourceCategory cat = SourceCategory.NONE;
+        
+        if (dirName.startsWith("conf")) {
+            cat = SourceCategory.CONFIGURATION;
+        } else if (dirName.startsWith("controllers")) {
+            cat = SourceCategory.CONTROLLERS;
+        } else if (dirName.startsWith("domain")) {
+            cat = SourceCategory.DOMAIN;
+        } else if (dirName.startsWith("i18n")) {
+            cat = SourceCategory.MESSAGES;
+        } else if (dirName.startsWith("services")) {
+            cat = SourceCategory.SERVICES;
+        } else if (dirName.startsWith("taglib")) {
+            cat = SourceCategory.TAGLIB;
+        } else if (dirName.startsWith("util")) {
+            cat = SourceCategory.UTIL;
+        } else if (dirName.startsWith("lib")) {
+            cat = SourceCategory.LIB;
+        } else if (dirName.startsWith("test")) {
+            cat = SourceCategory.TESTS;
+        } else if (dirName.startsWith("scripts")) {
+            cat = SourceCategory.SCRIPTS;
+        } else if (dirName.startsWith("src")) {
+            cat = SourceCategory.SRC;
+        } else if (dirName.startsWith("web-app")) {
+            cat = SourceCategory.WEBAPP;
+        } else if (dirName.startsWith("views")) {
+            cat = SourceCategory.VIEWS;
+        } 
 
+        return cat;
+    }
+    
+    
     static String getDirName(SourceGroup g){
         // Source Groups always use a slash as file-separator, no matter
         // whether we are dealing with unix or windows:
@@ -170,7 +194,7 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
 
         switch (category) {
             case CONFIGURATION:
-                // do nothing.
+                result.add(CommonProjectActions.newFileAction());
                 break;
             case CONTROLLERS:
                 result.add(new NewArtifactAction(project, SourceCategory.CONTROLLERS, "Create new controller"));
@@ -179,13 +203,26 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
                 result.add(new NewArtifactAction(project, SourceCategory.DOMAIN, "Create new Domain Class"));
                 break;
             case MESSAGES:
-                result.add(org.netbeans.spi.project.ui.support.CommonProjectActions.newFileAction());
+                result.add(CommonProjectActions.newFileAction());
+                break;
+            case TESTS:
+                result.add(CommonProjectActions.newFileAction());
+                break;
+            case SRC:
+                result.add(CommonProjectActions.newFileAction());
+                break;
+            case WEBAPP:
+                result.add(CommonProjectActions.newFileAction());
+                break;
+            case SCRIPTS:
+                result.add(new NewArtifactAction(project, SourceCategory.SCRIPTS, "Create a new Command Script"));
                 break;
             case SERVICES:
                 result.add(new NewArtifactAction(project, SourceCategory.SERVICES, "Create a new Service"));
                 break;
             case TAGLIB:
                 result.add(new NewArtifactAction(project, SourceCategory.TAGLIB, "Create new Tag Library"));
+                result.add(CommonProjectActions.newFileAction());
                 break;
             case UTIL:          
                 break;
@@ -193,9 +230,12 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
                 result.add(new AddLibraryAction((Project)project, "Add Library"));
                 break;
             case VIEWS:
-                // we don't create views on the "Views and Layouts" logical view, but by selecting a Domain Class
-                // and invoking the action in the context-menu of the domain-class.
-                // result.add(new NewArtifactAction(project, SourceCategory.VIEWS, "Create a new View"));
+                /* Usually, you don't directly create views on the "Views and Layouts" logical view, 
+                   but select a Domain Class and invoke the action in the context-menu of the domain-class.
+                   But some users might want to be able to hand-craft what's in the views directory,
+                   therfore we add newFileAction() here (see # 131775, 131777) */
+                
+                result.add(CommonProjectActions.newFileAction());
                 break;
         }
 

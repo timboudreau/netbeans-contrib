@@ -63,6 +63,8 @@ import org.openide.util.Utilities;
  */
 public class GeStopRunnable implements Runnable {
 
+    private static final Logger LOGGER = Logger.getLogger(GeStopRunnable.class.getName());
+    
     private GeDeploymentManager dm;
     private GeStartServer startServer;
     private InstanceProperties ip;
@@ -156,8 +158,10 @@ public class GeStopRunnable implements Runnable {
             return null;
         }
         
-        GeDebug.log(getClass().getName(), "EXEC: " + scriptPath +
+        if (LOGGER.isLoggable(Level.FINER)) {
+            LOGGER.log(Level.FINER, "EXEC: " + scriptPath +
                 " stop --port " + adminPort + " --user " + userName + " --password " + passwd);
+        }
         
         return new NbProcessDescriptor(scriptPath, "stop --port " +
                 adminPort + " --user " + userName +" --password " + passwd); // NOI18N
@@ -172,7 +176,7 @@ public class GeStopRunnable implements Runnable {
         try {
             return pd.exec(null, createEnvironment(), true, new File(ip.getProperty(GePluginProperties.PROPERTY_GE_HOME)));
         } catch (java.io.IOException ioe) {
-            Logger.getLogger("global").log(Level.INFO, null, ioe);
+            LOGGER.log(Level.INFO, null, ioe);
             fireStartProgressEvent(StateType.FAILED, createProgressMessage("MSG_STOP_SERVER_FAILED_PD"));
             return null;
         }

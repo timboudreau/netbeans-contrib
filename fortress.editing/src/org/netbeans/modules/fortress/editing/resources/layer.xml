@@ -133,7 +133,7 @@
                 </file>
                 <file name="occurrences.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.OccurrencesFinder"/>
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.fortress.editing.FortressOccurrenceFinder"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.fortress.editing.FortressOccurrencesFinder"/>
                 </file>
                 <file name="renamer.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.InstantRenamer"/>

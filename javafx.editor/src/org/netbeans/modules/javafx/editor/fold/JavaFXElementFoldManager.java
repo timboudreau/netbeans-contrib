@@ -99,6 +99,9 @@ import org.openide.util.Exceptions;
  */
 public class JavaFXElementFoldManager extends JavaFoldManager {
     
+    private static final Logger logger = Logger.getLogger(JavaFXElementFoldManager.class.getName());
+    private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
+
     private FoldOperation operation;
     private FileObject    file;
     private JavaFXElementFoldTask task;
@@ -183,12 +186,12 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
     }
     
     private static void dumpPositions(Tree tree, int start, int end) {
-        System.err.println("decl = " + tree);
-        System.err.println("startOffset = " + start);
-        System.err.println("endOffset = " + end);
+        log("decl = " + tree);
+        log("startOffset = " + start);
+        log("endOffset = " + end);
         
         if (start == (-1) || end == (-1)) {
-            System.err.println("ERROR: the positions are outside document.");
+            log("ERROR: the positions are outside document.");
         }
 
     }
@@ -726,5 +729,11 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
         
         return (-1);
 
+    }
+    
+    private static void log(String s) {
+        if (LOGGABLE) {
+            logger.fine(s);
+        }
     }
 }

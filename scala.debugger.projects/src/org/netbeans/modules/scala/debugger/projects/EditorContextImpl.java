@@ -102,8 +102,10 @@ import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.netbeans.modules.scala.editing.ScalaParserResult;
-import org.netbeans.modules.scala.editing.visitors.Definition;
-import org.netbeans.modules.scala.editing.visitors.Scope;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.Packaging;
+import org.netbeans.modules.scala.editing.nodes.Template;
 import org.netbeans.napi.gsfret.source.CompilationController;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source;
@@ -968,7 +970,7 @@ public class EditorContextImpl extends EditorContext {
 //                        return;
 //                    }
 //                    int offset = currentOffset;
-//                    //Scope scope = ci.getTreeUtilities().scopeFor(offset);
+//                    //AstScope scope = ci.getTreeUtilities().scopeFor(offset);
 //                    String text = ci.getText();
 //                    int l = text.length();
 //                    char c = 0;
@@ -1151,20 +1153,20 @@ public class EditorContextImpl extends EditorContext {
                                 "\nFree memory = "+Runtime.getRuntime().freeMemory());
                         return;
                     }
-                    Scope rootScope = ((ScalaParserResult)ci.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, offset)).getRootScope();
-                    Definition tmpl = rootScope.getEnclosingDefinition(ElementKind.CLASS, offset);
+                    AstScope rootScope = ((ScalaParserResult)ci.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, offset)).getRootScope();
+                    Template tmpl = rootScope.getEnclosingDef(Template.class, offset);
                     if (tmpl == null) {
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
                                 "No enclosing class for "+ci.getFileObject()+", offset = "+offset);
                     }
 
-                    String className = tmpl.getName();
+                    String className = tmpl.getBinaryName();
 
-                    Element enclosingPackge = tmpl.getPackageElement();
-                    if (enclosingPackge == null) {
+                    Packaging enclosingPackage = tmpl.getPackageElement();
+                    if (enclosingPackage == null) {
                         result[0] = className;
                     } else {
-                        result[0] = enclosingPackge.getSimpleName() + "." + className;
+                        result[0] = enclosingPackage.getName() + "." + className;
                     }
 
                 }
@@ -1253,7 +1255,7 @@ public class EditorContextImpl extends EditorContext {
                                 "\nFree memory = " + Runtime.getRuntime().freeMemory());
                         return;
                     }
-//                    Scope scope = ci.getTreeUtilities().scopeFor(offset);
+//                    AstScope scope = ci.getTreeUtilities().scopeFor(offset);
 //                    Element method = scope.getEnclosingMethod();
 //                    if (method == null) {
 //                        ops[0] = new Operation[]{};
@@ -1419,7 +1421,7 @@ public class EditorContextImpl extends EditorContext {
                         return;
                     }
                     int offset = operation.getMethodEndPosition().getOffset();
-//                    Scope scope = ci.getTreeUtilities().scopeFor(offset);
+//                    AstScope scope = ci.getTreeUtilities().scopeFor(offset);
 //                    Element method = scope.getEnclosingMethod();
 //                    if (method == null) {
 //                        return;
@@ -1476,7 +1478,7 @@ public class EditorContextImpl extends EditorContext {
                                 "\nFree memory = " + Runtime.getRuntime().freeMemory());
                         return;
                     }
-//                    Scope scope = ci.getTreeUtilities().scopeFor(offset);
+//                    AstScope scope = ci.getTreeUtilities().scopeFor(offset);
 //                    Element clazz = scope.getEnclosingClass();
 //                    if (clazz == null) {
 //                        return;
@@ -1603,7 +1605,7 @@ public class EditorContextImpl extends EditorContext {
 //                    if (ci.toPhase(Phase.PARSED).compareTo(Phase.PARSED) < 0) {
 //                        return;
 //                    }
-//                    Scope scope = null;
+//                    AstScope scope = null;
 //                    int offset = 0;
 //                    StyledDocument doc = (StyledDocument) ci.getDocument();
 //                    if (doc != null) {
@@ -1657,7 +1659,7 @@ public class EditorContextImpl extends EditorContext {
 //            if (wc.toPhase(Phase.PARSED).compareTo(Phase.PARSED) < 0)
 //            return;
 //            int offset = findLineOffset((StyledDocument) wc.getDocument(), line);
-//            Scope scope = wc.getTreeUtilities().scopeFor(offset);
+//            AstScope scope = wc.getTreeUtilities().scopeFor(offset);
 //            Element clazz = scope.getEnclosingClass();
 //            if (clazz == null) {
 //            return ;
@@ -1840,7 +1842,7 @@ public class EditorContextImpl extends EditorContext {
 //                            if (tree.getKind() == Tree.Kind.CLASS) {
 //                                te = (TypeElement) ci.getTrees().getElement(currentPath);
 //                            } else {
-//                                Scope scope = ci.getTreeUtilities().scopeFor(currentOffset);
+//                                AstScope scope = ci.getTreeUtilities().scopeFor(currentOffset);
 //                                te = scope.getEnclosingClass();
 //                            }
 //                            if (te != null) {
@@ -1849,7 +1851,7 @@ public class EditorContextImpl extends EditorContext {
 //                            el = te;
 //                        }
 //                    } else if (kind == ElementKind.METHOD) {
-//                        Scope scope = ci.getTreeUtilities().scopeFor(currentOffset);
+//                        AstScope scope = ci.getTreeUtilities().scopeFor(currentOffset);
 //                        el = scope.getEnclosingMethod();
 //                        if (el != null) {
 //                            currentElementPtr[0] = el.getSimpleName().toString();
@@ -1899,7 +1901,7 @@ public class EditorContextImpl extends EditorContext {
 //                        } else if (tree.getKind() == Tree.Kind.IDENTIFIER && selectedIdentifier != null) {
 //                            IdentifierTree it = (IdentifierTree) tree;
 //                            String fieldName = it.getName().toString();
-//                            Scope scope = ci.getTreeUtilities().scopeFor(offset);
+//                            AstScope scope = ci.getTreeUtilities().scopeFor(offset);
 //                            TypeElement te = scope.getEnclosingClass();
 //                            List<? extends Element> enclosedElms = te.getEnclosedElements();
 //                            for (Element elm : enclosedElms) {

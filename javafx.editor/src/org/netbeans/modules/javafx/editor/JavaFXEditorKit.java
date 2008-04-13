@@ -40,13 +40,23 @@
  */
 package org.netbeans.modules.javafx.editor;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.util.Map;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JToggleButton;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentEvent.ElementChange;
+import javax.swing.event.DocumentEvent.EventType;
 import org.netbeans.editor.BaseDocument;
 import javax.swing.text.*;
 import org.netbeans.editor.Settings;
 import org.netbeans.editor.SettingsNames;
+import org.netbeans.modules.javafx.preview.JavaFXModel;
 import org.netbeans.modules.lexer.editorbridge.LexerEditorKit;
 import org.openide.loaders.DataObject;
 import org.netbeans.modules.editor.NbEditorUtilities;
@@ -103,13 +113,12 @@ public class JavaFXEditorKit extends LexerEditorKit{
     @Override
     protected Action[] createActions() {
         Action[] superActions = super.createActions();
-//        ResetFXPreviewExecution resetAction = new ResetFXPreviewExecution();
+        ResetFXPreviewExecution resetAction = new ResetFXPreviewExecution();
         Action[] javafxActions = new Action[] {
             new CommentAction("//"),
             new UncommentAction("//"),
-//TODO XXX removed preview, reset, and error detection buttons            
-//            new ToggleFXPreviewExecution(resetAction),
-//            resetAction,
+            new ToggleFXPreviewExecution(resetAction),
+            resetAction,
             new JavaDefaultKeyTypedAction(),
             new JavaDeleteCharAction(deletePrevCharAction, false),
             new JavaFXGoToSourceAction(),
@@ -118,7 +127,7 @@ public class JavaFXEditorKit extends LexerEditorKit{
         return TextAction.augmentList(superActions, javafxActions);
     }
     
-/*    
+    
     public static class ToggleFXPreviewExecution extends BaseAction implements org.openide.util.actions.Presenter.Toolbar {
         PreviewButton b = null;
         ResetFXPreviewExecution resetAction = null;
@@ -142,7 +151,7 @@ public class JavaFXEditorKit extends LexerEditorKit{
                     resetAction.setActionButtonEnabled(true);
                     doc.enableExecution(true);
                     putValue(SHORT_DESCRIPTION,NbBundle.getBundle(JavaFXEditorKit.class).getString("disable-fx-preview-execution"));
-                    JavaFXPier.showPreview(doc);
+                    JavaFXModel.showPreview(doc, false);
                 }
             }else{
                 b.setSelected(!b.isSelected());
@@ -237,10 +246,7 @@ public class JavaFXEditorKit extends LexerEditorKit{
         
         public void actionPerformed(ActionEvent evt, JTextComponent target) {
             JavaFXDocument doc = getJavaFXDocument(target);
-            
-            if(doc != null && doc.executionAllowed()){
-                JavaFXPier.showPreview(doc);
-            }
+            JavaFXModel.showPreview(doc, true);
         }
         
         private JavaFXDocument getJavaFXDocument(JTextComponent comp){
@@ -268,7 +274,7 @@ public class JavaFXEditorKit extends LexerEditorKit{
             return b;
         }
     }    
-*/    
+    
     public static class JavaDefaultKeyTypedAction extends ExtDefaultKeyTypedAction {
 
         @Override

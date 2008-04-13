@@ -39,14 +39,13 @@
 
 package org.netbeans.api.javafx.source;
 
-import com.sun.javafx.api.JavafxcTask;
 import com.sun.javafx.api.tree.JavaFXTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.util.TreePath;
-import com.sun.tools.javafx.api.JavafxcTool;
 import com.sun.tools.javafx.api.JavafxcTrees;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Set;
@@ -54,13 +53,12 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import javax.tools.DiagnosticCollector;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
 import org.netbeans.api.project.libraries.LibraryManager;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -72,63 +70,80 @@ public class JavaFXSourceUtils {
         if (file == null) {
             return false;
         }
+//        System.setProperty("env.class.path", getAdditionalCP(System.getProperty("env.class.path")));
         
-        try{
-            JavafxcTool tool = JavafxcTool.create();
-            DiagnosticCollector diag = new DiagnosticCollector(); 
-            
-            String cp = System.getProperty("env.class.path");
-            
-            LibraryManager lm = LibraryManager.getDefault();
-            List<URL> libs = lm.getLibrary("JavaFXUserLib").getContent("classpath");
-            for(int i=0;i < libs.size();i++){
-                FileObject fo = URLMapper.findFileObject(libs.get(i));
-                String addPath = fo.getURL().getFile();
-                addPath = addPath.substring(6, addPath.length()-2);
-                if (cp!=null){
-                    if (!cp.contains(addPath))
-                        cp += File.pathSeparatorChar + addPath;
-                }else{
-                    cp = addPath;
-                }
-            }
-            
-            System.setProperty("env.class.path", cp);
-            
-            StandardJavaFileManager fileManager = tool.getStandardFileManager(diag, null, null);
-            Iterable<? extends JavaFileObject> fileObjects = fileManager.getJavaFileObjects(FileUtil.toFile(file));
-            JavafxcTask javafxTask = tool.getTask(null, fileManager, diag, null, fileObjects);
-            List<? extends CompilationUnitTree> treeList = (List)javafxTask.analyze();
-
-            Types types = javafxTask.getTypes();
-            Elements elements = javafxTask.getElements();
-            TypeElement fxapplet = elements.getTypeElement("javafx.ui.Applet");     //NOI18N
-            TypeElement applet = elements.getTypeElement("java.applet.Applet");     //NOI18N
-            TypeElement japplet = elements.getTypeElement("javax.swing.JApplet");   //NOI18N
-            
-            JavafxcTrees trees = JavafxcTrees.instance(javafxTask);
-            CompilationUnitTree tree = treeList.iterator().next();
-            
-            List<? extends Tree> topLevels = tree.getTypeDecls();
-            for (Tree topLevel : topLevels) {
-                if (((JavaFXTree)topLevel).getJavaFXKind() == JavaFXTree.JavaFXKind.CLASS_DECLARATION) {
-                    TypeElement type = (TypeElement) trees.getElement(TreePath.getPath(tree, topLevel));
-                    if (type != null) {
-                        Set<Modifier> modifiers = type.getModifiers();
+        JavaFXSource js = JavaFXSource.forFileObject(file);
+        if (js == null) {
+            return false;
+        }
+        final boolean[] result = new boolean[] {false};
+        try {
+            js.runUserActionTask(new CancellableTask<CompilationController>() {
+                
+                public void run(CompilationController control) throws Exception {
+                    if (JavaFXSource.Phase.ELEMENTS_RESOLVED.compareTo(control.toPhase(JavaFXSource.Phase.ELEMENTS_RESOLVED))<=0) {
+                        //control.impl.getJavafxcTask().analyze();
+                        
+                        Elements elements = control.getElements();
+                        JavafxcTrees trees = control.getTrees();
+                        Types types = control.getTypes();
+                        TypeElement fxapplet = elements.getTypeElement("javafx.ui.Applet");     //NOI18N
+                        TypeElement applet = elements.getTypeElement("java.applet.Applet");     //NOI18N
+                        TypeElement japplet = elements.getTypeElement("javax.swing.JApplet");   //NOI18N
+                        CompilationUnitTree cu = control.getCompilationUnit();
+                        List<? extends Tree> topLevels = cu.getTypeDecls();
+                        for (Tree topLevel : topLevels) {
+                            if (((JavaFXTree)topLevel).getJavaFXKind() == JavaFXTree.JavaFXKind.CLASS_DECLARATION) {
+                                TypeElement type = (TypeElement) trees.getElement(TreePath.getPath(cu, topLevel));
+                                if (type != null) {
+                                    Set<Modifier> modifiers = type.getModifiers();
                                     if (modifiers.contains(Modifier.PUBLIC) && 
                                         ((applet != null && types.isSubtype(type.asType(), applet.asType())) 
                                         || (fxapplet != null && types.isSubtype(type.asType(), fxapplet.asType()))
                                         || (japplet != null && types.isSubtype(type.asType(), japplet.asType())))) {
-                                            return true;
+                                            result[0] = true;
+                                            break;
                                     }
+                                }
+                            }
+                        }
                     }
                 }
-            }
-        }catch(Exception e){
-            e.printStackTrace();
+                
+                public void cancel() {}
+            }, true);
+        } catch (IOException ioe) {
+            Exceptions.printStackTrace(ioe);
         }
-        
-        return false;
+        return result[0];
+
     }    
     
+    public static String getAdditionalCP(String cp) {
+        List<URL> libs = getAdditionalCP();
+        for (int i = 0; i < libs.size(); i++) {
+            FileObject fo = URLMapper.findFileObject(libs.get(i));
+            File f;
+            try {
+                f = FileUtil.archiveOrDirForURL(fo.getURL());
+                if (cp != null) {
+                    if (!cp.contains(f.getAbsolutePath())){
+                        if (!cp.equals(""))
+                            cp += File.pathSeparatorChar;
+                        cp += f.getAbsolutePath();
+                    }
+                } else {
+                    cp = f.getAbsolutePath();
+                }
+            } catch (FileStateInvalidException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        return cp;
+    }
+
+    public static List<URL> getAdditionalCP(){
+        LibraryManager lm = LibraryManager.getDefault();
+        return lm.getLibrary("JavaFXUserLib").getContent("classpath");
+    }
 }

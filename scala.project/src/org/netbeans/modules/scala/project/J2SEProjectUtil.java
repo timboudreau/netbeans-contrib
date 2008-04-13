@@ -46,15 +46,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
-import javax.lang.model.element.TypeElement;
-import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.java.platform.Specification;
-import org.netbeans.api.java.source.ClasspathInfo;
-import org.netbeans.api.java.source.ElementHandle;
-import org.netbeans.api.java.source.SourceUtils;
+import org.netbeans.napi.gsfret.source.ClasspathInfo;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.scala.editing.SourceUtils;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.project.ui.customizer.MainClassChooser;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -100,13 +99,13 @@ public class J2SEProjectUtil {
             // ??? maybe better should be thrown IAE
             return false;
         }
-        return !SourceUtils.getMainClasses(fo).isEmpty();
+        return true;//!SourceUtils.getMainClasses(fo).isEmpty();
     }
     
-    public static Collection<ElementHandle<TypeElement>> getMainMethods (final FileObject fo) {
+    public static Collection<AstElement> getMainMethods (final FileObject fo) {
         // support for unit testing
         if (fo == null || MainClassChooser.unitTestingSupport_hasMainMethodResult != null) {
-            return Collections.<ElementHandle<TypeElement>>emptySet();
+            return Collections.<AstElement>emptySet();
         }
         return SourceUtils.getMainClasses(fo);
     }

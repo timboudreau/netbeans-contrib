@@ -41,12 +41,12 @@
 package org.netbeans.modules.scala.project.classpath;
 
 import java.beans.PropertyChangeEvent;
-import org.netbeans.spi.java.classpath.ClassPathImplementation;
-import org.netbeans.spi.java.classpath.PathResourceImplementation;
-import org.netbeans.spi.java.classpath.support.ClassPathSupport;
+import org.netbeans.modules.gsfpath.spi.classpath.ClassPathImplementation;
+import org.netbeans.modules.gsfpath.spi.classpath.PathResourceImplementation;
+import org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
-import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.List;
@@ -87,6 +87,7 @@ final class BootClassPathImplementation implements ClassPathImplementation, Prop
             currentId = eventId;
         }
         
+        /* @Comment by caoyuan
         JavaPlatform jp = findActivePlatform ();
         final List<PathResourceImplementation> result = new ArrayList<PathResourceImplementation>();
         if (jp != null) {
@@ -108,7 +109,7 @@ final class BootClassPathImplementation implements ClassPathImplementation, Prop
             else {
                 return Collections.unmodifiableList (result);
             }           
-        }       
+        } */ return Collections.emptyList();      
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {

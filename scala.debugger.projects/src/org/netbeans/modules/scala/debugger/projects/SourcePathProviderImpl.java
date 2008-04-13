@@ -136,7 +136,10 @@ public class SourcePathProviderImpl extends SourcePathProvider {
             Set<FileObject> preferredRoots = new HashSet<FileObject>();
             preferredRoots.addAll(Arrays.asList(originalSourcePath.getRoots()));
             Set<FileObject> globalRoots = new TreeSet<FileObject>(new FileObjectComparator());
-            globalRoots.addAll(GlobalPathRegistry.getDefault().getSourceRoots());
+            globalRoots.addAll(GlobalPathRegistry.getDefault().getSourceRoots());            
+            /* hacking for gsfpath */
+            globalRoots.addAll(org.netbeans.modules.gsfpath.api.classpath.GlobalPathRegistry.getDefault().getSourceRoots());
+            
             globalRoots.removeAll(preferredRoots);
             ClassPath globalCP = ClassPathSupport.createClassPath(globalRoots.toArray(new FileObject[0]));
             originalSourcePath = ClassPathSupport.createProxyClassPath(
@@ -187,7 +190,10 @@ public class SourcePathProviderImpl extends SourcePathProvider {
                 }
             }
             Set<FileObject> globalRoots = new TreeSet<FileObject>(new FileObjectComparator());
-            globalRoots.addAll(GlobalPathRegistry.getDefault().getSourceRoots());
+            globalRoots.addAll(GlobalPathRegistry.getDefault().getSourceRoots());            
+            /* hacking for gsfpath */
+            globalRoots.addAll(org.netbeans.modules.gsfpath.api.classpath.GlobalPathRegistry.getDefault().getSourceRoots());
+            
             for (FileObject fo : globalRoots) {
                 if (!preferredRoots.contains(fo)) {
                     allSourceRoots.add(fo);

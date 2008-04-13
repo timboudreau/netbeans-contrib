@@ -78,6 +78,10 @@ made subject to such option by the copyright holder.
             <file name="MousePress" url="/demos/input/MousePress.fx"/>
             <file name="StoringInput" url="/demos/input/StoringInput.fx"/>
         </folder>
+        <folder name="motion">
+            <file name="BouncyBubbles" url="/demos/motion/BouncyBubbles.fx"/>
+            <file name="Linear" url="/demos/motion/Linear.fx"/>
+        </folder>
     </folder>
     
     <folder name="Templates">
@@ -192,17 +196,19 @@ made subject to such option by the copyright holder.
                             </file>
                         </folder>
                         <folder name="Motion">
-                            <file name="Linear" url="">
+                            <file name="Linear" url="../../../../../../demos/motion/Linear.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/motion/Linear"/>
                             </file>
-                            <file name="Bouncy bubbles" url="">
+                            <file name="Bouncy bubbles" url="../../../../../../demos/motion/BouncyBubbles.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
-                            </file>
-                            <file name="Collision" url="">
-                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
-                                <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/motion/BouncyBubbles"/>
                             </file>
                         </folder>
                         <folder name="Input">

@@ -39,8 +39,12 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.Stack;
+import org.netbeans.modules.gsf.api.OffsetRange;
 import xtc.tree.Annotation;
 import xtc.tree.GNode;
+import xtc.tree.Location;
 import xtc.tree.Node;
 import xtc.tree.Visitor;
 import xtc.util.Pair;
@@ -49,40 +53,51 @@ import xtc.util.Pair;
  *
  * @author Caoyuan Deng
  */
-public class AstVisitor extends Visitor {
+public abstract class AstVisitor extends Visitor {
 
+    private List<Integer> linesOffset;
     private int indentLevel;
+    private String source;
+    protected AstScope rootScope;
+    protected Stack<GNode> astPath = new Stack<GNode>();
+    protected Stack<AstScope> scopeStack = new Stack<AstScope>();
 
-    public AstVisitor() {
-    }
-
-    private String indent() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < indentLevel; i++) {
-            sb.append("  ");
-        }
-        return sb.toString();
-    }
-
-    public void accept(Node node) {
-        dispatch(node);
+    public AstVisitor(Node rootNode, String source, List<Integer> linesOffset) {
+        this.source = source;
+        this.linesOffset = linesOffset;
+        // set linesOffset before call getRange(Node)
+        this.rootScope = new AstScope(getRange(rootNode));
+        scopeStack.push(rootScope);
     }
 
     public void visit(GNode node) {
-        //System.out.println(indent() + "{" + node.getName() + "}");
+        enter(node);
+        visitChildren(node);
+        exit(node);
+    }
+
+    protected void enter(GNode node) {
         indentLevel++;
+        astPath.push(node);
+    }
+
+    protected void exit(GNode node) {
+        indentLevel--;
+        astPath.pop();
+    }
+
+    protected void visitChildren(GNode node) {
         for (Iterator itr = node.iterator(); itr.hasNext();) {
             Object o = itr.next();
             if (o instanceof GNode) {
                 dispatch((GNode) o);
             } else if (o instanceof Pair) {
-                visit((Pair) o);
+                visitPair((Pair) o);
             }
         }
-        indentLevel--;
     }
 
-    public void visit(Pair pair) {
+    private void visitPair(Pair pair) {
         //System.out.println(indent() + "[");
         indentLevel++;
         for (Iterator itr = pair.iterator(); itr.hasNext();) {
@@ -90,11 +105,11 @@ public class AstVisitor extends Visitor {
             if (o instanceof GNode) {
                 dispatch((GNode) o);
             } else if (o instanceof Pair) {
-                visit((Pair) o);
+                visitPair((Pair) o);
             }
         }
         indentLevel--;
-        //System.out.println(indent() + "]");
+    //System.out.println(indent() + "]");
     }
 
     @Override
@@ -103,35 +118,63 @@ public class AstVisitor extends Visitor {
         return null;
     }
 
-    public void visitCompilationUnit(final GNode that) {
-        visit(that);
-    }
-    
-    public void visitPackage(final GNode that) {
-        visit(that);
-    }
-    
-    public void visitClassDef(final GNode that) {
-        visit(that);
+    public AstScope getRootScope() {
+        return rootScope;
     }
 
-    public void visitTraitDef(final GNode that) {
-        visit(that);
+    protected OffsetRange getRange(Node node) {
+        Location loc = node.getLocation();
+        return new OffsetRange(loc.offset, loc.endOffset);
     }
 
-    public void visitObjectDef(final GNode that) {
-        visit(that);
+    /**
+     * @Note: nameNode may contains preceding void productions, and may also contains
+     * following void productions, but nameString has stripped the void productions,
+     * so we should adjust nameRange according to name and its length.
+     */
+    protected OffsetRange getNameRange(String name, Node node) {
+        Location loc = node.getLocation();
+        int length = name.length();
+        for (int i = loc.offset; i < loc.endOffset; i++) {
+            if (source.substring(i, i + length).equals(name)) {
+                return new OffsetRange(i, i + length);
+            }
+        }
+
+        return new OffsetRange(loc.offset, loc.endOffset);
     }
-    
-    public void visitFunDcl(final GNode that) {
-        visit(that);
+
+    protected String getAstPathString() {
+        StringBuilder sb = new StringBuilder();
+
+        for (Iterator<GNode> itr = astPath.iterator(); itr.hasNext();) {
+            sb.append(itr.next().getName());
+            if (itr.hasNext()) {
+                sb.append(".");
+            }
+        }
+
+        return sb.toString();
     }
-    
-    public void visitFunDef(final GNode that) {
-        visit(that);
+
+    protected GNode findNearsetNode(String name) {
+        GNode result = null;
+
+        for (Iterator<GNode> itr = astPath.iterator(); itr.hasNext();) {
+            GNode node = itr.next();
+            if (node.getName().equals(name)) {
+                result = node;
+            }
+        }
+
+        return result;
     }
-    
-    public void visitConstructorFunDef(final GNode that) {
-        visit(that);
+
+    private String indent() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < indentLevel; i++) {
+            sb.append("  ");
+        }
+        return sb.toString();
     }
 }
