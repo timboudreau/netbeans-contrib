@@ -476,7 +476,6 @@ jarsigner.storepass=${jarsigner.storepass}
         <build-product dir="build_tools"/>
         <build-product dir="X-Designer"/>
         
-	<build-product dir="external_editors"/>
         <build-product dir="support_files"/>
         <build-product dir="Performance_Library"/>
         <build-product dir="Third-party_Source"/>
@@ -556,7 +555,6 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
     	    <component uid="x-designer" version="1.0.0.0.0"/>
-    	    <component uid="ex-editors" version="1.0.0.0.0"/>
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
@@ -576,7 +574,6 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
     	    <component uid="x-designer" version="1.0.0.0.0"/>
-    	    <component uid="ex-editors" version="1.0.0.0.0"/>
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
@@ -598,7 +595,6 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
     	    <component uid="x-designer" version="1.0.0.0.0"/>
-    	    <component uid="ex-editors" version="1.0.0.0.0"/>
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
@@ -619,7 +615,6 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
     	    <component uid="x-designer" version="1.0.0.0.0"/>
-    	    <component uid="ex-editors" version="1.0.0.0.0"/>
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
@@ -640,7 +635,6 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
     	    <component uid="x-designer" version="1.0.0.0.0"/>
-    	    <component uid="ex-editors" version="1.0.0.0.0"/>
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
@@ -661,7 +655,6 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
     	    <component uid="x-designer" version="1.0.0.0.0"/>
-    	    <component uid="ex-editors" version="1.0.0.0.0"/>
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
