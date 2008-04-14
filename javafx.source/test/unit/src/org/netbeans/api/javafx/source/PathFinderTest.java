@@ -45,11 +45,14 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import org.junit.Test;
+import javax.swing.text.Document;
+import org.netbeans.api.javafx.lexer.JFXTokenId;
 import org.netbeans.api.javafx.source.JavaFXSource.Phase;
-import org.openide.ErrorManager;
+import org.netbeans.api.lexer.Language;
+import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
 
 /**
  *
@@ -59,21 +62,13 @@ public class PathFinderTest {
     public PathFinderTest() {
     }
     
-    @org.junit.BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @org.junit.AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
     @org.junit.Test
     public void pathForTest() throws Exception {
         File f = File.createTempFile("Test", ".fx");
         toFile(f,
                 "/* Top comment */\n" +
                 "\n" +
-                "import javafx.ui.Frame;\n" +
+                "import javafx.ui.*;\n" +
                 "/** @author nemo */\n" +
                 "\n" +
                 "Frame {\n" +
@@ -85,16 +80,20 @@ public class PathFinderTest {
         FileObject fo = FileUtil.toFileObject(f);
         JavaFXSource src = JavaFXSource.forFileObject(fo);
         System.err.println("src=" + src);
+        DataObject dobj = DataObject.find(fo);
+        EditorCookie ec = dobj.getCookie(EditorCookie.class);
+        Document doc = ec.openDocument();
+        doc.putProperty(Language.class, JFXTokenId.language());
+
         src.runWhenScanFinished(new CancellableTask<CompilationController>() {
             public void cancel() {
                 }
             public void run(CompilationController controller) throws Exception {
-                if (controller.toPhase(Phase.RESOLVED).compareTo(Phase.RESOLVED) < 0) {//TODO: ELEMENTS_RESOLVED may be sufficient
-                        ErrorManager.getDefault().log(ErrorManager.WARNING,
-                                "Unable to resolve "+controller.getCompilationUnit().getSourceFile()+" to phase "+Phase.RESOLVED+", current phase = "+controller.getPhase()+
+                if (controller.toPhase(Phase.ANALYZED).compareTo(Phase.ANALYZED) < 0) {//TODO: ELEMENTS_RESOLVED may be sufficient
+                    throw new Exception(
+                                "Unable to resolve "+controller.getCompilationUnit().getSourceFile()+" to phase "+Phase.ANALYZED+", current phase = "+controller.getPhase()+
                                 "\nDiagnostics = "/*+ci.getDiagnostics()*/+
                                 "\nFree memory = "+Runtime.getRuntime().freeMemory());
-                    return;
                 }
                 int currentOffset = 80;
                 TreePath currentPath = controller.getTreeUtilities().pathFor(currentOffset);

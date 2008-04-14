@@ -50,6 +50,8 @@ import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.lexer.TokenSequence;
 
 /**
@@ -57,6 +59,9 @@ import org.netbeans.api.lexer.TokenSequence;
  * @author Jan Lahoda, Dusan Balek, Tomas Zezula
  */
 public final class TreeUtilities {
+
+    private static final Logger logger = Logger.getLogger(TreeUtilities.class.getName());
+    private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
     
     private final CompilationInfo info;
 //    private final CommentHandlerService handler;
@@ -198,6 +203,7 @@ public final class TreeUtilities {
             
             public Void scan(Tree tree, Void p) {
                 if (tree != null) {
+                    super.scan(tree, p);
                     long start = sourcePositions.getStartPosition(getCurrentPath().getCompilationUnit(), tree);
                     long end = sourcePositions.getEndPosition(getCurrentPath().getCompilationUnit(), tree);
                     if (start < pos && end >= pos) {
@@ -205,41 +211,17 @@ public final class TreeUtilities {
                             tree.accept(this, p);
                             throw new Result(getCurrentPath());
                         }
-                        super.scan(tree, p);
                         throw new Result(new TreePath(getCurrentPath(), tree));
                     } else {
                         if ((start == -1) || (end == -1)) {
-                            
                             if (!isSynthetic(getCurrentPath().getCompilationUnit(), tree)) {
                                 // here we have a problem
-                                System.err.println("Cannot determine start and end for: " + tree);
+                                log("Cannot determine start and end for: " + tree);
                             }
                         }
                     }
                 }
                 return null;
-            }
-
-            @Override
-            public Void visitVariable(VariableTree node, Void p) {
-//                int[] span = findNameSpan(node);
-//                
-//                if (span != null && span[0] <= pos && pos < span[1]) {
-//                    throw new Result(getCurrentPath());
-//                }
-                
-                return super.visitVariable(node, p);
-            }
-
-            @Override
-            public Void visitMethod(MethodTree node, Void p) {
-//                int[] span = findNameSpan(node);
-//                
-//                if (span != null && span[0] <= pos && pos < span[1]) {
-//                    throw new Result(getCurrentPath());
-//                }
-                
-                return super.visitMethod(node, p);
             }
         }
         
@@ -348,10 +330,19 @@ public final class TreeUtilities {
     public TokenSequence<JFXTokenId> tokensFor(Tree tree, SourcePositions sourcePositions) {
         int start = (int)sourcePositions.getStartPosition(info.getCompilationUnit(), tree);
         int end   = (int)sourcePositions.getEndPosition(info.getCompilationUnit(), tree);
-        
-        return info.getTokenHierarchy().tokenSequence(JFXTokenId.language()).subSequence(start, end);
+        if ((start == -1) || (end == -1)) {
+            throw new RuntimeException("Cannot determine start and end for: " + tree);
+        }
+        TokenSequence<JFXTokenId> t = info.getTokenHierarchy().tokenSequence(JFXTokenId.language());
+        if (t == null) {
+            throw new RuntimeException("Did not get a token sequence.");
+        }
+        return t.subSequence(start, end);
     }
     
-
-  
+    private static void log(String s) {
+        if (LOGGABLE) {
+            logger.fine(s);
+        }
+    }
 }
