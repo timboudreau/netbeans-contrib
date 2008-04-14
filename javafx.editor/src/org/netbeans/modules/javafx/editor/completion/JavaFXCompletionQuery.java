@@ -162,8 +162,6 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
     private static final String WHERE_KEYWORD = "where";
     private static final String WHILE_KEYWORD = "while";
     private static final String WITH_KEYWORD = "with";
-    private static final String JAVA_LANG_OBJECT = "java.lang.Object";
-    private static final String JAVA_LANG_ITERABLE = "java.lang.Iterable";
     
     private static final String[] STATEMENT_KEYWORDS = new String[]{
         FOR_KEYWORD,
@@ -1674,6 +1672,9 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
         if (JavaFXCompletionProvider.startsWith(NEW_KEYWORD, prefix)) {
             results.add(JavaFXCompletionItem.createKeywordItem(NEW_KEYWORD, SPACE, anchorOffset, false));
+        }
+        if (JavaFXCompletionProvider.startsWith(BIND_KEYWORD, prefix)) {
+            results.add(JavaFXCompletionItem.createKeywordItem(BIND_KEYWORD, SPACE, anchorOffset, false));
         }
     }
 
