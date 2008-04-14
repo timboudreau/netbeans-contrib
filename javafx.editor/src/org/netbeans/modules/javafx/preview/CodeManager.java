@@ -11,7 +11,6 @@ import java.util.Map;
 
 import java.util.Set;
 import java.util.logging.Logger;
-import javax.swing.text.BadLocationException;
 import javax.tools.Diagnostic;
 
 import javax.tools.JavaFileObject.Kind;
@@ -33,7 +32,6 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.text.Document;
@@ -59,8 +57,8 @@ import javax.swing.JDesktopPane;
 
 public class CodeManager {
     private static final String[] getComponentStrings = {"getComponent", "getJComponent"};
-    private static final String[] frameStrings = {"frame"};
-    private static final String[] getVisualNodeStrings = {"getVisualNode"};
+    private static final String[] frameStrings = {"frame", "window"};
+    private static final String[] getVisualNodeStrings = {"getVisualNode", "getSGNode"};
     
     public static Object execute(FXDocument doc) {
 
@@ -217,25 +215,30 @@ public class CodeManager {
             }
             if (field != null) {
                 ObjectVariable frameObj = (ObjectVariable)field.get(obj);
-                JFrame frame = (JFrame)frameObj.get();
-                frame.setVisible(false);
-                JInternalFrame intFrame = new JInternalFrame();
-                intFrame.setSize(frame.getSize());
-                intFrame.setContentPane(frame.getContentPane());
-                intFrame.setVisible(true);
-                intFrame.setTitle(frame.getTitle());
-                intFrame.setJMenuBar(frame.getJMenuBar());
-                intFrame.setBackground(frame.getBackground());
-                intFrame.setForeground(frame.getForeground());
-                intFrame.setResizable(true);
-                intFrame.setClosable(true);
-                intFrame.setMaximizable(true);
-                intFrame.setIconifiable(true);
-                frame.dispose();
-                JDesktopPane jdp = new JDesktopPane();
-                jdp.setBackground(Color.WHITE);
-                jdp.add(intFrame);
-                comp = jdp;
+                if (frameObj != null) {
+                    JFrame frame = (JFrame)frameObj.get();
+                    if (frame != null) {
+                        frame.setVisible(false);
+                        JInternalFrame intFrame = new JInternalFrame();
+                        intFrame.setSize(frame.getSize());
+                        intFrame.setContentPane(frame.getContentPane());
+                        intFrame.setTitle(frame.getTitle());
+                        intFrame.setJMenuBar(frame.getJMenuBar());
+                        intFrame.setBackground(frame.getBackground());
+                        intFrame.getContentPane().setBackground(frame.getBackground());
+                        intFrame.setForeground(frame.getForeground());
+                        intFrame.setResizable(true);
+                        intFrame.setClosable(true);
+                        intFrame.setMaximizable(true);
+                        intFrame.setIconifiable(true);
+                        intFrame.setVisible(true);
+                        frame.dispose();
+                        JDesktopPane jdp = new JDesktopPane();
+                        jdp.setBackground(Color.WHITE);
+                        jdp.add(intFrame);
+                        comp = jdp;
+                    }
+                }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
