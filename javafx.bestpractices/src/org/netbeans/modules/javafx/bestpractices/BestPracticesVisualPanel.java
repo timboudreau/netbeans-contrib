@@ -60,7 +60,7 @@ public class BestPracticesVisualPanel extends javax.swing.JPanel implements Docu
     /** Creates new form BestPracticesVisualPanel */
     public BestPracticesVisualPanel( BestPracticesWizardPanel panel ) {
         this.panel = panel;
-        initComponents();
+        initComponents();        
         projectNameTextField.getDocument().addDocumentListener( this );
         projectLocationTextField.getDocument().addDocumentListener( this );        
     }
@@ -174,8 +174,8 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         this.projectLocationTextField.setText( projectLocation.getAbsolutePath());
 
         String projectName = (String) settings.getProperty("name");
-        if(projectName == null) {
-            projectName = "<project name>";
+        if( projectName == null ) {
+            projectName = panel.getFile().getName();
         }
         this.projectNameTextField.setText( projectName );
         this.projectNameTextField.selectAll();

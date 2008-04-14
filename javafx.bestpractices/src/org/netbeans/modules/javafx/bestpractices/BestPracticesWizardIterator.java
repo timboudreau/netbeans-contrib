@@ -88,7 +88,7 @@ public class BestPracticesWizardIterator implements WizardDescriptor.Instantiati
     }    
     
     private WizardDescriptor.Panel[] createPanels() {
-        return new WizardDescriptor.Panel[]{ new BestPracticesWizardPanel() };
+        return new WizardDescriptor.Panel[] { new BestPracticesWizardPanel( file ) };
     }
     
     private String[] createSteps() {
