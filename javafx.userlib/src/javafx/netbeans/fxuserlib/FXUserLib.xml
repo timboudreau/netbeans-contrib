@@ -56,7 +56,7 @@ made subject to such option by the copyright holder.
         <resource>jar:nbinst://javafx/modules/ext/javafx/compiler/Scenario.jar!/</resource>
         <resource>jar:nbinst://javafx/modules/ext/javafx/compiler/javafxc.jar!/</resource>
         
-        <resource >jar:nbinst://javafx/modules/ext/javafx/compiler/Reprise.jar!/</resource>
+<!--        <resource >jar:nbinst://javafx/modules/ext/javafx/compiler/Reprise.jar!/</resource>-->
     </volume>
     <volume>
         <type>src</type>
