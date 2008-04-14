@@ -6,7 +6,7 @@ import javafx.ui.canvas.*;
 var width : Number = 200;
 var height : Number = 200;
 
-var image = Image { url : "resources/courage.png" };
+var image = Image { url : "resources/background.png" };
 
 Frame {
     content : Canvas {
@@ -22,4 +22,10 @@ Frame {
             }
         ]
     }
+    
+    visible : true
+    title : "Displaying"
+    width : 200
+    height : 232
+    onClose : function() { java.lang.System.exit( 0 ); }
 }
