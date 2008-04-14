@@ -4,10 +4,6 @@
  */
 package org.netbeans.modules.j2ee.geronimo2;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
@@ -22,14 +18,11 @@ import org.netbeans.modules.j2ee.deployment.plugins.spi.StartServer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.CopyOnWriteArrayList;
 import javax.enterprise.deploy.shared.ActionType;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.StateType;
 import javax.enterprise.deploy.spi.status.ProgressEvent;
-import org.openide.filesystems.FileSystem.Status;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 /**
@@ -38,13 +31,13 @@ import org.openide.util.RequestProcessor;
  */
 public class GeStartServer extends StartServer implements ProgressObject {
 
-static enum MODE { RUN, DEBUG };
+    static enum MODE { RUN, DEBUG };
+    
     private MODE mode;
-    private DeploymentStatus deploymentStatus;
+    private volatile DeploymentStatus deploymentStatus;
     private GeDeploymentManager dm;
     private String serverName;
-    private String serverHome;
-    private Vector <ProgressListener> listeners = new Vector<ProgressListener>();
+    private CopyOnWriteArrayList<ProgressListener> listeners = new CopyOnWriteArrayList<ProgressListener>();
     private InstanceProperties ip;
     private static Map isDebugModeUri = Collections.synchronizedMap((Map)new HashMap(2,1));
     private String url;
@@ -57,7 +50,6 @@ static enum MODE { RUN, DEBUG };
 	this.dm = (GeDeploymentManager) dm;
 	this.ip = ((GeDeploymentManager) dm).getProperties().getInstanceProperties();
 	serverName = ip.getProperty(InstanceProperties.DISPLAY_NAME_ATTR);
-	serverHome = ip.getProperty(GePluginProperties.PROPERTY_GE_HOME);
 	url = ip.getProperty(InstanceProperties.URL_ATTR);
     }
 
@@ -87,7 +79,7 @@ static enum MODE { RUN, DEBUG };
                 NbBundle.getMessage(GeStartServer.class, "MSG_STOP_SERVER_IN_PROGRESS", serverName)));//NOI18N
         RequestProcessor.getDefault().post(new GeStopRunnable(dm, this), 0, Thread.NORM_PRIORITY);
         removeDebugModeUri();
-	return this;
+        return this;
     }
 
     public ProgressObject startDeploymentManager() {
@@ -99,21 +91,10 @@ static enum MODE { RUN, DEBUG };
         fireHandleProgressEvent(null, new GeDeploymentStatus(ActionType.EXECUTE, CommandType.START, StateType.RUNNING,
                 NbBundle.getMessage(GeStartServer.class, "MSG_START_SERVER_IN_PROGRESS", sName)));//NOI18N
         
-        //TODO: user check
-        // Check if the server is initialized
-        //if(!GePluginUtils.isUserActivated(serverHome, user)) {
             
-            while(password == null || password.equals("")) {
-                password = GePluginUtils.requestPassword(userName);
-            }
-            
-//            if(!GePluginUtils.activateUser(serverHome, user, password)) {
-//                fireHandleProgressEvent(null, new GeDeploymentStatus(ActionType.EXECUTE, CommandType.START, StateType.FAILED,
-//                        NbBundle.getMessage(GeStartServer.class, "MSG_START_SERVER_NOT_INITIALIZED", serverName))); //NOI18N
-//                
-//                return this;
-//            }
-        //}
+        while(password == null || password.equals("")) {
+            password = GePluginUtils.requestPassword(userName);
+        }
         
         RequestProcessor.getDefault().post(new GeStartRunnable(dm, this), 0, Thread.NORM_PRIORITY);
         removeDebugModeUri();
@@ -127,19 +108,9 @@ static enum MODE { RUN, DEBUG };
     public void fireHandleProgressEvent(TargetModuleID targetModuleID, DeploymentStatus deploymentStatus) {
         ProgressEvent evt = new ProgressEvent(this, targetModuleID, deploymentStatus);
         this.deploymentStatus = deploymentStatus;
-        
-        java.util.Vector targets = null;
-        synchronized (this) {
-            if (listeners != null) {
-                targets = (java.util.Vector) listeners.clone();
-            }
-        }
-        
-        if (targets != null) {
-            for (int i = 0; i < targets.size(); i++) {
-                ProgressListener target = (ProgressListener)targets.elementAt(i);
-                target.handleProgressEvent(evt);
-            }
+
+        for (ProgressListener listener : listeners) {
+            listener.handleProgressEvent(evt);
         }
     }
     
@@ -173,7 +144,7 @@ static enum MODE { RUN, DEBUG };
     }
 
     public boolean isCancelSupported() {
-	throw new UnsupportedOperationException("Not supported yet.");
+	return false;
     }
 
     public void cancel() throws OperationUnsupportedException {
@@ -181,22 +152,22 @@ static enum MODE { RUN, DEBUG };
     }
 
     public boolean isStopSupported() {
-	throw new UnsupportedOperationException("Not supported yet.");
+	return false;
     }
 
     public void stop() throws OperationUnsupportedException {
 	throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void addProgressListener(ProgressListener arg0) {
-	listeners.add(arg0);
+    public void addProgressListener(ProgressListener l) {
+        listeners.add(l);
     }
 
-    public void removeProgressListener(ProgressListener arg0) {
-	listeners.remove(arg0);
+    public void removeProgressListener(ProgressListener l) {
+        listeners.remove(l);
     }
     
-    protected MODE getMode() {
+    MODE getMode() {
         return mode;
     }
 }
