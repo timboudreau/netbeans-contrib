@@ -100,6 +100,14 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
 
         try {
             FileObject fileObject = webModule.getWebInf().getFileObject("ImplementationType", "properties");
+            FileObject webInfObj = webModule.getWebInf();
+             
+              ClassPath cp = ClassPath.getClassPath(webModule.getDocumentBase(), ClassPath.COMPILE);
+              if (fileObject == null )                   
+                    return false;
+              if(cp == null || cp.findResource("com/sun/saw/Workflow.class") == null) { //NOI18N)
+                  return false;
+                } 
         } catch (Exception e) {
             return false;
 
@@ -140,14 +148,15 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
                             ostream1.flush();
                             ostream1.close();
                             fLock2.releaseLock(); */
-                            org.openide.filesystems.FileObject fObject12 = fileObjectArray[i].createData("workflowconfig", "properties");
+                            org.openide.filesystems.FileObject fObject12 = fileObjectArray[i].createData("WorkflowConfig", "properties");
+
                             org.openide.filesystems.FileLock fLock3 = fObject12.lock();
                             java.io.OutputStream ostream2 = fObject12.getOutputStream(fLock3);
                             ostream2.write(("#The Workflow Engine to use.\n").getBytes());
-                            ostream2.write(("businessProcess=" + "com.sun.saw.impls.jcaps.JCAPSWorkflow\n").getBytes());
+                            ostream2.write(("sawworkflowimplclass=" + "com.sun.saw.impls.jcaps.JCAPSWorkflow\n").getBytes());
                             ostream2.write(("# Properties that are needed by the JCAPS Implementation of SAW.\n").getBytes());
                             ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverhost=" + "host where jcaps is installed e.g. test.domain.com\n").getBytes());
-                            ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverport=" + "port where jcaps workflow service is available e.g. 8080\n").getBytes());
+                            ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.iiopport=" + "port where jcaps workflow service is available e.g. 8080\n").getBytes());
                             ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverusername=" + "admin user name of jcaps app server e.g. admin\n").getBytes());
                             ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.appserverpassword=" + "password of jcaps app server e.g. abc \n").getBytes());
                             ostream2.write(("com.sun.saw.impls.jcaps.JCAPSWorkflow.contextfactory=" + "context factory of workflow service e.g. com.sun.jndi.cosnaming.CNCtxFactory \n").getBytes());
@@ -170,7 +179,7 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
             createFile(target, content, "UTF-8"); //NOI18N 
 
         } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
+           
         }
     }
 

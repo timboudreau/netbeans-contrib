@@ -53,8 +53,6 @@ public abstract class Template extends AstDef {
         super(name, nameRange, bindingScope, kind);
     }
 
-    public abstract String getClassName();
-
     public void setCaseOne() {
         this.caseOne = true;
     }

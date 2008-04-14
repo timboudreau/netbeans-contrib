@@ -41,9 +41,15 @@
 
 package org.netbeans.modules.javafx.editor;
 
+import com.sun.javafx.api.tree.JavaFXTree;
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.source.tree.Tree;
+import com.sun.source.util.TreePath;
+import com.sun.tools.javafx.tree.JFXTree;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Set;
+import javax.lang.model.type.TypeMirror;
 import javax.swing.text.Document;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
 import org.netbeans.api.javafx.source.CompilationController;
@@ -72,6 +78,7 @@ public class GoToSupport {
     }
 
     public static String getGoToElementTooltip(Document doc, final int offset, final boolean goToSource) {
+        System.err.println("get tooltip at " + offset);
         return performGoTo(doc, offset, goToSource, true, false);
     }
 
@@ -80,7 +87,8 @@ public class GoToSupport {
         return od != null ? od.getPrimaryFile() : null;
     }
 
-    private static String performGoTo(final Document doc, final int offset, final boolean goToSource, final boolean tooltip, final boolean javadoc) {
+    private static String performGoTo(final Document doc, final int off, final boolean goToSource, final boolean tooltip, final boolean javadoc) {
+        final int offset = off+1; // XXX - bad positions from AST
         try {
             final FileObject fo = getFileObject(doc);
             
@@ -96,7 +104,7 @@ public class GoToSupport {
             
             js.runUserActionTask(new Task<CompilationController>() {
                 public void run(CompilationController controller) throws Exception {
-                    if (controller.toPhase(Phase.PARSED).lessThan(Phase.PARSED))
+                    if (controller.toPhase(Phase.ANALYZED).lessThan(Phase.ANALYZED))
                         return;
 
                     Token<JFXTokenId>[] token = new Token[1];
@@ -108,8 +116,27 @@ System.err.println("not an identifier");
                         return ;
                     }
                     
-                    if (token[0] != null) result[0] = token[0].text().toString(); // XXX
+//                    if (token[0] != null) result[0] = token[0].text().toString(); // XXX
 
+                    TreePath path = controller.getTreeUtilities().pathFor(offset);
+                    
+                    Tree leaf = path.getLeaf();
+//                    System.err.println("tree=" + leaf);
+//                    System.err.println("kind=" + leaf.getKind());
+//                    if (leaf instanceof JavaFXTree) System.err.println("jfkind=" + ((JavaFXTree)leaf).getJavaFXKind());
+
+                    TreePath parent = path.getParentPath();
+                    Tree parentLeaf = parent.getLeaf();
+
+//                    System.err.println("pLeaf=" + parentLeaf);
+//                    System.err.println("pKind=" + parentLeaf.getKind());
+//                    if (parentLeaf instanceof JavaFXTree) System.err.println("jfkind=" + ((JavaFXTree)parentLeaf).getJavaFXKind());
+                    
+                    if (parentLeaf instanceof JavaFXTree && ((JavaFXTree)parentLeaf).getJavaFXKind() == JavaFXKind.TYPE_CLASS) {
+                        TypeMirror tm = controller.getTrees().getTypeMirror(path);
+                        System.err.println("type:" + tm);
+                        result[0] = tm.toString();
+                    }
                 }
             }, true);
             
@@ -153,5 +180,8 @@ System.err.println("not an identifier");
         
         return new int [] {ts.offset(), ts.offset() + t.length()};
     }
-
+    
+    private void goToType() {
+        
+    }
 }

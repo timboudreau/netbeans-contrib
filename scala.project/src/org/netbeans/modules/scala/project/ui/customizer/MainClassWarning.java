@@ -42,11 +42,10 @@
 package org.netbeans.modules.scala.project.ui.customizer;
 
 import java.util.Collection;
-import javax.lang.model.element.TypeElement;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeListener;
 
-import org.netbeans.api.java.source.ElementHandle;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.openide.filesystems.FileObject;
 
 /** Shows a warning that no main class is set and allows choose a main class.
@@ -57,18 +56,18 @@ public class MainClassWarning extends JPanel {
 
     private final String message;
     private final FileObject[] sourcesRoots;
-    private final Collection<ElementHandle<TypeElement>> mainClasses;
+    private final Collection<AstElement> mainClasses;
 
     /** Creates new form LibrariesChooser */
     public MainClassWarning (final String message, final FileObject[] sourcesRoots) {
         this (message,sourcesRoots,null);
     }
     
-    public MainClassWarning (String message, final Collection<ElementHandle<TypeElement>> mainClasses) {
+    public MainClassWarning (String message, final Collection<AstElement> mainClasses) {
         this (message,null,mainClasses);
     }
     
-    private MainClassWarning (final String message, final FileObject[] sourcesRoots, final Collection<ElementHandle<TypeElement>> mainClasses) {
+    private MainClassWarning (final String message, final FileObject[] sourcesRoots, final Collection<AstElement> mainClasses) {
         assert (sourcesRoots != null && mainClasses == null) || (sourcesRoots == null && mainClasses != null);
         this.sourcesRoots = sourcesRoots;
         this.message = message;
@@ -143,7 +142,7 @@ public class MainClassWarning extends JPanel {
         return new MainClassChooser(sourceRoots, org.openide.util.NbBundle.getBundle(MainClassWarning.class).getString("CTL_SelectAvaialableMainClasses"));
     }
     
-    private static MainClassChooser createMainClassChooser (final Collection<ElementHandle<TypeElement>> mainClasses) {
+    private static MainClassChooser createMainClassChooser (final Collection<AstElement> mainClasses) {
         return new MainClassChooser (mainClasses,org.openide.util.NbBundle.getBundle(MainClassWarning.class).getString("CTL_SelectAvaialableMainClasses"));
     }
 

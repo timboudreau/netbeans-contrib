@@ -47,7 +47,6 @@ import java.awt.event.MouseListener;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import javax.lang.model.element.TypeElement;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -57,8 +56,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import org.netbeans.api.java.source.ElementHandle;
-import org.netbeans.api.java.source.SourceUtils;
+import org.netbeans.modules.gsf.api.ElementHandle;
+import org.netbeans.modules.scala.editing.SourceUtils;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.project.J2SEProjectUtil;
 import org.openide.awt.Mnemonics;
 import org.openide.awt.MouseUtils;
@@ -74,7 +74,7 @@ public class MainClassChooser extends JPanel {
 
     private ChangeListener changeListener;
     private String dialogSubtitle = null;
-    private Collection<ElementHandle<TypeElement>> possibleMainClasses;
+    private Collection<AstElement> possibleMainClasses;
             
     /** Creates new form MainClassChooser */
     public MainClassChooser (FileObject[] sourcesRoots) {
@@ -89,7 +89,7 @@ public class MainClassChooser extends JPanel {
         initClassesModel(sourcesRoots);
     }
     
-    public MainClassChooser (final Collection<ElementHandle<TypeElement>> mainClassesInFile) {
+    public MainClassChooser (final Collection<AstElement> mainClassesInFile) {
         assert mainClassesInFile != null;
         this.initComponents();
         jMainClassList.setCellRenderer(new MainClassRenderer());
@@ -97,7 +97,7 @@ public class MainClassChooser extends JPanel {
         initClassesModel (mainClassesInFile);
     }
     
-    public MainClassChooser (final Collection<ElementHandle<TypeElement>> mainClassesInFile, final String subtitle) {
+    public MainClassChooser (final Collection<AstElement> mainClassesInFile, final String subtitle) {
         assert mainClassesInFile != null;
         dialogSubtitle = subtitle;
         this.initComponents();
@@ -150,7 +150,7 @@ public class MainClassChooser extends JPanel {
                         }
                     });                    
                 } else {
-                    final ElementHandle<TypeElement>[] arr = possibleMainClasses.toArray(new ElementHandle[possibleMainClasses.size()]);
+                    final AstElement[] arr = possibleMainClasses.toArray(new AstElement[possibleMainClasses.size()]);
                     // #46861, sort name of classes
                     Arrays.sort (arr, new MainClassComparator());
                     SwingUtilities.invokeLater(new Runnable () {
@@ -164,8 +164,8 @@ public class MainClassChooser extends JPanel {
         });
     }
     
-    private void initClassesModel (final Collection<ElementHandle<TypeElement>> mainClasses) {
-        final ElementHandle<TypeElement>[] arr = mainClasses.toArray(new ElementHandle[mainClasses.size()]);
+    private void initClassesModel (final Collection<AstElement> mainClasses) {
+        final AstElement[] arr = mainClasses.toArray(new AstElement[mainClasses.size()]);
         Arrays.sort (arr, new MainClassComparator());
         possibleMainClasses = mainClasses;
         jMainClassList.setListData (arr);
@@ -190,11 +190,11 @@ public class MainClassChooser extends JPanel {
      */    
     @SuppressWarnings("unchecked")
     public String getSelectedMainClass () {
-        ElementHandle<TypeElement> te = null;
+        ElementHandle te = null;
         if (isValidMainClassName (jMainClassList.getSelectedValue ())) {
-            te = (ElementHandle<TypeElement>)jMainClassList.getSelectedValue();
+            te = (ElementHandle)jMainClassList.getSelectedValue();
         }
-        return te == null ? null : te.getBinaryName();
+        return te == null ? null : te.getName();
     }
     
     public void addChangeListener (ChangeListener l) {
@@ -278,8 +278,8 @@ public class MainClassChooser extends JPanel {
             String displayName;
             if (value instanceof String) {
                 displayName = (String) value;
-            } if (value instanceof ElementHandle) {
-                displayName = ((ElementHandle)value).getQualifiedName();
+            } if (value instanceof AstElement) {
+                displayName = ((AstElement)value).getQualifiedName();
             } else {
                 displayName = value.toString ();
             }
@@ -287,9 +287,9 @@ public class MainClassChooser extends JPanel {
         }
     }
     
-    private static class MainClassComparator implements Comparator<ElementHandle> {
+    private static class MainClassComparator implements Comparator<AstElement> {
             
-        public int compare(ElementHandle arg0, ElementHandle arg1) {
+        public int compare(AstElement arg0, AstElement arg1) {
             return arg0.getQualifiedName().compareTo(arg1.getQualifiedName());
         }
     }

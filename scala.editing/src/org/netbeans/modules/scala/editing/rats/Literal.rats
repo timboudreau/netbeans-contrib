@@ -50,7 +50,7 @@ import org.netbeans.modules.scala.editing.rats.Identifier;
 
 // ----- Integer literals
 
-transient Generic IntegerLiteral = integerLiteral;
+transient generic IntegerLiteral = integerLiteral;
 transient String integerLiteral =
   hexNumeral     integerTypeSuffix?     
 / octalNumeral   integerTypeSuffix? 

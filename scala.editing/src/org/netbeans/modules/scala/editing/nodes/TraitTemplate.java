@@ -51,7 +51,7 @@ public class TraitTemplate extends Template {
         super(name, nameRange, bindingScope, ElementKind.MODULE);
     }
 
-    public String getClassName() {
+    public String getBinaryName() {
         return getName();
     }
 

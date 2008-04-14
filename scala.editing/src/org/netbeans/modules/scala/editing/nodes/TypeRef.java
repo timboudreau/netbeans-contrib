@@ -49,6 +49,15 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public class TypeRef extends AstRef {
     
+    public static final TypeRef Float   = new TypeRef("Float",   OffsetRange.NONE, ElementKind.CLASS);
+    public static final TypeRef Int     = new TypeRef("Int",     OffsetRange.NONE, ElementKind.CLASS);
+    public static final TypeRef Boolean = new TypeRef("Boolean", OffsetRange.NONE, ElementKind.CLASS);
+    public static final TypeRef Null    = new TypeRef("Null",    OffsetRange.NONE, ElementKind.CLASS);
+    public static final TypeRef Char    = new TypeRef("Char", OffsetRange.NONE, ElementKind.CLASS);
+    public static final TypeRef String  = new TypeRef("String",  OffsetRange.NONE, ElementKind.CLASS);
+    public static final TypeRef Symbol  = new TypeRef("Symbol", OffsetRange.NONE, ElementKind.CLASS);
+        
+    
     private List<String> annotations;
 
     public TypeRef(String name, OffsetRange nameRange, ElementKind kind) {

@@ -49,41 +49,209 @@ made subject to such option by the copyright holder.
     
     <folder name="demos">
         <folder name="color">
-            <file name="GradientSample" url="/demos/color/GradientSample.fx"/>
-            <file name="ColorWheel" url="/demos/color/ColorWheel.fx"/>
+            <folder name="GradientSample">
+                <folder name="color">
+                    <file name="GradientSample.fx" url="/demos/color/GradientSample.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="ColorWheel">
+                <folder name="color">
+                    <file name="ColorWheel.fx" url="/demos/color/ColorWheel.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>            
         </folder>
         <folder name="math">
-            <file name="Arctangent" url="/demos/math/Arctangent.fx"/>
-            <file name="Distance1D" url="/demos/math/Distance1D.fx"/>
-            <file name="Distance2D" url="/demos/math/Distance2D.fx"/>
-            <file name="Sine" url="/demos/math/Sine.fx"/>
-            <file name="SineWave" url="/demos/math/SineWave.fx"/>
+            <folder name="Arctangent">
+                <folder name="color">
+                    <file name="Arctangent.fx" url="/demos/math/Arctangent.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>    
+                </folder>
+            </folder>    
+            <folder name="Distance1D">
+                <folder name="math">
+                    <file name="Distance1D.fx" url="/demos/math/Distance1D.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>            
+                </folder>
+            </folder>
+            <folder name="Distance2D">
+                <folder name="math">
+                    <file name="Distance2D.fx" url="/demos/math/Distance2D.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>            
+                </folder>
+            </folder>
+            <folder name="Sine">
+                <folder name="math">
+                    <file name="Sine.fx" url="/demos/math/Sine.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="SineWave">
+                <folder name="math">
+                    <file name="SineWave.fx" url="/demos/math/SineWave.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>            
+                </folder>
+            </folder>    
         </folder>
         <folder name="forms">
-            <file name="PointsAndLines" url="/demos/forms/PointsAndLines.fx"/>
-            <file name="ShapePrimitives" url="/demos/forms/ShapePrimitives.fx"/>
+            <folder name="PointsAndLines">
+                <folder name="forms">
+                    <file name="PointsAndLines" url="/demos/forms/PointsAndLines.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="ShapePrimitives">
+                <folder name="forms">
+                    <file name="ShapePrimitives" url="/demos/forms/ShapePrimitives.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>
         </folder>
         <folder name="image">
-            <file name="BackgroundImage" url="/demos/image/BackgroundImage.fx"/>
-            <file name="Displaying" url="/demos/image/Displaying.fx"/>
-            <file name="Transparency" url="/demos/image/Transparency.fx"/>
+            <folder name="BackgroundImage">
+                <folder name="image">
+                    <file name="BackgroundImage.fx" url="/demos/image/BackgroundImage.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>    
+                </folder>
+                <folder name="resources">
+                    <file name="background.png" url="/resources/background.png"/>
+                </folder>
+            </folder>    
+            <folder name="Displaying">
+                <folder name="image">
+                    <file name="Displaying.fx" url="/demos/image/Displaying.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>    
+                </folder>
+                <folder name="resources">
+                    <file name="background.png" url="/resources/background.png"/>
+                </folder>
+            </folder>    
+            <folder name="Transparency">
+                <folder name="image">
+                    <file name="Transparency.fx" url="/demos/image/Transparency.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>    
+                </folder>
+                <folder name="resources">
+                    <file name="background.png" url="/resources/background.png"/>
+                    <file name="overlay.png" url="/resources/overlay.png"/>
+                </folder>
+            </folder>    
         </folder>
         <folder name="input">
-            <file name="Clock" url="/demos/input/Clock.fx"/>
-            <file name="Constrain" url="/demos/input/Constrain.fx"/>
-            <file name="Easing" url="/demos/input/Easing.fx"/>
-            <file name="Milliseconds" url="/demos/input/Milliseconds.fx"/>
-            <file name="Mouse1D" url="/demos/input/Mouse1D.fx"/>
-            <file name="Mouse2D" url="/demos/input/Mouse2D.fx"/>
-            <file name="MousePress" url="/demos/input/MousePress.fx"/>
-            <file name="StoringInput" url="/demos/input/StoringInput.fx"/>
+            <folder name="Clock">
+                <folder name="input">
+                    <file name="Clock.fx" url="/demos/input/Clock.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="Constrain">
+                <folder name="input">
+                    <file name="Constrain.fx" url="/demos/input/Constrain.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="Easing">
+                <folder name="input">
+                    <file name="Easing.fx" url="/demos/input/Easing.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="Milliseconds">
+                <folder name="input">
+                    <file name="Milliseconds.fx" url="/demos/input/Milliseconds.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="Mouse1D">
+                <folder name="input">
+                    <file name="Mouse1D.fx" url="/demos/input/Mouse1D.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="Mouse2D">
+                <folder name="input">
+                    <file name="Mouse2D.fx" url="/demos/input/Mouse2D.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="MousePress">
+                <folder name="input">
+                    <file name="MousePress.fx" url="/demos/input/MousePress.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="StoringInput">
+                <folder name="input">
+                    <file name="StoringInput.fx" url="/demos/input/StoringInput.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>    
+                </folder>
+            </folder>
         </folder>
         <folder name="motion">
-            <file name="BouncyBubbles" url="/demos/motion/BouncyBubbles.fx"/>
-            <file name="Linear" url="/demos/motion/Linear.fx"/>
+            <folder name="BouncyBubbles">
+                <folder name="motion">
+                    <file name="BouncyBubbles.fx" url="/demos/motion/BouncyBubbles.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>    
+                </folder>    
+            </folder>    
+            <folder name="Linear">
+                <folder name="motion">
+                    <file name="Linear.fx" url="/demos/motion/Linear.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>    
+                </folder>    
+            </folder>
+        </folder>
+        <folder name="particles">
+            <folder name="FlockDemo">
+                <folder name="particles">
+                    <file name="FlockDemo.fx" url="/demos/particles/FlockDemo.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>    
+            </folder>    
+            <folder name="SimpleParticleSystem">
+                <folder name="particles">
+                    <file name="SimpleParticleSystem.fx" url="/demos/particles/SimpleParticleSystem.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>    
+                </folder>    
+            </folder>    
+            <folder name="SmokeParticleSystem">
+                <folder name="particles">
+                    <file name="SmokeParticleSystem.fx" url="/demos/particles/SmokeParticleSystem.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+                <folder name="resources">
+                    <file name="texture.png" url="/resources/texture.png"/>
+                </folder>
+            </folder>
         </folder>
     </folder>
-    
+        
     <folder name="Templates">
         <folder name="Project">
             <folder name="Samples">
@@ -270,17 +438,26 @@ made subject to such option by the copyright holder.
                             </file>
                         </folder>
                         <folder name="Simulation">
-                            <file name="Simple particle system" url="">
+                            <file name="Simple particle system" url="../../../../../../demos/particles/SimpleParticleSystem.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/particles/SimpleParticleSystem"/>
                             </file>
-                            <file name="Smoke particle system" url="">
+                            <file name="Smoke particle system" url="../../../../../../demos/particles/SmokeParticleSystem.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/particles/SmokeParticleSystem"/>
                             </file>
-                            <file name="Flocks" url="">
+                            <file name="Flocks" url="../../../../../../demos/particles/FlockDemo.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/particles/FlockDemo/"/>
                             </file>
                         </folder>
                     </folder>
