@@ -4,4 +4,5 @@ OpenIDE-Module-Implementation-Version: 1
 OpenIDE-Module-Install: org/netbeans/modules/cnd/syntaxerr/SyntaxErrInstall.class
 DISABLE_OpenIDE-Module-Layer: org/netbeans/modules/cnd/syntaxerr/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/cnd/syntaxerr/resources/Bundle.properties
+OpenIDE-Module-Specification-Version: 0.3
 
