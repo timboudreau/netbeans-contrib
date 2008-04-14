@@ -501,6 +501,13 @@ out:            for (Iterator<Collection<Request>> it = CompilationJob.finishedR
             LOGGER.log(Level.WARNING,String.format("File: %s has no EditorCookie.Observable", FileUtil.getFileDisplayName (od.getPrimaryFile())));      //NOI18N
         }
     }
+  
+    public Document getDocument() {
+        if ((listener == null) || (listener.getDocument() == null)) {
+            return null;
+        }
+        return listener.getDocument();
+    }
     
     public TokenHierarchy getTokenHierarchy() {
         if ((listener == null) || (listener.getDocument() == null)) {
