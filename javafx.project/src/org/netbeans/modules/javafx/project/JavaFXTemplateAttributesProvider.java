@@ -43,6 +43,7 @@ package org.netbeans.modules.javafx.project;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.logging.Logger;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.CreateFromTemplateAttributesProvider;
@@ -71,7 +72,8 @@ public final class JavaFXTemplateAttributesProvider implements CreateFromTemplat
         FileObject targetFO = target.getPrimaryFile();
         ClassPath cp = ClassPath.getClassPath(targetFO, ClassPath.SOURCE);
         if (cp == null) {
-            throw new IllegalStateException("No classpath was found for folder: " + target.getPrimaryFile()); // NOI18N
+            Logger.getLogger(JavaFXTemplateAttributesProvider.class.getName()).warning("No classpath was found for folder: " + target.getPrimaryFile()); // NOI18N
+            return Collections.emptyMap();
         }
         return Collections.<String, Object>singletonMap("package", cp.getResourceName(targetFO, '.', false)); // NOI18N
         

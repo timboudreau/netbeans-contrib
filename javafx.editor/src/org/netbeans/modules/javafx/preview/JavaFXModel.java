@@ -42,7 +42,6 @@
 package org.netbeans.modules.javafx.preview;
 
 import org.netbeans.modules.javafx.editor.*;
-import org.netbeans.modules.javafx.preview.PreviewThread;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
@@ -53,16 +52,12 @@ import java.io.Reader;
 import java.util.HashMap;
 import java.util.HashSet;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingUtilities;
 //import net.java.javafx.type.expr.CompilationUnit;
 //import net.java.javafx.typeImpl.Compilation;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.editor.NbEditorUtilities;
-import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
 
 /**
  *
@@ -86,7 +81,6 @@ public class JavaFXModel {
     public static FXDocument getNextDocument() {
         FXDocument result = documents.iterator().next();
         documents.remove(result);
-//        System.out.println("Removed from Set (" + documents.size() + "): " + result);
         return(result);
     }
     
@@ -95,7 +89,9 @@ public class JavaFXModel {
     }
     
     public static void sourceChanged(FXDocument doc){
-//        System.out.println("[JavaFXModel] sourceChanged for document: " + doc);
+        
+        CodeManager.cut(doc);
+        
         comps.get(doc).sourceChanged();
         lastVisitTime = System.currentTimeMillis();
         changeThread.setDocument(doc);
@@ -206,7 +202,6 @@ public class JavaFXModel {
     }
     
     private static void renderPreview(final FXDocument doc) {
-//        System.out.println("[JavaFXModel] renderPreview for document: " + doc);
         try{
             PreviewThread tPreview = new PreviewThread(doc);
             if(!SwingUtilities.isEventDispatchThread()) {

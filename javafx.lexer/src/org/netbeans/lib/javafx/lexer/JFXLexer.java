@@ -66,13 +66,13 @@ public class JFXLexer implements org.netbeans.spi.lexer.Lexer {
     protected LexerInput lexerInput;
     protected JFXTokenId lastType;
     private LexerRestartInfo<JFXTokenId> info;
+    private long st;
 
     public JFXLexer(LexerRestartInfo<JFXTokenId> info) throws IOException {
         super();
         if (log.isLoggable(Level.INFO)) log.info("Creating new lexer");
         this.lexer = new v3Lexer();
         this.info = info;
-
     }
 
     private void configureLexer(LexerRestartInfo<JFXTokenId> info) {
@@ -107,7 +107,7 @@ public class JFXLexer implements org.netbeans.spi.lexer.Lexer {
             info = null;
             if (log.isLoggable(Level.INFO)) log.info("Reseting lexer");
         }
-
+        st = System.currentTimeMillis();
         final org.antlr.runtime.Token token = lexer.nextToken();
         if (token.getType() == org.antlr.runtime.Token.EOF) {
             final int rl = lexerInput.readLength();
@@ -141,7 +141,8 @@ public class JFXLexer implements org.netbeans.spi.lexer.Lexer {
     }
 
     public void release() {
-        if (log.isLoggable(Level.INFO)) log.info("Releasing lexer @line: " + lexer.getLine());        
+        long tt = System.currentTimeMillis() - st;
+        if (log.isLoggable(Level.INFO)) log.info("Releasing lexer @line: " + lexer.getLine() + " total time: " + tt + "ms");        
         lexer = null;
     }
 

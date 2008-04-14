@@ -47,12 +47,14 @@ import com.sun.tools.javafx.api.JavafxcTrees;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import org.netbeans.api.project.libraries.Library;
 import org.netbeans.api.project.libraries.LibraryManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -144,6 +146,10 @@ public class JavaFXSourceUtils {
 
     public static List<URL> getAdditionalCP(){
         LibraryManager lm = LibraryManager.getDefault();
-        return lm.getLibrary("JavaFXUserLib").getContent("classpath");
+        Library l = lm.getLibrary("JavaFXUserLib");
+        if (l == null) {
+            return Collections.emptyList();
+        }
+        return l.getContent("classpath");
     }
 }
