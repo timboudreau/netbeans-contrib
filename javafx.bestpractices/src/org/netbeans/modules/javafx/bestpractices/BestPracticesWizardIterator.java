@@ -94,7 +94,7 @@ public class BestPracticesWizardIterator implements WizardDescriptor.Instantiati
     private String[] createSteps() {
         return new String[]{ NbBundle.getMessage( BestPracticesWizardIterator.class, "LBL_CreateProjectStep" )};
     }
-    
+        
     public Set instantiate() throws IOException {
         Set<FileObject> resultSet = new LinkedHashSet<FileObject>();
         File dirF = FileUtil.normalizeFile((File) wizard.getProperty( "projdir" ));
@@ -107,14 +107,24 @@ public class BestPracticesWizardIterator implements WizardDescriptor.Instantiati
         String srcdir = props.getProperty( "src.dir" );
         FileObject dir = FileUtil.toFileObject( dirF );
         
-        // Create the class
-        FileObject d = FileUtil.createFolder( dir.getFileObject( srcdir ), mainFile.getParent().getPath().substring( "demos/".length()));
-        FileUtil.copyFile( mainFile, d, mainFile.getName() + ".fx" );
-        
-        // Set main file
-        props.setProperty( "main.class", mainFile.getPath().substring( "demos/".length()).replace( "/", "." ));
-        helper.putProperties( AntProjectHelper.PROJECT_PROPERTIES_PATH, props );        
-        
+        FileObject srcDir = dir.getFileObject( srcdir );
+        Enumeration<? extends FileObject> subs = mainFile.getFolders( true );
+        while( subs.hasMoreElements()) {
+            FileObject fo = subs.nextElement();
+            FileObject destDirFO = srcDir.getFileObject( fo.getPath().substring( mainFile.getPath().length() + 1 ));
+            if( destDirFO == null ) destDirFO = srcDir.createFolder( fo.getPath().substring( mainFile.getPath().length() + 1 ));
+            for( FileObject c : fo.getChildren()) {
+                FileUtil.copyFile( c, destDirFO, c.getName());
+                // If file has mainclass attribute - set it as main 
+                if( c.getAttribute( "mainclass" ) != null ) {
+                    String fileName = c.getPath().substring( mainFile.getPath().length() + 1 ).replace( "/", "." );
+                    fileName = fileName.substring( 0, fileName.length() - 3 );
+                            
+                    props.setProperty( "main.class", fileName );
+                    helper.putProperties( AntProjectHelper.PROJECT_PROPERTIES_PATH, props );        
+                }
+            }
+        }        
         
         // Traverse created directory
         resultSet.add( dir );
