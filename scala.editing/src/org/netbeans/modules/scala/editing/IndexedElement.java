@@ -62,9 +62,54 @@ import org.openide.util.Exceptions;
  * To obtain an equivalent AST element, use AstUtilities.getForeignNode().
  * 
  * @author Tor Norbye
+ * @author Caoyuan Deng
  */
 public abstract class IndexedElement extends AstElement {
     
+    protected static final int NAME_INDEX = 0;
+    protected static final int IN_INDEX = 1;
+    protected static final int CASE_SENSITIVE_INDEX = 2;
+    protected static final int FLAG_INDEX = 3;
+    protected static final int ARG_INDEX = 4;
+    protected static final int NODE_INDEX = 5;
+    protected static final int DOC_INDEX = 6;
+    protected static final int BROWSER_INDEX = 7;
+    protected static final int TYPE_INDEX = 8;
+    // ------------- Flags/attributes -----------------
+
+    // This should go into IndexedElement
+    // Other attributes:
+    // is constructor? prototype?
+    // Plan: Stash a single item for class entries so I can search by document for the class.
+    // Add more types into the types
+    /** This method is documented */
+    public static final int DOCUMENTED = 1 << 0;
+    /** This method is protected */
+    public static final int PROTECTED = 1 << 1;
+    /** This method is private */
+    public static final int PRIVATE = 1 << 2;
+    /** This is a function, not a property */
+    public static final int FUNCTION = 1 << 3;
+    /** This element is "static" (e.g. it's a classvar for fields, class method for methods etc) */
+    public static final int STATIC = 1 << 4;
+    /** This element is deliberately not documented (rdoc :nodoc:) */
+    public static final int NODOC = 1 << 5;
+    /** This is a global variable */
+    public static final int GLOBAL = 1 << 6;
+    /** This is a constructor */
+    public static final int CONSTRUCTOR = 1 << 7;
+    /** This is a deprecated */
+    public static final int DEPRECATED = 1 << 8;
+    /** This is a documentation-only definition */
+    public static final int DOC_ONLY = 1 << 9;
+    /** This is a constant/final */
+    public static final int FINAL = 1 << 10;
+    
+    public static final int CLASS = 1 << 11;
+    public static final int OBJECT = 1 << 12;
+    public static final int TRAIT = 1 << 13;
+            
+        
     protected String fqn;
     protected String name;
     protected String in;
@@ -387,43 +432,6 @@ public abstract class IndexedElement extends AstElement {
 
         return null;
     }
-    protected static final int NAME_INDEX = 0;
-    protected static final int IN_INDEX = 1;
-    protected static final int CASE_SENSITIVE_INDEX = 2;
-    protected static final int FLAG_INDEX = 3;
-    protected static final int ARG_INDEX = 4;
-    protected static final int NODE_INDEX = 5;
-    protected static final int DOC_INDEX = 6;
-    protected static final int BROWSER_INDEX = 7;
-    protected static final int TYPE_INDEX = 8;
-    // ------------- Flags/attributes -----------------
-
-    // This should go into IndexedElement
-    // Other attributes:
-    // is constructor? prototype?
-    // Plan: Stash a single item for class entries so I can search by document for the class.
-    // Add more types into the types
-    /** This method is documented */
-    public static final int DOCUMENTED = 1 << 0;
-    /** This method is private */
-    public static final int PRIVATE = 1 << 2;
-    /** This is a function, not a property */
-    public static final int FUNCTION = 1 << 3;
-    /** This element is "static" (e.g. it's a classvar for fields, class method for methods etc) */
-    public static final int STATIC = 1 << 4;
-    /** This element is deliberately not documented (rdoc :nodoc:) */
-    public static final int NODOC = 1 << 5;
-    /** This is a global variable */
-    public static final int GLOBAL = 1 << 6;
-    /** This is a constructor */
-    public static final int CONSTRUCTOR = 1 << 7;
-    /** This is a deprecated */
-    public static final int DEPRECATED = 1 << 8;
-    /** This is a documentation-only definition */
-    public static final int DOC_ONLY = 1 << 9;
-    /** This is a constant/final */
-    public static final int FINAL = 1 << 10;
-
     /** Return a string (suitable for persistence) encoding the given flags */
     public static String encode(int flags) {
         return Integer.toString(flags, 16);
