@@ -1149,6 +1149,95 @@ public class ScalaLexUtilities {
 
         return -1;
     }
+    
+    /**
+     * Get the comment block for the given offset. The offset may be either within the comment
+     * block, or the comment corresponding to a code node, depending on isAfter.
+     * 
+     * @param doc The document
+     * @param caretOffset The offset in the document
+     * @param isAfter If true, the offset is pointing to some code AFTER the code block
+     *   such as a method node. In this case it needs to back up to find the comment.
+     * @return
+     */
+    public static OffsetRange getCommentBlock(BaseDocument doc, int caretOffset, boolean isAfter) {
+        // Check if the caret is within a comment, and if so insert a new
+        // leaf "node" which contains the comment line and then comment block
+        try {
+            TokenSequence<? extends TokenId> ts = getTokenSequence(doc, caretOffset);
+            if (ts == null) {
+                return OffsetRange.NONE;
+            }
+            ts.move(caretOffset);
+            if (isAfter) {
+                while (ts.movePrevious()) {
+                    TokenId id = ts.token().id();
+                    if ( isComment(id)) {
+                        return getCommentBlock(doc, ts.offset(), false);
+                    } else if (!((id == ScalaTokenId.Ws) || (id == ScalaTokenId.Nl))) {
+                        return OffsetRange.NONE;
+                    }
+                }
+                return OffsetRange.NONE;
+            }
+            
+            if (!ts.moveNext() && !ts.movePrevious()) {
+                return null;
+            }
+            Token<?extends TokenId> token = ts.token();
+            
+            if (token != null && isBlockComment(token.id())) {
+                return new OffsetRange(ts.offset(), ts.offset()+token.length());
+            }
+
+            if ((token != null) && (token.id() == ScalaTokenId.LineComment)) {
+                // First add a range for the current line
+                int begin = Utilities.getRowStart(doc, caretOffset);
+                int end = Utilities.getRowEnd(doc, caretOffset);
+
+                if (isCommentOnlyLine(doc, caretOffset)) {
+
+                    while (begin > 0) {
+                        int newBegin = Utilities.getRowStart(doc, begin - 1);
+
+                        if ((newBegin < 0) || !isCommentOnlyLine(doc, newBegin)) {
+                            begin = Utilities.getRowFirstNonWhite(doc, begin);
+                            break;
+                        }
+
+                        begin = newBegin;
+                    }
+
+                    int length = doc.getLength();
+
+                    while (true) {
+                        int newEnd = Utilities.getRowEnd(doc, end + 1);
+
+                        if ((newEnd >= length) || !isCommentOnlyLine(doc, newEnd)) {
+                            end = Utilities.getRowLastNonWhite(doc, end)+1;
+                            break;
+                        }
+
+                        end = newEnd;
+                    }
+
+                    if (begin < end) {
+                        return new OffsetRange(begin, end);
+                    }
+                } else {
+                    // It's just a line comment next to some code
+                    TokenHierarchy<Document> th = TokenHierarchy.get((Document)doc);
+                    int offset = token.offset(th);
+                    return new OffsetRange(offset, offset + token.length());
+                }
+            }
+        } catch (BadLocationException ble) {
+            Exceptions.printStackTrace(ble);
+        }
+        
+        return OffsetRange.NONE;
+    }
+    
 
 //    public static boolean isInsideQuotedString(BaseDocument doc, int offset) {
 //        TokenSequence<?extends ScalaTokenId> ts = FortressLexUtilities.getTokenSequence(doc, offset);
@@ -1204,93 +1293,6 @@ public class ScalaLexUtilities {
         return false;
     }
 
-    /**
-     * Get the comment block for the given offset. The offset may be either within the comment
-     * block, or the comment corresponding to a code node, depending on isAfter.
-     * 
-     * @param doc The document
-     * @param caretOffset The offset in the document
-     * @param isAfter If true, the offset is pointing to some code AFTER the code block
-     *   such as a method node. In this case it needs to back up to find the comment.
-     * @return
-     */
-    public static OffsetRange getCommentBlock(BaseDocument doc, int caretOffset, boolean isAfter) {
-        // Check if the caret is within a comment, and if so insert a new
-        // leaf "node" which contains the comment line and then comment block
-        try {
-            TokenSequence<? extends TokenId> ts = ScalaLexUtilities.getTokenSequence(doc, caretOffset);
-            if (ts == null) {
-                return OffsetRange.NONE;
-            }
-            ts.move(caretOffset);
-            if (isAfter) {
-                while (ts.movePrevious()) {
-                    TokenId id = ts.token().id();
-                    if (isComment(id)) {
-                        return getCommentBlock(doc, ts.offset(), false);
-                    } else if (!((id == ScalaTokenId.Ws) || (id == ScalaTokenId.Nl))) {
-                        return OffsetRange.NONE;
-                    }
-                }
-                return OffsetRange.NONE;
-            }
-
-            if (!ts.moveNext() && !ts.movePrevious()) {
-                return null;
-            }
-            Token<? extends TokenId> token = ts.token();
-
-            if (token != null && (token.id() == ScalaTokenId.BlockCommentData)) {
-                return new OffsetRange(ts.offset(), ts.offset() + token.length());
-            }
-
-            if ((token != null) && (token.id() == ScalaTokenId.LineComment)) {
-                // First add a range for the current line
-                int begin = Utilities.getRowStart(doc, caretOffset);
-                int end = Utilities.getRowEnd(doc, caretOffset);
-
-                if (ScalaLexUtilities.isCommentOnlyLine(doc, caretOffset)) {
-
-                    while (begin > 0) {
-                        int newBegin = Utilities.getRowStart(doc, begin - 1);
-
-                        if ((newBegin < 0) || !ScalaLexUtilities.isCommentOnlyLine(doc, newBegin)) {
-                            begin = Utilities.getRowFirstNonWhite(doc, begin);
-                            break;
-                        }
-
-                        begin = newBegin;
-                    }
-
-                    int length = doc.getLength();
-
-                    while (true) {
-                        int newEnd = Utilities.getRowEnd(doc, end + 1);
-
-                        if ((newEnd >= length) || !ScalaLexUtilities.isCommentOnlyLine(doc, newEnd)) {
-                            end = Utilities.getRowLastNonWhite(doc, end) + 1;
-                            break;
-                        }
-
-                        end = newEnd;
-                    }
-
-                    if (begin < end) {
-                        return new OffsetRange(begin, end);
-                    }
-                } else {
-                    // It's just a line comment next to some code
-                    TokenHierarchy<Document> th = TokenHierarchy.get((Document) doc);
-                    int offset = token.offset(th);
-                    return new OffsetRange(offset, offset + token.length());
-                }
-            }
-        } catch (BadLocationException ble) {
-            Exceptions.printStackTrace(ble);
-        }
-
-        return OffsetRange.NONE;
-    }
 
     /**
      * Back up to the first space character prior to the given offset - as long as 

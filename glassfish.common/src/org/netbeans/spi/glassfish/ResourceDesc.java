@@ -43,7 +43,7 @@ package org.netbeans.spi.glassfish;
  *
  * @author Peter Williams
  */
-public class ResourceDesc {
+public class ResourceDesc implements Comparable<ResourceDesc> {
     
     private final String name;
     
@@ -53,6 +53,10 @@ public class ResourceDesc {
 
     public String getName() {
         return name;
+    }
+
+    public int compareTo(ResourceDesc o) {
+        return name.compareTo(o.name);
     }
     
 }

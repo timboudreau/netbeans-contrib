@@ -52,11 +52,16 @@ public class JCAPSImplementationType implements SAWImplementationType {
         StringWriter stringWriter = new StringWriter();
         String methodBody = new String();
         try {
+            String methodAddition = "";
             //    methodBody = Utils.mergeTemplateInString("checkout.template", null, stringWriter);
             methodBody = "{com.sun.saw.Workflow workflow = null; " +   	
-                        "com.sun.saw.WorkflowFactory workflowFactory = com.sun.saw.WorkflowFactory.getInstance(); " +
-                        "workflow = workflowFactory.getWorkflowInstance(); " +
-                        "return workflow;}";
+                        "com.sun.saw.WorkflowFactory workflowFactory = com.sun.saw.WorkflowFactory.getInstance(); " ;
+            if(type.equals("overloaded")) {                       
+                     methodAddition= "workflow = workflowFactory.getWorkflowInstance(properties); " ;
+            } else {
+                methodAddition= "workflow = workflowFactory.getWorkflowInstance(); " ;
+            }
+                     methodBody = methodBody + methodAddition +    "return workflow;}";
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -119,11 +124,12 @@ public class JCAPSImplementationType implements SAWImplementationType {
         String methodBody = new String();
         try {
             //    methodBody = Utils.mergeTemplateInString("checkout.template", null, stringWriter);
-            methodBody = "{com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();" 
+            //com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();
+            methodBody = "{" 
                     + "com.sun.saw.vo.CheckoutTaskVO checkoutTaskVO = new com.sun.saw.vo.CheckoutTaskVO();" + 
                     "checkoutTaskVO.setTaskIdList(taskIdList);" + "checkoutTaskVO.setUserId(userId);" + 
                     "com.sun.saw.vo.OutputVO outputVO = null;" + 
-                    "outputVO = workFlowManager.checkoutTasks(checkoutTaskVO);" +
+                    "outputVO = workflowImpl.checkoutTasks(checkoutTaskVO);" +
                     "return outputVO;}";
         } catch (Exception e) {
             e.printStackTrace();
@@ -158,11 +164,12 @@ public class JCAPSImplementationType implements SAWImplementationType {
         String methodBody = new String();
         try {
             //    methodBody = Utils.mergeTemplateInString("checkout.template", null, stringWriter);
-            methodBody = "{ com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();" 
+            //com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();
+            methodBody = "{" 
                     + "com.sun.saw.vo.OutputVO outputVO = null; " + 
                     "com.sun.saw.vo.CheckinTaskVO checkinTaskVO = new com.sun.saw.vo.CheckinTaskVO();" + "checkinTaskVO.setTaskIdList(taskIdList);" 
                     + "checkinTaskVO.setUserId(userId);" + 
-                    "outputVO = workFlowManager.checkinTasks(checkinTaskVO);" + 
+                    "outputVO = workflowImpl.checkinTasks(checkinTaskVO);" + 
                     "return outputVO; }";
         } catch (Exception e) {
             e.printStackTrace();
@@ -197,12 +204,13 @@ public class JCAPSImplementationType implements SAWImplementationType {
         String methodBody = new String();
         try {
             //    methodBody = Utils.mergeTemplateInString("checkout.template", null, stringWriter);
-            methodBody = "{com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();" +
+            //com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();
+            methodBody = "{" +
                     "com.sun.saw.vo.OutputVO outputVO = null;" + 
                     "com.sun.saw.vo.CompleteTaskVO completeTaskVO = new com.sun.saw.vo.CompleteTaskVO();" + 
                     "completeTaskVO.setTaskIdList(taskIdList);" + 
                     "completeTaskVO.setUserId(userId);" + 
-                    "outputVO = workFlowManager.completeTasks(completeTaskVO);" + 
+                    "outputVO = workflowImpl.completeTasks(completeTaskVO);" + 
                     "return outputVO; }";
         } catch (Exception e) {
             e.printStackTrace();
@@ -241,12 +249,13 @@ public class JCAPSImplementationType implements SAWImplementationType {
         String methodBody = new String();
         try {
             //    methodBody = Utils.mergeTemplateInString("checkout.template", null, stringWriter);
-            methodBody = "{com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();" + 
+            //com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();
+            methodBody = "{" + 
                     "com.sun.saw.vo.OutputVO outputVO = null;" + 
                     "com.sun.saw.vo.DeleteTaskVO deleteTaskVO = new com.sun.saw.vo.DeleteTaskVO();" + 
                     "deleteTaskVO.setTaskIdList(taskIdList);" + 
                     "deleteTaskVO.setUserId(userId);" + 
-                    "outputVO = workFlowManager.deleteTasks(deleteTaskVO);" +
+                    "outputVO = workflowImpl.deleteTasks(deleteTaskVO);" +
                     "return outputVO;  }";
         } catch (Exception e) {
             e.printStackTrace();
@@ -281,12 +290,13 @@ public class JCAPSImplementationType implements SAWImplementationType {
         String methodBody = new String();
         try {
             //    methodBody = Utils.mergeTemplateInString("checkout.template", null, stringWriter);
-            methodBody = "{com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();" + 
+            //com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();
+            methodBody = "{" + 
                     "com.sun.saw.vo.OutputVO outputVO = null;" + 
                     "com.sun.saw.vo.EscalateTaskVO escalateTaskVO = new com.sun.saw.vo.EscalateTaskVO();" +
                     "escalateTaskVO.setTaskIdList(taskIdList);" + 
                     "escalateTaskVO.setUserId(userId);" + 
-                    "outputVO = workFlowManager.escalateTasks(escalateTaskVO);" + 
+                    "outputVO = workflowImpl.escalateTasks(escalateTaskVO);" + 
                     "return outputVO; }";
         } catch (Exception e) {
             e.printStackTrace();
@@ -333,13 +343,14 @@ public class JCAPSImplementationType implements SAWImplementationType {
         String methodBody = new String();
         try {
             //    methodBody = Utils.mergeTemplateInString("checkout.template", null, stringWriter);
-            methodBody = "{com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();" + 
+            //com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();
+            methodBody = "{" + 
                     "com.sun.saw.vo.OutputVO outputVO = null;" +
                     "com.sun.saw.vo.ReassignTaskVO reassignTaskVO = new com.sun.saw.vo.ReassignTaskVO();" + 
                     "reassignTaskVO.setTaskIdList(taskIdList);" + 
                     "reassignTaskVO.setUserId(userId);" + 
                     "reassignTaskVO.setReassignUserIdList(reassignUserIdList);" + 
-                    "outputVO = workFlowManager.reassignTasks(reassignTaskVO);" + 
+                    "outputVO = workflowImpl.reassignTasks(reassignTaskVO);" + 
                     "return outputVO;  }";
         } catch (Exception e) {
             e.printStackTrace();
@@ -382,14 +393,15 @@ public class JCAPSImplementationType implements SAWImplementationType {
         String methodBody = new String();
         try {
             //    methodBody = Utils.mergeTemplateInString("checkout.template", null, stringWriter);
-            methodBody = "{ com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();" +
+            //com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();
+            methodBody = "{ " +
                     "com.sun.saw.vo.OutputVO outputVO = null;" + 
                     "com.sun.saw.vo.SaveTaskVO saveTaskVO = new com.sun.saw.vo.SaveTaskVO ();" + 
                     "saveTaskVO.setTaskIdList(taskIdList);" + 
                     "saveTaskVO.setUserId(userId);" + 
                     "saveTaskVO.setOutput(output);" + 
                     "saveTaskVO.setCustomAttributesMap(customAttributesMap);" + 
-                    "outputVO = workFlowManager.saveTasks(saveTaskVO);" + 
+                    "outputVO = workflowImpl.saveTasks(saveTaskVO);" + 
                     "return outputVO;} ";
         } catch (Exception e) {
             e.printStackTrace();
@@ -420,10 +432,11 @@ public class JCAPSImplementationType implements SAWImplementationType {
         String methodBody = new String();
         try {
             //    methodBody = Utils.mergeTemplateInString("checkout.template", null, stringWriter);
-            methodBody = "{com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();" + 
+            //com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();
+            methodBody = "{" + 
                     "com.sun.saw.vo.AuditHistoryVO auditHistoryVO = new com.sun.saw.vo.AuditHistoryVO();" + 
                     "auditHistoryVO.setTaskIdList(taskIdList);" +
-                    "return workFlowManager.showAuditHistory(auditHistoryVO); }";
+                    "return workflowImpl.showAuditHistory(auditHistoryVO); }";
         } catch (Exception e) {
             e.printStackTrace();
         }

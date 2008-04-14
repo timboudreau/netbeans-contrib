@@ -60,31 +60,37 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.util.Elements;
 import javax.swing.JButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.fileinfo.NonRecursiveFolder;
-import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.java.queries.UnitTestForSourceQuery;
-import org.netbeans.api.java.source.CompilationController;
-import org.netbeans.api.java.source.ElementHandle;
-import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.ui.ScanDialog;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
+import org.netbeans.modules.gsf.api.CancellableTask;
+import org.netbeans.modules.gsf.api.ElementHandle;
+import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import org.netbeans.modules.java.api.common.ant.UpdateHelper;
+import org.netbeans.modules.scala.editing.ScalaMimeResolver;
+import org.netbeans.modules.scala.editing.ScalaParserResult;
+import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.ObjectTemplate;
+import org.netbeans.modules.scala.editing.nodes.Template;
 import org.netbeans.modules.scala.project.applet.AppletSupport;
 import org.netbeans.modules.scala.project.classpath.ClassPathProviderImpl;
 import org.netbeans.modules.scala.project.ui.customizer.J2SEProjectProperties;
 import org.netbeans.modules.scala.project.ui.customizer.MainClassChooser;
 import org.netbeans.modules.scala.project.ui.customizer.MainClassWarning;
+import org.netbeans.napi.gsfret.source.CompilationController;
+import org.netbeans.napi.gsfret.source.Phase;
+import org.netbeans.napi.gsfret.source.Source;
 import org.netbeans.spi.project.ActionProvider;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
@@ -491,7 +497,7 @@ class J2SEActionProvider implements ActionProvider {
                 clazz = clazz.replace('/','.');
                 final boolean hasMainClassFromTest = MainClassChooser.unitTestingSupport_hasMainMethodResult == null ? false :
                     MainClassChooser.unitTestingSupport_hasMainMethodResult.booleanValue();
-                final Collection<ElementHandle<TypeElement>> mainClasses = J2SEProjectUtil.getMainMethods (file);
+                final Collection<AstElement> mainClasses = J2SEProjectUtil.getMainMethods (file);
                 if (!hasMainClassFromTest && mainClasses.isEmpty()) {
                     if (AppletSupport.isApplet(file)) {
 
@@ -540,7 +546,7 @@ class J2SEActionProvider implements ActionProvider {
                     if (!hasMainClassFromTest) {                    
                         if (mainClasses.size() == 1) {
                             //Just one main class
-                            clazz = mainClasses.iterator().next().getBinaryName();
+                            clazz = mainClasses.iterator().next().getName();
                         }
                         else {
                             //Several main classes, let the user choose
@@ -737,25 +743,34 @@ class J2SEActionProvider implements ActionProvider {
             return unitTestingSupport_fixClasses;
         }
         final String[] classes = new String[] {""}; //NOI18N
-        JavaSource js = JavaSource.forFileObject(file);
+        Source js = Source.forFileObject(file);
         if (js != null) {
             try {
-                js.runUserActionTask(new org.netbeans.api.java.source.Task<CompilationController>() {
+                js.runUserActionTask(new CancellableTask<CompilationController>() { 
+                        
+                    public void cancel() {
+                        
+                    }
+                    
                     public void run(CompilationController ci) throws Exception {
-                        if (ci.toPhase(JavaSource.Phase.ELEMENTS_RESOLVED).compareTo(JavaSource.Phase.ELEMENTS_RESOLVED) < 0) {
+                        if (ci.toPhase(Phase.ELEMENTS_RESOLVED).compareTo(Phase.ELEMENTS_RESOLVED) < 0) {
                             ErrorManager.getDefault().log(ErrorManager.WARNING,
-                                    "Unable to resolve "+ci.getFileObject()+" to phase "+JavaSource.Phase.RESOLVED+", current phase = "+ci.getPhase()+
-                                    "\nDiagnostics = "+ci.getDiagnostics()+
+                                    "Unable to resolve "+ci.getFileObject()+" to phase "+Phase.RESOLVED+", current phase = "+ci.getPhase()+
                                     "\nFree memory = "+Runtime.getRuntime().freeMemory());
                             return;
                         }
-                        List<? extends TypeElement> types = ci.getTopLevelElements();
-                        if (types.size() > 0) {
-                            for (TypeElement type : types) {
+                        AstScope rootScope = ((ScalaParserResult) ci.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, 0)).getRootScope();
+                        if (rootScope == null) {
+                            return;
+                        }
+                        
+                        List<Template> tmpls = rootScope.getDefsInScope(Template.class);                        
+                        if (tmpls.size() > 0) {
+                            for (Template type : tmpls) {
                                 if (classes[0].length() > 0) {
                                     classes[0] = classes[0] + " ";            // NOI18N
                                 }
-                                classes[0] = classes[0] + type.getQualifiedName().toString().replace('.', '/') + "*.class";  // NOI18N
+                                classes[0] = classes[0] + type.getName().toString().replace('.', '/') + "*.class";  // NOI18N
                             }
                         }
                     }
@@ -981,7 +996,7 @@ class J2SEActionProvider implements ActionProvider {
         return canceled;
     }
     
-    private String showMainClassWarning (final FileObject file, final Collection<ElementHandle<TypeElement>> mainClasses) {
+    private String showMainClassWarning (final FileObject file, final Collection<AstElement> mainClasses) {
         assert mainClasses != null;
         String mainClass = null;
         final JButton okButton = new JButton (NbBundle.getMessage (MainClassWarning.class, "LBL_MainClassWarning_ChooseMainClass_OK")); // NOI18N

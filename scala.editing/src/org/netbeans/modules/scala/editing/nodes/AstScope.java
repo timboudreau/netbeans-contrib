@@ -218,6 +218,18 @@ public class AstScope implements Iterable<AstScope> {
 
         return occurrences;
     }
+    
+    public AstDef findDef(AstElement element) {
+        AstDef def = null;
+        
+        if (element instanceof AstDef) {
+            def = (AstDef) element;
+        } else if (element instanceof AstRef) {
+            def = findDef((AstRef) element);
+        }
+
+        return def;
+    }
 
     public AstDef findDef(AstRef ref) {
         AstScope closestScope = ref.getEnclosingScope();
@@ -226,7 +238,7 @@ public class AstScope implements Iterable<AstScope> {
 
     private AstDef findDefInScope(AstScope scope, AstRef ref) {
         for (AstDef def : scope.getDefs()) {
-            if (def.referedBy(ref)) {
+            if (def.referredBy(ref)) {
                 return def;
             }
         }
@@ -247,13 +259,13 @@ public class AstScope implements Iterable<AstScope> {
     private void findRefsInScope(AstScope scope, AstDef def, List<AstElement> refs) {
         // find if there is closest override def, if so, we shoud bypass now :
         for (AstDef _def : scope.getDefs()) {
-            if (_def != def && _def.mayEquals(def)) {
+            if (_def != def && _def.mayEqual(def)) {
                 return;
             }
         }
 
         for (AstRef ref : scope.getRefs()) {
-            if (def.referedBy(ref)) {
+            if (def.referredBy(ref)) {
                 refs.add(ref);
             }
         }
@@ -293,6 +305,27 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
+    public <T extends AstDef> List<T> getDefsInScope(Class<T> clazz) {
+        List<T> result = new ArrayList<T>();
+        
+        getDefsInScopeRecursively(clazz, result);
+
+        return result;
+    }
+    
+    private <T extends AstDef> void getDefsInScopeRecursively(Class<T> clazz, List<T> result) {
+        for (AstDef def : getDefs()) {
+            if (clazz.isInstance(def)) {
+                result.add((T) def);
+            }
+        }        
+        
+        AstScope parentScope = getParent();
+        if (parentScope != null) {
+            parentScope.getDefsInScopeRecursively(clazz, result);
+        }
+    }
+    
     public <T extends AstDef> T getEnclosingDef(Class<T> clazz, int offset) {
         AstScope scope = getClosestScope(offset);
         return scope.getEnclosingDefRecursively(clazz);

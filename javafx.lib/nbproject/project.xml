@@ -56,6 +56,12 @@ made subject to such option by the copyright holder.
                 <runtime-relative-path>ext/javafx/compiler/Scenario.jar</runtime-relative-path>
                 <binary-origin>external/compiler/Scenario.jar</binary-origin>
             </class-path-extension>
+            <!--            
+            <class-path-extension>
+                <runtime-relative-path>ext/javafx/compiler/Reprise.jar</runtime-relative-path>
+                <binary-origin>external/compiler/Reprise.jar</binary-origin>
+            </class-path-extension>
+-->
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.netbeans.libs.jsr223</code-name-base>
@@ -70,7 +76,9 @@ made subject to such option by the copyright holder.
             <public-packages>
                 <package>com.sun.javafx.api</package>
                 <package>com.sun.javafx.api.tree</package>
+                <package>com.sun.javafx.runtime.location</package>
                 <package>com.sun.javafx.runtime.sequence</package>
+                <package>com.sun.scenario.scenegraph</package>
                 <package>com.sun.source.tree</package>
                 <package>com.sun.source.util</package>
                 <package>com.sun.tools.javac.tree</package>
@@ -80,6 +88,7 @@ made subject to such option by the copyright holder.
                 <package>com.sun.tools.javafx.main</package>
                 <package>com.sun.tools.javafx.script</package>
                 <package>com.sun.tools.javafx.tree</package>
+                <package>com.sun.tools.javafx.util</package>
                 <package>javax.lang.model</package>
                 <package>javax.lang.model.element</package>
                 <package>javax.lang.model.type</package>

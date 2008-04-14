@@ -65,11 +65,11 @@ public class AstDef extends AstElement {
         return getBindingScope().getRange();
     }
     
-    public boolean referedBy(AstRef ref) {
+    public boolean referredBy(AstRef ref) {
         return getName().equals(ref.getName());
     }
 
-    public boolean mayEquals(AstDef def) {
+    public boolean mayEqual(AstDef def) {
         return this.getName().equals(def.getName());
     }
     

@@ -43,9 +43,16 @@ made subject to such option by the copyright holder.
 <project name="org.netbeans.modules.javafx.lib" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project javafx.</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
-    <target name="netbeans-extra" depends="init">
+
+    <target name="netbeans-extra" depends="init, add-reprise">
         <get src="${jfxcompiler.jar.url}" dest="${jfxcompiler.jar}" usetimestamp="true" verbose="true"/>
         <get src="${jfxrt.jar.url}" dest="${jfxrt.jar}" usetimestamp="true" verbose="true"/>
         <get src="${Scenario.jar.url}" dest="${Scenario.jar}" usetimestamp="true" verbose="true"/>
+    </target>
+    
+    <target name="add-reprise" if="Reprise.jar.url">
+        <property name="release.external/compiler/Reprise.jar" value="modules/ext/javafx/compiler/Reprise.jar"/>
+        <property name="Reprise.jar" value="external/compiler/Reprise.jar"/>
+        <get src="${Reprise.jar.url}" dest="${Reprise.jar}" usetimestamp="true" verbose="true"/>
     </target>
 </project>

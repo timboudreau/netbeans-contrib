@@ -678,7 +678,7 @@ is divided into following sections:
                     </xsl:call-template>
                 </copy>
             </target>
-            <target name="-compile-fx">
+            <target name="-compile-fx" if="src.dir">
                 <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
                     <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask" classpath="${{platform.bootcp}}"/>
                     <javafxc debug="${{javac.debug}}" deprecation="${{javac.deprecation}}"
@@ -708,7 +708,7 @@ is divided into following sections:
                     </javafxc>
                 </xsl:if>
             </target>
-            <target name="-compile-fx-single">
+            <target name="-compile-fx-single" if="src.dir">
                 <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
                     <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask" classpath="${{platform.bootcp}}"/>
                     <javafxc debug="${{javac.debug}}" deprecation="${{javac.deprecation}}"

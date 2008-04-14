@@ -54,9 +54,9 @@ import java.util.Iterator;
 import java.util.StringTokenizer;
 import org.netbeans.modules.java.api.common.SourceRoots;
 import org.netbeans.modules.scala.project.ui.customizer.J2SEProjectProperties;
-import org.netbeans.spi.java.classpath.ClassPathImplementation;
-import org.netbeans.spi.java.classpath.PathResourceImplementation;
-import org.netbeans.spi.java.classpath.support.ClassPathSupport;
+import org.netbeans.modules.gsfpath.spi.classpath.ClassPathImplementation;
+import org.netbeans.modules.gsfpath.spi.classpath.PathResourceImplementation;
+import org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport;
 import org.netbeans.spi.java.classpath.FilteringPathResourceImplementation;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.PathMatcher;
@@ -155,7 +155,7 @@ final class SourcePathImplementation implements ClassPathImplementation, Propert
             if (this.resources == null) {
                 List<PathResourceImplementation> result = new ArrayList<PathResourceImplementation>(roots.length);
                 for (final URL root : roots) {
-                    class PRI implements FilteringPathResourceImplementation, PropertyChangeListener {
+                    class PRI implements PathResourceImplementation, PropertyChangeListener {
                         PropertyChangeSupport pcs = new PropertyChangeSupport(this);
                         PathMatcher matcher;
                         PRI() {

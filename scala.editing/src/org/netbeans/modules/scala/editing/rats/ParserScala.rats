@@ -58,8 +58,7 @@ modify org.netbeans.modules.scala.editing.rats.Xml;
 
 option withLocation;
 
-/* @Note: Modified productions should always be put at the beginning 
- */
+/* @Note: Modified productions should always be put at the beginning */
 
 // ----- Modify XmlContent in Xml.rats
 generic XmlContent +=
@@ -89,7 +88,7 @@ transient String xmlCharDataCharInScala =
  * to detect a preceding whitespace, instead, we consumer every token's preceding
  * whitespace and ignore it. 
  */
-transient generic XmlExpr =
+generic XmlExpr =
   void:w       XmlElement
 / void:"(":sep XmlElement void:")":sep 
 / void:"{":sep XmlElement void:"}":sep
@@ -97,7 +96,7 @@ transient generic XmlExpr =
 
 // ----- XmlPattern
 
-transient generic XmlPattern = 
+generic XmlPattern = 
   void:w       XmlElementP
 / void:"(":sep XmlElementP void:")":sep 
 / void:"{":sep XmlElementP void:"}":sep
@@ -113,7 +112,7 @@ generic XmlContentP =
 / <XmlComment>    XmlComment
 ;
 
-transient generic XmlElementP =
+generic XmlElementP =
   XmlEmptyElemTagP
 / XmlSTagP XmlContentP* XmlETag
 ;
@@ -128,7 +127,7 @@ transient generic ScalaPatterns = void:"{":sep !(void:"{":sep ) Patterns void:"}
 
 // ----- Literal
 
-transient generic Literal =
+generic Literal =
   SKIP ( "-":op )? FloatingPointLiteral 
 / SKIP ( "-":op )? IntegerLiteral
 / SKIP             BooleanLiteral
@@ -141,10 +140,10 @@ transient generic Literal =
 transient generic BooleanLiteral = "true":key / "false":key;
 transient generic NullLiteral = "null" ;
 
-transient void SEMI = ";":sep N* / N+ ;
+transient void SEMI = void:";":sep N* / N+ ;
 
-generic QualId = Id ( void:".":sep Id )* ;
-generic Ids    = Id ( void:",":sep Id )* ;
+transient generic QualId = Id ( void:".":sep Id )* ;
+transient generic Ids    = Id ( void:",":sep Id )* ;
 
 generic Path =
   ( Id void:".":sep )? ThisKey
@@ -157,7 +156,7 @@ generic StableId =
 / Id ( void:".":sep Id )*
 ;
 
-generic ClassQualifier = void:"[":sep Id void:"]":sep;
+transient generic ClassQualifier = void:"[":sep Id void:"]":sep;
 
 generic Type = 
   FunType
@@ -175,9 +174,9 @@ generic FunTypeInCaseClause =
 / InfixType void:"=>":key ( NotFunType void:"=>":key )*
 ;
 
-generic NotFunType = InfixType ExistentialClause? ;
+transient generic NotFunType = InfixType ExistentialClause? ;
 
-generic ExistentialClause = "forSome":key void:"{":sep ExistentialDcl ( SEMI ExistentialDcl )* void:"}":sep;
+transient generic ExistentialClause = "forSome":key void:"{":sep ExistentialDcl ( SEMI ExistentialDcl )* void:"}":sep;
 
 transient generic ExistentialDcl = 
   void:"type":key TypeDcl
@@ -226,7 +225,7 @@ generic NotFunExpr =
   void:"if"    :key void:"(":sep Expr  void:")":sep N* Expr ( SEMI? void:"else":key Expr )? @IfExpr
 / void:"while" :key void:"(":sep Expr  void:")":sep N* Expr                                 @WhileExpr
 / void:"try"   :key void:"{":sep Block void:"}":sep ( void:"catch":key void:"{":sep CaseClauses void:"}":sep )? ( void:"finally":key Expr )? @TryExpr
-/ void:"do"    :key Expr SEMI? void:"while":key void:"(":sep Expr void:")":sep             @DoExpr
+/ void:"do"    :key Expr SEMI? void:"while":key void:"(":sep Expr void:")":sep              @DoExpr
 / void:"for"   :key ( void:"(":sep Enumerators void:")":sep / void:"{":sep Enumerators void:"}":sep ) N* ( "yield":key )? Expr               @ForExpr
 / void:"throw" :key Expr         @ThrowExpr
 / void:"return":key Expr?        @ReturnExpr
@@ -253,7 +252,7 @@ generic PrefixExpr = ( "-":op / "+":op / "~":op / "!":op )? SimpleExpr ;
 
 /* @DocError in ScalaReference : There is non SimpleExpr with ( void:":":key Type ) */
 generic SimpleExpr = 
-  XmlExpr
+  XmlExpr                                                    @SimpleXmlExpr
 / Literal   TypeArgs? SimpleExprRest*                        @SimpleLiteralExpr
 / Path      TypeArgs? SimpleExprRest* ( void:":":key Type )? @SimpleIdExpr
 / "_":key   TypeArgs? SimpleExprRest*                        @SimpleWildCardExpr
@@ -262,9 +261,9 @@ generic SimpleExpr =
 / NewExpr   TypeArgs? SimpleExprRest*                        @SimpleNewExpr
 ;
 
-transient generic SimpleExprRest = 
-  PathRest+
-/ ArgumentExprs+
+generic SimpleExprRest = 
+  PathRest
+/ ArgumentExprs
 / "_":key;
 
 transient generic PathRest = void:".":sep Path TypeArgs? ;
@@ -278,7 +277,7 @@ generic ArgumentExprs =
 / N? BlockExpr
 ;
 
-transient generic ParenExpr = 
+generic ParenExpr = 
   void:"(":sep ENTER_NL_DISABLE
   ( Exprs ( void:",":sep )? )? 
   EXIT_NL_DISABLE void:")":sep 
@@ -338,7 +337,7 @@ generic CaseClause =
 
 transient generic Guard = void:"if":key PostfixExpr ;
 
-transient generic Pattern = 
+generic Pattern = 
   AlternatePattern
 / Pattern1 
 ;
@@ -370,7 +369,7 @@ generic Pattern3 =
 transient generic InfixPatternTail = Id N? SimplePattern ;
 
 /* @DocError in ScalaReference: "_":key */
-transient generic SimplePattern =
+generic SimplePattern =
   XmlPattern            @SimpleXmlPattern
 / "_":key ( "*":op )?   @SimpleWildcardPattern
 / Literal               @SimpleLiteralPattern
@@ -408,25 +407,25 @@ transient generic ParamType =
 / "=>":key Type
 ;
 
-generic ClassParamClauses = ClassParamClause* ( N? void:"(":sep void:"implicit":key ClassParams void:")":sep )? ;
+transient generic ClassParamClauses = ClassParamClause* ( N? void:"(":sep void:"implicit":key ClassParams void:")":sep )? ;
 
-generic ClassParamClause = N? void:"(":sep ClassParams? void:")":sep ;
+transient generic ClassParamClause = N? void:"(":sep ClassParams? void:")":sep ;
 
-generic ClassParams = ClassParam ( void:",":sep ClassParam )* ;
+transient generic ClassParams = ClassParam ( void:",":sep ClassParam )* ;
 
-generic ClassParam = Annotation* ( Modifier* ( void:"val":key / void:"var":key ) )? Id ( void:":":key ParamType )? ;
+transient generic ClassParam = Annotation* ( Modifier* ( void:"val":key / void:"var":key ) )? Id ( void:":":key ParamType )? ;
 
 /* @DocError in ScalaReference: void:"(":sep Binding ( void:",":sep Binding )* void:")":sep */
 transient generic Bindings = void:"(":sep Binding? ( void:",":sep Binding )* void:")":sep ;
 transient generic Binding = Id ( void:":":key Type )? ;
 
-transient generic Modifier = 
+generic Modifier = 
   LocalModifier
 / AccessModifier
 / "override":key
 ;
 
-transient generic LocalModifier = 
+generic LocalModifier = 
   "abstract":key
 / "final"   :key
 / "sealed"  :key
@@ -448,7 +447,7 @@ generic NameValuePair = void:"val":key Id void:"=":key PrefixExpr;
 
 generic TemplateBody = N? void:"{":sep SelfType? TemplateStat ( SEMI TemplateStat )* void:"}":sep ;
 
-transient generic TemplateStat = 
+generic TemplateStat = 
   Import
 / Annotation* Modifier* Def
 / Annotation* Modifier* Dcl
@@ -456,7 +455,7 @@ transient generic TemplateStat =
 / 
 ;
 
-transient generic SelfType = 
+generic SelfType = 
   Id       ( void:":":key Type )? void:"=>":key
 / "this":key void:":":key Type    void:"=>":key
 ;
@@ -476,11 +475,11 @@ generic Dcl =
 / void:"type":key N* TypeDcl
 ;
 
-generic ValDcl = Ids      void:":":key Type ;
-generic VarDcl = Ids      void:":":key Type ;
-generic FunDcl = FunSig ( void:":":key Type )? ;
+transient generic ValDcl = Ids      void:":":key Type ;
+transient generic VarDcl = Ids      void:":":key Type ;
+transient generic FunDcl = FunSig ( void:":":key Type )? ;
 
-generic FunSig = Id FunTypeParamClause? ParamClauses ;
+transient generic FunSig = Id FunTypeParamClause? ParamClauses ;
 
 transient generic TypeDcl = Id TypeParamClause? ( void:">:":key Type )? ( void:"<:":key Type )? ;
 
@@ -498,7 +497,7 @@ generic Def =
 
 transient generic PatDef = NoTypedPattern ( void:",":sep NoTypedPattern )* ( void:":":key Type )? void:"=":key Expr ;
 
-generic ValDef = PatDef ;
+transient generic ValDef = PatDef ;
 
 generic VarDef = 
   PatDef
@@ -525,14 +524,14 @@ transient generic ClassDef  = Id TypeParamClause? Annotation* AccessModifier? Cl
 transient generic TraitDef  = Id TypeParamClause?                                               TraitTemplateOpt ;
 transient generic ObjectDef = Id                                                                ClassTemplateOpt ;
 
-transient generic ClassTemplateOpt = 
+generic ClassTemplateOpt = 
   Extends ClassTemplate 
 / ( ( <Extends> void:"extends":key )? TemplateBody 
   / ( <UBounds> void:"<:"     :key )? TemplateBody 
   )? 
 ;
 
-transient generic TraitTemplateOpt =
+generic TraitTemplateOpt =
   Extends TraitTemplate 
 / ( ( <Extends> void:"extends":key )? TemplateBody 
   / ( <UBounds> void:"<:"     :key )? TemplateBody 
@@ -552,7 +551,7 @@ transient generic Constr = AnnotType ArgumentExprs* ;
 transient generic EarlyDefs = EarlyDef ( SEMI EarlyDef )* ;
 transient generic EarlyDef = Annotation* Modifier* PatVarDef ;
 
-transient generic ConstrExpr = 
+generic ConstrExpr = 
   SelfInvocation
 / ConstrBlock
 ;
@@ -563,7 +562,7 @@ transient generic SelfInvocation = void:"this":key ArgumentExprs ArgumentExprs* 
 
 transient generic TopStatSeq = TopStat ( SEMI TopStat )* ;
 
-transient generic TopStat = 
+generic TopStat = 
   Import
 / Packaging
 / Annotation* Modifier* TmplDef

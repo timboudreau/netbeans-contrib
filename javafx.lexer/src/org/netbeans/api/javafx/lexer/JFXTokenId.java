@@ -223,9 +223,9 @@ public enum JFXTokenId implements TokenId {
     LET("keyword", 21),
     ON_DELETE_ELEMENT(null, 117),
     FIRST("keyword", 58),
-    UNKNOWN(null, 200);
+    UNKNOWN("error", 200);
 
-    public static final String UNIVERSAL_CATEGORY = "DEMONIC";
+    public static final String UNIVERSAL_CATEGORY = "future-literal";
     private final String primaryCategory;
     private final int tokenType;
     private static JFXTokenId[] typeToId;

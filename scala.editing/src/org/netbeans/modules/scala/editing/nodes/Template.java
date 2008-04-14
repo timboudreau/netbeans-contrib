@@ -36,9 +36,10 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.Collections;
+import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
@@ -48,22 +49,43 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public abstract class Template extends AstDef {
 
+    private boolean caseOne;
+
+    private List<Id> extendWith;
+    
     public Template(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
         super(name, nameRange, bindingScope, kind);
     }
-    
-    public abstract String getClassName();    
 
+    public void setCaseOne() {
+        this.caseOne = true;
+    }
+
+    public boolean isCaseOne() {
+        return caseOne;
+    }
     
+    public void setExtendsWith(List<Id> extendWith) {
+        this.extendWith = extendWith;
+    }
+    
+    public List<Id> getExtendWith() {
+        return extendWith == null ? Collections.<Id>emptyList() : extendWith;
+    }
+
     @Override
-    public boolean referedBy(AstRef ref) {
+    public boolean referredBy(AstRef ref) {
         switch (ref.getKind()) {
-            // Should be TypeRef @Todo case class
             case CLASS:
                 return getName().equals(ref.getName());
+            case VARIABLE:
+                if (isCaseOne()) {
+                    return getName().equals(ref.getName());
+                } else {
+                    return false;
+                }
             default:
                 return false;
         }
     }
-    
 }
