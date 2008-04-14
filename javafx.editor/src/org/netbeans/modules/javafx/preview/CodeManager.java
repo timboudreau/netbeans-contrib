@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import java.util.Set;
+import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
 import javax.tools.Diagnostic;
 
@@ -78,7 +79,8 @@ public class CodeManager {
         ClassPath executeCP = ClassPath.getClassPath(fo, ClassPath.EXECUTE);
         
         if (sourceCP == null) {
-            throw new IllegalStateException("No classpath was found for folder: " + fo); // NOI18N
+            Logger.getLogger(CodeManager.class.getName()).warning("No classpath was found for folder: " + fo); // NOI18N
+            return null;
         }
         String className = sourceCP.getResourceName(fo, '.', false); // NOI18N
         
