@@ -75,6 +75,15 @@ public class Function extends AstDef {
     }
 
     @Override
+    public boolean referredBy(AstRef ref) {
+        if (ref instanceof FunRef) {
+            return getName().equals(ref.getName()) && params.size() == ((FunRef) ref).getParams().size();
+        }
+        
+        return false;
+    }
+
+    @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
         if (getTypeParam().size() > 0) {

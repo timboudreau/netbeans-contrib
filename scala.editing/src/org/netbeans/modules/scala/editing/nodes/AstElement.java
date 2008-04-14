@@ -38,6 +38,7 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.netbeans.modules.gsf.api.ElementHandle;
@@ -60,13 +61,13 @@ public class AstElement implements ElementHandle {
     private AstScope enclosingScope;
     private Set<Modifier> mods;
     private TypeRef type;
-    
+
     public AstElement(String name, OffsetRange nameRange, ElementKind kind) {
         this.name = name;
         this.nameRange = nameRange;
         this.kind = kind;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
@@ -78,7 +79,7 @@ public class AstElement implements ElementHandle {
     public void setNameRange(OffsetRange nameRange) {
         this.nameRange = nameRange;
     }
-    
+
     public OffsetRange getNameRange() {
         return nameRange;
     }
@@ -87,21 +88,31 @@ public class AstElement implements ElementHandle {
         return kind;
     }
     
-    public <T extends AstDef> T getEnclosingDefinition(Class<T> clazz) {
-        return enclosingScope.getEnclosingDef(clazz, getNameRange().getStart());
+    public String getBinaryName() {
+        return getName();
+    }
+    
+    public String getQualifiedName() {
+        Packaging packaging = getPackageElement();
+        return packaging == null? getName() : packaging.getName() + "." + getName();
     }
 
+
     public Packaging getPackageElement() {
-        return getEnclosingDefinition(Packaging.class);
+        return getEnclosingDef(Packaging.class);
     }
 
     public void setType(TypeRef type) {
         this.type = type;
     }
-    
+
     public TypeRef getType() {
         return type;
     }
+
+    public <T extends AstDef> T getEnclosingDef(Class<T> clazz) {
+        return enclosingScope.getEnclosingDef(clazz, getNameRange().getStart());
+    }    
     
     /**
      * @Note: enclosingScope will be set when call
@@ -120,8 +131,8 @@ public class AstElement implements ElementHandle {
     }
 
     public void htmlFormat(HtmlFormatter formatter) {
-    }    
-    
+    }
+
     public String getMimeType() {
         return ScalaMimeResolver.MIME_TYPE;
     }
@@ -135,25 +146,24 @@ public class AstElement implements ElementHandle {
         return null;
     }
 
-    public Set<Modifier> getModifiers() {
+    public void addModifier(String modifier) {
         if (mods == null) {
             mods = new HashSet<Modifier>();
         }
+        Modifier mod = null;
+        if (modifier.equals("private")) {
+            mod = Modifier.PRIVATE;
+        } else if (modifier.equals("protected")) {
+            mod = Modifier.PROTECTED;
+        } else {
+            mod = Modifier.PUBLIC;
+        }
+        mods.add(mod);
+        
+    }
 
-//        List<com.sun.fortress.nodes.Modifier> fortressMods = Collections.emptyList();
-//        if (node instanceof TraitObjectAbsDeclOrDecl) {
-//            fortressMods = ((TraitObjectAbsDeclOrDecl) node).getMods();
-//        } else if (node instanceof FnAbsDeclOrDecl) {
-//            fortressMods = ((FnAbsDeclOrDecl) node).getMods();
-//        }
-//
-//        for (com.sun.fortress.nodes.Modifier mod : fortressMods) {
-//            if (mod instanceof ModifierPrivate) {
-//                mods.add(Modifier.PRIVATE);
-//            }
-//        }
-
-        return mods;
+    public Set<Modifier> getModifiers() {
+        return mods == null ? Collections.<Modifier>emptySet() : mods;
     }
 
     public String getIn() {
@@ -164,5 +174,4 @@ public class AstElement implements ElementHandle {
     public String toString() {
         return getName() + "(kind=" + getKind() + ", type=" + getType() + ")";
     }
-        
 }

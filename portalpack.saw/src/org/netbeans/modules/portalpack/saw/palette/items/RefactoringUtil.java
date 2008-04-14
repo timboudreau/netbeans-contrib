@@ -117,8 +117,8 @@ public class RefactoringUtil {
                                    if(fileObjectArray[i].getName().equals("java")) {
                                    fileObject = fileObjectArray[i].getFileObject("ImplementationType","properties");
                                    fileObject1 = fileObjectArray[i].getFileObject("JCAPSWorkflowConfig","properties");
-                                   fileObject2= fileObjectArray[i].getFileObject("WorkflowConfig","properties");
-                                   if(fileObject == null || fileObject1 == null || fileObject2 == null) {
+                                   fileObject2= fileObjectArray[i].getFileObject("workflowConfig","properties");
+                                   if(fileObject == null /* || fileObject1 == null*/ || fileObject2 == null) {
                                        addPropertiesFiles = true;
                                        if(fileObject == null) {
                                            propErrorMessage = NbBundle.getBundle(RefactoringUtil.class).getString("Add_ImplementationType_Properties");
@@ -128,10 +128,10 @@ public class RefactoringUtil {
                                            propErrorMessage = NbBundle.getBundle(RefactoringUtil.class).getString("Add_WorkflowConfig_Properties");
                                            break;
                                        }
-                                       else if(fileObject1 == null) {
+                                       /*else if(fileObject1 == null) {
                                            propErrorMessage = NbBundle.getBundle(RefactoringUtil.class).getString("Add_JCAPSWorkflowConfig_Properties");
                                            break;
-                                       }
+                                       }*/
                                       
                                    }
                                     }
@@ -321,8 +321,8 @@ public class RefactoringUtil {
                                     paramTypeTree = make.Identifier("java.util.List");
                                 } else if (paramObj.getParamType().equals("java.util.HashMap")) {
                                      paramTypeTree = make.Identifier("java.util.HashMap");
-                                } else if(paramObj.getParamType().equals("WorkflowImpl")) {
-                                    paramTypeTree = make.Identifier("WorkflowImpl");
+                                } else if(paramObj.getParamType().equals("Workflow")) {
+                                    paramTypeTree = make.Identifier("Workflow");
                                 } else if(paramObj.getParamType().equals("java.util.Properties")) {
                                     paramTypeTree = make.Identifier("java.util.Properties");
                                 } 

@@ -59,8 +59,8 @@ import javax.swing.ImageIcon;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.java.classpath.GlobalPathRegistry;
+import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
+import org.netbeans.modules.gsfpath.api.classpath.GlobalPathRegistry;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
@@ -281,7 +281,7 @@ public final class J2SEProject implements Project, AntProjectListener {
             this, // never cast an externally obtained Project to J2SEProject - use lookup instead
             new J2SEProjectOperations(this),
             new J2SEConfigurationProvider(this),
-            new J2SEPersistenceProvider(this, cpProvider),
+            //new J2SEPersistenceProvider(this, cpProvider),
             UILookupMergerSupport.createPrivilegedTemplatesMerger(),
             UILookupMergerSupport.createRecommendedTemplatesMerger(),
             LookupProviderSupport.createSourcesMerger(),

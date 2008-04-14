@@ -60,6 +60,7 @@ import org.netbeans.modules.profiler.utils.AppletSupport;
 import org.netbeans.modules.profiler.utils.ProjectUtilities;
 import org.netbeans.modules.profiler.projectsupport.utilities.SourceUtils;
 import org.netbeans.modules.javafx.project.JavaFXProject;
+import org.netbeans.api.javafx.source.JavaFXSourceUtils;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.spi.project.support.ant.PropertyProvider;
@@ -206,7 +207,8 @@ public final class JavaFXProjectTypeProfiler extends AbstractProjectTypeProfiler
                 return "profile"; // NOI18N
             case TARGET_PROFILE_SINGLE:
 
-                if (SourceUtils.isApplet(profiledClassFile)) {
+                if (SourceUtils.isApplet(profiledClassFile) || 
+                    JavaFXSourceUtils.isJavaFXApplet(profiledClassFile)) {
                     return "profile-applet"; // NOI18N
                 } else {
                     return "profile-single"; // NOI18N
@@ -449,7 +451,8 @@ public final class JavaFXProjectTypeProfiler extends AbstractProjectTypeProfiler
         } else {
             // In case the class to profile is explicitely selected (profile-single)
             // 1. specify profiled class name
-            if (SourceUtils.isApplet(profiledClassFile)) {
+            if (SourceUtils.isApplet(profiledClassFile) ||
+                JavaFXSourceUtils.isJavaFXApplet(profiledClassFile)) {
                 String jvmargs = props.getProperty("run.jvmargs"); // NOI18N
 
                 URL url = null;                
@@ -494,6 +497,9 @@ public final class JavaFXProjectTypeProfiler extends AbstractProjectTypeProfiler
                                                                                      profiledClassFile), profiledClassFile);
                     props.setProperty("javac.includes", clazz); //NOI18N
                 } else {
+                    // XXX TBD:  single file profiling temporary switched off
+                    // due to #132598 
+                    /* 
                     if (project instanceof JavaFXProject) {
                         JavaFXProject projectJFX = (JavaFXProject)project;
                         String clazz = FileUtil.getRelativePath(getRoot(projectJFX.getSourceRoots().getRoots(),profiledClassFile), profiledClassFile);
@@ -502,10 +508,16 @@ public final class JavaFXProjectTypeProfiler extends AbstractProjectTypeProfiler
                         clazz = clazz.replace('/','.');
                         props.setProperty("profile.class", clazz); //NOI18N
                     }
+                     */
+                    // temporary solution to avoid profile-single build target failure
+                    // TBD
+                    props.setProperty("profile.class", projectProps.getProperty("main.class"));
+                    props.setProperty("javac.includes", projectProps.getProperty("main.class")); 
                 }
             }
         }
     }
+    
 
     @Override
     public void setupProjectSessionSettings(final Project project, final SessionSettings ss) {

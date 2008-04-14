@@ -43,7 +43,6 @@ package org.netbeans.lib.javafx.lexer;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.ANTLRReaderStream;
-import org.antlr.runtime.RecognizerSharedState;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
 import org.netbeans.api.lexer.PartType;
 import org.netbeans.api.lexer.Token;
@@ -64,59 +63,65 @@ public class JFXLexer implements org.netbeans.spi.lexer.Lexer {
     private static Logger log = Logger.getLogger(JFXLexer.class.getName());
     private Lexer lexer;
     private TokenFactory<JFXTokenId> tokenFactory;
-    private ANTLRReaderStream input;
-    private LexerRestartInfo<JFXTokenId> info;
     protected LexerInput lexerInput;
     protected JFXTokenId lastType;
-    private boolean released;
+    private LexerRestartInfo<JFXTokenId> info;
+    private long st;
 
-    public JFXLexer() {
+    public JFXLexer(LexerRestartInfo<JFXTokenId> info) throws IOException {
+        super();
+        if (log.isLoggable(Level.INFO)) log.info("Creating new lexer");
         this.lexer = new v3Lexer();
+        this.info = info;
     }
 
-    public void restart(LexerRestartInfo<JFXTokenId> info) throws IOException {
-        if (log.isLoggable(Level.INFO)) log.info("Restarting lexer: " + info);
-        this.info = info;
-        released = false;
+    private void configureLexer(LexerRestartInfo<JFXTokenId> info) {
+        try {
+            lexerInput = info.input();
+            final LexerInputStream reader = new LexerInputStream();
+            reader.setLexerInput(lexerInput);
+
+            ANTLRReaderStream input = new ANTLRInputStream(reader);
+            lexer = new v3Lexer(input);
+            final LexerState ls = (LexerState) info.state();
+            if (ls != null) {
+                final Lexer.BraceQuoteTracker bqt = ls.getTracker(lexer);
+                if (log.isLoggable(Level.INFO) && bqt != null) {
+                    log.info("StateIn: " + bqt.toString());
+                }
+                lexer.setBraceQuoteTracker(bqt);
+            }
+            tokenFactory = info.tokenFactory();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     public Token<JFXTokenId> nextToken() {
-        if (released) return null;
+        if (lexer == null) {
+            throw new IllegalStateException("Internal implementation of lexer is null. You need to create new instance first!");
+        }
+
         if (info != null) {
-            try {
-                lexerInput = info.input();
-                final LexerInputStream reader = new LexerInputStream();
-                reader.setLexerInput(lexerInput);
-
-                input = new ANTLRInputStream(reader);
-                lexer = new v3Lexer(input);
-                final LexerState ls = (LexerState) info.state();
-                if (ls != null) {
-                    final Lexer.BraceQuoteTracker bqt = ls.getTracker(lexer);
-                    if (log.isLoggable(Level.INFO) && bqt != null) {
-                        log.info("StateIn: " + bqt.toString());
-                    }
-                    lexer.setBraceQuoteTracker(bqt);
-                }
-                tokenFactory = info.tokenFactory();
-                info = null;
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
+            configureLexer(info);
+            info = null;
+            if (log.isLoggable(Level.INFO)) log.info("Reseting lexer");
         }
-
+        st = System.currentTimeMillis();
         final org.antlr.runtime.Token token = lexer.nextToken();
-        if (token.getType() == v3Lexer.EOF) {
-            if (lexerInput.readLength() > 0) {
-                log.warning("Fallback token jfxt:" + JFXTokenId.UNKNOWN);
-                return tokenFactory.createToken(JFXTokenId.UNKNOWN, lexerInput.readLength());
+        if (token.getType() == org.antlr.runtime.Token.EOF) {
+            final int rl = lexerInput.readLength();
+            if (rl > 0) {
+                if (log.isLoggable(Level.WARNING))
+                    log.warning("There are still " + rl + " characters unparsed.");                
+                return tokenFactory.createToken(JFXTokenId.UNKNOWN, rl);
+            } else {
+                return null;
             }
-            return null;
         }
-        String text;
-        text = token.getText();
+        String text = token.getText();
         lastType = getId(token);
-        return tokenFactory.createToken(lastType, text != null ? text.length() : 0, 
+        return tokenFactory.createToken(lastType, text != null ? text.length() : 0,
                 lexer.getSharedState().failed ? PartType.START : PartType.COMPLETE);
     }
 
@@ -132,11 +137,13 @@ public class JFXLexer implements org.netbeans.spi.lexer.Lexer {
         if (bqt == null) {
             return null;
         }
-        return new LexerState(input.getLine(), bqt, lexer.getSharedState());
+        return new LexerState(bqt);
     }
 
     public void release() {
-        released = true;
+        long tt = System.currentTimeMillis() - st;
+        if (log.isLoggable(Level.INFO)) log.info("Releasing lexer @line: " + lexer.getLine() + " total time: " + tt + "ms");        
+        lexer = null;
     }
 
 
@@ -155,26 +162,28 @@ public class JFXLexer implements org.netbeans.spi.lexer.Lexer {
     }
 
     private static class LexerState {
-        private final int line;
         private final BQLexerContainer state;
-        private final RecognizerSharedState sharedState;
 
-        private LexerState(int line, Lexer.BraceQuoteTracker tracker, RecognizerSharedState sharedState) {
-            this.line = line;
+        private LexerState(Lexer.BraceQuoteTracker tracker) {
             this.state = BQLexerContainer.freezeState(tracker);
-            this.sharedState = sharedState;
-        }
-
-        public int getLine() {
-            return line;
         }
 
         public Lexer.BraceQuoteTracker getTracker(Lexer lexer) {
             return BQLexerContainer.unfreezeState(state, lexer);
         }
 
-        public RecognizerSharedState getSharedState() {
-            return sharedState;
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            LexerState that = (LexerState) o;
+
+            return !(state != null ? !state.equals(that.state) : that.state != null);
+
+        }
+
+        public int hashCode() {
+            return (state != null ? state.hashCode() : 0);
         }
     }
 
@@ -191,6 +200,28 @@ public class JFXLexer implements org.netbeans.spi.lexer.Lexer {
             this.previous = previous;
         }
 
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            BQLexerContainer that = (BQLexerContainer) o;
+
+            if (braceDepth != that.braceDepth) return false;
+            if (percentIsFormat != that.percentIsFormat) return false;
+            if (quote != that.quote) return false;
+            if (previous != null ? !previous.equals(that.previous) : that.previous != null) return false;
+
+            return true;
+        }
+
+        public int hashCode() {
+            int result;
+            result = braceDepth;
+            result = 31 * result + (int) quote;
+            result = 31 * result + (percentIsFormat ? 1 : 0);
+            result = 31 * result + (previous != null ? previous.hashCode() : 0);
+            return result;
+        }
 
         static BQLexerContainer freezeState(Lexer.BraceQuoteTracker t) {
             BQLexerContainer root = null;

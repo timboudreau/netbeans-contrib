@@ -1160,7 +1160,7 @@ public class EditorContextImpl extends EditorContext {
                                 "No enclosing class for "+ci.getFileObject()+", offset = "+offset);
                     }
 
-                    String className = tmpl.getClassName();
+                    String className = tmpl.getBinaryName();
 
                     Packaging enclosingPackage = tmpl.getPackageElement();
                     if (enclosingPackage == null) {

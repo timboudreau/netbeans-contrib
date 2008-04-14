@@ -38,6 +38,9 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
     static final File TMP_DIR = new File("/tmp");
     File defaultResponse;
     File defaultAdminFile;
+    
+    private static String pkgRoot = System.getenv("USE_ALTERNATIVE_PACK_ROOT") == null ?
+        "/usr/sbin"  : System.getenv("USE_ALTERNATIVE_PACK_ROOT");
 
     public SolarisNativePackageInstaller() {
         try {
@@ -72,7 +75,7 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
             for (String packageName : analizer) {
                 try {
                     LogManager.log("executing command: pkgadd -n -d " + pathToPackage + " " + packageName);
-                    Process p = new ProcessBuilder("/usr/sbin/pkgadd", "-n",
+                    Process p = new ProcessBuilder( pkgRoot + "/pkgadd", "-n",
                             "-a", defaultAdminFile.getAbsolutePath(),
                             "-r", defaultResponse.getAbsolutePath(),
                             "-d", pathToPackage,
@@ -115,7 +118,7 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
                 try {
                     String value = product.getProperty(DEVICE_FILE + String.valueOf(deviceNumber) + DEVICE_FILE_PACKAGE + String.valueOf(packageNumber));
                     LogManager.log("executing command: pkgrm -R " + target + " -n " + value);
-                    Process p = new ProcessBuilder("/usr/sbin/pkgrm", "-n",
+                    Process p = new ProcessBuilder(pkgRoot + "/pkgrm", "-n",
                               "-a", defaultAdminFile.getAbsolutePath(), value).start();
                     if (p.waitFor() != 0) {
                         throw new UninstallationException("Error native. Returned not zero.");

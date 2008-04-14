@@ -40,6 +40,7 @@ import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.erlang.editing.semantic.ErlFunction;
 import org.netbeans.modules.gsf.Language;
 import org.netbeans.modules.gsf.LanguageRegistry;
+import org.netbeans.modules.gsfret.source.usages.IndexBatchEntry;
 import org.openide.filesystems.FileUtil;
 
 
@@ -683,7 +684,12 @@ public class SqlIndexEngine extends org.netbeans.modules.gsfret.source.usages.In
     @Override
     public Map<String, String> getTimeStamps() throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
-    }    
+    }
+
+    @Override
+    public void batchStore(List<IndexBatchEntry> list, boolean create) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
     
 }
 

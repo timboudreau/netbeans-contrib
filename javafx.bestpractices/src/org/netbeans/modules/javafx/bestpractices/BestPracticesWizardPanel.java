@@ -46,6 +46,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
+import org.openide.filesystems.FileObject;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 
@@ -57,6 +58,16 @@ public class BestPracticesWizardPanel implements WizardDescriptor.Panel, WizardD
 
     private WizardDescriptor wizardDescriptor;
     private BestPracticesVisualPanel component;
+    
+    private FileObject file;
+    
+    public BestPracticesWizardPanel( FileObject file ) {
+        this.file = file;
+    }
+    
+    FileObject getFile() {
+        return file;
+    }
     
     public Component getComponent() {
         if( component == null ) {

@@ -191,7 +191,6 @@ public class I18NChecker extends AbstractHint {
             TreePath tp = treePath;
             
             while (tp != null) {
-                System.err.println("l=" + tp.getLeaf());
                 tp = tp.getParentPath();
             }
             if (checkParentKind(treePath, 1, Kind.NEW_ARRAY) && checkParentKind(treePath, 2, Kind.ASSIGNMENT) && checkParentKind(treePath, 3, Kind.ANNOTATION)) {

@@ -58,7 +58,7 @@ made subject to such option by the copyright holder.
     <fontcolor name="keyword-directive" default="keyword">
         <font style="bold" />
     </fontcolor>
-    <fontcolor name="keyword-literal" default="identifier">
+    <fontcolor name="keyword-literal" default="keyword">
         <font style="bold" />
     </fontcolor>
     <fontcolor name="number" default="number"/>
@@ -67,7 +67,7 @@ made subject to such option by the copyright holder.
     <fontcolor name="string" default="string"/>
     <fontcolor name="time" foreColor="magenta" default="default"/>
     <fontcolor name="whitespace" default="whitespace"/>
-    
+    <fontcolor name="future-literal" default="error"/>
     
     <!--"semantic" highlighting:-->
 

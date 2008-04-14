@@ -90,10 +90,10 @@ public class JavaFXDocument extends NbEditorDocument implements FXDocument{
         JavaFXModel.fireDependenciesChange(this);
     }
     
-    @Override
-    public Formatter getFormatter() {
-        return Formatter.getFormatter(getKitClass());
-    }
+//    @Override
+//    public Formatter getFormatter() {
+//        return Formatter.getFormatter(getKitClass());
+//    }
 
     @Override
     public Component createEditor(JEditorPane pane) {
@@ -198,9 +198,12 @@ public class JavaFXDocument extends NbEditorDocument implements FXDocument{
                     }else{
                         panel.setLayout(new BorderLayout());
                     }
-                    if (comp != null)
-                        panel.add(comp, BorderLayout.WEST);
+                    if (comp != null){
+                        panel.add(comp);
+                    }
+                    split.revalidate();
                     split.validate();
+                    split.repaint();
                 }
             }
         });

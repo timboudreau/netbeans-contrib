@@ -41,22 +41,103 @@
 
 package org.netbeans.modules.javafx.preview;
 
+import java.security.CodeSource;
+import java.security.PermissionCollection;
 import org.netbeans.modules.javafx.editor.*;
-import java.lang.reflect.Method;
+import java.security.Permissions;
 import javax.swing.JComponent;
-import org.netbeans.api.project.Project;
 
 //import sun.awt.AppContext;
-import org.openide.cookies.EditorCookie;
+import org.openide.execution.ExecutionEngine;
 //import sun.awt.SunToolkit;
+import org.openide.execution.ExecutorTask;
+import org.openide.execution.NbClassPath;
+import org.openide.util.Exceptions;
+import org.openide.util.Task;
+import org.openide.util.TaskListener;
+import org.openide.windows.IOProvider;
+import org.openide.windows.InputOutput;
+import org.openide.util.RequestProcessor;
 
+
+        
 public class PreviewThread extends Thread {
+    
     private FXDocument doc;
+    private JComponent comp = null;
 
+    class EE extends ExecutionEngine {
+        
+        public EE() {}
+
+        protected NbClassPath createLibraryPath() {
+            return new NbClassPath(new String[0]);
+        }
+
+        protected PermissionCollection createPermissions(CodeSource cs, InputOutput io) {
+            PermissionCollection allPerms = new Permissions();
+            //allPerms.add(new AllPermission());
+            //allPerms.setReadOnly();
+            return allPerms;
+        }
+
+        public ExecutorTask execute(String name, Runnable run, InputOutput io) {
+            return new ET(run, name, io);
+        }
+        
+        private class ET extends ExecutorTask {
+            private RequestProcessor.Task task;
+            private int resultValue;
+            private final String name;
+            private InputOutput io;
+            
+            public ET(Runnable run, String name, InputOutput io) {
+                super(run);
+                this.resultValue = resultValue;
+                this.name = name;
+                task = RequestProcessor.getDefault().post(this);
+            }
+            
+            public void stop() {
+                task.cancel();
+            }
+            
+            public int result() {
+                waitFinished();
+                return resultValue;
+            }
+            
+            public InputOutput getInputOutput() {
+                return io;
+            }
+            
+            public void run() {
+                try {
+                    super.run();
+                } catch (RuntimeException x) {
+                    x.printStackTrace();
+                    resultValue = 1;
+                }
+            }
+        }       
+    } 
+
+    class R implements Runnable {
+
+        public void run() {
+            Object obj = null;
+            try {
+                obj = CodeManager.execute(doc);
+            } catch (Exception ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            if (obj != null) comp = CodeManager.parseObj(obj);
+        }
+    }
 
     public PreviewThread(FXDocument doc) {
-        //super(new ThreadGroup("SACG"), "SACT");
-        super();
+        super(new ThreadGroup("SACG"), "SACT");
+        //super();
         this.doc = doc;
     }
 
@@ -65,22 +146,19 @@ public class PreviewThread extends Thread {
         try {
             //SunToolkit.createNewAppContext();
             //System.out.println("Current app context " + AppContext.getAppContext());
-            Object obj = CodeManager.execute(doc);
             
+            ExecutionEngine ee = new EE();
+            ExecutorTask task = ee.execute("prim", new R(), IOProvider.getDefault().getIO("someName", false));
+  
+            task.addTaskListener(new TaskListener() {
 
-            
-            JComponent comp = null;
-            if (obj != null){
-                Method getComponent = null;
-                try {
-                    getComponent = obj.getClass().getDeclaredMethod("getComponent");
-                } catch (NoSuchMethodException ex) {
-                    ex.printStackTrace();
+                public void taskFinished(Task task) {
+                    ((JavaFXDocument)doc).renderPreview(comp);
                 }
-                if (getComponent != null)
-                    comp = (JComponent)getComponent.invoke(obj);
-            }
-            ((JavaFXDocument)doc).renderPreview(comp);
+                
+            });
+            
+            
         } catch(Exception ex) {
             ex.printStackTrace();
         }
