@@ -199,7 +199,7 @@ public class JavaFXDocument extends NbEditorDocument implements FXDocument{
                         panel.setLayout(new BorderLayout());
                     }
                     if (comp != null){
-                        panel.add(comp, BorderLayout.WEST);
+                        panel.add(comp);
                     }
                     split.revalidate();
                     split.validate();

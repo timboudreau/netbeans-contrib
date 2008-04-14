@@ -52,8 +52,10 @@ import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
+import java.util.Map;
 import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -145,6 +147,7 @@ public final class JavaFXProject implements Project, AntProjectListener {
     private SourceRoots testRoots;
     private final ClassPathProviderImpl cpProvider;
     private final JavaFXProjectClassPathModifier cpMod;
+    private static Map <String, byte[]> projectsClassBytes = null;
 
     private AntBuildExtender buildExtender;
 
@@ -171,8 +174,24 @@ public final class JavaFXProject implements Project, AntProjectListener {
         lookup = createLookup(aux, actionProvider);
         actionProvider.startFSListener();
         helper.addAntProjectListener(this);
+        projectsClassBytes = new HashMap<String, byte[]>();
     }
 
+    public void addClassBytes(Map<String, byte[]> classBytes) {
+        if (classBytes != null) 
+            projectsClassBytes.putAll(classBytes);
+    }
+    
+    public void putClassBytes(Map<String, byte[]> classBytes) {
+        projectsClassBytes.clear();
+        if (classBytes != null)
+            projectsClassBytes.putAll(classBytes);
+    }
+    
+    public Map<String, byte[]> getClassBytes() {
+        return projectsClassBytes;
+    }
+    
     /**
      * Returns the project directory
      * @return the directory the project is located in
