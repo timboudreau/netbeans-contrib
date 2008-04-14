@@ -244,11 +244,6 @@ made subject to such option by the copyright holder.
         <!-- TODO: 1. ${FunctionType} ??? 2. a return statement in the body? -->
         <code><![CDATA[function ${FunctionName} (${ParameterList default=""}) { ${cursor} } ]]></code>
     </codetemplate> 
-    <codetemplate abbreviation="op">
-        <!-- context =  file scope -->
-        <!-- TODO: 1. ${OperationType} ??? 2. a return statement in the body? -->
-        <code><![CDATA[operation ${OperationName} (${ParameterList default=""}) { ${cursor} } ]]></code>
-    </codetemplate> 
     <codetemplate abbreviation="var">
         <!-- context =  file scope -->
         <code>
