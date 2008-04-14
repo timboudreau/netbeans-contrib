@@ -90,10 +90,10 @@ public class JavaFXDocument extends NbEditorDocument implements FXDocument{
         JavaFXModel.fireDependenciesChange(this);
     }
     
-    @Override
-    public Formatter getFormatter() {
-        return Formatter.getFormatter(getKitClass());
-    }
+//    @Override
+//    public Formatter getFormatter() {
+//        return Formatter.getFormatter(getKitClass());
+//    }
 
     @Override
     public Component createEditor(JEditorPane pane) {
