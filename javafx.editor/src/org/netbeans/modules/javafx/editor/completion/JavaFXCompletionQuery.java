@@ -38,6 +38,7 @@ import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javafx.api.JavafxcTrees;
+import com.sun.tools.javafx.tree.JFXBlockExpression;
 import com.sun.tools.javafx.tree.JFXFunctionDefinition;
 import com.sun.tools.javafx.tree.JFXType;
 import com.sun.tools.javafx.tree.JFXVar;
@@ -184,7 +185,8 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         ABSTRACT_KEYWORD,
         ATTRIBUTE_KEYWORD, 
         FUNCTION_KEYWORD,
-        PRIVATE_KEYWORD, PROTECTED_KEYWORD, PUBLIC_KEYWORD
+        PRIVATE_KEYWORD, PROTECTED_KEYWORD, PUBLIC_KEYWORD,
+        READONLY_KEYWORD
     };
 
     private static Pattern camelCasePattern = Pattern.compile("(?:\\p{javaUpperCase}(?:\\p{javaLowerCase}|\\p{Digit}|\\.|\\$)*){2,}");
@@ -366,6 +368,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
                 case BIND_EXPRESSION:
                     break;
                 case BLOCK_EXPRESSION:
+                    insideBlock(env);
                     break;
                 case CLASS_DECLARATION:
                     insideClassDeclaration(env);
@@ -462,7 +465,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
 
                     break;
                 case BLOCK:
-                    insideBlock(env);
+                    //insideBlock(env);
                     break;
                 case MEMBER_SELECT:
                     insideMemberSelect(env);
@@ -939,7 +942,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
     }
     private void insideBlock(Env env) throws IOException {
         int offset = env.getOffset();
-        BlockTree bl = (BlockTree) env.getPath().getLeaf();
+        JFXBlockExpression bl = (JFXBlockExpression) env.getPath().getLeaf();
         SourcePositions sourcePositions = env.getSourcePositions();
         CompilationUnitTree root = env.getRoot();
         int blockPos = (int) sourcePositions.getStartPosition(root, bl);
@@ -1017,9 +1020,11 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
             }
         }
         if (!afterDot) {
+            log("insideMemberSelect expEndPos: " + expEndPos + " offset: " + offset);
             if (expEndPos <= offset) {
                 insideExpression(env, new TreePath(path, fa.getExpression()));
             }
+            log("insideMemberSelect returning !afterDot");
             return;
         }
         if (openLtNum > 0) {
@@ -1035,6 +1040,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
                     break;
             }
         }
+        addLocalMembersAndVars(env);
     }
 
     private void insideMethodInvocation(Env env) throws IOException {
@@ -1774,8 +1780,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
             if (!modifiers.contains(STATIC)) {
                 kws.add(STATIC_KEYWORD);
             }
-            kws.add(CLASS_KEYWORD);
-            kws.add(TRANSIENT_KEYWORD);
+            kws.add(READONLY_KEYWORD);
         }
         for (String kw : kws) {
             if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
