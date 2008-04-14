@@ -67,7 +67,8 @@ made subject to such option by the copyright holder.
     <fontcolor name="string" default="string"/>
     <fontcolor name="time" foreColor="magenta" default="default"/>
     <fontcolor name="whitespace" default="whitespace"/>
-    
+    <fontcolor name="future-literal" default="error"/>
+
     
     <!--"semantic" highlighting:-->
 
