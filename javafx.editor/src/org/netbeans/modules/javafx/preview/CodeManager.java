@@ -54,6 +54,8 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 import com.sun.scenario.scenegraph.SGNode;
+import java.awt.Color;
+import javax.swing.JDesktopPane;
 
 public class CodeManager {
     private static final String[] getComponentStrings = {"getComponent", "getJComponent"};
@@ -226,8 +228,14 @@ public class CodeManager {
                 intFrame.setBackground(frame.getBackground());
                 intFrame.setForeground(frame.getForeground());
                 intFrame.setResizable(true);
+                intFrame.setClosable(true);
+                intFrame.setMaximizable(true);
+                intFrame.setIconifiable(true);
                 frame.dispose();
-                comp = (JComponent)intFrame;
+                JDesktopPane jdp = new JDesktopPane();
+                jdp.setBackground(Color.WHITE);
+                jdp.add(intFrame);
+                comp = jdp;
             }
         } catch (Exception ex) {
             ex.printStackTrace();
