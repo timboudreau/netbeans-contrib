@@ -61,6 +61,7 @@ public class AstElement implements ElementHandle {
     private AstScope enclosingScope;
     private Set<Modifier> mods;
     private TypeRef type;
+    protected String qualifiedName;
 
     public AstElement(String name, OffsetRange nameRange, ElementKind kind) {
         this.name = name;
@@ -87,16 +88,18 @@ public class AstElement implements ElementHandle {
     public ElementKind getKind() {
         return kind;
     }
-    
+
     public String getBinaryName() {
         return getName();
     }
-    
-    public String getQualifiedName() {
-        Packaging packaging = getPackageElement();
-        return packaging == null? getName() : packaging.getName() + "." + getName();
-    }
 
+    public String getQualifiedName() {
+        if (qualifiedName == null) {
+            Packaging packaging = getPackageElement();
+            qualifiedName = packaging == null ? getName() : packaging.getName() + "." + getName();
+        }
+        return qualifiedName;
+    }
 
     public Packaging getPackageElement() {
         return getEnclosingDef(Packaging.class);
@@ -112,8 +115,8 @@ public class AstElement implements ElementHandle {
 
     public <T extends AstDef> T getEnclosingDef(Class<T> clazz) {
         return enclosingScope.getEnclosingDef(clazz, getNameRange().getStart());
-    }    
-    
+    }
+
     /**
      * @Note: enclosingScope will be set when call
      *   {@link AstScope#addDefinition(Definition)} or {@link AstScope#addUsage(Usage)}
@@ -159,7 +162,7 @@ public class AstElement implements ElementHandle {
             mod = Modifier.PUBLIC;
         }
         mods.add(mod);
-        
+
     }
 
     public Set<Modifier> getModifiers() {

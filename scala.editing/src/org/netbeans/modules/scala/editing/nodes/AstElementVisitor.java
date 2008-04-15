@@ -89,19 +89,12 @@ public class AstElementVisitor extends AstVisitor {
     public Packaging visitPackaging(GNode that) {
         enter(that);
 
-        GNode qualId = that.getGeneric(0);
-        PathId pathId = visitQualId(qualId);
-        StringBuilder sb = new StringBuilder();
-        for (Iterator<Id> itr = pathId.getPaths().iterator(); itr.hasNext();) {
-            sb.append(itr.next().getName());
-            if (itr.hasNext()) {
-                sb.append(".");
-            }
-        }
+        GNode qualIdNode = that.getGeneric(0);
+        PathId pathId = visitQualId(qualIdNode);
 
-        String name = sb.toString();
+        String name = pathId.toPathString();
         AstScope scope = new AstScope(getRange(that));
-        Packaging packaging = new Packaging(name, getNameRange(qualId), scope);
+        Packaging packaging = new Packaging(name, getNameRange(qualIdNode), scope);
         packaging.setIds(pathId.getPaths());
 
         rootScope.addDef(packaging);
@@ -1204,7 +1197,7 @@ public class AstElementVisitor extends AstVisitor {
         exprs.add(new AstElement("expr", OffsetRange.NONE, ElementKind.OTHER));
 
         for (Object o : that.getList(1).list()) {
-            visitChildren(first);
+            visitChildren((GNode) o);
             exprs.add(new AstElement("expr", OffsetRange.NONE, ElementKind.OTHER));
         }
 
@@ -1310,10 +1303,10 @@ public class AstElementVisitor extends AstVisitor {
             List<Id> ops = new ArrayList<Id>();
             exprs.add(first);
 
-            for (Object rest : others) {
-                GNode restNode = (GNode) rest;
-                ops.add(visitId(restNode.getGeneric(0)));
-                exprs.add(visitSimpleExpr(restNode.getGeneric(1)));
+            for (Object other : others) {
+                GNode otherNode = (GNode) other;
+                ops.add(visitId(otherNode.getGeneric(0)));
+                exprs.add(visitPrefixExpr(otherNode.getGeneric(1)));
             }
             InfixExpr infixExpr = new InfixExpr("expr", OffsetRange.NONE, ElementKind.OTHER);
             infixExpr.setExprs(exprs);
@@ -1449,6 +1442,7 @@ public class AstElementVisitor extends AstVisitor {
 
         if (rest.size() > 0 && rest.get(0) instanceof ArgumentExprs) {
             FunRef funRef = new FunRef(first.getName(), first.getNameRange(), ElementKind.CALL);
+            funRef.setLocal();
             funRef.setParams(((ArgumentExprs) rest.get(0)).getArgs());
 
             scopeStack.peek().addRef(funRef);
