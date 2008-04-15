@@ -52,9 +52,7 @@ Frame {
     content : Canvas {
         background : Color.BLACK
         content : bind [
-            parts
-            // FIXME : parts are not shown when linea are present
-            /* 
+            parts,
             Line {
                 x1 : bind 100 + ( 500 * acc )
                 y1 : 50
@@ -75,7 +73,7 @@ Frame {
                 x2 : bind 100 + ( 500 * acc ) - 4 * acc / Math.abs( acc )
                 y2 : 52
                 stroke : Color.WHITE
-            }*/
+            }
         ]
         onMouseMoved : function( e : MouseEvent ): Void {
             acc = ( e.x - 100 ) / 1000;

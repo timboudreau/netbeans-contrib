@@ -78,7 +78,7 @@ public class ScalaIndex {
     
     private static final Set<String> TERMS_FQN = Collections.singleton(ScalaIndexer.FIELD_FQN);
     private static final Set<String> TERMS_BASE = Collections.singleton(ScalaIndexer.FIELD_BASE);
-    private static final Set<String> TERMS_EXTEND = Collections.singleton(ScalaIndexer.FIELD_EXTEND);
+    private static final Set<String> TERMS_EXTEND = Collections.singleton(ScalaIndexer.FIELD_EXTEND_WITH);
     
     private final Index index;
 
@@ -173,10 +173,10 @@ public class ScalaIndex {
 
     public Map<String,String> getAllExtends() {
         final Set<SearchResult> result = new HashSet<SearchResult>();
-        search(ScalaIndexer.FIELD_EXTEND, "", NameKind.CASE_INSENSITIVE_PREFIX, result, ScalaIndex.ALL_SCOPE, TERMS_EXTEND);
+        search(ScalaIndexer.FIELD_EXTEND_WITH, "", NameKind.CASE_INSENSITIVE_PREFIX, result, ScalaIndex.ALL_SCOPE, TERMS_EXTEND);
         Map<String,String> classes = new HashMap<String,String>();
         for (SearchResult map : result) {
-            String[] exts = map.getValues(ScalaIndexer.FIELD_EXTEND);
+            String[] exts = map.getValues(ScalaIndexer.FIELD_EXTEND_WITH);
             
             if (exts != null) {
                 for (String ext : exts) {
@@ -195,10 +195,10 @@ public class ScalaIndex {
     
     private String getExtends(String className, Set<Index.SearchScope> scope) {
         final Set<SearchResult> result = new HashSet<SearchResult>();
-        search(ScalaIndexer.FIELD_EXTEND, className.toLowerCase(), NameKind.CASE_INSENSITIVE_PREFIX, result, scope, TERMS_EXTEND);
+        search(ScalaIndexer.FIELD_EXTEND_WITH, className.toLowerCase(), NameKind.CASE_INSENSITIVE_PREFIX, result, scope, TERMS_EXTEND);
         String target = className.toLowerCase()+";";
         for (SearchResult map : result) {
-            String[] exts = map.getValues(ScalaIndexer.FIELD_EXTEND);
+            String[] exts = map.getValues(ScalaIndexer.FIELD_EXTEND_WITH);
             
             if (exts != null) {
                 for (String ext : exts) {

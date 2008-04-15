@@ -39,6 +39,7 @@
 
 package org.netbeans.modules.javafx.preview;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import org.netbeans.api.java.classpath.ClassPath;
@@ -57,6 +58,11 @@ class MemoryClassLoader extends ClassLoader {
         for (String key : classBytes.keySet()) {
             this.classBytes.put(key, classBytes.get(key));
         }
+    }
+
+    @Override
+    protected URL findResource(String name) {
+        return classPath.getClassLoader(false).getResource(name);
     }
 
     protected synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException {

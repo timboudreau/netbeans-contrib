@@ -83,7 +83,7 @@ public class FeatureAction implements ActionListener, Runnable {
     }
 
     public void run() {
-        URL url = FoDFileSystem.getInstance().getParentFileSystem(fo);
+        URL url = FoDFileSystem.getInstance().getDelegateFileSystem(fo);
         String codeName = ProjectTypeCreator.getInstance().getCodeName(url);
         FindComponentModules findModules = new FindComponentModules(codeName);
         findModules.createFindingTask().waitFinished();

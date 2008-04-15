@@ -50,23 +50,17 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.editor.indent.spi.Context;
 import org.netbeans.modules.editor.indent.spi.ExtraLock;
 import org.netbeans.modules.editor.indent.spi.IndentTask;
+import org.netbeans.modules.editor.indent.spi.ReformatTask;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Position;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 
 /**
  * @author Rastislav Komara (<a href="mailto:rastislav.komara@sun.com">RKo</a>)
  */
-public class JFXIndentTask implements IndentTask, IndentTask.Factory {
-    private static Logger log = Logger.getLogger(JFXIndentTask.class.getName());
+class JFXIndentTask implements IndentTask, ReformatTask {
     private final Context context;
-
-    public JFXIndentTask() {
-        this(null);
-        if (log.isLoggable(Level.INFO)) log.info("Creating factory instance for JFXIndetTask");
-    }
+    private TokenSequence<JFXTokenId> ts = null;
 
     JFXIndentTask(Context context) {        
         this.context = context;
@@ -88,31 +82,36 @@ public class JFXIndentTask implements IndentTask, IndentTask.Factory {
      *          at an invalid offset or e.g. into a guarded section.
      */
     public void reindent() throws BadLocationException {
-        if (context == null || !context.isIndent()) {
+        if (context == null ) {
             return;
-        }
-        final BaseDocument doc = (BaseDocument) context.document();
-        final TokenSequence<JFXTokenId> ts = getTokenSequence(doc, context.startOffset());
-        int sl = getScopeLevel(ts);
-        while (ts.offset() > context.endOffset()) {
-            sl = indentLine(ts, sl);
+        }        
+        int sl = getScopeLevel();
+        while (ts().moveNext() && ts.offset() < context.endOffset()) {
+            sl = indentLine(sl);
         }
 
     }
 
-    private int indentLine(TokenSequence<JFXTokenId> ts, int sl) throws BadLocationException {
-        final int lineIndex = context.lineStartOffset(context.startOffset());
+    private TokenSequence<JFXTokenId> ts() {
+        if (ts != null && ts.isValid()) return ts;
+        final BaseDocument doc = (BaseDocument) context.document();
+        this.ts = getTokenSequence(doc, this.ts != null ? ts.offset() : context.startOffset());
+        return this.ts;
+    }
+
+    private int indentLine(int sl) throws BadLocationException {
+        final int lineIndex = context.lineStartOffset(ts.offset());
         if (context.lineIndent(lineIndex) != sl) {
             context.modifyIndent(lineIndex, sl);
         }
-        Token t = ts.moveNext() ? ts.token() : null;
+        Token t = ts().moveNext() ? ts.token() : null;
         while (t != null && context.lineStartOffset(ts.offset()) == lineIndex) {
             if (t.id() == JFXTokenId.LPAREN || t.id() == JFXTokenId.LBRACE) {
                 sl = sl + getIndentStepLevel();
             } else if (t.id() == JFXTokenId.RPAREN || t.id() == JFXTokenId.RBRACE) {
                 sl = sl - getIndentStepLevel();
             }
-            t = ts.moveNext() ? ts.token() : null;
+            t = ts().moveNext() ? ts.token() : null;
         }
         return sl;
     }
@@ -128,18 +127,18 @@ public class JFXIndentTask implements IndentTask, IndentTask.Factory {
         return null;
     }
 
-    private int getScopeLevel(TokenSequence<JFXTokenId> ts) {
+    private int getScopeLevel() {
         final Position position = context.document().getStartPosition();
         if (position.getOffset() == context.startOffset()) {
             return 0;
         } else {
             int so = 0;
-            Token t = ts.movePrevious() ? ts.token() : null;
+            Token t = ts().movePrevious() ? ts.token() : null;
             while (t != null) {
                 if (t.id() == JFXTokenId.LBRACE || t.id() == JFXTokenId.LPAREN) {
                     ;
                 }
-                t = ts.movePrevious() ? ts.token() : null;
+                t = ts().movePrevious() ? ts.token() : null;
             }
             return so;
         }
@@ -152,16 +151,33 @@ public class JFXIndentTask implements IndentTask, IndentTask.Factory {
         return (TokenSequence<T>) seq;
     }
 
+
     /**
-     * Create indenting task.
+     * Perform reformatting of the {@link org.netbeans.modules.editor.indent.spi.Context#document()}
+     * between {@link org.netbeans.modules.editor.indent.spi.Context#startOffset()} and {@link org.netbeans.modules.editor.indent.spi.Context#endOffset()}.
+     * <br/>
+     * This method may be called several times repetitively for different areas
+     * of a reformatted area.
+     * <br/>
+     * It is called from AWT thread and it should process synchronously. It is used
+     * after a newline is inserted after the user presses Enter
+     * or when a current line must be reindented e.g. when Tab is pressed in emacs mode.
+     * <br/>
+     * The method should use information from the context and modify
+     * indentation at the given offset in the document.
      *
-     * @param context non-null indentation context.
-     * @return indenting task or null if the factory cannot handle the given context.
+     * @throws javax.swing.text.BadLocationException
+     *          in case the formatter attempted to insert/remove
+     *          at an invalid offset or e.g. into a guarded section.
      */
-    public IndentTask createTask(Context context) {
-        if (context.mimePath().contains(JavaFXEditorKit.FX_MIME_TYPE) && context.isIndent()) {
-            return new JFXIndentTask(context);
-        }
+    public void reformat() throws BadLocationException {
+        reindent();
+    }
+
+    /**
+     * Get an extra locking or null if no extra locking is necessary.
+     */
+    public ExtraLock reformatLock() {
         return null;
     }
 }

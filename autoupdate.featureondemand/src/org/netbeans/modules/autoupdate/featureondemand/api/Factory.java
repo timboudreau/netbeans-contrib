@@ -49,11 +49,10 @@ import org.openide.filesystems.FileObject;
 /** Factories for iterators, actions and other useful elements for feature
  * on demand UI.
  *
- * @author Jaroslav Tulach <jaroslav.tulach@netbeans.org>
+ * @author Jaroslav Tulach <jaroslav.tulach@netbeans.org>, Jirka Rechtacek <jrechtacek@netbeans.org>
  */
 public final class Factory {
-    private Factory() {
-    }
+    private Factory() {}
 
     /** Creates new iterator for data provided by given file object.
      * 
@@ -69,11 +68,21 @@ public final class Factory {
      * initialization.
      * 
      * @param fo file object to read the action from
-     * @return
+     * @return ActionListener
+     * @throws java.io.IOException 
+     */
+    public static ActionListener newDelegateAction(FileObject fo) throws IOException {
+        return new FeatureAction(fo);
+    }
+    
+    /** Creates an transient action that can trigger Feature On Demand&tm; 
+     * initialization.
+     * 
+     * @param fo file object to read the action from
+     * @return ActionListener
      * @throws java.io.IOException 
      */
     public static ActionListener newAction(FileObject fo) throws IOException {
         return new FeatureAction(fo);
     }
 }
-

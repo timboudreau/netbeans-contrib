@@ -244,7 +244,7 @@ public class DescriptionStep implements WizardDescriptor.Panel<WizardDescriptor>
         Object o = settings.getProperty (FeatureOnDemanWizardIterator.CHOSEN_TEMPLATE);
         assert o != null && o instanceof FileObject : o + " is not null and instanceof FileObject.";
         FileObject fo = (FileObject) o;
-        URL layer = FoDFileSystem.getInstance ().getParentFileSystem (fo);
+        URL layer = FoDFileSystem.getInstance ().getDelegateFileSystem (fo);
         codeName = ProjectTypeCreator.getInstance ().getCodeName (layer);
     }
 

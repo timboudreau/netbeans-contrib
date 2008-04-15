@@ -68,7 +68,7 @@ public class FeatureProjectFactory implements ProjectFactory {
     public boolean isProject(FileObject projectDirectory) {
         Lookup.Result<FeatureInfo> result = ProjectTypeCreator.featureTypesLookup().lookupResult(FeatureInfo.class);
         for (FeatureInfo pt2m : result.allInstances ()) {
-            String pfp = FeatureInfoAccessor.DEFAULT.getProjectFilePath(pt2m);
+            String pfp = FeatureInfoAccessor.DEFAULT.getDelegateFilePath(pt2m);
             if (pfp != null) {
                 FileObject file = projectDirectory.getFileObject(pfp);
                 if (file != null) {
@@ -82,7 +82,7 @@ public class FeatureProjectFactory implements ProjectFactory {
     public Project loadProject(FileObject projectDirectory, ProjectState state) throws IOException {
         Lookup.Result<FeatureInfo> result = ProjectTypeCreator.featureTypesLookup().lookupResult(FeatureInfo.class);
         for (FeatureInfo pt2m : result.allInstances ()) {
-            String pfp = FeatureInfoAccessor.DEFAULT.getProjectFilePath(pt2m);
+            String pfp = FeatureInfoAccessor.DEFAULT.getDelegateFilePath(pt2m);
             if (pfp != null) {
                 FileObject file = projectDirectory.getFileObject(pfp);
                 if (file != null) {

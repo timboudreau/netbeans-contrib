@@ -47,23 +47,23 @@ import org.openide.filesystems.FileObject;
 /** Description of <em>Feature On Demand</em> capabilities and a 
  * factory to create new instances.
  *
- * @author Jaroslav Tulach <jtulach@netbeans.org>
+ * @author Jaroslav Tulach <jtulach@netbeans.org>, Jirka Rechtacek <jrechtacek@netbeans.org>
  */
 public final class FeatureInfo {
     private final String codeName;
-    private final URL projectLayer;
-    private final String projectFilePath;
+    private final URL delegateLayer;
+    private final String delegateFilePath;
     private Internal internal = new Internal(this);
     
-    private FeatureInfo(String codeName, URL projectLayer, String projectFilePath) {
+    private FeatureInfo(String codeName, URL delegateLayer, String delegateFilePath) {
         this.codeName = codeName;
-        this.projectLayer = projectLayer;
-        this.projectFilePath = projectFilePath;
+        this.delegateLayer = delegateLayer;
+        this.delegateFilePath = delegateFilePath;
     }
     
     /** Creates new <em>Feature On Demand</em> descriptor. Whenever the module
      * named <code>codeName</code> is not enabled, the system plugs in the
-     * {@link XMLFileSystem} specified by <code>projectLayer</code> URL.
+     * {@link XMLFileSystem} specified by <code>delegateLayer</code> URL.
      * Instances of the returned <code>FeatureInfo</code> need to be registered
      * in {@link Lookups#forPath} at <code>FeaturesOnDemand</code> location:
      * 
@@ -72,24 +72,24 @@ public final class FeatureInfo {
     &lt;file name="cnd.instance"&gt;
         &lt;attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.featureondemand.api.FeatureInfo.create"/&gt;
         &lt;attr name="codeName" stringvalue="org.openide.util.enum"/&gt;
-        &lt;attr name="projectLayer" urlvalue="nbresloc:/org/netbeans/modules/autoupdate/featureondemand/api/FeatureInfoTest.xml"/&gt;
+        &lt;attr name="delegateLayer" urlvalue="nbresloc:/org/netbeans/modules/autoupdate/featureondemand/api/FeatureInfoTest.xml"/&gt;
     &lt;/file&gt;
 &lt;/folder&gt;
      * </pre>
      * 
      * @param codeName name of module to check for
-     * @param projectLayer layer file to enable when the module 
-     * @param projectFilePath relative path to some important file in project this module provides, file structure, or null
+     * @param delegateLayer layer file to enable when the module 
+     * @param delegateFilePath relative path to some important file in project this module provides, file structure, or null
      * @return feature info descriptor to be used by the infrastructure
      */
-    public static FeatureInfo create(String codeName, URL projectLayer, String projectFilePath) {
-        return new FeatureInfo(codeName, projectLayer, projectFilePath);
+    public static FeatureInfo create(String codeName, URL delegateLayer, String delegateFilePath) {
+        return new FeatureInfo(codeName, delegateLayer, delegateFilePath);
     }
     
     static FeatureInfo create(FileObject fo) {
         Object cnb = fo.getAttribute("codeName"); // NOI18N
-        Object layer = fo.getAttribute("projectLayer"); // NOI18N
-        Object pfp = fo.getAttribute("projectFilePath"); // NOI18N
+        Object layer = fo.getAttribute("delegateLayer"); // NOI18N
+        Object pfp = fo.getAttribute("delegateFilePath"); // NOI18N
         return create((String)cnb, (URL)layer, (String)pfp);
     }
     
@@ -101,13 +101,13 @@ public final class FeatureInfo {
             }
 
             @Override
-            public URL getProjectLayer(FeatureInfo info) {
-                return info.projectLayer;
+            public URL getDelegateLayer(FeatureInfo info) {
+                return info.delegateLayer;
             }
 
             @Override
-            public String getProjectFilePath(FeatureInfo info) {
-                return info.projectFilePath;
+            public String getDelegateFilePath(FeatureInfo info) {
+                return info.delegateFilePath;
             }
 
             @Override

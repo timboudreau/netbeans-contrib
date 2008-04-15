@@ -148,7 +148,7 @@ public class PreviewThread extends Thread {
             //System.out.println("Current app context " + AppContext.getAppContext());
             
             ExecutionEngine ee = new EE();
-            ExecutorTask task = ee.execute("prim", new R(), IOProvider.getDefault().getIO("someName", false));
+            ExecutorTask task = ee.execute("prim", new R(), IOProvider.getDefault().getIO("JavaFX preview", false));
   
             task.addTaskListener(new TaskListener() {
 

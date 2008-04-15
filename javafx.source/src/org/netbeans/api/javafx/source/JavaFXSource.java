@@ -155,6 +155,8 @@ public final class JavaFXSource {
     static {
         // Start listening on the editor registry:
         EditorRegistryListener.singleton.toString();
+        // Start the factories ...
+        JavaFXSourceTaskFactoryManager.register();
 //        Init the maps
 //        phase2Message.put (Phase.PARSED,"Parsed");                              //NOI18N
 //        phase2Message.put (Phase.ELEMENTS_RESOLVED,"Signatures Attributed");    //NOI18N
@@ -500,6 +502,13 @@ out:            for (Iterator<Collection<Request>> it = CompilationJob.finishedR
         } else {
             LOGGER.log(Level.WARNING,String.format("File: %s has no EditorCookie.Observable", FileUtil.getFileDisplayName (od.getPrimaryFile())));      //NOI18N
         }
+    }
+  
+    public Document getDocument() {
+        if ((listener == null) || (listener.getDocument() == null)) {
+            return null;
+        }
+        return listener.getDocument();
     }
     
     public TokenHierarchy getTokenHierarchy() {
