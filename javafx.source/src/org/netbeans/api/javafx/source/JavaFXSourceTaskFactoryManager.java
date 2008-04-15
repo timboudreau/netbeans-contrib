@@ -49,7 +49,7 @@ import org.openide.util.RequestProcessor;
  *
  * @author Jan Lahoda
  */
-public final class JavaFXSourceTaskFactoryManager {
+final class JavaFXSourceTaskFactoryManager {
     
     private static JavaFXSourceTaskFactoryManager INSTANCE;
     
