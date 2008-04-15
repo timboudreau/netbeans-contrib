@@ -241,7 +241,9 @@ public class JavaFXCompositePanelProvider implements ProjectCustomizer.Composite
             } catch (IOException ioe) {
                 ErrorManager.getDefault().notify(ioe);
             }
+            boolean isEnabled = jwsProps.enabledModel.isSelected();
             boolean enabled = Boolean.valueOf(jwsProps.getProperty(WebStartProjectProperties.JNLP_ENABLED)).booleanValue();
+            if (enabled != isEnabled) enabled = isEnabled;            
             final ProjectConfigurationProvider configProvider = 
                     javafxProject.getLookup().lookup(ProjectConfigurationProvider.class);
             try {

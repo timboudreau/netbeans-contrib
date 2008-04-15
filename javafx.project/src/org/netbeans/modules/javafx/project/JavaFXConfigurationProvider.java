@@ -206,6 +206,16 @@ final class JavaFXConfigurationProvider implements ProjectConfigurationProvider<
     }
 
     public Collection<Config> getConfigurations() {
+        if (configDir == null) {
+            configDir = p.getProjectDirectory().getFileObject("nbproject/configs"); // NOI18N
+            if (configDir != null) {
+                configDir.removeFileChangeListener(fclWeak);
+                configDir.addFileChangeListener(fclWeak);
+                LOGGER.log(Level.FINEST, "(Re-)added listener to {0}", configDir);
+            } else {
+                LOGGER.log(Level.FINEST, "No nbproject/configs exists");
+            }
+        }
         calculateConfigs();
         List<Config> l = new ArrayList<Config>();
         l.addAll(configs.values());
