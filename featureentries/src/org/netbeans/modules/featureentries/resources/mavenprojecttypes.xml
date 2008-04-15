@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Templates">
+            
+        <folder name="Project">
+            <folder name="Maven2">
+                <attr name="position" intvalue="943"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                <file name="Archetypes">
+                    <attr name="position" intvalue="100"/>
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                    <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.autoupdate.featureondemand.api.Factory.newProject"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/MavenDescription.html"/>
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/Maven2Icon.gif"/>
+                    <attr name="template" boolvalue="true"/>
+                </file>
+                <file name="Existing">
+                    <attr name="position" intvalue="200"/>
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
+                    <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.autoupdate.featureondemand.api.Factory.newProject"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/ExistingDescription.html"/>
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/Maven2Icon.gif"/>
+                    <attr name="template" boolvalue="true"/>
+                </file>
+            </folder>
+        </folder>
+        <folder name="Licenses">
+            <file name="license-apache20.txt" url="licenses/apache20-license.txt">
+                <attr name="template" boolvalue="true"/>
+                <!--attr name="SystemFileSystem.localizingBundle" stringvalue="org.codehaus.mevenide.netbeans.licenses.Bundle"/-->
+                <attr name="mavenLicenseURL" stringvalue="http://www.apache.org/licenses/LICENSE-2.0.txt"/>
+            </file>
+        </folder>
+        
+    </folder>
+    
+</filesystem>

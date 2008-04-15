@@ -37,52 +37,31 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.autoupdate.featureondemand.api;
+package org.netbeans.modules.autoupdate.featureondemand;
 
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import org.netbeans.modules.autoupdate.featureondemand.FeatureAction;
-import org.netbeans.modules.autoupdate.featureondemand.projectwizard.FeatureOnDemanWizardIterator;
-import org.openide.WizardDescriptor;
-import org.openide.filesystems.FileObject;
+import org.openide.util.HelpCtx;
+import org.openide.util.actions.CallableSystemAction;
 
-/** Factories for iterators, actions and other useful elements for feature
- * on demand UI.
- *
- * @author Jaroslav Tulach <jaroslav.tulach@netbeans.org>, Jirka Rechtacek <jrechtacek@netbeans.org>
- */
-public final class Factory {
-    private Factory() {}
+public final class PlaceHolderAction extends CallableSystemAction {
 
-    /** Creates new iterator for data provided by given file object.
-     * 
-     * @param fo file object describing the iterator
-     * @return the Feature On Demand-ready iterator
-     * @throws java.io.IOException 
-     */
-    public static WizardDescriptor.InstantiatingIterator newProject (FileObject fo) throws IOException {
-        return FeatureOnDemanWizardIterator.newProject(fo);
+    public void performAction () {}
+
+    public String getName () {
+        return null;
     }
-    
-    /** Creates an action that can trigger Feature On Demand&tm; 
-     * initialization.
-     * 
-     * @param fo file object to read the action from
-     * @return ActionListener
-     * @throws java.io.IOException 
-     */
-    public static ActionListener newDelegateAction(FileObject fo) throws IOException {
-        return new FeatureAction(fo);
+
+    @Override
+    protected void initialize () {
+        super.initialize ();
+        putValue ("noIconInMenu", Boolean.TRUE);
     }
-    
-    /** Creates an transient action that can trigger Feature On Demand&tm; 
-     * initialization.
-     * 
-     * @param fo file object to read the action from
-     * @return ActionListener
-     * @throws java.io.IOException 
-     */
-    public static ActionListener newAction(FileObject fo) throws IOException {
-        return new FeatureAction(fo);
+
+    public HelpCtx getHelpCtx () {
+        return HelpCtx.DEFAULT_HELP;
+    }
+
+    @Override
+    protected boolean asynchronous () {
+        return false;
     }
 }
