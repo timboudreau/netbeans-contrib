@@ -208,6 +208,29 @@ made subject to such option by the copyright holder.
                 </folder>
             </folder>
         </folder>
+        <folder name="transform">
+            <folder name="Translate">
+                <folder name="transform">
+                    <file name="Translate.fx" url="/demos/transform/Translate.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="Scale">
+                <folder name="transform">
+                    <file name="Scale.fx" url="/demos/transform/Scale.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="Rotate">
+                <folder name="transform">
+                    <file name="Rotate.fx" url="/demos/transform/Rotate.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
         <folder name="motion">
             <folder name="BouncyBubbles">
                 <folder name="motion">
@@ -350,17 +373,26 @@ made subject to such option by the copyright holder.
                             </file>
                         </folder>
                         <folder name="Transform">
-                            <file name="Translate" url="">
+                            <file name="Translate" url="../../../../../../demos/transform/Translate.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/transform/Translate"/>
                             </file>
-                            <file name="Scale" url="">
+                            <file name="Scale" url="../../../../../../demos/transform/Scale.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/transform/Scale"/>
                             </file>
-                            <file name="Rotate" url="">
+                            <file name="Rotate" url="../../../../../../demos/transform/Rotate.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/transform/Rotate"/>
                             </file>
                         </folder>
                         <folder name="Motion">
