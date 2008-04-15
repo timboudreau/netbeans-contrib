@@ -57,7 +57,7 @@ made subject to such option by the copyright holder.
     <!-- Main target -->
     
     <target name="jnlp" depends="-init-check,-test-jnlp-enabled" if="is.jnlp.enabled">
-        <delete file="dist/lib/javaws.jar" failonerror="false"/>
+        <!--delete file="dist/lib/javaws.jar" failonerror="false"/-->
         <antcall target="generate-jnlp"/>
     </target>
     
