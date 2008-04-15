@@ -852,7 +852,7 @@ is divided into following sections:
                 <echo><xsl:choose>
                         <xsl:when test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">${platform.java}</xsl:when>
                         <xsl:otherwise>java</xsl:otherwise>
-                </xsl:choose> -jar "${dist.jar.resolved}" ${main.class}</echo>                
+                </xsl:choose> -jar "${dist.jar.resolved}"</echo>                
                 <replace file="${{dist.jar.dir}}/README.TXT" token='.jar"' value='.jar" ${{main.class}}'/>
             </target>
             

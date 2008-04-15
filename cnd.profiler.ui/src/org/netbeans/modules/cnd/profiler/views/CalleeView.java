@@ -5,10 +5,9 @@
 
 package org.netbeans.modules.cnd.profiler.views;
 
+import org.netbeans.modules.cnd.profiler.data.Function;
 import org.netbeans.modules.cnd.profiler.models.CalleesNodeModel;
 import org.netbeans.modules.cnd.profiler.models.CalleesTreeModel;
-import org.netbeans.modules.cnd.profiler.providers.TestProvider;
-
 
 /**
  *
@@ -16,7 +15,7 @@ import org.netbeans.modules.cnd.profiler.providers.TestProvider;
  */
 public class CalleeView extends FunctionView {
     public CalleeView() {
-        super(new CalleesTreeModel(TestProvider.getInstance().getFunctions()[0]), new CalleesNodeModel());
+        super(new CalleesTreeModel(new Function("")), new CalleesNodeModel());
     }
 }
 

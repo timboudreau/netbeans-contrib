@@ -90,9 +90,8 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
 
         
         /////////////////////////////////////////////////////////////////////////////
-        /*
-        final File jdkHome = new File(
-                product.getProperty(JdkLocationPanel.JDK_LOCATION_PROPERTY));
+        
+        final File jdkHome = new File("/usr/java");
         try {
             progress.setDetail(getString("CL.install.jdk.home")); // NOI18N
             JavaInfo info = JavaUtils.getInfo(jdkHome);
@@ -107,7 +106,7 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
                     getString("CL.install.error.jdk.home"), // NOI18N
                     e);
         }
-        */
+        
         /////////////////////////////////////////////////////////////////////////////
         try {
             progress.setDetail(getString("CL.install.netbeans.clusters")); // NOI18N
