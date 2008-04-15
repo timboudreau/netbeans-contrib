@@ -41,6 +41,8 @@
 
 package org.netbeans.modules.javafx.preview;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import org.netbeans.modules.javafx.editor.*;
 import java.io.IOException;
 import java.util.Collections;
@@ -50,13 +52,19 @@ import javax.swing.JComponent;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Collections;
 import javax.swing.SwingUtilities;
 //import net.java.javafx.type.expr.CompilationUnit;
 //import net.java.javafx.typeImpl.Compilation;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
+import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.project.ui.OpenProjects;
+import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.modules.editor.NbEditorUtilities;
+import org.netbeans.modules.javafx.project.JavaFXProject;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -73,9 +81,63 @@ public class JavaFXModel {
     private static final long PREVIEW_CHECK_DELAY = 200;
     private static ChangeThread changeThread = null;
     private static long lastVisitTime = 0;
+    private static Map <Project, Map <String, byte[]>> projectsClassBytes = null;
     
     static{
         initFX();
+    }
+    
+    static class ProjectListener implements PropertyChangeListener {
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (evt.getPropertyName().contentEquals(OpenProjects.PROPERTY_OPEN_PROJECTS)) {
+                Project projects[] = OpenProjects.getDefault().getOpenProjects();
+                ArrayList<Project> projectArray = new ArrayList<Project>();
+                Collections.addAll(projectArray, projects);
+                synchronized (projectsClassBytes) {
+                    for (Object project : projectsClassBytes.keySet()) {
+                        if (!projectArray.contains((Project)project)) {
+                            projectsClassBytes.remove(project);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    static public void addClassBytes(Project project, Map<String, byte[]> classBytes) {
+        synchronized (projectsClassBytes) {
+            Map <String, byte[]> classBytesForProj = projectsClassBytes.get(project);
+            if (classBytesForProj == null) {
+                classBytesForProj = new HashMap <String, byte[]>();
+                OpenProjects.getDefault().addPropertyChangeListener(new ProjectListener());
+            }
+            if (classBytes != null)
+                classBytesForProj.putAll(classBytes);
+        }
+    }
+    
+    static public void putClassBytes(Project project, Map<String, byte[]> classBytes) {
+        synchronized (projectsClassBytes) {
+            Map <String, byte[]> classBytesForProj = projectsClassBytes.get(project);
+            if (classBytesForProj == null) {
+                classBytesForProj = new HashMap <String, byte[]>();
+                OpenProjects.getDefault().addPropertyChangeListener(new ProjectListener());
+            }
+            else 
+                classBytesForProj.clear();
+            if (classBytes != null)
+                classBytesForProj.putAll(classBytes);
+        }
+    }
+    
+    static public Map<String, byte[]> getClassBytes(Project project) {
+        synchronized (projectsClassBytes) {
+            Map<String, byte[]> classBytes = projectsClassBytes.get(project);
+            if (classBytes != null)
+                return projectsClassBytes.get(project);
+            else
+                return new HashMap<String, byte[]>();
+        }
     }
     
     public static FXDocument getNextDocument() {
@@ -199,6 +261,7 @@ public class JavaFXModel {
             changeThread = new ChangeThread();
             new Thread(new ChangeThread()).start();
         }
+        projectsClassBytes = new HashMap<Project, Map<String, byte[]>>();
     }
     
     private static void renderPreview(final FXDocument doc) {
@@ -219,19 +282,7 @@ public class JavaFXModel {
     }
 
     public static Project getProject(FileObject fileObject){
-        Project result = null;
-        try {
-            ProjectManager pm = ProjectManager.getDefault();
-            FileObject projDir = fileObject.getParent();
-            while (!pm.isProject(projDir)) {
-                projDir = projDir.getParent();
-            }
-            result = pm.findProject(projDir);
-        } catch(IOException ioe) {
-            ioe.printStackTrace();
-        } catch (IllegalArgumentException iae) {
-        }
-        return result;
+        return FileOwnerQuery.getOwner(fileObject);
     }
 
     private static class ChangeThread implements Runnable{
