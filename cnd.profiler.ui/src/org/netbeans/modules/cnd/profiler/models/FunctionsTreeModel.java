@@ -29,11 +29,15 @@ public abstract class FunctionsTreeModel implements TreeModel {
         return ROOT;
     }
     
-    public void setRoot(Function rootFunction) {
-        this.rootFunctions = new Function[]{rootFunction};
+    public void setRoot(Function[] rootFunctions) {
+        this.rootFunctions = rootFunctions;
         for (ModelListener listener : listeners) {
             listener.modelChanged(new ModelEvent.TreeChanged(this));
         }
+    }
+    
+    public void setRoot(Function rootFunction) {
+        setRoot(new Function[]{rootFunction});
     }
     
     public void addModelListener(ModelListener arg0) {

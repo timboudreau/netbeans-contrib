@@ -43,7 +43,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import org.netbeans.modules.autoupdate.featureondemand.api.FeatureInfo;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
@@ -57,8 +56,6 @@ public class ProjectTypeCreator {
     
     private static ProjectTypeCreator INSTANCE = new ProjectTypeCreator ();
     
-    private Map<URL, String> layer2codeName;
-    
     public static ProjectTypeCreator getInstance () {
         return INSTANCE;
     }
@@ -67,7 +64,7 @@ public class ProjectTypeCreator {
         List<URL> res = new ArrayList<URL>();
         Lookup.Result<FeatureInfo> result = featureTypesLookup().lookupResult(FeatureInfo.class);
         for (FeatureInfo pt2m : result.allInstances ()) {
-            URL url = FeatureInfoAccessor.DEFAULT.getProjectLayer(pt2m);
+            URL url = FeatureInfoAccessor.DEFAULT.getDelegateLayer(pt2m);
             if (url != null) {
                 res.add(url);
             }
@@ -81,7 +78,7 @@ public class ProjectTypeCreator {
         }
         Lookup.Result<FeatureInfo> result = featureTypesLookup().lookupResult(FeatureInfo.class);
         for (FeatureInfo pt2m : result.allInstances ()) {
-            if (layer.equals(FeatureInfoAccessor.DEFAULT.getProjectLayer(pt2m))) {
+            if (layer.equals(FeatureInfoAccessor.DEFAULT.getDelegateLayer(pt2m))) {
                 return FeatureInfoAccessor.DEFAULT.getCodeName(pt2m);
             }
         }
@@ -92,7 +89,7 @@ public class ProjectTypeCreator {
         Lookup.Result<FeatureInfo> result = featureTypesLookup().lookupResult(FeatureInfo.class);
         for (FeatureInfo pt2m : result.allInstances ()) {
             if (codeName.equals(FeatureInfoAccessor.DEFAULT.getCodeName(pt2m))) {
-                return FeatureInfoAccessor.DEFAULT.getProjectLayer(pt2m);
+                return FeatureInfoAccessor.DEFAULT.getDelegateLayer(pt2m);
             }
         }
         return null;

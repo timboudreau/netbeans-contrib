@@ -77,6 +77,7 @@ import javax.swing.text.Position;
 import org.netbeans.api.editor.fold.Fold;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
 import org.netbeans.api.javafx.source.CompilationInfo;
+import org.netbeans.api.javafx.source.JavaFXSource;
 import org.netbeans.api.javafx.source.support.CancellableTreePathScanner;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -197,11 +198,11 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
     }
     
     static final class JavaFXElementFoldTask extends ScanningCancellableTask<CompilationInfo> {
-        
         //XXX: this will hold JavaFXElementFoldTask as long as the FileObject exists:
         private static Map<FileObject, JavaFXElementFoldTask> file2Task = new WeakHashMap<FileObject, JavaFXElementFoldTask>();
         
         static JavaFXElementFoldTask getTask(FileObject file) {
+            JavaFXSource.forFileObject(file); // make sure the JavaFXSource is loaded ...
             JavaFXElementFoldTask task = file2Task.get(file);
             
             if (task == null) {

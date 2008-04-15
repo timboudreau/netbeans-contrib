@@ -11,7 +11,7 @@ import org.netbeans.modules.cnd.profiler.data.Function;
  *
  * @author eu155513
  */
-public class TestProvider {
+public class TestProvider implements FunctionsProvider {
     private static TestProvider instance = null;
 
     public static TestProvider getInstance() {
@@ -29,15 +29,15 @@ public class TestProvider {
         Function f4 = new Function("foo3");
         
         // Attribs
-       f1.setAttrib("time", 182.4);
-       f2.setAttrib("time", 54.1);
-       f3.setAttrib("time", 33.7);
-       f4.setAttrib("time", 18.33);
+       f1.setProperty("secs", 182.4);
+       f2.setProperty("secs", 54.1);
+       f3.setProperty("secs", 33.7);
+       f4.setProperty("secs", 18.33);
        
-       f1.setAttrib("Self time", 100.3);
-       f2.setAttrib("Self time", 34.0);
-       f3.setAttrib("Self time", 0.1);
-       f4.setAttrib("Self time", 18.33);
+       f1.setProperty("self", 100.3);
+       f2.setProperty("self", 34.0);
+       f3.setProperty("self", 0.1);
+       f4.setProperty("self", 18.33);
         
         // Call information
         f1.addCallee(f2);

@@ -188,20 +188,25 @@ public class JavaFXTargetChooserPanelGUI extends javax.swing.JPanel implements A
                 packageComboBox.getEditor().setItem( preselectedPackage );
             }
             if (template != null) {
-            	if ( documentNameTextField.getText().trim().length() == 0 ) { // To preserve the class name on back in the wiazard
+            	if ( documentNameTextField.getText().trim().length() == 0 ) { // To preserve the class name on back in the wizard
                     if (this.type == NewJavaFXFileWizardIterator.TYPE_PKG_INFO) {
                         documentNameTextField.setText (template.getName ());
                     }
                     else {
                         //Ordinary file
-                        String prefix = NEW_CLASS_PREFIX;
-                        // See 91580
-                        Object customPrefix = template.getAttribute("templateNamePrefix");
-                        if (customPrefix != null) {
-                            prefix = customPrefix.toString();
+                        final String baseName = NEW_CLASS_PREFIX + template.getName ();
+                        String activeName = baseName;
+                        if (preselectedFolder != null) {
+                            int index = 0;                            
+                            while (true) {
+                                FileObject _tmp = preselectedFolder.getFileObject(activeName, template.getExt());    //NOI18N
+                                if (_tmp == null) {
+                                    break;
+                                }
+                                activeName = baseName + ++index;
+                            }
                         }
-                        
-                        documentNameTextField.setText (prefix + template.getName ());
+                        documentNameTextField.setText (activeName);
                         documentNameTextField.selectAll ();
                     }
                 }

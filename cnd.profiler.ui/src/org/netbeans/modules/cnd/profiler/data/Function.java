@@ -53,16 +53,12 @@ public class Function {
         return Collections.unmodifiableCollection(callees);
     }
     
-    public void setAttrib(String name, Object value) {
+    public void setProperty(String name, Object value) {
         properties.put(name, value);
     }
     
-    public Object getAttrib(String name) {
+    public Object getProperty(String name) {
         return properties.get(name);
-    }
-    
-    public Map getAttribs() {
-        return properties;
     }
     
     @Override
@@ -76,5 +72,10 @@ public class Function {
     @Override
     public int hashCode() {
         return name.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Function " + name;
     }
 }

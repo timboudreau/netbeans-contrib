@@ -103,7 +103,7 @@ class HeaderProxy extends SourceProxy {
 	TopIncludingFileAndDirective fad = getTopIncludingFile(dao);
 	
 	if( fad != null && fad.topFile != null ) {
-            if( DebugUtils.TRACE ) System.err.printf("\t\tfound top file: %s", fad.topFile.getAbsolutePath());
+            if( DebugUtils.TRACE ) System.err.printf("\t\tfound top file: %s\n", fad.topFile.getAbsolutePath());
 	    
 	    String includeDirectiveText = fad.includeDirectiveText;
             NativeFileItem topNativeItem = findTopNativeItem(fad.topFile.getAbsolutePath().toString(), fileItem);
@@ -174,12 +174,14 @@ class HeaderProxy extends SourceProxy {
     }
     
     private static NativeFileItem findTopNativeItem(String topFile, NativeFileItem fileItem) {
-        NativeProject topNativeProject = fileItem.getNativeProject();
-        if( topNativeProject != null ) {
-            try {
-                return topNativeProject.findFileItem(new File(topFile).getCanonicalFile());
-            } catch( IOException e ) {
-                e.printStackTrace();
+        if( fileItem != null ) {
+            NativeProject topNativeProject = fileItem.getNativeProject();
+            if( topNativeProject != null ) {
+                try {
+                    return topNativeProject.findFileItem(new File(topFile).getCanonicalFile());
+                } catch( IOException e ) {
+                    e.printStackTrace();
+                }
             }
         }
         return null;

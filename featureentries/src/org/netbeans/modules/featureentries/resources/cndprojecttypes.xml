@@ -18,7 +18,7 @@
         <folder name="View">
             <file name="org.netbeans.modules.cnd.classview-ClassViewAction.instance">
                 <attr name='instanceCreate' methodvalue='org.netbeans.spi.actions.support.Factory.delegate'/>
-                <attr name='delegate' methodvalue='org.netbeans.modules.autoupdate.featureondemand.api.Factory.newAction'/>
+                <attr name='delegate' methodvalue='org.netbeans.modules.autoupdate.featureondemand.api.Factory.newDelegateAction'/>
                 <attr name='SystemFileSystem.localizingBundle' stringvalue='org.netbeans.modules.featureentries.resources.Bundle'/>
                 <attr name='iconBase' stringvalue='org/netbeans/modules/featureentries/resources/class_view.png'/>
                 <attr name='noIconInMenu' boolvalue="false"/>
@@ -30,6 +30,7 @@
             <folder name="Native">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
                 <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/desktop.html"/>
+                <attr name="position" intvalue="99"/>
                 
                 <file name="makefile.xml">
                     <attr name="position" intvalue="100"/>

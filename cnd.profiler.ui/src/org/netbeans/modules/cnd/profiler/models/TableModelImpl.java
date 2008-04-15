@@ -29,11 +29,11 @@ public class TableModelImpl implements TableModel {
             }
             if (columnID.equals ("timeID")) {
                 if (node instanceof Function) {
-                    return ((Function)node).getAttrib("time");
+                    return ((Function)node).getProperty("secs");
                 }
             } else if (columnID.equals ("selftimeID")) {
                 if (node instanceof Function) {
-                    return ((Function)node).getAttrib("Self time");
+                    return ((Function)node).getProperty("self");
                 }
             }
         } catch (Exception e) {
