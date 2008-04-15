@@ -54,8 +54,8 @@ public class Function extends AstDef {
     private List<TypeRef> typeParams;
     private List<Var> params;
 
-    public Function(Token idToken, AstScope bindingScope, ElementKind kind) {
-        super(idToken, bindingScope, kind);
+    public Function(String name, Token idToken, AstScope bindingScope, ElementKind kind) {
+        super(name, idToken, bindingScope, kind);
     }
 
     public void setTypeParam(List<TypeRef> typeParams) {

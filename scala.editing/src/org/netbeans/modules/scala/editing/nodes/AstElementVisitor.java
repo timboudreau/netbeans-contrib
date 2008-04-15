@@ -148,7 +148,7 @@ public class AstElementVisitor extends AstVisitor {
                 ids.add(visitId(first));
             }
             GNode thisKey = that.getGeneric(1);
-            ids.add(new Id(getIdToken(thisKey), ElementKind.VARIABLE));
+            ids.add(new Id("this", getIdToken(thisKey), ElementKind.VARIABLE));
 
             Id nameId = ids.get(ids.size() - 1);
             pathId = new PathId(nameId.getIdToken(), ElementKind.VARIABLE);
@@ -213,14 +213,14 @@ public class AstElementVisitor extends AstVisitor {
         enter(that);
 
         exit(that);
-        return new Id(getIdToken(that), ElementKind.VARIABLE);
+        return new Id(that.getString(0), getIdToken(that), ElementKind.VARIABLE);
     }
 
     public Id visitVarId(GNode that) {
         enter(that);
 
         exit(that);
-        return new Id(getIdToken(that), ElementKind.VARIABLE);
+        return new Id(that.getString(0), getIdToken(that), ElementKind.VARIABLE);
     }
 
     public Literal visitLiteral(GNode that) {
@@ -302,7 +302,7 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.push(scope);
 
         Id id = visitId(that.getGeneric(0));
-        ClassTemplate classTmpl = new ClassTemplate(id.getIdToken(), scope);
+        ClassTemplate classTmpl = new ClassTemplate(id, scope);
 
         currScope.addDef(classTmpl);
 
@@ -319,6 +319,7 @@ public class AstElementVisitor extends AstVisitor {
 
         List<Function> constructors = visitClassParamClauses(that.getGeneric(4));
         for (Function constructor : constructors) {
+            constructor.setName(id.getName());
             constructor.setIdToken(id.getIdToken());
         }
         visitChildren(that.getGeneric(5)); // ClassTemplateOpt
@@ -355,7 +356,7 @@ public class AstElementVisitor extends AstVisitor {
         }
 
         AstScope scope = new AstScope(getRange(that));
-        Function constructor = new Function(null, scope, ElementKind.CONSTRUCTOR);
+        Function constructor = new Function("this", null, scope, ElementKind.CONSTRUCTOR);
         constructor.setParam(params);
 
         scopeStack.peek().addDef(constructor);
@@ -406,7 +407,7 @@ public class AstElementVisitor extends AstVisitor {
 
         Id id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
-        TraitTemplate traitTmpl = new TraitTemplate(id.getIdToken(), scope);
+        TraitTemplate traitTmpl = new TraitTemplate(id, scope);
 
         scopeStack.peek().addDef(traitTmpl);
 
@@ -423,7 +424,7 @@ public class AstElementVisitor extends AstVisitor {
 
         Id id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
-        ObjectTemplate objectTmpl = new ObjectTemplate(id.getIdToken(), scope);
+        ObjectTemplate objectTmpl = new ObjectTemplate(id, scope);
 
         scopeStack.peek().addDef(objectTmpl);
 
@@ -440,7 +441,7 @@ public class AstElementVisitor extends AstVisitor {
 
         Id id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
-        Type type = new Type(id.getIdToken(), scope);
+        Type type = new Type(id, scope);
 
         scopeStack.peek().addDef(type);
 
@@ -457,7 +458,7 @@ public class AstElementVisitor extends AstVisitor {
 
         Id id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getRange(that));
-        Type type = new Type(id.getIdToken(), scope);
+        Type type = new Type(id, scope);
 
         scopeStack.peek().addDef(type);
 
@@ -535,7 +536,7 @@ public class AstElementVisitor extends AstVisitor {
         visitChildren(that.getGeneric(3));
 
         AstScope scope = new AstScope(getRange(that));
-        Function function = new Function(id.getIdToken(), scope, ElementKind.CONSTRUCTOR);
+        Function function = new Function(id.getName(), id.getIdToken(), scope, ElementKind.CONSTRUCTOR);
         function.setParam(params);
 
         scopeStack.peek().addDef(function);
@@ -554,7 +555,7 @@ public class AstElementVisitor extends AstVisitor {
         }
         List<Var> params = visitParamClauses(that.getGeneric(2));
 
-        Function function = new Function(id.getIdToken(), scopeStack.peek(), ElementKind.METHOD);
+        Function function = new Function(id.getName(), id.getIdToken(), scopeStack.peek(), ElementKind.METHOD);
         function.setParam(params);
 
         exit(that);
@@ -1437,13 +1438,13 @@ public class AstElementVisitor extends AstVisitor {
         expr.setRest(rest);
 
         if (rest.size() > 0 && rest.get(0) instanceof ArgumentExprs) {
-            FunRef funRef = new FunRef(first.getIdToken(), ElementKind.CALL);
+            FunRef funRef = new FunRef(first.getName(), first.getIdToken(), ElementKind.CALL);
             funRef.setLocal();
             funRef.setParams(((ArgumentExprs) rest.get(0)).getArgs());
 
             scopeStack.peek().addRef(funRef);
         } else {
-            IdRef idRef = new IdRef(first.getIdToken(), ElementKind.VARIABLE);
+            IdRef idRef = new IdRef(first.getName(), first.getIdToken(), ElementKind.VARIABLE);
 
             scopeStack.peek().addRef(idRef);
         }

@@ -47,8 +47,8 @@ import org.netbeans.modules.gsf.api.ElementKind;
  */
 public class TraitTemplate extends Template {
 
-    public TraitTemplate(Token idToken, AstScope bindingScope) {
-        super(idToken, bindingScope, ElementKind.MODULE);
+    public TraitTemplate(Id id, AstScope bindingScope) {
+        super(id, bindingScope, ElementKind.MODULE);
     }
 
     @Override

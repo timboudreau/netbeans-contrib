@@ -51,8 +51,8 @@ public class AstDef extends AstElement {
 
     private AstScope bindingScope;
 
-    public AstDef(Token idToken, AstScope bindingScope, ElementKind kind) {
-        super(idToken, kind);
+    public AstDef(String name, Token idToken, AstScope bindingScope, ElementKind kind) {
+        super(name, idToken, kind);
         this.bindingScope = bindingScope;
         this.bindingScope.setBindingDef(this);
     }

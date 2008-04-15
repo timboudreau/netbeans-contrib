@@ -52,8 +52,8 @@ public class FunRef extends AstRef {
     private List<AstElement> params;
     private boolean local;
         
-    public FunRef(Token idToken, ElementKind kind) {
-        super(idToken, kind);
+    public FunRef(String name, Token idToken, ElementKind kind) {
+        super(name, idToken, kind);
     }
     
     public void setParams(List<AstElement> params) {

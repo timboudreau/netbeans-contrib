@@ -53,7 +53,7 @@ public class CompoundType extends TypeRef {
     private List<TypeRef> types;
 
     public CompoundType(Token idToken, ElementKind kind) {
-        super(idToken, kind);
+        super(null, idToken, kind);
     }
 
     public void setTypes(List<TypeRef> types) {
@@ -62,6 +62,19 @@ public class CompoundType extends TypeRef {
 
     public List<TypeRef> getTypes() {
         return types;
+    }
+
+    @Override
+    public String getName() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(types.get(0).getName());
+        for (Iterator<TypeRef> itr = types.iterator(); itr.hasNext();) {
+            sb.append(itr.next().getName());
+            if (itr.hasNext()) {
+                sb.append(" with ");
+            }
+        }
+        return sb.toString();
     }
 
     @Override

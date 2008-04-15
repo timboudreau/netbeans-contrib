@@ -54,7 +54,7 @@ public class SimpleTupleType extends SimpleType {
     private List<TypeRef> types;
     
     public SimpleTupleType(Token idToken, ElementKind kind) {
-        super(idToken, kind);
+        super(null, idToken, kind);
     }
     
     public void setTypes(List<TypeRef> types) {

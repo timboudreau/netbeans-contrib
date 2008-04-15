@@ -53,7 +53,7 @@ public class PathId extends Id {
     private List<Id> paths;
 
     public PathId(Token idToken, ElementKind kind) {
-        super(idToken, kind);
+        super(null, idToken, kind);
     }
 
     public void setPaths(List<Id> paths) {
@@ -64,7 +64,8 @@ public class PathId extends Id {
         return paths;
     }
 
-    public String toPathString() {
+    @Override
+    public String getName() {
         StringBuilder sb = new StringBuilder();
         for (Iterator<Id> itr = getPaths().iterator(); itr.hasNext();) {
             sb.append(itr.next().getName());

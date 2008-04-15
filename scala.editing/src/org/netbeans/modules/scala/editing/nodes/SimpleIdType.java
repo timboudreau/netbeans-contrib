@@ -36,7 +36,6 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.Collections;
@@ -51,19 +50,32 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
  * @author Caoyuan Deng
  */
 public class SimpleIdType extends SimpleType {
-    
+
     private List<Id> paths;
-    
+
     public SimpleIdType(Token idToken, ElementKind kind) {
-        super(idToken, kind);
+        super(null, idToken, kind);
     }
-    
+
     public void setPaths(List<Id> ids) {
         this.paths = ids;
     }
-    
+
     public List<Id> getPaths() {
         return paths == null ? Collections.<Id>emptyList() : paths;
+    }
+
+    @Override
+    public String getName() {
+        StringBuilder sb = new StringBuilder();
+        for (Iterator<Id> itr = getPaths().iterator(); itr.hasNext();) {
+            sb.append(itr.next().getName());
+            if (itr.hasNext()) {
+                sb.append(".");
+            }
+        }
+        sb.append(getTypeArgsName());
+        return sb.toString();
     }
 
     @Override
@@ -76,6 +88,5 @@ public class SimpleIdType extends SimpleType {
             }
         }
         htmlFormatTypeArgs(formatter);
-    }        
-    
+    }
 }

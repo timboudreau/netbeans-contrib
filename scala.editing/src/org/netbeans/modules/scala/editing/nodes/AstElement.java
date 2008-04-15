@@ -56,9 +56,14 @@ import org.openide.filesystems.FileObject;
 public class AstElement implements ElementHandle {
 
     /** 
-     * @Note: not all Element has idToken, such as Expr etc.
+     * @Note: 
+     * 1. Not all Element has idToken, such as Expr etc.
+     * 2. Due to strange behavior of StructureAnalyzer, we can not rely on 
+     *    idToken's text as name, idToken may be <null> and idToken.text() 
+     *    will return null when you modifing an Identifier token, seems sync issue
      */
     private Token idToken;
+    private String name;
     private ElementKind kind;
     private AstScope enclosingScope;
     private Set<Modifier> mods;
@@ -70,17 +75,25 @@ public class AstElement implements ElementHandle {
     }
 
     public AstElement(Token idToken, ElementKind kind) {
+        this(null, idToken, kind);
+    }
+
+    public AstElement(String name, Token idToken, ElementKind kind) {
         this.idToken = idToken;
+        this.name = name;
         this.kind = kind;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getName() {
-        if (idToken == null) {
+        if (name == null) {
             assert false : "Should implement getName()";
             throw new UnsupportedOperationException();
         } else {
-            final CharSequence text = idToken.text();
-            return text == null ? "" : idToken.text().toString();
+            return name;
         }
     }
 

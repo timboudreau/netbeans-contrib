@@ -60,7 +60,7 @@ public class WrappedType extends TypeRef {
     private TypeRef wrappedType;
 
     public WrappedType(Token idToken, ElementKind kind) {
-        super(idToken, kind);
+        super(null, idToken, kind);
     }
 
     public void setWrappedType(TypeRef wrappedType) {

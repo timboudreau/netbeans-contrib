@@ -160,7 +160,7 @@ public abstract class AstVisitor extends Visitor {
         TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, loc.offset);
         ts.move(loc.offset);
         if (!ts.moveNext() && !ts.movePrevious()) {
-            return null;
+            assert false : "Should not happen!";
         }
         
         String name = idNode.getString(0).trim();

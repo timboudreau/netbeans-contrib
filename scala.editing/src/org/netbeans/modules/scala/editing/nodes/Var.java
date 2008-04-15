@@ -38,7 +38,6 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
-import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 
@@ -52,7 +51,7 @@ public class Var extends AstDef {
     private boolean implicate;
 
     public Var(Id id, AstScope bindingScope, ElementKind kind) {
-        super(id.getIdToken(), bindingScope, kind);
+        super(id.getName(), id.getIdToken(), bindingScope, kind);
         setType(id.getType());
     }
 

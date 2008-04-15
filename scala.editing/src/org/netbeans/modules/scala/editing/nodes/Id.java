@@ -49,8 +49,8 @@ import org.netbeans.modules.gsf.api.ElementKind;
  */
 public class Id extends AstElement {
 
-    public Id(Token idToken, ElementKind kind) {
-        super(idToken, kind);
+    public Id(String name, Token idToken, ElementKind kind) {
+        super(name, idToken, kind);
     }
         
 }

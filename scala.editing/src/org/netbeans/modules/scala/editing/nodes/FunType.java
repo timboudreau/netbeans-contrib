@@ -53,7 +53,7 @@ public class FunType extends TypeRef {
     private TypeRef rhs;
     
     public FunType(Token idToken, ElementKind kind) {
-        super(idToken, kind);
+        super(null, idToken, kind);
     }
     
     public void setLhs(TypeRef lhs) {

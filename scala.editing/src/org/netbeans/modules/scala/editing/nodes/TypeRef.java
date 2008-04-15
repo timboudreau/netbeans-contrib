@@ -48,65 +48,17 @@ import org.netbeans.modules.gsf.api.ElementKind;
  */
 public class TypeRef extends AstRef {
 
-    public static final TypeRef Float = new TypeRef(null, ElementKind.CLASS) {
-
-        @Override
-        public String getName() {
-            return "Float";
-        }
-    };
-    
-    public static final TypeRef Int = new TypeRef(null, ElementKind.CLASS) {
-
-        @Override
-        public String getName() {
-            return "Int";
-        }
-    };
-    
-    public static final TypeRef Boolean = new TypeRef(null, ElementKind.CLASS) {
-
-        @Override
-        public String getName() {
-            return "Boolean";
-        }
-    };
-    
-    public static final TypeRef Null = new TypeRef(null, ElementKind.CLASS) {
-
-        @Override
-        public String getName() {
-            return "Unit";
-        }
-    };
-    
-    public static final TypeRef Char = new TypeRef(null, ElementKind.CLASS) {
-
-        @Override
-        public String getName() {
-            return "Char";
-        }
-    };
-    
-    public static final TypeRef String = new TypeRef(null, ElementKind.CLASS) {
-
-        @Override
-        public String getName() {
-            return "String";
-        }
-    };
-    
-    public static final TypeRef Symbol = new TypeRef(null, ElementKind.CLASS) {
-
-        @Override
-        public String getName() {
-            return "Symbol";
-        }
-    };
+    public static final TypeRef Float   = new TypeRef("Float",   null, ElementKind.CLASS);    
+    public static final TypeRef Int     = new TypeRef("Int",     null, ElementKind.CLASS);    
+    public static final TypeRef Boolean = new TypeRef("Boolean", null, ElementKind.CLASS);
+    public static final TypeRef Null    = new TypeRef("Unit",    null, ElementKind.CLASS);    
+    public static final TypeRef Char    = new TypeRef("Char",    null, ElementKind.CLASS);   
+    public static final TypeRef String  = new TypeRef("String",  null, ElementKind.CLASS);   
+    public static final TypeRef Symbol  = new TypeRef("Symbol",  null, ElementKind.CLASS);
     
     private List<String> annotations;
 
-    public TypeRef(Token idToken, ElementKind kind) {
-        super(idToken, kind);
+    public TypeRef(String name, Token idToken, ElementKind kind) {
+        super(name, idToken, kind);
     }
 }

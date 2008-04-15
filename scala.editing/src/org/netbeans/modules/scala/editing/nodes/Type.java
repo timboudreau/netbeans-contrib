@@ -39,8 +39,6 @@
 
 package org.netbeans.modules.scala.editing.nodes;
 
-import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 
 /**
@@ -49,8 +47,8 @@ import org.netbeans.modules.gsf.api.ElementKind;
  */
 public class Type extends AstDef {
     
-    public Type(Token idToken, AstScope bindingScope) {
-        super(idToken, bindingScope, ElementKind.CLASS);
+    public Type(Id id, AstScope bindingScope) {
+        super(id.getName(), id.getIdToken(), bindingScope, ElementKind.CLASS);
     }
 
 }

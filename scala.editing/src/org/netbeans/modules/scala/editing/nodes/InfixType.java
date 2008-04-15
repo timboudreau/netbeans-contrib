@@ -54,7 +54,7 @@ public class InfixType extends TypeRef {
     private List<String> ops;
     
     public InfixType(Token idToken, ElementKind kind) {
-        super(idToken, kind);
+        super(null, idToken, kind);
     }
     
     public void setTypes(List<TypeRef> types) {
@@ -74,10 +74,21 @@ public class InfixType extends TypeRef {
     }
 
     @Override
+    public java.lang.String getName() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(types.get(0).getName());
+        for (int i = 1; i < types.size(); i++) {
+            sb.append(" " + ops.get(i - 1) + " ");
+            sb.append(types.get(i).getName());
+        }
+        return sb.toString();
+    }    
+    
+    @Override
     public void htmlFormat(HtmlFormatter formatter) {
         types.get(0).htmlFormat(formatter);
         for (int i = 1; i < types.size(); i++) {
-            formatter.appendText(ops.get(i - 1));
+            formatter.appendText(" " + ops.get(i - 1) + " ");
             types.get(i).htmlFormat(formatter);
         }
     }        

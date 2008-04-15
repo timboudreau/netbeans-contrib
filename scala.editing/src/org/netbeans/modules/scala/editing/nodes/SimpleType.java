@@ -54,8 +54,8 @@ public class SimpleType extends TypeRef {
     private List<String> annotations;
     private List<List<TypeRef>> typeArgsList;
 
-    public SimpleType(Token idToken, ElementKind kind) {
-        super(idToken, kind);
+    public SimpleType(String name, Token idToken, ElementKind kind) {
+        super(name, idToken, kind);
     }
 
     public void setAnnotations(List<String> annotations) {

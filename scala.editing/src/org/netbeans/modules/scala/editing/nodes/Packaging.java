@@ -56,7 +56,7 @@ public class Packaging extends AstDef {
     private boolean top;
 
     public Packaging(Token idToken, AstScope bindingScope) {
-        super(idToken, bindingScope, ElementKind.PACKAGE);
+        super(null, idToken, bindingScope, ElementKind.PACKAGE);
     }
 
     public void setIds(List<Id> ids) {

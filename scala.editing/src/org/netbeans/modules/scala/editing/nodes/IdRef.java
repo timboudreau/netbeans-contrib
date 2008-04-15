@@ -48,8 +48,8 @@ import org.netbeans.modules.gsf.api.ElementKind;
  */
 public class IdRef extends AstRef {
     
-    public IdRef(Token idToken, ElementKind kind) {
-        super(idToken, kind);
+    public IdRef(String name, Token idToken, ElementKind kind) {
+        super(name, idToken, kind);
     }
 
 }

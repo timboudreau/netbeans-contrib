@@ -38,7 +38,6 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
-import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
 
 /**
@@ -47,8 +46,8 @@ import org.netbeans.modules.gsf.api.ElementKind;
  */
 public class ObjectTemplate extends Template {
 
-    public ObjectTemplate(Token idToken, AstScope bindingScope) {
-        super(idToken, bindingScope, ElementKind.CLASS);
+    public ObjectTemplate(Id id, AstScope bindingScope) {
+        super(id, bindingScope, ElementKind.CLASS);
     }
 
     @Override
