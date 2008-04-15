@@ -9,20 +9,21 @@ import java.awt.event.ActionListener;
 import javax.swing.Timer;
 import java.lang.Math;
 import java.lang.System;
+import java.util.Calendar;
 
 var clockWork : ClockWork = ClockWork {};
 
 Frame {
     content : Canvas {
         content : clockWork
-    }
+        }
     
     visible : true
     title : "Clock"
     width : 200
     height : 232
     onClose : function() { java.lang.System.exit( 0 ); }    
-}
+    }
 
 clockWork.timer.start();
 
@@ -35,16 +36,16 @@ public class ClockWork extends CompositeNode {
     attribute timerListener : ActionListener = ActionListener {
         public function actionPerformed( e : ActionEvent ): Void {
             update();
+            }
         }
-    }
     
     public attribute timer : Timer = new Timer( 1000, timerListener );
     
     public function update(): Void {
-        var secs : Number = Math.floor( System.currentTimeMillis() / 1000 );
-        seconds = secs % 60;
-        minutes = ( secs / 60 ) % 60;
-        hours = ( secs / 3600 ) % 12;        
+        var calendar : Calendar = Calendar.getInstance();
+        seconds = calendar.get( Calendar.SECOND );
+        minutes = calendar.get( Calendar.MINUTE );
+        hours = calendar.get( Calendar.HOUR_OF_DAY );        
     }
     
     public function composeNode(): Node {
