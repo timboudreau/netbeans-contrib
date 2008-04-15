@@ -12,7 +12,7 @@
     <f:view>
         <p:portletPage>
             <div style="-rave-layout: grid; position: relative; height: 400px; width: 400px;">
-                <webuijsf:themeLinks binding="${pound}{${folder}${name}.themeLinks1}" id="themeLinks1"/>
+                <webuijsf:themeLinks binding="${pound}{${folder}${name}.themeLinks1}" id="themeLinks1" webuiAll="true" parseOnLoad="false"/>
                 <webuijsf:form binding="${pound}{${folder}${name}.form1}" id="form1">
                 </webuijsf:form>
             </div>

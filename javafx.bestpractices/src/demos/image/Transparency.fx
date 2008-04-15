@@ -14,12 +14,12 @@ Frame {
             },
             ImageView {
                 image : bind img
-                transform : [ Translate { x : bind x, y : 120 }, Scale { x : 0.3, y : 0.3 } ]
+                transform : [ Translate { x : bind x, y : 100 - 32 }, Scale { x : 0.5, y : 0.5 } ]
                 opacity : 0.5
             }
         ]
         onMouseMoved : function( e : MouseEvent ):Void {
-            x = e.x - 100 * 0.3;
+            x = e.x - 100 * 0.5;
         }
     }
     

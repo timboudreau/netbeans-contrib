@@ -10,7 +10,10 @@ import java.beans.PropertyChangeListener;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import org.netbeans.modules.cnd.profiler.data.Function;
+import org.netbeans.modules.cnd.profiler.providers.GprofProvider;
+import org.netbeans.modules.cnd.profiler.providers.TestProvider;
 import org.netbeans.modules.cnd.profiler.views.CalleeView;
 import org.netbeans.modules.cnd.profiler.views.CallersView;
 import org.netbeans.modules.cnd.profiler.views.FunctionView;
@@ -47,6 +50,8 @@ final class PresentationTopComponent extends TopComponent {
         topPanel.add(plainView.getComponent());
         callerPanel.add(callersView.getComponent());
         calleePanel.add(calleesView.getComponent());
+        
+        plainView.setRoot(new TestProvider().getFunctions());
     }
     
     @Override
@@ -61,8 +66,9 @@ final class PresentationTopComponent extends TopComponent {
                 if (nodes.length != 0) {
                     Collection<Function> selFunctions = nodes[0].getLookup().lookup(new Lookup.Template(Function.class)).allInstances();
                     if (!selFunctions.isEmpty()) {
-                        calleesView.getModel().setRoot(selFunctions.iterator().next());
-                        callersView.getModel().setRoot(selFunctions.iterator().next());
+                        Function function = selFunctions.iterator().next();
+                        calleesView.setRoot(function);
+                        callersView.setRoot(function);
                     }
                 }
             }
@@ -83,6 +89,8 @@ final class PresentationTopComponent extends TopComponent {
         jTabbedPane1 = new javax.swing.JTabbedPane();
         calleePanel = new javax.swing.JPanel();
         callerPanel = new javax.swing.JPanel();
+        customize = new javax.swing.JPanel();
+        jButton1 = new javax.swing.JButton();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -100,6 +108,16 @@ final class PresentationTopComponent extends TopComponent {
         callerPanel.setLayout(new java.awt.BorderLayout());
         jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(PresentationTopComponent.class, "PresentationTopComponent.callerPanel.TabConstraints.tabTitle_1"), new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/cnd/profiler/resources/reverseNode.png")), callerPanel); // NOI18N
 
+        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(PresentationTopComponent.class, "PresentationTopComponent.jButton1.text")); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        customize.add(jButton1);
+
+        jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(PresentationTopComponent.class, "PresentationTopComponent.customize.TabConstraints.tabTitle"), customize); // NOI18N
+
         bottomPanel.add(jTabbedPane1, java.awt.BorderLayout.CENTER);
 
         jSplitPane1.setRightComponent(bottomPanel);
@@ -107,11 +125,22 @@ final class PresentationTopComponent extends TopComponent {
         add(jSplitPane1, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
+    private final JFileChooser fileChooser = new JFileChooser();
+    
+private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+    {
+        plainView.setRoot(new GprofProvider(fileChooser.getSelectedFile()).getFunctions());
+    }
+}//GEN-LAST:event_jButton1ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel bottomPanel;
     private javax.swing.JPanel calleePanel;
     private javax.swing.JPanel callerPanel;
+    private javax.swing.JPanel customize;
+    private javax.swing.JButton jButton1;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JPanel topPanel;

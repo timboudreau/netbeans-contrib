@@ -280,10 +280,45 @@ public class ScalaLexUtilities {
     public static Token<? extends ScalaTokenId> findPreviousNonWsNonComment(TokenSequence<? extends ScalaTokenId> ts) {
         return findPrevious(ts, WS_COMMENT);
     }
+    private static final List<ScalaTokenId> WS = Arrays.asList(
+            ScalaTokenId.Ws,
+            ScalaTokenId.Nl);
+
+    public static Token<? extends ScalaTokenId> findNextNonWs(TokenSequence<? extends ScalaTokenId> ts) {
+        return findNext(ts, WS);
+    }
+
+    public static Token<? extends ScalaTokenId> findPreviousNonWs(TokenSequence<? extends ScalaTokenId> ts) {
+        return findPrevious(ts, WS);
+    }
 
     public static Token<? extends ScalaTokenId> findNext(TokenSequence<? extends ScalaTokenId> ts, List<ScalaTokenId> ignores) {
         if (ignores.contains(ts.token().id())) {
             while (ts.moveNext() && ignores.contains(ts.token().id())) {
+            }
+        }
+        return ts.token();
+    }
+
+    public static Token<? extends ScalaTokenId> findPrevious(TokenSequence<? extends ScalaTokenId> ts, List<ScalaTokenId> ignores) {
+        if (ignores.contains(ts.token().id())) {
+            while (ts.movePrevious() && ignores.contains(ts.token().id())) {
+            }
+        }
+        return ts.token();
+    }
+
+    public static Token<? extends ScalaTokenId> findNext(TokenSequence<? extends ScalaTokenId> ts, ScalaTokenId id) {
+        if (ts.token().id() != id) {
+            while (ts.moveNext() && ts.token().id() != id) {
+            }
+        }
+        return ts.token();
+    }
+
+    public static Token<? extends ScalaTokenId> findPrevious(TokenSequence<? extends ScalaTokenId> ts, ScalaTokenId id) {
+        if (ts.token().id() != id) {
+            while (ts.movePrevious() && ts.token().id() != id) {
             }
         }
         return ts.token();
@@ -297,14 +332,6 @@ public class ScalaLexUtilities {
 
     public static Token<? extends ScalaTokenId> findPreviousIncluding(TokenSequence<? extends ScalaTokenId> ts, List<ScalaTokenId> includes) {
         while (ts.movePrevious() && !includes.contains(ts.token().id())) {
-        }
-        return ts.token();
-    }
-
-    public static Token<? extends ScalaTokenId> findPrevious(TokenSequence<? extends ScalaTokenId> ts, List<ScalaTokenId> ignores) {
-        if (ignores.contains(ts.token().id())) {
-            while (ts.movePrevious() && ignores.contains(ts.token().id())) {
-            }
         }
         return ts.token();
     }
@@ -1149,7 +1176,7 @@ public class ScalaLexUtilities {
 
         return -1;
     }
-    
+
     /**
      * Get the comment block for the given offset. The offset may be either within the comment
      * block, or the comment corresponding to a code node, depending on isAfter.
@@ -1172,7 +1199,7 @@ public class ScalaLexUtilities {
             if (isAfter) {
                 while (ts.movePrevious()) {
                     TokenId id = ts.token().id();
-                    if ( isComment(id)) {
+                    if (isComment(id)) {
                         return getCommentBlock(doc, ts.offset(), false);
                     } else if (!((id == ScalaTokenId.Ws) || (id == ScalaTokenId.Nl))) {
                         return OffsetRange.NONE;
@@ -1180,14 +1207,14 @@ public class ScalaLexUtilities {
                 }
                 return OffsetRange.NONE;
             }
-            
+
             if (!ts.moveNext() && !ts.movePrevious()) {
                 return null;
             }
-            Token<?extends TokenId> token = ts.token();
-            
+            Token<? extends TokenId> token = ts.token();
+
             if (token != null && isBlockComment(token.id())) {
-                return new OffsetRange(ts.offset(), ts.offset()+token.length());
+                return new OffsetRange(ts.offset(), ts.offset() + token.length());
             }
 
             if ((token != null) && (token.id() == ScalaTokenId.LineComment)) {
@@ -1214,7 +1241,7 @@ public class ScalaLexUtilities {
                         int newEnd = Utilities.getRowEnd(doc, end + 1);
 
                         if ((newEnd >= length) || !isCommentOnlyLine(doc, newEnd)) {
-                            end = Utilities.getRowLastNonWhite(doc, end)+1;
+                            end = Utilities.getRowLastNonWhite(doc, end) + 1;
                             break;
                         }
 
@@ -1226,7 +1253,7 @@ public class ScalaLexUtilities {
                     }
                 } else {
                     // It's just a line comment next to some code
-                    TokenHierarchy<Document> th = TokenHierarchy.get((Document)doc);
+                    TokenHierarchy<Document> th = TokenHierarchy.get((Document) doc);
                     int offset = token.offset(th);
                     return new OffsetRange(offset, offset + token.length());
                 }
@@ -1234,10 +1261,10 @@ public class ScalaLexUtilities {
         } catch (BadLocationException ble) {
             Exceptions.printStackTrace(ble);
         }
-        
+
         return OffsetRange.NONE;
     }
-    
+
 
 //    public static boolean isInsideQuotedString(BaseDocument doc, int offset) {
 //        TokenSequence<?extends ScalaTokenId> ts = FortressLexUtilities.getTokenSequence(doc, offset);
@@ -1292,7 +1319,6 @@ public class ScalaLexUtilities {
 
         return false;
     }
-
 
     /**
      * Back up to the first space character prior to the given offset - as long as 

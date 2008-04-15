@@ -46,16 +46,18 @@ made subject to such option by the copyright holder.
         <file name="cnd.instance">
             <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.featureondemand.api.FeatureInfo.create"/>
             <attr name="codeName" stringvalue="org.netbeans.modules.cnd.kit"/>
-            <attr name="projectLayer" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/cndprojecttypes.xml"/>
+            <attr name="delegateLayer" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/cndprojecttypes.xml"/>
         </file>
         <file name="maven.instance">
             <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.featureondemand.api.FeatureInfo.create"/>
             <attr name="codeName" stringvalue="org.codehaus.mevenide.netbeans.feature"/>
-            <!--
-            <attr name="projectLayer" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/cndprojecttypes.xml"/>
-            -->
-            <attr name="projectFilePath" stringvalue="pom.xml"/>
+            <attr name="delegateLayer" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/mavenprojecttypes.xml"/>
+            <attr name="delegateFilePath" stringvalue="pom.xml"/>
+        </file>
+        <file name="enable-java-hints.instance">
+            <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.featureondemand.api.FeatureInfo.create"/>
+            <attr name="codeName" stringvalue="org.netbeans.modules.javahints"/>
+            <attr name="delegateLayer" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/enable-javahints-layer.xml"/>
         </file>
     </folder>
 </filesystem>
-

@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import xtc.tree.GNode;
@@ -53,8 +54,8 @@ import xtc.tree.Node;
  */
 public class AstElementVisitor extends AstVisitor {
 
-    public AstElementVisitor(Node rootNode, String source, List<Integer> linesOffset) {
-        super(rootNode, source, linesOffset);
+    public AstElementVisitor(Node rootNode, TokenHierarchy th) {
+        super(rootNode, th);
     }
 
     public Packaging visitPackage(GNode that) {
@@ -72,7 +73,7 @@ public class AstElementVisitor extends AstVisitor {
 
         String name = sb.toString();
         AstScope scope = new AstScope(rootScope.getRange());
-        Packaging packaging = new Packaging(name, getNameRange(name, qualId), scope);
+        Packaging packaging = new Packaging(name, getNameRange(qualId), scope);
         packaging.setTop();
         packaging.setIds(pathId.getPaths());
 
@@ -88,19 +89,12 @@ public class AstElementVisitor extends AstVisitor {
     public Packaging visitPackaging(GNode that) {
         enter(that);
 
-        GNode qualId = that.getGeneric(0);
-        PathId pathId = visitQualId(qualId);
-        StringBuilder sb = new StringBuilder();
-        for (Iterator<Id> itr = pathId.getPaths().iterator(); itr.hasNext();) {
-            sb.append(itr.next().getName());
-            if (itr.hasNext()) {
-                sb.append(".");
-            }
-        }
+        GNode qualIdNode = that.getGeneric(0);
+        PathId pathId = visitQualId(qualIdNode);
 
-        String name = sb.toString();
+        String name = pathId.toPathString();
         AstScope scope = new AstScope(getRange(that));
-        Packaging packaging = new Packaging(name, getNameRange(name, qualId), scope);
+        Packaging packaging = new Packaging(name, getNameRange(qualIdNode), scope);
         packaging.setIds(pathId.getPaths());
 
         rootScope.addDef(packaging);
@@ -163,7 +157,7 @@ public class AstElementVisitor extends AstVisitor {
                 ids.add(visitId(first));
             }
             GNode thisKey = that.getGeneric(1);
-            ids.add(new Id("this", getNameRange("this", thisKey), ElementKind.VARIABLE));
+            ids.add(new Id("this", getNameRange(thisKey), ElementKind.VARIABLE));
 
             Id nameId = ids.get(ids.size() - 1);
             pathId = new PathId(nameId.getName(), nameId.getNameRange(), ElementKind.VARIABLE);
@@ -231,7 +225,7 @@ public class AstElementVisitor extends AstVisitor {
         String name = that.getString(0);
 
         exit(that);
-        return new Id(name, getNameRange(name, that), ElementKind.VARIABLE);
+        return new Id(name, getNameRange(that), ElementKind.VARIABLE);
     }
 
     public Id visitVarId(GNode that) {
@@ -240,7 +234,7 @@ public class AstElementVisitor extends AstVisitor {
         String name = that.getString(0);
 
         exit(that);
-        return new Id(name, getNameRange(name, that), ElementKind.VARIABLE);
+        return new Id(name, getNameRange(that), ElementKind.VARIABLE);
     }
 
     public Literal visitLiteral(GNode that) {
@@ -1203,7 +1197,7 @@ public class AstElementVisitor extends AstVisitor {
         exprs.add(new AstElement("expr", OffsetRange.NONE, ElementKind.OTHER));
 
         for (Object o : that.getList(1).list()) {
-            visitChildren(first);
+            visitChildren((GNode) o);
             exprs.add(new AstElement("expr", OffsetRange.NONE, ElementKind.OTHER));
         }
 
@@ -1309,10 +1303,10 @@ public class AstElementVisitor extends AstVisitor {
             List<Id> ops = new ArrayList<Id>();
             exprs.add(first);
 
-            for (Object rest : others) {
-                GNode restNode = (GNode) rest;
-                ops.add(visitId(restNode.getGeneric(0)));
-                exprs.add(visitSimpleExpr(restNode.getGeneric(1)));
+            for (Object other : others) {
+                GNode otherNode = (GNode) other;
+                ops.add(visitId(otherNode.getGeneric(0)));
+                exprs.add(visitPrefixExpr(otherNode.getGeneric(1)));
             }
             InfixExpr infixExpr = new InfixExpr("expr", OffsetRange.NONE, ElementKind.OTHER);
             infixExpr.setExprs(exprs);
@@ -1448,6 +1442,7 @@ public class AstElementVisitor extends AstVisitor {
 
         if (rest.size() > 0 && rest.get(0) instanceof ArgumentExprs) {
             FunRef funRef = new FunRef(first.getName(), first.getNameRange(), ElementKind.CALL);
+            funRef.setLocal();
             funRef.setParams(((ArgumentExprs) rest.get(0)).getArgs());
 
             scopeStack.peek().addRef(funRef);

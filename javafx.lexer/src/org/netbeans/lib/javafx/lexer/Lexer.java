@@ -144,7 +144,20 @@ public abstract class Lexer extends org.antlr.runtime.Lexer {
         logger.severe(getErrorMessage(re, getTokenNames()) + " Trying to recover from error. " + re.getClass().getSimpleName());
         final BitSet bitSet = computeErrorRecoverySet();
         consumeUntil(input, bitSet);
-        input.consume();
+        input.consume(); // consuming last character.
+    }
+
+    @Override
+    public void reportError(RecognitionException e) {
+        if (e instanceof FailedPredicateException) {
+            if (logger.isLoggable(Level.WARNING))
+                logger.warning(e.getClass().getSimpleName() + " found unexpected type "
+                        + Integer.toString(e.getUnexpectedType()) + " trying to recover from buggy source code.");
+            // we just skip this character. Maybe the next one will be OK. Preventing endless loop.
+            input.consume();            
+        } else {
+            super.reportError(e);
+        }
     }
 
     /**

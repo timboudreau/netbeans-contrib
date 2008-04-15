@@ -50,7 +50,8 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 public class FunRef extends AstRef {
     
     private List<AstElement> params;
-    
+    private boolean local;
+        
     public FunRef(String name, OffsetRange nameRange, ElementKind kind) {
         super(name, nameRange, kind);
     }
@@ -61,5 +62,13 @@ public class FunRef extends AstRef {
     
     public List<AstElement> getParams() {
         return params;
-    }    
+    }
+    
+    public void setLocal() {
+        this.local = true;
+    }
+    
+    public boolean isLocal() {
+        return local;
+    }
 }

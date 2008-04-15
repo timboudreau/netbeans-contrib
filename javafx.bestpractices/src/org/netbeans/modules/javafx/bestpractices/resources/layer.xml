@@ -66,7 +66,7 @@ made subject to such option by the copyright holder.
         </folder>
         <folder name="math">
             <folder name="Arctangent">
-                <folder name="color">
+                <folder name="math">
                     <file name="Arctangent.fx" url="/demos/math/Arctangent.fx">
                         <attr name="mainclass" boolvalue="true"/>
                     </file>    
@@ -104,14 +104,14 @@ made subject to such option by the copyright holder.
         <folder name="forms">
             <folder name="PointsAndLines">
                 <folder name="forms">
-                    <file name="PointsAndLines" url="/demos/forms/PointsAndLines.fx">
+                    <file name="PointsAndLines.fx" url="/demos/forms/PointsAndLines.fx">
                         <attr name="mainclass" boolvalue="true"/>
                     </file>
                 </folder>
             </folder>
             <folder name="ShapePrimitives">
                 <folder name="forms">
-                    <file name="ShapePrimitives" url="/demos/forms/ShapePrimitives.fx">
+                    <file name="ShapePrimitives.fx" url="/demos/forms/ShapePrimitives.fx">
                         <attr name="mainclass" boolvalue="true"/>
                     </file>
                 </folder>
@@ -205,6 +205,29 @@ made subject to such option by the copyright holder.
                     <file name="StoringInput.fx" url="/demos/input/StoringInput.fx">
                         <attr name="mainclass" boolvalue="true"/>
                     </file>    
+                </folder>
+            </folder>
+        </folder>
+        <folder name="transform">
+            <folder name="Translate">
+                <folder name="transform">
+                    <file name="Translate.fx" url="/demos/transform/Translate.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="Scale">
+                <folder name="transform">
+                    <file name="Scale.fx" url="/demos/transform/Scale.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="Rotate">
+                <folder name="transform">
+                    <file name="Rotate.fx" url="/demos/transform/Rotate.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file>
                 </folder>
             </folder>
         </folder>
@@ -350,17 +373,26 @@ made subject to such option by the copyright holder.
                             </file>
                         </folder>
                         <folder name="Transform">
-                            <file name="Translate" url="">
+                            <file name="Translate" url="../../../../../../demos/transform/Translate.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/transform/Translate"/>
                             </file>
-                            <file name="Scale" url="">
+                            <file name="Scale" url="../../../../../../demos/transform/Scale.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/transform/Scale"/>
                             </file>
-                            <file name="Rotate" url="">
+                            <file name="Rotate" url="../../../../../../demos/transform/Rotate.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/transform/Rotate"/>
                             </file>
                         </folder>
                         <folder name="Motion">

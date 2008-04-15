@@ -155,6 +155,8 @@ public final class JavaFXSource {
     static {
         // Start listening on the editor registry:
         EditorRegistryListener.singleton.toString();
+        // Start the factories ...
+        JavaFXSourceTaskFactoryManager.register();
 //        Init the maps
 //        phase2Message.put (Phase.PARSED,"Parsed");                              //NOI18N
 //        phase2Message.put (Phase.ELEMENTS_RESOLVED,"Signatures Attributed");    //NOI18N
