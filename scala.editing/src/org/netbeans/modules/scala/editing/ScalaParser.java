@@ -46,6 +46,11 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.JTextComponent;
+import org.netbeans.api.editor.EditorRegistry;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParseEvent;
 import org.netbeans.modules.gsf.api.ParseListener;
@@ -57,9 +62,11 @@ import org.netbeans.modules.gsf.api.Severity;
 import org.netbeans.modules.gsf.api.SourceFileReader;
 import org.netbeans.modules.gsf.spi.DefaultError;
 import org.netbeans.modules.gsf.api.TranslatedSource;
+import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstElementVisitor;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import xtc.parser.ParseError;
 import xtc.parser.Result;
@@ -99,7 +106,7 @@ public class ScalaParser implements Parser {
             ParseEvent beginEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, null);
             listener.started(beginEvent);
 
-            ParserResult result = null;
+            ParserResult pResult = null;
 
             try {
                 CharSequence buffer = reader.read(file);
@@ -109,12 +116,12 @@ public class ScalaParser implements Parser {
                     caretOffset = job.translatedSource.getAstOffset(caretOffset);
                 }
                 Context context = new Context(file, listener, source, caretOffset, job.translatedSource);
-                result = parseBuffer(context, Sanitize.NONE);
+                pResult = parseBuffer(context, Sanitize.NONE);
             } catch (IOException ioe) {
                 listener.exception(ioe);
             }
 
-            ParseEvent doneEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, result);
+            ParseEvent doneEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, pResult);
             listener.finished(doneEvent);
         }
     }
@@ -162,58 +169,58 @@ public class ScalaParser implements Parser {
         // The user might be editing around the given caretOffset.
         // See if it looks modified
         // Insert an end statement? Insert a } marker?
-        String doc = context.source;
-        if (offset > doc.length()) {
+        String source = context.source;
+        if (offset > source.length()) {
             return false;
         }
 
         try {
             // Sometimes the offset shows up on the next line
-            if (ScalaUtils.isRowEmpty(doc, offset) || ScalaUtils.isRowWhite(doc, offset)) {
-                offset = ScalaUtils.getRowStart(doc, offset) - 1;
+            if (ScalaUtils.isRowEmpty(source, offset) || ScalaUtils.isRowWhite(source, offset)) {
+                offset = ScalaUtils.getRowStart(source, offset) - 1;
                 if (offset < 0) {
                     offset = 0;
                 }
             }
 
-            if (!(ScalaUtils.isRowEmpty(doc, offset) || ScalaUtils.isRowWhite(doc, offset))) {
+            if (!(ScalaUtils.isRowEmpty(source, offset) || ScalaUtils.isRowWhite(source, offset))) {
                 if ((sanitizing == Sanitize.EDITED_LINE) || (sanitizing == Sanitize.ERROR_LINE)) {
                     // See if I should try to remove the current line, since it has text on it.
-                    int lineEnd = ScalaUtils.getRowLastNonWhite(doc, offset);
+                    int lineEnd = ScalaUtils.getRowLastNonWhite(source, offset);
 
                     if (lineEnd != -1) {
-                        StringBuilder sb = new StringBuilder(doc.length());
-                        int lineStart = ScalaUtils.getRowStart(doc, offset);
+                        StringBuilder sb = new StringBuilder(source.length());
+                        int lineStart = ScalaUtils.getRowStart(source, offset);
                         int rest = lineStart + 1;
 
-                        sb.append(doc.substring(0, lineStart));
+                        sb.append(source.substring(0, lineStart));
                         sb.append('#');
 
-                        if (rest < doc.length()) {
-                            sb.append(doc.substring(rest, doc.length()));
+                        if (rest < source.length()) {
+                            sb.append(source.substring(rest, source.length()));
                         }
-                        assert sb.length() == doc.length();
+                        assert sb.length() == source.length();
 
                         context.sanitizedRange = new OffsetRange(lineStart, lineEnd);
                         context.sanitizedSource = sb.toString();
-                        context.sanitizedContents = doc.substring(lineStart, lineEnd);
+                        context.sanitizedContents = source.substring(lineStart, lineEnd);
                         return true;
                     }
                 } else {
                     assert sanitizing == Sanitize.ERROR_DOT || sanitizing == Sanitize.EDITED_DOT;
                     // Try nuking dots/colons from this line
                     // See if I should try to remove the current line, since it has text on it.
-                    int lineStart = ScalaUtils.getRowStart(doc, offset);
+                    int lineStart = ScalaUtils.getRowStart(source, offset);
                     int lineEnd = offset - 1;
-                    while (lineEnd >= lineStart && lineEnd < doc.length()) {
-                        if (!Character.isWhitespace(doc.charAt(lineEnd))) {
+                    while (lineEnd >= lineStart && lineEnd < source.length()) {
+                        if (!Character.isWhitespace(source.charAt(lineEnd))) {
                             break;
                         }
                         lineEnd--;
                     }
                     if (lineEnd > lineStart) {
-                        StringBuilder sb = new StringBuilder(doc.length());
-                        String line = doc.substring(lineStart, lineEnd + 1);
+                        StringBuilder sb = new StringBuilder(source.length());
+                        String line = source.substring(lineStart, lineEnd + 1);
                         int removeChars = 0;
                         int removeEnd = lineEnd + 1;
 
@@ -257,20 +264,20 @@ public class ScalaParser implements Parser {
 
                         int removeStart = removeEnd - removeChars;
 
-                        sb.append(doc.substring(0, removeStart));
+                        sb.append(source.substring(0, removeStart));
 
                         for (int i = 0; i < removeChars; i++) {
                             sb.append(' ');
                         }
 
-                        if (removeEnd < doc.length()) {
-                            sb.append(doc.substring(removeEnd, doc.length()));
+                        if (removeEnd < source.length()) {
+                            sb.append(source.substring(removeEnd, source.length()));
                         }
-                        assert sb.length() == doc.length();
+                        assert sb.length() == source.length();
 
                         context.sanitizedRange = new OffsetRange(removeStart, removeEnd);
                         context.sanitizedSource = sb.toString();
-                        context.sanitizedContents = doc.substring(removeStart, removeEnd);
+                        context.sanitizedContents = source.substring(removeStart, removeEnd);
                         return true;
                     }
                 }
@@ -345,6 +352,7 @@ public class ScalaParser implements Parser {
     protected ScalaParserResult parseBuffer(final Context context, final Sanitize sanitizing) {
         boolean sanitizedSource = false;
         String source = context.source;
+
         if (!((sanitizing == Sanitize.NONE) || (sanitizing == Sanitize.NEVER))) {
             boolean ok = sanitizeSource(context, sanitizing);
 
@@ -356,6 +364,22 @@ public class ScalaParser implements Parser {
                 // Try next trick
                 return sanitize(context, sanitizing);
             }
+        }
+
+        TokenHierarchy th = null;
+        
+        /** If this file is under editing, always get th from incrementally lexed th via opened document */
+        JTextComponent target = EditorRegistry.lastFocusedComponent();
+        BaseDocument doc = (BaseDocument) target.getDocument();
+        if (doc != null) {
+            FileObject fo = NbEditorUtilities.getFileObject(doc);
+            if (fo == context.file.getFileObject()) {
+                th = TokenHierarchy.get(doc);
+            }
+        }
+
+        if (th == null) {
+            th = TokenHierarchy.create(source, ScalaTokenId.language());
         }
 
         final boolean ignoreErrors = sanitizedSource;
@@ -370,16 +394,20 @@ public class ScalaParser implements Parser {
         }
 
         AstScope rootScope = null;
+        if (doc != null) {
+            // Read-lock due to Token hierarchy use
+            doc.readLock();
+        }
         try {
             ParseError error = null;
             Result r = parser.pCompilationUnit(0);
             if (r.hasValue()) {
                 SemanticValue v = (SemanticValue) r;
                 GNode node = (GNode) v.value;
-                
-                AstElementVisitor signatureVisitor = new AstElementVisitor(node, source, computeLinesOffset(source));
-                signatureVisitor.visit(node);
-                rootScope = signatureVisitor.getRootScope();
+
+                AstElementVisitor visitor = new AstElementVisitor(node, th);
+                visitor.visit(node);
+                rootScope = visitor.getRootScope();
             } else {
                 error = r.parseError();
             }
@@ -402,6 +430,10 @@ public class ScalaParser implements Parser {
             // An internal exception thrown by ParserScala, just catch it and notify
             notifyError(context, "SYNTAX_ERROR", e.getMessage(),
                     0, 0, sanitizing, Severity.ERROR, new Object[]{e});
+        } finally {
+            if (doc != null) {
+                doc.readUnlock();
+            }
         }
 
 
@@ -507,7 +539,7 @@ public class ScalaParser implements Parser {
 
         @Override
         public String toString() {
-            return "FortressParser.Context(" + file.toString() + ")"; // NOI18N
+            return "ScalaParser.Context(" + file.toString() + ")"; // NOI18N
 
         }
 
