@@ -40,10 +40,10 @@ var timeline = Timeline {
 };
         
 Frame {    
-    content = Canvas {
+    content : Canvas {
         content : [
             ImageView {
-                image : Image { url : "resources/courage.png" }
+                image : Image { url : "resources/background.png" }
             },
             Group {
                 transform : Translate { y : bind y }
@@ -61,6 +61,12 @@ Frame {
             }
         ]
     }
+    
+    visible : true
+    title : "Background Image"
+    width : 200
+    height : 232
+    onClose : function() { java.lang.System.exit( 0 ); }
 }
 
 timeline.start();

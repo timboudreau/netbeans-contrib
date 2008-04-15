@@ -40,33 +40,22 @@
  */
 package org.netbeans.modules.javafx.editor;
 
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.util.Map;
-import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JToggleButton;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentEvent.ElementChange;
-import javax.swing.event.DocumentEvent.EventType;
-import org.netbeans.editor.BaseDocument;
-import javax.swing.text.*;
-import org.netbeans.editor.Settings;
-import org.netbeans.editor.SettingsNames;
+import org.netbeans.api.java.queries.SourceLevelQuery;
+import org.netbeans.editor.*;
+import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.javafx.preview.JavaFXModel;
 import org.netbeans.modules.lexer.editorbridge.LexerEditorKit;
 import org.openide.loaders.DataObject;
-import org.netbeans.modules.editor.NbEditorUtilities;
-import org.netbeans.editor.Syntax;
-import org.netbeans.api.java.queries.SourceLevelQuery;
-import org.netbeans.editor.BaseAction;
-import org.netbeans.editor.BaseKit;
-import org.netbeans.editor.Formatter;
-import org.netbeans.editor.LocaleSupport;
 import org.openide.util.NbBundle;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.text.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.Map;
 
 /**
  *
@@ -424,18 +413,21 @@ public class JavaFXEditorKit extends LexerEditorKit{
         }
     }
     
+/*
     @Override
     public Syntax createSyntax(Document doc) {
         return new JavaFXSyntax(getSourceLevel((BaseDocument)doc));
     }
-    
+*/
+
     public String getSourceLevel(BaseDocument doc) {
         DataObject dob = NbEditorUtilities.getDataObject(doc);
         return dob != null ? SourceLevelQuery.getSourceLevel(dob.getPrimaryFile()) : null;
     }
     
-    @Override
+/*    @Override
     public Formatter createFormatter() {
-        return new JavaFXFormatter(this.getClass());
-    }
+//        return new JavaFXFormatter(this.getClass());
+        
+    }*/
 }

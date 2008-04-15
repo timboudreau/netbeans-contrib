@@ -70,7 +70,7 @@ public class NetBeansUtils {
                 return;
             }
         }
-        list.add(clusterName);
+        list.add(list.size() > 2 ? list.size() - 2 : 0,  clusterName);
         
         FileUtils.writeStringList(netbeansclusters, list);
     }

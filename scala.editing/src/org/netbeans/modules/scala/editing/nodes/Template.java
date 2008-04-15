@@ -38,6 +38,8 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.Collections;
+import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
@@ -49,6 +51,8 @@ public abstract class Template extends AstDef {
 
     private boolean caseOne;
 
+    private List<Id> extendWith;
+    
     public Template(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
         super(name, nameRange, bindingScope, kind);
     }
@@ -59,6 +63,14 @@ public abstract class Template extends AstDef {
 
     public boolean isCaseOne() {
         return caseOne;
+    }
+    
+    public void setExtendsWith(List<Id> extendWith) {
+        this.extendWith = extendWith;
+    }
+    
+    public List<Id> getExtendWith() {
+        return extendWith == null ? Collections.<Id>emptyList() : extendWith;
     }
 
     @Override

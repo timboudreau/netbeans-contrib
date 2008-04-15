@@ -5,9 +5,9 @@
 
 package org.netbeans.modules.cnd.profiler.views;
 
+import org.netbeans.modules.cnd.profiler.data.Function;
 import org.netbeans.modules.cnd.profiler.models.CallersNodeModel;
 import org.netbeans.modules.cnd.profiler.models.CallersTreeModel;
-import org.netbeans.modules.cnd.profiler.providers.TestProvider;
 
 /**
  *
@@ -15,6 +15,6 @@ import org.netbeans.modules.cnd.profiler.providers.TestProvider;
  */
 public class CallersView extends FunctionView {
     public CallersView() {
-        super(new CallersTreeModel(TestProvider.getInstance().getFunctions()[0]), new CallersNodeModel());
+        super(new CallersTreeModel(new Function("")), new CallersNodeModel());
     }
 }
