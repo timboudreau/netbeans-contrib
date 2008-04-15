@@ -104,14 +104,14 @@ made subject to such option by the copyright holder.
         <folder name="forms">
             <folder name="PointsAndLines">
                 <folder name="forms">
-                    <file name="PointsAndLines" url="/demos/forms/PointsAndLines.fx">
+                    <file name="PointsAndLines.fx" url="/demos/forms/PointsAndLines.fx">
                         <attr name="mainclass" boolvalue="true"/>
                     </file>
                 </folder>
             </folder>
             <folder name="ShapePrimitives">
                 <folder name="forms">
-                    <file name="ShapePrimitives" url="/demos/forms/ShapePrimitives.fx">
+                    <file name="ShapePrimitives.fx" url="/demos/forms/ShapePrimitives.fx">
                         <attr name="mainclass" boolvalue="true"/>
                     </file>
                 </folder>
