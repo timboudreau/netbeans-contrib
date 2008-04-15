@@ -42,9 +42,9 @@ package org.netbeans.modules.scala.editing.nodes;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -53,8 +53,8 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 public class SimpleTupleType extends SimpleType {
     private List<TypeRef> types;
     
-    public SimpleTupleType(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public SimpleTupleType(Token idToken, ElementKind kind) {
+        super(idToken, kind);
     }
     
     public void setTypes(List<TypeRef> types) {
@@ -65,6 +65,24 @@ public class SimpleTupleType extends SimpleType {
         return types == null ? Collections.<TypeRef>emptyList() : types;
     }
 
+    @Override
+    public String getName() {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append("(");
+        for (Iterator<TypeRef> itr = getTypes().iterator(); itr.hasNext();) {
+            sb.append(itr.next().getName());
+            if (itr.hasNext()) {
+                sb.append(", ");
+            }
+        }
+        sb.append(")");
+        sb.append(getTypeArgsName());
+        
+        return sb.toString();
+    }
+    
+    
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);

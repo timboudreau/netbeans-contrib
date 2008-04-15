@@ -43,12 +43,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.text.Document;
+import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.InstantRenamer;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -70,15 +74,25 @@ public class ScalaInstantRenamer implements InstantRenamer {
             return false;
         }
 
+        final Document document;
+        try {
+            document = info.getDocument();
+        } catch (Exception e) {
+            Exceptions.printStackTrace(e);
+            return false;
+        }
+
+        final TokenHierarchy th = TokenHierarchy.get(document);
+
         int astOffset = AstUtilities.getAstOffset(info, caretOffset);
         if (astOffset == -1) {
             return false;
         }
 
-        ScalaParserResult result = AstUtilities.getParserResult(info);
-        AstScope rootScope = result.getRootScope();
+        ScalaParserResult pResult = AstUtilities.getParserResult(info);
+        AstScope rootScope = pResult.getRootScope();
         
-        AstElement closest = rootScope.getElement(caretOffset);
+        AstElement closest = rootScope.getElement(th, caretOffset);
 
         switch (closest.getKind()) {
             case FIELD:
@@ -93,29 +107,39 @@ public class ScalaInstantRenamer implements InstantRenamer {
     }
 
     public Set<OffsetRange> getRenameRegions(CompilationInfo info, int caretOffset) {
-        ScalaParserResult result = AstUtilities.getParserResult(info);
-        if (result == null) {
+        ScalaParserResult pResult = AstUtilities.getParserResult(info);
+        if (pResult == null) {
             return Collections.emptySet();
         }
 
+        final Document document;
+        try {
+            document = info.getDocument();
+        } catch (Exception e) {
+            Exceptions.printStackTrace(e);
+            return Collections.emptySet();
+        }
+
+        final TokenHierarchy th = TokenHierarchy.get(document);
+        
         int astOffset = AstUtilities.getAstOffset(info, caretOffset);
         if (astOffset == -1) {
             return Collections.emptySet();
         }
 
-        AstScope rootScope = result.getRootScope();
+        AstScope rootScope = pResult.getRootScope();
         
-        AstElement closest = rootScope.getElement(caretOffset);
+        AstElement closest = rootScope.getElement(th, caretOffset);
 
         List<AstElement> occurrences = rootScope.findOccurrences(closest);
         
         Set<OffsetRange> regions = new HashSet<OffsetRange>();
             for (AstElement element : occurrences) {
-                regions.add(element.getNameRange());
+                regions.add(ScalaLexUtilities.getRangeOfToken(th, element.getIdToken()));
             }
         
         if (regions.size() > 0) {
-            if (result.getTranslatedSource() != null) {
+            if (pResult.getTranslatedSource() != null) {
                 Set<OffsetRange> translated = new HashSet<OffsetRange>(2*regions.size());
                 for (OffsetRange astRange : regions) {
                     OffsetRange lexRange = ScalaLexUtilities.getLexerOffsets(info, astRange);

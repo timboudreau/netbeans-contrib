@@ -464,7 +464,7 @@ public class ScalaCodeCompletion implements Completable {
                 //request.path = path;
                 //request.fqn = AstUtilities.getFqn(path, null, null);
 
-                final AstElement closest = root.getElement(offset);
+                final AstElement closest = root.getElement(th, offset);
                 request.root = root;
                 request.element = closest;
                 if (closest instanceof FunRef) {
@@ -1818,6 +1818,7 @@ public class ScalaCodeCompletion implements Completable {
 
             // Adjust offset to the left
             BaseDocument doc = (BaseDocument) info.getDocument();
+            TokenHierarchy th = TokenHierarchy.get(doc);
             int newLexOffset = ScalaLexUtilities.findSpaceBegin(doc, lexOffset);
             if (newLexOffset < lexOffset) {
                 astOffset -= (lexOffset-newLexOffset);
@@ -1834,7 +1835,7 @@ public class ScalaCodeCompletion implements Completable {
             }
 
             FunRef call = null;
-            AstElement closest = root.getElement(astOffset);
+            AstElement closest = root.getElement(th, astOffset);
             if (closest instanceof FunRef) {
                 call = (FunRef) closest;
             }
@@ -1932,7 +1933,7 @@ public class ScalaCodeCompletion implements Completable {
             parameterIndexHolder[0] = index;
 
             if (anchorOffset == -1) {
-                anchorOffset = call.getNameRange().getStart(); // TODO - compute
+                anchorOffset = call.getIdToken().offset(th); // TODO - compute
             }
             anchorOffsetHolder[0] = anchorOffset;
         } catch (IOException ex) {
@@ -2325,7 +2326,7 @@ public class ScalaCodeCompletion implements Completable {
         @Override
         public ElementHandle getElement() {
             // For completion documentation
-            return new AstElement(keyword, OffsetRange.NONE, ElementKind.KEYWORD);
+            return new AstElement(null, ElementKind.KEYWORD);
         }
         
         @Override
@@ -2394,7 +2395,7 @@ public class ScalaCodeCompletion implements Completable {
         @Override
         public ElementHandle getElement() {
             // For completion documentation
-            return new AstElement(tag, OffsetRange.NONE, ElementKind.KEYWORD);
+            return new AstElement(null, ElementKind.KEYWORD);
         }
 
         @Override

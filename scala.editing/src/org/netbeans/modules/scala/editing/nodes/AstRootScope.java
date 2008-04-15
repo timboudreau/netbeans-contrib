@@ -36,50 +36,26 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
-import java.util.List;
-import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
- * @author Caoyuan Deng
+ * @author dcaoyuan
  */
-public class InfixType extends TypeRef {
-    
-    private List<TypeRef> types;
-    private List<String> ops;
-    
-    public InfixType(Token idToken, ElementKind kind) {
-        super(idToken, kind);
-    }
-    
-    public void setTypes(List<TypeRef> types) {
-        this.types = types;
-    }
-    
-    public List<TypeRef> getTypes() {
-        return types;
-    }
-    
-    public void setOps(List<String> ops) {
-        this.ops = ops;
-    }
-    
-    public List<String> getOps() {
-        return ops;
+public class AstRootScope extends AstScope {
+
+    private TokenHierarchy tokenHierarchy;
+
+    public AstRootScope(TokenHierarchy tokenHierarchy, OffsetRange range) {
+        super(range);
+        this.tokenHierarchy = tokenHierarchy;
     }
 
     @Override
-    public void htmlFormat(HtmlFormatter formatter) {
-        types.get(0).htmlFormat(formatter);
-        for (int i = 1; i < types.size(); i++) {
-            formatter.appendText(ops.get(i - 1));
-            types.get(i).htmlFormat(formatter);
-        }
-    }        
-
+    protected TokenHierarchy getTokenHierarchy() {
+        return tokenHierarchy;
+    }
 }

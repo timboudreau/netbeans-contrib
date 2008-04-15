@@ -39,9 +39,9 @@
 
 package org.netbeans.modules.scala.editing.nodes;
 
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -52,8 +52,8 @@ public class FunType extends TypeRef {
     private TypeRef lhs;
     private TypeRef rhs;
     
-    public FunType(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public FunType(Token idToken, ElementKind kind) {
+        super(idToken, kind);
     }
     
     public void setLhs(TypeRef lhs) {
@@ -72,6 +72,25 @@ public class FunType extends TypeRef {
         return rhs;
     }
 
+    @Override
+    public java.lang.String getName() {
+        StringBuilder sb = new StringBuilder();
+        if (lhs == null) {
+            sb.append("(");
+            sb.append(")");
+        } else if (lhs instanceof WrappedType && ((WrappedType)lhs).getMore() == WrappedType.More.ByName) {
+            sb.append("(");
+            sb.append(lhs.getName());
+            sb.append(")");
+        } else {
+            sb.append(lhs);
+        }
+        sb.append("=>");
+        sb.append(rhs.getName());
+        return sb.toString();
+    }
+    
+    
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);

@@ -1503,4 +1503,9 @@ public class ScalaLexUtilities {
         }
 
     }
+
+    public static OffsetRange getRangeOfToken(TokenHierarchy th, Token token) {
+        final int offset = token.offset(th);
+        return new OffsetRange(offset, offset + token.length());
+    }
 }

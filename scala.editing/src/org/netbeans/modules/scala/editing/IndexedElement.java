@@ -125,7 +125,7 @@ public abstract class IndexedElement extends AstElement {
     protected ElementKind kind;
 
     IndexedElement(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
-        super(name, OffsetRange.NONE, null);
+        super(null, null);
         this.fqn = fqn;
         this.name = name;
         this.in = in;

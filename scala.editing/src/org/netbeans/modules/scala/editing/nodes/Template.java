@@ -40,8 +40,8 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.Collections;
 import java.util.List;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -53,8 +53,8 @@ public abstract class Template extends AstDef {
 
     private List<Id> extendWith;
     
-    public Template(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
-        super(name, nameRange, bindingScope, kind);
+    public Template(Token idToken, AstScope bindingScope, ElementKind kind) {
+        super(idToken, bindingScope, kind);
     }
 
     public void setCaseOne() {

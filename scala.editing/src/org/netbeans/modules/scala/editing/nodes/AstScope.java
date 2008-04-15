@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
@@ -63,6 +64,15 @@ public class AstScope implements Iterable<AstScope> {
 
     public AstScope(OffsetRange range) {
         this.range = range;
+    }
+
+    /** 
+     * @Note only AstRootScope will set tokenHierarchy, the nested scope should 
+     * get it from root scope
+     */
+    protected TokenHierarchy getTokenHierarchy() {
+        assert parent != null : "Only AstRootScope has no parent!";
+        return parent.getTokenHierarchy();
     }
 
     public void setBindingDef(AstDef bindingDef) {
@@ -135,10 +145,10 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
-    public AstElement getElement(int offset) {
+    public AstElement getElement(TokenHierarchy th, int offset) {
         if (defs != null) {
             if (!defsSorted) {
-                Collections.sort(defs, new ElementComparator());
+                Collections.sort(defs, new ElementComparator(th));
                 defsSorted = true;
             }
             int low = 0;
@@ -146,9 +156,9 @@ public class AstScope implements Iterable<AstScope> {
             while (low <= high) {
                 int mid = (low + high) >> 1;
                 AstDef middle = defs.get(mid);
-                if (offset < middle.getNameRange().getStart()) {
+                if (offset < middle.getIdToken().offset(th)) {
                     high = mid - 1;
-                } else if (offset >= middle.getNameRange().getEnd()) {
+                } else if (offset >= middle.getIdToken().offset(th) + middle.getIdToken().length()) {
                     low = mid + 1;
                 } else {
                     return middle;
@@ -158,7 +168,7 @@ public class AstScope implements Iterable<AstScope> {
 
         if (refs != null) {
             if (!refsSorted) {
-                Collections.sort(refs, new ElementComparator());
+                Collections.sort(refs, new ElementComparator(th));
                 refsSorted = true;
             }
             int low = 0;
@@ -166,9 +176,9 @@ public class AstScope implements Iterable<AstScope> {
             while (low <= high) {
                 int mid = (low + high) >> 1;
                 AstRef middle = refs.get(mid);
-                if (offset < middle.getNameRange().getStart()) {
+                if (offset < middle.getIdToken().offset(th)) {
                     high = mid - 1;
-                } else if (offset >= middle.getNameRange().getEnd()) {
+                } else if (offset >= middle.getIdToken().offset(th) + middle.getIdToken().length()) {
                     low = mid + 1;
                 } else {
                     return middle;
@@ -178,7 +188,7 @@ public class AstScope implements Iterable<AstScope> {
 
         if (scopes != null) {
             if (!scopesSorted) {
-                Collections.sort(scopes, new ScopeComparator());
+                Collections.sort(scopes, new ScopeComparator(th));
                 scopesSorted = true;
             }
             int low = 0;
@@ -191,7 +201,7 @@ public class AstScope implements Iterable<AstScope> {
                 } else if (offset >= middle.getRange().getEnd()) {
                     low = mid + 1;
                 } else {
-                    return middle.getElement(offset);
+                    return middle.getElement(th, offset);
                 }
             }
         }
@@ -218,10 +228,10 @@ public class AstScope implements Iterable<AstScope> {
 
         return occurrences;
     }
-    
+
     public AstDef findDef(AstElement element) {
         AstDef def = null;
-        
+
         if (element instanceof AstDef) {
             def = (AstDef) element;
         } else if (element instanceof AstRef) {
@@ -307,38 +317,38 @@ public class AstScope implements Iterable<AstScope> {
 
     public <T extends AstDef> List<T> getDefsInScope(Class<T> clazz) {
         List<T> result = new ArrayList<T>();
-        
+
         getDefsInScopeRecursively(clazz, result);
 
         return result;
     }
-    
+
     private <T extends AstDef> void getDefsInScopeRecursively(Class<T> clazz, List<T> result) {
         for (AstDef def : getDefs()) {
             if (clazz.isInstance(def)) {
                 result.add((T) def);
             }
-        }        
-        
+        }
+
         AstScope parentScope = getParent();
         if (parentScope != null) {
             parentScope.getDefsInScopeRecursively(clazz, result);
         }
     }
-    
+
     public <T extends AstDef> T getEnclosingDef(Class<T> clazz, int offset) {
         AstScope scope = getClosestScope(offset);
-        return scope.getEnclosingDefRecursively(clazz);
+        return scope.getEnclosingDef(clazz);
     }
 
-    private <T extends AstDef> T getEnclosingDefRecursively(Class<T> clazz) {
+    public <T extends AstDef> T getEnclosingDef(Class<T> clazz) {
         AstDef binding = getBindingDef();
         if (binding != null && clazz.isInstance(binding)) {
             return (T) binding;
         } else {
             AstScope parentScope = getParent();
             if (parentScope != null) {
-                return parentScope.getEnclosingDefRecursively(clazz);
+                return parentScope.getEnclosingDef(clazz);
             } else {
                 return null;
             }
@@ -351,6 +361,11 @@ public class AstScope implements Iterable<AstScope> {
     }
 
     private static class ScopeComparator implements Comparator<AstScope> {
+        private TokenHierarchy th;
+
+        public ScopeComparator(TokenHierarchy th) {
+            this.th = th;
+        }
 
         public int compare(AstScope o1, AstScope o2) {
             return o1.getRange().getStart() < o2.getRange().getStart() ? -1 : 1;
@@ -358,9 +373,14 @@ public class AstScope implements Iterable<AstScope> {
     }
 
     private static class ElementComparator implements Comparator<AstElement> {
+        private TokenHierarchy th;
 
+        public ElementComparator(TokenHierarchy th) {
+            this.th = th;
+        }
+        
         public int compare(AstElement o1, AstElement o2) {
-            return o1.getNameRange().getStart() < o2.getNameRange().getStart() ? -1 : 1;
+            return o1.getIdToken().offset(th) < o2.getIdToken().offset(th) ? -1 : 1;
         }
     }
 }

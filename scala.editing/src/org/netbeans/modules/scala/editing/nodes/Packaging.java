@@ -41,9 +41,9 @@ package org.netbeans.modules.scala.editing.nodes;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -55,8 +55,8 @@ public class Packaging extends AstDef {
     private List<List<Id>> imports;
     private boolean top;
 
-    public Packaging(String name, OffsetRange nameRange, AstScope bindingScope) {
-        super(name, nameRange, bindingScope, ElementKind.PACKAGE);
+    public Packaging(Token idToken, AstScope bindingScope) {
+        super(idToken, bindingScope, ElementKind.PACKAGE);
     }
 
     public void setIds(List<Id> ids) {
@@ -76,6 +76,11 @@ public class Packaging extends AstDef {
     }
 
     @Override
+    public String getName() {
+        return getQualifiedName();
+    }    
+    
+    @Override
     public String getQualifiedName() {
         if (qualifiedName == null) {
             StringBuilder sb = new StringBuilder();
@@ -85,6 +90,7 @@ public class Packaging extends AstDef {
                     sb.append(".");
                 }
             }
+            qualifiedName = sb.toString();
         }
         return qualifiedName;
     }

@@ -40,7 +40,6 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -50,8 +49,8 @@ public class ArgumentExprs extends AstElement {
     
     private List<AstElement> args;
 
-    public ArgumentExprs(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public ArgumentExprs(ElementKind kind) {
+        super(kind);
     }
     
     public void setArgs(List<AstElement> args) {
@@ -61,4 +60,11 @@ public class ArgumentExprs extends AstElement {
     public List<AstElement> getArgs() {
         return args;
     }
+
+    @Override
+    public String getName() {
+        return "args";
+    }
+    
+    
 }

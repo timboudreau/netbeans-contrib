@@ -39,8 +39,8 @@
 
 package org.netbeans.modules.scala.editing.nodes;
 
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -48,8 +48,8 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public class AstRef extends AstElement {
     
-    public AstRef(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public AstRef(Token idToken, ElementKind kind) {
+        super(idToken, kind);
     }
     
 }

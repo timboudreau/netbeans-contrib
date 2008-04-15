@@ -39,7 +39,6 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Stack;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -62,13 +61,15 @@ public abstract class AstVisitor extends Visitor {
 
     private int indentLevel;
     private TokenHierarchy th;
-    protected AstScope rootScope;
+    protected AstRootScope rootScope;
     protected Stack<GNode> astPath = new Stack<GNode>();
     protected Stack<AstScope> scopeStack = new Stack<AstScope>();
 
     public AstVisitor(Node rootNode, TokenHierarchy th) {
         this.th = th;
-        this.rootScope = new AstScope(getRange(rootNode));
+        Location loc = rootNode.getLocation();
+        OffsetRange range = new OffsetRange(loc.offset, loc.endOffset);
+        this.rootScope = new AstRootScope(th, range);
         scopeStack.push(rootScope);
     }
 
@@ -154,21 +155,29 @@ public abstract class AstVisitor extends Visitor {
      * following void productions, but nameString has stripped the void productions,
      * so we should adjust nameRange according to name and its length.
      */
-    protected OffsetRange getNameRange(Node nameNode) {
-        // @TODO, "this", "super" etc is not ScalaTokenId.Identifier
-        Location loc = nameNode.getLocation();
+    protected Token getIdToken(Node idNode) {
+        Location loc = idNode.getLocation();
         TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, loc.offset);
         ts.move(loc.offset);
         if (!ts.moveNext() && !ts.movePrevious()) {
-            return OffsetRange.NONE;
+            return null;
         }
-        Token token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Identifier);
+        
+        String name = idNode.getString(0).trim();
+        Token token = null;
+        if (name.equals("this")) {
+            token = ScalaLexUtilities.findNext(ts, ScalaTokenId.This);
+        } else if (name.equals("super")) {
+            token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Super);
+        } else {
+            token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Identifier);
+        }
+        
         if (token.isFlyweight()) {
             token = ts.offsetToken();
         }
         
-        int offset = token.offset(th);
-        return new OffsetRange(offset, offset + token.length());
+        return token;
     }
 
     protected String getAstPathString() {
