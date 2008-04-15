@@ -238,7 +238,7 @@ public final class JavaFXSource {
         return phase;
     }
 
-    private FileObject getFileObject() {
+    public FileObject getFileObject() {
         return files.iterator().next();
     }
     
