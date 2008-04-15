@@ -60,7 +60,7 @@ public class AstElement implements ElementHandle {
      * 1. Not all Element has idToken, such as Expr etc.
      * 2. Due to strange behavior of StructureAnalyzer, we can not rely on 
      *    idToken's text as name, idToken may be <null> and idToken.text() 
-     *    will return null when you modifing an Identifier token, seems sync issue
+     *    will return null when an Identifier token modified, seems sync issue
      */
     private Token idToken;
     private String name;
