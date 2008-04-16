@@ -42,6 +42,10 @@
 package org.netbeans.modules.javafx.editor;
 
 import org.netbeans.api.javafx.lexer.JFXTokenId;
+import org.netbeans.api.javafx.source.CompilationController;
+import org.netbeans.api.javafx.source.JavaFXSource;
+import org.netbeans.api.javafx.source.Task;
+import org.netbeans.api.javafx.source.TreeUtilities;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
@@ -53,16 +57,25 @@ import org.netbeans.modules.editor.indent.spi.IndentTask;
 import org.netbeans.modules.editor.indent.spi.ReformatTask;
 
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import javax.swing.text.Position;
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * @author Rastislav Komara (<a href="mailto:rastislav.komara@sun.com">RKo</a>)
  */
 class JFXIndentTask implements IndentTask, ReformatTask {
+    private static Logger log = Logger.getLogger(JFXIndentTask.class.getName());
+    private static final Pattern KEEP_LEVEL_PTRN = Pattern.compile("\\s*(}|\\))\\s*;?\\s*");
+
     private final Context context;
     private TokenSequence<JFXTokenId> ts = null;
 
-    JFXIndentTask(Context context) {        
+    JFXIndentTask(Context context) {
         this.context = context;
     }
 
@@ -82,14 +95,53 @@ class JFXIndentTask implements IndentTask, ReformatTask {
      *          at an invalid offset or e.g. into a guarded section.
      */
     public void reindent() throws BadLocationException {
-        if (context == null ) {
+        if (context == null || !context.isIndent()) {
             return;
-        }        
-        int sl = getScopeLevel();
-        while (ts().moveNext() && ts.offset() < context.endOffset()) {
-            sl = indentLine(sl);
         }
+        if (log.isLoggable(Level.INFO)) log.info("Reindent...");
 
+        final List<Context.Region> regions = context.indentRegions();
+        if (!regions.isEmpty()) {
+            for (Context.Region region : regions) {
+                if (log.isLoggable(Level.INFO))
+                    log.info("\tRegion: [" + region.getStartOffset() + "," + region.getEndOffset() + "]");
+                indentRegion(region);
+            }
+        } else {
+            if (log.isLoggable(Level.INFO))
+                log.info("\tLine: [" + context.startOffset() + "," + context.endOffset() + "]");
+            indentLine(context.startOffset());
+        }
+        if (log.isLoggable(Level.INFO)) log.info("... done!");
+
+    }
+
+    private void indentLine(int offset) throws BadLocationException {
+        int lso = context.lineStartOffset(offset);
+        int si = getScopeIndent(context.document(), lso);
+        if (context.lineIndent(lso) != si) {
+            context.modifyIndent(lso, si);
+        }
+    }
+
+    private void indentRegion(Context.Region region) throws BadLocationException {
+        int offset = region.getStartOffset();
+        do {
+//            int lso = context.lineStartOffset(offset);
+//            int si = getScopeIndent(context.document(), lso);
+//            if (context.lineIndent(lso) != si) {
+//                context.modifyIndent(lso, si);
+//            }
+            indentLine(offset);
+            offset = adjustOffsetToNewLine(offset, context.lineStartOffset(offset));
+        } while (offset < region.getEndOffset());
+    }
+
+    private int adjustOffsetToNewLine(int offset, int lso) throws BadLocationException {
+        while (lso == context.lineStartOffset(offset)) {
+            offset++;
+        }
+        return offset;
     }
 
     private TokenSequence<JFXTokenId> ts() {
@@ -99,24 +151,8 @@ class JFXIndentTask implements IndentTask, ReformatTask {
         return this.ts;
     }
 
-    private int indentLine(int sl) throws BadLocationException {
-        final int lineIndex = context.lineStartOffset(ts.offset());
-        if (context.lineIndent(lineIndex) != sl) {
-            context.modifyIndent(lineIndex, sl);
-        }
-        Token t = ts().moveNext() ? ts.token() : null;
-        while (t != null && context.lineStartOffset(ts.offset()) == lineIndex) {
-            if (t.id() == JFXTokenId.LPAREN || t.id() == JFXTokenId.LBRACE) {
-                sl = sl + getIndentStepLevel();
-            } else if (t.id() == JFXTokenId.RPAREN || t.id() == JFXTokenId.RBRACE) {
-                sl = sl - getIndentStepLevel();
-            }
-            t = ts().moveNext() ? ts.token() : null;
-        }
-        return sl;
-    }
-
     private int getIndentStepLevel() {
+        //TODO: [RKo] Load indel level in spaces from settings.
         return 4;
     }
 
@@ -127,20 +163,43 @@ class JFXIndentTask implements IndentTask, ReformatTask {
         return null;
     }
 
-    private int getScopeLevel() {
-        final Position position = context.document().getStartPosition();
-        if (position.getOffset() == context.startOffset()) {
+
+    private int getScopeIndent(Document document, int startOffset) throws BadLocationException {
+        final Position position = document.getStartPosition();
+        if (position.getOffset() == startOffset) {
             return 0;
         } else {
-            int so = 0;
-            Token t = ts().movePrevious() ? ts.token() : null;
-            while (t != null) {
+            // we simply adapt indent of previous line and adjust if necessary.
+            int lso = context.lineStartOffset(startOffset);
+            int ls = context.lineStartOffset(Math.max(0, lso - 1));
+            if (ls == lso) return 0;
+            int level = context.lineIndent(ls); //previous line indent
+
+///*
+            //verify if we need to adjust level in case of previous line.
+            ts().move(ls);
+            Token t = ts.moveNext() ? ts.token() : null;
+            while (t != null && ts.offset() < lso) {
                 if (t.id() == JFXTokenId.LBRACE || t.id() == JFXTokenId.LPAREN) {
-                    ;
+                    level += getIndentStepLevel();
+                } else if (t.id() == JFXTokenId.RBRACE || t.id() == JFXTokenId.RPAREN) {
+                    level -= getIndentStepLevel();
                 }
-                t = ts().movePrevious() ? ts.token() : null;
+                t = ts.moveNext() ? ts.token() : null;
             }
-            return so;
+
+            // Handle special cases. This cases are handled with small guessing.
+            int nlo = adjustOffsetToNewLine(lso, lso); //start offset of next line
+            if (KEEP_LEVEL_PTRN.matcher(document.getText(lso, nlo - lso)).matches()) {
+                // if current line is "closing" line move it -1 level.
+                level -= getIndentStepLevel();
+            } else if (KEEP_LEVEL_PTRN.matcher(document.getText(ls, lso - ls)).matches()) {
+                // if previous line is "closing" line move this +1 level.
+                level += getIndentStepLevel();
+            }
+
+            //if we got buggy source code we descent only to zero indent.
+            return Math.max(0, level);
         }
     }
 
@@ -171,6 +230,29 @@ class JFXIndentTask implements IndentTask, ReformatTask {
      *          at an invalid offset or e.g. into a guarded section.
      */
     public void reformat() throws BadLocationException {
+        /*if (context == null) throw new IllegalStateException("The context of task is null!");
+        if (context.isIndent()) {
+            reindent();
+            return;
+        }
+        JavaFXSource s = JavaFXSource.forDocument(context.document());
+        try {
+            s.runUserActionTask(new Task<CompilationController>() {
+
+                public void run(CompilationController controller) throws Exception {
+                    final long s = System.currentTimeMillis();
+                    final JavaFXSource.Phase phase = controller.toPhase(JavaFXSource.Phase.PARSED);
+                    if (log.isLoggable(Level.INFO)) log.info("Parser time: " + (System.currentTimeMillis() - s) + "ms");
+                    if (phase.compareTo(JavaFXSource.Phase.PARSED) >= 0) {
+                        if (log.isLoggable(Level.INFO)) log.info("The " + phase + " phase has been reached ... OK!");
+                        final TreeUtilities tu = controller.getTreeUtilities();
+                        
+                    }
+                }
+            }, true);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }*/
         reindent();
     }
 
