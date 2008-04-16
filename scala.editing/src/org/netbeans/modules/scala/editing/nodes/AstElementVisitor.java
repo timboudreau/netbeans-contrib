@@ -1444,18 +1444,20 @@ public class AstElementVisitor extends AstVisitor {
                 SimpleExpr funBase = new SimpleExpr(ElementKind.OTHER);
                 funBase.setBase(id.getPaths().remove(id.getPaths().size() - 1));
                 funRef.setBase(funBase);
-                funRef.setOp(latest);        
+                funRef.setOp(latest);
             } else {
                 funRef.setLocal();
             }
-            
+
             funRef.setParams(((ArgumentExprs) rest.get(0)).getArgs());
 
             scopeStack.peek().addRef(funRef);
 
-            IdRef idRef = new IdRef(first.getName(), first.getIdToken(), ElementKind.VARIABLE);
+            if (!funRef.isLocal()) {
+                IdRef idRef = new IdRef(first.getName(), first.getIdToken(), ElementKind.VARIABLE);
 
-            scopeStack.peek().addRef(idRef);
+                scopeStack.peek().addRef(idRef);
+            }
         } else {
             IdRef idRef = new IdRef(first.getName(), first.getIdToken(), ElementKind.VARIABLE);
 
