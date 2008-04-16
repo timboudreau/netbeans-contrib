@@ -40,7 +40,6 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import java.util.Collections;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.CompilationInfo;
@@ -74,7 +73,7 @@ public class ScalaPositionManager implements PositionManager {
         
         if (object instanceof AstElement) {
             if (object instanceof AstDef) {
-                range = ((AstDef) object).getRange();
+                range = ((AstDef) object).getRange(th);
             } else {
                 range = ScalaLexUtilities.getRangeOfToken(th, ((AstElement) object).getIdToken());
             }

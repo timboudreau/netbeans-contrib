@@ -38,24 +38,15 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.api.lexer.Token;
 
 /**
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
 public class AstRootScope extends AstScope {
 
-    private TokenHierarchy tokenHierarchy;
-
-    public AstRootScope(TokenHierarchy tokenHierarchy, OffsetRange range) {
-        super(range);
-        this.tokenHierarchy = tokenHierarchy;
-    }
-
-    @Override
-    protected TokenHierarchy getTokenHierarchy() {
-        return tokenHierarchy;
+    public AstRootScope(Token[] boundsTokens) {
+        super(boundsTokens);
     }
 }

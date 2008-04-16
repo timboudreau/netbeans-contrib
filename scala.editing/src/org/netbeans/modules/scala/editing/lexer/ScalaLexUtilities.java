@@ -61,8 +61,11 @@ import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
+import org.openide.cookies.EditorCookie;
+import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 
 /**
@@ -1508,4 +1511,23 @@ public class ScalaLexUtilities {
         final int offset = token.offset(th);
         return new OffsetRange(offset, offset + token.length());
     }
+    
+    public static BaseDocument getDocument(FileObject fileObject, boolean openIfNecessary) {
+        try {
+            DataObject dobj = DataObject.find(fileObject);
+            
+            EditorCookie ec = dobj.getCookie(EditorCookie.class);
+            if (ec != null) {
+                return (BaseDocument)(openIfNecessary ? ec.openDocument() : ec.getDocument());
+            }
+        } catch (DataObjectNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        
+        return null;
+    }
+
+    
 }

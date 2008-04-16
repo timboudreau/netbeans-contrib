@@ -40,23 +40,19 @@
  */
 package org.netbeans.modules.javafx.editor.fold;
 
+import com.sun.javafx.api.tree.BlockExpressionTree;
 import com.sun.javafx.api.tree.ClassDeclarationTree;
-import com.sun.javafx.api.tree.ForExpressionInClauseTree;
-import com.sun.javafx.api.tree.ForExpressionTree;
-import com.sun.javafx.api.tree.FunctionDefinitionTree;
 import com.sun.javafx.api.tree.InstantiateTree;
 import com.sun.javafx.api.tree.ObjectLiteralPartTree;
-import com.sun.javafx.api.tree.TriggerTree;
+import com.sun.javafx.api.tree.SequenceExplicitTree;
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.ImportTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
-import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.SourcePositions;
-import com.sun.source.util.TreePath;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -521,7 +517,7 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
             }
             return null;
         }
-
+        
         @Override
         public Object visitObjectLiteralPart(ObjectLiteralPartTree node, Object p) {
             super.visitObjectLiteralPart(node, p);
@@ -553,28 +549,14 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
             }
             return null;
         }
-
-        @Override
-        public Object visitForExpression(ForExpressionTree node, Object p) {
-            super.visitForExpression(node, p);
-            handleTree(node.getBodyExpression(), node, false);
-            return null;
-        }
-
-        @Override
-        public Object visitFunctionDefinition(FunctionDefinitionTree node, Object p) {
-            super.visitFunctionDefinition(node, p);
-            handleTree(node.getFunctionValue(), node, false);
-            return null;
-        }
-
-        @Override
-        public Object visitTrigger(TriggerTree node, Object p) {
-            super.visitTrigger(node, p);
-            handleTree(node.getExpressionTree(), node, false);
-            return null;
-        }
         
+        @Override
+        public Object visitBlockExpression(BlockExpressionTree node, Object p) {
+            super.visitBlockExpression(node, p);
+            handleTree(node, node, false);
+            return null;
+        }
+
         @Override
         public Object visitVariable(VariableTree node,Object p) {
             super.visitVariable(node, p);
@@ -583,15 +565,16 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
         }
         
         @Override
+        public Object visitSequenceExplicit(SequenceExplicitTree node, Object p) {
+            super.visitSequenceExplicit(node, p);
+            handleTree(node, null, false);
+            return null;
+        }
+
+        @Override
         public Object visitBlock(BlockTree node, Object p) {
             super.visitBlock(node, p);
-            //check static/dynamic initializer:
-            TreePath path = getCurrentPath();
-            
-            if (path.getParentPath().getLeaf().getKind() == Kind.CLASS) {
-                handleTree(node, null, false);
-            }
-            
+            handleTree(node, null, false);
             return null;
         }
         
