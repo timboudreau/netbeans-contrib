@@ -38,16 +38,18 @@
  */
 package org.netbeans.modules.javafx.editor.semantic;
 
-import com.sun.javafx.api.tree.ClassDeclarationTree;
 import com.sun.javafx.api.tree.FunctionDefinitionTree;
-import com.sun.javafx.api.tree.FunctionValueTree;
-import com.sun.javafx.api.tree.InitDefinitionTree;
-import com.sun.javafx.api.tree.InstantiateTree;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
-import com.sun.javafx.api.tree.StringExpressionTree;
+import com.sun.javafx.api.tree.TypeAnyTree;
+import com.sun.javafx.api.tree.TypeClassTree;
+import com.sun.javafx.api.tree.TypeFunctionalTree;
+import com.sun.javafx.api.tree.TypeUnknownTree;
 import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.MethodInvocationTree;
+import com.sun.source.tree.IdentifierTree;
+import com.sun.source.tree.LineMap;
 import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.Tree;
+import com.sun.source.tree.VariableTree;
 import com.sun.source.util.SourcePositions;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -73,8 +75,9 @@ import org.openide.util.Exceptions;
  */
 public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
 
-    private static final AttributeSet FIELD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, new Color(255, 0, 0));
-    private static final AttributeSet METHOD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Background, new Color(255, 0, 0));
+    private static final AttributeSet FIELD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Background, Color.GREEN, StyleConstants.Bold, Boolean.TRUE);
+    private static final AttributeSet METHOD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.BLACK, StyleConstants.Bold, Boolean.TRUE);
+
     private FileObject file;
     private AtomicBoolean cancel = new AtomicBoolean();
 
@@ -86,7 +89,7 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
         cancel.set(true);
     }
 
-    public void run(CompilationInfo info) throws Exception {
+    public void run(CompilationInfo info) {
         System.out.println("***  SemanticHighlighter.run()");
         cancel.set(false);
         process(info);
@@ -155,185 +158,71 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
             this.info = info;
         }
 
-//        @Override
-//        public Void visitBindExpression(BindExpressionTree tree, List<Result> list) {
-//            return super.visitBindExpression(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitBlockExpression(BlockExpressionTree tree, List<Result> list) {
-//            return super.visitBlockExpression(tree, list);
-//        }
-
-        @Override
-        public Void visitClassDeclaration(ClassDeclarationTree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list);
-            return super.visitClassDeclaration(tree, list);
-        }
-
-//        @Override
-//        public Void visitForExpression(ForExpressionTree tree, List<Result> list) {
-//            return super.visitForExpression(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitForExpressionInClause(ForExpressionInClauseTree tree, List<Result> list) {
-//            return super.visitForExpressionInClause(tree, list);
-//        }
-
         @Override
         public Void visitFunctionDefinition(FunctionDefinitionTree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list);
+            addCorrespondingSourcePositions(list, "function");
             return super.visitFunctionDefinition(tree, list);
         }
 
         @Override
-        public Void visitFunctionValue(FunctionValueTree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list);
-            return super.visitFunctionValue(tree, list);
-        }
-
-//        @Override
-//        public Void visitIndexof(IndexofTree tree, List<Result> list) {
-//            return super.visitIndexof(tree, list);
-//        }
-
-        @Override
-        public Void visitInitDefinition(InitDefinitionTree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list);
-            return super.visitInitDefinition(tree, list);
+        public Void visitTypeAny(TypeAnyTree tree, List<Result> list) {
+            addCorrespondingSourcePositions(list, "typeAny");
+            return super.visitTypeAny(tree, list);
         }
 
         @Override
-        public Void visitInstantiate(InstantiateTree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list);
-            return super.visitInstantiate(tree, list);
+        public Void visitTypeClass(TypeClassTree tree, List<Result> list) {
+            addCorrespondingSourcePositions(list, "typeClass");
+            return super.visitTypeClass(tree, list);
         }
-
-//        @Override
-//        public Void visitInterpolate(InterpolateTree tree, List<Result> list) {
-//            return super.visitInterpolate(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitInterpolateValue(InterpolateValueTree tree, List<Result> list) {
-//            return super.visitInterpolateValue(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitKeyFrameLiteral(KeyFrameLiteralTree tree, List<Result> list) {
-//            return super.visitKeyFrameLiteral(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitObjectLiteralPart(ObjectLiteralPartTree tree, List<Result> list) {
-//            return super.visitObjectLiteralPart(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitOnReplace(OnReplaceTree tree, List<Result> list) {
-//            return super.visitOnReplace(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitPostInitDefinition(InitDefinitionTree tree, List<Result> list) {
-//            return super.visitPostInitDefinition(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitSequenceDelete(SequenceDeleteTree tree, List<Result> list) {
-//            return super.visitSequenceDelete(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitSequenceEmpty(SequenceEmptyTree tree, List<Result> list) {
-//            return super.visitSequenceEmpty(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitSequenceExplicit(SequenceExplicitTree tree, List<Result> list) {
-//            return super.visitSequenceExplicit(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitSequenceIndexed(SequenceIndexedTree tree, List<Result> list) {
-//            return super.visitSequenceIndexed(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitSequenceInsert(SequenceInsertTree tree, List<Result> list) {
-//            return super.visitSequenceInsert(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitSequenceRange(SequenceRangeTree tree, List<Result> list) {
-//            return super.visitSequenceRange(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitSequenceSlice(SequenceSliceTree tree, List<Result> list) {
-//            return super.visitSequenceSlice(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitSetAttributeToObject(SetAttributeToObjectTree tree, List<Result> list) {
-//            return super.visitSetAttributeToObject(tree, list);
-//        }
 
         @Override
-        public Void visitStringExpression(StringExpressionTree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list);
-            return super.visitStringExpression(tree, list);
+        public Void visitTypeFunctional(TypeFunctionalTree tree, List<Result> list) {
+            addCorrespondingSourcePositions(list, "typeFunctional");
+            return super.visitTypeFunctional(tree, list);
         }
 
-//        @Override
-//        public Void visitTimeLiteral(TimeLiteralTree tree, List<Result> list) {
-//            return super.visitTimeLiteral(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitTrigger(TriggerTree tree, List<Result> list) {
-//            return super.visitTrigger(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitTypeAny(TypeAnyTree tree, List<Result> list) {
-//            return super.visitTypeAny(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitTypeClass(TypeClassTree tree, List<Result> list) {
-//            return super.visitTypeClass(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitTypeFunctional(TypeFunctionalTree tree, List<Result> list) {
-//            return super.visitTypeFunctional(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitTypeUnknown(TypeUnknownTree tree, List<Result> list) {
-//            return super.visitTypeUnknown(tree, list);
-//        }
+        @Override
+        public Void visitTypeUnknown(TypeUnknownTree tree, List<Result> list) {
+            addCorrespondingSourcePositions(list, "typeUnknown");
+            return super.visitTypeUnknown(tree, list);
+        }
+
+        @Override
+        public Void visitIdentifier(IdentifierTree tree, List<Result> list) {
+            addCorrespondingSourcePositions(list, "typeIdentifier");
+            return super.visitIdentifier(tree, list);
+        }
+
+        @Override
+        public Void visitOther(Tree tree, List<Result> list) {
+            addCorrespondingSourcePositions(list, "typeOther");
+            return super.visitOther(tree, list);
+        }
+
+        @Override
+        public Void visitVariable(VariableTree tree, List<Result> list) {
+            addCorrespondingSourcePositions(list, "typeVariable");
+            return super.visitVariable(tree, list);
+        }
 
         @Override
         public Void visitMethod(MethodTree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list);
+            addCorrespondingSourcePositions(list, "typeMethod");
             return super.visitMethod(tree, list);
         }
 
-        @Override
-        public Void visitMethodInvocation(MethodInvocationTree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list);
-            return super.visitMethodInvocation(tree, list);
-        }
-        
-
-        private void addCorrespondingSourcePositions(List<Result> list) {
+        private void addCorrespondingSourcePositions(List<Result> list, String identifier) {
             Element element = info.getTrees().getElement(getCurrentPath());
             SourcePositions sourcePositions = info.getTrees().getSourcePositions();
             long start = sourcePositions.getStartPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
             long end = sourcePositions.getEndPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
+            
+            LineMap lm = info.getCompilationUnit().getLineMap();
+            String lineNum = lm != null ? "" + lm.getLineNumber(start) : "?";
+            String colNum = lm != null ? "" + lm.getColumnNumber(start) : "?";
+            
+            System.out.println("*** vitising: " + identifier + " [" + lineNum + ", " + colNum + "]");
             list.add(new Result(start, end, element));
         }
     }
