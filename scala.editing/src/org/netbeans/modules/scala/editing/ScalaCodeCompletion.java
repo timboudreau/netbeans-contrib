@@ -507,17 +507,17 @@ public class ScalaCodeCompletion implements Completable {
     }
 
     private void addLocals(List<CompletionProposal> proposals, CompletionRequest request) {
-        AstElement node = request.element;
+        AstElement element = request.element;
         String prefix = request.prefix;
         NameKind kind = request.kind;
-        ScalaParserResult result = request.result;
+        ScalaParserResult pResult = request.result;
         
-        AstScope root = result.getRootScope();
+        AstScope root = pResult.getRootScope();
         if (root == null) {
             return;
         }
         
-        AstScope closestScope = root.getClosestScope(request.astOffset);
+        AstScope closestScope = root.getClosestScope(request.th, request.astOffset);
         List<Var> localVars = closestScope.getDefsInScope(Var.class);
 
         for (Var var : localVars) {
