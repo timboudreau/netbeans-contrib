@@ -90,7 +90,7 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Inst
     
     private static WizardDescriptor.InstantiatingIterator getRealNewMakeProjectWizardIterator (FileObject template) {
         WizardDescriptor.InstantiatingIterator res = null;
-        if (FoDFileSystem.getInstance().getParentFileSystem (template) != null) {
+        if (FoDFileSystem.getInstance().getDelegateFileSystem (template) != null) {
             return null;
         }
         FileObject fo = Repository.getDefault ().getDefaultFileSystem ().findResource (template.getPath ());

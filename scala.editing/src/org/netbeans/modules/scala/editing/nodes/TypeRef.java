@@ -36,32 +36,29 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.List;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author Caoyuan Deng
  */
 public class TypeRef extends AstRef {
-    
-    public static final TypeRef Float   = new TypeRef("Float",   OffsetRange.NONE, ElementKind.CLASS);
-    public static final TypeRef Int     = new TypeRef("Int",     OffsetRange.NONE, ElementKind.CLASS);
-    public static final TypeRef Boolean = new TypeRef("Boolean", OffsetRange.NONE, ElementKind.CLASS);
-    public static final TypeRef Null    = new TypeRef("Null",    OffsetRange.NONE, ElementKind.CLASS);
-    public static final TypeRef Char    = new TypeRef("Char", OffsetRange.NONE, ElementKind.CLASS);
-    public static final TypeRef String  = new TypeRef("String",  OffsetRange.NONE, ElementKind.CLASS);
-    public static final TypeRef Symbol  = new TypeRef("Symbol", OffsetRange.NONE, ElementKind.CLASS);
-        
+
+    public static final TypeRef Float   = new TypeRef("Float",   null, ElementKind.CLASS);    
+    public static final TypeRef Int     = new TypeRef("Int",     null, ElementKind.CLASS);    
+    public static final TypeRef Boolean = new TypeRef("Boolean", null, ElementKind.CLASS);
+    public static final TypeRef Null    = new TypeRef("Unit",    null, ElementKind.CLASS);    
+    public static final TypeRef Char    = new TypeRef("Char",    null, ElementKind.CLASS);   
+    public static final TypeRef String  = new TypeRef("String",  null, ElementKind.CLASS);   
+    public static final TypeRef Symbol  = new TypeRef("Symbol",  null, ElementKind.CLASS);
     
     private List<String> annotations;
 
-    public TypeRef(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public TypeRef(String name, Token idToken, ElementKind kind) {
+        super(name, idToken, kind);
     }
-    
 }

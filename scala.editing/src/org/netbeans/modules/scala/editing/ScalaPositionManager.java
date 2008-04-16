@@ -40,13 +40,18 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import java.util.Collections;
+import javax.swing.text.Document;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.gsf.api.PositionManager;
+import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -57,11 +62,21 @@ public class ScalaPositionManager implements PositionManager {
     public OffsetRange getOffsetRange(CompilationInfo info, ElementHandle object) {
         OffsetRange range = OffsetRange.NONE;
 
+        final Document document;
+        try {
+            document = info.getDocument();
+        } catch (Exception e) {
+            Exceptions.printStackTrace(e);
+            return OffsetRange.NONE;
+        }
+
+        final TokenHierarchy th = TokenHierarchy.get(document);
+        
         if (object instanceof AstElement) {
             if (object instanceof AstDef) {
                 range = ((AstDef) object).getRange();
             } else {
-                range = ((AstElement) object).getNameRange();
+                range = ScalaLexUtilities.getRangeOfToken(th, ((AstElement) object).getIdToken());
             }
         }
         return range;

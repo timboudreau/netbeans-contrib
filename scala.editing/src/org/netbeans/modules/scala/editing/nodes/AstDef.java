@@ -38,6 +38,7 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
@@ -50,8 +51,8 @@ public class AstDef extends AstElement {
 
     private AstScope bindingScope;
 
-    public AstDef(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
-        super(name, nameRange, kind);
+    public AstDef(String name, Token idToken, AstScope bindingScope, ElementKind kind) {
+        super(name, idToken, kind);
         this.bindingScope = bindingScope;
         this.bindingScope.setBindingDef(this);
     }

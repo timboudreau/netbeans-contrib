@@ -41,9 +41,9 @@ package org.netbeans.modules.scala.editing.nodes;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -54,8 +54,8 @@ public class Function extends AstDef {
     private List<TypeRef> typeParams;
     private List<Var> params;
 
-    public Function(String name, OffsetRange nameRange, AstScope bindingScope, ElementKind kind) {
-        super(name, nameRange, bindingScope, kind);
+    public Function(String name, Token idToken, AstScope bindingScope, ElementKind kind) {
+        super(name, idToken, bindingScope, kind);
     }
 
     public void setTypeParam(List<TypeRef> typeParams) {

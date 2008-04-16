@@ -39,9 +39,13 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Stack;
+import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
+import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import xtc.tree.Annotation;
 import xtc.tree.GNode;
 import xtc.tree.Location;
@@ -55,18 +59,17 @@ import xtc.util.Pair;
  */
 public abstract class AstVisitor extends Visitor {
 
-    private List<Integer> linesOffset;
     private int indentLevel;
-    private String source;
-    protected AstScope rootScope;
+    private TokenHierarchy th;
+    protected AstRootScope rootScope;
     protected Stack<GNode> astPath = new Stack<GNode>();
     protected Stack<AstScope> scopeStack = new Stack<AstScope>();
 
-    public AstVisitor(Node rootNode, String source, List<Integer> linesOffset) {
-        this.source = source;
-        this.linesOffset = linesOffset;
-        // set linesOffset before call getRange(Node)
-        this.rootScope = new AstScope(getRange(rootNode));
+    public AstVisitor(Node rootNode, TokenHierarchy th) {
+        this.th = th;
+        Location loc = rootNode.getLocation();
+        OffsetRange range = new OffsetRange(loc.offset, loc.endOffset);
+        this.rootScope = new AstRootScope(th, range);
         scopeStack.push(rootScope);
     }
 
@@ -124,7 +127,27 @@ public abstract class AstVisitor extends Visitor {
 
     protected OffsetRange getRange(Node node) {
         Location loc = node.getLocation();
-        return new OffsetRange(loc.offset, loc.endOffset);
+        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, loc.offset);
+        
+        ts.move(loc.offset);
+        if (!ts.moveNext() && !ts.movePrevious()) {
+            return new OffsetRange(loc.offset, loc.endOffset);
+        }
+        Token startToken = ScalaLexUtilities.findNextNonWs(ts);
+        if (startToken.isFlyweight()) {
+            startToken = ts.offsetToken();
+        }
+        
+        ts.move(loc.endOffset);
+        if (!ts.moveNext() && !ts.movePrevious()) {
+            return new OffsetRange(loc.offset, loc.endOffset);
+        }
+        Token endToken = ScalaLexUtilities.findPreviousNonWs(ts);
+        if (endToken.isFlyweight()) {
+            endToken = ts.offsetToken();
+        }
+        
+        return new OffsetRange(startToken.offset(th), endToken.offset(th) + endToken.length());
     }
 
     /**
@@ -132,16 +155,29 @@ public abstract class AstVisitor extends Visitor {
      * following void productions, but nameString has stripped the void productions,
      * so we should adjust nameRange according to name and its length.
      */
-    protected OffsetRange getNameRange(String name, Node node) {
-        Location loc = node.getLocation();
-        int length = name.length();
-        for (int i = loc.offset; i < loc.endOffset; i++) {
-            if (source.substring(i, i + length).equals(name)) {
-                return new OffsetRange(i, i + length);
-            }
+    protected Token getIdToken(Node idNode) {
+        Location loc = idNode.getLocation();
+        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, loc.offset);
+        ts.move(loc.offset);
+        if (!ts.moveNext() && !ts.movePrevious()) {
+            assert false : "Should not happen!";
         }
-
-        return new OffsetRange(loc.offset, loc.endOffset);
+        
+        String name = idNode.getString(0).trim();
+        Token token = null;
+        if (name.equals("this")) {
+            token = ScalaLexUtilities.findNext(ts, ScalaTokenId.This);
+        } else if (name.equals("super")) {
+            token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Super);
+        } else {
+            token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Identifier);
+        }
+        
+        if (token.isFlyweight()) {
+            token = ts.offsetToken();
+        }
+        
+        return token;
     }
 
     protected String getAstPathString() {

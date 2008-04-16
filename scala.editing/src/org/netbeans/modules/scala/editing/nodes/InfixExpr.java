@@ -40,7 +40,6 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -52,8 +51,8 @@ public class InfixExpr extends Expr implements Postfixable {
     private List<Id> ops;
     private Id postfixOp;
 
-    public InfixExpr(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public InfixExpr(ElementKind kind) {
+        super(kind);
     }
 
     public void setExprs(List<SimpleExpr> types) {

@@ -62,8 +62,8 @@ public abstract class FeatureInfoAccessor {
     }
     
     public abstract String getCodeName(FeatureInfo info);
-    public abstract URL getProjectLayer(FeatureInfo info);
-    public abstract String getProjectFilePath(FeatureInfo info);
+    public abstract URL getDelegateLayer(FeatureInfo info);
+    public abstract String getDelegateFilePath(FeatureInfo info);
     
     public abstract Internal getInternal(FeatureInfo info);
 
@@ -80,7 +80,7 @@ public abstract class FeatureInfoAccessor {
     
         synchronized XMLFileSystem getXMLFileSystem() {
             if (fs == null) {
-                URL url = DEFAULT.getProjectLayer(info);
+                URL url = DEFAULT.getDelegateLayer(info);
                 fs = new XMLFileSystem();
                 if (url != null) {
                     try {

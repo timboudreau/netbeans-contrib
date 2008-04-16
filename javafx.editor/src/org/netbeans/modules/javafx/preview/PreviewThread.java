@@ -45,9 +45,16 @@ import java.security.CodeSource;
 import java.security.PermissionCollection;
 import org.netbeans.modules.javafx.editor.*;
 import java.security.Permissions;
+import java.util.List;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 
 //import sun.awt.AppContext;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
 import org.openide.execution.ExecutionEngine;
 //import sun.awt.SunToolkit;
 import org.openide.execution.ExecutorTask;
@@ -58,7 +65,7 @@ import org.openide.util.TaskListener;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 import org.openide.util.RequestProcessor;
-
+import javax.tools.Diagnostic;
 
         
 public class PreviewThread extends Thread {
@@ -131,7 +138,23 @@ public class PreviewThread extends Thread {
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
             }
-            if (obj != null) comp = CodeManager.parseObj(obj);
+            if (obj != null)
+                comp = CodeManager.parseObj(obj);
+            else {
+                List <Diagnostic> diagnostics = CodeManager.getDiagnostics();
+                if (!diagnostics.isEmpty()) {
+                    comp = new JPanel();
+                    comp.setLayout(new BoxLayout(comp, BoxLayout.Y_AXIS));
+                    for (Diagnostic diagnostic : diagnostics) {
+                        JTextArea jta = new JTextArea();
+                        jta.setLineWrap(true);
+                        jta.append(diagnostic.toString());
+                        comp.add(jta);
+                        comp.add(new JSeparator(SwingConstants.HORIZONTAL));
+                    }
+                }
+            }
+                
         }
     }
 
@@ -148,14 +171,12 @@ public class PreviewThread extends Thread {
             //System.out.println("Current app context " + AppContext.getAppContext());
             
             ExecutionEngine ee = new EE();
-            ExecutorTask task = ee.execute("prim", new R(), IOProvider.getDefault().getIO("someName", false));
+            ExecutorTask task = ee.execute("prim", new R(), IOProvider.getDefault().getIO("JavaFX preview", false));
   
             task.addTaskListener(new TaskListener() {
-
                 public void taskFinished(Task task) {
                     ((JavaFXDocument)doc).renderPreview(comp);
                 }
-                
             });
             
             

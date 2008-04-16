@@ -41,7 +41,6 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -57,8 +56,8 @@ public class SimpleExpr extends Expr implements Postfixable {
     private String prefixOp;
     private Id postfixOp;
     
-    public SimpleExpr(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public SimpleExpr(ElementKind kind) {
+        super(kind);
     }
 
     public void setBase(AstElement base) {

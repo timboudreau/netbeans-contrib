@@ -40,9 +40,9 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.Iterator;
 import java.util.List;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -52,8 +52,8 @@ public class CompoundType extends TypeRef {
 
     private List<TypeRef> types;
 
-    public CompoundType(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public CompoundType(Token idToken, ElementKind kind) {
+        super(null, idToken, kind);
     }
 
     public void setTypes(List<TypeRef> types) {
@@ -62,6 +62,19 @@ public class CompoundType extends TypeRef {
 
     public List<TypeRef> getTypes() {
         return types;
+    }
+
+    @Override
+    public String getName() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(types.get(0).getName());
+        for (Iterator<TypeRef> itr = types.iterator(); itr.hasNext();) {
+            sb.append(itr.next().getName());
+            if (itr.hasNext()) {
+                sb.append(" with ");
+            }
+        }
+        return sb.toString();
     }
 
     @Override

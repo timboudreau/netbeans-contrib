@@ -109,7 +109,8 @@ option setOfString(SCALA_KEYWORDS);
 
 // ----- Keywords
 
-generic ThisKey = "this":key ;
+generic ThisKey  = "this" :key ;
+generic SuperKey = "super":key ;
 
 /*
  * The tokens that can terminate a statement are: literals, identifiers and the following

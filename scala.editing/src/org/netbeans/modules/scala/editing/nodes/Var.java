@@ -40,7 +40,6 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -52,7 +51,7 @@ public class Var extends AstDef {
     private boolean implicate;
 
     public Var(Id id, AstScope bindingScope, ElementKind kind) {
-        super(id.getName(), id.getNameRange(), bindingScope, kind);
+        super(id.getName(), id.getIdToken(), bindingScope, kind);
         setType(id.getType());
     }
 

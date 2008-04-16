@@ -394,8 +394,10 @@ jarsigner.storepass=${jarsigner.storepass}
     </target>
 
     <target name="build-netbeans">
-	<!-- <antcall target="build-tools-group"/>
-  -->
+    <antcall target="build-tools-group"/>
+    <antcall target="build-ide-group"/>
+    <antcall target="build-other-group"/>
+ 
     <build-product dir="C_Compiler"/>
                
         <echo message="BUILDING NB-BASE =========================================="/>
@@ -413,7 +415,7 @@ jarsigner.storepass=${jarsigner.storepass}
             
             <property
                 name="release.parent.uid"
-                value="tools-group"/>
+                value="ide-group"/>
             <property
                 name="release.parent.version"
                 value=""/>
@@ -437,7 +439,7 @@ jarsigner.storepass=${jarsigner.storepass}
             
             <property
                 name="release.parent.uid"
-                value=""/>
+                value="ide-group"/>
             <property
                 name="release.parent.version"
                 value=""/>
@@ -460,7 +462,7 @@ jarsigner.storepass=${jarsigner.storepass}
             
             <property
                 name="release.parent.uid"
-                value=""/>
+                value="tools-group"/>
             <property
                 name="release.parent.version"
                 value=""/>
@@ -474,11 +476,11 @@ jarsigner.storepass=${jarsigner.storepass}
         <build-product dir="Fortran_95_Compiler"/>
         <build-product dir="DBX_Debugging_Tools"/>
         <build-product dir="build_tools"/>
-        <build-product dir="X-Designer"/>
+        <build-product dir="X-Designer" group="other-group"/>
         
         <build-product dir="support_files"/>
-        <build-product dir="Performance_Library"/>
-        <build-product dir="Third-party_Source"/>
+        <build-product dir="Performance_Library" group="other-group"/>
+        <build-product dir="Third-party_Source" group="other-group"/>
 	
 		
 	<!--<build-product dir="demos"/>
@@ -507,9 +509,54 @@ jarsigner.storepass=${jarsigner.storepass}
         </ant>
      </target>
 
+      <target name="build-ide-group">
+        <echo message="BUILDING IDE-GROUP ==================================="/>
+        <ant dir="${nbi.netbeans.dir}/infra/groups/ide-group" target="release-all">
+            <property 
+                name="basedir" 
+                value="${nbi.netbeans.dir}/infra/groups/ide-group"/>
+            <property 
+                name="environment.properties" 
+                value="${environment.properties}"/>
+            
+            <property
+                name="release.parent.uid"
+                value=""/>
+            <property
+                name="release.parent.version"
+                value=""/>
+            <property
+                name="release.parent.platforms"
+                value=""/>
+        </ant>
+     </target>
+
+      <target name="build-other-group">
+        <echo message="BUILDING OTHER-GROUP ==================================="/>
+        <ant dir="${nbi.netbeans.dir}/infra/groups/other-group" target="release-all">
+            <property 
+                name="basedir" 
+                value="${nbi.netbeans.dir}/infra/groups/other-group"/>
+            <property 
+                name="environment.properties" 
+                value="${environment.properties}"/>
+            
+            <property
+                name="release.parent.uid"
+                value=""/>
+            <property
+                name="release.parent.version"
+                value=""/>
+            <property
+                name="release.parent.platforms"
+                value=""/>
+        </ant>
+     </target>
+
      <macrodef name="build-product">
          <attribute name="dir"/>
-         <sequential>	
+         <attribute name="group" default="tools-group"/>
+	 <sequential>	
             <ant dir="${nbi.netbeans.dir}/infra/products/native" target="release-all">
 	    <property 
                 name="build.properties" 
@@ -531,7 +578,7 @@ jarsigner.storepass=${jarsigner.storepass}
             -->
             <property
                 name="release.parent.uid"
-                value=""/>
+                value="@{group}"/>
             <property
                 name="release.parent.version"
                 value=""/>
