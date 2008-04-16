@@ -44,7 +44,7 @@ import org.netbeans.modules.gsf.api.ElementKind;
 
 /**
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
 public class IdRef extends AstRef {
     

@@ -1502,18 +1502,17 @@ public class AstElementVisitor extends AstVisitor {
 
         TypeRef type = null;
 
-
         TypeRef first = visitCompoundType(that.getGeneric(0));
 
         List others = that.getList(1).list();
         if (others.size() > 0) {
             List<TypeRef> types = new ArrayList<TypeRef>();
-            List<String> ops = new ArrayList<String>();
+            List<Id> ops = new ArrayList<Id>();
             types.add(first);
 
             for (Object rest : others) {
                 GNode restNode = (GNode) rest;
-                ops.add(restNode.getGeneric(0).getString(0));
+                ops.add(visitId(restNode.getGeneric(0)));
                 types.add(visitCompoundType(restNode.getGeneric(1)));
             }
 
