@@ -44,6 +44,7 @@ import com.sun.javafx.api.tree.BlockExpressionTree;
 import com.sun.javafx.api.tree.ClassDeclarationTree;
 import com.sun.javafx.api.tree.InstantiateTree;
 import com.sun.javafx.api.tree.ObjectLiteralPartTree;
+import com.sun.javafx.api.tree.SequenceExplicitTree;
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
@@ -563,6 +564,13 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
             return null;
         }
         
+        @Override
+        public Object visitSequenceExplicit(SequenceExplicitTree node, Object p) {
+            super.visitSequenceExplicit(node, p);
+            handleTree(node, null, false);
+            return null;
+        }
+
         @Override
         public Object visitBlock(BlockTree node, Object p) {
             super.visitBlock(node, p);
