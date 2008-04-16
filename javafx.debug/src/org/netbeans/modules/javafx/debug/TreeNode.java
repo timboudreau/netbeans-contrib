@@ -120,6 +120,7 @@ import com.sun.source.tree.UnaryTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.tree.WhileLoopTree;
 import com.sun.source.tree.WildcardTree;
+import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javafx.tree.JavafxPretty;
@@ -154,7 +155,8 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
         return result.get(0);
     }
     
-    private static String treeToString(Tree t) {
+    private static String treeToString(CompilationInfo info, TreePath tp) {
+        Tree t = tp.getLeaf();
         JavaFXTree.JavaFXKind k = null;
         StringWriter s = new StringWriter();
         try {
@@ -177,7 +179,9 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
 //                System.err.println("  is " + t);
             }
         }
-        res += ":" + s.toString();
+        SourcePositions pos = info.getTrees().getSourcePositions();
+        res = res + '[' + pos.getStartPosition(tp.getCompilationUnit(), t) + ',' + 
+                pos.getEndPosition(tp.getCompilationUnit(), t) + "]:" + s.toString();
         return res;
     }
 
@@ -188,7 +192,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
         this.info = info;
         // TODO:
 //        this.synthetic = info.getTreeUtilities().isSynthetic(tree);
-        setDisplayName(treeToString(tree.getLeaf())); //NOI18N
+        setDisplayName(treeToString(info, tree)); //NOI18N
         setIconBaseWithExtension("org/netbeans/modules/java/debug/resources/tree.png"); //NOI18N
     }
 
