@@ -56,6 +56,8 @@ made subject to such option by the copyright holder.
             <folder name="x-fx">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.dataloader.Bundle"/>
                 
+                <file name="org-netbeans-modules-javafx-editor-semantic-HighlightsLayerFactoryImpl.instance" />
+
 <!--
                 <file name="ReformatTask">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.editor.ReformatTaskFactory"/>

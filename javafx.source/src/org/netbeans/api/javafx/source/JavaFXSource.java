@@ -64,6 +64,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.openide.cookies.EditorCookie;
@@ -192,8 +194,15 @@ public final class JavaFXSource {
         
         List<String> options = new ArrayList<String>();
         options.add("-Xbootclasspath/a:" + JavaFXSourceUtils.getAdditionalCP(""));
+        options.add("-Xjcov"); //NOI18N, Make the compiler store end positions
+        options.add("-XDdisableStringFolding"); //NOI18N
         
-        JavafxcTaskImpl task = (JavafxcTaskImpl)tool.getTask(null, fileManager, null, options, Collections.singleton(jfo));
+        JavafxcTaskImpl task = (JavafxcTaskImpl)tool.getTask(null, fileManager, new DiagnosticListener<JavaFileObject>() {
+
+            public void report(Diagnostic<? extends JavaFileObject> arg0) {
+                System.err.println("Error at [" + arg0.getLineNumber() + ":" + arg0.getColumnNumber() + "]/" + arg0.getEndPosition() + " - " + arg0.getMessage(null));
+            }
+        }, options, Collections.singleton(jfo));
         Context context = task.getContext();
         //Messager.preRegister(context, null, DEV_NULL, DEV_NULL, DEV_NULL);
         
