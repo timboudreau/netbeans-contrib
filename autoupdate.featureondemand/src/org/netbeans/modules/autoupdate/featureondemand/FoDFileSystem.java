@@ -65,7 +65,7 @@ implements Runnable {
     public FoDFileSystem() {
         assert INSTANCE == null;
         INSTANCE = this;
-        RP.post (this, 2000);
+        refresh.schedule(2000);
     }
 
     public static FoDFileSystem getInstance() {

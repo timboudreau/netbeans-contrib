@@ -38,9 +38,10 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -58,8 +59,8 @@ public class WrappedType extends TypeRef {
     private More more;
     private TypeRef wrappedType;
 
-    public WrappedType(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public WrappedType(Token idToken, ElementKind kind) {
+        super(null, idToken, kind);
     }
 
     public void setWrappedType(TypeRef wrappedType) {
@@ -77,6 +78,25 @@ public class WrappedType extends TypeRef {
     public More getMore() {
         return more;
     }
+
+    @Override
+    public String getName() {
+        StringBuilder sb = new StringBuilder();
+        switch (more) {
+            case Star:
+                sb.append(wrappedType.getName());
+                sb.append("*");
+                break;
+            case ByName:
+                sb.append("=>");
+                sb.append(wrappedType.getName());
+                break;
+            default:
+                sb.append(wrappedType.getName());
+        }
+        return sb.toString();
+    }
+       
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {

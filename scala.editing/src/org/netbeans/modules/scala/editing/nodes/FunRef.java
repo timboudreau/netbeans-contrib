@@ -40,8 +40,8 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.List;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -49,11 +49,21 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public class FunRef extends AstRef {
     
+    private Expr base;
+    private Id op;
     private List<AstElement> params;
     private boolean local;
         
-    public FunRef(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public FunRef(String name, Token idToken, ElementKind kind) {
+        super(name, idToken, kind);
+    }
+    
+    public void setBase(Expr base) {
+        this.base = base;
+    }
+    
+    public void setOp(Id op) {
+        this.op = op;
     }
     
     public void setParams(List<AstElement> params) {

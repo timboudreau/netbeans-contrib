@@ -37,20 +37,32 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.editing.nodes;
+package org.netbeans.modules.javafx.editor.semantic;
 
-import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.api.javafx.source.CancellableTask;
+import org.netbeans.api.javafx.source.CompilationInfo;
+import org.netbeans.api.javafx.source.JavaFXSource.Phase;
+import org.netbeans.api.javafx.source.JavaFXSource.Priority;
+import org.netbeans.api.javafx.source.support.EditorAwareJavaSourceTaskFactory;
+import org.openide.filesystems.FileObject;
 
 /**
- * Id may be AstDefinition or AstUsage, so extends AstElement
- * 
- * @author dcaoyuan
+ *
+ * @author Anton Chechel
  */
-public class Id extends AstElement {
+public class JavaFXSourceHighlightingTaskFactory extends EditorAwareJavaSourceTaskFactory {
 
-    public Id(String name, Token idToken, ElementKind kind) {
-        super(name, idToken, kind);
+    public JavaFXSourceHighlightingTaskFactory() {
+        super(Phase.PARSED, Priority.NORMAL);
     }
-        
+    
+    @Override
+    protected CancellableTask<CompilationInfo> createTask(FileObject file) {
+        return new SemanticHighlighter(file);
+    }
+
+    final void rescheduleImpl(FileObject file) throws IllegalArgumentException {
+        reschedule(file);
+    }
+    
 }

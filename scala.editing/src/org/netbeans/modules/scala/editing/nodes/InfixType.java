@@ -40,9 +40,9 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.List;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -51,10 +51,10 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 public class InfixType extends TypeRef {
     
     private List<TypeRef> types;
-    private List<String> ops;
+    private List<Id> ops;
     
-    public InfixType(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public InfixType(Token idToken, ElementKind kind) {
+        super(null, idToken, kind);
     }
     
     public void setTypes(List<TypeRef> types) {
@@ -65,19 +65,30 @@ public class InfixType extends TypeRef {
         return types;
     }
     
-    public void setOps(List<String> ops) {
+    public void setOps(List<Id> ops) {
         this.ops = ops;
     }
     
-    public List<String> getOps() {
+    public List<Id> getOps() {
         return ops;
     }
 
     @Override
+    public java.lang.String getName() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(types.get(0).getName());
+        for (int i = 1; i < types.size(); i++) {
+            sb.append(" ").append(ops.get(i - 1).getName()).append(" ");
+            sb.append(types.get(i).getName());
+        }
+        return sb.toString();
+    }    
+    
+    @Override
     public void htmlFormat(HtmlFormatter formatter) {
         types.get(0).htmlFormat(formatter);
         for (int i = 1; i < types.size(); i++) {
-            formatter.appendText(ops.get(i - 1));
+            formatter.appendText(" " + ops.get(i - 1) + " ");
             types.get(i).htmlFormat(formatter);
         }
     }        

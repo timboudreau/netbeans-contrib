@@ -36,21 +36,17 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.gsf.api.ElementKind;
 
 /**
- * Id may be AstDefinition or AstUsage, so extends AstElement
- * 
- * @author dcaoyuan
+ *
+ * @author Caoyuan Deng
  */
-public class Id extends AstElement {
+public class AstRootScope extends AstScope {
 
-    public Id(String name, Token idToken, ElementKind kind) {
-        super(name, idToken, kind);
+    public AstRootScope(Token[] boundsTokens) {
+        super(boundsTokens);
     }
-        
 }

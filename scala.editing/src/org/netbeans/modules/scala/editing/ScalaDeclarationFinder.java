@@ -167,11 +167,11 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         }
         final BaseDocument doc = (BaseDocument) document;
 
-        ScalaParserResult parseResult = AstUtilities.getParserResult(info);
+        ScalaParserResult pResult = AstUtilities.getParserResult(info);
         doc.readLock(); // Read-lock due to Token hierarchy use
 
         try {
-            AstScope root = parseResult.getRootScope();
+            AstScope root = pResult.getRootScope();
             if (root == null) {
                 return null;
             }
@@ -182,13 +182,13 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             }
             final TokenHierarchy<Document> th = TokenHierarchy.get(document);
 
-            AstElement closest = root.getElement(astOffset);
+            AstElement closest = root.getElement(th, astOffset);
             AstDef def = root.findDef(closest);
             if (def == null) {
                 return null;
             }
 
-            return new DeclarationLocation(info.getFileObject(), def.getNameRange().getStart(), def);
+            return new DeclarationLocation(info.getFileObject(), def.getIdToken().offset(th), def);
         } finally {
             doc.readUnlock();
         }

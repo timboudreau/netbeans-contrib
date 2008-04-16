@@ -40,20 +40,19 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.Iterator;
 import java.util.List;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
- * Id may be AstDefinition or AstUsage, so extends AstElement
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
 public class PathId extends Id {
 
     private List<Id> paths;
 
-    public PathId(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public PathId(Token idToken, ElementKind kind) {
+        super(null, idToken, kind);
     }
 
     public void setPaths(List<Id> paths) {
@@ -64,7 +63,8 @@ public class PathId extends Id {
         return paths;
     }
 
-    public String toPathString() {
+    @Override
+    public String getName() {
         StringBuilder sb = new StringBuilder();
         for (Iterator<Id> itr = getPaths().iterator(); itr.hasNext();) {
             sb.append(itr.next().getName());

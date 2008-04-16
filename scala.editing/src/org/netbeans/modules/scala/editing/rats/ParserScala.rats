@@ -151,8 +151,8 @@ generic Path =
 ;
 
 generic StableId = 
-  ( Id void:".":sep )? ThisKey                     ( void:".":key Id )*
-/ ( Id void:".":sep )? "super":key ClassQualifier? ( void:".":key Id )*
+  ( Id void:".":sep )? ThisKey                  ( void:".":key Id )*
+/ ( Id void:".":sep )? SuperKey ClassQualifier? ( void:".":key Id )*
 / Id ( void:".":sep Id )*
 ;
 
@@ -435,7 +435,7 @@ generic LocalModifier =
 
 transient generic AccessModifier = ( "private":key / "protected":key ) AccessQualifier? ;
 
-transient generic AccessQualifier = void:"[":sep ( Id / "this":key ) void:"]":sep ;
+transient generic AccessQualifier = void:"[":sep ( Id / ThisKey ) void:"]":sep ;
 
 generic Annotation = "@":key AnnotationExpr N? ;
 
@@ -456,8 +456,8 @@ generic TemplateStat =
 ;
 
 generic SelfType = 
-  Id       ( void:":":key Type )? void:"=>":key
-/ "this":key void:":":key Type    void:"=>":key
+  Id     ( void:":":key Type )? void:"=>":key
+/ ThisKey  void:":":key Type    void:"=>":key
 ;
 
 transient generic Import = "import":key ImportExpr ( void:",":sep ImportExpr )* ;
@@ -558,7 +558,7 @@ generic ConstrExpr =
 
 transient generic ConstrBlock = void:"{":sep SelfInvocation ( SEMI BlockStat )* void:"}":sep ;
 
-transient generic SelfInvocation = void:"this":key ArgumentExprs ArgumentExprs* ;
+transient generic SelfInvocation = ThisKey ArgumentExprs ArgumentExprs* ;
 
 transient generic TopStatSeq = TopStat ( SEMI TopStat )* ;
 

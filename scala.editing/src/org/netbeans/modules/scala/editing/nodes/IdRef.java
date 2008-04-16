@@ -39,17 +39,17 @@
 
 package org.netbeans.modules.scala.editing.nodes;
 
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
 public class IdRef extends AstRef {
     
-    public IdRef(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public IdRef(String name, Token idToken, ElementKind kind) {
+        super(name, idToken, kind);
     }
 
 }

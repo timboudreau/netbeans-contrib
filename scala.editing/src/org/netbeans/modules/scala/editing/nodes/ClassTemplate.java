@@ -39,7 +39,6 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -47,10 +46,11 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public class ClassTemplate extends Template {
 
-    public ClassTemplate(String name, OffsetRange nameRange, AstScope bindingScope) {
-        super(name, nameRange, bindingScope, ElementKind.CLASS);
+    public ClassTemplate(Id id, AstScope bindingScope) {
+        super(id, bindingScope, ElementKind.CLASS);
     }
 
+    @Override
     public String getBinaryName() {
         return getName();
     }

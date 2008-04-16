@@ -64,16 +64,17 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Inst
     public static final String CHOSEN_ELEMENTS_FOR_ENABLE = "chosen-elements-for-enable"; // NOI18N
     public static final String APPROVED_ELEMENTS = "approved-elements"; // NOI18N
     public static final String CHOSEN_TEMPLATE = "chosen-template"; // NOI18N
-    public static final String TEMPORARY_DELEGATE_ITERATOR = "delegate-iterator"; // NOI18N
     public static final String DELEGATE_ITERATOR = "delegate-iterator"; // NOI18N
     
     private WizardDescriptor.InstantiatingIterator delegateIterator;
     private Boolean doInstall = null;
     private Boolean doEnable = null;
     private FileObject template;
+    private boolean ignore = false;
     
     public FeatureOnDemanWizardIterator (FileObject template) {
         this.template = template;
+        this.ignore = true;
     }
     
     public static WizardDescriptor.InstantiatingIterator newProject (FileObject fo) {
@@ -268,6 +269,10 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Inst
 
     public void nextPanel () {
         if (getDelegateIterator () != null) {
+            if (ignore) {
+                ignore = false;
+                return ;
+            }
             if (getDelegateIterator ().hasNext ()) {
                 getDelegateIterator ().nextPanel ();
             }

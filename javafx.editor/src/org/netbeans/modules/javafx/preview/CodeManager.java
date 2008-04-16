@@ -36,7 +36,6 @@ import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.text.Document;
 import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.javafx.source.JavaFXSourceUtils;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
@@ -54,11 +53,13 @@ import org.openide.util.Exceptions;
 import com.sun.scenario.scenegraph.SGNode;
 import java.awt.Color;
 import javax.swing.JDesktopPane;
+import javax.tools.Diagnostic;
 
 public class CodeManager {
     private static final String[] getComponentStrings = {"getComponent", "getJComponent"};
     private static final String[] frameStrings = {"frame", "window"};
     private static final String[] getVisualNodeStrings = {"getVisualNode", "getSGNode"};
+    private static final DiagnosticCollector diagnostics = new DiagnosticCollector();
     
     public static Object execute(FXDocument doc) {
 
@@ -77,6 +78,7 @@ public class CodeManager {
         ClassPath sourceCP = ClassPath.getClassPath(fo, ClassPath.SOURCE);
         ClassPath compileCP = ClassPath.getClassPath(fo, ClassPath.COMPILE);
         ClassPath executeCP = ClassPath.getClassPath(fo, ClassPath.EXECUTE);
+        ClassPath bootCP = ClassPath.getClassPath(fo, ClassPath.BOOT);
         
         if (sourceCP == null) {
             Logger.getLogger(CodeManager.class.getName()).warning("No classpath was found for folder: " + fo); // NOI18N
@@ -84,7 +86,8 @@ public class CodeManager {
         }
         String className = sourceCP.getResourceName(fo, '.', false); // NOI18N
         
-        DiagnosticCollector diagnostics = new DiagnosticCollector();
+        diagnostics.clear();
+        
         JavafxcTool tool = JavafxcTool.create();
         JavacFileManager standardManager = tool.getStandardFileManager(diagnostics, null, null);
         JavaFXProject project = (JavaFXProject) JavaFXModel.getProject(doc);
@@ -92,10 +95,10 @@ public class CodeManager {
         
         javaFileObjects.add(new MemoryFileObject(className, code, Kind.SOURCE));
         
-        Map<String, byte[]> oldClassBytes = cut(project.getClassBytes(), className);
+        Map<String, byte[]> oldClassBytes = cut(JavaFXModel.getClassBytes(project), className);
         
-        Map<String, byte[]> classBytes = compile(javaFileObjects, oldClassBytes, sourceCP, compileCP, project, tool, standardManager, diagnostics);  
-        project.putClassBytes(classBytes);
+        Map<String, byte[]> classBytes = compile(javaFileObjects, oldClassBytes, sourceCP, bootCP, compileCP, project, tool, standardManager, diagnostics);  
+        JavaFXModel.putClassBytes(project, classBytes);
         
         Object obj = null;
         if (classBytes != null) {
@@ -110,11 +113,16 @@ public class CodeManager {
         return obj;
     }
     
+    static public List<Diagnostic> getDiagnostics() {
+	return diagnostics.diagnostics;
+    }            
+            
     private static Map<String, byte[]> compile( 
                                                 List<JavaFileObject> javaFileObjects,
                                                 Map<String, byte[]> classBytes,
                                                 ClassPath sourceCP,
                                                 ClassPath compileCP,
+                                                ClassPath bootCP,
                                                 JavaFXProject project,
                                                 JavafxcTool tool,
                                                 JavacFileManager standardManager,
@@ -136,7 +144,7 @@ public class CodeManager {
         manager.setClassBytes(classBytes);
         
         try {
-            mcl.loadMap(project.getClassBytes());
+            mcl.loadMap(JavaFXModel.getClassBytes(project));
         } catch (ClassNotFoundException ex) {
             Exceptions.printStackTrace(ex);
         }
@@ -145,12 +153,13 @@ public class CodeManager {
         options.add("1.5");
         
         options.add("-classpath");
-        options.add(JavaFXSourceUtils.getAdditionalCP(compileCP.toString()));
+        options.add(compileCP.toString());
         
         options.add("-sourcepath");
-        options.add(JavaFXSourceUtils.getAdditionalCP(sourceCP.toString()));
+        options.add(sourceCP.toString());
         
-        options.add("-Xbootclasspath/a:" + JavaFXSourceUtils.getAdditionalCP(""));
+        options.add("-bootclasspath");
+        options.add(bootCP.toString());
         
         options.add("-implicit:class");
         
@@ -298,7 +307,7 @@ public class CodeManager {
                         DataObject dataObject = DataObject.find(fileObject);
                         if (dataObject instanceof JavaFXDataObject) {
                             String name = sourceCP.getResourceName(fileObject, '.', false); // NOI18N
-                            if (!contains(project.getClassBytes(), name)) {
+                            if (!contains(JavaFXModel.getClassBytes(project), name)) {
                                 Document doc = null;
                                 try {
                                     EditorCookie editorCookie = dataObject.getCookie(EditorCookie.class);
@@ -370,8 +379,8 @@ public class CodeManager {
         FileObject fo = ((JavaFXDocument)doc).getDataObject().getPrimaryFile();
         ClassPath sourceCP = ClassPath.getClassPath(fo, ClassPath.SOURCE);
         String className = sourceCP.getResourceName(fo, '.', false); // NOI18N
-        Map<String, byte[]> newMap = project.getClassBytes();
-        project.putClassBytes(cut(newMap, className));
+        Map<String, byte[]> newMap = JavaFXModel.getClassBytes(project);
+        JavaFXModel.putClassBytes(project, cut(newMap, className));
     }
 }
 

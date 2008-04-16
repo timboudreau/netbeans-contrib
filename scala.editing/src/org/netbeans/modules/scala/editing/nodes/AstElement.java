@@ -41,11 +41,11 @@ package org.netbeans.modules.scala.editing.nodes;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.Modifier;
-import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
 import org.openide.filesystems.FileObject;
 
@@ -55,36 +55,56 @@ import org.openide.filesystems.FileObject;
  */
 public class AstElement implements ElementHandle {
 
+    /** 
+     * @Note: 
+     * 1. Not all Element has idToken, such as Expr etc.
+     * 2. Due to strange behavior of StructureAnalyzer, we can not rely on 
+     *    idToken's text as name, idToken may be <null> and idToken.text() 
+     *    will return null when an Identifier token modified, seems sync issue
+     */
+    private Token idToken;
     private String name;
-    private OffsetRange nameRange;
     private ElementKind kind;
     private AstScope enclosingScope;
     private Set<Modifier> mods;
     private TypeRef type;
     protected String qualifiedName;
-
-    public AstElement(String name, OffsetRange nameRange, ElementKind kind) {
-        this.name = name;
-        this.nameRange = nameRange;
-        this.kind = kind;
+    
+    public AstElement( ElementKind kind) {
+        this(null, kind);
     }
 
+    public AstElement(Token idToken, ElementKind kind) {
+        this(null, idToken, kind);
+    }
+
+    public AstElement(String name, Token idToken, ElementKind kind) {
+        this.idToken = idToken;
+        this.name = name;
+        this.kind = kind;
+    }
+    
     public void setName(String name) {
         this.name = name;
     }
 
     public String getName() {
-        return name;
+        if (name == null) {
+            assert false : "Should implement getName()";
+            throw new UnsupportedOperationException();
+        } else {
+            return name;
+        }
     }
 
-    public void setNameRange(OffsetRange nameRange) {
-        this.nameRange = nameRange;
+    public void setIdToken(Token idToken) {
+        this.idToken = idToken;
     }
 
-    public OffsetRange getNameRange() {
-        return nameRange;
+    public Token getIdToken() {
+        return idToken;
     }
-
+    
     public ElementKind getKind() {
         return kind;
     }
@@ -114,7 +134,7 @@ public class AstElement implements ElementHandle {
     }
 
     public <T extends AstDef> T getEnclosingDef(Class<T> clazz) {
-        return enclosingScope.getEnclosingDef(clazz, getNameRange().getStart());
+        return enclosingScope.getEnclosingDef(clazz);
     }
 
     /**
