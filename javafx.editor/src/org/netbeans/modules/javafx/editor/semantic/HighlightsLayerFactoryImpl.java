@@ -39,7 +39,7 @@ public class HighlightsLayerFactoryImpl implements HighlightsLayerFactory {
     
     public HighlightsLayer[] createLayers(Context context) {
         return new HighlightsLayer[] {
-            HighlightsLayer.create(SemanticHighlighter.class.getName(), ZOrder.DEFAULT_RACK, false, SemanticHighlighter.getBag(context.getDocument()))
+            HighlightsLayer.create(SemanticHighlighter.class.getName(), ZOrder.SYNTAX_RACK, false, SemanticHighlighter.getBag(context.getDocument()))
         };
     }
 
