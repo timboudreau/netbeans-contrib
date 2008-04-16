@@ -40,14 +40,16 @@
  */
 package org.netbeans.api.javafx.source;
 
+import com.sun.javafx.api.tree.JavaFXTree;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
 import com.sun.source.tree.*;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
-import com.sun.source.util.TreePathScanner;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
+import com.sun.tools.javafx.tree.JavafxPretty;
+import java.io.IOException;
+import java.io.StringWriter;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
 import java.util.*;
 import java.util.logging.Level;
@@ -215,8 +217,10 @@ public final class TreeUtilities {
                     } else {
                         if ((start == -1) || (end == -1)) {
                             if (!isSynthetic(getCurrentPath().getCompilationUnit(), tree)) {
-                                // here we have a problem
-                                log("Cannot determine start and end for: " + tree);
+                                // here we might have a problem
+                                if (LOGGABLE) {
+                                    logger.finest("SCAN: Cannot determine start and end for: " + treeToString(info, tree));
+                                }
                             }
                         }
                     }
@@ -231,9 +235,29 @@ public final class TreeUtilities {
             path = result.path;
         }
         
-        if (path.getLeaf() == path.getCompilationUnit())
+        if (path.getLeaf() == path.getCompilationUnit()) {
+            log("pathFor returning compilation unit for position: " + pos);
             return path;
-        
+        }
+        int start = (int)sourcePositions.getStartPosition(info.getCompilationUnit(), path.getLeaf());
+        int end   = (int)sourcePositions.getEndPosition(info.getCompilationUnit(), path.getLeaf());
+        while ((start == -1) || (end == -1)) {
+            if (LOGGABLE) {
+                logger.finer("pathFor moving to parent: " + treeToString(info, path.getLeaf()));
+            }
+            path = path.getParentPath();
+            if (LOGGABLE) {
+                logger.finer("pathFor moved to parent: " + treeToString(info, path.getLeaf()));
+            }
+            if (path.getLeaf() == path.getCompilationUnit()) {
+                break;
+            }
+            start = (int)sourcePositions.getStartPosition(info.getCompilationUnit(), path.getLeaf());
+            end   = (int)sourcePositions.getEndPosition(info.getCompilationUnit(), path.getLeaf());
+        }
+        if (LOGGABLE) {
+            logger.finer("pathFor before checking the tokens: " + treeToString(info, path.getLeaf()));
+        }
         TokenSequence<JFXTokenId> tokenList = tokensFor(path.getLeaf(), sourcePositions);
         tokenList.moveEnd();
         if (tokenList.movePrevious() && tokenList.offset() < pos) {
@@ -266,6 +290,9 @@ public final class TreeUtilities {
                     }
                     break;
             }
+        }
+        if (LOGGABLE) {
+            log("pathFor(pos: " + pos + ") returning: " + treeToString(info, path.getLeaf()));
         }
         return path;
     }
@@ -331,15 +358,39 @@ public final class TreeUtilities {
         int start = (int)sourcePositions.getStartPosition(info.getCompilationUnit(), tree);
         int end   = (int)sourcePositions.getEndPosition(info.getCompilationUnit(), tree);
         if ((start == -1) || (end == -1)) {
-            throw new RuntimeException("Cannot determine start and end for: " + tree);
+            throw new RuntimeException("RE Cannot determine start and end for: " + treeToString(info, tree));
         }
         TokenSequence<JFXTokenId> t = info.getTokenHierarchy().tokenSequence(JFXTokenId.language());
         if (t == null) {
-            throw new RuntimeException("Did not get a token sequence.");
+            throw new RuntimeException("RE SDid not get a token sequence.");
         }
         return t.subSequence(start, end);
     }
     
+    private static String treeToString(CompilationInfo info, Tree t) {
+        JavaFXTree.JavaFXKind k = null;
+        StringWriter s = new StringWriter();
+        try {
+            new JavafxPretty(s, false).printExpr((JCTree)t);
+        } catch (IOException e) {
+            throw new AssertionError(e);
+        }
+        if (t instanceof JavaFXTree && t.getKind() == Kind.OTHER) {
+            JavaFXTree jfxt = (JavaFXTree)t;
+            k = jfxt.getJavaFXKind();
+        }
+        String res = null;
+        if (k != null) {
+            res = k.toString();
+        } else {
+            res = String.valueOf(t.getKind());
+        }
+        SourcePositions pos = info.getTrees().getSourcePositions();
+        res = res + '[' + pos.getStartPosition(info.getCompilationUnit(), t) + ',' + 
+                pos.getEndPosition(info.getCompilationUnit(), t) + "]:" + s.toString();
+        return res;
+    }
+
     private static void log(String s) {
         if (LOGGABLE) {
             logger.fine(s);
