@@ -193,7 +193,7 @@ public class InstallStep implements WizardDescriptor.AsynchronousValidatingPanel
             assert layer != null : "Layer must be known.";
             FoDFileSystem.getInstance().refresh();
             waitForDelegateWizard ();
-       }
+        }
     }
     
     private FileObject fo = null;
@@ -222,7 +222,7 @@ public class InstallStep implements WizardDescriptor.AsynchronousValidatingPanel
         // success
         if (! (o instanceof FeatureOnDemanWizardIterator)) {
             iterator.initialize (wd);
-            wd.putProperty (FeatureOnDemanWizardIterator.TEMPORARY_DELEGATE_ITERATOR, iterator);
+            wd.putProperty (FeatureOnDemanWizardIterator.DELEGATE_ITERATOR, iterator);
             fireChange ();
         }
     }
