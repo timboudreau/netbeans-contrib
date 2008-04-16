@@ -65,6 +65,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import com.sun.source.util.TreePath;
+import com.sun.source.tree.Tree;
+
 /**
  * @author Rastislav Komara (<a href="mailto:rastislav.komara@sun.com">RKo</a>)
  */
@@ -95,7 +98,7 @@ class JFXIndentTask implements IndentTask, ReformatTask {
      *          at an invalid offset or e.g. into a guarded section.
      */
     public void reindent() throws BadLocationException {
-        if (context == null || !context.isIndent()) {
+        if (context == null) {
             return;
         }
         if (log.isLoggable(Level.INFO)) log.info("Reindent...");
@@ -246,7 +249,8 @@ class JFXIndentTask implements IndentTask, ReformatTask {
                     if (phase.compareTo(JavaFXSource.Phase.PARSED) >= 0) {
                         if (log.isLoggable(Level.INFO)) log.info("The " + phase + " phase has been reached ... OK!");
                         final TreeUtilities tu = controller.getTreeUtilities();
-                        
+                        final TreePath path = tu.pathFor(context.startOffset());
+                        reformat(path.getLeaf());
                     }
                 }
             }, true);
@@ -254,6 +258,21 @@ class JFXIndentTask implements IndentTask, ReformatTask {
             throw new RuntimeException(e);
         }*/
         reindent();
+    }
+
+    private void reformat(Tree leaf) {
+        if (leaf == null) return;
+        if (log.isLoggable(Level.INFO)) log.info("LeafKind: " + leaf.getKind());
+        switch (leaf.getKind()) {
+            case BLOCK:
+                reformatBlock(leaf);
+                break;
+            default:
+                
+        }
+    }
+
+    private void reformatBlock(Tree tree) {
     }
 
     /**

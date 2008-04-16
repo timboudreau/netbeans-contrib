@@ -1439,10 +1439,25 @@ public class AstElementVisitor extends AstVisitor {
 
         if (rest.size() > 0 && rest.get(0) instanceof ArgumentExprs) {
             FunRef funRef = new FunRef(first.getName(), first.getIdToken(), ElementKind.CALL);
-            funRef.setLocal();
+            if (id.getPaths().size() > 1) {
+                Id latest = id.getPaths().get(id.getPaths().size() - 1);
+                SimpleExpr funBase = new SimpleExpr(ElementKind.OTHER);
+                funBase.setBase(id.getPaths().remove(id.getPaths().size() - 1));
+                funRef.setBase(funBase);
+                funRef.setOp(latest);
+            } else {
+                funRef.setLocal();
+            }
+
             funRef.setParams(((ArgumentExprs) rest.get(0)).getArgs());
 
             scopeStack.peek().addRef(funRef);
+
+            if (!funRef.isLocal()) {
+                IdRef idRef = new IdRef(first.getName(), first.getIdToken(), ElementKind.VARIABLE);
+
+                scopeStack.peek().addRef(idRef);
+            }
         } else {
             IdRef idRef = new IdRef(first.getName(), first.getIdToken(), ElementKind.VARIABLE);
 
@@ -1502,18 +1517,17 @@ public class AstElementVisitor extends AstVisitor {
 
         TypeRef type = null;
 
-
         TypeRef first = visitCompoundType(that.getGeneric(0));
 
         List others = that.getList(1).list();
         if (others.size() > 0) {
             List<TypeRef> types = new ArrayList<TypeRef>();
-            List<String> ops = new ArrayList<String>();
+            List<Id> ops = new ArrayList<Id>();
             types.add(first);
 
             for (Object rest : others) {
                 GNode restNode = (GNode) rest;
-                ops.add(restNode.getGeneric(0).getString(0));
+                ops.add(visitId(restNode.getGeneric(0)));
                 types.add(visitCompoundType(restNode.getGeneric(1)));
             }
 
