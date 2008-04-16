@@ -217,7 +217,7 @@ public class EnableStep implements WizardDescriptor.AsynchronousValidatingPanel<
             o + " is not null and instanceof WizardDescriptor.InstantiatingIterator";
         WizardDescriptor.InstantiatingIterator iterator = (WizardDescriptor.InstantiatingIterator) o;
         iterator.initialize (wd);
-        wd.putProperty (FeatureOnDemanWizardIterator.TEMPORARY_DELEGATE_ITERATOR, iterator);
+        wd.putProperty (FeatureOnDemanWizardIterator.DELEGATE_ITERATOR, iterator);
         fireChange ();
     }
     
