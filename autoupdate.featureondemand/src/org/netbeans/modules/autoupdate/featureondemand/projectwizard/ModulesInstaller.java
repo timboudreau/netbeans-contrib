@@ -126,6 +126,7 @@ public class ModulesInstaller {
                     }
                 }
             });
+            Logger.getLogger (ModulesInstaller.class.getName ()).log (Level.INFO, x.getLocalizedMessage (), x);
             tryAgain.setEnabled (getInstallTask () != null);
             Mnemonics.setLocalizedText (tryAgain, getBundle ("InstallerMissingModules_TryAgainButton"));
             NotifyDescriptor nd = new NotifyDescriptor (
@@ -199,7 +200,7 @@ public class ModulesInstaller {
             restartIcon.setToolTipText (getBundle ("InstallerMissingModules_NeedsRestart"));
             restartIcon.startFlashing ();
         } else {
-            continueCreating ();
+            waitToModuleLoaded ();
         }
         /// XXX FindBrokenModules.clearModulesForRepair ();
     }
@@ -212,8 +213,20 @@ public class ModulesInstaller {
         return res;
     }
 
-    private static void continueCreating () {
+    private void waitToModuleLoaded () {
         assert ! SwingUtilities.isEventDispatchThread () : "Cannot be called in EQ.";
+        RequestProcessor.Task waitTask = RequestProcessor.getDefault ().create (new Runnable () {
+            public void run () {
+            }
+        });
+        for (UpdateElement m : modules4install) {
+           while (! m.isEnabled ()) {
+               waitTask.schedule (100);
+               System.out.println ("###: Wait for enable of " + m);
+               waitTask.waitFinished ();
+           }
+        }
+        
     }
     
     private static String getBundle (String key, Object... params) {
