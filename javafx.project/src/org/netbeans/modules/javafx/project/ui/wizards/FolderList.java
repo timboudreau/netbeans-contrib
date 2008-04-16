@@ -172,11 +172,6 @@ public final class FolderList extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 0);
         add(jLabel1, gridBagConstraints);
 
-        roots.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                rootsValueChanged(evt);
-            }
-        });
         jScrollPane1.setViewportView(roots);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -272,11 +267,6 @@ public final class FolderList extends javax.swing.JPanel {
             }
         }
     }//GEN-LAST:event_addButtonActionPerformed
-
-private void rootsValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_rootsValueChanged
-// TODO add your handling code here:
-}//GEN-LAST:event_rootsValueChanged
-    
     
     static boolean isValidRoot (File file, File[] relatedRoots, File projectFolder) {
         Project p;
