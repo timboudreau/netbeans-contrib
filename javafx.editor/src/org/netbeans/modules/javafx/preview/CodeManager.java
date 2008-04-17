@@ -8,23 +8,14 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
 import java.util.Set;
 import java.util.logging.Logger;
-import javax.tools.Diagnostic;
-
 import javax.tools.JavaFileObject.Kind;
-
 import java.lang.reflect.Method;
-
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.javafx.api.ToolProvider;
-import com.sun.javafx.runtime.location.ObjectVariable;
 import java.util.List;
 import javax.tools.JavaFileObject;
-import com.sun.javafx.runtime.sequence.Sequences;
-import com.sun.javafx.runtime.sequence.Sequence;
-import com.sun.scenario.scenegraph.JSGPanel;
 import com.sun.tools.javac.util.JavacFileManager;
 import com.sun.tools.javafx.api.JavafxcTool;
 import java.lang.reflect.Field;
@@ -50,17 +41,28 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
-import com.sun.scenario.scenegraph.SGNode;
 import java.awt.Color;
 import javax.swing.JDesktopPane;
 import javax.tools.Diagnostic;
 
 public class CodeManager {
-    private static final String[] getComponentStrings = {"getComponent", "getJComponent"};
-    private static final String[] frameStrings = {"frame", "window"};
-    private static final String[] getVisualNodeStrings = {"getVisualNode", "getSGNode"};
-    private static final DiagnosticCollector diagnostics = new DiagnosticCollector();
+    private static final String[] getComponentNames = {"getComponent", "getJComponent"};                     // NOI18N
+    private static final String[] frameNames = {"frame", "window"};                                          // NOI18N
+    private static final String[] getVisualNodeNames = {"getVisualNode", "getSGNode"};                       // NOI18N
     
+    private static final String secuencesClassName = "com.sun.javafx.runtime.sequence.Sequences";            // NOI18N
+    private static final String secuenceClassName = "com.sun.javafx.runtime.sequence.Sequence";              // NOI18N
+    private static final String runMethodName = "javafx$run$";                                               // NOI18N
+    private static final String makeMethodName = "make";                                                     // NOI18N
+    private static final String getMethodName = "get";                                                       // NOI18N
+    private static final String jsgPanelClassName = "com.sun.scenario.scenegraph.JSGPanel";                  // NOI18N
+    private static final String sgNodeClassName = "com.sun.scenario.scenegraph.SGNode";                      // NOI18N
+    private static final String setSceneMethodName = "setScene";                                             // NOI18N
+    
+    private static final String dianosticPrefix = "gets javafxc diagnostics: ";                              // NOI18N
+    private static final String noCPFoundPrefix = "No classpath was found for folder: ";                     // NOI18N
+    
+    private static final DiagnosticCollector diagnostics = new DiagnosticCollector();
     public static Object execute(FXDocument doc) {
 
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
@@ -81,10 +83,10 @@ public class CodeManager {
         ClassPath bootCP = ClassPath.getClassPath(fo, ClassPath.BOOT);
         
         if (sourceCP == null) {
-            Logger.getLogger(CodeManager.class.getName()).warning("No classpath was found for folder: " + fo); // NOI18N
+            Logger.getLogger(CodeManager.class.getName()).warning(noCPFoundPrefix + fo); // NOI18N
             return null;
         }
-        String className = sourceCP.getResourceName(fo, '.', false); // NOI18N
+        String className = sourceCP.getResourceName(fo, '.', false);                     // NOI18N
         
         diagnostics.clear();
         
@@ -97,14 +99,14 @@ public class CodeManager {
         
         Map<String, byte[]> oldClassBytes = cut(JavaFXModel.getClassBytes(project), className);
         
-        Map<String, byte[]> classBytes = compile(javaFileObjects, oldClassBytes, sourceCP, bootCP, compileCP, project, tool, standardManager, diagnostics);  
+        Map<String, byte[]> classBytes = compile(javaFileObjects, oldClassBytes, sourceCP, compileCP, bootCP, project, tool, standardManager, diagnostics);  
         JavaFXModel.putClassBytes(project, classBytes);
         
         Object obj = null;
         if (classBytes != null) {
             className = checkCase(classBytes, className);
             try {
-                obj = run(className, executeCP, classBytes);
+                obj = run(className, executeCP, bootCP, classBytes);
             } catch (Exception ex){
                 ex.printStackTrace();
             }
@@ -138,7 +140,7 @@ public class CodeManager {
         System.setProperty("env.class.path", JavaFXSourceUtils.getAdditionalCP(cp));
         */
         
-        MemoryClassLoader mcl = new MemoryClassLoader(compileCP);
+        MemoryClassLoader mcl = new MemoryClassLoader(compileCP, bootCP);
         
         MemoryFileManager manager = new MemoryFileManager(standardManager, mcl);
         manager.setClassBytes(classBytes);
@@ -149,25 +151,25 @@ public class CodeManager {
             Exceptions.printStackTrace(ex);
         }
         
-        options.add("-target");
-        options.add("1.5");
+        options.add("-target");              // NOI18N
+        options.add("1.5");                  // NOI18N
         
-        options.add("-classpath");
-        options.add(compileCP.toString());
+        options.add("-classpath");           // NOI18N
+        options.add(compileCP.toString());   // NOI18N
         
-        options.add("-sourcepath");
-        options.add(sourceCP.toString());
+        options.add("-sourcepath");          // NOI18N
+        options.add(sourceCP.toString());    // NOI18N
         
-        options.add("-bootclasspath");
-        options.add(bootCP.toString());
+        options.add("-bootclasspath");       // NOI18N
+        options.add(bootCP.toString());      // NOI18N
         
-        options.add("-implicit:class");
+        options.add("-implicit:class");      // NOI18N
         
         JavafxcTask task = tool.getTask(err, manager, diagnostics, options, javaFileObjects);
         
         if (!task.call()) {
             for (Diagnostic diag : diagnostics.diagnostics)
-            System.out.println("gets diagnostics: " + diag.getMessage(null));
+            System.out.println(dianosticPrefix + diag.getMessage(null));
             return null;
         }
 
@@ -177,18 +179,21 @@ public class CodeManager {
         return classBytesDone;
     }
         
-    private static Object run(String name, ClassPath classPath, Map<String, byte[]> classBytes) throws Exception {
-        MemoryClassLoader memoryClassLoader = new MemoryClassLoader(classPath);
+    private static Object run(String name, ClassPath execClassPath, ClassPath bootClassPath, Map<String, byte[]> classBytes) throws Exception {
+        MemoryClassLoader memoryClassLoader = new MemoryClassLoader(execClassPath, bootClassPath);
         memoryClassLoader.loadMap(classBytes);
         return run(name, memoryClassLoader);
     }
     
     private static Object run(String name, ClassLoader classLoader) throws Exception {
-        Class cls = classLoader.loadClass(name); 
-        Method run = cls.getDeclaredMethod("javafx$run$", Sequence.class);
-        String[] commandLineArgs = new String[]{};
-        Object args = Sequences.make(String.class, commandLineArgs);
-        Object obj = run.invoke(null, args);
+        Class mainClass = classLoader.loadClass(name); 
+        Class paramClass = classLoader.loadClass(secuenceClassName); 
+        Class sequencesClass = classLoader.loadClass(secuencesClassName); 
+        Method runMethod = mainClass.getDeclaredMethod(runMethodName, paramClass);
+        Object commandLineArgs = new String[]{};
+        Method makeMethod = sequencesClass.getDeclaredMethod(makeMethodName, Class.class, Object[].class);
+        Object args = makeMethod.invoke(null, String.class, commandLineArgs);
+        Object obj = runMethod.invoke(null, args);
         return obj;
     }
     
@@ -196,7 +201,7 @@ public class CodeManager {
         JComponent comp = null;
         try {
             Method getComponent = null;
-            for (String getComponentStr : getComponentStrings) {
+            for (String getComponentStr : getComponentNames) {
                 try {
                     getComponent = obj.getClass().getDeclaredMethod(getComponentStr);
                 } catch (Exception ex) {
@@ -215,7 +220,7 @@ public class CodeManager {
         JComponent comp = null;
         try {
             Field field = null;
-            for (String frameStr : frameStrings) {
+            for (String frameStr : frameNames) {
                 try {
                     field = obj.getClass().getDeclaredField(frameStr);
                 } catch (Exception ex) {
@@ -223,9 +228,10 @@ public class CodeManager {
                 if (field != null) break;
             }
             if (field != null) {
-                ObjectVariable frameObj = (ObjectVariable)field.get(obj);
+                Object frameObj = field.get(obj);
                 if (frameObj != null) {
-                    JFrame frame = (JFrame)frameObj.get();
+                    Method getMethod = frameObj.getClass().getDeclaredMethod(getMethodName);
+                    JFrame frame = (JFrame)getMethod.invoke(frameObj);
                     if (frame != null) {
                         frame.setVisible(false);
                         JInternalFrame intFrame = new JInternalFrame();
@@ -259,7 +265,7 @@ public class CodeManager {
         JComponent comp = null;
         try {
             Method getVisualNode = null;
-            for (String getVisualNodeStr : getVisualNodeStrings) {
+            for (String getVisualNodeStr : getVisualNodeNames) {
                 try {
                     getVisualNode = obj.getClass().getDeclaredMethod(getVisualNodeStr);
                 } catch (Exception ex) {
@@ -267,11 +273,14 @@ public class CodeManager {
                 if (getVisualNode != null) break;
             }
             if (getVisualNode != null) {
-                SGNode sgNode = (SGNode)getVisualNode.invoke(obj);
+                Object sgNode = getVisualNode.invoke(obj);
                 if (sgNode != null) {
-                    JSGPanel panel = new JSGPanel();
-                    panel.setScene(sgNode);
-                    comp = panel;
+                    Class jsgPanelClass = obj.getClass().getClassLoader().loadClass(jsgPanelClassName);
+                    Class sgNodeClass = obj.getClass().getClassLoader().loadClass(sgNodeClassName);
+                    Object panel = jsgPanelClass.newInstance();
+                    Method setSceneMethod = jsgPanelClass.getDeclaredMethod(setSceneMethodName, sgNodeClass);
+                    setSceneMethod.invoke(panel, sgNode);
+                    comp = (JComponent)panel;
                 }
             }  
         } catch (Exception ex) {
@@ -378,7 +387,7 @@ public class CodeManager {
         JavaFXProject project = (JavaFXProject) JavaFXModel.getProject(doc);      
         FileObject fo = ((JavaFXDocument)doc).getDataObject().getPrimaryFile();
         ClassPath sourceCP = ClassPath.getClassPath(fo, ClassPath.SOURCE);
-        String className = sourceCP.getResourceName(fo, '.', false); // NOI18N
+        String className = sourceCP.getResourceName(fo, '.', false);                 // NOI18N
         Map<String, byte[]> newMap = JavaFXModel.getClassBytes(project);
         JavaFXModel.putClassBytes(project, cut(newMap, className));
     }
