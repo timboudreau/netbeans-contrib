@@ -242,5 +242,10 @@ public class PanelOptionsVisual extends SettingsPanel implements ActionListener,
             mainClassTextField.setEnabled(enabled);
         }
     }
+
+    public void fireChangeEvent() {
+        this.panel.fireChangeEvent();
+        
+    }    
 }
 

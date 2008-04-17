@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.OffsetRange;
 
@@ -60,19 +61,15 @@ public class AstScope implements Iterable<AstScope> {
     private boolean scopesSorted;
     private boolean defsSorted;
     private boolean refsSorted;
-    private OffsetRange range;
+    private Token[] boundsTokens;
 
-    public AstScope(OffsetRange range) {
-        this.range = range;
+    public AstScope(Token[] boundsTokens) {
+        assert boundsTokens.length == 2;
+        this.boundsTokens = boundsTokens;
     }
-
-    /** 
-     * @Note only AstRootScope will set tokenHierarchy, the nested scope should 
-     * get it from root scope
-     */
-    protected TokenHierarchy getTokenHierarchy() {
-        assert parent != null : "Only AstRootScope has no parent!";
-        return parent.getTokenHierarchy();
+    
+    public Token[] getBoundsTokens() {
+        return boundsTokens;
     }
 
     public void setBindingDef(AstDef bindingDef) {
@@ -83,10 +80,18 @@ public class AstScope implements Iterable<AstScope> {
         return bindingDef;
     }
 
-    public OffsetRange getRange() {
-        return range;
+    public OffsetRange getRange(TokenHierarchy th) {
+        return new OffsetRange(getOffset(th), getEndOffset(th));
     }
 
+    public int getOffset(TokenHierarchy th) {
+        return boundsTokens[0].offset(th);
+    }
+    
+    public int getEndOffset(TokenHierarchy th) {
+        return boundsTokens[1].offset(th) + boundsTokens[1].length();
+    }
+    
     public AstScope getParent() {
         return parent;
     }
@@ -196,9 +201,9 @@ public class AstScope implements Iterable<AstScope> {
             while (low <= high) {
                 int mid = (low + high) >> 1;
                 AstScope middle = scopes.get(mid);
-                if (offset < middle.getRange().getStart()) {
+                if (offset < middle.getOffset(th)) {
                     high = mid - 1;
-                } else if (offset >= middle.getRange().getEnd()) {
+                } else if (offset >= middle.getEndOffset(th)) {
                     low = mid + 1;
                 } else {
                     return middle.getElement(th, offset);
@@ -285,18 +290,18 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
-    private boolean contains(int offset) {
-        return offset >= range.getStart() && offset < range.getEnd();
+    private boolean contains(TokenHierarchy th, int offset) {
+        return offset >= getOffset(th) && offset < getEndOffset(th);
     }
 
-    public AstScope getClosestScope(int offset) {
+    public AstScope getClosestScope(TokenHierarchy th, int offset) {
         AstScope result = null;
 
         if (scopes != null) {
             /** search children first */
             for (AstScope child : scopes) {
-                if (child.contains(offset)) {
-                    result = child.getClosestScope(offset);
+                if (child.contains(th, offset)) {
+                    result = child.getClosestScope(th, offset);
                     break;
                 }
             }
@@ -304,7 +309,7 @@ public class AstScope implements Iterable<AstScope> {
         if (result != null) {
             return result;
         } else {
-            if (this.contains(offset)) {
+            if (this.contains(th, offset)) {
                 return this;
             } else {
                 /* we should return null here, since it may under a parent context's call, 
@@ -336,8 +341,8 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
-    public <T extends AstDef> T getEnclosingDef(Class<T> clazz, int offset) {
-        AstScope scope = getClosestScope(offset);
+    public <T extends AstDef> T getEnclosingDef(Class<T> clazz, TokenHierarchy th, int offset) {
+        AstScope scope = getClosestScope(th, offset);
         return scope.getEnclosingDef(clazz);
     }
 
@@ -357,7 +362,7 @@ public class AstScope implements Iterable<AstScope> {
 
     @Override
     public String toString() {
-        return "Scope(Binding=" + bindingDef + "," + getRange() + ",defs=" + getDefs() + ",refs=" + getRefs() + ")";
+        return "Scope(Binding=" + bindingDef + "," + ",defs=" + getDefs() + ",refs=" + getRefs() + ")";
     }
 
     private static class ScopeComparator implements Comparator<AstScope> {
@@ -368,7 +373,7 @@ public class AstScope implements Iterable<AstScope> {
         }
 
         public int compare(AstScope o1, AstScope o2) {
-            return o1.getRange().getStart() < o2.getRange().getStart() ? -1 : 1;
+            return o1.getOffset(th) < o2.getOffset(th) ? -1 : 1;
         }
     }
 

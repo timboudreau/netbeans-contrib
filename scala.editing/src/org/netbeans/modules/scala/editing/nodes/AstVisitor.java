@@ -43,7 +43,6 @@ import java.util.Stack;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import xtc.tree.Annotation;
@@ -67,9 +66,7 @@ public abstract class AstVisitor extends Visitor {
 
     public AstVisitor(Node rootNode, TokenHierarchy th) {
         this.th = th;
-        Location loc = rootNode.getLocation();
-        OffsetRange range = new OffsetRange(loc.offset, loc.endOffset);
-        this.rootScope = new AstRootScope(th, range);
+        this.rootScope = new AstRootScope(getBoundsTokens(rootNode));
         scopeStack.push(rootScope);
     }
 
@@ -125,14 +122,15 @@ public abstract class AstVisitor extends Visitor {
         return rootScope;
     }
 
-    protected OffsetRange getRange(Node node) {
+    protected Token[] getBoundsTokens(Node node) {
         Location loc = node.getLocation();
         TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, loc.offset);
         
         ts.move(loc.offset);
         if (!ts.moveNext() && !ts.movePrevious()) {
-            return new OffsetRange(loc.offset, loc.endOffset);
+            assert false : "Should not happen!";
         }
+        
         Token startToken = ScalaLexUtilities.findNextNonWs(ts);
         if (startToken.isFlyweight()) {
             startToken = ts.offsetToken();
@@ -140,14 +138,14 @@ public abstract class AstVisitor extends Visitor {
         
         ts.move(loc.endOffset);
         if (!ts.moveNext() && !ts.movePrevious()) {
-            return new OffsetRange(loc.offset, loc.endOffset);
+            assert false : "Should not happen!";
         }
         Token endToken = ScalaLexUtilities.findPreviousNonWs(ts);
         if (endToken.isFlyweight()) {
             endToken = ts.offsetToken();
         }
         
-        return new OffsetRange(startToken.offset(th), endToken.offset(th) + endToken.length());
+        return new Token[] {startToken, endToken};
     }
 
     /**

@@ -172,6 +172,9 @@
       <Properties>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
+      <Events>
+        <EventHandler event="propertyChange" listener="java.beans.PropertyChangeListener" parameters="java.beans.PropertyChangeEvent" handler="sourcePanelPropertyChange"/>
+      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new FolderList (NbBundle.getMessage(PanelProjectTypesVisual.class,&quot;CTL_SourceRoots&quot;), NbBundle.getMessage(PanelProjectTypesVisual.class,&quot;MNE_SourceRoots&quot;).charAt(0),NbBundle.getMessage(PanelProjectTypesVisual.class,&quot;AD_SourceRoots&quot;), NbBundle.getMessage(PanelProjectTypesVisual.class,&quot;CTL_AddSourceRoot&quot;),&#xa;        NbBundle.getMessage(PanelProjectTypesVisual.class,&quot;MNE_AddSourceFolder&quot;).charAt(0), NbBundle.getMessage(PanelProjectTypesVisual.class,&quot;AD_AddSourceFolder&quot;),NbBundle.getMessage(PanelProjectTypesVisual.class,&quot;MNE_RemoveSourceFolder&quot;).charAt(0), NbBundle.getMessage(PanelProjectTypesVisual.class,&quot;AD_RemoveSourceFolder&quot;));"/>
       </AuxValues>

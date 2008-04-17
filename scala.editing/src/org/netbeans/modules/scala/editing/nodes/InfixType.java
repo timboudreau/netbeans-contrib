@@ -51,7 +51,7 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
 public class InfixType extends TypeRef {
     
     private List<TypeRef> types;
-    private List<String> ops;
+    private List<Id> ops;
     
     public InfixType(Token idToken, ElementKind kind) {
         super(null, idToken, kind);
@@ -65,11 +65,11 @@ public class InfixType extends TypeRef {
         return types;
     }
     
-    public void setOps(List<String> ops) {
+    public void setOps(List<Id> ops) {
         this.ops = ops;
     }
     
-    public List<String> getOps() {
+    public List<Id> getOps() {
         return ops;
     }
 
@@ -78,7 +78,7 @@ public class InfixType extends TypeRef {
         StringBuilder sb = new StringBuilder();
         sb.append(types.get(0).getName());
         for (int i = 1; i < types.size(); i++) {
-            sb.append(" " + ops.get(i - 1) + " ");
+            sb.append(" ").append(ops.get(i - 1).getName()).append(" ");
             sb.append(types.get(i).getName());
         }
         return sb.toString();

@@ -98,6 +98,8 @@ public class ScalaInstantRenamer implements InstantRenamer {
             case FIELD:
             case PARAMETER:
             case VARIABLE:
+            case METHOD:
+            case CALL:            
                 return true;
             // TODO - block renaming of GLOBALS! I should already know
             // what's local and global based on JsSemantic...

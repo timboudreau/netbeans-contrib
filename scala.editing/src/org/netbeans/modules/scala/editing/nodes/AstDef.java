@@ -39,6 +39,7 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.gsf.api.OffsetRange;
@@ -61,9 +62,17 @@ public class AstDef extends AstElement {
         assert bindingScope != null : "Each definition should set binding scope!";
         return bindingScope;
     }
+    
+    public int getOffset(TokenHierarchy th) {
+        return getBindingScope().getOffset(th);
+    }
 
-    public OffsetRange getRange() {
-        return getBindingScope().getRange();
+    public int getEndOffset(TokenHierarchy th) {
+        return getBindingScope().getEndOffset(th);
+    }
+
+    public OffsetRange getRange(TokenHierarchy th) {
+        return getBindingScope().getRange(th);
     }
     
     public boolean referredBy(AstRef ref) {
