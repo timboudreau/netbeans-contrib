@@ -55,8 +55,11 @@ import org.openide.util.Utilities;
  */
 public class ExecutionDescriptor {
     
+    
     File pwd;
     File cmd;
+    /** if rebuildCmd == true, will drop cmd and rebuild cmd via buildArgs() */
+    boolean rebuildCmd;
     boolean addBinPath;
     boolean inputVisible;
     private String displayName;
@@ -98,6 +101,10 @@ public class ExecutionDescriptor {
         this.cmd = cmd;
         assert (cmd != null) && cmd.isFile() : cmd + " is a file";
         return this;
+    }
+    
+    public void rebuildCmd(boolean rebuildCmd) {
+        this.rebuildCmd = rebuildCmd;
     }
 
     public ExecutionDescriptor postBuild(Runnable postBuildAction) {

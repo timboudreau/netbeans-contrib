@@ -292,7 +292,7 @@ final class ScalaConsoleTopComponent extends TopComponent {
         PrintWriter out = new PrintWriter(new PrintStream(taReadline));
         PrintWriter err = new PrintWriter(new PrintStream(taReadline));
         ExecutionDescriptor descriptor = new ExecutionDescriptor("Scala Shell", pwd);
-        descriptor.interactive(true).showProgress(false).showSuspended(false);  
+        descriptor.interactive(true).showProgress(false).showSuspended(false).rebuildCmd(true);  
 //		.initialArgs("-Xmx256M -Xms16M " + "-classpath " + workPath + File.separator + "build ");  
         ExecutionService executionService = new ScalaExecution(descriptor);
         Task task = executionService.run(in, out, err);

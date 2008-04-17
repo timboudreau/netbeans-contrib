@@ -334,11 +334,9 @@ public class ExecutionService {
                             }
                         } else {
                             List<String> commandL = new ArrayList<String>();
-                            /** @TODO we do not have jerl, jscala etc, so, we can always add cmd.getPath(), but how for jruby?
-                            if (!cmd.getName().startsWith("jruby") || RubyExecution.LAUNCH_JRUBY_SCRIPT) { // NOI18N
+                            if (!descriptor.rebuildCmd) {
                                 commandL.add(cmd.getPath());
-                            } */
-                            commandL.add(cmd.getPath());
+                            }
                             
                             List<? extends String> args = buildArgs();
                             commandL.addAll(args);
@@ -467,7 +465,7 @@ public class ExecutionService {
             OutputForwarder err = new OutputForwarder(process.getErrorStream(), targetErr, fileLocator,
                     recognizers, sa, "Error"); // NOI18N
             
-            RequestProcessor PROCESSOR = new RequestProcessor(
+            RequestProcessor rProcessor = new RequestProcessor(
 		    "Process Execution Stream Handler", 3, true); // NOI18N
             
             TaskListener tl =
@@ -478,11 +476,9 @@ public class ExecutionService {
             };
 
             
-            RequestProcessor.Task outTask = PROCESSOR.post(out);
-            RequestProcessor.Task errTask = PROCESSOR.post(err);
-            RequestProcessor.Task inTask = PROCESSOR.post(in);
-
-
+            RequestProcessor.Task outTask = rProcessor.post(out);
+            RequestProcessor.Task errTask = rProcessor.post(err);
+            RequestProcessor.Task inTask  = rProcessor.post(in);
 
             
             outTask.addTaskListener(tl);
@@ -503,7 +499,7 @@ public class ExecutionService {
             errTask.waitFinished();
             inTask.waitFinished();
             
-            PROCESSOR.stop();
+            rProcessor.stop();
         } catch (InterruptedException exc) {
             // XXX Uhm... why do we log this? Isn't this a good thing?
             // This happens if we try to cancel the process for example

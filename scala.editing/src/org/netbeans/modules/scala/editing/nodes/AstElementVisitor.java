@@ -1438,14 +1438,15 @@ public class AstElementVisitor extends AstVisitor {
         expr.setRest(rest);
 
         if (rest.size() > 0 && rest.get(0) instanceof ArgumentExprs) {
-            FunRef funRef = new FunRef(first.getName(), first.getIdToken(), ElementKind.CALL);
+            Id funCall = id.getPaths().get(id.getPaths().size() - 1);
+            FunRef funRef = new FunRef(funCall.getIdToken(), ElementKind.CALL);
             if (id.getPaths().size() > 1) {
-                Id latest = id.getPaths().get(id.getPaths().size() - 1);
                 SimpleExpr funBase = new SimpleExpr(ElementKind.OTHER);
                 funBase.setBase(id.getPaths().remove(id.getPaths().size() - 1));
                 funRef.setBase(funBase);
-                funRef.setOp(latest);
+                funRef.setCall(funCall);
             } else {
+                funRef.setCall(funCall);
                 funRef.setLocal();
             }
 
