@@ -309,7 +309,7 @@ made subject to such option by the copyright holder.
                                 <attr name="template" boolvalue="true"/>
                                 <attr name="file" stringvalue="demos/math/Sine"/>
                             </file>
-                            <file name="SineWave" url="../../../../../../demos/math/SineWave.fx">
+                            <file name="Sine Wave" url="../../../../../../demos/math/SineWave.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
                                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
                                 <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
@@ -341,7 +341,7 @@ made subject to such option by the copyright holder.
                                 <attr name="template" boolvalue="true"/>
                                 <attr name="file" stringvalue="demos/forms/PointsAndLines"/>
                             </file>
-                            <file name="Shape primitives" url="../../../../../../demos/forms/ShapePrimitives.fx">
+                            <file name="Shape Primitives" url="../../../../../../demos/forms/ShapePrimitives.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
                                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
                                 <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
@@ -357,7 +357,7 @@ made subject to such option by the copyright holder.
                                 <attr name="template" boolvalue="true"/>
                                 <attr name="file" stringvalue="demos/image/Displaying"/>
                             </file>
-                            <file name="Background image" url="../../../../../../demos/image/BackgroundImage.fx">
+                            <file name="Background Image" url="../../../../../../demos/image/BackgroundImage.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
                                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
                                 <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
@@ -403,7 +403,7 @@ made subject to such option by the copyright holder.
                                 <attr name="template" boolvalue="true"/>
                                 <attr name="file" stringvalue="demos/motion/Linear"/>
                             </file>
-                            <file name="Bouncy bubbles" url="../../../../../../demos/motion/BouncyBubbles.fx">
+                            <file name="Bouncy Bubbles" url="../../../../../../demos/motion/BouncyBubbles.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
                                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
                                 <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
@@ -447,7 +447,7 @@ made subject to such option by the copyright holder.
                                 <attr name="template" boolvalue="true"/>
                                 <attr name="file" stringvalue="demos/input/Constrain"/>
                             </file>
-                            <file name="Storing input" url="../../../../../../demos/input/StoringInput.fx">
+                            <file name="Storing Input" url="../../../../../../demos/input/StoringInput.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
                                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
                                 <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
@@ -470,14 +470,14 @@ made subject to such option by the copyright holder.
                             </file>
                         </folder>
                         <folder name="Simulation">
-                            <file name="Simple particle system" url="../../../../../../demos/particles/SimpleParticleSystem.fx">
+                            <file name="Simple Particle System" url="../../../../../../demos/particles/SimpleParticleSystem.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
                                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
                                 <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
                                 <attr name="file" stringvalue="demos/particles/SimpleParticleSystem"/>
                             </file>
-                            <file name="Smoke particle system" url="../../../../../../demos/particles/SmokeParticleSystem.fx">
+                            <file name="Smoke Particle System" url="../../../../../../demos/particles/SmokeParticleSystem.fx">
                                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
                                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
                                 <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
