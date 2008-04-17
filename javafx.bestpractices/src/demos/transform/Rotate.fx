@@ -1,8 +1,7 @@
 package transform;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.animation.*;
+import javafx.gui.*;
+import javafx.animation.*;
 
 import java.lang.Math;
 import java.util.Random;
@@ -13,10 +12,10 @@ var jitter : Number = 0.0;
 var random : Random = new Random();
 
 var ticker : Timeline = Timeline {
-    repeatCount: java.lang.Double.POSITIVE_INFINITY // HACK
+    repeatCount: Timeline.INDEFINITE
     keyFrames : 
         KeyFrame {
-            keyTime : 20ms
+            time : 20ms
             action : function(): Void {
                 angle += jitter;
             }
@@ -24,10 +23,10 @@ var ticker : Timeline = Timeline {
 };
 
 var jitterTimeline : Timeline = Timeline {
-    repeatCount: java.lang.Double.POSITIVE_INFINITY // HACK
+    repeatCount: Timeline.INDEFINITE
     keyFrames :
         KeyFrame {
-            keyTime : 1s
+            time : 1s
             action : function(): Void {
                 jitter = random.nextDouble() * 12 - 6;
             }
@@ -37,10 +36,10 @@ var jitterTimeline : Timeline = Timeline {
 Frame {    
     content : Canvas {
         background : Color.GRAY
-        content : Rect {
+        content : Rectangle {
             transform : [ 
-                javafx.ui.canvas.Rotate { angle : bind angle, cx : 100, cy : 100 }, 
-                javafx.ui.canvas.Translate { x : 43, y : 43 } 
+                javafx.gui.Rotate { angle : bind angle, x : 100, y : 100 }, 
+                javafx.gui.Translate { x : 43, y : 43 } 
             ]
             width : 114, height : 114
             fill : Color.WHITE
@@ -51,7 +50,7 @@ Frame {
     title : "Rotate"
     width : 200
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }
+    closeAction : function() { java.lang.System.exit( 0 ); }
 }
 
 ticker.start();
