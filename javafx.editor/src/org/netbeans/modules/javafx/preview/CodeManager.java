@@ -42,12 +42,15 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 import java.awt.Color;
+import java.awt.Window;
 import javax.swing.JDesktopPane;
+import javax.swing.JDialog;
 import javax.tools.Diagnostic;
 
 public class CodeManager {
     private static final String[] getComponentNames = {"getComponent", "getJComponent"};                     // NOI18N
     private static final String[] frameNames = {"frame", "window"};                                          // NOI18N
+    private static final String[] dialogNames = {"jdialog", "jDialog"};                                          // NOI18N
     private static final String[] getVisualNodeNames = {"getVisualNode", "getSGNode"};                       // NOI18N
     
     private static final String secuencesClassName = "com.sun.javafx.runtime.sequence.Sequences";            // NOI18N
@@ -216,7 +219,7 @@ public class CodeManager {
         return comp;
     }
     
-    private static JComponent parseJFrameObj(Object obj) {
+    private static JComponent parseJFrameJDialogObj(Object obj) {
         JComponent comp = null;
         try {
             Field field = null;
@@ -227,18 +230,26 @@ public class CodeManager {
                 }
                 if (field != null) break;
             }
+            if (field == null);
+                for (String frameStr : dialogNames) {
+                    try {
+                        field = obj.getClass().getDeclaredField(frameStr);
+                    } catch (Exception ex) {
+                    }
+                    if (field != null) break;
+                }
             if (field != null) {
                 Object frameObj = field.get(obj);
                 if (frameObj != null) {
                     Method getMethod = frameObj.getClass().getDeclaredMethod(getMethodName);
-                    JFrame frame = (JFrame)getMethod.invoke(frameObj);
+                    Window frame = (Window)getMethod.invoke(frameObj);
                     if (frame != null) {
                         frame.setVisible(false);
                         JInternalFrame intFrame = new JInternalFrame();
                         intFrame.setSize(frame.getSize());
-                        intFrame.setContentPane(frame.getContentPane());
-                        intFrame.setTitle(frame.getTitle());
-                        intFrame.setJMenuBar(frame.getJMenuBar());
+                        intFrame.setContentPane(frame instanceof JFrame ? ((JFrame)frame).getContentPane() : ((JDialog)frame).getContentPane());
+                        intFrame.setTitle(frame instanceof JFrame ? ((JFrame)frame).getTitle() : ((JDialog)frame).getTitle());
+                        intFrame.setJMenuBar(frame instanceof JFrame ? ((JFrame)frame).getJMenuBar() : ((JDialog)frame).getJMenuBar());
                         intFrame.setBackground(frame.getBackground());
                         intFrame.getContentPane().setBackground(frame.getBackground());
                         intFrame.setForeground(frame.getForeground());
@@ -288,11 +299,11 @@ public class CodeManager {
         }
         return comp;
     }
-        
+    
     public static JComponent parseObj(Object obj) {
         JComponent comp = null;
         if ((comp = parseJComponentObj(obj)) == null)
-            if ((comp = parseJFrameObj(obj)) == null)
+            if ((comp = parseJFrameJDialogObj(obj)) == null)
                 comp = parseSGNodeObj(obj);
         return comp;
     }
