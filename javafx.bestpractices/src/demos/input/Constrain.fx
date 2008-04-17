@@ -1,8 +1,7 @@
 package input;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.animation.*;
+import javafx.gui.*;
+import javafx.animation.*;
 
 import java.lang.Math;
 
@@ -14,13 +13,13 @@ var mouseY : Number = 100;
 var mx : Number = 100;
 var my : Number = 100;
 
-var easing : Number = 0.25;
+var easing : Number = 0.05;
 
 var timer : Timeline = Timeline {
-    repeatCount: java.lang.Double.POSITIVE_INFINITY // HACK
+    repeatCount: Timeline.INDEFINITE
     keyFrames :
         KeyFrame {
-            keyTime : 1ms
+            time : 16ms
             action : function() {
                 if( Math.abs( mouseX - mx ) > 0.1 ) {
                     mx = mx + (mouseX - mx ) * easing;
@@ -34,9 +33,22 @@ var timer : Timeline = Timeline {
 
 Frame {
     content : Canvas {
-        background : Color.BLACK
         content : [
-            Rect {
+            Rectangle {
+                width : 200, height : 200
+                fill : Color.BLACK
+                
+                onMouseMoved : function( e : MouseEvent ): Void {
+                    mouseX = e.getX();
+                    if( mouseX < 100 - esize ) { mouseX = 100 - esize };
+                    if( mouseX > 100 + esize ) { mouseX = 100 + esize };
+
+                    mouseY = e.getY();
+                    if( mouseY < 100 - esize ) { mouseY = 100 - esize };
+                    if( mouseY > 100 + esize ) { mouseY = 100 + esize };
+                }
+            },
+            Rectangle {
                 x : 50, y : 50
                 width : 100, height : 100
                 fill : Color.GRAY
@@ -47,23 +59,13 @@ Frame {
                 fill : Color.WHITE
             }
         ]
-
-        onMouseMoved : function( e : MouseEvent ): Void {
-            mouseX = e.x;
-            if( mouseX < 100 - esize ) { mouseX = 100 - esize };
-            if( mouseX > 100 + esize ) { mouseX = 100 + esize };
-
-            mouseY = e.y;
-            if( mouseY < 100 - esize ) { mouseY = 100 - esize };
-            if( mouseY > 100 + esize ) { mouseY = 100 + esize };
-        }
     }
     
     visible : true
     title : "Constrain"
     width : 200
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }
+    closeAction : function() { java.lang.System.exit( 0 ); }
 }
 
 timer.start();

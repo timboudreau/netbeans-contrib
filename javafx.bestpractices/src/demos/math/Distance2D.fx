@@ -1,9 +1,8 @@
 package math;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import java.lang.Math;
+import javafx.gui.*;
 
+import java.lang.Math;
 import java.lang.System;
 
 var distance = 0;
@@ -26,8 +25,8 @@ for( x in [0..10] ) {
         var cx = x * 20 + 10;
         var cy = y * 20 + 10;
         insert Circle {
-            cx : cx
-            cy : cy
+            centerX : cx
+            centerY : cy
             radius : bind dist( mouseX, mouseY, cx, cy ) / max_distance * 20
             fill : Color.WHITE
         } into circles;
@@ -38,17 +37,23 @@ Frame {
     content : Canvas {    
         width : 200
         height : 200
-        background : Color.GRAY   
-        content : circles
-        onMouseMoved : function( e : MouseEvent ): Void {
-            mouseX = e.x;
-            mouseY = e.y;
-        }            
+        content : [ 
+            Rectangle {
+                width : 200, height : 200
+                fill : Color.GRAY
+                
+                onMouseMoved : function( e : MouseEvent ): Void {
+                    mouseX = e.getX();
+                    mouseY = e.getY();
+                }            
+            },
+            circles
+        ]
     };        
     
     visible : true
     title : "Distance 2D"
     width : 200
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }    
+    closeAction : function() { java.lang.System.exit( 0 ); }    
 }
