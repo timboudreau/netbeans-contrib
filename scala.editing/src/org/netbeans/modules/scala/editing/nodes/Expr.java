@@ -40,7 +40,6 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -48,8 +47,13 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public class Expr extends AstElement {
     
-    public Expr(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public Expr(ElementKind kind) {
+        super(kind);
     }
-        
+
+    @Override
+    public String getName() {
+        return "expr";
+    }
+            
 }

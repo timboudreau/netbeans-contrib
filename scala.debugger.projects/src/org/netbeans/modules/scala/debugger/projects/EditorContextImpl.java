@@ -97,6 +97,7 @@ import org.openide.windows.TopComponent;
 
 import org.netbeans.api.java.source.JavaSource;
 
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.JumpList;
 import org.netbeans.modules.gsf.api.CancellableTask;
 import org.netbeans.modules.gsf.api.ElementKind;
@@ -1138,6 +1139,7 @@ public class EditorContextImpl extends EditorContext {
             ErrorManager.getDefault().notify(ex);
             return "";
         }
+        final TokenHierarchy th = TokenHierarchy.get(doc);
         try {
             final int offset = NbDocument.findLineOffset(doc, lineNumber - 1);
             final String[] result = new String[] {""};
@@ -1154,7 +1156,7 @@ public class EditorContextImpl extends EditorContext {
                         return;
                     }
                     AstScope rootScope = ((ScalaParserResult)ci.getEmbeddedResult(ScalaMimeResolver.MIME_TYPE, offset)).getRootScope();
-                    Template tmpl = rootScope.getEnclosingDef(Template.class, offset);
+                    Template tmpl = rootScope.getEnclosingDef(Template.class, th, offset);
                     if (tmpl == null) {
                         ErrorManager.getDefault().log(ErrorManager.WARNING,
                                 "No enclosing class for "+ci.getFileObject()+", offset = "+offset);

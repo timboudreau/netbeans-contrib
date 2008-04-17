@@ -367,14 +367,17 @@ public class ScalaParser implements Parser {
         }
 
         TokenHierarchy th = null;
-        
+
+        BaseDocument doc = null;
         /** If this file is under editing, always get th from incrementally lexed th via opened document */
         JTextComponent target = EditorRegistry.lastFocusedComponent();
-        BaseDocument doc = (BaseDocument) target.getDocument();
-        if (doc != null) {
-            FileObject fo = NbEditorUtilities.getFileObject(doc);
-            if (fo == context.file.getFileObject()) {
-                th = TokenHierarchy.get(doc);
+        if (target != null) {
+            doc = (BaseDocument) target.getDocument();
+            if (doc != null) {
+                FileObject fo = NbEditorUtilities.getFileObject(doc);
+                if (fo == context.file.getFileObject()) {
+                    th = TokenHierarchy.get(doc);
+                }
             }
         }
 

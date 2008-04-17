@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--       
+*     Copyright © 2008 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+<html>
+<head>
+<title>About Running JavaFX Script Applications</title>
+<link rel="StyleSheet" href="nbdocs://org.netbeans.modules.usersguide/org/netbeans/modules/usersguide/ide.css" type="text/css">
+</head>
+<body>
+<h2>About Running JavaFX Script Applications</h2>
+<p> <small><a href="#seealso">See Also</a>&nbsp; </small> 
+<p>Because the IDE builds its project infrastructure directly on top of Apache
+Ant, it uses Ant scripts to run your JavaFX Script applications. </p>
+<p>Typically, the project that contains the program's main class is set as
+	the main project. You can then run the entire application with the Run Main
+	Project command (F6). You can also run any executable class by choosing Run  &gt; Run
+	File  &gt; Run <tt>my_class</tt> (Shift-F6).
+	Alternately, you can run any project that has a main class by right-clicking
+	its project node in the Projects window and choosing Run Project. </p>
+<p>The IDE generates the build script based on the options you enter in your JavaFX project's Project Properties dialog box. You can set the project's main class,
+   runtime arguments, VM arguments, and working directory in the Project Properties
+   dialog box. You can further customize program execution by editing the Ant
+script and Ant properties for the project. </p>
+
+        <ul class="note">
+        <li>For JavaFX projects, the IDE automatically copies any JAR 
+        files on the project's classpath to the <tt>dist/lib</tt> folder.
+        The IDE also adds each of the JAR files 
+        to the Class-Path element in the application JAR's <tt>manifest.mf</tt> 
+        file. This simplifies running the application outside the IDE. </li>
+</ul>  
+
+<dl>
+    <dt><a name="seealso">See Also</a></dt>
+    <dd><a href="run_quickref.html">Running Tasks: Quick Reference</a></dd>  
+    <dd><a href="javafx_run_app.html">Running a JavaFX Application</a></dd>
+    <dd>&nbsp;</dd>
+    <dd><a href="javafx_run_args.html">Setting the Main Class and Runtime Arguments</a></dd>
+    <dd><a href="javafx_run_classpath.html">Setting the Runtime Classpath</a></dd>
+</dl>
+
+
+<hr><small><a href="../credits.html">Legal Notices</a></small>
+
+<table border="0" cellpadding="20">
+<tr><td>&nbsp;</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td>&nbsp;</td></tr>
+</table></body>
+</html>

@@ -1,0 +1,23 @@
+
+
+Document 0
+Delete:  source : <TESTURL>/Hello.groovy
+
+
+
+Document 1
+Indexed:
+  class : Hello
+  class : Hello1
+  class : SecondTestClass
+  class : ThirdTestClass
+  class-ig : hello
+  class-ig : hello1
+  class-ig : secondtestclass
+  class-ig : thirdtestclass
+  fqn : foo.Hello
+  fqn : foo.Hello1
+  fqn : foo.SecondTestClass
+  fqn : foo.ThirdTestClass
+
+Not Indexed:

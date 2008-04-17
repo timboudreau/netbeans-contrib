@@ -42,6 +42,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.text.Document;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OccurrencesFinder;
@@ -110,7 +112,17 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
 
         Map<OffsetRange, ColoringAttributes> highlights = new HashMap<OffsetRange, ColoringAttributes>(100);
 
-        AstElement closest = rootScope.getElement(caretPosition);
+        final Document document;
+        try {
+            document = info.getDocument();
+        } catch (Exception e) {
+            Exceptions.printStackTrace(e);
+            return;
+        }
+
+        final TokenHierarchy th = TokenHierarchy.get(document);
+        
+        AstElement closest = rootScope.getElement(th, caretPosition);
 
         int astOffset = AstUtilities.getAstOffset(info, caretPosition);
         if (astOffset == -1) {
@@ -146,7 +158,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
                 doc.readLock();
                 try {
                     int length = doc.getLength();
-                    OffsetRange astRange = closest.getNameRange();
+                    OffsetRange astRange = ScalaLexUtilities.getRangeOfToken(th, closest.getIdToken());
                     OffsetRange lexRange = ScalaLexUtilities.getLexerOffsets(info, astRange);
                     int lexStartPos = lexRange.getStart();
                     int lexEndPos   = lexRange.getEnd();
@@ -214,8 +226,8 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
 
         if (closest != null) {
             List<AstElement> _occurrences = rootScope.findOccurrences(closest);
-            for (AstElement signature : _occurrences) {
-                highlights.put(signature.getNameRange(), ColoringAttributes.MARK_OCCURRENCES);
+            for (AstElement element : _occurrences) {
+                highlights.put(ScalaLexUtilities.getRangeOfToken(th, element.getIdToken()), ColoringAttributes.MARK_OCCURRENCES);
             }
             closest = null;
         }

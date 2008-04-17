@@ -39,8 +39,8 @@
 
 package org.netbeans.modules.scala.editing.nodes;
 
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  * Id may be AstDefinition or AstUsage, so extends AstElement
@@ -49,8 +49,8 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public class Id extends AstElement {
 
-    public Id(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public Id(String name, Token idToken, ElementKind kind) {
+        super(name, idToken, kind);
     }
         
 }

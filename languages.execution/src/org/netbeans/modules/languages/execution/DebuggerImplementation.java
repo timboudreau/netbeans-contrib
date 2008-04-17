@@ -44,6 +44,8 @@ package org.netbeans.modules.languages.execution;
 
 /**
  * Ability for ExcecutionService run in debug mode.
+ * 
+ * @author Caoyuan Deng
  */
 public interface DebuggerImplementation {
     

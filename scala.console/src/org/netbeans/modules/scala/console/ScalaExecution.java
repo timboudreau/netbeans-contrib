@@ -42,13 +42,11 @@ package org.netbeans.modules.scala.console;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.netbeans.api.queries.FileEncodingQuery;
 import org.netbeans.modules.languages.execution.ExecutionDescriptor;
 import org.netbeans.modules.languages.execution.ExecutionService;
 import org.netbeans.modules.languages.execution.RegexpOutputRecognizer;
@@ -56,7 +54,6 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
 
@@ -65,12 +62,12 @@ import org.openide.util.Utilities;
  * setting environment required for Scala.
  * 
  * @todo Set scala home via installed scala platform
- * @todo Set HTTP_PROXY in the launched process, as is done for GemManager?
- *   See issue 111680 for details - http://www.netbeans.org/issues/show_bug.cgi?id=111680
  * 
- * @author Tor Norbye
+ * @author Caoyuan Deng
  */
 public class ScalaExecution extends ExecutionService {
+    
+    private static final String SCALA_MAIN_CLASS = "scala.tools.nsc.MainGenericRunner"; // NOI18N
     
     private static final String WINDOWS_DRIVE = "(?:\\S{1}:[\\\\/])"; // NOI18N
     private static final String FILE_CHAR = "[^\\s\\[\\]\\:\\\"]"; // NOI18N
@@ -81,7 +78,7 @@ public class ScalaExecution extends ExecutionService {
     private static final String SEP = "\\:"; // NOI18N
     private static final String STD_SUFFIX = FILE + SEP + LINE + ROL;
     
-    private static List<RegexpOutputRecognizer> stdRubyRecognizers;
+    private static List<RegexpOutputRecognizer> stdScalaRecognizers;
 
     private static final RegexpOutputRecognizer RUBY_COMPILER =
         new RegexpOutputRecognizer(".*?" + STD_SUFFIX); // NOI18N
@@ -102,12 +99,6 @@ public class ScalaExecution extends ExecutionService {
     // TODO - add some more recognizers here which recognize the prefix path to Ruby (gems, GEM_HOME, etc.) such that I
     // can hyperlink to errors in the "rake", "rails" etc. load scripts
 
-    /** When not set (the default) do stdio syncing for native Ruby binaries */
-    private static final boolean SYNC_RUBY_STDIO = System.getProperty("ruby.no.sync-stdio") == null; // NOI18N
-
-    /** Set to suppress using the -Kkcode flag in case you're using a weird interpreter which doesn't support it */
-    //private static final boolean SKIP_KCODE = System.getProperty("ruby.no.kcode") == null; // NOI18N
-    private static final boolean SKIP_KCODE = true;
     
     /** When not set (the default) bypass the JRuby launcher unix/ba-file scripts and launch VM directly */
     public static final boolean LAUNCH_JRUBY_SCRIPT =
@@ -134,31 +125,48 @@ public class ScalaExecution extends ExecutionService {
     }
     
     public synchronized static List<? extends RegexpOutputRecognizer> getStandardRubyRecognizers() {
-        if (stdRubyRecognizers == null) {
-            stdRubyRecognizers = new LinkedList<RegexpOutputRecognizer>();
-            stdRubyRecognizers.add(ScalaExecution.RAILS_RECOGNIZER);
-            stdRubyRecognizers.add(ScalaExecution.RUBY_COMPILER_WIN_MY);
-            stdRubyRecognizers.add(ScalaExecution.RUBY_COMPILER);
-            stdRubyRecognizers.add(ScalaExecution.RUBY_COMPILER_WIN);
+        if (stdScalaRecognizers == null) {
+            stdScalaRecognizers = new LinkedList<RegexpOutputRecognizer>();
+            stdScalaRecognizers.add(ScalaExecution.RAILS_RECOGNIZER);
+            stdScalaRecognizers.add(ScalaExecution.RUBY_COMPILER_WIN_MY);
+            stdScalaRecognizers.add(ScalaExecution.RUBY_COMPILER);
+            stdScalaRecognizers.add(ScalaExecution.RUBY_COMPILER_WIN);
         }
-        return stdRubyRecognizers;
+        return stdScalaRecognizers;
     }
 
     /**
-     * Returns the basic Ruby interpreter command and associated flags (not
+     * Returns the basic Scala interpreter command and associated flags (not
      * application arguments)
      */
-    public static List<? extends String> getRubyArgs(String rubyHome, String cmdName) {
-        return new ScalaExecution(null).getRubyArgs(rubyHome, cmdName, null);
+    public static List<? extends String> getScalaArgs(String scalaHome, String cmdName) {
+        return new ScalaExecution(null).getScalaArgs(scalaHome, cmdName, null);
     }
 
-    private List<? extends String> getRubyArgs(String rubyHome, String cmdName, ExecutionDescriptor descriptor) {
+    /**
+     * 
+     * java -Xmx768M -Xms16M
+     *      -Xbootclasspath/a:/${SCALA_HOME}/lib/scala-library.jar 
+     *      -cp ${SCALA_HOME}/lib/jline.jar:
+     *          ${SCALA_HOME}/lib/sbaz-tests.jar:
+     *          ${SCALA_HOME}/lib/sbaz.jar:
+     *          ${SCALA_HOME}/lib/scala-compiler.jar:
+     *          ${SCALA_HOME}/lib/scala-dbc.jar:
+     *          ${SCALA_HOME}/lib/scala-decoder.jar:
+     *          ${SCALA_HOME}/lib/scala-library.jar 
+     *      -Dscala.home=${SCALA_HOME} 
+     *      -Denv.classpath= 
+     *      -Denv.emacs= 
+     *      -Djline.terminal=jline.UnsupportedTerminal
+     *      scala.tools.nsc.MainGenericRunner
+     */    
+    private List<? extends String> getScalaArgs(String scalaHome, String cmdName, ExecutionDescriptor descriptor) {
         List<String> argvList = new ArrayList<String>();
         // Decide whether I'm launching JRuby, and if so, take a shortcut and launch
         // the VM directly. This is important because killing JRuby via the launcher script
         // is not working right; now that JRuby on Unix exec's the VM that part is okay but
         // on Windows there are still problems.        
-        if (!LAUNCH_JRUBY_SCRIPT && cmdName.startsWith("jruby")) { // NOI18N
+        if (cmdName.equals("scala")) { // NOI18N
             String javaHome = getJavaHome();
 
             argvList.add(javaHome + File.separator + "bin" + File.separator + // NOI18N
@@ -169,9 +177,9 @@ public class ScalaExecution extends ExecutionService {
             argvList.add("-Xverify:none"); // NOI18N
             argvList.add("-da"); // NOI18N
             
-            String extraArgs = System.getenv("JRUBY_EXTRA_VM_ARGS"); // NOI18N
+            String extraArgs = System.getenv("SCALA_EXTRA_VM_ARGS"); // NOI18N
 
-            String javaMemory = "-Xmx256m"; // NOI18N
+            String javaMemory = "-Xmx512m"; // NOI18N
             String javaStack = "-Xss1024k"; // NOI18N
             
             if (extraArgs != null) {
@@ -181,8 +189,8 @@ public class ScalaExecution extends ExecutionService {
                 if (extraArgs.indexOf("-Xss") != -1) { // NOI18N
                     javaStack = null;
                 }
-                String[] jrubyArgs = Utilities.parseParameters(extraArgs);
-                for (String arg : jrubyArgs) {
+                String[] scalaArgs = Utilities.parseParameters(extraArgs);
+                for (String arg : scalaArgs) {
                     argvList.add(arg);
                 }
             }
@@ -194,105 +202,56 @@ public class ScalaExecution extends ExecutionService {
                 argvList.add(javaStack);
             }
             
-            // Classpath
-            argvList.add("-classpath"); // NOI18N
-
-            File rubyHomeDir = null;
-
+            File scalaHomeDir = null;
+            
             try {
-                rubyHomeDir = new File(rubyHome);
-                rubyHomeDir = rubyHomeDir.getCanonicalFile();
+                scalaHomeDir = new File(scalaHome);
+                scalaHomeDir = scalaHomeDir.getCanonicalFile();
             } catch (IOException ioe) {
                 Exceptions.printStackTrace(ioe);
             }
 
-            File jrubyLib = new File(rubyHomeDir, "lib"); // NOI18N
-            assert jrubyLib.exists() : '"' + jrubyLib.getAbsolutePath() + "\" exists (\"" + descriptor.getCmd() + "\" is not valid JRuby executable?)";
+            File scalaLib = new File(scalaHomeDir, "lib"); // NOI18N
+            assert scalaLib.exists() : '"' + scalaLib.getAbsolutePath() + "\" exists (\"" + descriptor.getCmd() + "\" is not valid Scala executable?)";
 
-            argvList.add(computeJRubyClassPath(
-                    descriptor == null ? null : descriptor.getClassPath(), jrubyLib));
+            // BootClassPath
+            argvList.add("-Xbootclasspath/a:" + scalaLib.getAbsolutePath() + File.separator + "scala-library.jar");            
             
-            argvList.add("-Djruby.base=" + rubyHomeDir); // NOI18N
-            argvList.add("-Djruby.home=" + rubyHomeDir); // NOI18N
-            argvList.add("-Djruby.lib=" + jrubyLib); // NOI18N
+            // Classpath
+            argvList.add("-classpath"); // NOI18N
+
+
+            argvList.add(computeScalaClassPath(
+                    descriptor == null ? null : descriptor.getClassPath(), scalaLib));
+            
+            argvList.add("-Dscala.home=" + scalaHomeDir); // NOI18N
+            
+            
+            /** 
+             * @Note:
+             * jline's UnitTerminal will hang in my Mac OS, when call "stty(...)", why? 
+             * Also, from Scala-2.7.1, jline is used for scala shell, we should 
+             * disable it here by add "-Djline.terminal=jline.UnsupportedTerminal"
+             */
+            argvList.add("-Djline.terminal=jline.UnsupportedTerminal"); //NOI18N
             
             // TODO - turn off verifier?
 
-            if (Utilities.isWindows()) {
-                argvList.add("-Djruby.shell=\"cmd.exe\""); // NOI18N
-                argvList.add("-Djruby.script=jruby.bat"); // NOI18N
-            } else {
-                argvList.add("-Djruby.shell=/bin/sh"); // NOI18N
-                argvList.add("-Djruby.script=jruby"); // NOI18N
-            }
-
             // Main class
-            argvList.add("org.jruby.Main"); // NOI18N
-
-            // TODO: JRUBYOPTS
+            argvList.add(SCALA_MAIN_CLASS); // NOI18N
 
             // Application arguments follow
         }
         
-        if (!SKIP_KCODE && cmdName.startsWith("ruby")) { // NOI18N
-            String cs = charsetName;
-            if (cs == null) {
-            // Add project encoding flags
-                FileObject fo = descriptor.getFileObject();
-                if (fo != null) {
-                    Charset charset = FileEncodingQuery.getEncoding(fo);
-                    if (charset != null) {
-                        cs = charset.name();
-                    }
-                }
-            }
-
-            if (cs != null) {
-                if (cs.equals("UTF-8")) { // NOI18N
-                    argvList.add("-Ku"); // NOI18N
-                //} else if (cs.equals("")) {
-                // What else???
-                }
-            }
-        }
-
-        // Is this a native Ruby process? If so, do sync-io workaround.
-        if (SYNC_RUBY_STDIO && cmdName.startsWith("ruby")) { // NOI18N
-
-            int dot = cmdName.indexOf('.');
-
-            if ((dot == -1) || (dot == 4) || (dot == 5)) { // 5: rubyw
-
-                InstalledFileLocator locator = InstalledFileLocator.getDefault();
-                File f =
-                    locator.locate("modules/org-netbeans-modules-ruby-project.jar", // NOI18N
-                        null, false); // NOI18N
-
-                if (f == null) {
-                    throw new RuntimeException("Can't find cluster"); // NOI18N
-                }
-
-                f = new File(f.getParentFile().getParentFile().getAbsolutePath() + File.separator +
-                        "sync-stdio.rb"); // NOI18N
-
-                try {
-                    f = f.getCanonicalFile();
-                } catch (IOException ioe) {
-                    Exceptions.printStackTrace(ioe);
-                }
-
-                argvList.add("-r" + f.getAbsolutePath()); // NOI18N
-            }
-        }
         return argvList;
     }
 
     @Override
     protected List<? extends String> buildArgs() {
         List<String> argvList = new ArrayList<String>();
-        String rubyHome = descriptor.getCmd().getParentFile().getParent();
+        String scalaHome = getScalaHome();
         String cmdName = descriptor.getCmd().getName();
-        argvList.addAll(getRubyArgs(rubyHome, cmdName, descriptor));
+        argvList.addAll(getScalaArgs(scalaHome, cmdName, descriptor));
         argvList.addAll(super.buildArgs());
         return argvList;
     }
@@ -372,9 +331,9 @@ public class ScalaExecution extends ExecutionService {
     }
     
     /** Package-private for unit test. */
-    static String computeJRubyClassPath(String extraCp, final File jrubyLib) {
+    static String computeScalaClassPath(String extraCp, final File scalaLib) {
         StringBuilder cp = new StringBuilder();
-        File[] libs = jrubyLib.listFiles();
+        File[] libs = scalaLib.listFiles();
 
         for (File lib : libs) {
             if (lib.getName().endsWith(".jar")) { // NOI18N
@@ -410,7 +369,7 @@ public class ScalaExecution extends ExecutionService {
         }
 
         if (extraCp == null) {
-            extraCp = System.getenv("JRUBY_EXTRA_CLASSPATH"); // NOI18N
+            extraCp = System.getenv("SCALA_EXTRA_CLASSPATH"); // NOI18N
         }
 
         if (extraCp != null) {

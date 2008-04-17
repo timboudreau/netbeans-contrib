@@ -40,7 +40,6 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -51,8 +50,8 @@ public class AssignmentExpr extends Expr {
     private Expr lhs;
     private Expr rhs;
     
-    public AssignmentExpr(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public AssignmentExpr(ElementKind kind) {
+        super(kind);
     }
 
     public void setLhs(Expr lhs) {

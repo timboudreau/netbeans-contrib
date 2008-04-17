@@ -38,14 +38,19 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.text.Document;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.SemanticAnalyzer;
+import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.openide.util.Exceptions;
 
 /**
  *  
@@ -92,7 +97,7 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         if (rootScope == null) {
             return;
         }
-        
+
         Map<OffsetRange, ColoringAttributes> highlights = new HashMap<OffsetRange, ColoringAttributes>(100);
         visitScopeRecursively(info, rootScope, highlights);
 
@@ -116,20 +121,30 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
     }
 
     private void visitScopeRecursively(CompilationInfo info, AstScope scope, Map<OffsetRange, ColoringAttributes> highlights) {
+        final Document document;
+        try {
+            document = info.getDocument();
+        } catch (Exception e) {
+            Exceptions.printStackTrace(e);
+            return;
+        }
+
+        final TokenHierarchy th = TokenHierarchy.get(document);
+
         for (AstElement definition : scope.getDefs()) {
-            OffsetRange nameRange = definition.getNameRange();
+            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, definition.getIdToken());
             switch (definition.getKind()) {
                 case MODULE:
-                    highlights.put(nameRange, ColoringAttributes.CLASS);
+                    highlights.put(idRange, ColoringAttributes.CLASS);
                     break;
                 case CLASS:
-                    highlights.put(nameRange, ColoringAttributes.CLASS);
+                    highlights.put(idRange, ColoringAttributes.CLASS);
                     break;
                 case METHOD:
-                    highlights.put(nameRange, ColoringAttributes.METHOD);
+                    highlights.put(idRange, ColoringAttributes.METHOD);
                     break;
                 case FIELD:
-                    highlights.put(nameRange, ColoringAttributes.FIELD);
+                    highlights.put(idRange, ColoringAttributes.FIELD);
                     break;
                 default:
             }

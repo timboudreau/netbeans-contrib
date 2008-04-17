@@ -40,7 +40,6 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -48,8 +47,8 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public class Type extends AstDef {
     
-    public Type(String name, OffsetRange nameRange, AstScope bindingScope) {
-        super(name, nameRange, bindingScope, ElementKind.CLASS);
+    public Type(Id id, AstScope bindingScope) {
+        super(id.getName(), id.getIdToken(), bindingScope, ElementKind.CLASS);
     }
 
 }

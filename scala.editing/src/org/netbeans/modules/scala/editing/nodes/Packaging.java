@@ -36,49 +36,69 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author Caoyuan Deng
  */
 public class Packaging extends AstDef {
-    
+
     private List<Id> ids;
     private List<List<Id>> imports;
     private boolean top;
-    
-    public Packaging(String name, OffsetRange nameRange, AstScope bindingScope) {
-        super(name, nameRange, bindingScope, ElementKind.PACKAGE);
+
+    public Packaging(Token idToken, AstScope bindingScope) {
+        super(null, idToken, bindingScope, ElementKind.PACKAGE);
     }
-    
+
     public void setIds(List<Id> ids) {
         this.ids = ids;
     }
-    
+
     public List<Id> getIds() {
         return ids == null ? Collections.<Id>emptyList() : ids;
     }
-    
+
     public void setImports(List<List<Id>> imports) {
         this.imports = imports;
     }
-    
+
     public List<List<Id>> getImports() {
         return imports;
     }
+
+    @Override
+    public String getName() {
+        return getQualifiedName();
+    }    
     
+    @Override
+    public String getQualifiedName() {
+        if (qualifiedName == null) {
+            StringBuilder sb = new StringBuilder();
+            for (Iterator<Id> itr = getIds().iterator(); itr.hasNext();) {
+                sb.append(itr.next().getName());
+                if (itr.hasNext()) {
+                    sb.append(".");
+                }
+            }
+            qualifiedName = sb.toString();
+        }
+        return qualifiedName;
+    }
+
     public void setTop() {
         top = true;
     }
-    
+
     public boolean isTop() {
         return top;
     }
@@ -86,6 +106,5 @@ public class Packaging extends AstDef {
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-    }        
-
+    }
 }

@@ -42,9 +42,9 @@ package org.netbeans.modules.scala.editing.nodes;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
@@ -52,24 +52,39 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  */
 public class SimpleSingletonType extends SimpleType {
     
-    private List<AstElement> ids;
+    private List<Id> ids;
     
-    public SimpleSingletonType(String name, OffsetRange nameRange, ElementKind kind) {
-        super(name, nameRange, kind);
+    public SimpleSingletonType(Token idToken, ElementKind kind) {
+        super(null, idToken, kind);
     }
     
-    public void setIds(List<AstElement> ids) {
+    public void setIds(List<Id> ids) {
         this.ids = ids;
     }
     
-    public List<AstElement> getIds() {
-        return ids == null ? Collections.<AstElement>emptyList() : ids;
+    public List<Id> getIds() {
+        return ids == null ? Collections.<Id>emptyList() : ids;
     }
+
+    @Override
+    public String getName() {
+        StringBuilder sb = new StringBuilder();
+        for (Iterator<Id> itr = getIds().iterator(); itr.hasNext();) {
+            sb.append(itr.next().getName());
+            if (itr.hasNext()) {
+                sb.append(".");
+            }
+        }
+        sb.append(".type");
+        sb.append(getTypeArgsName());
+        return sb.toString();
+    }
+
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-        for (Iterator<AstElement> itr = getIds().iterator(); itr.hasNext();) {
+        for (Iterator<Id> itr = getIds().iterator(); itr.hasNext();) {
             formatter.appendText(itr.next().getName());
             if (itr.hasNext()) {
                 formatter.appendText(".");
