@@ -47,11 +47,13 @@ import org.netbeans.api.java.classpath.ClassPath;
 class MemoryClassLoader extends ClassLoader {
 
     Map<String, byte[]> classBytes;
-    ClassPath classPath;
+    ClassLoader execClassLoader;
+    ClassLoader bootClassLoader;
 
-    public MemoryClassLoader(ClassPath classPath) {
+    public MemoryClassLoader(ClassPath execClassPath, ClassPath bootClassPath) {
         classBytes = new HashMap<String, byte[]>();
-        this.classPath = classPath;
+        this.bootClassLoader = bootClassPath.getClassLoader(false);
+        this.execClassLoader = execClassPath.getClassLoader(false);
     }
 
     public void loadMap(Map<String, byte[]> classBytes) throws ClassNotFoundException {
@@ -62,19 +64,26 @@ class MemoryClassLoader extends ClassLoader {
 
     @Override
     protected URL findResource(String name) {
-        return classPath.getClassLoader(false).getResource(name);
+        URL url = execClassLoader.getResource(name);
+        if (url == null)
+            return bootClassLoader.getResource(name);
+        else
+            return url;
     }
 
     protected synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
- 
         if (classBytes.get(name) == null) {
             try {
                 return super.findClass(name);
             } catch (ClassNotFoundException e) {
                 try {
-                    return Thread.currentThread().getContextClassLoader().loadClass(name);
+                    return execClassLoader.loadClass(name);
                 } catch  (ClassNotFoundException ex) {
-                    return classPath.getClassLoader(false).loadClass(name);
+                    try {
+                        return bootClassLoader.loadClass(name);
+                    } catch (ClassNotFoundException exx) {
+                        return Thread.currentThread().getContextClassLoader().loadClass(name);
+                    }
                 }
             }
         }
