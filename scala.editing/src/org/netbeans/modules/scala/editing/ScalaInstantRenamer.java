@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.text.Document;
-import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.InstantRenamer;

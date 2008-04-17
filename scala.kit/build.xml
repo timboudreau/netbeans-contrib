@@ -7,6 +7,8 @@
 	<ant dir="../../contrib/xtc"/>
         <ant dir="../../contrib/languages.execution"/>
         <ant dir="../../contrib/scala.editing"/>
+        <ant dir="../../contrib/scala.platform"/>
+        <ant dir="../../contrib/scala.stdplatform"/>
         <ant dir="../../contrib/scala.project"/>
         <ant dir="../../contrib/scala.console"/>
         <ant dir="../../contrib/scala.debugger.projects"/>
@@ -19,6 +21,8 @@
         <ant dir="../../contrib/scala.debugger.projects" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/scala.console" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/scala.project" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/scala.stdplatform" inheritAll="false" target="clean"/>
+        <ant dir="../../contrib/scala.platform" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/scala.editing" inheritAll="false" target="clean"/>
         <ant dir="../../contrib/languages.execution" inheritAll="false" target="clean"/>
 	<ant dir="../../contrib/xtc" inheritAll="false" target="clean"/>
