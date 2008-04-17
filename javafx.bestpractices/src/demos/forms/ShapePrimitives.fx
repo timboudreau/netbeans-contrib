@@ -1,7 +1,6 @@
 package forms;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.gui.*;
 
 Frame {
     content : Canvas {    
@@ -11,7 +10,7 @@ Frame {
             points : [ 10, 10, 10, 200, 45, 200 ]
             fill : Color.LIGHTGREY
         },
-        Rect {
+        Rectangle {
             x : 45
             y : 34
             width : 35
@@ -23,8 +22,8 @@ Frame {
             fill : Color.LIGHTGREY
         },
         Circle {
-            cx : 140
-            cy : 80
+            centerX : 140
+            centerY : 80
             radius : 20
             fill : Color.LIGHTGREY
         },
@@ -39,5 +38,5 @@ Frame {
     title : "Shape Primitives"
     width : 200
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }
+    closeAction : function() { java.lang.System.exit( 0 ); }
 }
