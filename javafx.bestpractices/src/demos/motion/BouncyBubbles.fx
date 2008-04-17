@@ -1,8 +1,7 @@
 package motion;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.animation.*;
+import javafx.gui.*;
+import javafx.animation.*;
 
 import java.lang.Math;
 import java.util.Random;
@@ -16,10 +15,10 @@ var width : Number = 200;
 var height : Number = 200;
 
 var timer : Timeline = Timeline {
-    repeatCount: java.lang.Double.POSITIVE_INFINITY
+    repeatCount: Timeline.INDEFINITE
     keyFrames : 
         KeyFrame {
-            keyTime : 16ms
+            time : 16ms
             action : function() : Void {
                 for( bubble in bubbles ) {
                     bubble.collide( bubbles, spring, width, height );
@@ -47,12 +46,12 @@ Frame {
     title : "Bouncy Bubbles"
     width : 200
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }
+    closeAction : function() { java.lang.System.exit( 0 ); }
 }
 
 timer.start();
 
-public class Bubble extends CompositeNode {
+public class Bubble extends CustomNode {
     
     public attribute x : Number;
     public attribute y : Number;
@@ -108,9 +107,9 @@ public class Bubble extends CompositeNode {
         }
     }
     
-    public function composeNode(): Node {
+    public function create(): Node {
         return Circle {
-            cx : bind x, cy : bind y, radius : bind radius
+            centerX : bind x, centerY : bind y, radius : bind radius
             fill : bind color
         };
     }

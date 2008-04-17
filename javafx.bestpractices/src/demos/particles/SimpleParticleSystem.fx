@@ -1,20 +1,18 @@
 package particles;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.animation.*;
+import javafx.gui.*;
+import javafx.animation.*;
 
 import java.lang.Math;
 import java.lang.System;
 
-    
 var parts : Particle[];
 
 var timeline : Timeline = Timeline {
-    repeatCount: java.lang.Double.POSITIVE_INFINITY // HACK
+    repeatCount: Timeline.INDEFINITE
     keyFrames : 
         KeyFrame {
-            keyTime : 16.6ms
+            time : 16.6ms
             action: function() {
                 update();
             }                
@@ -31,11 +29,10 @@ function update() : Void {
        accy : 0.05
        timer : 100
     } into parts;
-    var i = sizeof parts -1;
+    var i = sizeof parts - 1;
     while( i >= 0 ) {
        parts[i.intValue()].update();
        if (parts[i.intValue()].isdead()) {
-           System.out.println( "Dead!" );
            delete parts[i.intValue()];
        }
        i--;
@@ -52,12 +49,12 @@ Frame {
     title : "Simple Particle System"
     width : 200
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }
+    closeAction : function() { java.lang.System.exit( 0 ); }
 }
 
 timeline.start();
 
-public class Particle extends CompositeNode {
+public class Particle extends CustomNode {
     attribute x : Number;
     attribute y : Number;
     attribute vx : Number;
@@ -66,10 +63,10 @@ public class Particle extends CompositeNode {
     attribute accy : Number;
     attribute timer : Number;
     
-    function composeNode(): Node {
+    function create(): Node {
        return Circle {
-           cx: bind x
-           cy: bind y
+           centerX: bind x
+           centerY: bind y
            radius: 5
            fill: Color.WHITE
            opacity: bind timer / 100
