@@ -1,7 +1,6 @@
 package forms;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.gui.*;
 
 var d = 40;
 var p1 = d;
@@ -93,5 +92,5 @@ Frame {
     title : "Points And Lines"
     width : 200
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }
+    closeAction : function() { java.lang.System.exit( 0 ); }
 }

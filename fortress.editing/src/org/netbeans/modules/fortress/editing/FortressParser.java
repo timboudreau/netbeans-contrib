@@ -40,9 +40,7 @@
  */
 package org.netbeans.modules.fortress.editing;
 
-import com.sun.fortress.nodes.AbstractNode;
 import com.sun.fortress.nodes.Node;
-import com.sun.fortress.nodes_util.NodeUtil;
 import com.sun.fortress.parser.Fortress;
 import java.io.IOException;
 import java.io.Reader;
@@ -371,34 +369,35 @@ public class FortressParser implements Parser {
 
         Node node = null;
         try {
+            ParseError error = null;
             Result r = parser.pFile(0);
             if (r.hasValue()) {
                 SemanticValue v = (SemanticValue) r;
                 node = (Node) v.value;
-                String dump = NodeUtil.dump((AbstractNode) node);
-                System.out.println(dump);
+
             } else {
+                error = r.parseError();
+            }
+
+            if (error != null) {
                 if (!ignoreErrors) {
                     int start = 0;
-                    ParseError e = r.parseError();
-                    if (e.index != -1) {
-                        //Location location = parser.location(e.index);
-                        //start = getOffset(context, location.line - 1, location.column);
-                        start = e.index;
+                    if (error.index != -1) {
+                        start = error.index;
                     }
-                    notifyError(context, "SYNTAX_ERROR", e.msg,
-                            start, start, sanitizing, Severity.ERROR, new Object[]{e.index, e});
+                    notifyError(context, "SYNTAX_ERROR", error.msg,
+                            start, start, sanitizing, Severity.ERROR, new Object[]{error.index, error});
                 }
 
-                System.err.println(r.parseError().msg);
+                System.err.println(error.msg);
             }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (IllegalArgumentException e) {
-            // An internal exception thrown by Fortress, just catch it and notify
+            // An internal exception thrown by Parser, just catch it and notify
             notifyError(context, "SYNTAX_ERROR", e.getMessage(),
                     0, 0, sanitizing, Severity.ERROR, new Object[]{e});
-        }
+        } 
 
 
         if (node != null) {
