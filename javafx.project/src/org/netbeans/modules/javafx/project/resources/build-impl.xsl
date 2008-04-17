@@ -689,6 +689,7 @@ is divided into following sections:
                              srcdir="${{src.dir}}" target="${{javac.target}}"
                              bootclasspath="${{platform.bootcp}}"
                              classpath="${{build.classes.dir}}:${{javac.classpath}}"
+                             fork="yes"
                              compilerclasspath="${{platform.bootcp}}">
                         <compilerarg line="${{javac.compilerargs}}"/>
                     </javafxc>
@@ -719,6 +720,7 @@ is divided into following sections:
                              srcdir="${{src.dir}}" target="${{javac.target}}"
                              bootclasspath="${{platform.bootcp}}"
                              classpath="${{build.classes.dir}}:${{javac.classpath}}"
+                             fork="yes"
                              compilerclasspath="${{platform.bootcp}}">
                         <compilerarg line="${{javac.compilerargs}}"/>
                     </javafxc>
