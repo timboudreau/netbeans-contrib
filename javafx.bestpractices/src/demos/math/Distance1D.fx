@@ -1,8 +1,7 @@
 package math;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.animation.*;
+import javafx.gui.*;
+import javafx.animation.*;
 
 var boxes : Box[] = [
     Box {
@@ -26,10 +25,10 @@ var boxes : Box[] = [
 var mx : Number = 40;
 
 var timer : Timeline = Timeline {
-    repeatCount: java.lang.Double.POSITIVE_INFINITY // HACK
+    repeatCount: Timeline.INDEFINITE
     keyFrames :
         KeyFrame {
-            keyTime : 16ms
+            time : 16ms
             action : function() {
                 for( box in boxes ) {
                     box.update( mx );
@@ -41,29 +40,35 @@ var timer : Timeline = Timeline {
 Frame {
     content : Canvas {
         background : Color.BLACK
-        content : boxes
-
-        onMouseMoved : function( e : MouseEvent ): Void {
-            mx = e.x * 0.4 - 200 / 5.0;
-        }
+        content : [
+            Rectangle {
+                width : 200, height : 200
+                fill : Color.BLACK
+                
+                onMouseMoved : function( e : MouseEvent ): Void {
+                    mx = e.getX() * 0.4 - 200 / 5.0;
+                }                
+            },
+            boxes
+        ]
     }
 
     visible : true
     title : "Distance 1D"
     width : 200
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }
+    closeAction : function() { java.lang.System.exit( 0 ); }
 }
 
 timer.start();
 
-public class Box extends CompositeNode {
+class Box extends CustomNode {
     
     public attribute thickness : Number;
     public attribute ypos : Number;
     public attribute xpos : Number;
     public attribute div : Number;
-    public attribute direction : Number = 1.0;
+    public attribute direction : Number;
     public attribute color : Color;
     
     public function update( mx : Number ): Void {
@@ -73,11 +78,12 @@ public class Box extends CompositeNode {
         if( xpos < -thickness ) { xpos = 200; }
     }
     
-    public function composeNode(): Node {
-        return Rect {
-            x : bind xpos, y : ypos,
-            width : thickness, height : 100
-            fill : color
+    public function create(): Node {
+        return Rectangle {
+            x : bind xpos, y : bind ypos,
+            width : bind thickness, height : 100
+            fill : bind color
         };
     }
 }
+
