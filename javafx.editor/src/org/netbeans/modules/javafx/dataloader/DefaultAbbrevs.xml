@@ -48,9 +48,19 @@ made subject to such option by the copyright holder.
     <!-- Keywords -->
     <codetemplate abbreviation="ab"><code><![CDATA[abstract ]]></code></codetemplate> 
     <codetemplate abbreviation="as"><code><![CDATA[assert ]]></code></codetemplate> 
-    <codetemplate abbreviation="at"><code><![CDATA[attribute ]]></code></codetemplate> 
+    <codetemplate abbreviation="at">
+        <!-- context =  classDefinition as a classMember; objectLiteralPart???Wow!  -->
+        <code>
+            <![CDATA[attribute ${AttributeName newAttributeName default="attr1"} ${restPartOfDeclaration default=""};]]>
+        </code>
+        <!-- where restPartOfDeclaration is either
+                 nothing 
+             or 
+                 typeReference (EQ boundExpression)? onReplaceClause?  
+          -->
+    </codetemplate> 
     <codetemplate abbreviation="bi"><code><![CDATA[bind ]]></code></codetemplate> 
-    <codetemplate abbreviation="bil"><code><![CDATA[bind lazy ]]></code></codetemplate> 
+    <!--codetemplate abbreviation="bil"><code><![CDATA[bind lazy ]]></code></codetemplate--> 
     <codetemplate abbreviation="br"><code><![CDATA[break;]]></code></codetemplate> 
     <codetemplate abbreviation="cn"><code><![CDATA[continue;]]></code></codetemplate> 
     <codetemplate abbreviation="fa"><code><![CDATA[false ]]></code></codetemplate> 
@@ -149,6 +159,7 @@ made subject to such option by the copyright holder.
     <codetemplate abbreviation="fi">
         <!-- context = immediately after try catch statement in body of an operation -->
         <code><![CDATA[finally {
+   ${selection line}${cursor}
 }
 ]]>
         </code>
@@ -193,22 +204,10 @@ made subject to such option by the copyright holder.
         <!-- context = immediately after ClassName in a class definition -->
         <code><![CDATA[extends ${SuperClassName} ]]></code>
     </codetemplate> 
-    <codetemplate abbreviation="at">
-        <!-- context =  class declaration  -->
-        <code>
-            <![CDATA[attribute ${AttributeName newAttributeName default="attr1"} ${restPartOfDeclaration default=""};]]>
-        </code>
-    </codetemplate> 
     <codetemplate abbreviation="inv">
         <!-- context =  once at the end of a attribute declaration  -->
         <code>
             <![CDATA[inverse ${ClassName.InverseAttributeName default=""}]]>
-        </code>
-    </codetemplate>
-    <codetemplate abbreviation="at">
-        <!-- context =  file scope -->
-        <code>
-            <![CDATA[attribute ${QualifiedAttributeName default=""} = ${InitExpression default=""};]]>
         </code>
     </codetemplate>
     
