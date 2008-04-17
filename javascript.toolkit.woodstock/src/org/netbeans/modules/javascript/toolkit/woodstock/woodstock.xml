@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
 
 
 The contents of this file are subject to the terms of either the GNU
@@ -40,37 +41,21 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<project name="org.netbeans.modules.dictionary_en" default="netbeans" basedir=".">
-    <description>Builds, tests, and runs the project org.netbeans.modules.dictionary_en.</description>
-    <import file="../../nbbuild/templates/projectized.xml"/>
-
-    <target name="init" depends="projectized.init">
-        <copy file="external/ispell-enwl-3.1.20.zip" todir="${cluster}/modules/dict"/>
-    </target>
-
-    <target name="nbm" depends="init,netbeans,-nbm-prompt-for-storepass" description="Build NBM archive.">
-        <mkdir dir="build"/>
-        <property name="nbm.target.cluster" value=""/> <!-- fallback -->
-        <makenbm file="build/${nbm}"
-                 productdir="${cluster}"
-                 module="${module.jar}"
-                 homepage="${nbm.homepage}"
-                 distribution="${nbm.distribution}"
-                 needsrestart="${nbm.needs.restart}"
-                 global="${nbm.is.global}"
-                 targetcluster="${nbm.target.cluster}"
-                 releasedate="${nbm.release.date}"
-                 moduleauthor="${nbm.module.author}">
-            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-            <license>
-                <text>This module integrates Ispell (ver 3.1.20) word list.
-
-License for the module itself:</text>
-                <file location="${license.file}"/>
-                <text>The word list license is:</text>
-                <file location="external/ispell-enwl-3.1.20-license.txt"/>
-            </license>
-        </makenbm>
-    </target>
-
-</project>
+<!DOCTYPE library PUBLIC "-//NetBeans//DTD Library Declaration 1.0//EN" "http://www.netbeans.org/dtds/library-declaration-1_0.dtd">
+<library version="1.0">
+    <name>woodstock</name>
+    <type>javascript</type>
+    <localizing-bundle>org/netbeans/modules/javascript/toolkit/woodstock/Bundle</localizing-bundle>
+    <volume>
+        <type>classpath</type>
+	<resource>jar:nbinst:///modules/ext/javascript/stub-woodstock.jar!/</resource>
+    </volume>
+    <volume>
+        <type>scriptpath</type>
+	<resource>jar:nbinst:///modules/ext/javascript/woodstock.zip!/</resource>
+    </volume>
+    <!-- volume>
+        <type>javadoc</type>
+        <resource>jar:nbinst:///docs/javaee5-doc-api.zip!/</resource>
+    </volume -->
+</library>

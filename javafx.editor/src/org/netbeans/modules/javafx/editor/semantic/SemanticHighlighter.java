@@ -40,21 +40,15 @@ package org.netbeans.modules.javafx.editor.semantic;
 
 import com.sun.javafx.api.tree.FunctionDefinitionTree;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
-import com.sun.javafx.api.tree.TypeAnyTree;
-import com.sun.javafx.api.tree.TypeClassTree;
-import com.sun.javafx.api.tree.TypeFunctionalTree;
-import com.sun.javafx.api.tree.TypeUnknownTree;
 import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.LineMap;
-import com.sun.source.tree.MethodTree;
-import com.sun.source.tree.Tree;
-import com.sun.source.tree.VariableTree;
 import com.sun.source.util.SourcePositions;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.lang.model.element.Element;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.Document;
@@ -75,9 +69,13 @@ import org.openide.util.Exceptions;
  */
 public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
 
-    private static final AttributeSet FIELD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Background, Color.GREEN, StyleConstants.Bold, Boolean.TRUE);
+//    private static final AttributeSet FIELD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.BLACK, StyleConstants.Bold, Boolean.TRUE);
+    private static final AttributeSet FIELD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Background, new Color(240, 240, 240));
     private static final AttributeSet METHOD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.BLACK, StyleConstants.Bold, Boolean.TRUE);
-
+    
+    private static final Logger logger = Logger.getLogger(SemanticHighlighter.class.getName());
+    private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
+    
     private FileObject file;
     private AtomicBoolean cancel = new AtomicBoolean();
 
@@ -90,17 +88,20 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
     }
 
     public void run(CompilationInfo info) {
-        System.out.println("***  SemanticHighlighter.run()");
         cancel.set(false);
         process(info);
     }
 
     private void process(CompilationInfo info) {
-        System.out.println("***  SemanticHighlighter.process()");
+        log("SemanticHighlighter.process()");
         try {
             DataObject od = DataObject.find(file);
             EditorCookie ec = od.getLookup().lookup(EditorCookie.class);
             if (ec == null) {
+                return;
+            }
+            Document doc = ec.getDocument();
+            if (doc == null) {
                 return;
             }
 
@@ -108,33 +109,31 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
             CompilationUnitTree compilationUnit = info.getCompilationUnit();
             JavaFXThreeVisitor javaFXThreeVisitor = new JavaFXThreeVisitor(info);
             javaFXThreeVisitor.scan(compilationUnit, list);
-            System.out.println("***  scan finished: result = " + list);
-            
-            for (Result result : list) {
+            log("scan finished: result = " + list);
+            setHighlights(doc, list);
+
+//            for (Result result : list) {
 //                if (ElementKind.METHOD == result.element.getKind()) {
 //                    setHighlights(ec.getDocument(), FIELD_HIGHLIGHT);
 //                } else if (ElementKind.FIELD == result.element.getKind()) {
-                    setHighlights(ec.getDocument(), result.start, result.end, FIELD_HIGHLIGHT);
+//                    setHighlights(ec.getDocument(), result.start, result.end, FIELD_HIGHLIGHT);
 //                }
-            }
+//            }
         } catch (DataObjectNotFoundException ex) {
             Exceptions.printStackTrace(ex);
         }
     }
 
-    static void setHighlights(Document doc, long startPosition, long endPosition, AttributeSet as) {
-        System.out.println("***   setHighlights() start = " + startPosition + ", end = " + endPosition);
-        
-        if (doc == null) {
-            return;
-        }
-
+    static void setHighlights(Document doc, List<Result> list) {
         OffsetsBag bag = new OffsetsBag(doc, true);
-        int start = (int) startPosition;
-        int end = (int) endPosition;
+        for (Result result : list) {
+            int start = (int) result.start;
+            int end = (int) result.end;
 
-        if (start >= 0 && end >= 0) {
-            bag.addHighlight(start, end, as);
+            if (start >= 0 && end >= 0) {
+                bag.addHighlight(start, end, FIELD_HIGHLIGHT); // TODO
+
+            }
         }
 
         getBag(doc).setHighlights(bag);
@@ -164,65 +163,68 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
             return super.visitFunctionDefinition(tree, list);
         }
 
-        @Override
-        public Void visitTypeAny(TypeAnyTree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list, "typeAny");
-            return super.visitTypeAny(tree, list);
-        }
+//        @Override
+//        public Void visitTypeAny(TypeAnyTree tree, List<Result> list) {
+//            addCorrespondingSourcePositions(list, "typeAny");
+//            return super.visitTypeAny(tree, list);
+//        }
+//
+//        @Override
+//        public Void visitTypeClass(TypeClassTree tree, List<Result> list) {
+//            addCorrespondingSourcePositions(list, "typeClass");
+//            return super.visitTypeClass(tree, list);
+//        }
+//
+//        @Override
+//        public Void visitTypeFunctional(TypeFunctionalTree tree, List<Result> list) {
+//            addCorrespondingSourcePositions(list, "typeFunctional");
+//            return super.visitTypeFunctional(tree, list);
+//        }
+//
+//        @Override
+//        public Void visitTypeUnknown(TypeUnknownTree tree, List<Result> list) {
+//            addCorrespondingSourcePositions(list, "typeUnknown");
+//            return super.visitTypeUnknown(tree, list);
+//        }
+//
+//        @Override
+//        public Void visitIdentifier(IdentifierTree tree, List<Result> list) {
+//            addCorrespondingSourcePositions(list, "identifier");
+//            return super.visitIdentifier(tree, list);
+//        }
 
-        @Override
-        public Void visitTypeClass(TypeClassTree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list, "typeClass");
-            return super.visitTypeClass(tree, list);
-        }
-
-        @Override
-        public Void visitTypeFunctional(TypeFunctionalTree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list, "typeFunctional");
-            return super.visitTypeFunctional(tree, list);
-        }
-
-        @Override
-        public Void visitTypeUnknown(TypeUnknownTree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list, "typeUnknown");
-            return super.visitTypeUnknown(tree, list);
-        }
-
-        @Override
-        public Void visitIdentifier(IdentifierTree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list, "typeIdentifier");
-            return super.visitIdentifier(tree, list);
-        }
-
-        @Override
-        public Void visitOther(Tree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list, "typeOther");
-            return super.visitOther(tree, list);
-        }
-
-        @Override
-        public Void visitVariable(VariableTree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list, "typeVariable");
-            return super.visitVariable(tree, list);
-        }
-
-        @Override
-        public Void visitMethod(MethodTree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list, "typeMethod");
-            return super.visitMethod(tree, list);
-        }
-
+//        @Override
+//        public Void visitOther(Tree tree, List<Result> list) {
+//            addCorrespondingSourcePositions(list, "other");
+//            return super.visitOther(tree, list);
+//        }
+//
+//        @Override
+//        public Void visitVariable(VariableTree tree, List<Result> list) {
+//            addCorrespondingSourcePositions(list, "variable");
+//            return super.visitVariable(tree, list);
+//        }
+//
+//        @Override
+//        public Void visitMethod(MethodTree tree, List<Result> list) {
+//            addCorrespondingSourcePositions(list, "method");
+//            return super.visitMethod(tree, list);
+//        }
         private void addCorrespondingSourcePositions(List<Result> list, String identifier) {
             Element element = info.getTrees().getElement(getCurrentPath());
             SourcePositions sourcePositions = info.getTrees().getSourcePositions();
             long start = sourcePositions.getStartPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
             long end = sourcePositions.getEndPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
-            
+
+            String lineNum = "?";
+            String colNum = "?";
             LineMap lm = info.getCompilationUnit().getLineMap();
-            String lineNum = lm != null ? "" + lm.getLineNumber(start) : "?";
-            String colNum = lm != null ? "" + lm.getColumnNumber(start) : "?";
-            
-            System.out.println("*** vitising: " + identifier + " [" + lineNum + ", " + colNum + "]");
+            if (lm != null && start >= 0) {
+                lineNum = "" + lm.getLineNumber(start);
+                colNum = "" + lm.getColumnNumber(start);
+            }
+
+            log("vitising: " + identifier + " [" + lineNum + ", " + colNum + "]");
             list.add(new Result(start, end, element));
         }
     }
@@ -243,6 +245,11 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
         public String toString() {
             return "[" + start + ", " + end + ", " + element + "]";
         }
-        
+    }
+
+    private static void log(String s) {
+        if (LOGGABLE) {
+            logger.fine(s);
+        }
     }
 }
