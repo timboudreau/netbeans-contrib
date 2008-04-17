@@ -442,7 +442,7 @@ private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             int i = 1;
             while (!checkName(name = NbBundle.getMessage(DetectPanel.class, "TXT_DefaultPlaformName", String.valueOf(i)))) i++;
             component.jdkName.setText(name);
-            File fxPath = InstalledFileLocator.getDefault().locate("modules/ext/javafx/compiler/javafxc.jar", "org.netbeans.modules.javafx", false);
+            File fxPath = InstalledFileLocator.getDefault().locate("javafx-sdk1.0/lib/javafxc.jar", "org.netbeans.modules.javafx", false);
             if (fxPath != null && fxPath.isFile()) component.fxFolder.setText(fxPath.getParent());
             File f = component.getPlatformFolder();
             if (f != null && f.isDirectory()) component.javaFolder.setText(f.getAbsolutePath());

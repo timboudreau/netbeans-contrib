@@ -53,6 +53,9 @@ import java.net.URI;
 import java.nio.CharBuffer;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.StyledDocument;
+import javax.swing.text.Document;
 import javax.tools.JavaFileObject;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
@@ -61,6 +64,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.JarFileSystem;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 
 /**
  *
@@ -253,11 +257,24 @@ public class SourceFileObject implements JavaFileObject {
         return null;
     }
         
+    public EditorCookie isOpened () {
+        try {
+            if (this.kind == JavaFileObject.Kind.CLASS) {
+                return null;
+            }
+            DataObject dobj = DataObject.find(this.file);
+            return dobj.getCookie(EditorCookie.class);
+        } catch (DataObjectNotFoundException dnf) {
+            return null;
+        }
+    }
+
     private CharBuffer getCharContentImpl (boolean assign) throws IOException {
+        final Document doc = getDocument(isOpened());
 	char[] result = null;
         int length = 0;
-
-        Reader in = this.openReader (true);
+        if (doc == null) {
+            Reader in = this.openReader (true);
             int red = 0, rv;
             try {
                 int len = (int)this.file.getSize();
@@ -278,7 +295,25 @@ public class SourceFileObject implements JavaFileObject {
                 }
             }
             length = j;
-        
+        }
+        else {            
+            final CharSequence[] _text = new CharSequence[1];
+            doc.render(new Runnable() {
+                public void run () {
+                    try {
+                        _text[0] = doc.getText(0, doc.getLength());
+                    } catch (BadLocationException e) {
+                        ErrorManager.getDefault().notify(e);
+                    }
+                }
+            });
+            if (_text[0] != null) {
+                int len = _text[0].length();
+                result = new char[len+1];
+                _text[0].toString().getChars(0,len,result,0);
+                length = len;
+            }
+        }
 	result[length]='\n'; //NOI18N
         
         String str = new String(result,0,length);
@@ -287,6 +322,9 @@ public class SourceFileObject implements JavaFileObject {
         return charBuffer;
     }
             
-    
+    private static StyledDocument getDocument (EditorCookie ec) {
+        return ec == null ? null : ec.getDocument();
+    }    
+
     
 }

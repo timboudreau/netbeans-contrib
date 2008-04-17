@@ -41,7 +41,6 @@ package org.netbeans.modules.javafx.editor.semantic;
 import com.sun.javafx.api.tree.FunctionDefinitionTree;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
 import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.LineMap;
 import com.sun.source.util.SourcePositions;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -49,13 +48,16 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.lang.model.element.Element;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.Document;
 import javax.swing.text.StyleConstants;
 import org.netbeans.api.editor.settings.AttributesUtilities;
+import org.netbeans.api.javafx.lexer.JFXTokenId;
 import org.netbeans.api.javafx.source.CancellableTask;
 import org.netbeans.api.javafx.source.CompilationInfo;
+import org.netbeans.api.javafx.source.TreeUtilities;
+import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.spi.editor.highlighting.support.OffsetsBag;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
@@ -68,13 +70,16 @@ import org.openide.util.Exceptions;
  * @author Anton Chechel
  */
 public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
+    
+    private static final String ID_FUNCTION = "function";
+    private static final String ID_FIELD = "field";
 
 //    private static final AttributeSet FIELD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.BLACK, StyleConstants.Bold, Boolean.TRUE);
     private static final AttributeSet FIELD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Background, new Color(240, 240, 240));
     private static final AttributeSet METHOD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.BLACK, StyleConstants.Bold, Boolean.TRUE);
     
-    private static final Logger logger = Logger.getLogger(SemanticHighlighter.class.getName());
-    private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
+    private static final Logger LOGGER = Logger.getLogger(SemanticHighlighter.class.getName());
+    private static final boolean LOGGABLE = LOGGER.isLoggable(Level.FINE);
     
     private FileObject file;
     private AtomicBoolean cancel = new AtomicBoolean();
@@ -93,7 +98,6 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
     }
 
     private void process(CompilationInfo info) {
-        log("SemanticHighlighter.process()");
         try {
             DataObject od = DataObject.find(file);
             EditorCookie ec = od.getLookup().lookup(EditorCookie.class);
@@ -109,16 +113,8 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
             CompilationUnitTree compilationUnit = info.getCompilationUnit();
             JavaFXThreeVisitor javaFXThreeVisitor = new JavaFXThreeVisitor(info);
             javaFXThreeVisitor.scan(compilationUnit, list);
-            log("scan finished: result = " + list);
             setHighlights(doc, list);
 
-//            for (Result result : list) {
-//                if (ElementKind.METHOD == result.element.getKind()) {
-//                    setHighlights(ec.getDocument(), FIELD_HIGHLIGHT);
-//                } else if (ElementKind.FIELD == result.element.getKind()) {
-//                    setHighlights(ec.getDocument(), result.start, result.end, FIELD_HIGHLIGHT);
-//                }
-//            }
         } catch (DataObjectNotFoundException ex) {
             Exceptions.printStackTrace(ex);
         }
@@ -131,12 +127,22 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
             int end = (int) result.end;
 
             if (start >= 0 && end >= 0) {
-                bag.addHighlight(start, end, FIELD_HIGHLIGHT); // TODO
-
+                bag.addHighlight(start, end, getAttributeSet(result.identifier));
+            } else {
+                log("* Incorrect positions for highlighting: " + start + ", " + end);
             }
         }
 
         getBag(doc).setHighlights(bag);
+    }
+
+    private static AttributeSet getAttributeSet(String identifier) {
+        if (ID_FUNCTION.equals(identifier)) {
+            return METHOD_HIGHLIGHT;
+        } else if (ID_FIELD.equals(identifier)) {
+            return FIELD_HIGHLIGHT;
+        }
+        return FIELD_HIGHLIGHT;
     }
 
     static OffsetsBag getBag(Document doc) {
@@ -149,107 +155,66 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
         return bag;
     }
 
+    private static void log(String s) {
+        if (LOGGABLE) {
+            LOGGER.fine(s);
+        }
+    }
+
     private static class JavaFXThreeVisitor extends JavaFXTreePathScanner<Void, List<Result>> {
 
         private CompilationInfo info;
+        private TreeUtilities tu;
 
         public JavaFXThreeVisitor(CompilationInfo info) {
             this.info = info;
+            tu = new TreeUtilities(info);
         }
 
         @Override
         public Void visitFunctionDefinition(FunctionDefinitionTree tree, List<Result> list) {
-            addCorrespondingSourcePositions(list, "function");
-            return super.visitFunctionDefinition(tree, list);
-        }
+//            String name = ((JFXFunctionDefinition) tree).getName().toString();
 
-//        @Override
-//        public Void visitTypeAny(TypeAnyTree tree, List<Result> list) {
-//            addCorrespondingSourcePositions(list, "typeAny");
-//            return super.visitTypeAny(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitTypeClass(TypeClassTree tree, List<Result> list) {
-//            addCorrespondingSourcePositions(list, "typeClass");
-//            return super.visitTypeClass(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitTypeFunctional(TypeFunctionalTree tree, List<Result> list) {
-//            addCorrespondingSourcePositions(list, "typeFunctional");
-//            return super.visitTypeFunctional(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitTypeUnknown(TypeUnknownTree tree, List<Result> list) {
-//            addCorrespondingSourcePositions(list, "typeUnknown");
-//            return super.visitTypeUnknown(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitIdentifier(IdentifierTree tree, List<Result> list) {
-//            addCorrespondingSourcePositions(list, "identifier");
-//            return super.visitIdentifier(tree, list);
-//        }
-
-//        @Override
-//        public Void visitOther(Tree tree, List<Result> list) {
-//            addCorrespondingSourcePositions(list, "other");
-//            return super.visitOther(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitVariable(VariableTree tree, List<Result> list) {
-//            addCorrespondingSourcePositions(list, "variable");
-//            return super.visitVariable(tree, list);
-//        }
-//
-//        @Override
-//        public Void visitMethod(MethodTree tree, List<Result> list) {
-//            addCorrespondingSourcePositions(list, "method");
-//            return super.visitMethod(tree, list);
-//        }
-        private void addCorrespondingSourcePositions(List<Result> list, String identifier) {
-            Element element = info.getTrees().getElement(getCurrentPath());
             SourcePositions sourcePositions = info.getTrees().getSourcePositions();
             long start = sourcePositions.getStartPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
             long end = sourcePositions.getEndPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
-
-            String lineNum = "?";
-            String colNum = "?";
-            LineMap lm = info.getCompilationUnit().getLineMap();
-            if (lm != null && start >= 0) {
-                lineNum = "" + lm.getLineNumber(start);
-                colNum = "" + lm.getColumnNumber(start);
+            
+            if (start < 0 || end < 0) { // synthetic
+                return super.visitFunctionDefinition(tree, list);
+            }
+            
+            TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
+            while (ts.moveNext()) {
+                Token t = ts.token();
+                if (JFXTokenId.IDENTIFIER.equals(t.id())) { // first identifiers is a name
+                    start = ts.offset();
+                    end = start + t.length();
+                    break;
+                }
             }
 
-            log("vitising: " + identifier + " [" + lineNum + ", " + colNum + "]");
-            list.add(new Result(start, end, element));
+            list.add(new Result(start, end,ID_FUNCTION));
+            return super.visitFunctionDefinition(tree, list);
         }
+
     }
 
     private static class Result {
 
         long start;
         long end;
-        Element element;
+        String identifier; // temporary since element doesn't work
 
-        public Result(long start, long end, Element element) {
+
+        public Result(long start, long end, String identifier) {
             this.start = start;
             this.end = end;
-            this.element = element;
+            this.identifier = identifier;
         }
 
         @Override
         public String toString() {
-            return "[" + start + ", " + end + ", " + element + "]";
-        }
-    }
-
-    private static void log(String s) {
-        if (LOGGABLE) {
-            logger.fine(s);
+            return "[" + start + ", " + end + ", " + identifier + "]";
         }
     }
 }

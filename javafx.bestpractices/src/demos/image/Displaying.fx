@@ -1,21 +1,20 @@
 package image;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.gui.*;
 
 var width : Number = 200;
 var height : Number = 200;
 
-var image = Image { url : "resources/background.png" };
-
+var img = Image { url : "{__DIR__}/../resources/background.png" };
+    
 Frame {
     content : Canvas {
         content : [
             ImageView {
-                image : image
+                image : img
             },
             ImageView {
-                image : image
+                image : img
                 transform : [
                     Translate { x : width / 2 },
                     Scale { x : 0.5, y : 0.5 }]
@@ -27,5 +26,5 @@ Frame {
     title : "Displaying"
     width : 200
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }
+    closeAction : function() { java.lang.System.exit( 0 ); }
 }

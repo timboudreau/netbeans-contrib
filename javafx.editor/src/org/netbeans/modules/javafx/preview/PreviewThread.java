@@ -138,8 +138,14 @@ public class PreviewThread extends Thread {
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
             }
-            if (obj != null)
+            if (obj != null) {
                 comp = CodeManager.parseObj(obj);
+                if (comp == null) {
+                    JTextArea jta = new JTextArea();
+                    jta.append("Nothing to show...");
+                    comp = jta;
+                }
+            }
             else {
                 List <Diagnostic> diagnostics = CodeManager.getDiagnostics();
                 if (!diagnostics.isEmpty()) {
@@ -152,6 +158,12 @@ public class PreviewThread extends Thread {
                         comp.add(jta);
                         comp.add(new JSeparator(SwingConstants.HORIZONTAL));
                     }
+                }
+                else
+                    if (comp == null) {
+                    JTextArea jta = new JTextArea();
+                    jta.append("Nothing to show...");
+                    comp = jta;
                 }
             }
                 
