@@ -306,8 +306,11 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
         String homePropName = createName(systemName,"home");      //NOI18N
         String bootClassPathPropName = createName(systemName,"bootclasspath");    //NOI18N
         String compilerType= createName (systemName,"compiler");  //NOI18N
+        String fxHomePropName = createName (systemName,"fxhome");  //NOI18N
         if (props.getProperty(homePropName) != null || props.getProperty(bootClassPathPropName) != null
-                || props.getProperty(compilerType)!=null) {
+                || props.getProperty(compilerType)!=null || props.getProperty(fxHomePropName)!=null){
+            if (platform instanceof DefaultPlatformImpl)
+                return;
             //Already defined warn user
             String msg = NbBundle.getMessage(JavaFXWizardIterator.class,"ERROR_InvalidName"); //NOI18N
             throw (IllegalStateException)ErrorManager.getDefault().annotate(
@@ -348,7 +351,6 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
         if (platform instanceof JavaFXPlatform){
             URL fxFolder = ((JavaFXPlatform)platform).getJavaFXFolder();
             if (fxFolder != null){
-                String fxHomePropName = createName(systemName,"fxhome");    //NOI18N
                 props.setProperty(fxHomePropName,new File(URI.create(fxFolder.toExternalForm())).getAbsolutePath());   //NOI18N
             }
         }

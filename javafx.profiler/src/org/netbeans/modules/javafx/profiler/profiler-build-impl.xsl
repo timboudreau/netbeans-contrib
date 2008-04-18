@@ -129,8 +129,8 @@ is divided into following sections:
                             <env key="${{profiler.info.pathvar}}" path="${{profiler.info.agentpath}}:${{profiler.current.path}}"/>
                             <arg line="${{application.args}}"/>
                             <classpath>
+                                <path path="${{platform.bootcp}}"/>
                                 <path path="${{run.classpath}}"/>
-                                <path path="${{libs.JavaFXUserLib.classpath}}"/>
                             </classpath>
                             <syspropertyset>
                                 <propertyref prefix="run-sys-prop."/>
@@ -160,8 +160,8 @@ is divided into following sections:
                 <xsl:attribute name="description">Profile a project in the IDE.</xsl:attribute>
                 <nbprofiledirect>
                     <classpath>
+                        <path path="${{platform.bootcp}}"/>
                         <path path="${{run.classpath}}"/>
-                        <path path="${{libs.JavaFXUserLib.classpath}}"/>
                     </classpath>
                 </nbprofiledirect>
                 <profile/>
@@ -174,8 +174,8 @@ is divided into following sections:
                 <fail unless="profile.class">Must select one file in the IDE or set profile.class</fail>
                 <nbprofiledirect>
                     <classpath>
+                        <path path="${{platform.bootcp}}"/>
                         <path path="${{run.classpath}}"/>
-                        <path path="${{libs.JavaFXUserLib.classpath}}"/>
                     </classpath>
                 </nbprofiledirect>
               <profile classname="${{profile.class}}"/>
@@ -192,8 +192,8 @@ is divided into following sections:
                 <xsl:attribute name="depends">profile-init,compile-single</xsl:attribute>
                 <nbprofiledirect>
                     <classpath>
+                        <path path="${{platform.bootcp}}"/>
                         <path path="${{run.classpath}}"/>
-                        <path path="${{libs.JavaFXUserLib.classpath}}"/>
                     </classpath>
                 </nbprofiledirect>
 
