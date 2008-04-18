@@ -77,15 +77,16 @@ public class DefaultPlatformImpl extends JavaFXPlatformImpl {
         }
         // XXX java.home??
         File javaHome = FileUtil.normalizeFile(new File(System.getProperty("jdk.home")));       //NOI18N
-        List<URL> installFolders = new ArrayList<URL> ();
+        List<URL> javaFolders = null;
+        URL fxFolder = null;
         try {
-            installFolders.add (javaHome.toURI().toURL());
+            javaFolders = Arrays.asList(javaHome.toURI().toURL());
         } catch (MalformedURLException mue) {
             Exceptions.printStackTrace(mue);
         }
-        File fxPath = InstalledFileLocator.getDefault().locate("javafx-sdk1.0/lib/javafxc.jar", "org.netbeans.modules.javafx", false);
+        File fxPath = InstalledFileLocator.getDefault().locate("modules/ext/javafx/compiler/javafxc.jar", "org.netbeans.modules.javafx", false);
         if (fxPath != null && fxPath.isFile()) try {
-            installFolders.add(fxPath.getParentFile().toURI().toURL());
+            fxFolder = fxPath.getParentFile().toURI().toURL();
         } catch (MalformedURLException mue) {
             Exceptions.printStackTrace(mue);
         }
@@ -95,13 +96,13 @@ public class DefaultPlatformImpl extends JavaFXPlatformImpl {
         if (javadoc == null) {
             javadoc = getJavadoc (javaHome);
         }
-        return new DefaultPlatformImpl(installFolders, properties, new HashMap(System.getProperties()), sources,javadoc);
+        return new DefaultPlatformImpl(javaFolders, fxFolder, properties, new HashMap(System.getProperties()), sources,javadoc);
     }
     
-    private DefaultPlatformImpl(List<URL> installFolders, Map<String,String> platformProperties,
+    private DefaultPlatformImpl(List<URL> javaFolders, URL fxFolder, Map<String,String> platformProperties,
         Map<String,String> systemProperties, List<URL> sources, List<URL> javadoc) {
         super(null,DEFAULT_PLATFORM_ANT_NAME,
-              installFolders, platformProperties, systemProperties, sources, javadoc);
+              javaFolders, fxFolder, platformProperties, systemProperties, sources, javadoc);
     }
 
     public void setAntName(String antName) {

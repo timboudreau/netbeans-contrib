@@ -155,6 +155,12 @@ is divided into following sections:
                     <fail unless="platform.java">Must set platform.java</fail>
                     <fail if="platform.invalid">Platform is not correctly set up</fail>
                 </xsl:if>
+                <javafxproject1:property name="platform.fxhome" value="platforms.${{platform.active}}.fxhome"/>
+                <pathconvert property="platform.fxcp">
+                    <fileset dir="${{platform.fxhome}}">
+                        <include name="**/*.jar"/>
+                    </fileset>
+                </pathconvert>    
                 <available file="${{manifest.file}}" property="manifest.available"/>
                 <condition property="manifest.available+main.class">
                     <and>
@@ -831,7 +837,7 @@ is divided into following sections:
                 <property name="build.classes.dir.resolved" location="${{build.classes.dir}}"/>
                 <pathconvert property="run.classpath.without.build.classes.dir">
                     <path path="${{run.classpath}}"/>
-                    <path path="${{libs.JavaFXUserLib.classpath}}"/>
+                    <path path="${{platform.fxcp}}"/>
                     <map from="${{build.classes.dir.resolved}}" to=""/>
                 </pathconvert>        
                 <pathconvert property="jar.classpath" pathsep=" ">
