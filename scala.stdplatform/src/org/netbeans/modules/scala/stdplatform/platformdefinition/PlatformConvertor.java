@@ -86,14 +86,14 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
     private static final String MODERN = "modern";          //NOI18N
     private static final String JAVAC13 = "javac1.3";       //NOI18N
     static final String[] IMPORTANT_TOOLS = {
-        // Used by j2seproject:
-        "javac", // NOI18N
-        "java", // NOI18N
+        // Used by scala project:
+        "scalac", // NOI18N
+        "scala", // NOI18N
         // Might be used, though currently not (cf. #46901):
-        "javadoc", // NOI18N
+        "scaladoc", // NOI18N
     };
     
-    private static final String PLATFORM_DTD_ID = "-//NetBeans//DTD Java PlatformDefinition 1.0//EN"; // NOI18N
+    private static final String PLATFORM_DTD_ID = "-//NetBeans//DTD Scala PlatformDefinition 1.0//EN"; // NOI18N
 
     private PlatformConvertor() {}
 
@@ -476,7 +476,7 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
         void write(final  OutputStream out) throws IOException {
             final Map<String,String> props = instance.getProperties();
             final Map<String,String> sysProps = instance.getSystemProperties();
-            final Document doc = XMLUtil.createDocument(ELEMENT_PLATFORM,null,PLATFORM_DTD_ID,"http://www.netbeans.org/dtds/java-platformdefinition-1_0.dtd"); //NOI18N
+            final Document doc = XMLUtil.createDocument(ELEMENT_PLATFORM,null,PLATFORM_DTD_ID,"http://www.netbeans.org/dtds/scala-platformdefinition-1_0.dtd"); //NOI18N
             final Element platformElement = doc.getDocumentElement();
             platformElement.setAttribute(ATTR_PLATFORM_NAME,instance.getDisplayName());
             platformElement.setAttribute(ATTR_PLATFORM_DEFAULT,defaultPlatform ? "yes" : "no"); //NOI18N

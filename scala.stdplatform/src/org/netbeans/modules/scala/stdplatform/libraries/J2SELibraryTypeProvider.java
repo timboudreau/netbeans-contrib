@@ -67,7 +67,7 @@ public final class J2SELibraryTypeProvider implements LibraryTypeProvider {
     }
 
     private static final String LIB_PREFIX = "libs.";
-    public static final String LIBRARY_TYPE = "j2se";       //NOI18N
+    public static final String LIBRARY_TYPE = "std";       //NOI18N
     public static final String VOLUME_TYPE_CLASSPATH = "classpath";       //NOI18N
     public static final String VOLUME_TYPE_SRC = "src";       //NOI18N
     public static final String VOLUME_TYPE_JAVADOC = "javadoc";       //NOI18N

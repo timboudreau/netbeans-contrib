@@ -82,7 +82,7 @@ public class J2SEPlatformImplBeanInfo extends SimpleBeanInfo {
 
     public Image getIcon(int iconKind) {
         if ((iconKind == BeanInfo.ICON_COLOR_16x16) || (iconKind == BeanInfo.ICON_MONO_16x16)) {
-            return Utilities.loadImage("org/netbeans/modules/java/j2seplatform/resources/platform.gif"); // NOI18N
+            return Utilities.loadImage("org/netbeans/modules/scala/stdplatform/resources/platform.gif"); // NOI18N
         } else {
             return null;
         }

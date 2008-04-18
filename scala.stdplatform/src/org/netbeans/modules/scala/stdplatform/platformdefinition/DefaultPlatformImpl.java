@@ -38,23 +38,22 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.scala.stdplatform.platformdefinition;
 
 import java.io.*;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.*;
 import java.net.MalformedURLException;
 import org.netbeans.api.scala.platform.JavaPlatform;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.util.Exceptions;
 
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileStateInvalidException;
-import org.openide.filesystems.URLMapper;
+import org.openide.util.Utilities;
 
 /**
  * Implementation of the "Default" platform. The information here is extracted
@@ -64,126 +63,221 @@ import org.openide.filesystems.URLMapper;
  */
 public class DefaultPlatformImpl extends J2SEPlatformImpl {
 
-
     public static final String DEFAULT_PLATFORM_ANT_NAME = "default_platform";           //NOI18N
 
     private ClassPath standardLibs;
-    
+
     @SuppressWarnings("unchecked")  //Properties cast to Map<String,String>
-    static JavaPlatform create(Map<String,String> properties, List<URL> sources, List<URL> javadoc) {
+
+    static JavaPlatform create(Map<String, String> properties, List<URL> sources, List<URL> javadoc) {
         if (properties == null) {
-            properties = new HashMap<String,String> ();
+            properties = new HashMap<String, String>();
         }
         // XXX java.home??
-        File javaHome = FileUtil.normalizeFile(new File(System.getProperty("jdk.home")));       //NOI18N
-        List<URL> installFolders = new ArrayList<URL> ();
+        File scalaHome = getScalaHome();       //NOI18N
+        List<URL> installFolders = new ArrayList<URL>();
         try {
-            installFolders.add (javaHome.toURI().toURL());
+            installFolders.add(scalaHome.toURI().toURL());
         } catch (MalformedURLException mue) {
             Exceptions.printStackTrace(mue);
         }
         if (sources == null) {
-            sources = getSources (javaHome);
+            sources = getSources(scalaHome);
         }
         if (javadoc == null) {
-            javadoc = getJavadoc (javaHome);
+            javadoc = getJavadoc(scalaHome);
         }
-        return new DefaultPlatformImpl(installFolders, properties, new HashMap(System.getProperties()), sources,javadoc);
+        return new DefaultPlatformImpl(installFolders, properties, new HashMap(System.getProperties()), sources, javadoc);
     }
-    
-    private DefaultPlatformImpl(List<URL> installFolders, Map<String,String> platformProperties,
-        Map<String,String> systemProperties, List<URL> sources, List<URL> javadoc) {
-        super(null,DEFAULT_PLATFORM_ANT_NAME,
-              installFolders, platformProperties, systemProperties, sources, javadoc);
+
+    private static File getScalaHome() {
+        String scalaHome = System.getProperty("scala.home"); // NOI18N
+
+        if (scalaHome == null) {
+            scalaHome = System.getenv("SCALA_HOME"); // NOI18N
+            if (scalaHome != null) {
+                System.setProperty("scala.home", scalaHome);
+            }
+        }
+        if (scalaHome != null) {
+            File scalaHomeFile = FileUtil.normalizeFile(new File(scalaHome));       //NOI18N
+            return scalaHomeFile;
+        } else {
+            NotifyDescriptor d = new NotifyDescriptor.Message(
+                    "SCALA_HOME environment variable may not be set, or is invalid.\n" +
+                    "Please set SCALA_HOME first!", NotifyDescriptor.INFORMATION_MESSAGE);
+            DialogDisplayer.getDefault().notify(d);
+            return null;
+        }
+    }
+
+    private DefaultPlatformImpl(List<URL> installFolders, Map<String, String> platformProperties,
+            Map<String, String> systemProperties, List<URL> sources, List<URL> javadoc) {
+        super(null, DEFAULT_PLATFORM_ANT_NAME,
+                installFolders, platformProperties, systemProperties, sources, javadoc);
     }
 
     public void setAntName(String antName) {
-        throw new UnsupportedOperationException (); //Default platform ant name can not be changed
+        throw new UnsupportedOperationException(); //Default platform ant name can not be changed
     }
-    
-    public String getDisplayName () {
+
+    public String getDisplayName() {
         String displayName = super.getDisplayName();
         if (displayName == null) {
-            displayName = NbBundle.getMessage(DefaultPlatformImpl.class,"TXT_DefaultPlatform", getSpecification().getVersion().toString());
-            this.internalSetDisplayName (displayName);
+            displayName = NbBundle.getMessage(DefaultPlatformImpl.class, "TXT_DefaultPlatform", getSpecification().getVersion().toString());
+            this.internalSetDisplayName(displayName);
         }
         return displayName;
     }
-    
+
     public void setDisplayName(String name) {
-        throw new UnsupportedOperationException (); //Default platform name can not be changed
+        throw new UnsupportedOperationException(); //Default platform name can not be changed
+    }
+
+    public ClassPath getBootstrapLibraries() {
+        synchronized (this) {
+            ClassPath cp = (bootstrap == null ? null : bootstrap.get());
+            if (cp != null) {
+                return cp;
+            }
+            File scalaHome = getScalaHome();
+            String pathSpec = "";  //NOI18N
+            if (scalaHome.exists() && scalaHome.canRead()) {
+                File scalaLib = new File(scalaHome, "lib");  //NOI18N
+                if (scalaLib.exists() && scalaLib.canRead()) {
+                    pathSpec = scalaLib.getAbsolutePath() + File.separator + "scala-library.jar";
+                }
+            }
+            cp = Util.createClassPath(pathSpec);
+            bootstrap = new WeakReference<ClassPath>(cp);
+            return cp;
+        }
     }
 
     public ClassPath getStandardLibraries() {
-        if (standardLibs != null)
+        if (standardLibs != null) {
             return standardLibs;
-        String s = System.getProperty(SYSPROP_JAVA_CLASS_PATH);       //NOI18N
-        if (s == null) {
-            s = ""; // NOI18N
         }
-        return standardLibs = Util.createClassPath (s);
+        File scalaHome = getScalaHome();
+        String s = "";  //NOI18N
+        if (scalaHome.exists() && scalaHome.canRead()) {
+            File scalaLib = new File(scalaHome, "lib");  //NOI18N
+            if (scalaLib.exists() && scalaLib.canRead()) {
+                s = computeScalaClassPath(null, scalaLib);
+            }
+        }
+        //String s = System.getProperty(SYSPROP_JAVA_CLASS_PATH);       //NOI18N
+//        if (s == null) {
+//            s = ""; // NOI18N
+//        }
+        return standardLibs = Util.createClassPath(s);
     }
 
-    static List<URL> getSources (File javaHome) {
-        if (javaHome != null) {
-            try {
-                File f;
-                //On VMS, the root of the "src.zip" is "src", and this causes
-                //problems with NetBeans 4.0. So use the modified "src.zip" shipped 
-                //with the OpenVMS NetBeans 4.0 kit.
-                if (Utilities.getOperatingSystem() == Utilities.OS_VMS) {
-                    String srcHome = 
-                        System.getProperty("netbeans.openvms.j2seplatform.default.srcdir");
-                    if (srcHome != null)
-                        f = new File(srcHome, "src.zip");
-                    else
-                        f = new File (javaHome, "src.zip");
-                } else {
-                    f = new File (javaHome, "src.zip");    //NOI18N
-                    //If src.zip does not exist, try src.jar (it is on some platforms)
-                    if (!f.exists()) {
-                        f = new File (javaHome, "src.jar");    //NOI18N
-                    }
+    private String computeScalaClassPath(String extraCp, final File scalaLib) {
+        StringBuilder cp = new StringBuilder();
+        File[] libs = scalaLib.listFiles();
+
+        for (File lib : libs) {
+            if (lib.getName().endsWith(".jar")) { // NOI18N
+
+                if (cp.length() > 0) {
+                    cp.append(File.pathSeparatorChar);
                 }
-                if (f.exists() && f.canRead()) {
-                    URL url = FileUtil.getArchiveRoot(f.toURI().toURL());
-                    
-                     //Test for src folder in the src.zip on Mac
-                    if (Utilities.getOperatingSystem() == Utilities.OS_MAC) {
-                         try {
-                             FileObject fo = URLMapper.findFileObject(url);
-                             if (fo != null) {
-                                 fo = fo.getFileObject("src");    //NOI18N
-                                 if (fo != null) {
-                                     url = fo.getURL();
-                                 }
-                             }                             
-                         } catch (FileStateInvalidException fileStateInvalidException) {
-                             Exceptions.printStackTrace(fileStateInvalidException);
-                         }
+
+                cp.append(lib.getAbsolutePath());
+            }
+        }
+
+        // Add in user-specified jars passed via SCALA_EXTRA_CLASSPATH
+
+        if (extraCp != null && File.pathSeparatorChar != ':') {
+            // Ugly hack - getClassPath has mixed together path separator chars
+            // (:) and filesystem separators, e.g. I might have C:\foo:D:\bar but
+            // obviously only the path separator after "foo" should be changed to ;
+            StringBuilder p = new StringBuilder();
+            int pathOffset = 0;
+            for (int i = 0; i < extraCp.length(); i++) {
+                char c = extraCp.charAt(i);
+                if (c == ':' && pathOffset != 1) {
+                    p.append(File.pathSeparatorChar);
+                    pathOffset = 0;
+                    continue;
+                } else {
+                    pathOffset++;
+                }
+                p.append(c);
+            }
+            extraCp = p.toString();
+        }
+
+        if (extraCp == null) {
+            extraCp = System.getenv("SCALA_EXTRA_CLASSPATH"); // NOI18N
+        }
+
+        if (extraCp != null) {
+            if (cp.length() > 0) {
+                cp.append(File.pathSeparatorChar);
+            }
+            //if (File.pathSeparatorChar != ':' && extraCp.indexOf(File.pathSeparatorChar) == -1 &&
+            //        extraCp.indexOf(':') != -1) {
+            //    extraCp = extraCp.replace(':', File.pathSeparatorChar);
+            //}
+            cp.append(extraCp);
+        }
+        return Utilities.isWindows() ? "\"" + cp.toString() + "\"" : cp.toString(); // NOI18N
+    }
+
+    static List<URL> getSources(File scalaHome) {
+        if (scalaHome != null) {
+            try {
+                File scalaSrc;
+                scalaSrc = new File(scalaHome, "src");    //NOI18N
+                if (scalaSrc.exists() && scalaSrc.canRead()) {
+                    File[] srcs = scalaSrc.listFiles();
+
+                    List<URL> srcUrls = new ArrayList<URL>();
+                    for (File src : srcs) {
+                        if (src.getName().endsWith(".jar")) { // NOI18N
+                            URL url = FileUtil.getArchiveRoot(src.toURI().toURL());
+                            srcUrls.add(url);
+                        }
                     }
-                    return Collections.singletonList (url);
+//                    URL url = FileUtil.getArchiveRoot(scalaSrcDir.toURI().toURL());
+//
+//                    //Test for src folder in the src.zip on Mac
+//                    if (Utilities.getOperatingSystem() == Utilities.OS_MAC) {
+//                        try {
+//                            FileObject fo = URLMapper.findFileObject(url);
+//                            if (fo != null) {
+//                                fo = fo.getFileObject("src");    //NOI18N
+//                                if (fo != null) {
+//                                    url = fo.getURL();
+//                                }
+//                            }
+//                        } catch (FileStateInvalidException fileStateInvalidException) {
+//                            Exceptions.printStackTrace(fileStateInvalidException);
+//                        }
+//                    }
+                    return srcUrls;
                 }
             } catch (MalformedURLException e) {
                 Exceptions.printStackTrace(e);
-            }              
-        }
-        return null;
-    }
-    
-    
-    static List<URL> getJavadoc (File javaHome) {
-        if (javaHome != null ) {
-            File f = new File (javaHome,"docs"); //NOI18N
-            if (f.isDirectory() && f.canRead()) {
-                try {
-                    return Collections.singletonList(f.toURI().toURL());
-                } catch (MalformedURLException mue) {
-                    Exceptions.printStackTrace(mue);
-                }
-            }                        
+            }
         }
         return null;
     }
 
+    static List<URL> getJavadoc(File scalaHome) {
+        if (scalaHome != null) {
+            File scalaDoc = new File(scalaHome, "doc"); //NOI18N
+            if (scalaDoc.isDirectory() && scalaDoc.canRead()) {
+                try {
+                    return Collections.singletonList(scalaDoc.toURI().toURL());
+                } catch (MalformedURLException mue) {
+                    Exceptions.printStackTrace(mue);
+                }
+            }
+        }
+        return null;
+    }
 }
