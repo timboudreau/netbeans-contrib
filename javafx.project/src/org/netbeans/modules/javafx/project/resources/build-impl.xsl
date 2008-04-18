@@ -122,20 +122,19 @@ is divided into following sections:
             
             <target name="-do-init">
                 <xsl:attribute name="depends">-pre-init,-init-private,-init-user,-init-project,-init-macrodef-property</xsl:attribute>
-                <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
-                    <javafxproject1:property name="platform.home" value="platforms.${{platform.active}}.home"/>
-                    <javafxproject1:property name="platform.bootcp" value="platforms.${{platform.active}}.bootclasspath"/>
-                    <javafxproject1:property name="platform.java.tmp" value="platforms.${{platform.active}}.java"/>
-                    <condition property="platform.java" value="${{platform.home}}/bin/java">
-                        <equals arg1="${{platform.java.tmp}}" arg2="$${{platforms.${{platform.active}}.java}}"/>
-                    </condition>
-                    <property name="platform.java" value="${{platform.java.tmp}}"/>
-                    <javafxproject1:property name="platform.javadoc.tmp" value="platforms.${{platform.active}}.javadoc"/>
-                    <condition property="platform.javadoc" value="${{platform.home}}/bin/javadoc">
-                        <equals arg1="${{platform.javadoc.tmp}}" arg2="$${{platforms.${{platform.active}}.javadoc}}"/>
-                    </condition>
-                    <property name="platform.javadoc" value="${{platform.javadoc.tmp}}"/>
-                </xsl:if>
+                <javafxproject1:property name="platform.home" value="platforms.${{platform.active}}.home"/>
+                <javafxproject1:property name="platform.bootcp" value="platforms.${{platform.active}}.bootclasspath"/>
+                <javafxproject1:property name="platform.java.tmp" value="platforms.${{platform.active}}.java"/>
+                <javafxproject1:property name="platform.fxhome" value="platforms.${{platform.active}}.fxhome"/>
+                <condition property="platform.java" value="${{platform.home}}/bin/java">
+                    <equals arg1="${{platform.java.tmp}}" arg2="$${{platforms.${{platform.active}}.java}}"/>
+                </condition>
+                <property name="platform.java" value="${{platform.java.tmp}}"/>
+                <javafxproject1:property name="platform.javadoc.tmp" value="platforms.${{platform.active}}.javadoc"/>
+                <condition property="platform.javadoc" value="${{platform.home}}/bin/javadoc">
+                    <equals arg1="${{platform.javadoc.tmp}}" arg2="$${{platforms.${{platform.active}}.javadoc}}"/>
+                </condition>
+                <property name="platform.javadoc" value="${{platform.javadoc.tmp}}"/>
                 <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform/@explicit-javac-supported ='true'">
                     <javafxproject1:property name="platform.javac.tmp" value="platforms.${{platform.active}}.javac"/>
                     <condition property="platform.javac" value="${{platform.home}}/bin/javac">
@@ -155,6 +154,11 @@ is divided into following sections:
                     <fail unless="platform.java">Must set platform.java</fail>
                     <fail if="platform.invalid">Platform is not correctly set up</fail>
                 </xsl:if>
+                <pathconvert property="platform.fxcp">
+                    <fileset dir="${{platform.fxhome}}">
+                        <include name="**/*.jar"/>
+                    </fileset>
+                </pathconvert>    
                 <available file="${{manifest.file}}" property="manifest.available"/>
                 <condition property="manifest.available+main.class">
                     <and>
@@ -519,21 +523,11 @@ is divided into following sections:
                             </xsl:if>
                             <arg line="${{main.class}}"/>
                             <jvmarg line="${{debug-args-line}}"/>
-                            <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
-                                <jvmarg value="-Djava.library.path=${{platform.bootcp}}"/>
-                            </xsl:if>    
-                            <xsl:if test="not(/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform)">
-                                <jvmarg value="-Djava.library.path=${{libs.JavaFXUserLib.classpath}}"/>
-                            </xsl:if>    
+                            <jvmarg value="-Djava.library.path=${{platform.bootcp}}"/>
                             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${{jpda.address}}"/>
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
-                                <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
-                                    <path path="${{platform.bootcp}}"/>
-                                </xsl:if>    
-                                <xsl:if test="not(/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform)">
-                                    <path path="${{libs.JavaFXUserLib.classpath}}"/>
-                                </xsl:if>    
+                                <path path="${{platform.bootcp}}"/>
                                 <path path="@{{classpath}}"/>
                             </classpath>
                             <syspropertyset>
@@ -561,22 +555,12 @@ is divided into following sections:
                     <sequential>
                         <java fork="true" failonerror="true" classname="@{{classname}}">
                             <xsl:attribute name="dir">${work.dir}</xsl:attribute>
-                            <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
-                                <xsl:attribute name="jvm">${platform.java}</xsl:attribute>
-                                <jvmarg value="-Djava.library.path=${{platform.bootcp}}"/>
-                            </xsl:if>
+                            <xsl:attribute name="jvm">${platform.java}</xsl:attribute>
+                            <jvmarg value="-Djava.library.path=${{platform.bootcp}}"/>
                             <!--arg line="${{main.class}}"/-->
-                            <xsl:if test="not(/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform)">
-                                <jvmarg value="-Djava.library.path=${{libs.JavaFXUserLib.classpath}}"/>
-                            </xsl:if>    
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
-                                <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
-                                    <path path="${{platform.bootcp}}"/>
-                                </xsl:if>    
-                                <xsl:if test="not(/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform)">
-                                    <path path="${{libs.JavaFXUserLib.classpath}}"/>
-                                </xsl:if>    
+                                <path path="${{platform.bootcp}}"/>
                                 <path path="${{run.classpath}}"/>
                             </classpath>
                             <syspropertyset>
@@ -608,23 +592,13 @@ is divided into following sections:
                     <sequential>
                         <java fork="true" failonerror="true" classname="@{{classname}}">
                             <xsl:attribute name="dir">${work.dir}</xsl:attribute>
-                            <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
-                                <xsl:attribute name="jvm">${platform.java}</xsl:attribute>
-                                <jvmarg value="-Djava.library.path=${{platform.bootcp}}"/>
-                            </xsl:if>
+                            <xsl:attribute name="jvm">${platform.java}</xsl:attribute>
+                            <jvmarg value="-Djava.library.path=${{platform.bootcp}}"/>
                             <!--arg line="${{main.class}}"/-->
-                            <xsl:if test="not(/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform)">
-                                <jvmarg value="-Djava.library.path=${{libs.JavaFXUserLib.classpath}}"/>
-                            </xsl:if>    
                             <arg line="@{{srcdir}}"/>
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
-                                <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
-                                    <path path="${{platform.bootcp}}"/>
-                                </xsl:if>    
-                                <xsl:if test="not(/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform)">
-                                    <path path="${{libs.JavaFXUserLib.classpath}}"/>
-                                </xsl:if>    
+                                <path path="${{platform.bootcp}}"/>
                                 <path path="${{build.classpath}}"/>
                             </classpath>
                             <syspropertyset>
@@ -687,7 +661,6 @@ is divided into following sections:
                 </copy>
             </target>
             <target name="-compile-fx" if="src.dir">
-                <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
                     <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask" classpath="${{platform.bootcp}}"/>
                     <javafxc debug="${{javac.debug}}" deprecation="${{javac.deprecation}}"
                              destdir="${{build.classes.dir}}"
@@ -701,24 +674,8 @@ is divided into following sections:
                              compilerclasspath="${{platform.bootcp}}">
                         <compilerarg line="${{javac.compilerargs}}"/>
                     </javafxc>
-                </xsl:if>
-                <xsl:if test="not(/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform)">
-                    <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask" classpath="${{libs.JavaFXUserLib.classpath}}"/>
-                    <javafxc debug="${{javac.debug}}" deprecation="${{javac.deprecation}}"
-                             destdir="${{build.classes.dir}}"
-                             excludes="${{excludes}}" includeantruntime="false"
-                             includeJavaRuntime="true"
-                             includes="**/*.fx" source="${{javac.source}}" sourcepath=""
-                             srcdir="${{src.dir}}" target="${{javac.target}}"
-                             bootclasspath="${{libs.JavaFXUserLib.classpath}}"
-                             classpath="${{build.classes.dir}}:${{javac.classpath}}"
-                             compilerclasspath="${{libs.JavaFXUserLib.classpath}}">
-                        <compilerarg line="${{javac.compilerargs}}"/>
-                    </javafxc>
-                </xsl:if>
             </target>
             <target name="-compile-fx-single" if="src.dir">
-                <xsl:if test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">
                     <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask" classpath="${{platform.bootcp}}"/>
                     <javafxc debug="${{javac.debug}}" deprecation="${{javac.deprecation}}"
                              destdir="${{build.classes.dir}}"
@@ -732,21 +689,6 @@ is divided into following sections:
                              compilerclasspath="${{platform.bootcp}}">
                         <compilerarg line="${{javac.compilerargs}}"/>
                     </javafxc>
-                </xsl:if>
-                <xsl:if test="not(/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform)">
-                    <taskdef name="javafxc" classname="com.sun.tools.javafx.ant.JavaFxAntTask" classpath="${{libs.JavaFXUserLib.classpath}}"/>
-                    <javafxc debug="${{javac.debug}}" deprecation="${{javac.deprecation}}"
-                             destdir="${{build.classes.dir}}"
-                             excludes="${{excludes}}" includeantruntime="false"
-                             includeJavaRuntime="true"
-                             includes="${{javac.includes}}" source="${{javac.source}}" sourcepath=""
-                             srcdir="${{src.dir}}" target="${{javac.target}}"
-                             bootclasspath="${{libs.JavaFXUserLib.classpath}}"
-                             classpath="${{build.classes.dir}}:${{javac.classpath}}"
-                             compilerclasspath="${{libs.JavaFXUserLib.classpath}}">
-                        <compilerarg line="${{javac.compilerargs}}"/>
-                    </javafxc>
-                </xsl:if>
             </target>
 
             <target name="-post-compile">
@@ -859,7 +801,10 @@ is divided into following sections:
                 </copylibs>                                
                 <echo>To run this application from the command line without Ant, try:</echo>
                 <property name="dist.jar.resolved" location="${{dist.jar}}"/>
-                <echo>javafx -jar "${dist.jar.resolved}"</echo>                
+                <echo><xsl:choose>
+                        <xsl:when test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">${platform.java}</xsl:when>
+                        <xsl:otherwise>java</xsl:otherwise>
+                </xsl:choose> -jar "${dist.jar.resolved}"</echo>                
                 <replace file="${{dist.jar.dir}}/README.TXT" token='.jar"' value='.jar" ${{main.class}}'/>
             </target>
             
