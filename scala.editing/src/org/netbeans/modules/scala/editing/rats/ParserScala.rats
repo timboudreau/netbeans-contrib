@@ -327,11 +327,12 @@ transient generic CaseClauses = CaseClause CaseClause* ;
  * we should leave lastest "=>" for Block by define a FunTypeInCaseClause 
  * 
  * A case token can begin a statement only if followed by a class or object token
+ * @Todo nl in case clause
  */
 generic CaseClause =   
   SKIP_N void:"case":key 
   ( ( VarId / "_":key ) void:":":key FunTypeInCaseClause Block
-  / Pattern Guard? void:"=>":key Block 
+  / Pattern N* Guard? void:"=>":key Block 
   )
 ;
 
