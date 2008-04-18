@@ -90,7 +90,7 @@ public class DefaultPlatformImpl extends JavaFXPlatformImpl {
         } catch (MalformedURLException mue) {
             Exceptions.printStackTrace(mue);
         }
-        File fxPath = InstalledFileLocator.getDefault().locate("modules/ext/compiler/lib/javafxc.jar", "org.netbeans.modules.javafx", false);
+        File fxPath = InstalledFileLocator.getDefault().locate("javafx-sdk1.0/lib/javafxc.jar", "org.netbeans.modules.javafx", false);
         if (fxPath != null && fxPath.isFile()) try {
             fxFolder = fxPath.getParentFile().toURI().toURL();
         } catch (MalformedURLException mue) {
