@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
@@ -40,29 +41,12 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 
-<!DOCTYPE library PUBLIC "-//NetBeans//DTD Library Declaration 1.0//EN" "http://www.netbeans.org/dtds/library-declaration-1_0.dtd">
-<library version="1.0">
-    <name>JavaFXUserLib</name>
-    <type>j2se</type>
-    <localizing-bundle>javafx.netbeans.fxuserlib.Bundle</localizing-bundle>
-    <volume>
-        <type>classpath</type>
-        <!--resource>jar:nbinst://javafx/modules/ext/javafx/javafxrt.jar!/</resource>
-        <resource>jar:nbinst://javafx/modules/ext/javafx/Filters.jar!/</resource>
-        <resource>jar:nbinst://javafx/modules/ext/javafx/swing-layout.jar!/</resource>
-        <resource>jar:nbinst://javafx/modules/javafx-netbeans-fxuserlib.jar!/</resource-->
-        <!-- compiler related resourses are below -->
-        <resource>jar:nbinst://javafx/modules/ext/javafx/compiler/javafxrt.jar!/</resource>
-        <resource>jar:nbinst://javafx/modules/ext/javafx/compiler/Scenario.jar!/</resource>
-        <resource>jar:nbinst://javafx/modules/ext/javafx/compiler/javafxc.jar!/</resource>
-       
-        <!--resource >jar:nbinst://javafx/modules/ext/javafx/compiler/Reprise.jar!/</resource-->
-        
-    </volume>
-    <volume>
-        <type>src</type>
-    </volume>
-    <volume>
-        <type>javadoc</type>            
-    </volume>
-</library>
+
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="org-netbeans-api-project-libraries">
+        <folder name="Libraries">
+            <file name="FXUserLib.xml" url="FXUserLib.xml"/>
+        </folder>
+    </folder>
+</filesystem>
