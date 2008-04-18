@@ -336,7 +336,7 @@ private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                     // L&F (e.g. GTK) did not specify any icon.
                     original = EMPTY;
                 }
-                if (new File(f, "javafxc.jar").isFile() && new File(f, "javafxrt.jar").isFile()) {
+                if (new File(f, "lib/javafxc.jar").isFile() && new File(f, "lib/javafxrt.jar").isFile()) {
                     if ( original.equals( lastOriginal ) ) {
                         return lastMerged;
                     }
@@ -376,7 +376,7 @@ private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     }
     
     public File getFxFolder() {
-	 return FileUtil.normalizeFile(new File(fxFolder.getText()));
+ 	 return FileUtil.normalizeFile(new File(fxFolder.getText() + "/lib"));
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -443,7 +443,7 @@ private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             while (!checkName(name = NbBundle.getMessage(DetectPanel.class, "TXT_DefaultPlaformName", String.valueOf(i)))) i++;
             component.jdkName.setText(name);
             File fxPath = InstalledFileLocator.getDefault().locate("javafx-sdk1.0/lib/javafxc.jar", "org.netbeans.modules.javafx", false);
-            if (fxPath != null && fxPath.isFile()) component.fxFolder.setText(fxPath.getParent());
+            if (fxPath != null && fxPath.isFile()) component.fxFolder.setText(fxPath.getParentFile().getParent());
             File f = component.getPlatformFolder();
             if (f != null && f.isDirectory()) component.javaFolder.setText(f.getAbsolutePath());
             checkValid();
