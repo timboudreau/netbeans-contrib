@@ -41,6 +41,8 @@ package org.netbeans.api.javafx.platform;
 
 import java.net.URL;
 import org.netbeans.api.java.platform.JavaPlatform;
+import org.netbeans.api.java.platform.JavaPlatformManager;
+import org.netbeans.modules.javafx.platform.platformdefinition.DefaultPlatformImpl;
 
 /**
  *
@@ -49,4 +51,10 @@ import org.netbeans.api.java.platform.JavaPlatform;
 public abstract class JavaFXPlatform extends JavaPlatform{
     
     public abstract URL getJavaFXFolder();
+    
+    public static JavaFXPlatform getDefaultFXPlatform() {
+        for (JavaPlatform p : JavaPlatformManager.getDefault().getInstalledPlatforms())
+            if (p instanceof DefaultPlatformImpl) return (JavaFXPlatform)p;
+        return null;
+    }
 }
