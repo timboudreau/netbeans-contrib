@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import java.util.Stack;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
@@ -490,6 +491,9 @@ public class ScalaBracketCompleter implements BracketCompletion {
     static boolean isEndMissing(BaseDocument doc, int offset, boolean skipJunk,
             boolean[] insertEndResult, boolean[] insertRBraceResult, int[] startOffsetResult,
             int[] indentResult) throws BadLocationException {
+
+        TokenHierarchy th = TokenHierarchy.get(doc);
+
         int length = doc.getLength();
 
         // Insert an end statement? Insert a } marker?
@@ -504,10 +508,11 @@ public class ScalaBracketCompleter implements BracketCompletion {
         }
 
         int beginEndBalance = ScalaLexUtilities.getBeginEndLineBalance(doc, offset, true);
-        int braceBalance =
+        Stack<Token> braceBalance =
                 ScalaLexUtilities.getLineBalance(doc, offset, ScalaTokenId.LBrace, ScalaTokenId.RBrace);
 
-        if ((beginEndBalance == 1) || (braceBalance == 1)) {
+        /** Do not try to guess the condition when offset is before the unbalanced brace */
+        if ((beginEndBalance == 1 || braceBalance.size() == 1) && offset > braceBalance.peek().offset(th)) {
             // There is one more opening token on the line than a corresponding
             // closing token.  (If there's is more than one we don't try to help.)
             int indent = ScalaLexUtilities.getLineIndent(doc, offset);
@@ -515,7 +520,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
             // Look for the next nonempty line, and if its indent is > indent,
             // or if its line balance is -1 (e.g. it's an end) we're done
             boolean insertEnd = beginEndBalance > 0;
-            boolean insertRBrace = braceBalance > 0;
+            boolean insertRBrace = braceBalance.size() > 0;
             int next = Utilities.getRowEnd(doc, offset) + 1;
 
             for (; next < length; next = Utilities.getRowEnd(doc, next) + 1) {
@@ -548,8 +553,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
                             }
                         }
                     } else if (insertRBrace &&
-                            (ScalaLexUtilities.getLineBalance(doc, next, ScalaTokenId.LBrace,
-                            ScalaTokenId.RBrace) < 0)) {
+                            ScalaLexUtilities.getLineBalance(doc, next, ScalaTokenId.LBrace, ScalaTokenId.RBrace).size() < 0) {
                         insertRBrace = false;
                     }
                 }
