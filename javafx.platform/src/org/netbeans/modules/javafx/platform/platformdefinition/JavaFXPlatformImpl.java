@@ -51,6 +51,7 @@ import java.net.URISyntaxException;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.Specification;
+import org.netbeans.api.javafx.platform.JavaFXPlatform;
 import org.netbeans.spi.java.classpath.PathResourceImplementation;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.netbeans.spi.project.support.ant.PropertyUtils;
@@ -63,7 +64,7 @@ import org.openide.util.Exceptions;
  * Implementation of the JavaPlatform API class, which serves proper
  * bootstrap classpath information.
  */
-public class JavaFXPlatformImpl extends JavaPlatform {
+public class JavaFXPlatformImpl extends JavaFXPlatform {
     
     public static final String PROP_ANT_NAME = "antName";                   //NOI18N
     public static final String PLATFORM_JAVAFX = "JavaFX";                      //NOI18N
@@ -99,6 +100,9 @@ public class JavaFXPlatformImpl extends JavaPlatform {
      */
     private List<URL> installFolders;
 
+    private List<URL> javaFolders;
+    private URL fxFolder;
+    
     /**
      * Holds bootstrap libraries for the platform
      */
@@ -113,10 +117,15 @@ public class JavaFXPlatformImpl extends JavaPlatform {
      */
     private Specification spec;
 
-    JavaFXPlatformImpl (String dispName, List<URL> installFolders, Map<String,String> initialProperties, Map<String,String> sysProperties, List<URL> sources, List<URL> javadoc) {
+    JavaFXPlatformImpl (String dispName, List<URL> javaFolders, URL fxFolder, Map<String,String> initialProperties, Map<String,String> sysProperties, List<URL> sources, List<URL> javadoc) {
         super();
         this.displayName = dispName;
-        this.installFolders = installFolders;       //No copy needed, called from this module => safe
+        this.javaFolders = javaFolders;
+        this.fxFolder = fxFolder;
+        this.installFolders = new ArrayList<URL>();
+        this.installFolders.addAll(javaFolders);
+        if (fxFolder != null)
+            this.installFolders.add(fxFolder);
         this.properties = initialProperties;
         this.sources = createClassPath(sources);
         if (javadoc != null) {
@@ -128,9 +137,9 @@ public class JavaFXPlatformImpl extends JavaPlatform {
         setSystemProperties(filterProbe(sysProperties));
     }
 
-    protected JavaFXPlatformImpl (String dispName, String antName, List<URL> installFolders, Map<String,String> initialProperties,
+    protected JavaFXPlatformImpl (String dispName, String antName, List<URL> javaFolders, URL fxFolder, Map<String,String> initialProperties,
         Map<String,String> sysProperties, List<URL> sources, List<URL> javadoc) {
-        this (dispName,  installFolders, initialProperties, sysProperties,sources, javadoc);
+        this (dispName,  javaFolders, fxFolder, initialProperties, sysProperties,sources, javadoc);
         this.properties.put (PLAT_PROP_ANT_NAME,antName);
     }
 
@@ -238,6 +247,9 @@ public class JavaFXPlatformImpl extends JavaPlatform {
         return result;
     }
 
+    public URL getJavaFXFolder() {
+        return fxFolder;
+    }
 
     public final FileObject findTool(final String toolName) {
         String archFolder = getProperties().get(PLAT_PROP_ARCH_FOLDER);        
