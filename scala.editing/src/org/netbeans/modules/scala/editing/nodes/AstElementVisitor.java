@@ -770,27 +770,28 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
 
-        GNode what = that.getGeneric(0);
-        if (what.getName().equals("Pattern")) {
-            // Pattern
-            List<Id> ids = visitPattern(what);
-            for (Id id : ids) {
-                Var var = new Var(id, new AstScope(getBoundsTokens(what)), ElementKind.VARIABLE);
+        Object what = that.get(0);
+        if (what instanceof GNode) {
+            GNode whatNode = (GNode) what;
 
-                scopeStack.peek().addDef(var);
-            }
+            if (whatNode.getName().equals("Pattern")) {
+                // Pattern
+                List<Id> ids = visitPattern(whatNode);
+                for (Id id : ids) {
+                    Var var = new Var(id, new AstScope(getBoundsTokens(whatNode)), ElementKind.VARIABLE);
 
-            GNode guardNode = that.getGeneric(1);
-            if (guardNode != null) {
-                visitChildren(guardNode);
-            }
-            // Block
-            visitBlock(that.getGeneric(2));
-        } else {
-            // in funType
-            if (what.getName().endsWith("VarId")) {
-                Id id = visitVarId(what);
-                Var var = new Var(id, new AstScope(getBoundsTokens(what)), ElementKind.VARIABLE);
+                    scopeStack.peek().addDef(var);
+                }
+
+                GNode guardNode = that.getGeneric(1);
+                if (guardNode != null) {
+                    visitChildren(guardNode);
+                }
+                // Block
+                visitBlock(that.getGeneric(2));
+            } else if (whatNode.getName().endsWith("VarId")) {
+                Id id = visitVarId(whatNode);
+                Var var = new Var(id, new AstScope(getBoundsTokens(whatNode)), ElementKind.VARIABLE);
 
                 scopeStack.peek().addDef(var);
 
@@ -798,11 +799,13 @@ public class AstElementVisitor extends AstVisitor {
                 visitChildren(that.getGeneric(1));
                 // Block
                 visitBlock(that.getGeneric(2));
-
-            } else {
-                // "_" FunTypeInCaseClause
-                visitChildren(that.getGeneric(1));
             }
+        } else {
+            // what = "_"
+            // "_" FunTypeInCaseClause Block
+            visitChildren(that.getGeneric(1));
+            // Block
+            visitBlock(that.getGeneric(2));
         }
 
 
@@ -1345,7 +1348,10 @@ public class AstElementVisitor extends AstVisitor {
         if (expr == null) {
             // @TODO
             expr = expr = new SimpleExpr(ElementKind.OTHER);
-            AstElement base = new AstElement(ElementKind.OTHER) {
+            AstElement base = new AstElement 
+
+                  ( 
+                     ElementKind.OTHER) {
 
                 @Override
                 public String getName() {
@@ -1374,7 +1380,10 @@ public class AstElementVisitor extends AstVisitor {
                 element = visitArgumentExprs(whatNode);
             }
         } else {
-            element = new AstElement(ElementKind.OTHER) {
+            element = new AstElement 
+
+                  ( 
+                     ElementKind.OTHER) {
 
                 @Override
                 public String getName() {
