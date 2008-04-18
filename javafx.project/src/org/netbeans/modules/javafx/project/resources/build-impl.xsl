@@ -155,12 +155,6 @@ is divided into following sections:
                     <fail unless="platform.java">Must set platform.java</fail>
                     <fail if="platform.invalid">Platform is not correctly set up</fail>
                 </xsl:if>
-                <javafxproject1:property name="platform.fxhome" value="platforms.${{platform.active}}.fxhome"/>
-                <pathconvert property="platform.fxcp">
-                    <fileset dir="${{platform.fxhome}}">
-                        <include name="**/*.jar"/>
-                    </fileset>
-                </pathconvert>    
                 <available file="${{manifest.file}}" property="manifest.available"/>
                 <condition property="manifest.available+main.class">
                     <and>
@@ -202,6 +196,14 @@ is divided into following sections:
                         <istrue value="${{no.dependencies}}"/>
                     </and>
                 </condition>
+                <condition property="have.java.sources">
+                    <resourcecount when="gt" count="0">
+                        <xsl:call-template name="createFilesets">
+                            <xsl:with-param name="roots" select="/p:project/p:configuration/javafxproject3:data/javafxproject3:source-roots"/>
+                            <xsl:with-param name="includes2">**/*.java</xsl:with-param>
+                        </xsl:call-template>
+                    </resourcecount>
+                </condition>        
                 <property name="javac.debug" value="true"/>
                 <property name="javadoc.preview" value="true"/>
                 <property name="application.args" value=""/>
@@ -837,7 +839,7 @@ is divided into following sections:
                 <property name="build.classes.dir.resolved" location="${{build.classes.dir}}"/>
                 <pathconvert property="run.classpath.without.build.classes.dir">
                     <path path="${{run.classpath}}"/>
-                    <path path="${{platform.fxcp}}"/>
+                    <path path="${{libs.JavaFXUserLib.classpath}}"/>
                     <map from="${{build.classes.dir.resolved}}" to=""/>
                 </pathconvert>        
                 <pathconvert property="jar.classpath" pathsep=" ">
@@ -857,7 +859,10 @@ is divided into following sections:
                 </copylibs>                                
                 <echo>To run this application from the command line without Ant, try:</echo>
                 <property name="dist.jar.resolved" location="${{dist.jar}}"/>
-                <echo>javafx -jar "${dist.jar.resolved}"</echo>                
+                <echo><xsl:choose>
+                        <xsl:when test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">${platform.java}</xsl:when>
+                        <xsl:otherwise>java</xsl:otherwise>
+                </xsl:choose> -jar "${dist.jar.resolved}"</echo>                
                 <replace file="${{dist.jar.dir}}/README.TXT" token='.jar"' value='.jar" ${{main.class}}'/>
             </target>
             
@@ -966,7 +971,7 @@ is divided into following sections:
                 ===============
             </xsl:comment>
             
-            <target name="-javadoc-build">
+            <target name="-javadoc-build" if="have.java.sources">
                 <xsl:attribute name="depends">init</xsl:attribute>
                 <mkdir dir="${{dist.javadoc.dir}}"/>
                 <!-- XXX do an up-to-date check first -->
