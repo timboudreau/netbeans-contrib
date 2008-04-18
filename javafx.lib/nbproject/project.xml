@@ -45,23 +45,17 @@ made subject to such option by the copyright holder.
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
             <code-name-base>org.netbeans.modules.javafx.lib</code-name-base>
             <class-path-extension>
-                <runtime-relative-path>ext/javafx/compiler/javafxc.jar</runtime-relative-path>
+                <runtime-relative-path>ext/compiler/lib/javafxc.jar</runtime-relative-path>
                 <binary-origin>external/compiler/javafxc.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/javafx/compiler/javafxrt.jar</runtime-relative-path>
+                <runtime-relative-path>ext/compiler/lib/javafxrt.jar</runtime-relative-path>
                 <binary-origin>external/compiler/javafxrt.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/javafx/compiler/Scenario.jar</runtime-relative-path>
+                <runtime-relative-path>ext/compiler/lib/Scenario.jar</runtime-relative-path>
                 <binary-origin>external/compiler/Scenario.jar</binary-origin>
             </class-path-extension>
-            <!--            
-            <class-path-extension>
-                <runtime-relative-path>ext/javafx/compiler/Reprise.jar</runtime-relative-path>
-                <binary-origin>external/compiler/Reprise.jar</binary-origin>
-            </class-path-extension>
--->
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.netbeans.libs.jsr223</code-name-base>

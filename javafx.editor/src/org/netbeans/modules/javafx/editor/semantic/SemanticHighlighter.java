@@ -41,6 +41,7 @@ package org.netbeans.modules.javafx.editor.semantic;
 import com.sun.javafx.api.tree.FunctionDefinitionTree;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
 import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.VariableTree;
 import com.sun.source.util.SourcePositions;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -74,8 +75,7 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
     private static final String ID_FUNCTION = "function";
     private static final String ID_FIELD = "field";
 
-//    private static final AttributeSet FIELD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.BLACK, StyleConstants.Bold, Boolean.TRUE);
-    private static final AttributeSet FIELD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Background, new Color(240, 240, 240));
+    private static final AttributeSet FIELD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, new Color(0, 153, 0));
     private static final AttributeSet METHOD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.BLACK, StyleConstants.Bold, Boolean.TRUE);
     
     private static final Logger LOGGER = Logger.getLogger(SemanticHighlighter.class.getName());
@@ -186,7 +186,7 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
             TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
             while (ts.moveNext()) {
                 Token t = ts.token();
-                if (JFXTokenId.IDENTIFIER.equals(t.id())) { // first identifiers is a name
+                if (JFXTokenId.IDENTIFIER.equals(t.id())) { // first identifier is a name
                     start = ts.offset();
                     end = start + t.length();
                     break;
@@ -195,6 +195,30 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
 
             list.add(new Result(start, end,ID_FUNCTION));
             return super.visitFunctionDefinition(tree, list);
+        }
+
+        @Override
+        public Void visitVariable(VariableTree tree, List<Result> list) {
+            SourcePositions sourcePositions = info.getTrees().getSourcePositions();
+            long start = sourcePositions.getStartPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
+            long end = sourcePositions.getEndPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
+            
+            if (start < 0 || end < 0) { // synthetic
+                return super.visitVariable(tree, list);
+            }
+            
+            TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
+            while (ts.moveNext()) {
+                Token t = ts.token();
+                if (JFXTokenId.IDENTIFIER.equals(t.id())) { // first identifier is a name
+                    start = ts.offset();
+                    end = start + t.length();
+                    break;
+                }
+            }
+
+            list.add(new Result(start, end, ID_FIELD));
+            return super.visitVariable(tree, list);
         }
 
     }
