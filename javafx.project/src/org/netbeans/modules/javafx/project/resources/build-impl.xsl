@@ -851,10 +851,7 @@ is divided into following sections:
                 </copylibs>                                
                 <echo>To run this application from the command line without Ant, try:</echo>
                 <property name="dist.jar.resolved" location="${{dist.jar}}"/>
-                <echo><xsl:choose>
-                        <xsl:when test="/p:project/p:configuration/javafxproject3:data/javafxproject3:explicit-platform">${platform.java}</xsl:when>
-                        <xsl:otherwise>java</xsl:otherwise>
-                </xsl:choose> -jar "${dist.jar.resolved}"</echo>                
+                <echo>javafx -jar "${dist.jar.resolved}"</echo>                
                 <replace file="${{dist.jar.dir}}/README.TXT" token='.jar"' value='.jar" ${{main.class}}'/>
             </target>
             
