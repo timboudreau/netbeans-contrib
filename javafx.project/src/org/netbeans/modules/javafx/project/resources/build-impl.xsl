@@ -196,6 +196,14 @@ is divided into following sections:
                         <istrue value="${{no.dependencies}}"/>
                     </and>
                 </condition>
+                <condition property="have.java.sources">
+                    <resourcecount when="gt" count="0">
+                        <xsl:call-template name="createFilesets">
+                            <xsl:with-param name="roots" select="/p:project/p:configuration/javafxproject3:data/javafxproject3:source-roots"/>
+                            <xsl:with-param name="includes2">**/*.java</xsl:with-param>
+                        </xsl:call-template>
+                    </resourcecount>
+                </condition>        
                 <property name="javac.debug" value="true"/>
                 <property name="javadoc.preview" value="true"/>
                 <property name="application.args" value=""/>
@@ -963,7 +971,7 @@ is divided into following sections:
                 ===============
             </xsl:comment>
             
-            <target name="-javadoc-build">
+            <target name="-javadoc-build" if="have.java.sources">
                 <xsl:attribute name="depends">init</xsl:attribute>
                 <mkdir dir="${{dist.javadoc.dir}}"/>
                 <!-- XXX do an up-to-date check first -->
