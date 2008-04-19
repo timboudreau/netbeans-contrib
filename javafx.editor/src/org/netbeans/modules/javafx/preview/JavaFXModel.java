@@ -44,8 +44,6 @@ package org.netbeans.modules.javafx.preview;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import org.netbeans.modules.javafx.editor.*;
-import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
@@ -59,12 +57,9 @@ import javax.swing.SwingUtilities;
 //import net.java.javafx.type.expr.CompilationUnit;
 //import net.java.javafx.typeImpl.Compilation;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectManager;
-import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.modules.editor.NbEditorUtilities;
-import org.netbeans.modules.javafx.project.JavaFXProject;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -113,6 +108,7 @@ public class JavaFXModel {
             }
             if (classBytes != null)
                 classBytesForProj.putAll(classBytes);
+             projectsClassBytes.put(project,classBytesForProj);
         }
     }
     
@@ -127,6 +123,7 @@ public class JavaFXModel {
                 classBytesForProj.clear();
             if (classBytes != null)
                 classBytesForProj.putAll(classBytes);
+            projectsClassBytes.put(project,classBytesForProj);
         }
     }
     
@@ -134,7 +131,7 @@ public class JavaFXModel {
         synchronized (projectsClassBytes) {
             Map<String, byte[]> classBytes = projectsClassBytes.get(project);
             if (classBytes != null)
-                return projectsClassBytes.get(project);
+                return classBytes;
             else
                 return new HashMap<String, byte[]>();
         }
@@ -153,14 +150,16 @@ public class JavaFXModel {
     public static void sourceChanged(FXDocument doc){
         
         CodeManager.cut(doc);
-        
-        comps.get(doc).sourceChanged();
         lastVisitTime = System.currentTimeMillis();
-        changeThread.setDocument(doc);
+        previewReq(doc, true);
     }
 
+    public static void previewReq(FXDocument doc, boolean requiredNew){
+        comps.get(doc).sourceChanged();
+        changeThread.setDocument(doc);
+    }
+    
     public static void sourceDependencyChanged(FXDocument doc){
-//        System.out.println("[JavaFXModel] sourceDependencyChanged for document: " + doc);
         comps.get(doc).sourceDependencyChanged();
         sourceChanged(doc);
     }
@@ -182,13 +181,11 @@ public class JavaFXModel {
     }
     
     public static void showPreview(FXDocument document, boolean requiredNew) {
-//        System.out.println("Show preview for doc: " + document);
         if (document != null && document.executionAllowed()){
             JComponent resultComponent = getResultComponent(document);
             if ((requiredNew) || (resultComponent == null)){
                 
-                boolean isAdded = documents.add(document);
-//                System.out.println("Added to Set (" + documents.size() +"): " + document);
+                //boolean isAdded = documents.add(document);
                 //if (isAdded){
                     renderPreview(document);
                 //}
@@ -199,47 +196,12 @@ public class JavaFXModel {
     }
 
     public static void addDocument(FXDocument doc){
-//        System.out.println("[JavaFXModel] add document: " + doc);
         synchronized(comps){
             JavaFXRuntimeInfo ri = new JavaFXRuntimeInfo(doc);
             comps.put(doc, ri);
         }
     }
 
-/*    public static Compilation getPreviewCompilation(FXDocument doc){
-//        System.out.println("[JavaFXModel] getPreviewCompilation for document: " + doc);
-        return comps.get(doc).getPreviewCompilation();
-    }
-    
-    public static CompilationUnit getPreviewCompilationUnit(FXDocument doc){
-//        System.out.println("[JavaFXModel] getPreviewCompilationUnit for document: " + doc);
-        JavaFXRuntimeInfo ri = comps.get(doc);
-        return ri.getPreviewUnit();
-    }
-    
-    public static Compilation getCompilation(FXDocument doc){
-//        System.out.println("[JavaFXModel] getCompilation for document: " + doc);
-        return comps.get(doc).getCompilation();
-    }
-    
-    public static Compilation getCompilation(FileObject fileObject){
-        FXDocument doc = null;
-        try{
-            DataObject dataObject = DataObject.find(fileObject);
-            EditorCookie editorCookie =  dataObject.getCookie(EditorCookie.class);
-            doc = (FXDocument)editorCookie.getDocument();
-        }catch(DataObjectNotFoundException e){
-        }
-        
-        return getCompilation(doc);
-    }
-    
-    public static CompilationUnit getCompilationUnit(FXDocument doc){
-//        System.out.println("[JavaFXModel] getCompilationUnit for document: " + doc);
-        JavaFXRuntimeInfo ri = comps.get(doc);
-        return ri.getUnit();
-    }
-*/
     public static void setResultComponent(FXDocument doc, JComponent comp){
         comps.get(doc).setResultComponent(comp);
     }
@@ -253,9 +215,6 @@ public class JavaFXModel {
         return new InputStreamReader(loader.getResourceAsStream("org/netbeans/modules/javafx/model/impl/JavaFXWidget.fx"));
     }
     
-    
-// private methods    
-    
     private static void initFX(){
         if (changeThread == null){
             changeThread = new ChangeThread();
@@ -264,9 +223,14 @@ public class JavaFXModel {
         projectsClassBytes = new HashMap<Project, Map<String, byte[]>>();
     }
     
-    private static void renderPreview(final FXDocument doc) {
-        try{
-            PreviewThread tPreview = new PreviewThread(doc);
+    static PreviewThread tPreview = null;
+    
+    synchronized private static void renderPreview(final FXDocument doc) {
+        try {
+            if (tPreview != null)
+                tPreview.joinTask();
+            tPreview = new PreviewThread(doc);
+        
             if(!SwingUtilities.isEventDispatchThread()) {
                 SwingUtilities.invokeLater(tPreview);
             } else {

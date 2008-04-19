@@ -45,15 +45,21 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
+import java.util.ArrayList;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentEvent.EventType;
@@ -63,7 +69,6 @@ import org.netbeans.modules.editor.NbEditorDocument;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.javafx.preview.JavaFXModel;
 import org.openide.loaders.DataObject;
-import org.netbeans.editor.Formatter;
 
 /**
  *
@@ -76,6 +81,8 @@ public class JavaFXDocument extends NbEditorDocument implements FXDocument{
     private PreviewSplitPane split = null;
     private Component editor = null;
     private JScrollPane scroll = null;
+    private static final JPanel nothingPanel = getSloganPanel(loadIcon("org/netbeans/modules/javafx/editor/resources/blank.png"), "Nothing to show...");;
+    private static final JPanel compilePanel = getSloganPanel(loadIcon("org/netbeans/modules/javafx/editor/resources/clock.gif"), "Compile...");;
 
     boolean executionEnabled = false;
     boolean errorAndSyntaxEnabled = false;
@@ -83,17 +90,12 @@ public class JavaFXDocument extends NbEditorDocument implements FXDocument{
     public JavaFXDocument(Class kitClass) {
         super(kitClass);
     }
-
+    
     @Override
     public void write(Writer writer, int pos, int len) throws IOException, BadLocationException {
         super.write(writer, pos, len);
         JavaFXModel.fireDependenciesChange(this);
     }
-    
-//    @Override
-//    public Formatter getFormatter() {
-//        return Formatter.getFormatter(getKitClass());
-//    }
 
     @Override
     public Component createEditor(JEditorPane pane) {
@@ -188,6 +190,51 @@ public class JavaFXDocument extends NbEditorDocument implements FXDocument{
         }
     }
     
+    public void setCompile() {
+        renderPreview(compilePanel);
+    }
+    
+    public void setNothing() {
+        renderPreview(nothingPanel);
+    }
+    
+    public static JPanel getNothingPane() {
+        return nothingPanel;
+    }
+    
+    static public JPanel getSloganPanel(ImageIcon icon, String text) {
+        JPanel panel = new JPanel();
+        panel.setBackground(Color.WHITE);
+        JLabel label = new JLabel(icon);
+        label.setText(text);
+        label.setVerticalTextPosition(SwingConstants.BOTTOM);
+        label.setHorizontalTextPosition(SwingConstants.CENTER);
+        label.setVerticalAlignment(SwingConstants.CENTER);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        panel.add(label, BorderLayout.CENTER);
+        return panel;
+    }
+    
+    static private ImageIcon loadIcon(String resource) {
+        try {
+            InputStream is = JavaFXModel.class.getClassLoader().getResourceAsStream(resource);
+            int b = is.read();
+            ArrayList <Byte> list = new ArrayList <Byte> ();
+            while (b != -1) {
+                list.add(Byte.valueOf((byte)b));
+                b = is.read();
+            }
+            byte[] array = new byte[list.size()];
+            int i = 0;
+            for (Byte B : list) {
+                array[i++] = B.byteValue();
+            }
+            return new ImageIcon(Toolkit.getDefaultToolkit().createImage(array));
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+            
     public void renderPreview(final JComponent comp){
         JavaFXModel.setResultComponent(this, comp);
         SwingUtilities.invokeLater(new Runnable(){
@@ -257,7 +304,6 @@ public class JavaFXDocument extends NbEditorDocument implements FXDocument{
     public class PreviewPanel extends JPanel{
         public PreviewPanel(JavaFXDocument doc){
             super();
-            // this is for the print preview
             putClientProperty(java.awt.print.Printable.class, NbEditorUtilities.getFileObject(doc).getNameExt());
         }
     }
