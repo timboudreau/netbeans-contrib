@@ -1,7 +1,6 @@
 package color;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.gui.*;
 import java.lang.System;
 
 var B1 = Color.rgb( 190, 190, 190 );
@@ -17,6 +16,8 @@ var C6 = Color.rgb(  25, 255, 200 );
 var Y_AXIS = false;
 var X_AXIS = true;
         
+var l1  =         
+        
 Frame {
     content : Canvas {
         content: [
@@ -30,41 +31,48 @@ Frame {
     
     visible : true
     title : "Gradient Sample"
-    width : 200
+    width : 208
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }
+    closeAction : function() { java.lang.System.exit( 0 ); }
 }
 
-class GradientBox extends CompositeNode {
+class GradientBox extends CustomNode {
     attribute x : Number;
     attribute y : Number;
     attribute size : Number;
     attribute c1 : Color;
     attribute c2 : Color;
     attribute axis : Boolean;
+    
+    private attribute fill : LinearGradient;
+    private attribute node : Node;
    
-    function composeNode() : Node {
+    init {
         var xx : Number;
         var yy : Number;
         if( axis ) { 
-            xx = size; yy = 0.1;
+            xx = 1; yy = 0.1;
         } else { 
-            xx = 0.1; yy = size;
+            xx = 0.1; yy = 1;
         }
+        fill = LinearGradient {
+           startX : 0, startY : 0, 
+           endX : bind xx, endY : bind yy
+           stops: [
+               Stop { offset: 0, color: bind c1 },
+               Stop { offset: 1, color: bind c2 }
+           ]
+        };
+    }
+    
+    function create() : Node {
         return Group {
-            content : Rect {
-                x: x
-                y: y
-                width: size
-                height: size
-                fill: LinearGradient {
-                   startX : 0, startY : 0, 
-                   endX : xx, endY : yy
-                   stops: [
-                       Stop { offset: 0, color: c1 },
-                       Stop { offset: 1, color: c2 }
-                   ]
-                }
+            content : Rectangle {
+                x: bind x
+                y: bind y
+                width: bind size
+                height: bind size
+                fill: bind fill
             }
         };
     }   

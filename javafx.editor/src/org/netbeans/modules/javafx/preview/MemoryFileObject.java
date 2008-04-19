@@ -41,17 +41,25 @@ package org.netbeans.modules.javafx.preview;
 
 import java.io.IOException;
 import java.net.URI;
+import javax.swing.text.Document;
 import javax.tools.SimpleJavaFileObject;
+import org.netbeans.modules.editor.NbEditorUtilities;
 
 class MemoryFileObject extends SimpleJavaFileObject {
 
     CharSequence code;
     String className;
+    Document referredDoc;
 
-    public MemoryFileObject(String className, CharSequence code, Kind kind) {
+    public MemoryFileObject(String className, CharSequence code, Kind kind, Document doc) {
         super(toURI(className), kind);
         this.code = code;
         this.className = className;
+        this.referredDoc = doc;
+    }
+    
+    Document getDocument() {
+        return referredDoc;
     }
 
     @Override
@@ -68,6 +76,14 @@ class MemoryFileObject extends SimpleJavaFileObject {
     public String getName() {
         return getFileName(className);
     }
+    
+    public String getClassName() {
+        return className;
+    }
+    
+    public String getFilePath(){
+        return NbEditorUtilities.getFileObject(referredDoc).getPath();
+    }
 
     @Override
     public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
@@ -78,11 +94,11 @@ class MemoryFileObject extends SimpleJavaFileObject {
         return URI.create("./" + getFilePath(className));
     }
     
-    public static String getFileName(String className){
+    private static String getFileName(String className){
         return className.substring(className.lastIndexOf('.') + 1) + ".fx";
     }
     
-    public static String getFilePath(String className){
+    private static String getFilePath(String className){
         return className.replace('.','/') + ".fx";
     }
 

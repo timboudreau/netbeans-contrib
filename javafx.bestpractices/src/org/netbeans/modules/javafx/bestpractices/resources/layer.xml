@@ -273,6 +273,15 @@ made subject to such option by the copyright holder.
                 </folder>
             </folder>
         </folder>
+        <folder name="game">
+            <folder name="Bounce">
+                <folder name="game">
+                    <file name="Bounce.fx" url="/demos/game/Bounce.fx">
+                        <attr name="mainclass" boolvalue="true"/>
+                    </file> 
+                </folder>
+            </folder>
+        </folder>
     </folder>
         
     <folder name="Templates">
@@ -490,6 +499,15 @@ made subject to such option by the copyright holder.
                                 <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
                                 <attr name="template" boolvalue="true"/>
                                 <attr name="file" stringvalue="demos/particles/FlockDemo/"/>
+                            </file>
+                        </folder>
+                        <folder name="Game">
+                            <file name="Bounce" url="../../../../../../demos/game/Bounce.fx">
+                                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/javafx/dataloader/FX-filetype.png"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javafx.bestpractices.resources.Bundle"/>
+                                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.javafx.bestpractices.BestPracticesWizardIterator.createIterator"/>
+                                <attr name="template" boolvalue="true"/>
+                                <attr name="file" stringvalue="demos/game/Bounce/"/>
                             </file>
                         </folder>
                     </folder>
