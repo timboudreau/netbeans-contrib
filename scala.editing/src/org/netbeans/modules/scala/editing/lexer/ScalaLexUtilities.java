@@ -725,7 +725,9 @@ public class ScalaLexUtilities {
                     balanceStack.push(token);
                     balance++;
                 } else if (id == down) {
-                    balanceStack.pop();
+                    if (!balanceStack.empty()) {
+                        balanceStack.pop();
+                    }
                     balance--;
                 }
             } while (ts.moveNext() && (ts.offset() <= end));
