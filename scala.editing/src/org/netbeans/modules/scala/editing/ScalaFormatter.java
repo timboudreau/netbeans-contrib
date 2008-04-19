@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import org.netbeans.modules.scala.editing.options.CodeStyle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
