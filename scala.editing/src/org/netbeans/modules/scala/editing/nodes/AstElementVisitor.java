@@ -539,6 +539,11 @@ public class AstElementVisitor extends AstVisitor {
         Function function = new Function(id.getName(), id.getIdToken(), scope, ElementKind.CONSTRUCTOR);
         function.setParam(params);
 
+        Template enclosingTemplate = scopeStack.peek().getEnclosingDef(Template.class);
+        if (enclosingTemplate != null) {
+            function.setName(enclosingTemplate.getName());
+        }
+        
         scopeStack.peek().addDef(function);
 
         exit(that);
