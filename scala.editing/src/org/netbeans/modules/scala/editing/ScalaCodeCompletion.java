@@ -478,9 +478,9 @@ public class ScalaCodeCompletion implements Completable {
             }
 
             // Try to complete "new" RHS
-//            if (completeNew(proposals, request)) {
-//               return proposals;
-//            }
+            if (completeNew(proposals, request)) {
+               return proposals;
+            }
 
 //            if (call.getLhs() != null || request.call.getPrevCallParenPos() != -1) {
 //                completeObjectMethod(proposals, request);
@@ -1509,7 +1509,7 @@ public class ScalaCodeCompletion implements Completable {
 
                 if (token.id() == ScalaTokenId.New) {
                     Set<IndexedElement> elements = index.getConstructors(prefix, kind, ScalaIndex.ALL_SCOPE);
-                    String lhs = request.call.getName();
+                    String lhs = request.call == null ? null : request.call.getName();
                     if (lhs != null && lhs.length() > 0) {
                         Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, null);
                         if (m.size() > 0) {
