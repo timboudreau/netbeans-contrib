@@ -244,8 +244,11 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
                          * GSF's indexing does not support jar, zip yet 
                          */
                         //if (src.getName().endsWith(".jar")) { // NOI18N
+                        //    URL url = FileUtil.getArchiveRoot(src.toURI().toURL());
+                        //    srcUrls.add(url);
+                        //}
                         if (src.isDirectory()) { // NOI18N
-                            URL url = FileUtil.getArchiveRoot(src.toURI().toURL());
+                            URL url = src.toURI().toURL();
                             srcUrls.add(url);
                         }
                     }
