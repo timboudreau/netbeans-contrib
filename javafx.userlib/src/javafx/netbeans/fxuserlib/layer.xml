@@ -44,9 +44,4 @@ made subject to such option by the copyright holder.
 
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-    <folder name="org-netbeans-api-project-libraries">
-        <folder name="Libraries">
-            <file name="FXUserLib.xml" url="FXUserLib.xml"/>
-        </folder>
-    </folder>
 </filesystem>

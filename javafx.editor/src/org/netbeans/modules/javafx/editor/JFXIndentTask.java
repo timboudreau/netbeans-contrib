@@ -130,18 +130,14 @@ class JFXIndentTask implements IndentTask, ReformatTask {
     private void indentRegion(Context.Region region) throws BadLocationException {
         int offset = region.getStartOffset();
         do {
-//            int lso = context.lineStartOffset(offset);
-//            int si = getScopeIndent(context.document(), lso);
-//            if (context.lineIndent(lso) != si) {
-//                context.modifyIndent(lso, si);
-//            }
             indentLine(offset);
             offset = adjustOffsetToNewLine(offset, context.lineStartOffset(offset));
         } while (offset < region.getEndOffset());
     }
 
     private int adjustOffsetToNewLine(int offset, int lso) throws BadLocationException {
-        while (lso == context.lineStartOffset(offset)) {
+        while (lso == context.lineStartOffset(offset) 
+                && offset < context.endOffset()) {
             offset++;
         }
         return offset;

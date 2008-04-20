@@ -42,6 +42,7 @@ package org.netbeans.modules.javafx.editor.fold;
 
 import com.sun.javafx.api.tree.BlockExpressionTree;
 import com.sun.javafx.api.tree.ClassDeclarationTree;
+import com.sun.javafx.api.tree.FunctionDefinitionTree;
 import com.sun.javafx.api.tree.InstantiateTree;
 import com.sun.javafx.api.tree.ObjectLiteralPartTree;
 import com.sun.javafx.api.tree.SequenceExplicitTree;
@@ -424,15 +425,18 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
             while (ts.movePrevious()) {
                 Token<JFXTokenId> token = ts.token();
                 
-                if (token.id() == JFXTokenId.DOC_COMMENT) {
+                if ((token.id() == JFXTokenId.DOC_COMMENT) || 
+                    (token.id() == JFXTokenId.COMMENT)) {
                     Document doc   = operation.getHierarchy().getComponent().getDocument();
                     int startOffset = ts.offset();
                     folds.add(new FoldInfo(doc, startOffset, startOffset + token.length(), JAVADOC_FOLD_TEMPLATE, foldJavadocsPreset));
                 }
-                if (   token.id() != JFXTokenId.WS
-                    && token.id() != JFXTokenId.COMMENT
-                    && token.id() != JFXTokenId.LINE_COMMENT)
+                if (token.id() != JFXTokenId.ABSTRACT &&
+                    token.id() != JFXTokenId.PUBLIC &&
+                    token.id() != JFXTokenId.WS &&
+                    token.id() != JFXTokenId.LINE_COMMENT) {
                     break;
+                }
             }
         }
         
@@ -564,6 +568,13 @@ public class JavaFXElementFoldManager extends JavaFoldManager {
             return null;
         }
         
+        @Override
+        public Object visitFunctionDefinition(FunctionDefinitionTree node, Object p) {
+            super.visitFunctionDefinition(node, p);
+            handleTree(node, null, true);
+            return null;
+        }
+
         @Override
         public Object visitSequenceExplicit(SequenceExplicitTree node, Object p) {
             super.visitSequenceExplicit(node, p);

@@ -1,23 +1,22 @@
 package input;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.animation.*;
+import javafx.gui.*;
+import javafx.animation.*;
 
 var miliseconds : Integer;
 var colors : Color[];
 
 var timeline : Timeline = Timeline {
-    repeatCount: java.lang.Double.POSITIVE_INFINITY
+    repeatCount: Timeline.INDEFINITE
     keyFrames : 
         KeyFrame {
-            keyTime : 16ms
+            time : 16ms
             action : function() : Void {
-                var milliseconds : Number = ( java.lang.System.currentTimeMillis() % 1000 ) as Integer;
+                var milliseconds : Number = ( java.lang.System.currentTimeMillis()) as Integer;
+                
                 for( i in [0..9] ) {
-                    var ii : Integer = i + 1;
-                    var color : Number = ( milliseconds % ( ii * 10 )) / ( 10 * ii );
-                    java.lang.System.out.println( "{color}" );
+                    var ii : Integer = ( i + 1 ) * 100;
+                    var color : Number = milliseconds % ii / ii;
                     colors[i] = Color { 
                         red : color, green : color, blue : color };
                 }
@@ -25,11 +24,11 @@ var timeline : Timeline = Timeline {
         }
 };
 
-var barrs : Rect[];
+var barrs : Rectangle[];
 for( i in [0..9] ) {
     var ii : Integer = i;
     insert Color {} into colors;
-    insert Rect {
+    insert Rectangle {
         x : i * 20, y : 0, width : 20, height : 200
         fill : bind colors[ii]
     } into barrs;
@@ -42,9 +41,9 @@ Frame {
     
     visible : true
     title : "Milliseconds"
-    width : 200
+    width : 208
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }
+    closeAction : function() { java.lang.System.exit( 0 ); }
 }
 
 timeline.start();

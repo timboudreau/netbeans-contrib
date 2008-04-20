@@ -44,17 +44,29 @@ package org.netbeans.modules.javafx.project;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Stack;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.tools.ant.module.spi.AntEvent;
 import org.apache.tools.ant.module.spi.AntLogger;
 import org.apache.tools.ant.module.spi.AntSession;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.classpath.GlobalPathRegistry;
+import org.netbeans.api.java.platform.JavaPlatform;
+import org.netbeans.api.java.platform.JavaPlatformManager;
+import org.netbeans.api.java.queries.SourceForBinaryQuery;
+import org.netbeans.api.javafx.platform.JavaFXPlatform;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.openide.ErrorManager;
-import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
@@ -66,6 +78,36 @@ import org.openide.filesystems.FileUtil;
 public final class JavaFXAntLogger extends AntLogger {
 
     private static final Pattern HYPERLINK = Pattern.compile("\"?(.+?)\"?(?::|, line )(?:(\\d+):(?:(\\d+):(?:(\\d+):(\\d+):)?)?)? +(.+)"); // NOI18N
+
+    /**
+     * Regexp matching one line (not the first) of a stack trace.
+     * Captured groups:
+     * <ol>
+     * <li>package
+     * <li>filename
+     * <li>line number
+     * </ol>
+     */
+    private static final Pattern STACK_TRACE = Pattern.compile(
+    "(?:\t|\\[catch\\] )at ((?:[a-zA-Z_$][a-zA-Z0-9_$]*\\.)*)[a-zA-Z_$][a-zA-Z0-9_$]*\\.[a-zA-Z_$<][a-zA-Z0-9_$>]*\\(([a-zA-Z_$][a-zA-Z0-9_$]*\\.fx):([0-9]+)\\)"); // NOI18N
+    /**
+     * Regexp matching part of a Java task's invocation debug message
+     * that specifies the classpath.
+     * Hack to find the classpath an Ant task is using.
+     * Cf. Commandline.describeArguments, issue #28190.
+     * Captured groups:
+     * <ol>
+     * <li>the classpath
+     * </ol>
+     */
+    private static final Pattern CLASSPATH_ARGS = Pattern.compile("\r?\n'-classpath'\r?\n'(.*)'\r?\n"); // NOI18N
+    
+    /**
+     * Regexp matching part of a Java task's invocation debug message
+     * that specifies java executable.
+     * Hack to find JDK used for execution.
+     */
+    private static final Pattern JAVA_EXECUTABLE = Pattern.compile("^Executing '(.*)' with arguments:$", Pattern.MULTILINE); // NOI18N
     
     private static final int[] LEVELS_OF_INTEREST = {
 //        AntEvent.LOG_VERBOSE, 
@@ -111,7 +153,18 @@ public final class JavaFXAntLogger extends AntLogger {
         // Was not a JavaFXProject's nbproject/build-impl.xml; ignore it.
         return false;
     }
-    
+       
+    public void taskFinished(AntEvent event) {
+        if ("java".equals(event.getTaskName()) || "javafx".equals(event.getTaskName()) || "javac".equals(event.getTaskName()) || "javafxc".equals(event.getTaskName())) { // NOI18N
+            Throwable t = event.getException();
+            AntSession session = event.getSession();
+            if (t != null && !session.isExceptionConsumed(t)) {
+                // To cleanup the message in the output window we filter all the final exceptions from compilation and execution
+                session.consumeException(t);
+            }
+        }
+    }
+ 
     @Override
     public void messageLogged(AntEvent event) {
         AntSession session = event.getSession();
@@ -121,7 +174,62 @@ public final class JavaFXAntLogger extends AntLogger {
         String line = event.getMessage();
         assert line != null;
 
-        Matcher m = HYPERLINK.matcher(line);
+        Matcher m = STACK_TRACE.matcher(line);
+        if (m.matches()) {
+            // We have a stack trace.
+            String pkg = m.group(1);
+            String filename = m.group(2);
+            String resource = pkg.replace('.', '/') + filename;
+            int lineNumber = Integer.parseInt(m.group(3));
+            // Check to see if the class is listed in our per-task sourcepath.
+            // XXX could also look for -Xbootclasspath etc., but probably less important
+            Iterator it = getCurrentSourceRootsForClasspath(data).iterator();
+            while (it.hasNext()) {
+                FileObject root = (FileObject)it.next();
+                // XXX this is apparently pretty expensive; try to use java.io.File instead
+                FileObject source = root.getFileObject(resource);
+                if (source != null) {
+                    // Got it!
+                    hyperlink(line, session, event, source, messageLevel, sessionLevel, data, lineNumber);
+                    break;
+                }
+            }
+            // Also check global sourcepath (sources of open projects, and sources
+            // corresponding to compile or boot classpaths of open projects).
+            // Fallback in case a JAR file is copied to an unknown location, etc.
+            // In this case we can't be sure that this source file really matches
+            // the .class used in the stack trace, but it is a good guess.
+            if (!event.isConsumed()) {
+                FileObject source = GlobalPathRegistry.getDefault().findResource(resource);
+                if (source != null) {
+                    hyperlink(line, session, event, source, messageLevel, sessionLevel, data, lineNumber);
+                }
+            }
+        } else {
+            // Track the last line which was not a stack trace - probably the exception message.
+            data.possibleExceptionText = line;
+            data.lastExceptionMessage = null;
+        }
+        
+        // Look for classpaths.
+        if (messageLevel == AntEvent.LOG_VERBOSE) {
+            Matcher m2 = CLASSPATH_ARGS.matcher(line);
+            if (m2.find()) {
+                String cp = m2.group(1);
+                data.setClasspath(cp);
+            }
+            // XXX should also probably clear classpath when taskFinished called
+            m2 = JAVA_EXECUTABLE.matcher(line);
+            if (m2.find()) {
+                String executable = m2.group(1);
+                ClassPath platformSources = findPlatformSources(executable);
+                if (platformSources != null) {
+                    data.setPlatformSources(platformSources);
+                }
+            }
+        }
+
+        m = HYPERLINK.matcher(line);
         if (m.matches()) {
             String path = m.group(1);
             if (path.startsWith("file:")) {
@@ -151,12 +259,56 @@ public final class JavaFXAntLogger extends AntLogger {
             }
         }
     }
+    
+    /**
+     * Finds source roots corresponding to the apparently active classpath
+     * (as reported by logging from Ant when it runs the Java launcher with -cp).
+     */
+    private static Collection/*<FileObject>*/ getCurrentSourceRootsForClasspath(SessionData data) {
+        if (data.classpath == null) {
+            return Collections.EMPTY_SET;
+        }
+        if (data.classpathSourceRoots == null) {
+            data.classpathSourceRoots = new LinkedHashSet<FileObject>();
+            StringTokenizer tok = new StringTokenizer(data.classpath, File.pathSeparator);
+            while (tok.hasMoreTokens()) {
+                String binrootS = tok.nextToken();
+                File f = FileUtil.normalizeFile(new File(binrootS));
+                URL binroot = FileUtil.urlForArchiveOrDir(f);
+                if (binroot == null) {
+                    continue;
+                }
+                FileObject[] someRoots = SourceForBinaryQuery.findSourceRoots(binroot).getRoots();
+                data.classpathSourceRoots.addAll(Arrays.asList(someRoots));
+            }
+            if (data.platformSources != null) {
+                data.classpathSourceRoots.addAll(Arrays.asList(data.platformSources.getRoots()));
+            } else {
+                // no platform found. use default one:
+                JavaPlatform plat = JavaFXPlatform.getDefaultFXPlatform();
+                // in unit tests the default platform may be null:
+                if (plat != null) {
+                    data.classpathSourceRoots.addAll(Arrays.asList(plat.getSourceFolders().getRoots()));
+                }
+            }
+        }
+        return data.classpathSourceRoots;
+    }
 
-// private methods    
+    // private methods    
+    private ClassPath findPlatformSources(String javaExecutable) {
+        for (JavaPlatform p : JavaPlatformManager.getDefault().getInstalledPlatforms()) {
+            return p.getSourceFolders();
+        }
+        return null;
+    }
+    
+
     private void hyperlink(String line, AntSession session, AntEvent event, FileObject source, int messageLevel, int sessionLevel, SessionData data, int lineNumber) {
         if (messageLevel <= sessionLevel) {
             try {
                 session.println(line, true, session.createStandardHyperlink(source.getURL(), "", lineNumber, -1, -1, -1));
+                event.consume();
             } catch (FileStateInvalidException e) {
                 assert false : e;
             }
@@ -185,10 +337,25 @@ public final class JavaFXAntLogger extends AntLogger {
         }
         return data;
     }
-
+    /**
+     * Data stored in the session.
+     */
     private static final class SessionData {
+        public ClassPath platformSources = null;
+        public String classpath = null;
+        public Collection<FileObject> classpathSourceRoots = null;
+        public String possibleExceptionText = null;
+        public String lastExceptionMessage = null;
         public long startTime;
         public Stack<File> currentDir = new Stack<File>();
         public SessionData() {}
-    }   
+        public void setClasspath(String cp) {
+            classpath = cp;
+            classpathSourceRoots = null;
+        }
+        public void setPlatformSources(ClassPath platformSources) {
+            this.platformSources = platformSources;
+            classpathSourceRoots = null;
+        }
+    }
 }

@@ -176,6 +176,7 @@ made subject to such option by the copyright holder.
                 </test-type>
             </test-dependencies>
             <public-packages>
+                <package>org.netbeans.api.javafx.platform</package>
                 <package>org.netbeans.modules.javafx.platform</package>
                 <package>org.netbeans.modules.javafx.platform.platformdefinition</package>
             </public-packages>

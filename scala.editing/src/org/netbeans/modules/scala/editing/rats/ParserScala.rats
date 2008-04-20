@@ -146,13 +146,13 @@ transient generic QualId = Id ( void:".":sep Id )* ;
 transient generic Ids    = Id ( void:",":sep Id )* ;
 
 generic Path =
-  ( Id void:".":sep )? ThisKey
-/ StableId
+  StableId
+/ ( Id void:".":sep )? ThisKey 
 ;
 
 generic StableId = 
-  ( Id void:".":sep )? ThisKey                  ( void:".":key Id )*
-/ ( Id void:".":sep )? SuperKey ClassQualifier? ( void:".":key Id )*
+  ( Id void:".":sep )? ThisKey                  ( void:".":sep Id )*
+/ ( Id void:".":sep )? SuperKey ClassQualifier? ( void:".":sep Id )*
 / Id ( void:".":sep Id )*
 ;
 
@@ -327,11 +327,12 @@ transient generic CaseClauses = CaseClause CaseClause* ;
  * we should leave lastest "=>" for Block by define a FunTypeInCaseClause 
  * 
  * A case token can begin a statement only if followed by a class or object token
+ * @Todo nl in case clause
  */
 generic CaseClause =   
   SKIP_N void:"case":key 
   ( ( VarId / "_":key ) void:":":key FunTypeInCaseClause Block
-  / Pattern Guard? void:"=>":key Block 
+  / Pattern N* Guard? void:"=>":key Block 
   )
 ;
 

@@ -1,0 +1,14 @@
+
+
+Document 0
+Delete:  source : <TESTURL>/BookmarkController.groovy
+
+
+
+Document 1
+Indexed:
+  class : BookmarkController
+  class-ig : bookmarkcontroller
+  fqn : BookmarkController
+
+Not Indexed:
