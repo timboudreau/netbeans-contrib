@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.spring.lookup
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/spring/lookup/resources/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
