@@ -77,6 +77,7 @@ import org.openide.loaders.DataObject;
 public class JavaFXDocument extends NbEditorDocument implements FXDocument{
     
     private JPanel panel = null;
+     private JEditorPane pane = null;
     private JPanel panelEmpty = null;
     private PreviewSplitPane split = null;
     private Component editor = null;
@@ -97,6 +98,10 @@ public class JavaFXDocument extends NbEditorDocument implements FXDocument{
         JavaFXModel.fireDependenciesChange(this);
     }
 
+    public JComponent getEditor() {
+        return (JComponent) pane;
+    }
+    
     @Override
     public Component createEditor(JEditorPane pane) {
         JavaFXModel.addDocument(this);
@@ -117,6 +122,7 @@ public class JavaFXDocument extends NbEditorDocument implements FXDocument{
         addDocumentListener(changeListener);
         
         editor = super.createEditor(pane);
+        this.pane = pane;
         
         final JavaFXDocument doc = this;
         

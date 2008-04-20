@@ -41,17 +41,13 @@
 
 package org.netbeans.modules.javafx.preview;
 
-import java.awt.BorderLayout;
-import java.awt.Toolkit;
 import java.io.File;
-import java.io.InputStream;
 import java.security.CodeSource;
 import java.security.PermissionCollection;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.text.StyledDocument;
 import org.netbeans.modules.javafx.editor.*;
 import java.security.Permissions;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.JComponent;
@@ -82,12 +78,6 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.text.Line;
 import org.openide.text.NbDocument;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import org.openide.util.Utilities;
-import sun.awt.image.URLImageSource;
         
 public class PreviewThread extends Thread {
     
@@ -102,7 +92,7 @@ public class PreviewThread extends Thread {
             this.offsetMap = offsetMap;
         }
     
-        private void goTo(Document doc, int offset) {
+        private void goTo(final Document doc, int offset) {
             LineCookie lc = (LineCookie) NbEditorUtilities.getDataObject(doc).getCookie(LineCookie.class);
             int line = NbDocument.findLineNumber((StyledDocument) doc,offset);
             int lineOffset = NbDocument.findLineOffset((StyledDocument) doc,line);
@@ -113,6 +103,7 @@ public class PreviewThread extends Thread {
 
                 if (l != null) {
                     l.show(Line.SHOW_TOFRONT, column);
+                    ((JavaFXDocument)doc).getEditor().requestFocusInWindow();
                 }
             }
         }
