@@ -201,24 +201,24 @@ public class AppletSupport {
     /**
     * @return URL of the html file with the same name as sibling
     */
-    public static URL generateHtmlFileURL(FileObject appletFile, FileObject buildDir, FileObject classesDir, String activePlatform) throws FileStateInvalidException {
-        FileObject html = null;
-        IOException ex = null;
-        if ((appletFile == null) || (buildDir == null) || (classesDir == null)) {
-            return null;
-        }
-        try {
-            html = generateHtml(appletFile, buildDir, classesDir);
-            if (html!=null) {
-                return getHTMLPageURL(html, activePlatform);
-            }
-            else {
-                return null;
-            }
-        } catch (IOException iex) {
-            return null;
-        }
-    }
+//    public static URL generateHtmlFileURL(FileObject appletFile, FileObject buildDir, FileObject classesDir, String activePlatform) throws FileStateInvalidException {
+//        FileObject html = null;
+//        IOException ex = null;
+//        if ((appletFile == null) || (buildDir == null) || (classesDir == null)) {
+//            return null;
+//        }
+//        try {
+//            html = generateHtml(appletFile, buildDir, classesDir);
+//            if (html!=null) {
+//                return getHTMLPageURL(html, activePlatform);
+//            }
+//            else {
+//                return null;
+//            }
+//        } catch (IOException iex) {
+//            return null;
+//        }
+//    }
     
     
     /**
@@ -228,34 +228,34 @@ public class AppletSupport {
      * @param activePlatform identifier of the platform used in the project
      * @return URL of the html page or null
      */
-    public static URL getHTMLPageURL (FileObject htmlFile, String activePlatform) {
-        assert htmlFile != null : "htmlFile cannot be null";    //NOI18N
-        // JDK issue #6193279: Appletviewer does not accept encoded URLs
-        JavaPlatform platform = J2SEProjectUtil.getActivePlatform(activePlatform);        
-        boolean workAround6193279 = platform != null    //In case of nonexisting platform don't use the workaround
-                && platform.getSpecification().getVersion().compareTo(JDK_15)>=0; //JDK1.5 and higher
-        URL url = null;
-        if (workAround6193279) {
-            File f = FileUtil.toFile(htmlFile);
-            try {
-                String path = f.getAbsolutePath();
-                if (File.separatorChar != '/') {    //NOI18N
-                    path = path.replace(File.separatorChar,'/');   //NOI18N
-                }
-                url = new URL ("file",null,path);
-            } catch (MalformedURLException e) {
-                ErrorManager.getDefault().notify(e);
-            }
-        }
-        else {
-            try {
-                url = htmlFile.getURL();
-            } catch (FileStateInvalidException f) {
-                ErrorManager.getDefault().notify(f);
-            }
-        }
-        return url;
-    }
+//    public static URL getHTMLPageURL (FileObject htmlFile, String activePlatform) {
+//        assert htmlFile != null : "htmlFile cannot be null";    //NOI18N
+//        // JDK issue #6193279: Appletviewer does not accept encoded URLs
+//        JavaPlatform platform = J2SEProjectUtil.getActivePlatform(activePlatform);        
+//        boolean workAround6193279 = platform != null    //In case of nonexisting platform don't use the workaround
+//                && platform.getSpecification().getVersion().compareTo(JDK_15)>=0; //JDK1.5 and higher
+//        URL url = null;
+//        if (workAround6193279) {
+//            File f = FileUtil.toFile(htmlFile);
+//            try {
+//                String path = f.getAbsolutePath();
+//                if (File.separatorChar != '/') {    //NOI18N
+//                    path = path.replace(File.separatorChar,'/');   //NOI18N
+//                }
+//                url = new URL ("file",null,path);
+//            } catch (MalformedURLException e) {
+//                ErrorManager.getDefault().notify(e);
+//            }
+//        }
+//        else {
+//            try {
+//                url = htmlFile.getURL();
+//            } catch (FileStateInvalidException f) {
+//                ErrorManager.getDefault().notify(f);
+//            }
+//        }
+//        return url;
+//    }
 
     /** fills in file with html source so it is html file with applet
     * @param file is a file to be filled

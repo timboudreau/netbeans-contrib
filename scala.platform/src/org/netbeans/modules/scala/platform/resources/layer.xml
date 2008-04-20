@@ -77,7 +77,7 @@ made subject to such option by the copyright holder.
         <folder name="Tools">            
             <file name="ScalaPlatformsCustomizerAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.platform.ui.PlatformsCustomizerAction"/>
-                <attr name="position" intvalue="300"/>
+                <attr name="position" intvalue="305"/>
             </file>
         </folder>
     </folder>

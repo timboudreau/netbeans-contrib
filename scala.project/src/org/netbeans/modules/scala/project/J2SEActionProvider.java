@@ -499,49 +499,49 @@ class J2SEActionProvider implements ActionProvider {
                     MainClassChooser.unitTestingSupport_hasMainMethodResult.booleanValue();
                 final Collection<AstElement> mainClasses = J2SEProjectUtil.getMainMethods (file);
                 if (!hasMainClassFromTest && mainClasses.isEmpty()) {
-                    if (AppletSupport.isApplet(file)) {
-
-                        EditableProperties ep = updateHelper.getProperties (AntProjectHelper.PROJECT_PROPERTIES_PATH);
-                        String jvmargs = ep.getProperty("run.jvmargs");
-
-                        URL url = null;
-
-                        // do this only when security policy is not set manually
-                        if ((jvmargs == null) || !(jvmargs.indexOf("java.security.policy") > 0)) {  //NOI18N
-                            AppletSupport.generateSecurityPolicy(project.getProjectDirectory());
-                            if ((jvmargs == null) || (jvmargs.length() == 0)) {
-                                ep.setProperty("run.jvmargs", "-Djava.security.policy=applet.policy"); //NOI18N
-                            } else {
-                                ep.setProperty("run.jvmargs", jvmargs + " -Djava.security.policy=applet.policy"); //NOI18N
-                            }
-                            updateHelper.putProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH, ep);
-                            try {
-                                ProjectManager.getDefault().saveProject(project);
-                            } catch (Exception e) {
-                                ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "Error while saving project: " + e);
-                            }
-                        }
-
-                        if (file.existsExt("html") || file.existsExt("HTML")) { //NOI18N
-                            url = copyAppletHTML(file, "html"); //NOI18N
-                        } else {
-                            url = generateAppletHTML(file);
-                        }
-                        if (url == null) {
-                            return null;
-                        }
-                        p.setProperty("applet.url", url.toString()); // NOI18N
-                        if (command.equals (COMMAND_RUN_SINGLE)) {
-                            targetNames = new String[] {"run-applet"}; // NOI18N
-                        } else {
-                            p.setProperty("debug.class", clazz); // NOI18N
-                            targetNames = new String[] {"debug-applet"}; // NOI18N
-                        }
-                    } else {
+//                    if (AppletSupport.isApplet(file)) {
+//
+//                        EditableProperties ep = updateHelper.getProperties (AntProjectHelper.PROJECT_PROPERTIES_PATH);
+//                        String jvmargs = ep.getProperty("run.jvmargs");
+//
+//                        URL url = null;
+//
+//                        // do this only when security policy is not set manually
+//                        if ((jvmargs == null) || !(jvmargs.indexOf("java.security.policy") > 0)) {  //NOI18N
+//                            AppletSupport.generateSecurityPolicy(project.getProjectDirectory());
+//                            if ((jvmargs == null) || (jvmargs.length() == 0)) {
+//                                ep.setProperty("run.jvmargs", "-Djava.security.policy=applet.policy"); //NOI18N
+//                            } else {
+//                                ep.setProperty("run.jvmargs", jvmargs + " -Djava.security.policy=applet.policy"); //NOI18N
+//                            }
+//                            updateHelper.putProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH, ep);
+//                            try {
+//                                ProjectManager.getDefault().saveProject(project);
+//                            } catch (Exception e) {
+//                                ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "Error while saving project: " + e);
+//                            }
+//                        }
+//
+//                        if (file.existsExt("html") || file.existsExt("HTML")) { //NOI18N
+//                            url = copyAppletHTML(file, "html"); //NOI18N
+//                        } else {
+//                            url = generateAppletHTML(file);
+//                        }
+//                        if (url == null) {
+//                            return null;
+//                        }
+//                        p.setProperty("applet.url", url.toString()); // NOI18N
+//                        if (command.equals (COMMAND_RUN_SINGLE)) {
+//                            targetNames = new String[] {"run-applet"}; // NOI18N
+//                        } else {
+//                            p.setProperty("debug.class", clazz); // NOI18N
+//                            targetNames = new String[] {"debug-applet"}; // NOI18N
+//                        }
+//                    } else {
                         NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(J2SEActionProvider.class, "LBL_No_Main_Classs_Found", clazz), NotifyDescriptor.INFORMATION_MESSAGE);
                         DialogDisplayer.getDefault().notify(nd);
                         return null;
-                    }
+//                    }
                 } else {
                     if (!hasMainClassFromTest) {                    
                         if (mainClasses.size() == 1) {
@@ -1052,69 +1052,69 @@ class J2SEActionProvider implements ActionProvider {
         dlg.setVisible(true);
     }
 
-    private URL generateAppletHTML(FileObject file) {
-        URL url = null;
-        try {
-            String buildDirProp = project.evaluator().getProperty("build.dir"); //NOI18N
-            String classesDirProp = project.evaluator().getProperty("build.classes.dir"); //NOI18N
-            FileObject buildDir = this.updateHelper.getAntProjectHelper().resolveFileObject(buildDirProp);
-            FileObject classesDir = this.updateHelper.getAntProjectHelper().resolveFileObject(classesDirProp);
+//    private URL generateAppletHTML(FileObject file) {
+//        URL url = null;
+//        try {
+//            String buildDirProp = project.evaluator().getProperty("build.dir"); //NOI18N
+//            String classesDirProp = project.evaluator().getProperty("build.classes.dir"); //NOI18N
+//            FileObject buildDir = this.updateHelper.getAntProjectHelper().resolveFileObject(buildDirProp);
+//            FileObject classesDir = this.updateHelper.getAntProjectHelper().resolveFileObject(classesDirProp);
+//
+//            if (buildDir == null) {
+//                buildDir = FileUtil.createFolder(project.getProjectDirectory(), buildDirProp);
+//            }
+//
+//            if (classesDir == null) {
+//                classesDir = FileUtil.createFolder(project.getProjectDirectory(), classesDirProp);
+//            }
+//            String activePlatformName = project.evaluator().getProperty("platform.active"); //NOI18N
+//            url = AppletSupport.generateHtmlFileURL(file, buildDir, classesDir, activePlatformName);
+//        } catch (FileStateInvalidException fe) {
+//            //ingore
+//        } catch (IOException ioe) {
+//            ErrorManager.getDefault().notify(ioe);
+//            return null;
+//        }
+//        return url;
+//    }
 
-            if (buildDir == null) {
-                buildDir = FileUtil.createFolder(project.getProjectDirectory(), buildDirProp);
-            }
-
-            if (classesDir == null) {
-                classesDir = FileUtil.createFolder(project.getProjectDirectory(), classesDirProp);
-            }
-            String activePlatformName = project.evaluator().getProperty("platform.active"); //NOI18N
-            url = AppletSupport.generateHtmlFileURL(file, buildDir, classesDir, activePlatformName);
-        } catch (FileStateInvalidException fe) {
-            //ingore
-        } catch (IOException ioe) {
-            ErrorManager.getDefault().notify(ioe);
-            return null;
-        }
-        return url;
-    }
-
-    private URL copyAppletHTML(FileObject file, String ext) {
-        URL url = null;
-        try {
-            String buildDirProp = project.evaluator().getProperty("build.dir"); //NOI18N
-            FileObject buildDir = updateHelper.getAntProjectHelper().resolveFileObject(buildDirProp);
-
-            if (buildDir == null) {
-                buildDir = FileUtil.createFolder(project.getProjectDirectory(), buildDirProp);
-            }
-
-            FileObject htmlFile = null;
-            htmlFile = file.getParent().getFileObject(file.getName(), "html"); //NOI18N
-            if (htmlFile == null) {
-                htmlFile = file.getParent().getFileObject(file.getName(), "HTML"); //NOI18N
-            }
-            if (htmlFile == null) {
-                return null;
-            }
-
-            FileObject existingFile = buildDir.getFileObject(htmlFile.getName(), htmlFile.getExt());
-            if (existingFile != null) {
-                existingFile.delete();
-            }
-
-            FileObject targetHtml = htmlFile.copy(buildDir, file.getName(), ext);
-
-            if (targetHtml != null) {
-                String activePlatformName = project.evaluator().getProperty("platform.active"); //NOI18N
-                url = AppletSupport.getHTMLPageURL(targetHtml, activePlatformName);
-            }
-        } catch (FileStateInvalidException fe) {
-            //ingore
-        } catch (IOException ioe) {
-            ErrorManager.getDefault().notify(ioe);
-            return null;
-        }
-        return url;
-    }
+//    private URL copyAppletHTML(FileObject file, String ext) {
+//        URL url = null;
+//        try {
+//            String buildDirProp = project.evaluator().getProperty("build.dir"); //NOI18N
+//            FileObject buildDir = updateHelper.getAntProjectHelper().resolveFileObject(buildDirProp);
+//
+//            if (buildDir == null) {
+//                buildDir = FileUtil.createFolder(project.getProjectDirectory(), buildDirProp);
+//            }
+//
+//            FileObject htmlFile = null;
+//            htmlFile = file.getParent().getFileObject(file.getName(), "html"); //NOI18N
+//            if (htmlFile == null) {
+//                htmlFile = file.getParent().getFileObject(file.getName(), "HTML"); //NOI18N
+//            }
+//            if (htmlFile == null) {
+//                return null;
+//            }
+//
+//            FileObject existingFile = buildDir.getFileObject(htmlFile.getName(), htmlFile.getExt());
+//            if (existingFile != null) {
+//                existingFile.delete();
+//            }
+//
+//            FileObject targetHtml = htmlFile.copy(buildDir, file.getName(), ext);
+//
+//            if (targetHtml != null) {
+//                String activePlatformName = project.evaluator().getProperty("platform.active"); //NOI18N
+//                url = AppletSupport.getHTMLPageURL(targetHtml, activePlatformName);
+//            }
+//        } catch (FileStateInvalidException fe) {
+//            //ingore
+//        } catch (IOException ioe) {
+//            ErrorManager.getDefault().notify(ioe);
+//            return null;
+//        }
+//        return url;
+//    }
 
 }

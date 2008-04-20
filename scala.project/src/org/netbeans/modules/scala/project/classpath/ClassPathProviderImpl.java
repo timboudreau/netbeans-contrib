@@ -76,9 +76,11 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
     private final PropertyEvaluator evaluator;
     private final SourceRoots sourceRoots;
     private final SourceRoots testSourceRoots;
-    private final ClassPath[] cache = new ClassPath[8];
+    private final ClassPath[] cache = new ClassPath[9];
 
     private final Map<String,FileObject> dirCache = new HashMap<String,FileObject>();
+
+    private final BootClassPathImplementation bootClassPathImpl;
 
     public ClassPathProviderImpl(AntProjectHelper helper, PropertyEvaluator evaluator, SourceRoots sourceRoots,
                                  SourceRoots testSourceRoots) {
@@ -88,6 +90,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         this.evaluator = evaluator;
         this.sourceRoots = sourceRoots;
         this.testSourceRoots = testSourceRoots;
+        bootClassPathImpl = new BootClassPathImplementation(evaluator);
         evaluator.addPropertyChangeListener(WeakListeners.propertyChange(this, evaluator));
     }
 
@@ -254,13 +257,25 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
     }
     
     private synchronized ClassPath getBootClassPath() {
+        if (bootClassPathImpl == null) {
+        }
+        
         ClassPath cp = cache[7];
         if ( cp== null ) {
-            cp = ClassPathFactory.createClassPath(new BootClassPathImplementation(evaluator));
+            cp = ClassPathFactory.createClassPath(bootClassPathImpl);
             cache[7] = cp;
         }
         return cp;
     }
+    
+    private synchronized ClassPath getBootSourcesClassPath() {
+        ClassPath cp = cache[8];
+        if ( cp== null ) {
+            cp = bootClassPathImpl.getSourcesClassPath();
+            cache[8] = cp;
+        }
+        return cp;
+    }    
     
     public ClassPath findClassPath(FileObject file, String type) {
         if (type.equals(ClassPath.COMPILE)) {
@@ -299,6 +314,28 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         assert false;
         return null;
     }
+    
+    /**
+     * Returns array of all sources classpaths of the given type in the project.
+     * The result is used for example for GlobalPathRegistry registrations.
+     */
+    public ClassPath[] getProjectSourcesClassPaths(String type) {
+        if (ClassPath.BOOT.equals(type)) {
+            return new ClassPath[]{getBootSourcesClassPath()};
+        }
+        if (ClassPath.COMPILE.equals(type)) {
+            /** @Todo should return source classpath */
+            return new ClassPath[]{};
+        }
+        if (ClassPath.SOURCE.equals(type)) {
+            ClassPath[] l = new ClassPath[2];
+            l[0] = getSourcepath(0);
+            l[1] = getSourcepath(1);
+            return l;
+        }
+        assert false;
+        return null;
+    }
 
     /**
      * Returns the given type of the classpath for the project sources
@@ -306,7 +343,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
      */
     public ClassPath getProjectSourcesClassPath(String type) {
         if (ClassPath.BOOT.equals(type)) {
-            return getBootClassPath();
+            return getBootSourcesClassPath();
         }
         if (ClassPath.COMPILE.equals(type)) {
             return getCompileTimeClasspath(0);

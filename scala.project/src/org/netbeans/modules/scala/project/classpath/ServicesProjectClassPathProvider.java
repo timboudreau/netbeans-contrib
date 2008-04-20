@@ -16,7 +16,6 @@
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-
 package org.netbeans.modules.scala.project.classpath;
 
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
@@ -30,13 +29,25 @@ import org.openide.filesystems.FileObject;
  * This is already available in j2seproject, but when the java support
  * is not present it causes user source paths not to be indexed etc.
  * 
- * @author Jesse Glick
+ * @Note: 
+ * This is for META-INFO/Services usage. Since ClassPathProviderImple has none empty 
+ * constructorcan, cannot be instantiated by lookup, we use this class to provide
+ * META-INFO/Services
+ * 
+ * @author Caoyuan Deng
  */
-public class ProjectClassPathProvider implements ClassPathProvider {
+public class ServicesProjectClassPathProvider implements ClassPathProvider {
 
-    /** Default constructor for lookup. */
-    public ProjectClassPathProvider() {}
-    
+    /** Default constructor for lookup, services. */
+    public ServicesProjectClassPathProvider() {
+    }
+
+    /** 
+     * @Note:
+     * This method do not provide any Scala standard libs' classpath, since these 
+     * libs' owner project is null. Their classpath will be provided by platform
+     * modules.
+     */
     public ClassPath findClassPath(FileObject file, String type) {
         Project p = FileOwnerQuery.getOwner(file);
         if (p != null) {
@@ -50,5 +61,4 @@ public class ProjectClassPathProvider implements ClassPathProvider {
             return null;
         }
     }
-    
 }

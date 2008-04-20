@@ -65,8 +65,6 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
 
     public static final String DEFAULT_PLATFORM_ANT_NAME = "default_platform";           //NOI18N
 
-    private ClassPath standardLibs;
-
     @SuppressWarnings("unchecked")  //Properties cast to Map<String,String>
 
     static JavaPlatform create(Map<String, String> properties, List<URL> sources, List<URL> javadoc) {
@@ -154,9 +152,11 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
         }
     }
 
+    @Override
     public ClassPath getStandardLibraries() {
-        if (standardLibs != null) {
-            return standardLibs;
+        ClassPath cp = standardLibs.get();
+        if (cp != null) {
+            return cp;
         }
         File scalaHome = getScalaHome();
         String s = "";  //NOI18N
@@ -170,7 +170,9 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
 //        if (s == null) {
 //            s = ""; // NOI18N
 //        }
-        return standardLibs = Util.createClassPath(s);
+        cp = Util.createClassPath(s);
+        standardLibs = new WeakReference<ClassPath>(cp);
+        return cp;
     }
 
     private String computeScalaClassPath(String extraCp, final File scalaLib) {
@@ -237,7 +239,12 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
 
                     List<URL> srcUrls = new ArrayList<URL>();
                     for (File src : srcs) {
-                        if (src.getName().endsWith(".jar")) { // NOI18N
+                        /** 
+                         * @Note:
+                         * GSF's indexing does not support jar, zip yet 
+                         */
+                        //if (src.getName().endsWith(".jar")) { // NOI18N
+                        if (src.isDirectory()) { // NOI18N
                             URL url = FileUtil.getArchiveRoot(src.toURI().toURL());
                             srcUrls.add(url);
                         }
