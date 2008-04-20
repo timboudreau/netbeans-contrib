@@ -78,16 +78,16 @@
 
 package org.netbeans.modules.scala.editing.nodes;
 
-import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.api.lexer.Token;
 
 /**
  *
  * @author dcaoyuan
  */
-public class Literal extends Expr {
+public class Literal extends AstExpr {
     
-    public Literal(ElementKind kind) {
-        super(kind);
+    public Literal(Token[] boundsTokens) {
+        super(boundsTokens);
     }
 
 }

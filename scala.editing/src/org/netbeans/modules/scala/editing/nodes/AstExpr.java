@@ -39,18 +39,42 @@
 
 package org.netbeans.modules.scala.editing.nodes;
 
+import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.OffsetRange;
 
 /**
  *
  * @author dcaoyuan
  */
-public class Expr extends AstElement {
+public class AstExpr extends AstElement {
     
-    public Expr(ElementKind kind) {
-        super(kind);
+    private Token[] boundsTokens;    
+    
+    public AstExpr(Token[] boundsTokens) {
+        super(ElementKind.OTHER);
+        assert boundsTokens.length == 2;
+        this.boundsTokens = boundsTokens;  
     }
 
+    public Token[] getBoundsTokens() {
+        return boundsTokens;
+    }
+
+    public OffsetRange getRange(TokenHierarchy th) {
+        return new OffsetRange(getOffset(th), getEndOffset(th));
+    }
+
+    public int getOffset(TokenHierarchy th) {
+        return boundsTokens[0].offset(th);
+    }
+    
+    public int getEndOffset(TokenHierarchy th) {
+        return boundsTokens[1].offset(th) + boundsTokens[1].length();
+    }
+        
+    
     @Override
     public String getName() {
         return "expr";

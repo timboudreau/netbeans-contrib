@@ -74,6 +74,7 @@ import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
+import org.netbeans.modules.scala.editing.nodes.TypeRef;
 import org.netbeans.modules.scala.editing.nodes.Var;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.filesystems.FileObject;
@@ -370,12 +371,17 @@ public class ScalaCodeCompletion implements Completable {
                 //request.path = path;
                 //request.fqn = AstUtilities.getFqn(path, null, null);
 
-                final AstElement closest = root.getElement(th, offset);
-                request.root = root;
-                request.element = closest;
+                AstElement closest = root.getElement(th, offset);
+                if (closest == null) {
+                    closest = root.getElement(th, offset - 1);
+                }
+
                 if (closest instanceof FunRef) {
                     //(FunRef) closest;
                 }
+
+                request.root = root;
+                request.element = closest;
             }
 
             if (root == null) {
@@ -508,7 +514,7 @@ public class ScalaCodeCompletion implements Completable {
         String prefix = request.prefix;
 
         // Regular expression matching.  {
-        for (int i = 0,   n = REGEXP_WORDS.length; i < n; i += 2) {
+        for (int i = 0, n = REGEXP_WORDS.length; i < n; i += 2) {
             String word = REGEXP_WORDS[i];
             String desc = REGEXP_WORDS[i + 1];
 
@@ -544,7 +550,7 @@ public class ScalaCodeCompletion implements Completable {
         request.anchor = rowStart + i;
 
         // Regular expression matching.  {
-        for (int j = 0,   n = JSDOC_WORDS.length; j < n; j++) {
+        for (int j = 0, n = JSDOC_WORDS.length; j < n; j++) {
             String word = JSDOC_WORDS[j];
             if (startsWith(word, prefix)) {
                 //KeywordItem item = new KeywordItem(word, desc, request);
@@ -1145,11 +1151,11 @@ public class ScalaCodeCompletion implements Completable {
         AstElement node = request.element;
         ScalaParserResult result = request.result;
         CompilationInfo info = request.info;
-        
+
         String fqn = request.fqn;
         Call call = request.call;
 
-        TokenSequence<?extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
 
         // Look in the token stream for constructs of the type
         //   foo.x^
@@ -1163,7 +1169,7 @@ public class ScalaCodeCompletion implements Completable {
             if ((call == Call.LOCAL) || (call == Call.NONE)) {
                 return false;
             }
-            
+
             // If we're not sure we're only looking for a method, don't abort after this
             boolean done = call.isMethodExpected();
 
@@ -1174,24 +1180,30 @@ public class ScalaCodeCompletion implements Completable {
             String type = call.getType();
             String lhs = call.getLhs();
 
-            if (type == null) {                
-                //Node method = AstUtilities.findLocalScope(node, path);
-                //if (method != null) {
-                //    List<Node> nodes = new ArrayList<Node>();
-                //    AstUtilities.addNodesByType(method, new int[] { org.mozilla.javascript.Token.MISSING_DOT }, nodes);
-                //    if (nodes.size() > 0) {
-                //        Node exprNode = nodes.get(0);
-                //        JsTypeAnalyzer analyzer = new JsTypeAnalyzer(info, /*request.info.getParserResult(),*/ index, method, node, astOffset, lexOffset, doc, fileObject);
-                //        type = analyzer.getType(exprNode.getParentNode());
-                //    }
-                //} 
+            if (type == null) {
+                if (node != null) {
+                    TypeRef typeRef = node.getType();
+                    if (typeRef != null) {
+                        type = typeRef.getName();
+                    }
+                }
+            //Node method = AstUtilities.findLocalScope(node, path);
+            //if (method != null) {
+            //    List<Node> nodes = new ArrayList<Node>();
+            //    AstUtilities.addNodesByType(method, new int[] { org.mozilla.javascript.Token.MISSING_DOT }, nodes);
+            //    if (nodes.size() > 0) {
+            //        Node exprNode = nodes.get(0);
+            //        JsTypeAnalyzer analyzer = new JsTypeAnalyzer(info, /*request.info.getParserResult(),*/ index, method, node, astOffset, lexOffset, doc, fileObject);
+            //        type = analyzer.getType(exprNode.getParentNode());
+            //    }
+            //} 
             }
-            
+
             if (type == null && call.getPrevCallParenPos() != -1) {
                 // It's some sort of call
                 assert call.getType() == null;
                 assert call.getLhs() == null;
-                
+
                 // Try to figure out the call in question
                 int callEndAstOffset = AstUtilities.getAstOffset(info, call.getPrevCallParenPos());
                 if (callEndAstOffset != -1) {
@@ -1282,7 +1294,7 @@ public class ScalaCodeCompletion implements Completable {
                             fqn = fqn.substring(0, f);
                         }
                     }
-                    
+
                     // Add methods in the class (without an FQN)
                     Set<IndexedElement> m = index.getElements(prefix, type, kind, ScalaIndex.ALL_SCOPE, result);
 
@@ -1307,7 +1319,7 @@ public class ScalaCodeCompletion implements Completable {
 //                    proposals.add(new KeywordItem("", "Type more characters to see matches", request));
 //                    return true;
 //                } else {
-                    elements = index.getAllNames(prefix, kind, ScalaIndex.ALL_SCOPE, result);
+                elements = index.getAllNames(prefix, kind, ScalaIndex.ALL_SCOPE, result);
 //                }
             }
 
@@ -1317,7 +1329,7 @@ public class ScalaCodeCompletion implements Completable {
 //                if (element.getKind() == ElementKind.CONSTRUCTOR) {
 //                    continue;
 //                }
-                
+
                 // Don't include private or protected methods on other objects
                 if (skipPrivate && element.isPrivate()) {
                     continue;
@@ -1333,7 +1345,7 @@ public class ScalaCodeCompletion implements Completable {
                 }
 
                 if (element instanceof IndexedFunction) {
-                    FunctionItem item = new FunctionItem((IndexedFunction)element, request);
+                    FunctionItem item = new FunctionItem((IndexedFunction) element, request);
                     proposals.add(item);
                 } else {
                     PlainItem item = new PlainItem(request, element);

@@ -335,14 +335,10 @@ public class Call {
                         beginOffset = ts.offset();
 
                         continue searchBackwards;
-                    case ANY_KEYWORD: {
-                        if ("true".equals(tokenText)) { // NOI18N
-                            return new Call("Boolean", null, false, methodExpected);
-                        } else if ("false".equals(tokenText)) { // NOI18N
-                            return new Call("Boolean", null, false, methodExpected);
-                        }
-                        // fallthrough
-                    }
+                    case True:
+                    case False:
+                        return new Call("Boolean", null, false, methodExpected);
+                        
                     default: {
                         if (id.primaryCategory().equals("keyword")) { // NOI18N
                             // We're building up a potential expression such as "Test::Unit" so continue looking
