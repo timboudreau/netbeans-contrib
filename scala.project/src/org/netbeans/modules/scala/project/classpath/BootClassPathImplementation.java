@@ -112,16 +112,6 @@ final class BootClassPathImplementation implements ClassPathImplementation, Prop
         }
     }
 
-    public ClassPath getSourcesClassPath() {
-        JavaPlatform jp = findActivePlatform();
-        if (jp != null) {
-            return jp.getSourceFolders();
-        } else {
-            return null;
-        }
-
-    }
-
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         this.support.addPropertyChangeListener(listener);
     }
@@ -130,7 +120,7 @@ final class BootClassPathImplementation implements ClassPathImplementation, Prop
         this.support.removePropertyChangeListener(listener);
     }
 
-    private JavaPlatform findActivePlatform() {
+    public JavaPlatform findActivePlatform() {
         if (this.platformManager == null) {
             this.platformManager = JavaPlatformManager.getDefault();
             this.platformManager.addPropertyChangeListener(WeakListeners.propertyChange(this, this.platformManager));

@@ -36,17 +36,26 @@ import org.openide.filesystems.FileObject;
  * 
  * @author Caoyuan Deng
  */
-public class ServicesProjectClassPathProvider implements ClassPathProvider {
+public class GsfProjectClassPathProvider implements ClassPathProvider {
 
     /** Default constructor for lookup, services. */
-    public ServicesProjectClassPathProvider() {
+    public GsfProjectClassPathProvider() {
     }
 
     /** 
+     * A proxy method which is actually call @link{ClassPathProviderImpl#findClassPath(FileObject, String)}
+     * 
+     * @Todo:
+     * This class is useless at all? since there is a org.netbeans.modules.gsf.ProjectClassPathProvider
+     * which registered as a META-IN.services for org.netbeans.modules.spi.classpath.ClassPathProvider too
+     * 
      * @Note:
-     * This method do not provide any Scala standard libs' classpath, since these 
-     * libs' owner project is null. Their classpath will be provided by platform
-     * modules.
+     * This method do not provide any classpath when file itself is under standard
+     * libs, since these files owner project is null. In this case, these files 
+     * classpath will be provided by platform modules.
+     * 
+     * But for project files, when type is BOOT, will return the Scala standard lib's
+     * classpath.
      */
     public ClassPath findClassPath(FileObject file, String type) {
         Project p = FileOwnerQuery.getOwner(file);
