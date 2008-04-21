@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import org.netbeans.modules.scala.editing.options.CodeStyle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -511,13 +512,27 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 
                             // Add new opening brace
                             if (BRACE_MATCH_MAP.containsKey(id)) {
-                                Brace newBrace = new Brace();
-                                newBrace.token = token;
-                                // will add indent of this line to offsetOnline later
-                                newBrace.offsetOnline = offset - lineBegin;
-                                newBrace.ordinalOnline = notWhiteIdx;
-                                newBrace.onProcessingLine = true;
-                                openingBraces.add(newBrace);
+                                boolean ignore = false;
+                                if (id == ScalaTokenId.Case) {
+                                    if (ts.moveNext()) {
+                                        Token next = ScalaLexUtilities.findNextNonWs(ts);
+                                        if (next.id() == ScalaTokenId.Object || next.id() == ScalaTokenId.Class) {
+                                            // it's a case objct or class, do not indent
+                                            ignore = true;
+                                        }
+                                        ts.movePrevious();
+                                    }
+                                }
+
+                                if (!ignore) {
+                                    Brace newBrace = new Brace();
+                                    newBrace.token = token;
+                                    // will add indent of this line to offsetOnline later
+                                    newBrace.offsetOnline = offset - lineBegin;
+                                    newBrace.ordinalOnline = notWhiteIdx;
+                                    newBrace.onProcessingLine = true;
+                                    openingBraces.add(newBrace);
+                                }
                             }
                         } else if (id == ScalaTokenId.XmlCDData ||
                                 (id == ScalaTokenId.StringLiteral && offset < lineBegin)) {
@@ -613,24 +628,24 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 
                     if (nearestHangableBrace != null) {
                         // Hang it from this brace
-                        nextIndent = nearestHangableBrace.offsetOnline + depth1 * indentSize();                        
-                    } else {                        
-                        nextIndent = openingBraces.size() * indentSize();                        
+                        nextIndent = nearestHangableBrace.offsetOnline + depth1 * indentSize();
+                    } else {
+                        nextIndent = openingBraces.size() * indentSize();
                     }
                 } else if ((latestOpeningId == ScalaTokenId.LParen ||
                         latestOpeningId == ScalaTokenId.LBracket ||
                         latestOpeningId == ScalaTokenId.LBrace) && !latestOpening.isLatestOnLine) {
-                    
+
                     nextIndent = offset + latestOpening.token.text().toString().length();
-                    
-                } else if (latestOpeningId == ScalaTokenId.BlockCommentStart || 
+
+                } else if (latestOpeningId == ScalaTokenId.BlockCommentStart ||
                         latestOpeningId == ScalaTokenId.DocCommentStart) {
-                    
+
                     nextIndent = offset + 1;
-                    
+
                 } else {
                     // default
-                    nextIndent = openingBraces.size() * indentSize();                    
+                    nextIndent = openingBraces.size() * indentSize();
                 }
             }
         }

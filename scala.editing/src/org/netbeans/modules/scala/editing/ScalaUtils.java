@@ -143,7 +143,7 @@ public class ScalaUtils {
         String[] mods = name.split("::"); // NOI18N
 
         for (String mod : mods) {
-            if (!isValidFortressClassName(mod)) {
+            if (!isValidClassName(mod)) {
                 return false;
             }
         }
@@ -151,7 +151,7 @@ public class ScalaUtils {
         return true;
     }
 
-    public static boolean isValidFortressClassName(String name) {
+    public static boolean isValidClassName(String name) {
         if (isFortressKeyword(name)) {
             return false;
         }

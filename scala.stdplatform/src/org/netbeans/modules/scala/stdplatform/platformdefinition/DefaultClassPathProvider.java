@@ -83,11 +83,11 @@ public class DefaultClassPathProvider implements ClassPathProvider {
     /** Name of package keyword. */
     private static final String PACKAGE = "package";                    //NOI18N
     /**Java file extension */
-    private static final String JAVA_EXT = "java";                      //NOI18N
+    private static final String SCALA_EXT = "scala";                      //NOI18N
     /**Class file extension*/
     private static final String CLASS_EXT = "class";                    //NOI18N
 
-    private static final int TYPE_JAVA = 1;
+    private static final int TYPE_SCALA = 1;
 
     private static final int TYPE_CLASS = 2;
 
@@ -124,7 +124,7 @@ public class DefaultClassPathProvider implements ClassPathProvider {
         } catch (FileStateInvalidException fsi) {
             return null;
         }
-        if (JAVA_EXT.equalsIgnoreCase(file.getExt()) || file.isFolder()) {  //Workaround: Editor asks for package root
+        if (SCALA_EXT.equalsIgnoreCase(file.getExt()) || file.isFolder()) {  //Workaround: Editor asks for package root
             if (ClassPath.BOOT.equals (type)) {
                 JavaPlatform defaultPlatform = JavaPlatformManager.getDefault().getDefaultPlatform();
                 if (defaultPlatform != null) {
@@ -218,7 +218,7 @@ public class DefaultClassPathProvider implements ClassPathProvider {
     
     private static FileObject getRootForFile (final FileObject fo, int type) {
         String pkg;
-        if (type == TYPE_JAVA) {
+        if (type == TYPE_SCALA) {
             pkg = findJavaPackage (fo);
         }
         else  {

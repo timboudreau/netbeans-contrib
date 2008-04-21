@@ -3,5 +3,5 @@ OpenIDE-Module: org.netbeans.modules.scala.editing
 OpenIDE-Module-Layer: org/netbeans/modules/scala/editing/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/scala/editing/Bundle.properties
 OpenIDE-Module-Install: org/netbeans/modules/scala/editing/ModuleInstall.class
-OpenIDE-Module-Specification-Version: 1.0.18
+OpenIDE-Module-Specification-Version: 1.0.19
 

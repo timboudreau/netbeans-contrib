@@ -48,7 +48,7 @@ public class CustomCanvas extends CustomNode {
     public function create(): Node {
         random = new Random();
         timeline = Timeline {
-            repeatCount: TimeLine.INDEFINITE
+            repeatCount: Timeline.INDEFINITE
             keyFrames : 
                 KeyFrame {
                     time : 16.6ms

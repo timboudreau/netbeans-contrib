@@ -222,4 +222,4 @@ public abstract class JavaPlatform {
         firePropertyChange(PROP_SYSTEM_PROPERTIES, null, null); // NOI18N
     }
 
- }
+}

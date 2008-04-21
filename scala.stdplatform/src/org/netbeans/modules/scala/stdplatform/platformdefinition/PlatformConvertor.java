@@ -86,14 +86,14 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
     private static final String MODERN = "modern";          //NOI18N
     private static final String JAVAC13 = "javac1.3";       //NOI18N
     static final String[] IMPORTANT_TOOLS = {
-        // Used by j2seproject:
-        "javac", // NOI18N
-        "java", // NOI18N
+        // Used by scala project:
+        "scalac", // NOI18N
+        "scala", // NOI18N
         // Might be used, though currently not (cf. #46901):
-        "javadoc", // NOI18N
+        "scaladoc", // NOI18N
     };
     
-    private static final String PLATFORM_DTD_ID = "-//NetBeans//DTD Java PlatformDefinition 1.0//EN"; // NOI18N
+    private static final String PLATFORM_DTD_ID = "-//NetBeans//DTD Scala PlatformDefinition 1.0//EN"; // NOI18N
 
     private PlatformConvertor() {}
 
@@ -315,8 +315,8 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
         }
         Collection installFolders = platform.getInstallFolders();
         if (installFolders.size()>0) {
-            File jdkHome = FileUtil.toFile ((FileObject)installFolders.iterator().next());
-            props.setProperty(homePropName, jdkHome.getAbsolutePath());
+            File scalaHome = FileUtil.toFile ((FileObject)installFolders.iterator().next());
+            props.setProperty(homePropName, scalaHome.getAbsolutePath());
             ClassPath bootCP = platform.getBootstrapLibraries();
             StringBuffer sbootcp = new StringBuffer();
             for (ClassPath.Entry entry : bootCP.entries()) {
@@ -328,7 +328,7 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
                 if (sbootcp.length()>0) {
                     sbootcp.append(File.pathSeparator);
                 }
-                sbootcp.append(normalizePath(root, jdkHome, homePropName));
+                sbootcp.append(normalizePath(root, scalaHome, homePropName));
             }
             props.setProperty(bootClassPathPropName,sbootcp.toString());   //NOI18N
             props.setProperty(compilerType,getCompilerType(platform));
@@ -338,7 +338,7 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
                 if (tool != null) {
                     if (!isDefaultLocation(tool, platform.getInstallFolders())) {
                         String toolName = createName(systemName, name);
-                        props.setProperty(toolName, normalizePath(getToolPath(tool), jdkHome, homePropName));
+                        props.setProperty(toolName, normalizePath(getToolPath(tool), scalaHome, homePropName));
                     }
                 } else {
                     throw new BrokenPlatformException (name);
@@ -388,8 +388,8 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
         return new File (URI.create(tool.getURL().toExternalForm()));
     }
 
-    private static String normalizePath (File path,  File jdkHome, String propName) {
-        String jdkLoc = jdkHome.getAbsolutePath();
+    private static String normalizePath (File path,  File scalaHome, String propName) {
+        String jdkLoc = scalaHome.getAbsolutePath();
         if (!jdkLoc.endsWith(File.separator)) {
             jdkLoc = jdkLoc + File.separator;
         }
@@ -476,7 +476,7 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
         void write(final  OutputStream out) throws IOException {
             final Map<String,String> props = instance.getProperties();
             final Map<String,String> sysProps = instance.getSystemProperties();
-            final Document doc = XMLUtil.createDocument(ELEMENT_PLATFORM,null,PLATFORM_DTD_ID,"http://www.netbeans.org/dtds/java-platformdefinition-1_0.dtd"); //NOI18N
+            final Document doc = XMLUtil.createDocument(ELEMENT_PLATFORM,null,PLATFORM_DTD_ID,"http://www.netbeans.org/dtds/scala-platformdefinition-1_0.dtd"); //NOI18N
             final Element platformElement = doc.getDocumentElement();
             platformElement.setAttribute(ATTR_PLATFORM_NAME,instance.getDisplayName());
             platformElement.setAttribute(ATTR_PLATFORM_DEFAULT,defaultPlatform ? "yes" : "no"); //NOI18N
@@ -487,14 +487,14 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
                 final Element sysPropsElement = doc.createElement(ELEMENT_SYSPROPERTIES);
                 writeProperties(sysProps, sysPropsElement, doc);
                 platformElement.appendChild(sysPropsElement);
-                final Element jdkHomeElement = doc.createElement(ELEMENT_JDKHOME);
+                final Element scalaHomeElement = doc.createElement(ELEMENT_SCALAHOME);
                 for (Iterator<FileObject> it = instance.getInstallFolders().iterator(); it.hasNext();) {
                     URL url = it.next ().getURL();
                     final Element resourceElement = doc.createElement(ELEMENT_RESOURCE);
                     resourceElement.appendChild(doc.createTextNode(url.toExternalForm()));
-                    jdkHomeElement.appendChild(resourceElement);
+                    scalaHomeElement.appendChild(resourceElement);
                 }                
-                platformElement.appendChild(jdkHomeElement);                
+                platformElement.appendChild(scalaHomeElement);                
             }            
             final List<ClassPath.Entry> psl = this.instance.getSourceFolders().entries();
             if (psl.size()>0 && shouldWriteSources ()) {                
@@ -577,7 +577,7 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
     static final String ELEMENT_SYSPROPERTIES = "sysproperties"; // NOI18N
     static final String ELEMENT_PROPERTY = "property"; // NOI18N
     static final String ELEMENT_PLATFORM = "platform"; // NOI18N
-    static final String ELEMENT_JDKHOME = "jdkhome";    //NOI18N
+    static final String ELEMENT_SCALAHOME = "scalahome";    //NOI18N
     static final String ELEMENT_SOURCEPATH = "sources";  //NOI18N
     static final String ELEMENT_JAVADOC = "javadoc";    //NOI18N
     static final String ELEMENT_RESOURCE = "resource";  //NOI18N
@@ -636,7 +636,7 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
                 this.javadoc = new ArrayList<URL> ();
                 this.path = this.javadoc;
             }
-            else if (ELEMENT_JDKHOME.equals(qName)) {
+            else if (ELEMENT_SCALAHOME.equals(qName)) {
                 this.installFolders = new ArrayList<URL> ();
                 this.path =  this.installFolders;
             }

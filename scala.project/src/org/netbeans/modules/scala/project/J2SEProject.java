@@ -492,9 +492,20 @@ public final class J2SEProject implements Project, AntProjectListener {
             }
             
             // register project's classpaths to GlobalPathRegistry            
-            GlobalPathRegistry.getDefault().register(ClassPath.BOOT, cpProvider.getProjectClassPaths(ClassPath.BOOT));
-            GlobalPathRegistry.getDefault().register(ClassPath.SOURCE, cpProvider.getProjectClassPaths(ClassPath.SOURCE));
-            GlobalPathRegistry.getDefault().register(ClassPath.COMPILE, cpProvider.getProjectClassPaths(ClassPath.COMPILE));
+            /**
+             * @Note:
+             * Register classpaths to GlobalPathRegistry will cause GSF indexer to monitor and indexing them.
+             * 
+             * Per org.netbeans.modules.gsfret.source.GlobalSourcePath#createResources(Request),
+             * Tor' midifications: Treat bootCps as a source path, not a binary -  I want to scan directories.
+             * 
+             * We should here register boot source's classpath instead of binary boot classpath.
+             * 
+             * GlobalPathRegistry.getDefault().register(ClassPath.BOOT, cpProvider.getProjectClassPaths(ClassPath.BOOT));
+             */
+            GlobalPathRegistry.getDefault().register(ClassPath.BOOT, cpProvider.getProjectSourcesClassPaths(ClassPath.BOOT));
+            GlobalPathRegistry.getDefault().register(ClassPath.SOURCE, cpProvider.getProjectSourcesClassPaths(ClassPath.SOURCE));
+            GlobalPathRegistry.getDefault().register(ClassPath.COMPILE, cpProvider.getProjectSourcesClassPaths(ClassPath.COMPILE));
 
             //register updater of main.class
             //the updater is active only on the opened projects

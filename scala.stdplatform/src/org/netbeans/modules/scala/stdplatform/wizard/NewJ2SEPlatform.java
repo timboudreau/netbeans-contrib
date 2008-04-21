@@ -77,11 +77,11 @@ public final class NewJ2SEPlatform extends J2SEPlatformImpl implements Runnable 
     
     //Properties used by IDE which should be fixed not to use resolved symlink
     static {
-        propertiesToFix.add ("sun.boot.class.path");    //NOI18N
-        propertiesToFix.add ("sun.boot.library.path");  //NOI18N
-        propertiesToFix.add ("java.library.path");      //NOI18N
-        propertiesToFix.add ("java.ext.dirs");          //NOI18N
-        propertiesToFix.add ("java.home");              //NOI18N       
+        propertiesToFix.add ("scala.boot.class.path");    //NOI18N
+        propertiesToFix.add ("scala.boot.library.path");  //NOI18N
+        propertiesToFix.add ("scala.library.path");      //NOI18N
+        propertiesToFix.add ("scala.ext.dirs");          //NOI18N
+        propertiesToFix.add ("scala.home");              //NOI18N       
     }
     
     private boolean valid;
@@ -106,7 +106,7 @@ public final class NewJ2SEPlatform extends J2SEPlatformImpl implements Runnable 
      */
     public void run() {
         try {
-            FileObject java = findTool("java");
+            FileObject java = findTool("scala");
             if (java == null)
                 return;
             File javaFile = FileUtil.toFile (java);
