@@ -27,9 +27,6 @@ import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.text.Document;
 import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.api.project.SourceGroup;
-import org.netbeans.api.project.Sources;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.javafx.dataloader.JavaFXDataObject;
 import org.netbeans.modules.javafx.editor.FXDocument;
@@ -66,8 +63,9 @@ public class CodeManager {
     private static final String noCPFoundPrefix = "No classpath was found for folder: ";                     // NOI18N
     
     private static final DiagnosticCollector diagnostics = new DiagnosticCollector();
+    
     public static Object execute(FXDocument doc) {
-
+        
         ClassLoader orig = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(ToolProvider.class.getClassLoader());
         
