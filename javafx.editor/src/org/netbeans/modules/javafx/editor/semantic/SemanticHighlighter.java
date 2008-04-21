@@ -38,9 +38,11 @@
  */
 package org.netbeans.modules.javafx.editor.semantic;
 
+import com.sun.javafx.api.tree.ClassDeclarationTree;
 import com.sun.javafx.api.tree.FunctionDefinitionTree;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
 import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.SourcePositions;
 import java.awt.Color;
@@ -74,15 +76,21 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
     
     private static final String ID_FUNCTION = "function";
     private static final String ID_FIELD = "field";
+    private static final String ID_IDENTIFIER = "identifier";
+    private static final String ID_CLASS = "class";
 
     private static final AttributeSet FIELD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, new Color(0, 153, 0));
     private static final AttributeSet METHOD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.BLACK, StyleConstants.Bold, Boolean.TRUE);
+    private static final AttributeSet IDENTIFIER_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Background, Color.RED);
+    private static final AttributeSet CLASS_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.BLACK, StyleConstants.Bold, Boolean.TRUE);
     
     private static final Logger LOGGER = Logger.getLogger(SemanticHighlighter.class.getName());
     private static final boolean LOGGABLE = LOGGER.isLoggable(Level.FINE);
     
     private FileObject file;
     private AtomicBoolean cancel = new AtomicBoolean();
+    
+    private List<Result> identifiers = new ArrayList<Result>();
 
     SemanticHighlighter(FileObject file) {
         this.file = file;
@@ -109,20 +117,21 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
                 return;
             }
 
-            List<Result> list = new ArrayList<Result>();
+            identifiers.clear();
+            List<Result> result = new ArrayList<Result>();
             CompilationUnitTree compilationUnit = info.getCompilationUnit();
             JavaFXThreeVisitor javaFXThreeVisitor = new JavaFXThreeVisitor(info);
-            javaFXThreeVisitor.scan(compilationUnit, list);
-            setHighlights(doc, list);
+            javaFXThreeVisitor.scan(compilationUnit, result);
+            setHighlights(doc, result, identifiers);
 
         } catch (DataObjectNotFoundException ex) {
             Exceptions.printStackTrace(ex);
         }
     }
 
-    static void setHighlights(Document doc, List<Result> list) {
+    static void setHighlights(Document doc, List<Result> results, List<Result> identifiers) {
         OffsetsBag bag = new OffsetsBag(doc, true);
-        for (Result result : list) {
+        for (Result result : results) {
             int start = (int) result.start;
             int end = (int) result.end;
 
@@ -131,6 +140,18 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
             } else {
                 log("* Incorrect positions for highlighting: " + start + ", " + end);
             }
+            
+            // highlighting fot variables from cache
+            if (ID_FIELD.equals(result.identifier)) {
+                for (Result id : identifiers) {
+                    final String idText = id.token.text().toString();
+                    final String resText = result.token.text().toString();
+                    if (idText.equals(resText)) {
+                        bag.addHighlight((int) id.start, (int) id.end, getAttributeSet(result.identifier));
+                    }
+                }
+            }
+            
         }
 
         getBag(doc).setHighlights(bag);
@@ -141,6 +162,10 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
             return METHOD_HIGHLIGHT;
         } else if (ID_FIELD.equals(identifier)) {
             return FIELD_HIGHLIGHT;
+        } else if (ID_IDENTIFIER.equals(identifier)) {
+            return IDENTIFIER_HIGHLIGHT;
+        } else if (ID_CLASS.equals(identifier)) {
+            return CLASS_HIGHLIGHT;
         }
         return FIELD_HIGHLIGHT;
     }
@@ -161,7 +186,7 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
         }
     }
 
-    private static class JavaFXThreeVisitor extends JavaFXTreePathScanner<Void, List<Result>> {
+    private class JavaFXThreeVisitor extends JavaFXTreePathScanner<Void, List<Result>> {
 
         private CompilationInfo info;
         private TreeUtilities tu;
@@ -189,11 +214,11 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
                 if (JFXTokenId.IDENTIFIER.equals(t.id())) { // first identifier is a name
                     start = ts.offset();
                     end = start + t.length();
+                    list.add(new Result(start, end, ID_FUNCTION, t));
                     break;
                 }
             }
 
-            list.add(new Result(start, end,ID_FUNCTION));
             return super.visitFunctionDefinition(tree, list);
         }
 
@@ -213,12 +238,60 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
                 if (JFXTokenId.IDENTIFIER.equals(t.id())) { // first identifier is a name
                     start = ts.offset();
                     end = start + t.length();
+                    list.add(new Result(start, end, ID_FIELD, t));
                     break;
                 }
             }
 
-            list.add(new Result(start, end, ID_FIELD));
             return super.visitVariable(tree, list);
+        }
+
+        @Override
+        public Void visitIdentifier(IdentifierTree tree, List<Result> list) {
+            SourcePositions sourcePositions = info.getTrees().getSourcePositions();
+            long start = sourcePositions.getStartPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
+            long end = sourcePositions.getEndPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
+            
+            if (start < 0 || end < 0) { // synthetic
+                return super.visitIdentifier(tree, list);
+            }
+            
+            TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
+            while (ts.moveNext()) {
+                Token t = ts.token();
+                if (JFXTokenId.IDENTIFIER.equals(t.id())) {
+                    start = ts.offset();
+                    end = start + t.length();
+                    identifiers.add(new Result(start, end, ID_IDENTIFIER, t)); // identfiers chache
+                    break;
+                }
+            }
+
+            return super.visitIdentifier(tree, list);
+        }
+
+        @Override
+        public Void visitClassDeclaration(ClassDeclarationTree tree, List<Result> list) {
+            SourcePositions sourcePositions = info.getTrees().getSourcePositions();
+            long start = sourcePositions.getStartPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
+            long end = sourcePositions.getEndPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
+            
+            if (start < 0 || end < 0) { // synthetic
+                return super.visitClassDeclaration(tree, list);
+            }
+            
+            TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
+            while (ts.moveNext()) {
+                Token t = ts.token();
+                if (JFXTokenId.IDENTIFIER.equals(t.id())) { // first identifier is a name
+                    start = ts.offset();
+                    end = start + t.length();
+                    list.add(new Result(start, end, ID_CLASS, t));
+                    break;
+                }
+            }
+
+            return super.visitClassDeclaration(tree, list);
         }
 
     }
@@ -228,12 +301,14 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
         long start;
         long end;
         String identifier; // temporary since element doesn't work
+        Token token;
 
 
-        public Result(long start, long end, String identifier) {
+        public Result(long start, long end, String identifier, Token token) {
             this.start = start;
             this.end = end;
             this.identifier = identifier;
+            this.token = token;
         }
 
         @Override
