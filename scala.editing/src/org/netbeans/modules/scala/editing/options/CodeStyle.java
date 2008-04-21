@@ -39,12 +39,12 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.scala.editing;
+package org.netbeans.modules.scala.editing.options;
 
 import java.util.prefs.Preferences;
 import org.netbeans.api.project.Project;
 
-import static org.netbeans.modules.scala.editing.FmtOptions.*;
+import static org.netbeans.modules.scala.editing.options.FmtOptions.*;
 
 
 /** 

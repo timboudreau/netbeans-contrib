@@ -291,6 +291,7 @@ public class J2SEProjectGenerator {
         ep.setProperty("build.classes.excludes", "**/*.java,**/*.form,**/*.scala"); // NOI18N
         ep.setProperty("dist.javadoc.dir", "${dist.dir}/javadoc"); // NOI18N
         ep.setProperty("platform.active", "default_platform"); // NOI18N
+        ep.setProperty("java.platform.active", "java_default_platform"); // NOI18N
 
         ep.setProperty("run.jvmargs", ""); // NOI18N
         ep.setComment("run.jvmargs", new String[] {

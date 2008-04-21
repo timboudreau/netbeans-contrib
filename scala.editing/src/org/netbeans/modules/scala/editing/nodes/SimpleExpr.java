@@ -40,13 +40,13 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.List;
-import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.api.lexer.Token;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class SimpleExpr extends Expr implements Postfixable {
+public class SimpleExpr extends AstExpr implements Postfixable {
         
     private AstElement base;
     
@@ -56,8 +56,8 @@ public class SimpleExpr extends Expr implements Postfixable {
     private String prefixOp;
     private Id postfixOp;
     
-    public SimpleExpr(ElementKind kind) {
-        super(kind);
+    public SimpleExpr(Token[] boundsTokens) {
+        super(boundsTokens);
     }
 
     public void setBase(AstElement base) {

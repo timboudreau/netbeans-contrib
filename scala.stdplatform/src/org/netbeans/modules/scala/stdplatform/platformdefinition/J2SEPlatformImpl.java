@@ -66,13 +66,13 @@ import org.openide.ErrorManager;
 public class J2SEPlatformImpl extends JavaPlatform {
     
     public static final String PROP_ANT_NAME = "antName";                   //NOI18N
-    public static final String PLATFORM_J2SE = "j2se";                      //NOI18N
+    public static final String PLATFORM_J2SE = "std";                      //NOI18N
 
     protected static final String PLAT_PROP_ANT_NAME="platform.ant.name";             //NOI18N
     protected static final String PLAT_PROP_ARCH_FOLDER="platform.arch.folder";       //NOI18N
-    protected static final String SYSPROP_BOOT_CLASSPATH = "sun.boot.class.path";     // NOI18N
-    protected static final String SYSPROP_JAVA_CLASS_PATH = "java.class.path";        // NOI18N
-    protected static final String SYSPROP_JAVA_EXT_PATH = "java.ext.dirs";            //NOI18N
+    protected static final String SYSPROP_BOOT_CLASSPATH = "scala.boot.class.path";     // NOI18N
+    protected static final String SYSPROP_JAVA_CLASS_PATH = "scala.class.path";        // NOI18N
+    protected static final String SYSPROP_JAVA_EXT_PATH = "scala.ext.dirs";            //NOI18N
     protected static final String SYSPROP_USER_DIR = "user.dir";                      //NOI18N
 
     /**
@@ -234,7 +234,7 @@ public class J2SEPlatformImpl extends JavaPlatform {
             return cp;
         }
     }
-
+    
     /**
      * Retrieves a collection of {@link org.openide.filesystems.FileObject}s of one or more folders
      * where the Platform is installed. Typically it returns one folder, but
@@ -361,5 +361,5 @@ public class J2SEPlatformImpl extends JavaPlatform {
             }
         }
         return ClassPathSupport.createClassPath (resources);
-    }
+    }    
 }

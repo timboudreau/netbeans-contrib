@@ -36,7 +36,6 @@
  * 
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing;
 
 import java.io.IOException;
@@ -69,11 +68,13 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.ScalaParser.Sanitize;
+import org.netbeans.modules.scala.editing.lexer.Call;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
+import org.netbeans.modules.scala.editing.nodes.TypeRef;
 import org.netbeans.modules.scala.editing.nodes.Var;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.filesystems.FileObject;
@@ -115,229 +116,137 @@ import org.openide.util.Exceptions;
  * @author Tor Norbye
  */
 public class ScalaCodeCompletion implements Completable {
+
     private static ImageIcon keywordIcon;
     private boolean caseSensitive;
     private static final String[] REGEXP_WORDS =
-        new String[] {
-            // Dbl-space lines to keep formatter from collapsing pairs into a block
+            new String[]{
+        // Dbl-space lines to keep formatter from collapsing pairs into a block
 
-            // Literals
-            
-            "\\0", "The NUL character (\\u0000)",
+        // Literals
 
-            "\\t", "Tab (\\u0009)",
-            
-            "\\n", "Newline (\\u000A)",
-            
-            "\\v", "Vertical tab (\\u000B)",
-            
-            "\\f", "Form feed (\\u000C)",
-            
-            "\\r", "Carriage return (\\u000D)",
-            
-            "\\x", "\\x<i>nn</i>: The latin character in hex <i>nn</i>",
-            
-            "\\u", "\\u<i>xxxx</i>: The Unicode character in hex <i>xxxx</i>",
-            
-            "\\c", "\\c<i>X</i>: The control character ^<i>X</i>",
-            
-            
+        "\\0", "The NUL character (\\u0000)",
+        "\\t", "Tab (\\u0009)",
+        "\\n", "Newline (\\u000A)",
+        "\\v", "Vertical tab (\\u000B)",
+        "\\f", "Form feed (\\u000C)",
+        "\\r", "Carriage return (\\u000D)",
+        "\\x", "\\x<i>nn</i>: The latin character in hex <i>nn</i>",
+        "\\u", "\\u<i>xxxx</i>: The Unicode character in hex <i>xxxx</i>",
+        "\\c", "\\c<i>X</i>: The control character ^<i>X</i>",
+        // Character classes
+        "[]", "Any one character between the brackets",
+        "[^]", "Any one character not between the brackets",
+        "\\w", "Any ASCII word character; same as [0-9A-Za-z_]",
+        "\\W", "Not a word character; same as [^0-9A-Za-z_]",
+        "\\s", "Unicode space character",
+        "\\S", "Non-space character",
+        "\\d", "Digit character; same as [0-9]",
+        "\\D", "Non-digit character; same as [^0-9]",
+        "[\\b]", "Literal backspace",
+        // Match positions
+        "^", "Start of line",
+        "$", "End of line",
+        "\\b", "Word boundary (if not in a range specification)",
+        "\\B", "Non-word boundary",
+        // According to JavaScript The Definitive Guide, the following are not supported
+        // in JavaScript:
+        // \\a, \\e, \\l, \\u, \\L, \\U, \\E, \\Q, \\A, \\Z, \\z, and \\G
+        // 
+        //"\\A", "Beginning of string",
+        //"\\z", "End of string",
+        //"\\Z", "End of string (except \\n)",
 
-            // Character classes
-            "[]", "Any one character between the brackets",
-            
-            "[^]", "Any one character not between the brackets",
-            
-            
-            
-            "\\w", "Any ASCII word character; same as [0-9A-Za-z_]",
-            
-            "\\W", "Not a word character; same as [^0-9A-Za-z_]",
-            
-            "\\s", "Unicode space character",
-            
-            "\\S", "Non-space character",
-            
-            "\\d", "Digit character; same as [0-9]",
-            
-            "\\D", "Non-digit character; same as [^0-9]",
-            
-            "[\\b]", "Literal backspace",
-            
-            
-            
-            // Match positions
-            "^", "Start of line",
-            
-            "$", "End of line",
-            
-            "\\b", "Word boundary (if not in a range specification)",
-            
-            "\\B", "Non-word boundary",
-            
-            // According to JavaScript The Definitive Guide, the following are not supported
-            // in JavaScript:
-            // \\a, \\e, \\l, \\u, \\L, \\U, \\E, \\Q, \\A, \\Z, \\z, and \\G
-            // 
-            //"\\A", "Beginning of string",
-            //"\\z", "End of string",
-            //"\\Z", "End of string (except \\n)",
-            
-            "*", "Zero or more repetitions of the preceding",
-            
-            "+", "One or more repetitions of the preceding",
-            
-            "{m,n}", "At least m and at most n repetitions of the preceding",
-            
-            "?", "At most one repetition of the preceding; same as {0,1}",
-            
-            "|", "Either preceding or next expression may match",
-            
-            "()", "Grouping",
-            
-            //"[:alnum:]", "Alphanumeric character class",
-            //"[:alpha:]", "Uppercase or lowercase letter",
-            //"[:blank:]", "Blank and tab",
-            //"[:cntrl:]", "Control characters (at least 0x00-0x1f,0x7f)",
-            //"[:digit:]", "Digit",
-            //"[:graph:]", "Printable character excluding space",
-            //"[:lower:]", "Lowecase letter",
-            //"[:print:]", "Any printable letter (including space)",
-            //"[:punct:]", "Printable character excluding space and alphanumeric",
-            //"[:space:]", "Whitespace (same as \\s)",
-            //"[:upper:]", "Uppercase letter",
-            //"[:xdigit:]", "Hex digit (0-9, a-f, A-F)",
-        };
+        "*", "Zero or more repetitions of the preceding",
+        "+", "One or more repetitions of the preceding",
+        "{m,n}", "At least m and at most n repetitions of the preceding",
+        "?", "At most one repetition of the preceding; same as {0,1}",
+        "|", "Either preceding or next expression may match",
+        "()", "Grouping",
+    //"[:alnum:]", "Alphanumeric character class",
+    //"[:alpha:]", "Uppercase or lowercase letter",
+    //"[:blank:]", "Blank and tab",
+    //"[:cntrl:]", "Control characters (at least 0x00-0x1f,0x7f)",
+    //"[:digit:]", "Digit",
+    //"[:graph:]", "Printable character excluding space",
+    //"[:lower:]", "Lowecase letter",
+    //"[:print:]", "Any printable letter (including space)",
+    //"[:punct:]", "Printable character excluding space and alphanumeric",
+    //"[:space:]", "Whitespace (same as \\s)",
+    //"[:upper:]", "Uppercase letter",
+    //"[:xdigit:]", "Hex digit (0-9, a-f, A-F)",
+    };
 
     // Strings section 7.8
     private static final String[] STRING_ESCAPES =
-        new String[] {
-        
-            "\\0", "The NUL character (\\u0000)",
-
-            "\\b", "Backspace (0x08)",
-            
-            "\\t", "Tab (\\u0009)",
-            
-            "\\n", "Newline (\\u000A)",
-            
-            "\\v", "Vertical tab (\\u000B)",
-            
-            "\\f", "Form feed (\\u000C)",
-            
-            "\\r", "Carriage return (\\u000D)",
-            
-            "\\\"", "Double Quote (\\u0022)",
-            
-            "\\'", "Single Quote (\\u0027)",
-            
-            "\\\\", "Backslash (\\u005C)",
-            
-            "\\x", "\\x<i>nn</i>: The latin character in hex <i>nn</i>",
-            
-            "\\u", "\\u<i>xxxx</i>: The Unicode character in hex <i>xxxx</i>",
-            
-            "\\", "\\<i>ooo</i>: The latin character in octal <i>ooo</i>",
-
-            // PENDING: Is this supported?
-            "\\c", "\\c<i>X</i>: The control character ^<i>X</i>",
-            
-        };
-
-    private static final String[] CSS_WORDS =
-        new String[] {
-            // Dbl-space lines to keep formatter from collapsing pairs into a block
-        
-            // Source: http://docs.jquery.com/DOM/Traversing/Selectors
-            "nth-child()", "The n-th child of its parent",
-
-            "first-child",  "First child of its parent",
-
-            "last-child", "Last child of its parent",
-
-            "only-child", "Only child of its parent",
-
-            "empty", "Has no children (including text nodes)",
-
-            "enabled", "Element which is not disabled",
-
-            "disabled", "Element which is disabled",
-
-            "checked", "Element which is checked (checkbox, ...)",
-
-            "selected", "Element which is selected (e.g. in a select)",
-        
-            "link", "Not yet visited hyperlink",
-            
-            "visited", "Already visited hyperlink",
-            
-            "active", "",
-            
-            "hover", "",
-            
-            "focus", "Element during user actions",
-            
-            "target", "Target of the referring URI",
-            
-            "lang()", "Element in given language",
-            
-            ":first-line", "The first formatted line",
-            
-            ":first-letter", "The first formatted letter",
-            
-            ":selection", "Portion currently highlighted by the user",
-            
-            ":before", "Generated content before an element",
-
-            ":after", "Generated content after an element",
-            
-            // Custom Selectors
-            "even", "Selects every other (even) element",
-
-            "odd", "Selects every other (odd) element",
-            
-            "eq()", "Selects the Nth element",
-            
-            "nth()", "Selects the Nth element",
-            
-            "gt()", "Selects elements whose index is greater than N",
-            
-            "lt()", "Selects elements whose index is less than N",
-            
-            "first", "Equivalent to :eq(0)",
-            
-            "last", "Selects the last matched element",
-            
-            "parent", "Elements that have children (including text)",
-            
-            "contains('", "Elements which contain the specified text",
-            
-            "visible", "Selects all visible elements",
-            
-            "hidden", "Selects all hidden elements",
-            
-            // Form Selectors
-            "input", "All form elements",
-            
-            "text", "All text fields (type=\"text\")",
-            
-            "password", "All password fields (type=\"password\")",
-            
-            "radio", "All radio fields (type=\"radio\")",
-            
-            "checkbox", "All checkbox fields (type=\"checkbox\")",
-            
-            "submit", "All submit buttons (type=\"submit\")",
-            
-            "image", "All form images (type=\"image\")",
-            
-            "reset", "All reset buttons (type=\"reset\")",
-            
-            "button", "All other buttons (type=\"button\")",
-            
-            "file", "All file uploads (type=\"file\")",
+            new String[]{
+        "\\0", "The NUL character (\\u0000)",
+        "\\b", "Backspace (0x08)",
+        "\\t", "Tab (\\u0009)",
+        "\\n", "Newline (\\u000A)",
+        "\\v", "Vertical tab (\\u000B)",
+        "\\f", "Form feed (\\u000C)",
+        "\\r", "Carriage return (\\u000D)",
+        "\\\"", "Double Quote (\\u0022)",
+        "\\'", "Single Quote (\\u0027)",
+        "\\\\", "Backslash (\\u005C)",
+        "\\x", "\\x<i>nn</i>: The latin character in hex <i>nn</i>",
+        "\\u", "\\u<i>xxxx</i>: The Unicode character in hex <i>xxxx</i>",
+        "\\", "\\<i>ooo</i>: The latin character in octal <i>ooo</i>",
+        // PENDING: Is this supported?
+        "\\c", "\\c<i>X</i>: The control character ^<i>X</i>",
     };
-    
+    private static final String[] CSS_WORDS =
+            new String[]{
+        // Dbl-space lines to keep formatter from collapsing pairs into a block
+
+        // Source: http://docs.jquery.com/DOM/Traversing/Selectors
+        "nth-child()", "The n-th child of its parent",
+        "first-child", "First child of its parent",
+        "last-child", "Last child of its parent",
+        "only-child", "Only child of its parent",
+        "empty", "Has no children (including text nodes)",
+        "enabled", "Element which is not disabled",
+        "disabled", "Element which is disabled",
+        "checked", "Element which is checked (checkbox, ...)",
+        "selected", "Element which is selected (e.g. in a select)",
+        "link", "Not yet visited hyperlink",
+        "visited", "Already visited hyperlink",
+        "active", "",
+        "hover", "",
+        "focus", "Element during user actions",
+        "target", "Target of the referring URI",
+        "lang()", "Element in given language",
+        ":first-line", "The first formatted line",
+        ":first-letter", "The first formatted letter",
+        ":selection", "Portion currently highlighted by the user",
+        ":before", "Generated content before an element",
+        ":after", "Generated content after an element",
+        // Custom Selectors
+        "even", "Selects every other (even) element",
+        "odd", "Selects every other (odd) element",
+        "eq()", "Selects the Nth element",
+        "nth()", "Selects the Nth element",
+        "gt()", "Selects elements whose index is greater than N",
+        "lt()", "Selects elements whose index is less than N",
+        "first", "Equivalent to :eq(0)",
+        "last", "Selects the last matched element",
+        "parent", "Elements that have children (including text)",
+        "contains('", "Elements which contain the specified text",
+        "visible", "Selects all visible elements",
+        "hidden", "Selects all hidden elements",
+        // Form Selectors
+        "input", "All form elements",
+        "text", "All text fields (type=\"text\")",
+        "password", "All password fields (type=\"password\")",
+        "radio", "All radio fields (type=\"radio\")",
+        "checkbox", "All checkbox fields (type=\"checkbox\")",
+        "submit", "All submit buttons (type=\"submit\")",
+        "image", "All form images (type=\"image\")",
+        "reset", "All reset buttons (type=\"reset\")",
+        "button", "All other buttons (type=\"button\")",
+        "file", "All file uploads (type=\"file\")",
+    };
     // From http://code.google.com/p/jsdoc-toolkit/wiki/TagReference
     private static final String[] JSDOC_WORDS =
             new String[]{
@@ -367,9 +276,8 @@ public class ScalaCodeCompletion implements Completable {
         "@static",
         "@type",
     };
-    
+
     public ScalaCodeCompletion() {
-        
     }
 
     public List<CompletionProposal> complete(CompilationInfo info, int lexOffset, String prefix,
@@ -378,7 +286,7 @@ public class ScalaCodeCompletion implements Completable {
         if (kind == NameKind.CASE_INSENSITIVE_PREFIX) {
             kind = NameKind.PREFIX;
         }
-        
+
         if (prefix == null) {
             prefix = "";
         }
@@ -391,7 +299,7 @@ public class ScalaCodeCompletion implements Completable {
             Exceptions.printStackTrace(e);
             return null;
         }
-        final BaseDocument doc = (BaseDocument)document;
+        final BaseDocument doc = (BaseDocument) document;
 
         List<CompletionProposal> proposals = new ArrayList<CompletionProposal>();
 
@@ -399,16 +307,14 @@ public class ScalaCodeCompletion implements Completable {
         doc.readLock(); // Read-lock due to Token hierarchy use
         try {
             AstScope root = pResult.getRootScope();
-            if (root == null) {
-                return null;
-            }
-            
+
             final int astOffset = AstUtilities.getAstOffset(info, lexOffset);
             if (astOffset == -1) {
                 return null;
             }
             final TokenHierarchy<Document> th = TokenHierarchy.get(document);
             final FileObject fileObject = info.getFileObject();
+            final Call call = Call.getCallType(doc, th, lexOffset);
 
             // Carry completion context around since this logic is split across lots of methods
             // and I don't want to pass dozens of parameters from method to method; just pass
@@ -427,12 +333,13 @@ public class ScalaCodeCompletion implements Completable {
             request.queryType = queryType;
             request.fileObject = fileObject;
             request.anchor = lexOffset - prefix.length();
+            request.call = call;
 
             Token<? extends TokenId> token = ScalaLexUtilities.getToken(doc, lexOffset);
             if (token == null) {
                 return proposals;
             }
-            
+
             TokenId id = token.id();
             if (id == ScalaTokenId.LineComment) {
                 // TODO - Complete symbols in comments?
@@ -451,10 +358,10 @@ public class ScalaCodeCompletion implements Completable {
                 completeRegexps(proposals, request);
                 return proposals;
             }
-            
+
             if (root != null) {
                 int offset = astOffset;
-                
+
                 OffsetRange sanitizedRange = pResult.getSanitizedRange();
                 if (sanitizedRange != OffsetRange.NONE && sanitizedRange.containsInclusive(offset)) {
                     offset = sanitizedRange.getStart();
@@ -464,12 +371,17 @@ public class ScalaCodeCompletion implements Completable {
                 //request.path = path;
                 //request.fqn = AstUtilities.getFqn(path, null, null);
 
-                final AstElement closest = root.getElement(th, offset);
+                AstElement closest = root.getElement(th, offset);
+                if (closest == null) {
+                    closest = root.getElement(th, offset - 1);
+                }
+
+                if (closest instanceof FunRef) {
+                    //(FunRef) closest;
+                }
+
                 request.root = root;
                 request.element = closest;
-                if (closest instanceof FunRef) {
-                    request.call = (FunRef) closest;
-                } 
             }
 
             if (root == null) {
@@ -478,31 +390,31 @@ public class ScalaCodeCompletion implements Completable {
             }
 
             // Try to complete "new" RHS
-//            if (completeNew(proposals, request)) {
-//               return proposals;
-//            }
+            if (completeNew(proposals, request)) {
+                return proposals;
+            }
 
-//            if (call.getLhs() != null || request.call.getPrevCallParenPos() != -1) {
-//                completeObjectMethod(proposals, request);
-//                return proposals;
-//            }
+            if (call.getLhs() != null || request.call.getPrevCallParenPos() != -1) {
+                completeObjectMethod(proposals, request);
+                return proposals;
+            }
 
             completeKeywords(proposals, request);
 
             addLocals(proposals, request);
-            
-//            if (completeObjectMethod(proposals, request)) {
-//                return proposals;
-//            }
+
+            if (completeObjectMethod(proposals, request)) {
+                return proposals;
+            }
 
             // Try to complete methods
             if (completeFunctions(proposals, request)) {
-               return proposals;
+                return proposals;
             }
         } finally {
             doc.readUnlock();
         }
-        
+
         return proposals;
     }
 
@@ -511,24 +423,24 @@ public class ScalaCodeCompletion implements Completable {
         String prefix = request.prefix;
         NameKind kind = request.kind;
         ScalaParserResult pResult = request.result;
-        
+
         AstScope root = pResult.getRootScope();
         if (root == null) {
             return;
         }
-        
+
         AstScope closestScope = root.getClosestScope(request.th, request.astOffset);
         List<Var> localVars = closestScope.getDefsInScope(Var.class);
 
         for (Var var : localVars) {
             if ((kind == NameKind.EXACT_NAME && prefix.equals(var.getName())) ||
                     (kind != NameKind.EXACT_NAME && startsWith(var.getName(), prefix))) {
-                    proposals.add(new PlainItem(var, request));
+                proposals.add(new PlainItem(var, request));
             }
         }
-        
-                
-        // Add in "arguments" local variable which is available to all functions
+
+
+    // Add in "arguments" local variable which is available to all functions
 //        String ARGUMENTS = "arguments"; // NOI18N
 //        if (startsWith(ARGUMENTS, prefix)) {
 //            // Make sure we're in a function before adding the arguments property
@@ -541,15 +453,15 @@ public class ScalaCodeCompletion implements Completable {
 //            }
 //        }
     }
-    
+
     private void completeKeywords(List<CompletionProposal> proposals, CompletionRequest request) {
         // No keywords possible in the RHS of a call (except for "this"?)
 //        if (request.call.getLhs() != null) {
 //            return;
 //        }
-        
+
         String prefix = request.prefix;
-        
+
 //        // Keywords
 //        if (prefix.equals("$")) {
 //            // Show dollar variable matches (global vars from the user's
@@ -588,16 +500,16 @@ public class ScalaCodeCompletion implements Completable {
             }
         }
     }
-    
+
     private boolean startsWith(String theString, String prefix) {
         if (prefix.length() == 0) {
             return true;
         }
 
         return caseSensitive ? theString.startsWith(prefix)
-                             : theString.toLowerCase().startsWith(prefix.toLowerCase());
+                : theString.toLowerCase().startsWith(prefix.toLowerCase());
     }
-    
+
     private boolean completeRegexps(List<CompletionProposal> proposals, CompletionRequest request) {
         String prefix = request.prefix;
 
@@ -614,7 +526,7 @@ public class ScalaCodeCompletion implements Completable {
 
         return true;
     }
-    
+
     private boolean completeComments(List<CompletionProposal> proposals, CompletionRequest request) throws BadLocationException {
         String prefix = request.prefix;
 
@@ -623,10 +535,10 @@ public class ScalaCodeCompletion implements Completable {
         if (rowStart == -1) {
             return false;
         }
-        String line = doc.getText(rowStart, Utilities.getRowEnd(doc, request.lexOffset)-rowStart);
-        int delta = request.lexOffset-rowStart;
-        
-        int i = delta-1;
+        String line = doc.getText(rowStart, Utilities.getRowEnd(doc, request.lexOffset) - rowStart);
+        int delta = request.lexOffset - rowStart;
+
+        int i = delta - 1;
         for (; i >= 0; i--) {
             char c = line.charAt(i);
             if (Character.isWhitespace(c) || (!Character.isLetterOrDigit(c) && c != '@' && c != '.' && c != '_')) {
@@ -635,8 +547,8 @@ public class ScalaCodeCompletion implements Completable {
         }
         i++;
         prefix = line.substring(i, delta);
-        request.anchor = rowStart+i;
-        
+        request.anchor = rowStart + i;
+
         // Regular expression matching.  {
         for (int j = 0, n = JSDOC_WORDS.length; j < n; j++) {
             String word = JSDOC_WORDS[j];
@@ -646,10 +558,10 @@ public class ScalaCodeCompletion implements Completable {
                 proposals.add(item);
             }
         }
-        
+
         return true;
     }
-    
+
 //    private boolean completeStrings(List<CompletionProposal> proposals, CompletionRequest request) {
 //        String prefix = request.prefix;
 //
@@ -867,7 +779,6 @@ public class ScalaCodeCompletion implements Completable {
 //            }
 //        }
 //    }
-    
 //    private void addElementIds(List<CompletionProposal> proposals, CompletionRequest request, String prefix) {
 //        ParserResult result = request.info.getEmbeddedResult(JsUtils.HTML_MIME_TYPE, 0);
 //        if (result != null) {
@@ -889,8 +800,6 @@ public class ScalaCodeCompletion implements Completable {
 //            }
 //        }
 //    }
-
-
     /**
      * Compute an appropriate prefix to use for code completion.
      * In Strings, we want to return the -whole- string if you're in a
@@ -902,9 +811,9 @@ public class ScalaCodeCompletion implements Completable {
     @SuppressWarnings("unchecked")
     public String getPrefix(CompilationInfo info, int lexOffset, boolean upToOffset) {
         try {
-            BaseDocument doc = (BaseDocument)info.getDocument();
+            BaseDocument doc = (BaseDocument) info.getDocument();
 
-            TokenHierarchy<Document> th = TokenHierarchy.get((Document)doc);
+            TokenHierarchy<Document> th = TokenHierarchy.get((Document) doc);
             doc.readLock(); // Read-lock due to token hierarchy use
             try {
 //            int requireStart = ScalaLexUtilities.getRequireStringOffset(lexOffset, th);
@@ -914,41 +823,41 @@ public class ScalaCodeCompletion implements Completable {
 //                return doc.getText(requireStart, lexOffset - requireStart);
 //            }
 
-            TokenSequence<?extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+                TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
 
-            if (ts == null) {
-                return null;
-            }
-
-            ts.move(lexOffset);
-
-            if (!ts.moveNext() && !ts.movePrevious()) {
-                return null;
-            }
-
-            if (ts.offset() == lexOffset) {
-                // We're looking at the offset to the RIGHT of the caret
-                // and here I care about what's on the left
-                ts.movePrevious();
-            }
-
-            Token<?extends ScalaTokenId> token = ts.token();
-
-            if (token != null) {
-                TokenId id = token.id();
-
-                
-                if (id == ScalaTokenId.STRING_BEGIN || id == ScalaTokenId.STRING_END ||
-                        id == ScalaTokenId.StringLiteral || id == ScalaTokenId.REGEXP_LITERAL ||
-                        id == ScalaTokenId.REGEXP_BEGIN || id == ScalaTokenId.REGEXP_END) {
-                    if (lexOffset > 0) {
-                        char prevChar = doc.getText(lexOffset-1, 1).charAt(0);
-                        if (prevChar == '\\') {
-                            return "\\";
-                        }
-                        return "";
-                    }
+                if (ts == null) {
+                    return null;
                 }
+
+                ts.move(lexOffset);
+
+                if (!ts.moveNext() && !ts.movePrevious()) {
+                    return null;
+                }
+
+                if (ts.offset() == lexOffset) {
+                    // We're looking at the offset to the RIGHT of the caret
+                    // and here I care about what's on the left
+                    ts.movePrevious();
+                }
+
+                Token<? extends ScalaTokenId> token = ts.token();
+
+                if (token != null) {
+                    TokenId id = token.id();
+
+
+                    if (id == ScalaTokenId.STRING_BEGIN || id == ScalaTokenId.STRING_END ||
+                            id == ScalaTokenId.StringLiteral || id == ScalaTokenId.REGEXP_LITERAL ||
+                            id == ScalaTokenId.REGEXP_BEGIN || id == ScalaTokenId.REGEXP_END) {
+                        if (lexOffset > 0) {
+                            char prevChar = doc.getText(lexOffset - 1, 1).charAt(0);
+                            if (prevChar == '\\') {
+                                return "\\";
+                            }
+                            return "";
+                        }
+                    }
 //                        
 //                // We're within a String that has embedded Js. Drop into the
 //                // embedded language and see if we're within a literal string there.
@@ -1077,92 +986,92 @@ public class ScalaCodeCompletion implements Completable {
 //
 //                //return doc.getText(regexpOffset, offset-regexpOffset);
 //            }
-            }
-
-            int lineBegin = Utilities.getRowStart(doc, lexOffset);
-            if (lineBegin != -1) {
-                int lineEnd = Utilities.getRowEnd(doc, lexOffset);
-                String line = doc.getText(lineBegin, lineEnd-lineBegin);
-                int lineOffset = lexOffset-lineBegin;
-                int start = lineOffset;
-                if (lineOffset > 0) {
-                    for (int i = lineOffset-1; i >= 0; i--) {
-                        char c = line.charAt(i);
-                        if (!ScalaUtils.isIdentifierChar(c)) {
-                            break;
-                        } else {
-                            start = i;
-                        }
-                    }
                 }
-                
-                // Find identifier end
-                String prefix;
-                if (upToOffset ){
-                    prefix = line.substring(start, lineOffset);
-                } else {
-                    if (lineOffset == line.length()) {
-                        prefix = line.substring(start);
-                    } else {
-                        int n = line.length();
-                        int end = lineOffset;
-                        for (int j = lineOffset; j < n; j++) {
-                            char d = line.charAt(j);
-                            // Try to accept Foo::Bar as well
-                            if (!ScalaUtils.isStrictIdentifierChar(d)) {
+
+                int lineBegin = Utilities.getRowStart(doc, lexOffset);
+                if (lineBegin != -1) {
+                    int lineEnd = Utilities.getRowEnd(doc, lexOffset);
+                    String line = doc.getText(lineBegin, lineEnd - lineBegin);
+                    int lineOffset = lexOffset - lineBegin;
+                    int start = lineOffset;
+                    if (lineOffset > 0) {
+                        for (int i = lineOffset - 1; i >= 0; i--) {
+                            char c = line.charAt(i);
+                            if (!ScalaUtils.isIdentifierChar(c)) {
                                 break;
                             } else {
-                                end = j+1;
+                                start = i;
                             }
                         }
-                        prefix = line.substring(start, end);
-                    }
-                }
-                
-                if (prefix.length() > 0) {
-                    if (prefix.endsWith("::")) {
-                        return "";
                     }
 
-                    if (prefix.endsWith(":") && prefix.length() > 1) {
-                        return null;
+                    // Find identifier end
+                    String prefix;
+                    if (upToOffset) {
+                        prefix = line.substring(start, lineOffset);
+                    } else {
+                        if (lineOffset == line.length()) {
+                            prefix = line.substring(start);
+                        } else {
+                            int n = line.length();
+                            int end = lineOffset;
+                            for (int j = lineOffset; j < n; j++) {
+                                char d = line.charAt(j);
+                                // Try to accept Foo::Bar as well
+                                if (!ScalaUtils.isStrictIdentifierChar(d)) {
+                                    break;
+                                } else {
+                                    end = j + 1;
+                                }
+                            }
+                            prefix = line.substring(start, end);
+                        }
                     }
 
-                    // Strip out LHS if it's a qualified method, e.g.  Benchmark::measure -> measure
-                    int q = prefix.lastIndexOf("::");
+                    if (prefix.length() > 0) {
+                        if (prefix.endsWith("::")) {
+                            return "";
+                        }
 
-                    if (q != -1) {
-                        prefix = prefix.substring(q + 2);
-                    }
-                    
-                    // The identifier chars identified by JsLanguage are a bit too permissive;
-                    // they include things like "=", "!" and even "&" such that double-clicks will
-                    // pick up the whole "token" the user is after. But "=" is only allowed at the
-                    // end of identifiers for example.
-                    if (prefix.length() == 1) {
-                        char c = prefix.charAt(0);
-                        if (!(Character.isJavaIdentifierPart(c) || c == '@' || c == '$' || c == ':')) {
+                        if (prefix.endsWith(":") && prefix.length() > 1) {
                             return null;
                         }
-                    } else {
-                        for (int i = prefix.length()-2; i >= 0; i--) { // -2: the last position (-1) can legally be =, ! or ?
-                            char c = prefix.charAt(i);
-                            if (i ==0 && c == ':') {
-                                // : is okay at the begining of prefixes
-                            } else if (!(Character.isJavaIdentifierPart(c) || c == '@' || c == '$')) {
-                                prefix = prefix.substring(i+1);
-                                break;
+
+                        // Strip out LHS if it's a qualified method, e.g.  Benchmark::measure -> measure
+                        int q = prefix.lastIndexOf("::");
+
+                        if (q != -1) {
+                            prefix = prefix.substring(q + 2);
+                        }
+
+                        // The identifier chars identified by JsLanguage are a bit too permissive;
+                        // they include things like "=", "!" and even "&" such that double-clicks will
+                        // pick up the whole "token" the user is after. But "=" is only allowed at the
+                        // end of identifiers for example.
+                        if (prefix.length() == 1) {
+                            char c = prefix.charAt(0);
+                            if (!(Character.isJavaIdentifierPart(c) || c == '@' || c == '$' || c == ':')) {
+                                return null;
+                            }
+                        } else {
+                            for (int i = prefix.length() - 2; i >= 0; i--) { // -2: the last position (-1) can legally be =, ! or ?
+                                char c = prefix.charAt(i);
+                                if (i == 0 && c == ':') {
+                                    // : is okay at the begining of prefixes
+                                } else if (!(Character.isJavaIdentifierPart(c) || c == '@' || c == '$')) {
+                                    prefix = prefix.substring(i + 1);
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    return prefix;
+                        return prefix;
+                    }
                 }
-            }
             } finally {
                 doc.readUnlock();
             }
-            // Else: normal identifier: just return null and let the machinery do the rest
+        // Else: normal identifier: just return null and let the machinery do the rest
         } catch (IOException ioe) {
             Exceptions.printStackTrace(ioe);
         } catch (BadLocationException ble) {
@@ -1173,7 +1082,6 @@ public class ScalaCodeCompletion implements Completable {
         return null;
     }
 
-    
     private boolean completeFunctions(List<CompletionProposal> proposals, CompletionRequest request) {
         ScalaIndex index = request.index;
         String prefix = request.prefix;
@@ -1181,9 +1089,9 @@ public class ScalaCodeCompletion implements Completable {
         NameKind kind = request.kind;
         String fqn = request.fqn;
         ScalaParserResult result = request.result;
-        
+
         boolean includeNonFqn = true;
-                
+
         Set<IndexedElement> matches;
         if (fqn != null) {
             matches = index.getElements(prefix, fqn, kind, ScalaIndex.ALL_SCOPE, result);
@@ -1193,7 +1101,7 @@ public class ScalaCodeCompletion implements Completable {
 //                proposals.add(new KeywordItem("", "Type more characters to see matches", request));
 //                return true;
 //            } else {
-                matches = index.getAllNames(prefix, kind, ScalaIndex.ALL_SCOPE, result);
+            matches = index.getAllNames(prefix, kind, ScalaIndex.ALL_SCOPE, result);
 //            }
         }
         // Also add in non-fqn-prefixed elements
@@ -1208,10 +1116,10 @@ public class ScalaCodeCompletion implements Completable {
             if (element.isNoDoc()) {
                 continue;
             }
-            
+
             ScalaCompletionItem item;
             if (element instanceof IndexedFunction) {
-                item = new FunctionItem((IndexedFunction)element, request);
+                item = new FunctionItem((IndexedFunction) element, request);
             } else {
                 item = new PlainItem(request, element);
             }
@@ -1221,7 +1129,6 @@ public class ScalaCodeCompletion implements Completable {
 
         return true;
     }
-     
 
     /** Determine if we're trying to complete the name of a method on another object rather
      * than an inherited or local one. These should list ALL known methods, unless of course
@@ -1229,9 +1136,9 @@ public class ScalaCodeCompletion implements Completable {
      * or types inferred through data flow analysis
      *
      * @todo Look for self or this or super; these should be limited to inherited.
-     */    
+     */
     private boolean completeObjectMethod(List<CompletionProposal> proposals, CompletionRequest request) {
-        
+
         ScalaIndex index = request.index;
         String prefix = request.prefix;
         int astOffset = request.astOffset;
@@ -1244,11 +1151,11 @@ public class ScalaCodeCompletion implements Completable {
         AstElement node = request.element;
         ScalaParserResult result = request.result;
         CompilationInfo info = request.info;
-        
-        String fqn = request.fqn;
-        FunRef call = request.call;
 
-        TokenSequence<?extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+        String fqn = request.fqn;
+        Call call = request.call;
+
+        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
 
         // Look in the token stream for constructs of the type
         //   foo.x^
@@ -1259,42 +1166,47 @@ public class ScalaCodeCompletion implements Completable {
         if ((index != null) && (ts != null)) {
             boolean skipPrivate = true;
 
-//            if ((call == Call.LOCAL) || (call == Call.NONE)) {
-//                return false;
-//            }
-            
+            if ((call == Call.LOCAL) || (call == Call.NONE)) {
+                return false;
+            }
+
             // If we're not sure we're only looking for a method, don't abort after this
-            boolean done = false;//call.isMethodExpected();
+            boolean done = call.isMethodExpected();
 
 //            boolean skipInstanceMethods = call.isStatic();
 
             Set<IndexedElement> elements = Collections.emptySet();
 
-            String type = call.getType().toString();
-            String lhs = "";//call.getLhs();
+            String type = call.getType();
+            String lhs = call.getLhs();
 
-//            if (type == null) {
-//                call.getName();
-//                Node method = AstUtilities.findLocalScope(node, path);
-//                if (method != null) {
-//                    List<Node> nodes = new ArrayList<Node>();
-//                    AstUtilities.addNodesByType(method, new int[] { org.mozilla.javascript.Token.MISSING_DOT }, nodes);
-//                    if (nodes.size() > 0) {
-//                        Node exprNode = nodes.get(0);
-//                        JsTypeAnalyzer analyzer = new JsTypeAnalyzer(info, /*request.info.getParserResult(),*/ index, method, node, astOffset, lexOffset, doc, fileObject);
-//                        type = analyzer.getType(exprNode.getParentNode());
-//                    }
-//                }
-//            }
-//            
-//            if (type == null && call.getPrevCallParenPos() != -1) {
-//                // It's some sort of call
-//                assert call.getType() == null;
-//                assert call.getLhs() == null;
-//                
-//                // Try to figure out the call in question
-//                int callEndAstOffset = AstUtilities.getAstOffset(info, call.getPrevCallParenPos());
-//                if (callEndAstOffset != -1) {
+            if (type == null) {
+                if (node != null) {
+                    TypeRef typeRef = node.getType();
+                    if (typeRef != null) {
+                        type = typeRef.getName();
+                    }
+                }
+            //Node method = AstUtilities.findLocalScope(node, path);
+            //if (method != null) {
+            //    List<Node> nodes = new ArrayList<Node>();
+            //    AstUtilities.addNodesByType(method, new int[] { org.mozilla.javascript.Token.MISSING_DOT }, nodes);
+            //    if (nodes.size() > 0) {
+            //        Node exprNode = nodes.get(0);
+            //        JsTypeAnalyzer analyzer = new JsTypeAnalyzer(info, /*request.info.getParserResult(),*/ index, method, node, astOffset, lexOffset, doc, fileObject);
+            //        type = analyzer.getType(exprNode.getParentNode());
+            //    }
+            //} 
+            }
+
+            if (type == null && call.getPrevCallParenPos() != -1) {
+                // It's some sort of call
+                assert call.getType() == null;
+                assert call.getLhs() == null;
+
+                // Try to figure out the call in question
+                int callEndAstOffset = AstUtilities.getAstOffset(info, call.getPrevCallParenPos());
+                if (callEndAstOffset != -1) {
 //                    AstPath callPath = new AstPath(root, callEndAstOffset);
 //                    Iterator<Node> it = callPath.leafToRoot();
 //                    while (it.hasNext()) {
@@ -1319,17 +1231,17 @@ public class ScalaCodeCompletion implements Completable {
 //                            break;
 //                        }
 //                    }
-//                }
-//            } else if (type == null && lhs != null && node != null) {
+                }
+            } else if (type == null && lhs != null && node != null) {
 //                Node method = AstUtilities.findLocalScope(node, path);
 //
 //                if (method != null) {
 //                    JsTypeAnalyzer analyzer = new JsTypeAnalyzer(info, /*request.info.getParserResult(),*/ index, method, node, astOffset, lexOffset, doc, fileObject);
 //                    type = analyzer.getType(node);
 //                }
-//            }
-//
-//            if ((type == null) && (lhs != null) && (node != null) && call.isSimpleIdentifier()) {
+            }
+
+            if ((type == null) && (lhs != null) && (node != null) && call.isSimpleIdentifier()) {
 //                Node method = AstUtilities.findLocalScope(node, path);
 //
 //                if (method != null) {
@@ -1338,7 +1250,7 @@ public class ScalaCodeCompletion implements Completable {
 //                    JsTypeAnalyzer analyzer = new JsTypeAnalyzer(info, /*request.info.getParserResult(),*/ index, method, node, astOffset, lexOffset, doc, fileObject);
 //                    type = analyzer.getType(lhs);
 //                }
-//            }
+            }
 
             // I'm not doing any data flow analysis at this point, so
             // I can't do anything with a LHS like "foo.". Only actual types.
@@ -1382,7 +1294,7 @@ public class ScalaCodeCompletion implements Completable {
                             fqn = fqn.substring(0, f);
                         }
                     }
-                    
+
                     // Add methods in the class (without an FQN)
                     Set<IndexedElement> m = index.getElements(prefix, type, kind, ScalaIndex.ALL_SCOPE, result);
 
@@ -1407,7 +1319,7 @@ public class ScalaCodeCompletion implements Completable {
 //                    proposals.add(new KeywordItem("", "Type more characters to see matches", request));
 //                    return true;
 //                } else {
-                    elements = index.getAllNames(prefix, kind, ScalaIndex.ALL_SCOPE, result);
+                elements = index.getAllNames(prefix, kind, ScalaIndex.ALL_SCOPE, result);
 //                }
             }
 
@@ -1417,7 +1329,7 @@ public class ScalaCodeCompletion implements Completable {
 //                if (element.getKind() == ElementKind.CONSTRUCTOR) {
 //                    continue;
 //                }
-                
+
                 // Don't include private or protected methods on other objects
                 if (skipPrivate && element.isPrivate()) {
                     continue;
@@ -1433,7 +1345,7 @@ public class ScalaCodeCompletion implements Completable {
                 }
 
                 if (element instanceof IndexedFunction) {
-                    FunctionItem item = new FunctionItem((IndexedFunction)element, request);
+                    FunctionItem item = new FunctionItem((IndexedFunction) element, request);
                     proposals.add(item);
                 } else {
                     PlainItem item = new PlainItem(request, element);
@@ -1446,8 +1358,7 @@ public class ScalaCodeCompletion implements Completable {
 
         return false;
     }
-    
-    
+
     /** Determine if we're trying to complete the name for a "new" (in which case
      * we show available constructors.
      */
@@ -1457,8 +1368,8 @@ public class ScalaCodeCompletion implements Completable {
         int lexOffset = request.lexOffset;
         TokenHierarchy<Document> th = request.th;
         NameKind kind = request.kind;
-        
-        TokenSequence<?extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+
+        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
 
         if ((index != null) && (ts != null)) {
             ts.move(lexOffset);
@@ -1474,7 +1385,7 @@ public class ScalaCodeCompletion implements Completable {
                 ts.movePrevious();
             }
 
-            Token<?extends ScalaTokenId> token = ts.token();
+            Token<? extends ScalaTokenId> token = ts.token();
 
             if (token != null) {
                 TokenId id = token.id();
@@ -1509,7 +1420,7 @@ public class ScalaCodeCompletion implements Completable {
 
                 if (token.id() == ScalaTokenId.New) {
                     Set<IndexedElement> elements = index.getConstructors(prefix, kind, ScalaIndex.ALL_SCOPE);
-                    String lhs = request.call.getName();
+                    String lhs = request.call == null ? null : request.call.getLhs();
                     if (lhs != null && lhs.length() > 0) {
                         Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, null);
                         if (m.size() > 0) {
@@ -1541,12 +1452,12 @@ public class ScalaCodeCompletion implements Completable {
                         if ((prefix.length() > 0) && !element.getName().startsWith(prefix)) {
                             continue;
                         }
-                        
+
                         if (element.isNoDoc()) {
                             continue;
                         }
 
-                        
+
 
 //                        // For def completion, skip local methods, only include superclass and included
 //                        if ((fqn != null) && fqn.equals(method.getClz())) {
@@ -1558,7 +1469,7 @@ public class ScalaCodeCompletion implements Completable {
                         // callable initialize method (it should already be culled because it's private)
                         ScalaCompletionItem item;
                         if (element instanceof IndexedFunction) {
-                            item = new FunctionItem((IndexedFunction)element, request);
+                            item = new FunctionItem((IndexedFunction) element, request);
                         } else {
                             item = new PlainItem(request, element);
                         }
@@ -1589,22 +1500,21 @@ public class ScalaCodeCompletion implements Completable {
         return false;
     }
 
-    
     public QueryType getAutoQuery(JTextComponent component, String typedText) {
         char c = typedText.charAt(0);
-        
+
         // TODO - auto query on ' and " when you're in $() or $F()
-        
+
         if (c == '\n' || c == '(' || c == '[' || c == '{' || c == ';') {
             return QueryType.STOP;
         }
-        
+
         if (c != '.'/* && c != ':'*/) {
             return QueryType.NONE;
         }
 
         int offset = component.getCaretPosition();
-        BaseDocument doc = (BaseDocument)component.getDocument();
+        BaseDocument doc = (BaseDocument) component.getDocument();
 
         if (".".equals(typedText)) { // NOI18N
             // See if we're in Js context
@@ -1623,7 +1533,7 @@ public class ScalaCodeCompletion implements Completable {
             }
             Token<? extends ScalaTokenId> token = ts.token();
             TokenId id = token.id();
-            
+
 //            // ".." is a range, not dot completion
 //            if (id == ScalaTokenId.RANGE) {
 //                return QueryType.NONE;
@@ -1631,14 +1541,14 @@ public class ScalaCodeCompletion implements Completable {
 
             // TODO - handle embedded JavaScript
             if ("comment".equals(id.primaryCategory()) || // NOI18N
-                    "string".equals(id.primaryCategory()) ||  // NOI18N
+                    "string".equals(id.primaryCategory()) || // NOI18N
                     "regexp".equals(id.primaryCategory())) { // NOI18N
                 return QueryType.NONE;
             }
-            
+
             return QueryType.COMPLETION;
         }
-        
+
 //        if (":".equals(typedText)) { // NOI18N
 //            // See if it was "::" and we're in ruby context
 //            int dot = component.getSelectionStart();
@@ -1654,26 +1564,26 @@ public class ScalaCodeCompletion implements Completable {
 //        
         return QueryType.NONE;
     }
-    
+
     public static boolean isJsContext(BaseDocument doc, int offset) {
         TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
 
         if (ts == null) {
             return false;
         }
-        
+
         ts.move(offset);
-        
+
         if (!ts.movePrevious() && !ts.moveNext()) {
             return true;
         }
-        
+
         TokenId id = ts.token().id();
         if ("comment".equals(id.primaryCategory()) || "string".equals(id.primaryCategory()) || // NOI18N
                 "regexp".equals(id.primaryCategory())) { // NOI18N
             return false;
         }
-        
+
         return true;
     }
 
@@ -1745,7 +1655,7 @@ public class ScalaCodeCompletion implements Completable {
 //        html = ElementUtilities.getSignature(element) + "\n<hr>\n" + html;
 //        return html;
     }
-    
+
     public Set<String> getApplicableTemplates(CompilationInfo info, int selectionBegin,
             int selectionEnd) {
         return Collections.emptySet();
@@ -1789,7 +1699,6 @@ public class ScalaCodeCompletion implements Completable {
 
         return ParameterInfo.NONE;
     }
-
     private static int callLineStart = -1;
     private static IndexedFunction callMethod;
 
@@ -1821,16 +1730,16 @@ public class ScalaCodeCompletion implements Completable {
             TokenHierarchy th = TokenHierarchy.get(doc);
             int newLexOffset = ScalaLexUtilities.findSpaceBegin(doc, lexOffset);
             if (newLexOffset < lexOffset) {
-                astOffset -= (lexOffset-newLexOffset);
+                astOffset -= (lexOffset - newLexOffset);
             }
 
             OffsetRange range = pResult.getSanitizedRange();
             if (range != OffsetRange.NONE && range.containsInclusive(astOffset)) {
                 if (astOffset != range.getStart()) {
-                    astOffset = range.getStart()-1;
+                    astOffset = range.getStart() - 1;
                     if (astOffset < 0) {
                         astOffset = 0;
-                    }                    
+                    }
                 }
             }
 
@@ -1839,7 +1748,7 @@ public class ScalaCodeCompletion implements Completable {
             if (closest instanceof FunRef) {
                 call = (FunRef) closest;
             }
-            
+
 
             int currentLineStart = Utilities.getRowStart(doc, lexOffset);
             if (callLineStart != -1 && currentLineStart == callLineStart) {
@@ -1912,7 +1821,7 @@ public class ScalaCodeCompletion implements Completable {
                 // comma
                 index++;
             }
-            
+
             if ((call == null) || (index == -1)) {
                 callLineStart = -1;
                 callMethod = null;
@@ -1946,8 +1855,9 @@ public class ScalaCodeCompletion implements Completable {
 
         return true;
     }
-    
+
     private static class CompletionRequest {
+
         private TokenHierarchy<Document> th;
         private CompilationInfo info;
         private AstElement element;
@@ -1963,11 +1873,12 @@ public class ScalaCodeCompletion implements Completable {
         private QueryType queryType;
         private FileObject fileObject;
         private HtmlFormatter formatter;
-        private FunRef call;
+        private Call call;
         private String fqn;
     }
 
     private abstract class ScalaCompletionItem implements CompletionProposal {
+
         protected CompletionRequest request;
         protected AstElement element;
         protected IndexedElement indexedElement;
@@ -1981,7 +1892,7 @@ public class ScalaCodeCompletion implements Completable {
             this(element, request);
             this.indexedElement = element;
         }
-        
+
         public int getAnchorOffset() {
             return request.anchor;
         }
@@ -1992,7 +1903,7 @@ public class ScalaCodeCompletion implements Completable {
 
         public String getInsertPrefix() {
             if (getKind() == ElementKind.PACKAGE) {
-                return getName()+".";
+                return getName() + ".";
             } else {
                 return getName();
             }
@@ -2054,30 +1965,29 @@ public class ScalaCodeCompletion implements Completable {
 
             if (element.getKind() == ElementKind.PACKAGE || element.getKind() == ElementKind.CLASS) {
                 if (element instanceof IndexedElement) {
-                    String origin = ((IndexedElement)element).getOrigin();
+                    String origin = ((IndexedElement) element).getOrigin();
                     if (origin != null) {
                         formatter.appendText(origin);
                         return formatter.getText();
                     }
                 }
-                
+
                 return null;
             }
-            
+
             String in = element.getIn();
 
             if (in != null) {
                 formatter.appendText(in);
                 return formatter.getText();
-            }
-            else if (element instanceof IndexedElement) {
-                IndexedElement ie = (IndexedElement)element;
+            } else if (element instanceof IndexedElement) {
+                IndexedElement ie = (IndexedElement) element;
                 String filename = ie.getFilenameUrl();
                 if (filename != null) {
                     if (filename.indexOf("jsstubs") == -1) { // NOI18N
                         int index = filename.lastIndexOf('/');
                         if (index != -1) {
-                            filename = filename.substring(index+1);
+                            filename = filename.substring(index + 1);
                         }
                         formatter.appendText(filename);
                         return formatter.getText();
@@ -2089,10 +1999,10 @@ public class ScalaCodeCompletion implements Completable {
                         }
                     }
                 }
-                
+
                 return null;
             }
-            
+
             return null;
         }
 
@@ -2110,15 +2020,15 @@ public class ScalaCodeCompletion implements Completable {
 
         public boolean isSmart() {
             return false;
-            //return indexedElement != null ? indexedElement.isSmart() : true;
+        //return indexedElement != null ? indexedElement.isSmart() : true;
         }
 
         public List<String> getInsertParams() {
             return null;
         }
-        
+
         public String[] getParamListDelimiters() {
-            return new String[] { "(", ")" }; // NOI18N
+            return new String[]{"(", ")"}; // NOI18N
         }
 
         public String getCustomInsertTemplate() {
@@ -2127,7 +2037,9 @@ public class ScalaCodeCompletion implements Completable {
     }
 
     private class FunctionItem extends ScalaCompletionItem {
+
         private IndexedFunction function;
+
         FunctionItem(IndexedFunction element, CompletionRequest request) {
             super(request, element);
             this.function = element;
@@ -2137,7 +2049,7 @@ public class ScalaCodeCompletion implements Completable {
         public String getInsertPrefix() {
             return getName();
         }
-        
+
         @Override
         public String getLhsHtml() {
             ElementKind kind = getKind();
@@ -2163,7 +2075,7 @@ public class ScalaCodeCompletion implements Completable {
             if (strike) {
                 formatter.deprecated(false);
             }
-            
+
             Collection<String> parameters = function.getParameters();
 
             formatter.appendHtml("("); // NOI18N
@@ -2178,10 +2090,10 @@ public class ScalaCodeCompletion implements Completable {
                     if (typeIndex != -1) {
                         formatter.type(true);
                         // TODO - call JsUtils.normalizeTypeString() on this string?
-                        formatter.appendText(param, typeIndex+1, param.length());
+                        formatter.appendText(param, typeIndex + 1, param.length());
                         formatter.type(false);
                         formatter.appendHtml(" ");
-                        
+
                         formatter.appendText(param, 0, typeIndex);
                     } else {
                         formatter.appendText(param);
@@ -2196,12 +2108,12 @@ public class ScalaCodeCompletion implements Completable {
             }
             formatter.appendHtml(")"); // NOI18N
 
-            if (indexedElement != null && indexedElement.getType() != null && 
+            if (indexedElement != null && indexedElement.getType() != null &&
                     indexedElement.getKind() != ElementKind.CONSTRUCTOR) {
                 formatter.appendHtml(" : ");
                 formatter.appendText(indexedElement.getTypeString());
             }
-            
+
             return formatter.getText();
         }
 
@@ -2217,11 +2129,11 @@ public class ScalaCodeCompletion implements Completable {
             String startDelimiter = "(";
             String endDelimiter = ")";
             int paramCount = params.size();
-                
+
             StringBuilder sb = new StringBuilder();
             sb.append(insertPrefix);
             sb.append(startDelimiter);
-            
+
             int id = 1;
             for (int i = 0; i < paramCount; i++) {
                 String paramDesc = params.get(i);
@@ -2240,14 +2152,14 @@ public class ScalaCodeCompletion implements Completable {
                 }
                 sb.append("\""); // NOI18N
                 sb.append("}"); //NOI18N
-                if (i < paramCount-1) {
+                if (i < paramCount - 1) {
                     sb.append(", "); //NOI18N
                 }
             }
             sb.append(endDelimiter);
-            
+
             sb.append("${cursor}"); // NOI18N
-            
+
             // Facilitate method parameter completion on this item
             try {
                 callLineStart = Utilities.getRowStart(request.doc, request.anchor);
@@ -2255,13 +2167,15 @@ public class ScalaCodeCompletion implements Completable {
             } catch (BadLocationException ble) {
                 Exceptions.printStackTrace(ble);
             }
-            
+
             return sb.toString();
         }
     }
 
     private class KeywordItem extends ScalaCompletionItem {
+
         private static final String KEYWORD = "org/netbeans/modules/scala/editing/resources/scala16x16.png"; //NOI18N
+
         private final String keyword;
         private final String description;
 
@@ -2294,7 +2208,6 @@ public class ScalaCodeCompletion implements Completable {
         //
         //    return formatter.getText();
         //}
-
         @Override
         public String getRhsHtml() {
             if (description != null) {
@@ -2322,13 +2235,13 @@ public class ScalaCodeCompletion implements Completable {
         public Set<Modifier> getModifiers() {
             return Collections.emptySet();
         }
-        
+
         @Override
         public ElementHandle getElement() {
             // For completion documentation
             return new AstElement(null, ElementKind.KEYWORD);
         }
-        
+
         @Override
         public boolean isSmart() {
             return false;
@@ -2336,6 +2249,7 @@ public class ScalaCodeCompletion implements Completable {
     }
 
     private class TagItem extends ScalaCompletionItem {
+
         private final String tag;
         private final String description;
         private final ElementKind kind;
@@ -2370,7 +2284,6 @@ public class ScalaCodeCompletion implements Completable {
         //
         //    return formatter.getText();
         //}
-
         @Override
         public String getRhsHtml() {
             if (description != null) {
@@ -2391,7 +2304,7 @@ public class ScalaCodeCompletion implements Completable {
         public Set<Modifier> getModifiers() {
             return Collections.emptySet();
         }
-        
+
         @Override
         public ElementHandle getElement() {
             // For completion documentation
@@ -2403,13 +2316,13 @@ public class ScalaCodeCompletion implements Completable {
             return true;
         }
     }
-    
+
     private class PlainItem extends ScalaCompletionItem {
-        
+
         PlainItem(AstElement element, CompletionRequest request) {
             super(element, request);
         }
-        
+
         PlainItem(CompletionRequest request, IndexedElement element) {
             super(request, element);
         }

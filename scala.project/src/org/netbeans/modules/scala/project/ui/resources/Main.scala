@@ -1,13 +1,13 @@
 /*
- * __CLASS_NAME__.scala
+ * __NAME__.scala
  *
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
 
-package __PACKAGE_NAME__
+package __PACKAGE__
 
-object __CLASS_NAME__ {
+object __NAME__ {
 
   /**
    * @param args the command line arguments

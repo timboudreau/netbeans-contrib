@@ -140,7 +140,7 @@ public class JavaFXEditorKit extends LexerEditorKit{
                     resetAction.setActionButtonEnabled(true);
                     doc.enableExecution(true);
                     putValue(SHORT_DESCRIPTION,NbBundle.getBundle(JavaFXEditorKit.class).getString("disable-fx-preview-execution"));
-                    JavaFXModel.showPreview(doc, false);
+                    JavaFXModel.previewReq(doc, false);
                 }
             }else{
                 b.setSelected(!b.isSelected());
@@ -235,7 +235,7 @@ public class JavaFXEditorKit extends LexerEditorKit{
         
         public void actionPerformed(ActionEvent evt, JTextComponent target) {
             JavaFXDocument doc = getJavaFXDocument(target);
-            JavaFXModel.showPreview(doc, true);
+            JavaFXModel.previewReq(doc, true);
         }
         
         private JavaFXDocument getJavaFXDocument(JTextComponent comp){

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,26 +34,29 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
+ * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.editing.nodes;
+package org.netbeans.modules.groovy.editor.hints.spi;
 
-import org.netbeans.modules.gsf.api.ElementKind;
+import org.codehaus.groovy.ast.ASTNode;
+import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.groovy.editor.AstPath;
 
 /**
- *
- * @author dcaoyuan
+ * Information about the current context a rule is being asked to evaluate.
+ * 
+ * @author Tor Norbye
  */
-public class Expr extends AstElement {
-    
-    public Expr(ElementKind kind) {
-        super(kind);
-    }
-
-    @Override
-    public String getName() {
-        return "expr";
-    }
-            
+public class RuleContext {
+    public AstPath path;
+    public ASTNode node;
+    public int caretOffset;
+    public int lexOffset;
+    public int astOffset;
+    public int selectionStart;
+    public int selectionEnd;
+    public CompilationInfo compilationInfo;
+    public BaseDocument doc;
 }

@@ -1,5 +1,2 @@
-org.netbeans.modules.scala.project.classpath.BootClassPathProvider
-#position=100
-org.netbeans.modules.scala.project.classpath.ProjectClassPathProvider
-#position=10006
-
+org.netbeans.modules.scala.project.classpath.GsfProjectClassPathProvider
+#position=10066

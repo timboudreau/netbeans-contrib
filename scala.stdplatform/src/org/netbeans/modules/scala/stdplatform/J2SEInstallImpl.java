@@ -76,11 +76,11 @@ class J2SEInstallImpl extends org.netbeans.spi.scala.platform.PlatformInstall {
         if (!dir.isFolder()) {
             return false;
         }
-        FileObject tool = Util.findTool("java", Collections.singleton(dir));    //NOI18N
+        FileObject tool = Util.findTool("scala", Collections.singleton(dir));    //NOI18N
         if (tool == null) {
             return false;
         }
-        tool = Util.findTool("javac", Collections.singleton(dir));  //NOI18N
+        tool = Util.findTool("scalac", Collections.singleton(dir));  //NOI18N
         return tool != null;
     }
     

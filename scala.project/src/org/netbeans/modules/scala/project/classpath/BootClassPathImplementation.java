@@ -44,8 +44,8 @@ import java.beans.PropertyChangeEvent;
 import org.netbeans.modules.gsfpath.spi.classpath.ClassPathImplementation;
 import org.netbeans.modules.gsfpath.spi.classpath.PathResourceImplementation;
 import org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport;
-import org.netbeans.api.java.platform.JavaPlatform;
-import org.netbeans.api.java.platform.JavaPlatformManager;
+import org.netbeans.api.scala.platform.JavaPlatform;
+import org.netbeans.api.scala.platform.JavaPlatformManager;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -59,8 +59,10 @@ import org.openide.util.WeakListeners;
 final class BootClassPathImplementation implements ClassPathImplementation, PropertyChangeListener {
 
     private static final String PLATFORM_ACTIVE = "platform.active";        //NOI18N
+
     private static final String ANT_NAME = "platform.ant.name";             //NOI18N
-    private static final String J2SE = "j2se";                              //NOI18N
+
+    private static final String J2SE = "std";                              //NOI18N
 
     private final PropertyEvaluator evaluator;
     private JavaPlatformManager platformManager;
@@ -86,9 +88,8 @@ final class BootClassPathImplementation implements ClassPathImplementation, Prop
             }
             currentId = eventId;
         }
-        
-        /* @Comment by caoyuan
-        JavaPlatform jp = findActivePlatform ();
+
+        JavaPlatform jp = findActivePlatform();
         final List<PathResourceImplementation> result = new ArrayList<PathResourceImplementation>();
         if (jp != null) {
             //TODO: May also listen on CP, but from Platform it should be fixed.            
@@ -98,69 +99,65 @@ final class BootClassPathImplementation implements ClassPathImplementation, Prop
                 result.add(ClassPathSupport.createResource(entry.getURL()));
             }
         }
-        
+
         synchronized (this) {
             if (currentId == eventId) {
                 if (this.resourcesCache == null) {
                     this.resourcesCache = Collections.unmodifiableList(result);
                 }
                 return this.resourcesCache;
+            } else {
+                return Collections.unmodifiableList(result);
             }
-            else {
-                return Collections.unmodifiableList (result);
-            }           
-        } */ return Collections.emptyList();      
+        }
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
-        this.support.addPropertyChangeListener (listener);
+        this.support.addPropertyChangeListener(listener);
     }
 
     public void removePropertyChangeListener(PropertyChangeListener listener) {
-        this.support.removePropertyChangeListener (listener);
+        this.support.removePropertyChangeListener(listener);
     }
 
-    private JavaPlatform findActivePlatform () {
+    public JavaPlatform findActivePlatform() {
         if (this.platformManager == null) {
             this.platformManager = JavaPlatformManager.getDefault();
             this.platformManager.addPropertyChangeListener(WeakListeners.propertyChange(this, this.platformManager));
-        }                
+        }
         this.activePlatformName = evaluator.getProperty(PLATFORM_ACTIVE);
-        final JavaPlatform activePlatform = J2SEProjectUtil.getActivePlatform (this.activePlatformName);
+        final JavaPlatform activePlatform = J2SEProjectUtil.getActivePlatform(this.activePlatformName);
         this.isActivePlatformValid = activePlatform != null;
         return activePlatform;
     }
-    
+
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getSource() == this.evaluator && evt.getPropertyName().equals(PLATFORM_ACTIVE)) {
             //Active platform was changed
-            resetCache ();
-        }
-        else if (evt.getSource() == this.platformManager && JavaPlatformManager.PROP_INSTALLED_PLATFORMS.equals(evt.getPropertyName()) && activePlatformName != null) {
+            resetCache();
+        } else if (evt.getSource() == this.platformManager && JavaPlatformManager.PROP_INSTALLED_PLATFORMS.equals(evt.getPropertyName()) && activePlatformName != null) {
             //Platform definitions were changed, check if the platform was not resolved or deleted
             if (this.isActivePlatformValid) {
-                if (J2SEProjectUtil.getActivePlatform (this.activePlatformName) == null) {
+                if (J2SEProjectUtil.getActivePlatform(this.activePlatformName) == null) {
                     //the platform was not removed
                     this.resetCache();
                 }
-            }
-            else {
-                if (J2SEProjectUtil.getActivePlatform (this.activePlatformName) != null) {
+            } else {
+                if (J2SEProjectUtil.getActivePlatform(this.activePlatformName) != null) {
                     this.resetCache();
                 }
             }
         }
     }
-    
+
     /**
      * Resets the cache and firesPropertyChange
      */
-    private void resetCache () {
+    private void resetCache() {
         synchronized (this) {
             resourcesCache = null;
             eventId++;
         }
         support.firePropertyChange(PROP_RESOURCES, null, null);
     }
-    
 }

@@ -48,7 +48,7 @@ import org.netbeans.modules.gsf.api.ElementKind;
  */
 public class FunRef extends AstRef {
 
-    private Expr base;
+    private AstExpr base;
     private Id call;
     private List<AstElement> params;
     private boolean local;
@@ -57,7 +57,7 @@ public class FunRef extends AstRef {
         super(null, idToken, kind);
     }
 
-    public void setBase(Expr base) {
+    public void setBase(AstExpr base) {
         this.base = base;
     }
 

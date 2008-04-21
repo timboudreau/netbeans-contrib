@@ -5,7 +5,6 @@
         <folder name="text">
             <folder name="x-scala">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.Bundle"/>
-
                 <file name="language.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.modules.scala.editing.lexer.ScalaTokenId.language"/>
                     <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
@@ -22,7 +21,6 @@
                         </folder>
                     </folder>
                 </folder>
-                
                 <folder name="CodeTemplates">
                     <folder name="Defaults">
                         <file name="codetemplates.xml" url="codetemplates.xml">
@@ -30,7 +28,6 @@
                         </file>
                     </folder>
                 </folder>
-
                 <folder name="Keybindings">
                     <folder name="NetBeans">
                         <folder name="Defaults">
@@ -54,35 +51,28 @@
             </folder>
         </folder>
     </folder>
-  
-    <!--
+
     <folder name="OptionsDialog">
         <folder name="PreviewExamples">
             <folder name="text">
-                <file name="x-scala" url="ScalaExample"/>
+                <file name="x-scala" url="ScalaExample.scala"/>
             </folder>
         </folder>
-        <folder name="Advanced">
-            <file name="ScalaOptions.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.options.ScalaOptions"/>
-            </file>
-        </folder>                
-        <file name="JsOptions.instance">
-            <attr name="instanceClass" stringvalue="org.netbeans.modules.javascript.editing.JsOptionsCategory"/>
-            <attr name="position" intvalue="305"/>
-        </file>             
+
+        <file name="ScalaOptionsCategory.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.options.ScalaOptionsCategory"/>
+            <attr name="position" intvalue="306"/>
+        </file>
     </folder>
-    -->
-    <!--
-    <folder name="org.netbeans.modules.javascript.editing">
+
+    <folder name="org.netbeans.modules.scala">
         <folder name="options">
             <file name="Formatting.instance">
                 <attr name="position" intvalue="150"/>
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.javascript.editing.options.FormatingAdvancedOption"/>
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.options.FormattingAdvancedOption"/>
             </file>
         </folder>
     </folder>
-    -->
     
     <folder name="GsfPlugins">
         <folder name="text">
@@ -122,7 +112,7 @@
                 <file name="semantic.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.SemanticAnalyzer"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaSemanticAnalyzer"/>
-                </file>                
+                </file>
                 <file name="occurrences.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.OccurrencesFinder"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaOccurrencesFinder"/>
@@ -134,7 +124,6 @@
             </folder>
         </folder>
     </folder>
-    
     <folder name="Loaders">
         <folder name="text">
             <folder name="x-scala">
@@ -152,7 +141,7 @@
                     <file name="CutAction.instance">
                         <attr name="instanceClass" stringvalue="org.openide.actions.CutAction"/>
                         <attr name="position" intvalue="300"/>
-                    </file>     
+                    </file>
                     <file name="CopyAction.instance">
                         <attr name="instanceClass" stringvalue="org.openide.actions.CopyAction"/>
                         <attr name="position" intvalue="400"/>
@@ -196,16 +185,16 @@
                     <file name="Separator5.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="1400"/>
-                    </file> 
+                    </file>
                     <file name="ToolsAction.instance">
                         <attr name="instanceClass" stringvalue="org.openide.actions.ToolsAction"/>
                         <attr name="position" intvalue="1500"/>
-                    </file> 
+                    </file>
                     <file name="PropertiesAction.instance">
                         <attr name="instanceClass" stringvalue="org.openide.actions.PropertiesAction"/>
                         <attr name="position" intvalue="1600"/>
-                    </file> 
-                </folder>            
+                    </file>
+                </folder>
             </folder>
         </folder>
     </folder>

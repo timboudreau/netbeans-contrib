@@ -186,6 +186,11 @@ public class ScalaIndexer implements Indexer {
     }
 
     public List<IndexDocument> index(ParserResult result, IndexDocumentFactory factory) throws IOException {
+        ParserFile file = result.getFile();
+        if (file.isPlatform()) {
+            System.out.println("Platform file" + file.getNameExt());
+        }
+        
         ScalaParserResult pResult = (ScalaParserResult) result;
         AstScope root = pResult.getRootScope();
         if (root == null) { // NOI18N
