@@ -39,7 +39,11 @@
 
 package org.netbeans.api.javafx.source;
 
+import java.net.URL;
 import javax.swing.event.ChangeListener;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.javafx.platform.JavaFXPlatform;
+import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -47,12 +51,50 @@ import org.openide.filesystems.FileObject;
  * @author nenik
  */
 public class ClasspathInfo {
-
-    static ClasspathInfo create(FileObject fileObject) {
-        return new ClasspathInfo();
-//        throw new UnsupportedOperationException("Not yet implemented");
+    private static final ClassPath EMPTY_PATH = ClassPathSupport.createClassPath(new URL[0]);
+    private ClassPath bootPath, compilePath, srcPath;
+    
+    static ClasspathInfo create(FileObject fo) {
+        ClassPath bootPath = ClassPath.getClassPath(fo, ClassPath.BOOT);
+        if (bootPath == null) {
+            //javac requires at least java.lang
+            bootPath = JavaFXPlatform.getDefaultFXPlatform().getBootstrapLibraries();
+        }
+        ClassPath compilePath = ClassPath.getClassPath(fo, ClassPath.COMPILE);
+        if (compilePath == null) {
+            compilePath = EMPTY_PATH;
+        }
+        ClassPath srcPath = ClassPath.getClassPath(fo, ClassPath.SOURCE);
+        if (srcPath == null) {
+            srcPath = EMPTY_PATH;
+        }
+        return create (bootPath, compilePath, srcPath);
     }
 
+    private static ClasspathInfo create(ClassPath bootPath, ClassPath compilePath, ClassPath srcPath) {
+        return new ClasspathInfo(bootPath, compilePath, srcPath);
+    }
+
+    public ClasspathInfo(ClassPath bootPath, ClassPath compilePath, ClassPath srcPath) {
+        this.bootPath = bootPath;
+        this.compilePath = compilePath;
+        this.srcPath = srcPath;
+    }
+
+
+    // XXX: Temporal, until there is a file manager implementation
+    String getBootPath() {
+        return bootPath.toString(ClassPath.PathConversionMode.WARN);
+    }
+
+    String getCompilePath() {
+        return compilePath.toString(ClassPath.PathConversionMode.WARN);
+    }
+
+    String getSrcPath() {
+        return srcPath.toString(ClassPath.PathConversionMode.WARN);
+    }
+        
     void addChangeListener(ChangeListener change) {
         // TODO
     }

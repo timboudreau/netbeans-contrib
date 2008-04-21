@@ -43,6 +43,7 @@ package org.netbeans.modules.groovy.editor;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -72,6 +73,7 @@ import org.codehaus.groovy.control.SourceUnit;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.groovy.editor.elements.AstElement;
 import org.netbeans.modules.groovy.editor.elements.IndexedElement;
+import org.netbeans.modules.groovy.editor.lexer.GroovyTokenId;
 import org.netbeans.modules.groovy.editor.parser.GroovyParser;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementKind;
@@ -91,7 +93,7 @@ public class AstUtilities {
     
 
     public static int getAstOffset(CompilationInfo info, int lexOffset) {
-        ParserResult result = info.getEmbeddedResult("text/x-groovy", 0);
+        ParserResult result = info.getEmbeddedResult(GroovyTokenId.GROOVY_MIME_TYPE, 0);
         if (result != null) {
             TranslatedSource ts = result.getTranslatedSource();
             if (ts != null) {
@@ -145,7 +147,7 @@ public class AstUtilities {
     }
 
     public static GroovyParserResult getParseResult(CompilationInfo info) {
-        ParserResult result = info.getEmbeddedResult("text/x-groovy", 0);
+        ParserResult result = info.getEmbeddedResult(GroovyTokenId.GROOVY_MIME_TYPE, 0);
 
         if (result == null) {
             return null;
@@ -156,7 +158,7 @@ public class AstUtilities {
 
     // TODO use this from all the various places that have this inlined...
     public static ASTNode getRoot(CompilationInfo info) {
-        ParserResult result = info.getEmbeddedResult("text/x-groovy", 0);
+        ParserResult result = info.getEmbeddedResult(GroovyTokenId.GROOVY_MIME_TYPE, 0);
 
         if (result == null) {
             return null;
@@ -515,6 +517,26 @@ TranslatedSource translatedSource = null; // TODO - determine this here?
         return null;
     }
     
+    public static String getDefSignature(MethodNode node) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(node.getName());
+
+        Parameter[] parameters = node.getParameters();
+        if (parameters.length > 0) {
+            sb.append('(');
+            Iterator<Parameter> it = Arrays.asList(parameters).iterator();
+            sb.append(it.next().getName());
+
+            while (it.hasNext()) {
+                sb.append(',');
+                sb.append(it.next().getName());
+            }
+            sb.append(')');
+        }
+
+        return sb.toString();
+    }
+
     public static final class VariableScopeVisitor extends ClassCodeVisitorSupport {
 
         private final SourceUnit sourceUnit;
