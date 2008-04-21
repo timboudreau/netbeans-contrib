@@ -53,7 +53,7 @@ import org.openide.filesystems.FileObject;
  */
 public class DefaultSourceLevelQueryImpl implements SourceLevelQueryImplementation {
 
-    private static final String JAVA_EXT = "java";  //NOI18N
+    private static final String JAVA_EXT = "scala";  //NOI18N
 
     public DefaultSourceLevelQueryImpl() {}
 

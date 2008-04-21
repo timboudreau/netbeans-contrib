@@ -39,26 +39,26 @@
 
 package org.netbeans.modules.scala.editing.nodes;
 
-import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.api.lexer.Token;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class AssignmentExpr extends Expr {
+public class AssignmentExpr extends AstExpr {
     
-    private Expr lhs;
-    private Expr rhs;
+    private AstExpr lhs;
+    private AstExpr rhs;
     
-    public AssignmentExpr(ElementKind kind) {
-        super(kind);
+    public AssignmentExpr(Token[] boundsTokens) {
+        super(boundsTokens);
     }
 
-    public void setLhs(Expr lhs) {
+    public void setLhs(AstExpr lhs) {
         this.lhs = lhs;
     }
     
-    public void setRhs(Expr rhs) {
+    public void setRhs(AstExpr rhs) {
         this.rhs = rhs;
     }
 }

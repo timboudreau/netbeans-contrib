@@ -45,6 +45,8 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JavacFileManager;
 import com.sun.tools.javafx.api.JavafxcTaskImpl;
 import com.sun.tools.javafx.api.JavafxcTool;
+import com.sun.tools.javafx.util.JavafxFileManager;
+import java.io.File;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -191,9 +193,12 @@ public final class JavaFXSource {
         JavafxcTool tool = JavafxcTool.create();
         JavacFileManager fileManager = tool.getStandardFileManager(null, null, Charset.defaultCharset());
         JavaFileObject jfo = (JavaFileObject) SourceFileObject.create(files.iterator().next(), null); // XXX
-        
+
         List<String> options = new ArrayList<String>();
-        options.add("-Xbootclasspath/a:" + JavaFXSourceUtils.getAdditionalCP(""));
+// XXX : replace with real file manager implementation
+        options.add("-Xbootclasspath:" + cpInfo.getBootPath()+File.pathSeparatorChar+cpInfo.getCompilePath());
+//        options.add("-classpath:" + cpInfo.getCompilePath());
+//        options.add("-sourcepath:" + cpInfo.getSrcPath());
         options.add("-Xjcov"); //NOI18N, Make the compiler store end positions
         options.add("-XDdisableStringFolding"); //NOI18N
         

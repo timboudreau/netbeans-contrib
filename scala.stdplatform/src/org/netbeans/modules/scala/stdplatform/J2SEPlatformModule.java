@@ -107,7 +107,7 @@ public class J2SEPlatformModule extends ModuleInstall {
 
     private static boolean updateBuildProperties (EditableProperties ep) {
         boolean changed = false;
-        JavaPlatform[] installedPlatforms = JavaPlatformManager.getDefault().getPlatforms(null, new Specification ("j2se",null));   //NOI18N
+        JavaPlatform[] installedPlatforms = JavaPlatformManager.getDefault().getPlatforms(null, new Specification ("Std",null));   //NOI18N
         for (int i=0; i<installedPlatforms.length; i++) {
             //Handle only platforms created by this module
             if (!installedPlatforms[i].equals (JavaPlatformManager.getDefault().getDefaultPlatform()) && installedPlatforms[i] instanceof J2SEPlatformImpl) {

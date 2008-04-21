@@ -98,7 +98,7 @@ public class CodeManager {
         JavaFXProject project = (JavaFXProject) JavaFXModel.getProject(doc);
         List <JavaFileObject> javaFileObjects = getProjectJFOList(doc, project, sourceCP, standardManager);
         
-        javaFileObjects.add(new MemoryFileObject(className, code, Kind.SOURCE));
+        javaFileObjects.add(new MemoryFileObject(className, code, Kind.SOURCE, doc));
         
         Map<String, byte[]> oldClassBytes = cut(JavaFXModel.getClassBytes(project), className);
         
@@ -230,7 +230,7 @@ public class CodeManager {
                 }
                 if (field != null) break;
             }
-            if (field == null);
+            if (field == null)
                 for (String frameStr : dialogNames) {
                     try {
                         field = obj.getClass().getDeclaredField(frameStr);
@@ -315,10 +315,14 @@ public class CodeManager {
     {
         List<JavaFileObject> compUnits = new ArrayList<JavaFileObject>(1);
         FileObject fo = ((JavaFXDocument)document).getDataObject().getPrimaryFile();
-        Sources sources = ProjectUtils.getSources(project);
-        SourceGroup[] sourceGrupps = sources.getSourceGroups(Sources.TYPE_GENERIC);
-        for (SourceGroup srcGrupp : sourceGrupps) {
-            FileObject rootFileObject = srcGrupp.getRootFolder();
+        //Sources sources = ProjectUtils.getSources(project);
+        //SourceGroup[] sourceGrupps = sources.getSourceGroups(Sources.TYPE_GENERIC);
+        List <ClassPath.Entry> sourcePathsList = sourceCP.entries();
+        //for (SourceGroup srcGrupp : sourceGrupps) {
+        for (ClassPath.Entry srcGrupp : sourcePathsList) {
+            //FileObject rootFileObject = srcGrupp.getRootFolder();
+            FileObject rootFileObject = srcGrupp.getRoot();
+            if (rootFileObject == null) continue;
             Enumeration <FileObject> fileObjectEnum = (Enumeration<FileObject>) rootFileObject.getChildren(true);
             while (fileObjectEnum.hasMoreElements()) {
                 FileObject fileObject = fileObjectEnum.nextElement();
@@ -343,7 +347,7 @@ public class CodeManager {
                                         ex.printStackTrace();
                                     }
                                     String docClassName = sourceCP.getResourceName(NbEditorUtilities.getFileObject(doc), '.', false); // NOI18N
-                                    compUnits.add(new MemoryFileObject(docClassName, docsCode, Kind.SOURCE));
+                                    compUnits.add(new MemoryFileObject(docClassName, docsCode, Kind.SOURCE, doc));
                                 } else {
                                     Iterable<? extends JavaFileObject> javaFileObjects = fileManager.getJavaFileObjects(FileUtil.toFile(fileObject));
                                     for (JavaFileObject javaFileObject : javaFileObjects) {
@@ -387,7 +391,7 @@ public class CodeManager {
         while (it.hasNext()) {
             Entry <String, byte[]> entry = it.next();
             String name = entry.getKey();
-            if (!name.toLowerCase().startsWith(className.toLowerCase())) {
+            if (!(name+"$").toLowerCase().startsWith((className+"$").toLowerCase())) {
                 newMap.put(name, entry.getValue());
             }
         }

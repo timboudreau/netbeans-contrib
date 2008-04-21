@@ -53,6 +53,7 @@ import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.AstRef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.openide.util.Exceptions;
@@ -128,14 +129,13 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         IndexedElement candidate = findBestElementMatch(info, /*name,*/ functions/*, (BaseDocument)info.getDocument(),
                 astOffset, lexOffset, path, closest, index*/);
         if (candidate instanceof IndexedFunction) {
-            return (IndexedFunction)candidate;
+            return (IndexedFunction) candidate;
         }
         return null;
     }
 
-
     private IndexedElement findBestElementMatch(CompilationInfo info, /*String name,*/ Set<IndexedElement> elements/*,
-        BaseDocument doc, int astOffset, int lexOffset, AstPath path/ Node call, JsIndex index*/) {
+            BaseDocument doc, int astOffset, int lexOffset, AstPath path/ Node call, JsIndex index*/) {
         // For now no good heuristics to pick a method.
         // Possible things to consider:
         // -- scope - whether the method is local
@@ -148,14 +148,13 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             if (r != null) {
                 return r;
             }
-            
+
             return e;
         }
-        
+
         return null;
     }
-    
-    
+
     public DeclarationLocation findDeclaration(CompilationInfo info, int lexOffset) {
 
         final Document document;
@@ -168,8 +167,8 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         final BaseDocument doc = (BaseDocument) document;
 
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
-        doc.readLock(); // Read-lock due to Token hierarchy use
 
+        doc.readLock();
         try {
             AstScope root = pResult.getRootScope();
             if (root == null) {
@@ -180,15 +179,19 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             if (astOffset == -1) {
                 return null;
             }
+            
             final TokenHierarchy<Document> th = TokenHierarchy.get(document);
 
             AstElement closest = root.getElement(th, astOffset);
-            AstDef def = root.findDef(closest);
-            if (def == null) {
-                return null;
-            }
+            if (closest instanceof AstRef || closest instanceof AstDef) {
+                AstDef def = root.findDef(closest);
+                if (def != null) {
+                    return new DeclarationLocation(info.getFileObject(), def.getIdToken().offset(th), def);                
+                }
+            } 
+            
+            return null;
 
-            return new DeclarationLocation(info.getFileObject(), def.getIdToken().offset(th), def);
         } finally {
             doc.readUnlock();
         }

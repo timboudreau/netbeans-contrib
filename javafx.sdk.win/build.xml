@@ -49,17 +49,21 @@ made subject to such option by the copyright holder.
 
     <import file="../../nbbuild/templates/projectized.xml"/>
 
-    <target name="javafx-sdk" depends="init">
-	<mkdir dir="external"/>
-	<get src="${javafx-sdk.url}" dest="${javafx-sdk.zip}" usetimestamp="true" verbose="true"/>
-	<taskdef resource="org/netbeans/nbbuild/extlibs/defs.properties" classpath="lib/FXSDKAntTask.jar"/>
-	<BuildLibDesc libfile="build/classes/org/netbeans/modules/javafx/sdk/win/FXUserLib.xml" headerfile="libhead.xml" tailfile="libtail.xml" itemprefix="        &lt;resource>jar:nbinst:///" itemsuffix="!/&lt;/resource>">
-		<zipfileset src="${javafx-sdk.zip}" includes="**/lib/*.jar"/>
-	</BuildLibDesc>
-	<SetReleaseExternal propertynameprefix="release.external/javafx_sdk-1_0-pre1-windows-i586.zip!/">
-		<zipfileset src="${javafx-sdk.zip}"/>
-	</SetReleaseExternal>
+	<target name="init-release-external" depends="basic-init">
+		<taskdef resource="org/netbeans/nbbuild/extlibs/defs.properties" classpath="lib/FXSDKAntTask.jar"/>
+		<mkdir dir="external"/>
+		<get src="${javafx-sdk.url}" dest="${javafx-sdk.zip}" usetimestamp="true" verbose="true"/>
+		<SetReleaseExternal propertynameprefix="release.external/javafx_sdk-1_0-pre1-windows-i586.zip!/">
+			<zipfileset src="${javafx-sdk.zip}"/>
+		</SetReleaseExternal>
+	</target>
 
+    <target name="init" depends="basic-init,init-release-external,files-init,build-init,-init-proxy"/>
+
+    <target name="javafx-sdk" depends="init">
+		<BuildLibDesc libfile="build/classes/org/netbeans/modules/javafx/sdk/win/FXUserLib.xml" headerfile="libhead.xml" tailfile="libtail.xml" itemprefix="        &lt;resource>jar:nbinst:///" itemsuffix="!/&lt;/resource>">
+			<zipfileset src="${javafx-sdk.zip}" includes="**/lib/*.jar"/>
+		</BuildLibDesc>
     </target>
 
     <target name="netbeans-extra" depends="javafx-sdk"/>

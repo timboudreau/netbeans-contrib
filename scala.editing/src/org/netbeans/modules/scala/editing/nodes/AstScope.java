@@ -58,9 +58,11 @@ public class AstScope implements Iterable<AstScope> {
     private List<AstScope> scopes;
     private List<AstDef> defs;
     private List<AstRef> refs;
+    private List<AstExpr> exprs;
     private boolean scopesSorted;
     private boolean defsSorted;
     private boolean refsSorted;
+    private boolean exprsSorted;
     private Token[] boundsTokens;
 
     public AstScope(Token[] boundsTokens) {
@@ -70,14 +72,6 @@ public class AstScope implements Iterable<AstScope> {
     
     public Token[] getBoundsTokens() {
         return boundsTokens;
-    }
-
-    public void setBindingDef(AstDef bindingDef) {
-        this.bindingDef = bindingDef;
-    }
-
-    public AstDef getBindingDef() {
-        return bindingDef;
     }
 
     public OffsetRange getRange(TokenHierarchy th) {
@@ -92,6 +86,14 @@ public class AstScope implements Iterable<AstScope> {
         return boundsTokens[1].offset(th) + boundsTokens[1].length();
     }
     
+    public void setBindingDef(AstDef bindingDef) {
+        this.bindingDef = bindingDef;
+    }
+
+    public AstDef getBindingDef() {
+        return bindingDef;
+    }
+
     public AstScope getParent() {
         return parent;
     }
@@ -115,6 +117,13 @@ public class AstScope implements Iterable<AstScope> {
             return Collections.emptyList();
         }
         return refs;
+    }
+
+    public List<AstExpr> getExprs() {
+        if (exprs == null) {
+            return Collections.emptyList();
+        }
+        return exprs;
     }
 
     void addScope(AstScope scope) {
@@ -142,6 +151,14 @@ public class AstScope implements Iterable<AstScope> {
         ref.setEnclosingScope(this);
     }
 
+    void addExpr(AstExpr expr) {
+        if (exprs == null) {
+            exprs = new ArrayList<AstExpr>();
+        }
+        exprs.add(expr);
+        expr.setEnclosingScope(this);
+    }
+    
     public Iterator<AstScope> iterator() {
         if (scopes != null) {
             return scopes.iterator();
@@ -184,6 +201,26 @@ public class AstScope implements Iterable<AstScope> {
                 if (offset < middle.getIdToken().offset(th)) {
                     high = mid - 1;
                 } else if (offset >= middle.getIdToken().offset(th) + middle.getIdToken().length()) {
+                    low = mid + 1;
+                } else {
+                    return middle;
+                }
+            }
+        }
+
+        if (exprs != null) {
+            if (!exprsSorted) {
+                Collections.sort(exprs, new ExprComparator(th));
+                exprsSorted = true;
+            }
+            int low = 0;
+            int high = exprs.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstExpr middle = exprs.get(mid);
+                if (offset < middle.getOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getEndOffset(th)) {
                     low = mid + 1;
                 } else {
                     return middle;
@@ -373,6 +410,18 @@ public class AstScope implements Iterable<AstScope> {
         }
 
         public int compare(AstScope o1, AstScope o2) {
+            return o1.getOffset(th) < o2.getOffset(th) ? -1 : 1;
+        }
+    }
+
+    private static class ExprComparator implements Comparator<AstExpr> {
+        private TokenHierarchy th;
+
+        public ExprComparator(TokenHierarchy th) {
+            this.th = th;
+        }
+
+        public int compare(AstExpr o1, AstExpr o2) {
             return o1.getOffset(th) < o2.getOffset(th) ? -1 : 1;
         }
     }

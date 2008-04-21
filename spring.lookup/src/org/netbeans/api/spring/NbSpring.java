@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -37,23 +37,41 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.editing.nodes;
+package org.netbeans.api.spring;
 
-import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.spring.lookup.ApplicationContextBasedLookup;
+import org.netbeans.modules.spring.lookup.LookupBasedApplicationContext;
+import org.openide.util.Lookup;
+import org.springframework.context.ApplicationContext;
 
-/**
- *
- * @author dcaoyuan
+/** Factory methods to manipulate and bridge NetBeans Lookup and SpringFramework's
+ * ApplicationContext.
+ * @author Jaroslav Tulach, Andrei Badea
+ * @since 1.1
  */
-public class Expr extends AstElement {
+public class NbSpring {
+    private NbSpring() {
+    }
     
-    public Expr(ElementKind kind) {
-        super(kind);
+    /** Converts an application context to lookup.
+     * 
+     * @param context application context
+     * @return lookup that bridges to the context
+     */
+    public static Lookup create(ApplicationContext context) {
+        return new ApplicationContextBasedLookup(context);
     }
-
-    @Override
-    public String getName() {
-        return "expr";
+    
+    /** From lookup to application context, if necesary.
+     * 
+     * @param context application context
+     * @return lookup that bridges to the context
+     */
+    public static ApplicationContext create(Lookup lookup) {
+        ClassLoader l = Lookup.getDefault().lookup(ClassLoader.class);
+        if (l != null) {
+            l = NbSpring.class.getClassLoader();
+        }
+        return LookupBasedApplicationContext.create(lookup, l);
     }
-            
 }

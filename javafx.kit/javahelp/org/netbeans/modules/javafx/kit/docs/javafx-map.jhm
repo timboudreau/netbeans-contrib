@@ -43,11 +43,11 @@
 
 <!--Projects section -->
 	<mapID target="javafx_proj_about" url="project/javafx_proj_about.html" />
-	<mapID target="javafx_proj_process" url="project/javafx_proj_process.html" />
-	<mapID target="javafx_proj_quickref" url="project/javafx_proj_quickref.html"/>
-	<mapID target="javafx_proj_process_top" url="project/javafx_proj_process.html#top"/>
 	<mapID target="javafx_proj_deleting" url="project/javafx_proj_deleting.html" />
 	<mapID target="javafx_proj_move_copy_rename" url="project/javafx_proj_move_copy_rename.html" />
+	<mapID target="javafx_proj_process" url="project/javafx_proj_process.html" />
+	<mapID target="javafx_proj_process_top" url="project/javafx_proj_process.html#top"/>
+	<mapID target="javafx_proj_quickref" url="project/javafx_proj_quickref.html"/>
 	<mapID target="javafx_proj_jdk" url="project/javafx_proj_jdk.html" />
 
 	<mapID target="javafx_options" url="configure/javafx_options.html"/>
