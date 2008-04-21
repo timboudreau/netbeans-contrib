@@ -229,6 +229,7 @@
 ^api.web.dd/test/unit/data/invalid/web\.xml$
 ^hibernate/src/org/netbeans/modules/hibernate/cfg/model$
 ^hibernate/src/org/netbeans/modules/hibernate/mapping/model$
+^hibernate/src/org/netbeans/modules/hibernate/reveng/model$
 ^hibernate/test/unit/data/db-derby-10.2.2.0-bin$
 ^o.sample.registry.model/catalog\.xml$
 ^xtest.examples/MyModule/mymodule\.jar$
