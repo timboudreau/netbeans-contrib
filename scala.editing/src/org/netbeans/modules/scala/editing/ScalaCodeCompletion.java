@@ -327,7 +327,7 @@ public class ScalaCodeCompletion implements Completable {
             request.formatter = formatter;
             request.lexOffset = lexOffset;
             request.astOffset = astOffset;
-            request.index = ScalaIndex.get(info.getIndex(ScalaMimeResolver.MIME_TYPE));
+            request.index = ScalaIndex.get(info);
             request.doc = doc;
             request.info = info;
             request.prefix = prefix;
