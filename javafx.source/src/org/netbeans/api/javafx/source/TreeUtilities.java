@@ -69,7 +69,7 @@ public final class TreeUtilities {
 //    private final CommentHandlerService handler;
     
     /** Creates a new instance of CommentUtilities */
-    TreeUtilities(final CompilationInfo info) {
+    public TreeUtilities(final CompilationInfo info) {
         assert info != null;
         this.info = info;
 //        this.handler = CommentHandlerService.instance(info.impl.getJavacTask().getContext());

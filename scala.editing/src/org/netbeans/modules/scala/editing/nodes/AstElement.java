@@ -69,6 +69,7 @@ public class AstElement implements ElementHandle {
     private Set<Modifier> mods;
     private TypeRef type;
     protected String qualifiedName;
+    private String in;
     
     public AstElement( ElementKind kind) {
         this(null, kind);
@@ -188,9 +189,13 @@ public class AstElement implements ElementHandle {
     public Set<Modifier> getModifiers() {
         return mods == null ? Collections.<Modifier>emptySet() : mods;
     }
+    
+    public void setIn(String in) {
+        this.in = in;
+    }
 
     public String getIn() {
-        return null;
+        return in;
     }
 
     @Override

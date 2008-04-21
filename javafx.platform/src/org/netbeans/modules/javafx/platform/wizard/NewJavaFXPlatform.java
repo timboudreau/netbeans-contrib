@@ -89,11 +89,11 @@ public final class NewJavaFXPlatform extends JavaFXPlatformImpl implements Runna
     public static NewJavaFXPlatform create (String name, File installFolder, File fxFolder) throws IOException {
         assert installFolder != null;
         Map<String,String> platformProperties = new HashMap<String,String> ();
-        return new NewJavaFXPlatform (name, createAntName(name), Arrays.asList(new URL[] {installFolder.toURI().toURL(), fxFolder.toURI().toURL()}),platformProperties,Collections.<String,String>emptyMap());
+        return new NewJavaFXPlatform (name, createAntName(name), Arrays.asList(installFolder.toURI().toURL()), fxFolder.toURI().toURL(), platformProperties, Collections.<String,String>emptyMap());
     }
 
-    private NewJavaFXPlatform (String name, String antName, List<URL> installFolders, Map<String,String> platformProperties, Map<String,String> systemProperties) {
-        super(name, antName, installFolders, platformProperties, systemProperties,null,null);
+    private NewJavaFXPlatform (String name, String antName, List<URL> javaFolders, URL fxFolder, Map<String,String> platformProperties, Map<String,String> systemProperties) {
+        super(name, antName, javaFolders, fxFolder, platformProperties, systemProperties,null,null);
     }
 
     public boolean isValid () {

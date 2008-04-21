@@ -43,6 +43,7 @@ package org.netbeans.modules.javafx.platform.platformdefinition;
 
 import java.beans.*;
 import java.io.*;
+import java.io.File;
 import java.lang.ref.*;
 import java.util.*;
 import java.util.List;
@@ -52,6 +53,7 @@ import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.netbeans.api.javafx.platform.JavaFXPlatform;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.netbeans.spi.project.support.ant.PropertyUtils;
@@ -200,7 +202,7 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
             p = DefaultPlatformImpl.create (handler.properties, handler.sources, handler.javadoc);
             defaultPlatform = true;
         } else {
-            p = new JavaFXPlatformImpl(handler.name,handler.installFolders, handler.properties, handler.sysProperties,handler.sources, handler.javadoc);
+            p = new JavaFXPlatformImpl(handler.name,handler.installFolders, null, handler.properties, handler.sysProperties,handler.sources, handler.javadoc);
             defaultPlatform = false;
         }
         p.addPropertyChangeListener(this);
@@ -304,8 +306,11 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
         String homePropName = createName(systemName,"home");      //NOI18N
         String bootClassPathPropName = createName(systemName,"bootclasspath");    //NOI18N
         String compilerType= createName (systemName,"compiler");  //NOI18N
+        String fxHomePropName = createName (systemName,"fxhome");  //NOI18N
         if (props.getProperty(homePropName) != null || props.getProperty(bootClassPathPropName) != null
-                || props.getProperty(compilerType)!=null) {
+                || props.getProperty(compilerType)!=null || props.getProperty(fxHomePropName)!=null){
+            if (platform instanceof DefaultPlatformImpl)
+                return;
             //Already defined warn user
             String msg = NbBundle.getMessage(JavaFXWizardIterator.class,"ERROR_InvalidName"); //NOI18N
             throw (IllegalStateException)ErrorManager.getDefault().annotate(
@@ -341,6 +346,12 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
 //                } else {
 //                    throw new BrokenPlatformException (name);
                 }
+            }
+        }
+        if (platform instanceof JavaFXPlatform){
+            URL fxFolder = ((JavaFXPlatform)platform).getJavaFXFolder();
+            if (fxFolder != null){
+                props.setProperty(fxHomePropName,new File(URI.create(fxFolder.toExternalForm())).getAbsolutePath());   //NOI18N
             }
         }
     }

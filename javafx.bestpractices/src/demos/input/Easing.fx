@@ -1,8 +1,7 @@
 package input;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.animation.*;
+import javafx.gui.*;
+import javafx.animation.*;
 
 import java.lang.Math;
 
@@ -10,24 +9,29 @@ var easing : Ball = Ball {};
     
 Frame {
     content : Canvas {
-        background : Color{ red: 0.2, green : 0.2, blue : 0.2 }
+        content : [
+            Rectangle {  
+                width : 200, height : 200
+                fill : Color{ red: 0.2, green : 0.2, blue : 0.2 }
+                
+                onMouseMoved : function( e : MouseEvent ): Void {
+                    easing.targetX = e.getX();
+                    easing.targetY = e.getY();
+                }
+            },
+            easing
+        ]
 
-        content : easing
-
-        onMouseMoved : function( e : MouseEvent ): Void {
-            easing.targetX = e.x;
-            easing.targetY = e.y;
-        }
     };
     
     visible : true
     title : "Easing"
     width : 200
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }    
+    closeAction : function() { java.lang.System.exit( 0 ); }    
 }
 
-class Ball extends CompositeNode {
+class Ball extends CustomNode {
     attribute x : Number;
     attribute y : Number;
     public attribute targetX : Number = 100;
@@ -40,10 +44,10 @@ class Ball extends CompositeNode {
     }
     
     attribute timer : Timeline = Timeline {
-        repeatCount: java.lang.Double.POSITIVE_INFINITY // HACK
+        repeatCount: Timeline.INDEFINITE
         keyFrames :
             KeyFrame {
-                keyTime : 20ms
+                time : 20ms
                 action : function() {
                     var dx = targetX - x;
                     if( Math.abs( dx ) > 1 ) {
@@ -58,10 +62,10 @@ class Ball extends CompositeNode {
         }
     };
     
-    public function composeNode(): Node {
+    public function create(): Node {
         return Circle {
-            cx : bind x
-            cy : bind y
+            centerX : bind x
+            centerY : bind y
             radius : 33 / 2 
             fill : Color.WHITE
         };

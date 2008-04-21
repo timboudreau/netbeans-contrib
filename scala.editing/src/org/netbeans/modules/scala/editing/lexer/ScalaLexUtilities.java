@@ -47,6 +47,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import java.util.Stack;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.modules.gsf.api.CompilationInfo;
@@ -697,79 +698,45 @@ public class ScalaLexUtilities {
     }
 
     /** Compute the balance of begin/end tokens on the line */
-    public static int getLineBalance(BaseDocument doc, int offset, TokenId up, TokenId down) {
+    public static Stack<Token> getLineBalance(BaseDocument doc, int offset, TokenId up, TokenId down) {
+        Stack<Token> balanceStack = new Stack<Token>();
         try {
             int begin = Utilities.getRowStart(doc, offset);
             int end = Utilities.getRowEnd(doc, offset);
 
             TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, begin);
             if (ts == null) {
-                return 0;
+                return balanceStack;
             }
 
             ts.move(begin);
 
             if (!ts.moveNext()) {
-                return 0;
+                return balanceStack;
             }
 
             int balance = 0;
 
             do {
-                Token<? extends ScalaTokenId> token = ts.token();
+                Token<? extends ScalaTokenId> token = ts.offsetToken();
                 TokenId id = token.id();
 
                 if (id == up) {
+                    balanceStack.push(token);
                     balance++;
                 } else if (id == down) {
+                    if (!balanceStack.empty()) {
+                        balanceStack.pop();
+                    }
                     balance--;
                 }
             } while (ts.moveNext() && (ts.offset() <= end));
 
-            return balance;
+            return balanceStack;
         } catch (BadLocationException ble) {
             Exceptions.printStackTrace(ble);
 
-            return 0;
-        }
-    }
-
-    /** Compute the balance of begin/end tokens on the line */
-    public static int getLineBalance(BaseDocument doc, int offset, String up, String down) {
-        try {
-            int begin = Utilities.getRowStart(doc, offset);
-            int end = Utilities.getRowEnd(doc, offset);
-
-            TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, begin);
-            if (ts == null) {
-                return 0;
-            }
-
-            ts.move(begin);
-
-            if (!ts.moveNext()) {
-                return 0;
-            }
-
-            int balance = 0;
-
-            do {
-                Token<? extends ScalaTokenId> token = ts.token();
-                TokenId id = token.id();
-                String text = token.text().toString();
-
-                if (text.equals(up)) {
-                    balance++;
-                } else if (text.equals(down)) {
-                    balance--;
-                }
-            } while (ts.moveNext() && (ts.offset() <= end));
-
-            return balance;
-        } catch (BadLocationException ble) {
-            Exceptions.printStackTrace(ble);
-
-            return 0;
+            return balanceStack;
         }
     }
 

@@ -1,0 +1,4 @@
+org.netbeans.modules.scala.stdplatform.libraries.J2SELibraryClassPathProvider
+#position=156
+org.netbeans.modules.scala.stdplatform.platformdefinition.DefaultClassPathProvider
+#position=10006

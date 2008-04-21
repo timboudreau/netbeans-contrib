@@ -1,37 +1,28 @@
 package transform;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.animation.*;
+import javafx.gui.*;
+import javafx.animation.*;
 
-import com.sun.javafx.runtime.PointerFactory;
-import com.sun.javafx.runtime.Pointer;
+import java.lang.Math;
 
-var xPos : Number = -40;
-var pf : PointerFactory = PointerFactory {};
-var bxPos = bind pf.make( xPos );
-var pxPos = bxPos.unwrap();
-   
+var a : Number = 0.0;
+var s : Number = bind Math.sin( a ) * 2;
+
 var timeline : Timeline = Timeline {
-    repeatCount: java.lang.Double.POSITIVE_INFINITY
+    repeatCount: Timeline.INDEFINITE
     keyFrames : [
         KeyFrame {
-            keyTime : 0s                    
-            keyValues : 
-                NumberValue {
-                    target: pxPos;
-                    value: -40.0
-                }
+            time : 0s                    
+            values : {
+                a => 0.0 tween Interpolator.LINEAR
+            }
         },
         KeyFrame {
-            keyTime : 5s                    
-            keyValues : 
-                NumberValue {
-                    target: pxPos;
-                    value: 200 + 40
-                    interpolate: NumberValue.LINEAR
-                }
-        },
+            time : 5s                    
+            values : {
+                a => Math.PI tween Interpolator.LINEAR
+            }
+        }
     ]
 };
 
@@ -39,25 +30,23 @@ Frame {
     content : Canvas {
         background : Color.GRAY
         content : [
-            Rect {
-                transform : [ javafx.ui.canvas.Translate { x : bind xPos, y : 60 }]
-                width : 40, height : 40
-                fill : Color.WHITE
-            },
-            Rect {
-                transform : [ javafx.ui.canvas.Translate { x : bind 2 * xPos, y : 100 }]
+            Rectangle {
+                transform : [ 
+                    javafx.gui.Translate { x : bind 100 - 40 * s / 2, y : bind 100 - 40 * s / 2 },
+                    javafx.gui.Scale { x : bind s, y : bind s }
+                ]
+                x : 0, y : 0
                 width : 40, height : 40
                 fill : Color.BLACK
-            }
+            },    
         ]
     }
     
     visible : true
-    title : "Translate"
+    title : "Scale"
     width : 200
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }
-    
+    closeAction : function() { java.lang.System.exit( 0 ); }
 }
 
 timeline.start();

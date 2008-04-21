@@ -41,22 +41,26 @@
 
 package org.netbeans.modules.javafx.preview;
 
+import java.awt.Color;
+import java.io.File;
 import java.security.CodeSource;
 import java.security.PermissionCollection;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.text.StyledDocument;
 import org.netbeans.modules.javafx.editor.*;
 import java.security.Permissions;
 import java.util.List;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
+import java.util.Vector;
 import javax.swing.JComponent;
 
 //import sun.awt.AppContext;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
-import org.openide.execution.ExecutionEngine;
 //import sun.awt.SunToolkit;
+import javax.swing.JEditorPane;
+import javax.swing.JTextArea;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.text.Document;
+import javax.swing.text.html.HTMLEditorKit;
+import org.openide.execution.ExecutionEngine;
 import org.openide.execution.ExecutorTask;
 import org.openide.execution.NbClassPath;
 import org.openide.util.Exceptions;
@@ -66,10 +70,68 @@ import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 import org.openide.util.RequestProcessor;
 import javax.tools.Diagnostic;
-
+import javax.tools.JavaFileObject;
+import org.netbeans.modules.editor.NbEditorUtilities;
+import org.openide.cookies.EditorCookie;
+import org.openide.cookies.LineCookie;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.text.Line;
+import org.openide.text.NbDocument;
         
 public class PreviewThread extends Thread {
     
+    static final String nothingToShow = "Nothing to show...";                                                                   //NOI18
+    private static final String vrongJavaVersion = "Please, use version 1.6 of Java to enable Preview. Current version is: ";   // NOI18N
+    
+    private class Hyperlink implements HyperlinkListener {
+        private Vector<Object> foMap = new Vector<Object>();
+        private Vector<Long> offsetMap = new Vector<Long>();
+        
+        void setMaps(Vector<Object> foMap, Vector<Long> offsetMap) {
+            this.foMap = foMap;
+            this.offsetMap = offsetMap;
+        }
+    
+        private void goTo(final Document doc, int offset) {
+            LineCookie lc = (LineCookie) NbEditorUtilities.getDataObject(doc).getCookie(LineCookie.class);
+            int line = NbDocument.findLineNumber((StyledDocument) doc,offset);
+            int lineOffset = NbDocument.findLineOffset((StyledDocument) doc,line);
+            int column = offset - lineOffset;
+
+            if (line != -1) {
+                Line l = lc.getLineSet().getCurrent(line);
+
+                if (l != null) {
+                    l.show(Line.SHOW_TOFRONT, column);
+                    ((JavaFXDocument)doc).getEditor().requestFocusInWindow();
+                }
+            }
+        }
+        public void hyperlinkUpdate(HyperlinkEvent e) {
+            if (e.getEventType() != HyperlinkEvent.EventType.ACTIVATED)
+                return;
+            String href = e.getDescription();
+            Object fo = foMap.elementAt(Integer.parseInt(href));
+            Document doc = null;
+            if (fo instanceof MemoryFileObject) {
+                doc = ((MemoryFileObject)fo).getDocument();
+            } else {
+                try {
+                    DataObject od = DataObject.find((FileObject)fo);
+                    EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
+                    doc = ec.openDocument();                
+                } catch (Exception ex) {
+                    return;
+                }
+            }
+            int offset = offsetMap.elementAt(Integer.parseInt(href)).intValue();
+            goTo(doc, offset);
+        }
+    };
+    
+        
     private FXDocument doc;
     private JComponent comp = null;
 
@@ -100,7 +162,6 @@ public class PreviewThread extends Thread {
             
             public ET(Runnable run, String name, InputOutput io) {
                 super(run);
-                this.resultValue = resultValue;
                 this.name = name;
                 task = RequestProcessor.getDefault().post(this);
             }
@@ -126,62 +187,133 @@ public class PreviewThread extends Thread {
                     resultValue = 1;
                 }
             }
-        }       
-    } 
-
+        }      
+    }
+    
     class R implements Runnable {
-
+                
         public void run() {
+            if (!checkJavaVersion()) {
+                comp = getVrongVersion();
+                return;
+            }
             Object obj = null;
             try {
                 obj = CodeManager.execute(doc);
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
             }
-            if (obj != null)
+            if (obj != null) {
                 comp = CodeManager.parseObj(obj);
+                if (comp == null) {
+                    comp = JavaFXDocument.getNothingPane();
+                }
+            }
             else {
                 List <Diagnostic> diagnostics = CodeManager.getDiagnostics();
                 if (!diagnostics.isEmpty()) {
-                    comp = new JPanel();
-                    comp.setLayout(new BoxLayout(comp, BoxLayout.Y_AXIS));
+                    JEditorPane pane = new JEditorPane();
+                    pane.setEditable(false);
+                    pane.setEditorKit(new HTMLEditorKit());
+                    Hyperlink hl = new Hyperlink();
+                    pane.addHyperlinkListener(hl);
+                    //pane.setFont(new FontUIResource("Monospaced", FontUIResource.PLAIN, 20));
+                    String text = "";
+                    int i = 0;
+                    Vector<Object> foMap = new Vector<Object>();
+                    Vector<Long> offsetMap = new Vector<Long>();
                     for (Diagnostic diagnostic : diagnostics) {
-                        JTextArea jta = new JTextArea();
-                        jta.setLineWrap(true);
-                        jta.append(diagnostic.toString());
-                        comp.add(jta);
-                        comp.add(new JSeparator(SwingConstants.HORIZONTAL));
+                        Object source = diagnostic.getSource();
+                        String name = "";
+                        if (diagnostic.getSource() != null)
+                        {
+                            if (diagnostic.getSource() instanceof MemoryFileObject) {
+                                MemoryFileObject mfo = (MemoryFileObject)source;
+                                name = mfo.getFilePath();
+                            } else {
+                                JavaFileObject jFO = (JavaFileObject) source;
+                                File file = new File(jFO.toUri());
+                                FileObject regularFO = FileUtil.toFileObject(file);
+                                name = regularFO.getPath();
+                                source = regularFO;
+                            }
+                            foMap.add(source);
+                            offsetMap.add(diagnostic.getPosition());
+                            text+= "<a href=" + i + ">" + name + " : " + diagnostic.getLineNumber() + "</a>\n" + " " + "<font color=#a40000>" + diagnostic.getMessage(null) + "</font>" + "<br>";
+                            i++;
+                        }
+                    }
+                    pane.setText(text);
+                    hl.setMaps(foMap, offsetMap);
+                    comp = pane;
+                }
+                else {
+                    if (comp == null) {
+                        comp = JavaFXDocument.getNothingPane();
                     }
                 }
             }
-                
+        }
+
+        private boolean checkJavaVersion() {
+            String version = System.getProperty("java.runtime.version");
+            if (!version.startsWith("1.6"))
+                return false;
+            else
+                return true;
+        }
+
+        private JComponent getNothig() {
+            JTextArea jta = new JTextArea();
+            jta.append(nothingToShow);
+            return jta;
+        }
+        
+        private JComponent getVrongVersion() {
+            JTextArea jta = new JTextArea();
+            jta.setForeground(Color.decode("#a40000"));
+            jta.append(vrongJavaVersion + System.getProperty("java.runtime.version"));
+            return jta;
         }
     }
 
     public PreviewThread(FXDocument doc) {
         super(new ThreadGroup("SACG"), "SACT");
-        //super();
         this.doc = doc;
     }
 
+    private ExecutionEngine ee = new EE();
+    private ExecutorTask task = null;
+    
+    synchronized public void stopTask() {
+        if (task != null) {
+            task.stop();
+        }
+    }
+    
+    synchronized public void joinTask() {
+        if (task != null) {
+            task.result();
+        }
+    }
+            
     @Override
-    public void run() {
+    synchronized public void run() {
         try {
             //SunToolkit.createNewAppContext();
             //System.out.println("Current app context " + AppContext.getAppContext());
             
-            ExecutionEngine ee = new EE();
-            ExecutorTask task = ee.execute("prim", new R(), IOProvider.getDefault().getIO("JavaFX preview", false));
+            ((JavaFXDocument)doc).setCompile();
+            task = ee.execute("prim", new R(), IOProvider.getDefault().getIO("JavaFX preview", false));
   
             task.addTaskListener(new TaskListener() {
                 public void taskFinished(Task task) {
                     ((JavaFXDocument)doc).renderPreview(comp);
                 }
             });
-            
-            
         } catch(Exception ex) {
             ex.printStackTrace();
         }
     }
+    
 }

@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.text.Document;
-import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.InstantRenamer;
@@ -98,6 +97,8 @@ public class ScalaInstantRenamer implements InstantRenamer {
             case FIELD:
             case PARAMETER:
             case VARIABLE:
+            case METHOD:
+            case CALL:            
                 return true;
             // TODO - block renaming of GLOBALS! I should already know
             // what's local and global based on JsSemantic...

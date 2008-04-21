@@ -1,40 +1,22 @@
 package image;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.animation.*;
+import javafx.gui.*;
+import javafx.animation.*;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.Timer;
-
-import com.sun.javafx.runtime.PointerFactory;
-import com.sun.javafx.runtime.Pointer;
-
-var pf = PointerFactory {};
-var y = 0.0;
-var bpy = bind pf.make( y );
-var py = bpy.unwrap();
+var y : Number;
 
 var timeline = Timeline {
-    repeatCount: java.lang.Double.POSITIVE_INFINITY // HACK            
+    repeatCount: Timeline.INDEFINITE            
     keyFrames : [
         KeyFrame {
-            keyTime : 0s
-            keyValues : 
-                NumberValue {
-                    target: py;
-                    value: -20.0
-                }
+            time : 0s
+            values : 
+                y => -20
         },
         KeyFrame {
-            keyTime : 3s
-            keyValues :
-                NumberValue {
-                    target : py;
-                    value : 200
-                    interpolate: NumberValue.LINEAR
-            }
+            time : 3s
+            values :
+                y => 200 tween Interpolator.LINEAR
         }
     ]
 };
@@ -43,7 +25,7 @@ Frame {
     content : Canvas {
         content : [
             ImageView {
-                image : Image { url : "resources/background.png" }
+                image : Image { url : "{__DIR__}/../resources/background.png" }
             },
             Group {
                 transform : Translate { y : bind y }
@@ -66,7 +48,7 @@ Frame {
     title : "Background Image"
     width : 200
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }
+    closeAction : function() { java.lang.System.exit( 0 ); }
 }
 
 timeline.start();

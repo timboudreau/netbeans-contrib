@@ -6,9 +6,11 @@
 class JavaFXExample {
 
     attribute a: String;
-    function sample(): String;
+    function sample(): String {
+        return "sample"
+    }
 }// line comment
 
-operation  JavaFXExample.sample () {
-    return a;
+function foo () {
+    java.lang.System.out.println("foo");
 }

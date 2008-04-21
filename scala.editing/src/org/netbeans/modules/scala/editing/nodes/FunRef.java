@@ -36,7 +36,6 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.List;
@@ -48,37 +47,50 @@ import org.netbeans.modules.gsf.api.ElementKind;
  * @author Caoyuan Deng
  */
 public class FunRef extends AstRef {
-    
-    private Expr base;
-    private Id op;
+
+    private AstExpr base;
+    private Id call;
     private List<AstElement> params;
     private boolean local;
-        
-    public FunRef(String name, Token idToken, ElementKind kind) {
-        super(name, idToken, kind);
+
+    public FunRef(Token idToken, ElementKind kind) {
+        super(null, idToken, kind);
     }
-    
-    public void setBase(Expr base) {
+
+    public void setBase(AstExpr base) {
         this.base = base;
     }
-    
-    public void setOp(Id op) {
-        this.op = op;
+
+    public void setCall(Id call) {
+        this.call = call;
     }
-    
+
     public void setParams(List<AstElement> params) {
         this.params = params;
     }
-    
+
     public List<AstElement> getParams() {
         return params;
     }
-    
+
     public void setLocal() {
         this.local = true;
     }
-    
+
     public boolean isLocal() {
         return local;
+    }
+
+    @Override
+    public String getName() {
+        StringBuilder sb = new StringBuilder();
+        if (base != null) {
+            TypeRef baseType = base.getType();
+            if (baseType != null) {
+                sb.append(baseType.getName());
+            }
+        }
+        sb.append(call.getName());
+        return sb.toString();
     }
 }

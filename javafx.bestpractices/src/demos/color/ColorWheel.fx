@@ -1,18 +1,17 @@
 package color;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+import javafx.gui.*;
 
-public class ColorWheel extends CompositeNode {
+public class ColorWheel extends CustomNode {
     attribute segments : Number = 12;
     attribute steps : Number = 6;
     attribute radius : Number = 95;
     attribute valueShift : Number = 0;
     attribute stripes : Arc[];
     
-    function composeNode() : Node {
+    function create() : Node {
         return Group {
-            content : stripes
+            content : bind stripes
         };
     }
     
@@ -54,12 +53,12 @@ public class ColorWheel extends CompositeNode {
             for( j in [1..segments] ) {
                 var c = colors[j.intValue()];                
                 insert Arc {
-                    x : 100 - r, y : 100 - r
-                    width : r * 2 , height : r * 2
+                    centerX : 100, centerY : 100
+                    radiusX : r , radiusY : r
                     startAngle : 360 / segments * ( segments - j - 0.5)
                     length : 360 / segments
-                    fill : c //new Color( j / segments, 1, 1, 1 )
-                    closure: ArcClosure.PIE
+                    fill : c
+                    type : ArcType.ROUND
                 } into stripes;
             }
             r -= rStep;
@@ -76,7 +75,7 @@ Frame {
     
     visible : true
     title : "Color Wheel"
-    width : 200
+    width : 209
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }
+    closeAction : function() { java.lang.System.exit( 0 ); }
 }

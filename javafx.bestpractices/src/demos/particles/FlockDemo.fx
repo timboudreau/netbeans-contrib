@@ -1,12 +1,10 @@
 package particles;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.animation.*;
+import javafx.gui.*;
+import javafx.animation.*;
 
 import java.lang.Math;
 import java.util.Random;
-
 import java.lang.System;
 
 var flock : Flock = Flock{};
@@ -14,20 +12,19 @@ var flock : Flock = Flock{};
 Frame {
     content : Canvas {
         background : Color.LIGHTGREY
-        content : flock
-    };            
+        content : bind flock
+    };       
     
     visible : true
-    title : "Flock Demo"
+    title : "Flocks"
     width : 200
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }
-    
+    closeAction : function() { java.lang.System.exit( 0 ); }
 }
 
 flock.start();
 
-public class Flock extends CompositeNode {
+public class Flock extends CustomNode {
     
     attribute _N : Integer = 50 on replace {
         for( i in [0.._N] ) {
@@ -41,10 +38,10 @@ public class Flock extends CompositeNode {
     attribute boids : Boid[];
     
     attribute ticker : Timeline = Timeline {
-        repeatCount: java.lang.Double.POSITIVE_INFINITY // HACK
+        repeatCount: Timeline.INDEFINITE
         keyFrames :
             KeyFrame {
-                keyTime : 20ms
+                time : 20ms
                 action : function() {
                     update();
                 }
@@ -62,7 +59,7 @@ public class Flock extends CompositeNode {
         ticker.start();
     }
     
-    public function composeNode(): Node {
+    public function create(): Node {
         return {
             Group {
                 content : bind boids
@@ -71,7 +68,7 @@ public class Flock extends CompositeNode {
     }
 }
 
-class Boid extends CompositeNode {
+class Boid extends CustomNode {
     public attribute loc : Vector3D;
     attribute vel : Vector3D;
     attribute acc : Vector3D;
@@ -131,11 +128,11 @@ class Boid extends CompositeNode {
         if( loc.y > height + r ) loc.y = -r;
     }
     
-    function composeNode(): Node {
+    function create(): Node {
         return Group {
             transform : [ 
-                javafx.ui.canvas.Translate { x : bind loc.x, y : bind loc.y },
-                javafx.ui.canvas.Rotate { angle : bind Math.toDegrees( vel.heading2D()) + 90 }
+                javafx.gui.Translate { x : bind loc.x, y : bind loc.y },
+                javafx.gui.Rotate { angle : bind Math.toDegrees( vel.heading2D()) + 90 }
             ]
             content : [
                 Line {

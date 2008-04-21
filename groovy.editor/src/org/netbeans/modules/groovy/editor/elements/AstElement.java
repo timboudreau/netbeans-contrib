@@ -41,12 +41,17 @@
 
 package org.netbeans.modules.groovy.editor.elements;
 
+import groovyjarjarasm.asm.Opcodes;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.codehaus.groovy.ast.ASTNode;
+import org.codehaus.groovy.ast.FieldNode;
 import org.codehaus.groovy.ast.MethodNode;
+import org.netbeans.modules.groovy.editor.lexer.GroovyTokenId;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.ElementHandle;
@@ -63,6 +68,7 @@ public abstract class AstElement extends GroovyElement {
     protected String name;
     protected Set<Modifier> modifiers;
     private String in;
+    protected String signature;
     
     public AstElement(ASTNode node) {
         this.node = node;
@@ -84,6 +90,21 @@ public abstract class AstElement extends GroovyElement {
         children.add(child);
     }
 
+    public String getSignature() {
+        if (signature == null) {
+            StringBuilder sb = new StringBuilder();
+            String clz = getIn();
+            if (clz != null && clz.length() > 0) {
+                sb.append(clz);
+                sb.append("."); // NOI18N
+            }
+            sb.append(getName());
+            signature = sb.toString();
+        }
+
+        return signature;
+    }
+
     public abstract String getName();
 
     public ASTNode getNode() {
@@ -99,7 +120,34 @@ public abstract class AstElement extends GroovyElement {
     }
 
     public Set<Modifier> getModifiers() {
-        return Collections.<Modifier>emptySet();
+        if (modifiers == null) {
+            int flags = -1;
+            if (node instanceof FieldNode) {
+                flags = ((FieldNode) node).getModifiers();
+            } else if (node instanceof MethodNode) {
+                flags = ((MethodNode) node).getModifiers();
+            }
+            if (flags != -1) {
+                Set<Modifier> result = EnumSet.noneOf(Modifier.class);
+                if ((flags & Opcodes.ACC_PUBLIC) != 0) {
+                    result.add(Modifier.PUBLIC);
+                }
+                if ((flags & Opcodes.ACC_PROTECTED) != 0) {
+                    result.add(Modifier.PROTECTED);
+                }
+                if ((flags & Opcodes.ACC_PRIVATE) != 0) {
+                    result.add(Modifier.PRIVATE);
+                }
+                if ((flags & Opcodes.ACC_STATIC) != 0) {
+                    result.add(Modifier.STATIC);
+                }
+                modifiers = result;
+            } else {
+                modifiers = Collections.<Modifier>emptySet();
+            }
+        }
+
+        return modifiers;
     }
 
     public void setIn(String in) {
@@ -121,7 +169,7 @@ public abstract class AstElement extends GroovyElement {
     }
     
     public String getMimeType() {
-        return "text/x-groovy"; // NOI18N
+        return GroovyTokenId.GROOVY_MIME_TYPE;
     }
     
 
@@ -130,6 +178,11 @@ public abstract class AstElement extends GroovyElement {
             return new AstMethodElement(node);
         }
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return getKind() + "<" + getName() + ">";
     }
 
 }

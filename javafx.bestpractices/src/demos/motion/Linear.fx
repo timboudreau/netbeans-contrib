@@ -1,17 +1,16 @@
 package motion;
 
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.animation.*;
+import javafx.gui.*;
+import javafx.animation.*;
 
 
 var y : Number = 200;
 
 var timeline : Timeline = Timeline {
-    repeatCount: java.lang.Double.POSITIVE_INFINITY
+    repeatCount: Timeline.INDEFINITE
     keyFrames : 
         KeyFrame {
-            keyTime : 16ms
+            time : 16ms
             action : function() : Void {
                 y -= 1;
                 if( y == -1 ) { y = 200 }
@@ -33,7 +32,7 @@ Frame {
     title : "Linear"
     width : 200
     height : 232
-    onClose : function() { java.lang.System.exit( 0 ); }
+    closeAction : function() { java.lang.System.exit( 0 ); }
 }
 
 timeline.start();

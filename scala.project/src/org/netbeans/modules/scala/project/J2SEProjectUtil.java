@@ -47,9 +47,9 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.netbeans.api.java.platform.JavaPlatform;
-import org.netbeans.api.java.platform.JavaPlatformManager;
-import org.netbeans.api.java.platform.Specification;
+import org.netbeans.api.scala.platform.JavaPlatform;
+import org.netbeans.api.scala.platform.JavaPlatformManager;
+import org.netbeans.api.scala.platform.Specification;
 import org.netbeans.napi.gsfret.source.ClasspathInfo;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.scala.editing.SourceUtils;
@@ -159,7 +159,7 @@ public class J2SEProjectUtil {
             return pm.getDefaultPlatform();
         }
         else {
-            JavaPlatform[] installedPlatforms = pm.getPlatforms(null, new Specification ("j2se",null));   //NOI18N
+            JavaPlatform[] installedPlatforms = pm.getPlatforms(null, new Specification ("std",null));   //NOI18N
             for (int i=0; i<installedPlatforms.length; i++) {
                 String antName = (String) installedPlatforms[i].getProperties().get("platform.ant.name");        //NOI18N
                 if (antName != null && antName.equals(activePlatformId)) {
