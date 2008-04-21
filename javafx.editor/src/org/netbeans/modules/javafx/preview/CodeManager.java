@@ -230,7 +230,7 @@ public class CodeManager {
                 }
                 if (field != null) break;
             }
-            if (field == null);
+            if (field == null)
                 for (String frameStr : dialogNames) {
                     try {
                         field = obj.getClass().getDeclaredField(frameStr);

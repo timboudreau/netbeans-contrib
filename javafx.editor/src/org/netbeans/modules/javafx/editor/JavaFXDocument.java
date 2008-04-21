@@ -209,7 +209,7 @@ public class JavaFXDocument extends NbEditorDocument implements FXDocument{
     }
     
     static public JPanel getSloganPanel(ImageIcon icon, String text) {
-        JPanel panel = new JPanel();
+        JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
         JLabel label = new JLabel(icon);
         label.setText(text);
