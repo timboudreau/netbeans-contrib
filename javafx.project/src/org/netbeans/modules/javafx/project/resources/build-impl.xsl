@@ -953,10 +953,16 @@ is divided into following sections:
                         <xsl:with-param name="includes2">**/*.java</xsl:with-param>
                     </xsl:call-template>
                 </javadoc>
+                <condition property="javadoc.available">
+                    <and>
+                        <isset property="netbeans.home"/>
+                        <available file="${{dist.javadoc.dir}}/index.html"/>
+                    </and>
+                </condition>        
             </target>
             
             <target name="-javadoc-browse">
-                <xsl:attribute name="if">netbeans.home</xsl:attribute>
+                <xsl:attribute name="if">javadoc.available</xsl:attribute>
                 <xsl:attribute name="unless">no.javadoc.preview</xsl:attribute>
                 <xsl:attribute name="depends">init,-javadoc-build</xsl:attribute>
                 <nbbrowse file="${{dist.javadoc.dir}}/index.html"/>
