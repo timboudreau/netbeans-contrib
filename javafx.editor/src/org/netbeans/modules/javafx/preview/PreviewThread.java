@@ -41,6 +41,7 @@
 
 package org.netbeans.modules.javafx.preview;
 
+import java.awt.Color;
 import java.io.File;
 import java.security.CodeSource;
 import java.security.PermissionCollection;
@@ -81,7 +82,8 @@ import org.openide.text.NbDocument;
         
 public class PreviewThread extends Thread {
     
-    static final String nothingToShow = "Nothing to show..."; //NOI18
+    static final String nothingToShow = "Nothing to show...";                                                                   //NOI18
+    private static final String vrongJavaVersion = "Please, use version 1.6 of Java to enable Preview. Current version is: ";   // NOI18N
     
     private class Hyperlink implements HyperlinkListener {
         private Vector<Object> foMap = new Vector<Object>();
@@ -191,6 +193,10 @@ public class PreviewThread extends Thread {
     class R implements Runnable {
                 
         public void run() {
+            if (!checkJavaVersion()) {
+                comp = getVrongVersion();
+                return;
+            }
             Object obj = null;
             try {
                 obj = CodeManager.execute(doc);
@@ -204,31 +210,6 @@ public class PreviewThread extends Thread {
                 }
             }
             else {
-                /*List <Diagnostic> diagnostics = CodeManager.getDiagnostics();
-                if (!diagnostics.isEmpty()) {
-                    comp = new JPanel();
-                    comp.setLayout(new GridBagLayout());
-                    int i = 0;
-                    GridBagConstraints gridBagConstraints = new GridBagConstraints();
-                    gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
-                    gridBagConstraints.gridx = 0;
-                    gridBagConstraints.weighty = 0;
-                    for (Diagnostic diagnostic : diagnostics) {
-                        JTextArea jta = new JTextArea(diagnostic.toString());
-                        jta.setLineWrap(true);
-                        jta.setEditable(false);
-                        gridBagConstraints.gridy = i++;
-                        gridBagConstraints.weightx = 1.0;
-                        comp.add(jta, gridBagConstraints);
-                        gridBagConstraints.gridy = i++;
-                        comp.add(new JSeparator(), gridBagConstraints);
-                    }
-                    JTextArea jta = new JTextArea();
-                    jta.setEditable(false);
-                    gridBagConstraints.gridy = i;
-                    gridBagConstraints.weighty = 1.0;
-                    gridBagConstraints.fill = GridBagConstraints.BOTH;
-                    comp.add(jta, gridBagConstraints);*/
                 List <Diagnostic> diagnostics = CodeManager.getDiagnostics();
                 if (!diagnostics.isEmpty()) {
                     JEditorPane pane = new JEditorPane();
@@ -244,20 +225,23 @@ public class PreviewThread extends Thread {
                     for (Diagnostic diagnostic : diagnostics) {
                         Object source = diagnostic.getSource();
                         String name = "";
-                        if (diagnostic.getSource() instanceof MemoryFileObject) {
-                            MemoryFileObject mfo = (MemoryFileObject)source;
-                            name = mfo.getFilePath();
-                        } else {
-                            JavaFileObject jFO = (JavaFileObject) source;
-                            File file = new File(jFO.toUri());
-                            FileObject regularFO = FileUtil.toFileObject(file);
-                            name = regularFO.getPath();
-                            source = regularFO;
+                        if (diagnostic.getSource() != null)
+                        {
+                            if (diagnostic.getSource() instanceof MemoryFileObject) {
+                                MemoryFileObject mfo = (MemoryFileObject)source;
+                                name = mfo.getFilePath();
+                            } else {
+                                JavaFileObject jFO = (JavaFileObject) source;
+                                File file = new File(jFO.toUri());
+                                FileObject regularFO = FileUtil.toFileObject(file);
+                                name = regularFO.getPath();
+                                source = regularFO;
+                            }
+                            foMap.add(source);
+                            offsetMap.add(diagnostic.getPosition());
+                            text+= "<a href=" + i + ">" + name + " : " + diagnostic.getLineNumber() + "</a>\n" + " " + "<font color=#a40000>" + diagnostic.getMessage(null) + "</font>" + "<br>";
+                            i++;
                         }
-                        foMap.add(source);
-                        offsetMap.add(diagnostic.getPosition());
-                        text+= "<a href=" + i + ">" + name + " : " + diagnostic.getLineNumber() + "</a>\n" + " " + "<font color=#a40000>" + diagnostic.getMessage(null) + "</font>" + "<br>";
-                        i++;
                     }
                     pane.setText(text);
                     hl.setMaps(foMap, offsetMap);
@@ -270,9 +254,25 @@ public class PreviewThread extends Thread {
                 }
             }
         }
+
+        private boolean checkJavaVersion() {
+            String version = System.getProperty("java.runtime.version");
+            if (!version.startsWith("1.6"))
+                return false;
+            else
+                return true;
+        }
+
         private JComponent getNothig() {
             JTextArea jta = new JTextArea();
             jta.append(nothingToShow);
+            return jta;
+        }
+        
+        private JComponent getVrongVersion() {
+            JTextArea jta = new JTextArea();
+            jta.setForeground(Color.decode("#a40000"));
+            jta.append(vrongJavaVersion + System.getProperty("java.runtime.version"));
             return jta;
         }
     }
