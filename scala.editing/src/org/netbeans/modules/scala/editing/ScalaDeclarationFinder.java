@@ -122,7 +122,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
     IndexedFunction findMethodDeclaration(CompilationInfo info, FunRef call, Set<IndexedFunction>[] alternativesHolder) {
         String prefix = call.getName();
         ScalaParserResult parseResult = AstUtilities.getParserResult(info);
-        ScalaIndex index = ScalaIndex.get(info.getIndex(ScalaMimeResolver.MIME_TYPE));
+        ScalaIndex index = ScalaIndex.get(info);
         Set<IndexedElement> functions = index.getAllNames(prefix,
                 NameKind.EXACT_NAME, ScalaIndex.ALL_SCOPE, parseResult);
 
