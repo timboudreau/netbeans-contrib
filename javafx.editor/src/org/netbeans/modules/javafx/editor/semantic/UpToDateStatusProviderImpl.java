@@ -76,7 +76,6 @@ class UpToDateStatusProviderImpl extends UpToDateStatusProvider {
                 markModified();
             }
             public void changedUpdate(DocumentEvent e) {
-                markModified();
             }
         });
     }
