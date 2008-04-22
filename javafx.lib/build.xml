@@ -46,8 +46,10 @@ made subject to such option by the copyright holder.
 
     <target name="netbeans-extra" depends="init, add-reprise">
         <get src="${jfxcompiler.jar.url}" dest="${jfxcompiler.jar}" usetimestamp="true" verbose="true"/>
+<!--        
         <get src="${jfxrt.jar.url}" dest="${jfxrt.jar}" usetimestamp="true" verbose="true"/>
         <get src="${Scenario.jar.url}" dest="${Scenario.jar}" usetimestamp="true" verbose="true"/>
+-->        
     </target>
     
     <target name="add-reprise" if="Reprise.jar.url">
