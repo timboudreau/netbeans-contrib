@@ -39,7 +39,9 @@
 
 package org.netbeans.modules.javafx.editor.semantic;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,6 +50,10 @@ import javax.tools.Diagnostic;
 import org.netbeans.api.javafx.source.CancellableTask;
 import org.netbeans.api.javafx.source.CompilationInfo;
 import org.netbeans.spi.editor.errorstripe.UpToDateStatus;
+import org.netbeans.spi.editor.hints.ErrorDescription;
+import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
+import org.netbeans.spi.editor.hints.HintsController;
+import org.netbeans.spi.editor.hints.Severity;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -95,7 +101,14 @@ class UpToDateStatusTask implements CancellableTask<CompilationInfo> {
 
             List<Diagnostic> diag = info.getDiagnostics();
             
-            // TODO: display the errors using annotations
+            ArrayList<ErrorDescription> c = new ArrayList<ErrorDescription>();
+            
+            for (Diagnostic d : diag) {
+                c.add(ErrorDescriptionFactory.createErrorDescription(
+                        Severity.ERROR, d.getMessage(Locale.getDefault()),
+                        doc, (int)d.getLineNumber()));
+            }
+            HintsController.setErrors(doc, "semantic-highlighter", c);
             
             UpToDateStatusProviderImpl p = UpToDateStatusProviderImpl.forDocument(doc);
             p.refresh(diag, UpToDateStatus.UP_TO_DATE_OK);

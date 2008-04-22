@@ -42,6 +42,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.Collection;
+import javax.swing.SwingUtilities;
 import org.netbeans.api.autoupdate.UpdateElement;
 import org.netbeans.modules.autoupdate.featureondemand.projectwizard.FindComponentModules;
 import org.netbeans.modules.autoupdate.featureondemand.projectwizard.ModulesActivator;
@@ -58,19 +59,26 @@ public class FeatureAction implements ActionListener, Runnable {
 
     private boolean success;
     private FileObject fo;
+    private boolean isDelegateAction = false;
 
-    public FeatureAction(FileObject fo) {
+    public FeatureAction(FileObject fo, boolean delegate) {
         this.fo = fo;
+        this.isDelegateAction = delegate;
     }
 
     public void actionPerformed(ActionEvent e) {
         success = false;
-        RequestProcessor.getDefault().post(this, 0, Thread.NORM_PRIORITY).waitFinished();
+        RequestProcessor.Task t = RequestProcessor.getDefault().post(this, 0, Thread.NORM_PRIORITY);
+        if (isDelegateAction) {
+            t.waitFinished ();
+        } else {
+            return ;
+        }
         
         if (! success) {
             return ;
         }
-
+        
         FileObject newFile = Repository.getDefault().getDefaultFileSystem().findResource(fo.getPath());
         if (newFile == null) {
             throw new IllegalStateException("Cannot find file: " + fo.getPath());
@@ -83,6 +91,7 @@ public class FeatureAction implements ActionListener, Runnable {
     }
 
     public void run() {
+        assert ! SwingUtilities.isEventDispatchThread () : "Cannot run in EQ!";
         URL url = FoDFileSystem.getInstance().getDelegateFileSystem(fo);
         String codeName = ProjectTypeCreator.getInstance().getCodeName(url);
         FindComponentModules findModules = new FindComponentModules(codeName);

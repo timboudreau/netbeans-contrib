@@ -73,7 +73,7 @@ import com.sun.source.tree.Tree;
  */
 class JFXIndentTask implements IndentTask, ReformatTask {
     private static Logger log = Logger.getLogger(JFXIndentTask.class.getName());
-    private static final Pattern KEEP_LEVEL_PTRN = Pattern.compile("\\s*(}|\\))\\s*;?\\s*");
+    private static final Pattern KEEP_LEVEL_PTRN = Pattern.compile("\\s*(}|\\)|\\])\\s*(;|,)?\\s*");
 
     private final Context context;
     private TokenSequence<JFXTokenId> ts = null;
@@ -101,21 +101,21 @@ class JFXIndentTask implements IndentTask, ReformatTask {
         if (context == null) {
             return;
         }
-        if (log.isLoggable(Level.INFO)) log.info("Reindent...");
+        if (log.isLoggable(Level.FINE)) log.fine("Reindent...");
 
         final List<Context.Region> regions = context.indentRegions();
         if (!regions.isEmpty()) {
             for (Context.Region region : regions) {
-                if (log.isLoggable(Level.INFO))
-                    log.info("\tRegion: [" + region.getStartOffset() + "," + region.getEndOffset() + "]");
+                if (log.isLoggable(Level.FINE))
+                    log.fine("\tRegion: [" + region.getStartOffset() + "," + region.getEndOffset() + "]");
                 indentRegion(region);
             }
         } else {
-            if (log.isLoggable(Level.INFO))
-                log.info("\tLine: [" + context.startOffset() + "," + context.endOffset() + "]");
+            if (log.isLoggable(Level.FINE))
+                log.fine("\tLine: [" + context.startOffset() + "," + context.endOffset() + "]");
             indentLine(context.startOffset());
         }
-        if (log.isLoggable(Level.INFO)) log.info("... done!");
+        if (log.isLoggable(Level.FINE)) log.fine("... done!");
 
     }
 
@@ -179,9 +179,9 @@ class JFXIndentTask implements IndentTask, ReformatTask {
             ts().move(ls);
             Token t = ts.moveNext() ? ts.token() : null;
             while (t != null && ts.offset() < lso) {
-                if (t.id() == JFXTokenId.LBRACE || t.id() == JFXTokenId.LPAREN) {
+                if (t.id() == JFXTokenId.LBRACE || t.id() == JFXTokenId.LPAREN || t.id() == JFXTokenId.LBRACKET) {
                     level += getIndentStepLevel();
-                } else if (t.id() == JFXTokenId.RBRACE || t.id() == JFXTokenId.RPAREN) {
+                } else if (t.id() == JFXTokenId.RBRACE || t.id() == JFXTokenId.RPAREN || t.id() == JFXTokenId.RBRACKET) {
                     level -= getIndentStepLevel();
                 }
                 t = ts.moveNext() ? ts.token() : null;
@@ -258,13 +258,13 @@ class JFXIndentTask implements IndentTask, ReformatTask {
 
     private void reformat(Tree leaf) {
         if (leaf == null) return;
-        if (log.isLoggable(Level.INFO)) log.info("LeafKind: " + leaf.getKind());
+        if (log.isLoggable(Level.FINE)) log.fine("LeafKind: " + leaf.getKind());
         switch (leaf.getKind()) {
             case BLOCK:
                 reformatBlock(leaf);
                 break;
             default:
-                
+
         }
     }
 

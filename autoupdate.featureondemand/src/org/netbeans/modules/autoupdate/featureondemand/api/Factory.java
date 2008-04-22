@@ -72,7 +72,7 @@ public final class Factory {
      * @throws java.io.IOException 
      */
     public static ActionListener newDelegateAction(FileObject fo) throws IOException {
-        return new FeatureAction(fo);
+        return new FeatureAction (fo, true);
     }
     
     /** Creates an transient action that can trigger Feature On Demand&tm; 
@@ -83,6 +83,6 @@ public final class Factory {
      * @throws java.io.IOException 
      */
     public static ActionListener newAction(FileObject fo) throws IOException {
-        return new FeatureAction(fo);
+        return new FeatureAction (fo, false);
     }
 }
