@@ -40,20 +40,25 @@
  */
 package org.netbeans.modules.groovy.editor;
 
+import groovyjarjarasm.asm.Opcodes;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.codehaus.groovy.ast.ASTNode;
+import org.codehaus.groovy.ast.MethodNode;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.groovy.editor.StructureAnalyzer.AnalysisResult;
 import org.netbeans.modules.groovy.editor.elements.AstClassElement;
 import org.netbeans.modules.groovy.editor.elements.AstElement;
+import org.netbeans.modules.groovy.editor.elements.IndexedElement;
 import org.netbeans.modules.groovy.editor.parser.GroovyParserResult;
 import org.netbeans.modules.gsf.api.IndexDocument;
 import org.netbeans.modules.gsf.api.IndexDocumentFactory;
 import org.netbeans.modules.gsf.api.Indexer;
+import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
 import org.openide.filesystems.FileObject;
@@ -69,20 +74,28 @@ import org.openide.util.Exceptions;
  */
 public class GroovyIndexer implements Indexer {
 
-    static final String FIELD_FQN_NAME = "fqn"; //NOI18N
-    static final String FIELD_IN = "in"; //NOI18N
-    static final String FIELD_CLASS_NAME = "class"; //NOI18N
-    static final String FIELD_CASE_INSENSITIVE_CLASS_NAME = "class-ig"; //NOI18N
-    static final String FIELD_REQUIRE = "require"; //NOI18N
+    // class
+    static final String FQN_NAME = "fqn"; //NOI18N
+    static final String CLASS_NAME = "class"; //NOI18N
+    static final String CASE_INSENSITIVE_CLASS_NAME = "class-ig"; //NOI18N
+    static final String REQUIRE = "require"; //NOI18N
+    // not indexed
+    static final String IN = "in"; //NOI18N
     /** Attributes: hh;nnnn where hh is a hex representing flags in IndexedClass, and nnnn is the documentation length */
-    static final String FIELD_CLASS_ATTRS = "attrs"; //NOI18N
+    static final String CLASS_ATTRS = "attrs"; //NOI18N
+
+    // method
+    static final String METHOD_NAME = "method"; //NOI18N
+
+    // field
+    static final String FIELD_NAME = "field"; //NOI18N
 
     private static FileObject preindexedDb;
 
     public boolean isIndexable(ParserFile file) {
         String extension = file.getExtension();
 
-        if (extension.equals("groovy")) {
+        if (extension.equals("groovy")) { // NOI18N
             return true;
         }
         return false;
@@ -115,11 +128,11 @@ public class GroovyIndexer implements Indexer {
     }
 
     public String getIndexVersion() {
-        return "0.4";
+        return "0.6"; // NOI18N
     }
 
     public String getIndexerName() {
-        return "groovy";
+        return "groovy"; // NOI18N
     }
 
     public FileObject getPreindexedDb() {
@@ -198,6 +211,8 @@ public class GroovyIndexer implements Indexer {
                     case CLASS:
                         analyzeClass((AstClassElement) child);
                         break;
+//                    default:
+//                        System.out.println("# analyze unxepected element: " + child);
                 }
             }
 
@@ -207,15 +222,83 @@ public class GroovyIndexer implements Indexer {
             IndexDocument document = factory.createDocument(40); // TODO - measure!
             documents.add(document);
             indexClass(element, document);
+            for (AstElement child : element.getChildren()) {
+                switch (child.getKind()) {
+                    case METHOD:
+                        indexMethod(child, document);
+                        break;
+                    case FIELD:
+                        indexField(child, document);
+                        break;
+                }
+            }
         }
         
         private void indexClass(AstClassElement element, IndexDocument document) {
             final String name = element.getName();
-            document.addPair(FIELD_FQN_NAME, element.getFqn(), true);
-            document.addPair(FIELD_CLASS_NAME, name, true);
-            document.addPair(FIELD_CASE_INSENSITIVE_CLASS_NAME, name.toLowerCase(), true);
+            document.addPair(FQN_NAME, element.getFqn(), true);
+            document.addPair(CLASS_NAME, name, true);
+            document.addPair(CASE_INSENSITIVE_CLASS_NAME, name.toLowerCase(), true);
+        }
+
+        private void indexField(AstElement child, IndexDocument document) {
+            String signature = child.getName();
+            int flags = getFieldModifiersFlag(child.getModifiers());
+
+            if (flags != 0) {
+                StringBuilder sb = new StringBuilder(signature);
+                sb.append(';');
+                sb.append(IndexedElement.flagToFirstChar(flags));
+                sb.append(IndexedElement.flagToSecondChar(flags));
+                signature = sb.toString();
+            }
+
+            // TODO - gather documentation on fields? naeh
+            document.addPair(FIELD_NAME, signature, true);
+        }
+
+        private void indexMethod(AstElement child, IndexDocument document) {
+            MethodNode childNode = (MethodNode)child.getNode();
+            String signature = AstUtilities.getDefSignature(childNode);
+            Set<Modifier> modifiers = child.getModifiers();
+            
+            int flags = getMethodModifiersFlag(modifiers);
+
+            if (flags != 0) {
+                StringBuilder sb = new StringBuilder(signature);
+                sb.append(';');
+                sb.append(IndexedElement.flagToFirstChar(flags));
+                sb.append(IndexedElement.flagToSecondChar(flags));
+                signature = sb.toString();
+            }
+            
+            document.addPair(METHOD_NAME, signature, true);
         }
 
     }
-    
+
+    // note that default field modifier is private
+    private static int getFieldModifiersFlag(Set<Modifier> modifiers) {
+        int flags = modifiers.contains(Modifier.STATIC) ? Opcodes.ACC_STATIC : 0;
+        if (modifiers.contains(Modifier.PUBLIC)) {
+            flags |= Opcodes.ACC_PUBLIC;
+        } else if (modifiers.contains(Modifier.PROTECTED)) {
+            flags |= Opcodes.ACC_PROTECTED;
+        }
+        
+        return flags;
+    }
+
+    // note that default method (and class) modifier is public
+    private static int getMethodModifiersFlag(Set<Modifier> modifiers) {
+        int flags = modifiers.contains(Modifier.STATIC) ? Opcodes.ACC_STATIC : 0;
+        if (modifiers.contains(Modifier.PRIVATE)) {
+            flags |= Opcodes.ACC_PRIVATE;
+        } else if (modifiers.contains(Modifier.PROTECTED)) {
+            flags |= Opcodes.ACC_PROTECTED;
+        }
+        
+        return flags;
+    }
+
 }

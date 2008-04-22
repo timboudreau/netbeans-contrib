@@ -193,7 +193,10 @@ public final class JavaFXSource {
         JavaFileObject jfo = (JavaFileObject) SourceFileObject.create(files.iterator().next(), null); // XXX
         
         List<String> options = new ArrayList<String>();
-        options.add("-Xbootclasspath/a:" + JavaFXSourceUtils.getAdditionalCP(""));
+// XXX : replace with real file manager implementation
+        options.add("-Xbootclasspath:" + cpInfo.getBootPath()+File.pathSeparatorChar+cpInfo.getCompilePath());
+//        options.add("-classpath:" + cpInfo.getCompilePath());
+//        options.add("-sourcepath:" + cpInfo.getSrcPath());
         options.add("-Xjcov"); //NOI18N, Make the compiler store end positions
         options.add("-XDdisableStringFolding"); //NOI18N
         

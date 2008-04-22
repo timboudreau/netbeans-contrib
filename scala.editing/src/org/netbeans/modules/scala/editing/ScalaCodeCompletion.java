@@ -68,12 +68,15 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.ScalaParser.Sanitize;
-import org.netbeans.modules.scala.editing.lexer.Call;
+import org.netbeans.modules.scala.editing.lexer.MaybeCall;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
+import org.netbeans.modules.scala.editing.nodes.PathId;
+import org.netbeans.modules.scala.editing.nodes.SimpleExpr;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
 import org.netbeans.modules.scala.editing.nodes.Var;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
@@ -314,7 +317,7 @@ public class ScalaCodeCompletion implements Completable {
             }
             final TokenHierarchy<Document> th = TokenHierarchy.get(document);
             final FileObject fileObject = info.getFileObject();
-            final Call call = Call.getCallType(doc, th, lexOffset);
+            final MaybeCall call = MaybeCall.getCallType(doc, th, lexOffset);
 
             // Carry completion context around since this logic is split across lots of methods
             // and I don't want to pass dozens of parameters from method to method; just pass
@@ -324,7 +327,7 @@ public class ScalaCodeCompletion implements Completable {
             request.formatter = formatter;
             request.lexOffset = lexOffset;
             request.astOffset = astOffset;
-            request.index = ScalaIndex.get(info.getIndex(ScalaMimeResolver.MIME_TYPE));
+            request.index = ScalaIndex.get(info);
             request.doc = doc;
             request.info = info;
             request.prefix = prefix;
@@ -1153,7 +1156,7 @@ public class ScalaCodeCompletion implements Completable {
         CompilationInfo info = request.info;
 
         String fqn = request.fqn;
-        Call call = request.call;
+        MaybeCall call = request.call;
 
         TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
 
@@ -1166,7 +1169,7 @@ public class ScalaCodeCompletion implements Completable {
         if ((index != null) && (ts != null)) {
             boolean skipPrivate = true;
 
-            if ((call == Call.LOCAL) || (call == Call.NONE)) {
+            if ((call == MaybeCall.LOCAL) || (call == MaybeCall.NONE)) {
                 return false;
             }
 
@@ -1182,9 +1185,25 @@ public class ScalaCodeCompletion implements Completable {
 
             if (type == null) {
                 if (node != null) {
+                    /** @Todo Some simple type inference code, should be integrated to TypeInference */
                     TypeRef typeRef = node.getType();
                     if (typeRef != null) {
                         type = typeRef.getName();
+                    } else {
+                        if (node instanceof SimpleExpr) {
+                            AstElement base = ((SimpleExpr) node).getBase();
+                            if (base instanceof PathId) {
+                                /** Try to an AstRef */
+                                AstElement firstId = root.getElement(th, ((PathId)base).getPaths().get(0).getIdToken().offset(th));
+                                AstDef def = root.findDef(firstId);
+                                if (def != null) {
+                                    typeRef = def.getType();
+                                    if (typeRef != null) {
+                                        type = def.getType().getName();
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             //Node method = AstUtilities.findLocalScope(node, path);
@@ -1254,7 +1273,7 @@ public class ScalaCodeCompletion implements Completable {
 
             // I'm not doing any data flow analysis at this point, so
             // I can't do anything with a LHS like "foo.". Only actual types.
-            if ((type != null) && (type.length() > 0)) {
+            if (type != null && type.length() > 0) {
                 if ("this".equals(lhs)) {
                     type = fqn;
                     skipPrivate = false;
@@ -1278,7 +1297,7 @@ public class ScalaCodeCompletion implements Completable {
 //                    }
                 }
 
-                if ((type != null) && (type.length() > 0)) {
+                if (type != null && type.length() > 0) {
                     // Possibly a class on the left hand side: try searching with the class as a qualifier.
                     // Try with the LHS + current FQN recursively. E.g. if we're in
                     // Test::Unit when there's a call to Foo.x, we'll try
@@ -1873,7 +1892,7 @@ public class ScalaCodeCompletion implements Completable {
         private QueryType queryType;
         private FileObject fileObject;
         private HtmlFormatter formatter;
-        private Call call;
+        private MaybeCall call;
         private String fqn;
     }
 
@@ -2088,13 +2107,14 @@ public class ScalaCodeCompletion implements Completable {
                     String param = it.next();
                     int typeIndex = param.indexOf(':');
                     if (typeIndex != -1) {
+                        formatter.appendText(param, 0, typeIndex);
+                        formatter.appendHtml(" :");
+
                         formatter.type(true);
                         // TODO - call JsUtils.normalizeTypeString() on this string?
                         formatter.appendText(param, typeIndex + 1, param.length());
                         formatter.type(false);
-                        formatter.appendHtml(" ");
 
-                        formatter.appendText(param, 0, typeIndex);
                     } else {
                         formatter.appendText(param);
                     }

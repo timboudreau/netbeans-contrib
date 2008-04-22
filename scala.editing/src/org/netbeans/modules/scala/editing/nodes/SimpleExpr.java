@@ -64,6 +64,10 @@ public class SimpleExpr extends AstExpr implements Postfixable {
         this.base = base;
     }
     
+    public AstElement getBase() {
+        return base;
+    }
+    
     public void setTypeArgs(List<TypeRef> typeArgs) {
         this.typeArgs = typeArgs;
     }

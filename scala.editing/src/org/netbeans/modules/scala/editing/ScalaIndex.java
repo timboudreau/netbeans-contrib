@@ -41,6 +41,8 @@ package org.netbeans.modules.scala.editing;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
@@ -50,6 +52,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
+import org.netbeans.api.java.source.ClasspathInfo;
+import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Index;
 import org.netbeans.modules.gsf.api.Index.SearchResult;
@@ -62,6 +67,7 @@ import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
 
 /**
+ * A wrapper of gsf index and java ClassIndex
  *
  * @author Tor Norbye
  */
@@ -81,16 +87,24 @@ public class ScalaIndex {
     private static final Set<String> TERMS_EXTEND = Collections.singleton(ScalaIndexer.FIELD_EXTEND_WITH);
     
     private final Index index;
-
-    /** Creates a new instance of JsIndex */
-    public ScalaIndex(Index index) {
+    private final org.netbeans.api.java.source.ClassIndex javaIndex;
+        
+    /** Creates a new instance of ScalaIndex */
+    private ScalaIndex(Index index, org.netbeans.api.java.source.ClassIndex javaIndex) {
         this.index = index;
+        this.javaIndex = javaIndex;
     }
 
-    public static ScalaIndex get(Index index) {
-        return new ScalaIndex(index);
+    public static ScalaIndex get(CompilationInfo info) {
+        Index index = info.getIndex(ScalaMimeResolver.MIME_TYPE);
+        
+        FileObject fo = info.getFileObject();
+        org.netbeans.api.java.source.ClasspathInfo javaClasspathInfo = org.netbeans.api.java.source.ClasspathInfo.create(fo);
+        org.netbeans.api.java.source.ClassIndex javaIndex = javaClasspathInfo.getClassIndex();
+        
+        return new ScalaIndex(index, javaIndex);
     }
-
+    
     private boolean search(String key, String name, NameKind kind, Set<SearchResult> result,
         Set<SearchScope> scope, Set<String> terms) {
         try {

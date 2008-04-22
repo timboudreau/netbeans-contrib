@@ -55,21 +55,21 @@ import org.netbeans.modules.scala.editing.ScalaUtils;
 import org.openide.util.Exceptions;
 
 /**
- * Class which represents a Call in the source
+ * Class which represents a MaybeCall in the source
  * It is a lexer level tring to guess if it's a function call etc.
  */
-public class Call {
+public class MaybeCall {
 
-    public static final Call LOCAL = new Call(null, null, false, false);
-    public static final Call NONE = new Call(null, null, false, false);
-    public static final Call UNKNOWN = new Call(null, null, false, false);
+    public static final MaybeCall LOCAL = new MaybeCall(null, null, false, false);
+    public static final MaybeCall NONE = new MaybeCall(null, null, false, false);
+    public static final MaybeCall UNKNOWN = new MaybeCall(null, null, false, false);
     private final String type;
     private final String lhs;
     private final boolean isStatic;
     private final boolean methodExpected;
     private int prevCallParenPos = -1;
 
-    public Call(String type, String lhs, boolean isStatic, boolean methodExpected) {
+    public MaybeCall(String type, String lhs, boolean isStatic, boolean methodExpected) {
         super();
 
         this.type = type;
@@ -151,11 +151,11 @@ public class Call {
      */
     @SuppressWarnings("unchecked")
     @NonNull
-    public static Call getCallType(BaseDocument doc, TokenHierarchy<Document> th, int offset) {
+    public static MaybeCall getCallType(BaseDocument doc, TokenHierarchy<Document> th, int offset) {
         TokenSequence<?extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, offset);
 
         if (ts == null) {
-            return Call.NONE;
+            return MaybeCall.NONE;
         }
 
         ts.move(offset);
@@ -163,7 +163,7 @@ public class Call {
         boolean methodExpected = false;
 
         if (!ts.moveNext() && !ts.movePrevious()) {
-            return Call.NONE;
+            return MaybeCall.NONE;
         }
 
         if (ts.offset() == offset) {
@@ -179,7 +179,7 @@ public class Call {
             ScalaTokenId id = token.id();
 
             if (id == ScalaTokenId.Ws) {
-                return Call.LOCAL;
+                return MaybeCall.LOCAL;
             }
 
 //            // We're within a String that has embedded JavaScript. Drop into the
@@ -190,7 +190,7 @@ public class Call {
 //                ts.move(offset);
 //
 //                if (!ts.moveNext() && !ts.movePrevious()) {
-//                    return Call.NONE;
+//                    return MaybeCall.NONE;
 //                }
 //
 //                token = ts.token();
@@ -219,7 +219,7 @@ public class Call {
                     }
 
                     if (!ts.movePrevious()) {
-                        return Call.LOCAL;
+                        return MaybeCall.LOCAL;
                     }
                 }
 
@@ -238,10 +238,10 @@ public class Call {
                 if (t.equals(".")) {
                     methodExpected = true;
                 } else if (!t.equals("::")) {
-                    return Call.LOCAL;
+                    return MaybeCall.LOCAL;
                 }
             } else {
-                return Call.LOCAL;
+                return MaybeCall.LOCAL;
             }
 
             int lastSeparatorOffset = ts.offset();
@@ -284,16 +284,16 @@ public class Call {
                     //    //  [1,2,3].each|
                     //
                     //    // No, it's more likely that we have something like this:  foo[0] -- which is not an array, it's an element of an array of unknown type
-                    //    return new Call("Array", null, false, methodExpected);
+                    //    return new MaybeCall("Array", null, false, methodExpected);
                     case StringLiteral:
                     case STRING_END:
-                        return new Call("String", null, false, methodExpected);
+                        return new MaybeCall("String", null, false, methodExpected);
                     case REGEXP_LITERAL:
                     case REGEXP_END:
-                        return new Call("RegExp", null, false, methodExpected);
+                        return new MaybeCall("RegExp", null, false, methodExpected);
                     case IntegerLiteral:
                     case FloatingPointLiteral:
-                        return new Call("Number", null, false, methodExpected); // Or Bignum?
+                        return new MaybeCall("Number", null, false, methodExpected); // Or Bignum?
                     case LParen:
                     case LBrace:
                     case LBracket:
@@ -303,7 +303,7 @@ public class Call {
                         // TODO: There are probably more valid contexts here
                         break searchBackwards;
                     case RParen: {
-                        Call call = new Call(null, null, false, false);
+                        MaybeCall call = new MaybeCall(null, null, false, false);
                         call.prevCallParenPos = ts.offset();
                         // The starting offset is more accurate for finding the AST node
                         // corresponding to the call
@@ -315,7 +315,7 @@ public class Call {
                         return call;
                     }
                     case RBracket: { // Parenthesis
-                        Call call = new Call(null, null, false, false);
+                        MaybeCall call = new MaybeCall(null, null, false, false);
                         call.prevCallParenPos = ts.offset();
                         // The starting offset is more accurate for finding the AST node
                         // corresponding to the call
@@ -337,7 +337,7 @@ public class Call {
                         continue searchBackwards;
                     case True:
                     case False:
-                        return new Call("Boolean", null, false, methodExpected);
+                        return new MaybeCall("Boolean", null, false, methodExpected);
                         
                     default: {
                         if (id.primaryCategory().equals("keyword")) { // NOI18N
@@ -350,7 +350,7 @@ public class Call {
                         
                         // Something else - such as "getFoo().x|" - at this point we don't know the type
                         // so we'll just return unknown
-                        return Call.UNKNOWN;
+                        return MaybeCall.UNKNOWN;
                     }
                 }
             }
@@ -360,7 +360,7 @@ public class Call {
                     String lhs = doc.getText(beginOffset, lastSeparatorOffset - beginOffset);
 
                     if (lhs.equals("super") || lhs.equals("this")) { // NOI18N
-                        return new Call(lhs, lhs, false, true);
+                        return new MaybeCall(lhs, lhs, false, true);
                     } else if (Character.isUpperCase(lhs.charAt(0))) {
                         
                         // Detect type references of the form
@@ -384,18 +384,18 @@ public class Call {
                             type = lhs;
                         }
                         
-                        return new Call(type, lhs, true, methodExpected);
+                        return new MaybeCall(type, lhs, true, methodExpected);
                     } else {
-                        return new Call(null, lhs, false, methodExpected);
+                        return new MaybeCall(null, lhs, false, methodExpected);
                     }
                 } catch (BadLocationException ble) {
                     Exceptions.printStackTrace(ble);
                 }
             } else {
-                return Call.UNKNOWN;
+                return MaybeCall.UNKNOWN;
             }
         }
 
-        return Call.LOCAL;
+        return MaybeCall.LOCAL;
     }
 }
