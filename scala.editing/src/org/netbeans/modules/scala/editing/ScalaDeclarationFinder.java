@@ -172,12 +172,12 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         try {
             AstScope root = pResult.getRootScope();
             if (root == null) {
-                return null;
+                return DeclarationLocation.NONE;
             }
 
             final int astOffset = AstUtilities.getAstOffset(info, lexOffset);
             if (astOffset == -1) {
-                return null;
+                return DeclarationLocation.NONE;
             }
             
             final TokenHierarchy<Document> th = TokenHierarchy.get(document);
@@ -190,7 +190,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                 }
             } 
             
-            return null;
+            return DeclarationLocation.NONE;
 
         } finally {
             doc.readUnlock();
