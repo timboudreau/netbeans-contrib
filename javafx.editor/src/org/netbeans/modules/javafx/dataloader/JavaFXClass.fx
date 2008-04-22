@@ -12,6 +12,6 @@ package ${package};
  * @author ${user}
  */
 
-class ${name} {
+public class ${name} {
 
 }
