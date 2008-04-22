@@ -23,6 +23,11 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
+            <friend-packages>
+                <friend>org.netbeans.modules.encoder.coco.ui</friend>
+                <package>com.sun.encoder.coco.appinfo</package>
+                <package>com.sun.encoder.coco.xsdbuilder</package>
+            </friend-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/encoder/coco.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/encoder/coco.jar</binary-origin>
@@ -31,11 +36,6 @@
                 <runtime-relative-path>ext/encoder/cocoencoder-xsdextension.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/encoder/cocoencoder-xsdextension.jar</binary-origin>
             </class-path-extension>
-            <friend-packages>
-                <friend>org.netbeans.modules.encoder.coco.ui</friend>
-                <package>com.sun.encoder.coco.appinfo</package>
-                <package>com.sun.encoder.coco.xsdbuilder</package>
-            </friend-packages>
         </data>
     </configuration>
 </project>

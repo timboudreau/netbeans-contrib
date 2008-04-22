@@ -41,7 +41,6 @@
 
 package org.netbeans.api.javafx.lexer;
 
-import org.netbeans.api.java.lexer.JavaStringTokenId;
 import org.netbeans.api.java.lexer.JavadocTokenId;
 import org.netbeans.api.lexer.*;
 import org.netbeans.lib.javafx.lexer.JFXLexer;
@@ -321,12 +320,15 @@ public enum JFXTokenId implements TokenId {
                         return null;
                     }
                 case QUOTE_LBRACE_STRING_LITERAL:
+                    return LanguageEmbedding.create(JFXStringTokenId.language(), 1, 0);
                 case RBRACE_QUOTE_STRING_LITERAL:
+                    return LanguageEmbedding.create(JFXStringTokenId.language(), 0, 1);
                 case RBRACE_LBRACE_STRING_LITERAL:
+                    return LanguageEmbedding.create(JFXStringTokenId.language(), 0, 0);
                 case DoubleQuoteBody:
                 case SingleQuoteBody:
                 case STRING_LITERAL:
-                    return LanguageEmbedding.create(JavaStringTokenId.language(), 1,
+                    return LanguageEmbedding.create(JFXStringTokenId.language(true), 1,
                             (token.partType() == PartType.COMPLETE) ? 1 : 0);
             }
             return null; // No embedding

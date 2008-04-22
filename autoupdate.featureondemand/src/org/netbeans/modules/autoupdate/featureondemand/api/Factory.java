@@ -42,7 +42,7 @@ package org.netbeans.modules.autoupdate.featureondemand.api;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import org.netbeans.modules.autoupdate.featureondemand.FeatureAction;
-import org.netbeans.modules.autoupdate.featureondemand.projectwizard.FeatureOnDemanWizardIterator;
+import org.netbeans.modules.autoupdate.featureondemand.ui.FeatureOnDemanWizardIterator;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 
@@ -72,7 +72,7 @@ public final class Factory {
      * @throws java.io.IOException 
      */
     public static ActionListener newDelegateAction(FileObject fo) throws IOException {
-        return new FeatureAction(fo);
+        return new FeatureAction (fo, true);
     }
     
     /** Creates an transient action that can trigger Feature On Demand&tm; 
@@ -83,6 +83,6 @@ public final class Factory {
      * @throws java.io.IOException 
      */
     public static ActionListener newAction(FileObject fo) throws IOException {
-        return new FeatureAction(fo);
+        return new FeatureAction (fo, false);
     }
 }

@@ -39,10 +39,11 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.autoupdate.featureondemand.projectwizard;
+package org.netbeans.modules.autoupdate.featureondemand;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.logging.Level;
@@ -60,7 +61,8 @@ import org.netbeans.api.autoupdate.OperationSupport.Restarter;
 import org.netbeans.api.autoupdate.UpdateElement;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-import org.netbeans.modules.autoupdate.featureondemand.projectwizard.RestartNotifier.RestartIcon;
+import org.netbeans.modules.autoupdate.featureondemand.ui.RestartNotifier;
+import org.netbeans.modules.autoupdate.featureondemand.ui.RestartNotifier.RestartIcon;
 import org.openide.DialogDisplayer;
 import org.openide.LifecycleManager;
 import org.openide.NotifyDescriptor;
@@ -83,6 +85,35 @@ public class ModulesInstaller {
             throw new IllegalArgumentException ("Cannot construct InstallerMissingModules with null or empty Collection " + modules);
         }
         modules4install = modules;
+    }
+    
+    public static boolean installModules (String... codeNames) {
+        assert ! SwingUtilities.isEventDispatchThread () : "Cannot run in EQ!";
+        boolean success = false;
+        
+        FindComponentModules findModules = new FindComponentModules(codeNames);
+        findModules.createFindingTask().waitFinished();
+        
+        Collection<UpdateElement> toInstall = findModules.getModulesForInstall();
+        Collection<UpdateElement> toEnable = findModules.getModulesForEnable();
+        if (toInstall != null && !toInstall.isEmpty()) {
+            ModulesInstaller installer = new ModulesInstaller(toInstall);
+            installer.getInstallTask ().schedule (10);
+            installer.getInstallTask ().waitFinished();
+            findModules.createFindingTask().waitFinished();
+            success = findModules.getModulesForInstall ().isEmpty ();
+        } else if (toEnable != null && !toEnable.isEmpty()) {
+            ModulesActivator enabler = new ModulesActivator(toEnable);
+            enabler.getEnableTask ().schedule (100);
+            enabler.getEnableTask ().waitFinished();
+            success = true;
+        }
+        
+        if (success) {
+            FoDFileSystem.getInstance().refresh();
+        }
+        
+        return success;
     }
     
     public RequestProcessor.Task getInstallTask () {

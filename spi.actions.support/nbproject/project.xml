@@ -2,7 +2,7 @@
 <project xmlns="http://www.netbeans.org/ns/project/1">
     <type>org.netbeans.modules.apisupport.project</type>
     <configuration>
-        <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
             <code-name-base>org.netbeans.spi.actions.support</code-name-base>
             <module-dependencies>
                 <dependency>
@@ -36,7 +36,6 @@
                     <test-dependency>
                         <code-name-base>org.netbeans.core.startup</code-name-base>
                         <recursive/>
-                        <run-dependency/>
                     </test-dependency>
                     <test-dependency>
                         <code-name-base>org.openide.modules</code-name-base>

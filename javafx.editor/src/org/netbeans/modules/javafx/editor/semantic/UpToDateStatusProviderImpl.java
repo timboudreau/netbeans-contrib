@@ -39,11 +39,14 @@
 
 package org.netbeans.modules.javafx.editor.semantic;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 import javax.tools.Diagnostic;
 import org.netbeans.spi.editor.errorstripe.UpToDateStatus;
@@ -57,11 +60,28 @@ class UpToDateStatusProviderImpl extends UpToDateStatusProvider {
     private static final Logger LOGGER = Logger.getLogger(UpToDateStatusProviderImpl.class.getName());
     private static final boolean LOGGABLE = LOGGER.isLoggable(Level.FINE);
     
-    private static final Map<Document, UpToDateStatusProviderImpl> cache = new HashMap<Document, UpToDateStatusProviderImpl>();
+    private static final Map<Document, UpToDateStatusProviderImpl> cache = new WeakHashMap<Document, UpToDateStatusProviderImpl>();
 
     private UpToDateStatus status = UpToDateStatus.UP_TO_DATE_DIRTY;
+    private Document document;
 
-    private UpToDateStatusProviderImpl() {
+    private UpToDateStatusProviderImpl(Document doc) {
+        this.document = doc;
+        cache.put(document, this);
+        document.addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) {
+                markModified();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                markModified();
+            }
+            public void changedUpdate(DocumentEvent e) {
+            }
+        });
+    }
+
+    private void markModified() {
+        refresh(new ArrayList<Diagnostic>(), UpToDateStatus.UP_TO_DATE_DIRTY);
     }
     
     static UpToDateStatusProviderImpl forDocument(Document document) {
@@ -72,8 +92,8 @@ class UpToDateStatusProviderImpl extends UpToDateStatusProvider {
         }
         
         log("Creating new UpToDateStatusProviderImpl for " + document);
-        UpToDateStatusProviderImpl res = new UpToDateStatusProviderImpl();
-        cache.put(document, res);
+        UpToDateStatusProviderImpl res = new UpToDateStatusProviderImpl(document);
+        
         return res;
     }
 
@@ -90,6 +110,7 @@ class UpToDateStatusProviderImpl extends UpToDateStatusProvider {
 
     void refresh(List<Diagnostic> diag, UpToDateStatus s) {
         status = s;
+        log("UpToDateStatusProviderImpl changing status to: " + s);
         firePropertyChange(PROP_UP_TO_DATE, null, null);
     }
     
