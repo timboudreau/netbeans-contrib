@@ -111,6 +111,7 @@ class UpToDateStatusProviderImpl extends UpToDateStatusProvider {
 
     void refresh(List<Diagnostic> diag, UpToDateStatus s) {
         status = s;
+        log("UpToDateStatusProviderImpl changing status to: " + s);
         firePropertyChange(PROP_UP_TO_DATE, null, null);
     }
     
