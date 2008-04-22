@@ -187,7 +187,7 @@ public final class JavaFXSource {
         includedTasks = _includedTasks;
     }  
 
-    JavafxcTaskImpl createJavafxcTask() {
+    JavafxcTaskImpl createJavafxcTask(DiagnosticListener<JavaFileObject> diagnosticListener) {
         JavafxcTool tool = JavafxcTool.create();
         JavacFileManager fileManager = tool.getStandardFileManager(null, null, Charset.defaultCharset());
         JavaFileObject jfo = (JavaFileObject) SourceFileObject.create(files.iterator().next(), null); // XXX
@@ -197,12 +197,7 @@ public final class JavaFXSource {
         options.add("-Xjcov"); //NOI18N, Make the compiler store end positions
         options.add("-XDdisableStringFolding"); //NOI18N
         
-        JavafxcTaskImpl task = (JavafxcTaskImpl)tool.getTask(null, fileManager, new DiagnosticListener<JavaFileObject>() {
-
-            public void report(Diagnostic<? extends JavaFileObject> arg0) {
-                System.err.println("Error at [" + arg0.getLineNumber() + ":" + arg0.getColumnNumber() + "]/" + arg0.getEndPosition() + " - " + arg0.getMessage(null));
-            }
-        }, options, Collections.singleton(jfo));
+        JavafxcTaskImpl task = (JavafxcTaskImpl)tool.getTask(null, fileManager, diagnosticListener, options, Collections.singleton(jfo));
         Context context = task.getContext();
         //Messager.preRegister(context, null, DEV_NULL, DEV_NULL, DEV_NULL);
         
