@@ -23,14 +23,6 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <class-path-extension>
-                <runtime-relative-path>ext/encoder/encoderframework.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/encoder/encoderframework.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/encoder/encoderfrmwk-xsdextension.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/encoder/encoderfrmwk-xsdextension.jar</binary-origin>
-            </class-path-extension>
             <friend-packages>
                 <friend>com.sun.encoder.coco</friend>
                 <friend>com.sun.encoder.custom</friend>
@@ -54,6 +46,14 @@
                 <package>schemaorg_apache_xmlbeans.namespace.urn_3Acom_2Esun_3Aencoder</package>
                 <package>schemaorg_apache_xmlbeans.type.urn_3Acom_2Esun_3Aencoder</package>
             </friend-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/encoder/encoderframework.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/encoder/encoderframework.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/encoder/encoderfrmwk-xsdextension.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/encoder/encoderfrmwk-xsdextension.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>

@@ -70,7 +70,7 @@ public class JFXLexer implements org.netbeans.spi.lexer.Lexer {
 
     public JFXLexer(LexerRestartInfo<JFXTokenId> info) throws IOException {
         super();
-        if (log.isLoggable(Level.INFO)) log.info("Creating new lexer");
+        if (log.isLoggable(Level.FINE)) log.fine("Creating new lexer");
         this.lexer = new v3Lexer();
         this.info = info;
     }
@@ -86,8 +86,8 @@ public class JFXLexer implements org.netbeans.spi.lexer.Lexer {
             final LexerState ls = (LexerState) info.state();
             if (ls != null) {
                 final Lexer.BraceQuoteTracker bqt = ls.getTracker(lexer);
-                if (log.isLoggable(Level.INFO) && bqt != null) {
-                    log.info("StateIn: " + bqt.toString());
+                if (log.isLoggable(Level.FINE) && bqt != null) {
+                    log.fine("StateIn: " + bqt.toString());
                 }
                 lexer.setBraceQuoteTracker(bqt);
             }
@@ -105,7 +105,7 @@ public class JFXLexer implements org.netbeans.spi.lexer.Lexer {
         if (info != null) {
             configureLexer(info);
             info = null;
-            if (log.isLoggable(Level.INFO)) log.info("Reseting lexer");
+            if (log.isLoggable(Level.FINE)) log.fine("Reseting lexer");
         }
         st = System.currentTimeMillis();
         final org.antlr.runtime.Token token = lexer.nextToken();
@@ -142,7 +142,8 @@ public class JFXLexer implements org.netbeans.spi.lexer.Lexer {
 
     public void release() {
         long tt = System.currentTimeMillis() - st;
-        if (log.isLoggable(Level.INFO)) log.info("Releasing lexer @line: " + lexer.getLine() + " total time: " + tt + "ms");        
+        if (log.isLoggable(Level.FINE))
+            log.fine("Releasing lexer @line: " + lexer.getLine() + " total time: " + tt + "ms");
         lexer = null;
     }
 

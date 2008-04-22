@@ -69,7 +69,7 @@ public class NbSpring {
      */
     public static ApplicationContext create(Lookup lookup) {
         ClassLoader l = Lookup.getDefault().lookup(ClassLoader.class);
-        if (l != null) {
+        if (l == null) {
             l = NbSpring.class.getClassLoader();
         }
         return LookupBasedApplicationContext.create(lookup, l);

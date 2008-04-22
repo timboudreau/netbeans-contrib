@@ -45,7 +45,6 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JavacFileManager;
 import com.sun.tools.javafx.api.JavafxcTaskImpl;
 import com.sun.tools.javafx.api.JavafxcTool;
-import com.sun.tools.javafx.util.JavafxFileManager;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.Reference;
@@ -189,11 +188,11 @@ public final class JavaFXSource {
         includedTasks = _includedTasks;
     }  
 
-    JavafxcTaskImpl createJavafxcTask() {
+    JavafxcTaskImpl createJavafxcTask(DiagnosticListener<JavaFileObject> diagnosticListener) {
         JavafxcTool tool = JavafxcTool.create();
         JavacFileManager fileManager = tool.getStandardFileManager(null, null, Charset.defaultCharset());
         JavaFileObject jfo = (JavaFileObject) SourceFileObject.create(files.iterator().next(), null); // XXX
-
+        
         List<String> options = new ArrayList<String>();
 // XXX : replace with real file manager implementation
         options.add("-Xbootclasspath:" + cpInfo.getBootPath()+File.pathSeparatorChar+cpInfo.getCompilePath());
@@ -202,12 +201,7 @@ public final class JavaFXSource {
         options.add("-Xjcov"); //NOI18N, Make the compiler store end positions
         options.add("-XDdisableStringFolding"); //NOI18N
         
-        JavafxcTaskImpl task = (JavafxcTaskImpl)tool.getTask(null, fileManager, new DiagnosticListener<JavaFileObject>() {
-
-            public void report(Diagnostic<? extends JavaFileObject> arg0) {
-                System.err.println("Error at [" + arg0.getLineNumber() + ":" + arg0.getColumnNumber() + "]/" + arg0.getEndPosition() + " - " + arg0.getMessage(null));
-            }
-        }, options, Collections.singleton(jfo));
+        JavafxcTaskImpl task = (JavafxcTaskImpl)tool.getTask(null, fileManager, diagnosticListener, options, Collections.singleton(jfo));
         Context context = task.getContext();
         //Messager.preRegister(context, null, DEV_NULL, DEV_NULL, DEV_NULL);
         

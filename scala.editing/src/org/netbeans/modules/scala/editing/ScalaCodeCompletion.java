@@ -570,7 +570,7 @@ public class ScalaCodeCompletion implements Completable {
 //
 //        // See if we're in prototype js functions, $() and $F(), and if so,
 //        // offer to complete the function ids
-//        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getPositionedSequence(request.doc, request.lexOffset);
+//        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getPositionedSequence(request.doc, request.lexOffset);
 //        assert ts != null; // or we wouldn't have been called in the first place
 //        //Token<? extends ScalaTokenId> stringToken = ts.token();
 //        int stringOffset = ts.offset();
@@ -826,7 +826,7 @@ public class ScalaCodeCompletion implements Completable {
 //                return doc.getText(requireStart, lexOffset - requireStart);
 //            }
 
-                TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+                TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
 
                 if (ts == null) {
                     return null;
@@ -1158,7 +1158,7 @@ public class ScalaCodeCompletion implements Completable {
         String fqn = request.fqn;
         MaybeCall call = request.call;
 
-        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
 
         // Look in the token stream for constructs of the type
         //   foo.x^
@@ -1388,7 +1388,7 @@ public class ScalaCodeCompletion implements Completable {
         TokenHierarchy<Document> th = request.th;
         NameKind kind = request.kind;
 
-        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
 
         if ((index != null) && (ts != null)) {
             ts.move(lexOffset);
@@ -1537,7 +1537,7 @@ public class ScalaCodeCompletion implements Completable {
 
         if (".".equals(typedText)) { // NOI18N
             // See if we're in Js context
-            TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
+            TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
             if (ts == null) {
                 return QueryType.NONE;
             }
@@ -1585,7 +1585,7 @@ public class ScalaCodeCompletion implements Completable {
     }
 
     public static boolean isJsContext(BaseDocument doc, int offset) {
-        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
+        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
 
         if (ts == null) {
             return false;

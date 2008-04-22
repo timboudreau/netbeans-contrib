@@ -124,7 +124,7 @@ public abstract class AstVisitor extends Visitor {
 
     protected Token[] getBoundsTokens(Node node) {
         Location loc = node.getLocation();
-        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, loc.offset);
+        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, loc.offset);
         
         ts.move(loc.offset);
         if (!ts.moveNext() && !ts.movePrevious()) {
@@ -155,7 +155,7 @@ public abstract class AstVisitor extends Visitor {
      */
     protected Token getIdToken(Node idNode) {
         Location loc = idNode.getLocation();
-        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, loc.offset);
+        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, loc.offset);
         ts.move(loc.offset);
         if (!ts.moveNext() && !ts.movePrevious()) {
             assert false : "Should not happen!";

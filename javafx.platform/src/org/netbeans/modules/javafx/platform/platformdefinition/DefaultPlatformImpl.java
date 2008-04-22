@@ -103,28 +103,29 @@ public class DefaultPlatformImpl extends JavaFXPlatformImpl {
             javadoc = getJavadoc (javaHome);
         }
         final DefaultPlatformImpl platform = new DefaultPlatformImpl(javaFolders, fxFolder, properties, new HashMap(System.getProperties()), sources,javadoc);
+        final Thread tt = Thread.currentThread();
+        Thread t = new Thread(new Runnable(){
+            public void run(){
+                try{
+                    tt.join(); //hack to avoid overwriting by J2EEPlatform module the properties we put
+                }catch(Exception e){}
+                ProjectManager.mutex().writeAccess(
+                        new Runnable(){
+                            public void run (){
+                                try{
+                                    EditableProperties props = PropertyUtils.getGlobalProperties();
+                                    PlatformConvertor.generatePlatformProperties(platform, platform.getAntName(), props);
+                                    System.out.println("[JavaFX] Default platfrom properties added.");
+                                    PropertyUtils.putGlobalProperties (props);
+                                    System.out.println(props.toString());
+                                }catch(Exception e){
+                                    e.printStackTrace();
+                                }
+                        }});
+            }
+        });
+        t.start();
         
-        try {
-            ProjectManager.mutex().writeAccess(
-                    new Mutex.ExceptionAction<Void> () {
-                        public Void run () throws Exception {
-                            EditableProperties props = PropertyUtils.getGlobalProperties();
-                            PlatformConvertor.generatePlatformProperties(platform, platform.getAntName(), props);
-                            PropertyUtils.putGlobalProperties (props);
-                            return null;
-                        }
-                    });
-        } catch (MutexException me) {
-            Exception originalException = me.getException();
-            if (originalException instanceof RuntimeException) {
-                throw (RuntimeException) originalException;
-            }
-            else
-            {
-                throw new IllegalStateException (); //Should never happen
-            }
-        }
-  
         return platform;
     }
     
