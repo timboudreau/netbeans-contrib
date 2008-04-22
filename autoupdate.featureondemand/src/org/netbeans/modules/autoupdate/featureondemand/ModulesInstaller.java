@@ -43,7 +43,6 @@ package org.netbeans.modules.autoupdate.featureondemand;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URL;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.logging.Level;
