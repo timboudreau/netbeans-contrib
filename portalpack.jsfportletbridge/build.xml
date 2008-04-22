@@ -14,4 +14,13 @@
         <copy file="external/jsf-portlet-1.1.5.jar"
             tofile="${cluster}/modules/ext/portalpack/jsfportletbridge/ajsf-portlet-1.1.5.jar"/>
     </target>
+    
+    <target name="create-l10n-kit">
+         <property name="l10nkit-name" value="build/portalpack-jsfportletbridge-l10nkit.zip"/>
+         <delete file= "${l10nkit-name}"/>
+         <zip destfile="${l10nkit-name}"
+           basedir="src"
+           includes="**/Bundle.properties"
+         />
+    </target>
 </project>

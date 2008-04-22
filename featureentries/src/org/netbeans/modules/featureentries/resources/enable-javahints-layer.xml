@@ -3,7 +3,7 @@
 <filesystem>
     <folder name="Actions">
         <folder name="Tools">
-            <file name="org-netbeans-modules-autoupdate-featureondemand-PlaceHolderAction.instance">
+            <file name="org-netbeans-modules-featureentries-resources-EnableJavahintsAction.instance">
                 <attr name="instanceCreate" methodvalue="org.netbeans.spi.actions.support.Factory.delegate"/>
                 <attr name="delegate" methodvalue="org.netbeans.modules.autoupdate.featureondemand.api.Factory.newAction"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.featureentries.resources.Bundle"/>
@@ -19,7 +19,7 @@
                         <attr name="position" intvalue="3050"/>
                     </file>
                     <file name="org-netbeans-modules-featureentries-resources-EnableJavahintsAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-autoupdate-featureondemand-PlaceHolderAction.instance"/>
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-featureentries-resources-EnableJavahintsAction.instance"/>
                         <attr name="position" intvalue="3100"/>
                     </file>
                 </folder>

@@ -62,11 +62,19 @@ import java.util.List;
  * @author Vita Stejskal
  */
 public final class JavaFXBracesMatcher implements BracesMatcher, BracesMatcherFactory {
-    private static final char[] PAIRS = new char[]{'(', ')', '[', ']', '{', '}'}; //NOI18N
+    private static final char[] PAIRS = new char[]{'(', ')',
+            '[', ']',
+            '{', '}',
+            '{', '}',
+            '{', '}'
+    }; //NOI18N
     private static final JFXTokenId[] PAIR_TOKEN_IDS = new JFXTokenId[]{
             JFXTokenId.LPAREN, JFXTokenId.RPAREN,
             JFXTokenId.LBRACKET, JFXTokenId.RBRACKET,
             JFXTokenId.LBRACE, JFXTokenId.RBRACE,
+            JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, JFXTokenId.RBRACE_QUOTE_STRING_LITERAL,
+            JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, JFXTokenId.RBRACE_LBRACE_STRING_LITERAL,
+            JFXTokenId.RBRACE_LBRACE_STRING_LITERAL, JFXTokenId.RBRACE_QUOTE_STRING_LITERAL,
     };
 
 
@@ -185,6 +193,15 @@ public final class JavaFXBracesMatcher implements BracesMatcher, BracesMatcherFa
         for (int i = 0; i < PAIRS.length; i++) {
             if (PAIRS[i] == ch) {
                 return PAIR_TOKEN_IDS[i];
+            }
+        }
+        return null;
+    }
+
+    public static JFXTokenId getOposite(JFXTokenId tokenId, boolean isLeftToken) {
+        for (int i = (isLeftToken ? 0 : 1); i < PAIR_TOKEN_IDS.length; i += 2) {
+            if (PAIR_TOKEN_IDS[i] == tokenId) {
+                return PAIR_TOKEN_IDS[(isLeftToken ? i + 1 : i - 1)];
             }
         }
         return null;
