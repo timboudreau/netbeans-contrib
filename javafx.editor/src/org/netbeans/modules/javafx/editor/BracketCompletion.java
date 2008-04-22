@@ -47,12 +47,13 @@ import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.editor.*;
-//import static org.netbeans.modules.javafx.editor.JavaFXTokenContext.*;
+import org.netbeans.editor.BaseDocument;
+import org.netbeans.editor.Utilities;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -85,21 +86,39 @@ class BracketCompletion {
             return;
         }
 
-        if (ch == ')' || ch == ']' || ch == '(' || ch == '[' || ch == '{' || ch == '}') {
-            TokenId tidAtDot = tokenAt(doc, dotPos);
+        if (((ch == ')' || ch == '(') && !posWithinString(doc, caret.getDot())) //parenthesis completion works only outside of string. 
+                || ch == ']' || ch == '[' || ch == '{' || ch == '}') {
+            TokenSequence<JFXTokenId> seq = getTokenSequence(doc, dotPos);
+            JFXTokenId tidAtDot = seq.moveNext() ? seq.token().id() : null;
+            if (tidAtDot == null) return;
 
-            if (tidAtDot == JFXTokenId.RBRACKET || tidAtDot == JFXTokenId.RPAREN) {
-                skipClosingBracket(doc, caret, ch);
+            if (tidAtDot == JFXTokenId.RBRACKET
+                    || tidAtDot == JFXTokenId.RPAREN
+                    || (tidAtDot == JFXTokenId.RBRACE_QUOTE_STRING_LITERAL && nextIs(doc, caret.getDot(), '}'))
+                    || (tidAtDot == JFXTokenId.RBRACE_LBRACE_STRING_LITERAL && ch == '}')) {
+                skipClosingBracket(doc, caret, tidAtDot, ch);
+//                skipClosingBracket(doc, caret, (ch == ')') ? JFXTokenId.RPAREN : JFXTokenId.RBRACKET);
             } else if (tidAtDot == JFXTokenId.LBRACKET
                     || tidAtDot == JFXTokenId.LPAREN
-                    || tidAtDot == JFXTokenId.STRING_LITERAL
+//                    || tidAtDot == JFXTokenId.STRING_LITERAL
                     || tidAtDot == JFXTokenId.QUOTE_LBRACE_STRING_LITERAL
-                    || tidAtDot == JFXTokenId.RBRACE_LBRACE_STRING_LITERAL
-                    || tidAtDot == JFXTokenId.RBRACE_QUOTE_STRING_LITERAL) {
+                    || tidAtDot == JFXTokenId.RBRACE_LBRACE_STRING_LITERAL) {
                 completeOpeningBracket(doc, dotPos, caret, ch);
             }
         } else if (ch == ';') {
             moveSemicolon(doc, dotPos, caret);
+        }
+    }
+
+    private static boolean nextIs(BaseDocument doc, int dot, char c) {
+        if (doc.getLength() == dot + 1) {
+            return false;
+        }
+        try {
+            return doc.getChars(dot, 1)[0] == c ;
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
@@ -110,7 +129,7 @@ class BracketCompletion {
 
     private static <T extends TokenId> TokenSequence<T> getTokenSequence(BaseDocument doc, int dotPos) {
         TokenHierarchy<BaseDocument> th = TokenHierarchy.get(doc);
-        TokenSequence<?> seq =  th.tokenSequence();
+        TokenSequence<?> seq = th.tokenSequence();
         seq.move(dotPos);
         return (TokenSequence<T>) seq;
     }
@@ -154,7 +173,8 @@ class BracketCompletion {
      * @param doc    the document
      * @param dotPos position of the change
      * @param ch     the character that was deleted
-     * @throws javax.swing.text.BadLocationException if operation is called out of document range.
+     * @throws javax.swing.text.BadLocationException
+     *          if operation is called out of document range.
      */
     static void charBackspaced(BaseDocument doc, int dotPos, char ch) throws BadLocationException {
         if (completionSettingEnabled()) {
@@ -194,6 +214,7 @@ class BracketCompletion {
      * @return true if a right brace '}' should be added
      *         or false if not.
      */
+    //TODO: [RKo] Fix for instring braces
     static boolean isAddRightBrace(BaseDocument doc, int caretOffset)
             throws BadLocationException {
         boolean addRightBrace = false;
@@ -203,7 +224,7 @@ class BracketCompletion {
                 // or comments
                 final TokenSequence<JFXTokenId> ts = getTokenSequence(doc, caretOffset);
                 Token<JFXTokenId> token = ts.moveNext() ? ts.token() : null;
-               
+
                 addRightBrace = true; // suppose that right brace should be added
 
                 // Disable right brace adding if caret not positioned within whitespace
@@ -298,6 +319,13 @@ class BracketCompletion {
                 case RBRACKET:
                     if (bracketBalance-- == 0)
                         return seq.offset();
+                case QUOTE_LBRACE_STRING_LITERAL:
+                    bracketBalance++;
+                    break;
+                case RBRACE_QUOTE_STRING_LITERAL:
+                    if (bracketBalance-- == 0)
+                        return seq.offset();
+
             }
         }
         return rowEnd;
@@ -315,24 +343,73 @@ class BracketCompletion {
         return tokenBalance(doc, JFXTokenId.LBRACE, JFXTokenId.RBRACE);
     }
 
+
     /**
-     * The same as braceBalance but generalized to any pair of matching
+     * The same as braceBalance but generalized to any pairs of matching
      * tokens.
      *
      * @param doc   document representing source code.
-     * @param open  the token that increses the count
-     * @param close the token that decreses the count
+     * @param pairs pairs of oposite tokens to perform balance operation.
      * @return adjusted balance.
      */
-    private static int tokenBalance(BaseDocument doc, TokenId open, TokenId close) {
+    private static int tokenBalance(BaseDocument doc, TokenId... pairs) {
+        return tokenBalance(doc, false, pairs);
+    }
+
+    /**
+     * The same as braceBalance but generalized to any pairs of matching
+     * tokens including optional scan of {@link org.netbeans.api.javafx.lexer.JFXTokenId#RBRACE_LBRACE_STRING_LITERAL}
+     * token.
+     *
+     * @param doc                      document representing source code.
+     * @param handleSpecialBracesToken if true, method manualy parses
+     *                                 {@link org.netbeans.api.javafx.lexer.JFXTokenId#RBRACE_LBRACE_STRING_LITERAL}
+     *                                 tokens to determine correct balance.
+     * @param pairs                    pairs of oposite tokens to perform balance operation.
+     * @return adjusted balance.
+     */
+    private static int tokenBalance(BaseDocument doc, boolean handleSpecialBracesToken, TokenId... pairs) {
+        if (pairs == null || pairs.length == 0) return 0;
+        if (pairs.length % 2 != 0)
+            throw new IllegalArgumentException("The odd number of elements should not be paired!");
+
+        final List<TokenId> ids = Arrays.asList(pairs);
         TokenHierarchy<BaseDocument> th = TokenHierarchy.get(doc);
         TokenSequence<?> ts = th.tokenSequence();
-
         int balance = 0;
         while (ts.moveNext()) {
-            if (ts.token().id() == open) {
+            final TokenId id = ts.token().id();
+            final int index = ids.indexOf(id);
+            if (index > -1) {
+                if (index % 2 == 0) {
+                    balance++;
+                } else {
+                    balance--;
+                }
+            } else if (handleSpecialBracesToken && JFXTokenId.RBRACE_LBRACE_STRING_LITERAL == id) {
+                balance = balanceOfRLSL(balance, ts.token());
+
+            }
+
+        }
+        return balance;
+    }
+
+    /**
+     * Gets balance of {@link org.netbeans.api.javafx.lexer.JFXTokenId#RBRACE_LBRACE_STRING_LITERAL} token. This is
+     * couted manualy based on characted occurence.
+     *
+     * @param balance current balance or zero if there is no balance precedens.
+     * @param token   to manualy parse.
+     * @return balance update by occurence of { and } in <code>token</code> text.
+     */
+    private static int balanceOfRLSL(int balance, Token<? extends TokenId> token) {
+        final CharSequence cs = token.text();
+        for (int i = 0; i < cs.length(); i++) {
+            final char c = cs.charAt(i);
+            if (c == '{') {
                 balance++;
-            } else if (ts.token().id() == close) {
+            } else if (c == '}') {
                 balance--;
             }
         }
@@ -344,18 +421,17 @@ class BracketCompletion {
      * the document. The method checks if the bracket should stay there
      * or be removed and some exisitng bracket just skipped.
      *
-     * @param doc     the document
-     * @param caret   caret
-     * @param bracket the bracket character ']' or ')'
+     * @param doc       the document
+     * @param caret     caret
+     * @param bracketId
+     * @param ch
      * @throws javax.swing.text.BadLocationException
      *          if document location is invalid.
      */
-    private static void skipClosingBracket(BaseDocument doc, Caret caret, char bracket) throws BadLocationException {
-
-        JFXTokenId bracketId = (bracket == ')') ? JFXTokenId.RPAREN : JFXTokenId.RBRACKET;
+    private static void skipClosingBracket(BaseDocument doc, Caret caret, JFXTokenId bracketId, char ch) throws BadLocationException {
 
         int caretOffset = caret.getDot();
-        if (isSkipClosingBracket(doc, caretOffset, bracketId)) {
+        if (isSkipClosingBracket(caretOffset, doc, bracketId, ch)) {
             doc.remove(caretOffset - 1, 1);
             caret.setDot(caretOffset); // skip closing bracket
         }
@@ -367,14 +443,15 @@ class BracketCompletion {
      * <br>
      * This method is called by <code>skipClosingBracket()</code>.
      *
-     * @param doc         document into which typing was done.
      * @param caretOffset offset in document
+     * @param doc         document into which typing was done.
      * @param bracketId   tokenId of bracket type
+     * @param c
      * @return true if skip of bracked is required
      * @throws javax.swing.text.BadLocationException
      *          if operation is called on invalid document position.
      */
-    static boolean isSkipClosingBracket(BaseDocument doc, int caretOffset, JFXTokenId bracketId) throws BadLocationException {
+    static boolean isSkipClosingBracket(int caretOffset, BaseDocument doc, JFXTokenId bracketId, char c) throws BadLocationException {
         //TODO: [RKo] Make this method more readable. Too high CC, nesting and length
         // First check whether the caret is not after the last char in the document
         // because no bracket would follow then so it could not be skipped.
@@ -391,8 +468,11 @@ class BracketCompletion {
         Token<?> token = ts.moveNext() ? ts.token() : null;
 
         // Check whether character follows the bracket is the same bracket
-        if (token != null && token.id() == bracketId) {
-            JFXTokenId leftBracketIntId = (bracketId == JFXTokenId.RPAREN) ? JFXTokenId.LPAREN : JFXTokenId.LBRACKET;
+        if (token != null && token.id() == bracketId
+                // we are escaping right bracket inserted into RL_SL because it is correct statement.
+                && !(bracketId == JFXTokenId.RBRACE_LBRACE_STRING_LITERAL && c == '}')                
+                ) {
+            JFXTokenId leftBracketIntId = JavaFXBracesMatcher.getOposite(bracketId, false);
 
             // Skip all the brackets of the same type that follow the last one
 
@@ -439,6 +519,7 @@ class BracketCompletion {
                         break;
 
                     case LBRACE:
+                    case QUOTE_LBRACE_STRING_LITERAL:
                         braceBalance++;
                         if (braceBalance > 0) { // stop on extra left brace
                             finished = true;
@@ -446,8 +527,11 @@ class BracketCompletion {
                         break;
 
                     case RBRACE:
+                    case RBRACE_LBRACE_STRING_LITERAL:
+                    case RBRACE_QUOTE_STRING_LITERAL:
                         braceBalance--;
                         break;
+
 
                 }
 
@@ -500,16 +584,19 @@ class BracketCompletion {
                             break;
 
                         case LBRACE:
+                        case QUOTE_LBRACE_STRING_LITERAL:
+                            // This is in case of RL_SL duality in this search case.
+                        case RBRACE_LBRACE_STRING_LITERAL:
                             braceBalance++;
                             break;
 
                         case RBRACE:
+                        case RBRACE_QUOTE_STRING_LITERAL:
                             braceBalance--;
                             if (braceBalance < 0) { // stop on extra right brace
                                 finished = true;
                             }
                             break;
-
                     }
 
                     token = ts.movePrevious() ? ts.token() : null; // done regardless of finished flag state
@@ -626,8 +713,8 @@ class BracketCompletion {
 
     private static boolean insideString(JFXTokenId token) {
         return token != null && (token == JFXTokenId.STRING_LITERAL
-                        || token == JFXTokenId.SingleQuoteBody
-                        || token == JFXTokenId.DoubleQuoteBody);
+                || token == JFXTokenId.SingleQuoteBody
+                || token == JFXTokenId.DoubleQuoteBody);
     }
 
     /**
@@ -638,7 +725,8 @@ class BracketCompletion {
      * @param doc    the document
      * @param dotPos position to be tested
      * @return true if we can use completition.
-     * @throws javax.swing.text.BadLocationException if position is out of document range
+     * @throws javax.swing.text.BadLocationException
+     *          if position is out of document range
      */
     private static boolean isCompletablePosition(BaseDocument doc, int dotPos) throws BadLocationException {
         if (dotPos == doc.getLength()) // there's no other character to test
@@ -685,6 +773,7 @@ class BracketCompletion {
 
     /**
      * Returns true if bracket completion is enabled in options.
+     *
      * @return true if bracket completion is enabled
      */
     private static boolean completionSettingEnabled() {
@@ -695,6 +784,7 @@ class BracketCompletion {
     /**
      * Returns for an opening bracket or quote the appropriate closing
      * character.
+     *
      * @param bracket bracket to match
      * @return matching opposite bracket
      */
@@ -734,9 +824,9 @@ class BracketCompletion {
      * extend up to the other *quote* or whitespace in case of an
      * incomplete token.
      *
-     * @param doc    the document
-     * @param dotPos position to be tested
-     * @param quote expected quote
+     * @param doc     the document
+     * @param dotPos  position to be tested
+     * @param quote   expected quote
      * @param tokenID id of expected token
      * @return true if matched.
      */
@@ -755,108 +845,11 @@ class BracketCompletion {
             JFXTokenId tid = ts.moveNext() ? ts.token().id() : null;
             if (insideString(tid)) {
                 char[] ch = doc.getChars(dotPos - 1, 1);
-                return dotPos - ts.offset()   == 1 || (ch[0] != '\"' && ch[0] != '\'');
+                return dotPos - ts.offset() == 1 || (ch[0] != '\"' && ch[0] != '\'');
             }
             return false;
         } catch (BadLocationException ex) {
             return false;
         }
     }
-
-
-/*
-    static boolean isUnclosedStringAtLineEnd(BaseDocument doc, int dotPos) {
-        try {
-            MyTokenProcessor proc = new MyTokenProcessor();
-            doc.getSyntaxSupport().tokenizeText(proc, Utilities.getRowLastNonWhite(doc, dotPos), doc.getLength(), true);
-            return proc.tokenID == STRING_LITERAL;
-        } catch (BadLocationException ex) {
-            return false;
-        }
-    }
-*/
-
-/*
-    */
-/**
-     * A token processor used to find out the length of a token.
-     */
-/*
-    static class MyTokenProcessor implements TokenProcessor {
-        public TokenID tokenID = null;
-        public int tokenStart = -1;
-
-        public boolean token(TokenID tokenID, TokenContextPath tcp,
-                             int tokBuffOffset, int tokLength) {
-            this.tokenStart = tokenBuffer2DocumentOffset(tokBuffOffset);
-            this.tokenID = tokenID;
-
-            // System.out.println("token " + tokenID.getName() + " at " + tokenStart + " (" +
-            //		 tokBuffOffset + ") len:" + tokLength);
-
-
-            return false;
-        }
-
-        public int eot(int offset) { // System.out.println("EOT");
-            return 0;
-        }
-
-        public void nextBuffer(char[] buffer, int offset, int len, int startPos, int preScan, boolean lastBuffer) {
-            // System.out.println("nextBuffer "+ new String(buffer) + "," + offset + "len: " + len + " startPos:"+startPos + " preScan:" + preScan + " lastBuffer:" + lastBuffer);
-
-            this.bufferStartPos = startPos - offset;
-        }
-
-        private int bufferStartPos = 0;
-
-        private int tokenBuffer2DocumentOffset(int offs) {
-            return offs + bufferStartPos;
-        }
-    }
-*/
-
-    /**
-     * Token processor for finding of balance of brackets and braces.
-     */
-/*
-    private static class BalanceTokenProcessor implements TokenProcessor {
-
-        private TokenID leftTokenID;
-        private TokenID rightTokenID;
-
-        private int balance;
-
-        BalanceTokenProcessor(TokenID leftTokenID, TokenID rightTokenID) {
-            this.leftTokenID = leftTokenID;
-            this.rightTokenID = rightTokenID;
-        }
-
-        public boolean token(TokenID tokenID, TokenContextPath tcp,
-                             int tokBuffOffset, int tokLength) {
-
-            if (tokenID == leftTokenID) {
-                balance++;
-            } else if (tokenID == rightTokenID) {
-                balance--;
-            }
-
-            return true;
-        }
-
-        public int eot(int offset) {
-            return 0;
-        }
-
-        public void nextBuffer(char[] buffer, int offset, int len, int startPos, int preScan, boolean lastBuffer) {
-        }
-
-        public int getBalance() {
-            return balance;
-        }
-
-    }
-*/
-
-
 }
