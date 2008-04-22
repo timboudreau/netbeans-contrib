@@ -87,7 +87,8 @@ class BracketCompletion {
         }
 
         if (((ch == ')' || ch == '(') && !posWithinString(doc, caret.getDot())) //parenthesis completion works only outside of string. 
-                || ch == ']' || ch == '[' || ch == '{' || ch == '}') {
+                || ((ch == ']' || ch == '[') && !posWithinString(doc, caret.getDot())) 
+                || ch == '{' || ch == '}') {
             TokenSequence<JFXTokenId> seq = getTokenSequence(doc, dotPos);
             JFXTokenId tidAtDot = seq.moveNext() ? seq.token().id() : null;
             if (tidAtDot == null) return;
