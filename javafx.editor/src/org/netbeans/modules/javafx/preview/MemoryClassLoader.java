@@ -43,17 +43,28 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.openide.execution.NbClassLoader;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
+import org.openide.util.Exceptions;
 
 class MemoryClassLoader extends ClassLoader {
 
     Map<String, byte[]> classBytes;
-    ClassLoader execClassLoader;
-    ClassLoader bootClassLoader;
+    ClassLoader compositClassLoader;
 
     public MemoryClassLoader(ClassPath execClassPath, ClassPath bootClassPath) {
         classBytes = new HashMap<String, byte[]>();
-        this.bootClassLoader = bootClassPath.getClassLoader(false);
-        this.execClassLoader = execClassPath.getClassLoader(false);
+        FileObject fos[] = new FileObject[execClassPath.getRoots().length + bootClassPath.getRoots().length];
+        for (int i = 0; i < execClassPath.getRoots().length; i++)
+            fos[i] = execClassPath.getRoots()[i];
+        for (int i = 0; i < bootClassPath.getRoots().length; i++)
+            fos[execClassPath.getRoots().length + i] = bootClassPath.getRoots()[i];
+        try {
+            compositClassLoader = new NbClassLoader(fos, execClassPath.getClassLoader(false).getParent(), null);
+        } catch (FileStateInvalidException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 
     public void loadMap(Map<String, byte[]> classBytes) throws ClassNotFoundException {
@@ -64,28 +75,20 @@ class MemoryClassLoader extends ClassLoader {
 
     @Override
     protected URL findResource(String name) {
-        URL url = execClassLoader.getResource(name);
-        if (url == null)
-            return bootClassLoader.getResource(name);
-        else
-            return url;
+        return compositClassLoader.getResource(name);
     }
 
     protected synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
         if (classBytes.get(name) == null) {
+            Class classs = null;
+            if (classs != null) return classs;
             try {
-                return super.findClass(name);
-            } catch (ClassNotFoundException e) {
-                try {
-                    return execClassLoader.loadClass(name);
-                } catch  (ClassNotFoundException ex) {
-                    try {
-                        return bootClassLoader.loadClass(name);
-                    } catch (ClassNotFoundException exx) {
-                        return Thread.currentThread().getContextClassLoader().loadClass(name);
-                    }
-                }
+                classs = compositClassLoader.loadClass(name);
+            } catch (NoClassDefFoundError er) {
+            } catch (ClassNotFoundException ex) {
             }
+            if (classs != null) return classs;
+            return Thread.currentThread().getContextClassLoader().loadClass(name);
         }
 
         Class result = findClass(name);
