@@ -56,7 +56,7 @@ import org.netbeans.api.autoupdate.UpdateElement;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.autoupdate.featureondemand.FoDFileSystem;
-import org.netbeans.modules.autoupdate.featureondemand.ProjectTypeCreator;
+import org.netbeans.modules.autoupdate.featureondemand.Feature2LayerMapping;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.util.HelpCtx;
@@ -245,7 +245,7 @@ public class DescriptionStep implements WizardDescriptor.Panel<WizardDescriptor>
         assert o != null && o instanceof FileObject : o + " is not null and instanceof FileObject.";
         FileObject fo = (FileObject) o;
         URL layer = FoDFileSystem.getInstance ().getDelegateFileSystem (fo);
-        codeName = ProjectTypeCreator.getInstance ().getCodeName (layer);
+        codeName = Feature2LayerMapping.getInstance ().getCodeName (layer);
     }
 
     public void storeSettings (WizardDescriptor settings) {

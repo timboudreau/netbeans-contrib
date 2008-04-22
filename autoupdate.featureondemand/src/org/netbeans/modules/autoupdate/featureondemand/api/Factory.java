@@ -42,7 +42,7 @@ package org.netbeans.modules.autoupdate.featureondemand.api;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import org.netbeans.modules.autoupdate.featureondemand.FeatureAction;
-import org.netbeans.modules.autoupdate.featureondemand.projectwizard.FeatureOnDemanWizardIterator;
+import org.netbeans.modules.autoupdate.featureondemand.ui.FeatureOnDemanWizardIterator;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 

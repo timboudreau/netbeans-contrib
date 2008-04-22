@@ -42,7 +42,7 @@ package org.netbeans.modules.autoupdate.featureondemand.api;
 import java.net.URL;
 import java.util.Collection;
 import org.netbeans.junit.NbTestCase;
-import org.netbeans.modules.autoupdate.featureondemand.ProjectTypeCreator;
+import org.netbeans.modules.autoupdate.featureondemand.Feature2LayerMapping;
 import org.openide.filesystems.FileObject;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
@@ -72,7 +72,7 @@ public class FeatureInfoTest extends NbTestCase {
     }
 
     public void testCreate() throws Exception {
-        Collection<URL> all = ProjectTypeCreator.getInstance().getLayerURLs();
+        Collection<URL> all = Feature2LayerMapping.getInstance().getLayerURLs();
         assertEquals("One url found: " + all, 1, all.size());
     }
 
