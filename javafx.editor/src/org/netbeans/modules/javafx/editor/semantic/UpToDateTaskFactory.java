@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -37,41 +37,28 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.api.spring;
+package org.netbeans.modules.javafx.editor.semantic;
 
-import org.netbeans.modules.spring.lookup.ApplicationContextBasedLookup;
-import org.netbeans.modules.spring.lookup.LookupBasedApplicationContext;
-import org.openide.util.Lookup;
-import org.springframework.context.ApplicationContext;
+import org.netbeans.api.javafx.source.CancellableTask;
+import org.netbeans.api.javafx.source.CompilationInfo;
+import org.netbeans.api.javafx.source.JavaFXSource.Phase;
+import org.netbeans.api.javafx.source.JavaFXSource.Priority;
+import org.netbeans.api.javafx.source.support.EditorAwareJavaSourceTaskFactory;
+import org.openide.filesystems.FileObject;
 
-/** Factory methods to manipulate and bridge NetBeans Lookup and SpringFramework's
- * ApplicationContext.
- * @author Jaroslav Tulach, Andrei Badea
- * @since 1.1
+/**
+ *
+ * @author David Strupl
  */
-public class NbSpring {
-    private NbSpring() {
+public class UpToDateTaskFactory extends EditorAwareJavaSourceTaskFactory {
+
+    public UpToDateTaskFactory() {
+        super(Phase.ANALYZED, Priority.NORMAL);
     }
     
-    /** Converts an application context to lookup.
-     * 
-     * @param context application context
-     * @return lookup that bridges to the context
-     */
-    public static Lookup create(ApplicationContext context) {
-        return new ApplicationContextBasedLookup(context);
+    @Override
+    protected CancellableTask<CompilationInfo> createTask(FileObject file) {
+        return new UpToDateStatusTask(file);
     }
-    
-    /** From lookup to application context, if necesary.
-     * 
-     * @param context application context
-     * @return lookup that bridges to the context
-     */
-    public static ApplicationContext create(Lookup lookup) {
-        ClassLoader l = Lookup.getDefault().lookup(ClassLoader.class);
-        if (l == null) {
-            l = NbSpring.class.getClassLoader();
-        }
-        return LookupBasedApplicationContext.create(lookup, l);
-    }
+
 }

@@ -37,77 +37,61 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.api.javafx.source;
+package org.netbeans.modules.javafx.editor.semantic;
 
-import com.sun.javafx.api.JavafxcTask;
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.tools.javafx.api.JavafxcTrees;
+import java.util.HashMap;
 import java.util.List;
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.text.Document;
 import javax.tools.Diagnostic;
-import org.netbeans.api.lexer.TokenHierarchy;
-
+import org.netbeans.spi.editor.errorstripe.UpToDateStatus;
+import org.netbeans.spi.editor.errorstripe.UpToDateStatusProvider;
 /**
  *
- * @author nenik
+ * @author David Strupl
  */
-public class CompilationInfo {
-    final CompilationInfoImpl impl;
+class UpToDateStatusProviderImpl extends UpToDateStatusProvider {
+    
+    private static final Logger LOGGER = Logger.getLogger(UpToDateStatusProviderImpl.class.getName());
+    private static final boolean LOGGABLE = LOGGER.isLoggable(Level.FINE);
+    
+    private static final Map<Document, UpToDateStatusProviderImpl> cache = new HashMap<Document, UpToDateStatusProviderImpl>();
 
-    public CompilationInfo(JavaFXSource source) {
-        impl = new CompilationInfoImpl(source);
-    }
+    private UpToDateStatus status = UpToDateStatus.UP_TO_DATE_DIRTY;
 
-    CompilationInfo(CompilationInfoImpl impl) {
-        this.impl = impl;
-    }
-
-    public JavaFXSource.Phase getPhase() {
-        return impl.getPhase();
-    }
-
-    /**
-     * Return the {@link com.sun.tools.javafx.api.JavafxcTrees} service of the javafxc represented by this {@link CompilationInfo}.
-     * @return javafxc Trees service
-     */
-    public JavafxcTrees getTrees() {
-        return JavafxcTrees.instance(impl.getJavafxcTask());
-    }
-
-    public Types getTypes() {
-        return impl.getJavafxcTask().getTypes();
+    private UpToDateStatusProviderImpl() {
     }
     
-    public Elements getElements() {
-	return impl.getJavafxcTask().getElements();
-    }
-    
-    /**
-     * Returns {@link JavaFXSource} for which this {@link CompilationInfo} was created.
-     * @return JavaFXSource
-     */
-    public JavaFXSource getJavaFXSource() {
-        return impl.getJavaFXSource();
-    }
-    
-    /**
-     * Returns the javafxc tree representing the source file.
-     * @return {@link CompilationUnitTree} the compilation unit cantaining the top level classes contained in the,
-     * javafx source file.
-     * 
-     * @throws java.lang.IllegalStateException  when the phase is less than {@link JavaFXSource.Phase#PARSED}
-     */
-    public CompilationUnitTree getCompilationUnit() {
-        return impl.getCompilationUnit();
-
+    static UpToDateStatusProviderImpl forDocument(Document document) {
+        
+        UpToDateStatusProviderImpl result = cache.get(document);
+        if (result != null) {
+            return result;
+        }
+        
+        log("Creating new UpToDateStatusProviderImpl for " + document);
+        UpToDateStatusProviderImpl res = new UpToDateStatusProviderImpl();
+        cache.put(document, res);
+        return res;
     }
 
-    public TokenHierarchy getTokenHierarchy() {
-        return impl.getTokenHierarchy();
+    @Override
+    public UpToDateStatus getUpToDate() {
+        return status;
+    }
+
+    private static void log(String s) {
+        if (LOGGABLE) {
+            LOGGER.fine(s);
+        }
+    }
+
+    void refresh(List<Diagnostic> diag, UpToDateStatus s) {
+        status = s;
+        firePropertyChange(PROP_UP_TO_DATE, null, null);
     }
     
-    public List<Diagnostic> getDiagnostics() {
-        return this.impl.getDiagnostics();
-    }
+    
 }
