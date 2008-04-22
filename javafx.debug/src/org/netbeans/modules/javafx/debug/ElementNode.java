@@ -50,6 +50,7 @@ import java.util.List;
 //import javax.lang.model.element.TypeParameterElement;
 //import javax.lang.model.element.VariableElement;
 //import javax.lang.model.util.ElementScanner6;
+import javax.lang.model.element.Element;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -61,7 +62,7 @@ import org.netbeans.api.javafx.source.CompilationInfo;
  */
 public class ElementNode extends AbstractNode implements OffsetProvider {
     
-//    private Element element;
+    private Element element;
     private CompilationInfo info;
     
 //    public static Node getTree(CompilationInfo info) {
@@ -84,13 +85,13 @@ public class ElementNode extends AbstractNode implements OffsetProvider {
     }
             
     /** Creates a new instance of TreeNode */
-//    public ElementNode(CompilationInfo info, Element element, List<Node> nodes) {
-//        super(nodes.isEmpty() ? Children.LEAF: new NodeChilren(nodes));
-//        this.element = element;
-//        this.info = info;
-//        setDisplayName(element.getKind().toString() + ":" + element.toString()); //NOI18N
-//        setIconBaseWithExtension("org/netbeans/modules/java/debug/resources/element.png"); //NOI18N
-//    }
+    public ElementNode(CompilationInfo info, Element element, List<Node> nodes) {
+        super(nodes.isEmpty() ? Children.LEAF: new NodeChilren(nodes));
+        this.element = element;
+        this.info = info;
+        setDisplayName(element.getKind().toString() + ":" + element.toString()); //NOI18N
+        setIconBaseWithExtension("org/netbeans/modules/java/debug/resources/element.png"); //NOI18N
+    }
 
     public int getStart() {
 //        Tree tree = info.getTrees().getTree(element);
