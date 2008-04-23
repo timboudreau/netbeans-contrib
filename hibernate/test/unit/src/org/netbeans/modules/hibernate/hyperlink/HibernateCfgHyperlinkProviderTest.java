@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -36,59 +36,52 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import javax.swing.text.Document;
-import org.netbeans.modules.scala.editing.semantic.ScalaSemanticAnalyser;
-import org.openide.text.CloneableEditor;
-import org.openide.windows.WindowManager;
+package org.netbeans.modules.hibernate.hyperlink;
+
+import org.junit.Test;
+import org.netbeans.modules.hibernate.completion.HibernateCompletionTestBase;
+import static org.junit.Assert.*;
 
 /**
  *
- * @author Caoyuan Deng
+ * @author Dongmei Cao
  */
-public class ModuleInstall extends org.openide.modules.ModuleInstall {
+public class HibernateCfgHyperlinkProviderTest extends HibernateCompletionTestBase {
 
-    private PropertyChangeListener l;
-
-    @Override
-    public void restored() {
-        l = new PropertyChangeListener() {
-
-            public void propertyChange(PropertyChangeEvent e) {
-                if (e.getPropertyName().equals("activated")) {
-                    if (e.getNewValue() instanceof CloneableEditor) {
-                        CloneableEditor editor = (CloneableEditor) e.getNewValue();
-                        Document doc = editor.getEditorPane().getDocument();
-                        String mimeType = (String) doc.getProperty("mimeType");
-                        if (mimeType != null && mimeType.equals("text/x-scala")) {
-                            // Hack for initializing doc's ScalaSemanticAnalyser
-                            ScalaSemanticAnalyser.getAnalyser(doc);
-                        }
-                    }
-                }
-            }
-        };
-
-        // On install, install a listener for opened docs
-        WindowManager.getDefault().getRegistry().addPropertyChangeListener(l);
+    public HibernateCfgHyperlinkProviderTest(String name) {
+        super(name);
     }
 
-    @Override
-    public void uninstalled() {
-        if (l != null) {
-            WindowManager.getDefault().getRegistry().removePropertyChangeListener(l);
-        }
+    /**
+     * Test of isHyperlinkPoint method, of class HibernateCfgHyperlinkProvider.
+     */
+    @Test
+    public void testIsHyperlinkPoint1() throws Exception{
+        System.out.println("isHyperlinkPoint");
+        setupCompletion("resources/hibernate.cfg.xml", null);
+        HibernateCfgHyperlinkProvider instance = new HibernateCfgHyperlinkProvider();
+        
+        boolean hyperpointNot = instance.isHyperlinkPoint(instanceDocument, 847);
+        assertTrue(!hyperpointNot);
+        
+        boolean hyperpointYes = instance.isHyperlinkPoint(instanceDocument, 855);
+        assertTrue(hyperpointYes);
+        
     }
 
-    @Override
-    public boolean closing() {
-        if (l != null) {
-            WindowManager.getDefault().getRegistry().removePropertyChangeListener(l);
-        }
-        return super.closing();
+    /**
+     * Test of getHyperlinkSpan method, of class HibernateCfgHyperlinkProvider.
+     */
+    @Test
+    public void testGetHyperlinkSpan() throws Exception {
+        System.out.println("getHyperlinkSpan");
+        setupCompletion("resources/hibernate.cfg.xml", null);
+        HibernateCfgHyperlinkProvider instance = new HibernateCfgHyperlinkProvider();
+        instance.isHyperlinkPoint(instanceDocument, 855);
+        int[] hyperpointSpan = instance.getHyperlinkSpan(instanceDocument, 855);
+        int[] expected = new int[]{853, 874};
+        assertEquals(hyperpointSpan[0], expected[0]);
+        assertEquals(hyperpointSpan[1], expected[1]);
     }
 }
-
