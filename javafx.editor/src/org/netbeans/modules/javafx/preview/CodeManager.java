@@ -31,7 +31,6 @@ import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.javafx.dataloader.JavaFXDataObject;
 import org.netbeans.modules.javafx.editor.FXDocument;
 import org.netbeans.modules.javafx.editor.JavaFXDocument;
-import org.netbeans.modules.javafx.project.JavaFXProject;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -42,6 +41,7 @@ import java.awt.Color;
 import java.awt.Window;
 import javax.swing.JDialog;
 import javax.tools.Diagnostic;
+import org.netbeans.api.project.Project;
 
 public class CodeManager {
     private static final String[] getComponentNames = {"getComponent", "getJComponent"};                     // NOI18N
@@ -74,7 +74,7 @@ public class CodeManager {
         } catch (Exception ex) {
             return null;
         }
-            
+
         FileObject fo = ((JavaFXDocument)doc).getDataObject().getPrimaryFile();
         
         ClassPath sourceCP = ClassPath.getClassPath(fo, ClassPath.SOURCE);
@@ -92,9 +92,10 @@ public class CodeManager {
         
         JavafxcTool tool = JavafxcTool.create();
         JavacFileManager standardManager = tool.getStandardFileManager(diagnostics, null, null);
-        JavaFXProject project = (JavaFXProject) JavaFXModel.getProject(doc);
+        Project project = JavaFXModel.getProject(doc);
         List <JavaFileObject> javaFileObjects = getProjectJFOList(doc, project, sourceCP, standardManager);
         
+        //preprocessCode(code);
         javaFileObjects.add(new MemoryFileObject(className, code, Kind.SOURCE, doc));
         
         Map<String, byte[]> oldClassBytes = cut(JavaFXModel.getClassBytes(project), className);
@@ -125,7 +126,7 @@ public class CodeManager {
                                                 ClassPath sourceCP,
                                                 ClassPath compileCP,
                                                 ClassPath bootCP,
-                                                JavaFXProject project,
+                                                Project project,
                                                 JavafxcTool tool,
                                                 JavacFileManager standardManager,
                                                 DiagnosticCollector diagnostics) {
@@ -195,6 +196,10 @@ public class CodeManager {
         Object args = makeMethod.invoke(null, String.class, commandLineArgs);
         Object obj = runMethod.invoke(null, args);
         return obj;
+    }
+    
+    private static String preprocessCode(String code) {
+         return code.replaceAll("System.exit\\s*\\(\\s*\\w+\\s*\\)", "System.out.println(\"System.exit() removed.\")");
     }
     
     private static JComponent parseJComponentObj(Object obj) {
@@ -307,7 +312,7 @@ public class CodeManager {
     }
     
     private static List<JavaFileObject> getProjectJFOList(  FXDocument document,
-                                                            JavaFXProject project,
+                                                            Project project,
                                                             ClassPath sourceCP,
                                                             JavacFileManager fileManager)
     {
@@ -397,7 +402,7 @@ public class CodeManager {
     }
     
     public static void cut(FXDocument doc) {
-        JavaFXProject project = (JavaFXProject) JavaFXModel.getProject(doc);      
+        Project project = JavaFXModel.getProject(doc);      
         FileObject fo = ((JavaFXDocument)doc).getDataObject().getPrimaryFile();
         ClassPath sourceCP = ClassPath.getClassPath(fo, ClassPath.SOURCE);
         String className = sourceCP.getResourceName(fo, '.', false);                 // NOI18N
