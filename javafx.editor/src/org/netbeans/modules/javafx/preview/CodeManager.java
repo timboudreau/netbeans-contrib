@@ -40,7 +40,6 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 import java.awt.Color;
 import java.awt.Window;
-import javax.swing.JDesktopPane;
 import javax.swing.JDialog;
 import javax.tools.Diagnostic;
 
