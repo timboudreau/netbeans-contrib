@@ -39,6 +39,7 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 import java.awt.Color;
 import java.awt.Window;
+import java.io.File;
 import javax.swing.JDialog;
 import javax.tools.Diagnostic;
 import org.netbeans.api.project.Project;
@@ -100,7 +101,7 @@ public class CodeManager {
         
         Map<String, byte[]> oldClassBytes = cut(JavaFXModel.getClassBytes(project), className);
         
-        Map<String, byte[]> classBytes = compile(javaFileObjects, oldClassBytes, sourceCP, compileCP, bootCP, project, tool, standardManager, diagnostics);  
+        Map<String, byte[]> classBytes = compile(javaFileObjects, oldClassBytes, sourceCP, compileCP, bootCP, executeCP, project, tool, standardManager, diagnostics);  
         JavaFXModel.putClassBytes(project, classBytes);
         
         Object obj = null;
@@ -126,6 +127,7 @@ public class CodeManager {
                                                 ClassPath sourceCP,
                                                 ClassPath compileCP,
                                                 ClassPath bootCP,
+                                                ClassPath executeCP,
                                                 Project project,
                                                 JavafxcTool tool,
                                                 JavacFileManager standardManager,
@@ -141,7 +143,7 @@ public class CodeManager {
         System.setProperty("env.class.path", JavaFXSourceUtils.getAdditionalCP(cp));
         */
         
-        MemoryClassLoader mcl = new MemoryClassLoader(new ClassPath[] {compileCP, bootCP});
+        MemoryClassLoader mcl = new MemoryClassLoader(new ClassPath[] {compileCP, bootCP });
         
         MemoryFileManager manager = new MemoryFileManager(standardManager, mcl);
         manager.setClassBytes(classBytes);
@@ -156,7 +158,7 @@ public class CodeManager {
         options.add("1.5");                  // NOI18N
         
         options.add("-classpath");           // NOI18N
-        options.add(compileCP.toString());   // NOI18N
+        options.add(compileCP.toString() + File.pathSeparatorChar + executeCP.toString());   // NOI18N
         
         options.add("-sourcepath");          // NOI18N
         options.add(sourceCP.toString());    // NOI18N
