@@ -67,7 +67,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import org.netbeans.modules.editor.NbEditorDocument;
 import org.netbeans.modules.editor.NbEditorUtilities;
-//import org.netbeans.modules.javafx.preview.AutoResizableDesktopPane;
+import org.netbeans.modules.javafx.preview.AutoResizableDesktopPane;
 import org.netbeans.modules.javafx.preview.JavaFXModel;
 import org.openide.loaders.DataObject;
 
@@ -254,8 +254,8 @@ public class JavaFXDocument extends NbEditorDocument implements FXDocument{
                     }
                     if (comp != null){
                         panel.add(comp);
-                        /*if (comp instanceof AutoResizableDesktopPane)
-                            ((AutoResizableDesktopPane)comp).checkDesktopSize();*/
+                        if (comp instanceof AutoResizableDesktopPane)
+                            ((AutoResizableDesktopPane)comp).checkDesktopSize();
                     }
                     split.revalidate();
                     split.validate();
