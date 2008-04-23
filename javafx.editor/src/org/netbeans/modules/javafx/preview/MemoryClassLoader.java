@@ -39,6 +39,8 @@
 
 package org.netbeans.modules.javafx.preview;
 
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,15 +55,18 @@ class MemoryClassLoader extends ClassLoader {
     Map<String, byte[]> classBytes;
     ClassLoader compositClassLoader;
 
-    public MemoryClassLoader(ClassPath execClassPath, ClassPath bootClassPath) {
+    public MemoryClassLoader(ClassPath[] classPaths) {
         classBytes = new HashMap<String, byte[]>();
-        FileObject fos[] = new FileObject[execClassPath.getRoots().length + bootClassPath.getRoots().length];
-        for (int i = 0; i < execClassPath.getRoots().length; i++)
-            fos[i] = execClassPath.getRoots()[i];
-        for (int i = 0; i < bootClassPath.getRoots().length; i++)
-            fos[execClassPath.getRoots().length + i] = bootClassPath.getRoots()[i];
+        int counter = 0;
+        for (int i = 0; i < classPaths.length; i++) counter+= classPaths[i].getRoots().length;
+        FileObject fos[] = new FileObject[counter];
+        counter = 0;
+        for (int i = 0; i < classPaths.length; i++) 
+            for (int j = 0; j < classPaths[i].getRoots().length; j++)
+                fos[counter++] = classPaths[i].getRoots()[j];
         try {
-            compositClassLoader = new NbClassLoader(fos, execClassPath.getClassLoader(false).getParent(), null);
+            compositClassLoader = new NbClassLoader(fos, classPaths[0].getClassLoader(false).getParent(), null);
+            MFOURLStreamHanfler.setClassLoader(compositClassLoader);
         } catch (FileStateInvalidException ex) {
             Exceptions.printStackTrace(ex);
         }
@@ -73,9 +78,28 @@ class MemoryClassLoader extends ClassLoader {
         }
     }
 
+    static URI toMFOURI(String name) {
+        try {
+            final StringBuilder newUri = new StringBuilder();
+            newUri.append("mfo:///");
+            newUri.append(name);
+            return URI.create(newUri.toString());
+        } catch (Exception exp) {
+            return null;
+        }
+    }
+    
     @Override
     protected URL findResource(String name) {
-        return compositClassLoader.getResource(name);
+        URL url = compositClassLoader.getResource(name);
+        
+        if (url == null)
+            try {
+                url = toMFOURI(name).toURL();
+            } catch (MalformedURLException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        return url;
     }
 
     protected synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
