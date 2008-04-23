@@ -95,12 +95,14 @@ class BracketCompletion {
 
             if (tidAtDot == JFXTokenId.RBRACKET
                     || tidAtDot == JFXTokenId.RPAREN
+//                    || tidAtDot == JFXTokenId.RBRACE
                     || (tidAtDot == JFXTokenId.RBRACE_QUOTE_STRING_LITERAL && nextIs(doc, caret.getDot(), '}'))
                     || (tidAtDot == JFXTokenId.RBRACE_LBRACE_STRING_LITERAL && ch == '}')) {
                 skipClosingBracket(doc, caret, tidAtDot, ch);
 //                skipClosingBracket(doc, caret, (ch == ')') ? JFXTokenId.RPAREN : JFXTokenId.RBRACKET);
             } else if (tidAtDot == JFXTokenId.LBRACKET
                     || tidAtDot == JFXTokenId.LPAREN
+//                    || tidAtDot == JFXTokenId.LBRACE
 //                    || tidAtDot == JFXTokenId.STRING_LITERAL
                     || tidAtDot == JFXTokenId.QUOTE_LBRACE_STRING_LITERAL
                     || tidAtDot == JFXTokenId.RBRACE_LBRACE_STRING_LITERAL) {
@@ -269,7 +271,7 @@ class BracketCompletion {
                             break;
                         }
                     }
-                    if ((token == null) || (token.id() != JFXTokenId.LBRACE) || (ts.offset() < caretRowStartOffset)) {
+                    if ((token != null) && ((token.id() != JFXTokenId.LBRACE) || (ts.offset() < caretRowStartOffset))) {
                         addRightBrace = false;
                     }
 
