@@ -257,7 +257,8 @@ public class CodeManager {
                         intFrame.setIconifiable(true);
                         intFrame.setVisible(true);
                         frame.dispose();
-                        AutoResizableDesktopPane jdp = new AutoResizableDesktopPane();
+                        //AutoResizableDesktopPane jdp = new AutoResizableDesktopPane();
+                        JDesktopPane jdp = new JDesktopPane();
                         jdp.setBackground(Color.WHITE);
                         jdp.add(intFrame);
                         jdp.setMinimumSize(intFrame.getSize());
