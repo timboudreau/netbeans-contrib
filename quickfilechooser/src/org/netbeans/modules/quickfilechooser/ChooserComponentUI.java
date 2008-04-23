@@ -552,6 +552,9 @@ public class ChooserComponentUI extends BasicFileChooserUI {
     
     private static void updateHistory(JFileChooser jfc) {
         File f = jfc.getSelectedFile();
+        if (f == null) { // #133625
+            return;
+        }
         String pth = f.getParent();
         if (history == null) {
             history = new ArrayList();
