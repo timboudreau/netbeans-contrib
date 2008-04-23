@@ -107,7 +107,7 @@ public class CodeManager {
         if (classBytes != null) {
             className = checkCase(classBytes, className);
             try {
-                obj = run(className, executeCP, bootCP, classBytes);
+                obj = run(className, sourceCP, executeCP, bootCP, classBytes);
             } catch (Exception ex){
                 ex.printStackTrace();
             }
@@ -141,7 +141,7 @@ public class CodeManager {
         System.setProperty("env.class.path", JavaFXSourceUtils.getAdditionalCP(cp));
         */
         
-        MemoryClassLoader mcl = new MemoryClassLoader(compileCP, bootCP);
+        MemoryClassLoader mcl = new MemoryClassLoader(new ClassPath[] {compileCP, bootCP});
         
         MemoryFileManager manager = new MemoryFileManager(standardManager, mcl);
         manager.setClassBytes(classBytes);
@@ -180,8 +180,8 @@ public class CodeManager {
         return classBytesDone;
     }
         
-    private static Object run(String name, ClassPath execClassPath, ClassPath bootClassPath, Map<String, byte[]> classBytes) throws Exception {
-        MemoryClassLoader memoryClassLoader = new MemoryClassLoader(execClassPath, bootClassPath);
+    private static Object run(String name, ClassPath sourceClassPath, ClassPath execClassPath, ClassPath bootClassPath, Map<String, byte[]> classBytes) throws Exception {
+        MemoryClassLoader memoryClassLoader = new MemoryClassLoader(new ClassPath[] {sourceClassPath, execClassPath, bootClassPath});
         memoryClassLoader.loadMap(classBytes);
         return run(name, memoryClassLoader);
     }
@@ -257,9 +257,10 @@ public class CodeManager {
                         intFrame.setIconifiable(true);
                         intFrame.setVisible(true);
                         frame.dispose();
-                        JDesktopPane jdp = new JDesktopPane();
+                        AutoResizableDesktopPane jdp = new AutoResizableDesktopPane();
                         jdp.setBackground(Color.WHITE);
                         jdp.add(intFrame);
+                        jdp.setMinimumSize(intFrame.getSize());
                         comp = jdp;
                     }
                 }

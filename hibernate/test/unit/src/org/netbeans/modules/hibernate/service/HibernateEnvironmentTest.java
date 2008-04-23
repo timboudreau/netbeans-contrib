@@ -110,8 +110,11 @@ public class HibernateEnvironmentTest extends NbTestCase {
         Util.prepareDB();
         HibernateConfiguration[] configurations = new HibernateConfiguration[1];
         configurations[0] = hibernateConfiguration;
-        // TODO: pass in null so that it can compile
-        HibernateEnvironment instance = new HibernateEnvironment(null);
+        HibernateEnvironment instance = new HibernateEnvironment(
+                Util.getProject(
+                    new java.io.File(getDataDir().getAbsolutePath() + java.io.File.separator + "WebApplication1")
+                )
+                );
         ArrayList<String> expResult = Util.getAllDatabaseTables();
 
         ArrayList<String> result = instance.getAllDatabaseTables(configurations);
@@ -161,8 +164,11 @@ public class HibernateEnvironmentTest extends NbTestCase {
     @Test
     public void testGetAllHibernateMappingsFromConfiguration() {
         System.out.println("getAllHibernateMappings");
-        // TODO: pass in null so that it can compile
-        HibernateEnvironment instance = new HibernateEnvironment(null);
+        HibernateEnvironment instance = new HibernateEnvironment(
+                Util.getProject(
+                    new java.io.File(getDataDir().getAbsolutePath() + java.io.File.separator + "WebApplication1")
+                )
+                );
         ArrayList<String> expResult = new ArrayList<String>();
         //TODO now hardcoded. Need to be retrieved from config.
         expResult.add("map1.xml"); expResult.add("map2.xml"); expResult.add("map3.xml");
