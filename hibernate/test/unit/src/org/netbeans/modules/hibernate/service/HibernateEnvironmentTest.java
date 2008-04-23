@@ -38,7 +38,7 @@
  */
 package org.netbeans.modules.hibernate.service;
 
-import java.net.URL;
+import java.io.IOException;
 import java.util.ArrayList;
 import org.junit.After;
 import org.junit.Before;
@@ -50,9 +50,11 @@ import org.netbeans.api.project.Project;
 import org.netbeans.junit.NbTestCase;
 import static org.junit.Assert.*;
 import org.netbeans.modules.hibernate.cfg.model.HibernateConfiguration;
+import org.netbeans.modules.hibernate.loaders.cfg.HibernateCfgDataLoader;
 import org.netbeans.modules.hibernate.loaders.cfg.HibernateCfgDataObject;
-import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataLoader;
+import org.openide.loaders.DataLoaderPool;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
@@ -66,8 +68,6 @@ public class HibernateEnvironmentTest extends NbTestCase {
 
     private HibernateConfiguration hibernateConfiguration;
 
-    private ExecutorTask task;
-
     public HibernateEnvironmentTest(String name) {
         super(name);
     }
@@ -75,7 +75,9 @@ public class HibernateEnvironmentTest extends NbTestCase {
     @Before
     @Override
     public void setUp() {
-        hibernateConfiguration = new HibernateConfiguration().createGraph((java.io.InputStream) new java.io.ByteArrayInputStream(hibConfigString.getBytes()));
+        hibernateConfiguration = HibernateConfiguration.createGraph((java.io.InputStream) new java.io.ByteArrayInputStream(hibConfigString.getBytes()));
+        
+        
         
         try {
         JDBCDriverManager.getDefault().addDriver(
@@ -110,7 +112,11 @@ public class HibernateEnvironmentTest extends NbTestCase {
         Util.prepareDB();
         HibernateConfiguration[] configurations = new HibernateConfiguration[1];
         configurations[0] = hibernateConfiguration;
-        HibernateEnvironment instance = new HibernateEnvironment();
+        HibernateEnvironment instance = new HibernateEnvironment(
+                Util.getProject(
+                    new java.io.File(getDataDir().getAbsolutePath() + java.io.File.separator + "WebApplication1")
+                )
+                );
         ArrayList<String> expResult = Util.getAllDatabaseTables();
 
         ArrayList<String> result = instance.getAllDatabaseTables(configurations);
@@ -131,8 +137,6 @@ public class HibernateEnvironmentTest extends NbTestCase {
         
         ArrayList<HibernateConfiguration> expResult = new ArrayList<HibernateConfiguration>();
 
-        expResult.add(hibernateConfiguration);
-
         Project project = Util.getProject( new java.io.File(
                 getDataDir().getAbsolutePath() +
                java.io.File.separator + 
@@ -141,10 +145,23 @@ public class HibernateEnvironmentTest extends NbTestCase {
         // Add the config files here.
         for(FileObject fo : Util.getConfigFiles(project))  {
             try {
+                DataLoader dl = DataLoaderPool.getPreferredLoader(fo);
+                
+                if(dl == null || !(dl instanceof HibernateCfgDataLoader )) {
+                    HibernateCfgDataLoader loader = new HibernateCfgDataLoader();
+                    DataLoaderPool.setPreferredLoader(fo, loader);
+                }
+                
+                DataObject dataObject = DataObject.find(fo);
+                assertNotNull(dataObject);
+                assertTrue(dataObject instanceof HibernateCfgDataObject);
+                
             expResult.add(
                     ((HibernateCfgDataObject)DataObject.find(fo)).getHibernateConfiguration()
                     );
             }catch (DataObjectNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -160,7 +177,11 @@ public class HibernateEnvironmentTest extends NbTestCase {
     @Test
     public void testGetAllHibernateMappingsFromConfiguration() {
         System.out.println("getAllHibernateMappings");
-        HibernateEnvironment instance = new HibernateEnvironment();
+        HibernateEnvironment instance = new HibernateEnvironment(
+                Util.getProject(
+                    new java.io.File(getDataDir().getAbsolutePath() + java.io.File.separator + "WebApplication1")
+                )
+                );
         ArrayList<String> expResult = new ArrayList<String>();
         //TODO now hardcoded. Need to be retrieved from config.
         expResult.add("map1.xml"); expResult.add("map2.xml"); expResult.add("map3.xml");

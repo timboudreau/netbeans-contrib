@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -37,52 +37,43 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.autoupdate.featureondemand.api;
+package org.netbeans.modules.hibernate.mimeresolver;
 
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import org.netbeans.modules.autoupdate.featureondemand.FeatureAction;
-import org.netbeans.modules.autoupdate.featureondemand.ui.FeatureOnDemanWizardIterator;
-import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.MIMEResolver;
 
-/** Factories for iterators, actions and other useful elements for feature
- * on demand UI.
+/**
+ * This file registers the MIME resolver for Hibernate artifacts. (cfg, hbm ..)
  *
- * @author Jaroslav Tulach <jaroslav.tulach@netbeans.org>, Jirka Rechtacek <jrechtacek@netbeans.org>
+ * @author Vadiraj Deshpande (Vadiraj.Deshpande@Sun.COM)
  */
-public final class Factory {
-    private Factory() {}
+public class HibernateMIMEResolver extends MIMEResolver{
 
-    /** Creates new iterator for data provided by given file object.
-     * 
-     * @param fo file object describing the iterator
-     * @return the Feature On Demand-ready iterator
-     * @throws java.io.IOException 
-     */
-    public static WizardDescriptor.InstantiatingIterator newProject (FileObject fo) throws IOException {
-        return FeatureOnDemanWizardIterator.newProject(fo);
-    }
+    // Values for the variables below are copied from respective 
+    // data loaders.
+    private static final String HIBERNATE_CONFIG_MIME_TYPE = "text/x-hibernate-cfg+xml";
+    private static final String HIBERNATE_MAPPING_MIME_TYPE = "text/x-hibernate-mapping+xml";
     
-    /** Creates an action that can trigger Feature On Demand&tm; 
-     * initialization.
-     * 
-     * @param fo file object to read the action from
-     * @return ActionListener
-     * @throws java.io.IOException 
-     */
-    public static ActionListener newDelegateAction(FileObject fo) throws IOException {
-        return new FeatureAction (fo, true);
+    @Override
+    public String findMIMEType(FileObject fo) {
+        if(fo == null) {
+            return null;
+        }
+        
+        // Filter non XML files.
+        if(!fo.getNameExt().endsWith("xml")) {
+            return null;
+        }
+        
+        if(fo.getNameExt().endsWith("cfg.xml")) {
+            return HIBERNATE_CONFIG_MIME_TYPE;
+        }
+        
+        if(fo.getNameExt().endsWith("hbm.xml")){
+            return HIBERNATE_MAPPING_MIME_TYPE;
+        }
+        
+        return null;
     }
-    
-    /** Creates an transient action that can trigger Feature On Demand&tm; 
-     * initialization.
-     * 
-     * @param fo file object to read the action from
-     * @return ActionListener
-     * @throws java.io.IOException 
-     */
-    public static ActionListener newAction(FileObject fo) throws IOException {
-        return new FeatureAction (fo, false);
-    }
+
 }

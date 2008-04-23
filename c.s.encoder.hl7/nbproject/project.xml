@@ -23,6 +23,10 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
+            <friend-packages>
+                <friend>org.netbeans.modules.encoder.hl7.aip</friend>
+                <package>com.sun.encoder.hl7.appinfo</package>
+            </friend-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/encoder/hl7.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/encoder/hl7.jar</binary-origin>
@@ -31,10 +35,6 @@
                 <runtime-relative-path>ext/encoder/hl7encoder-xsdextension.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/encoder/hl7encoder-xsdextension.jar</binary-origin>
             </class-path-extension>
-            <friend-packages>
-                <friend>org.netbeans.modules.encoder.hl7.aip</friend>
-                <package>com.sun.encoder.hl7.appinfo</package>
-            </friend-packages>
         </data>
     </configuration>
 </project>

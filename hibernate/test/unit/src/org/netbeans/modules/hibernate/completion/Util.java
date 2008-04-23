@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -37,52 +37,37 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.autoupdate.featureondemand.api;
+package org.netbeans.modules.hibernate.completion;
 
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import org.netbeans.modules.autoupdate.featureondemand.FeatureAction;
-import org.netbeans.modules.autoupdate.featureondemand.ui.FeatureOnDemanWizardIterator;
-import org.openide.WizardDescriptor;
-import org.openide.filesystems.FileObject;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import javax.swing.text.Document;
+import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.xml.text.syntax.XMLKit;
 
-/** Factories for iterators, actions and other useful elements for feature
- * on demand UI.
+/**
  *
- * @author Jaroslav Tulach <jaroslav.tulach@netbeans.org>, Jirka Rechtacek <jrechtacek@netbeans.org>
+ * @author Dongmei Cao
  */
-public final class Factory {
-    private Factory() {}
+public class Util {
+    
+    public static Document getResourceAsDocument(String path) throws Exception {
+        InputStream in = Util.class.getResourceAsStream(path);
+        Document sd = new BaseDocument(XMLKit.class, false);
+        BufferedReader br = new BufferedReader(new InputStreamReader(in,"UTF-8"));
+        StringBuffer sbuf = new StringBuffer();
+        try {
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                sbuf.append(line);
+                sbuf.append(System.getProperty("line.separator"));
+            }
+        } finally {
+            br.close();
+        }
+        sd.insertString(0,sbuf.toString(),null);
+        return sd;
+    }
 
-    /** Creates new iterator for data provided by given file object.
-     * 
-     * @param fo file object describing the iterator
-     * @return the Feature On Demand-ready iterator
-     * @throws java.io.IOException 
-     */
-    public static WizardDescriptor.InstantiatingIterator newProject (FileObject fo) throws IOException {
-        return FeatureOnDemanWizardIterator.newProject(fo);
-    }
-    
-    /** Creates an action that can trigger Feature On Demand&tm; 
-     * initialization.
-     * 
-     * @param fo file object to read the action from
-     * @return ActionListener
-     * @throws java.io.IOException 
-     */
-    public static ActionListener newDelegateAction(FileObject fo) throws IOException {
-        return new FeatureAction (fo, true);
-    }
-    
-    /** Creates an transient action that can trigger Feature On Demand&tm; 
-     * initialization.
-     * 
-     * @param fo file object to read the action from
-     * @return ActionListener
-     * @throws java.io.IOException 
-     */
-    public static ActionListener newAction(FileObject fo) throws IOException {
-        return new FeatureAction (fo, false);
-    }
 }

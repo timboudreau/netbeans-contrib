@@ -42,10 +42,6 @@
 package org.netbeans.modules.javafx.editor;
 
 import org.netbeans.api.javafx.lexer.JFXTokenId;
-import org.netbeans.api.javafx.source.CompilationController;
-import org.netbeans.api.javafx.source.JavaFXSource;
-import org.netbeans.api.javafx.source.Task;
-import org.netbeans.api.javafx.source.TreeUtilities;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
@@ -59,13 +55,11 @@ import org.netbeans.modules.editor.indent.spi.ReformatTask;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Position;
-import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import com.sun.source.util.TreePath;
 import com.sun.source.tree.Tree;
 
 /**
@@ -170,7 +164,7 @@ class JFXIndentTask implements IndentTask, ReformatTask {
         } else {
             // we simply adapt indent of previous line and adjust if necessary.
             int lso = context.lineStartOffset(startOffset);
-            int ls = context.lineStartOffset(Math.max(0, lso - 1));
+            int ls = getPreviousLine(lso);
             if (ls == lso) return 0;
             int level = context.lineIndent(ls); //previous line indent
 
@@ -200,6 +194,24 @@ class JFXIndentTask implements IndentTask, ReformatTask {
             //if we got buggy source code we descent only to zero indent.
             return Math.max(0, level);
         }
+    }
+
+    /**
+     * Escaping single newline lines.
+     * @param lso start of the origin line
+     * @return new nonempty line
+     * @throws BadLocationException  if something goes wrong.
+     */
+    private int getPreviousLine(int lso) throws BadLocationException {
+        while (lso > 0) {
+            int ls = context.lineStartOffset(Math.max(0, lso - 1));
+            if (lso - ls > 1) {
+                return ls;
+            } else {
+                lso = ls;
+            }
+        }
+        return 0;
     }
 
     private static <T extends TokenId> TokenSequence<T> getTokenSequence(BaseDocument doc, int dotPos) {

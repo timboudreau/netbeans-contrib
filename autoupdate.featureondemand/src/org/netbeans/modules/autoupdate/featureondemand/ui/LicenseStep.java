@@ -39,7 +39,7 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.autoupdate.featureondemand.projectwizard;
+package org.netbeans.modules.autoupdate.featureondemand.ui;
 
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;

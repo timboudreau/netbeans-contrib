@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
 <!--
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
 Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+
 
 The contents of this file are subject to the terms of either the GNU
 General Public License Version 2 only ("GPL") or the Common
@@ -41,29 +40,8 @@ Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
 
-<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
-<!-- for some information on what you could do (e.g. targets to override). -->
-<!-- If you delete this file and reopen the project it will be recreated. -->
-<project name="org.netbeans.modules.javafx.userlib" default="netbeans" basedir=".">
-    <description>Builds, tests, and runs the project org.netbeans.modules.javafx.userlib.</description>
-
-    <import file="../../nbbuild/templates/projectized.xml"/>
-
-	<target name="init-release-external" depends="basic-init">
-		<taskdef resource="org/netbeans/nbbuild/extlibs/defs.properties" classpath="lib/FXSDKAntTask.jar"/>
-		<mkdir dir="external"/>
-		<get src="${javafx-sdk.url}" dest="${javafx-sdk.zip}" usetimestamp="true" verbose="true"/>
-		<SetReleaseExternal propertynameprefix="release.external/javafx_sdk-1_0-pre1-windows-i586.zip!/">
-			<zipfileset src="${javafx-sdk.zip}"/>
-		</SetReleaseExternal>
-	</target>
-
-    <target name="init" depends="basic-init,init-release-external,files-init,build-init,-init-proxy, javafx-sdk"/>
-
-    <target name="javafx-sdk">
-		<BuildLibDesc libfile="build/classes/org/netbeans/modules/javafx/sdk/win/FXUserLib.xml" headerfile="libhead.xml" tailfile="libtail.xml" itemprefix="        &lt;resource>jar:nbinst:///" itemsuffix="!/&lt;/resource>">
-			<zipfileset src="${javafx-sdk.zip}" includes="**/lib/*.jar"/>
-		</BuildLibDesc>
-    </target>
-
-</project>
+<HTML>
+<BODY>
+Creates a hibernate reverse enginnering with an extension .reveng.xml.
+</BODY>
+</HTML>
