@@ -49,7 +49,6 @@ import org.openide.execution.NbClassLoader;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
 
 class MemoryClassLoader extends ClassLoader {
 
@@ -67,7 +66,7 @@ class MemoryClassLoader extends ClassLoader {
                 fos[counter++] = classPaths[i].getRoots()[j];
         try {
             compositClassLoader = new NbClassLoader(fos, classPaths[0].getClassLoader(false).getParent(), null);
-            //MFOURLStreamHanfler.setCL(compositClassLoader);
+            MFOURLStreamHanfler.setClassLoader(compositClassLoader);
         } catch (FileStateInvalidException ex) {
             Exceptions.printStackTrace(ex);
         }
@@ -94,12 +93,12 @@ class MemoryClassLoader extends ClassLoader {
     protected URL findResource(String name) {
         URL url = compositClassLoader.getResource(name);
         
-        /*if (url == null)
+        if (url == null)
             try {
                 url = toMFOURI(name).toURL();
             } catch (MalformedURLException ex) {
                 Exceptions.printStackTrace(ex);
-            }*/
+            }
         return url;
     }
 

@@ -40,7 +40,6 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 import java.awt.Color;
 import java.awt.Window;
-import javax.swing.JDesktopPane;
 import javax.swing.JDialog;
 import javax.tools.Diagnostic;
 
@@ -257,8 +256,7 @@ public class CodeManager {
                         intFrame.setIconifiable(true);
                         intFrame.setVisible(true);
                         frame.dispose();
-                        //AutoResizableDesktopPane jdp = new AutoResizableDesktopPane();
-                        JDesktopPane jdp = new JDesktopPane();
+                        AutoResizableDesktopPane jdp = new AutoResizableDesktopPane();
                         jdp.setBackground(Color.WHITE);
                         jdp.add(intFrame);
                         jdp.setMinimumSize(intFrame.getSize());
