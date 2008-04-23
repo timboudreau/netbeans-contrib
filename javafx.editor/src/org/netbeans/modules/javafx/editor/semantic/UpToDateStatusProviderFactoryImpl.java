@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -37,31 +37,20 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.autoupdate.featureondemand;
+package org.netbeans.modules.javafx.editor.semantic;
 
-import org.openide.util.HelpCtx;
-import org.openide.util.actions.CallableSystemAction;
+import javax.swing.text.Document;
+import org.netbeans.spi.editor.errorstripe.UpToDateStatusProvider;
+import org.netbeans.spi.editor.errorstripe.UpToDateStatusProviderFactory;
 
-public final class PlaceHolderAction extends CallableSystemAction {
+/**
+ *
+ * @author David Strupl
+ */
+public class UpToDateStatusProviderFactoryImpl implements UpToDateStatusProviderFactory {
 
-    public void performAction () {}
-
-    public String getName () {
-        return null;
+    public UpToDateStatusProvider createUpToDateStatusProvider(Document document) {
+        return UpToDateStatusProviderImpl.forDocument(document);
     }
 
-    @Override
-    protected void initialize () {
-        super.initialize ();
-        putValue ("noIconInMenu", Boolean.TRUE);
-    }
-
-    public HelpCtx getHelpCtx () {
-        return HelpCtx.DEFAULT_HELP;
-    }
-
-    @Override
-    protected boolean asynchronous () {
-        return false;
-    }
 }

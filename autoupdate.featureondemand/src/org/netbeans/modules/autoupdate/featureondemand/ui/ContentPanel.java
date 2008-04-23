@@ -39,29 +39,47 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.autoupdate.featureondemand.projectwizard;
+package org.netbeans.modules.autoupdate.featureondemand.ui;
 
+import java.awt.Component;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.table.TableCellRenderer;
+import org.openide.util.RequestProcessor;
 
-public final class InstallPanel extends JPanel {
+public final class ContentPanel extends JPanel {
+    static String FINDING_MODULES = "finding-modules";
     private String name = null;
 
     /** Creates new form InstallMissingModulesWizardVisualPanel1 */
-    public InstallPanel (String name) {
+    public ContentPanel (String name) {
         initComponents();
         this.name = name;
+        this.spTable.setVisible (false);
+        this.tModules.setVisible (false);
     }
 
     public @Override String getName() {
         return name;
     }
 
+    @Override
+    public void addNotify () {
+        super.addNotify ();
+        RequestProcessor.getDefault ().post(new Runnable () {
+            public void run () {
+                firePropertyChange (FINDING_MODULES, null, Boolean.TRUE);
+            }
+        }, 200);
+    }
+
     private void doReplaceComponents (JComponent... comps) {
         assert pCentral != null;
         assert SwingUtilities.isEventDispatchThread () : "Must be called in EQ.";
         pCentral.removeAll ();
+        pCentral.repaint ();
         addComponents (comps);
     }
     
@@ -103,6 +121,12 @@ public final class InstallPanel extends JPanel {
         }
     }
     
+    private static String prepareToolTip (String original) {
+        String res = "";
+        res = "<html>" + original.replaceAll (",", "<br>")+ "</html>"; // NOI18N
+        return res;
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -112,24 +136,49 @@ public final class InstallPanel extends JPanel {
     private void initComponents() {
 
         pCentral = new javax.swing.JPanel();
+        spTable = new javax.swing.JScrollPane();
+        tModules = new JTable () {
+            public Component prepareRenderer (TableCellRenderer renderer,
+                int rowIndex,
+                int vColIndex) {
+                Component c = super.prepareRenderer(renderer, rowIndex, vColIndex);
+                if (c instanceof JComponent && vColIndex != 0) {
+                    JComponent jc = (JComponent) c;
+                    jc.setToolTipText (prepareToolTip ((String) getValueAt (rowIndex, vColIndex)));
+                }
+                return c;
+            }
+        };
 
         pCentral.setLayout(new javax.swing.BoxLayout(pCentral, javax.swing.BoxLayout.Y_AXIS));
+
+        tModules.setRowSelectionAllowed(false);
+        spTable.setViewportView(tModules);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(pCentral, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 12, Short.MAX_VALUE)
+            .add(pCentral, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 448, Short.MAX_VALUE)
+            .add(layout.createSequentialGroup()
+                .add(spTable, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 436, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(pCentral, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 12, Short.MAX_VALUE)
+            .add(layout.createSequentialGroup()
+                .add(pCentral, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                .add(25, 25, 25)
+                .add(spTable, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 247, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel pCentral;
+    private javax.swing.JScrollPane spTable;
+    private javax.swing.JTable tModules;
     // End of variables declaration//GEN-END:variables
 
 }

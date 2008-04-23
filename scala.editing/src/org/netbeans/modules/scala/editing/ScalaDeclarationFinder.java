@@ -71,7 +71,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
         //BaseDocument doc = (BaseDocument)document;
 
-        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
 
         if (ts == null) {
             return OffsetRange.NONE;

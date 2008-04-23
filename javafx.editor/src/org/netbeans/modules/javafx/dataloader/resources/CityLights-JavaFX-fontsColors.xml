@@ -96,7 +96,7 @@ made subject to such option by the copyright holder.
     
 
     
-    <!-- JavaStringTokenId categories -->
+    <!-- JFXStringTokenId categories -->
     <fontcolor name="string-escape" default="string">
         <font style="bold" />
     </fontcolor>

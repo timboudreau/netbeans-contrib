@@ -51,12 +51,12 @@ import org.openide.util.lookup.Lookups;
  *
  * @author Jirka Rechtacek
  */
-public class ProjectTypeCreator {
-    private ProjectTypeCreator () {}
+public class Feature2LayerMapping {
+    private Feature2LayerMapping () {}
     
-    private static ProjectTypeCreator INSTANCE = new ProjectTypeCreator ();
+    private static Feature2LayerMapping INSTANCE = new Feature2LayerMapping ();
     
-    public static ProjectTypeCreator getInstance () {
+    public static Feature2LayerMapping getInstance () {
         return INSTANCE;
     }
     
@@ -80,16 +80,6 @@ public class ProjectTypeCreator {
         for (FeatureInfo pt2m : result.allInstances ()) {
             if (layer.equals(FeatureInfoAccessor.DEFAULT.getDelegateLayer(pt2m))) {
                 return FeatureInfoAccessor.DEFAULT.getCodeName(pt2m);
-            }
-        }
-        return null;
-    }
-    
-    public URL getLayer (String codeName) {
-        Lookup.Result<FeatureInfo> result = featureTypesLookup().lookupResult(FeatureInfo.class);
-        for (FeatureInfo pt2m : result.allInstances ()) {
-            if (codeName.equals(FeatureInfoAccessor.DEFAULT.getCodeName(pt2m))) {
-                return FeatureInfoAccessor.DEFAULT.getDelegateLayer(pt2m);
             }
         }
         return null;

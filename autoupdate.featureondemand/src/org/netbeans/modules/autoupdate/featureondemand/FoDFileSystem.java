@@ -78,7 +78,7 @@ implements Runnable {
     }
     
     public void run() {
-        Lookup.Result<FeatureInfo> result = ProjectTypeCreator.featureTypesLookup().lookupResult(FeatureInfo.class);
+        Lookup.Result<FeatureInfo> result = Feature2LayerMapping.featureTypesLookup().lookupResult(FeatureInfo.class);
         
         List<XMLFileSystem> delegate = new ArrayList<XMLFileSystem>();
         for (FeatureInfo pt2m : result.allInstances ()) {
@@ -92,7 +92,7 @@ implements Runnable {
     }
     
     public URL getDelegateFileSystem(FileObject template) {
-        Lookup.Result<FeatureInfo> result = ProjectTypeCreator.featureTypesLookup().lookupResult(FeatureInfo.class);
+        Lookup.Result<FeatureInfo> result = Feature2LayerMapping.featureTypesLookup().lookupResult(FeatureInfo.class);
         
         String path = template.getPath();
         for (FeatureInfo pt2m : result.allInstances ()) {

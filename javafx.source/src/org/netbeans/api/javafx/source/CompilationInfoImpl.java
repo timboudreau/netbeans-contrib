@@ -42,10 +42,15 @@ package org.netbeans.api.javafx.source;
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javafx.api.JavafxcTaskImpl;
-import com.sun.tools.javafx.api.JavafxcTrees;
 import java.io.IOException;
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.TreeMap;
+import java.util.logging.Logger;
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticListener;
+import javax.tools.JavaFileObject;
 import org.netbeans.api.lexer.TokenHierarchy;
 
 /**
@@ -53,6 +58,8 @@ import org.netbeans.api.lexer.TokenHierarchy;
  * @author nenik
  */
 class CompilationInfoImpl {
+    static final Logger LOGGER = Logger.getLogger(CompilationInfoImpl.class.getName());
+    
     JavaFXSource.Phase phase = JavaFXSource.Phase.MODIFIED;
     private CompilationUnitTree compilationUnit;    
 
@@ -138,9 +145,30 @@ class CompilationInfoImpl {
 
     JavafxcTask getJavafxcTask() {
         if (cTask == null) {
-            cTask = source.createJavafxcTask();
+            cTask = source.createJavafxcTask(new DiagnosticListenerImpl());
         }
         return cTask;
     }
-
+    /**
+     * Returns the errors in the file represented by the {@link JavaSource}.
+     * @return an list of {@link Diagnostic} 
+     */
+    List<Diagnostic> getDiagnostics() {
+        Collection<Diagnostic> errors = ((DiagnosticListenerImpl) cTask.getContext().get(DiagnosticListener.class)).errors.values();
+        return new ArrayList<Diagnostic>(errors);
+    }
+    
+    static class DiagnosticListenerImpl implements DiagnosticListener<JavaFileObject> {
+        
+        private final TreeMap<Integer,Diagnostic> errors;
+        
+        public DiagnosticListenerImpl() {
+            this.errors = new TreeMap<Integer,Diagnostic>();
+        }
+        
+        public void report(Diagnostic<? extends JavaFileObject> message) {            
+            LOGGER.info("Error at [" + message.getLineNumber() + ":" + message.getColumnNumber() + "]/" + message.getEndPosition() + " - " + message.getMessage(null));
+            errors.put((int)message.getPosition(),message);
+        }
+    }
 }

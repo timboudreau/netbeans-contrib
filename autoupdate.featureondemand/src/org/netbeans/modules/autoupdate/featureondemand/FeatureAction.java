@@ -41,11 +41,7 @@ package org.netbeans.modules.autoupdate.featureondemand;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
-import java.util.Collection;
-import org.netbeans.api.autoupdate.UpdateElement;
-import org.netbeans.modules.autoupdate.featureondemand.projectwizard.FindComponentModules;
-import org.netbeans.modules.autoupdate.featureondemand.projectwizard.ModulesActivator;
-import org.netbeans.modules.autoupdate.featureondemand.projectwizard.ModulesInstaller;
+import javax.swing.SwingUtilities;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.openide.util.RequestProcessor;
@@ -58,19 +54,26 @@ public class FeatureAction implements ActionListener, Runnable {
 
     private boolean success;
     private FileObject fo;
+    private boolean isDelegateAction = false;
 
-    public FeatureAction(FileObject fo) {
+    public FeatureAction(FileObject fo, boolean delegate) {
         this.fo = fo;
+        this.isDelegateAction = delegate;
     }
 
     public void actionPerformed(ActionEvent e) {
         success = false;
-        RequestProcessor.getDefault().post(this, 0, Thread.NORM_PRIORITY).waitFinished();
+        RequestProcessor.Task t = RequestProcessor.getDefault().post(this, 0, Thread.NORM_PRIORITY);
+        if (isDelegateAction) {
+            t.waitFinished ();
+        } else {
+            return ;
+        }
         
         if (! success) {
             return ;
         }
-
+        
         FileObject newFile = Repository.getDefault().getDefaultFileSystem().findResource(fo.getPath());
         if (newFile == null) {
             throw new IllegalStateException("Cannot find file: " + fo.getPath());
@@ -83,26 +86,9 @@ public class FeatureAction implements ActionListener, Runnable {
     }
 
     public void run() {
+        assert ! SwingUtilities.isEventDispatchThread () : "Cannot run in EQ!";
         URL url = FoDFileSystem.getInstance().getDelegateFileSystem(fo);
-        String codeName = ProjectTypeCreator.getInstance().getCodeName(url);
-        FindComponentModules findModules = new FindComponentModules(codeName);
-        findModules.createFindingTask().waitFinished();
-        Collection<UpdateElement> toInstall = findModules.getModulesForInstall();
-        Collection<UpdateElement> toEnable = findModules.getModulesForEnable();
-        if (toInstall != null && !toInstall.isEmpty()) {
-            ModulesInstaller installer = new ModulesInstaller(toInstall);
-            installer.getInstallTask ().schedule (10);
-            installer.getInstallTask ().waitFinished();
-            findModules.createFindingTask().waitFinished();
-            success = findModules.getModulesForInstall ().isEmpty ();
-        } else if (toEnable != null && !toEnable.isEmpty()) {
-            ModulesActivator enabler = new ModulesActivator(toEnable);
-            enabler.getEnableTask ().schedule (100);
-            enabler.getEnableTask ().waitFinished();
-            success = true;
-        }
-        if (success) {
-            FoDFileSystem.getInstance().refresh();
-        }
+        String codeName = Feature2LayerMapping.getInstance().getCodeName(url);
+        success = ModulesInstaller.installModules (codeName);
     }
 }

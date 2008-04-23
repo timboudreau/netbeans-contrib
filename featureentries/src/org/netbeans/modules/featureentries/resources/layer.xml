@@ -59,5 +59,10 @@ made subject to such option by the copyright holder.
             <attr name="codeName" stringvalue="org.netbeans.modules.javahints"/>
             <attr name="delegateLayer" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/enable-javahints-layer.xml"/>
         </file>
+        <file name="enable-i18n-checker.instance">
+            <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.featureondemand.api.FeatureInfo.create"/>
+            <attr name="codeName" stringvalue="org.netbeans.modules.editor.hints.i18n"/>
+            <attr name="delegateLayer" urlvalue="nbresloc:/org/netbeans/modules/featureentries/resources/enable-i18n-checker-layer.xml"/>
+        </file>
     </folder>
 </filesystem>

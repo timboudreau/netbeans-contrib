@@ -39,8 +39,9 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.autoupdate.featureondemand.projectwizard;
+package org.netbeans.modules.autoupdate.featureondemand.ui;
 
+import org.netbeans.modules.autoupdate.featureondemand.ui.FlashingIcon;
 import java.awt.Component;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
