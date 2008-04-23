@@ -39,8 +39,10 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.modules.autoupdate.featureondemand.projectwizard;
+package org.netbeans.modules.autoupdate.featureondemand.ui;
 
+import org.netbeans.modules.autoupdate.featureondemand.FindComponentModules;
+import org.netbeans.modules.autoupdate.featureondemand.ModulesInstaller;
 import java.awt.Component;
 import java.net.URL;
 import java.util.ArrayList;

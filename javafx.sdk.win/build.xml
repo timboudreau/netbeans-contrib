@@ -58,13 +58,12 @@ made subject to such option by the copyright holder.
 		</SetReleaseExternal>
 	</target>
 
-    <target name="init" depends="basic-init,init-release-external,files-init,build-init,-init-proxy"/>
+    <target name="init" depends="basic-init,init-release-external,files-init,build-init,-init-proxy, javafx-sdk"/>
 
-    <target name="javafx-sdk" depends="init">
+    <target name="javafx-sdk">
 		<BuildLibDesc libfile="build/classes/org/netbeans/modules/javafx/sdk/win/FXUserLib.xml" headerfile="libhead.xml" tailfile="libtail.xml" itemprefix="        &lt;resource>jar:nbinst:///" itemsuffix="!/&lt;/resource>">
 			<zipfileset src="${javafx-sdk.zip}" includes="**/lib/*.jar"/>
 		</BuildLibDesc>
     </target>
 
-    <target name="netbeans-extra" depends="javafx-sdk"/>
 </project>

@@ -153,6 +153,13 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         <delete dir="${s2b_root_2_0}"/>
   </target>
   
-
+  <target name="create-l10n-kit">
+         <property name="l10nkit-name" value="build/portalpack-portlets-genericportlets-l10nkit.zip"/>
+         <delete file= "${l10nkit-name}"/>
+         <zip destfile="${l10nkit-name}"
+           basedir="src"
+           includes="**/Bundle.properties"
+         />
+    </target>
    
 </project>

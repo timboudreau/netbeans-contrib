@@ -23,7 +23,7 @@ public class ReformatTaskFactory implements ReformatTask.Factory{
      * @return reformatting task or null if the factory cannot handle the given context.
      */
     public ReformatTask createTask(Context context) {
-        if (log.isLoggable(Level.INFO)) log.info("Creating reformat factory");
+        if (log.isLoggable(Level.FINE)) log.fine("Creating reformat factory");
         return new JFXIndentTask(context);
     }
 }

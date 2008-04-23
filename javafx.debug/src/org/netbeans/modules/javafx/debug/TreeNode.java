@@ -53,6 +53,7 @@ import com.sun.javafx.api.tree.InstantiateTree;
 import com.sun.javafx.api.tree.InterpolateTree;
 import com.sun.javafx.api.tree.InterpolateValueTree;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
+import com.sun.javafx.api.tree.JavaFXVariableTree;
 import com.sun.javafx.api.tree.ObjectLiteralPartTree;
 import com.sun.javafx.api.tree.OnReplaceTree;
 import com.sun.javafx.api.tree.SequenceDeleteTree;
@@ -276,6 +277,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
         public Void visitClassDeclaration(ClassDeclarationTree tree, List<Node> d) {
             List<Node> below = new ArrayList<Node>();
             
+            addCorrespondingElement(below);
             addCorrespondingType(below);
             addCorrespondingComments(below);
             super.visitClassDeclaration(tree, below);
@@ -312,6 +314,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
         public Void visitFunctionDefinition(FunctionDefinitionTree tree, List<Node> d) {
             List<Node> below = new ArrayList<Node>();
             
+            addCorrespondingElement(below);
             addCorrespondingType(below);
             addCorrespondingComments(below);
             super.visitFunctionDefinition(tree, below);
@@ -348,6 +351,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
         public Void visitInitDefinition(InitDefinitionTree tree, List<Node> d) {
             List<Node> below = new ArrayList<Node>();
             
+            addCorrespondingElement(below);
             addCorrespondingType(below);
             addCorrespondingComments(below);
             super.visitInitDefinition(tree, below);
@@ -384,9 +388,24 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
         public Void visitObjectLiteralPart(ObjectLiteralPartTree tree, List<Node> d) {
             List<Node> below = new ArrayList<Node>();
             
+            addCorrespondingElement(below);
             addCorrespondingType(below);
             addCorrespondingComments(below);
             super.visitObjectLiteralPart(tree, below);
+            
+            d.add(new TreeNode(info, getCurrentPath(), below));
+            return null;
+        }
+
+        public Void visitVariableDeclaration(JavaFXVariableTree tree, List<Node> d) {
+            List<Node> below = new ArrayList<Node>();
+            
+            addCorrespondingElement(below);
+            addCorrespondingType(below);
+            addCorrespondingComments(below);
+            super.visitVariable/*Declaration*/(tree, below);
+            // XXX: Won't be there, just JFXC-1119 workaround
+            super.scan(tree.getOnReplaceTree(), below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -564,6 +583,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
         public Void visitTypeClass(TypeClassTree tree, List<Node> d) {
             List<Node> below = new ArrayList<Node>();
             
+            addCorrespondingElement(below);
             addCorrespondingType(below);
             addCorrespondingComments(below);
             super.visitTypeClass(tree, below);
@@ -1175,6 +1195,11 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
 
         @Override
         public Void visitVariable(VariableTree tree, List<Node> d) {
+            // XXX: Won't be there, just JFXC-1119 workaround
+            if (tree instanceof JavaFXVariableTree) {
+                visitVariableDeclaration((JavaFXVariableTree)tree, d);
+                return null;
+            }
             List<Node> below = new ArrayList<Node>();
             
             addCorrespondingElement(below);
@@ -1215,7 +1240,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             Element el = info.getTrees().getElement(getCurrentPath());
             
             if (el != null) {
-//                below.add(new ElementNode(info, el, Collections.EMPTY_LIST));
+                below.add(new ElementNode(info, el, Collections.EMPTY_LIST));
             } else {
                 below.add(new NotFoundElementNode(NbBundle.getMessage(TreeNode.class, "Cannot_Resolve_Element")));
             }

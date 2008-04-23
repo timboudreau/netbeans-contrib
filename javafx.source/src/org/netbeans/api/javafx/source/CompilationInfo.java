@@ -42,8 +42,10 @@ package org.netbeans.api.javafx.source;
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javafx.api.JavafxcTrees;
+import java.util.List;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import javax.tools.Diagnostic;
 import org.netbeans.api.lexer.TokenHierarchy;
 
 /**
@@ -103,5 +105,9 @@ public class CompilationInfo {
 
     public TokenHierarchy getTokenHierarchy() {
         return impl.getTokenHierarchy();
+    }
+    
+    public List<Diagnostic> getDiagnostics() {
+        return this.impl.getDiagnostics();
     }
 }

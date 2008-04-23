@@ -118,7 +118,21 @@ public class ScalaIndex {
         }
     }
 
-    
+    private boolean javaClassSearch(String key, String name, NameKind kind, Set<SearchResult> result,
+        Set<SearchScope> scope, Set<String> terms) {
+        try {
+//            javaIndex.get
+//            javaIndex.getElements(element, searchKind, scope);
+            index.search(key, name, kind, scope, result, terms);
+
+            return true;
+        } catch (IOException ioe) {
+            Exceptions.printStackTrace(ioe);
+
+            return false;
+        }
+    }
+
     static void setClusterUrl(String url) {
         clusterUrl = url;
     }

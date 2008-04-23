@@ -23,6 +23,10 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
+            <friend-packages>
+                <friend>org.netbeans.modules.encoder.custom.aip</friend>
+                <package>com.sun.encoder.custom.appinfo</package>
+            </friend-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/encoder/custom.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/encoder/custom.jar</binary-origin>
@@ -31,10 +35,6 @@
                 <runtime-relative-path>ext/encoder/customencoder-xsdextension.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/encoder/customencoder-xsdextension.jar</binary-origin>
             </class-path-extension>
-            <friend-packages>
-                <friend>org.netbeans.modules.encoder.custom.aip</friend>
-                <package>com.sun.encoder.custom.appinfo</package>
-            </friend-packages>
         </data>
     </configuration>
 </project>

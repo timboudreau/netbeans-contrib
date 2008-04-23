@@ -152,7 +152,7 @@ public class MaybeCall {
     @SuppressWarnings("unchecked")
     @NonNull
     public static MaybeCall getCallType(BaseDocument doc, TokenHierarchy<Document> th, int offset) {
-        TokenSequence<?extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, offset);
+        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, offset);
 
         if (ts == null) {
             return MaybeCall.NONE;

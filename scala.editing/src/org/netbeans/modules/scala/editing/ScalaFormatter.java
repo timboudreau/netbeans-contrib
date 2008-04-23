@@ -152,7 +152,7 @@ public class ScalaFormatter implements org.netbeans.modules.gsf.api.Formatter {
 
     /** Compute the initial balance of brackets at the given offset. */
     private int getFormatStableStart(BaseDocument doc, int offset) {
-        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
+        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
         if (ts == null) {
             return 0;
         }

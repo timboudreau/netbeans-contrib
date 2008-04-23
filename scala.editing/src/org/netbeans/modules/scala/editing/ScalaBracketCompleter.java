@@ -154,7 +154,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
             return -1;
         }
 
-        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
+        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
 
         if (ts == null) {
             return -1;
@@ -612,7 +612,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
                     if (firstChar != ch) {
                         int start = target.getSelectionStart();
                         int end = target.getSelectionEnd();
-                        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getPositionedSequence(doc, start);
+                        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getPositionedSequence(doc, start);
                         if (ts != null && ts.token().id() != ScalaTokenId.StringLiteral) { // Not inside strings!
                             int lastChar = selection.charAt(selection.length() - 1);
                             // Replace the surround-with chars?
@@ -639,7 +639,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
             }
         }
 
-        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, caretOffset);
+        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, caretOffset);
 
         if (ts == null) {
             return false;
@@ -767,7 +767,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
                 // Revert indentation iff the character at the insert position does
                 // not start a new token (e.g. the previous token that we reindented
                 // was not complete)
-                TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, dotPos);
+                TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, dotPos);
 
                 if (ts != null) {
                     ts.move(dotPos);
@@ -880,7 +880,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
                 // Bracket matching for regular expressions has to be done AFTER the
                 // character is inserted into the document such that I can use the lexer
                 // to determine whether it's a division (e.g. x/y) or a regular expression (/foo/)
-                TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getPositionedSequence(doc, dotPos);
+                TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getPositionedSequence(doc, dotPos);
                 if (ts != null) {
                     Token token = ts.token();
                     TokenId id = token.id();
@@ -919,7 +919,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
 
     private void reindent(BaseDocument doc, int offset, TokenId id, Caret caret)
             throws BadLocationException {
-        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
+        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
 
         if (ts != null) {
             ts.move(offset);
@@ -969,7 +969,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
     public OffsetRange findMatching(Document document, int offset /*, boolean simpleSearch*/) {
         BaseDocument doc = (BaseDocument) document;
 
-        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
+        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
 
         if (ts != null) {
             ts.move(offset);
@@ -1053,7 +1053,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
         switch (ch) {
             case ' ': {
                 // Backspacing over "// " ? Delete the "//" too!
-                TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getPositionedSequence(doc, dotPos);
+                TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getPositionedSequence(doc, dotPos);
                 if (ts != null && ts.token().id() == ScalaTokenId.LineComment) {
                     if (ts.offset() == dotPos - 2) {
                         doc.remove(dotPos - 2, 2);
@@ -1083,7 +1083,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
 
             case '/': {
                 // Backspacing over "//" ? Delete the whole "//"
-                TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getPositionedSequence(doc, dotPos);
+                TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getPositionedSequence(doc, dotPos);
                 if (ts != null && ts.token().id() == ScalaTokenId.REGEXP_BEGIN) {
                     if (ts.offset() == dotPos - 1) {
                         doc.remove(dotPos - 1, 1);
@@ -1146,7 +1146,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
 
         boolean skipClosingBracket = false; // by default do not remove
 
-        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, caretOffset);
+        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, caretOffset);
 
         if (ts == null) {
             return false;
@@ -1366,7 +1366,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
             return false;
         }
 
-        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, dotPos);
+        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, dotPos);
 
         if (ts == null) {
             return false;
@@ -1612,7 +1612,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
 //            }
 
 
-            TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getPositionedSequence(doc, caretOffset);
+            TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getPositionedSequence(doc, caretOffset);
             if (ts != null) {
                 Token<? extends ScalaTokenId> token = ts.token();
 
@@ -1711,7 +1711,7 @@ public class ScalaBracketCompleter implements BracketCompletion {
     // UGH - this method has gotten really ugly after successive refinements based on unit tests - consider cleaning up
     public int getNextWordOffset(Document document, int offset, boolean reverse) {
         BaseDocument doc = (BaseDocument) document;
-        TokenSequence<? extends ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
+        TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
         if (ts == null) {
             return -1;
         }

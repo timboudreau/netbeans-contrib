@@ -46,9 +46,6 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.modules.autoupdate.featureondemand.api.FeatureInfo;
-import org.netbeans.modules.autoupdate.featureondemand.projectwizard.FindComponentModules;
-import org.netbeans.modules.autoupdate.featureondemand.projectwizard.ModulesActivator;
-import org.netbeans.modules.autoupdate.featureondemand.projectwizard.ModulesInstaller;
 import org.netbeans.spi.project.ProjectFactory;
 import org.netbeans.spi.project.ProjectState;
 import org.netbeans.spi.project.ui.ProjectOpenedHook;
@@ -66,7 +63,7 @@ import org.openide.util.lookup.Lookups;
 public class FeatureProjectFactory implements ProjectFactory {
 
     public boolean isProject(FileObject projectDirectory) {
-        Lookup.Result<FeatureInfo> result = ProjectTypeCreator.featureTypesLookup().lookupResult(FeatureInfo.class);
+        Lookup.Result<FeatureInfo> result = Feature2LayerMapping.featureTypesLookup().lookupResult(FeatureInfo.class);
         for (FeatureInfo pt2m : result.allInstances ()) {
             String pfp = FeatureInfoAccessor.DEFAULT.getDelegateFilePath(pt2m);
             if (pfp != null) {
@@ -80,7 +77,7 @@ public class FeatureProjectFactory implements ProjectFactory {
     }
 
     public Project loadProject(FileObject projectDirectory, ProjectState state) throws IOException {
-        Lookup.Result<FeatureInfo> result = ProjectTypeCreator.featureTypesLookup().lookupResult(FeatureInfo.class);
+        Lookup.Result<FeatureInfo> result = Feature2LayerMapping.featureTypesLookup().lookupResult(FeatureInfo.class);
         for (FeatureInfo pt2m : result.allInstances ()) {
             String pfp = FeatureInfoAccessor.DEFAULT.getDelegateFilePath(pt2m);
             if (pfp != null) {
