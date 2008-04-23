@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,8 +50,12 @@ import org.netbeans.modules.gsf.api.GsfLanguage;
 
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.modules.InstalledFileLocator;
 
 public class ScalaLanguage implements GsfLanguage {
+
+    private static FileObject scalaStubsFo;
 
     public ScalaLanguage() {
     }
@@ -71,7 +76,40 @@ public class ScalaLanguage implements GsfLanguage {
     }
 
     public Collection<FileObject> getCoreLibraries() {
-        return Collections.emptyList();
+        return Collections.singletonList(getScalaStubFo());
+    }
+
+    /** Don't need go to declaration inside these files...
+     * 
+     * @return scalaStubs's fo
+     */
+    public static FileObject getScalaStubFo() {
+        if (scalaStubsFo == null) {
+            // Core classes: Stubs for the "builtin" Scala libraries (Any, AnyRef, AnyVal, Int etc).
+            File clusterFile = InstalledFileLocator.getDefault().locate(
+                    "modules/org-netbeans-modules-scala-editing.jar", null, false);
+
+            if (clusterFile != null) {
+                File scalaStubs =
+                        new File(clusterFile.getParentFile().getParentFile().getAbsoluteFile(),
+                        "scalastubs"); // NOI18N
+                assert scalaStubs.exists() && scalaStubs.isDirectory() : "No stubs found";
+                scalaStubsFo = FileUtil.toFileObject(scalaStubs);
+            } else {
+                // During test?
+                // HACK - TODO use mock
+                String scalaDir = System.getProperty("xtest.scala.home");
+                if (scalaDir == null) {
+                    throw new RuntimeException("xtest.scala.home property has to be set when running within binary distribution");
+                }
+                File scalaStubs = new File(scalaDir + File.separator + "scalastubs");
+                if (scalaStubs.exists()) {
+                    scalaStubsFo = FileUtil.toFileObject(scalaStubs);
+                }
+            }
+        }
+
+        return scalaStubsFo;
     }
 
     public String getDisplayName() {

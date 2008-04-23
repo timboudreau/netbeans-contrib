@@ -25,4 +25,28 @@
        </java>
     </target>
     
+    <target name="release" depends="init">
+        <!-- Generated JavaScript files for core libraries, used by code completion
+             etc. See the generatestubs project for details. -->
+        <unzip dest="${cluster}" src="external/scalastubs.zip"/>
+
+        <!-- Don't make the files read-only since this is probably going
+             to create headaches for Auto Update! My thought here was that
+             users shouldn't be editing these files, so make them read-only
+             to avoid accidental edits, but I really should be sticking these
+             files in a Jar anyway; I will do that as soon as indexing works
+             inside jars.
+        <chmod perm="ugo-w">
+          <fileset dir="${cluster}/">
+            <include name="scalastubs/*"/>
+          </fileset>
+        </chmod>
+        -->
+        <!--
+        <unzip dest="${cluster}" src="external/preindexed.zip"/>
+        <copy file="external/sdocs.zip" todir="${cluster}/jsstubs"/>
+        -->
+    </target>    
+    
+    
 </project>

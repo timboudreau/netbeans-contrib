@@ -265,8 +265,7 @@ public class ScalaIndex {
             Set<Index.SearchScope> scope, boolean onlyConstructors, ScalaParserResult context,
             boolean includeMethods, boolean includeProperties) {
         
-        getByFqnJava(name, "java.lang.String", kind, scope, false, context, includeMethods, false, false);
-        getByFqnJava(name, "String", kind, scope, false, context, includeMethods, false, false);
+        //getByFqnJava(name, "String", kind, scope, false, context, includeMethods, false, false);
 
         final Set<SearchResult> result = new HashSet<SearchResult>();
 

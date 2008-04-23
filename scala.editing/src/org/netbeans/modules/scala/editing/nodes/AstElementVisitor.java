@@ -485,6 +485,11 @@ public class AstElementVisitor extends AstVisitor {
             function.setType(type);
         }
 
+        Template enclosingTemplate = currScope.getEnclosingDef(Template.class);
+        if (enclosingTemplate != null) {
+            function.setIn(enclosingTemplate.getName());
+        }
+        
         currScope.addDef(function);
 
         scopeStack.pop();
