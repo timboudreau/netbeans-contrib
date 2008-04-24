@@ -92,8 +92,18 @@ is divided into following sections:
                 INITIALIZATION SECTION 
                 ======================
             </xsl:comment>
+
+            <target name="-jdk-check" unless="javafx.jdk5.permit">
+                <condition property="jdk.verified">
+                    <matches pattern="1.[6-9]" string="${{java.specification.version}}"/>
+                </condition>
+                <fail unless="jdk.verified">
+You are attempting to build JavaFX Application with JDK 5 (or less).
+JavaFX SDK is working only on top of JDK 6 (or higher).
+                </fail>
+            </target>
             
-            <target name="-pre-init">
+            <target name="-pre-init" depends="-jdk-check">
                 <xsl:comment> Empty placeholder for easier customization. </xsl:comment>
                 <xsl:comment> You can override this target in the ../build.xml file. </xsl:comment>
             </target>
