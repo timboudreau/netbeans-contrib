@@ -140,7 +140,7 @@ public class JavaEEServerModuleFactory implements GlassfishModuleFactory {
     private static final String PERSISTENCE_API_LIB_PREFIX = "javax.javaee-10.0"; // NOI18N
     private static final String PERSISTENCE_JAVADOC = "javaee5-doc-api.zip"; // NOI18N
     
-    public boolean ensureEclipseLinkSupport(String installRoot) {
+    public synchronized boolean ensureEclipseLinkSupport(String installRoot) {
         LibraryManager lmgr = LibraryManager.getDefault();
         Library eclipseLinkLib = lmgr.getLibrary(ECLIPSE_LINK_LIB);
         
@@ -151,7 +151,7 @@ public class JavaEEServerModuleFactory implements GlassfishModuleFactory {
                 String libPath = libUrl.getFile();
                 if(!new File(libPath).exists()) {
                     Logger.getLogger("glassfish-javaee").log(Level.FINE, 
-                            "libPath does not exists.  Updating " + ECLIPSE_LINK_LIB);
+                            "libPath does not exist.  Updating " + ECLIPSE_LINK_LIB);
                     try {
                         lmgr.removeLibrary(eclipseLinkLib);
                     } catch (IOException ex) {
@@ -170,18 +170,18 @@ public class JavaEEServerModuleFactory implements GlassfishModuleFactory {
                 // classpath, src, javadoc -- library volumes
                 List<URL> libraryList = new ArrayList<URL>();
                 File f = ServerUtilities.getJarName(installRoot, EL_CORE_LIB_PREFIX);
-                if ((f!=null)&&(f.exists())){
-                    libraryList.add(f.toURI().toURL());
+                if(f != null && f.exists()) {
+                    libraryList.add(ServerUtilities.fileToUrl(f));
                 }
                 f = ServerUtilities.getJarName(installRoot, PERSISTENCE_API_LIB_PREFIX);
-                if ((f!=null)&&(f.exists())){
-                    libraryList.add(f.toURI().toURL());
+                if(f != null && f.exists()) {
+                    libraryList.add(ServerUtilities.fileToUrl(f));
                 }
-
+                
                 File j2eeDoc = InstalledFileLocator.getDefault().locate(
                         "docs/" + PERSISTENCE_JAVADOC, null, false); // NOI18N
                 List<URL> docList = new ArrayList<URL>();
-                docList.add(j2eeDoc.toURI().toURL());
+                docList.add(ServerUtilities.fileToUrl(j2eeDoc));
 
                 Map<String, List<URL>> contents = new HashMap<String, List<URL>>();
                 contents.put(CLASSPATH_VOLUME, libraryList);
@@ -206,7 +206,7 @@ public class JavaEEServerModuleFactory implements GlassfishModuleFactory {
     private static final String COMET_JAR_LIB_PREFIX = "grizzly-module"; // NOI18N
     private static final String GRIZZLY_OPTIONAL_JAR_LIB_PREFIX = "grizzly-optional"; // NOI18N
     
-    public boolean ensureCometSupport(String installRoot) {
+    public synchronized boolean ensureCometSupport(String installRoot) {
         LibraryManager lmgr = LibraryManager.getDefault();
         Library cometLib = lmgr.getLibrary(COMET_LIB);
         
@@ -217,7 +217,7 @@ public class JavaEEServerModuleFactory implements GlassfishModuleFactory {
                 String libPath = libUrl.getFile();
                 if(!new File(libPath).exists()) {
                     Logger.getLogger("glassfish-javaee").log(Level.FINE, 
-                            "libPath does not exists.  Updating " + COMET_LIB);
+                            "libPath does not exist.  Updating " + COMET_LIB);
                     try {
                         lmgr.removeLibrary(cometLib);
                     } catch (IOException ex) {
@@ -236,13 +236,11 @@ public class JavaEEServerModuleFactory implements GlassfishModuleFactory {
                 // classpath, src,  -- library volumes
                 List<URL> libraryList = new ArrayList<URL>();
                 File f = ServerUtilities.getJarName(installRoot, GRIZZLY_OPTIONAL_JAR_LIB_PREFIX);
-                if ((f != null) && (f.exists())) {
-                    libraryList.add(f.toURI().toURL());
-                } else {
+                if(f == null || !f.exists()) {
                     f = ServerUtilities.getJarName(installRoot, COMET_JAR_LIB_PREFIX);
-                    if ((f != null) && (f.exists())) {
-                        libraryList.add(f.toURI().toURL());
-                    }
+                }
+                if(f != null && f.exists()) {
+                    libraryList.add(ServerUtilities.fileToUrl(f));
                 }
 
 //                File j2eeDoc = InstalledFileLocator.getDefault().locate(

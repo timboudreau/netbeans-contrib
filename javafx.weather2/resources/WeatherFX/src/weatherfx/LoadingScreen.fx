@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2007, Sun Microsystems, Inc.
+ * Copyright (c) 2007,2008 Sun Microsystems, Inc.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without 
@@ -28,11 +28,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
+/*
+ * LoadingScreen.fx
+ *
+ * Created on Apr 8, 2008, 12:40:12 PM
+ */
+
 package weatherfx;
 
-import javafx.ui.UIElement;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+
+import javafx.gui.*;
+
 
 /**
  * Class holding graphics data for the loading screen. Original imported from Adobe Illustrator
@@ -41,41 +47,52 @@ import javafx.ui.canvas.*;
  * @author breh
  */
 
-public class LoadingScreen extends CompositeNode {    
+
+public class LoadingScreen extends CustomNode  {    
+
     
-    public function SVGID_1_(): LinearGradient {
-        return 
-            LinearGradient {
-                startX: 117.1709
-                endX: 117.1709
-                startY: 77.7261
-                endY: -6.5569
-                stops: [
-                    Stop {
-                        offset: 0.0
-                        color: Color.rgba(0x1A, 0x1A, 0x1A, 0xff)
-                    },
-                    Stop {
-                        offset: 0.2234
-                        color: Color.rgba(0x0F, 0x0F, 0x0F, 0xff)
-                    },
-                    Stop {
-                        offset: 0.6046
-                        color: Color.rgba(0x04, 0x04, 0x04, 0xff)
-                    },
-                    Stop {
-                        offset: 1.0
-                        color: Color.rgba(0x00, 0x00, 0x00, 0xff)
-                    },
-                ]
-        };
+    private function rgba(r:Number, g:Number, b:Number, a:Number):Color {
+        return Color {red: r/255, green: g/255, blue: b/255, opacity: a/255};
+    }     
+    
+    private function matrix(m00:Number,m01:Number,m02:Number,m10:Number,m11:Number,m12:Number) {
+        return Affine{m00:m00 m01:m01 m02:m02 m10:m10 m11:m11 m12:m12};
     }
     
-    function composeNode(): Node {
-        return Group { 
+
+    private function SVGID_1_(): LinearGradient {
+         LinearGradient {
+            //gradientUnits: USER_SPACE_ON_USE
+            startX: 117.1709
+            endX: 117.1709
+            startY: 77.7261
+            endY: -6.5569
+            stops: [
+                Stop {
+                    offset: 0.0
+                    color: rgba(0x1A, 0x1A, 0x1A, 0xff)
+                },
+                Stop {
+                    offset: 0.2234
+                    color: rgba(0x0F, 0x0F, 0x0F, 0xff)
+                },
+                Stop {
+                    offset: 0.6046
+                    color: rgba(0x04, 0x04, 0x04, 0xff)
+                },
+                Stop {
+                    offset: 1.0
+                    color: rgba(0x00, 0x00, 0x00, 0xff)
+                }
+            ]
+        }
+    }
+    
+    protected function create():Node {
+        return Group {
             content:[
                 Path {
-                    d: [
+                    elements: [
                         MoveTo {
                             x: 233.841
                             y: 75.336
@@ -88,12 +105,12 @@ public class LoadingScreen extends CompositeNode {
                             y2: 7.076
                             x3: -3.383
                             y3: 7.076
-                            smooth: false
+                            //smooth: false
                             absolute: false
                         },
-                        HLine {
-                            x: 3.887
-                            absolute: true
+                        LineTo {
+                            x: -226.571
+                            absolute: false
                         },
                         CurveTo {
                             x1: -1.871
@@ -102,12 +119,12 @@ public class LoadingScreen extends CompositeNode {
                             y2: -3.169
                             x3: -3.387
                             y3: -7.076
-                            smooth: false
+                            //smooth: false
                             absolute: false
                         },
-                        VLine {
-                            y: 7.576
-                            absolute: true
+                        LineTo {
+                            y: -67.76
+                            absolute: false
                         },
                         CurveTo {
                             x1: 0.5
@@ -116,10 +133,10 @@ public class LoadingScreen extends CompositeNode {
                             y2: 0.5
                             x3: 3.887
                             y3: 0.5
-                            smooth: false
+                            //smooth: false
                             absolute: true
                         },
-                        HLine {
+                        LineTo {
                             x: 226.571
                             absolute: false
                         },
@@ -130,45 +147,31 @@ public class LoadingScreen extends CompositeNode {
                             y2: 3.167
                             x3: 3.383
                             y3: 7.076
-                            smooth: false
+                            //smooth: false
                             absolute: false
                         },
-                        VLine {
-                            y: 75.336
-                            absolute: true
+                        LineTo {
+                            y: 67.76
+                            absolute: false
                         },
                         ClosePath {},
                     ]
                     fill: SVGID_1_()
-                    stroke: Color.rgba(0x00, 0x00, 0x00, 0xff)
+                    stroke: rgba(0x00, 0x00, 0x00, 0xff)
                 },
                 Text {
-                    verticalAlignment: Alignment.BASELINE
-                    content: 'looking at the sky....'
-                    font: Font {faceName: 'Arial', style: FontStyle.BOLD, size: 12.0}
-                    fill: Color.rgba(0xFF, 0xFF, 0xFF, 0xff)
+                    textOrigin: TextOrigin.BASELINE
+                    content: "looking at the sky...."
+                    font: Font.font("Arial",FontStyle.BOLD,12.0)
+                    fill: rgba(0xFF, 0xFF, 0xFF, 0xff)
                     transform: [
-                        Matrix.matrix(1.0, 0.0, 0.0, 1.0, 4.3374, 77.7271),
+                        matrix(1.0, 0.0, 0.0, 1.0, 4.3374, 77.7271),
                     ]
                     x: 0.0
                     y: 0.0
-                },
-                /*
-                Text {
-                    verticalAlignment: BASELINE
-                    content: 'once loaded the weather would be nice'
-                    x: 0.0
-                    y: 0.0
-                },
-                Text {
-                    verticalAlignment: BASELINE
-                    content: 'to fade to the weather layout...'
-                    x: 0.0
-                    y: 14.4
-                },*/
+                }              
             ]
-        };
+         };
+    
     }
 }
-
-LoadingScreen {}

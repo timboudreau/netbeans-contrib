@@ -397,7 +397,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             return null;
         }
 
-        public Void visitVariableDeclaration(JavaFXVariableTree tree, List<Node> d) {
+        public Void visitVariable(JavaFXVariableTree tree, List<Node> d) {
             List<Node> below = new ArrayList<Node>();
             
             addCorrespondingElement(below);
@@ -405,7 +405,7 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
             addCorrespondingComments(below);
             super.visitVariable/*Declaration*/(tree, below);
             // XXX: Won't be there, just JFXC-1119 workaround
-            super.scan(tree.getOnReplaceTree(), below);
+//            super.scan(tree.getOnReplaceTree(), below);
             
             d.add(new TreeNode(info, getCurrentPath(), below));
             return null;
@@ -1196,10 +1196,10 @@ public class TreeNode extends AbstractNode implements OffsetProvider {
         @Override
         public Void visitVariable(VariableTree tree, List<Node> d) {
             // XXX: Won't be there, just JFXC-1119 workaround
-            if (tree instanceof JavaFXVariableTree) {
+/*            if (tree instanceof JavaFXVariableTree) {
                 visitVariableDeclaration((JavaFXVariableTree)tree, d);
                 return null;
-            }
+            }*/
             List<Node> below = new ArrayList<Node>();
             
             addCorrespondingElement(below);

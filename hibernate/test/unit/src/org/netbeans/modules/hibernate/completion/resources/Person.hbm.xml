@@ -3,7 +3,7 @@
 <hibernate-mapping>
   <class name="travel.Person" table="PERSON">
     <id column="PERSONID" name="personId">
-      <generator class="increment"/>
+      <generator class=""/>
     </id>
     <property column="NAME" name="name"/>
     <property column="JOBTITLE" name="jobTitle"/>

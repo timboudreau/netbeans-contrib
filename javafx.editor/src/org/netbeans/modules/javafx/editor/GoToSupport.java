@@ -223,14 +223,14 @@ System.err.println("not an identifier");
 
     private static void goToType(final CompilationInfo ci, final TypeMirror tm) {
         final CompilationUnitTree unit = ci.getCompilationUnit();
-        
+        final int[] ret = new int[] {-1};
         new JavaFXTreePathScanner<Void, Void>() {
       
             public @Override Void visitClassDeclaration(ClassDeclarationTree tree, Void v) {
                 TypeMirror found = ci.getTrees().getTypeMirror(getCurrentPath());
                 if (tm.equals(found)) {
                     long pos = ci.getTrees().getSourcePositions().getStartPosition(unit, tree);
-                    doOpen(ci.getJavaFXSource().getFileObject(), (int)pos);
+                    ret[0] = (int)pos;
                 }
 
                 super.visitClassDeclaration(tree, null);
@@ -239,7 +239,11 @@ System.err.println("not an identifier");
             }
             
         }.scan(unit, null);
-        
+        if (ret[0] != -1) {
+            doOpen(ci.getJavaFXSource().getFileObject(), ret[0]);
+        } else { // try java type
+            openJava(ci, tm.toString());
+        }
     }
     
     private static boolean doOpen(FileObject fo, int offset) {
@@ -278,4 +282,19 @@ System.err.println("not an identifier");
         return false;
     }
 
+    private static boolean openJava(CompilationInfo ci, String name) {
+        // This doesn't work, LinkageError is caused by the fact that
+        // out Element class is comming from different source (javafxc)
+        // than java support's Element class
+/*        Elements elements = ci.getElements();
+        TypeElement elem = elements.getTypeElement(name);     //NOI18N
+        FileObject ref = ci.getJavaFXSource().getFileObject();
+        return ElementOpen.open(org.netbeans.api.java.source.ClasspathInfo.create(ref), elem);
+ */
+        return false;
+    }
+    
+    static boolean openFx(CompilationInfo context, String name) {
+        return false;
+    }
 }

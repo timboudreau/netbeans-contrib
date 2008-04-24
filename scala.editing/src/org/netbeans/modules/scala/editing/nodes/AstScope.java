@@ -167,7 +167,7 @@ public class AstScope implements Iterable<AstScope> {
         }
     }
 
-    public AstElement getElement(TokenHierarchy th, int offset) {
+    public AstElement getDefRef(TokenHierarchy th, int offset) {
         if (defs != null) {
             if (!defsSorted) {
                 Collections.sort(defs, new ElementComparator(th));
@@ -208,6 +208,30 @@ public class AstScope implements Iterable<AstScope> {
             }
         }
 
+        if (scopes != null) {
+            if (!scopesSorted) {
+                Collections.sort(scopes, new ScopeComparator(th));
+                scopesSorted = true;
+            }
+            int low = 0;
+            int high = scopes.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstScope middle = scopes.get(mid);
+                if (offset < middle.getOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getEndOffset(th)) {
+                    low = mid + 1;
+                } else {
+                    return middle.getDefRef(th, offset);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public AstExpr getExpr(TokenHierarchy th, int offset) {
         if (exprs != null) {
             if (!exprsSorted) {
                 Collections.sort(exprs, new ExprComparator(th));
@@ -243,7 +267,7 @@ public class AstScope implements Iterable<AstScope> {
                 } else if (offset >= middle.getEndOffset(th)) {
                     low = mid + 1;
                 } else {
-                    return middle.getElement(th, offset);
+                    return middle.getExpr(th, offset);
                 }
             }
         }
@@ -251,6 +275,7 @@ public class AstScope implements Iterable<AstScope> {
         return null;
     }
 
+    
     public List<AstElement> findOccurrences(AstElement element) {
         AstDef def = null;
         if (element instanceof AstDef) {

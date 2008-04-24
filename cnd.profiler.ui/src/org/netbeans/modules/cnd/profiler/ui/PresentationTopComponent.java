@@ -11,20 +11,20 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
-import org.netbeans.modules.cnd.profiler.data.Function;
-import org.netbeans.modules.cnd.profiler.providers.GprofProvider;
-import org.netbeans.modules.cnd.profiler.providers.TestProvider;
-import org.netbeans.modules.cnd.profiler.views.CalleeView;
-import org.netbeans.modules.cnd.profiler.views.CallersView;
-import org.netbeans.modules.cnd.profiler.views.FunctionView;
-import org.netbeans.modules.cnd.profiler.views.PlainView;
-import org.openide.explorer.ExplorerManager;
-import org.openide.nodes.Node;
-import org.openide.util.Lookup;
+import org.netbeans.modules.cnd.profiler.data.FunctionContainer;
+import org.netbeans.modules.cnd.profiler.views.CalleesViewPanel;
+import org.netbeans.modules.cnd.profiler.views.CallersViewPanel;
+import org.netbeans.modules.cnd.profiler.views.FunctionViewPanel;
+import org.netbeans.modules.cnd.profiler.views.PlainViewPanel;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+        
+import org.netbeans.modules.cnd.profiler.providers.*;
+import org.openide.explorer.ExplorerManager;
+import org.openide.nodes.Node;
+import org.openide.util.Lookup;
 
 /**
  * Top component which displays something.
@@ -37,9 +37,9 @@ final class PresentationTopComponent extends TopComponent {
 
     private static final String PREFERRED_ID = "PresentationTopComponent";
     
-    private final FunctionView plainView = new PlainView();
-    private final FunctionView calleesView = new CalleeView();
-    private final FunctionView callersView = new CallersView();
+    private final FunctionViewPanel plainView = new PlainViewPanel();
+    private final FunctionViewPanel calleesView = new CalleesViewPanel();
+    private final FunctionViewPanel callersView = new CallersViewPanel();
 
     private PresentationTopComponent() {
         initComponents();
@@ -47,9 +47,9 @@ final class PresentationTopComponent extends TopComponent {
         setToolTipText(NbBundle.getMessage(PresentationTopComponent.class, "HINT_PresentationTopComponent"));
         setIcon(Utilities.loadImage(ICON_PATH, true));
         
-        topPanel.add(plainView.getComponent());
-        callerPanel.add(callersView.getComponent());
-        calleePanel.add(calleesView.getComponent());
+        topPanel.add(plainView);
+        callerPanel.add(callersView);
+        calleePanel.add(calleesView);
         
         plainView.setRoot(new TestProvider().getFunctions());
     }
@@ -58,19 +58,17 @@ final class PresentationTopComponent extends TopComponent {
     public void addNotify() {
         super.addNotify();
         // add selection listener
-        ExplorerManager.Provider provider = (ExplorerManager.Provider) plainView.getComponent();
-        final ExplorerManager manager = provider.getExplorerManager();
+        final ExplorerManager manager = plainView.getExplorerManager();
         manager.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
+                FunctionContainer[] functions = new FunctionContainer[0];
                 Node[] nodes = manager.getSelectedNodes();
                 if (nodes.length != 0) {
-                    Collection<Function> selFunctions = nodes[0].getLookup().lookup(new Lookup.Template(Function.class)).allInstances();
-                    if (!selFunctions.isEmpty()) {
-                        Function function = selFunctions.iterator().next();
-                        calleesView.setRoot(function);
-                        callersView.setRoot(function);
-                    }
+                    Collection<FunctionContainer> selFunctions = nodes[0].getLookup().lookup(new Lookup.Template(FunctionContainer.class)).allInstances();
+                    functions = selFunctions.toArray(new FunctionContainer[selFunctions.size()]);
                 }
+                calleesView.setRoot(functions);
+                callersView.setRoot(functions);
             }
         });
     }
