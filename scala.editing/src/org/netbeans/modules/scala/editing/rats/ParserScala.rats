@@ -527,17 +527,15 @@ transient generic TraitDef  = Id TypeParamClause?                               
 transient generic ObjectDef = Id                                                                ClassTemplateOpt ;
 
 generic ClassTemplateOpt = 
-  Extends ClassTemplate 
-/ ( ( <Extends> void:"extends":key )? TemplateBody 
-  / ( <UBounds> void:"<:"     :key )? TemplateBody 
-  )? 
+  Extends  ClassTemplate 
+/ Extends? TemplateBody
+/ 
 ;
 
 generic TraitTemplateOpt =
-  Extends TraitTemplate 
-/ ( ( <Extends> void:"extends":key )? TemplateBody 
-  / ( <UBounds> void:"<:"     :key )? TemplateBody 
-  )? 
+  Extends  TraitTemplate 
+/ Extends? TemplateBody
+/ 
 ;
 
 generic Extends = "extends":key / "<:":key ;

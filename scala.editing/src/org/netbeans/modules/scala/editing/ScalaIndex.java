@@ -563,12 +563,12 @@ public class ScalaIndex {
                 }
             }
 
-            if (type == null || "Object".equals(type)) { // NOI18N
+            if (type == null || "AnyRef".equals(type)) { // NOI18N
                 break;
             }
             type = getExtends(type, scope);
             if (type == null) {
-                type = "Object"; // NOI18N
+                type = "AnyRef"; // NOI18N
                 haveRedirected = true;
             }
             // Prevent circularity in types
