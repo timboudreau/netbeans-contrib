@@ -145,6 +145,7 @@ public class JavaFXPlatformImpl extends JavaFXPlatform {
         this (dispName,  javaFolders, fxFolder, initialProperties, sysProperties,sources, javadoc);
         this.properties.put (PLAT_PROP_ANT_NAME,antName);
         this.properties.put (PLAT_PROP_FX_HOME,fxFolder.toString());
+        addPlatformProperties(this);
     }
 
     /**
@@ -349,7 +350,8 @@ public class JavaFXPlatformImpl extends JavaFXPlatform {
         Thread t = new Thread(new Runnable(){
             public void run(){
                 try{
-                    tt.join(); //hack to avoid overwriting by J2EEPlatform module the properties we put
+                    if (platform instanceof DefaultPlatformImpl)
+                        tt.join(); //hack to avoid overwriting by J2EEPlatform module the properties we put
                 }catch(Exception e){}
                 ProjectManager.mutex().writeAccess(
                         new Runnable(){
