@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2007, Sun Microsystems, Inc.
  * All rights reserved.
@@ -26,16 +25,20 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+*/
+
+/*
+ * Weather.fx
+ *
+ * Created on Sep 20, 2007, 9:32:45 AM
  */
 
 package weatherfx;
 
-import javafx.ui.UIElement;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
-import javafx.ui.filter.*;
+import javafx.gui.*;
+import javafx.gui.effect.*;
+import javafx.animation.*;
 import java.lang.System;
-import java.lang.Thread;
 
 /**
  * Class holding all the graphics data. Original imported from Adobe Illustrator
@@ -44,15 +47,74 @@ import java.lang.Thread;
  * @author breh
  */
 
-public class Weather extends CompositeNode {
+
+public class Weather extends CustomNode {
     
+    private function rgba(r:Number, g:Number, b:Number, a:Number):Color {
+        return Color {red: r/255, green: g/255, blue: b/255, opacity: a/255};
+        }     
+    
+    private function matrix(m00:Number,m01:Number,m02:Number,m10:Number,m11:Number,m12:Number) {
+        return Affine{m00:m00 m01:m01 m02:m02 m10:m10 m11:m11 m12:m12};
+        }    
+    
+    // gfx
+    
+    
+    private attribute outlineShape:Shape;
+    
+    private function showWeather() {
+        initializeWeatherScreen();
+        showWeatherTimeline.start();
+    }
+    
+    private function initializeWeatherScreen():Void {
+        loadTodayConditionImages();
+        loadTomorrowConditionImages();
+    }
+    
+    private function loadTodayConditionImages() {
+        if (todayConditionImages == null) {
+            todayConditionImages = [
+                ImageView{},
+                ImageView{image: Image{url:"{__DIR__}/imgs/sun.png"}},
+                AnimatedImage.create("{__DIR__}/imgs/cloud", "cloud_00", "png", 33),
+                AnimatedImage.create("{__DIR__}/imgs/rain", "rain_00", "png", 33),
+                AnimatedImage.create("{__DIR__}/imgs/snow", "snow_00", "png", 33),
+                AnimatedImage.create("{__DIR__}/imgs/lightning", "lightning_00", "png", 33),
+                ImageView{image: Image{url:"{__DIR__}/imgs/moon.png"}},
+            ]
+        }
+    }
+    
+    
+    private function loadTomorrowConditionImages() {
+        if (tomorrowConditionImages == null) {
+            tomorrowConditionImages = [
+                ImageView{},
+                ImageView{image: Image{url:"{__DIR__}/imgs/sun.png"}},
+                AnimatedImage.create("{__DIR__}/imgs/cloud", "cloud_00", "png", 33),
+                AnimatedImage.create("{__DIR__}/imgs/rain", "rain_00", "png", 33),        
+                AnimatedImage.create("{__DIR__}/imgs/snow", "snow_00", "png", 33),
+                AnimatedImage.create("{__DIR__}/imgs/lightning", "lightning_00", "png", 33),        
+                ImageView{image: Image{url:"{__DIR__}/imgs/moon.png"}},
+            ]
+        }
+    }
+    
+    
+    private attribute todayConditionImages:Node[];    
+    private attribute tomorrowConditionImages:Node[];
+    
+    
+    private function getConditionImageForCode(conditionImages:Node[],code:Integer):Node {
+        return conditionImages[code];
+        }
+
     // business logic
-    private attribute weatherModel: WeatherModel on replace {
-        /*
-        loadingScreenOpacity = [1.0,0.99..0.0] dur 1000;
-        weatherScreenOpacity = [0.0,0.01..1.0] dur 1000;
-         */
-    };
+    public attribute weatherModel: WeatherModel on replace {
+        showWeather();
+    }
 
     // animation support 
     private attribute todayNodesOpacity: Number = 1.0;
@@ -61,748 +123,716 @@ public class Weather extends CompositeNode {
     private attribute lowsTriangleTransform:TransformHelper = TransformHelper {};
     private attribute highsTriangleTransform:TransformHelper = TransformHelper {
         scale: bind lowsTriangleTransform.scale
+        };
+    
+    private attribute todayHighsTY:Number = 0.0;
+    private attribute todayLowsTY:Number = 0.0;
+    private attribute tomorrowHighsTY:Number = 0.0;
+    private attribute tomorrowLowsTY:Number = 0.0;
+   
+    
+        private attribute toTomorrowTimeline = Timeline {
+        keyFrames: [
+        KeyFrame {
+            time: 0s
+            values: [
+                todayNodesOpacity => 1.0, // this sucks big time
+                lowsTriangleTransform.tx => 0.0,
+                lowsTriangleTransform.ty => 0.0,
+                highsTriangleTransform.tx => 0.0,                
+                highsTriangleTransform.ty => 0.0,
+                lowsTriangleTransform.scale => 1.0,
+                todayLowsTY => 0.0,
+                todayHighsTY => 0.0,
+                tomorrowLowsTY => 70,
+                tomorrowHighsTY => -70
+            ]
+            }, 
+        KeyFrame {
+            time: 200ms
+            values: lowsTriangleTransform.scale => 1.0,
+            },            
+        KeyFrame {
+            time: 500ms
+            values: [
+                tomorrowLowsTY => 70,
+                tomorrowHighsTY => -70
+            ]
+            },
+        KeyFrame {
+            time: 1s
+            values: [
+                todayNodesOpacity => 0.0 tween Interpolator.EASEBOTH ,                
+                lowsTriangleTransform.tx => 105.0 tween Interpolator.EASEBOTH,
+                lowsTriangleTransform.ty => -7.0 tween Interpolator.EASEBOTH,
+                lowsTriangleTransform.scale => 2.0  tween Interpolator.LINEAR,                
+                highsTriangleTransform.tx => 10.0 tween Interpolator.EASEBOTH,
+                highsTriangleTransform.ty => 11.0 tween Interpolator.EASEBOTH,
+                todayLowsTY => 70.0 tween Interpolator.EASEBOTH,
+                todayHighsTY => -70.0 tween Interpolator.EASEBOTH,
+                tomorrowLowsTY => 0.0 tween Interpolator.EASEBOTH,
+                tomorrowHighsTY => 0.0 tween Interpolator.EASEBOTH,
+            ]
+            }
+        ]
+        };
+
+    
+    private attribute toTodayTimeline = Timeline {
+        keyFrames: [
+            KeyFrame {
+                time: 0s
+                values: [
+                    todayNodesOpacity => 0.0,
+                    lowsTriangleTransform.tx => 105.0,
+                    lowsTriangleTransform.ty => -7.0,
+                    highsTriangleTransform.tx => 10.0,
+                    highsTriangleTransform.ty => 11.0,                    
+                    lowsTriangleTransform.scale => 2.0,
+                    todayLowsTY => 70.0,
+                    todayHighsTY => -70.0,
+                    tomorrowLowsTY => 0.0,
+                    tomorrowHighsTY => 0.0,
+                    /*
+                    lowsTriangleTransform.tx => lowsTriangleTransform.tx,
+                    lowsTriangleTransform.ty => lowsTriangleTransform.ty,
+                    highsTriangleTransform.tx => highsTriangleTransform.tx,
+                    highsTriangleTransform.ty => highsTriangleTransform.ty,                    
+                    lowsTriangleTransform.scale => lowsTriangleTransform.scale,
+                    todayLowsTY => todayLowsTY,
+                    todayHighsTY => todayHighsTY,
+                    tomorrowLowsTY => tomorrowLowsTY,
+                    tomorrowHighsTY => tomorrowHighsTY,                    
+                    */
+                ]
+                }, 
+            KeyFrame {
+                time: 500ms
+                values: [
+                    tomorrowLowsTY => 70 tween Interpolator.EASEBOTH,
+                    tomorrowHighsTY => -70 tween Interpolator.EASEBOTH,
+                ]
+                },
+            KeyFrame {
+                time: 800ms
+                values: lowsTriangleTransform.scale => 1.0 tween Interpolator.LINEAR,
+                },
+            KeyFrame {
+                time: 1s
+                values: [
+                    todayNodesOpacity => 1.0 tween Interpolator.EASEBOTH,
+                    lowsTriangleTransform.tx => 0.0 tween Interpolator.EASEBOTH, 
+                    lowsTriangleTransform.ty => 0.0 tween Interpolator.EASEBOTH,
+                    highsTriangleTransform.ty => 0.0 tween Interpolator.EASEBOTH,
+                    highsTriangleTransform.tx => 0.0 tween Interpolator.EASEBOTH,                    
+                    todayLowsTY => 0.0 tween Interpolator.EASEBOTH,
+                    todayHighsTY => 0.0 tween Interpolator.EASEBOTH,                    
+                ]
+                }
+            ]
+        };    
+    
+    private attribute weatherScreenOpacity:Number = 0.0;
+    private attribute loadingScreenOpacity:Number = bind 1.0 - weatherScreenOpacity;
+    
+    
+    private attribute showWeatherTimeline = Timeline {
+        keyFrames: [
+        KeyFrame {
+            time: 0s
+            values: weatherScreenOpacity => 0.0            
+            }, 
+        KeyFrame {
+            time: 500ms
+            values: weatherScreenOpacity => 1.0 tween Interpolator.EASEBOTH
+            },
+        ]
     };
     
-    private attribute todayHighsTY:Number;
-    private attribute todayLowsTY:Number;
-    private attribute tomorrowHighsTY:Number = 0;
-    private attribute tomorrowLowsTY:Number = 0;
-    
-    private attribute loadingScreenOpacity:Number = 1.0;
-    private attribute weatherScreenOpacity:Number = 0.0;
-
-
-    function getConditionImageForCode( conditionImages: ImageView[], code: Integer ): ImageView {
-        return conditionImages[code];
-    }
-
-    attribute todayConditionImages : ImageView[] = [
-        ImageView{},
-        ImageView{image: Image{url:"{__DIR__}/imgs/sun.png"}},
-        AnimatedImage {
-            baseURL: "{__DIR__}/imgs/cloud"
-            baseName: "cloud_00"
-            extension: "png"
-            frameDelay: 85
-            imagesCount: 33
-        }, 
-        AnimatedImage {
-            baseURL: "{__DIR__}/imgs/rain"
-            baseName: "rain_00"
-            extension: "png"
-            frameDelay: 85
-            imagesCount: 33
-        },
-        AnimatedImage {
-            baseURL: "{__DIR__}/imgs/snow"
-            baseName: "snow_00"
-            extension: "png"
-            frameDelay: 85
-            imagesCount: 33
-        }, 
-        AnimatedImage {
-            baseURL: "{__DIR__}/imgs/lighning"
-            baseName: "lighning_00"
-            extension: "png"
-            frameDelay: 85
-            imagesCount: 32
-        }, 
-        ImageView{image: Image{url:"{__DIR__}/imgs/moon.png"}},
-    ];
-
-    attribute tomorrowConditionImages : ImageView[] = [
-        ImageView{},
-        ImageView{image: Image{url:"{__DIR__}/imgs/sun.png"}},
-        AnimatedImage {
-            baseURL: "{__DIR__}/imgs/cloud"
-            baseName: "cloud_00"
-            extension: "png"
-            frameDelay: 85
-            imagesCount: 33
-        }, 
-        AnimatedImage {
-            baseURL: "{__DIR__}/imgs/rain"
-            baseName: "rain_00"
-            extension: "png"
-            frameDelay: 85
-            imagesCount: 33
-        },
-        AnimatedImage {
-            baseURL: "{__DIR__}/imgs/snow"
-            baseName: "snow_00"
-            extension: "png"
-            frameDelay: 85
-            imagesCount: 33
-        }, 
-        AnimatedImage {
-            baseURL: "{__DIR__}/imgs/lighning"
-            baseName: "lighning_00"
-            extension: "png"
-            frameDelay: 85
-            imagesCount: 31
-        }, 
-        ImageView{image: Image{url:"{__DIR__}/imgs/moon.png"}},
-    ];
-
-    function createTodayClickableArea() {
-        return Rect {
+    // interactive elements
+    private function createTodayClickableArea() {        
+        var today = Rectangle {
+            //var: self
             x:0 y:129 width: 90 height:12
             fill: Color.WHITE
-            opacity: 0.01
-            onMousePressed: function( e: CanvasMouseEvent ): Void {        
-                /*
-                todayNodesOpacity = [0.0,0.01 .. 1.0] dur 1000;            
-
-                lowsTriangleTransform.scale = [2.2,2.19 .. 1.0] dur 800 linear;
-
-                lowsTriangleTransform.tx = [105..0] dur 1000;
-                lowsTriangleTransform.ty = [-6..0] dur 1000;
-
-                highsTriangleTransform.tx = [10..0] dur 1000;            
-                highsTriangleTransform.ty = [11..0] dur 1000;         
-
-                todayLowsTY = [70..0] dur 1000;
-                todayHighsTY = [-70..0] dur 1000;
-                tomorrowLowsTY = [0..70] dur 500;
-                tomorrowHighsTY = [0..-70] dur 500;
-                 */
+            opacity: 0.0
+            onMousePressed: function (e) { 
+                toTodayTimeline.start();
+                }
+            
+            /*
+            onMouseEntered: operation (e:CanvasMouseEvent) {                       
+                System.out.println("entered today");
+                self.opacity = [0.00,0.01 .. 0.5] dur 1000;
             }
-        };
-    }
+            onMouseExited: operation (e:CanvasMouseEvent) {                       
+                System.out.println("exited today");
 
-    function createTomorrowClickableArea() {
-        return Rect {
+                self.opacity = [0.5, 0.49 .. 0] dur 1000;
+            }
+    */
+            };
+        return today;
+        }
+    
+    
+    private function createTomorrowClickableArea() {
+        return Rectangle {
+            //var: self
             x:90 y:129 width: 145 height:12 
             fill: Color.WHITE
-            opacity: 0.01
-            onMousePressed: function( e: CanvasMouseEvent ): Void {                       
-                /*
-                todayNodesOpacity = [1.0,0.99 .. 0.0] dur 1000;
-                lowsTriangleTransform.scale = [1.0,1.01 .. 2.2] dur 800 linear;
+            opacity: 0.0
+            onMousePressed: function (e) {
+                toTomorrowTimeline.start();                
+                }        
+            };
+        }
+    
 
-                highsTriangleTransform.tx = [0..10] dur 1000;
-                highsTriangleTransform.ty = [0..11] dur 1000;
-
-                lowsTriangleTransform.tx = [0..105] dur 1000;                     
-                lowsTriangleTransform.ty = [0..-6] dur 1000;                    
-
-                todayLowsTY = [0..70] dur 500;
-                todayHighsTY = [0..-70] dur 500;
-                tomorrowLowsTY = [70..0] dur 1000;
-                tomorrowHighsTY = [-70..0] dur 1000;
-                 */
-            }        
-        };
+    private function createTextShadow():Effect {
+        return DropShadow {offsetX:3 offsetY:3 radius: 18 color: Color.WHITE};
     }
-
-    function weatherGradient(): LinearGradient {
-        return LinearGradient {
-            transform: [
-                Matrix.matrix(1.0, 0.0, 0.0, -1.0, 22.52, -15.1484),
-            ]
-            startX: 94.6499
-            endX: 94.6499
-            startY: -151.0098
-            endY: -66.7269
-            stops: [
-                Stop {
-                    offset: 0.0
-                    color: Color.rgba( 0x10, 0x72, 0xBA, 0xff )
-                },
-                Stop {
-                    offset: 0.0835
-                    color: Color.rgba(0x4F, 0x8C, 0xC5, 0xff)
-                },
-                Stop {
-                    offset: 0.1685
-                    color: Color.rgba(0x70, 0xA5, 0xD1, 0xff)
-                },
-                Stop {
-                    offset: 0.254
-                    color: Color.rgba(0x8B, 0xBB, 0xDA, 0xff)
-                },
-                Stop {
-                    offset: 0.3389
-                    color: Color.rgba(0x9E, 0xCC, 0xE1, 0xff)
-                },
-                Stop {
-                    offset: 0.423
-                    color: Color.rgba(0xAA, 0xD6, 0xE5, 0xff)
-                },
-                Stop {
-                    offset: 0.5055
-                    color: Color.rgba(0xAF, 0xDB, 0xE7, 0xff)
-                },
-                Stop {
-                    offset: 0.5692
-                    color: Color.rgba(0xA8, 0xD4, 0xE4, 0xff)
-                },
-                Stop {
-                    offset: 0.6617
-                    color: Color.rgba(0x94, 0xC3, 0xDD, 0xff)
-                },
-                Stop {
-                    offset: 0.772
-                    color: Color.rgba(0x76, 0xAA, 0xD3, 0xff)
-                },
-                Stop {
-                    offset: 0.8948
-                    color: Color.rgba(0x4F, 0x8B, 0xC5, 0xff)
-                },
-                Stop {
-                    offset: 1.0
-                    color: Color.rgba(0x10, 0x72, 0xBA, 0xff)
-                },
-            ]
-        };
-    };
-
-
-    // outline shape used for clipping the top weather node
-    attribute outlineShape : Shape =  Path {
-            transform: Translate{ x: 10, y: -57 }
-            d: [
-                MoveTo {
-                    x: 233.84
-                    y: 133.471
-                    absolute: true
-                },
-                CurveTo {
-                    x1: 0.0
-                    y1: 3.907
-                    x2: -1.516
-                    y2: 7.076
-                    x3: -3.383
-                    y3: 7.076
-                    smooth: false
-                    absolute: false
-                },
-                HLine {
-                    x: 3.887
-                    absolute: true
-                },
-                CurveTo {
-                    x1: -1.871
-                    y1: 0.0
-                    x2: -3.387
-                    y2: -3.169
-                    x3: -3.387
-                    y3: -7.076
-                    smooth: false
-                    absolute: false
-                },
-                VLine {
-                    y: -67.76
-                    absolute: false
-                },
-                CurveTo {
-                    x1: 0.0
-                    y1: -3.908
-                    x2: 1.516
-                    y2: -7.076
-                    x3: 3.387
-                    y3: -7.076
-                    smooth: false
-                    absolute: false
-                },
-                HLine {
-                    x: 226.57
-                    absolute: false
-                },
-                CurveTo {
-                    x1: 1.867
-                    y1: 0.0
-                    x2: 3.383
-                    y2: 3.167
-                    x3: 3.383
-                    y3: 7.076
-                    smooth: false
-                    absolute: false
-                },
-                VLine {
-                    y: 133.471
-                    absolute: true
-                },
-                ClosePath {},
-            ]
-            stroke: Color.rgba(0x00, 0x00, 0x00, 0xff)
-        };
-
-
-
-    function composeNode() : Node {
-        return 
+    
+    private function createSmallStuffBlackShadow():Effect {
+        return DropShadow {offsetX:3 offsetY:3 radius: 12 color: Color.GRAY};
+    }
+        
+    private function createMainTempShadow():Effect {
+        return DropShadow {offsetX:3 offsetY:3 radius: 12};
+    }        
+    
+    // graphics defintion
+    protected function create():Node { 
         Group {
-            //clip: Clip { shape: Rect {x:0 y:0 width: 245 height: 85}}    
-            clip: Clip { shape: outlineShape}    
+            clip: Rectangle {x:0 y:0 width: 245 height: 84}
+            //clip: Clip { shape: outlineShape}    
             content: [
-                Group {
-                    transform: Translate{ x: 10, y: 1 }
-                    opacity: bind loadingScreenOpacity
-                    content: [/*
-                        Rect {x:0 y:0 width:245 height:85 fill:black},
-                        Text {content: "Loading Weather Data ..." 
-                            fill:white 
-                            x:122 y:42
-                            halign: CENTER:HorizontalAlignment
-                            valign: MIDDLE:VerticalAlignment
-                            font: Font {faceName: 'Arial', style: PLAIN, size: 14}
-                        }*/
-                        LoadingScreen {}
-                    ]
+            Group {
+                transform: Transform.translate(10,1)
+                opacity: bind loadingScreenOpacity
+                content: LoadingScreen {}
                 },
-        Group { 
-            var weekdaysFont = Font {faceName: 'Arial', style: FontStyle.BOLD, size: 8.6149}
-            opacity: bind weatherScreenOpacity
-            //opacity: 0
-            transform: Translate{ x: 10, y: -57 }
-            content:[
+            Group { 
+                var weekdaysFont = Font.font("Arial",FontStyle.BOLD,8.6149)
+                opacity: bind weatherScreenOpacity
+                //clip: Rectangle {x:0 y:58 width: 245 height: 83}
+                transform: Transform.translate(10,-57)
+                content:[
                 Path {
-                    d: [
-                        MoveTo {
-                            x: 233.84
-                            y: 133.471
-                            absolute: true
+                    elements: [
+                    MoveTo {
+                        x: 233.84
+                        y: 133.471
+                        absolute: true
                         },
-                        CurveTo {
-                            x1: 0.0
-                            y1: 3.907
-                            x2: -1.516
-                            y2: 7.076
-                            x3: -3.383
-                            y3: 7.076
-                            smooth: false
-                            absolute: false
+                    CurveTo {
+                        x1: 0.0
+                        y1: 3.907
+                        x2: -1.516
+                        y2: 7.076
+                        x3: -3.383
+                        y3: 7.076
+                        //smooth: false
+                        absolute: false
                         },
-                        HLine {
-                            x: 3.887
-                            absolute: true
+                    LineTo {                    
+                        x: -226.57
+                        //x: 3.887
+                        //y: 130 // 
+                        absolute: false
                         },
-                        CurveTo {
-                            x1: -1.871
-                            y1: 0.0
-                            x2: -3.387
-                            y2: -3.169
-                            x3: -3.387
-                            y3: -7.076
-                            smooth: false
-                            absolute: false
+                    CurveTo {
+                        x1: -1.871
+                        y1: 0.0
+                        x2: -3.387
+                        y2: -3.169
+                        x3: -3.387
+                        y3: -7.076
+                        //smooth: false
+                        absolute: false
                         },
-                        VLine {
-                            y: -67.76
-                            absolute: false
+                    LineTo {
+                        y: -67.76
+                        absolute: false
                         },
-                        CurveTo {
-                            x1: 0.0
-                            y1: -3.908
-                            x2: 1.516
-                            y2: -7.076
-                            x3: 3.387
-                            y3: -7.076
-                            smooth: false
-                            absolute: false
+                    CurveTo {
+                        x1: 0.0
+                        y1: -3.908
+                        x2: 1.516
+                        y2: -7.076
+                        x3: 3.387
+                        y3: -7.076
+                        //smooth: false
+                        absolute: false
                         },
-                        HLine {
-                            x: 226.57
-                            absolute: false
+                    LineTo {
+                        x: 226.57
+                        absolute: false
                         },
-                        CurveTo {
-                            x1: 1.867
-                            y1: 0.0
-                            x2: 3.383
-                            y2: 3.167
-                            x3: 3.383
-                            y3: 7.076
-                            smooth: false
-                            absolute: false
+                    CurveTo {
+                        x1: 1.867
+                        y1: 0.0
+                        x2: 3.383
+                        y2: 3.167
+                        x3: 3.383
+                        y3: 7.076
+                        //smooth: false
+                        absolute: false
                         },
-                        VLine {
-                            y: 133.471
-                            absolute: true
-                        },
-                        ClosePath {},
+                    ClosePath {},
                     ]
-                    fill: weatherGradient()
-                    stroke: Color.rgba(0x00, 0x00, 0x00, 0xff)
-                },
+                    fill: weatherGradient
+                    stroke: rgba(0x00, 0x00, 0x00, 0xff)
+                    },
 
-
+                
 
                 Text {
-                    verticalAlignment: Alignment.BASELINE
+                    textOrigin: TextOrigin.BASELINE
                     content: 'TODAY'
                     font: weekdaysFont
-                    fill: Color.rgba(0xF2, 0xF2, 0xF2, 0xff)
+                    fill: rgba(0xF2, 0xF2, 0xF2, 0xff)
                     transform: [
-                        Matrix.matrix(1.0, 0.0, 0.0, 1.0, 6.6519, 137.2471),
+                    matrix(1.0, 0.0, 0.0, 1.0, 6.6519, 137.2471),
                     ]
                     x: 0.0
                     y: 0.0
-                },        
+                    },        
                 createTodayClickableArea(),
 
                 Text {
-                    verticalAlignment: Alignment.BASELINE
+                    textOrigin: TextOrigin.BASELINE
                     content: 'TOMORROW'
                     font: weekdaysFont
-                    fill: Color.rgba(0xF2, 0xF2, 0xF2, 0xff)
+                    fill: rgba(0xF2, 0xF2, 0xF2, 0xff)
                     transform: [
-                        Matrix.matrix(1.0, 0.0, 0.0, 1.0, 96.0806, 137.248),
+                    matrix(1.0, 0.0, 0.0, 1.0, 96.0806, 137.248),
                     ]
                     x: 0.0
                     y: 0.0
-                },
+                    },
                 createTomorrowClickableArea(), 
+
                 // today condition
                 Group { 
-                    transform: Translate{ y: 58 }
+                    transform: Transform.translate(0,58)
                     content: bind getConditionImageForCode(todayConditionImages, weatherModel.todayConditionCode)
                     opacity: bind todayNodesOpacity/2.0
-                },
+                    },
                 // tomorrow condition
                 Group { 
-                    transform: Translate{ y: 58 }
+                    transform: Transform.translate(0,58)
                     content: bind getConditionImageForCode(tomorrowConditionImages, weatherModel.tomorrowConditionCode)
                     opacity: bind tomorrowNodesOpacity/2.0
-                },
+                    },
 
-
+                
 
                 // wind information
                 Group {
                     opacity: bind todayNodesOpacity
-                    content: 
-                Group {
-                    // FIXME: Not implemented yet
-                    //filter: [ShadowFilter {x:1 y:-1 radius: 3}]
-                    content: [
-                Group {
-                    transform: [Rotate { angle: bind weatherModel.windDirection - 68
-                                         cx: 192 cy: 98} ] 
-                    content: [
-                Path {
-                    d: [
-                        MoveTo {
-                            x: 180.494
-                            y: 85.268
-                            absolute: true
-                        },
-                        LineTo {
-                            x: 25.994
-                            y: 3.425
-                            absolute: false
-                        },
-                        LineTo {
-                            x: -15.73
-                            y: 22.77
-                            absolute: false
-                        },
-                        LineTo {
-                            x: 180.494
-                            y: 85.268
-                            absolute: true
-                        },
-                        ClosePath {},
-                    ]
-                    fill: Color.BLACK
-                },
-                Text {            
-                    verticalAlignment: Alignment.BASELINE
-                    //halign: CENTER
-                    content: bind weatherModel.windInformation()
-                    font: Font {faceName: 'Arial', style: FontStyle.PLAIN, size: 13.5526}
-                    transform: [
-                        //rotate (67,178,90)
-                        Matrix.matrix(0.3866, 0.9865, -0.9074, 0.4203, 178.8594, 90.377),
-                    ]
-                },
-                ]
-                }
-                ]}
-                },
+                    content: Group {
+                        effect: createSmallStuffBlackShadow();
+                        content: [
+                        Group { // wind direction
+                            transform: Rotate {angle: bind weatherModel.windDirection x: 192.0 y: 98.0}
+                            content: [
+                            Path {
+                                elements: [
+                                MoveTo {
+                                    x: 180.494
+                                    y: 85.268
+                                    absolute: true
+                                    },
+                                LineTo {
+                                    x: 25.994
+                                    y: 3.425
+                                    absolute: false
+                                    },
+                                LineTo {
+                                    x: -15.73
+                                    y: 22.77
+                                    absolute: false
+                                    },
+                                LineTo {
+                                    x: 180.494
+                                    y: 85.268
+                                    absolute: true
+                                    },
+                                ClosePath {},
+                                ]
+                                fill: Color.BLACK
+                                },
+                            Text {            
+                                textOrigin: TextOrigin.BASELINE
+                                horizontalAlignment: HorizontalAlignment.CENTER
+                                content: bind weatherModel.windInformation()
+                                font: Font.font("Arial",FontStyle.PLAIN,13.5526)
+                                transform: [
+                                //rotate (67,178,90)
+                                matrix(0.3866, 0.9865, -0.9074, 0.4203, 178.8594, 90.377),
+                                ]
+                                }]
+                            }]
+                        }
+                    },
 
                 // outline
                 Path {
-                    d: [
-                        MoveTo {
-                            x: 233.84
-                            y: 133.471
-                            absolute: true
+                    elements: [
+                    MoveTo {
+                        x: 233.84
+                        y: 133.471
+                        absolute: true
                         },
-                        CurveTo {
-                            x1: 0.0
-                            y1: 3.907
-                            x2: -1.516
-                            y2: 7.076
-                            x3: -3.383
-                            y3: 7.076
-                            smooth: false
-                            absolute: false
+                    CurveTo {
+                        x1: 0.0
+                        y1: 3.907
+                        x2: -1.516
+                        y2: 7.076
+                        x3: -3.383
+                        y3: 7.076
+                        //smooth: false
+                        absolute: false
                         },
-                        HLine {
-                            x: 3.887
-                            absolute: true
+                    LineTo {
+                        x: -226.57
+                        absolute: false
                         },
-                        CurveTo {
-                            x1: -1.871
-                            y1: 0.0
-                            x2: -3.387
-                            y2: -3.169
-                            x3: -3.387
-                            y3: -7.076
-                            smooth: false
-                            absolute: false
+                    CurveTo {
+                        x1: -1.871
+                        y1: 0.0
+                        x2: -3.387
+                        y2: -3.169
+                        x3: -3.387
+                        y3: -7.076
+                        //smooth: false
+                        absolute: false
                         },
-                        VLine {
-                            y: -67.76
-                            absolute: false
+                    LineTo {
+                        y: -67.76
+                        absolute: false
                         },
-                        CurveTo {
-                            x1: 0.0
-                            y1: -3.908
-                            x2: 1.516
-                            y2: -7.076
-                            x3: 3.387
-                            y3: -7.076
-                            smooth: false
-                            absolute: false
+                    CurveTo {
+                        x1: 0.0
+                        y1: -3.908
+                        x2: 1.516
+                        y2: -7.076
+                        x3: 3.387
+                        y3: -7.076
+                        //smooth: false
+                        absolute: false
                         },
-                        HLine {
-                            x: 226.57
-                            absolute: false
+                    LineTo {
+                        x: 226.57
+                        absolute: false
                         },
-                        CurveTo {
-                            x1: 1.867
-                            y1: 0.0
-                            x2: 3.383
-                            y2: 3.167
-                            x3: 3.383
-                            y3: 7.076
-                            smooth: false
-                            absolute: false
-                        },
-                        VLine {
-                            y: 133.471
-                            absolute: true
-                        },
-                        ClosePath {},
+                    CurveTo {
+                        x1: 1.867
+                        y1: 0.0
+                        x2: 3.383
+                        y2: 3.167
+                        x3: 3.383
+                        y3: 7.076
+                        //smooth: false
+                        absolute: false
+                        },/*
+                                LineTo {
+                                    y: 133.471
+                                    absolute: true
+                                },*/
+                    ClosePath {},
                     ]
-                    stroke: Color.rgba(0x00, 0x00, 0x00, 0xff)
-                },
+                    stroke: rgba(0x00, 0x00, 0x00, 0xff)
+                    },
 
                 // temperature
                 Group {
                     opacity: bind todayNodesOpacity
-                    // FIXME: Not implemented yet
-                    //filter: [ShadowFilter {x:1 y:-1 radius: 3}]
+                    effect: createMainTempShadow();
                     content: [
-                Circle {
-                    cx: 148.475
-                    cy: 85.083
-                    radius: 2.45
-                    stroke: Color.rgba(0xED, 0x22, 0x27, 0xff)
-                    strokeWidth: 2.0
-                },
-                Text {
-                    verticalAlignment: Alignment.BASELINE
-                    content: bind weatherModel.temperature.toString()
-                    font: Font {faceName: 'Arial', style: FontStyle.BOLD, size: 48.6668}
-                    fill: Color.rgba(0xED, 0x1E, 0x24, 0xff)
-                    transform: [
-                        Matrix.matrix(1.0, 0.0, 0.0, 1.0, 88.8457, 116.3926),
-                    ]
-                    x: 0.0
-                    y: 0.0
-                },]
-                },
+                    Circle {
+                        centerX: 148.475
+                        centerY: 85.083
+                        radius: 2.45
+                        stroke: rgba(0xED, 0x22, 0x27, 0xff)
+                        strokeWidth: 2.0
+                        },
+                    Text {
+                        textOrigin: TextOrigin.BASELINE
+                        content: bind "{%02.0f weatherModel.temperature}"
+                        font: Font.font("Arial",FontStyle.BOLD,48.6668)
+                        fill: rgba(0xED, 0x1E, 0x24, 0xff)
+                        transform: [
+                        matrix(1.0, 0.0, 0.0, 1.0, 88.8457, 116.3926),
+                        ]
+                        x: 0.0
+                        y: 0.0
+                        },]
+                    },
 
-
+                
                 Group {
-                    // FIXME: Not implemented yet
-                    //filter: [ShadowFilter {x:1 y:-1 radius: 3}]            
+                    effect: createSmallStuffBlackShadow();
                     content: 
-                Group {
-                    transform: [ Translate{ x : bind highsTriangleTransform.tx, y : bind highsTriangleTransform.ty },
-                        Translate{ x : 37, y : 93 }, 
-                        Scale{ x: bind highsTriangleTransform.scale, y : bind highsTriangleTransform.scale }, 
-                        Translate{ x: -37, y :-93 }]
-                    content: [
-                // highs triangle
-                Path {
+                    Group {
+                        transform: [
+                        Translate{ x: bind highsTriangleTransform.tx y: bind highsTriangleTransform.ty},
+                        Translate { x:37 y:93},
+                        Scale { x: bind highsTriangleTransform.scale y: bind highsTriangleTransform.scale},
+                        Translate { x: -37 y: -93}
+                        ]
+                        content: [
+                        // highs triangle
 
-                    d: [
-                        MoveTo {
-                            x: 27.552
-                            y: 98.673
-                            absolute: true
-                        },
-                        LineTo {
-                            x: 8.012
-                            y: -13.257
-                            absolute: false
-                        },
-                        LineTo {
-                            x: 8.021
-                            y: 13.257
-                            absolute: false
-                        },
-                        HLine {
-                            x: 27.552
-                            absolute: true
-                        },
-                        ClosePath {},
-                    ]
-                    fill: Color.BLACK
-                }
-                ]}},
+                        Path {
+                            elements: [
+                            MoveTo {
+                                x: 27.552
+                                y: 98.673
+                                absolute: true
+                                },
+                            LineTo {
+                                x: 8.012
+                                y: -13.257
+                                absolute: false
+                                },
+                            LineTo {
+                                x: 8.021
+                                y: 13.257
+                                absolute: false
+                                },
+                            LineTo {
+                                x: 27.552
+                                y: 98.673
+                                absolute: true
+                                },
+                            ClosePath {},
+                            ]
+                            fill: Color.BLACK
+                            }
+                        ]}},
                 // lows triangle
                 Group {
-                    // FIXME: Not implemented yet
-                    //filter: [ShadowFilter {x:1 y:-1 radius: 3}]            
+                    effect: createSmallStuffBlackShadow();
                     content:        
+                    Group {
+                        transform: [
+                        Translate {x: bind lowsTriangleTransform.tx y: bind lowsTriangleTransform.ty},
+                        Translate {x: 37 y: 109},
+                        Scale {x: bind lowsTriangleTransform.scale y: bind lowsTriangleTransform.scale},
+                        Translate {x: -37 y: -109}
+                        ]        
+                        content: 
+                        Path {                
+                            elements: [
+                            MoveTo {
+                                x: 43.922
+                                y: 101.64
+                                absolute: true
+                                },
+                            LineTo {
+                                x: -8.056
+                                y: 13.942
+                                absolute: false
+                                },
+                            LineTo {
+                                x: -8.045
+                                y: -13.942
+                                absolute: false
+                                },
+                            LineTo {
+                                x: 43.922
+                                y: 101.64
+                                absolute: true
+                                },
+                            ClosePath {},
+                            ]
+                            fill: Color.BLACK
+                            }
+                        }},
+                // today highs
                 Group {
-                    transform: [ Translate{ x : bind lowsTriangleTransform.tx, y : bind lowsTriangleTransform.ty },
-                        Translate{ x: 37, y: 109 }, 
-                        Scale{ x : bind lowsTriangleTransform.scale, y : bind lowsTriangleTransform.scale }, 
-                        Translate{ x: -37, y: -109 }]            
+                    transform: Translate { x:0 y: bind todayHighsTY}
                     content: 
-                Path {                
-                    d: [
-                        MoveTo {
-                            x: 43.922
-                            y: 101.64
-                            absolute: true
-                        },
-                        LineTo {
-                            x: -8.056
-                            y: 13.942
-                            absolute: false
-                        },
-                        LineTo {
-                            x: -8.045
-                            y: -13.942
-                            absolute: false
-                        },
-                        HLine {
-                            x: 43.922
-                            absolute: true
-                        },
-                        ClosePath {},
-                    ]
-                    fill: Color.BLACK
-                }
-                    }},
-               // today highs
-                Group {
-                    transform: Translate { y : bind todayHighsTY }
-                    content: 
-                Text {
-                    // FIXME: Not implemented yet
-                    //filter: [ShadowFilter {x:1 y:-1 radius: 3}]
-                    opacity: bind todayNodesOpacity
-                    verticalAlignment: Alignment.BASELINE
-                    content: bind weatherModel.todayHighs.toString()
-                    font: Font {faceName: 'Arial', style: FontStyle.PLAIN, size: 18.3347}
-                    x: 46
-                    y: 98.84
-                }
+                    Text {
+                        effect: createSmallStuffBlackShadow();
+                        opacity: bind todayNodesOpacity
+                        textOrigin: TextOrigin.BASELINE
+                        content: bind "{%02.0f weatherModel.todayHighs}"
+                        font: Font.font("Arial",FontStyle.PLAIN,18.3347)
+                        x: 46
+                        y: 98.84
+                        }
                     },
                 // today lows
                 Group {
-                    transform: Translate{ y : bind todayLowsTY }
+                    transform: Translate { x:0 y: bind todayLowsTY}
                     content:
-                Text {
-                    // FIXME: Not implemented yet
-                    //filter: [ShadowFilter {x:1 y:-1 radius: 3}]            
-                    opacity: bind todayNodesOpacity
-                    verticalAlignment: Alignment.BASELINE
-                    content: bind weatherModel.todayLows.toString()
-                    font: Font {faceName: 'Arial', style: FontStyle.PLAIN, size: 18.3347}
-                    x: 46.2
-                    y: 114.88
-                }
+                    Text {
+                        effect: createSmallStuffBlackShadow();
+                        opacity: bind todayNodesOpacity
+                        textOrigin: TextOrigin.BASELINE
+                        content: bind "{%02.0f weatherModel.todayLows}" 
+                        font: Font.font("Arial",FontStyle.PLAIN,18.3347)
+                        x: 46.2
+                        y: 114.88
+                        }
                     },
                 // tomorrow highs
-                    Group {
-                        transform: Translate{ y: bind tomorrowHighsTY }
-                        content:
-                Text {
-                    // FIXME: Not implemented yet
-                    //filter: [ShadowFilter {x:1 y:-1 radius: 3}]            
-                    opacity: bind tomorrowNodesOpacity
-                    verticalAlignment: Alignment.BASELINE
-                    content: bind weatherModel.tomorrowHighs.toString()
-                    font: Font {faceName: 'Arial', style: FontStyle.PLAIN, size: 43}
-                    x: 65
-                    y: 116
-                }
-                        },
+                Group {
+                    transform: Translate { x:0 y:bind tomorrowHighsTY}
+                    content:
+                    Text {
+                        effect: createSmallStuffBlackShadow();
+                        opacity: bind tomorrowNodesOpacity
+                        textOrigin: TextOrigin.BASELINE
+                        content:  bind "{%02.0f weatherModel.tomorrowHighs}" 
+                        font: Font.font("Arial",FontStyle.PLAIN,43)
+                        x: 65
+                        y: 116
+                        }
+                    },
                 // tomorrow lows
                 Group {
-                    transform: Translate{ y : bind tomorrowLowsTY }
+                    transform: Translate { x:0 y: bind tomorrowLowsTY}
                     content:
-                Text {
-                    // FIXME: Not implemented yet
-                    //filter: [ShadowFilter {x:1 y:-1 radius: 3}]
-
-                    opacity: bind tomorrowNodesOpacity
-                    verticalAlignment: Alignment.BASELINE
-                    content: bind weatherModel.tomorrowLows.toString()
-                    font: Font {faceName: 'Arial', style: FontStyle.PLAIN, size: 43}
-                    x: 160
-                    y: 116
-                }
-                            },
+                    Text {
+                        effect: createSmallStuffBlackShadow();
+                        opacity: bind tomorrowNodesOpacity
+                        textOrigin: TextOrigin.BASELINE
+                        content: bind "{%02.0f weatherModel.tomorrowLows}" 
+                        font: Font.font("Arial",FontStyle.PLAIN, 43)
+                        x: 160
+                        y: 116
+                        }
+                    },
                 //]},
 
                 // button lines
                 Line {
                     opacity: bind tomorrowNodesOpacity
-                    stroke: Color.rgba(0x00, 0x00, 0x00, 0xff)
+                    stroke: rgba(0x00, 0x00, 0x00, 0xff)
                     x1: 0
                     x2: 90.369            
                     y1: 128.248
                     y2: 128.248
-                },
+                    },
 
                 Line {
                     opacity: bind todayNodesOpacity
-                    stroke: Color.rgba(0x00, 0x00, 0x00, 0xff)
+                    stroke: rgba(0x00, 0x00, 0x00, 0xff)
                     x1: 90.369
                     x2: 233.345
                     y1: 128.248
                     y2: 128.248
-                },
+                    },
 
                 Line {
-                    stroke: Color.rgba(0x00, 0x00, 0x00, 0xff)
+                    stroke: rgba(0x00, 0x00, 0x00, 0xff)
                     x1: 90.369
                     x2: 90.369
                     y1: 140.546
                     y2: 128.248
-                },
+                    },
 
                 // city name
                 Group {
-                    // FIXME: Not implemented yet                    
-                    //filter: [ShadowFilter {x:1 y:-1 radius: 3}]
+                    effect: createTextShadow();
                     content: [
-                Text {
-                    verticalAlignment: Alignment.BASELINE
-                    content: bind weatherModel.cityName
-                    font: Font {faceName: 'Arial', style: FontStyle.BOLD, size: 15.0}
-                    fill: Color.rgba(0xF2, 0xF2, 0xF2, 0xff)
-                    transform: [
-                        Matrix.matrix(1.0, 0.0, 0.0, 1.0, 6.145, 74.0625),
-                    ]
-                    x: 0.0
-                    y: 0.0
-                },
-                ]},
-            ]}
-        ]};        
+                    Text {
+                        textOrigin: TextOrigin.BASELINE
+                        content: bind weatherModel.cityName
+                        font: Font.font("Arial",FontStyle.BOLD,15.0)
+                        fill: rgba(0xF2, 0xF2, 0xF2, 0xff)
+                        transform: [
+                        matrix(1.0, 0.0, 0.0, 1.0, 6.145, 74.0625),
+                        ]
+                        x: 0.0
+                        y: 0.0
+                        },
+                    ]},
+                ]}
+            ]};         
+        }
+    
+    private attribute weatherGradient: LinearGradient =  LinearGradient {
+        startX: 0.50
+        startY:0.94 
+        endX: 0.50 
+        endY: 0.00 
+        /*stops: [
+        Stop {offset: 0.00 color: Color.rgb(0x10,0x72,0xba,1.0)},
+        Stop {offset: 0.51 color: Color.rgb(0xaf,0xdb,0xe7,1.0)},
+        Stop {offset: 0.92 color: Color.rgb(0x29,0x83,0xc1,1.0)}
+        ]*/
+
+        stops: [
+            Stop {
+                offset: 0.0
+                color: rgba(0x10, 0x72, 0xBA, 0xff)
+            },
+            Stop {
+                offset: 0.0835
+                color: rgba(0x4F, 0x8C, 0xC5, 0xff)
+            },
+            Stop {
+                offset: 0.1685
+                color: rgba(0x70, 0xA5, 0xD1, 0xff)
+            },
+            Stop {
+                offset: 0.254
+                color: rgba(0x8B, 0xBB, 0xDA, 0xff)
+            },
+            Stop {
+                offset: 0.3389
+                color: rgba(0x9E, 0xCC, 0xE1, 0xff)
+            },
+            Stop {
+                offset: 0.423
+                color: rgba(0xAA, 0xD6, 0xE5, 0xff)
+            },
+            Stop {
+                offset: 0.5055
+                color: rgba(0xAF, 0xDB, 0xE7, 0xff)
+            },
+            Stop {
+                offset: 0.5692
+                color: rgba(0xA8, 0xD4, 0xE4, 0xff)
+            },
+            Stop {
+                offset: 0.6617
+                color: rgba(0x94, 0xC3, 0xDD, 0xff)
+            },
+            Stop {
+                offset: 0.772
+                color: rgba(0x76, 0xAA, 0xD3, 0xff)
+            },
+            Stop {
+                offset: 0.8948
+                color: rgba(0x4F, 0x8B, 0xC5, 0xff)
+            },
+            Stop {
+                offset: 1.0
+                color: rgba(0x10, 0x72, 0xBA, 0xff)
+            },
+        ]
     }
+        
+    
 }
+
+
+/*
+
+
+trigger on Weather.weatherModel[oldValue] = newValue {
+    loadingScreenOpacity = [1.0,0.99..0.0] dur 1000;
+    weatherScreenOpacity = [0.0,0.01..1.0] dur 1000;
+}*/
+
+
+
 
 var weatherModel = WeatherModel {
     cityName: "San Francisco"
