@@ -252,7 +252,7 @@ generic PrefixExpr = ( "-":op / "+":op / "~":op / "!":op )? SimpleExpr ;
 
 /* @DocError in ScalaReference : There is non SimpleExpr with ( void:":":key Type ) */
 generic SimpleExpr = 
-  XmlExpr                                                    @SimpleXmlExpr
+  XmlExpr             SimpleExprRest*                        @SimpleXmlExpr
 / Literal   TypeArgs? SimpleExprRest*                        @SimpleLiteralExpr
 / Path      TypeArgs? SimpleExprRest* ( void:":":key Type )? @SimpleIdExpr
 / "_":key   TypeArgs? SimpleExprRest*                        @SimpleWildCardExpr
@@ -320,7 +320,8 @@ transient generic Enumerator =
 / void:"val":key Pattern1 void:"=":key Expr
 ;
 
-transient generic Generator = Pattern1 void:"<-":key Expr Guard? ;
+/* @Note "val" is deprecated */
+transient generic Generator = ( void:"val":key )? Pattern1 void:"<-":key Expr Guard? ;
 
 transient generic CaseClauses = CaseClause CaseClause* ;
 /* @Hacking greedy Pattern will consumer latest "=>" to try to recognize as FunType,
@@ -330,9 +331,9 @@ transient generic CaseClauses = CaseClause CaseClause* ;
  * @Todo nl in case clause
  */
 generic CaseClause =   
-  SKIP_N void:"case":key 
-  ( ( VarId / "_":key ) void:":":key FunTypeInCaseClause Block
-  / Pattern N* Guard? void:"=>":key Block 
+  SKIP_N void:"case":key ENTER_NL_DISABLE
+  ( ( VarId / "_":key ) void:":" :key FunTypeInCaseClause EXIT_NL_DISABLE Block
+  / Pattern N* Guard?   void:"=>":key                     EXIT_NL_DISABLE Block 
   )
 ;
 
