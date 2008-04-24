@@ -5,21 +5,25 @@
 
 package org.netbeans.modules.cnd.profiler.models;
 
-import java.awt.datatransfer.Transferable;
-import java.io.IOException;
-import org.netbeans.modules.cnd.profiler.data.Function;
-import org.netbeans.spi.viewmodel.ExtendedNodeModel;
-import org.netbeans.spi.viewmodel.ModelListener;
-import org.netbeans.spi.viewmodel.TreeModel;
-import org.netbeans.spi.viewmodel.UnknownTypeException;
-import org.openide.util.datatransfer.PasteType;
+import java.util.Collection;
+import java.util.Collections;
+import org.netbeans.modules.cnd.profiler.data.FunctionContainer;
 
 /**
  *
  * @author eu155513
  */
-public class FunctionNodeModel implements ExtendedNodeModel {
-    public void addModelListener(ModelListener node) {
+public class FunctionNodeModel {// implements ExtendedNodeModel {
+    
+    public String getIcon() {
+        return "org/netbeans/modules/cnd/profiler/resources/leaf.png";
+    }
+    
+    public Collection getChildren(FunctionContainer fc) {
+        return Collections.emptyList();
+    }
+    
+    /*public void addModelListener(ModelListener node) {
     }
 
     public void removeModelListener(ModelListener node) {
@@ -29,8 +33,8 @@ public class FunctionNodeModel implements ExtendedNodeModel {
         if (node == TreeModel.ROOT) {
             return "Name";
         }
-        if (node instanceof Function) {
-            return ((Function)node).getName();
+        if (node instanceof FunctionContainer) {
+            return ((FunctionContainer)node).getFunction().getName();
         }
         return "";
     }
@@ -76,5 +80,5 @@ public class FunctionNodeModel implements ExtendedNodeModel {
 
     public Transferable clipboardCut(Object node) throws IOException, UnknownTypeException {
         return null;
-    }
+    }*/
 }
