@@ -7,23 +7,19 @@ package org.netbeans.modules.cnd.profiler.data;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
  *
  * @author eu155513
  */
-public class Function {
+public class Function extends PropertyContainer<String,Object> implements FunctionContainer {
     private final String name;
     
-    private final Map<String, Object> properties = new HashMap<String, Object>();
-    
-    private final Set<Function> callers = new HashSet<Function>();
-    private final Set<Function> callees = new LinkedHashSet<Function>();
+    private final Set<Call> callers = new HashSet<Call>();
+    private final Set<Call> callees = new LinkedHashSet<Call>();
 
     public Function(String name) {
         this.name = name;
@@ -33,32 +29,27 @@ public class Function {
         return name;
     }
 
+    public Function getFunction() {
+        return this;
+    }
+
     /*
      * Better use addCallee
      */
-    public boolean addCaller(Function foo) {
-        return foo.addCallee(this);
+    public boolean addCaller(Call foo) {
+        return callers.add(foo);
     }
     
-    public Collection<Function> getCallers() {
+    public Collection<Call> getCallers() {
         return Collections.unmodifiableCollection(callers);
     }
     
-    public boolean addCallee(Function foo) {
-        foo.callers.add(this);
+    public boolean addCallee(Call foo) {
         return callees.add(foo);
     }
     
-    public Collection<Function> getCallees() {
+    public Collection<Call> getCallees() {
         return Collections.unmodifiableCollection(callees);
-    }
-    
-    public void setProperty(String name, Object value) {
-        properties.put(name, value);
-    }
-    
-    public Object getProperty(String name) {
-        return properties.get(name);
     }
     
     @Override

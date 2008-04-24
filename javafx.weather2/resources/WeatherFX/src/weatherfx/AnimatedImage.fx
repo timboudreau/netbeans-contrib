@@ -34,10 +34,9 @@
 
 package weatherfx;
 
-import javafx.ui.canvas.*;
-import javafx.ui.*;
-import java.lang.Thread;
-import java.lang.System;
+import javafx.gui.*;
+import javafx.animation.*;
+import java.lang.*;
 
 /**
  * Animates a set of images using specified frame delay
@@ -47,89 +46,73 @@ import java.lang.System;
 
 public class AnimatedImage extends ImageView {
 
-    public attribute baseURL: String;    
-    public attribute baseName: String;
-    public attribute extension: String;
     
-    public attribute imagesCount: Integer = 0;    
-    public attribute frameDelay: Number = 100;
-    
-    public attribute images: Image[];
-    private attribute animating: Boolean = false;
-    private attribute animate: Boolean;
-    
-    public function playAnimation( doit: Boolean ): Void {
-        if (animate <> doit)  {        
-            animate = doit;
-            if (animate) {
-                if (images == null) {
-                        loadImages();
-                    }
-                /*
-                 * FIXME
-                 * 
-                do later {    
-                    animateImages();
-                }
-                 */
-            }
-        }        
-    }
-    
-    private function animateImages(): Void {
-        /*
-        do {
-            if (not animating) {
-                animating = true;
-                while (animate) {
-                    var imgs = sizeof images - 1;
-                    if (imgs > 0) {
-                        for (i in [0..imgs]) {
-                            do later {                    
-                                image = images[i];
-                                //System.out.println("Animating {baseURL}:{image}");
-                            }
-                            Thread.sleep(frameDelay);
-                            if (not animate) {
-                                break;
-                            }
-                        }
-                    }
-                }
-            animating = false;
-            }
-        } 
-         */       
-    }
-    
-    private function loadImages(): Void {
-        /*
-        //System.out.println("Loading images: {baseName}");
-        if (baseURL <> null) {
-            //System.out.println("Loading images :{baseName}:{extension}");
-            var count = imagesCount - 1;
-            images = foreach (i in [0..count]) Image {
-                var idx = i format as <<%03d>>
-                url: "{baseURL}/{baseName}{idx}.{extension}" 
-            }; 
-            if (sizeof images > 0) {
-                image = images[0];
-            }
-            //System.out.println("Images loaded: {baseName}:{sizeof images}");
-        } 
-         */       
-    }
-}
+    private attribute baseURL: String;    
+    private attribute baseName: String;
+    private attribute extension: String; 
 
-/*
-trigger on AnimatedImage.parentCanvasElement[oldValue] = newValue {
-    //System.out.println("Just a test: {oldValue} : {newValue}");
-    if (newValue == null) {
-        //System.out.println("Stopping animation {baseName}");
-        playAnimation(false);
-    } else {
-        //System.out.println("Playing animation {baseName}");
-        playAnimation(true);
+    private attribute imagesCount: Integer = 0;    
+    
+    private attribute images: Image[];
+    
+    private attribute currentImageIndex:Integer ;    
+    
+    private attribute movieTimeline = Timeline {
+        repeatCount: Double.POSITIVE_INFINITY
+        keyFrames: KeyFrame {
+            time: 1s/12
+            action: function() {                
+                currentImageIndex += 1;
+                if (currentImageIndex >= imagesCount) {
+                    currentImageIndex = 0;
+                }
+                image = images[currentImageIndex];
+            }
+        },
+    };    
+    
+    
+    public function play():Void {
+        if (images == null) {
+            loadImages();
+        }
+        movieTimeline.start();
     }
+    
+    public function stop():Void {
+        movieTimeline.stop();
+    }
+    
+    
+    public function loadImages():Void {
+        //System.out.println("Loading images: {baseName}");
+        var count = imagesCount - 1;
+        if (baseURL <> null) {
+            images =  for (i in [0..count]) {
+                CachedImage.getCachedImage("{baseURL}/{baseName}{%03d i}.{extension}");
+                /*Image {    
+                    url: "{baseURL}/{baseName}{%03d i}.{extension}" 
+                }*/
+            };    
+        }
+    }
+    
+   
+    public static function create(baseURL:String, baseName:String, extension:String, imagesCount:Integer):AnimatedImage {    
+        //System.out.println("Creatign images {baseName}");
+        var animatedImage = AnimatedImage{baseURL:baseURL, baseName:baseName, extension:extension, imagesCount:imagesCount};
+        animatedImage.loadImages();
+        animatedImage.play();
+        return animatedImage;
+    }
+    
+    /*
+    public function create():Node {
+        loadImages();
+        var imgView = ImageView {
+            image: bind images[currentImageIndex];
+        }
+        play();
+        return imgView;
+    } */   
 }
- */

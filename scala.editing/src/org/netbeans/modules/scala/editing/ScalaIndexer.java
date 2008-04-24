@@ -43,9 +43,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import javax.swing.text.BadLocationException;
-import org.netbeans.editor.Utilities;
 import org.netbeans.modules.gsf.api.Indexer;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
@@ -53,13 +52,13 @@ import org.netbeans.modules.gsf.api.IndexDocument;
 import org.netbeans.modules.gsf.api.IndexDocumentFactory;
 import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.ClassTemplate;
 import org.netbeans.modules.scala.editing.nodes.Function;
 import org.netbeans.modules.scala.editing.nodes.ObjectTemplate;
+import org.netbeans.modules.scala.editing.nodes.SimpleType;
 import org.netbeans.modules.scala.editing.nodes.Template;
 import org.netbeans.modules.scala.editing.nodes.TraitTemplate;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
@@ -190,7 +189,7 @@ public class ScalaIndexer implements Indexer {
         if (file.isPlatform()) {
             System.out.println("Platform file" + file.getNameExt());
         }
-        
+
         ScalaParserResult pResult = (ScalaParserResult) result;
         AstScope root = pResult.getRootScope();
         if (root == null) { // NOI18N
@@ -318,9 +317,16 @@ public class ScalaIndexer implements Indexer {
 
                 String fqn = template.getQualifiedName() + ";" + ";" + ";";
 
-                String extendWith = template.getExtendWith().toString(); //TODO
+                List<SimpleType> extendsWith = template.getExtendsWith();
+                if (extendsWith.size() > 0) {
+                    for (SimpleType parent : extendsWith) {
+                        String clz = template.getName();
+                        String superClz = parent.getName();
+                        document.addPair(FIELD_EXTEND_WITH, clz.toLowerCase() + ";" + clz + ";" + superClz, true); // NOI18N
+                    }
 
-                document.addPair(FIELD_EXTEND_WITH, extendWith, false);
+                    ClassCache.INSTANCE.refresh();
+                }
 
                 if (template instanceof ClassTemplate) {
                     ClassTemplate classTemplate = (ClassTemplate) template;

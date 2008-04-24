@@ -91,7 +91,7 @@ public class ScalaInstantRenamer implements InstantRenamer {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         AstScope rootScope = pResult.getRootScope();
         
-        AstElement closest = rootScope.getElement(th, caretOffset);
+        AstElement closest = rootScope.getDefRef(th, caretOffset);
 
         switch (closest.getKind()) {
             case FIELD:
@@ -130,7 +130,7 @@ public class ScalaInstantRenamer implements InstantRenamer {
 
         AstScope rootScope = pResult.getRootScope();
         
-        AstElement closest = rootScope.getElement(th, caretOffset);
+        AstElement closest = rootScope.getDefRef(th, caretOffset);
 
         List<AstElement> occurrences = rootScope.findOccurrences(closest);
         

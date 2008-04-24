@@ -10,7 +10,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import org.netbeans.modules.cnd.profiler.data.Call;
 import org.netbeans.modules.cnd.profiler.data.Function;
 
 /**
@@ -62,7 +64,8 @@ public class GprofProvider implements FunctionsProvider {
     }
     
     private static final char DELIMITER = ' ';
-    private static final String PLAIN_PROPERTIES[] = new String[] {"percent","secs","self","calls","selfsc","totalsc","name"};
+    private static final String PLAIN_PROPERTIES[] = new String[] {"self_percent"/*0*/,"cumul_secs"/*1*/,"self"/*2*/,"calls"/*3*/,"selfsc"/*4*/,"totalsc"/*5*/,"name"};
+    private static final Collection PLAIN_PROPERTIES_INCLUDED = Arrays.asList(new Integer[] {}); // will get all properties from call list
     
     private Function parsePlainLine(String line) {
         char[] symbols = line.toCharArray();
@@ -79,7 +82,10 @@ public class GprofProvider implements FunctionsProvider {
         while (pos < namePos) {
             if (symbols[pos] == DELIMITER) {
                 if (start != -1) {
-                    res.setProperty(PLAIN_PROPERTIES[propIdx++], line.substring(start, pos));
+                    if (PLAIN_PROPERTIES_INCLUDED.contains(propIdx)) {
+                        res.setProperty(PLAIN_PROPERTIES[propIdx], line.substring(start, pos));
+                    }
+                    propIdx++;
                     start = -1;
                 }
             } else {
@@ -102,33 +108,41 @@ public class GprofProvider implements FunctionsProvider {
         while (parseCallBlock(fss, reader)){}
     }
     
-    private static final String CALL_PROPERTIES[] = new String[] {"index","persents","self","children","called","name"};
-    
     private boolean parseCallBlock(Collection<Function> fss, BufferedReader reader) throws IOException {
         String line = reader.readLine();
         if (line.startsWith("\f")) {
             return false;
         }
-        boolean callees = false;
+        boolean inCallees = false;
         Function described = null;
+        Collection<Call> callers = new ArrayList<Call>();
         while (!line.startsWith("-")) {
-            // save callees
-            if (callees) {
-                assert described != null : "described function should be initialized already";
-                Function callee = parseCallLine(line);
-                callee = getLikeThis(fss, callee);
-                if (callee != null) {
-                    described.addCallee(callee);
+            Function function = parseCallLine(line);
+            if (function != null) {
+                Function origFunction = getLikeThis(fss, function);
+                if (origFunction == null) {
+                    origFunction = function;
                 }
-            } else if (line.startsWith("[")) {
-                // described function
-                described = parseCallLine(line);
-                described = getLikeThis(fss, described);
-                if (described != null) {
-                    callees = true;
+                if (line.startsWith("[")) {
+                    // described function
+                    described = origFunction;
+                    described.addProperties(function);
+                    inCallees = true;
+                } else {
+                    Call call = new Call(origFunction);
+                    call.addProperties(function);
+                    if (inCallees) {
+                        assert described != null;
+                        described.addCallee(call);
+                    } else {
+                        callers.add(call);
+                    }
                 }
             }
             line = reader.readLine();
+        }
+        for (Call call : callers) {
+            described.addCaller(call);
         }
         return true;
     }
@@ -142,27 +156,56 @@ public class GprofProvider implements FunctionsProvider {
         return null;
     }
     
+    private static final String CALL_PROPERTIES[] = new String[] {"index"/*0*/,"total_percents"/*1*/,"self"/*2*/,"children"/*3*/,"called"/*4*/,"name"};
+    private static final Collection CALL_PROPERTIES_INCLUDED = Arrays.asList(new Integer[] {2,3});
+    
     private Function parseCallLine(String line) {
-        //skip number [xxx]
+        //skip number [xxx] at the end
         int brackPos = line.lastIndexOf("[");
         if (brackPos == -1) {
             return null;
         }
         int end = brackPos-2;
         
-        //skip <...>
+        //skip <...> at the end
         int lPos = line.lastIndexOf("<");
         if (lPos != -1 && lPos<end) {
             end = lPos-2;
         }
         
         char[] symbols = line.toCharArray();
-        int pos = end;
+        int namePos = end;
         // find the name
-        while (symbols[pos] != DELIMITER) {
-            pos--;
+        while (symbols[namePos] != DELIMITER) {
+            namePos--;
         }
         
-        return new Function(line.substring(pos+1, end+1));
+        Function res = new Function(line.substring(namePos+1, end+1));
+        
+        int pos = 0;
+        int start = -1;
+        int propIdx = 0;
+        while (pos < namePos) {
+            if (symbols[pos] == DELIMITER) {
+                if (start != -1) {
+                    String prop = line.substring(start, pos);
+                    if (propIdx == 0 && !prop.startsWith("[")) {
+                        propIdx = 2;
+                    }
+                    if (CALL_PROPERTIES_INCLUDED.contains(propIdx)) {
+                        res.setProperty(CALL_PROPERTIES[propIdx], Double.parseDouble(prop));
+                    }
+                    propIdx++;
+                    start = -1;
+                }
+            } else {
+                if (start == -1) {
+                    start = pos;
+                }
+            }
+            pos++;
+        }
+        
+        return res;
     }
 }
