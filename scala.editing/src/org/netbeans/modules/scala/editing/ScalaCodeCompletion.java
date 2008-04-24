@@ -73,7 +73,9 @@ import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.AstExpr;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.netbeans.modules.scala.editing.nodes.PathId;
 import org.netbeans.modules.scala.editing.nodes.SimpleExpr;
@@ -374,13 +376,13 @@ public class ScalaCodeCompletion implements Completable {
                 //request.path = path;
                 //request.fqn = AstUtilities.getFqn(path, null, null);
 
-                AstElement closest = root.getElement(th, offset);
+                AstElement closest = root.getDefRef(th, offset);
                 if (closest == null) {
-                    closest = root.getElement(th, offset - 1);
+                    closest = root.getDefRef(th, offset - 1);
                 }
-
-                if (closest instanceof FunRef) {
-                    //(FunRef) closest;
+                
+                if (closest instanceof FunRef || closest instanceof FieldRef) {
+                    // dog.t or dog.talk()
                 }
 
                 request.root = root;
@@ -1151,7 +1153,7 @@ public class ScalaCodeCompletion implements Completable {
         BaseDocument doc = request.doc;
         NameKind kind = request.kind;
         FileObject fileObject = request.fileObject;
-        AstElement node = request.element;
+        AstElement cloest = request.element;
         ScalaParserResult result = request.result;
         CompilationInfo info = request.info;
 
@@ -1184,22 +1186,25 @@ public class ScalaCodeCompletion implements Completable {
             String lhs = call.getLhs();
 
             if (type == null) {
-                if (node != null) {
+                if (cloest != null) {
                     /** @Todo Some simple type inference code, should be integrated to TypeInference */
-                    TypeRef typeRef = node.getType();
+                    TypeRef typeRef = cloest.getType();
                     if (typeRef != null) {
                         type = typeRef.getName();
                     } else {
-                        if (node instanceof SimpleExpr) {
-                            AstElement base = ((SimpleExpr) node).getBase();
-                            if (base instanceof PathId) {
-                                /** Try to an AstRef */
-                                AstElement firstId = root.getElement(th, ((PathId)base).getPaths().get(0).getIdToken().offset(th));
-                                AstDef def = root.findDef(firstId);
-                                if (def != null) {
-                                    typeRef = def.getType();
-                                    if (typeRef != null) {
-                                        type = def.getType().getName();
+                        if (cloest instanceof FieldRef) {
+                            AstExpr base = ((FieldRef) cloest).getBase();
+                            if (base instanceof SimpleExpr) {
+                                AstElement base1 = ((SimpleExpr) base).getBase();
+                                if (base1 instanceof PathId) {
+                                    /** Try to an AstRef */
+                                    AstElement firstId = root.getDefRef(th, ((PathId) base1).getPaths().get(0).getIdToken().offset(th));
+                                    AstDef def = root.findDef(firstId);
+                                    if (def != null) {
+                                        typeRef = def.getType();
+                                        if (typeRef != null) {
+                                            type = def.getType().getName();
+                                        }
                                     }
                                 }
                             }
@@ -1251,7 +1256,7 @@ public class ScalaCodeCompletion implements Completable {
 //                        }
 //                    }
                 }
-            } else if (type == null && lhs != null && node != null) {
+            } else if (type == null && lhs != null && cloest != null) {
 //                Node method = AstUtilities.findLocalScope(node, path);
 //
 //                if (method != null) {
@@ -1260,7 +1265,7 @@ public class ScalaCodeCompletion implements Completable {
 //                }
             }
 
-            if ((type == null) && (lhs != null) && (node != null) && call.isSimpleIdentifier()) {
+            if ((type == null) && (lhs != null) && (cloest != null) && call.isSimpleIdentifier()) {
 //                Node method = AstUtilities.findLocalScope(node, path);
 //
 //                if (method != null) {
@@ -1763,7 +1768,7 @@ public class ScalaCodeCompletion implements Completable {
             }
 
             FunRef call = null;
-            AstElement closest = root.getElement(th, astOffset);
+            AstElement closest = root.getDefRef(th, astOffset);
             if (closest instanceof FunRef) {
                 call = (FunRef) closest;
             }
