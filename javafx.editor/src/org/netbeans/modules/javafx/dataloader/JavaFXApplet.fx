@@ -8,12 +8,12 @@
 package ${package};
 </#if>
 
-import javafx.ui.Applet;
+import javafx.gui.*;
 
 /**
  * @author ${user}
  */
 
-public class ${name} extends Applet{
-    
-}
+Application{
+    content: Label{ text: "Application content"}
+} 
