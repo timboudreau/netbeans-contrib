@@ -357,8 +357,8 @@ public class AstElementVisitor extends AstVisitor {
         traitTmpl.setExtendsWith(parents);
         for (SimpleType parent : parents) {
             scopeStack.peek().addRef(parent);
-        } 
-        
+        }
+
         scopeStack.pop();
 
         exit(that);
@@ -673,15 +673,12 @@ public class AstElementVisitor extends AstVisitor {
                 TypeRef type = visitType(secondNode);
                 function.setType(type);
 
-                // AstExpr
-                visitChildren(that.getGeneric(2));
+                visitExpr(that.getGeneric(2));
             } else {
-                // Block
-                visitChildren(secondNode);
+                visitBlock(secondNode);
             }
         } else {
-            // AstExpr
-            visitChildren(that.getGeneric(2));
+            visitExpr(that.getGeneric(2));
         }
 
         Template enclosingTemplate = currScope.getEnclosingDef(Template.class);
@@ -1623,36 +1620,60 @@ public class AstElementVisitor extends AstVisitor {
         }
         expr.setRest(rest);
 
-        if (rest.size() > 0 && rest.get(0) instanceof ArgumentExprs) {
-            List<Id> paths = id.getPaths();
-            Id funCall = paths.get(paths.size() - 1);
-            FunRef funRef = new FunRef(funCall.getIdToken(), ElementKind.CALL);
-            if (paths.size() > 1) {
-                paths.remove(funCall);
-                Token beginToken = paths.get(0).getIdToken();
-                Token endToken = paths.get(paths.size() - 1).getIdToken();
-                SimpleExpr funBase = new SimpleExpr(new Token[]{beginToken, endToken});
-                funBase.setBase(id);
-                funRef.setBase(funBase);
-                funRef.setCall(funCall);
-            } else {
-                funRef.setCall(funCall);
-                funRef.setLocal();
-            }
+        if (rest.size() > 0) {
+            Object next = rest.get(0);
 
-            funRef.setParams(((ArgumentExprs) rest.get(0)).getArgs());
+            if (next instanceof ArgumentExprs) {
+                // Function call
+                List<Id> paths = id.getPaths();
+                Id callId = paths.get(paths.size() - 1);
+                FunRef funRef = new FunRef(callId.getIdToken(), ElementKind.CALL);
+                if (paths.size() > 1) {
+                    paths.remove(callId);
+                    Token beginToken = paths.get(0).getIdToken();
+                    Token endToken = paths.get(paths.size() - 1).getIdToken();
+                    SimpleExpr baseExpr = new SimpleExpr(new Token[]{beginToken, endToken});
+                    baseExpr.setBase(id);
+                    funRef.setBase(baseExpr);
+                    funRef.setCall(callId);
+                } else {
+                    funRef.setCall(callId);
+                    funRef.setLocal();
+                }
 
-            scopeStack.peek().addRef(funRef);
+                funRef.setParams(((ArgumentExprs) rest.get(0)).getArgs());
 
-            if (!funRef.isLocal()) {
-                IdRef idRef = new IdRef(first.getName(), first.getIdToken(), ElementKind.VARIABLE);
+                scopeStack.peek().addRef(funRef);
 
-                scopeStack.peek().addRef(idRef);
+                if (!funRef.isLocal()) {
+                    IdRef idRef = new IdRef(first.getName(), first.getIdToken(), ElementKind.VARIABLE);
+
+                    scopeStack.peek().addRef(idRef);
+                }
+            } else if (next instanceof PathId) {
             }
         } else {
+            // Similest case, only one PathId
             IdRef idRef = new IdRef(first.getName(), first.getIdToken(), ElementKind.VARIABLE);
 
             scopeStack.peek().addRef(idRef);
+
+            List<Id> paths = id.getPaths();
+            if (paths.size() > 1) {
+                // first's field
+                Id fieldId = paths.get(paths.size() - 1);
+                FieldRef fieldRef = new FieldRef(fieldId.getIdToken());
+                paths.remove(fieldId);
+                Token beginToken = paths.get(0).getIdToken();
+                Token endToken = paths.get(paths.size() - 1).getIdToken();
+                SimpleExpr baseExpr = new SimpleExpr(new Token[]{beginToken, endToken});
+                baseExpr.setBase(id);
+                fieldRef.setBase(baseExpr);
+                fieldRef.setField(fieldId);
+
+                scopeStack.peek().addRef(fieldRef);
+            }
+
         }
 
         // Type
