@@ -67,7 +67,7 @@ import org.openide.windows.WindowManager;
 
 /**
  * Provides support for scanning of currently editet form and their changes
- * Singleton.
+ * Singleton. Needs cleanup.
  * @author Max Sauer
  */
 public final class FormBroker {
