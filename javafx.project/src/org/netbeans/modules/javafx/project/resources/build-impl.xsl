@@ -942,9 +942,11 @@ is divided into following sections:
                         </xsl:call-template>
                     </sourcepath>
                     -->
+                    <!-- Looks like packageset not needed if exact fileset is defined (#133454)
                     <xsl:call-template name="createPackagesets">
                         <xsl:with-param name="roots" select="/p:project/p:configuration/javafxproject3:data/javafxproject3:source-roots"/>
                     </xsl:call-template>
+                    -->
                     <xsl:call-template name="createFilesets">
                         <xsl:with-param name="roots" select="/p:project/p:configuration/javafxproject3:data/javafxproject3:source-roots"/>
                         <xsl:with-param name="includes2">**/*.java</xsl:with-param>
