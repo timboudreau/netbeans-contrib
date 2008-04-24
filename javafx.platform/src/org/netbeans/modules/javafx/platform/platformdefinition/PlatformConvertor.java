@@ -75,6 +75,7 @@ import org.xml.sax.*;
 
 import org.netbeans.api.java.platform.*;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.modules.javafx.platform.PlatformUiSupport;
 import org.netbeans.modules.javafx.platform.wizard.JavaFXWizardIterator;
 
 /**
@@ -147,6 +148,18 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
                     } catch (MutexException e) {
                         ErrorManager.getDefault().notify(e);
                     }
+                } else {
+                    final FileObject fo = fe.getFile();
+                    try {
+                        fo.getFileSystem().runAtomicAction(new FileSystem.AtomicAction() {
+                            public void run() throws IOException {
+                                FileUtil.copy(PlatformUiSupport.class.getResourceAsStream("resources/templates/defaultPlatform.xml"), fo.getParent().createData(fo.getName(), fo.getExt()).getOutputStream());
+                            }
+                        });                    
+                    } catch (IOException ioe) {
+                        ErrorManager.getDefault().notify(ioe);
+                    }
+
                 }
             }
         });
