@@ -20,7 +20,7 @@
          <delete file= "${l10nkit-name}"/>
          <zip destfile="${l10nkit-name}"
            basedir="src"
-           includes="**/Bundle.properties"
+           includes="**/Bundle.properties,**/*.html,**/*.htm"
          />
     </target>
 </project>
