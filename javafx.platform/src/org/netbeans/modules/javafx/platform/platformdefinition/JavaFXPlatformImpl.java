@@ -49,11 +49,12 @@ import java.io.File;
 
 import java.net.URISyntaxException;
 import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.Specification;
 import org.netbeans.api.javafx.platform.JavaFXPlatform;
+import org.netbeans.api.project.ProjectManager;
 import org.netbeans.spi.java.classpath.PathResourceImplementation;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
+import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.netbeans.spi.project.support.ant.PropertyUtils;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.FileObject;
@@ -70,6 +71,7 @@ public class JavaFXPlatformImpl extends JavaFXPlatform {
     public static final String PLATFORM_JAVAFX = "JavaFX";                      //NOI18N
 
     protected static final String PLAT_PROP_ANT_NAME="platform.ant.name";             //NOI18N
+    protected static final String PLAT_PROP_FX_HOME="platform.fx.home";             //NOI18N
     protected static final String PLAT_PROP_ARCH_FOLDER="platform.arch.folder";       //NOI18N
     protected static final String SYSPROP_BOOT_CLASSPATH = "sun.boot.class.path";     // NOI18N
     protected static final String SYSPROP_JAVA_CLASS_PATH = "java.class.path";        // NOI18N
@@ -135,12 +137,14 @@ public class JavaFXPlatformImpl extends JavaFXPlatform {
             this.javadoc = Collections.<URL>emptyList();
         }
         setSystemProperties(filterProbe(sysProperties));
+        addPlatformProperties(this);
     }
 
     protected JavaFXPlatformImpl (String dispName, String antName, List<URL> javaFolders, URL fxFolder, Map<String,String> initialProperties,
         Map<String,String> sysProperties, List<URL> sources, List<URL> javadoc) {
         this (dispName,  javaFolders, fxFolder, initialProperties, sysProperties,sources, javadoc);
         this.properties.put (PLAT_PROP_ANT_NAME,antName);
+        this.properties.put (PLAT_PROP_FX_HOME,fxFolder.toString());
     }
 
     /**
@@ -338,7 +342,31 @@ public class JavaFXPlatformImpl extends JavaFXPlatform {
             v = sb.toString();
         }
         return v;
-    }     
+    }
+    
+    private void addPlatformProperties(final JavaFXPlatformImpl platform){
+        final Thread tt = Thread.currentThread();
+        Thread t = new Thread(new Runnable(){
+            public void run(){
+                try{
+                    tt.join(); //hack to avoid overwriting by J2EEPlatform module the properties we put
+                }catch(Exception e){}
+                ProjectManager.mutex().writeAccess(
+                        new Runnable(){
+                            public void run (){
+                                try{
+                                    EditableProperties props = PropertyUtils.getGlobalProperties();
+                                    PlatformConvertor.generatePlatformProperties(platform, platform.getAntName(), props);
+                                    PropertyUtils.putGlobalProperties (props);
+                                }catch(Exception e){
+                                    e.printStackTrace();
+                                }
+                        }});
+            }
+        });
+        t.start();
+    }
+    
     private static Map<String,String> filterProbe (final Map<String,String> p) {
         if (p!=null) {
             final String val = p.get(SYSPROP_JAVA_CLASS_PATH);

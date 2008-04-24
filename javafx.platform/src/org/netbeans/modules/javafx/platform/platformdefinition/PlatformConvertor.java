@@ -75,7 +75,7 @@ import org.xml.sax.*;
 
 import org.netbeans.api.java.platform.*;
 import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.modules.javafx.platform.wizard.JavaFXWizardIterator;
+import org.netbeans.modules.javafx.platform.PlatformUiSupport;
 
 /**
  * Reads and writes the standard platform format implemented by PlatformImpl2.
@@ -147,6 +147,18 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
                     } catch (MutexException e) {
                         ErrorManager.getDefault().notify(e);
                     }
+                } else {
+                    final FileObject fo = fe.getFile();
+                    try {
+                        fo.getFileSystem().runAtomicAction(new FileSystem.AtomicAction() {
+                            public void run() throws IOException {
+                                FileUtil.copy(PlatformUiSupport.class.getResourceAsStream("resources/templates/defaultPlatform.xml"), fo.getParent().createData(fo.getName(), fo.getExt()).getOutputStream());
+                            }
+                        });                    
+                    } catch (IOException ioe) {
+                        ErrorManager.getDefault().notify(ioe);
+                    }
+
                 }
             }
         });
@@ -202,7 +214,11 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
             p = DefaultPlatformImpl.create (handler.properties, handler.sources, handler.javadoc);
             defaultPlatform = true;
         } else {
-            p = new JavaFXPlatformImpl(handler.name,handler.installFolders, null, handler.properties, handler.sysProperties,handler.sources, handler.javadoc);
+            URL fxHome = null;
+            try{
+                fxHome = new URL(handler.properties.get(JavaFXPlatformImpl.PLAT_PROP_FX_HOME));
+            }catch(Exception e){}
+            p = new JavaFXPlatformImpl(handler.name,handler.installFolders, fxHome, handler.properties, handler.sysProperties,handler.sources, handler.javadoc);
             defaultPlatform = false;
         }
         p.addPropertyChangeListener(this);
@@ -276,29 +292,6 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
     public static DataObject create(final JavaPlatform plat, final DataFolder f, final String idName) throws IOException {
         W w = new W(plat, f, idName);
         f.getPrimaryFile().getFileSystem().runAtomicAction(w);
-        try {
-            ProjectManager.mutex().writeAccess(
-                    new Mutex.ExceptionAction<Void> () {
-                        public Void run () throws Exception {
-                            EditableProperties props = PropertyUtils.getGlobalProperties();
-                            generatePlatformProperties(plat, idName, props);
-                            PropertyUtils.putGlobalProperties (props);
-                            return null;
-                        }
-                    });
-        } catch (MutexException me) {
-            Exception originalException = me.getException();
-            if (originalException instanceof RuntimeException) {
-                throw (RuntimeException) originalException;
-            }
-            else if (originalException instanceof IOException) {
-                throw (IOException) originalException;
-            }
-            else
-            {
-                throw new IllegalStateException (); //Should never happen
-            }
-        }
         return w.holder;
     }
 
@@ -307,6 +300,7 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
         String bootClassPathPropName = createName(systemName,"bootclasspath");    //NOI18N
         String compilerType= createName (systemName,"compiler");  //NOI18N
         String fxHomePropName = createName (systemName,"fxhome");  //NOI18N
+/*        
         if (props.getProperty(homePropName) != null || props.getProperty(bootClassPathPropName) != null
                 || props.getProperty(compilerType)!=null || props.getProperty(fxHomePropName)!=null){
             if (platform instanceof DefaultPlatformImpl)
@@ -316,6 +310,7 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
             throw (IllegalStateException)ErrorManager.getDefault().annotate(
                     new IllegalStateException(msg), ErrorManager.USER, null, msg,null, null);
         }
+ */ 
         Collection installFolders = platform.getInstallFolders();
         if (installFolders.size()>0) {
             File jdkHome = FileUtil.toFile ((FileObject)installFolders.iterator().next());
