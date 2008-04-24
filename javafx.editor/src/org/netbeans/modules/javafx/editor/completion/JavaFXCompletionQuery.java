@@ -348,7 +348,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
     }
 
     private void resolveCompletion(CompilationController controller) throws IOException {
-        Env env = getCompletionEnvironment(controller, true);
+        Env env = getCompletionEnvironment(controller);
         results = new ArrayList<JavaFXCompletionItem>();
         anchorOffset = env.getOffset();
         TreePath path = env.getPath();
@@ -2095,11 +2095,11 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private Env getCompletionEnvironment(CompilationController controller, boolean upToOffset) throws IOException {
+    private Env getCompletionEnvironment(CompilationController controller) throws IOException {
         controller.toPhase(Phase.PARSED);
         int offset = caretOffset;
         String prefix = null;
-        if (upToOffset && offset > 0) {
+        if (offset > 0) {
             TokenSequence<JFXTokenId> ts = controller.getTokenHierarchy().tokenSequence(JFXTokenId.language());
             // When right at the token end move to previous token; otherwise move to the token that "contains" the offset
             if (ts.move(offset) == 0 || !ts.moveNext()) {
@@ -2112,41 +2112,9 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
                 offset = ts.offset();
             }
         }
+        log("getCompletionEnvironment caretOffset: " + caretOffset + " offset: " + offset);
         TreePath path = controller.getTreeUtilities().pathFor(offset);
-        if (upToOffset) {
-            TreePath treePath = path;
-            while (treePath != null) {
-                TreePath pPath = treePath.getParentPath();
-                TreePath gpPath = pPath != null ? pPath.getParentPath() : null;
-                Env env = getEnvImpl(controller, path, treePath, pPath, gpPath, offset, prefix, upToOffset);
-                if (env != null) {
-                    return env;
-                }
-                treePath = treePath.getParentPath();
-            }
-        } else {
-            if (Phase.RESOLVED.compareTo(controller.getPhase()) > 0) {
-                LinkedList<TreePath> reversePath = new LinkedList<TreePath>();
-                TreePath treePath = path;
-                while (treePath != null) {
-                    reversePath.addFirst(treePath);
-                    treePath = treePath.getParentPath();
-                }
-                for (TreePath tp : reversePath) {
-                    TreePath pPath = tp.getParentPath();
-                    TreePath gpPath = pPath != null ? pPath.getParentPath() : null;
-                    Env env = getEnvImpl(controller, path, tp, pPath, gpPath, offset, prefix, upToOffset);
-                    if (env != null) {
-                        return env;
-                    }
-                }
-            }
-        }
         return new Env(offset, prefix, controller, path, controller.getTrees().getSourcePositions());
-    }
-
-    private Env getEnvImpl(CompilationController controller, TreePath orig, TreePath path, TreePath pPath, TreePath gpPath, int offset, String prefix, boolean upToOffset) throws IOException {
-        return null;
     }
 
     private static void log(String s) {

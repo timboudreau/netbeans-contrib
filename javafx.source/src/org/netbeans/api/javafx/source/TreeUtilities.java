@@ -241,7 +241,7 @@ public final class TreeUtilities {
         }
         int start = (int)sourcePositions.getStartPosition(info.getCompilationUnit(), path.getLeaf());
         int end   = (int)sourcePositions.getEndPosition(info.getCompilationUnit(), path.getLeaf());
-        while ((start == -1) || (end == -1)) {
+        while (start == -1 || pos < start || pos > end) {
             if (LOGGABLE) {
                 logger.finer("pathFor moving to parent: " + treeToString(info, path.getLeaf()));
             }
@@ -254,42 +254,6 @@ public final class TreeUtilities {
             }
             start = (int)sourcePositions.getStartPosition(info.getCompilationUnit(), path.getLeaf());
             end   = (int)sourcePositions.getEndPosition(info.getCompilationUnit(), path.getLeaf());
-        }
-        if (LOGGABLE) {
-            logger.finer("pathFor before checking the tokens: " + treeToString(info, path.getLeaf()));
-        }
-        TokenSequence<JFXTokenId> tokenList = tokensFor(path.getLeaf(), sourcePositions);
-        tokenList.moveEnd();
-        if (tokenList.movePrevious() && tokenList.offset() < pos) {
-            switch (tokenList.token().id()) {
-                case GT:
-                    if (path.getLeaf().getKind() == Tree.Kind.MEMBER_SELECT || path.getLeaf().getKind() == Tree.Kind.CLASS || path.getLeaf().getKind() == Tree.Kind.GREATER_THAN)
-                        break;
-                case RPAREN:
-                    if (path.getLeaf().getKind() == Tree.Kind.ENHANCED_FOR_LOOP || path.getLeaf().getKind() == Tree.Kind.FOR_LOOP ||
-                            path.getLeaf().getKind() == Tree.Kind.IF || path.getLeaf().getKind() == Tree.Kind.WHILE_LOOP ||
-                            path.getLeaf().getKind() == Tree.Kind.DO_WHILE_LOOP || path.getLeaf().getKind() == Tree.Kind.TYPE_CAST)
-                        break;
-                case SEMI:
-                    if (path.getLeaf().getKind() == Tree.Kind.FOR_LOOP &&
-                            tokenList.offset() <= sourcePositions.getStartPosition(path.getCompilationUnit(), ((ForLoopTree)path.getLeaf()).getUpdate().get(0)))
-                        break;
-                case RBRACE:
-                    path = path.getParentPath();
-                    switch (path.getLeaf().getKind()) {
-                        case CATCH:
-                            path = path.getParentPath();
-                        case METHOD:
-                        case FOR_LOOP:
-                        case ENHANCED_FOR_LOOP:
-                        case IF:
-                        case SYNCHRONIZED:
-                        case WHILE_LOOP:
-                        case TRY:
-                            path = path.getParentPath();
-                    }
-                    break;
-            }
         }
         if (LOGGABLE) {
             log("pathFor(pos: " + pos + ") returning: " + treeToString(info, path.getLeaf()));
