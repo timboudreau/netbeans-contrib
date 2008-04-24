@@ -42,17 +42,11 @@
 package org.netbeans.modules.javafx.platform.platformdefinition;
 
 import java.io.*;
-import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.net.MalformedURLException;
-import org.netbeans.api.project.ProjectManager;
-import org.netbeans.spi.project.support.ant.EditableProperties;
-import org.netbeans.spi.project.support.ant.PropertyUtils;
 import org.openide.util.Exceptions;
 
-import org.openide.util.Mutex;
-import org.openide.util.MutexException;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.filesystems.FileUtil;
@@ -102,37 +96,12 @@ public class DefaultPlatformImpl extends JavaFXPlatformImpl {
         if (javadoc == null) {
             javadoc = getJavadoc (javaHome);
         }
-        final DefaultPlatformImpl platform = new DefaultPlatformImpl(javaFolders, fxFolder, properties, new HashMap(System.getProperties()), sources,javadoc);
-        final Thread tt = Thread.currentThread();
-        Thread t = new Thread(new Runnable(){
-            public void run(){
-                try{
-                    tt.join(); //hack to avoid overwriting by J2EEPlatform module the properties we put
-                }catch(Exception e){}
-                ProjectManager.mutex().writeAccess(
-                        new Runnable(){
-                            public void run (){
-                                try{
-                                    EditableProperties props = PropertyUtils.getGlobalProperties();
-                                    PlatformConvertor.generatePlatformProperties(platform, platform.getAntName(), props);
-                                    System.out.println("[JavaFX] Default platfrom properties added.");
-                                    PropertyUtils.putGlobalProperties (props);
-                                    System.out.println(props.toString());
-                                }catch(Exception e){
-                                    e.printStackTrace();
-                                }
-                        }});
-            }
-        });
-        t.start();
-        
-        return platform;
+        return new DefaultPlatformImpl(javaFolders, fxFolder, properties, new HashMap(System.getProperties()), sources,javadoc);
     }
     
     private DefaultPlatformImpl(List<URL> javaFolders, URL fxFolder, Map<String,String> platformProperties,
         Map<String,String> systemProperties, List<URL> sources, List<URL> javadoc) {
-        super(null,DEFAULT_PLATFORM_ANT_NAME,
-              javaFolders, fxFolder, platformProperties, systemProperties, sources, javadoc);
+        super(null,DEFAULT_PLATFORM_ANT_NAME, javaFolders, fxFolder, platformProperties, systemProperties, sources, javadoc);
     }
 
     public void setAntName(String antName) {
