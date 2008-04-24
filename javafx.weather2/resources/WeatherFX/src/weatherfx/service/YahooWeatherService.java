@@ -207,32 +207,40 @@ public class YahooWeatherService {
     private class YWSParser extends DefaultHandler {
 
         
+        private int getSafeIntValue(Attributes attrs, String attrName) {
+            try {
+                return Integer.parseInt(attrs.getValue(attrName));
+            } catch (Exception e) {
+                return 0;
+            }
+        }
+        
         private boolean inDescription = false;
         
         @Override
-        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {            
             if (LOCATION_EL.equals(localName)) {
                 city = attributes.getValue(LOCATION_CITY);
                 region = attributes.getValue(LOCATION_REGION);
                 country = attributes.getValue(LOCATION_COUNTRY);                
             }
             if (CONDITION_EL.equals(localName)) {
-                conditionTemp = Integer.parseInt(attributes.getValue(CONDITION_TEMP));                
-                conditionCode = Integer.parseInt(attributes.getValue(CONDITION_CODE));
+                conditionTemp = getSafeIntValue(attributes,CONDITION_TEMP);
+                conditionCode = getSafeIntValue(attributes,CONDITION_CODE);
             }
             if (CONDITION_IMG_EL.equals(localName)) {
                 inDescription = true;
             }
             if (WIND_EL.equals(localName)) {
-                windDirection = Integer.parseInt(attributes.getValue(WIND_DIRECTION));
-                windSpeed = Integer.parseInt(attributes.getValue(WIND_SPEED));
+                windDirection = getSafeIntValue(attributes,WIND_DIRECTION);
+                windSpeed = getSafeIntValue(attributes,WIND_SPEED);
             }
             if (FORECAST_EL.equals(localName)) {
                 Forecast f = new Forecast();
                 f.day = attributes.getValue(FOREACAST_DAY);
-                f.tempLows = Integer.parseInt(attributes.getValue(FOREACAST_LOW));
-                f.tempHighs = Integer.parseInt(attributes.getValue(FOREACAST_HIGH));
-                f.conditionCode = Integer.parseInt(attributes.getValue(FOREACAST_CODE));
+                f.tempLows = getSafeIntValue(attributes,FOREACAST_LOW);
+                f.tempHighs = getSafeIntValue(attributes,FOREACAST_HIGH);
+                f.conditionCode = getSafeIntValue(attributes,FOREACAST_CODE);
                 f.conditionString = attributes.getValue(FOREACAST_DESCRIPTION);
                 forecast.add(f);
             }
@@ -245,8 +253,6 @@ public class YahooWeatherService {
                 inDescription = false;
             }
         }
-        
-        
         
 
         @Override

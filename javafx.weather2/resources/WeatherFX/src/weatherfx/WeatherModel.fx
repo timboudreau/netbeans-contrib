@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2007, Sun Microsystems, Inc.
+ * Copyright (c) 2007,2008 Sun Microsystems, Inc.
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without 
@@ -28,6 +28,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
+/*
+ * WeatherModel.fx
+ *
+ * Created on Apr 8, 2008, 12:40:12 PM
+ */
+
 package weatherfx;
 
 import weatherfx.service.YahooWeatherService;
@@ -39,17 +45,74 @@ import java.lang.System;
  * @author breh
  */
 
-public class WeatherModel {
 
-    public static attribute UNKNOWN : Integer = 0;
-    public static attribute CLEAR : Integer = 1;
-    public static attribute CLOUDS : Integer = 2;
-    public static attribute RAIN : Integer = 3;
-    public static attribute SNOW : Integer = 4;
-    public static attribute THUNDER : Integer = 5;
-    public static attribute MOON : Integer = 6;
+
+public class WeatherModel {
     
-    public function loadFromYWS( yws: YahooWeatherService ): Void {
+    public static /*readonly*/ attribute UNKNOWN:Integer = 0;
+    public static /*readonly*/ attribute CLEAR:Integer = 1;
+    public static /*readonly*/ attribute CLOUDS:Integer = 2;
+    public static /*readonly*/ attribute RAIN:Integer = 3;
+    public static /*readonly*/ attribute SNOW:Integer = 4;
+    public static /*readonly*/ attribute THUNDER:Integer = 5;
+    public static /*readonly*/ attribute MOON:Integer = 6;
+
+    public attribute cityName:String;
+    public attribute temperature:Number;    
+    public attribute windSpeed:Number;
+    public attribute windDirection:Number;    
+
+    public attribute todayLows:Number;
+    public attribute todayHighs:Number;   
+    public attribute todayConditionCode: Integer;
+
+    public attribute tomorrowLows:Number;
+    public attribute tomorrowHighs:Number;    
+    public attribute tomorrowConditionCode: Integer;
+
+    private function translateConditionCode(code:Integer):Integer {
+        return 
+            if ((code >= 0) and ( code < 5))  then
+                THUNDER
+            else if ((code >= 5) and (code < 9)) then
+                SNOW
+            else if ((code >= 9) and (code < 13)) then
+                RAIN
+            else if ((code >= 13) and (code < 19)) then
+                SNOW
+            else if ((code >= 19) and (code < 26)) then
+                CLEAR
+            else if ((code >= 26) and (code < 31)) then
+                CLOUDS
+            else if (code == 31) then
+                MOON
+            else if (code == 32) then
+                CLEAR
+            else if (code == 33) then
+                MOON
+            else if (code == 34) then
+                CLEAR
+            else if (code == 35) then
+                RAIN
+            else if (code == 36) then
+                CLEAR
+            else if ((code >= 37) and (code < 40)) then
+                THUNDER
+            else if ((code >= 41) and (code < 44)) then
+                SNOW
+            else if (code == 44) then 
+                CLOUDS
+            else if (code == 45) then 
+                THUNDER
+            else if (code == 46) then 
+                SNOW
+            else if (code == 47) then 
+                THUNDER
+            else UNKNOWN
+        ;
+    }
+    
+    public function loadFromYWS(yws:YahooWeatherService) {
         cityName = yws.getCityName();
         temperature = yws.getTemp();
 
@@ -65,69 +128,19 @@ public class WeatherModel {
         //System.out.println("conditions: {cityName} {yws.getConditionCode()} {yws.getConditionCode(1)} {todayConditionCode}");
     }
     
+    
     public function windInformation(): String {
-        return translateDirectionToString( windDirection ).concat( windSpeed.toString());
+        return "{translateDirectionToString(windDirection)} {%02.0f windSpeed}";
     }
     
-    private function translateDirectionToString( dir: Number ): String {
+    public function translateDirectionToString(dir:Number):String {
         var windDirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"];
         dir = dir % 360;    
         var i = ((dir + 22.5 ) / 45).intValue();
         return windDirs[i];
     }
-
-    public attribute cityName: String;
-    public attribute temperature: Number;    
-    public attribute windSpeed: Number;
-    public attribute windDirection: Number;    
-
-    public attribute todayLows: Number;
-    public attribute todayHighs: Number;   
-    public attribute todayConditionCode: Integer;
-
-    public attribute tomorrowLows: Number;
-    public attribute tomorrowHighs: Number;    
-    public attribute tomorrowConditionCode: Integer;
-
-    private function translateConditionCode( code: Integer ): Integer {
-        return 
-            if ((code >= 0) and ( code < 5))  then
-                THUNDER
-            else if ((code >= 5) and (code < 9)) then
-                SNOW
-            else if ((code >= 9) and (code < 13)) then
-                RAIN
-            else if ((code >= 13) and (code < 19)) then
-                SNOW            
-            else if ((code >= 19) and (code < 26)) then
-                CLEAR                        
-            else if ((code >= 26) and (code < 31)) then
-                CLOUDS
-            else if (code == 31) then
-                MOON
-            else if (code == 32) then
-                CLEAR
-            else if (code == 33) then
-                MOON            
-            else if (code == 34) then
-                CLEAR            
-            else if (code == 35) then
-                RAIN              
-            else if (code == 36) then
-                CLEAR
-            else if ((code >= 37) and (code < 40)) then
-                THUNDER
-            else if ((code >= 41) and (code < 44)) then
-                SNOW
-            else if (code == 44) then 
-                CLOUDS
-            else if (code == 45) then 
-                THUNDER
-            else if (code == 46) then 
-                SNOW
-            else if (code == 47) then 
-                THUNDER            
-            else UNKNOWN
-        ;
-    }
+    
 }
+
+
+
