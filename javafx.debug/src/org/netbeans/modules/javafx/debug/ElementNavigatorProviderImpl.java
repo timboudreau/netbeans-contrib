@@ -40,10 +40,14 @@
  */
 package org.netbeans.modules.javafx.debug;
 
+import com.sun.javafx.api.tree.ClassDeclarationTree;
+import com.sun.javafx.api.tree.JavaFXTreePathScanner;
 import com.sun.source.util.TreePath;
+import com.sun.source.util.TreePathScanner;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.lang.model.element.Element;
 import javax.swing.ActionMap;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -130,13 +134,23 @@ public class ElementNavigatorProviderImpl implements NavigatorPanel {
         }
 
         public void run(CompilationInfo info) {
-//            Node n = ElementNode.getTree(info,
-//                   info.getTrees().getElement(new TreePath(info.getCompilationUnit()))
-//                );
-//            if (n != null) {
-//                manager.setRootContext(n);
-//            }
+            Node n = ElementNode.getTree(info, getRootElement(info));
+            if (n != null) {
+                manager.setRootContext(n);
+            }
         }
         
+    }
+    // javafxc doesn't provide an element for compilation unit,
+    // but always generate the module class, present or not. This would
+    // be the only element under the compilation unit element, so why not find
+    // it and use it instead
+    private static Element getRootElement(final CompilationInfo info) {
+        return new JavaFXTreePathScanner<Element,Void>() {
+            public @Override Element visitClassDeclaration(ClassDeclarationTree arg0, Void arg1) {
+                return info.getTrees().getElement(getCurrentPath());
+            }
+            
+        }.scan(info.getCompilationUnit(), null);
     }
 }
