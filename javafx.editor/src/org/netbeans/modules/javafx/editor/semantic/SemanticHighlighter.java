@@ -43,9 +43,11 @@ import com.sun.javafx.api.tree.FunctionDefinitionTree;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.IdentifierTree;
+import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.SourcePositions;
+import com.sun.source.util.TreePath;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +56,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.Document;
@@ -319,6 +322,18 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
 
             Element element = info.getTrees().getElement(getCurrentPath());
             Set<Modifier> modifiers = element != null ? element.getModifiers() : null;
+            
+//            if (element != null && element.getKind().isField()) {
+//                TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
+//                if (ts.moveNext()) {
+//                    Token t = ts.token();
+//                    start = ts.offset();
+//                    end = start + t.length();
+//                    boolean isStatic = modifiers != null && modifiers.contains(Modifier.STATIC);
+////                    identifiers.add(new Result(start, end, ID_IDENTIFIER, t, isStatic)); // identfiers chache
+//                    list.add(new Result(start, end, ID_IDENTIFIER, t)); // debug only
+//                }
+//            }
 
             TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
             while (ts.moveNext()) {
@@ -363,6 +378,53 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
 
             return super.visitClassDeclaration(tree, list);
         }
+
+        @Override
+        public Void visitMemberSelect(MemberSelectTree tree, List<Result> list) {
+            SourcePositions sourcePositions = info.getTrees().getSourcePositions();
+            long start = sourcePositions.getStartPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
+            long end = sourcePositions.getEndPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
+
+            if (start < 0 || end < 0) { // synthetic
+                return super.visitMemberSelect(tree, list);
+            }
+
+            Element element = info.getTrees().getElement(getCurrentPath());
+            if (element != null) {
+                TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
+
+                while (ts.moveNext()) {
+                    Token t = ts.token();
+                    String tokenStr = t.text().toString();
+                    
+                    if (JFXTokenId.IDENTIFIER.equals(t.id())) {
+                        start = ts.offset();
+                        TreePath subPath = tu.pathFor((int) start);
+                        Element subElement = info.getTrees().getElement(subPath);
+                        if (subElement != null) {
+                            String subElementName = subElement.getSimpleName().toString();
+
+                            if (tokenStr.equals(subElementName)) {
+                                Set<Modifier> modifiers = element != null ? element.getModifiers() : null;
+                                start = ts.offset();
+                                end = start + t.length();
+                                boolean isStatic = modifiers != null && modifiers.contains(Modifier.STATIC);
+
+                                if (subElement.getKind().isField()) {
+                                    list.add(new Result(start, end, ID_FIELD, t, isStatic));
+                                } else if (ElementKind.METHOD.equals(subElement.getKind())) {
+                                    list.add(new Result(start, end, ID_METHOD_INVOCATION, t, isStatic));
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            return super.visitMemberSelect(tree, list);
+        }
+
     }
 
     private static class Result {
