@@ -461,6 +461,7 @@ public final class FormBroker {
                         // selected one. At this moment previous one is still selected.
                         tc.addComponentListener(new ComponentAdapter() {
 
+			    @Override
                             public void componentShown(ComponentEvent e) {
                                 TopComponent tcomp = (TopComponent) e.getComponent();
                                 tcomp.removeComponentListener(this);
