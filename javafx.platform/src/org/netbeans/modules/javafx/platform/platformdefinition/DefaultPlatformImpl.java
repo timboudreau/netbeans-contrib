@@ -77,16 +77,17 @@ public class DefaultPlatformImpl extends JavaFXPlatformImpl {
         }
         // XXX java.home??
         File javaHome = FileUtil.normalizeFile(new File(System.getProperty("jdk.home")));       //NOI18N
-        List<URL> javaFolders = null;
+        List<URL> javaFolders = new ArrayList<URL>();
         URL fxFolder = null;
         try {
-            javaFolders = Arrays.asList(javaHome.toURI().toURL());
+            javaFolders.add(javaHome.toURI().toURL());
         } catch (MalformedURLException mue) {
             Exceptions.printStackTrace(mue);
         }
         File fxPath = InstalledFileLocator.getDefault().locate("javafx-sdk1.0/lib/javafxc.jar", "org.netbeans.modules.javafx", false);
         if (fxPath != null && fxPath.isFile()) try {
             fxFolder = fxPath.getParentFile().toURI().toURL();
+            javaFolders.add(fxFolder);
         } catch (MalformedURLException mue) {
             Exceptions.printStackTrace(mue);
         }

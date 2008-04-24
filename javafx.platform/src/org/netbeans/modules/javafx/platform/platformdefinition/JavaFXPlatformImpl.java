@@ -126,8 +126,8 @@ public class JavaFXPlatformImpl extends JavaFXPlatform {
         this.fxFolder = fxFolder;
         this.installFolders = new ArrayList<URL>();
         this.installFolders.addAll(javaFolders);
-        if (fxFolder != null)
-            this.installFolders.add(fxFolder);
+//        if (fxFolder != null)
+//            this.installFolders.add(fxFolder);
         this.properties = initialProperties;
         this.sources = createClassPath(sources);
         if (javadoc != null) {
