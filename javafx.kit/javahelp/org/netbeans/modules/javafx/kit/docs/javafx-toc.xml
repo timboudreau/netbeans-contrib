@@ -16,7 +16,7 @@
         <tocitem text="About JavaFX Projects" target="javafx_proj_about" />
         <tocitem text="Working With JavaFX Projects" target="javafx_proj_process" />
         <tocitem text="JavaFX Project Tasks: Quick Reference" target="javafx_proj_quickref"/>
-        <tocitem text="Deleting a Project" target="javafx_proj_deleting" />
+        <tocitem text="Deleting a JavaFX Project" target="javafx_proj_deleting" />
         <tocitem text="Moving, Copying, and Renaming a JavaFX Project" target="javafx_proj_move_copy_rename" />
 	<tocitem text="Setting the Target JDK" target="javafx_proj_jdk" />
 	<tocitem text="Customizing JavaFX Script Syntax Settings" target="javafx_options" />
@@ -29,21 +29,21 @@
 
       <tocitem text="Building JavaFX Script Applications" >
         <tocitem text="About Building JavaFX Script Applications" target="javafx_comp_about" />
-	<tocitem text="Working with JavaFX Project Builds" target="javafx_comp_process" />	
+		<tocitem text="Working with JavaFX Project Builds" target="javafx_comp_process" />	
         <tocitem text="Building a JavaFX Project" target="javafx_comp_project" />
-	<tocitem text="Managing the Classpath" target="javafx_comp_classpath" />
+		<tocitem text="Managing the Classpath of JavaFX Projects" target="javafx_comp_classpath" />
       </tocitem> 
 
       <tocitem text="Running JavaFX Script Applications" >
  <!--       <tocitem text="About Running JavaFX Script Applications" target="javafx_run_about" />  -->
         <tocitem text="Working with JavaFX Project Execution" target="javafx_run_process" />
         <tocitem text="Running a JavaFX Script Application" target="javafx_run_app" />
-        <tocitem text="Setting the Runtime Classpath" target="javafx_run_classpath" />
-        <tocitem text="Setting the Main Class and Arguments" target="javafx_run_args" />
+        <tocitem text="Setting the Runtime Classpath of JavaFX Projects" target="javafx_run_classpath" />
+        <tocitem text="Setting the Main JavaFX Class and Runtime Arguments" target="javafx_run_args" />
       </tocitem>
       
-       <tocitem text="Debugging JavaFX Script Applications" target="javafx_debug_about" />
-
-       <tocitem text="Deploying JavaFX Script Applications" target="javafx_deploy_about" />
+      <tocitem text="Debugging JavaFX Script Applications" target="javafx_debug_about" />
+	  <tocitem text="Profiling JavaFX Script Applications" target="javafx_profile_about" />
+      <tocitem text="About Deploying JavaFX Script Applications" target="javafx_deploy_about" />
     </tocitem>
 </toc>	
