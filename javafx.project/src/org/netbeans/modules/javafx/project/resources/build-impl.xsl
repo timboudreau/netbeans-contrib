@@ -95,7 +95,10 @@ is divided into following sections:
 
             <target name="-jdk-check" unless="javafx.jdk5.permit">
                 <condition property="jdk.verified">
-                    <matches pattern="1.[6-9]" string="${{java.specification.version}}"/>
+                    <or>
+                        <matches pattern="1.[6-9]" string="${{java.specification.version}}"/>
+                        <os family="mac"/>
+                    </or>
                 </condition>
                 <fail unless="jdk.verified">
 You are attempting to build JavaFX Application with JDK 5 (or less).
