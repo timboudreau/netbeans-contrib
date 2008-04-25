@@ -43,14 +43,21 @@ import com.sun.javafx.api.tree.FunctionDefinitionTree;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.IdentifierTree;
+import com.sun.source.tree.MemberSelectTree;
+import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.SourcePositions;
+import com.sun.source.util.TreePath;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.Document;
 import javax.swing.text.StyleConstants;
@@ -73,23 +80,28 @@ import org.openide.util.Exceptions;
  * @author Anton Chechel
  */
 public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
-    
-    private static final String ID_FUNCTION = "function";
+
+    private static final String ID_METHOD = "method";
+    private static final String ID_METHOD_INVOCATION = "methodInvocation";
     private static final String ID_FIELD = "field";
     private static final String ID_IDENTIFIER = "identifier";
     private static final String ID_CLASS = "class";
-
+    
     private static final AttributeSet FIELD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, new Color(0, 153, 0));
+    private static final AttributeSet FIELD_STATIC_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, new Color(0, 153, 0), StyleConstants.Italic, Boolean.TRUE);
     private static final AttributeSet METHOD_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.BLACK, StyleConstants.Bold, Boolean.TRUE);
-    private static final AttributeSet IDENTIFIER_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Background, Color.RED);
+    private static final AttributeSet METHOD_STATIC_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.BLACK, StyleConstants.Bold, Boolean.TRUE, StyleConstants.Italic, Boolean.TRUE);
+    private static final AttributeSet METHOD_INVOCATION_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.BLACK);
+    private static final AttributeSet METHOD_STATIC_INVOCATION_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.BLACK, StyleConstants.Italic, Boolean.TRUE);
+    private static final AttributeSet IDENTIFIER_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Background, new Color(255, 127, 127));
     private static final AttributeSet CLASS_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.BLACK, StyleConstants.Bold, Boolean.TRUE);
+    private static final AttributeSet CLASS_STATIC_HIGHLIGHT = AttributesUtilities.createImmutable(StyleConstants.Foreground, Color.BLACK, StyleConstants.Bold, Boolean.TRUE, StyleConstants.Italic, Boolean.TRUE);
     
     private static final Logger LOGGER = Logger.getLogger(SemanticHighlighter.class.getName());
     private static final boolean LOGGABLE = LOGGER.isLoggable(Level.FINE);
     
     private FileObject file;
     private AtomicBoolean cancel = new AtomicBoolean();
-    
     private List<Result> identifiers = new ArrayList<Result>();
 
     SemanticHighlighter(FileObject file) {
@@ -117,12 +129,12 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
                 return;
             }
 
-            identifiers.clear();
             List<Result> result = new ArrayList<Result>();
             CompilationUnitTree compilationUnit = info.getCompilationUnit();
             JavaFXThreeVisitor javaFXThreeVisitor = new JavaFXThreeVisitor(info);
             javaFXThreeVisitor.scan(compilationUnit, result);
             setHighlights(doc, result, identifiers);
+            identifiers.clear(); // clear cache
 
         } catch (DataObjectNotFoundException ex) {
             Exceptions.printStackTrace(ex);
@@ -136,36 +148,38 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
             int end = (int) result.end;
 
             if (start >= 0 && end >= 0) {
-                bag.addHighlight(start, end, getAttributeSet(result.identifier));
+                bag.addHighlight(start, end, getAttributeSet(result));
             } else {
                 log("* Incorrect positions for highlighting: " + start + ", " + end);
             }
-            
+
             // highlighting fot variables from cache
             if (ID_FIELD.equals(result.identifier)) {
                 for (Result id : identifiers) {
                     final String idText = id.token.text().toString();
                     final String resText = result.token.text().toString();
                     if (idText.equals(resText)) {
-                        bag.addHighlight((int) id.start, (int) id.end, getAttributeSet(result.identifier));
+                        bag.addHighlight((int) id.start, (int) id.end, getAttributeSet(result));
                     }
                 }
             }
-            
+
         }
 
         getBag(doc).setHighlights(bag);
     }
 
-    private static AttributeSet getAttributeSet(String identifier) {
-        if (ID_FUNCTION.equals(identifier)) {
-            return METHOD_HIGHLIGHT;
-        } else if (ID_FIELD.equals(identifier)) {
-            return FIELD_HIGHLIGHT;
-        } else if (ID_IDENTIFIER.equals(identifier)) {
+    private static AttributeSet getAttributeSet(Result res) {
+        if (ID_METHOD.equals(res.identifier)) {
+            return res.isStatic ? METHOD_STATIC_HIGHLIGHT : METHOD_HIGHLIGHT;
+        } else if (ID_METHOD_INVOCATION.equals(res.identifier)) {
+            return res.isStatic ? METHOD_STATIC_INVOCATION_HIGHLIGHT : METHOD_INVOCATION_HIGHLIGHT;
+        } else if (ID_FIELD.equals(res.identifier)) {
+            return res.isStatic ? FIELD_STATIC_HIGHLIGHT : FIELD_HIGHLIGHT;
+        } else if (ID_IDENTIFIER.equals(res.identifier)) {
             return IDENTIFIER_HIGHLIGHT;
-        } else if (ID_CLASS.equals(identifier)) {
-            return CLASS_HIGHLIGHT;
+        } else if (ID_CLASS.equals(res.identifier)) {
+            return res.isStatic ? CLASS_STATIC_HIGHLIGHT : CLASS_HIGHLIGHT;
         }
         return FIELD_HIGHLIGHT;
     }
@@ -203,18 +217,22 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
             SourcePositions sourcePositions = info.getTrees().getSourcePositions();
             long start = sourcePositions.getStartPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
             long end = sourcePositions.getEndPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
-            
+
             if (start < 0 || end < 0) { // synthetic
                 return super.visitFunctionDefinition(tree, list);
             }
-            
+
+            Element element = info.getTrees().getElement(getCurrentPath());
+            Set<Modifier> modifiers = element != null ? element.getModifiers() : null;
+
             TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
             while (ts.moveNext()) {
                 Token t = ts.token();
                 if (JFXTokenId.IDENTIFIER.equals(t.id())) { // first identifier is a name
                     start = ts.offset();
                     end = start + t.length();
-                    list.add(new Result(start, end, ID_FUNCTION, t));
+                    boolean isStatic = modifiers != null && modifiers.contains(Modifier.STATIC);
+                    list.add(new Result(start, end, ID_METHOD, t, isStatic));
                     break;
                 }
             }
@@ -223,22 +241,68 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
         }
 
         @Override
+        public Void visitMethodInvocation(MethodInvocationTree tree, List<Result> list) {
+            SourcePositions sourcePositions = info.getTrees().getSourcePositions();
+            long start = sourcePositions.getStartPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
+            long end = sourcePositions.getEndPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
+
+            if (start < 0 || end < 0) { // synthetic
+                return super.visitMethodInvocation(tree, list);
+            }
+
+            Element element = info.getTrees().getElement(getCurrentPath());
+            Set<Modifier> modifiers = element != null ? element.getModifiers() : null;
+
+            TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
+            Token name = null;
+            
+            ts.moveEnd();
+            boolean metLBrace = false;
+            while (ts.movePrevious()) {
+                Token t = ts.token();
+                if (!metLBrace) {
+                    metLBrace = JFXTokenId.LPAREN.equals(t.id());
+                    if (!metLBrace) {
+                        continue;
+                    }
+                }
+                if (JFXTokenId.IDENTIFIER.equals(t.id())) {
+                    start = ts.offset();
+                    name = t; // last identifier followed left parenthis is a name
+                    break;
+                }
+            }
+
+            if (name != null) {
+                end = start + name.length();
+                boolean isStatic = modifiers != null && modifiers.contains(Modifier.STATIC);
+                list.add(new Result(start, end, ID_METHOD_INVOCATION, name, isStatic));
+            }
+
+            return super.visitMethodInvocation(tree, list);
+        }
+
+        @Override
         public Void visitVariable(VariableTree tree, List<Result> list) {
             SourcePositions sourcePositions = info.getTrees().getSourcePositions();
             long start = sourcePositions.getStartPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
             long end = sourcePositions.getEndPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
-            
+
             if (start < 0 || end < 0) { // synthetic
                 return super.visitVariable(tree, list);
             }
-            
+
+            Element element = info.getTrees().getElement(getCurrentPath());
+            Set<Modifier> modifiers = element != null ? element.getModifiers() : null;
+
             TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
             while (ts.moveNext()) {
                 Token t = ts.token();
                 if (JFXTokenId.IDENTIFIER.equals(t.id())) { // first identifier is a name
                     start = ts.offset();
                     end = start + t.length();
-                    list.add(new Result(start, end, ID_FIELD, t));
+                    boolean isStatic = modifiers != null && modifiers.contains(Modifier.STATIC);
+                    list.add(new Result(start, end, ID_FIELD, t, isStatic));
                     break;
                 }
             }
@@ -251,18 +315,35 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
             SourcePositions sourcePositions = info.getTrees().getSourcePositions();
             long start = sourcePositions.getStartPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
             long end = sourcePositions.getEndPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
-            
+
             if (start < 0 || end < 0) { // synthetic
                 return super.visitIdentifier(tree, list);
             }
+
+            Element element = info.getTrees().getElement(getCurrentPath());
+            Set<Modifier> modifiers = element != null ? element.getModifiers() : null;
             
+//            if (element != null && element.getKind().isField()) {
+//                TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
+//                if (ts.moveNext()) {
+//                    Token t = ts.token();
+//                    start = ts.offset();
+//                    end = start + t.length();
+//                    boolean isStatic = modifiers != null && modifiers.contains(Modifier.STATIC);
+////                    identifiers.add(new Result(start, end, ID_IDENTIFIER, t, isStatic)); // identfiers chache
+//                    list.add(new Result(start, end, ID_IDENTIFIER, t)); // debug only
+//                }
+//            }
+
             TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
             while (ts.moveNext()) {
                 Token t = ts.token();
                 if (JFXTokenId.IDENTIFIER.equals(t.id())) {
                     start = ts.offset();
                     end = start + t.length();
-                    identifiers.add(new Result(start, end, ID_IDENTIFIER, t)); // identfiers chache
+                    boolean isStatic = modifiers != null && modifiers.contains(Modifier.STATIC);
+                    identifiers.add(new Result(start, end, ID_IDENTIFIER, t, isStatic)); // identfiers chache
+//                    list.add(new Result(start, end, ID_IDENTIFIER, t)); // debug only
                     break;
                 }
             }
@@ -275,10 +356,13 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
             SourcePositions sourcePositions = info.getTrees().getSourcePositions();
             long start = sourcePositions.getStartPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
             long end = sourcePositions.getEndPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
-            
+
             if (start < 0 || end < 0) { // synthetic
                 return super.visitClassDeclaration(tree, list);
             }
+
+            Element element = info.getTrees().getElement(getCurrentPath());
+            Set<Modifier> modifiers = element != null ? element.getModifiers() : null;
             
             TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
             while (ts.moveNext()) {
@@ -286,12 +370,59 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
                 if (JFXTokenId.IDENTIFIER.equals(t.id())) { // first identifier is a name
                     start = ts.offset();
                     end = start + t.length();
-                    list.add(new Result(start, end, ID_CLASS, t));
+                    boolean isStatic = modifiers != null && modifiers.contains(Modifier.STATIC);
+                    list.add(new Result(start, end, ID_CLASS, t, isStatic));
                     break;
                 }
             }
 
             return super.visitClassDeclaration(tree, list);
+        }
+
+        @Override
+        public Void visitMemberSelect(MemberSelectTree tree, List<Result> list) {
+            SourcePositions sourcePositions = info.getTrees().getSourcePositions();
+            long start = sourcePositions.getStartPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
+            long end = sourcePositions.getEndPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
+
+            if (start < 0 || end < 0) { // synthetic
+                return super.visitMemberSelect(tree, list);
+            }
+
+            Element element = info.getTrees().getElement(getCurrentPath());
+            if (element != null) {
+                TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
+
+                while (ts.moveNext()) {
+                    Token t = ts.token();
+                    String tokenStr = t.text().toString();
+                    
+                    if (JFXTokenId.IDENTIFIER.equals(t.id())) {
+                        start = ts.offset();
+                        TreePath subPath = tu.pathFor((int) start);
+                        Element subElement = info.getTrees().getElement(subPath);
+                        if (subElement != null) {
+                            String subElementName = subElement.getSimpleName().toString();
+
+                            if (tokenStr.equals(subElementName)) {
+                                Set<Modifier> modifiers = element != null ? element.getModifiers() : null;
+                                start = ts.offset();
+                                end = start + t.length();
+                                boolean isStatic = modifiers != null && modifiers.contains(Modifier.STATIC);
+
+                                if (subElement.getKind().isField()) {
+                                    list.add(new Result(start, end, ID_FIELD, t, isStatic));
+                                } else if (ElementKind.METHOD.equals(subElement.getKind())) {
+                                    list.add(new Result(start, end, ID_METHOD_INVOCATION, t, isStatic));
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            return super.visitMemberSelect(tree, list);
         }
 
     }
@@ -301,14 +432,20 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
         long start;
         long end;
         String identifier; // temporary since element doesn't work
-        Token token;
 
+        Token token;
+        boolean isStatic;
 
         public Result(long start, long end, String identifier, Token token) {
+            this(start, end, identifier, token, false);
+        }
+
+        public Result(long start, long end, String identifier, Token token, boolean isStatic) {
             this.start = start;
             this.end = end;
             this.identifier = identifier;
             this.token = token;
+            this.isStatic = isStatic;
         }
 
         @Override

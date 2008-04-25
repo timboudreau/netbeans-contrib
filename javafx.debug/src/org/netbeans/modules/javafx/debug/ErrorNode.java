@@ -87,11 +87,11 @@ public class ErrorNode extends AbstractNode implements OffsetProvider {
         }
         
         private void scan(List<Node> result) {
-//            Iterator<Diagnostic> it = info.getDiagnostics().iterator();
-//            while(it.hasNext()) {
-//                Diagnostic diag = it.next();
-//                result.add(new ErrorNode(info, diag));
-//            }
+            Iterator<Diagnostic> it = info.getDiagnostics().iterator();
+            while(it.hasNext()) {
+                Diagnostic diag = it.next();
+                result.add(new ErrorNode(info, diag));
+            }
         }
         
     }

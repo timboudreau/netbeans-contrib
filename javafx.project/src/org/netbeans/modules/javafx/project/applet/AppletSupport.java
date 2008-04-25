@@ -175,7 +175,7 @@ public class AppletSupport {
                 JavaFXProject project = (JavaFXProject)getProject(appletFile);
                 String distJAR = project.evaluator().getProperty("dist.jar");
                 distJAR = distJAR.substring(distJAR.indexOf('/') + 1);
-                String libs = distJAR + ",lib/javafxrt.jar,lib/Scenario.jar";
+                String libs = distJAR + ",lib/javafxrt.jar,lib/Scenario.jar,lib/Reprise.jar";// REWRITE runtime jars
                 path = path.substring(0, path.length()-3);
                 fillInFile(writer, path.replaceAll("/", "."), " archive=\"" + libs + "\"", true); // NOI18N
             }else{
@@ -305,9 +305,9 @@ public class AppletSupport {
         else
             writer.print("<APPLET " + codebase + " code="); // NOI18N
         if (isFX){
-            writer.print ("\"javafx.ui.Applet\""); // NOI18N
+            writer.print ("\"javafx.gui.Applet\""); // NOI18N
             writer.println(" width=350 height=200>"); // NOI18N
-            writer.println("<param name=\"AppletClass\" value=\"" + name + "\">"); // NOI18N
+            writer.println("<param name=\"ApplicationClass\" value=\"" + name + "\">"); // NOI18N
             writer.println("</APPLET>"); // NOI18N
         }else{
             writer.print ("\"" + name + "\""); // NOI18N

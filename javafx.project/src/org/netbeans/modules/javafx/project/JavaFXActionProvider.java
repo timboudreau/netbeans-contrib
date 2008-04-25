@@ -113,6 +113,8 @@ import org.openide.util.TaskListener;
  */
 class JavaFXActionProvider implements ActionProvider {
 
+    public static final String COMMAND_RUN_APPLET = "run.applet"; // NOI18N
+    
     // Commands available from JavaFX project
     private static final String[] supportedActions = {
         COMMAND_BUILD,
@@ -121,6 +123,7 @@ class JavaFXActionProvider implements ActionProvider {
         COMMAND_COMPILE_SINGLE,
         COMMAND_RUN,
         COMMAND_RUN_SINGLE,
+        COMMAND_RUN_APPLET,
         COMMAND_DEBUG,
         COMMAND_DEBUG_SINGLE,
         JavaProjectConstants.COMMAND_JAVADOC,
@@ -142,6 +145,7 @@ class JavaFXActionProvider implements ActionProvider {
         COMMAND_COMPILE_SINGLE,
         COMMAND_RUN,
         COMMAND_RUN_SINGLE,
+        COMMAND_RUN_APPLET,
         COMMAND_DEBUG,
         COMMAND_DEBUG_SINGLE,
         JavaProjectConstants.COMMAND_JAVADOC,
@@ -183,6 +187,7 @@ class JavaFXActionProvider implements ActionProvider {
         commands.put(COMMAND_COMPILE_SINGLE, new String[] {"compile-single"}); // NOI18N
         commands.put(COMMAND_RUN, new String[] {"run"}); // NOI18N
         commands.put(COMMAND_RUN_SINGLE, new String[] {"run-single"}); // NOI18N
+        commands.put(COMMAND_RUN_APPLET, new String[] {"run-applet"}); // NOI18N
         commands.put(COMMAND_DEBUG, new String[] {"debug"}); // NOI18N
         commands.put(COMMAND_DEBUG_SINGLE, new String[] {"debug-single"}); // NOI18N
         commands.put(JavaProjectConstants.COMMAND_JAVADOC, new String[] {"javadoc"}); // NOI18N
@@ -195,6 +200,7 @@ class JavaFXActionProvider implements ActionProvider {
         this.bkgScanSensitiveActions = new HashSet<String>(Arrays.asList(
             COMMAND_RUN,
             COMMAND_RUN_SINGLE,
+            COMMAND_RUN_APPLET,
             COMMAND_DEBUG,
             COMMAND_DEBUG_SINGLE,
             COMMAND_DEBUG_STEP_INTO
@@ -473,10 +479,10 @@ class JavaFXActionProvider implements ActionProvider {
                 throw new IllegalArgumentException(command);
             }
             prepareDirtyList(p, false);
-        } else if (command.equals (COMMAND_RUN_SINGLE) || command.equals (COMMAND_DEBUG_SINGLE)) {
+        } else if (command.equals (COMMAND_RUN_SINGLE) || command.equals (COMMAND_RUN_APPLET) || command.equals (COMMAND_DEBUG_SINGLE)) {
             FileObject[] files = findTestSources(context, false);
             if (files != null) {
-                if (command.equals(COMMAND_RUN_SINGLE)) {
+                if (command.equals(COMMAND_RUN_SINGLE) || command.equals(COMMAND_RUN_APPLET)) {
                     targetNames = setupTestSingle(p, files);
                 } else {
                     targetNames = setupDebugTestSingle(p, files);
@@ -504,7 +510,8 @@ class JavaFXActionProvider implements ActionProvider {
                     isMain = hasMainClassFromTest || !mainClasses.isEmpty();
                 }
                 
-                if ((isFX && AppletSupport.isJavaFXApplet(file)) || (!isFX && !isMain && AppletSupport.isApplet(file))){
+                if ((isFX && command.equals(COMMAND_RUN_APPLET)) || (!isFX && !isMain && AppletSupport.isApplet(file))){
+                    //running as applet
                     EditableProperties ep = updateHelper.getProperties (AntProjectHelper.PROJECT_PROPERTIES_PATH);
                     String jvmargs = ep.getProperty("run.jvmargs");
 
@@ -537,11 +544,15 @@ class JavaFXActionProvider implements ActionProvider {
                     p.setProperty("applet.url", url.toString()); // NOI18N
                     if (command.equals (COMMAND_RUN_SINGLE)) {
                         targetNames = new String[] {"run-applet"}; // NOI18N
-                    } else {
+                    } else if (command.equals (COMMAND_RUN_APPLET)) {
+                        String[] targets = targetsFromConfig.get(command);
+                        targetNames = (targets != null) ? targets : commands.get(COMMAND_RUN_APPLET);
+                    } else{
                         p.setProperty("debug.class", clazz); // NOI18N
                         targetNames = new String[] {"debug-applet"}; // NOI18N
                     }
                 }else if (isFX || (!isFX && isMain)){
+                    //running as main
                     if (!isFX && !hasMainClassFromTest) {
                         if (mainClasses.size() == 1) {
                             //Just one main class

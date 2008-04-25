@@ -53,7 +53,7 @@ import org.openide.filesystems.FileObject;
 public class JavaFXSourceHighlightingTaskFactory extends EditorAwareJavaSourceTaskFactory {
 
     public JavaFXSourceHighlightingTaskFactory() {
-        super(Phase.PARSED, Priority.NORMAL);
+        super(Phase.ANALYZED, Priority.NORMAL);
     }
     
     @Override

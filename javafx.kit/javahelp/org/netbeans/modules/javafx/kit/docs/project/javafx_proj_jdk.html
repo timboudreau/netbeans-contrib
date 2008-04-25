@@ -12,7 +12,7 @@
 <body>
 <h2>Setting the Target JDK in a JavaFX Project</h2>
 <p> <small><a href="#seealso">See Also</a>&nbsp; </small> 
-<p>By default, every new JavaFX project uses the JavaFX SDK platform  as the default  platform the IDE uses for compilation, execution, and debugging of JavaFX applications. This platform is based on the bundled JavaFX libraries and the default Java SE platform (JDK) that is bundled with the IDE. You can view your IDE's JDK version by choosing Help &gt; About 
+<p>By default, every new JavaFX project uses the JavaFX SDK platform  as the default  platform the IDE uses for compilation, execution, debugging, and profiling of JavaFX Script applications. This platform is based on the bundled JavaFX libraries and the default Java SE platform (JDK) that is bundled with the IDE. You can view your IDE's JDK version by choosing Help &gt; About 
   and clicking 
   the Detail tab. (On a MacOS platform, choose NetBeans &gt; About NetBeans). The JDK version is listed in the Java field. 
 <ul class="note"> 
@@ -25,7 +25,8 @@
 
 <p><b>To set the default platform for a JavaFX project:</b></p>
 <ol>
-  <li>Right-click the project's root node in the Projects window and choose Properties.</li>
+  <li>Right-click the project's root node in the Projects window and choose Properties.<br>
+  Alternatively, you can select the project in the Projects window and select File &gt; <i>&quot;&lt;JavaFX_project_name&gt;&quot;</i> Properties from the main menu.  </li>
   <li>In the Project Properties dialog box, select the Libraries node in the
   	left pane. </li>
   <li>Choose the desired JavaFX platform in the JavaFX Platform combo box. </li>
@@ -42,6 +43,7 @@
 </ol>
 <p><b>To register additional JavaFX platforms with the IDE:</b></p>
   <ol>
+      <li>Choose Tools &gt; Java Platforms from the main menu of the IDE.</li>
       <li>From the Java Platform Manager, click the Add Platform button. </li>
       <li>In the Add Java Platform wizard, select Java JavaFX Platform and click Next.</li>
       <li>Specify the Platform Name you want assigned and the Java platform to use. Use the Browse button to navigate to the JDK/JRE you want to use.</li>
@@ -52,7 +54,7 @@
 </ol>
 <dl>
     <dt><a name="seealso">See Also</a></dt>
-    <dd><a href="../compile/javafx_comp_classpath.html">Managing the Classpath</a></dd>
+    <dd><a href="../compile/javafx_comp_classpath.html">Managing the Classpath of JavaFX Projects</a></dd>
       <dd>&nbsp;</dd>
       <dd>&nbsp;</dd>
 </dl>

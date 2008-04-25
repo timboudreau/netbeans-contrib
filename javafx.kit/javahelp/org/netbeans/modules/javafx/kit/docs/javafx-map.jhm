@@ -40,6 +40,19 @@
 	<mapID target="usersguide.files.search" url="nbdocs://org.netbeans.modules.usersguide/org/netbeans/modules/usersguide/files/files_search.html" />
 	<mapID target="usersguide.find_regexp" url="nbdocs://org.netbeans.modules.usersguide/org/netbeans/modules/usersguide/files/find_regexp.html" />
 -->
+<!-- CSH for New Wizard Name and Location -->
+        <mapID target="org.netbeans.modules.javafx.project.ui.wizards.PanelConfigureProject_APP" url="project/newjavafxappwiz-nameandloc.html"/>
+
+<!-- CSH for JavaFX source editor -->
+<!-- <mapID target="text.x-fx" url="editing/csh/about_source_editor.html" /> 
+<mapID target="org.netbeans.modules.javafx.editor.JavaFXEditorKit" url="project/javafx_proj
+-->
+
+<mapID target="text.x-fx" url="tbd.html" /> 
+
+
+<!--Profiling section -->
+	<mapID target="javafx_profile_about" url="profiling/javafx_profile_about.html" />
 
 <!--Projects section -->
 	<mapID target="javafx_proj_about" url="project/javafx_proj_about.html" />
@@ -48,6 +61,7 @@
 	<mapID target="javafx_proj_process" url="project/javafx_proj_process.html" />
 	<mapID target="javafx_proj_process_top" url="project/javafx_proj_process.html#top"/>
 	<mapID target="javafx_proj_quickref" url="project/javafx_proj_quickref.html"/>
+<!--	<mapID target="javafx_proj_main" url="project/javafx_proj_main.html"/> -->
 	<mapID target="javafx_proj_jdk" url="project/javafx_proj_jdk.html" />
 
 	<mapID target="javafx_options" url="configure/javafx_options.html"/>
@@ -57,16 +71,6 @@
 	<mapID target="javafx_deploy" url="deploy/deploy_javafxapp.html"/>
 
 	<mapID target="javafx_profile_about" url="profiling/javafx_profile_about.html"/>
-
-<!-- Running section -->
-
-<!--	<mapID target="javafx_run_about" url="run/javafx_run_about.html" />  -->
-
-	<mapID target="javafx_run_app" url="run/javafx_run_app.html" />
-	<mapID target="javafx_run_args" url="run/javafx_run_args.html" />
-	<mapID target="javafx_run_classpath" url="run/javafx_run_classpath.html" />
-	<mapID target="javafx_run_process" url="run/javafx_run_process.html" />
-
 
 <!-- CSH for Project Properties dialogs  -->
 	<mapID target="org.netbeans.modules.javafx.project.ui.customizer.CustomizerSources" url="project/csh/proj_javafx_props_sources.html" />
@@ -78,7 +82,17 @@
 	<mapID target="org.netbeans.modules.javafx.project.ui.customizer.CustomizerApplication" url="project/csh/proj_javafx_props_app.html" />
 <mapID target="org.netbeans.modules.javafx.project.ui.customizer.CustomizerWebStart" url="project/csh/proj_javafx_props_webstart.html" />
 
-<!-- CSH for New Wizard Name and Location -->
-        <mapID target="org.netbeans.modules.javafx.project.ui.wizards.PanelConfigureProject_APP" url="newjavafxappwiz-nameandloc.html"/>
+
+<!-- Running section -->
+
+<!--	<mapID target="javafx_run_about" url="run/javafx_run_about.html" />  -->
+
+	<mapID target="javafx_run_app" url="run/javafx_run_app.html" />
+	<mapID target="javafx_run_args" url="run/javafx_run_args.html" />
+	<mapID target="javafx_run_classpath" url="run/javafx_run_classpath.html" />
+	<mapID target="javafx_run_process" url="run/javafx_run_process.html" />
+
 </map>
+
+
 
