@@ -198,7 +198,7 @@ public class PreviewThread extends Thread {
         public void run() {
             List <JFrame> initialList = new ArrayList<JFrame>();
             List <JFrame> suspectedList = new ArrayList<JFrame>();
-            Window windows[] = Window.getOwnerlessWindows();
+            Window windows[] = Window.getWindows();
             for (Window window : windows) {
                 if (window instanceof JFrame)
                     initialList.add((JFrame)window);
@@ -213,7 +213,7 @@ public class PreviewThread extends Thread {
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
             }
-            windows = Window.getOwnerlessWindows();
+            windows = Window.getWindows();
             for (Window window : windows) {
                 if (window instanceof JFrame)
                     if (!initialList.contains(window))
