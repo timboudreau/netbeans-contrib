@@ -151,9 +151,9 @@ generic Path =
 ;
 
 generic StableId = 
-  ( Id void:".":sep )? ThisKey                  ( void:".":sep Id / void:"." SKIP ErrorIdExpected )*
-/ ( Id void:".":sep )? SuperKey ClassQualifier? ( void:".":sep Id / void:"." SKIP ErrorIdExpected )*
-/ Id ( void:".":sep Id / void:"." SKIP ErrorIdExpected )*
+  ( Id void:".":sep )? ThisKey                  ( void:".":sep Id )*
+/ ( Id void:".":sep )? SuperKey ClassQualifier? ( void:".":sep Id )*
+/ Id ( void:".":sep Id )*
 ;
 
 generic ErrorIdExpected = { yyValue = GNode.create("Id", "Id expected"); };
