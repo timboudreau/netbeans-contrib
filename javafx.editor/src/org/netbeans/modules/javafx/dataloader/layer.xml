@@ -173,6 +173,10 @@ made subject to such option by the copyright holder.
                         <attr name="instanceCreate" methodvalue="org.netbeans.modules.java.project.JavaProjectModule.run"/>
                           <attr name="position" intvalue="1950"/>
                     </file>
+                    <file name="RunApplet.instance">
+                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.javafx.project.JavaFXProjectModule.runApplet"/>
+                          <attr name="position" intvalue="1955"/>
+                    </file>
                     <file name="SeparatorBeforeCut.instance">
 			<attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                         <attr name="position" intvalue="1960"/>
