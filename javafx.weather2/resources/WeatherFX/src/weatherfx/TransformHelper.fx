@@ -28,6 +28,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
+/*
+ * TransformHelper.fx
+ *
+ *  
+ * Created on Oct 11, 2007, 6:54:12 PM
+ */
+
 package weatherfx;
 
 /**
@@ -38,10 +45,12 @@ package weatherfx;
 
 public class TransformHelper {
     // translate x
-    public attribute tx: Number;
+    public attribute tx:Number = 0.0;
     // translate y
-    public attribute ty: Number;
+    public attribute ty:Number = 0.0;
     // scale
-    public attribute scale: Number = 1.0;
+    public attribute scale:Number = 1.0;
 }
+
+//attribute TransformHelper.scale = 1.0;
 
