@@ -44,6 +44,7 @@ package org.netbeans.modules.javafx.preview;
 import java.awt.Color;
 import java.awt.Window;
 import java.io.File;
+import java.lang.reflect.Method;
 import java.security.CodeSource;
 import java.security.PermissionCollection;
 import javax.swing.event.HyperlinkEvent;
@@ -198,11 +199,23 @@ public class PreviewThread extends Thread {
         public void run() {
             List <JFrame> initialList = new ArrayList<JFrame>();
             List <JFrame> suspectedList = new ArrayList<JFrame>();
-            Window windows[] = Window.getWindows();
-            for (Window window : windows) {
-                if (window instanceof JFrame)
-                    initialList.add((JFrame)window);
+            
+            Method getOwnerlessWindows = null;
+            Window windows[] = null;
+            try {
+                // to compille under JDK 1.5
+                //windows = Window.getOwnerlessWindows(); 
+                getOwnerlessWindows = Window.class.getDeclaredMethod("getOwnerlessWindows");
+                windows = (Window[])getOwnerlessWindows.invoke(null);
+            } catch (Exception ex) {
             }
+            
+            if (windows != null)
+                for (Window window : windows) {
+                    if (window instanceof JFrame)
+                        initialList.add((JFrame)window);
+                }
+                
             if (!checkJavaVersion()) {
                 comp = getVrongVersion();
                 return;
@@ -213,18 +226,29 @@ public class PreviewThread extends Thread {
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
             }
-            windows = Window.getWindows();
-            for (Window window : windows) {
-                if (window instanceof JFrame)
-                    if (!initialList.contains(window))
-                        suspectedList.add((JFrame)window);
+
+            try {
+                // to compille under JDK 1.5
+                //windows = Window.getOwnerlessWindows();
+                windows = (Window[])getOwnerlessWindows.invoke(null);
+            } catch (Exception ex) {
             }
+            
+            if (windows != null)
+                for (Window window : windows) {
+                    if (window instanceof JFrame)
+                        if (!initialList.contains(window))
+                            suspectedList.add((JFrame)window);
+                }
+
             if (obj != null) {
                 comp = CodeManager.parseObj(obj);
             } else {
-                if (!suspectedList.isEmpty())
-                comp = CodeManager.parseObj(suspectedList.get(0));
-                suspectedList.remove(0);
+                if (!suspectedList.isEmpty()) {
+                    comp = CodeManager.parseObj(suspectedList.get(0));
+                    suspectedList.remove(0);
+                } else
+                    comp = null;
             }
             for (JFrame frame : suspectedList) {
                 if (!obj.equals(frame) && frame.isVisible())
