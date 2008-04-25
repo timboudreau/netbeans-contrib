@@ -158,8 +158,6 @@ public class AstElementVisitor extends AstVisitor {
             pathId = visitStableId(first);
         }
 
-
-
         exit(that);
         return pathId;
     }
@@ -213,8 +211,10 @@ public class AstElementVisitor extends AstVisitor {
     public Id visitId(GNode that) {
         enter(that);
 
+        Id id = new Id(that.getString(0), getIdToken(that), ElementKind.VARIABLE);
+        
         exit(that);
-        return new Id(that.getString(0), getIdToken(that), ElementKind.VARIABLE);
+        return id;
     }
 
     public Id visitVarId(GNode that) {

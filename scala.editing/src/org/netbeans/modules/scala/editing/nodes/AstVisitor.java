@@ -38,7 +38,9 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -63,6 +65,7 @@ public abstract class AstVisitor extends Visitor {
     protected AstRootScope rootScope;
     protected Stack<GNode> astPath = new Stack<GNode>();
     protected Stack<AstScope> scopeStack = new Stack<AstScope>();
+    protected List<GNode> errors = new ArrayList<GNode>();
 
     public AstVisitor(Node rootNode, TokenHierarchy th) {
         this.th = th;
@@ -79,6 +82,12 @@ public abstract class AstVisitor extends Visitor {
     protected void enter(GNode node) {
         indentLevel++;
         astPath.push(node);
+        if (node.size() > 0) {
+            Object o = node.get(0);
+            if (o instanceof String && ((String) o).endsWith("expected")) {
+                errors.add(node);
+            }
+        }
     }
 
     protected void exit(GNode node) {
@@ -122,20 +131,24 @@ public abstract class AstVisitor extends Visitor {
         return rootScope;
     }
 
+    public List<GNode> getErrors() {
+        return errors;
+    }
+
     protected Token[] getBoundsTokens(Node node) {
         Location loc = node.getLocation();
         TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(th, loc.offset);
-        
+
         ts.move(loc.offset);
         if (!ts.moveNext() && !ts.movePrevious()) {
             assert false : "Should not happen!";
         }
-        
+
         Token startToken = ScalaLexUtilities.findNextNonWs(ts);
         if (startToken.isFlyweight()) {
             startToken = ts.offsetToken();
         }
-        
+
         ts.move(loc.endOffset);
         if (!ts.moveNext() && !ts.movePrevious()) {
             assert false : "Should not happen!";
@@ -144,8 +157,8 @@ public abstract class AstVisitor extends Visitor {
         if (endToken.isFlyweight()) {
             endToken = ts.offsetToken();
         }
-        
-        return new Token[] {startToken, endToken};
+
+        return new Token[]{startToken, endToken};
     }
 
     /**
@@ -160,21 +173,23 @@ public abstract class AstVisitor extends Visitor {
         if (!ts.moveNext() && !ts.movePrevious()) {
             assert false : "Should not happen!";
         }
-        
+
         String name = idNode.getString(0).trim();
         Token token = null;
         if (name.equals("this")) {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.This);
         } else if (name.equals("super")) {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Super);
+        } else if (name.endsWith("expected")) {
+            token = ts.token();
         } else {
             token = ScalaLexUtilities.findNext(ts, ScalaTokenId.Identifier);
         }
-        
+
         if (token.isFlyweight()) {
             token = ts.offsetToken();
         }
-        
+
         return token;
     }
 

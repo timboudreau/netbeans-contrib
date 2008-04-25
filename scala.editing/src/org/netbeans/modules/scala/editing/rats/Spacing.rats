@@ -126,3 +126,5 @@ transient String error = _+ ;
 
 transient void EOF = !_ ;
 
+transient void ERROR = ;
+
