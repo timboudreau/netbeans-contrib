@@ -86,19 +86,26 @@ public class ScalaIndex {
     private static final Set<String> TERMS_BASE = Collections.singleton(ScalaIndexer.FIELD_BASE);
     private static final Set<String> TERMS_EXTEND = Collections.singleton(ScalaIndexer.FIELD_EXTEND_WITH);
     // fields for index searching:
-    private static Map<FileObject, Reference<JavaSource>> file2JavaSource = new WeakHashMap<FileObject, Reference<JavaSource>>();
+    private static Map<FileObject, Reference<org.netbeans.api.java.source.JavaSource>> fileToJavaSource =
+            new WeakHashMap<FileObject, Reference<org.netbeans.api.java.source.JavaSource>>();
+    private static Map<FileObject, Reference<org.netbeans.api.java.source.CompilationController>> fileToJavaController =
+            new WeakHashMap<FileObject, Reference<org.netbeans.api.java.source.CompilationController>>();
     private final Index index;
     private final org.netbeans.api.java.source.ClassIndex javaIndex;
     private final org.netbeans.api.java.source.JavaSource javaSource;
+    private final org.netbeans.api.java.source.CompilationController javaController;
 
     /** Creates a new instance of ScalaIndex */
     private ScalaIndex(Index index,
             org.netbeans.api.java.source.ClassIndex javaIndex,
-            org.netbeans.api.java.source.JavaSource javaSource) {
+            org.netbeans.api.java.source.JavaSource javaSource,
+            org.netbeans.api.java.source.CompilationController javaController) {
 
         this.index = index;
+
         this.javaIndex = javaIndex;
         this.javaSource = javaSource;
+        this.javaController = javaController;
     }
 
     public static ScalaIndex get(CompilationInfo info) {
@@ -110,17 +117,38 @@ public class ScalaIndex {
          * does not support virtual source yet (only ".java" and ".class" files 
          * are supported), but we can create js via JavaSource.create(cpInfo);
          */
-        Reference<JavaSource> ref = file2JavaSource.get(fo);
-        JavaSource js = ref != null ? ref.get() : null;
-        if (js == null) {
+        Reference<org.netbeans.api.java.source.JavaSource> sourceRef = fileToJavaSource.get(fo);
+        org.netbeans.api.java.source.JavaSource javaSource = sourceRef != null ? sourceRef.get() : null;
+        if (javaSource == null) {
             org.netbeans.api.java.source.ClasspathInfo javaCpInfo = org.netbeans.api.java.source.ClasspathInfo.create(fo);
-            js = JavaSource.create(javaCpInfo);
-            file2JavaSource.put(fo, new WeakReference<JavaSource>(js));
+            javaSource = JavaSource.create(javaCpInfo);
+            fileToJavaSource.put(fo, new WeakReference<org.netbeans.api.java.source.JavaSource>(javaSource));
+
         }
 
-        org.netbeans.api.java.source.ClassIndex javaIndex = js.getClasspathInfo().getClassIndex();
+        Reference<org.netbeans.api.java.source.CompilationController> cotrollerRef = fileToJavaController.get(fo);
+        org.netbeans.api.java.source.CompilationController javaController = cotrollerRef != null ? cotrollerRef.get() : null;
+        if (javaController == null) {
+            final org.netbeans.api.java.source.CompilationController[] javaControllers =
+                    new org.netbeans.api.java.source.CompilationController[1];
+            try {
+                javaSource.runUserActionTask(new org.netbeans.api.java.source.Task<org.netbeans.api.java.source.CompilationController>() {
 
-        return new ScalaIndex(index, javaIndex, js);
+                    public void run(org.netbeans.api.java.source.CompilationController controller) throws Exception {
+                        javaControllers[0] = controller;
+                    }
+                }, true);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+
+            javaController = javaControllers[0];
+            fileToJavaController.put(fo, new WeakReference<org.netbeans.api.java.source.CompilationController>(javaController));
+        }
+
+        org.netbeans.api.java.source.ClassIndex javaIndex = javaSource.getClasspathInfo().getClassIndex();
+
+        return new ScalaIndex(index, javaIndex, javaSource, javaController);
     }
 
     private boolean search(String key, String name, NameKind kind, Set<SearchResult> result,
@@ -267,11 +295,15 @@ public class ScalaIndex {
      */
     public Set<IndexedElement> getElements(String prefix, String type,
             NameKind kind, Set<Index.SearchScope> scope, ScalaParserResult context) {
+        
+        getByFqnJava(prefix, type, kind, scope, false, context, true, false, false);
+        
         return getByFqn(prefix, type, kind, scope, false, context, true, true, false);
     }
 
     public Set<IndexedElement> getAllElements(String prefix, String type,
             NameKind kind, Set<Index.SearchScope> scope, ScalaParserResult context) {
+        
         return getByFqn(prefix, type, kind, scope, false, context, true, true, true);
     }
 
@@ -284,8 +316,6 @@ public class ScalaIndex {
     private Set<IndexedElement> getUnknownFunctions(String name, NameKind kind,
             Set<Index.SearchScope> scope, boolean onlyConstructors, ScalaParserResult context,
             boolean includeMethods, boolean includeProperties) {
-
-        //getByFqnJava(name, "String", kind, scope, false, context, includeMethods, false, false);
 
         final Set<SearchResult> result = new HashSet<SearchResult>();
 
@@ -666,11 +696,10 @@ public class ScalaIndex {
             search(field, lcfqn, kind, result, scope, terms);
 
             for (org.netbeans.api.java.source.ElementHandle<TypeElement> javaTeHandle : javaTypes) {
-                String binName = javaTeHandle.getBinaryName();
-//                TypeElement te = javaTeHandle.resolve(controller);
-//                if (te != null) {
-//                    addMembers(env, te.asType(), te, kinds, baseType, inImport, insideNew);
-//                }
+                TypeElement te = javaTeHandle.resolve(javaController);
+                if (te != null) {
+                    //addMembers(env, te.asType(), te, kinds, baseType, inImport, insideNew);
+                }
 
 //                String[] signatures = map.getValues(field);
 //
