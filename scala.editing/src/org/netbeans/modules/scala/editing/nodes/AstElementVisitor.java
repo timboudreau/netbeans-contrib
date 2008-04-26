@@ -186,7 +186,7 @@ public class AstElementVisitor extends AstVisitor {
             ids.add(idThis);
 
             others = that.getList(2).list();
-            
+
             error = that.getGeneric(3);
         } else if (that.size() == 5) {
             // ( Id void:".":sep )? SuperKey ClassQualifier? ( void:".":key Id )* ( void:"." SKIP ErrorIdExpected )?
@@ -199,7 +199,7 @@ public class AstElementVisitor extends AstVisitor {
             }
 
             others = that.getList(3).list();
-            
+
             error = that.getGeneric(4);
         }
 
@@ -210,7 +210,7 @@ public class AstElementVisitor extends AstVisitor {
         if (error != null) {
             visitError(error);
         }
-        
+
         Id nameId = ids.get(ids.size() - 1);
         PathId pathId = new PathId(nameId.getIdToken(), ElementKind.VARIABLE);
         pathId.setPaths(ids);
@@ -1687,9 +1687,9 @@ public class AstElementVisitor extends AstVisitor {
         exit(that);
         return expr;
     }
-    
+
     public SimpleExpr visitSimpleNewExpr(GNode that) {
-        enter(that);        
+        enter(that);
         SimpleExpr expr = new SimpleExpr(getBoundsTokens(that));
 
         NewExpr newExpr = visitNewExpr(that.getGeneric(0));
@@ -1712,22 +1712,22 @@ public class AstElementVisitor extends AstVisitor {
         exit(that);
         return expr;
     }
-    
+
     public NewExpr visitNewExpr(GNode that) {
         enter(that);
         NewExpr expr = new NewExpr(getBoundsTokens(that));
-        
+
         GNode what = that.getGeneric(0);
         if (what.getName().equals("ClassTemplate")) {
             List<SimpleType> parents = visitClassTemplate(what);
             expr.setParents(parents);
-        } else if (what.getName().equals("TemplateBody")){
+        } else if (what.getName().equals("TemplateBody")) {
             // TemplateBody
             visitChildren(what);
         } else {
             visitError(what);
         }
-        
+
         exit(that);
         return expr;
     }
@@ -1739,24 +1739,29 @@ public class AstElementVisitor extends AstVisitor {
 
         GNode node = that.getGeneric(0);
         if (node.getName().equals("CallByNameFunType")) {
-            FunType funType = new FunType(null, ElementKind.CLASS);
             GNode lhsNode = node.getGeneric(0);
+            TypeRef lhs = null;
             if (lhsNode != null) {
-                TypeRef lhs = visitType(lhsNode);
-                funType.setLhs(lhs);
+                lhs = visitType(lhsNode);
             }
+            
             GNode rhsNode = node.getGeneric(1);
             TypeRef rhs = visitType(rhsNode);
+            
+            // use rhs as the idToken
+            FunType funType = new FunType(rhs.getIdToken(), ElementKind.CLASS);
+            funType.setLhs(lhs);
             funType.setRhs(rhs);
 
             type = funType;
         } else if (node.getName().equals("NormalFunType")) {
-            FunType funType = new FunType(null, ElementKind.CLASS);
             GNode lhsNode = node.getGeneric(0);
             TypeRef lhs = visitInfixType(lhsNode);
-            funType.setLhs(lhs);
             GNode rhsNode = node.getGeneric(1);
             TypeRef rhs = visitType(rhsNode);
+
+            FunType funType = new FunType(rhs.getIdToken(), ElementKind.CLASS);
+            funType.setLhs(lhs);
             funType.setRhs(rhs);
 
             type = funType;
@@ -1948,7 +1953,8 @@ public class AstElementVisitor extends AstVisitor {
         enter(that);
 
         List<TypeRef> types = visitTypes(that.getGeneric(0));
-        SimpleTupleType type = new SimpleTupleType(null, ElementKind.CLASS);
+        // idToken is used to get the offset here, just set first type's idToken as idToken, 
+        SimpleTupleType type = new SimpleTupleType(types.get(0).getIdToken(), ElementKind.CLASS);
         type.setTypes(types);
 
         for (TypeRef typeRef : types) {
