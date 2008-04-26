@@ -50,6 +50,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
+import org.netbeans.api.autoupdate.UpdateElement;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.modules.autoupdate.featureondemand.FoDFileSystem;
 import org.openide.WizardDescriptor;
@@ -73,11 +74,10 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Prog
     private Boolean doInstall = null;
     private Boolean doEnable = null;
     private FileObject template;
-    private boolean ignore = false;
+    private LicenseStep licenseStep = null;
     
     public FeatureOnDemanWizardIterator (FileObject template) {
         this.template = template;
-        this.ignore = true;
     }
     
     public static WizardDescriptor.InstantiatingIterator newProject (FileObject fo) {
@@ -111,6 +111,21 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Prog
             }
         }
         return res;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void compatPanels () {
+        if (wiz != null && licenseStep != null) {
+            Collection<UpdateElement> approved = (Collection<UpdateElement>) wiz.getProperty (APPROVED_ELEMENTS);
+            Collection<UpdateElement> chosen = (Collection<UpdateElement>) wiz.getProperty (CHOSEN_ELEMENTS_FOR_INSTALL);
+            boolean allApproved = true;
+            for (UpdateElement el : chosen) {
+                allApproved &= approved.contains (el);
+            }
+            if (allApproved && false) {
+                panels.remove (licenseStep);
+            }
+        }
     }
     
     private void createPanels () {
@@ -148,7 +163,8 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Prog
         if (panels == null) {
             panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>> ();
             panels.add (new DescriptionStep ());
-            panels.add (new LicenseStep ());
+            licenseStep = new LicenseStep ();
+            panels.add (licenseStep);
             panels.add (new InstallStep ());
             panels.add (new ToBeContinuedStep ());
             names = new String [] {
@@ -269,6 +285,7 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Prog
     }
 
     public boolean hasNext () {
+        compatPanels ();
         if (getDelegateIterator () != null) {
             return getDelegateIterator ().hasNext ();
         }
@@ -276,6 +293,7 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Prog
     }
 
     public boolean hasPrevious () {
+        compatPanels ();
         if (getDelegateIterator () != null) {
             return getDelegateIterator ().hasPrevious ();
         }
@@ -284,10 +302,6 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Prog
 
     public void nextPanel () {
         if (getDelegateIterator () != null) {
-            if (ignore) {
-                ignore = false;
-                return ;
-            }
             if (getDelegateIterator ().hasNext ()) {
                 getDelegateIterator ().nextPanel ();
             }

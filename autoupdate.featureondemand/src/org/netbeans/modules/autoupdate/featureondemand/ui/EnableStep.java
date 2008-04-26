@@ -48,32 +48,32 @@ import java.awt.Component;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.autoupdate.UpdateElement;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.autoupdate.featureondemand.FoDFileSystem;
 import org.openide.WizardDescriptor;
-import org.openide.WizardValidationException;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
-public class EnableStep implements WizardDescriptor.AsynchronousValidatingPanel<WizardDescriptor> {
+public class EnableStep implements WizardDescriptor.FinishablePanel<WizardDescriptor> {
     private URL layer;
     private InstallPanel component;
     private Collection<UpdateElement> forEnable = null;
     private final List<ChangeListener> listeners = new ArrayList<ChangeListener> ();
-    private boolean calledValidate = false;
     private WizardDescriptor wd = null;
+    private boolean doEnableRunning = false;
 
     public Component getComponent () {
         if (component == null) {
+            doEnableRunning = false;
             component = new InstallPanel (
                     NbBundle.getMessage (EnableStep.class, "EnablePanel_Name"));
         }
@@ -85,7 +85,7 @@ public class EnableStep implements WizardDescriptor.AsynchronousValidatingPanel<
     }
 
     public boolean isValid () {
-        return forEnable != null && ! forEnable.isEmpty () && wd != null;
+        return false;
     }
 
     public synchronized void addChangeListener (ChangeListener l) {
@@ -94,6 +94,34 @@ public class EnableStep implements WizardDescriptor.AsynchronousValidatingPanel<
 
     public synchronized void removeChangeListener (ChangeListener l) {
         listeners.remove(l);
+    }
+
+    private Runnable doEnable () {
+        return new Runnable () {
+            public void run () {
+                if (! doEnableRunning) {
+                    doEnableRunning = true;
+                    ModulesActivator activator = new ModulesActivator (forEnable);
+                    ProgressHandle enableHandle = ProgressHandleFactory.createHandle (
+                            getBundle ("ModulesStep_Enable",
+                            presentElementsForEnable ()));
+                    JComponent enableComponent = ProgressHandleFactory.createProgressComponent (enableHandle);
+                    JComponent enableMainLabel = ProgressHandleFactory.createMainLabelComponent (enableHandle);
+                    JComponent enableDetailLabel = ProgressHandleFactory.createDetailLabelComponent (enableHandle);
+                    activator.assignEnableHandle (enableHandle);
+                    component.displayEnableTask (
+                            enableMainLabel,
+                            enableDetailLabel,
+                            enableComponent);
+                    RequestProcessor.Task enable = activator.getEnableTask ();
+                    enable.schedule (0);
+                    enable.waitFinished ();
+                    assert layer != null : "Layer must be known.";
+                    FoDFileSystem.getInstance().refresh();
+                    waitForDelegateWizard ();
+                }
+            }
+        };
     }
 
     private void fireChange () {
@@ -114,13 +142,11 @@ public class EnableStep implements WizardDescriptor.AsynchronousValidatingPanel<
         assert o == null || o instanceof Collection :
             o + " is instanceof Collection<UpdateElement> or null.";
         forEnable = ((Collection<UpdateElement>) o);
-        if (forEnable != null) {
-            presentElementsForInstall (forEnable);
-        }
         Object templateO = settings.getProperty (FeatureOnDemanWizardIterator.CHOSEN_TEMPLATE);
         assert templateO != null && templateO instanceof FileObject : templateO + " is not null and instanceof FileObject.";
         FileObject templateFO = (FileObject) templateO;
         layer = FoDFileSystem.getInstance().getDelegateFileSystem (templateFO);
+        RequestProcessor.getDefault ().post (doEnable ());
     }
 
     public void storeSettings (WizardDescriptor settings) {
@@ -130,71 +156,14 @@ public class EnableStep implements WizardDescriptor.AsynchronousValidatingPanel<
         return false;
     }
     
-    private void presentElementsForInstall (Collection<UpdateElement> elements) {
-        LinkedList<JComponent> components = new LinkedList<JComponent> ();
+    private String presentElementsForEnable () {
+        assert forEnable != null : "UpdateElements for enable are " + forEnable;
         Collection<UpdateElement> visible = FindComponentModules.getVisibleUpdateElements (forEnable);
-        if (visible.size () == 1) {
-            components.add (new JLabel (getBundle ("EnableStep_ActivateDescription_Plugin",
-                    ModulesInstaller.presentUpdateElements (visible))));
-        } else {
-            components.add (new JLabel (getBundle ("EnableStep_ActivateDescription_Plugins",
-                    ModulesInstaller.presentUpdateElements (visible))));
-        }
-        components.add (new JLabel (" "));
-        components.add (new JLabel (getBundle ("EnableStep_Note")));
-        component.replaceComponents (components.toArray (new JComponent [0]));
-        fireChange ();
+        return ModulesInstaller.presentUpdateElements (visible);
     }
     
     private static String getBundle (String key, Object... params) {
         return NbBundle.getMessage (EnableStep.class, key, params);
-    }
-    
-    private int getDownloadSize (Collection<UpdateElement> elements) {
-        int res = 0;
-        for (UpdateElement el : elements) {
-            res += el.getDownloadSize ();
-        }
-        return res;
-    }
-
-    public static String getDownloadSizeAsString (int size) {
-        int gbSize = size / (1024 * 1024 * 1024);
-        if (gbSize > 0) {
-            return gbSize + getBundle ("InstallStep_DownloadSize_GB");
-        }
-        int mbSize = size / (1024 * 1024);
-        if (mbSize > 0) {
-            return mbSize + getBundle ("InstallStep_DownloadSize_MB");
-        }
-        int kbSize = size / 1024;
-        if (kbSize > 0) {
-            return kbSize + getBundle ("InstallStep_DownloadSize_kB");
-        }
-        return size + getBundle ("InstallStep_DownloadSize_B");
-    }
-
-    public void prepareValidation () {
-        if (wd != null) {
-            if (WizardDescriptor.NEXT_OPTION.equals (wd.getValue ())) {
-                calledValidate = true;
-            } else {
-                calledValidate = false;
-            }
-        } else {
-            calledValidate = false;
-        }
-    }
-
-    public void validate () throws WizardValidationException {
-        if (calledValidate) {
-            RequestProcessor.Task enable = new ModulesActivator (forEnable).getEnableTask ();
-            enable.schedule (0);
-            enable.waitFinished ();
-            assert layer != null : "Layer must be known.";
-            FoDFileSystem.getInstance().refresh();
-            waitForDelegateWizard ();
-       }
     }
     
     private FileObject fo = null;
