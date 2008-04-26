@@ -1155,7 +1155,7 @@ public class ScalaCodeCompletion implements Completable {
         BaseDocument doc = request.doc;
         NameKind kind = request.kind;
         FileObject fileObject = request.fileObject;
-        AstElement cloest = request.element;
+        AstElement closest = request.element;
         ScalaParserResult result = request.result;
         CompilationInfo info = request.info;
 
@@ -1188,39 +1188,19 @@ public class ScalaCodeCompletion implements Completable {
             String lhs = call.getLhs();
 
             if (type == null) {
-                if (cloest != null) {
-                    /** @Todo Some simple type inference code, should be integrated to TypeInference */
-                    TypeRef typeRef = cloest.getType();
+                if (closest != null) {
+                    TypeRef typeRef = null;
+                    
+                    if (closest instanceof FieldRef) {
+                        // dog.tal|
+                        typeRef = ((FieldRef) closest).getBase().getType();
+                    } else if (closest instanceof IdRef) {
+                        // dog.|
+                        typeRef = closest.getType();
+                    }
+                    
                     if (typeRef != null) {
                         type = typeRef.getName();
-                    } else {
-                        if (cloest instanceof FieldRef) {
-                            AstExpr base = ((FieldRef) cloest).getBase();
-                            if (base instanceof SimpleExpr) {
-                                AstElement base1 = ((SimpleExpr) base).getBase();
-                                if (base1 instanceof PathId) {
-                                    /** Try to an AstRef */
-                                    AstElement firstId = root.getDefRef(th, ((PathId) base1).getPaths().get(0).getIdToken().offset(th));
-                                    AstDef def = root.findDef(firstId);
-                                    if (def != null) {
-                                        typeRef = def.getType();
-                                        if (typeRef != null) {
-                                            type = def.getType().getName();
-                                        }
-                                    }
-                                }
-                            }
-                        } else if (cloest instanceof IdRef) {
-                            // dog.|
-                            AstDef def = root.findDef(cloest);
-                            if (def != null) {
-                                typeRef = def.getType();
-                                if (typeRef != null) {
-                                    type = def.getType().getName();
-                                }
-                            }
-
-                        }
                     }
                 }
             //Node method = AstUtilities.findLocalScope(node, path);
@@ -1268,7 +1248,7 @@ public class ScalaCodeCompletion implements Completable {
 //                        }
 //                    }
                 }
-            } else if (type == null && lhs != null && cloest != null) {
+            } else if (type == null && lhs != null && closest != null) {
 //                Node method = AstUtilities.findLocalScope(node, path);
 //
 //                if (method != null) {
@@ -1277,7 +1257,7 @@ public class ScalaCodeCompletion implements Completable {
 //                }
             }
 
-            if ((type == null) && (lhs != null) && (cloest != null) && call.isSimpleIdentifier()) {
+            if ((type == null) && (lhs != null) && (closest != null) && call.isSimpleIdentifier()) {
 //                Node method = AstUtilities.findLocalScope(node, path);
 //
 //                if (method != null) {

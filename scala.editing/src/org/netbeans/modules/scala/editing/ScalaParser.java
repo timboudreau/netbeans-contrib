@@ -414,6 +414,9 @@ public class ScalaParser implements Parser {
                 visitor.visit(node);
                 rootScope = visitor.getRootScope();
                 
+                ScalaTypeInferencer inferencer = new ScalaTypeInferencer(rootScope, th);
+                inferencer.infer();
+                
                 errors = visitor.getErrors();
                 for (GNode errorNode : errors) {
                     String msg = errorNode.getString(0);
