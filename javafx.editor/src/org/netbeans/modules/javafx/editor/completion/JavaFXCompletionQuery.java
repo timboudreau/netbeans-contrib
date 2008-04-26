@@ -632,6 +632,10 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
     }
 
     private void insideCompilationUnit(Env env) throws IOException {
+        if (isTreeBroken(env)) {
+            // don't do anything in this case
+            return;
+        }
         int offset = env.getOffset();
         SourcePositions sourcePositions = env.getSourcePositions();
         CompilationUnitTree root = env.getRoot();
@@ -650,6 +654,20 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
+    /**
+     * If the tree is broken we are in fact not in the compilation unit.
+     * @param env
+     * @return
+     */
+    private boolean isTreeBroken(Env env) {
+        SourcePositions sourcePositions = env.getSourcePositions();
+        CompilationUnitTree root = env.getRoot();
+        int start = (int) sourcePositions.getStartPosition(root, root);
+        int end = (int) sourcePositions.getEndPosition(root, root);
+        log("isTreeBroken start: " + start + " end: " + end);
+        return start == -1 || end == -1;
+    }
+    
     private void insideImport(Env env) {
         int offset = env.getOffset();
         String prefix = env.getPrefix();

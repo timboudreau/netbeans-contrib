@@ -144,7 +144,8 @@ public class JavaFXPlatformImpl extends JavaFXPlatform {
         Map<String,String> sysProperties, List<URL> sources, List<URL> javadoc) {
         this (dispName,  javaFolders, fxFolder, initialProperties, sysProperties,sources, javadoc);
         this.properties.put (PLAT_PROP_ANT_NAME,antName);
-        this.properties.put (PLAT_PROP_FX_HOME,fxFolder.toString());
+        if (fxFolder != null)
+            this.properties.put (PLAT_PROP_FX_HOME,fxFolder.toString());
         addPlatformProperties(this);
     }
 

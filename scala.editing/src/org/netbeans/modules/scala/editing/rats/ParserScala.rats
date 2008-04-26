@@ -156,6 +156,8 @@ generic StableId =
 / Id ( void:".":sep Id )*
 ;
 
+generic ErrorIdExpected = { yyValue = GNode.create("Id", "Id expected"); };
+
 transient generic ClassQualifier = void:"[":sep Id void:"]":sep;
 
 generic Type = 

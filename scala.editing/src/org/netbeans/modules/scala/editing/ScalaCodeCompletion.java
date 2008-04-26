@@ -77,6 +77,7 @@ import org.netbeans.modules.scala.editing.nodes.AstExpr;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
+import org.netbeans.modules.scala.editing.nodes.IdRef;
 import org.netbeans.modules.scala.editing.nodes.PathId;
 import org.netbeans.modules.scala.editing.nodes.SimpleExpr;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
@@ -377,10 +378,11 @@ public class ScalaCodeCompletion implements Completable {
                 //request.fqn = AstUtilities.getFqn(path, null, null);
 
                 AstElement closest = root.getDefRef(th, offset);
-                if (closest == null) {
-                    closest = root.getDefRef(th, offset - 1);
+                int closestOffset = offset - 1;
+                while (closest == null && closestOffset > 0) {
+                    closest = root.getDefRef(th, closestOffset--);
                 }
-                
+
                 if (closest instanceof FunRef || closest instanceof FieldRef) {
                     // dog.t or dog.talk()
                 }
@@ -1208,6 +1210,16 @@ public class ScalaCodeCompletion implements Completable {
                                     }
                                 }
                             }
+                        } else if (cloest instanceof IdRef) {
+                            // dog.|
+                            AstDef def = root.findDef(cloest);
+                            if (def != null) {
+                                typeRef = def.getType();
+                                if (typeRef != null) {
+                                    type = def.getType().getName();
+                                }
+                            }
+
                         }
                     }
                 }
