@@ -881,16 +881,11 @@ public class AstElementVisitor extends AstVisitor {
         Object[] patDef = visitPatDef(that.getGeneric(0));
         List<Id> ids = (List<Id>) patDef[0];
         AstExpr expr = (AstExpr) patDef[1];
-        if (expr == null) {
-            System.out.println("" + that.toString());
-        }
         AstScope scope = new AstScope(getBoundsTokens(that));
         for (Id id : ids) {
             Var var = new Var(id, scope, ElementKind.FIELD);
             var.setVal();
-            if (id.getType() == null) {
-                id.setType(expr.getType());
-            }
+            var.setExpr(expr);
 
             scopeStack.peek().addDef(var);
         }
@@ -919,9 +914,7 @@ public class AstElementVisitor extends AstVisitor {
             AstScope scope = new AstScope(getBoundsTokens(that));
             for (Id id : ids) {
                 Var var = new Var(id, scope, ElementKind.FIELD);
-                if (id.getType() == null) {
-                    id.setType(expr.getType());
-                }
+                var.setExpr(expr);
 
                 scopeStack.peek().addDef(var);
             }
@@ -940,7 +933,7 @@ public class AstElementVisitor extends AstVisitor {
 
         GNode typeNode = that.getGeneric(2);
         TypeRef type = typeNode == null ? null : visitType(typeNode);
-        for (AstElement id : ids) {
+        for (Id id : ids) {
             id.setType(type);
         }
 

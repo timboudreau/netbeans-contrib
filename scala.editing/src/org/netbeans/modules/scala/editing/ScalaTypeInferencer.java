@@ -39,6 +39,7 @@
 package org.netbeans.modules.scala.editing;
 
 import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.modules.scala.editing.nodes.AssignmentExpr;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstExpr;
@@ -69,26 +70,7 @@ public class ScalaTypeInferencer {
 
     private void inferRecursively(AstScope scope) {
         for (AstExpr expr : scope.getExprs()) {
-            if (expr instanceof SimpleExpr) {
-                AstElement base = ((SimpleExpr) expr).getBase();
-                if (base instanceof PathId) {
-                    /** Try to find an AstRef, so we can infer its type via it's def */
-                    Id firstId = ((PathId) base).getPaths().get(0);
-                    AstElement firstIdRef = rootScope.getDefRef(th, firstId.getIdToken().offset(th));
-                    AstDef def = rootScope.findDef(firstIdRef);
-                    if (def != null) {
-                        TypeRef type = def.getType();
-                        if (type != null) {
-                            if (firstIdRef.getType() != null) {
-                                // @Todo check type of firstId with def's type 
-                            } else {
-                                firstId.setType(def.getType());
-                                firstIdRef.setType(def.getType());
-                            }
-                        }
-                    }
-                }
-            }
+            inferExpr(expr, null);
         }
 
         for (AstRef ref : scope.getRefs()) {
@@ -103,5 +85,46 @@ public class ScalaTypeInferencer {
         for (AstScope _Scope : scope.getScopes()) {
             inferRecursively(_Scope);
         }
+    }
+
+    private void inferExpr(AstExpr expr, TypeRef knownExprType) {
+        if (expr instanceof SimpleExpr) {
+            inferSimpleExpr((SimpleExpr) expr, knownExprType);
+        } else if (expr instanceof AssignmentExpr) {
+            inferAssignmentExpr((AssignmentExpr) expr);
+        }
+
+    }
+
+    private void inferSimpleExpr(SimpleExpr expr, TypeRef knownExprType) {
+        AstElement base = ((SimpleExpr) expr).getBase();
+        if (base instanceof PathId) {
+            /** Try to find an AstRef, so we can infer its type via it's def */
+            Id firstId = ((PathId) base).getPaths().get(0);
+            AstElement firstIdRef = rootScope.getDefRef(th, firstId.getIdToken().offset(th));
+            AstDef def = rootScope.findDef(firstIdRef);
+            TypeRef type = null;
+            if (def != null) {
+                type = def.getType();
+            } else if (knownExprType != null) {
+                type = knownExprType;
+            }
+            
+            if (type != null) {
+                if (firstIdRef.getType() != null) {
+                    // @Todo check type of firstId with def's type 
+                    } else {
+                    firstId.setType(def.getType());
+                    firstIdRef.setType(def.getType());
+                }
+            }
+        }
+    }
+
+    private void inferAssignmentExpr(AssignmentExpr expr) {
+        AstExpr lhs = ((AssignmentExpr) expr).getLhs();
+        AstExpr rhs = ((AssignmentExpr) expr).getRhs();
+        inferExpr(rhs, null);
+        inferExpr(lhs, rhs.getType());
     }
 }
