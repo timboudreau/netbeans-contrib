@@ -156,8 +156,8 @@ generic StableId =
 /                      Id                       ( void:".":sep Id )* ( void:"." SKIP ErrorIdExpected )?
 ;
 
-/* StableId in Import may be followed by '{' '_', so should considerate this case */
-transient generic ErrorIdExpected = !( [{_] ) { yyValue = GNode.create("Error", "Id expected"); } ;
+/* StableId may be followed by '{' '_' in Import, and "type", so should considerate this case */
+transient generic ErrorIdExpected = !( [{_] / "type":key ) { yyValue = GNode.create("Error", "Id expected"); } ;
 
 transient generic ClassQualifier = void:"[":sep Id void:"]":sep;
 
