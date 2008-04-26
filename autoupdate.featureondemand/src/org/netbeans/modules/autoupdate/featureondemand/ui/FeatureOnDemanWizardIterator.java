@@ -50,8 +50,11 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
+import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.modules.autoupdate.featureondemand.FoDFileSystem;
 import org.openide.WizardDescriptor;
+import org.openide.WizardDescriptor.InstantiatingIterator;
+import org.openide.WizardDescriptor.ProgressInstantiatingIterator;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.openide.util.NbBundle;
@@ -59,7 +62,7 @@ import org.openide.util.NbBundle;
 /**
  * Wizard to create a new Make project.
  */
-public final class FeatureOnDemanWizardIterator implements WizardDescriptor.InstantiatingIterator<WizardDescriptor> {
+public final class FeatureOnDemanWizardIterator implements WizardDescriptor.ProgressInstantiatingIterator<WizardDescriptor> {
     public static final String CHOSEN_ELEMENTS_FOR_INSTALL = "chosen-elements-for-install"; // NOI18N
     public static final String CHOSEN_ELEMENTS_FOR_ENABLE = "chosen-elements-for-enable"; // NOI18N
     public static final String APPROVED_ELEMENTS = "approved-elements"; // NOI18N
@@ -217,6 +220,18 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Inst
     }
     
     
+    public Set instantiate (ProgressHandle handle) throws IOException {
+        InstantiatingIterator it = getDelegateIterator ();
+        if (it != null) {
+            if (it instanceof ProgressInstantiatingIterator) {
+                return ((ProgressInstantiatingIterator) getDelegateIterator ()).instantiate (handle);
+            } else {
+                return getDelegateIterator ().instantiate ();
+            }
+        }
+        return null;
+    }
+    
     private int index;
     private List<WizardDescriptor.Panel<WizardDescriptor>> panels = null;
     private String [] names;
@@ -341,4 +356,5 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Inst
         }
         return delegateIterator;
     }
+
 }
