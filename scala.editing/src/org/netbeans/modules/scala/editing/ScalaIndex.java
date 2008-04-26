@@ -53,7 +53,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import javax.lang.model.element.TypeElement;
-import org.netbeans.api.java.source.ClasspathInfo;
+import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Index;
@@ -70,6 +70,7 @@ import org.openide.util.Exceptions;
  * A wrapper of gsf index and java ClassIndex
  *
  * @author Tor Norbye
+ * @author Caoyuan Deng
  */
 public class ScalaIndex {
 
@@ -84,23 +85,42 @@ public class ScalaIndex {
     private static final Set<String> TERMS_FQN = Collections.singleton(ScalaIndexer.FIELD_FQN);
     private static final Set<String> TERMS_BASE = Collections.singleton(ScalaIndexer.FIELD_BASE);
     private static final Set<String> TERMS_EXTEND = Collections.singleton(ScalaIndexer.FIELD_EXTEND_WITH);
+    // fields for index searching:
+    private static Map<FileObject, Reference<JavaSource>> file2JavaSource = new WeakHashMap<FileObject, Reference<JavaSource>>();
     private final Index index;
     private final org.netbeans.api.java.source.ClassIndex javaIndex;
+    private final org.netbeans.api.java.source.JavaSource javaSource;
 
     /** Creates a new instance of ScalaIndex */
-    private ScalaIndex(Index index, org.netbeans.api.java.source.ClassIndex javaIndex) {
+    private ScalaIndex(Index index,
+            org.netbeans.api.java.source.ClassIndex javaIndex,
+            org.netbeans.api.java.source.JavaSource javaSource) {
+
         this.index = index;
         this.javaIndex = javaIndex;
+        this.javaSource = javaSource;
     }
 
     public static ScalaIndex get(CompilationInfo info) {
         Index index = info.getIndex(ScalaMimeResolver.MIME_TYPE);
 
         FileObject fo = info.getFileObject();
-        org.netbeans.api.java.source.ClasspathInfo javaClasspathInfo = org.netbeans.api.java.source.ClasspathInfo.create(fo);
-        org.netbeans.api.java.source.ClassIndex javaIndex = javaClasspathInfo.getClassIndex();
+        /** 
+         * @Note: We cannot create js via JavaSource.forFileObject(fo) here, which
+         * does not support virtual source yet (only ".java" and ".class" files 
+         * are supported), but we can create js via JavaSource.create(cpInfo);
+         */
+        Reference<JavaSource> ref = file2JavaSource.get(fo);
+        JavaSource js = ref != null ? ref.get() : null;
+        if (js == null) {
+            org.netbeans.api.java.source.ClasspathInfo javaCpInfo = org.netbeans.api.java.source.ClasspathInfo.create(fo);
+            js = JavaSource.create(javaCpInfo);
+            file2JavaSource.put(fo, new WeakReference<JavaSource>(js));
+        }
 
-        return new ScalaIndex(index, javaIndex);
+        org.netbeans.api.java.source.ClassIndex javaIndex = js.getClasspathInfo().getClassIndex();
+
+        return new ScalaIndex(index, javaIndex, js);
     }
 
     private boolean search(String key, String name, NameKind kind, Set<SearchResult> result,
@@ -116,7 +136,7 @@ public class ScalaIndex {
         }
     }
 
-    private boolean javaClassSearch(String key, String name, NameKind kind, Set<SearchResult> result,
+    private boolean javaSearch(String key, String name, NameKind kind, Set<SearchResult> result,
             Set<SearchScope> scope, Set<String> terms) {
         try {
 //            javaIndex.get
@@ -264,7 +284,7 @@ public class ScalaIndex {
     private Set<IndexedElement> getUnknownFunctions(String name, NameKind kind,
             Set<Index.SearchScope> scope, boolean onlyConstructors, ScalaParserResult context,
             boolean includeMethods, boolean includeProperties) {
-        
+
         //getByFqnJava(name, "String", kind, scope, false, context, includeMethods, false, false);
 
         final Set<SearchResult> result = new HashSet<SearchResult>();

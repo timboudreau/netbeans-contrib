@@ -120,6 +120,7 @@ import org.openide.util.Exceptions;
  *  @todo Need preindexing support for unit tests - and separate files
  * 
  * @author Tor Norbye
+ * @author Caoyuan Deng
  */
 public class ScalaCodeCompletion implements Completable {
 

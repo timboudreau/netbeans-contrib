@@ -194,4 +194,4 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             doc.readUnlock();
         }
     }
-}
+                }
