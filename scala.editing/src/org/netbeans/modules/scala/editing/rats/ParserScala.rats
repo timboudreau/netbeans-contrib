@@ -156,7 +156,8 @@ generic StableId =
 /                      Id                       ( void:".":sep Id )* ( void:"." SKIP ErrorIdExpected )?
 ;
 
-generic ErrorIdExpected = !( [{_] ) { yyValue = GNode.create("Error", "Id expected"); } ;
+/* StableId in Import may be followed by '{' '_', so should considerate this case */
+transient generic ErrorIdExpected = !( [{_] ) { yyValue = GNode.create("Error", "Id expected"); } ;
 
 transient generic ClassQualifier = void:"[":sep Id void:"]":sep;
 
@@ -270,7 +271,12 @@ generic SimpleExprRest =
 
 transient generic PathRest = void:".":sep Path TypeArgs? ;
 
-transient generic NewExpr = void:"new":key ( ClassTemplate / TemplateBody ) ;
+transient generic NewExpr = 
+  void:"new":key ( ClassTemplate / TemplateBody)
+/ SKIP void:"new" SKIP ErrorClassTemplateExpected 
+;
+
+transient generic ErrorClassTemplateExpected = { yyValue = GNode.create("Error", "ClassTemplate expected"); } ;
 
 transient generic Exprs = Expr ( void:",":sep Expr )*;
 

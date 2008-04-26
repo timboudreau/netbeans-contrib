@@ -1531,7 +1531,7 @@ public class AstElementVisitor extends AstVisitor {
         } else if (that.getName().equals("SimpleBlockExpr")) {
             visitChildren(that);
         } else if (that.getName().equals("SimpleNewExpr")) {
-            visitChildren(that);
+            expr = visitSimpleNewExpr(that);
         }
 
         if (expr == null) {
@@ -1583,7 +1583,6 @@ public class AstElementVisitor extends AstVisitor {
 
     public SimpleExpr visitSimpleLiteralExpr(GNode that) {
         enter(that);
-
         SimpleExpr expr = new SimpleExpr(getBoundsTokens(that));
 
         Literal literal = visitLiteral(that.getGeneric(0));
@@ -1609,7 +1608,6 @@ public class AstElementVisitor extends AstVisitor {
 
     public SimpleExpr visitSimpleIdExpr(GNode that) {
         enter(that);
-
         SimpleExpr expr = new SimpleExpr(getBoundsTokens(that));
 
         PathId id = visitPath(that.getGeneric(0));
@@ -1693,6 +1691,50 @@ public class AstElementVisitor extends AstVisitor {
             visitChildren(typeNode);
         }
 
+        exit(that);
+        return expr;
+    }
+    
+    public SimpleExpr visitSimpleNewExpr(GNode that) {
+        enter(that);        
+        SimpleExpr expr = new SimpleExpr(getBoundsTokens(that));
+
+        NewExpr newExpr = visitNewExpr(that.getGeneric(0));
+        expr.setBase(newExpr);
+
+        List<TypeRef> typeArgs = Collections.<TypeRef>emptyList();
+        GNode typeArgsNode = that.getGeneric(1);
+        if (typeArgsNode != null) {
+            typeArgs = visitTypeArgs(typeArgsNode);
+            expr.setTypeArgs(typeArgs);
+        }
+
+        List<AstElement> rest = new ArrayList<AstElement>();
+        for (Object o : that.getList(2).list()) {
+            AstElement element = visitSimpleExprRest((GNode) o);
+            rest.add(element);
+        }
+        expr.setRest(rest);
+
+        exit(that);
+        return expr;
+    }
+    
+    public NewExpr visitNewExpr(GNode that) {
+        enter(that);
+        NewExpr expr = new NewExpr(getBoundsTokens(that));
+        
+        GNode what = that.getGeneric(0);
+        if (what.getName().equals("ClassTemplate")) {
+            List<SimpleType> parents = visitClassTemplate(what);
+            expr.setParents(parents);
+        } else if (what.getName().equals("TemplateBody")){
+            // TemplateBody
+            visitChildren(what);
+        } else {
+            visitError(what);
+        }
+        
         exit(that);
         return expr;
     }
