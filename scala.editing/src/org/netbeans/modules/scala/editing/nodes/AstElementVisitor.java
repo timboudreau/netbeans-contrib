@@ -167,24 +167,29 @@ public class AstElementVisitor extends AstVisitor {
 
         List<Id> ids = new ArrayList<Id>();
 
-        GNode what = that.getGeneric(0);
-        if (what != null) {
-            Id first = visitId(what);
+        GNode firstIdNode = that.getGeneric(0);
+        if (firstIdNode != null) {
+            Id first = visitId(firstIdNode);
             ids.add(first);
         }
 
         List others = null;
-        if (that.size() == 2) {
-            // Id ( void:".":sep Id )*
+        GNode error = null;
+        if (that.size() == 3) {
+            // Id ( void:".":sep Id )* ( void:"." SKIP ErrorIdExpected )?
             others = that.getList(1).list();
-        } else if (that.size() == 3) {
-            // ( Id void:".":sep )? ThisKey ( void:".":key Id )*
+
+            error = that.getGeneric(2);
+        } else if (that.size() == 4) {
+            // ( Id void:".":sep )? ThisKey ( void:".":key Id )* ( void:"." SKIP ErrorIdExpected )?
             Id idThis = visitId(that.getGeneric(1));
             ids.add(idThis);
 
             others = that.getList(2).list();
-        } else if (that.size() == 4) {
-            // ( Id void:".":sep )? SuperKey ClassQualifier? ( void:".":key Id )*
+            
+            error = that.getGeneric(3);
+        } else if (that.size() == 5) {
+            // ( Id void:".":sep )? SuperKey ClassQualifier? ( void:".":key Id )* ( void:"." SKIP ErrorIdExpected )?
             Id idSuper = visitId(that.getGeneric(1));
             ids.add(idSuper);
 
@@ -194,12 +199,18 @@ public class AstElementVisitor extends AstVisitor {
             }
 
             others = that.getList(3).list();
+            
+            error = that.getGeneric(4);
         }
 
         for (Object id : others) {
             ids.add(visitId((GNode) id));
         }
 
+        if (error != null) {
+            visitError(error);
+        }
+        
         Id nameId = ids.get(ids.size() - 1);
         PathId pathId = new PathId(nameId.getIdToken(), ElementKind.VARIABLE);
         pathId.setPaths(ids);
@@ -212,7 +223,7 @@ public class AstElementVisitor extends AstVisitor {
         enter(that);
 
         Id id = new Id(that.getString(0), getIdToken(that), ElementKind.VARIABLE);
-        
+
         exit(that);
         return id;
     }

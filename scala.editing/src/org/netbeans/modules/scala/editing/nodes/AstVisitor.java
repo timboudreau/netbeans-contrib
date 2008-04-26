@@ -82,17 +82,17 @@ public abstract class AstVisitor extends Visitor {
     protected void enter(GNode node) {
         indentLevel++;
         astPath.push(node);
-        if (node.size() > 0) {
-            Object o = node.get(0);
-            if (o instanceof String && ((String) o).endsWith("expected")) {
-                errors.add(node);
-            }
-        }
     }
 
     protected void exit(GNode node) {
         indentLevel--;
         astPath.pop();
+    }
+
+    protected void visitError(GNode node) {
+        if (node.getName().equals("Error") && node.size() > 0) {
+            errors.add(node);
+        }
     }
 
     protected void visitChildren(GNode node) {

@@ -419,7 +419,7 @@ public class ScalaParser implements Parser {
                     String msg = errorNode.getString(0);
                     Location loc = errorNode.getLocation();
                     notifyError(context, "SYNTAX_ERROR", msg,
-                            loc.offset, loc.offset, sanitizing, Severity.ERROR, new Object[]{loc.offset, errorNode});
+                            loc.offset, loc.endOffset, sanitizing, Severity.ERROR, new Object[]{loc.offset, errorNode});
                 }
             } else {
                 error = r.parseError();
