@@ -99,6 +99,110 @@ public class AstElementVisitor extends AstVisitor {
         return packaging;
     }
 
+    public List<Import> visitImport(GNode that) {
+        enter(that);
+
+        List<Import> imports = new ArrayList<Import>();
+
+        Import first = visitImportExpr(that.getGeneric(0));
+        imports.add(first);
+
+        for (Object other : that.getList(1).list()) {
+            imports.add(visitImportExpr((GNode) other));
+        }
+
+        exit(that);
+        return imports;
+    }
+
+    public Import visitImportExpr(GNode that) {
+        enter(that);
+
+        PathId pathId = visitStableId(that.getGeneric(0));
+        List<Id> paths = pathId.getPaths();
+        AstScope scope = new AstScope(getBoundsTokens(that));
+        // We put lastId as the idToken, so when search closest element on caret, will return this def
+        Import importDef = new Import(paths.get(paths.size() - 1).getIdToken(), scope);
+
+        scopeStack.peek().addDef(importDef);
+        scopeStack.push(scope);
+
+        Object what = that.get(1);
+        if (what != null) {
+            if (what instanceof GNode) {
+                List<TypeRef> importedTypes = visitImportSelectors((GNode) what);
+                importDef.setImportedTypes(importedTypes);
+            } else {
+                importDef.setWild();
+            }
+        } else {
+            // latest id is imported type
+            Id latest = paths.get(paths.size() - 1);
+            paths.remove(latest);
+            SimpleIdType type = new SimpleIdType(latest.getIdToken(), ElementKind.CLASS);
+
+            scopeStack.peek().addRef(type);
+
+            List<TypeRef> importedTypes = Collections.<TypeRef>singletonList(type);
+            importDef.setImportedTypes(importedTypes);
+        }
+
+        importDef.setPaths(paths);
+
+        scopeStack.pop();
+        exit(that);
+        return importDef;
+    }
+
+    public List<TypeRef> visitImportSelectors(GNode that) {
+        enter(that);
+
+        List<TypeRef> types = new ArrayList<TypeRef>();
+        for (Object other : that.getList(0).list()) {
+            types.add(visitImportSelector((GNode) other));
+        }
+
+        TypeRef latest = null;
+        Object what = that.getGeneric(1);
+        if (what instanceof GNode) {
+            latest = visitImportSelector((GNode) what);
+            types.add(latest);
+        } else {
+            // "_"
+        }
+
+        exit(that);
+        return types;
+    }
+
+    public TypeRef visitImportSelector(GNode that) {
+        enter(that);
+
+        TypeRef type = null;
+
+        Id id = visitId(that.getGeneric(0));
+        SimpleIdType idType = new SimpleIdType(id.getIdToken(), ElementKind.CLASS);
+
+        Object funTypeTail = that.get(1);
+        if (funTypeTail != null) {
+            FunType funType = new FunType(id.getIdToken(), ElementKind.CLASS);
+            funType.setLhs(idType);
+            if (funTypeTail instanceof GNode) {
+                Id tailId = visitId((GNode) funTypeTail);
+                SimpleIdType tailType = new SimpleIdType(tailId.getIdToken(), ElementKind.CLASS);
+                funType.setRhs(tailType);
+            } else {
+                // @todo => '_'
+            }
+            type = funType;
+        } else {
+            type = idType;
+        }
+
+        exit(that);
+        return type;
+    }
+
     public PathId visitQualId(GNode that) {
         enter(that);
 
@@ -1744,10 +1848,10 @@ public class AstElementVisitor extends AstVisitor {
             if (lhsNode != null) {
                 lhs = visitType(lhsNode);
             }
-            
+
             GNode rhsNode = node.getGeneric(1);
             TypeRef rhs = visitType(rhsNode);
-            
+
             // use rhs as the idToken
             FunType funType = new FunType(rhs.getIdToken(), ElementKind.CLASS);
             funType.setLhs(lhs);

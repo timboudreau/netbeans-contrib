@@ -36,21 +36,58 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.Collections;
+import java.util.List;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
 
 /**
- * Id may be AstDefinition or AstUsage, so extends AstElement
- * 
+ *
  * @author Caoyuan Deng
  */
-public class Id extends AstElement {
+public class Import extends AstDef {
 
-    public Id(String name, Token idToken, ElementKind kind) {
-        super(name, idToken, kind);
+    private List<Id> paths;
+    private List<TypeRef> importedTypes;
+    private boolean wild;
+
+    public Import(Token idToken, AstScope bindingScope) {
+        super(null, idToken, bindingScope, ElementKind.OTHER);
+    }
+    
+    public void setPaths(List<Id> paths) {
+        this.paths = paths;
+    }
+    
+    public List<Id> getPaths() {
+        return paths;
+    }
+    
+    public void setImportedTypes(List<TypeRef> importedTypes) {
+        this.importedTypes = importedTypes;
+    }
+    
+    public List<TypeRef> getImportedTypes() {
+        return importedTypes == null ? Collections.<TypeRef>emptyList() : importedTypes;
+    }
+    
+    public void setWild() {
+        this.wild = true;
+    }
+    
+    public boolean isWild() {
+        return wild;
+    }
+
+    @Override
+    public String getName() {
+        StringBuilder sb = new StringBuilder();        
+        for (Id id : paths) {
+            sb.append(id.getName()).append(".");
+        }
+        return sb.toString();
     }
         
 }

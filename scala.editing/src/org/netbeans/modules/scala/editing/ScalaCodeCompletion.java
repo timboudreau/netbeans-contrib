@@ -76,6 +76,7 @@ import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.netbeans.modules.scala.editing.nodes.IdRef;
+import org.netbeans.modules.scala.editing.nodes.Import;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
 import org.netbeans.modules.scala.editing.nodes.Var;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
@@ -342,7 +343,7 @@ public class ScalaCodeCompletion implements Completable {
             if (token == null) {
                 return proposals;
             }
-            
+
             TokenId id = token.id();
             if (id == ScalaTokenId.LineComment) {
                 // TODO - Complete symbols in comments?
@@ -381,7 +382,10 @@ public class ScalaCodeCompletion implements Completable {
                 }
 
                 if (closest instanceof FunRef || closest instanceof FieldRef) {
-                    // dog.t or dog.talk()
+                    // dog.t| or dog.talk()|
+                } else if (closest instanceof Import) {
+                    // completeImport
+                    // return proposals
                 }
 
                 request.root = root;
@@ -2098,20 +2102,33 @@ public class ScalaCodeCompletion implements Completable {
 
                 while (it.hasNext()) { // && tIt.hasNext()) {
                     formatter.parameters(true);
+                    
                     String param = it.next();
                     int typeIndex = param.indexOf(':');
                     if (typeIndex != -1) {
-                        formatter.appendText(param, 0, typeIndex);
-                        formatter.appendHtml(" :");
+                        if (function.isJava()) {
+                            formatter.type(true);
+                            // TODO - call JsUtils.normalizeTypeString() on this string?
+                            formatter.appendText(param, typeIndex + 1, param.length());
+                            formatter.type(false);
 
-                        formatter.type(true);
-                        // TODO - call JsUtils.normalizeTypeString() on this string?
-                        formatter.appendText(param, typeIndex + 1, param.length());
-                        formatter.type(false);
-
+                            formatter.appendHtml(" ");
+                            formatter.appendText(param, 0, typeIndex);
+                        } else {
+                            formatter.appendText(param, 0, typeIndex);
+                            formatter.parameters(false);
+                            formatter.appendHtml(" :");
+                            formatter.parameters(true);
+                            
+                            formatter.type(true);
+                            // TODO - call JsUtils.normalizeTypeString() on this string?
+                            formatter.appendText(param, typeIndex + 1, param.length());
+                            formatter.type(false);
+                        }
                     } else {
                         formatter.appendText(param);
                     }
+
                     formatter.parameters(false);
 
                     if (it.hasNext()) {
