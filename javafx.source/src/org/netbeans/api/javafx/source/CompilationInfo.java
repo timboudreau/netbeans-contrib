@@ -94,6 +94,7 @@ public class CompilationInfo {
         Symbol sym = (Symbol)e;
         JavafxEnter enter = JavafxEnter.instance(impl.getContext());
         JavafxEnv env = enter.getEnv(sym.enclClass());
+        if (env == null) return null;
         JCTree tree = declarationFor(sym, env.tree);
         return tree == null ? null : getTrees().getPath(getCompilationUnit(), tree);
     }
