@@ -71,14 +71,12 @@ import org.netbeans.modules.scala.editing.ScalaParser.Sanitize;
 import org.netbeans.modules.scala.editing.lexer.MaybeCall;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
-import org.netbeans.modules.scala.editing.nodes.AstExpr;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
-import org.netbeans.modules.scala.editing.nodes.PathId;
-import org.netbeans.modules.scala.editing.nodes.SimpleExpr;
+import org.netbeans.modules.scala.editing.nodes.IdRef;
+import org.netbeans.modules.scala.editing.nodes.Import;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
 import org.netbeans.modules.scala.editing.nodes.Var;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
@@ -119,6 +117,7 @@ import org.openide.util.Exceptions;
  *  @todo Need preindexing support for unit tests - and separate files
  * 
  * @author Tor Norbye
+ * @author Caoyuan Deng
  */
 public class ScalaCodeCompletion implements Completable {
 
@@ -377,12 +376,16 @@ public class ScalaCodeCompletion implements Completable {
                 //request.fqn = AstUtilities.getFqn(path, null, null);
 
                 AstElement closest = root.getDefRef(th, offset);
-                if (closest == null) {
-                    closest = root.getDefRef(th, offset - 1);
+                int closestOffset = offset - 1;
+                while (closest == null && closestOffset > 0) {
+                    closest = root.getDefRef(th, closestOffset--);
                 }
-                
+
                 if (closest instanceof FunRef || closest instanceof FieldRef) {
-                    // dog.t or dog.talk()
+                    // dog.t| or dog.talk()|
+                } else if (closest instanceof Import) {
+                    // completeImport
+                    // return proposals
                 }
 
                 request.root = root;
@@ -1153,7 +1156,7 @@ public class ScalaCodeCompletion implements Completable {
         BaseDocument doc = request.doc;
         NameKind kind = request.kind;
         FileObject fileObject = request.fileObject;
-        AstElement cloest = request.element;
+        AstElement closest = request.element;
         ScalaParserResult result = request.result;
         CompilationInfo info = request.info;
 
@@ -1186,29 +1189,19 @@ public class ScalaCodeCompletion implements Completable {
             String lhs = call.getLhs();
 
             if (type == null) {
-                if (cloest != null) {
-                    /** @Todo Some simple type inference code, should be integrated to TypeInference */
-                    TypeRef typeRef = cloest.getType();
+                if (closest != null) {
+                    TypeRef typeRef = null;
+
+                    if (closest instanceof FieldRef) {
+                        // dog.tal|
+                        typeRef = ((FieldRef) closest).getBase().getType();
+                    } else if (closest instanceof IdRef) {
+                        // dog.|
+                        typeRef = closest.getType();
+                    }
+
                     if (typeRef != null) {
                         type = typeRef.getName();
-                    } else {
-                        if (cloest instanceof FieldRef) {
-                            AstExpr base = ((FieldRef) cloest).getBase();
-                            if (base instanceof SimpleExpr) {
-                                AstElement base1 = ((SimpleExpr) base).getBase();
-                                if (base1 instanceof PathId) {
-                                    /** Try to an AstRef */
-                                    AstElement firstId = root.getDefRef(th, ((PathId) base1).getPaths().get(0).getIdToken().offset(th));
-                                    AstDef def = root.findDef(firstId);
-                                    if (def != null) {
-                                        typeRef = def.getType();
-                                        if (typeRef != null) {
-                                            type = def.getType().getName();
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
             //Node method = AstUtilities.findLocalScope(node, path);
@@ -1256,7 +1249,7 @@ public class ScalaCodeCompletion implements Completable {
 //                        }
 //                    }
                 }
-            } else if (type == null && lhs != null && cloest != null) {
+            } else if (type == null && lhs != null && closest != null) {
 //                Node method = AstUtilities.findLocalScope(node, path);
 //
 //                if (method != null) {
@@ -1265,7 +1258,7 @@ public class ScalaCodeCompletion implements Completable {
 //                }
             }
 
-            if ((type == null) && (lhs != null) && (cloest != null) && call.isSimpleIdentifier()) {
+            if ((type == null) && (lhs != null) && (closest != null) && call.isSimpleIdentifier()) {
 //                Node method = AstUtilities.findLocalScope(node, path);
 //
 //                if (method != null) {
@@ -2109,20 +2102,33 @@ public class ScalaCodeCompletion implements Completable {
 
                 while (it.hasNext()) { // && tIt.hasNext()) {
                     formatter.parameters(true);
+                    
                     String param = it.next();
                     int typeIndex = param.indexOf(':');
                     if (typeIndex != -1) {
-                        formatter.appendText(param, 0, typeIndex);
-                        formatter.appendHtml(" :");
+                        if (function.isJava()) {
+                            formatter.type(true);
+                            // TODO - call JsUtils.normalizeTypeString() on this string?
+                            formatter.appendText(param, typeIndex + 1, param.length());
+                            formatter.type(false);
 
-                        formatter.type(true);
-                        // TODO - call JsUtils.normalizeTypeString() on this string?
-                        formatter.appendText(param, typeIndex + 1, param.length());
-                        formatter.type(false);
-
+                            formatter.appendHtml(" ");
+                            formatter.appendText(param, 0, typeIndex);
+                        } else {
+                            formatter.appendText(param, 0, typeIndex);
+                            formatter.parameters(false);
+                            formatter.appendHtml(" :");
+                            formatter.parameters(true);
+                            
+                            formatter.type(true);
+                            // TODO - call JsUtils.normalizeTypeString() on this string?
+                            formatter.appendText(param, typeIndex + 1, param.length());
+                            formatter.type(false);
+                        }
                     } else {
                         formatter.appendText(param);
                     }
+
                     formatter.parameters(false);
 
                     if (it.hasNext()) {

@@ -52,14 +52,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import org.netbeans.api.java.source.ClasspathInfo;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
+import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Index;
 import org.netbeans.modules.gsf.api.Index.SearchResult;
 import org.netbeans.modules.gsf.api.Index.SearchScope;
 import org.netbeans.modules.gsf.api.NameKind;
+import org.netbeans.modules.java.source.JavaSourceAccessor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.URLMapper;
@@ -70,6 +78,7 @@ import org.openide.util.Exceptions;
  * A wrapper of gsf index and java ClassIndex
  *
  * @author Tor Norbye
+ * @author Caoyuan Deng
  */
 public class ScalaIndex {
 
@@ -84,23 +93,71 @@ public class ScalaIndex {
     private static final Set<String> TERMS_FQN = Collections.singleton(ScalaIndexer.FIELD_FQN);
     private static final Set<String> TERMS_BASE = Collections.singleton(ScalaIndexer.FIELD_BASE);
     private static final Set<String> TERMS_EXTEND = Collections.singleton(ScalaIndexer.FIELD_EXTEND_WITH);
+    // fields for index searching:
+    private static Map<FileObject, Reference<org.netbeans.api.java.source.JavaSource>> fileToJavaSource =
+            new WeakHashMap<FileObject, Reference<org.netbeans.api.java.source.JavaSource>>();
+    private static Map<FileObject, Reference<org.netbeans.api.java.source.CompilationController>> fileToJavaController =
+            new WeakHashMap<FileObject, Reference<org.netbeans.api.java.source.CompilationController>>();
     private final Index index;
     private final org.netbeans.api.java.source.ClassIndex javaIndex;
+    private final org.netbeans.api.java.source.JavaSource javaSource;
+    private final org.netbeans.api.java.source.CompilationController javaController;
 
     /** Creates a new instance of ScalaIndex */
-    private ScalaIndex(Index index, org.netbeans.api.java.source.ClassIndex javaIndex) {
+    private ScalaIndex(Index index,
+            org.netbeans.api.java.source.ClassIndex javaIndex,
+            org.netbeans.api.java.source.JavaSource javaSource,
+            org.netbeans.api.java.source.CompilationController javaController) {
+
         this.index = index;
+
         this.javaIndex = javaIndex;
+        this.javaSource = javaSource;
+        this.javaController = javaController;
     }
 
     public static ScalaIndex get(CompilationInfo info) {
         Index index = info.getIndex(ScalaMimeResolver.MIME_TYPE);
 
         FileObject fo = info.getFileObject();
-        org.netbeans.api.java.source.ClasspathInfo javaClasspathInfo = org.netbeans.api.java.source.ClasspathInfo.create(fo);
-        org.netbeans.api.java.source.ClassIndex javaIndex = javaClasspathInfo.getClassIndex();
+        /** 
+         * @Note: We cannot create js via JavaSource.forFileObject(fo) here, which
+         * does not support virtual source yet (only ".java" and ".class" files 
+         * are supported), but we can create js via JavaSource.create(cpInfo);
+         */
+        Reference<org.netbeans.api.java.source.JavaSource> sourceRef = fileToJavaSource.get(fo);
+        org.netbeans.api.java.source.JavaSource javaSource = sourceRef != null ? sourceRef.get() : null;
+        if (javaSource == null) {
+            org.netbeans.api.java.source.ClasspathInfo javaCpInfo = org.netbeans.api.java.source.ClasspathInfo.create(fo);
+            javaSource = JavaSource.create(javaCpInfo);
+            fileToJavaSource.put(fo, new WeakReference<org.netbeans.api.java.source.JavaSource>(javaSource));
 
-        return new ScalaIndex(index, javaIndex);
+        }
+
+        Reference<org.netbeans.api.java.source.CompilationController> cotrollerRef = fileToJavaController.get(fo);
+        org.netbeans.api.java.source.CompilationController javaController = cotrollerRef != null ? cotrollerRef.get() : null;
+        if (javaController == null) {
+            final org.netbeans.api.java.source.CompilationController[] javaControllers =
+                    new org.netbeans.api.java.source.CompilationController[1];
+            try {
+                javaSource.runUserActionTask(new org.netbeans.api.java.source.Task<org.netbeans.api.java.source.CompilationController>() {
+
+                    public void run(org.netbeans.api.java.source.CompilationController controller) throws Exception {
+                        controller.toPhase(JavaSource.Phase.ELEMENTS_RESOLVED);
+                        javaControllers[0] = controller;
+                    }
+                }, true);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+
+            javaController = javaControllers[0];
+            fileToJavaController.put(fo, new WeakReference<org.netbeans.api.java.source.CompilationController>(javaController));
+        }
+
+        org.netbeans.api.java.source.ClassIndex javaIndex = javaSource.getClasspathInfo().getClassIndex();
+
+        return new ScalaIndex(index, javaIndex, javaSource, javaController);
     }
 
     private boolean search(String key, String name, NameKind kind, Set<SearchResult> result,
@@ -116,7 +173,7 @@ public class ScalaIndex {
         }
     }
 
-    private boolean javaClassSearch(String key, String name, NameKind kind, Set<SearchResult> result,
+    private boolean javaSearch(String key, String name, NameKind kind, Set<SearchResult> result,
             Set<SearchScope> scope, Set<String> terms) {
         try {
 //            javaIndex.get
@@ -247,11 +304,27 @@ public class ScalaIndex {
      */
     public Set<IndexedElement> getElements(String prefix, String type,
             NameKind kind, Set<Index.SearchScope> scope, ScalaParserResult context) {
-        return getByFqn(prefix, type, kind, scope, false, context, true, true, false);
+
+        Set<IndexedElement> elements = getByFqn(prefix, type, kind, scope, false, context, true, true, false);
+        // Is there at least one non-inheried member?
+        boolean ofScala = false;
+        for (IndexedElement element : elements) {
+            if (!element.inherited) {
+                ofScala = true;
+                break;
+            }
+        }
+        
+        if (!ofScala) {
+            elements = getByFqnJava(prefix, type, kind, scope, false, context, true, true, false);
+        }
+        
+        return elements;
     }
 
     public Set<IndexedElement> getAllElements(String prefix, String type,
             NameKind kind, Set<Index.SearchScope> scope, ScalaParserResult context) {
+
         return getByFqn(prefix, type, kind, scope, false, context, true, true, true);
     }
 
@@ -264,8 +337,6 @@ public class ScalaIndex {
     private Set<IndexedElement> getUnknownFunctions(String name, NameKind kind,
             Set<Index.SearchScope> scope, boolean onlyConstructors, ScalaParserResult context,
             boolean includeMethods, boolean includeProperties) {
-        
-        //getByFqnJava(name, "String", kind, scope, false, context, includeMethods, false, false);
 
         final Set<SearchResult> result = new HashSet<SearchResult>();
 
@@ -588,6 +659,8 @@ public class ScalaIndex {
             boolean includeMethods, boolean includeProperties, boolean includeDuplicates) {
         //assert in != null && in.length() > 0;
 
+        JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
+        
         final Set<SearchResult> result = new HashSet<SearchResult>();
 
         String field = ScalaIndexer.FIELD_FQN;
@@ -640,17 +713,91 @@ public class ScalaIndex {
             for (SearchScope _scope : scope) {
                 javaScope.add(org.netbeans.api.java.source.ClassIndex.SearchScope.valueOf(_scope.name()));
             }
-            org.netbeans.api.java.source.ClassIndex.NameKind javaKind = org.netbeans.api.java.source.ClassIndex.NameKind.valueOf(kind.name());
+            org.netbeans.api.java.source.ClassIndex.NameKind javaKind = org.netbeans.api.java.source.ClassIndex.NameKind.SIMPLE_NAME;
+            //org.netbeans.api.java.source.ClassIndex.NameKind.valueOf(kind.name());
 
             Set<org.netbeans.api.java.source.ElementHandle<TypeElement>> javaTypes = javaIndex.getDeclaredTypes(type, javaKind, javaScope);
             search(field, lcfqn, kind, result, scope, terms);
 
-            for (org.netbeans.api.java.source.ElementHandle<TypeElement> javaTeHandle : javaTypes) {
-                String binName = javaTeHandle.getBinaryName();
-//                TypeElement te = javaTeHandle.resolve(controller);
-//                if (te != null) {
-//                    addMembers(env, te.asType(), te, kinds, baseType, inImport, insideNew);
-//                }
+            for (org.netbeans.api.java.source.ElementHandle<TypeElement> jTeHandle : javaTypes) {
+                IndexedElement element = null;
+                TypeElement jTe = jTeHandle.resolve(javaController);
+                Types jTypes = javaController.getTypes();
+                TypeMirror jType = jTe.asType();
+                if (jTe != null) {
+                    List<? extends Element> memberElements = jTe.getEnclosedElements();
+                    for (Element jElement : memberElements) {
+                        switch (jElement.getKind()) {
+                            case ENUM_CONSTANT:
+                            case EXCEPTION_PARAMETER:
+                            case FIELD:
+                            case LOCAL_VARIABLE:
+                            case PARAMETER:
+                                String ename = jElement.getSimpleName().toString();
+                                if ("this".equals(ename) || "class".equals(ename) || "super".equals(ename)) {
+                                    //results.add(JavaCompletionItem.createKeywordItem(ename, null, anchorOffset, false));
+                                } else {
+                                    TypeMirror tm = jType.getKind() == TypeKind.DECLARED ? jTypes.asMemberOf((DeclaredType) jType, jElement) : jElement.asType();
+                                //results.add(JavaCompletionItem.createVariableItem((VariableElement) e, tm, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), isOfSmartType(env, tm, smartTypes)));
+                                }
+                                break;
+                            case CONSTRUCTOR:
+                                ExecutableType et = (ExecutableType) (jType.getKind() == TypeKind.DECLARED ? jTypes.asMemberOf((DeclaredType) jType, jElement) : jElement.asType());
+                                //results.add(JavaCompletionItem.createExecutableItem((ExecutableElement) e, et, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), inImport, isOfSmartType(env, type, smartTypes)));
+                                break;
+                            case METHOD:
+                                et = (ExecutableType) (jType.getKind() == TypeKind.DECLARED ? jTypes.asMemberOf((DeclaredType) jType, jElement) : jElement.asType());
+                                ExecutableElement jExeElement = ((ExecutableElement) jElement);
+                                
+                                String in = jTe.getSimpleName().toString();
+                                String thename = jElement.getSimpleName().toString();
+                                StringBuilder base = new StringBuilder();
+                                base.append(thename.toLowerCase());
+                                base.append(';');
+                                if (in != null) {
+                                    base.append(in);
+                                }
+                                base.append(';');
+                                base.append(thename);
+                                base.append(';');
+                                base.append(IndexedElement.computeSignature(jElement));
+
+                                element = IndexedElement.create(jElement.getSimpleName().toString(), base.toString(), "", this, false);
+
+                                //results.add(JavaCompletionItem.createExecutableItem((ExecutableElement) e, et, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), inImport, isOfSmartType(env, et.getReturnType(), smartTypes)));
+                                break;
+                            case CLASS:
+                            case ENUM:
+                            case INTERFACE:
+                            case ANNOTATION_TYPE:
+                                DeclaredType dt = (DeclaredType) (jType.getKind() == TypeKind.DECLARED ? jTypes.asMemberOf((DeclaredType) jType, jElement) : jElement.asType());
+                                //results.add(JavaCompletionItem.createTypeItem((TypeElement) e, dt, anchorOffset, false, elements.isDeprecated(e), insideNew, false));
+                                break;
+                        }
+
+                        if (element == null) {
+                            continue;
+                        }
+                        boolean isFunction = element instanceof IndexedFunction;
+                        if (isFunction && !includeMethods) {
+                            continue;
+                        } else if (!isFunction && !includeProperties) {
+                            continue;
+                        }
+                        if (onlyConstructors && element.getKind() != ElementKind.CONSTRUCTOR) {
+                            continue;
+                        }
+                        if (!haveRedirected) {
+                            element.setSmart(true);
+                        }
+                        if (!inheriting) {
+                            element.setInherited(false);
+                        }
+                        elements.add(element);
+                    }
+
+                //addMembers(env, te.asType(), te, kinds, baseType, inImport, insideNew);
+                }
 
 //                String[] signatures = map.getValues(field);
 //
@@ -751,22 +898,6 @@ public class ScalaIndex {
 //                        if (element == null) {
 //                            element = IndexedElement.create(signature, map.getPersistentUrl(), null, elementName, funcIn, inEndIdx, this, false);
 //                        }
-//                        boolean isFunction = element instanceof IndexedFunction;
-//                        if (isFunction && !includeMethods) {
-//                            continue;
-//                        } else if (!isFunction && !includeProperties) {
-//                            continue;
-//                        }
-//                        if (onlyConstructors && element.getKind() != ElementKind.CONSTRUCTOR) {
-//                            continue;
-//                        }
-//                        if (!haveRedirected) {
-//                            element.setSmart(true);
-//                        }
-//                        if (!inheriting) {
-//                            element.setInherited(false);
-//                        }
-//                        elements.add(element);
 //                    }
 //                }
             }
@@ -774,6 +905,7 @@ public class ScalaIndex {
             if (type == null || "Object".equals(type)) { // NOI18N
                 break;
             }
+            // @todo extends
             type = getExtends(type, scope);
             if (type == null) {
                 type = "Object"; // NOI18N
@@ -788,6 +920,7 @@ public class ScalaIndex {
             inheriting = true;
         }
 
+        JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
         return elements;
     }
 
@@ -862,9 +995,11 @@ public class ScalaIndex {
         // Look for the type
         int typeIndex = 0;
         int section = IndexedElement.TYPE_INDEX;
-        for (int i = 0; i < section; i++) {
+        for (int i = 0; i <
+                section; i++) {
             typeIndex = signature.indexOf(';', typeIndex + 1);
         }
+
         typeIndex++;
         int endIndex = signature.indexOf(';', typeIndex);
         if (endIndex > typeIndex) {
@@ -904,6 +1039,7 @@ public class ScalaIndex {
                     if (type != null) {
                         return type;
                     }
+
                 }
             }
         }
@@ -928,23 +1064,28 @@ public class ScalaIndex {
         if (ALL_REACHABLE) {
             return true;
         }
+
         List<String> imports = Collections.emptyList();// @TODO result.getStructure().getImports();
         if (imports.size() > 0) {
             // TODO - do some heuristics to deal with relative paths here,
             // e.g.   <script src="../../foo.js"></script>
 
-            for (int i = 0, n = imports.size(); i < n; i++) {
+            for (int i = 0, n = imports.size(); i <
+                    n; i++) {
                 String imp = imports.get(i);
                 if (imp.indexOf("../") != -1) {
                     int lastIndex = imp.lastIndexOf("../");
-                    imp = imp.substring(lastIndex + 3);
+                    imp =
+                            imp.substring(lastIndex + 3);
                     if (imp.length() == 0) {
                         continue;
                     }
+
                 }
                 if (url.endsWith(imp)) {
                     return true;
                 }
+
             }
         }
 

@@ -38,7 +38,7 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
@@ -47,44 +47,47 @@ import org.netbeans.modules.gsf.api.ElementKind;
  *
  * @author Caoyuan Deng
  */
-public class PathId extends Id {
+public class Import extends AstDef {
 
     private List<Id> paths;
+    private List<TypeRef> importedTypes;
+    private boolean wild;
 
-    public PathId(Token idToken, ElementKind kind) {
-        super(null, idToken, kind);
+    public Import(Token idToken, AstScope bindingScope) {
+        super(null, idToken, bindingScope, ElementKind.OTHER);
     }
-
+    
     public void setPaths(List<Id> paths) {
         this.paths = paths;
     }
-
+    
     public List<Id> getPaths() {
         return paths;
+    }
+    
+    public void setImportedTypes(List<TypeRef> importedTypes) {
+        this.importedTypes = importedTypes;
+    }
+    
+    public List<TypeRef> getImportedTypes() {
+        return importedTypes == null ? Collections.<TypeRef>emptyList() : importedTypes;
+    }
+    
+    public void setWild() {
+        this.wild = true;
+    }
+    
+    public boolean isWild() {
+        return wild;
     }
 
     @Override
     public String getName() {
-        StringBuilder sb = new StringBuilder();
-        for (Iterator<Id> itr = getPaths().iterator(); itr.hasNext();) {
-            sb.append(itr.next().getName());
-            if (itr.hasNext()) {
-                sb.append(".");
-            }
+        StringBuilder sb = new StringBuilder();        
+        for (Id id : paths) {
+            sb.append(id.getName()).append(".");
         }
         return sb.toString();
-    }
-
-    @Override
-    public void setType(TypeRef type) {
-        // @Todo
-        paths.get(0).setType(type);
-    }        
-
-    @Override
-    public TypeRef getType() {
-        // @Todo
-        return paths.get(0).getType();
     }
         
 }

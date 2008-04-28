@@ -50,7 +50,7 @@ public final class InstallPanel extends JPanel {
 
     /** Creates new form InstallMissingModulesWizardVisualPanel1 */
     public InstallPanel (String name) {
-        initComponents();
+        //initComponents();
         this.name = name;
     }
 
@@ -58,51 +58,161 @@ public final class InstallPanel extends JPanel {
         return name;
     }
 
-    private void doReplaceComponents (JComponent... comps) {
-        assert pCentral != null;
-        assert SwingUtilities.isEventDispatchThread () : "Must be called in EQ.";
-        pCentral.removeAll ();
-        addComponents (comps);
-    }
-    
-    private void doAddComponents (JComponent... comps) {
-        assert pCentral != null;
-        assert SwingUtilities.isEventDispatchThread () : "Must be called in EQ.";
-        if (comps != null) {
-            for (JComponent c : comps) {
-                if (c != null) {
-                    pCentral.add (c);
-                }
-            }
-        }
-        pCentral.revalidate ();
-        revalidate ();
-    }
-    
-    public void replaceComponents (final JComponent... comps) {
+    public void displayInstallTask (
+                final JComponent downloadMainLabel,
+                final JComponent downloadDetailLabel,
+                final JComponent downloadProgress,
+                final JComponent verifyMainLabel,
+                final JComponent verifyDetailLabel,
+                final JComponent verifyProgress,
+                final JComponent installMainLabel,
+                final JComponent installDetailLabel,
+                final JComponent installProgress
+            ) {
         if (SwingUtilities.isEventDispatchThread ()) {
-            doReplaceComponents (comps);
+            doDisplayInstallTask (
+                    downloadMainLabel,
+                    downloadDetailLabel,
+                    downloadProgress,
+                    verifyMainLabel,
+                    verifyDetailLabel,
+                    verifyProgress,
+                    installMainLabel,
+                    installDetailLabel,
+                    installProgress);
         } else {
             SwingUtilities.invokeLater (new Runnable () {
                 public void run () {
-                    doReplaceComponents (comps);
+                    doDisplayInstallTask (
+                            downloadMainLabel,
+                            downloadDetailLabel,
+                            downloadProgress,
+                            verifyMainLabel,
+                            verifyDetailLabel,
+                            verifyProgress,
+                            installMainLabel,
+                            installDetailLabel,
+                            installProgress);
                 }
             });
         }
     }
     
-    public void addComponents (final JComponent... comps) {
+    private void doDisplayInstallTask (
+                JComponent downloadMainLabel,
+                JComponent downloadDetailLabel,
+                JComponent downloadProgress,
+                JComponent verifyMainLabel,
+                JComponent verifyDetailLabel,
+                JComponent verifyProgress,
+                JComponent installMainLabel,
+                JComponent installDetailLabel,
+                JComponent installProgress
+            ) {
+        
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(downloadMainLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(downloadDetailLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(54, 54, 54))
+                    .add(downloadProgress, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(verifyMainLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(verifyDetailLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(54, 54, 54))
+                    .add(verifyProgress, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(installMainLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(installDetailLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(54, 54, 54))
+                    .add(installProgress, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(downloadMainLabel)
+                    .add(downloadDetailLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(downloadProgress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(19, 19, 19)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(verifyMainLabel)
+                    .add(verifyDetailLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(verifyProgress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(installMainLabel)
+                    .add(installDetailLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(installProgress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        
+    }
+    
+    public void displayEnableTask (
+            final JComponent enableMainLabel,
+            final JComponent enableDetailLabel,
+            final JComponent enableComponent) {
         if (SwingUtilities.isEventDispatchThread ()) {
-            doAddComponents (comps);
+            doDisplayEnableTask (enableMainLabel, enableDetailLabel, enableComponent);
         } else {
             SwingUtilities.invokeLater (new Runnable () {
                 public void run () {
-                    doAddComponents (comps);
+                    doDisplayEnableTask (enableMainLabel, enableDetailLabel, enableComponent);
                 }
             });
         }
     }
     
+    private void doDisplayEnableTask (
+                JComponent enableMainLabel,
+                JComponent enableDetailLabel,
+                JComponent enableProgress
+            ) {
+        
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(enableMainLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(enableDetailLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(54, 54, 54))
+                    .add(enableProgress, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(enableMainLabel)
+                    .add(enableDetailLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(enableProgress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

@@ -151,10 +151,13 @@ generic Path =
 ;
 
 generic StableId = 
-  ( Id void:".":sep )? ThisKey                  ( void:".":sep Id )*
-/ ( Id void:".":sep )? SuperKey ClassQualifier? ( void:".":sep Id )*
-/ Id ( void:".":sep Id )*
+  ( Id void:".":sep )? ThisKey                  ( void:".":sep Id )* ( void:"." SKIP ErrorIdExpected )?
+/ ( Id void:".":sep )? SuperKey ClassQualifier? ( void:".":sep Id )* ( void:"." SKIP ErrorIdExpected )?
+/                      Id                       ( void:".":sep Id )* ( void:"." SKIP ErrorIdExpected )?
 ;
+
+/* StableId may be followed by '{' '_' in Import, and "type", so should considerate this case */
+transient generic ErrorIdExpected = !( [{_] / "type":key ) { yyValue = GNode.create("Error", "Id expected"); } ;
 
 transient generic ClassQualifier = void:"[":sep Id void:"]":sep;
 
@@ -268,7 +271,12 @@ generic SimpleExprRest =
 
 transient generic PathRest = void:".":sep Path TypeArgs? ;
 
-transient generic NewExpr = void:"new":key ( ClassTemplate / TemplateBody ) ;
+transient generic NewExpr = 
+  void:"new":key ( ClassTemplate / TemplateBody)
+/ SKIP void:"new" SKIP ErrorClassTemplateExpected 
+;
+
+transient generic ErrorClassTemplateExpected = { yyValue = GNode.create("Error", "ClassTemplate expected"); } ;
 
 transient generic Exprs = Expr ( void:",":sep Expr )*;
 
@@ -462,7 +470,7 @@ generic SelfType =
 / ThisKey  void:":":key Type    void:"=>":key
 ;
 
-transient generic Import = "import":key ImportExpr ( void:",":sep ImportExpr )* ;
+transient generic Import = void:"import":key ImportExpr ( void:",":sep ImportExpr )* ;
 
 transient generic ImportExpr = StableId ( void:".":sep ( "_":key / ImportSelectors ) )?;
 

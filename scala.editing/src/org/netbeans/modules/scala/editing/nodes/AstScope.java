@@ -459,8 +459,12 @@ public class AstScope implements Iterable<AstScope> {
         }
         
         public int compare(AstElement o1, AstElement o2) {
+            assert o1.getIdToken() != null : o1 + "'s idToken is null, should set to get offset";
+            assert o2.getIdToken() != null : o2 + "'s idToken is null, should set to get offset";
+            
             return o1.getIdToken().offset(th) < o2.getIdToken().offset(th) ? -1 : 1;
-        }
+        }            
+
     }
 }
 

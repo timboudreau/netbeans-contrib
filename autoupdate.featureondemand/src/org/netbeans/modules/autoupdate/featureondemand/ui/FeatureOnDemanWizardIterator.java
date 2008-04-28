@@ -50,8 +50,12 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
+import org.netbeans.api.autoupdate.UpdateElement;
+import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.modules.autoupdate.featureondemand.FoDFileSystem;
 import org.openide.WizardDescriptor;
+import org.openide.WizardDescriptor.InstantiatingIterator;
+import org.openide.WizardDescriptor.ProgressInstantiatingIterator;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.openide.util.NbBundle;
@@ -59,7 +63,7 @@ import org.openide.util.NbBundle;
 /**
  * Wizard to create a new Make project.
  */
-public final class FeatureOnDemanWizardIterator implements WizardDescriptor.InstantiatingIterator<WizardDescriptor> {
+public final class FeatureOnDemanWizardIterator implements WizardDescriptor.ProgressInstantiatingIterator<WizardDescriptor> {
     public static final String CHOSEN_ELEMENTS_FOR_INSTALL = "chosen-elements-for-install"; // NOI18N
     public static final String CHOSEN_ELEMENTS_FOR_ENABLE = "chosen-elements-for-enable"; // NOI18N
     public static final String APPROVED_ELEMENTS = "approved-elements"; // NOI18N
@@ -70,11 +74,10 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Inst
     private Boolean doInstall = null;
     private Boolean doEnable = null;
     private FileObject template;
-    private boolean ignore = false;
+    private LicenseStep licenseStep = null;
     
     public FeatureOnDemanWizardIterator (FileObject template) {
         this.template = template;
-        this.ignore = true;
     }
     
     public static WizardDescriptor.InstantiatingIterator newProject (FileObject fo) {
@@ -108,6 +111,21 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Inst
             }
         }
         return res;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void compatPanels () {
+        if (wiz != null && licenseStep != null) {
+            Collection<UpdateElement> approved = (Collection<UpdateElement>) wiz.getProperty (APPROVED_ELEMENTS);
+            Collection<UpdateElement> chosen = (Collection<UpdateElement>) wiz.getProperty (CHOSEN_ELEMENTS_FOR_INSTALL);
+            boolean allApproved = true;
+            for (UpdateElement el : chosen) {
+                allApproved &= approved.contains (el);
+            }
+            if (allApproved) {
+                panels.remove (licenseStep);
+            }
+        }
     }
     
     private void createPanels () {
@@ -145,7 +163,8 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Inst
         if (panels == null) {
             panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>> ();
             panels.add (new DescriptionStep ());
-            panels.add (new LicenseStep ());
+            licenseStep = new LicenseStep ();
+            panels.add (licenseStep);
             panels.add (new InstallStep ());
             panels.add (new ToBeContinuedStep ());
             names = new String [] {
@@ -217,6 +236,18 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Inst
     }
     
     
+    public Set instantiate (ProgressHandle handle) throws IOException {
+        InstantiatingIterator it = getDelegateIterator ();
+        if (it != null) {
+            if (it instanceof ProgressInstantiatingIterator) {
+                return ((ProgressInstantiatingIterator) getDelegateIterator ()).instantiate (handle);
+            } else {
+                return getDelegateIterator ().instantiate ();
+            }
+        }
+        return null;
+    }
+    
     private int index;
     private List<WizardDescriptor.Panel<WizardDescriptor>> panels = null;
     private String [] names;
@@ -254,6 +285,7 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Inst
     }
 
     public boolean hasNext () {
+        compatPanels ();
         if (getDelegateIterator () != null) {
             return getDelegateIterator ().hasNext ();
         }
@@ -261,6 +293,7 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Inst
     }
 
     public boolean hasPrevious () {
+        compatPanels ();
         if (getDelegateIterator () != null) {
             return getDelegateIterator ().hasPrevious ();
         }
@@ -269,10 +302,6 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Inst
 
     public void nextPanel () {
         if (getDelegateIterator () != null) {
-            if (ignore) {
-                ignore = false;
-                return ;
-            }
             if (getDelegateIterator ().hasNext ()) {
                 getDelegateIterator ().nextPanel ();
             }
@@ -341,4 +370,5 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Inst
         }
         return delegateIterator;
     }
+
 }
