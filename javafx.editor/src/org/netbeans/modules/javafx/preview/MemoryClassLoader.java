@@ -48,6 +48,7 @@ import org.netbeans.api.java.classpath.ClassPath;
 import org.openide.execution.NbClassLoader;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 class MemoryClassLoader extends ClassLoader {
@@ -91,14 +92,21 @@ class MemoryClassLoader extends ClassLoader {
     
     @Override
     protected URL findResource(String name) {
-        URL url = compositClassLoader.getResource(name);
-        
-        if (url == null)
-            try {
-                url = toMFOURI(name).toURL();
-            } catch (MalformedURLException ex) {
-                Exceptions.printStackTrace(ex);
-            }
+        URL url = null;
+        String ext = FileUtil.getExtension(name);
+        if (ext.contentEquals("class")) {
+            String pureName = name.substring(0, name.length() - ext.length() - 1);
+            pureName = pureName.replaceAll("[/,\\\\]", ".");
+            if (classBytes.containsKey(pureName)) {
+                try {
+                    url = toMFOURI(name).toURL();
+                } catch (MalformedURLException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            } else
+                url = compositClassLoader.getResource(name);
+        } else
+            url = compositClassLoader.getResource(name);
         return url;
     }
 

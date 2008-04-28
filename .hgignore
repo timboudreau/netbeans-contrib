@@ -238,3 +238,4 @@
 \.orig\..*$
 \.chg\..*$
 \.conflict\~$
+^javafx.sdk.win/external/javafx_sdk-1_0-pre1-windows-i586.zip$

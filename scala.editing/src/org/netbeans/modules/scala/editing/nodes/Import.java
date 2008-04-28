@@ -87,6 +87,13 @@ public class Import extends AstDef {
         for (Id id : paths) {
             sb.append(id.getName()).append(".");
         }
+        if (isWild()) {
+            sb.append("_");
+            return sb.toString();
+        }
+        if (getImportedTypes().size() == 1) {
+            sb.append(getImportedTypes().get(0).getName());
+        }
         return sb.toString();
     }
         
