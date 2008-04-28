@@ -52,7 +52,7 @@ import org.openide.filesystems.FileObject;
  * @author Milos Kleint copied from j2se project type to bluej one
  */
 public class MainClassWarning extends JPanel {
-
+   
     private String message;
     private FileObject[] sourcesRoots;
 
