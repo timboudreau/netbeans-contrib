@@ -5,17 +5,17 @@
 
 package org.netbeans.modules.cnd.profiler.models;
 
-import java.lang.reflect.InvocationTargetException;
+import java.awt.event.ActionEvent;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import org.netbeans.modules.cnd.profiler.data.Function;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import org.netbeans.modules.cnd.profiler.data.FunctionContainer;
 import org.netbeans.modules.cnd.profiler.views.Column;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 import org.openide.util.lookup.Lookups;
 
@@ -40,6 +40,16 @@ public class FunctionNode extends AbstractNode {
         if (!getKeys().isEmpty()) {
             setChildren(new MyChildren());
         }
+    }
+
+    @Override
+    public Action getPreferredAction() {
+        return new AbstractAction () {
+            public void actionPerformed (ActionEvent e) {
+                // go to source
+                Csm
+            }
+        };
     }
     
     protected FunctionNode(Column[] columns, FunctionNodeModel nodeModel) {
