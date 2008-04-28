@@ -72,6 +72,7 @@ import xtc.parser.ParseError;
 import xtc.parser.Result;
 import xtc.parser.SemanticValue;
 import xtc.tree.GNode;
+import xtc.tree.Location;
 
 /**
  * Wrapper around com.sun.fortress.parser.Fortress to parse a buffer into an AST.
@@ -397,6 +398,7 @@ public class ScalaParser implements Parser {
         }
 
         AstScope rootScope = null;
+        List<GNode> errors = null;
         if (doc != null) {
             // Read-lock due to Token hierarchy use
             doc.readLock();
@@ -411,6 +413,17 @@ public class ScalaParser implements Parser {
                 AstElementVisitor visitor = new AstElementVisitor(node, th);
                 visitor.visit(node);
                 rootScope = visitor.getRootScope();
+                
+                ScalaTypeInferencer inferencer = new ScalaTypeInferencer(rootScope, th);
+                inferencer.infer();
+                
+                errors = visitor.getErrors();
+                for (GNode errorNode : errors) {
+                    String msg = errorNode.getString(0);
+                    Location loc = errorNode.getLocation();
+                    notifyError(context, "SYNTAX_ERROR", msg,
+                            loc.offset, loc.endOffset, sanitizing, Severity.ERROR, new Object[]{loc.offset, errorNode});
+                }
             } else {
                 error = r.parseError();
             }
@@ -427,6 +440,7 @@ public class ScalaParser implements Parser {
 
                 System.err.println(error.msg);
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (IllegalArgumentException e) {

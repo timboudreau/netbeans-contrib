@@ -95,7 +95,10 @@ is divided into following sections:
 
             <target name="-jdk-check" unless="javafx.jdk5.permit">
                 <condition property="jdk.verified">
-                    <matches pattern="1.[6-9]" string="${{java.specification.version}}"/>
+                    <or>
+                        <matches pattern="1.[6-9]" string="${{java.specification.version}}"/>
+                        <os family="mac"/>
+                    </or>
                 </condition>
                 <fail unless="jdk.verified">
 You are attempting to build JavaFX Application with JDK 5 (or less).
@@ -811,7 +814,7 @@ JavaFX SDK is working only on top of JDK 6 (or higher).
                 </copylibs>                                
                 <echo>To run this application from the command line without Ant, try:</echo>
                 <property name="dist.jar.resolved" location="${{dist.jar}}"/>
-                <echo>javafx -jar "${dist.jar.resolved}"</echo>
+                <echo>"${platform.java}" -jar "${dist.jar.resolved}"</echo>
                 <replace file="${{dist.jar.dir}}/README.TXT" token='.jar"' value='.jar" ${{main.class}}'/>
             </target>
             

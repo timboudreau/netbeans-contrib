@@ -48,6 +48,7 @@ import java.beans.PropertyChangeListener;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -55,6 +56,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.autoupdate.UpdateElement;
+import org.netbeans.api.autoupdate.UpdateUnitProvider;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.autoupdate.featureondemand.FoDFileSystem;
@@ -253,6 +255,15 @@ public class DescriptionStep implements WizardDescriptor.Panel<WizardDescriptor>
     public void storeSettings (WizardDescriptor settings) {
         if (forInstall != null && ! forInstall.isEmpty ()) {
             settings.putProperty (FeatureOnDemanWizardIterator.CHOSEN_ELEMENTS_FOR_INSTALL, forInstall);
+            Collection<UpdateElement> notNeedApproveLicense = new HashSet<UpdateElement> ();
+            for (UpdateElement el : forInstall) {
+                if (UpdateUnitProvider.CATEGORY.STANDARD == el.getSourceCategory ()) {
+                    notNeedApproveLicense.add (el);
+                }
+            }
+            if (! notNeedApproveLicense.isEmpty ()) {
+                settings.putProperty (FeatureOnDemanWizardIterator.APPROVED_ELEMENTS, notNeedApproveLicense);
+            }
             fireChange ();
         }
         if (forEnable != null && ! forEnable.isEmpty ()) {
