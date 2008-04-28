@@ -611,6 +611,6 @@ class BluejActionProvider implements ActionProvider {
             return false;
         }
         return !SourceUtils.getMainClasses(fo).isEmpty();
-    }
+        }
     
 }

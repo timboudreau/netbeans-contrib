@@ -143,7 +143,7 @@ public class MainClassChooser extends JPanel {
                         public void run () {
                             jMainClassList.setListData (arr);
                             jMainClassList.setSelectedIndex (0);
-                        }
+                            }
                     });                    
                 }
             }
@@ -287,7 +287,7 @@ public class MainClassChooser extends JPanel {
                 displayName = ((ElementHandle)value).getQualifiedName();
             } else {
                 displayName = value.toString ();
-            }
+}
             return super.getListCellRendererComponent (list, displayName, index, isSelected, cellHasFocus);
         }
     }

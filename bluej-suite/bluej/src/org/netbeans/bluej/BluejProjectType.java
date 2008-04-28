@@ -55,7 +55,7 @@ import org.netbeans.spi.project.support.ant.AntProjectHelper;
  * @author Milos Kleint
  */
 public final class BluejProjectType implements AntBasedProjectType {
-
+    
     public static final String TYPE = "org.netbeans.bluej.bluejproject"; // NOI18N
     private static final String PROJECT_CONFIGURATION_NAME = "data"; // NOI18N
     public static final String PROJECT_CONFIGURATION_NAMESPACE = "http://www.netbeans.org/ns/bluej-project/1"; // NOI18N
