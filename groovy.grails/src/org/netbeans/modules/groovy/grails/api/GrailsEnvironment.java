@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,60 +31,68 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.javafx.preview;
+package org.netbeans.modules.groovy.grails.api;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLStreamHandler;
-import java.net.URLStreamHandlerFactory;
+import org.openide.util.Parameters;
 
-public class MFOURLStreamHanfler extends URLStreamHandler {
-    static ClassLoader classLoader = null;
+/**
+ * Represents the environment of the Grails.
+ *
+ * @author Petr Hejl
+ */
+public enum GrailsEnvironment {
 
-    public static final class Factory implements URLStreamHandlerFactory {
-        public URLStreamHandler createURLStreamHandler(String protocol) {
-            if (protocol.equals("mfo")) { // NOI18N
-                return new MFOURLStreamHanfler();
-            } else {
-                return null;
-            }
+    /** Development environment. */
+    DEVELOPMENT("Development"), // NOI18N
+
+    /** Production environment. */
+    PRODUCTION("Production"), // NOI18N
+
+    /** Test environment. */
+    TEST("Test"); // NOI18N
+
+    private final String value;
+
+    private GrailsEnvironment(String value) {
+        this.value = value;
+    }
+
+    /**
+     * Find the enum value for the given string representation of the grails
+     * environment.
+     *
+     * @param value the grails environment
+     * @return enum representing the value
+     * @throws IllegalArgumentException if the value is not the known value of
+     *             grails environment
+     */
+    public static GrailsEnvironment forString(String value) {
+        Parameters.notNull("value", value);
+
+        if ("Development".equals(value)) { // NOI18N
+            return DEVELOPMENT;
+        } else if ("Production".equals(value)) { // NOI18N
+            return PRODUCTION;
+        } else if ("Test".equals(value)) { // NOI18N
+            return TEST;
+        } else {
+            throw new IllegalArgumentException("Unknown environment type"); // NOI18N
         }
     }
-    
-    public static void setClassLoader(ClassLoader cl) {
-        classLoader = cl;
-    }
 
+    /**
+     * Returns the string representation usable in grails.
+     *
+     * @return the string representation usable in grails
+     */
     @Override
-    protected URLConnection openConnection(URL u) throws IOException {
-        return new MemoryConnection(u);
-    }
-    
-    private static final class MemoryConnection extends URLConnection {
-
-        public MemoryConnection(URL u) {
-            super(u);
-        }
-
-        @Override
-        public void connect() throws IOException {
-            return;
-        }
-
-        @Override
-        public InputStream getInputStream() throws IOException {
-            return classLoader.getResourceAsStream(normalizePath(url.getPath()));
-        }
-        private String normalizePath(String path) {
-            return path.replace("//", "/");
-        }
+    public String toString() {
+        return value;
     }
 }

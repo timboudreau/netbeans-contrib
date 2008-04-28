@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,60 +31,49 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.javafx.preview;
+package org.netbeans.modules.groovy.grails.api;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLStreamHandler;
-import java.net.URLStreamHandlerFactory;
+import org.netbeans.junit.NbTestCase;
 
-public class MFOURLStreamHanfler extends URLStreamHandler {
-    static ClassLoader classLoader = null;
+/**
+ *
+ * @author Petr Hejl
+ */
+public class GrailsEnvironmentTest extends NbTestCase{
 
-    public static final class Factory implements URLStreamHandlerFactory {
-        public URLStreamHandler createURLStreamHandler(String protocol) {
-            if (protocol.equals("mfo")) { // NOI18N
-                return new MFOURLStreamHanfler();
-            } else {
-                return null;
-            }
-        }
-    }
-    
-    public static void setClassLoader(ClassLoader cl) {
-        classLoader = cl;
+    public GrailsEnvironmentTest(String name) {
+        super(name);
     }
 
-    @Override
-    protected URLConnection openConnection(URL u) throws IOException {
-        return new MemoryConnection(u);
+    public void testForString() {
+        assertEquals(GrailsEnvironment.DEVELOPMENT, GrailsEnvironment.forString("Development"));
+        assertEquals(GrailsEnvironment.PRODUCTION, GrailsEnvironment.forString("Production"));
+        assertEquals(GrailsEnvironment.TEST, GrailsEnvironment.forString("Test"));
+
+        try {
+            GrailsEnvironment.forString(null);
+            fail("Method forString accepts null");
+        } catch (NullPointerException ex) {
+            // expected
+        }
+
+        try {
+            GrailsEnvironment.forString("Something");
+            fail("Unknown environment allowed");
+        } catch (IllegalArgumentException ex) {
+            // expected
+        }
     }
-    
-    private static final class MemoryConnection extends URLConnection {
 
-        public MemoryConnection(URL u) {
-            super(u);
-        }
-
-        @Override
-        public void connect() throws IOException {
-            return;
-        }
-
-        @Override
-        public InputStream getInputStream() throws IOException {
-            return classLoader.getResourceAsStream(normalizePath(url.getPath()));
-        }
-        private String normalizePath(String path) {
-            return path.replace("//", "/");
-        }
+    public void testToString() {
+        assertEquals("Development", GrailsEnvironment.DEVELOPMENT.toString());
+        assertEquals("Production", GrailsEnvironment.PRODUCTION.toString());
+        assertEquals("Test", GrailsEnvironment.TEST.toString());
     }
 }

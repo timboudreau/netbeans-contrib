@@ -65,11 +65,11 @@ public class GrailsProjectConfig {
         settings.setPortForProject(prj, port);
     }
 
-    public String getEnv() {
+    public GrailsEnvironment getEnv() {
         return settings.getEnvForProject(prj);
     }
 
-    public void setEnv(String env) {
+    public void setEnv(GrailsEnvironment env) {
         assert env != null;
         settings.setEnvForProject(prj, env);
     }
