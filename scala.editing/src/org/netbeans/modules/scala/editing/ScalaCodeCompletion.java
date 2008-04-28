@@ -71,15 +71,11 @@ import org.netbeans.modules.scala.editing.ScalaParser.Sanitize;
 import org.netbeans.modules.scala.editing.lexer.MaybeCall;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
-import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
-import org.netbeans.modules.scala.editing.nodes.AstExpr;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.netbeans.modules.scala.editing.nodes.IdRef;
-import org.netbeans.modules.scala.editing.nodes.PathId;
-import org.netbeans.modules.scala.editing.nodes.SimpleExpr;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
 import org.netbeans.modules.scala.editing.nodes.Var;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
@@ -346,7 +342,7 @@ public class ScalaCodeCompletion implements Completable {
             if (token == null) {
                 return proposals;
             }
-
+            
             TokenId id = token.id();
             if (id == ScalaTokenId.LineComment) {
                 // TODO - Complete symbols in comments?
@@ -1191,7 +1187,7 @@ public class ScalaCodeCompletion implements Completable {
             if (type == null) {
                 if (closest != null) {
                     TypeRef typeRef = null;
-                    
+
                     if (closest instanceof FieldRef) {
                         // dog.tal|
                         typeRef = ((FieldRef) closest).getBase().getType();
@@ -1199,7 +1195,7 @@ public class ScalaCodeCompletion implements Completable {
                         // dog.|
                         typeRef = closest.getType();
                     }
-                    
+
                     if (typeRef != null) {
                         type = typeRef.getName();
                     }

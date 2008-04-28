@@ -52,7 +52,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementKind;
@@ -60,6 +67,7 @@ import org.netbeans.modules.gsf.api.Index;
 import org.netbeans.modules.gsf.api.Index.SearchResult;
 import org.netbeans.modules.gsf.api.Index.SearchScope;
 import org.netbeans.modules.gsf.api.NameKind;
+import org.netbeans.modules.java.source.JavaSourceAccessor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.URLMapper;
@@ -135,6 +143,7 @@ public class ScalaIndex {
                 javaSource.runUserActionTask(new org.netbeans.api.java.source.Task<org.netbeans.api.java.source.CompilationController>() {
 
                     public void run(org.netbeans.api.java.source.CompilationController controller) throws Exception {
+                        controller.toPhase(JavaSource.Phase.ELEMENTS_RESOLVED);
                         javaControllers[0] = controller;
                     }
                 }, true);
@@ -295,15 +304,27 @@ public class ScalaIndex {
      */
     public Set<IndexedElement> getElements(String prefix, String type,
             NameKind kind, Set<Index.SearchScope> scope, ScalaParserResult context) {
+
+        Set<IndexedElement> elements = getByFqn(prefix, type, kind, scope, false, context, true, true, false);
+        // Is there at least one non-inheried member?
+        boolean ofScala = false;
+        for (IndexedElement element : elements) {
+            if (!element.inherited) {
+                ofScala = true;
+                break;
+            }
+        }
         
-        getByFqnJava(prefix, type, kind, scope, false, context, true, false, false);
+        if (!ofScala) {
+            elements = getByFqnJava(prefix, type, kind, scope, false, context, true, true, false);
+        }
         
-        return getByFqn(prefix, type, kind, scope, false, context, true, true, false);
+        return elements;
     }
 
     public Set<IndexedElement> getAllElements(String prefix, String type,
             NameKind kind, Set<Index.SearchScope> scope, ScalaParserResult context) {
-        
+
         return getByFqn(prefix, type, kind, scope, false, context, true, true, true);
     }
 
@@ -638,6 +659,8 @@ public class ScalaIndex {
             boolean includeMethods, boolean includeProperties, boolean includeDuplicates) {
         //assert in != null && in.length() > 0;
 
+        JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
+        
         final Set<SearchResult> result = new HashSet<SearchResult>();
 
         String field = ScalaIndexer.FIELD_FQN;
@@ -690,15 +713,90 @@ public class ScalaIndex {
             for (SearchScope _scope : scope) {
                 javaScope.add(org.netbeans.api.java.source.ClassIndex.SearchScope.valueOf(_scope.name()));
             }
-            org.netbeans.api.java.source.ClassIndex.NameKind javaKind = org.netbeans.api.java.source.ClassIndex.NameKind.valueOf(kind.name());
+            org.netbeans.api.java.source.ClassIndex.NameKind javaKind = org.netbeans.api.java.source.ClassIndex.NameKind.SIMPLE_NAME;
+            //org.netbeans.api.java.source.ClassIndex.NameKind.valueOf(kind.name());
 
             Set<org.netbeans.api.java.source.ElementHandle<TypeElement>> javaTypes = javaIndex.getDeclaredTypes(type, javaKind, javaScope);
             search(field, lcfqn, kind, result, scope, terms);
 
-            for (org.netbeans.api.java.source.ElementHandle<TypeElement> javaTeHandle : javaTypes) {
-                TypeElement te = javaTeHandle.resolve(javaController);
-                if (te != null) {
-                    //addMembers(env, te.asType(), te, kinds, baseType, inImport, insideNew);
+            for (org.netbeans.api.java.source.ElementHandle<TypeElement> jTeHandle : javaTypes) {
+                IndexedElement element = null;
+                TypeElement jTe = jTeHandle.resolve(javaController);
+                Types jTypes = javaController.getTypes();
+                TypeMirror jType = jTe.asType();
+                if (jTe != null) {
+                    List<? extends Element> memberElements = jTe.getEnclosedElements();
+                    for (Element jElement : memberElements) {
+                        switch (jElement.getKind()) {
+                            case ENUM_CONSTANT:
+                            case EXCEPTION_PARAMETER:
+                            case FIELD:
+                            case LOCAL_VARIABLE:
+                            case PARAMETER:
+                                String ename = jElement.getSimpleName().toString();
+                                if ("this".equals(ename) || "class".equals(ename) || "super".equals(ename)) {
+                                    //results.add(JavaCompletionItem.createKeywordItem(ename, null, anchorOffset, false));
+                                } else {
+                                    TypeMirror tm = jType.getKind() == TypeKind.DECLARED ? jTypes.asMemberOf((DeclaredType) jType, jElement) : jElement.asType();
+                                //results.add(JavaCompletionItem.createVariableItem((VariableElement) e, tm, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), isOfSmartType(env, tm, smartTypes)));
+                                }
+                                break;
+                            case CONSTRUCTOR:
+                                ExecutableType et = (ExecutableType) (jType.getKind() == TypeKind.DECLARED ? jTypes.asMemberOf((DeclaredType) jType, jElement) : jElement.asType());
+                                //results.add(JavaCompletionItem.createExecutableItem((ExecutableElement) e, et, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), inImport, isOfSmartType(env, type, smartTypes)));
+                                break;
+                            case METHOD:
+                                et = (ExecutableType) (jType.getKind() == TypeKind.DECLARED ? jTypes.asMemberOf((DeclaredType) jType, jElement) : jElement.asType());
+                                ExecutableElement jExeElement = ((ExecutableElement) jElement);
+                                
+                                String in = jTe.getSimpleName().toString();
+                                String thename = jElement.getSimpleName().toString();
+                                StringBuilder base = new StringBuilder();
+                                base.append(thename.toLowerCase());
+                                base.append(';');
+                                if (in != null) {
+                                    base.append(in);
+                                }
+                                base.append(';');
+                                base.append(thename);
+                                base.append(';');
+                                base.append(IndexedElement.computeSignature(jElement));
+
+                                element = IndexedElement.create(jElement.getSimpleName().toString(), base.toString(), "", this, false);
+
+                                //results.add(JavaCompletionItem.createExecutableItem((ExecutableElement) e, et, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), inImport, isOfSmartType(env, et.getReturnType(), smartTypes)));
+                                break;
+                            case CLASS:
+                            case ENUM:
+                            case INTERFACE:
+                            case ANNOTATION_TYPE:
+                                DeclaredType dt = (DeclaredType) (jType.getKind() == TypeKind.DECLARED ? jTypes.asMemberOf((DeclaredType) jType, jElement) : jElement.asType());
+                                //results.add(JavaCompletionItem.createTypeItem((TypeElement) e, dt, anchorOffset, false, elements.isDeprecated(e), insideNew, false));
+                                break;
+                        }
+
+                        if (element == null) {
+                            continue;
+                        }
+                        boolean isFunction = element instanceof IndexedFunction;
+                        if (isFunction && !includeMethods) {
+                            continue;
+                        } else if (!isFunction && !includeProperties) {
+                            continue;
+                        }
+                        if (onlyConstructors && element.getKind() != ElementKind.CONSTRUCTOR) {
+                            continue;
+                        }
+                        if (!haveRedirected) {
+                            element.setSmart(true);
+                        }
+                        if (!inheriting) {
+                            element.setInherited(false);
+                        }
+                        elements.add(element);
+                    }
+
+                //addMembers(env, te.asType(), te, kinds, baseType, inImport, insideNew);
                 }
 
 //                String[] signatures = map.getValues(field);
@@ -800,22 +898,6 @@ public class ScalaIndex {
 //                        if (element == null) {
 //                            element = IndexedElement.create(signature, map.getPersistentUrl(), null, elementName, funcIn, inEndIdx, this, false);
 //                        }
-//                        boolean isFunction = element instanceof IndexedFunction;
-//                        if (isFunction && !includeMethods) {
-//                            continue;
-//                        } else if (!isFunction && !includeProperties) {
-//                            continue;
-//                        }
-//                        if (onlyConstructors && element.getKind() != ElementKind.CONSTRUCTOR) {
-//                            continue;
-//                        }
-//                        if (!haveRedirected) {
-//                            element.setSmart(true);
-//                        }
-//                        if (!inheriting) {
-//                            element.setInherited(false);
-//                        }
-//                        elements.add(element);
 //                    }
 //                }
             }
@@ -823,6 +905,7 @@ public class ScalaIndex {
             if (type == null || "Object".equals(type)) { // NOI18N
                 break;
             }
+            // @todo extends
             type = getExtends(type, scope);
             if (type == null) {
                 type = "Object"; // NOI18N
@@ -837,6 +920,7 @@ public class ScalaIndex {
             inheriting = true;
         }
 
+        JavaSourceAccessor.getINSTANCE().unlockJavaCompiler();
         return elements;
     }
 
@@ -911,9 +995,11 @@ public class ScalaIndex {
         // Look for the type
         int typeIndex = 0;
         int section = IndexedElement.TYPE_INDEX;
-        for (int i = 0; i < section; i++) {
+        for (int i = 0; i <
+                section; i++) {
             typeIndex = signature.indexOf(';', typeIndex + 1);
         }
+
         typeIndex++;
         int endIndex = signature.indexOf(';', typeIndex);
         if (endIndex > typeIndex) {
@@ -953,6 +1039,7 @@ public class ScalaIndex {
                     if (type != null) {
                         return type;
                     }
+
                 }
             }
         }
@@ -977,23 +1064,28 @@ public class ScalaIndex {
         if (ALL_REACHABLE) {
             return true;
         }
+
         List<String> imports = Collections.emptyList();// @TODO result.getStructure().getImports();
         if (imports.size() > 0) {
             // TODO - do some heuristics to deal with relative paths here,
             // e.g.   <script src="../../foo.js"></script>
 
-            for (int i = 0, n = imports.size(); i < n; i++) {
+            for (int i = 0, n = imports.size(); i <
+                    n; i++) {
                 String imp = imports.get(i);
                 if (imp.indexOf("../") != -1) {
                     int lastIndex = imp.lastIndexOf("../");
-                    imp = imp.substring(lastIndex + 3);
+                    imp =
+                            imp.substring(lastIndex + 3);
                     if (imp.length() == 0) {
                         continue;
                     }
+
                 }
                 if (url.endsWith(imp)) {
                     return true;
                 }
+
             }
         }
 
