@@ -59,7 +59,7 @@ import org.openide.util.Utilities;
  * @author mkleint
  */
 public class BluejAdvancedOption extends org.netbeans.spi.options.OptionsCategory {
-
+    
     /** Creates a new instance of BluejAdvancedOption */
     public BluejAdvancedOption() {
     }
@@ -76,6 +76,7 @@ public class BluejAdvancedOption extends org.netbeans.spi.options.OptionsCategor
         return NbBundle.getBundle(BluejAdvancedOption.class).getString("AdvancedOption_tooltip"); // NOI18N
     }
 
+    @Override
     public Icon getIcon() {
         return new ImageIcon(Utilities.loadImage("org/netbeans/bluej/options/Category.png")); // NOI18N
     }

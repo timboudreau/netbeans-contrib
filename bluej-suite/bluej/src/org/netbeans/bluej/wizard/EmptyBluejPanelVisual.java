@@ -53,7 +53,7 @@ import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
 
 public class EmptyBluejPanelVisual extends JPanel implements DocumentListener {
-
+    
     public static final String PROP_PROJECT_NAME = "projectName"; // NOI18N
     private static final String WIZ_PANEL_ERROR = "WizardPanel_errorMessage"; // NOI18N
     private EmptyBluejWizardPanel panel;

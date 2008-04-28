@@ -41,6 +41,7 @@ package org.netbeans.modules.javafx.editor.semantic;
 import com.sun.javafx.api.tree.ClassDeclarationTree;
 import com.sun.javafx.api.tree.FunctionDefinitionTree;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
+import com.sun.javafx.api.tree.JavaFXVariableTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.MemberSelectTree;
@@ -283,7 +284,7 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
         }
 
         @Override
-        public Void visitVariable(VariableTree tree, List<Result> list) {
+        public Void visitVariable(JavaFXVariableTree tree, List<Result> list) {
             SourcePositions sourcePositions = info.getTrees().getSourcePositions();
             long start = sourcePositions.getStartPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
             long end = sourcePositions.getEndPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
