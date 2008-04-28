@@ -115,6 +115,7 @@ public abstract class IndexedElement extends AstElement {
     public static final int CLASS = 1 << 11;
     public static final int OBJECT = 1 << 12;
     public static final int TRAIT = 1 << 13;
+    public static final int JAVA = 1 << 14;
     protected String fqn;
     protected String name;
     protected String in;
@@ -495,7 +496,7 @@ public abstract class IndexedElement extends AstElement {
 
     public static int getFlags(javax.lang.model.element.Element element) {
         // Return the flags corresponding to the given AST element
-        int value = 0;
+        int value = 0 | IndexedElement.JAVA;
 
         javax.lang.model.element.ElementKind k = element.getKind();
         if (k == javax.lang.model.element.ElementKind.CONSTRUCTOR) {
@@ -825,6 +826,10 @@ public abstract class IndexedElement extends AstElement {
 
     public boolean isDocOnly() {
         return (flags & DOC_ONLY) != 0;
+    }
+
+    public boolean isJava() {
+        return (flags & JAVA) != 0;
     }
 
     public static String decodeFlags(int flags) {
