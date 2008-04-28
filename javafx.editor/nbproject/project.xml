@@ -99,9 +99,11 @@ made subject to such option by the copyright holder.
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.editor.errorstripe</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
                     <run-dependency>
                         <release-version>2</release-version>
-                        <specification-version>2.3.0.1.1</specification-version>
+                        <implementation-version/>
                     </run-dependency>
                 </dependency>
                 <dependency>

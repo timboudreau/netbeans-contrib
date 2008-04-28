@@ -54,6 +54,7 @@ import org.netbeans.api.javafx.lexer.JFXTokenId;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.api.javafx.source.JavaFXSource.Phase;
 import org.netbeans.api.lexer.TokenSequence;
 
 /**
@@ -353,6 +354,42 @@ public final class TreeUtilities {
         res = res + '[' + pos.getStartPosition(info.getCompilationUnit(), t) + ',' + 
                 pos.getEndPosition(info.getCompilationUnit(), t) + "]:" + s.toString();
         return res;
+    }
+
+    public StatementTree getBreakContinueTarget(TreePath breakOrContinue) throws IllegalArgumentException {
+        if (info.getPhase().compareTo(Phase.RESOLVED) < 0)
+            throw new IllegalArgumentException("Not in correct Phase. Required: Phase.RESOLVED, got: Phase." + info.getPhase().toString());
+        
+        Tree leaf = breakOrContinue.getLeaf();
+        
+        switch (leaf.getKind()) {
+            case BREAK:
+                return (StatementTree) ((JCTree.JCBreak) leaf).target;
+            case CONTINUE:
+                StatementTree target = (StatementTree) ((JCTree.JCContinue) leaf).target;
+                
+                if (target == null)
+                    return null;
+                
+                if (((JCTree.JCContinue) leaf).label == null)
+                    return target;
+                
+                TreePath tp = breakOrContinue;
+                
+                while (tp.getLeaf() != target) {
+                    tp = tp.getParentPath();
+                }
+                
+                Tree parent = tp.getParentPath().getLeaf();
+                
+                if (parent.getKind() == Kind.LABELED_STATEMENT) {
+                    return (StatementTree) parent;
+                } else {
+                    return target;
+                }
+            default:
+                throw new IllegalArgumentException("Unsupported kind: " + leaf.getKind());
+        }
     }
 
     private static void log(String s) {
