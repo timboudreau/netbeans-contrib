@@ -36,10 +36,9 @@
 
 package weatherfx;
 
-import java.lang.System;
-import java.lang.Thread;
-import javafx.ui.*;
-import javafx.ui.canvas.*;
+
+import java.lang.*;
+import javafx.gui.*;
 import weatherfx.service.YahooWeatherService;
 
 /**
@@ -56,42 +55,56 @@ var weather3 = Weather{};
 
 var f = Frame {
     background: Color.BLACK
-    content: Box {
-        orientation: Orientation.VERTICAL
-        content: [
-            //Canvas { content: weather1 viewport: canvasViewport scaleToFit: true},
-            Canvas { content: weather1 },
-            Canvas { content: weather2 },
-            Canvas { content: weather3 }
+    content: Canvas {
+        content:[
+            Group {
+                transform: Transform.translate(0,5);
+                content: weather1
+            },
+            Group {
+                transform: Transform.translate(0,95);
+                content: weather2
+            },
+            Group {
+                transform: Transform.translate(0,185);
+                content: weather3
+            }
         ]
     }
     title: "WeatherFX"
-    onClose: function() { System.exit(0); }
+    closeAction: function() { System.exit(0); }
     resizable: false
-    centerOnScreen:true
-    visible:true    
+    width: 260
+    height: 310
+    visible: true
+    //undecorated: true    
 };
 
 
-function showWeather( weatherCode : String, weather : Weather ): Void {
-    // FIXME
-    /*
-    do later {
-        var YahooWeatherService:YahooWeatherService;     
-        do {
-            YahooWeatherService = new YahooWeatherService( weatherCode, false );
-            do later {
-                var wm = WeatherModel{};
-                wm.loadFromYahooWeatherService(YahooWeatherService);
-                weather.weatherModel = wm;
-            }
-        }
-    }
-     */
-}
 
+function showWeather(weatherCode:String, weather:Weather):Void {
+    // this has to use Threads as FX currently does not give us any reasonable options
+     var ywsRunnable = Runnable {
+            public function run() {
+                var yws = new YahooWeatherService(weatherCode, false);                
+                var modelRunnable = Runnable {
+                    public function run() {
+                        System.out.println("Loaded weather {weatherCode} ");
+                        var wm = WeatherModel{};
+                        wm.loadFromYWS(yws);                        
+                        weather.weatherModel = wm;
+                        
+                    }
+                }
+                javax.swing.SwingUtilities.invokeLater(modelRunnable);
+            }
+     };        
+    (new Thread(ywsRunnable)).start();
+    
+}
 
 // show the weather information
 showWeather("EZXX0012",weather1);
 showWeather("FRXX0076",weather2);
 showWeather("94303",weather3);
+

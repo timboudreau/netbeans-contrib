@@ -58,7 +58,15 @@ public class AssignmentExpr extends AstExpr {
         this.lhs = lhs;
     }
     
+    public AstExpr getLhs() {
+        return lhs;
+    }
+    
     public void setRhs(AstExpr rhs) {
         this.rhs = rhs;
+    }
+    
+    public AstExpr getRhs() {
+        return rhs;
     }
 }

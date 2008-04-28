@@ -179,21 +179,19 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             if (astOffset == -1) {
                 return DeclarationLocation.NONE;
             }
-            
+
             final TokenHierarchy<Document> th = TokenHierarchy.get(document);
 
-            AstElement closest = root.getElement(th, astOffset);
-            if (closest instanceof AstRef || closest instanceof AstDef) {
-                AstDef def = root.findDef(closest);
-                if (def != null) {
-                    return new DeclarationLocation(info.getFileObject(), def.getIdToken().offset(th), def);                
-                }
-            } 
-            
+            AstElement closest = root.getDefRef(th, astOffset);
+            AstDef def = root.findDef(closest);
+            if (def != null) {
+                return new DeclarationLocation(info.getFileObject(), def.getIdToken().offset(th), def);
+            }
+
             return DeclarationLocation.NONE;
 
         } finally {
             doc.readUnlock();
         }
     }
-}
+                }

@@ -67,7 +67,7 @@ import org.openide.windows.WindowManager;
 
 /**
  * Provides support for scanning of currently editet form and their changes
- * Singleton.
+ * Singleton. Needs cleanup.
  * @author Max Sauer
  */
 public final class FormBroker {
@@ -461,6 +461,7 @@ public final class FormBroker {
                         // selected one. At this moment previous one is still selected.
                         tc.addComponentListener(new ComponentAdapter() {
 
+			    @Override
                             public void componentShown(ComponentEvent e) {
                                 TopComponent tcomp = (TopComponent) e.getComponent();
                                 tcomp.removeComponentListener(this);

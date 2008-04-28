@@ -44,26 +44,20 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import javax.swing.text.BadLocationException;
-import org.netbeans.editor.Utilities;
 import org.netbeans.modules.gsf.api.Indexer;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.gsf.api.IndexDocument;
 import org.netbeans.modules.gsf.api.IndexDocumentFactory;
 import org.netbeans.modules.gsf.api.Modifier;
-import org.netbeans.modules.gsf.api.OffsetRange;
-import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.ClassTemplate;
-import org.netbeans.modules.scala.editing.nodes.Function;
 import org.netbeans.modules.scala.editing.nodes.ObjectTemplate;
+import org.netbeans.modules.scala.editing.nodes.SimpleType;
 import org.netbeans.modules.scala.editing.nodes.Template;
 import org.netbeans.modules.scala.editing.nodes.TraitTemplate;
-import org.netbeans.modules.scala.editing.nodes.TypeRef;
-import org.netbeans.modules.scala.editing.nodes.Var;
 import org.openide.filesystems.FileObject;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
@@ -190,7 +184,7 @@ public class ScalaIndexer implements Indexer {
         if (file.isPlatform()) {
             System.out.println("Platform file" + file.getNameExt());
         }
-        
+
         ScalaParserResult pResult = (ScalaParserResult) result;
         AstScope root = pResult.getRootScope();
         if (root == null) { // NOI18N
@@ -318,9 +312,16 @@ public class ScalaIndexer implements Indexer {
 
                 String fqn = template.getQualifiedName() + ";" + ";" + ";";
 
-                String extendWith = template.getExtendWith().toString(); //TODO
+                List<SimpleType> extendsWith = template.getExtendsWith();
+                if (extendsWith.size() > 0) {
+                    for (SimpleType parent : extendsWith) {
+                        String clz = template.getName();
+                        String superClz = parent.getName();
+                        document.addPair(FIELD_EXTEND_WITH, clz.toLowerCase() + ";" + clz + ";" + superClz, true); // NOI18N
+                    }
 
-                document.addPair(FIELD_EXTEND_WITH, extendWith, false);
+                    ClassCache.INSTANCE.refresh();
+                }
 
                 if (template instanceof ClassTemplate) {
                     ClassTemplate classTemplate = (ClassTemplate) template;
@@ -386,7 +387,7 @@ public class ScalaIndexer implements Indexer {
 
                         case CONSTRUCTOR:
                         case METHOD: {
-                            String signature = computeSignature(child);
+                            String signature = IndexedElement.computeSignature(child);
                             indexFunction(child, document, signature);
 
                             break;
@@ -405,124 +406,6 @@ public class ScalaIndexer implements Indexer {
             } finally {
                 //docMode = previousDocMode;
             }
-        }
-
-        private String computeSignature(AstElement element) {
-            OffsetRange docRange = getDocumentationOffset(element);
-            int docOffset = -1;
-            if (docRange != OffsetRange.NONE) {
-                docOffset = docRange.getStart();
-            }
-            //Map<String,String> typeMap = element.getDocProps();
-
-            // Look up compatibility
-            int index = IndexedElement.FLAG_INDEX;
-            String compatibility = "";
-//            if (file.getNameExt().startsWith("stub_")) { // NOI18N
-//                int astOffset = element.getNode().getSourceStart();
-//                int lexOffset = astOffset;
-//                TranslatedSource source = pResult.getTranslatedSource();
-//                if (source != null) {
-//                    lexOffset = source.getLexicalOffset(astOffset);
-//                }
-//                try {
-//                    String line = doc.getText(lexOffset,
-//                            Utilities.getRowEnd(doc, lexOffset)-lexOffset);
-//                    int compatIdx = line.indexOf("COMPAT="); // NOI18N
-//                    if (compatIdx != -1) {
-//                        compatIdx += "COMPAT=".length(); // NOI18N
-//                        EnumSet<BrowserVersion> es = BrowserVersion.fromFlags(line.substring(compatIdx));
-//                        compatibility = BrowserVersion.toCompactFlags(es);
-//                    }
-//                } catch (BadLocationException ex) {
-//                    Exceptions.printStackTrace(ex);
-//                }
-//            }
-
-            assert index == IndexedElement.FLAG_INDEX;
-            StringBuilder sb = new StringBuilder();
-            int flags = IndexedElement.getFlags(element);
-            // Add in info from documentation
-//            if (typeMap != null) {
-//                // Most flags are already handled by AstElement.getFlags()...
-//                // Consider handling the rest too
-//                if (typeMap.get("@ignore") != null) { // NOI18N
-//                    flags = flags | IndexedElement.NODOC;
-//                }
-//            }
-            if (docOffset != -1) {
-                flags = flags | IndexedElement.DOCUMENTED;
-            }
-            sb.append(IndexedElement.encode(flags));
-
-            // Parameters
-            sb.append(';');
-            index++;
-            assert index == IndexedElement.ARG_INDEX;
-            if (element instanceof Function) {
-                Function func = (Function) element;
-
-                int argIndex = 0;
-                for (Var param : func.getParams()) {
-                    String paramName = param.getName();
-                    if (argIndex == 0 && "super".equals(paramName)) { // NOI18N
-                        // Prototype inserts these as the first param to handle inheritance/super
-
-                        argIndex++;
-                        continue;
-                    }
-                    if (argIndex > 0) {
-                        sb.append(',');
-                    }
-                    sb.append(paramName);
-                    TypeRef paramType = param.getType();
-                    if (paramType != null) {
-                        String typeName = paramType.getName();
-                        if (typeName != null) {
-                            sb.append(':');
-                            sb.append(typeName);
-                        }
-                    }
-                    argIndex++;
-                }
-            }
-
-            // Node offset
-            sb.append(';');
-            index++;
-            assert index == IndexedElement.NODE_INDEX;
-            sb.append('0');
-            //sb.append(IndexedElement.encode(element.getNode().getSourceStart()));
-
-            // Documentation offset
-            sb.append(';');
-            index++;
-            assert index == IndexedElement.DOC_INDEX;
-            if (docOffset != -1) {
-                sb.append(IndexedElement.encode(docOffset));
-            }
-
-            // Browser compatibility
-            sb.append(';');
-            index++;
-            assert index == IndexedElement.BROWSER_INDEX;
-            sb.append(compatibility);
-
-            // Types
-            sb.append(';');
-            index++;
-            assert index == IndexedElement.TYPE_INDEX;
-            TypeRef type = element.getType();
-//            if (type == null) {
-//                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
-//            }
-            if (type != null) {
-                sb.append(type.getName());
-            }
-            sb.append(';');
-
-            String signature = sb.toString();
-            return signature;
         }
 
         private void indexFunction(AstElement element, IndexDocument document, String signature) {
@@ -579,30 +462,6 @@ public class ScalaIndexer implements Indexer {
 
             // TODO - gather documentation on fields? naeh
             document.addPair(FIELD_FIELD_NAME, signature, true);
-        }
-
-        private OffsetRange getDocumentationOffset(AstElement element) {
-            return OffsetRange.NONE; // @TODO
-//            int astOffset = element.getEnclosingScope().getRange().getStart();
-//            // XXX This is wrong; I should do a
-//            //int lexOffset = LexUtilities.getLexerOffset(result, astOffset);
-//            // but I don't have the CompilationInfo in the ParseResult handed to the indexer!!
-//            int lexOffset = astOffset;
-//            try {
-//                if (lexOffset > doc.getLength()) {
-//                    return OffsetRange.NONE;
-//                }
-//                lexOffset = Utilities.getRowStart(doc, lexOffset);
-//            } catch (BadLocationException ex) {
-//                Exceptions.printStackTrace(ex);
-//            }
-//            OffsetRange range = ScalaLexUtilities.getCommentBlock(doc, lexOffset, true);
-//            if (range != OffsetRange.NONE) {
-//                return range;
-//            } else {
-//                return OffsetRange.NONE;
-//            }
-
         }
     }
 

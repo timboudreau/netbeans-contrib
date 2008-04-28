@@ -45,7 +45,7 @@ import org.netbeans.modules.gsf.api.ElementKind;
 /**
  * Id may be AstDefinition or AstUsage, so extends AstElement
  * 
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
 public class Id extends AstElement {
 

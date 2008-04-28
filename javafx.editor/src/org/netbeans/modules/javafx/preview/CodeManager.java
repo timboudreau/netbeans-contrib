@@ -31,7 +31,6 @@ import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.javafx.dataloader.JavaFXDataObject;
 import org.netbeans.modules.javafx.editor.FXDocument;
 import org.netbeans.modules.javafx.editor.JavaFXDocument;
-import org.netbeans.modules.javafx.project.JavaFXProject;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -40,9 +39,10 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 import java.awt.Color;
 import java.awt.Window;
-import javax.swing.JDesktopPane;
+import java.io.File;
 import javax.swing.JDialog;
 import javax.tools.Diagnostic;
+import org.netbeans.api.project.Project;
 
 public class CodeManager {
     private static final String[] getComponentNames = {"getComponent", "getJComponent"};                     // NOI18N
@@ -75,7 +75,7 @@ public class CodeManager {
         } catch (Exception ex) {
             return null;
         }
-            
+
         FileObject fo = ((JavaFXDocument)doc).getDataObject().getPrimaryFile();
         
         ClassPath sourceCP = ClassPath.getClassPath(fo, ClassPath.SOURCE);
@@ -93,21 +93,22 @@ public class CodeManager {
         
         JavafxcTool tool = JavafxcTool.create();
         JavacFileManager standardManager = tool.getStandardFileManager(diagnostics, null, null);
-        JavaFXProject project = (JavaFXProject) JavaFXModel.getProject(doc);
+        Project project = JavaFXModel.getProject(doc);
         List <JavaFileObject> javaFileObjects = getProjectJFOList(doc, project, sourceCP, standardManager);
         
+        //preprocessCode(code);
         javaFileObjects.add(new MemoryFileObject(className, code, Kind.SOURCE, doc));
         
         Map<String, byte[]> oldClassBytes = cut(JavaFXModel.getClassBytes(project), className);
         
-        Map<String, byte[]> classBytes = compile(javaFileObjects, oldClassBytes, sourceCP, compileCP, bootCP, project, tool, standardManager, diagnostics);  
+        Map<String, byte[]> classBytes = compile(javaFileObjects, oldClassBytes, sourceCP, compileCP, bootCP, executeCP, project, tool, standardManager, diagnostics);  
         JavaFXModel.putClassBytes(project, classBytes);
         
         Object obj = null;
         if (classBytes != null) {
             className = checkCase(classBytes, className);
             try {
-                obj = run(className, executeCP, bootCP, classBytes);
+                obj = run(className, sourceCP, executeCP, bootCP, classBytes);
             } catch (Exception ex){
                 ex.printStackTrace();
             }
@@ -126,7 +127,8 @@ public class CodeManager {
                                                 ClassPath sourceCP,
                                                 ClassPath compileCP,
                                                 ClassPath bootCP,
-                                                JavaFXProject project,
+                                                ClassPath executeCP,
+                                                Project project,
                                                 JavafxcTool tool,
                                                 JavacFileManager standardManager,
                                                 DiagnosticCollector diagnostics) {
@@ -141,7 +143,7 @@ public class CodeManager {
         System.setProperty("env.class.path", JavaFXSourceUtils.getAdditionalCP(cp));
         */
         
-        MemoryClassLoader mcl = new MemoryClassLoader(compileCP, bootCP);
+        MemoryClassLoader mcl = new MemoryClassLoader(new ClassPath[] {compileCP, bootCP });
         
         MemoryFileManager manager = new MemoryFileManager(standardManager, mcl);
         manager.setClassBytes(classBytes);
@@ -156,7 +158,7 @@ public class CodeManager {
         options.add("1.5");                  // NOI18N
         
         options.add("-classpath");           // NOI18N
-        options.add(compileCP.toString());   // NOI18N
+        options.add(compileCP.toString() + File.pathSeparatorChar + executeCP.toString());   // NOI18N
         
         options.add("-sourcepath");          // NOI18N
         options.add(sourceCP.toString());    // NOI18N
@@ -180,8 +182,8 @@ public class CodeManager {
         return classBytesDone;
     }
         
-    private static Object run(String name, ClassPath execClassPath, ClassPath bootClassPath, Map<String, byte[]> classBytes) throws Exception {
-        MemoryClassLoader memoryClassLoader = new MemoryClassLoader(execClassPath, bootClassPath);
+    private static Object run(String name, ClassPath sourceClassPath, ClassPath execClassPath, ClassPath bootClassPath, Map<String, byte[]> classBytes) throws Exception {
+        MemoryClassLoader memoryClassLoader = new MemoryClassLoader(new ClassPath[] {sourceClassPath, execClassPath, bootClassPath});
         memoryClassLoader.loadMap(classBytes);
         return run(name, memoryClassLoader);
     }
@@ -196,6 +198,10 @@ public class CodeManager {
         Object args = makeMethod.invoke(null, String.class, commandLineArgs);
         Object obj = runMethod.invoke(null, args);
         return obj;
+    }
+    
+    private static String preprocessCode(String code) {
+         return code.replaceAll("System.exit\\s*\\(\\s*\\w+\\s*\\)", "System.out.println(\"System.exit() removed.\")");
     }
     
     private static JComponent parseJComponentObj(Object obj) {
@@ -215,6 +221,13 @@ public class CodeManager {
             ex.printStackTrace();
         }
         return comp;
+    }
+    
+    private static JComponent parseTrueJFrame(Object obj) {
+        if (obj instanceof JFrame)
+            return moveToInner((Window)obj);
+        else
+            return null;
     }
     
     private static JComponent parseJFrameJDialogObj(Object obj) {
@@ -242,25 +255,7 @@ public class CodeManager {
                     Method getMethod = frameObj.getClass().getDeclaredMethod(getMethodName);
                     Window frame = (Window)getMethod.invoke(frameObj);
                     if (frame != null) {
-                        frame.setVisible(false);
-                        JInternalFrame intFrame = new JInternalFrame();
-                        intFrame.setSize(frame.getSize());
-                        intFrame.setContentPane(frame instanceof JFrame ? ((JFrame)frame).getContentPane() : ((JDialog)frame).getContentPane());
-                        intFrame.setTitle(frame instanceof JFrame ? ((JFrame)frame).getTitle() : ((JDialog)frame).getTitle());
-                        intFrame.setJMenuBar(frame instanceof JFrame ? ((JFrame)frame).getJMenuBar() : ((JDialog)frame).getJMenuBar());
-                        intFrame.setBackground(frame.getBackground());
-                        intFrame.getContentPane().setBackground(frame.getBackground());
-                        intFrame.setForeground(frame.getForeground());
-                        intFrame.setResizable(true);
-                        intFrame.setClosable(true);
-                        intFrame.setMaximizable(true);
-                        intFrame.setIconifiable(true);
-                        intFrame.setVisible(true);
-                        frame.dispose();
-                        JDesktopPane jdp = new JDesktopPane();
-                        jdp.setBackground(Color.WHITE);
-                        jdp.add(intFrame);
-                        comp = jdp;
+                        comp = moveToInner(frame);
                     }
                 }
             }
@@ -269,7 +264,31 @@ public class CodeManager {
         }
         return comp;
     }
+    
+    private static JComponent moveToInner(Window frame) {
+        frame.setVisible(false);
+        JInternalFrame intFrame = new JInternalFrame();
+        intFrame.setSize(frame.getSize());
+        intFrame.setContentPane(frame instanceof JFrame ? ((JFrame)frame).getContentPane() : ((JDialog)frame).getContentPane());
+        intFrame.setTitle(frame instanceof JFrame ? ((JFrame)frame).getTitle() : ((JDialog)frame).getTitle());
+        intFrame.setJMenuBar(frame instanceof JFrame ? ((JFrame)frame).getJMenuBar() : ((JDialog)frame).getJMenuBar());
+        intFrame.setBackground(frame.getBackground());
+        intFrame.getContentPane().setBackground(frame.getBackground());
+        intFrame.setForeground(frame.getForeground());
+        intFrame.setResizable(true);
+        intFrame.setClosable(true);
+        intFrame.setMaximizable(true);
+        intFrame.setIconifiable(true);
+        intFrame.setVisible(true);
+        frame.dispose();
+        AutoResizableDesktopPane jdp = new AutoResizableDesktopPane();
+        jdp.setBackground(Color.WHITE);
+        jdp.add(intFrame);
+        jdp.setMinimumSize(intFrame.getSize());
+        return (JComponent)jdp;
+    }
 
+    
     private static JComponent parseSGNodeObj(Object obj) {
         JComponent comp = null;
         try {
@@ -302,12 +321,13 @@ public class CodeManager {
         JComponent comp = null;
         if ((comp = parseJComponentObj(obj)) == null)
             if ((comp = parseJFrameJDialogObj(obj)) == null)
-                comp = parseSGNodeObj(obj);
+                if ((comp = parseTrueJFrame(obj)) == null)
+                    comp = parseSGNodeObj(obj);
         return comp;
     }
     
     private static List<JavaFileObject> getProjectJFOList(  FXDocument document,
-                                                            JavaFXProject project,
+                                                            Project project,
                                                             ClassPath sourceCP,
                                                             JavacFileManager fileManager)
     {
@@ -397,7 +417,7 @@ public class CodeManager {
     }
     
     public static void cut(FXDocument doc) {
-        JavaFXProject project = (JavaFXProject) JavaFXModel.getProject(doc);      
+        Project project = JavaFXModel.getProject(doc);      
         FileObject fo = ((JavaFXDocument)doc).getDataObject().getPrimaryFile();
         ClassPath sourceCP = ClassPath.getClassPath(fo, ClassPath.SOURCE);
         String className = sourceCP.getResourceName(fo, '.', false);                 // NOI18N

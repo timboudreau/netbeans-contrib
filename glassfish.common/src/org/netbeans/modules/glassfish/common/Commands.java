@@ -41,8 +41,10 @@ package org.netbeans.modules.glassfish.common;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -161,7 +163,7 @@ public class Commands {
                     continue;
                 }
                 
-                String engine = getFirstEngine(appAttrs.getValue("nb-engine_value"));
+                String engine = getPreferredEngine(appAttrs.getValue("nb-engine_value"));
                 
                 String name = appAttrs.getValue("nb-name_value");
                 if(name == null || name.length() == 0) {
@@ -192,14 +194,32 @@ public class Commands {
 
         // XXX temporary patch to handle engine descriptions like <web, ejb>
         // until we have better display semantics for such things.
-        private String getFirstEngine(String engineList) {
+        // XXX bias order of list for JavaONE demos.
+        private static final List<String> engineBias = 
+                Arrays.asList(new String [] { "jruby", "web", "ejb" });
+        
+        private String getPreferredEngine(String engineList) {
             String [] engines = engineList.split(",");
-            for(String engine: engines) {
-                if(!skipContainer(engine)) {
-                    return engine;
+            String engine = null;
+            int bias = -1;
+            for(int i = 0; i < engines.length; i++) {
+                if(!skipContainer(engines[i])) {
+                    engines[i] = engines[i].trim();
+                    int newBias = engineBias.indexOf(engines[i]);
+                    if(newBias >= 0 && (bias == -1 || newBias < bias)) {
+                        bias = newBias;
+                    }
+                    if(engine == null) {
+                        engine = engines[i];
+                    }
                 }
             }
-            return "unknown";
+            if(bias != -1) {
+                engine = engineBias.get(bias);
+            } else if(engine == null) {
+                engine = "unknown";
+            }
+            return engine;
         }
 
         /**
@@ -414,6 +434,52 @@ public class Commands {
             return true;
         }
         
+    }
+    
+    /**
+     * Command to get version information from the server.
+     */
+    public static final class LocationCommand extends ServerCommand {
+
+        private Manifest info;
+        private String installRoot;
+        private String domainRoot;
+        
+        public LocationCommand() {
+        }
+        
+        public String getInstallRoot() {
+            return installRoot;
+        }
+
+        public String getDomainRoot() {
+            return domainRoot;
+        }
+
+        @Override
+        public String getCommand() {
+            return "__locations";
+        }
+
+        @Override
+        public void readManifest(Manifest manifest) throws IOException {
+            info = manifest;
+        }
+
+        @Override
+        public boolean processResponse() {
+            if(info == null) {
+                return false;
+            }
+            
+            Attributes mainAttrs = info.getMainAttributes();
+            if(mainAttrs != null) {
+                installRoot = mainAttrs.getValue("Base-Root_value");
+                domainRoot = mainAttrs.getValue("Domain-Root_value");
+            }
+            
+            return true;
+        }
     }
 }
 

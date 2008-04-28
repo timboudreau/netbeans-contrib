@@ -50,7 +50,7 @@ public abstract class Template extends AstDef {
 
     private boolean caseOne;
 
-    private List<Id> extendWith;
+    private List<SimpleType> extendsWith;
     
     public Template(Id id, AstScope bindingScope, ElementKind kind) {
         super(id.getName(), id.getIdToken(), bindingScope, kind);
@@ -64,12 +64,12 @@ public abstract class Template extends AstDef {
         return caseOne;
     }
     
-    public void setExtendsWith(List<Id> extendWith) {
-        this.extendWith = extendWith;
+    public void setExtendsWith(List<SimpleType> extendsWith) {
+        this.extendsWith = extendsWith;
     }
     
-    public List<Id> getExtendWith() {
-        return extendWith == null ? Collections.<Id>emptyList() : extendWith;
+    public List<SimpleType> getExtendsWith() {
+        return extendsWith == null ? Collections.<SimpleType>emptyList() : extendsWith;
     }
 
     @Override

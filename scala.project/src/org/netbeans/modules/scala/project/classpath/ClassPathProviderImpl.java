@@ -43,18 +43,24 @@ package org.netbeans.modules.scala.project.classpath;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.scala.platform.JavaPlatform;
 import org.netbeans.modules.java.api.common.SourceRoots;
 import org.netbeans.modules.gsfpath.spi.classpath.ClassPathFactory;
 import org.netbeans.modules.gsfpath.spi.classpath.ClassPathProvider;
+import org.netbeans.modules.gsfpath.spi.classpath.PathResourceImplementation;
+import org.netbeans.modules.scala.editing.ScalaLanguage;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
 import org.openide.util.WeakListeners;
 
 /**
@@ -184,10 +190,32 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         }
         ClassPath cp = cache[2 + type];
         if (cp == null) {
+            List<PathResourceImplementation> resources = new ArrayList<PathResourceImplementation>();
+
             JavaPlatform platform = bootClassPathImpl.findActivePlatform();
             if (platform != null) {
-                cp = platform.getSourceFolders();
+                ClassPath platformSourcesCp = platform.getSourceFolders();
+                for (ClassPath.Entry entry : platformSourcesCp.entries()) {
+                    resources.add(org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport.createResource(entry.getURL()));
+                }
             }
+
+            /** 
+             * @Note
+             * We should add scalaStubsFo to compileTimeClassPath to get index query includes it, 
+             * that's GSF's implementation 
+             */
+            FileObject scalaStubsFo = ScalaLanguage.getScalaStubFo();
+            if (scalaStubsFo != null) {
+                try {
+                    resources.add(org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport.createResource(scalaStubsFo.getURL()));
+                } catch (FileStateInvalidException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+            cp = org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport.createClassPath(resources);
+
+
             /** 
              * @Todo: should use property to gain classpath? otherwise how to sync with
              * active platform's change?

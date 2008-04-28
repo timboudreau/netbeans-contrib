@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.quickfilechooser
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/quickfilechooser/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.12
+OpenIDE-Module-Specification-Version: 1.13
 OpenIDE-Module-Install: org/netbeans/modules/quickfilechooser/Module.class
 Main-Class: org.netbeans.modules.quickfilechooser.Install
 

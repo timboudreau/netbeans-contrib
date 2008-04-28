@@ -151,10 +151,13 @@ generic Path =
 ;
 
 generic StableId = 
-  ( Id void:".":sep )? ThisKey                  ( void:".":sep Id )*
-/ ( Id void:".":sep )? SuperKey ClassQualifier? ( void:".":sep Id )*
-/ Id ( void:".":sep Id )*
+  ( Id void:".":sep )? ThisKey                  ( void:".":sep Id )* ( void:"." SKIP ErrorIdExpected )?
+/ ( Id void:".":sep )? SuperKey ClassQualifier? ( void:".":sep Id )* ( void:"." SKIP ErrorIdExpected )?
+/                      Id                       ( void:".":sep Id )* ( void:"." SKIP ErrorIdExpected )?
 ;
+
+/* StableId may be followed by '{' '_' in Import, and "type", so should considerate this case */
+transient generic ErrorIdExpected = !( [{_] / "type":key ) { yyValue = GNode.create("Error", "Id expected"); } ;
 
 transient generic ClassQualifier = void:"[":sep Id void:"]":sep;
 
@@ -252,7 +255,7 @@ generic PrefixExpr = ( "-":op / "+":op / "~":op / "!":op )? SimpleExpr ;
 
 /* @DocError in ScalaReference : There is non SimpleExpr with ( void:":":key Type ) */
 generic SimpleExpr = 
-  XmlExpr                                                    @SimpleXmlExpr
+  XmlExpr             SimpleExprRest*                        @SimpleXmlExpr
 / Literal   TypeArgs? SimpleExprRest*                        @SimpleLiteralExpr
 / Path      TypeArgs? SimpleExprRest* ( void:":":key Type )? @SimpleIdExpr
 / "_":key   TypeArgs? SimpleExprRest*                        @SimpleWildCardExpr
@@ -268,7 +271,12 @@ generic SimpleExprRest =
 
 transient generic PathRest = void:".":sep Path TypeArgs? ;
 
-transient generic NewExpr = void:"new":key ( ClassTemplate / TemplateBody ) ;
+transient generic NewExpr = 
+  void:"new":key ( ClassTemplate / TemplateBody)
+/ SKIP void:"new" SKIP ErrorClassTemplateExpected 
+;
+
+transient generic ErrorClassTemplateExpected = { yyValue = GNode.create("Error", "ClassTemplate expected"); } ;
 
 transient generic Exprs = Expr ( void:",":sep Expr )*;
 
@@ -320,7 +328,8 @@ transient generic Enumerator =
 / void:"val":key Pattern1 void:"=":key Expr
 ;
 
-transient generic Generator = Pattern1 void:"<-":key Expr Guard? ;
+/* @Note "val" is deprecated */
+transient generic Generator = ( void:"val":key )? Pattern1 void:"<-":key Expr Guard? ;
 
 transient generic CaseClauses = CaseClause CaseClause* ;
 /* @Hacking greedy Pattern will consumer latest "=>" to try to recognize as FunType,
@@ -330,9 +339,9 @@ transient generic CaseClauses = CaseClause CaseClause* ;
  * @Todo nl in case clause
  */
 generic CaseClause =   
-  SKIP_N void:"case":key 
-  ( ( VarId / "_":key ) void:":":key FunTypeInCaseClause Block
-  / Pattern N* Guard? void:"=>":key Block 
+  SKIP_N void:"case":key ENTER_NL_DISABLE
+  ( ( VarId / "_":key ) void:":" :key FunTypeInCaseClause EXIT_NL_DISABLE Block
+  / Pattern N* Guard?   void:"=>":key                     EXIT_NL_DISABLE Block 
   )
 ;
 
@@ -461,7 +470,7 @@ generic SelfType =
 / ThisKey  void:":":key Type    void:"=>":key
 ;
 
-transient generic Import = "import":key ImportExpr ( void:",":sep ImportExpr )* ;
+transient generic Import = void:"import":key ImportExpr ( void:",":sep ImportExpr )* ;
 
 transient generic ImportExpr = StableId ( void:".":sep ( "_":key / ImportSelectors ) )?;
 
@@ -526,17 +535,15 @@ transient generic TraitDef  = Id TypeParamClause?                               
 transient generic ObjectDef = Id                                                                ClassTemplateOpt ;
 
 generic ClassTemplateOpt = 
-  Extends ClassTemplate 
-/ ( ( <Extends> void:"extends":key )? TemplateBody 
-  / ( <UBounds> void:"<:"     :key )? TemplateBody 
-  )? 
+  Extends  ClassTemplate 
+/ Extends? TemplateBody
+/ 
 ;
 
 generic TraitTemplateOpt =
-  Extends TraitTemplate 
-/ ( ( <Extends> void:"extends":key )? TemplateBody 
-  / ( <UBounds> void:"<:"     :key )? TemplateBody 
-  )? 
+  Extends  TraitTemplate 
+/ Extends? TemplateBody
+/ 
 ;
 
 generic Extends = "extends":key / "<:":key ;
