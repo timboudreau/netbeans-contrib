@@ -361,7 +361,7 @@ public class ScalaIndex {
             for (Element je : jpe.getEnclosedElements()) {
                 if (je.getKind().isClass() || je.getKind().isInterface()) {
                     String jname = je.getSimpleName().toString();
-                    if (Utilities.startsWith(jname, prefix)) {
+                    if (JavaUtilities.startsWith(jname, prefix)) {
                         String in = "";
                         StringBuilder base = new StringBuilder();
                         base.append(jname.toLowerCase());
