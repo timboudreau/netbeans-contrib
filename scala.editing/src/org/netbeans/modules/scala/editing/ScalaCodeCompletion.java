@@ -445,8 +445,8 @@ public class ScalaCodeCompletion implements Completable {
         }
 
         AstScope closestScope = root.getClosestScope(request.th, request.astOffset);
-        List<Var> localVars = closestScope.getDefsInScope(Var.class);
 
+        List<Var> localVars = closestScope.getDefsInScope(Var.class);
         for (Var var : localVars) {
             if ((kind == NameKind.EXACT_NAME && prefix.equals(var.getName())) ||
                     (kind != NameKind.EXACT_NAME && startsWith(var.getName(), prefix))) {
@@ -1542,8 +1542,28 @@ public class ScalaCodeCompletion implements Completable {
         if (fqnPrefix == null) {
             fqnPrefix = "";
         }
-        for (IndexedElement pkg : request.index.getPackages(fqnPrefix)) {
-            proposals.add(new PackageItem(pkg, request));
+        
+        String pkgName = null;
+        String prefix = null;
+        
+        int lastDot = fqnPrefix.lastIndexOf('.');
+        if (lastDot == -1) {
+            pkgName = fqnPrefix;
+            prefix = fqnPrefix;
+        } else if (lastDot == fqnPrefix.length() - 1) {
+            pkgName = fqnPrefix.substring(0, lastDot);
+            prefix = "";
+        } else {
+            pkgName = fqnPrefix.substring(0, lastDot);
+            prefix = fqnPrefix.substring(lastDot + 1, fqnPrefix.length());
+        }
+        
+        for (IndexedElement element : request.index.getPackageContent(pkgName, prefix)) {
+            proposals.add(new PlainItem(request, element));
+        }
+        
+        for (IndexedElement element : request.index.getPackages(fqnPrefix)) {
+            proposals.add(new PackageItem(element, request));
         }
         return true;
     }

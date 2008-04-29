@@ -54,11 +54,13 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.modules.gsf.api.CompilationInfo;
@@ -349,6 +351,37 @@ public class ScalaIndex {
             }
         }
         return elements;
+    }
+
+    public Set<IndexedElement> getPackageContent(String pkgFqn, String prefix) {
+        Elements jelements = javaController.getElements();
+        PackageElement jpe = jelements.getPackageElement(pkgFqn);
+        if (jpe != null) {
+            Set<IndexedElement> elements = new HashSet<IndexedElement>();
+            for (Element je : jpe.getEnclosedElements()) {
+                if (je.getKind().isClass() || je.getKind().isInterface()) {
+                    String jname = je.getSimpleName().toString();
+                    if (Utilities.startsWith(jname, prefix)) {
+                        String in = "";
+                        StringBuilder base = new StringBuilder();
+                        base.append(jname.toLowerCase());
+                        base.append(';');
+                        if (in != null) {
+                            base.append(in);
+                        }
+                        base.append(';');
+                        base.append(jname);
+                        base.append(';');
+                        base.append(IndexedElement.computeSignature(je));
+
+                        IndexedElement element = IndexedElement.create(jname, base.toString(), "", this, false);
+                        elements.add(element);
+                    }
+                }
+            }
+            return elements;
+        }
+        return Collections.<IndexedElement>emptySet();
     }
 
     private Set<IndexedElement> getUnknownFunctions(String name, NameKind kind,
@@ -738,53 +771,52 @@ public class ScalaIndex {
             org.netbeans.api.java.source.ClassIndex.NameKind javaKind = org.netbeans.api.java.source.ClassIndex.NameKind.SIMPLE_NAME;
             //org.netbeans.api.java.source.ClassIndex.NameKind.valueOf(kind.name());
 
-            Set<org.netbeans.api.java.source.ElementHandle<TypeElement>> javaTypes = javaIndex.getDeclaredTypes(type, javaKind, javaScope);
+            Set<org.netbeans.api.java.source.ElementHandle<TypeElement>> jtypes = javaIndex.getDeclaredTypes(type, javaKind, javaScope);
             search(field, lcfqn, kind, result, scope, terms);
 
-            for (org.netbeans.api.java.source.ElementHandle<TypeElement> jTeHandle : javaTypes) {
+            for (org.netbeans.api.java.source.ElementHandle<TypeElement> jteHandle : jtypes) {
                 IndexedElement element = null;
-                TypeElement jTe = jTeHandle.resolve(javaController);
+                TypeElement jte = jteHandle.resolve(javaController);
                 Types jTypes = javaController.getTypes();
-                TypeMirror jType = jTe.asType();
-                if (jTe != null) {
-                    List<? extends Element> memberElements = jTe.getEnclosedElements();
-                    for (Element jElement : memberElements) {
-                        switch (jElement.getKind()) {
+                TypeMirror jtype = jte.asType();
+                if (jte != null) {
+                    List<? extends Element> memberElements = jte.getEnclosedElements();
+                    for (Element je : memberElements) {
+                        String jname = je.getSimpleName().toString();
+                        switch (je.getKind()) {
                             case ENUM_CONSTANT:
                             case EXCEPTION_PARAMETER:
                             case FIELD:
                             case LOCAL_VARIABLE:
                             case PARAMETER:
-                                String ename = jElement.getSimpleName().toString();
-                                if ("this".equals(ename) || "class".equals(ename) || "super".equals(ename)) {
+                                if ("this".equals(jname) || "class".equals(jname) || "super".equals(jname)) {
                                     //results.add(JavaCompletionItem.createKeywordItem(ename, null, anchorOffset, false));
                                 } else {
-                                    TypeMirror tm = jType.getKind() == TypeKind.DECLARED ? jTypes.asMemberOf((DeclaredType) jType, jElement) : jElement.asType();
+                                    TypeMirror tm = jtype.getKind() == TypeKind.DECLARED ? jTypes.asMemberOf((DeclaredType) jtype, je) : je.asType();
                                 //results.add(JavaCompletionItem.createVariableItem((VariableElement) e, tm, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), isOfSmartType(env, tm, smartTypes)));
                                 }
                                 break;
                             case CONSTRUCTOR:
-                                ExecutableType et = (ExecutableType) (jType.getKind() == TypeKind.DECLARED ? jTypes.asMemberOf((DeclaredType) jType, jElement) : jElement.asType());
+                                ExecutableType et = (ExecutableType) (jtype.getKind() == TypeKind.DECLARED ? jTypes.asMemberOf((DeclaredType) jtype, je) : je.asType());
                                 //results.add(JavaCompletionItem.createExecutableItem((ExecutableElement) e, et, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), inImport, isOfSmartType(env, type, smartTypes)));
                                 break;
                             case METHOD:
-                                et = (ExecutableType) (jType.getKind() == TypeKind.DECLARED ? jTypes.asMemberOf((DeclaredType) jType, jElement) : jElement.asType());
-                                ExecutableElement jExeElement = ((ExecutableElement) jElement);
+                                et = (ExecutableType) (jtype.getKind() == TypeKind.DECLARED ? jTypes.asMemberOf((DeclaredType) jtype, je) : je.asType());
+                                ExecutableElement jexeElement = ((ExecutableElement) je);
 
-                                String in = jTe.getSimpleName().toString();
-                                String thename = jElement.getSimpleName().toString();
+                                String in = jte.getSimpleName().toString();
                                 StringBuilder base = new StringBuilder();
-                                base.append(thename.toLowerCase());
+                                base.append(jname.toLowerCase());
                                 base.append(';');
                                 if (in != null) {
                                     base.append(in);
                                 }
                                 base.append(';');
-                                base.append(thename);
+                                base.append(jname);
                                 base.append(';');
-                                base.append(IndexedElement.computeSignature(jElement));
+                                base.append(IndexedElement.computeSignature(je));
 
-                                element = IndexedElement.create(jElement.getSimpleName().toString(), base.toString(), "", this, false);
+                                element = IndexedElement.create(jname, base.toString(), "", this, false);
 
                                 //results.add(JavaCompletionItem.createExecutableItem((ExecutableElement) e, et, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), inImport, isOfSmartType(env, et.getReturnType(), smartTypes)));
                                 break;
@@ -792,7 +824,7 @@ public class ScalaIndex {
                             case ENUM:
                             case INTERFACE:
                             case ANNOTATION_TYPE:
-                                DeclaredType dt = (DeclaredType) (jType.getKind() == TypeKind.DECLARED ? jTypes.asMemberOf((DeclaredType) jType, jElement) : jElement.asType());
+                                DeclaredType dt = (DeclaredType) (jtype.getKind() == TypeKind.DECLARED ? jTypes.asMemberOf((DeclaredType) jtype, je) : je.asType());
                                 //results.add(JavaCompletionItem.createTypeItem((TypeElement) e, dt, anchorOffset, false, elements.isDeprecated(e), insideNew, false));
                                 break;
                         }
@@ -1095,7 +1127,7 @@ public class ScalaIndex {
             // TODO - do some heuristics to deal with relative paths here,
             // e.g.   <script src="../../foo.js"></script>
 
-            for (int i = 0, n = imports.size(); i <
+            for (   int i = 0, n = imports.size(); i <
                     n; i++) {
                 String imp = imports.get(i);
                 if (imp.indexOf("../") != -1) {
