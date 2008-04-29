@@ -55,7 +55,6 @@ import org.netbeans.modules.scala.editing.ScalaCodeCompletion.CompletionRequest;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.openide.util.Exceptions;
 
-
 /**
  * 
  * @author Caoyuan Deng 
@@ -136,9 +135,10 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         if (indexedElement != null) {
             String type = indexedElement.getTypeString();
             if (type != null) {
-                formatter.appendHtml(" : "); // NOI18N
-
+                formatter.appendHtml(" :"); // NOI18N
+                formatter.type(true);
                 formatter.appendText(type);
+                formatter.type(false);
             }
         }
 
@@ -311,17 +311,19 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
                     if (it.hasNext()) {
                         formatter.appendText(", "); // NOI18N
-
                     }
                 }
 
             }
             formatter.appendHtml(")"); // NOI18N
 
-            if (indexedElement != null && indexedElement.getType() != null &&
+            if (indexedElement != null &&
+                    indexedElement.getTypeString() != null &&
                     indexedElement.getKind() != ElementKind.CONSTRUCTOR) {
-                formatter.appendHtml(" : ");
+                formatter.appendHtml(" :");
+                formatter.type(true);
                 formatter.appendText(indexedElement.getTypeString());
+                formatter.type(false);
             }
 
             return formatter.getText();

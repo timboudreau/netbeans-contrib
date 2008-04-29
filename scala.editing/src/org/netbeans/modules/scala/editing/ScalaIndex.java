@@ -372,7 +372,7 @@ public class ScalaIndex {
                         base.append(';');
                         base.append(jname);
                         base.append(';');
-                        base.append(IndexedElement.computeSignature(je));
+                        base.append(IndexedElement.computeAttributes(je));
 
                         IndexedElement element = IndexedElement.create(jname, base.toString(), "", this, false);
                         elements.add(element);
@@ -814,7 +814,7 @@ public class ScalaIndex {
                                 base.append(';');
                                 base.append(jname);
                                 base.append(';');
-                                base.append(IndexedElement.computeSignature(je));
+                                base.append(IndexedElement.computeAttributes(je));
 
                                 element = IndexedElement.create(jname, base.toString(), "", this, false);
 
