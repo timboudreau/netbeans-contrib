@@ -104,11 +104,16 @@ public class AstElementVisitor extends AstVisitor {
 
         List<Import> imports = new ArrayList<Import>();
 
-        Import first = visitImportExpr(that.getGeneric(0));
-        imports.add(first);
+        GNode firstNode = that.getGeneric(0);
+        if (firstNode.getName().equals("Error")) {
+            visitError(firstNode);
+        } else {
+            Import first = visitImportExpr(firstNode);
+            imports.add(first);
 
-        for (Object other : that.getList(1).list()) {
-            imports.add(visitImportExpr((GNode) other));
+            for (Object other : that.getList(1).list()) {
+                imports.add(visitImportExpr((GNode) other));
+            }
         }
 
         exit(that);
@@ -127,20 +132,19 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.peek().addDef(importDef);
         scopeStack.push(scope);
 
-        Object what = that.get(1);
+        GNode what = that.getGeneric(1);
         if (what != null) {
-            if (what instanceof GNode) {
-                List<TypeRef> importedTypes = visitImportSelectors((GNode) what);
-                importDef.setImportedTypes(importedTypes);
-            } else {
+            if (what.getName().equals("WildKey")) {
                 importDef.setWild();
+            } else {
+                List<TypeRef> importedTypes = visitImportSelectors(what);
+                importDef.setImportedTypes(importedTypes);
             }
         } else {
             // latest id is imported type
             Id latest = paths.get(paths.size() - 1);
             paths.remove(latest);
-            SimpleIdType type = new SimpleIdType(latest.getIdToken(), ElementKind.CLASS);
-            type.setPaths(Collections.<Id>singletonList(latest));
+            SimpleType type = new SimpleType(latest.getName(), latest.getIdToken(), ElementKind.CLASS);
 
             scopeStack.peek().addRef(type);
 
@@ -164,13 +168,13 @@ public class AstElementVisitor extends AstVisitor {
         }
 
         TypeRef latest = null;
-        Object what = that.getGeneric(1);
-        if (what instanceof GNode) {
-            latest = visitImportSelector((GNode) what);
-            types.add(latest);
+        GNode what = that.getGeneric(1);
+        if (what.getName().equals("WildKey")) {
+            latest = new SimpleType("_", getIdToken(what), ElementKind.CLASS);
         } else {
-            // "_"
+            latest = visitImportSelector(what);
         }
+        types.add(latest);
 
         exit(that);
         return types;
@@ -182,21 +186,22 @@ public class AstElementVisitor extends AstVisitor {
         TypeRef type = null;
 
         Id id = visitId(that.getGeneric(0));
-        SimpleIdType idType = new SimpleIdType(id.getIdToken(), ElementKind.CLASS);
-        idType.setPaths(Collections.<Id>singletonList(id));
+        SimpleType idType = new SimpleType(id.getName(), id.getIdToken(), ElementKind.CLASS);
 
-        Object funTypeTail = that.get(1);
+        GNode funTypeTail = that.getGeneric(1);
         if (funTypeTail != null) {
             FunType funType = new FunType(id.getIdToken(), ElementKind.CLASS);
             funType.setLhs(idType);
-            if (funTypeTail instanceof GNode) {
-                Id tailId = visitId((GNode) funTypeTail);
-                SimpleIdType tailType = new SimpleIdType(tailId.getIdToken(), ElementKind.CLASS);
-                tailType.setPaths(Collections.<Id>singletonList(tailId));
-                funType.setRhs(tailType);
+            
+            SimpleType tailType = null;
+            if (funTypeTail.getName().equals("WildKey")) {
+                tailType = new SimpleType("_", getIdToken(funTypeTail), ElementKind.CLASS);
             } else {
-                // @todo => '_'
+                Id tailId = visitId(funTypeTail);
+                tailType = new SimpleType(tailId.getName(), tailId.getIdToken(), ElementKind.CLASS);
             }
+            funType.setRhs(tailType);
+            
             type = funType;
         } else {
             type = idType;
