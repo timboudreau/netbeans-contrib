@@ -364,6 +364,19 @@ public class ScalaCodeCompletion implements Completable {
                 return proposals;
             }
 
+            TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+            ts.move(lexOffset);
+            while (!ts.moveNext() && !ts.movePrevious()) {
+                assert false : "Should not happen!";
+            }
+
+            Token closetToken = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
+            if (closetToken.id() == ScalaTokenId.Import) {
+                request.prefix = "";
+                addPackages(proposals, request);
+                return proposals;
+            }
+
             if (root != null) {
                 int offset = astOffset;
 
@@ -382,19 +395,7 @@ public class ScalaCodeCompletion implements Completable {
                     closest = root.getDefRef(th, closestOffset--);
                 }
 
-                if (closest == null) {
-                    TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, offset);
-                    ts.moveNext();
-                    while (!ts.moveNext() && !ts.movePrevious()) {
-                        assert false : "Should not happen!";
-                    }
-                    Token closetToken = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
-                    if (closetToken.id() == ScalaTokenId.Import) {
-                        request.prefix = "";
-                        addPackages(proposals, request);
-                        return proposals;
-                    }
-                } else {
+                if (closest != null) {
                     if (closest instanceof FunRef || closest instanceof FieldRef) {
                         // dog.t| or dog.talk()|
                     } else if (closest instanceof Import) {
@@ -1941,7 +1942,6 @@ public class ScalaCodeCompletion implements Completable {
         return true;
     }
 
-
     public ElementHandle resolveLink(String link, ElementHandle elementHandle) {
         if (link.indexOf(':') != -1) {
             link = link.replace(':', '.');
@@ -1949,7 +1949,7 @@ public class ScalaCodeCompletion implements Completable {
         }
         return null;
     }
-    
+
     protected static class CompletionRequest {
 
         protected TokenHierarchy<Document> th;
@@ -1970,6 +1970,4 @@ public class ScalaCodeCompletion implements Completable {
         protected MaybeCall call;
         protected String fqn;
     }
-
-    
 }

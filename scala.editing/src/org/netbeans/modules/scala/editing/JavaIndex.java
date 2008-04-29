@@ -216,7 +216,7 @@ public class JavaIndex {
         Set<String> seenTypes = new HashSet<String>();
         seenTypes.add(type);
         boolean haveRedirected = false;
-        boolean inheriting = type == null;
+        boolean inherited = type == null;
 
         if (type == null || type.length() == 0) {
             type = "Object";
@@ -318,8 +318,8 @@ public class JavaIndex {
                         idxElement.setSmart(true);
                     }
 
-                    inheriting = typeElem != e.getEnclosingElement();
-                    if (!inheriting) {
+                    inherited = typeElem != e.getEnclosingElement();
+                    if (!inherited) {
                         idxElement.setInherited(false);
                     }
                     idxElements.add(idxElement);
