@@ -55,7 +55,7 @@ import org.openide.util.NbBundle;
  * @author  mkleint
  */
 public class ExportPanel extends javax.swing.JPanel {
-
+    
     /** Creates new form ExportPanel */
     public ExportPanel(FileObject dir, final ExportWizardPanel1 wizPanel) {
         initComponents();

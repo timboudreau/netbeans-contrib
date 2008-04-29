@@ -298,6 +298,11 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
 
             TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
             while (ts.moveNext()) {
+                // do not highlight parameters and local variables
+                if (element != null && !element.getKind().isField()) {
+                    continue;
+                }
+
                 Token t = ts.token();
                 if (JFXTokenId.IDENTIFIER.equals(t.id())) { // first identifier is a name
                     start = ts.offset();
@@ -324,20 +329,13 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
             Element element = info.getTrees().getElement(getCurrentPath());
             Set<Modifier> modifiers = element != null ? element.getModifiers() : null;
             
-//            if (element != null && element.getKind().isField()) {
-//                TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
-//                if (ts.moveNext()) {
-//                    Token t = ts.token();
-//                    start = ts.offset();
-//                    end = start + t.length();
-//                    boolean isStatic = modifiers != null && modifiers.contains(Modifier.STATIC);
-////                    identifiers.add(new Result(start, end, ID_IDENTIFIER, t, isStatic)); // identfiers chache
-//                    list.add(new Result(start, end, ID_IDENTIFIER, t)); // debug only
-//                }
-//            }
-
             TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
             while (ts.moveNext()) {
+                // do not highlight parameters and local variables
+                if (element != null && !element.getKind().isField()) {
+                    continue;
+                }
+                    
                 Token t = ts.token();
                 if (JFXTokenId.IDENTIFIER.equals(t.id())) {
                     start = ts.offset();
