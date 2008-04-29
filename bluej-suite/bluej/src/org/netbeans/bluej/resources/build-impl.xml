@@ -19,7 +19,7 @@ is divided into following sections:
   - cleanup
 
 -->
-<project name="@PROJECTNAME@-impl" default="default" basedir=".." xmlns:bluejproject="http://www.netbeans.org/ns/bluej-project/1">
+<project name="@PROJECTNAME@-impl" default="default" basedir=".." xmlns:bluejproject="http://www.netbeans.org/ns/bluej-project/2">
     <target name="default" depends="test,jar,javadoc" description="Build and test whole project."/>
     <!-- 
     ======================
@@ -60,14 +60,19 @@ is divided into following sections:
             </and>
         </condition>
         
-        <available file="${manifest.file}" property="manifest.available"/>
-        <condition property="manifest.available+main.class">
+        <condition property="main.class.available">
             <and>
-                <isset property="manifest.available"/>
                 <isset property="main.class"/>
                 <not>
                     <equals arg1="${main.class}" arg2="" trim="true"/>
                 </not>
+            </and>
+        </condition>
+        <available file="${manifest.file}" property="manifest.available"/>
+        <condition property="manifest.available+main.class">
+            <and>
+                <isset property="manifest.available"/>
+                <istrue value="${main.class.available}"/>
             </and>
         </condition>
         <condition property="manifest.available+main.class+mkdist.available">
@@ -123,7 +128,7 @@ is divided into following sections:
         <fail unless="dist.jar">Must set dist.jar</fail>
     </target>
     <target name="-init-macrodef-property">
-        <macrodef name="property" uri="http://www.netbeans.org/ns/bluej-project/1">
+        <macrodef name="property" uri="http://www.netbeans.org/ns/bluej-project/2">
             <attribute name="name"/>
             <attribute name="value"/>
             <sequential>
@@ -132,7 +137,7 @@ is divided into following sections:
         </macrodef>
     </target>
     <target name="-init-macrodef-javac">
-        <macrodef name="javac" uri="http://www.netbeans.org/ns/bluej-project/1">
+        <macrodef name="javac" uri="http://www.netbeans.org/ns/bluej-project/2">
             <attribute name="srcdir" default="${src.dir}"/>
             <attribute name="destdir" default="${build.classes.dir}"/>
             <attribute name="classpath" default="${javac.classpath}"/>
@@ -156,7 +161,7 @@ is divided into following sections:
         </macrodef>
     </target>
     <target name="-init-macrodef-junit">
-        <macrodef name="junit" uri="http://www.netbeans.org/ns/bluej-project/1">
+        <macrodef name="junit" uri="http://www.netbeans.org/ns/bluej-project/2">
             <attribute name="includes" default="**/*Test.java"/>
             <sequential>
                 <junit showoutput="true" fork="true" dir="${basedir}" failureproperty="tests.failed" errorproperty="tests.failed">
@@ -186,7 +191,7 @@ is divided into following sections:
         </macrodef>
     </target>
     <target name="-init-macrodef-nbjpda">
-        <macrodef name="nbjpdastart" uri="http://www.netbeans.org/ns/bluej-project/1">
+        <macrodef name="nbjpdastart" uri="http://www.netbeans.org/ns/bluej-project/2">
             <attribute name="name" default="${main.class}"/>
             <attribute name="classpath" default="${debug.classpath}"/>
             <attribute name="stopclassname" default=""/>
@@ -204,7 +209,7 @@ is divided into following sections:
                 </nbjpdastart>
             </sequential>
         </macrodef>
-        <macrodef name="nbjpdareload" uri="http://www.netbeans.org/ns/bluej-project/1">
+        <macrodef name="nbjpdareload" uri="http://www.netbeans.org/ns/bluej-project/2">
             <attribute name="dir" default="${build.classes.dir}"/>
             <sequential>
                 <nbjpdareload>
@@ -214,7 +219,7 @@ is divided into following sections:
         </macrodef>
     </target>
     <target name="-init-macrodef-debug">
-        <macrodef name="debug" uri="http://www.netbeans.org/ns/bluej-project/1">
+        <macrodef name="debug" uri="http://www.netbeans.org/ns/bluej-project/2">
             <attribute name="classname" default="${main.class}"/>
             <attribute name="classpath" default="${debug.classpath}"/>
             <element name="customize" optional="true"/>
@@ -244,7 +249,7 @@ is divided into following sections:
         </macrodef>
     </target>
     <target name="-init-macrodef-java">
-        <macrodef name="java" uri="http://www.netbeans.org/ns/bluej-project/1">
+        <macrodef name="java" uri="http://www.netbeans.org/ns/bluej-project/2">
             <attribute name="classname" default="${main.class}"/>
             <element name="customize" optional="true"/>
             <sequential>
@@ -269,7 +274,7 @@ is divided into following sections:
         </macrodef>
     </target>
     <target name="-init-presetdef-jar">
-        <presetdef name="jar" uri="http://www.netbeans.org/ns/bluej-project/1">
+        <presetdef name="jar" uri="http://www.netbeans.org/ns/bluej-project/2">
             <jar jarfile="${dist.jar}" compress="${jar.compress}">
                 <bluejproject:fileset dir="${build.classes.dir}" excludes="${dist.jar},dist/,doc/,nbproject/,build.xml,**/*.java,**/*.ctxt,**/bluej.pkg"/>
             </jar>
@@ -330,8 +335,15 @@ is divided into following sections:
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
-    <target name="-do-jar-without-manifest" depends="init,compile,-pre-pre-jar,-pre-jar" unless="manifest.available">
+    <target name="-do-jar-without-mainclass" depends="init,compile,-pre-pre-jar,-pre-jar" unless="main.class.available">
         <bluejproject:jar/>
+    </target>
+    <target name="-do-jar-without-manifest" depends="init,compile,-pre-pre-jar,-pre-jar" if="main.class.available" unless="manifest.available">
+        <bluejproject:jar>
+            <bluejproject:manifest>
+                <bluejproject:attribute name="Main-Class" value="${main.class}"/>
+            </bluejproject:manifest>
+        </bluejproject:jar>
     </target>
     <target name="-do-jar-with-manifest" depends="init,compile,-pre-pre-jar,-pre-jar" if="manifest.available" unless="manifest.available+main.class">
         <bluejproject:jar manifest="${manifest.file}"/>
@@ -392,7 +404,7 @@ is divided into following sections:
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
-    <target name="jar" depends="init,compile,-pre-jar,-do-jar-with-manifest,-do-jar-without-manifest,-do-jar-with-mainclass,-do-jar-with-libraries,-post-jar" description="Build JAR."/>
+    <target name="jar" depends="init,compile,-pre-jar,-do-jar-with-manifest,-do-jar-without-manifest,-do-jar-without-mainclass,-do-jar-with-mainclass,-do-jar-with-libraries,-post-jar" description="Build JAR."/>
     <!--
     =================
     EXECUTION SECTION

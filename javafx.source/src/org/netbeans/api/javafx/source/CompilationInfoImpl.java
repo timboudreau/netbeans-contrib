@@ -41,6 +41,7 @@ package org.netbeans.api.javafx.source;
 
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.source.tree.CompilationUnitTree;
+import com.sun.tools.javac.util.Context;
 import com.sun.tools.javafx.api.JavafxcTaskImpl;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -148,6 +149,10 @@ class CompilationInfoImpl {
             cTask = source.createJavafxcTask(new DiagnosticListenerImpl());
         }
         return cTask;
+    }
+    
+    Context getContext() {
+        return cTask.getContext();
     }
     /**
      * Returns the errors in the file represented by the {@link JavaSource}.

@@ -81,7 +81,10 @@ public class MFOURLStreamHanfler extends URLStreamHandler {
 
         @Override
         public InputStream getInputStream() throws IOException {
-            return classLoader.getResourceAsStream(url.getPath());
+            return classLoader.getResourceAsStream(normalizePath(url.getPath()));
+        }
+        private String normalizePath(String path) {
+            return path.replace("//", "/");
         }
     }
 }

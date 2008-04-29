@@ -53,7 +53,7 @@ import org.openide.util.NbPreferences;
 import org.openide.util.Utilities;
 
 /**
- *
+ * 
  * @author Milos Kleint
  */
 public class BlueJSettings {
@@ -73,7 +73,7 @@ public class BlueJSettings {
             getPreferences().put(key, value);
         } else {
             getPreferences().remove(key);
-        }
+    }
         support.firePropertyChange(key, retval, value);
         return retval;
     }

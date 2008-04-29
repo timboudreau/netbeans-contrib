@@ -61,12 +61,14 @@ made subject to such option by the copyright holder.
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.javafx.debug</code-name-base>
+                    <build-prerequisite/>
                     <run-dependency>
                         <specification-version>1.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.javafx.editor</code-name-base>
+                    <build-prerequisite/>
                     <run-dependency>
                         <specification-version>1.1</specification-version>
                     </run-dependency>
@@ -74,7 +76,6 @@ made subject to such option by the copyright holder.
                 <dependency>
                     <code-name-base>org.netbeans.modules.javafx.lexer</code-name-base>
                     <build-prerequisite/>
-                    <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>1.2.1</specification-version>
@@ -83,7 +84,6 @@ made subject to such option by the copyright holder.
                 <dependency>
                     <code-name-base>org.netbeans.modules.javafx.lib</code-name-base>
                     <build-prerequisite/>
-                    <compile-dependency/>
                     <run-dependency>
                         <specification-version>1.1</specification-version>
                     </run-dependency>
@@ -91,19 +91,20 @@ made subject to such option by the copyright holder.
                 <dependency>
                     <code-name-base>org.netbeans.modules.javafx.platform</code-name-base>
                     <build-prerequisite/>
-                    <compile-dependency/>
                     <run-dependency>
                         <specification-version>1.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.javafx.profiler</code-name-base>
+                    <build-prerequisite/>
                     <run-dependency>
                         <specification-version>1.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.javafx.project</code-name-base>
+                    <build-prerequisite/>
                     <run-dependency>
                         <specification-version>1.1</specification-version>
                     </run-dependency>
@@ -111,13 +112,13 @@ made subject to such option by the copyright holder.
                 <dependency>
                     <code-name-base>org.netbeans.modules.javafx.source</code-name-base>
                     <build-prerequisite/>
-                    <compile-dependency/>
                     <run-dependency>
                         <specification-version>1.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
                     <code-name-base>org.netbeans.modules.javafx.userlib</code-name-base>
+                    <build-prerequisite/>
                     <run-dependency>
                         <specification-version>1.1</specification-version>
                     </run-dependency>

@@ -152,7 +152,16 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
                     try {
                         fo.getFileSystem().runAtomicAction(new FileSystem.AtomicAction() {
                             public void run() throws IOException {
-                                FileUtil.copy(PlatformUiSupport.class.getResourceAsStream("resources/templates/defaultPlatform.xml"), fo.getParent().createData(fo.getName(), fo.getExt()).getOutputStream());
+                                InputStream in = null;
+                                OutputStream out = null;
+                                try {
+                                    in = PlatformUiSupport.class.getResourceAsStream("resources/templates/defaultPlatform.xml");
+                                    out = fo.getParent().createData(fo.getName(), fo.getExt()).getOutputStream();
+                                    FileUtil.copy(in, out);
+                                } finally {
+                                    if (out != null) out.close();
+                                    if (in != null) in.close();
+                                }
                             }
                         });                    
                     } catch (IOException ioe) {

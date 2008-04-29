@@ -68,8 +68,13 @@ implements Runnable {
         refresh.schedule(2000);
     }
 
-    public static FoDFileSystem getInstance() {
-        return Lookup.getDefault().lookup(FoDFileSystem.class);
+    public static synchronized FoDFileSystem getInstance() {
+        if (INSTANCE == null) {
+            while (INSTANCE == null) {
+                INSTANCE = Lookup.getDefault().lookup(FoDFileSystem.class);
+            }
+        }
+        return INSTANCE;
     }
     
     public void refresh() {
