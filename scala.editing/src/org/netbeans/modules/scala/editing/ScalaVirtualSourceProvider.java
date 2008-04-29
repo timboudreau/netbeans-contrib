@@ -84,8 +84,9 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
         Iterator<File> it = files.iterator();
         while (it.hasNext()) {
             File file = it.next();
-            List<Template> classNodes = getTemplates(file);
-            if (classNodes.isEmpty()) {
+            /** @Todo */
+            List<Template> templates = Collections.<Template>emptyList();//getTemplates(file);
+            if (templates.isEmpty()) {
                 // source is probably broken and there is no AST
                 // let's generate empty Java stub with simple name equal to file name
                 FileObject fo = FileUtil.toFileObject(file);
@@ -101,13 +102,11 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                     result.add(file, pkg, file.getName(), sb.toString());
                 }
             } else {
-                for (Template template : classNodes) {
+                for (Template template : templates) {
                     try {
                         CharSequence javaStub = generator.generateClass(template);
-                        String pkgName = template.getPackageElement().getName();
-                        if (pkgName == null) {
-                            pkgName = ""; // NOI18N
-                        }
+                        Packaging packaging = template.getPackageElement();
+                        String pkgName = packaging == null ? "" : packaging.getName();
                         result.add(file, pkgName, template.getName(), javaStub);
                     } catch (FileNotFoundException ex) {
                         Exceptions.printStackTrace(ex);

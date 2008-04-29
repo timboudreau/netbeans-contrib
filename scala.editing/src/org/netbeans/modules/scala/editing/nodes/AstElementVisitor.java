@@ -140,6 +140,7 @@ public class AstElementVisitor extends AstVisitor {
             Id latest = paths.get(paths.size() - 1);
             paths.remove(latest);
             SimpleIdType type = new SimpleIdType(latest.getIdToken(), ElementKind.CLASS);
+            type.setPaths(Collections.<Id>singletonList(latest));
 
             scopeStack.peek().addRef(type);
 
@@ -182,6 +183,7 @@ public class AstElementVisitor extends AstVisitor {
 
         Id id = visitId(that.getGeneric(0));
         SimpleIdType idType = new SimpleIdType(id.getIdToken(), ElementKind.CLASS);
+        idType.setPaths(Collections.<Id>singletonList(id));
 
         Object funTypeTail = that.get(1);
         if (funTypeTail != null) {
@@ -190,6 +192,7 @@ public class AstElementVisitor extends AstVisitor {
             if (funTypeTail instanceof GNode) {
                 Id tailId = visitId((GNode) funTypeTail);
                 SimpleIdType tailType = new SimpleIdType(tailId.getIdToken(), ElementKind.CLASS);
+                tailType.setPaths(Collections.<Id>singletonList(tailId));
                 funType.setRhs(tailType);
             } else {
                 // @todo => '_'

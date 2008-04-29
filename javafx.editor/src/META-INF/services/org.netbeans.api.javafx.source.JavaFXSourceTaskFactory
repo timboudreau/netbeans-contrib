@@ -1,3 +1,4 @@
 org.netbeans.modules.javafx.editor.fold.JavaFXElementFoldManagerTaskFactory
 org.netbeans.modules.javafx.editor.semantic.JavaFXSourceHighlightingTaskFactory
 org.netbeans.modules.javafx.editor.semantic.UpToDateTaskFactory
+org.netbeans.modules.javafx.editor.semantic.MarkOccurrencesHighlighterFactory
