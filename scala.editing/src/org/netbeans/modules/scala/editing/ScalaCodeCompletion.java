@@ -383,16 +383,30 @@ public class ScalaCodeCompletion implements Completable {
                     closest = root.getDefRef(th, closestOffset--);
                 }
 
-                if (closest instanceof FunRef || closest instanceof FieldRef) {
-                    // dog.t| or dog.talk()|
-                } else if (closest instanceof Import) {
-                    String prefix1 = ((Import) closest).getName();
-                    if (request.prefix.equals("")) {
-                        prefix1 = prefix1 + ".";
+                if (closest == null) {
+                    TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, offset);
+                    ts.moveNext();
+                    while (!ts.moveNext() && !ts.movePrevious()) {
+                        assert false : "Should not happen!";
                     }
-                    request.prefix = prefix1;
-                    addPackages(proposals, request);
-                    return proposals;
+                    Token closetToken = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
+                    if (closetToken.id() == ScalaTokenId.Import) {
+                        request.prefix = "";
+                        addPackages(proposals, request);
+                        return proposals;
+                    }
+                } else {
+                    if (closest instanceof FunRef || closest instanceof FieldRef) {
+                        // dog.t| or dog.talk()|
+                    } else if (closest instanceof Import) {
+                        String prefix1 = ((Import) closest).getName();
+                        if (request.prefix.equals("")) {
+                            prefix1 = prefix1 + ".";
+                        }
+                        request.prefix = prefix1;
+                        addPackages(proposals, request);
+                        return proposals;
+                    }
                 }
 
                 request.root = root;
