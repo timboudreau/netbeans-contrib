@@ -68,6 +68,7 @@ made subject to such option by the copyright holder.
                 <package>com.sun.tools.javac.util</package>
                 <package>com.sun.tools.javafx.antlr</package>
                 <package>com.sun.tools.javafx.api</package>
+                <package>com.sun.tools.javafx.code</package>
                 <package>com.sun.tools.javafx.comp</package>
                 <package>com.sun.tools.javafx.main</package>
                 <package>com.sun.tools.javafx.script</package>
@@ -80,7 +81,6 @@ made subject to such option by the copyright holder.
                 <package>javax.tools</package>
                 <package>org.antlr.runtime</package>
                 <package>org.antlr.runtime.tree</package>
-                <package>org.jdesktop.layout</package>
             </public-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/compiler/lib/javafxc.jar</runtime-relative-path>

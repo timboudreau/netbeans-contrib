@@ -34,7 +34,10 @@ public class Column extends PropertySupport.ReadOnly {
     public static final String SELF_NAME = "self";
     
     public static Column createTimeColumn() {
-        return new TimeColumn();
+        Column column = new TimeColumn();
+        column.setValue("SortingColumnTTV", Boolean.TRUE);
+        column.setValue("DescendingOrderTTV", Boolean.TRUE);
+        return column;
     }
     
     public static Column createSelfTimeColumn() {
