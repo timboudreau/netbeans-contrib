@@ -86,7 +86,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         List<StructureItem> items = new ArrayList<StructureItem>();
 
         for (AstDef def : rootScope.getDefs()) {
-            if (def.getKind() != ElementKind.PARAMETER && def.getKind() != ElementKind.VARIABLE) {
+            if (def.getKind() != ElementKind.PARAMETER && def.getKind() != ElementKind.VARIABLE && def.getKind() != ElementKind.OTHER) {
                 items.add(new ScalaStructureItem(def, info, formatter));
             }
         }
