@@ -53,7 +53,7 @@ import org.openide.filesystems.URLMapper;
 public class BluejUnitTestForSourceQuery implements MultipleRootsUnitTestForSourceQueryImplementation {
 
     private BluejProject project;
-
+    
     /** Creates a new instance of BluejUnitTestForSourceQuery */
     public BluejUnitTestForSourceQuery(BluejProject proj) {
         project = proj;

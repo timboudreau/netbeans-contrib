@@ -61,6 +61,9 @@ import org.netbeans.api.project.ui.OpenProjects;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.openide.filesystems.FileObject;
+import org.netbeans.modules.javafx.project.JavaFXProject;
+import org.netbeans.spi.project.support.ant.PropertyEvaluator;
+
 
 /**
  *
@@ -99,16 +102,36 @@ public class JavaFXModel {
         }
     }
     
+    static class ClassPathListener implements PropertyChangeListener {
+        private Project project = null;
+        public ClassPathListener(Project project) {
+            this.project = project;
+        }
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (evt.getPropertyName().contentEquals("platform.active")) {                             // NOI18N
+                projectsClassBytes.remove(project);
+                if (project instanceof JavaFXProject) {
+                    PropertyEvaluator evaluator =((JavaFXProject)project).evaluator();
+                    evaluator.removePropertyChangeListener(this);
+                }
+            }
+        }
+    }
+    
+    
     static public void addClassBytes(Project project, Map<String, byte[]> classBytes) {
         synchronized (projectsClassBytes) {
             Map <String, byte[]> classBytesForProj = projectsClassBytes.get(project);
             if (classBytesForProj == null) {
                 classBytesForProj = new HashMap <String, byte[]>();
-                OpenProjects.getDefault().addPropertyChangeListener(new ProjectListener());
+                if (project instanceof JavaFXProject) {
+                    PropertyEvaluator evaluator =((JavaFXProject)project).evaluator();
+                    evaluator.addPropertyChangeListener(new ClassPathListener(project));
+                }
             }
             if (classBytes != null)
                 classBytesForProj.putAll(classBytes);
-             projectsClassBytes.put(project,classBytesForProj);
+            projectsClassBytes.put(project,classBytesForProj);
         }
     }
     
@@ -117,7 +140,10 @@ public class JavaFXModel {
             Map <String, byte[]> classBytesForProj = projectsClassBytes.get(project);
             if (classBytesForProj == null) {
                 classBytesForProj = new HashMap <String, byte[]>();
-                OpenProjects.getDefault().addPropertyChangeListener(new ProjectListener());
+                if (project instanceof JavaFXProject) {
+                    PropertyEvaluator evaluator =((JavaFXProject)project).evaluator();
+                    evaluator.addPropertyChangeListener(new ClassPathListener(project));
+                }
             }
             else 
                 classBytesForProj.clear();
@@ -221,6 +247,7 @@ public class JavaFXModel {
             new Thread(new ChangeThread()).start();
         }
         projectsClassBytes = new HashMap<Project, Map<String, byte[]>>();
+        OpenProjects.getDefault().addPropertyChangeListener(new ProjectListener());
     }
     
     static PreviewThread tPreview = null;
@@ -231,11 +258,8 @@ public class JavaFXModel {
                 tPreview.joinTask();
             tPreview = new PreviewThread(doc);
         
-            if(!SwingUtilities.isEventDispatchThread()) {
-                SwingUtilities.invokeLater(tPreview);
-            } else {
-                tPreview.start();
-            }
+            tPreview.start();
+
         }catch(Exception e){
             e.printStackTrace();
         }

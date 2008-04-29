@@ -315,7 +315,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         }
         return cp;
     }
-
+    
     /**
      * Since GSF can not indexing binary boot/compilt classpath, when finding type is BOOT/COMPILE,
      * such as when create/get index of Source's ClassPathInfo @see 
@@ -342,7 +342,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
             return null;
         }
     }
-
+    
     /**
      * Returns array of all classpaths of the given type in the project.
      * The result is used for example for GlobalPathRegistry registrations.

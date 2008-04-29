@@ -122,7 +122,7 @@ public final class FeatureOnDemanWizardIterator implements WizardDescriptor.Prog
             for (UpdateElement el : chosen) {
                 allApproved &= approved.contains (el);
             }
-            if (allApproved && false) {
+            if (allApproved) {
                 panels.remove (licenseStep);
             }
         }

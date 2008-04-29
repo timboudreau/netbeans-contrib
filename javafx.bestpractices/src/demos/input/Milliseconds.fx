@@ -12,8 +12,7 @@ var timeline : Timeline = Timeline {
         KeyFrame {
             time : 16ms
             action : function() : Void {
-                var milliseconds : Number = ( java.lang.System.currentTimeMillis()) as Integer;
-                
+                var milliseconds : Number = ( java.lang.System.currentTimeMillis()) as Number;                
                 for( i in [0..9] ) {
                     var ii : Integer = ( i + 1 ) * 100;
                     var color : Number = milliseconds % ii / ii;

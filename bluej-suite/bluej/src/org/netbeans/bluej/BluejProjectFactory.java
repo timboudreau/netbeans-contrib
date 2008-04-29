@@ -18,6 +18,11 @@ import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
+import org.openide.xml.XMLUtil;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * factory of bluej projects, only applied when netbeans related files are not created..
@@ -109,6 +114,39 @@ public class BluejProjectFactory implements ProjectFactory {
                     return elem.loadProject(fileObject, projectState);
                 }
             }
+        } else {
+            //handle upgrading
+            FileObject xml = fileObject.getFileObject(org.netbeans.spi.project.support.ant.AntProjectHelper.PROJECT_XML_PATH);
+            if (xml == null || !xml.isData()) {
+                return null;
+            }
+            File f = FileUtil.toFile(xml);
+            try {
+                 Document doc = XMLUtil.parse(new InputSource(f.toURI().toString()), false, true, null, null);
+                 NodeList nl = doc.getDocumentElement().getElementsByTagNameNS("http://www.netbeans.org/ns/bluej-project/1", "data");
+                 if (nl != null && nl.getLength() > 0) {
+                     //upgrade to /2
+                     InputStream str = BluejProjectFactory.class.getResourceAsStream("resources/build-impl.xml");  // NOI18N
+                     FileObject buildimplxml = fileObject.getFileObject("nbproject/build-impl.xml");  // NOI18N
+                     FileLock lock = buildimplxml.lock();
+                     OutputStream out = buildimplxml.getOutputStream(lock);
+                     copyAndReplaceInStream(str, out, "@PROJECTNAME@", projectName);  // NOI18N
+                     out.close();
+                     lock.releaseLock();
+                     str = BluejProjectFactory.class.getResourceAsStream("resources/project.xml");  // NOI18N
+                     FileObject projxml = xml;  // NOI18N
+                     lock = projxml.lock();
+                     out = projxml.getOutputStream(lock);
+                     FileUtil.copy(str, out);
+                     out.close();
+                     lock.releaseLock();
+                 }
+            } catch (IOException e) {
+                //                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+            } catch (SAXException e) {
+                //                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+            }
+            
         }
         return null;
     }
