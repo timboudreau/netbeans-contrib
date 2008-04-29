@@ -36,41 +36,57 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.groovy.editor.actions;
 
-package org.netbeans.modules.hibernate.mimeresolver;
-
-import org.netbeans.modules.hibernate.loaders.cfg.HibernateCfgDataLoader;
-import org.netbeans.modules.hibernate.loaders.mapping.HibernateMappingDataLoader;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.MIMEResolver;
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
+import javax.swing.text.JTextComponent;
+import org.netbeans.modules.gsf.api.EditorAction;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
- * This file registers the MIME resolver for Hibernate artifacts. (cfg, hbm ..)
  *
- * @author Vadiraj Deshpande (Vadiraj.Deshpande@Sun.COM)
+ * @author schmidtm
  */
-public class HibernateMIMEResolver extends MIMEResolver{
-    
-    @Override
-    public String findMIMEType(FileObject fo) {
-        if(fo == null) {
-            return null;
-        }
-        
-        // Filter non XML files.
-        if(!fo.getNameExt().endsWith("xml")) {
-            return null;
-        }
-        
-        if(fo.getNameExt().endsWith("cfg.xml")) {
-            return HibernateCfgDataLoader.REQUIRED_MIME;
-        }
-        
-        if(fo.getNameExt().endsWith("hbm.xml")){
-            return HibernateMappingDataLoader.REQUIRED_MIME;
-        }
-        
-        return null;
+public class FixImportsAction extends AbstractAction implements EditorAction {
+
+    private final Logger LOG = Logger.getLogger(FixImportsAction.class.getName());
+    String NAME = "Fix-Imports";
+
+    public FixImportsAction() {
+        super("Fix-Imports");
+        putValue("PopupMenuText", NAME);
+        LOG.setLevel(Level.FINEST);
     }
 
+    @Override
+    public boolean isEnabled() {
+        // here should go all the logic whether there are in fact missing 
+        // imports we're able to fix.
+        return true;
+    }
+
+    void actionPerformed(final JTextComponent comp) {
+        LOG.log(Level.FINEST, "actionPerformed(final JTextComponent comp)");
+        return;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        LOG.log(Level.FINEST, "actionPerformed(ActionEvent e)");
+        return;
+    }
+
+    public void actionPerformed(ActionEvent evt, JTextComponent target) {
+        LOG.log(Level.FINEST, "actionPerformed(ActionEvent evt, JTextComponent target)");
+        return;
+    }
+
+    public String getActionName() {
+        return NAME;
+    }
+
+    public Class getShortDescriptionBundleClass() {
+        return FixImportsAction.class;
+    }
 }

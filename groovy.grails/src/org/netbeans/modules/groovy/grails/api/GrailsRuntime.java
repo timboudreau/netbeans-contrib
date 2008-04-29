@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,46 +31,59 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.hibernate.mimeresolver;
+package org.netbeans.modules.groovy.grails.api;
 
-import org.netbeans.modules.hibernate.loaders.cfg.HibernateCfgDataLoader;
-import org.netbeans.modules.hibernate.loaders.mapping.HibernateMappingDataLoader;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.MIMEResolver;
+import java.io.File;
+import org.netbeans.modules.groovy.grails.settings.Settings;
+import org.openide.util.Utilities;
 
 /**
- * This file registers the MIME resolver for Hibernate artifacts. (cfg, hbm ..)
  *
- * @author Vadiraj Deshpande (Vadiraj.Deshpande@Sun.COM)
+ * @author Petr Hejl
  */
-public class HibernateMIMEResolver extends MIMEResolver{
-    
-    @Override
-    public String findMIMEType(FileObject fo) {
-        if(fo == null) {
-            return null;
-        }
-        
-        // Filter non XML files.
-        if(!fo.getNameExt().endsWith("xml")) {
-            return null;
-        }
-        
-        if(fo.getNameExt().endsWith("cfg.xml")) {
-            return HibernateCfgDataLoader.REQUIRED_MIME;
-        }
-        
-        if(fo.getNameExt().endsWith("hbm.xml")){
-            return HibernateMappingDataLoader.REQUIRED_MIME;
-        }
-        
-        return null;
+public final class GrailsRuntime {
+
+    private static final String WIN_EXECUTABLE = "\\bin\\grails.bat"; // NOI18N
+
+    private static final String NIX_EXECUTABLE = "/bin/grails"; // NOI18N
+
+    private static GrailsRuntime instance;
+
+    private GrailsRuntime() {
+        super();
     }
 
+    public static synchronized GrailsRuntime getInstance() {
+        if (instance == null) {
+            instance = new GrailsRuntime();
+        }
+        return instance;
+    }
+
+    public boolean isConfigured() {
+        Settings settings = Settings.getInstance();
+
+        if (settings == null) {
+            return false;
+        }
+
+        String grailsBase = settings.getGrailsBase();
+
+        if (grailsBase == null) {
+            return false;
+        }
+
+        return checkForGrailsExecutable(new File(grailsBase));
+    }
+
+    private boolean checkForGrailsExecutable(File pathToGrails) {
+        String pathToBinary = Utilities.isWindows() ? WIN_EXECUTABLE : NIX_EXECUTABLE;
+        return new File(pathToGrails, pathToBinary).isFile();
+    }
 }

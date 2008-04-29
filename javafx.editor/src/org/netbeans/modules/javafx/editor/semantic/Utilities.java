@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.javafx.editor.semantic;
 
+import com.sun.javafx.api.tree.FunctionDefinitionTree;
 import com.sun.source.tree.ArrayTypeTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
@@ -51,8 +52,8 @@ import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
+import com.sun.tools.javafx.tree.JFXFunctionDefinition;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -219,14 +220,39 @@ public class Utilities {
             
             return findIdentifierSpanImpl(info, leaf, method.getReturnType(), rightTrees, name.toString(), info.getCompilationUnit(), info.getTrees().getSourcePositions());
         }
+        
+        if (leaf instanceof JFXFunctionDefinition) {
+            // XXX: should use FunctionDefinitionTree, but it lacks the API
+            JFXFunctionDefinition function = (JFXFunctionDefinition) leaf;
+            List<Tree> rightTrees = new ArrayList<Tree>();
+
+            rightTrees.addAll(function.getParameters());
+//            rightTrees.addAll(function.getThrows());
+            rightTrees.add(function.getBodyExpression());
+
+            Name name = function.getName();
+
+            if (function.getJFXReturnType() == null)
+                name = ((ClassTree) decl.getParentPath().getLeaf()).getSimpleName();
+
+            return findIdentifierSpanImpl(info, leaf, function.getJFXReturnType(), rightTrees, name.toString(), info.getCompilationUnit(), info.getTrees().getSourcePositions());
+        }
+        
         if (class2Kind.get(VariableTree.class).contains(leaf.getKind())) {
             VariableTree var = (VariableTree) leaf;
+            List<Tree> rightTrees = new ArrayList<Tree>();
 
-            return findIdentifierSpanImpl(info, leaf, var.getType(), Collections.singletonList(var.getInitializer()), var.getName().toString(), info.getCompilationUnit(), info.getTrees().getSourcePositions());
+            rightTrees.add(var.getInitializer());
+            rightTrees.add(var.getType());
+
+//            return findIdentifierSpanImpl(info, leaf, var.getType(), Collections.singletonList(var.getInitializer()), var.getName().toString(), info.getCompilationUnit(), info.getTrees().getSourcePositions());
+            return findIdentifierSpanImpl(info, leaf, var.getModifiers(), rightTrees, var.getName().toString(), info.getCompilationUnit(), info.getTrees().getSourcePositions());
         }
+        
         if (class2Kind.get(MemberSelectTree.class).contains(leaf.getKind())) {
             return findIdentifierSpanImpl(info, (MemberSelectTree) leaf, info.getCompilationUnit(), info.getTrees().getSourcePositions());
         }
+        
         if (class2Kind.get(ClassTree.class).contains(leaf.getKind())) {
             String name = ((ClassTree) leaf).getSimpleName().toString();
             
@@ -244,6 +270,7 @@ public class Utilities {
             
             return findTokenWithText(info, name, start, end);
         }
+        
         throw new IllegalArgumentException("Only MethodDecl, VariableDecl and ClassDecl are accepted by this method.");
     }
 
@@ -377,7 +404,8 @@ public class Utilities {
 //        CompilationUnitTree cu = info.getCompilationUnit();
         
         //XXX: do not use instanceof:
-        if (leaf instanceof MethodTree || leaf instanceof VariableTree || leaf instanceof ClassTree || leaf instanceof MemberSelectTree) {
+//        if (leaf instanceof MethodTree || leaf instanceof VariableTree || leaf instanceof ClassTree || leaf instanceof MemberSelectTree) {
+        if (leaf instanceof MethodTree || leaf instanceof FunctionDefinitionTree || leaf instanceof VariableTree || leaf instanceof ClassTree || leaf instanceof MemberSelectTree) {
             return findIdentifierSpan(info, doc, tree);
         }
         

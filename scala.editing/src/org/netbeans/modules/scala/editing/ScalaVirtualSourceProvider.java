@@ -60,7 +60,6 @@ import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import org.netbeans.modules.java.source.usages.VirtualSourceProvider;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.Packaging;
-import org.netbeans.modules.scala.editing.nodes.SimpleType;
 import org.netbeans.modules.scala.editing.nodes.Template;
 import org.netbeans.modules.scala.util.NbUtilities;
 import org.openide.filesystems.FileObject;
@@ -195,9 +194,9 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
             PrintWriter out = new PrintWriter(sw);
 
             try {
-                Packaging packageName = template.getPackageElement();
-                if (packageName != null) {
-                    out.println("package " + packageName.getName() + ";\n");
+                Packaging packaging = template.getPackageElement();
+                if (packaging != null) {
+                    out.println("package " + packaging.getName() + ";\n");
                 }
 
                 //genImports(template, out);
@@ -207,14 +206,14 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                 out.print("class ");
                 out.println(template.getName());
 
-                List<SimpleType> parents = template.getExtendsWith();
-
-                out.print("  extends ");
-                for (SimpleType parent : parents) {
-                    out.print(parent.getName());
-                    out.print(" ");
-                    break;
-                }
+//                List<SimpleType> parents = template.getExtendsWith();
+//
+//                out.print("  extends ");
+//                for (SimpleType parent : parents) {
+//                    out.print(parent.getName());
+//                    out.print(" ");
+//                    break;
+//                }
 
 
                 out.println(" {");

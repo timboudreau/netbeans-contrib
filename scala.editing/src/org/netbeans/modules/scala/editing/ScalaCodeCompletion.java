@@ -40,14 +40,11 @@ package org.netbeans.modules.scala.editing;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.ImageIcon;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
@@ -57,7 +54,6 @@ import org.netbeans.modules.gsf.api.CompletionProposal;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
-import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.gsf.api.ParameterInfo;
 import org.netbeans.api.lexer.Token;
@@ -67,6 +63,10 @@ import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.scala.editing.ScalaCompletionItem.FunctionItem;
+import org.netbeans.modules.scala.editing.ScalaCompletionItem.KeywordItem;
+import org.netbeans.modules.scala.editing.ScalaCompletionItem.PackageItem;
+import org.netbeans.modules.scala.editing.ScalaCompletionItem.PlainItem;
 import org.netbeans.modules.scala.editing.ScalaParser.Sanitize;
 import org.netbeans.modules.scala.editing.lexer.MaybeCall;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
@@ -122,7 +122,6 @@ import org.openide.util.Exceptions;
  */
 public class ScalaCodeCompletion implements Completable {
 
-    private static ImageIcon keywordIcon;
     private boolean caseSensitive;
     private static final String[] REGEXP_WORDS =
             new String[]{
@@ -365,6 +364,19 @@ public class ScalaCodeCompletion implements Completable {
                 return proposals;
             }
 
+            TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
+            ts.move(lexOffset);
+            while (!ts.moveNext() && !ts.movePrevious()) {
+                assert false : "Should not happen!";
+            }
+
+            Token closetToken = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
+            if (closetToken.id() == ScalaTokenId.Import) {
+                request.prefix = "";
+                addPackages(proposals, request);
+                return proposals;
+            }
+
             if (root != null) {
                 int offset = astOffset;
 
@@ -383,16 +395,18 @@ public class ScalaCodeCompletion implements Completable {
                     closest = root.getDefRef(th, closestOffset--);
                 }
 
-                if (closest instanceof FunRef || closest instanceof FieldRef) {
-                    // dog.t| or dog.talk()|
-                } else if (closest instanceof Import) {
-                    String prefix1 = ((Import) closest).getName();
-                    if (request.prefix.equals("")) {
-                        prefix1 = prefix1 + ".";
+                if (closest != null) {
+                    if (closest instanceof FunRef || closest instanceof FieldRef) {
+                        // dog.t| or dog.talk()|
+                    } else if (closest instanceof Import) {
+                        String prefix1 = ((Import) closest).getName();
+                        if (request.prefix.equals("")) {
+                            prefix1 = prefix1 + ".";
+                        }
+                        request.prefix = prefix1;
+                        addPackages(proposals, request);
+                        return proposals;
                     }
-                    request.prefix = prefix1;
-                    addPackages(proposals, request);
-                    return proposals;
                 }
 
                 request.root = root;
@@ -445,8 +459,8 @@ public class ScalaCodeCompletion implements Completable {
         }
 
         AstScope closestScope = root.getClosestScope(request.th, request.astOffset);
-        List<Var> localVars = closestScope.getDefsInScope(Var.class);
 
+        List<Var> localVars = closestScope.getDefsInScope(Var.class);
         for (Var var : localVars) {
             if ((kind == NameKind.EXACT_NAME && prefix.equals(var.getName())) ||
                     (kind != NameKind.EXACT_NAME && startsWith(var.getName(), prefix))) {
@@ -1542,8 +1556,28 @@ public class ScalaCodeCompletion implements Completable {
         if (fqnPrefix == null) {
             fqnPrefix = "";
         }
-        for (IndexedElement pkg : request.index.getPackages(fqnPrefix)) {
-            proposals.add(new PackageItem(pkg, request));
+
+        String pkgName = null;
+        String prefix = null;
+
+        int lastDot = fqnPrefix.lastIndexOf('.');
+        if (lastDot == -1) {
+            pkgName = fqnPrefix;
+            prefix = fqnPrefix;
+        } else if (lastDot == fqnPrefix.length() - 1) {
+            pkgName = fqnPrefix.substring(0, lastDot);
+            prefix = "";
+        } else {
+            pkgName = fqnPrefix.substring(0, lastDot);
+            prefix = fqnPrefix.substring(lastDot + 1, fqnPrefix.length());
+        }
+
+        for (IndexedElement element : request.index.getPackageContent(pkgName, prefix)) {
+            proposals.add(new PlainItem(request, element));
+        }
+
+        for (IndexedElement element : request.index.getPackages(fqnPrefix)) {
+            proposals.add(new PackageItem(element, request));
         }
         return true;
     }
@@ -1750,14 +1784,14 @@ public class ScalaCodeCompletion implements Completable {
 
         return ParameterInfo.NONE;
     }
-    private static int callLineStart = -1;
-    private static IndexedFunction callMethod;
+    protected static int callLineStart = -1;
+    protected static IndexedFunction callMethod;
 
     /** Compute the current method call at the given offset. Returns false if we're not in a method call. 
      * The argument index is returned in parameterIndexHolder[0] and the method being
      * called in methodHolder[0].
      */
-    static boolean computeMethodCall(CompilationInfo info, int lexOffset, int astOffset,
+    boolean computeMethodCall(CompilationInfo info, int lexOffset, int astOffset,
             IndexedFunction[] methodHolder, int[] parameterIndexHolder, int[] anchorOffsetHolder,
             Set<IndexedFunction>[] alternativesHolder) {
         try {
@@ -1908,556 +1942,32 @@ public class ScalaCodeCompletion implements Completable {
         return true;
     }
 
-    private static class CompletionRequest {
-
-        private TokenHierarchy<Document> th;
-        private CompilationInfo info;
-        private AstElement element;
-        private AstScope root;
-        private int anchor;
-        private int lexOffset;
-        private int astOffset;
-        private BaseDocument doc;
-        private String prefix;
-        private ScalaIndex index;
-        private NameKind kind;
-        private ScalaParserResult result;
-        private QueryType queryType;
-        private FileObject fileObject;
-        private HtmlFormatter formatter;
-        private MaybeCall call;
-        private String fqn;
-    }
-
-    private abstract class ScalaCompletionItem implements CompletionProposal {
-
-        protected CompletionRequest request;
-        protected AstElement element;
-        protected IndexedElement indexedElement;
-
-        private ScalaCompletionItem(AstElement element, CompletionRequest request) {
-            this.element = element;
-            this.request = request;
-        }
-
-        private ScalaCompletionItem(CompletionRequest request, IndexedElement element) {
-            this(element, request);
-            this.indexedElement = element;
-        }
-
-        public int getAnchorOffset() {
-            return request.anchor;
-        }
-
-        public String getName() {
-            return element.getName();
-        }
-
-        public String getInsertPrefix() {
-            if (getKind() == ElementKind.PACKAGE) {
-                return getName() + ".";
-            } else {
-                return getName();
-            }
-        }
-
-        public String getSortText() {
-            return getName();
-        }
-
-        public ElementHandle getElement() {
-            // XXX Is this called a lot? I shouldn't need it most of the time
-            return element;
-        }
-
-        public ElementKind getKind() {
-            return element.getKind();
-        }
-
-        public ImageIcon getIcon() {
-            return null;
-        }
-
-        public String getLhsHtml() {
-            ElementKind kind = getKind();
-            HtmlFormatter formatter = request.formatter;
-            formatter.reset();
-            boolean emphasize = (kind != ElementKind.PACKAGE && indexedElement != null) ? !indexedElement.isInherited() : false;
-            if (emphasize) {
-                formatter.emphasis(true);
-            }
-            boolean strike = indexedElement != null && indexedElement.isDeprecated();
-            if (strike) {
-                formatter.deprecated(true);
-            }
-            formatter.name(kind, true);
-            formatter.appendText(getName());
-            formatter.name(kind, false);
-            if (strike) {
-                formatter.deprecated(false);
-            }
-            if (emphasize) {
-                formatter.emphasis(false);
-            }
-
-            if (indexedElement != null) {
-                String type = indexedElement.getTypeString();
-                if (type != null) {
-                    formatter.appendHtml(" : "); // NOI18N
-
-                    formatter.appendText(type);
-                }
-            }
-
-            return formatter.getText();
-        }
-
-        public String getRhsHtml() {
-            HtmlFormatter formatter = request.formatter;
-            formatter.reset();
-
-            if (element.getKind() == ElementKind.PACKAGE || element.getKind() == ElementKind.CLASS) {
-                if (element instanceof IndexedElement) {
-                    String origin = ((IndexedElement) element).getOrigin();
-                    if (origin != null) {
-                        formatter.appendText(origin);
-                        return formatter.getText();
-                    }
-                }
-
-                return null;
-            }
-
-            String in = element.getIn();
-
-            if (in != null) {
-                formatter.appendText(in);
-                return formatter.getText();
-            } else if (element instanceof IndexedElement) {
-                IndexedElement ie = (IndexedElement) element;
-                String filename = ie.getFilenameUrl();
-                if (filename != null) {
-                    if (filename.indexOf("jsstubs") == -1) { // NOI18N
-
-                        int index = filename.lastIndexOf('/');
-                        if (index != -1) {
-                            filename = filename.substring(index + 1);
-                        }
-                        formatter.appendText(filename);
-                        return formatter.getText();
-                    } else {
-                        String origin = ie.getOrigin();
-                        if (origin != null) {
-                            formatter.appendText(origin);
-                            return formatter.getText();
-                        }
-                    }
-                }
-
-                return null;
-            }
-
-            return null;
-        }
-
-        public Set<Modifier> getModifiers() {
-            return element.getModifiers();
-        }
-
-        @Override
-        public String toString() {
-            String cls = this.getClass().getName();
-            cls = cls.substring(cls.lastIndexOf('.') + 1);
-
-            return cls + "(" + getKind() + "): " + getName();
-        }
-
-        public boolean isSmart() {
-            return false;
-        //return indexedElement != null ? indexedElement.isSmart() : true;
-        }
-
-        public List<String> getInsertParams() {
-            return null;
-        }
-
-        public String[] getParamListDelimiters() {
-            return new String[]{"(", ")"}; // NOI18N
-
-        }
-
-        public String getCustomInsertTemplate() {
-            return null;
-        }
-    }
-
-    private class FunctionItem extends ScalaCompletionItem {
-
-        private IndexedFunction function;
-
-        FunctionItem(AstElement element, CompletionRequest request) {
-            super(element, request);
-            assert element.getKind() == ElementKind.METHOD;
-            function = (IndexedFunction) IndexedElement.create(element, request.index);
-        }
-
-        FunctionItem(IndexedFunction element, CompletionRequest request) {
-            super(request, element);
-            this.function = element;
-        }
-
-        @Override
-        public String getInsertPrefix() {
-            return getName();
-        }
-
-        @Override
-        public String getLhsHtml() {
-            ElementKind kind = getKind();
-            HtmlFormatter formatter = request.formatter;
-            formatter.reset();
-            boolean strike = false;
-            if (!strike && function.isDeprecated()) {
-                strike = true;
-            }
-            if (strike) {
-                formatter.deprecated(true);
-            }
-            boolean emphasize = !function.isInherited();
-            if (emphasize) {
-                formatter.emphasis(true);
-            }
-            formatter.name(kind, true);
-            formatter.appendText(getName());
-            formatter.name(kind, false);
-            if (emphasize) {
-                formatter.emphasis(false);
-            }
-            if (strike) {
-                formatter.deprecated(false);
-            }
-
-            Collection<String> parameters = function.getParameters();
-
-            formatter.appendHtml("("); // NOI18N
-
-            if ((parameters != null) && (parameters.size() > 0)) {
-
-                Iterator<String> it = parameters.iterator();
-
-                while (it.hasNext()) { // && tIt.hasNext()) {
-
-                    formatter.parameters(true);
-
-                    String param = it.next();
-                    int typeIndex = param.indexOf(':');
-                    if (typeIndex != -1) {
-                        if (function.isJava()) {
-                            formatter.type(true);
-                            // TODO - call JsUtils.normalizeTypeString() on this string?
-                            formatter.appendText(param, typeIndex + 1, param.length());
-                            formatter.type(false);
-
-                            formatter.appendHtml(" ");
-                            formatter.appendText(param, 0, typeIndex);
-                        } else {
-                            formatter.appendText(param, 0, typeIndex);
-                            formatter.parameters(false);
-                            formatter.appendHtml(" :");
-                            formatter.parameters(true);
-
-                            formatter.type(true);
-                            // TODO - call JsUtils.normalizeTypeString() on this string?
-                            formatter.appendText(param, typeIndex + 1, param.length());
-                            formatter.type(false);
-                        }
-                    } else {
-                        formatter.appendText(param);
-                    }
-
-                    formatter.parameters(false);
-
-                    if (it.hasNext()) {
-                        formatter.appendText(", "); // NOI18N
-
-                    }
-                }
-
-            }
-            formatter.appendHtml(")"); // NOI18N
-
-            if (indexedElement != null && indexedElement.getType() != null &&
-                    indexedElement.getKind() != ElementKind.CONSTRUCTOR) {
-                formatter.appendHtml(" : ");
-                formatter.appendText(indexedElement.getTypeString());
-            }
-
-            return formatter.getText();
-        }
-
-        @Override
-        public List<String> getInsertParams() {
-            return function.getParameters();
-        }
-
-        @Override
-        public String getCustomInsertTemplate() {
-            final String insertPrefix = getInsertPrefix();
-            List<String> params = getInsertParams();
-            String startDelimiter = "(";
-            String endDelimiter = ")";
-            int paramCount = params.size();
-
-            StringBuilder sb = new StringBuilder();
-            sb.append(insertPrefix);
-            sb.append(startDelimiter);
-
-            int id = 1;
-            for (int i = 0; i < paramCount; i++) {
-                String paramDesc = params.get(i);
-                sb.append("${"); //NOI18N
-                // Ensure that we don't use one of the "known" logical parameters
-                // such that a parameter like "path" gets replaced with the source file
-                // path!
-
-                sb.append("js-cc-"); // NOI18N
-
-                sb.append(Integer.toString(id++));
-                sb.append(" default=\""); // NOI18N
-
-                int typeIndex = paramDesc.indexOf(':');
-                if (typeIndex != -1) {
-                    sb.append(paramDesc, 0, typeIndex);
-                } else {
-                    sb.append(paramDesc);
-                }
-                sb.append("\""); // NOI18N
-
-                sb.append("}"); //NOI18N
-
-                if (i < paramCount - 1) {
-                    sb.append(", "); //NOI18N
-
-                }
-            }
-            sb.append(endDelimiter);
-
-            sb.append("${cursor}"); // NOI18N
-
-            // Facilitate method parameter completion on this item
-            try {
-                callLineStart = Utilities.getRowStart(request.doc, request.anchor);
-                callMethod = function;
-            } catch (BadLocationException ble) {
-                Exceptions.printStackTrace(ble);
-            }
-
-            return sb.toString();
-        }
-    }
-
-    private class KeywordItem extends ScalaCompletionItem {
-
-        private static final String KEYWORD = "org/netbeans/modules/scala/editing/resources/scala16x16.png"; //NOI18N
-
-        private final String keyword;
-        private final String description;
-
-        KeywordItem(String keyword, String description, CompletionRequest request) {
-            super(null, request);
-            this.keyword = keyword;
-            this.description = description;
-        }
-
-        @Override
-        public String getName() {
-            return keyword;
-        }
-
-        @Override
-        public ElementKind getKind() {
-            return ElementKind.KEYWORD;
-        }
-
-        //@Override
-        //public String getLhsHtml() {
-        //    // Override so we can put HTML contents in
-        //    ElementKind kind = getKind();
-        //    HtmlFormatter formatter = request.formatter;
-        //    formatter.reset();
-        //    formatter.name(kind, true);
-        //    //formatter.appendText(getName());
-        //    formatter.appendHtml(getName());
-        //    formatter.name(kind, false);
-        //
-        //    return formatter.getText();
-        //}
-        @Override
-        public String getRhsHtml() {
-            if (description != null) {
-                HtmlFormatter formatter = request.formatter;
-                formatter.reset();
-                //formatter.appendText(description);
-                formatter.appendHtml(description);
-
-                return formatter.getText();
-            } else {
-                return null;
-            }
-        }
-
-        @Override
-        public ImageIcon getIcon() {
-            if (keywordIcon == null) {
-                keywordIcon = new ImageIcon(org.openide.util.Utilities.loadImage(KEYWORD));
-            }
-
-            return keywordIcon;
-        }
-
-        @Override
-        public Set<Modifier> getModifiers() {
-            return Collections.emptySet();
-        }
-
-        @Override
-        public ElementHandle getElement() {
-            // For completion documentation
-            return new AstElement(null, ElementKind.KEYWORD);
-        }
-
-        @Override
-        public boolean isSmart() {
-            return false;
-        }
-    }
-
-    private class TagItem extends ScalaCompletionItem {
-
-        private final String tag;
-        private final String description;
-        private final ElementKind kind;
-
-        TagItem(String keyword, String description, CompletionRequest request, ElementKind kind) {
-            super(null, request);
-            this.tag = keyword;
-            this.description = description;
-            this.kind = kind;
-        }
-
-        @Override
-        public String getName() {
-            return tag;
-        }
-
-        @Override
-        public ElementKind getKind() {
-            return kind;
-        }
-
-        //@Override
-        //public String getLhsHtml() {
-        //    // Override so we can put HTML contents in
-        //    ElementKind kind = getKind();
-        //    HtmlFormatter formatter = request.formatter;
-        //    formatter.reset();
-        //    formatter.name(kind, true);
-        //    //formatter.appendText(getName());
-        //    formatter.appendHtml(getName());
-        //    formatter.name(kind, false);
-        //
-        //    return formatter.getText();
-        //}
-        @Override
-        public String getRhsHtml() {
-            if (description != null) {
-                HtmlFormatter formatter = request.formatter;
-                formatter.reset();
-                //formatter.appendText(description);
-                formatter.appendHtml("<i>");
-                formatter.appendHtml(description);
-                formatter.appendHtml("</i>");
-
-                return formatter.getText();
-            } else {
-                return null;
-            }
-        }
-
-        @Override
-        public Set<Modifier> getModifiers() {
-            return Collections.emptySet();
-        }
-
-        @Override
-        public ElementHandle getElement() {
-            // For completion documentation
-            return new AstElement(null, ElementKind.KEYWORD);
-        }
-
-        @Override
-        public boolean isSmart() {
-            return true;
-        }
-    }
-
-    private class PlainItem extends ScalaCompletionItem {
-
-        PlainItem(AstElement element, CompletionRequest request) {
-            super(element, request);
-        }
-
-        PlainItem(CompletionRequest request, IndexedElement element) {
-            super(request, element);
-        }
-    }
-
-    private class PackageItem extends ScalaCompletionItem {
-
-        PackageItem(AstElement element, CompletionRequest request) {
-            super(element, request);
-
-        }
-
-        PackageItem(CompletionRequest request, IndexedElement element) {
-            super(request, element);
-        }
-
-        @Override
-        public String getName() {
-            String name = element.getName();
-            int lastDot = name.lastIndexOf('.');
-            if (lastDot > 0) {
-                name = name.substring(lastDot + 1, name.length());
-            }
-            return name;
-        }
-
-        @Override
-        public String getLhsHtml() {
-            ElementKind kind = getKind();
-            HtmlFormatter formatter = request.formatter;
-            formatter.reset();
-            boolean strike = indexedElement != null && indexedElement.isDeprecated();
-            if (strike) {
-                formatter.deprecated(true);
-            }
-            formatter.name(kind, true);
-            formatter.appendText(getName());
-            formatter.name(kind, false);
-            if (strike) {
-                formatter.deprecated(false);
-            }
-
-            return formatter.getText();
-        }
-    }
-
     public ElementHandle resolveLink(String link, ElementHandle elementHandle) {
         if (link.indexOf(':') != -1) {
             link = link.replace(':', '.');
             return new ElementHandle.UrlHandle(link);
         }
         return null;
+    }
+
+    protected static class CompletionRequest {
+
+        protected TokenHierarchy<Document> th;
+        protected CompilationInfo info;
+        protected AstElement element;
+        protected AstScope root;
+        protected int anchor;
+        protected int lexOffset;
+        protected int astOffset;
+        protected BaseDocument doc;
+        protected String prefix;
+        protected ScalaIndex index;
+        protected NameKind kind;
+        protected ScalaParserResult result;
+        protected QueryType queryType;
+        protected FileObject fileObject;
+        protected HtmlFormatter formatter;
+        protected MaybeCall call;
+        protected String fqn;
     }
 }
