@@ -687,7 +687,7 @@ public abstract class IndexedElement extends AstElement {
 
         assert index == IndexedElement.FLAG_INDEX;
         StringBuilder sb = new StringBuilder();
-        int flags = IndexedElement.getFlags(element);
+        int flags = getFlags(element);
         // Add in info from documentation
 //            if (typeMap != null) {
 //                // Most flags are already handled by AstElement.getFlags()...
