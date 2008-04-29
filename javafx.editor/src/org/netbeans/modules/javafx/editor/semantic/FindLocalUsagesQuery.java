@@ -40,13 +40,14 @@
  */
 package org.netbeans.modules.javafx.editor.semantic;
 
+import com.sun.javafx.api.tree.FunctionDefinitionTree;
+import com.sun.javafx.api.tree.JavaFXVariableTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
-import com.sun.javafx.api.tree.JavaFXVariableTree;
 import com.sun.source.util.TreePath;
 import java.util.HashSet;
 import java.util.Set;
@@ -115,12 +116,22 @@ public class FindLocalUsagesQuery extends CancellableTreePathScanner<Void, Stack
     }
     
     @Override
+    public Void visitFunctionDefinition(FunctionDefinitionTree tree, Stack<Tree> d) {
+        handlePotentialVariable(getCurrentPath());
+//        Element el = info.getTrees().getElement(getCurrentPath());
+//        handleJavadoc(el);
+        super.visitFunctionDefinition(tree, d);
+        return null;
+    }
+
+    @Override
     public Void visitMemberSelect(MemberSelectTree node, Stack<Tree> p) {
         handlePotentialVariable(getCurrentPath());
         super.visitMemberSelect(node, p);
         return null;
     }
     
+    @Override
     public Void visitVariable(JavaFXVariableTree tree, Stack<Tree> d) {
         handlePotentialVariable(getCurrentPath());
 //        Element el = info.getTrees().getElement(getCurrentPath());
