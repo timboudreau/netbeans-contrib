@@ -46,6 +46,7 @@ import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
+import com.sun.javafx.api.tree.JavaFXVariableTree;
 import com.sun.source.util.TreePath;
 import java.util.HashSet;
 import java.util.Set;
@@ -120,6 +121,16 @@ public class FindLocalUsagesQuery extends CancellableTreePathScanner<Void, Stack
         return null;
     }
     
+    public Void visitVariable(JavaFXVariableTree tree, Stack<Tree> d) {
+        handlePotentialVariable(getCurrentPath());
+//        Element el = info.getTrees().getElement(getCurrentPath());
+//        if (el != null && el.getKind().isField()) {
+//            handleJavadoc(el);
+//        }
+        super.visitVariable(tree, d);
+        return null;
+    }
+
     @Override
     public Void visitVariable(VariableTree tree, Stack<Tree> d) {
         handlePotentialVariable(getCurrentPath());

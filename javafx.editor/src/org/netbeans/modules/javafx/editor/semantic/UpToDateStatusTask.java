@@ -108,7 +108,10 @@ class UpToDateStatusTask implements CancellableTask<CompilationInfo> {
                         Severity.ERROR, d.getMessage(Locale.getDefault()),
                         doc, (int)d.getLineNumber()));
             }
-            HintsController.setErrors(doc, "semantic-highlighter", c);
+            // this is temporary for breh:
+            if (!Boolean.getBoolean("org.netbeans.modules.javafx.editor.unstable.disable")) {
+                HintsController.setErrors(doc, "semantic-highlighter", c);
+            }
             
             UpToDateStatusProviderImpl p = UpToDateStatusProviderImpl.forDocument(doc);
             p.refresh(diag, UpToDateStatus.UP_TO_DATE_OK);

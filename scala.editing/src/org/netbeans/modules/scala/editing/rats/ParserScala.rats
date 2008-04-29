@@ -470,13 +470,18 @@ generic SelfType =
 / ThisKey  void:":":key Type    void:"=>":key
 ;
 
-transient generic Import = void:"import":key ImportExpr ( void:",":sep ImportExpr )* ;
+transient generic Import = 
+  void:"import":key ImportExpr ( void:",":sep ImportExpr )* 
+/ void:"import" SKIP ErrorStableIdExpected
+;
 
-transient generic ImportExpr = StableId ( void:".":sep ( "_":key / ImportSelectors ) )?;
+transient generic ErrorStableIdExpected = { yyValue = GNode.create("Error", "StableId expected"); } ;
 
-transient generic ImportSelectors = void:"{":sep ( ImportSelector void:",":sep )* ( ImportSelector / "_":key ) void:"}":sep ;
+transient generic ImportExpr = StableId ( void:".":sep ( WildKey / ImportSelectors ) )?;
 
-transient generic ImportSelector = Id ( void:"=>":key Id / void:"=>":key "_":key )? ;
+transient generic ImportSelectors = void:"{":sep ( ImportSelector void:",":sep )* ( ImportSelector / WildKey ) void:"}":sep ;
+
+transient generic ImportSelector = Id ( void:"=>":key ( Id / WildKey ) )? ;
 
 generic Dcl = 
   void:"val" :key ValDcl

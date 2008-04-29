@@ -75,6 +75,7 @@ import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
+import org.netbeans.modules.scala.editing.nodes.Function;
 import org.netbeans.modules.scala.editing.nodes.IdRef;
 import org.netbeans.modules.scala.editing.nodes.Import;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
@@ -308,7 +309,8 @@ public class ScalaCodeCompletion implements Completable {
         List<CompletionProposal> proposals = new ArrayList<CompletionProposal>();
 
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
-        doc.readLock(); // Read-lock due to Token hierarchy use
+        // Read-lock due to Token hierarchy use
+        doc.readLock();
         try {
             AstScope root = pResult.getRootScope();
 
@@ -381,11 +383,30 @@ public class ScalaCodeCompletion implements Completable {
                     closest = root.getDefRef(th, closestOffset--);
                 }
 
-                if (closest instanceof FunRef || closest instanceof FieldRef) {
-                    // dog.t| or dog.talk()|
-                } else if (closest instanceof Import) {
-                    // completeImport
-                    // return proposals
+                if (closest == null) {
+                    TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, offset);
+                    ts.moveNext();
+                    while (!ts.moveNext() && !ts.movePrevious()) {
+                        assert false : "Should not happen!";
+                    }
+                    Token closetToken = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
+                    if (closetToken.id() == ScalaTokenId.Import) {
+                        request.prefix = "";
+                        addPackages(proposals, request);
+                        return proposals;
+                    }
+                } else {
+                    if (closest instanceof FunRef || closest instanceof FieldRef) {
+                        // dog.t| or dog.talk()|
+                    } else if (closest instanceof Import) {
+                        String prefix1 = ((Import) closest).getName();
+                        if (request.prefix.equals("")) {
+                            prefix1 = prefix1 + ".";
+                        }
+                        request.prefix = prefix1;
+                        addPackages(proposals, request);
+                        return proposals;
+                    }
                 }
 
                 request.root = root;
@@ -438,12 +459,23 @@ public class ScalaCodeCompletion implements Completable {
         }
 
         AstScope closestScope = root.getClosestScope(request.th, request.astOffset);
-        List<Var> localVars = closestScope.getDefsInScope(Var.class);
 
+        List<Var> localVars = closestScope.getDefsInScope(Var.class);
         for (Var var : localVars) {
             if ((kind == NameKind.EXACT_NAME && prefix.equals(var.getName())) ||
                     (kind != NameKind.EXACT_NAME && startsWith(var.getName(), prefix))) {
                 proposals.add(new PlainItem(var, request));
+            }
+        }
+
+        List<Function> localFuns = closestScope.getDefsInScope(Function.class);
+        for (Function fun : localFuns) {
+            if (fun.getKind() != ElementKind.METHOD) {
+                continue;
+            }
+            if ((kind == NameKind.EXACT_NAME && prefix.equals(fun.getName())) ||
+                    (kind != NameKind.EXACT_NAME && startsWith(fun.getName(), prefix))) {
+                proposals.add(new FunctionItem(fun, request));
             }
         }
 
@@ -823,6 +855,7 @@ public class ScalaCodeCompletion implements Completable {
 
             TokenHierarchy<Document> th = TokenHierarchy.get((Document) doc);
             doc.readLock(); // Read-lock due to token hierarchy use
+
             try {
 //            int requireStart = ScalaLexUtilities.getRequireStringOffset(lexOffset, th);
 //
@@ -1063,6 +1096,7 @@ public class ScalaCodeCompletion implements Completable {
                             }
                         } else {
                             for (int i = prefix.length() - 2; i >= 0; i--) { // -2: the last position (-1) can legally be =, ! or ?
+
                                 char c = prefix.charAt(i);
                                 if (i == 0 && c == ':') {
                                     // : is okay at the begining of prefixes
@@ -1517,6 +1551,37 @@ public class ScalaCodeCompletion implements Completable {
         return false;
     }
 
+    private boolean addPackages(List<CompletionProposal> proposals, CompletionRequest request) {
+        String fqnPrefix = request.prefix;
+        if (fqnPrefix == null) {
+            fqnPrefix = "";
+        }
+
+        String pkgName = null;
+        String prefix = null;
+
+        int lastDot = fqnPrefix.lastIndexOf('.');
+        if (lastDot == -1) {
+            pkgName = fqnPrefix;
+            prefix = fqnPrefix;
+        } else if (lastDot == fqnPrefix.length() - 1) {
+            pkgName = fqnPrefix.substring(0, lastDot);
+            prefix = "";
+        } else {
+            pkgName = fqnPrefix.substring(0, lastDot);
+            prefix = fqnPrefix.substring(lastDot + 1, fqnPrefix.length());
+        }
+
+        for (IndexedElement element : request.index.getPackageContent(pkgName, prefix)) {
+            proposals.add(new PlainItem(request, element));
+        }
+
+        for (IndexedElement element : request.index.getPackages(fqnPrefix)) {
+            proposals.add(new PackageItem(element, request));
+        }
+        return true;
+    }
+
     public QueryType getAutoQuery(JTextComponent component, String typedText) {
         char c = typedText.charAt(0);
 
@@ -1535,6 +1600,7 @@ public class ScalaCodeCompletion implements Completable {
 
         if (".".equals(typedText)) { // NOI18N
             // See if we're in Js context
+
             TokenSequence<ScalaTokenId> ts = ScalaLexUtilities.getTokenSequence(doc, offset);
             if (ts == null) {
                 return QueryType.NONE;
@@ -1560,6 +1626,7 @@ public class ScalaCodeCompletion implements Completable {
             if ("comment".equals(id.primaryCategory()) || // NOI18N
                     "string".equals(id.primaryCategory()) || // NOI18N
                     "regexp".equals(id.primaryCategory())) { // NOI18N
+
                 return QueryType.NONE;
             }
 
@@ -1598,6 +1665,7 @@ public class ScalaCodeCompletion implements Completable {
         TokenId id = ts.token().id();
         if ("comment".equals(id.primaryCategory()) || "string".equals(id.primaryCategory()) || // NOI18N
                 "regexp".equals(id.primaryCategory())) { // NOI18N
+
             return false;
         }
 
@@ -1860,6 +1928,7 @@ public class ScalaCodeCompletion implements Completable {
 
             if (anchorOffset == -1) {
                 anchorOffset = call.getIdToken().offset(th); // TODO - compute
+
             }
             anchorOffsetHolder[0] = anchorOffset;
         } catch (IOException ex) {
@@ -1919,11 +1988,12 @@ public class ScalaCodeCompletion implements Completable {
         }
 
         public String getInsertPrefix() {
-            if (getKind() == ElementKind.PACKAGE) {
-                return getName() + ".";
-            } else {
-                return getName();
-            }
+            return getName();
+//            if (getKind() == ElementKind.PACKAGE) {
+//                return getName() + ".";
+//            } else {
+//                return getName();
+//            }
         }
 
         public String getSortText() {
@@ -1969,6 +2039,7 @@ public class ScalaCodeCompletion implements Completable {
                 String type = indexedElement.getTypeString();
                 if (type != null) {
                     formatter.appendHtml(" : "); // NOI18N
+
                     formatter.appendText(type);
                 }
             }
@@ -2002,6 +2073,7 @@ public class ScalaCodeCompletion implements Completable {
                 String filename = ie.getFilenameUrl();
                 if (filename != null) {
                     if (filename.indexOf("jsstubs") == -1) { // NOI18N
+
                         int index = filename.lastIndexOf('/');
                         if (index != -1) {
                             filename = filename.substring(index + 1);
@@ -2046,6 +2118,7 @@ public class ScalaCodeCompletion implements Completable {
 
         public String[] getParamListDelimiters() {
             return new String[]{"(", ")"}; // NOI18N
+
         }
 
         public String getCustomInsertTemplate() {
@@ -2056,6 +2129,12 @@ public class ScalaCodeCompletion implements Completable {
     private class FunctionItem extends ScalaCompletionItem {
 
         private IndexedFunction function;
+
+        FunctionItem(AstElement element, CompletionRequest request) {
+            super(element, request);
+            assert element.getKind() == ElementKind.METHOD;
+            function = (IndexedFunction) IndexedElement.create(element, request.index);
+        }
 
         FunctionItem(IndexedFunction element, CompletionRequest request) {
             super(request, element);
@@ -2096,13 +2175,15 @@ public class ScalaCodeCompletion implements Completable {
             Collection<String> parameters = function.getParameters();
 
             formatter.appendHtml("("); // NOI18N
+
             if ((parameters != null) && (parameters.size() > 0)) {
 
                 Iterator<String> it = parameters.iterator();
 
                 while (it.hasNext()) { // && tIt.hasNext()) {
+
                     formatter.parameters(true);
-                    
+
                     String param = it.next();
                     int typeIndex = param.indexOf(':');
                     if (typeIndex != -1) {
@@ -2119,7 +2200,7 @@ public class ScalaCodeCompletion implements Completable {
                             formatter.parameters(false);
                             formatter.appendHtml(" :");
                             formatter.parameters(true);
-                            
+
                             formatter.type(true);
                             // TODO - call JsUtils.normalizeTypeString() on this string?
                             formatter.appendText(param, typeIndex + 1, param.length());
@@ -2133,6 +2214,7 @@ public class ScalaCodeCompletion implements Completable {
 
                     if (it.hasNext()) {
                         formatter.appendText(", "); // NOI18N
+
                     }
                 }
 
@@ -2172,9 +2254,12 @@ public class ScalaCodeCompletion implements Completable {
                 // Ensure that we don't use one of the "known" logical parameters
                 // such that a parameter like "path" gets replaced with the source file
                 // path!
+
                 sb.append("js-cc-"); // NOI18N
+
                 sb.append(Integer.toString(id++));
                 sb.append(" default=\""); // NOI18N
+
                 int typeIndex = paramDesc.indexOf(':');
                 if (typeIndex != -1) {
                     sb.append(paramDesc, 0, typeIndex);
@@ -2182,9 +2267,12 @@ public class ScalaCodeCompletion implements Completable {
                     sb.append(paramDesc);
                 }
                 sb.append("\""); // NOI18N
+
                 sb.append("}"); //NOI18N
+
                 if (i < paramCount - 1) {
                     sb.append(", "); //NOI18N
+
                 }
             }
             sb.append(endDelimiter);
@@ -2356,6 +2444,47 @@ public class ScalaCodeCompletion implements Completable {
 
         PlainItem(CompletionRequest request, IndexedElement element) {
             super(request, element);
+        }
+    }
+
+    private class PackageItem extends ScalaCompletionItem {
+
+        PackageItem(AstElement element, CompletionRequest request) {
+            super(element, request);
+
+        }
+
+        PackageItem(CompletionRequest request, IndexedElement element) {
+            super(request, element);
+        }
+
+        @Override
+        public String getName() {
+            String name = element.getName();
+            int lastDot = name.lastIndexOf('.');
+            if (lastDot > 0) {
+                name = name.substring(lastDot + 1, name.length());
+            }
+            return name;
+        }
+
+        @Override
+        public String getLhsHtml() {
+            ElementKind kind = getKind();
+            HtmlFormatter formatter = request.formatter;
+            formatter.reset();
+            boolean strike = indexedElement != null && indexedElement.isDeprecated();
+            if (strike) {
+                formatter.deprecated(true);
+            }
+            formatter.name(kind, true);
+            formatter.appendText(getName());
+            formatter.name(kind, false);
+            if (strike) {
+                formatter.deprecated(false);
+            }
+
+            return formatter.getText();
         }
     }
 

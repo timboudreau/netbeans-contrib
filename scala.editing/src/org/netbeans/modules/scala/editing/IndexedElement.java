@@ -203,6 +203,23 @@ public abstract class IndexedElement extends AstElement {
         return indexedElement;
     }
 
+    static IndexedElement create(AstElement element, ScalaIndex index) {
+            String in = element.getIn();
+            String thename = element.getName();
+            StringBuilder base = new StringBuilder();
+            base.append(thename.toLowerCase());
+            base.append(';');
+            if (in != null) {
+                base.append(in);
+            }
+            base.append(';');
+            base.append(thename);
+            base.append(';');
+            base.append(IndexedElement.computeSignature(element));
+
+            return IndexedElement.create(element.getName(), base.toString(), "", index, false);       
+    }
+    
     public String getSignature() {
         if (signature == null) {
             StringBuilder sb = new StringBuilder();
@@ -670,7 +687,7 @@ public abstract class IndexedElement extends AstElement {
 
         assert index == IndexedElement.FLAG_INDEX;
         StringBuilder sb = new StringBuilder();
-        int flags = IndexedElement.getFlags(element);
+        int flags = getFlags(element);
         // Add in info from documentation
 //            if (typeMap != null) {
 //                // Most flags are already handled by AstElement.getFlags()...
