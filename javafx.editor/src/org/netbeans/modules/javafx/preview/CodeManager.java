@@ -223,6 +223,13 @@ public class CodeManager {
         return comp;
     }
     
+    private static JComponent parseTrueJFrame(Object obj) {
+        if (obj instanceof JFrame)
+            return moveToInner((Window)obj);
+        else
+            return null;
+    }
+    
     private static JComponent parseJFrameJDialogObj(Object obj) {
         JComponent comp = null;
         try {
@@ -248,26 +255,7 @@ public class CodeManager {
                     Method getMethod = frameObj.getClass().getDeclaredMethod(getMethodName);
                     Window frame = (Window)getMethod.invoke(frameObj);
                     if (frame != null) {
-                        frame.setVisible(false);
-                        JInternalFrame intFrame = new JInternalFrame();
-                        intFrame.setSize(frame.getSize());
-                        intFrame.setContentPane(frame instanceof JFrame ? ((JFrame)frame).getContentPane() : ((JDialog)frame).getContentPane());
-                        intFrame.setTitle(frame instanceof JFrame ? ((JFrame)frame).getTitle() : ((JDialog)frame).getTitle());
-                        intFrame.setJMenuBar(frame instanceof JFrame ? ((JFrame)frame).getJMenuBar() : ((JDialog)frame).getJMenuBar());
-                        intFrame.setBackground(frame.getBackground());
-                        intFrame.getContentPane().setBackground(frame.getBackground());
-                        intFrame.setForeground(frame.getForeground());
-                        intFrame.setResizable(true);
-                        intFrame.setClosable(true);
-                        intFrame.setMaximizable(true);
-                        intFrame.setIconifiable(true);
-                        intFrame.setVisible(true);
-                        frame.dispose();
-                        AutoResizableDesktopPane jdp = new AutoResizableDesktopPane();
-                        jdp.setBackground(Color.WHITE);
-                        jdp.add(intFrame);
-                        jdp.setMinimumSize(intFrame.getSize());
-                        comp = jdp;
+                        comp = moveToInner(frame);
                     }
                 }
             }
@@ -276,7 +264,31 @@ public class CodeManager {
         }
         return comp;
     }
+    
+    private static JComponent moveToInner(Window frame) {
+        frame.setVisible(false);
+        JInternalFrame intFrame = new JInternalFrame();
+        intFrame.setSize(frame.getSize());
+        intFrame.setContentPane(frame instanceof JFrame ? ((JFrame)frame).getContentPane() : ((JDialog)frame).getContentPane());
+        intFrame.setTitle(frame instanceof JFrame ? ((JFrame)frame).getTitle() : ((JDialog)frame).getTitle());
+        intFrame.setJMenuBar(frame instanceof JFrame ? ((JFrame)frame).getJMenuBar() : ((JDialog)frame).getJMenuBar());
+        intFrame.setBackground(frame.getBackground());
+        intFrame.getContentPane().setBackground(frame.getBackground());
+        intFrame.setForeground(frame.getForeground());
+        intFrame.setResizable(true);
+        intFrame.setClosable(true);
+        intFrame.setMaximizable(true);
+        intFrame.setIconifiable(true);
+        intFrame.setVisible(true);
+        frame.dispose();
+        AutoResizableDesktopPane jdp = new AutoResizableDesktopPane();
+        jdp.setBackground(Color.WHITE);
+        jdp.add(intFrame);
+        jdp.setMinimumSize(intFrame.getSize());
+        return (JComponent)jdp;
+    }
 
+    
     private static JComponent parseSGNodeObj(Object obj) {
         JComponent comp = null;
         try {
@@ -309,7 +321,8 @@ public class CodeManager {
         JComponent comp = null;
         if ((comp = parseJComponentObj(obj)) == null)
             if ((comp = parseJFrameJDialogObj(obj)) == null)
-                comp = parseSGNodeObj(obj);
+                if ((comp = parseTrueJFrame(obj)) == null)
+                    comp = parseSGNodeObj(obj);
         return comp;
     }
     

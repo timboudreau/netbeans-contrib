@@ -79,4 +79,11 @@ public class FieldRef extends AstRef {
         sb.append(field.getName());
         return sb.toString();
     }
+
+    @Override
+    public TypeRef getType() {
+        return field.getType();
+    }
+    
+    
 }

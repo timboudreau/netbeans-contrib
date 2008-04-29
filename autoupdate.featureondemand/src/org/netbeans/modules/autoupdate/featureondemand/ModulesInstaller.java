@@ -78,6 +78,9 @@ public class ModulesInstaller {
     private Collection<UpdateElement> modules4install;
     private RequestProcessor.Task installTask = null;
     private OperationContainer<InstallSupport> installContainer;
+    private ProgressHandle downloadHandle;
+    private ProgressHandle verifyHandle;
+    private ProgressHandle installHandle;
     
     public ModulesInstaller (Collection<UpdateElement> modules) {
         if (modules == null || modules.isEmpty ()) {
@@ -113,6 +116,18 @@ public class ModulesInstaller {
         }
         
         return success;
+    }
+
+    public void assignDownloadHandle (ProgressHandle handle) {
+        this.downloadHandle = handle;
+    }
+    
+    public void assignVerifyHandle (ProgressHandle handle) {
+        this.verifyHandle = handle;
+    }
+    
+    public void assignInstallHandle (ProgressHandle handle) {
+        this.installHandle = handle;
     }
     
     public RequestProcessor.Task getInstallTask () {
@@ -208,15 +223,21 @@ public class ModulesInstaller {
             throw new IllegalArgumentException ("Some are invalid for install: " + installContainer.listInvalid ());
         }
         InstallSupport installSupport = installContainer.getSupport ();
-        ProgressHandle downloadHandle = ProgressHandleFactory.createHandle (
+        if (downloadHandle == null) {
+            downloadHandle = ProgressHandleFactory.createHandle (
                 getBundle ("InstallerMissingModules_Download",
                 presentUpdateElements (FindComponentModules.getVisibleUpdateElements (modules4install))));
+        }
         Validator v = installSupport.doDownload (downloadHandle, false);
-        ProgressHandle verifyHandle = ProgressHandleFactory.createHandle (
-                getBundle ("InstallerMissingModules_Verify"));
+        if (verifyHandle == null) {
+            verifyHandle = ProgressHandleFactory.createHandle (
+                    getBundle ("InstallerMissingModules_Verify"));
+            }
         Installer i = installSupport.doValidate (v, verifyHandle);
-        ProgressHandle installHandle = ProgressHandleFactory.createHandle (
-                getBundle ("InstallerMissingModules_Install"));
+        if (installHandle == null) {
+            installHandle = ProgressHandleFactory.createHandle (
+                    getBundle ("InstallerMissingModules_Install"));
+            }
         Restarter r = installSupport.doInstall (i, installHandle);
         if (r != null) {
             installSupport.doRestartLater (r);
@@ -252,7 +273,6 @@ public class ModulesInstaller {
         for (UpdateElement m : modules4install) {
            while (! m.isEnabled ()) {
                waitTask.schedule (100);
-               System.out.println ("###: Wait for enable of " + m);
                waitTask.waitFinished ();
            }
         }

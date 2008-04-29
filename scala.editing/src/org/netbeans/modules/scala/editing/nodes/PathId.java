@@ -74,4 +74,17 @@ public class PathId extends Id {
         }
         return sb.toString();
     }
+
+    @Override
+    public void setType(TypeRef type) {
+        // @Todo
+        paths.get(0).setType(type);
+    }        
+
+    @Override
+    public TypeRef getType() {
+        // @Todo
+        return paths.get(0).getType();
+    }
+        
 }

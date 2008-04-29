@@ -47,32 +47,32 @@ import java.awt.Component;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.autoupdate.UpdateElement;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.autoupdate.featureondemand.FoDFileSystem;
 import org.openide.WizardDescriptor;
-import org.openide.WizardValidationException;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 
-public class InstallStep implements WizardDescriptor.AsynchronousValidatingPanel<WizardDescriptor> {
+public class InstallStep implements WizardDescriptor.FinishablePanel<WizardDescriptor> {
     private URL layer;
     private InstallPanel component;
     private Collection<UpdateElement> forInstall = null;
     private final List<ChangeListener> listeners = new ArrayList<ChangeListener> ();
-    private boolean calledValidate = false;
+    private boolean doInstallRunning = false;
     private WizardDescriptor wd = null;
 
     public Component getComponent () {
         if (component == null) {
+            doInstallRunning = false;
             component = new InstallPanel (
                     NbBundle.getMessage (InstallStep.class, "InstallPanel_Name"));
         }
@@ -84,7 +84,7 @@ public class InstallStep implements WizardDescriptor.AsynchronousValidatingPanel
     }
 
     public boolean isValid () {
-        return forInstall != null && ! forInstall.isEmpty () && wd != null;
+        return false;
     }
 
     public synchronized void addChangeListener (ChangeListener l) {
@@ -93,6 +93,54 @@ public class InstallStep implements WizardDescriptor.AsynchronousValidatingPanel
 
     public synchronized void removeChangeListener (ChangeListener l) {
         listeners.remove(l);
+    }
+
+    private Runnable doInstall () {
+        return new Runnable () {
+            public void run () {
+                if (! doInstallRunning) {
+                    doInstallRunning = true;
+                    ModulesInstaller installer = new ModulesInstaller (forInstall);
+                    ProgressHandle downloadHandle = ProgressHandleFactory.createHandle (
+                            getBundle ("InstallStep_Downloading",
+                            presentElementsForInstall ()));
+                    ProgressHandle verifyHandle = ProgressHandleFactory.createHandle (
+                            getBundle ("InstallStep_Verifing",
+                            presentElementsForInstall ()));
+                    ProgressHandle installHandle = ProgressHandleFactory.createHandle (
+                            getBundle ("InstallStep_Installing",
+                            presentElementsForInstall ()));
+                    JComponent downloadComponent = ProgressHandleFactory.createProgressComponent (downloadHandle);
+                    JComponent downloadMainLabel = ProgressHandleFactory.createMainLabelComponent (downloadHandle);
+                    JComponent downloadDetailLabel = ProgressHandleFactory.createDetailLabelComponent (downloadHandle);
+                    JComponent verifyComponent = ProgressHandleFactory.createProgressComponent (verifyHandle);
+                    JComponent verifyMainLabel = ProgressHandleFactory.createMainLabelComponent (verifyHandle);
+                    JComponent verifyDetailLabel = ProgressHandleFactory.createDetailLabelComponent (verifyHandle);
+                    JComponent installComponent = ProgressHandleFactory.createProgressComponent (installHandle);
+                    JComponent installMainLabel = ProgressHandleFactory.createMainLabelComponent (installHandle);
+                    JComponent installDetailLabel = ProgressHandleFactory.createDetailLabelComponent (installHandle);
+                    installer.assignDownloadHandle (downloadHandle);
+                    installer.assignVerifyHandle (verifyHandle);
+                    installer.assignInstallHandle (installHandle);
+                    component.displayInstallTask (
+                            downloadMainLabel,
+                            downloadDetailLabel,
+                            downloadComponent,
+                            verifyMainLabel,
+                            verifyDetailLabel,
+                            verifyComponent,
+                            installMainLabel,
+                            installDetailLabel,
+                            installComponent);
+                    RequestProcessor.Task install = installer.getInstallTask ();
+                    install.schedule (0);
+                    install.waitFinished ();
+                    assert layer != null : "Layer must be known.";
+                    FoDFileSystem.getInstance().refresh();
+                    waitForDelegateWizard ();
+                }
+            }
+        };
     }
 
     private void fireChange () {
@@ -113,13 +161,11 @@ public class InstallStep implements WizardDescriptor.AsynchronousValidatingPanel
         assert o == null || o instanceof Collection :
             o + " is instanceof Collection<UpdateElement> or null.";
         forInstall = ((Collection<UpdateElement>) o);
-        if (forInstall != null) {
-            presentElementsForInstall (forInstall);
-        }
         Object templateO = settings.getProperty (FeatureOnDemanWizardIterator.CHOSEN_TEMPLATE);
         assert templateO != null && templateO instanceof FileObject : templateO + " is not null and instanceof FileObject.";
         FileObject templateFO = (FileObject) templateO;
         layer = FoDFileSystem.getInstance().getDelegateFileSystem (templateFO);
+        RequestProcessor.getDefault ().post (doInstall ());
     }
 
     public void storeSettings (WizardDescriptor settings) {
@@ -129,22 +175,18 @@ public class InstallStep implements WizardDescriptor.AsynchronousValidatingPanel
         return false;
     }
     
-    private void presentElementsForInstall (Collection<UpdateElement> elements) {
-        LinkedList<JComponent> components = new LinkedList<JComponent> ();
+    @SuppressWarnings("unchecked")
+    private String presentElementsForInstall () {
+        assert forInstall != null : "UpdateElements for install are " + forInstall;
+        
+        String res = "";
+        
         Collection<UpdateElement> visible = FindComponentModules.getVisibleUpdateElements (forInstall);
-        if (visible.size () == 1) {
-            components.add (new JLabel (getBundle ("InstallStep_InstallDescription_Plugin",
-                    ModulesInstaller.presentUpdateElements (visible))));
-        } else {
-            components.add (new JLabel (getBundle ("InstallStep_InstallDescription_Plugins",
-                    ModulesInstaller.presentUpdateElements (visible))));
-        }
-        components.add (new JLabel (getBundle ("InstallStep_DownloadSize",
-                getDownloadSizeAsString (getDownloadSize (elements)))));
-        components.add (new JLabel (" "));
-        components.add (new JLabel (getBundle ("InstallStep_Note")));
-        component.replaceComponents (components.toArray (new JComponent [0]));
-        fireChange ();
+        res = getBundle ("InstallStep_InstallDescription_Plugin",
+                ModulesInstaller.presentUpdateElements (visible),
+                getDownloadSizeAsString (getDownloadSize (forInstall)));
+
+        return res;
     }
     
     private static String getBundle (String key, Object... params) {
@@ -175,29 +217,6 @@ public class InstallStep implements WizardDescriptor.AsynchronousValidatingPanel
         return size + getBundle ("InstallStep_DownloadSize_B");
     }
 
-    public void prepareValidation () {
-        if (wd != null) {
-            if (WizardDescriptor.NEXT_OPTION.equals (wd.getValue ())) {
-                calledValidate = true;
-            } else {
-                calledValidate = false;
-            }
-        } else {
-            calledValidate = false;
-        }
-    }
-
-    public void validate () throws WizardValidationException {
-        if (calledValidate) {
-            RequestProcessor.Task install = new ModulesInstaller (forInstall).getInstallTask ();
-            install.schedule (0);
-            install.waitFinished ();
-            assert layer != null : "Layer must be known.";
-            FoDFileSystem.getInstance().refresh();
-            waitForDelegateWizard ();
-        }
-    }
-    
     private FileObject fo = null;
     
     private void waitForDelegateWizard () {

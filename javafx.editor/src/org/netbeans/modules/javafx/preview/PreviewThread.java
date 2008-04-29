@@ -42,13 +42,16 @@
 package org.netbeans.modules.javafx.preview;
 
 import java.awt.Color;
+import java.awt.Window;
 import java.io.File;
+import java.lang.reflect.Method;
 import java.security.CodeSource;
 import java.security.PermissionCollection;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.text.StyledDocument;
 import org.netbeans.modules.javafx.editor.*;
 import java.security.Permissions;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.JComponent;
@@ -56,6 +59,7 @@ import javax.swing.JComponent;
 //import sun.awt.AppContext;
 //import sun.awt.SunToolkit;
 import javax.swing.JEditorPane;
+import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.Document;
@@ -193,6 +197,25 @@ public class PreviewThread extends Thread {
     class R implements Runnable {
                 
         public void run() {
+            List <JFrame> initialList = new ArrayList<JFrame>();
+            List <JFrame> suspectedList = new ArrayList<JFrame>();
+            
+            Method getOwnerlessWindows = null;
+            Window windows[] = null;
+            try {
+                // to compille under JDK 1.5
+                //windows = Window.getOwnerlessWindows(); 
+                getOwnerlessWindows = Window.class.getDeclaredMethod("getOwnerlessWindows");
+                windows = (Window[])getOwnerlessWindows.invoke(null);
+            } catch (Exception ex) {
+            }
+            
+            if (windows != null)
+                for (Window window : windows) {
+                    if (window instanceof JFrame)
+                        initialList.add((JFrame)window);
+                }
+                
             if (!checkJavaVersion()) {
                 comp = getVrongVersion();
                 return;
@@ -203,11 +226,36 @@ public class PreviewThread extends Thread {
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
             }
+
+            try {
+                // to compille under JDK 1.5
+                //windows = Window.getOwnerlessWindows();
+                windows = (Window[])getOwnerlessWindows.invoke(null);
+            } catch (Exception ex) {
+            }
+            
+            if (windows != null)
+                for (Window window : windows) {
+                    if (window instanceof JFrame)
+                        if (!initialList.contains(window))
+                            suspectedList.add((JFrame)window);
+                }
+
             if (obj != null) {
                 comp = CodeManager.parseObj(obj);
-                if (comp == null) {
-                    comp = JavaFXDocument.getNothingPane();
-                }
+            } else {
+                if (!suspectedList.isEmpty()) {
+                    comp = CodeManager.parseObj(suspectedList.get(0));
+                    suspectedList.remove(0);
+                } else
+                    comp = null;
+            }
+            for (JFrame frame : suspectedList) {
+                if (!obj.equals(frame) && frame.isVisible())
+                    frame.dispose();
+            }
+            if (comp == null) {
+                comp = JavaFXDocument.getNothingPane();
             }
             else {
                 List <Diagnostic> diagnostics = CodeManager.getDiagnostics();
@@ -305,7 +353,7 @@ public class PreviewThread extends Thread {
             
             ((JavaFXDocument)doc).setCompile();
             task = ee.execute("prim", new R(), IOProvider.getDefault().getIO("JavaFX preview", false));
-  
+
             task.addTaskListener(new TaskListener() {
                 public void taskFinished(Task task) {
                     ((JavaFXDocument)doc).renderPreview(comp);
