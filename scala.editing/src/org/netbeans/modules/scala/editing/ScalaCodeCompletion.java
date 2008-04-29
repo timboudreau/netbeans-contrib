@@ -1542,10 +1542,10 @@ public class ScalaCodeCompletion implements Completable {
         if (fqnPrefix == null) {
             fqnPrefix = "";
         }
-        
+
         String pkgName = null;
         String prefix = null;
-        
+
         int lastDot = fqnPrefix.lastIndexOf('.');
         if (lastDot == -1) {
             pkgName = fqnPrefix;
@@ -1557,11 +1557,11 @@ public class ScalaCodeCompletion implements Completable {
             pkgName = fqnPrefix.substring(0, lastDot);
             prefix = fqnPrefix.substring(lastDot + 1, fqnPrefix.length());
         }
-        
+
         for (IndexedElement element : request.index.getPackageContent(pkgName, prefix)) {
             proposals.add(new PlainItem(request, element));
         }
-        
+
         for (IndexedElement element : request.index.getPackages(fqnPrefix)) {
             proposals.add(new PackageItem(element, request));
         }
@@ -1974,11 +1974,12 @@ public class ScalaCodeCompletion implements Completable {
         }
 
         public String getInsertPrefix() {
-            if (getKind() == ElementKind.PACKAGE) {
-                return getName() + ".";
-            } else {
-                return getName();
-            }
+            return getName();
+//            if (getKind() == ElementKind.PACKAGE) {
+//                return getName() + ".";
+//            } else {
+//                return getName();
+//            }
         }
 
         public String getSortText() {
