@@ -45,9 +45,9 @@ import org.netbeans.modules.gsf.api.ElementKind;
  *
  * @author Tor Norbye
  */
-public class IndexedTemplate extends IndexedElement {
+public class IndexedType extends IndexedElement {
     
-    IndexedTemplate(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
+    IndexedType(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
         super(fqn, name, in, index, fileUrl, attributes, flags, kind);
     }
     

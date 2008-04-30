@@ -697,6 +697,8 @@ public class AstElementVisitor extends AstVisitor {
         if (paramTypeNode != null) {
             TypeRef type = visitParamType(paramTypeNode);
             param.setType(type);
+            
+            scope.addRef(type);
         }
 
         scopeStack.peek().addDef(param);
@@ -770,11 +772,6 @@ public class AstElementVisitor extends AstVisitor {
             function.setType(type);
         }
 
-        Template enclosingTemplate = currScope.getEnclosingDef(Template.class);
-        if (enclosingTemplate != null) {
-            function.setIn(enclosingTemplate.getName());
-        }
-
         currScope.addDef(function);
 
         scopeStack.pop();
@@ -804,11 +801,6 @@ public class AstElementVisitor extends AstVisitor {
             visitExpr(that.getGeneric(2));
         }
 
-        Template enclosingTemplate = currScope.getEnclosingDef(Template.class);
-        if (enclosingTemplate != null) {
-            function.setIn(enclosingTemplate.getName());
-        }
-
         currScope.addDef(function);
 
         scopeStack.pop();
@@ -835,7 +827,6 @@ public class AstElementVisitor extends AstVisitor {
         Template enclosingTemplate = scopeStack.peek().getEnclosingDef(Template.class);
         if (enclosingTemplate != null) {
             function.setName(enclosingTemplate.getName());
-            function.setIn(enclosingTemplate.getName());
         }
 
         scopeStack.peek().addDef(function);
@@ -920,6 +911,8 @@ public class AstElementVisitor extends AstVisitor {
         if (paramTypeNode != null) {
             TypeRef type = visitParamType(paramTypeNode);
             param.setType(type);
+            
+            scope.addRef(type);
         }
 
         scopeStack.peek().addDef(param);
