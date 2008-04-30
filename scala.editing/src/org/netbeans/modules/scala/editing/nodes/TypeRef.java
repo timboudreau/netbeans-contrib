@@ -125,6 +125,7 @@ public class TypeRef extends AstRef {
         PRED_TYPES.put("String", String);
     }
     private List<String> annotations;
+    public static final String UNRESOLVED = "-1";
 
     public TypeRef(String name, Token idToken, ElementKind kind) {
         super(name, idToken, kind);
@@ -157,6 +158,11 @@ public class TypeRef extends AstRef {
 
         }
         
-        return super.getQualifiedName();
+        // unresoved TypeRef
+        return UNRESOLVED;
     }
+
+    public void setQualifiedName(String qualifiedName) {
+        this.qualifiedName = qualifiedName;
+    }        
 }
