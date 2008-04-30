@@ -215,7 +215,7 @@ public abstract class IndexedElement extends AstElement {
             base.append(';');
             base.append(thename);
             base.append(';');
-            base.append(IndexedElement.computeSignature(element));
+            base.append(IndexedElement.computeAttributes(element));
 
             return IndexedElement.create(element.getName(), base.toString(), "", index, false);       
     }
@@ -485,7 +485,7 @@ public abstract class IndexedElement extends AstElement {
         return value;
     }
 
-    public static int getFlags(AstElement element) {
+    public static int computeFlags(AstElement element) {
         // Return the flags corresponding to the given AST element
         int value = 0;
 
@@ -511,11 +511,11 @@ public abstract class IndexedElement extends AstElement {
         return value;
     }
 
-    public static int getFlags(javax.lang.model.element.Element element) {
+    public static int computeFlags(javax.lang.model.element.Element jelement) {
         // Return the flags corresponding to the given AST element
         int value = 0 | IndexedElement.JAVA;
 
-        javax.lang.model.element.ElementKind k = element.getKind();
+        javax.lang.model.element.ElementKind k = jelement.getKind();
         if (k == javax.lang.model.element.ElementKind.CONSTRUCTOR) {
             value = value | IndexedElement.CONSTRUCTOR;
         }
@@ -524,18 +524,18 @@ public abstract class IndexedElement extends AstElement {
             value = value | IndexedElement.FUNCTION;
         }
 
-        if (element.getModifiers().contains(javax.lang.model.element.Modifier.STATIC)) {
+        if (jelement.getModifiers().contains(javax.lang.model.element.Modifier.STATIC)) {
             value = value | IndexedElement.STATIC;
         }
 
-        if (element.getModifiers().contains(javax.lang.model.element.Modifier.PRIVATE)) {
+        if (jelement.getModifiers().contains(javax.lang.model.element.Modifier.PRIVATE)) {
             value = value | IndexedElement.PRIVATE;
         }
 
         return value;
     }
 
-    public static String computeSignature(AstElement element) {
+    public static String computeAttributes(AstElement element) {
         OffsetRange docRange = getDocumentationOffset(element);
         int docOffset = -1;
         if (docRange != OffsetRange.NONE) {
@@ -569,7 +569,7 @@ public abstract class IndexedElement extends AstElement {
 
         assert index == IndexedElement.FLAG_INDEX;
         StringBuilder sb = new StringBuilder();
-        int flags = IndexedElement.getFlags(element);
+        int flags = IndexedElement.computeFlags(element);
         // Add in info from documentation
 //            if (typeMap != null) {
 //                // Most flags are already handled by AstElement.getFlags()...
@@ -649,11 +649,11 @@ public abstract class IndexedElement extends AstElement {
         }
         sb.append(';');
 
-        String signature = sb.toString();
-        return signature;
+        return sb.toString();
     }
 
-    public static String computeSignature(javax.lang.model.element.Element element) {
+    public static String computeAttributes(javax.lang.model.element.Element jelement) {
+        TypeMirror type = jelement.asType();
         OffsetRange docRange = OffsetRange.NONE;//getDocumentationOffset(element);
         int docOffset = -1;
         if (docRange != OffsetRange.NONE) {
@@ -687,7 +687,7 @@ public abstract class IndexedElement extends AstElement {
 
         assert index == IndexedElement.FLAG_INDEX;
         StringBuilder sb = new StringBuilder();
-        int flags = getFlags(element);
+        int flags = computeFlags(jelement);
         // Add in info from documentation
 //            if (typeMap != null) {
 //                // Most flags are already handled by AstElement.getFlags()...
@@ -705,8 +705,8 @@ public abstract class IndexedElement extends AstElement {
         sb.append(';');
         index++;
         assert index == IndexedElement.ARG_INDEX;
-        if (element instanceof ExecutableElement) {
-            ExecutableElement func = (ExecutableElement) element;
+        if (jelement instanceof ExecutableElement) {
+            ExecutableElement func = (ExecutableElement) jelement;
             ExecutableType funcType = (ExecutableType) func.asType();
 
             int argIndex = 0;
@@ -731,8 +731,7 @@ public abstract class IndexedElement extends AstElement {
                 }
                 argIndex++;
             }
-            TypeMirror retType = funcType.getReturnType();
-            String retTypeName = JavaUtilities.getTypeName(retType, false).toString();
+            type = funcType.getReturnType();
         }
 
 
@@ -754,31 +753,25 @@ public abstract class IndexedElement extends AstElement {
         }
 
         // Browser compatibility
-        sb.append(
-                ';');
+        sb.append(';');
         index++;
         assert index == IndexedElement.BROWSER_INDEX;
         sb.append(compatibility);
 
         // Types
-        sb.append(
-                ';');
+        sb.append(';');
         index++;
-        assert index == IndexedElement.TYPE_INDEX;
-        TypeMirror type = element.asType();
+        assert index == IndexedElement.TYPE_INDEX;                            
 //            if (type == null) {
 //                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
 //            }
-
-
         if (type != null) {
-            sb.append(type.toString());
+            String typeName = JavaUtilities.getTypeName(type, false).toString();
+            sb.append(typeName);
         }
         sb.append(';');
 
-        String signature = sb.toString();
-
-        return signature;
+        return sb.toString();
     }
 
     private static OffsetRange getDocumentationOffset(AstElement element) {

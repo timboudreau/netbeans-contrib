@@ -38,29 +38,36 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.bluej.ui;
 
-import org.netbeans.bluej.ui.window.OpenedBluejProjects;
-import org.openide.modules.ModuleInstall;
+package org.netbeans.modules.groovy.support;
+
+import java.util.ArrayList;
+import java.util.List;
+import org.netbeans.api.project.Project;
+import org.netbeans.spi.project.LookupProvider;
+import org.openide.util.Lookup;
+import org.openide.util.lookup.Lookups;
 
 /**
- * Manages a module's lifecycle. Remember that an installer is optional and
- * often not needed at all.
+ *
+ * @author Martin Adamek
  */
-public class Installer extends ModuleInstall {
-    public void restored() {
-        // By default, do nothing.
-        // Put your startup code here.
-        //TODO what is this doing, possibly remote
-        System.setProperty("no.set.rowheight", Boolean.TRUE.toString());
-        System.setProperty("project.tab.no.selection", "true");
-        OpenedBluejProjects.getInstance().addNotify();
+public class GroovyLookupProvider implements LookupProvider {
+
+    public static GroovyLookupProvider createJavaSE() {
+        return new GroovyLookupProvider();
     }
 
-    public void uninstalled() {
-        super.uninstalled();
-        OpenedBluejProjects.getInstance().removeNotify();
+    private GroovyLookupProvider() {}
+    
+    public Lookup createAdditionalLookup(Lookup baseContext) {
+        Project project = baseContext.lookup(Project.class);
+        if (project == null) {
+            throw new IllegalStateException("Lookup " + baseContext + " does not contain a Project");
+        }
+        List<Object> instances = new ArrayList<Object>(3);
+        instances.add(new GroovyProjectExtender(project));
+        return Lookups.fixed(instances.toArray(new Object[instances.size()]));
     }
-    
-    
+
 }

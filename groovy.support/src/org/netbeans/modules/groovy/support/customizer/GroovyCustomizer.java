@@ -76,11 +76,11 @@ public final class GroovyCustomizer implements ProjectCustomizer.CompositeCatego
 
     public JComponent createComponent(Category category, Lookup context) {
         Project project = context.lookup(Project.class);
-        GroovyProjectExtender antHelper = null;
+        GroovyProjectExtender extender = null;
         if (project != null) {
-            antHelper = new GroovyProjectExtender(project);
+            extender = project.getLookup().lookup(GroovyProjectExtender.class);
         }
-        return new GroovyCustomizerPanel(antHelper);
+        return new GroovyCustomizerPanel(extender);
     }
     
     private static final class StoreActionListener implements ActionListener {
@@ -95,8 +95,10 @@ public final class GroovyCustomizer implements ProjectCustomizer.CompositeCatego
             
             Project project = context.lookup(Project.class);
             if (project != null) {
-                GroovyProjectExtender extender = new GroovyProjectExtender(project);
-                extender.enableGroovy();
+                GroovyProjectExtender extender = project.getLookup().lookup(GroovyProjectExtender.class);
+                if (extender != null) {
+                    extender.enableGroovy();
+                }
             }
         }
         

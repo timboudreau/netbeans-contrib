@@ -387,8 +387,8 @@ public class ScalaIndexer implements Indexer {
 
                         case CONSTRUCTOR:
                         case METHOD: {
-                            String signature = IndexedElement.computeSignature(child);
-                            indexFunction(child, document, signature);
+                            String attributes = IndexedElement.computeAttributes(child);
+                            indexFunction(child, document, attributes);
 
                             break;
                         }
@@ -408,7 +408,7 @@ public class ScalaIndexer implements Indexer {
             }
         }
 
-        private void indexFunction(AstElement element, IndexDocument document, String signature) {
+        private void indexFunction(AstElement element, IndexDocument document, String attributes) {
             String in = element.getIn();
             String name = element.getName();
             StringBuilder base = new StringBuilder();
@@ -420,7 +420,7 @@ public class ScalaIndexer implements Indexer {
             base.append(';');
             base.append(name);
             base.append(';');
-            base.append(signature);
+            base.append(attributes);
             document.addPair(FIELD_BASE, base.toString(), true);
 
             StringBuilder fqn = new StringBuilder();
@@ -437,7 +437,7 @@ public class ScalaIndexer implements Indexer {
             }
             fqn.append(name);
             fqn.append(';');
-            fqn.append(signature);
+            fqn.append(attributes);
             document.addPair(FIELD_FQN, fqn.toString(), true);
 
 //            FunctionCache cache = FunctionCache.INSTANCE;

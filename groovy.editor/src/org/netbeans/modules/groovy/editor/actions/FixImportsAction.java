@@ -36,68 +36,57 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.groovy.editor.actions;
 
-package org.netbeans.modules.cnd.profiler.providers;
-
-import java.io.IOException;
-import org.netbeans.api.project.Project;
-import org.netbeans.spi.project.ActionProvider;
-import org.openide.filesystems.FileObject;
-import org.openide.util.Lookup;
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
+import javax.swing.text.JTextComponent;
+import org.netbeans.modules.gsf.api.EditorAction;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  *
- * @author eu155513
+ * @author schmidtm
  */
-public class GprofProvider implements ProfilerProvider {
-    private final Project project;
-    
-    private static final String PROFILING_FOLDER_NAME = "profiling";
+public class FixImportsAction extends AbstractAction implements EditorAction {
 
-    public GprofProvider(Project project) {
-        this.project = project;
+    private final Logger LOG = Logger.getLogger(FixImportsAction.class.getName());
+    String NAME = "Fix-Imports";
+
+    public FixImportsAction() {
+        super("Fix-Imports");
+        putValue("PopupMenuText", NAME);
+        LOG.setLevel(Level.FINEST);
     }
 
-    public void prepare() {
-        // recompile project with -pg flag
+    @Override
+    public boolean isEnabled() {
+        // here should go all the logic whether there are in fact missing 
+        // imports we're able to fix.
+        return true;
     }
 
-    public void run() {
-        // just run the project
-        ActionProvider ap = project.getLookup().lookup(ActionProvider.class);
-        if (ap == null) {
-            return; // fail early
-        }
-        ap.invokeAction("run", Lookup.EMPTY);
-        
-        // 3) wait for completion and prepare/open gprof results
-        FileObject projectDir = project.getProjectDirectory();
-        try {
-            // create profiling folder if needed
-            FileObject profilingDir = projectDir.getFileObject(PROFILING_FOLDER_NAME);
-            if (profilingDir == null) {
-                profilingDir = projectDir.createFolder(PROFILING_FOLDER_NAME);
-            }
-            
-            // execute gprof on gmon.out
-            FileObject gmon = projectDir.getFileObject("gmon.out");
-            if (gmon == null) {
-                return;
-            }
-            Runtime rt = Runtime.getRuntime();
-            try {
-                FileObject resFile = profilingDir.createData(String.valueOf(System.currentTimeMillis()));
-                Process proc = rt.exec("ggprof -b " + gmon.getPath() + " > " + resFile.getPath());
-                proc.waitFor();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
+    void actionPerformed(final JTextComponent comp) {
+        LOG.log(Level.FINEST, "actionPerformed(final JTextComponent comp)");
+        return;
     }
-    
-    public void cancel() {
-        // cancel run
+
+    public void actionPerformed(ActionEvent e) {
+        LOG.log(Level.FINEST, "actionPerformed(ActionEvent e)");
+        return;
+    }
+
+    public void actionPerformed(ActionEvent evt, JTextComponent target) {
+        LOG.log(Level.FINEST, "actionPerformed(ActionEvent evt, JTextComponent target)");
+        return;
+    }
+
+    public String getActionName() {
+        return NAME;
+    }
+
+    public Class getShortDescriptionBundleClass() {
+        return FixImportsAction.class;
     }
 }

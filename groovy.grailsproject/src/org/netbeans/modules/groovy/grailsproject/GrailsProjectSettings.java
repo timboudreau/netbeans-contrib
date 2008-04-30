@@ -37,67 +37,47 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.cnd.profiler.providers;
+package org.netbeans.modules.groovy.grailsproject;
 
-import java.io.IOException;
-import org.netbeans.api.project.Project;
-import org.netbeans.spi.project.ActionProvider;
-import org.openide.filesystems.FileObject;
-import org.openide.util.Lookup;
+import java.util.prefs.Preferences;
+import org.openide.util.NbPreferences;
+import java.io.File;
 
 /**
  *
- * @author eu155513
+ * @author schmidtm
  */
-public class GprofProvider implements ProfilerProvider {
-    private final Project project;
+public class GrailsProjectSettings {
     
-    private static final String PROFILING_FOLDER_NAME = "profiling";
-
-    public GprofProvider(Project project) {
-        this.project = project;
-    }
-
-    public void prepare() {
-        // recompile project with -pg flag
-    }
-
-    public void run() {
-        // just run the project
-        ActionProvider ap = project.getLookup().lookup(ActionProvider.class);
-        if (ap == null) {
-            return; // fail early
-        }
-        ap.invokeAction("run", Lookup.EMPTY);
-        
-        // 3) wait for completion and prepare/open gprof results
-        FileObject projectDir = project.getProjectDirectory();
-        try {
-            // create profiling folder if needed
-            FileObject profilingDir = projectDir.getFileObject(PROFILING_FOLDER_NAME);
-            if (profilingDir == null) {
-                profilingDir = projectDir.createFolder(PROFILING_FOLDER_NAME);
-            }
-            
-            // execute gprof on gmon.out
-            FileObject gmon = projectDir.getFileObject("gmon.out");
-            if (gmon == null) {
-                return;
-            }
-            Runtime rt = Runtime.getRuntime();
-            try {
-                FileObject resFile = profilingDir.createData(String.valueOf(System.currentTimeMillis()));
-                Process proc = rt.exec("ggprof -b " + gmon.getPath() + " > " + resFile.getPath());
-                proc.waitFor();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
+    private static final GrailsProjectSettings INSTANCE = new GrailsProjectSettings();
+    
+    private static final String LAST_USED_ARTIFACT_FOLDER = "lastUsedArtifactFolder"; //NOI18N
+    private static final String NEW_PROJECT_COUNT = "newProjectCount"; //NOI18N
+    
+    public static GrailsProjectSettings getDefault () {
+        return INSTANCE;
     }
     
-    public void cancel() {
-        // cancel run
+    private static Preferences getPreferences() {
+        return NbPreferences.forModule(GrailsProjectSettings.class);
     }
+
+    public int getNewProjectCount () {
+        return getPreferences().getInt(NEW_PROJECT_COUNT, 0);
+    }
+
+    public void setNewProjectCount (int count) {
+        getPreferences().putInt(NEW_PROJECT_COUNT, count);
+    }    
+    
+    public File getLastUsedArtifactFolder () {
+        return new File (getPreferences().get(LAST_USED_ARTIFACT_FOLDER, System.getProperty("user.home")));
+    }
+
+    public void setLastUsedArtifactFolder (File folder) {
+        assert folder != null : "Folder can not be null";
+        String path = folder.getAbsolutePath();
+        getPreferences().put(LAST_USED_ARTIFACT_FOLDER, path);
+    }   
+    
 }

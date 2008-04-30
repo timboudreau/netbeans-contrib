@@ -43,6 +43,9 @@ package org.netbeans.modules.javafx.editor;
 
 import com.sun.source.tree.Tree;
 import com.sun.source.util.TreePath;
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type;
+import com.sun.tools.javafx.code.JavafxTypes;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Set;
@@ -51,6 +54,8 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
@@ -135,6 +140,23 @@ System.err.println("not an identifier");
                         result[0] = getElementTooltip(el);
                         return;
                     } else {
+                        if (goToSource && el instanceof VariableElement) {
+                            Symbol sym = (Symbol)el;
+                            Type type = sym.asType();
+                            
+                            // handle sequences as their element type
+                            JavafxTypes types = controller.getJavafxTypes();
+                            if (types.isSequence(type)) {
+                                type = types.elementType(type);
+                            }
+                            
+                            if (type != null && type.getKind() == TypeKind.DECLARED) {
+                                el = ((DeclaredType)type).asElement();
+                                
+                                if (el == null) return;
+                            }
+                        }
+                        
                         TreePath elpath = controller.getPath(el);
                         Tree tree = elpath != null && path.getCompilationUnit() == elpath.getCompilationUnit()? elpath.getLeaf(): null;
                         
