@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,72 +31,53 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- *
+ * 
  * Contributor(s):
- *
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * 
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.groovy.grails.api;
+package org.netbeans.modules.groovy.grailsproject;
 
-import org.netbeans.api.project.Project;
-import org.netbeans.modules.groovy.grails.settings.GrailsSettings;
-
+import java.util.prefs.Preferences;
+import org.openide.util.NbPreferences;
+import java.io.File;
 
 /**
  *
  * @author schmidtm
  */
-public class GrailsProjectConfig {
-
-    private final Project prj;
-
-    private final GrailsSettings settings = GrailsSettings.getInstance();
-
-    private GrailsProjectConfig(Project prj) {
-        this.prj = prj;
+public class GrailsProjectSettings {
+    
+    private static final GrailsProjectSettings INSTANCE = new GrailsProjectSettings();
+    
+    private static final String LAST_USED_ARTIFACT_FOLDER = "lastUsedArtifactFolder"; //NOI18N
+    private static final String NEW_PROJECT_COUNT = "newProjectCount"; //NOI18N
+    
+    public static GrailsProjectSettings getDefault () {
+        return INSTANCE;
+    }
+    
+    private static Preferences getPreferences() {
+        return NbPreferences.forModule(GrailsProjectSettings.class);
     }
 
-    public static GrailsProjectConfig forProject(Project project) {
-        return new GrailsProjectConfig(project);
+    public int getNewProjectCount () {
+        return getPreferences().getInt(NEW_PROJECT_COUNT, 0);
     }
 
-    public Project getProject() {
-        return prj;
+    public void setNewProjectCount (int count) {
+        getPreferences().putInt(NEW_PROJECT_COUNT, count);
+    }    
+    
+    public File getLastUsedArtifactFolder () {
+        return new File (getPreferences().get(LAST_USED_ARTIFACT_FOLDER, System.getProperty("user.home")));
     }
 
-    public String getPort() {
-        return settings.getPortForProject(prj);
-    }
-
-    public void setPort(String port) {
-        assert port != null;
-        settings.setPortForProject(prj, port);
-    }
-
-    public GrailsEnvironment getEnvironment() {
-        return settings.getEnvForProject(prj);
-    }
-
-    public void setEnvironment(GrailsEnvironment env) {
-        assert env != null;
-        settings.setEnvForProject(prj, env);
-    }
-
-    public String getDeployDir() {
-        return settings.getDeployDirForProject(prj);
-    }
-
-    public void setDeployDir(String dir) {
-        assert dir != null;
-        settings.setDeployDirForProject(prj, dir);
-    }
-
-    public boolean getAutoDeployFlag() {
-        return settings.getAutoDeployFlagForProject(prj);
-    }
-
-    public void setAutoDeployFlag(boolean flag) {
-        settings.setAutoDeployFlagForProject(prj, flag);
-    }
+    public void setLastUsedArtifactFolder (File folder) {
+        assert folder != null : "Folder can not be null";
+        String path = folder.getAbsolutePath();
+        getPreferences().put(LAST_USED_ARTIFACT_FOLDER, path);
+    }   
+    
 }

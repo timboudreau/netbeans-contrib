@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,72 +31,31 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- *
+ * 
  * Contributor(s):
- *
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * 
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.groovy.grails.api;
-
-import org.netbeans.api.project.Project;
-import org.netbeans.modules.groovy.grails.settings.GrailsSettings;
-
+package org.netbeans.modules.cnd.profiler.providers;
 
 /**
  *
- * @author schmidtm
+ * @author eu155513
  */
-public class GrailsProjectConfig {
-
-    private final Project prj;
-
-    private final GrailsSettings settings = GrailsSettings.getInstance();
-
-    private GrailsProjectConfig(Project prj) {
-        this.prj = prj;
-    }
-
-    public static GrailsProjectConfig forProject(Project project) {
-        return new GrailsProjectConfig(project);
-    }
-
-    public Project getProject() {
-        return prj;
-    }
-
-    public String getPort() {
-        return settings.getPortForProject(prj);
-    }
-
-    public void setPort(String port) {
-        assert port != null;
-        settings.setPortForProject(prj, port);
-    }
-
-    public GrailsEnvironment getEnvironment() {
-        return settings.getEnvForProject(prj);
-    }
-
-    public void setEnvironment(GrailsEnvironment env) {
-        assert env != null;
-        settings.setEnvForProject(prj, env);
-    }
-
-    public String getDeployDir() {
-        return settings.getDeployDirForProject(prj);
-    }
-
-    public void setDeployDir(String dir) {
-        assert dir != null;
-        settings.setDeployDirForProject(prj, dir);
-    }
-
-    public boolean getAutoDeployFlag() {
-        return settings.getAutoDeployFlagForProject(prj);
-    }
-
-    public void setAutoDeployFlag(boolean flag) {
-        settings.setAutoDeployFlagForProject(prj, flag);
-    }
+public interface ProfilerProvider {
+    /*
+     * Prepare profiler, called before run
+     */
+    /*Problem*/ void prepare();
+    
+    /*
+     * Do the profiling, collect data in the bag
+     */
+    /*Problem*/ void run(/*Bag*/);
+    
+    /*
+     * Cancel profiling if running
+     */
+    /*Problem*/ void cancel();
 }

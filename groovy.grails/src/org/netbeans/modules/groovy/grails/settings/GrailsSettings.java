@@ -37,9 +37,9 @@ import org.openide.util.NbPreferences;
  *
  * @author schmidtm
  */
-public final class Settings {
+public final class GrailsSettings {
 
-    private static Settings instance;
+    private static GrailsSettings instance;
 
     private static final String GRAILS_HOME_KEY = "grailsHome";
     private static final String GRAILS_PORT_KEY = "grailsPrj-Port-";
@@ -47,13 +47,13 @@ public final class Settings {
     private static final String GRAILS_DEPLOY_KEY = "grailsPrj-Deploy-";
     private static final String GRAILS_AUTODEPLOY_KEY = "grailsPrj-Autodeploy-";
 
-    private Settings() {
+    private GrailsSettings() {
         super();
     }
 
-    public static synchronized Settings getInstance() {
+    public static synchronized GrailsSettings getInstance() {
         if (instance == null) {
-            instance = new Settings();
+            instance = new GrailsSettings();
         }
         return instance;
     }
@@ -84,7 +84,7 @@ public final class Settings {
         assert prj != null;
         String value = getPreferences().get(getEnvKey(prj), null);
         if (value != null) {
-            return GrailsEnvironment.forString(value);
+            return GrailsEnvironment.valueOf(value);
         }
         return null;
     }
@@ -150,6 +150,6 @@ public final class Settings {
     }
 
     private Preferences getPreferences() {
-        return NbPreferences.forModule(Settings.class);
+        return NbPreferences.forModule(GrailsSettings.class);
     }
 }
