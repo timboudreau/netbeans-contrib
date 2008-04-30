@@ -39,65 +39,23 @@
 
 package org.netbeans.modules.cnd.profiler.providers;
 
-import java.io.IOException;
-import org.netbeans.api.project.Project;
-import org.netbeans.spi.project.ActionProvider;
-import org.openide.filesystems.FileObject;
-import org.openide.util.Lookup;
-
 /**
  *
  * @author eu155513
  */
-public class GprofProvider implements ProfilerProvider {
-    private final Project project;
+public interface ProfilerProvider {
+    /*
+     * Prepare profiler, called before run
+     */
+    /*Problem*/ void prepare();
     
-    private static final String PROFILING_FOLDER_NAME = "profiling";
-
-    public GprofProvider(Project project) {
-        this.project = project;
-    }
-
-    public void prepare() {
-        // recompile project with -pg flag
-    }
-
-    public void run() {
-        // just run the project
-        ActionProvider ap = project.getLookup().lookup(ActionProvider.class);
-        if (ap == null) {
-            return; // fail early
-        }
-        ap.invokeAction("run", Lookup.EMPTY);
-        
-        // 3) wait for completion and prepare/open gprof results
-        FileObject projectDir = project.getProjectDirectory();
-        try {
-            // create profiling folder if needed
-            FileObject profilingDir = projectDir.getFileObject(PROFILING_FOLDER_NAME);
-            if (profilingDir == null) {
-                profilingDir = projectDir.createFolder(PROFILING_FOLDER_NAME);
-            }
-            
-            // execute gprof on gmon.out
-            FileObject gmon = projectDir.getFileObject("gmon.out");
-            if (gmon == null) {
-                return;
-            }
-            Runtime rt = Runtime.getRuntime();
-            try {
-                FileObject resFile = profilingDir.createData(String.valueOf(System.currentTimeMillis()));
-                Process proc = rt.exec("ggprof -b " + gmon.getPath() + " > " + resFile.getPath());
-                proc.waitFor();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
-    }
+    /*
+     * Do the profiling, collect data in the bag
+     */
+    /*Problem*/ void run(/*Bag*/);
     
-    public void cancel() {
-        // cancel run
-    }
+    /*
+     * Cancel profiling if running
+     */
+    /*Problem*/ void cancel();
 }
