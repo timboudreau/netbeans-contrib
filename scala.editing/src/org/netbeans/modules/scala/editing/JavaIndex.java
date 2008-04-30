@@ -44,13 +44,11 @@ import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
@@ -151,9 +149,24 @@ public class JavaIndex {
         return idxElements;
     }
 
-    public Set<IndexedElement> getPackageContent(String pkgFqn, String prefix) {
+    public Set<IndexedElement> getPackageContent(String fqnPrefix) {
+        String pkgName = null;
+        String prefix = null;
+
+        int lastDot = fqnPrefix.lastIndexOf('.');
+        if (lastDot == -1) {
+            pkgName = fqnPrefix;
+            prefix = "";
+        } else if (lastDot == fqnPrefix.length() - 1) {
+            pkgName = fqnPrefix.substring(0, lastDot);
+            prefix = "";
+        } else {
+            pkgName = fqnPrefix.substring(0, lastDot);
+            prefix = fqnPrefix.substring(lastDot + 1, fqnPrefix.length());
+        }
+        
         Elements theElements = controller.getElements();
-        PackageElement pe = theElements.getPackageElement(pkgFqn);
+        PackageElement pe = theElements.getPackageElement(pkgName);
         if (pe != null) {
             Set<IndexedElement> idxElements = new HashSet<IndexedElement>();
             for (Element e : pe.getEnclosedElements()) {
@@ -186,7 +199,7 @@ public class JavaIndex {
             Set<SearchScope> scope, boolean onlyConstructors, ScalaParserResult context,
             boolean includeMethods, boolean includeProperties, boolean includeDuplicates) {
 
-        final Set<IndexedElement> idxElements = includeDuplicates ? new DuplicateElementSet() : new HashSet<IndexedElement>();        
+        final Set<IndexedElement> idxElements = includeDuplicates ? new DuplicateElementSet() : new HashSet<IndexedElement>();
 
         JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
 
@@ -222,8 +235,15 @@ public class JavaIndex {
             type = "Object";
         }
 
+        String pkgName = "";
         String fqn;
         if (type != null && type.length() > 0) {
+            int lastDot = type.lastIndexOf('.');
+            if (lastDot > 0) {
+                pkgName = type.substring(0, lastDot);
+                type = type.substring(lastDot + 1, type.length());
+            }
+            
             fqn = type + "." + name;
         } else {
             fqn = name;
@@ -246,6 +266,11 @@ public class JavaIndex {
 
             PackageElement pe = theElements.getPackageOf(te);
             if (pe != null) {
+                if (!pkgName.equals("")) {
+                    if (!pe.getQualifiedName().toString().equals(pkgName)) {
+                        continue;
+                    }
+                }
             }
 
             TypeMirror typeMirror = te.asType();
@@ -253,13 +278,13 @@ public class JavaIndex {
 
             if (te != null) {
                 for (Element e : theElements.getAllMembers(te)) {
-                    
+
                     if (e.getModifiers().contains(Modifier.PRIVATE)) {
                         continue;
                     }
-                    
+
                     String simpleMame = e.getSimpleName().toString();
-                    
+
                     switch (e.getKind()) {
                         case ENUM_CONSTANT:
                         case EXCEPTION_PARAMETER:

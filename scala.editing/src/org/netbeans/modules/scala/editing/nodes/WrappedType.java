@@ -39,7 +39,6 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 
@@ -96,7 +95,7 @@ public class WrappedType extends TypeRef {
         }
         return sb.toString();
     }
-       
+
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
