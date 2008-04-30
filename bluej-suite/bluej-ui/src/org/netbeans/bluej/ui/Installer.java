@@ -51,6 +51,7 @@ public class Installer extends ModuleInstall {
     public void restored() {
         // By default, do nothing.
         // Put your startup code here.
+        //TODO what is this doing, possibly remote
         System.setProperty("no.set.rowheight", Boolean.TRUE.toString());
         System.setProperty("project.tab.no.selection", "true");
         OpenedBluejProjects.getInstance().addNotify();
