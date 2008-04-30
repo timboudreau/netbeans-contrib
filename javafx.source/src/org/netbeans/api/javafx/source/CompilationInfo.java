@@ -49,6 +49,7 @@ import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javafx.api.JavafxcTrees;
+import com.sun.tools.javafx.code.JavafxTypes;
 import com.sun.tools.javafx.comp.JavafxEnter;
 import com.sun.tools.javafx.comp.JavafxEnv;
 import com.sun.tools.javafx.tree.JFXClassDeclaration;
@@ -149,6 +150,10 @@ public class CompilationInfo {
 
     public Types getTypes() {
         return impl.getJavafxcTask().getTypes();
+    }
+    
+    public JavafxTypes getJavafxTypes() {
+        return JavafxTypes.instance(impl.getContext());
     }
     
     public Elements getElements() {

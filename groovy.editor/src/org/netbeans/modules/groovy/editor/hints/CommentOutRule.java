@@ -48,7 +48,7 @@ public class CommentOutRule implements SelectionRule {
     
     public static final Logger LOG = Logger.getLogger(CommentOutRule.class.getName()); // NOI18N
     
-    String desc = "Comment out selected text";
+    String bulbDesc = "Comment out selected text";
 
     public void run(RuleContext context, List<Description> result) {
         CompilationInfo info = context.compilationInfo;
@@ -82,7 +82,7 @@ public class CommentOutRule implements SelectionRule {
         }
         
         // this is just a dummy fix to see the lightbulb ...
-        Fix fix = new SimpleFix(desc);
+        Fix fix = new SimpleFix(bulbDesc);
         OffsetRange range = new OffsetRange(start, end);
         
         List<Fix> fixList = new ArrayList<Fix>(1);
@@ -99,7 +99,7 @@ public class CommentOutRule implements SelectionRule {
     }
 
     public String getDisplayName() {
-        return desc;
+        return bulbDesc;
     }
 
     public boolean showInTasklist() {

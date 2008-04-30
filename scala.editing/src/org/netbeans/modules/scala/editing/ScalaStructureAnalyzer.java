@@ -86,7 +86,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         List<StructureItem> items = new ArrayList<StructureItem>();
 
         for (AstDef def : rootScope.getDefs()) {
-            if (def.getKind() != ElementKind.PARAMETER && def.getKind() != ElementKind.VARIABLE) {
+            if (def.getKind() != ElementKind.PARAMETER && def.getKind() != ElementKind.VARIABLE && def.getKind() != ElementKind.OTHER) {
                 items.add(new ScalaStructureItem(def, info, formatter));
             }
         }
@@ -239,7 +239,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
                 List<ScalaStructureItem> children = new ArrayList<ScalaStructureItem>(nested.size());
 
                 for (AstDef child : nested) {
-                    if (child.getKind() != ElementKind.PARAMETER && def.getKind() != ElementKind.VARIABLE) {
+                    if (child.getKind() != ElementKind.PARAMETER && child.getKind() != ElementKind.VARIABLE && child.getKind() != ElementKind.OTHER) {
                         children.add(new ScalaStructureItem(child, info, formatter));
                     }
                 }

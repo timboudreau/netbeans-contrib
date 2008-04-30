@@ -60,7 +60,11 @@ public class HibernateRefactoringPluginFactory implements RefactoringPluginFacto
     public RefactoringPlugin createInstance(AbstractRefactoring refactoring) {
         
         if (refactoring instanceof WhereUsedQuery) {
-            return new HibernateFindUsagesPlugin((WhereUsedQuery) refactoring);
+            if (isMappingFile(refactoring)) {
+                return new HibernateMappingFindUsagesPlugin((WhereUsedQuery)refactoring);
+            } else {
+                return new HibernateFindUsagesPlugin((WhereUsedQuery) refactoring);
+            }
         } else if (refactoring instanceof RenameRefactoring) {
             if (isMappingFile(refactoring)) {
                 return new HibernateMappingRenamePlugin((RenameRefactoring) refactoring);

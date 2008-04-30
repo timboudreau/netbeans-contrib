@@ -110,6 +110,7 @@ public class JavaFXEditorKit extends LexerEditorKit{
             resetAction,
             new JavaDefaultKeyTypedAction(),
             new JavaDeleteCharAction(deletePrevCharAction, false),
+            new JavaFXGoToDeclarationAction(),
             new JavaFXGoToSourceAction(),
             new JavaInsertBreakAction()
         };
@@ -383,6 +384,15 @@ public class JavaFXEditorKit extends LexerEditorKit{
         protected void charBackspaced(BaseDocument doc, int dotPos, Caret caret, char ch)
         throws BadLocationException {
             BracketCompletion.charBackspaced(doc, dotPos, ch);
+        }
+    }
+
+    private static class JavaFXGoToDeclarationAction extends GotoDeclarationAction {
+        public @Override boolean gotoDeclaration(JTextComponent target) {
+            if (!(target.getDocument() instanceof BaseDocument)) // Fixed #113062
+                return false;
+            GoToSupport.goTo((BaseDocument) target.getDocument(), target.getCaretPosition(), false);
+            return true;
         }
     }
 

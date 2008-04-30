@@ -60,7 +60,6 @@ import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import org.netbeans.modules.java.source.usages.VirtualSourceProvider;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.Packaging;
-import org.netbeans.modules.scala.editing.nodes.SimpleType;
 import org.netbeans.modules.scala.editing.nodes.Template;
 import org.netbeans.modules.scala.util.NbUtilities;
 import org.openide.filesystems.FileObject;
@@ -84,8 +83,9 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
         Iterator<File> it = files.iterator();
         while (it.hasNext()) {
             File file = it.next();
-            List<Template> classNodes = getTemplates(file);
-            if (classNodes.isEmpty()) {
+            /** @Todo */
+            List<Template> templates = Collections.<Template>emptyList();//getTemplates(file);
+            if (templates.isEmpty()) {
                 // source is probably broken and there is no AST
                 // let's generate empty Java stub with simple name equal to file name
                 FileObject fo = FileUtil.toFileObject(file);
@@ -101,13 +101,11 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                     result.add(file, pkg, file.getName(), sb.toString());
                 }
             } else {
-                for (Template template : classNodes) {
+                for (Template template : templates) {
                     try {
                         CharSequence javaStub = generator.generateClass(template);
-                        String pkgName = template.getPackageElement().getName();
-                        if (pkgName == null) {
-                            pkgName = ""; // NOI18N
-                        }
+                        Packaging packaging = template.getPackageElement();
+                        String pkgName = packaging == null ? "" : packaging.getName();
                         result.add(file, pkgName, template.getName(), javaStub);
                     } catch (FileNotFoundException ex) {
                         Exceptions.printStackTrace(ex);
@@ -196,9 +194,9 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
             PrintWriter out = new PrintWriter(sw);
 
             try {
-                Packaging packageName = template.getPackageElement();
-                if (packageName != null) {
-                    out.println("package " + packageName.getName() + ";\n");
+                Packaging packaging = template.getPackageElement();
+                if (packaging != null) {
+                    out.println("package " + packaging.getName() + ";\n");
                 }
 
                 //genImports(template, out);
@@ -208,14 +206,14 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
                 out.print("class ");
                 out.println(template.getName());
 
-                List<SimpleType> parents = template.getExtendsWith();
-
-                out.print("  extends ");
-                for (SimpleType parent : parents) {
-                    out.print(parent.getName());
-                    out.print(" ");
-                    break;
-                }
+//                List<SimpleType> parents = template.getExtendsWith();
+//
+//                out.print("  extends ");
+//                for (SimpleType parent : parents) {
+//                    out.print(parent.getName());
+//                    out.print(" ");
+//                    break;
+//                }
 
 
                 out.println(" {");

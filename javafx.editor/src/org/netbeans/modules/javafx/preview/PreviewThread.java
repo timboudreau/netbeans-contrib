@@ -197,25 +197,8 @@ public class PreviewThread extends Thread {
     class R implements Runnable {
                 
         public void run() {
-            List <JFrame> initialList = new ArrayList<JFrame>();
-            List <JFrame> suspectedList = new ArrayList<JFrame>();
+            List <Window> initialList = getOwnerlessWindowsList();
             
-            Method getOwnerlessWindows = null;
-            Window windows[] = null;
-            try {
-                // to compille under JDK 1.5
-                //windows = Window.getOwnerlessWindows(); 
-                getOwnerlessWindows = Window.class.getDeclaredMethod("getOwnerlessWindows");
-                windows = (Window[])getOwnerlessWindows.invoke(null);
-            } catch (Exception ex) {
-            }
-            
-            if (windows != null)
-                for (Window window : windows) {
-                    if (window instanceof JFrame)
-                        initialList.add((JFrame)window);
-                }
-                
             if (!checkJavaVersion()) {
                 comp = getVrongVersion();
                 return;
@@ -227,20 +210,9 @@ public class PreviewThread extends Thread {
                 Exceptions.printStackTrace(ex);
             }
 
-            try {
-                // to compille under JDK 1.5
-                //windows = Window.getOwnerlessWindows();
-                windows = (Window[])getOwnerlessWindows.invoke(null);
-            } catch (Exception ex) {
-            }
+            List <Window> suspectedList = getOwnerlessWindowsList();
+            suspectedList.removeAll(initialList);
             
-            if (windows != null)
-                for (Window window : windows) {
-                    if (window instanceof JFrame)
-                        if (!initialList.contains(window))
-                            suspectedList.add((JFrame)window);
-                }
-
             if (obj != null) {
                 comp = CodeManager.parseObj(obj);
             } else {
@@ -250,59 +222,42 @@ public class PreviewThread extends Thread {
                 } else
                     comp = null;
             }
-            for (JFrame frame : suspectedList) {
+            for (Window frame : suspectedList) {
                 if (!obj.equals(frame) && frame.isVisible())
                     frame.dispose();
             }
-            if (comp == null) {
-                comp = JavaFXDocument.getNothingPane();
+            List <Diagnostic> diagnostics = CodeManager.getDiagnostics();
+            if (!diagnostics.isEmpty()) {
+                comp = processDiagnostic(diagnostics);
             }
             else {
-                List <Diagnostic> diagnostics = CodeManager.getDiagnostics();
-                if (!diagnostics.isEmpty()) {
-                    JEditorPane pane = new JEditorPane();
-                    pane.setEditable(false);
-                    pane.setEditorKit(new HTMLEditorKit());
-                    Hyperlink hl = new Hyperlink();
-                    pane.addHyperlinkListener(hl);
-                    //pane.setFont(new FontUIResource("Monospaced", FontUIResource.PLAIN, 20));
-                    String text = "";
-                    int i = 0;
-                    Vector<Object> foMap = new Vector<Object>();
-                    Vector<Long> offsetMap = new Vector<Long>();
-                    for (Diagnostic diagnostic : diagnostics) {
-                        Object source = diagnostic.getSource();
-                        String name = "";
-                        if (diagnostic.getSource() != null)
-                        {
-                            if (diagnostic.getSource() instanceof MemoryFileObject) {
-                                MemoryFileObject mfo = (MemoryFileObject)source;
-                                name = mfo.getFilePath();
-                            } else {
-                                JavaFileObject jFO = (JavaFileObject) source;
-                                File file = new File(jFO.toUri());
-                                FileObject regularFO = FileUtil.toFileObject(file);
-                                name = regularFO.getPath();
-                                source = regularFO;
-                            }
-                            foMap.add(source);
-                            offsetMap.add(diagnostic.getPosition());
-                            text+= "<a href=" + i + ">" + name + " : " + diagnostic.getLineNumber() + "</a>\n" + " " + "<font color=#a40000>" + diagnostic.getMessage(null) + "</font>" + "<br>";
-                            i++;
-                        }
-                    }
-                    pane.setText(text);
-                    hl.setMaps(foMap, offsetMap);
-                    comp = pane;
-                }
-                else {
-                    if (comp == null) {
-                        comp = JavaFXDocument.getNothingPane();
-                    }
+                if (comp == null) {
+                    comp = JavaFXDocument.getNothingPane();
                 }
             }
         }
+        
+    
+        private List <Window> getOwnerlessWindowsList() {
+            List <Window> list = new ArrayList<Window>();
 
+            Method getOwnerlessWindows = null;
+            Window windows[] = null;
+            try {
+                // to compille under JDK 1.5
+                //windows = Window.getOwnerlessWindows();
+                getOwnerlessWindows = Window.class.getDeclaredMethod("getOwnerlessWindows");
+                windows = (Window[])getOwnerlessWindows.invoke(null);
+            } catch (Exception ex) {
+            }
+            if (windows != null)
+                for (Window window : windows) {
+                    if (window instanceof JFrame)
+                        list.add((JFrame)window);
+                }
+            return list;
+        }
+                
         private boolean checkJavaVersion() {
             String version = System.getProperty("java.runtime.version");
             if (!version.startsWith("1.6"))
@@ -311,6 +266,43 @@ public class PreviewThread extends Thread {
                 return true;
         }
 
+        private JComponent processDiagnostic(List <Diagnostic> diagnostics) {
+            JEditorPane pane = new JEditorPane();
+            pane.setEditable(false);
+            pane.setEditorKit(new HTMLEditorKit());
+            Hyperlink hl = new Hyperlink();
+            pane.addHyperlinkListener(hl);
+            //pane.setFont(new FontUIResource("Monospaced", FontUIResource.PLAIN, 20));
+            String text = "";
+            int i = 0;
+            Vector<Object> foMap = new Vector<Object>();
+            Vector<Long> offsetMap = new Vector<Long>();
+            for (Diagnostic diagnostic : diagnostics) {
+                Object source = diagnostic.getSource();
+                String name = "";
+                if (diagnostic.getSource() != null)
+                {
+                    if (diagnostic.getSource() instanceof MemoryFileObject) {
+                        MemoryFileObject mfo = (MemoryFileObject)source;
+                        name = mfo.getFilePath();
+                    } else {
+                        JavaFileObject jFO = (JavaFileObject) source;
+                        File file = new File(jFO.toUri());
+                        FileObject regularFO = FileUtil.toFileObject(file);
+                        name = regularFO.getPath();
+                        source = regularFO;
+                    }
+                    foMap.add(source);
+                    offsetMap.add(diagnostic.getPosition());
+                    text+= "<a href=" + i + ">" + name + " : " + diagnostic.getLineNumber() + "</a>\n" + " " + "<font color=#a40000>" + diagnostic.getMessage(null) + "</font>" + "<br>";
+                    i++;
+                }
+            }
+            pane.setText(text);
+            hl.setMaps(foMap, offsetMap);
+            return pane;
+        }
+        
         private JComponent getNothig() {
             JTextArea jta = new JTextArea();
             jta.append(nothingToShow);

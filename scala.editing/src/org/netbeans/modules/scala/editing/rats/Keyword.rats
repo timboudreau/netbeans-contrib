@@ -111,6 +111,7 @@ option setOfString(SCALA_KEYWORDS);
 
 generic ThisKey  = "this" :key ;
 generic SuperKey = "super":key ;
+generic WildKey  = "_"    :key;
 
 /*
  * The tokens that can terminate a statement are: literals, identifiers and the following
