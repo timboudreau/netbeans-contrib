@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-    
-   <folder name="Menu">
-       <folder name="Help">
-           <file name="master-help.xml_hidden"/>
-           <file name="org-netbeans-modules-usersguide-master.xml_hidden"/>
-           <file name="org-netbeans-bluej-master.xml" url="master.xml">
-               <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.bluej.Bundle"/>
-               <attr name="position" intvalue="205"/>
-           </file>
-       </folder>
-   </folder>
-    
     <folder name="OptionsDialog">
         <folder name="Advanced">
             <file name="BlueJ.instance">
@@ -21,13 +9,13 @@
         </folder>
    </folder>
   <folder name="Services">
-    
       <folder name="JavaHelp">
             <file name="bluej-helpset.xml" url="bluej-helpset.xml"/>
         </folder>
   </folder>
     <folder name="Templates">
         <folder name="Bluej">
+            <attr name="position" intvalue="701"/>
             <file name="Abstract.java" url="resources/templates/newclass/abstract.tmpl">
                 <attr name="instantiatingIterator" methodvalue="org.netbeans.spi.java.project.support.ui.templates.JavaTemplates.createJavaTemplateIterator"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.bluej.Bundle"/>
