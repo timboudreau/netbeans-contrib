@@ -69,7 +69,6 @@ public class AstElement implements ElementHandle {
     private Set<Modifier> mods;
     private TypeRef type;
     protected String qualifiedName;
-    private String in;
     
     public AstElement( ElementKind kind) {
         this(null, kind);
@@ -134,13 +133,13 @@ public class AstElement implements ElementHandle {
         return type;
     }
 
-    public <T extends AstDef> T getEnclosingDef(Class<T> clazz) {
-        return enclosingScope.getEnclosingDef(clazz);
+    public <T extends AstDef> T getEnclosingDef(Class<T> clazz) {        
+        return getEnclosingScope().getEnclosingDef(clazz);
     }
 
     /**
      * @Note: enclosingScope will be set when call
-     *   {@link AstScope#addDefinition(Definition)} or {@link AstScope#addUsage(Usage)}
+     *   {@link AstScope#addDef(Def)} or {@link AstScope#addUsage(Usage)}
      */
     protected void setEnclosingScope(AstScope enclosingScope) {
         this.enclosingScope = enclosingScope;
@@ -150,7 +149,7 @@ public class AstElement implements ElementHandle {
      * @return the scope that encloses this item 
      */
     public AstScope getEnclosingScope() {
-        assert enclosingScope != null : "Each element should set enclosing scope!";
+        assert enclosingScope != null : "Each element should set enclosing scope!, except native TypeRef";
         return enclosingScope;
     }
 
@@ -190,12 +189,13 @@ public class AstElement implements ElementHandle {
         return mods == null ? Collections.<Modifier>emptySet() : mods;
     }
     
-    public void setIn(String in) {
-        this.in = in;
-    }
-
     public String getIn() {
-        return in;
+        Template enclosingTemplate = getEnclosingDef(Template.class);
+        if (enclosingTemplate != null) {
+            return enclosingTemplate.getQualifiedName();
+        } else {
+            return "";
+        }
     }
 
     @Override

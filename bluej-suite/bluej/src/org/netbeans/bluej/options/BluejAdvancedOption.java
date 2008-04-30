@@ -45,20 +45,17 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 
 /**
  *
  * @author mkleint
  */
-public class BluejAdvancedOption extends org.netbeans.spi.options.OptionsCategory {
+public class BluejAdvancedOption extends org.netbeans.spi.options.AdvancedOption {
     
     /** Creates a new instance of BluejAdvancedOption */
     public BluejAdvancedOption() {
@@ -68,20 +65,6 @@ public class BluejAdvancedOption extends org.netbeans.spi.options.OptionsCategor
         return new Controller();
     }
 
-    public String getCategoryName() {
-        return NbBundle.getBundle(BluejAdvancedOption.class).getString("AdvanceOption_title"); // NOI18N
-    }
-
-    public String getTitle() {
-        return NbBundle.getBundle(BluejAdvancedOption.class).getString("AdvancedOption_tooltip"); // NOI18N
-    }
-
-    @Override
-    public Icon getIcon() {
-        return new ImageIcon(Utilities.loadImage("org/netbeans/bluej/options/Category.png")); // NOI18N
-    }
-    
-    
     static class Controller extends OptionsPanelController {
         private List listeners = new ArrayList();
         private BlueJPanel panel;
@@ -134,5 +117,15 @@ public class BluejAdvancedOption extends org.netbeans.spi.options.OptionsCategor
             return panel;
         }
         
+    }
+
+    @Override
+    public String getDisplayName() {
+        return NbBundle.getBundle(BluejAdvancedOption.class).getString("AdvanceOption_title"); // NOI18N
+    }
+
+    @Override
+    public String getTooltip() {
+        return NbBundle.getBundle(BluejAdvancedOption.class).getString("AdvancedOption_tooltip"); // NOI18N
     }
 }

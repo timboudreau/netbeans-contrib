@@ -1,211 +1,103 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * 
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ * 
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ * 
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.cnd.profiler.providers;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import org.netbeans.modules.cnd.profiler.data.Call;
-import org.netbeans.modules.cnd.profiler.data.Function;
+import org.netbeans.api.project.Project;
+import org.netbeans.spi.project.ActionProvider;
+import org.openide.filesystems.FileObject;
+import org.openide.util.Lookup;
 
 /**
  *
  * @author eu155513
  */
-public class GprofProvider implements FunctionsProvider {
-    private final File file;
+public class GprofProvider implements ProfilerProvider {
+    private final Project project;
     
-    private final Collection<Function> functions;
+    private static final String PROFILING_FOLDER_NAME = "profiling";
 
-    public GprofProvider(File file) {
-        this.file = file;
-        functions = parseFunctions();
+    public GprofProvider(Project project) {
+        this.project = project;
     }
-    
-    public Function[] getFunctions() {
-        // todo: maybe we do not need to recreate it always
-        return functions.toArray(new Function[functions.size()]);
+
+    public void prepare() {
+        // recompile project with -pg flag
     }
-    
-    private Collection<Function> parseFunctions() {
-        Collection<Function> fss = new ArrayList<Function>();
+
+    public void run() {
+        // just run the project
+        ActionProvider ap = project.getLookup().lookup(ActionProvider.class);
+        if (ap == null) {
+            return; // fail early
+        }
+        ap.invokeAction("run", Lookup.EMPTY);
+        
+        // 3) wait for completion and prepare/open gprof results
+        FileObject projectDir = project.getProjectDirectory();
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-
-            parsePlainList(fss, reader);
-            parseCallGraph(fss, reader);
-
-            reader.close();
-        } catch(IOException ioe) {
+            // create profiling folder if needed
+            FileObject profilingDir = projectDir.getFileObject(PROFILING_FOLDER_NAME);
+            if (profilingDir == null) {
+                profilingDir = projectDir.createFolder(PROFILING_FOLDER_NAME);
+            }
+            
+            // execute gprof on gmon.out
+            FileObject gmon = projectDir.getFileObject("gmon.out");
+            if (gmon == null) {
+                return;
+            }
+            Runtime rt = Runtime.getRuntime();
+            try {
+                FileObject resFile = profilingDir.createData(String.valueOf(System.currentTimeMillis()));
+                Process proc = rt.exec("ggprof -b " + gmon.getPath() + " > " + resFile.getPath());
+                proc.waitFor();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (IOException ioe) {
             ioe.printStackTrace();
         }
-        return fss;
     }
     
-    private void parsePlainList(Collection<Function> fss, BufferedReader reader) throws IOException {
-        String line = "";
-        while (!line.contains("s/call  name")) {
-            line = reader.readLine();
-        }
-        
-        line = reader.readLine();
-        // todo: check exit condition
-        while (line != null && !line.startsWith("\f")) {
-            fss.add(parsePlainLine(line));
-            line = reader.readLine();
-        }
-    }
-    
-    private static final char DELIMITER = ' ';
-    private static final String PLAIN_PROPERTIES[] = new String[] {"self_percent"/*0*/,"cumul_secs"/*1*/,"self"/*2*/,"calls"/*3*/,"selfsc"/*4*/,"totalsc"/*5*/,"name"};
-    private static final Collection PLAIN_PROPERTIES_INCLUDED = Arrays.asList(new Integer[] {}); // will get all properties from call list
-    
-    private Function parsePlainLine(String line) {
-        char[] symbols = line.toCharArray();
-        int namePos = symbols.length-1;
-        // find the name
-        while (symbols[namePos] != DELIMITER) {
-            namePos--;
-        }
-        Function res = new Function(line.substring(namePos+1));
-        
-        int pos = 0;
-        int start = -1;
-        int propIdx = 0;
-        while (pos < namePos) {
-            if (symbols[pos] == DELIMITER) {
-                if (start != -1) {
-                    if (PLAIN_PROPERTIES_INCLUDED.contains(propIdx)) {
-                        res.setProperty(PLAIN_PROPERTIES[propIdx], line.substring(start, pos));
-                    }
-                    propIdx++;
-                    start = -1;
-                }
-            } else {
-                if (start == -1) {
-                    start = pos;
-                }
-            }
-            pos++;
-        }
-        return res;
-    }
-    
-    private void parseCallGraph(Collection<Function> fss, BufferedReader reader) throws IOException {
-        String line = "";
-        while (!line.contains("called     name")) {
-            line = reader.readLine();
-        }
-        
-        // todo: check exit condition
-        while (parseCallBlock(fss, reader)){}
-    }
-    
-    private boolean parseCallBlock(Collection<Function> fss, BufferedReader reader) throws IOException {
-        String line = reader.readLine();
-        if (line.startsWith("\f")) {
-            return false;
-        }
-        boolean inCallees = false;
-        Function described = null;
-        Collection<Call> callers = new ArrayList<Call>();
-        while (!line.startsWith("-")) {
-            Function function = parseCallLine(line);
-            if (function != null) {
-                Function origFunction = getLikeThis(fss, function);
-                if (origFunction == null) {
-                    origFunction = function;
-                }
-                if (line.startsWith("[")) {
-                    // described function
-                    described = origFunction;
-                    described.addProperties(function);
-                    inCallees = true;
-                } else {
-                    Call call = new Call(origFunction);
-                    call.addProperties(function);
-                    if (inCallees) {
-                        assert described != null;
-                        described.addCallee(call);
-                    } else {
-                        callers.add(call);
-                    }
-                }
-            }
-            line = reader.readLine();
-        }
-        for (Call call : callers) {
-            described.addCaller(call);
-        }
-        return true;
-    }
-    
-    private static Function getLikeThis(Collection<Function> fc, Function f) {
-        for (Function function : fc) {
-            if (function.equals(f)) {
-                return function;
-            }
-        }
-        return null;
-    }
-    
-    private static final String CALL_PROPERTIES[] = new String[] {"index"/*0*/,"total_percents"/*1*/,"self"/*2*/,"children"/*3*/,"called"/*4*/,"name"};
-    private static final Collection CALL_PROPERTIES_INCLUDED = Arrays.asList(new Integer[] {2,3});
-    
-    private Function parseCallLine(String line) {
-        //skip number [xxx] at the end
-        int brackPos = line.lastIndexOf("[");
-        if (brackPos == -1) {
-            return null;
-        }
-        int end = brackPos-2;
-        
-        //skip <...> at the end
-        int lPos = line.lastIndexOf("<");
-        if (lPos != -1 && lPos<end) {
-            end = lPos-2;
-        }
-        
-        char[] symbols = line.toCharArray();
-        int namePos = end;
-        // find the name
-        while (symbols[namePos] != DELIMITER) {
-            namePos--;
-        }
-        
-        Function res = new Function(line.substring(namePos+1, end+1));
-        
-        int pos = 0;
-        int start = -1;
-        int propIdx = 0;
-        while (pos < namePos) {
-            if (symbols[pos] == DELIMITER) {
-                if (start != -1) {
-                    String prop = line.substring(start, pos);
-                    if (propIdx == 0 && !prop.startsWith("[")) {
-                        propIdx = 2;
-                    }
-                    if (CALL_PROPERTIES_INCLUDED.contains(propIdx)) {
-                        res.setProperty(CALL_PROPERTIES[propIdx], Double.parseDouble(prop));
-                    }
-                    propIdx++;
-                    start = -1;
-                }
-            } else {
-                if (start == -1) {
-                    start = pos;
-                }
-            }
-            pos++;
-        }
-        
-        return res;
+    public void cancel() {
+        // cancel run
     }
 }

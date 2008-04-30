@@ -37,37 +37,25 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.editing;
-
-import org.netbeans.modules.gsf.api.ElementKind;
+package org.netbeans.modules.cnd.profiler.providers;
 
 /**
  *
- * @author Tor Norbye
+ * @author eu155513
  */
-public class IndexedTemplate extends IndexedElement {
+public interface ProfilerProvider {
+    /*
+     * Prepare profiler, called before run
+     */
+    /*Problem*/ void prepare();
     
-    IndexedTemplate(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
-        super(fqn, name, in, index, fileUrl, attributes, flags, kind);
-    }
+    /*
+     * Do the profiling, collect data in the bag
+     */
+    /*Problem*/ void run(/*Bag*/);
     
-    @Override
-    public String toString() {
-        return getSignature() + ":" + getFilenameUrl() + ";" + decodeFlags(flags);
-    }
-
-    @Override
-    public String getSignature() {
-        if (signature == null) {
-            StringBuilder sb = new StringBuilder();
-            if (in != null) {
-                sb.append(in);
-                sb.append('.');
-            }
-            sb.append(name);
-            signature = sb.toString();
-        }
-
-        return signature;
-    }
+    /*
+     * Cancel profiling if running
+     */
+    /*Problem*/ void cancel();
 }
