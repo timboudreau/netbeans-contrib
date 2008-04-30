@@ -7,6 +7,7 @@ package org.netbeans.modules.cnd.profiler.ui;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.logging.Logger;
@@ -128,10 +129,13 @@ final class PresentationTopComponent extends TopComponent {
 private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
     if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
     {
-        plainView.setRoot(new GprofProvider(fileChooser.getSelectedFile()).getFunctions());
+        showResults(fileChooser.getSelectedFile());
     }
 }//GEN-LAST:event_jButton1ActionPerformed
 
+public void showResults(File resFile) {
+    plainView.setRoot(new GprofProviderOld(resFile).getFunctions());
+}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel bottomPanel;

@@ -5,17 +5,17 @@
 
 package org.netbeans.modules.cnd.profiler.ui;
 
-import java.io.IOException;
+import java.io.File;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
-import org.netbeans.spi.project.ActionProvider;
+import org.netbeans.modules.cnd.profiler.providers.GprofFactory;
+import org.netbeans.modules.cnd.profiler.providers.ProfilerProvider;
 import org.netbeans.spi.project.ui.support.MainProjectSensitiveActions;
 import org.netbeans.spi.project.ui.support.ProjectActionPerformer;
-import org.openide.filesystems.FileObject;
-import org.openide.util.Lookup;
 import org.openide.util.Utilities;
+import org.openide.util.lookup.Lookups;
 
 /**
  *
@@ -58,42 +58,14 @@ public class ProfilerActions {
     private static final String PROFILING_FOLDER_NAME = "profiling";
     
     private static void profileProject(Project project) {
-        // gprof provider implementation
+        ProfilerProvider profilerProvider = new GprofFactory().createProvider(Lookups.singleton(project));
+        profilerProvider.prepare();
+        profilerProvider.run();
         
-        // 1) build with -pg
-        //ConfigurationSupport.getProjectDescriptor(project).getConfs().getActive();
-        
-        // 2) run the project
-        ActionProvider ap = project.getLookup().lookup(ActionProvider.class);
-        if (ap == null) {
-            return; // fail early
-        }
-        ap.invokeAction("run", Lookup.EMPTY);
-        
-        // 3) wait for completion and prepare/open gprof results
-        FileObject projectDir = project.getProjectDirectory();
-        try {
-            // create profiling folder if needed
-            FileObject profilingDir = projectDir.getFileObject(PROFILING_FOLDER_NAME);
-            if (profilingDir == null) {
-                profilingDir = projectDir.createFolder(PROFILING_FOLDER_NAME);
-            }
-            
-            // execute gprof on gmon.out
-            FileObject gmon = projectDir.getFileObject("gmon.out");
-            if (gmon == null) {
-                return;
-            }
-            Runtime rt = Runtime.getRuntime();
-            try {
-                FileObject resFile = profilingDir.createData(String.valueOf(System.currentTimeMillis()));
-                Process proc = rt.exec("ggprof -b " + gmon.getPath() + " > " + resFile.getPath());
-                proc.waitFor();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
+        // (on finish) notify ui and open results
+        PresentationTopComponent tc = PresentationTopComponent.findInstance();
+        tc.open();
+        tc.requestActive();
+        tc.showResults(new File("/" + project.getProjectDirectory().getPath(), "gp_res"));
     }
 }
