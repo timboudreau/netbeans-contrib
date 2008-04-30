@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -21,32 +21,33 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  * 
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.groovy.grails.api;
+package org.netbeans.modules.cnd.profiler.providers;
 
 import org.netbeans.api.project.Project;
-import org.openide.windows.InputOutput;
+import org.openide.util.Lookup;
 
 /**
- * @param prj
- * @param cmd
- * @param value
- * @author schmidtm
- * @return 
+ *
+ * @author eu155513
  */
-public interface GrailsServer {
-    
-    // FIXME: this can not stay Process, since with some groovy/grails engine running
-    // in the NetBeans VM we certainly don't have a Process. This was changed from the output 
-    // Stream to process to have access to the input-stream as well as a preparation for 
-    // the Grails shell command. 
-    
-    public Process runCommand(Project prj, String cmd, InputOutput io, String dirName);
-    
-    // gets the last error from the grails server in case runCommand returns null.
-    public Exception getLastError();
+public class GprofFactory implements ProfilingProviderFactory {
+    public ProfilerProvider createProvider(Lookup lookup) {
+        return new GprofProvider(lookup.lookup(Project.class));
+    }
 }

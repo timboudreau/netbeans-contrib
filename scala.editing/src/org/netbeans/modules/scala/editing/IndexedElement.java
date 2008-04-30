@@ -59,7 +59,10 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.ClassTemplate;
 import org.netbeans.modules.scala.editing.nodes.Function;
+import org.netbeans.modules.scala.editing.nodes.ObjectTemplate;
+import org.netbeans.modules.scala.editing.nodes.TraitTemplate;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
 import org.netbeans.modules.scala.editing.nodes.Var;
 import org.openide.filesystems.FileObject;
@@ -154,10 +157,10 @@ public abstract class IndexedElement extends AstElement {
             return func;
         } else if ((flags & GLOBAL) != 0) {
             ElementKind kind = Character.isUpperCase(name.charAt(0)) ? ElementKind.CLASS : ElementKind.GLOBAL;
-            IndexedTemplate property = new IndexedTemplate(fqn, name, in, index, fileUrl, attributes, flags, kind);
+            IndexedType property = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, kind);
             return property;
         } else {
-            IndexedTemplate property = new IndexedTemplate(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.CLASS);
+            IndexedType property = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.CLASS);
             return property;
         }
     }
@@ -204,22 +207,22 @@ public abstract class IndexedElement extends AstElement {
     }
 
     static IndexedElement create(AstElement element, ScalaIndex index) {
-            String in = element.getIn();
-            String thename = element.getName();
-            StringBuilder base = new StringBuilder();
-            base.append(thename.toLowerCase());
-            base.append(';');
-            if (in != null) {
-                base.append(in);
-            }
-            base.append(';');
-            base.append(thename);
-            base.append(';');
-            base.append(IndexedElement.computeAttributes(element));
+        String in = element.getIn();
+        String thename = element.getName();
+        StringBuilder base = new StringBuilder();
+        base.append(thename.toLowerCase());
+        base.append(';');
+        if (in != null) {
+            base.append(in);
+        }
+        base.append(';');
+        base.append(thename);
+        base.append(';');
+        base.append(IndexedElement.computeAttributes(element));
 
-            return IndexedElement.create(element.getName(), base.toString(), "", index, false);       
+        return IndexedElement.create(element.getName(), base.toString(), "", index, false);
     }
-    
+
     public String getSignature() {
         if (signature == null) {
             StringBuilder sb = new StringBuilder();
@@ -508,6 +511,15 @@ public abstract class IndexedElement extends AstElement {
             value = value | PRIVATE;
         }
 
+        if (element instanceof ClassTemplate) {
+            value = value | IndexedElement.CLASS;
+        } else if (element instanceof ObjectTemplate) {
+            value = value | IndexedElement.OBJECT;
+        } else if (element instanceof TraitTemplate) {
+            value = value | IndexedElement.TRAIT;
+        }
+
+
         return value;
     }
 
@@ -761,7 +773,7 @@ public abstract class IndexedElement extends AstElement {
         // Types
         sb.append(';');
         index++;
-        assert index == IndexedElement.TYPE_INDEX;                            
+        assert index == IndexedElement.TYPE_INDEX;
 //            if (type == null) {
 //                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
 //            }
@@ -840,6 +852,12 @@ public abstract class IndexedElement extends AstElement {
 
     public boolean isJava() {
         return (flags & JAVA) != 0;
+    }
+
+    public static boolean isTemplate(int flags) {
+        return (flags & CLASS) != 0 ||
+                (flags & TRAIT) != 0 ||
+                (flags & OBJECT) != 0;
     }
 
     public static String decodeFlags(int flags) {

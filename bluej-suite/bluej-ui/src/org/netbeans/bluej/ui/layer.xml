@@ -10,14 +10,10 @@
     </folder>
     <folder name="Menu">
         <folder name="Window">
-            <attr name="ResultWindowOpenAction.shadow/org-netbeans-bluej-ui-BlueJViewAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-bluej-ui-BlueJViewAction.shadow">
+                <attr name="position" intvalue="1111"/>                
                 <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-bluej-ui-BlueJViewAction.instance"/>
             </file>
-            <attr name="ResultWindowOpenAction.shadow/InspectorAction.shadow" boolvalue="true"/>
-            <attr name="org-netbeans-bluej-ui-BlueJViewAction.shadow/InspectorAction.shadow" boolvalue="true"/>
-            <attr name="org-netbeans-bluej-ui-BlueJViewAction.shadow/SwitchToRecentDocumentAction.shadow" boolvalue="true"/>
-            
         </folder>
     </folder>
     <folder name="Shortcuts">

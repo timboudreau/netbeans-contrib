@@ -586,4 +586,45 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
             return formatter.getText();
         }
     }
+    
+    protected static class TemplateItem extends ScalaCompletionItem {
+
+        TemplateItem(AstElement element, CompletionRequest request) {
+            super(element, request);
+
+        }
+
+        TemplateItem(CompletionRequest request, IndexedElement element) {
+            super(request, element);
+        }
+
+        @Override
+        public String getName() {
+            String name = element.getName();
+            int lastDot = name.lastIndexOf('.');
+            if (lastDot > 0) {
+                name = name.substring(lastDot + 1, name.length());
+            }
+            return name;
+        }
+
+        @Override
+        public String getLhsHtml() {
+            ElementKind kind = getKind();
+            HtmlFormatter formatter = request.formatter;
+            formatter.reset();
+            boolean strike = indexedElement != null && indexedElement.isDeprecated();
+            if (strike) {
+                formatter.deprecated(true);
+            }
+            formatter.name(kind, true);
+            formatter.appendText(getName());
+            formatter.name(kind, false);
+            if (strike) {
+                formatter.deprecated(false);
+            }
+
+            return formatter.getText();
+        }
+    }
 }
