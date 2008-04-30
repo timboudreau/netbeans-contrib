@@ -265,16 +265,18 @@ public class ScalaIndex {
         return (Set<IndexedFunction>) (Set) getByFqn(name, in, kind, scope, false, context, includeMethods, false, false);
     }
 
-    public Set<IndexedElement> getPackages(String fqnPrefix) {
-        Set<IndexedElement> idxElements = javaIndex.getPackages(fqnPrefix);
+    public Set<IndexedElement> getPackageContent(String fqnPrefix, NameKind kind, Set<SearchScope> scope) {
+
+        Set<IndexedElement> idxElements = getTypesByFqn(fqnPrefix, kind, scope, null, false, false, true);
+
+        idxElements.addAll(javaIndex.getPackages(fqnPrefix));
 
         return idxElements;
     }
+    
+    public Set<IndexedElement> getPackagesAndContent(String fqnPrefix, NameKind kind, Set<SearchScope> scope) {
 
-    public Set<IndexedElement> getPackagesAndContent(String fqnPrefix, NameKind kind,
-            Set<SearchScope> scope) {
-
-        Set<IndexedElement> idxElements = getTypesByFqn(fqnPrefix, kind, scope, false, null, false);
+        Set<IndexedElement> idxElements = getTypesByFqn(fqnPrefix, kind, scope, null, false, false, false);
 
         idxElements.addAll(javaIndex.getPackages(fqnPrefix));
         idxElements.addAll(javaIndex.getPackageContent(fqnPrefix));
@@ -603,7 +605,8 @@ public class ScalaIndex {
     }
 
     private Set<IndexedElement> getTypesByFqn(String fqnPrefix, NameKind kind,
-            Set<SearchScope> scope, boolean onlyConstructors, ScalaParserResult context, boolean includeDuplicates) {
+            Set<SearchScope> scope, ScalaParserResult context, 
+            boolean onlyConstructors, boolean includeDuplicates, boolean onlyContent) {
 
         final Set<SearchResult> result = new HashSet<SearchResult>();
 
@@ -725,6 +728,9 @@ public class ScalaIndex {
                             // "java", we should return a class
                             element = IndexedElement.create(signature, map.getPersistentUrl(), null, elementName, "", inEndIdx, this, false);
                         } else {
+                            if (onlyContent) {
+                                continue;
+                            }
                             // we should return a package
                             int dotAfterFqnPrefix = pkgName.indexOf('.', fqnPrefix.length());
                             if (dotAfterFqnPrefix == -1) {
