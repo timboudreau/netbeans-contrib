@@ -85,7 +85,7 @@ public class ScalaTypeInferencer {
                     ref.setType(def.getType());
                 }
             }
-                            }
+        }
 
         for (AstScope _Scope : scope.getScopes()) {
             inferRecursively(_Scope);
@@ -133,31 +133,40 @@ public class ScalaTypeInferencer {
         inferExpr(lhs, rhs.getType());
     }
 
-    
-    
     public void globalInfer(CompilationInfo info) {
-        globalInferRecursively(info, rootScope);
+        ScalaIndex index = ScalaIndex.get(info);
+        globalInferRecursively(index, rootScope);
     }
 
-    private void globalInferRecursively(CompilationInfo info, AstScope scope) {
+    private void globalInferRecursively(ScalaIndex index, AstScope scope) {
         for (AstRef ref : scope.getRefs()) {
+            TypeRef toResolve = null;
             if (ref instanceof TypeRef) {
-                if (ref.getQualifiedName().equals(TypeRef.UNRESOLVED)) {
-                    List<Import> imports = ref.getEnclosingScope().getDefsInScope(Import.class);
-                    for (Import importExpr : imports) {
-                        if (!importExpr.isWild()) {
-                            continue;
-                        }
-                        ScalaIndex index = ScalaIndex.get(info);
-                        String fqnPrefix = importExpr.getPackageName() + ".";
-                        Set<IndexedElement> idxElements = index.getPackageContent(fqnPrefix, NameKind.EXACT_NAME, ScalaIndex.ALL_SCOPE);
-                        for (IndexedElement element : idxElements) {
-                            if (element instanceof IndexedType) {
-                                String qualifiedName = fqnPrefix + ref.getName();
-                                if (element.getName().equals(qualifiedName)) {
-                                    ((TypeRef) ref).setQualifiedName(qualifiedName);
-                                }
-                            }
+                toResolve = (TypeRef) ref;
+            } else {
+                toResolve = ref.getType();
+            }
+
+            if (toResolve != null && !toResolve.getQualifiedName().equals(TypeRef.UNRESOLVED)) {
+                toResolve = null;
+            }
+
+            if (toResolve == null) {
+                continue;
+            }
+
+            String simpleName = toResolve.getName();
+            List<Import> imports = toResolve.getEnclosingScope().getDefsInScope(Import.class);
+            for (Import importExpr : imports) {
+                if (!importExpr.isWild()) {
+                    continue;
+                }
+                String fqnPrefix = importExpr.getPackageName() + ".";
+                Set<IndexedElement> idxElements = index.getPackageContent(fqnPrefix, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+                for (IndexedElement element : idxElements) {
+                    if (element instanceof IndexedType) {
+                        if (element.getName().equals(simpleName)) {
+                            toResolve.setQualifiedName(fqnPrefix + simpleName);
                         }
                     }
                 }
@@ -165,7 +174,7 @@ public class ScalaTypeInferencer {
         }
 
         for (AstScope _Scope : scope.getScopes()) {
-            inferRecursively(_Scope);
+            globalInferRecursively(index, _Scope);
         }
     }
 }

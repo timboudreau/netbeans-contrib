@@ -374,7 +374,7 @@ public class ScalaCodeCompletion implements Completable {
             Token closetToken = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
             if (closetToken.id() == ScalaTokenId.Import) {
                 request.prefix = "";
-                compliteImport(proposals, request);
+                completeImport(proposals, request);
                 return proposals;
             }
 
@@ -405,7 +405,7 @@ public class ScalaCodeCompletion implements Completable {
                             prefix1 = prefix1 + ".";
                         }
                         request.prefix = prefix1;
-                        compliteImport(proposals, request);
+                        completeImport(proposals, request);
                         return proposals;
                     }
                 }
@@ -1552,7 +1552,7 @@ public class ScalaCodeCompletion implements Completable {
         return false;
     }
 
-    private boolean compliteImport(List<CompletionProposal> proposals, CompletionRequest request) {
+    private boolean completeImport(List<CompletionProposal> proposals, CompletionRequest request) {
         String fqnPrefix = request.prefix;
         if (fqnPrefix == null) {
             fqnPrefix = "";
