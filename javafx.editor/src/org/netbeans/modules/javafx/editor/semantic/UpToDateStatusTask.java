@@ -109,7 +109,7 @@ class UpToDateStatusTask implements CancellableTask<CompilationInfo> {
                         doc, (int)d.getLineNumber()));
             }
             // this is temporary for breh:
-            if (!Boolean.getBoolean("org.netbeans.modules.javafx.editor.unstable.disable")) {
+            if (Boolean.getBoolean("org.netbeans.modules.javafx.editor.unstable.enable")) {
                 HintsController.setErrors(doc, "semantic-highlighter", c);
             }
             
