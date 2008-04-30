@@ -59,12 +59,15 @@ public class ScalaParserResult extends ParserResult {
     private ScalaParser.Sanitize sanitized;
     private boolean commentsAdded;
     private AstScope rootScope;
+    private org.netbeans.api.java.source.CompilationController javaController;
 
-    public ScalaParserResult(ScalaParser parser, ParserFile file, AstScope rootScope, AstTreeNode ast) {
+    public ScalaParserResult(ScalaParser parser, ParserFile file, AstScope rootScope, AstTreeNode ast,
+            org.netbeans.api.java.source.CompilationController javaController) {
         super(parser, file, ScalaMimeResolver.MIME_TYPE);
         this.file = file;
         this.rootScope = rootScope;
         this.ast = ast;
+        this.javaController = javaController;
     }
 
     public ParserResult.AstTreeNode getAst() {
@@ -120,6 +123,10 @@ public class ScalaParserResult extends ParserResult {
 
     public AstScope getRootScope() {
         return rootScope;
+    }
+    
+    public org.netbeans.api.java.source.CompilationController getJavaController() {
+        return javaController;
     }
 
     @Override

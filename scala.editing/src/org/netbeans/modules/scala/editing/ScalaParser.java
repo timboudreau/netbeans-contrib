@@ -116,7 +116,7 @@ public class ScalaParser implements Parser {
                 if (caretOffset != -1 && job.translatedSource != null) {
                     caretOffset = job.translatedSource.getAstOffset(caretOffset);
                 }
-                Context context = new Context(file, listener, source, caretOffset, job.translatedSource);
+                Context context = new Context(file, listener, source, caretOffset, job.translatedSource, null);
                 pResult = parseBuffer(context, Sanitize.NONE);
             } catch (IOException ioe) {
                 listener.exception(ioe);
@@ -291,12 +291,11 @@ public class ScalaParser implements Parser {
     }
 
     @SuppressWarnings("fallthrough")
-    private ScalaParserResult sanitize(final Context context,
-            final Sanitize sanitizing) {
+    private ScalaParserResult sanitize(final Context context, final Sanitize sanitizing) {
 
         switch (sanitizing) {
             case NEVER:
-                return createParseResult(context.file, null, null);
+                return createParseResult(context.file, null, null, context.javaController);
 
             case NONE:
 
@@ -346,7 +345,7 @@ public class ScalaParser implements Parser {
             case MISSING_END:
             default:
                 // We're out of tricks - just return the failed parse result
-                return createParseResult(context.file, null, null);
+                return createParseResult(context.file, null, null, context.javaController);
         }
     }
 
@@ -378,6 +377,8 @@ public class ScalaParser implements Parser {
                 FileObject fo = NbEditorUtilities.getFileObject(doc);
                 if (fo == context.file.getFileObject()) {
                     th = TokenHierarchy.get(doc);
+                    // only opened doc needs javaController for getting java's ClassIndex
+                    context.javaController = JavaUtilities.getCompilationController(fo);
                 }
             }
         }
@@ -456,7 +457,7 @@ public class ScalaParser implements Parser {
 
         if (rootScope != null) {
             context.sanitized = sanitizing;
-            ScalaParserResult r = createParseResult(context.file, rootScope, null);
+            ScalaParserResult r = createParseResult(context.file, rootScope, null, context.javaController);
             r.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents);
             r.setSource(source);
             return r;
@@ -465,8 +466,10 @@ public class ScalaParser implements Parser {
         }
     }
 
-    private ScalaParserResult createParseResult(ParserFile file, AstScope rootScope, ParserResult.AstTreeNode ast) {
-        return new ScalaParserResult(this, file, rootScope, ast);
+    private ScalaParserResult createParseResult(ParserFile file, AstScope rootScope, ParserResult.AstTreeNode ast,
+            org.netbeans.api.java.source.CompilationController javaController) {
+        
+        return new ScalaParserResult(this, file, rootScope, ast, javaController);
     }
 
     private List<Integer> computeLinesOffset(String source) {
@@ -545,13 +548,17 @@ public class ScalaParser implements Parser {
         private int caretOffset;
         private Sanitize sanitized = Sanitize.NONE;
         private TranslatedSource translatedSource;
+        private org.netbeans.api.java.source.CompilationController javaController = null;            
 
-        public Context(ParserFile parserFile, ParseListener listener, String source, int caretOffset, TranslatedSource translatedSource) {
+        public Context(ParserFile parserFile, ParseListener listener, String source, 
+                int caretOffset, TranslatedSource translatedSource,
+                        org.netbeans.api.java.source.CompilationController javaController) {
             this.file = parserFile;
             this.listener = listener;
             this.source = source;
             this.caretOffset = caretOffset;
             this.translatedSource = translatedSource;
+            this.javaController = javaController;
         }
 
         @Override

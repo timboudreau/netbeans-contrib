@@ -38,15 +38,10 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import java.io.IOException;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
@@ -61,13 +56,10 @@ import javax.lang.model.util.Types;
 import org.netbeans.api.java.source.ClassIndex;
 import org.netbeans.api.java.source.ClassIndex.NameKind;
 import org.netbeans.api.java.source.ClassIndex.SearchScope;
-import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.api.java.source.JavaSource;
-import org.netbeans.api.java.source.Task;
 import org.netbeans.modules.java.source.JavaSourceAccessor;
-import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.Exceptions;
 
@@ -77,68 +69,31 @@ import org.openide.util.Exceptions;
  */
 public class JavaIndex {
 
-    public static final Set<SearchScope> JAVA_ALL_SCOPE = EnumSet.allOf(SearchScope.class);
-    public static final Set<SearchScope> JAVA_SOURCE_SCOPE = EnumSet.of(SearchScope.SOURCE);
-    private static Map<FileObject, Reference<JavaSource>> fileToJavaSource =
-            new WeakHashMap<FileObject, Reference<JavaSource>>();
-    private static Map<FileObject, Reference<CompilationController>> fileToJavaController =
-            new WeakHashMap<FileObject, Reference<CompilationController>>();
+    public static final Set<SearchScope> ALL_SCOPE = EnumSet.allOf(SearchScope.class);
+    public static final Set<SearchScope> SOURCE_SCOPE = EnumSet.of(SearchScope.SOURCE);
     private final ClassIndex index;
-    private final JavaSource source;
     private final CompilationController controller;
     private final ScalaIndex scalaIndex;
 
-    private JavaIndex(ClassIndex index, JavaSource source, CompilationController controller, ScalaIndex scalaIndex) {
+    private JavaIndex(ClassIndex index, CompilationController controller, ScalaIndex scalaIndex) {
         this.index = index;
-        this.source = source;
         this.controller = controller;
         this.scalaIndex = scalaIndex;
     }
 
     public static JavaIndex get(org.netbeans.modules.gsf.api.CompilationInfo info, ScalaIndex scalaIndex) {
-        FileObject fo = info.getFileObject();
-        /** 
-         * @Note: We cannot create js via JavaSource.forFileObject(fo) here, which
-         * does not support virtual source yet (only ".java" and ".class" files 
-         * are supported), but we can create js via JavaSource.create(cpInfo);
-         */
-        Reference<JavaSource> sourceRef = fileToJavaSource.get(fo);
-        JavaSource source = sourceRef != null ? sourceRef.get() : null;
-        if (source == null) {
-            ClasspathInfo javaCpInfo = ClasspathInfo.create(fo);
-            source = JavaSource.create(javaCpInfo);
-            fileToJavaSource.put(fo, new WeakReference<JavaSource>(source));
-
-        }
-
-        Reference<CompilationController> controllerRef = fileToJavaController.get(fo);
-        CompilationController controller = controllerRef != null ? controllerRef.get() : null;
-        if (controller == null) {
-            final org.netbeans.api.java.source.CompilationController[] javaControllers =
-                    new org.netbeans.api.java.source.CompilationController[1];
-            try {
-                source.runUserActionTask(new Task<CompilationController>() {
-
-                    public void run(CompilationController controller) throws Exception {
-                        controller.toPhase(JavaSource.Phase.ELEMENTS_RESOLVED);
-                        javaControllers[0] = controller;
-                    }
-                }, true);
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-
-            controller = javaControllers[0];
-            fileToJavaController.put(fo, new WeakReference<CompilationController>(controller));
-        }
-
+        ScalaParserResult pResult = AstUtilities.getParserResult(info);
+        CompilationController controller = pResult.getJavaController();
+        assert controller != null : "Only opened doc has java's CompilationController";
+        
+        JavaSource source = controller.getJavaSource();
         ClassIndex index = source.getClasspathInfo().getClassIndex();
 
-        return new JavaIndex(index, source, controller, scalaIndex);
+        return new JavaIndex(index, controller, scalaIndex);
     }
 
     public Set<IndexedElement> getPackages(String fqnPrefix) {
-        Set<String> pkgNames = index.getPackageNames(fqnPrefix, true, JAVA_ALL_SCOPE);
+        Set<String> pkgNames = index.getPackageNames(fqnPrefix, true, ALL_SCOPE);
         Set<IndexedElement> idxElements = new HashSet<IndexedElement>();
         for (String pkgName : pkgNames) {
             if (pkgName.length() > 0) {
