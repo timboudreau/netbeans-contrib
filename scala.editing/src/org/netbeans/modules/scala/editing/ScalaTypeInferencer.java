@@ -38,7 +38,11 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import java.util.List;
+import java.util.Set;
 import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.nodes.AssignmentExpr;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
@@ -46,6 +50,7 @@ import org.netbeans.modules.scala.editing.nodes.AstExpr;
 import org.netbeans.modules.scala.editing.nodes.AstRef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.Id;
+import org.netbeans.modules.scala.editing.nodes.Import;
 import org.netbeans.modules.scala.editing.nodes.PathId;
 import org.netbeans.modules.scala.editing.nodes.SimpleExpr;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
@@ -109,7 +114,7 @@ public class ScalaTypeInferencer {
             } else if (knownExprType != null) {
                 type = knownExprType;
             }
-            
+
             if (type != null) {
                 if (firstIdRef.getType() != null) {
                     // @Todo check type of firstId with def's type 
@@ -126,5 +131,50 @@ public class ScalaTypeInferencer {
         AstExpr rhs = ((AssignmentExpr) expr).getRhs();
         inferExpr(rhs, null);
         inferExpr(lhs, rhs.getType());
+    }
+
+    public void globalInfer(CompilationInfo info) {
+        ScalaIndex index = ScalaIndex.get(info);
+        globalInferRecursively(index, rootScope);
+    }
+
+    private void globalInferRecursively(ScalaIndex index, AstScope scope) {
+        for (AstRef ref : scope.getRefs()) {
+            TypeRef toResolve = null;
+            if (ref instanceof TypeRef) {
+                toResolve = (TypeRef) ref;
+            } else {
+                toResolve = ref.getType();
+            }
+
+            if (toResolve != null && !toResolve.getQualifiedName().equals(TypeRef.UNRESOLVED)) {
+                toResolve = null;
+            }
+
+            if (toResolve == null) {
+                continue;
+            }
+
+            String simpleName = toResolve.getName();
+            List<Import> imports = toResolve.getEnclosingScope().getDefsInScope(Import.class);
+            for (Import importExpr : imports) {
+                if (!importExpr.isWild()) {
+                    continue;
+                }
+                String fqnPrefix = importExpr.getPackageName() + ".";
+                Set<IndexedElement> idxElements = index.getPackageContent(fqnPrefix, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+                for (IndexedElement element : idxElements) {
+                    if (element instanceof IndexedType) {
+                        if (element.getName().equals(simpleName)) {
+                            toResolve.setQualifiedName(fqnPrefix + simpleName);
+                        }
+                    }
+                }
+            }
+        }
+
+        for (AstScope _Scope : scope.getScopes()) {
+            globalInferRecursively(index, _Scope);
+        }
     }
 }

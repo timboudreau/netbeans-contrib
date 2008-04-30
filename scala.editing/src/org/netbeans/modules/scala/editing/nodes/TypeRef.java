@@ -125,6 +125,7 @@ public class TypeRef extends AstRef {
         PRED_TYPES.put("String", String);
     }
     private List<String> annotations;
+    public static final String UNRESOLVED = "-1";
 
     public TypeRef(String name, Token idToken, ElementKind kind) {
         super(name, idToken, kind);
@@ -132,31 +133,36 @@ public class TypeRef extends AstRef {
 
     @Override
     public String getQualifiedName() {
-        if (qualifiedName == null) {
-            TypeRef predType = PRED_TYPES.get(getName());
-            if (predType != null) {
-                qualifiedName = predType.getQualifiedName();
-                return qualifiedName;
-            }
+        if (qualifiedName != null) {
+            return qualifiedName;
+        }
 
-            AstDef def = getEnclosingScope().findDef(this);
-            if (def != null) {
-                qualifiedName = def.getQualifiedName();
-                return qualifiedName;
-            }
+        TypeRef predType = PRED_TYPES.get(getName());
+        if (predType != null) {
+            qualifiedName = predType.getQualifiedName();
+            return qualifiedName;
+        }
 
-            List<Import> imports = getEnclosingScope().getDefsInScope(Import.class);
-            for (Import importDef : imports) {
-                for (TypeRef importedType : importDef.getImportedTypes()) {
-                    if (importedType.getName().equals(getName())) {
-                        qualifiedName = importDef.getPackageName() + "." + importedType.getName();
-                        return qualifiedName;
-                    }
+        AstDef def = getEnclosingScope().findDef(this);
+        if (def != null) {
+            qualifiedName = def.getQualifiedName();
+            return qualifiedName;
+        }
+
+        List<Import> imports = getEnclosingScope().getDefsInScope(Import.class);
+        for (Import importDef : imports) {
+            for (TypeRef importedType : importDef.getImportedTypes()) {
+                if (importedType.getName().equals(getName())) {
+                    qualifiedName = importDef.getPackageName() + "." + importedType.getName();
+                    return qualifiedName;
                 }
             }
-
         }
-        
-        return super.getQualifiedName();
+
+        return UNRESOLVED;
+    }
+
+    public void setQualifiedName(String qualifiedName) {
+        this.qualifiedName = qualifiedName;
     }
 }

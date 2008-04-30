@@ -97,6 +97,16 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         if (rootScope == null) {
             return;
         }
+        
+        final Document document;
+        try {
+            document = info.getDocument();
+        } catch (Exception e) {
+            Exceptions.printStackTrace(e);
+            return;
+        }
+        final TokenHierarchy th = TokenHierarchy.get(document);
+        new ScalaTypeInferencer(rootScope, th).globalInfer(info);
 
         Map<OffsetRange, ColoringAttributes> highlights = new HashMap<OffsetRange, ColoringAttributes>(100);
         visitScopeRecursively(info, rootScope, highlights);

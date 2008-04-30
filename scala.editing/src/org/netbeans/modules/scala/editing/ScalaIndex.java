@@ -269,7 +269,7 @@ public class ScalaIndex {
 
         Set<IndexedElement> idxElements = getTypesByFqn(fqnPrefix, kind, scope, null, false, false, true);
 
-        idxElements.addAll(javaIndex.getPackages(fqnPrefix));
+        idxElements.addAll(javaIndex.getPackageContent(fqnPrefix));
 
         return idxElements;
     }
