@@ -223,8 +223,7 @@ public class PreviewThread extends Thread {
                     comp = null;
             }
             for (Window frame : suspectedList) {
-                if (!obj.equals(frame) && frame.isVisible())
-                    frame.dispose();
+                frame.dispose();
             }
             List <Diagnostic> diagnostics = CodeManager.getDiagnostics();
             if (!diagnostics.isEmpty()) {
