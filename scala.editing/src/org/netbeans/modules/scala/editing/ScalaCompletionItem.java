@@ -585,16 +585,21 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
             return formatter.getText();
         }
+        
+        @Override
+        public boolean isSmart() {
+            return true;
+        }        
     }
     
-    protected static class TemplateItem extends ScalaCompletionItem {
+    protected static class TypeItem extends ScalaCompletionItem {
 
-        TemplateItem(AstElement element, CompletionRequest request) {
+        TypeItem(AstElement element, CompletionRequest request) {
             super(element, request);
 
         }
 
-        TemplateItem(CompletionRequest request, IndexedElement element) {
+        TypeItem(CompletionRequest request, IndexedElement element) {
             super(request, element);
         }
 

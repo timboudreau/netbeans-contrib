@@ -67,7 +67,7 @@ import org.netbeans.modules.scala.editing.ScalaCompletionItem.FunctionItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.KeywordItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.PackageItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.PlainItem;
-import org.netbeans.modules.scala.editing.ScalaCompletionItem.TemplateItem;
+import org.netbeans.modules.scala.editing.ScalaCompletionItem.TypeItem;
 import org.netbeans.modules.scala.editing.ScalaParser.Sanitize;
 import org.netbeans.modules.scala.editing.lexer.MaybeCall;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
@@ -1562,7 +1562,7 @@ public class ScalaCodeCompletion implements Completable {
             if (element instanceof IndexedPackage) {
                 proposals.add(new PackageItem(element, request));
             } else if (element instanceof IndexedType) {
-                proposals.add(new TemplateItem(request, element));
+                proposals.add(new TypeItem(request, element));
             }
         }
 
