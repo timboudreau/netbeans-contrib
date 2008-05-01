@@ -1230,8 +1230,13 @@ public class ScalaCodeCompletion implements Completable {
                     if (closest instanceof FieldRef) {
                         // dog.tal|
                         typeRef = ((FieldRef) closest).getBase().getType();
+                    } else if (closest instanceof FunRef) {
+                        // dog.talk().
+                        type = ((FunRef) closest).getRetType();
                     } else if (closest instanceof IdRef) {
                         // dog.|
+                        typeRef = closest.getType();
+                    } else {
                         typeRef = closest.getType();
                     }
 

@@ -38,7 +38,9 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.CompilationInfo;
@@ -49,6 +51,7 @@ import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstExpr;
 import org.netbeans.modules.scala.editing.nodes.AstRef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.netbeans.modules.scala.editing.nodes.Id;
 import org.netbeans.modules.scala.editing.nodes.Import;
 import org.netbeans.modules.scala.editing.nodes.PathId;
@@ -141,7 +144,35 @@ public class ScalaTypeInferencer {
     private void globalInferRecursively(ScalaIndex index, AstScope scope) {
         for (AstRef ref : scope.getRefs()) {
             TypeRef toResolve = null;
-            if (ref instanceof TypeRef) {
+            if (ref instanceof FunRef) {
+                /*
+                FunRef funRef = (FunRef) ref;
+                toResolve = funRef.getType();
+                if (toResolve != null && !toResolve.getQualifiedName().equals(TypeRef.UNRESOLVED)) {
+                toResolve = null;
+                continue;
+                }
+                if (funRef.getBase() != null) {
+                TypeRef baseType = funRef.getBase().getType();
+                if (baseType == null) {
+                // @todo resolve it first
+                continue;
+                }
+                Id call = funRef.getCall();
+                Set<IndexedElement> members = index.getElements(call.getName(), baseType.getQualifiedName(), NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null);
+                for (IndexedElement member : members) {
+                if (member instanceof IndexedFunction) {
+                IndexedFunction idxFunction = (IndexedFunction) member;
+                if (idxFunction.getParameters().size() == funRef.getParams().size()) {
+                String pkgName = idxFunction.getIn() == null ? "" : idxFunction.getIn() + ".";
+                funRef.setRetType(pkgName + idxFunction.getTypeString());
+                }
+                }
+                }
+                }
+                continue;
+                 */
+            } else if (ref instanceof TypeRef) {
                 toResolve = (TypeRef) ref;
             } else {
                 toResolve = ref.getType();
@@ -162,8 +193,7 @@ public class ScalaTypeInferencer {
                     continue;
                 }
                 String fqnPrefix = importExpr.getPackageName() + ".";
-                Set<IndexedElement> idxElements = index.getPackageContent(fqnPrefix, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
-                for (IndexedElement element : idxElements) {
+                for (IndexedElement element : getImportedTypes(index, importExpr)) {
                     if (element instanceof IndexedType) {
                         if (element.getName().equals(simpleName)) {
                             toResolve.setQualifiedName(fqnPrefix + simpleName);
@@ -176,5 +206,22 @@ public class ScalaTypeInferencer {
         for (AstScope _Scope : scope.getScopes()) {
             globalInferRecursively(index, _Scope);
         }
+    }
+    private Map<Import, Set<IndexedElement>> importedTypesCache;
+
+    private Set<IndexedElement> getImportedTypes(ScalaIndex index, Import importExpr) {
+        if (importedTypesCache == null) {
+            importedTypesCache = new HashMap<Import, Set<IndexedElement>>();
+        }
+
+        Set<IndexedElement> idxElements = importedTypesCache.get(importExpr);
+        if (idxElements == null) {
+            String fqnPrefix = importExpr.getPackageName() + ".";
+            idxElements = index.getPackageContent(fqnPrefix, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+
+            importedTypesCache.put(importExpr, idxElements);
+        }
+
+        return idxElements;
     }
 }

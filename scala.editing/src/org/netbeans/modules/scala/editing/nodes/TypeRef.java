@@ -49,7 +49,7 @@ import org.netbeans.modules.gsf.api.ElementKind;
  * @author Caoyuan Deng
  */
 public class TypeRef extends AstRef {
-
+    
     public static final TypeRef Double = new TypeRef("Double", null, ElementKind.CLASS) {
 
         @Override
@@ -164,5 +164,5 @@ public class TypeRef extends AstRef {
 
     public void setQualifiedName(String qualifiedName) {
         this.qualifiedName = qualifiedName;
-    }
+    }            
 }
