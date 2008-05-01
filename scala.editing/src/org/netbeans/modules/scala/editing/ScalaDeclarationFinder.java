@@ -211,11 +211,12 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         int lastDot = qName.lastIndexOf('.');
         if (lastDot != -1) {
             // should include "." to narrow the search result?
-            String pkgName = qName.substring(0, lastDot + 1); 
+            String pkgName = qName.substring(0, lastDot + 1);
+            String simpleName = qName.substring(lastDot + 1, qName.length());
             Set<IndexedElement> idxTypes = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
             for (IndexedElement idxType : idxTypes) {
                 if (idxType instanceof IndexedType) {
-                    if (idxType.getName().equals(qName)) {
+                    if (idxType.getName().equals(simpleName)) {
                         candidate = (IndexedType) idxType;
                     }
                 }

@@ -720,13 +720,13 @@ public class ScalaIndex {
                     
                     int lastDot = elementName.lastIndexOf('.');
                     if (lastDot == -1) {
-                        // should be class, in default package
-                        element = IndexedElement.create(signature, map.getPersistentUrl(), null, elementName, "", inEndIdx, this, false);
+                        // should be class, under default package
+                        element = IndexedElement.create(signature, map.getPersistentUrl(), elementName, elementName, "", inEndIdx, this, false);
                     } else {
                         String pkgName = elementName.substring(0, lastDot);
-                        if ((pkgName + ".").equals(fqnPrefix)) {
-                            // "java", we should return a class
-                            element = IndexedElement.create(signature, map.getPersistentUrl(), null, elementName, "", inEndIdx, this, false);
+                        if ((pkgName + ".").equals(fqnPrefix)) { // "java", we should return a class
+                            String simpleName = elementName.substring(lastDot + 1, elementName.length());
+                            element = IndexedElement.create(signature, map.getPersistentUrl(), elementName, simpleName, "", inEndIdx, this, false);
                         } else {
                             if (onlyContent) {
                                 continue;
@@ -735,8 +735,7 @@ public class ScalaIndex {
                             int dotAfterFqnPrefix = pkgName.indexOf('.', fqnPrefix.length());
                             if (dotAfterFqnPrefix == -1) {
                                 element = new IndexedPackage(null, pkgName, null, this, map.getPersistentUrl(), signature, flags, ElementKind.PACKAGE);
-                            } else {
-                                // "java.lang", it's sub folder of wanted, we should fetch "java" only
+                            } else { // "java.lang", it's sub folder of wanted, we should fetch "java" only                                
                                 pkgName = pkgName.substring(0, dotAfterFqnPrefix);
                                 element = new IndexedPackage(null, pkgName, null, this, map.getPersistentUrl(), signature, flags, ElementKind.PACKAGE);
                             }

@@ -54,6 +54,7 @@ import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.netbeans.modules.scala.editing.nodes.Id;
 import org.netbeans.modules.scala.editing.nodes.Import;
+import org.netbeans.modules.scala.editing.nodes.Packaging;
 import org.netbeans.modules.scala.editing.nodes.PathId;
 import org.netbeans.modules.scala.editing.nodes.SimpleExpr;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
@@ -187,20 +188,49 @@ public class ScalaTypeInferencer {
             }
 
             String simpleName = toResolve.getName();
+            boolean resolved = false;
+            
+            // 1. search imported types first
             List<Import> imports = toResolve.getEnclosingScope().getDefsInScope(Import.class);
             for (Import importExpr : imports) {
                 if (!importExpr.isWild()) {
                     continue;
                 }
-                String fqnPrefix = importExpr.getPackageName() + ".";
+                
+                String pkgName = importExpr.getPackageName() + ".";
                 for (IndexedElement element : getImportedTypes(index, importExpr)) {
                     if (element instanceof IndexedType) {
                         if (element.getName().equals(simpleName)) {
-                            toResolve.setQualifiedName(fqnPrefix + simpleName);
+                            toResolve.setQualifiedName(pkgName + simpleName);
+                            resolved = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (resolved) {
+                    break;
+                }
+            }
+                        
+            if (resolved) {
+                continue;
+            }
+            
+            // 2. then search types under the same package
+            Packaging packaging = toResolve.getPackageElement();
+            if (packaging != null) {
+                String pkgName = packaging.getName() + ".";
+                for (IndexedElement element : getPackageTypes(index, packaging)) {
+                    if (element instanceof IndexedType) {
+                        if (element.getName().equals(simpleName)) {
+                            toResolve.setQualifiedName(pkgName + simpleName);
+                            break;
                         }
                     }
                 }
             }
+            
         }
 
         for (AstScope _Scope : scope.getScopes()) {
@@ -208,6 +238,7 @@ public class ScalaTypeInferencer {
         }
     }
     private Map<Import, Set<IndexedElement>> importedTypesCache;
+    private Map<Packaging, Set<IndexedElement>> packageTypesCache;
 
     private Set<IndexedElement> getImportedTypes(ScalaIndex index, Import importExpr) {
         if (importedTypesCache == null) {
@@ -216,12 +247,28 @@ public class ScalaTypeInferencer {
 
         Set<IndexedElement> idxElements = importedTypesCache.get(importExpr);
         if (idxElements == null) {
-            String fqnPrefix = importExpr.getPackageName() + ".";
-            idxElements = index.getPackageContent(fqnPrefix, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+            String pkgName = importExpr.getPackageName() + ".";
+            idxElements = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
 
             importedTypesCache.put(importExpr, idxElements);
         }
 
         return idxElements;
+    }
+    
+    private Set<IndexedElement> getPackageTypes(ScalaIndex index, Packaging packaging) {
+        if (packageTypesCache == null) {
+            packageTypesCache = new HashMap<Packaging, Set<IndexedElement>>();
+        }
+
+        Set<IndexedElement> idxElements = packageTypesCache.get(packaging);
+        if (idxElements == null) {
+            String pkgName = packaging.getName() + ".";
+            idxElements = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+
+            packageTypesCache.put(packaging, idxElements);
+        }
+
+        return idxElements;        
     }
 }
