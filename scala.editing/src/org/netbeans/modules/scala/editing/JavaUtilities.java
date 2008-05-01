@@ -55,6 +55,9 @@ import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.Trees;
 
+import java.io.IOException;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -62,8 +65,14 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.*;
 import javax.lang.model.util.*;
 
+import org.netbeans.api.java.source.ClasspathInfo;
+import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.SourceUtils;
+import org.netbeans.api.java.source.Task;
+import org.openide.filesystems.FileObject;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -667,6 +676,50 @@ public class JavaUtilities {
 
         return found;
     }
+
+    private static Map<FileObject, Reference<JavaSource>> fileToJavaSource =
+            new WeakHashMap<FileObject, Reference<JavaSource>>();    
+    private static Map<FileObject, Reference<CompilationController>> fileToJavaController =
+            new WeakHashMap<FileObject, Reference<CompilationController>>();
     
+    public static CompilationController getCompilationController(FileObject fo) {
+        /** 
+         * @Note: We cannot create js via JavaSource.forFileObject(fo) here, which
+         * does not support virtual source yet (only ".java" and ".class" files 
+         * are supported), but we can create js via JavaSource.create(cpInfo);
+         */
+        Reference<JavaSource> sourceRef = fileToJavaSource.get(fo);
+        JavaSource source = sourceRef != null ? sourceRef.get() : null;
+        if (source == null) {
+            ClasspathInfo javaCpInfo = ClasspathInfo.create(fo);
+            source = JavaSource.create(javaCpInfo);
+            fileToJavaSource.put(fo, new WeakReference<JavaSource>(source));
+
+        }
+
+        Reference<CompilationController> controllerRef = fileToJavaController.get(fo);
+        CompilationController controller = controllerRef != null ? controllerRef.get() : null;
+        if (controller == null) {
+            final org.netbeans.api.java.source.CompilationController[] javaControllers =
+                    new org.netbeans.api.java.source.CompilationController[1];
+            try {
+                source.runUserActionTask(new Task<CompilationController>() {
+
+                    public void run(CompilationController controller) throws Exception {
+                        controller.toPhase(JavaSource.Phase.ELEMENTS_RESOLVED);
+                        javaControllers[0] = controller;
+                    }
+                }, true);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+
+            controller = javaControllers[0];
+            fileToJavaController.put(fo, new WeakReference<CompilationController>(controller));
+        }        
+        
+        return controller;
+    }
     
+
 }

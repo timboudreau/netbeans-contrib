@@ -67,7 +67,7 @@ import org.netbeans.modules.scala.editing.ScalaCompletionItem.FunctionItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.KeywordItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.PackageItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.PlainItem;
-import org.netbeans.modules.scala.editing.ScalaCompletionItem.TemplateItem;
+import org.netbeans.modules.scala.editing.ScalaCompletionItem.TypeItem;
 import org.netbeans.modules.scala.editing.ScalaParser.Sanitize;
 import org.netbeans.modules.scala.editing.lexer.MaybeCall;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
@@ -374,7 +374,7 @@ public class ScalaCodeCompletion implements Completable {
             Token closetToken = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
             if (closetToken.id() == ScalaTokenId.Import) {
                 request.prefix = "";
-                compliteImport(proposals, request);
+                completeImport(proposals, request);
                 return proposals;
             }
 
@@ -405,7 +405,7 @@ public class ScalaCodeCompletion implements Completable {
                             prefix1 = prefix1 + ".";
                         }
                         request.prefix = prefix1;
-                        compliteImport(proposals, request);
+                        completeImport(proposals, request);
                         return proposals;
                     }
                 }
@@ -1230,8 +1230,13 @@ public class ScalaCodeCompletion implements Completable {
                     if (closest instanceof FieldRef) {
                         // dog.tal|
                         typeRef = ((FieldRef) closest).getBase().getType();
+                    } else if (closest instanceof FunRef) {
+                        // dog.talk().
+                        type = ((FunRef) closest).getRetType();
                     } else if (closest instanceof IdRef) {
                         // dog.|
+                        typeRef = closest.getType();
+                    } else {
                         typeRef = closest.getType();
                     }
 
@@ -1552,7 +1557,7 @@ public class ScalaCodeCompletion implements Completable {
         return false;
     }
 
-    private boolean compliteImport(List<CompletionProposal> proposals, CompletionRequest request) {
+    private boolean completeImport(List<CompletionProposal> proposals, CompletionRequest request) {
         String fqnPrefix = request.prefix;
         if (fqnPrefix == null) {
             fqnPrefix = "";
@@ -1562,7 +1567,7 @@ public class ScalaCodeCompletion implements Completable {
             if (element instanceof IndexedPackage) {
                 proposals.add(new PackageItem(element, request));
             } else if (element instanceof IndexedType) {
-                proposals.add(new TemplateItem(request, element));
+                proposals.add(new TypeItem(request, element));
             }
         }
 

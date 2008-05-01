@@ -38,14 +38,23 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.nodes.AssignmentExpr;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstExpr;
 import org.netbeans.modules.scala.editing.nodes.AstRef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.netbeans.modules.scala.editing.nodes.Id;
+import org.netbeans.modules.scala.editing.nodes.Import;
+import org.netbeans.modules.scala.editing.nodes.Packaging;
 import org.netbeans.modules.scala.editing.nodes.PathId;
 import org.netbeans.modules.scala.editing.nodes.SimpleExpr;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
@@ -109,7 +118,7 @@ public class ScalaTypeInferencer {
             } else if (knownExprType != null) {
                 type = knownExprType;
             }
-            
+
             if (type != null) {
                 if (firstIdRef.getType() != null) {
                     // @Todo check type of firstId with def's type 
@@ -126,5 +135,140 @@ public class ScalaTypeInferencer {
         AstExpr rhs = ((AssignmentExpr) expr).getRhs();
         inferExpr(rhs, null);
         inferExpr(lhs, rhs.getType());
+    }
+
+    public void globalInfer(CompilationInfo info) {
+        ScalaIndex index = ScalaIndex.get(info);
+        globalInferRecursively(index, rootScope);
+    }
+
+    private void globalInferRecursively(ScalaIndex index, AstScope scope) {
+        for (AstRef ref : scope.getRefs()) {
+            TypeRef toResolve = null;
+            if (ref instanceof FunRef) {
+                /*
+                FunRef funRef = (FunRef) ref;
+                toResolve = funRef.getType();
+                if (toResolve != null && !toResolve.getQualifiedName().equals(TypeRef.UNRESOLVED)) {
+                toResolve = null;
+                continue;
+                }
+                if (funRef.getBase() != null) {
+                TypeRef baseType = funRef.getBase().getType();
+                if (baseType == null) {
+                // @todo resolve it first
+                continue;
+                }
+                Id call = funRef.getCall();
+                Set<IndexedElement> members = index.getElements(call.getName(), baseType.getQualifiedName(), NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null);
+                for (IndexedElement member : members) {
+                if (member instanceof IndexedFunction) {
+                IndexedFunction idxFunction = (IndexedFunction) member;
+                if (idxFunction.getParameters().size() == funRef.getParams().size()) {
+                String pkgName = idxFunction.getIn() == null ? "" : idxFunction.getIn() + ".";
+                funRef.setRetType(pkgName + idxFunction.getTypeString());
+                }
+                }
+                }
+                }
+                continue;
+                 */
+            } else if (ref instanceof TypeRef) {
+                toResolve = (TypeRef) ref;
+            } else {
+                toResolve = ref.getType();
+            }
+
+            if (toResolve != null && !toResolve.getQualifiedName().equals(TypeRef.UNRESOLVED)) {
+                toResolve = null;
+            }
+
+            if (toResolve == null) {
+                continue;
+            }
+
+            String simpleName = toResolve.getName();
+            boolean resolved = false;
+            
+            // 1. search imported types first
+            List<Import> imports = toResolve.getEnclosingScope().getDefsInScope(Import.class);
+            for (Import importExpr : imports) {
+                if (!importExpr.isWild()) {
+                    continue;
+                }
+                
+                String pkgName = importExpr.getPackageName() + ".";
+                for (IndexedElement element : getImportedTypes(index, importExpr)) {
+                    if (element instanceof IndexedType) {
+                        if (element.getName().equals(simpleName)) {
+                            toResolve.setQualifiedName(pkgName + simpleName);
+                            resolved = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (resolved) {
+                    break;
+                }
+            }
+                        
+            if (resolved) {
+                continue;
+            }
+            
+            // 2. then search types under the same package
+            Packaging packaging = toResolve.getPackageElement();
+            if (packaging != null) {
+                String pkgName = packaging.getName() + ".";
+                for (IndexedElement element : getPackageTypes(index, packaging)) {
+                    if (element instanceof IndexedType) {
+                        if (element.getName().equals(simpleName)) {
+                            toResolve.setQualifiedName(pkgName + simpleName);
+                            break;
+                        }
+                    }
+                }
+            }
+            
+        }
+
+        for (AstScope _Scope : scope.getScopes()) {
+            globalInferRecursively(index, _Scope);
+        }
+    }
+    private Map<Import, Set<IndexedElement>> importedTypesCache;
+    private Map<Packaging, Set<IndexedElement>> packageTypesCache;
+
+    private Set<IndexedElement> getImportedTypes(ScalaIndex index, Import importExpr) {
+        if (importedTypesCache == null) {
+            importedTypesCache = new HashMap<Import, Set<IndexedElement>>();
+        }
+
+        Set<IndexedElement> idxElements = importedTypesCache.get(importExpr);
+        if (idxElements == null) {
+            String pkgName = importExpr.getPackageName() + ".";
+            idxElements = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+
+            importedTypesCache.put(importExpr, idxElements);
+        }
+
+        return idxElements;
+    }
+    
+    private Set<IndexedElement> getPackageTypes(ScalaIndex index, Packaging packaging) {
+        if (packageTypesCache == null) {
+            packageTypesCache = new HashMap<Packaging, Set<IndexedElement>>();
+        }
+
+        Set<IndexedElement> idxElements = packageTypesCache.get(packaging);
+        if (idxElements == null) {
+            String pkgName = packaging.getName() + ".";
+            idxElements = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+
+            packageTypesCache.put(packaging, idxElements);
+        }
+
+        return idxElements;        
     }
 }

@@ -49,7 +49,28 @@ import org.netbeans.modules.gsf.api.ElementKind;
  * @author Caoyuan Deng
  */
 public class TypeRef extends AstRef {
+    
+    public static final TypeRef Any = new TypeRef("Any", null, ElementKind.CLASS) {
 
+        @Override
+        public String getQualifiedName() {
+            return "scala.Any";
+        }
+    };
+    public static final TypeRef AnyRef = new TypeRef("AnyRef", null, ElementKind.CLASS) {
+
+        @Override
+        public String getQualifiedName() {
+            return "scala.AnyRef";
+        }
+    };
+    public static final TypeRef AnyVal = new TypeRef("AnyVal", null, ElementKind.CLASS) {
+
+        @Override
+        public String getQualifiedName() {
+            return "scala.AnyVal";
+        }
+    };
     public static final TypeRef Double = new TypeRef("Double", null, ElementKind.CLASS) {
 
         @Override
@@ -64,11 +85,32 @@ public class TypeRef extends AstRef {
             return "scala.Float";
         }
     };
+    public static final TypeRef Long = new TypeRef("Long", null, ElementKind.CLASS) {
+
+        @Override
+        public String getQualifiedName() {
+            return "scala.Long";
+        }
+    };
     public static final TypeRef Int = new TypeRef("Int", null, ElementKind.CLASS) {
 
         @Override
         public String getQualifiedName() {
             return "scala.Int";
+        }
+    };
+    public static final TypeRef Short = new TypeRef("Short", null, ElementKind.CLASS) {
+
+        @Override
+        public String getQualifiedName() {
+            return "scala.Short";
+        }
+    };
+    public static final TypeRef Byte = new TypeRef("Byte", null, ElementKind.CLASS) {
+
+        @Override
+        public String getQualifiedName() {
+            return "scala.Byte";
         }
     };
     public static final TypeRef Boolean = new TypeRef("Boolean", null, ElementKind.CLASS) {
@@ -110,12 +152,21 @@ public class TypeRef extends AstRef {
     
 
     static {
+        PRED_TYPES.put("Any", Any);
+        PRED_TYPES.put("AnyRef", AnyRef);
+        PRED_TYPES.put("AnyVal", AnyVal);
         PRED_TYPES.put("Double", Double);
         PRED_TYPES.put("double", Double);
         PRED_TYPES.put("Float", Float);
         PRED_TYPES.put("float", Float);
+        PRED_TYPES.put("Long", Long);
+        PRED_TYPES.put("long", Long);
         PRED_TYPES.put("Int", Int);
         PRED_TYPES.put("int", Int);
+        PRED_TYPES.put("Short", Short);
+        PRED_TYPES.put("short", Short);
+        PRED_TYPES.put("Byte", Byte);
+        PRED_TYPES.put("byte", Byte);
         PRED_TYPES.put("Boolean", Boolean);
         PRED_TYPES.put("boolean", Boolean);
         PRED_TYPES.put("Unit", Null);
@@ -125,6 +176,7 @@ public class TypeRef extends AstRef {
         PRED_TYPES.put("String", String);
     }
     private List<String> annotations;
+    public static final String UNRESOLVED = "-1";
 
     public TypeRef(String name, Token idToken, ElementKind kind) {
         super(name, idToken, kind);
@@ -132,31 +184,36 @@ public class TypeRef extends AstRef {
 
     @Override
     public String getQualifiedName() {
-        if (qualifiedName == null) {
-            TypeRef predType = PRED_TYPES.get(getName());
-            if (predType != null) {
-                qualifiedName = predType.getQualifiedName();
-                return qualifiedName;
-            }
+        if (qualifiedName != null) {
+            return qualifiedName;
+        }
 
-            AstDef def = getEnclosingScope().findDef(this);
-            if (def != null) {
-                qualifiedName = def.getQualifiedName();
-                return qualifiedName;
-            }
+        TypeRef predType = PRED_TYPES.get(getName());
+        if (predType != null) {
+            qualifiedName = predType.getQualifiedName();
+            return qualifiedName;
+        }
 
-            List<Import> imports = getEnclosingScope().getDefsInScope(Import.class);
-            for (Import importDef : imports) {
-                for (TypeRef importedType : importDef.getImportedTypes()) {
-                    if (importedType.getName().equals(getName())) {
-                        qualifiedName = importDef.getPackageName() + "." + importedType.getName();
-                        return qualifiedName;
-                    }
+        AstDef def = getEnclosingScope().findDef(this);
+        if (def != null) {
+            qualifiedName = def.getQualifiedName();
+            return qualifiedName;
+        }
+
+        List<Import> imports = getEnclosingScope().getDefsInScope(Import.class);
+        for (Import importDef : imports) {
+            for (TypeRef importedType : importDef.getImportedTypes()) {
+                if (importedType.getName().equals(getName())) {
+                    qualifiedName = importDef.getPackageName() + "." + importedType.getName();
+                    return qualifiedName;
                 }
             }
-
         }
-        
-        return super.getQualifiedName();
+
+        return UNRESOLVED;
     }
+
+    public void setQualifiedName(String qualifiedName) {
+        this.qualifiedName = qualifiedName;
+    }            
 }
