@@ -149,7 +149,7 @@ public class AstElement implements ElementHandle {
      * @return the scope that encloses this item 
      */
     public AstScope getEnclosingScope() {
-        assert enclosingScope != null : "Each element should set enclosing scope!, except native TypeRef";
+        assert enclosingScope != null : toString() + ": Each element should set enclosing scope!, except native TypeRef";
         return enclosingScope;
     }
 
