@@ -39,9 +39,7 @@
 
 package org.netbeans.modules.autoproject.java;
 
-import java.awt.Image;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -51,71 +49,53 @@ import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.spi.java.project.support.ui.PackageView;
-import org.netbeans.spi.project.ui.LogicalViewProvider;
+import org.netbeans.spi.project.ui.support.NodeFactory;
+import org.netbeans.spi.project.ui.support.NodeList;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
 import org.openide.util.Union2;
-import org.openide.util.Utilities;
-import org.openide.util.lookup.Lookups;
 
 /**
  * Displays source roots etc. for the project.
  */
-class LogicalViewImpl implements LogicalViewProvider {
+public class NodeFactoryImpl implements NodeFactory {
 
-    private final Project p;
+    /** public for layer */
+    public NodeFactoryImpl() {}
 
-    public LogicalViewImpl(Project p) {
-        this.p = p;
+    public NodeList<?> createNodes(Project p) {
+        return new SourceChildren(p);
     }
 
-    public Node createLogicalView() {
-        // XXX use NodeFactorySupport, ProjectNodeWrapper, etc.; see stuff in ant.freeform
-        return new AbstractNode(new SourceChildren(), Lookups.singleton(p)) {
-            @Override
-            public String getDisplayName() {
-                return ProjectUtils.getInformation(p).getDisplayName();
-            }
-            @Override
-            public Image getIcon(int type) {
-                return Utilities.icon2Image(ProjectUtils.getInformation(p).getIcon());
-            }
-            @Override
-            public Image getOpenedIcon(int type) {
-                return getIcon(type);
-            }
-            // XXX context menu should show usual stuff, plus Ant targets
-        };
-    }
+    private class SourceChildren implements NodeList<Union2<SourceGroup,FileObject>>, ChangeListener {
 
-    private class SourceChildren extends Children.Keys<Union2<SourceGroup,FileObject>> implements ChangeListener {
+        private final Project p;
+        private final Sources src;
+        private final ChangeSupport cs = new ChangeSupport(this);
 
-        private final Sources src = ProjectUtils.getSources(p);
+        public SourceChildren(Project p) {
+            this.p = p;
+            src = ProjectUtils.getSources(p);
+        }
 
-        @Override
-        protected void addNotify() {
-            refreshKeys();
+        public void addNotify() {
             src.addChangeListener(this);
         }
 
-        @Override
-        protected void removeNotify() {
-            setKeys(Collections.<Union2<SourceGroup,FileObject>>emptySet());
+        public void removeNotify() {
             src.removeChangeListener(this);
         }
 
-        @Override
-        protected Node[] createNodes(Union2<SourceGroup,FileObject> key) {
+        public Node node(Union2<SourceGroup,FileObject> key) {
             if (key.hasFirst()) {
-                return new Node[] {PackageView.createPackageView(key.first())};
+                return PackageView.createPackageView(key.first());
             } else {
                 try {
-                    return new Node[] {DataObject.find(key.second()).getNodeDelegate().cloneNode()};
+                    return DataObject.find(key.second()).getNodeDelegate().cloneNode();
                 } catch (DataObjectNotFoundException ex) {
                     Exceptions.printStackTrace(ex);
                     return null;
@@ -124,10 +104,10 @@ class LogicalViewImpl implements LogicalViewProvider {
         }
 
         public void stateChanged(ChangeEvent e) {
-            refreshKeys();
+            cs.fireChange();
         }
 
-        private void refreshKeys() {
+        public List<Union2<SourceGroup,FileObject>> keys() {
             List<Union2<SourceGroup, FileObject>> keys = new ArrayList<Union2<SourceGroup, FileObject>>();
             for (SourceGroup g : src.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA)) {
                 keys.add(Union2.<SourceGroup, FileObject>createFirst(g));
@@ -136,13 +116,17 @@ class LogicalViewImpl implements LogicalViewProvider {
             if (f != null) {
                 keys.add(Union2.<SourceGroup, FileObject>createSecond(f));
             }
-            setKeys(keys);
+            return keys;
         }
 
-    }
+        public void addChangeListener(ChangeListener l) {
+            cs.addChangeListener(l);
+        }
 
-    public Node findPath(Node root, Object target) {
-        return null;// XXX
+        public void removeChangeListener(ChangeListener l) {
+            cs.removeChangeListener(l);
+        }
+
     }
 
 }
