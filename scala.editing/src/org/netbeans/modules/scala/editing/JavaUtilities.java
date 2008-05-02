@@ -72,9 +72,9 @@ import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.api.java.source.Task;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
@@ -714,24 +714,24 @@ public class JavaUtilities {
 
         return found;
     }
-    private static Map<FileObject, Reference<JavaSource>> fileToJavaSource =
+    private static Map<FileObject, Reference<JavaSource>> scalaFileToJavaSource =
             new WeakHashMap<FileObject, Reference<JavaSource>>();
-    private static Map<FileObject, Reference<CompilationController>> fileToJavaController =
+    private static Map<FileObject, Reference<CompilationController>> scalaFileToJavaController =
             new WeakHashMap<FileObject, Reference<CompilationController>>();
 
-    public static CompilationController getCompilationController(FileObject fo) {
-        JavaSource source = getJavaSource(fo);
-
-        Reference<CompilationController> controllerRef = fileToJavaController.get(fo);
+    public static CompilationController getCompilationControllerForScalaFile(FileObject fo) {
+        Reference<CompilationController> controllerRef = scalaFileToJavaController.get(fo);
         CompilationController controller = controllerRef != null ? controllerRef.get() : null;
+
         if (controller == null) {
-            final org.netbeans.api.java.source.CompilationController[] javaControllers =
-                    new org.netbeans.api.java.source.CompilationController[1];
+            final CompilationController[] javaControllers = new CompilationController[1];
+
+            JavaSource source = getJavaSourceForScalaFile(fo);
             try {
                 source.runUserActionTask(new Task<CompilationController>() {
 
                     public void run(CompilationController controller) throws Exception {
-                        controller.toPhase(JavaSource.Phase.ELEMENTS_RESOLVED);
+                        controller.toPhase(Phase.ELEMENTS_RESOLVED);
                         javaControllers[0] = controller;
                     }
                 }, true);
@@ -740,24 +740,25 @@ public class JavaUtilities {
             }
 
             controller = javaControllers[0];
-            fileToJavaController.put(fo, new WeakReference<CompilationController>(controller));
+            scalaFileToJavaController.put(fo, new WeakReference<CompilationController>(controller));
         }
 
         return controller;
     }
 
-    private static JavaSource getJavaSource(FileObject fo) {
-        /** 
-         * @Note: We cannot create js via JavaSource.forFileObject(fo) here, which
-         * does not support virtual source yet (only ".java" and ".class" files 
-         * are supported), but we can create js via JavaSource.create(cpInfo);
-         */
-        Reference<JavaSource> sourceRef = fileToJavaSource.get(fo);
+    /** 
+     * @Note: We cannot create javasource via JavaSource.forFileObject(fo) here, which
+     * does not support virtual source yet (only ".java" and ".class" files 
+     * are supported), but we can create js via JavaSource.create(cpInfo);
+     */
+    private static JavaSource getJavaSourceForScalaFile(FileObject fo) {
+        Reference<JavaSource> sourceRef = scalaFileToJavaSource.get(fo);
         JavaSource source = sourceRef != null ? sourceRef.get() : null;
+
         if (source == null) {
             ClasspathInfo javaCpInfo = ClasspathInfo.create(fo);
             source = JavaSource.create(javaCpInfo);
-            fileToJavaSource.put(fo, new WeakReference<JavaSource>(source));
+            scalaFileToJavaSource.put(fo, new WeakReference<JavaSource>(source));
 
         }
 
@@ -770,26 +771,15 @@ public class JavaUtilities {
     }
 
     public static int getOffset(FileObject fo, final Element e) throws IOException {
-        final int[] result = new int[]{-1};
+        final int[] offset = new int[]{-1};
 
-        final ElementHandle handle = ElementHandle.create(e);
-        JavaSource js = JavaSource.forFileObject(fo);
-        if (js != null) {
-            js.runUserActionTask(new Task<CompilationController>() {
+        JavaSource source = JavaSource.forFileObject(fo);
+        try {
+            source.runWhenScanFinished(new Task<CompilationController>() {
 
-                public void run(CompilationController info) {
-                    try {
-                        info.toPhase(JavaSource.Phase.RESOLVED);
-                    } catch (IOException ioe) {
-                        Exceptions.printStackTrace(ioe);
-                    }
-                    Element el = handle.resolve(info);
-                    if (el == null) {
-                        ErrorManager.getDefault().log(ErrorManager.ERROR, "Cannot resolve " + handle + ". " + info.getClasspathInfo());
-                        return;
-                    }
-
-                    FindDeclarationVisitor v = new FindDeclarationVisitor(el, info);
+                public void run(CompilationController info) throws Exception {
+                    info.toPhase(Phase.RESOLVED);
+                    FindDeclarationVisitor v = new FindDeclarationVisitor(e, info);
 
                     CompilationUnitTree cu = info.getCompilationUnit();
 
@@ -797,38 +787,43 @@ public class JavaUtilities {
                     Tree elTree = v.declTree;
 
                     if (elTree != null) {
-                        result[0] = (int) info.getTrees().getSourcePositions().getStartPosition(cu, elTree);
+                        offset[0] = (int) info.getTrees().getSourcePositions().getStartPosition(cu, elTree);
                     }
                 }
             }, true);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
         }
-        return result[0];
+
+        return offset[0];
     }
 
     public static String getJavaDoc(FileObject fo, final Element e) throws IOException {
-        final String[] result = new String[]{""};
+        final String[] result = new String[]{null};
 
-        final ElementHandle handle = ElementHandle.create(e);
-        JavaSource js = JavaSource.forFileObject(fo);
-        if (js != null) {
-            js.runUserActionTask(new Task<CompilationController>() {
+        JavaSource source = JavaSource.forFileObject(fo);
+        try {
+            source.runWhenScanFinished(new  
 
-                public void run(CompilationController info) {
-                    try {
-                        info.toPhase(JavaSource.Phase.RESOLVED);
-                    } catch (IOException ioe) {
-                        Exceptions.printStackTrace(ioe);
-                    }
-                    Element el = handle.resolve(info);
-                    result[0] = info.getElements().getDocComment(el);
+                  Task    
+                    
+                    <CompilationController>() {
+
+                public void run(CompilationController info) throws Exception {
+                    info.toPhase(Phase.RESOLVED);
+                    result[0] = info.getElements().getDocComment(e);
                 }
             }, true);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
         }
 
         return result[0];
     }
+
     // Private innerclasses ----------------------------------------------------
-    private static class FindDeclarationVisitor extends TreePathScanner<Void, Void> {
+    private static class FindDeclarationVisitor
+            extends TreePathScanner<Void, Void> {
 
         private Element element;
         private Tree declTree;

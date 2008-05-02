@@ -378,7 +378,7 @@ public class ScalaParser implements Parser {
                 if (fo == context.file.getFileObject()) {
                     th = TokenHierarchy.get(doc);
                     // only opened doc needs javaController for getting java's ClassIndex
-                    context.javaController = JavaUtilities.getCompilationController(fo);
+                    context.javaController = JavaUtilities.getCompilationControllerForScalaFile(fo);
                 }
             }
         }
