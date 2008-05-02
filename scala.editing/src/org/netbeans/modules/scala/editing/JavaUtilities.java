@@ -76,6 +76,7 @@ import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.api.java.source.Task;
+import org.netbeans.modules.java.source.JavaSourceAccessor;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
@@ -772,54 +773,81 @@ public class JavaUtilities {
     }
 
     public static int getOffset(FileObject fo, final Element e) throws IOException {
-        final int[] offset = new int[]{-1};
+        int offset = -1;
 
+        final CompilationInfo[] info = new CompilationInfo[]{null};
+        
         JavaSource source = JavaSource.forFileObject(fo);
-        try {
-            source.runWhenScanFinished(new Task<CompilationController>() {
+        if (JavaSourceAccessor.getINSTANCE().isDispatchThread()) {
+            // already under javac's lock
+            info[0] = JavaSourceAccessor.getINSTANCE().getCurrentCompilationInfo(source, Phase.RESOLVED);
+        } else {
+            try {
+                source.runUserActionTask(new Task<CompilationController>() {
 
-                public void run(CompilationController info) throws Exception {
-                    info.toPhase(Phase.RESOLVED);
-                    FindDeclarationVisitor v = new FindDeclarationVisitor(e, info);
-
-                    CompilationUnitTree cu = info.getCompilationUnit();
-
-                    v.scan(cu, null);
-                    Tree elTree = v.declTree;
-
-                    if (elTree != null) {
-                        offset[0] = (int) info.getTrees().getSourcePositions().getStartPosition(cu, elTree);
+                    public void run(CompilationController _info) throws Exception {
+                        _info.toPhase(Phase.RESOLVED);
+                        
+                        info[0] = _info;
                     }
-                }
-            }, true);
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
+                }, true);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+
         }
 
-        return offset[0];
+        if (info[0] != null) {
+            FindDeclarationVisitor v = new FindDeclarationVisitor(e, info[0]);
+
+            CompilationUnitTree cu = info[0].getCompilationUnit();
+
+            v.scan(cu, null);
+            Tree elTree = v.declTree;
+
+            if (elTree != null) {
+                offset = (int) info[0].getTrees().getSourcePositions().getStartPosition(cu, elTree);
+            }
+
+        }
+
+        return offset;
     }
 
     public static String getJavaDoc(FileObject fo, final Element e) throws IOException {
-        final String[] result = new String[]{null};
+        String docComment = null;
 
+        final CompilationInfo[] info = new CompilationInfo[]{null};
+        
         JavaSource source = JavaSource.forFileObject(fo);
-        try {
-            source.runWhenScanFinished(new Task<CompilationController>() {
+        if (JavaSourceAccessor.getINSTANCE().isDispatchThread()) {
+            // already under javac's lock
+            info[0] = JavaSourceAccessor.getINSTANCE().getCurrentCompilationInfo(source, Phase.RESOLVED);
+        } else {
+            try {
+                source.runUserActionTask(new Task<CompilationController>() {
 
-                public void run(CompilationController info) throws Exception {
-                    info.toPhase(Phase.RESOLVED);
-                    Doc docComment = info.getElementUtilities().javaDocFor(e);
-                    if (docComment != null) {
-                        result[0] = docComment.getRawCommentText();
+                    public void run(CompilationController _info) throws Exception {
+                        _info.toPhase(Phase.RESOLVED);
+                        
+                        info[0] = _info;
                     }
-                //result[0] = info.getElements().getDocComment(e);
-                }
-            }, true);
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
+                }, true);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+
         }
 
-        return result[0];
+        if (info[0] != null) {
+            Doc javaDoc = info[0].getElementUtilities().javaDocFor(e);
+            if (javaDoc != null) {
+                docComment = javaDoc.getRawCommentText();
+            }
+
+        }
+
+        return docComment;
     }
 
     // Private innerclasses ----------------------------------------------------
