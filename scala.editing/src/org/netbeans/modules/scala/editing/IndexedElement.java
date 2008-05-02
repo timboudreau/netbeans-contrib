@@ -512,63 +512,75 @@ public abstract class IndexedElement extends AstElement {
         return value;
     }
 
+    /** Return the flags corresponding to the given AST element */
     public static int computeFlags(AstElement element) {
-        // Return the flags corresponding to the given AST element
-        int value = 0;
+        int flags = 0;
 
         ElementKind k = element.getKind();
         if (k == ElementKind.CONSTRUCTOR) {
-            value = value | CONSTRUCTOR;
+            flags = flags | CONSTRUCTOR;
         }
+        
         if (k == ElementKind.METHOD || k == ElementKind.CONSTRUCTOR) {
-            value = value | FUNCTION;
+            flags = flags | FUNCTION;
         } else if (k == ElementKind.GLOBAL) {
-            value = value | GLOBAL;
+            flags = flags | GLOBAL;
         }
+        
         if (element.getModifiers().contains(Modifier.STATIC)) {
-            value = value | STATIC;
+            flags = flags | STATIC;
         }
+        
         if (element.getModifiers().contains(Modifier.DEPRECATED)) {
-            value = value | DEPRECATED;
+            flags = flags | DEPRECATED;
         }
+        
         if (element.getModifiers().contains(Modifier.PRIVATE)) {
-            value = value | PRIVATE;
+            flags = flags | PRIVATE;
+        }
+        
+        if (element.getModifiers().contains(Modifier.PROTECTED)) {
+            flags = flags | PROTECTED;
         }
 
         if (element instanceof ClassTemplate) {
-            value = value | IndexedElement.CLASS;
+            flags = flags | IndexedElement.CLASS;
         } else if (element instanceof ObjectTemplate) {
-            value = value | IndexedElement.OBJECT;
+            flags = flags | IndexedElement.OBJECT;
         } else if (element instanceof TraitTemplate) {
-            value = value | IndexedElement.TRAIT;
+            flags = flags | IndexedElement.TRAIT;
+            flags = flags | STATIC;
         }
 
-
-        return value;
+        return flags;
     }
 
+    /** Return the flags corresponding to the given Java element */
     public static int computeFlags(javax.lang.model.element.Element jelement) {
-        // Return the flags corresponding to the given AST element
-        int value = 0 | IndexedElement.JAVA;
+        int flags = 0 | IndexedElement.JAVA;
 
         javax.lang.model.element.ElementKind k = jelement.getKind();
         if (k == javax.lang.model.element.ElementKind.CONSTRUCTOR) {
-            value = value | IndexedElement.CONSTRUCTOR;
+            flags = flags | CONSTRUCTOR;
         }
 
         if (k == javax.lang.model.element.ElementKind.METHOD || k == javax.lang.model.element.ElementKind.CONSTRUCTOR) {
-            value = value | IndexedElement.FUNCTION;
+            flags = flags | FUNCTION;
         }
 
         if (jelement.getModifiers().contains(javax.lang.model.element.Modifier.STATIC)) {
-            value = value | IndexedElement.STATIC;
+            flags = flags | STATIC;
         }
 
         if (jelement.getModifiers().contains(javax.lang.model.element.Modifier.PRIVATE)) {
-            value = value | IndexedElement.PRIVATE;
+            flags = flags | PRIVATE;
         }
 
-        return value;
+        if (jelement.getModifiers().contains(javax.lang.model.element.Modifier.PROTECTED)) {
+            flags = flags | IndexedElement.PROTECTED;
+        }
+
+        return flags;
     }
 
     public static String computeAttributes(AstElement element, TokenHierarchy th) {

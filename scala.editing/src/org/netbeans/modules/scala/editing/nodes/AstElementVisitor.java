@@ -99,6 +99,98 @@ public class AstElementVisitor extends AstVisitor {
         return packaging;
     }
 
+    public void visitTopStat(GNode that) {
+        enter(that);
+
+        int size = that.size();
+        if (size == 0) {
+            // empty stat
+        } else if (size == 1) {
+            // Import or Expr
+            GNode node = that.getGeneric(0);
+            if (node.getName().equals("Import")) {
+                visitImport(node);
+            } else if (node.getName().equals("Packaging")) {
+                visitPackaging(node);
+            }
+        } else if (size == 3) {
+            for (Object anno : that.getList(0)) {
+                // @Todo
+            }
+
+            List<String> modifiers = null;
+            for (Object modifierNode : that.getList(1)) {
+                if (modifiers == null) {
+                    modifiers = new ArrayList<String>();
+                }
+                String modifier = visitModifier((GNode) modifierNode);
+                modifiers.add(modifier);
+            }
+
+            GNode thirdNode = that.getGeneric(2);
+            AstDef def = null;
+            if (thirdNode.getName().equals("TmplDef")) {
+                def = visitTmplDef(thirdNode);
+            }
+
+            if (modifiers != null) {
+                for (String modifier : modifiers) {
+                    def.addModifier(modifier);
+                }
+            }
+        }
+
+        exit(that);
+    }
+
+    public void visitTemplateStat(GNode that) {
+        enter(that);
+
+        int size = that.size();
+        if (size == 0) {
+            // empty stat
+        } else if (size == 1) {
+            // Import or Expr
+            GNode node = that.getGeneric(0);
+            if (node.getName().equals("Import")) {
+                visitImport(node);
+            } else if (node.getName().equals("Expr")) {
+                visitExpr(node);
+            }
+        } else if (size == 3) {
+            for (Object anno : that.getList(0)) {
+                // @Todo
+            }
+
+            List<String> modifiers = null;
+            for (Object modifierNode : that.getList(1)) {
+                if (modifiers == null) {
+                    modifiers = new ArrayList<String>();
+                }
+                String modifier = visitModifier((GNode) modifierNode);
+                modifiers.add(modifier);
+            }
+
+            GNode thirdNode = that.getGeneric(2);
+            List<? extends AstDef> defs = null;
+            if (thirdNode.getName().equals("Def")) {
+                defs = visitDef(thirdNode);
+            } else if (thirdNode.getName().equals("Dcl")) {
+                defs = visitDcl(thirdNode);
+            }
+
+            if (modifiers != null) {
+                for (AstDef def : defs) {
+                    for (String modifier : modifiers) {
+                        def.addModifier(modifier);
+                    }
+                }
+            }
+        }
+
+        exit(that);
+    }
+
     public List<Import> visitImport(GNode that) {
         enter(that);
 
@@ -401,6 +493,30 @@ public class AstElementVisitor extends AstVisitor {
             defs = Collections.singletonList(def);
         } else if (what.getName().equals("TmplDef")) {
             AstDef def = visitTmplDef(what);
+            defs = Collections.singletonList(def);
+        }
+
+        exit(that);
+        return defs;
+    }
+
+    public List<? extends AstDef> visitDcl(GNode that) {
+        enter(that);
+
+        List<? extends AstDef> defs = null;
+
+        GNode what = that.getGeneric(0);
+        if (what.getName().equals("ValDcl")) {
+            List<Var> vars = visitValDcl(what);
+            defs = vars;
+        } else if (what.getName().equals("VarDcl")) {
+            List<Var> vars = visitVarDcl(what);
+            defs = vars;
+        } else if (what.getName().equals("FunDcl")) {
+            AstDef def = visitFunDcl(what);
+            defs = Collections.singletonList(def);
+        } else if (what.getName().equals("TypeDcl")) {
+            AstDef def = visitTypeDcl(what);
             defs = Collections.singletonList(def);
         }
 
@@ -782,7 +898,7 @@ public class AstElementVisitor extends AstVisitor {
         return type;
     }
 
-    public void visitFunDcl(GNode that) {
+    public Function visitFunDcl(GNode that) {
         enter(that);
 
         AstScope currScope = scopeStack.peek();
@@ -803,6 +919,7 @@ public class AstElementVisitor extends AstVisitor {
         scopeStack.pop();
 
         exit(that);
+        return function;
     }
 
     public Function visitFunDef(GNode that) {
@@ -1046,7 +1163,7 @@ public class AstElementVisitor extends AstVisitor {
             Var var = new Var(id, scope, ElementKind.FIELD);
             var.setVal();
             var.setExpr(expr);
-            
+
             scopeStack.peek().addDef(var);
             vars.add(var);
         }
@@ -1069,7 +1186,7 @@ public class AstElementVisitor extends AstVisitor {
                 Var var = new Var(id, scope, ElementKind.FIELD);
                 var.setType(type);
                 scope.addRef(type);
-                
+
                 scopeStack.peek().addDef(var);
                 vars.add(var);
             }
