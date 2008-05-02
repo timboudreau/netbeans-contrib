@@ -423,7 +423,7 @@ public class ScalaCodeCompletion implements Completable {
             }
 
             if (call.getLhs() != null || request.call.getPrevCallParenPos() != -1) {
-                completeObjectMethod(proposals, request);
+                completeObjectMembers(proposals, request);
                 return proposals;
             }
 
@@ -431,7 +431,7 @@ public class ScalaCodeCompletion implements Completable {
 
             addLocals(proposals, request);
 
-            if (completeObjectMethod(proposals, request)) {
+            if (completeObjectMembers(proposals, request)) {
                 return proposals;
             }
 
@@ -1178,7 +1178,7 @@ public class ScalaCodeCompletion implements Completable {
      *
      * @todo Look for self or this or super; these should be limited to inherited.
      */
-    private boolean completeObjectMethod(List<CompletionProposal> proposals, CompletionRequest request) {
+    private boolean completeObjectMembers(List<CompletionProposal> proposals, CompletionRequest request) {
 
         ScalaIndex index = request.index;
         String prefix = request.prefix;
@@ -1686,8 +1686,9 @@ public class ScalaCodeCompletion implements Completable {
 
         StringBuilder html = new StringBuilder();
 
+        String htmlSignature = IndexedElement.getHtmlSignature(element);
         if (comment == null) {
-            html.append(element.getName()).append("\n<hr>\n<i>").append(NbBundle.getMessage(ScalaCodeCompletion.class, "NoCommentFound")).append("</i>");
+            html.append(htmlSignature).append("\n<hr>\n<i>").append(NbBundle.getMessage(ScalaCodeCompletion.class, "NoCommentFound")).append("</i>");
 
             return html.toString();
         }
@@ -1698,7 +1699,7 @@ public class ScalaCodeCompletion implements Completable {
             formatter.setSeqName(name);
         }
 
-        html.append(IndexedElement.getHtmlSignature(element)).append("\n<hr>\n").append(formatter.toHtml());
+        html.append(htmlSignature).append("\n<hr>\n").append(formatter.toHtml());
 
         return html.toString();
 

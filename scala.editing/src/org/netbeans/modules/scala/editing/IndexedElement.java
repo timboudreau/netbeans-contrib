@@ -520,25 +520,25 @@ public abstract class IndexedElement extends AstElement {
         if (k == ElementKind.CONSTRUCTOR) {
             flags = flags | CONSTRUCTOR;
         }
-        
+
         if (k == ElementKind.METHOD || k == ElementKind.CONSTRUCTOR) {
             flags = flags | FUNCTION;
         } else if (k == ElementKind.GLOBAL) {
             flags = flags | GLOBAL;
         }
-        
+
         if (element.getModifiers().contains(Modifier.STATIC)) {
             flags = flags | STATIC;
         }
-        
+
         if (element.getModifiers().contains(Modifier.DEPRECATED)) {
             flags = flags | DEPRECATED;
         }
-        
+
         if (element.getModifiers().contains(Modifier.PRIVATE)) {
             flags = flags | PRIVATE;
         }
-        
+
         if (element.getModifiers().contains(Modifier.PROTECTED)) {
             flags = flags | PROTECTED;
         }
@@ -1037,8 +1037,8 @@ public abstract class IndexedElement extends AstElement {
             IndexedFunction executable = (IndexedFunction) element;
             Collection<String> parameters = executable.getParameters();
 
+            sb.append("("); // NOI18N
             if ((parameters != null) && (parameters.size() > 0)) {
-                sb.append("("); // NOI18N
 
                 for (Iterator<String> it = parameters.iterator(); it.hasNext();) {
                     String ve = it.next();
@@ -1072,9 +1072,12 @@ public abstract class IndexedElement extends AstElement {
                     }
                 }
 
-                sb.append(")"); // NOI18N
             }
+            sb.append(")"); // NOI18N
+            
+            sb.append(" :").append(executable.getTypeString());
         }
+        
         sb.append("</td>\n"); // NOI18N
         sb.append("</tr></table>"); // NOI18N
 
