@@ -49,8 +49,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.lang.model.element.TypeElement;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.java.source.ClasspathInfo;
+import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.Task;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.autoproject.java.JavaCacheConstants;
 import org.netbeans.modules.autoproject.spi.Cache;
@@ -59,6 +64,7 @@ import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 
@@ -104,7 +110,7 @@ public class ActionProviderImpl implements ActionProvider {
         if (command.equals(ActionProvider.COMMAND_COMPILE_SINGLE)) {
             return compileSetup(context) != null;
         } else if (command.equals(ActionProvider.COMMAND_RUN_SINGLE)) {
-            return runSetup(context) != null;
+            return runSetup(context, false) != null;
         } else {
             return true;
         }
@@ -127,7 +133,7 @@ public class ActionProviderImpl implements ActionProvider {
                             return;
                         }
                     }
-                    doRun(runSetup(context));
+                    doRun(runSetup(context, true));
                 }
             });
         } else {
@@ -278,13 +284,14 @@ public class ActionProviderImpl implements ActionProvider {
             this.cwd = cwd;
         }
     }
-    private RunSetup/*|null*/ runSetup(Lookup context) {
+    private RunSetup/*|null*/ runSetup(Lookup context, boolean block) {
         Collection<? extends DataObject> ds = context.lookupAll(DataObject.class);
         if (ds.size() != 1) {
             // No selection, or multiselection.
             return null;
         }
-        File f = FileUtil.toFile(ds.iterator().next().getPrimaryFile());
+        FileObject fo = ds.iterator().next().getPrimaryFile();
+        File f = FileUtil.toFile(fo);
         if (f == null) {
             // JAR selection?
             return null;
@@ -293,8 +300,7 @@ public class ActionProviderImpl implements ActionProvider {
             // Some other kind of file selected.
             return null;
         }
-        // XXX check that it has a main method, or is a TestCase/Suite/whatever
-        List<String> options = new ArrayList<String>();
+        final List<String> options = new ArrayList<String>();
         for (Map.Entry<String, String> entry : Cache.pairs()) {
             if (entry.getKey().endsWith(JavaCacheConstants.SOURCE)) {
                 String src = entry.getKey().substring(0, entry.getKey().length() - JavaCacheConstants.SOURCE.length());
@@ -313,7 +319,26 @@ public class ActionProviderImpl implements ActionProvider {
                     // XXX could add source path to pick up noncopied resources?
                     // XXX may in general be necessary to add other entries to run CP, TBD how to guess this...
                     options.add(clazz + File.pathSeparator + cp);
-                    options.add(f.getAbsolutePath().substring(src.length() + File.separator.length()).replace('/', '.').replaceAll("[.]java$", ""));
+                    final String name = f.getAbsolutePath().substring(src.length() + File.separator.length()).replace('/', '.').replaceAll("[.]java$", "");
+                    if (block) {
+                        // We can block waiting for parse, and figure out whether to run as a test.
+                        try {
+                            JavaSource.create(ClasspathInfo.create(fo)).runWhenScanFinished(new Task<CompilationController>() {
+                                public void run(CompilationController cc) throws Exception {
+                                    TypeElement runType = cc.getElements().getTypeElement(name);
+                                    TypeElement testCase = cc.getElements().getTypeElement("junit.framework.TestCase");
+                                    if (testCase != null && cc.getTypes().isAssignable(runType.asType(), testCase.asType())) {
+                                        options.add("junit.textui.TestRunner");
+                                    }
+                                    // XXX also classes with a "public static junit.framework.Test suite()" method
+                                    // XXX also classes containing public methods annotated with @org.junit.Test (run with org.junit.runner.JUnitCore)
+                                }
+                            }, true).get();
+                        } catch (Exception x) {
+                            Exceptions.printStackTrace(x);
+                        }
+                    }
+                    options.add(name);
                     return new RunSetup(options, FileUtil.toFile(p.getProjectDirectory()));
                 }
             }
