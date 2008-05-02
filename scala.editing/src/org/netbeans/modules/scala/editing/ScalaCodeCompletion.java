@@ -312,13 +312,12 @@ public class ScalaCodeCompletion implements Completable {
         // Read-lock due to Token hierarchy use
         doc.readLock();
         try {
-            AstScope root = pResult.getRootScope();
-
             final int astOffset = AstUtilities.getAstOffset(info, lexOffset);
             if (astOffset == -1) {
                 return null;
             }
-            final TokenHierarchy<Document> th = TokenHierarchy.get(document);
+            final AstScope root = pResult.getRootScope();
+            final TokenHierarchy<Document> th = pResult.getTokenHierarchy();
             final FileObject fileObject = info.getFileObject();
             final MaybeCall call = MaybeCall.getCallType(doc, th, lexOffset);
 

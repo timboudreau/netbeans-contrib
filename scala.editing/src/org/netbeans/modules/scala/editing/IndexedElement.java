@@ -55,6 +55,7 @@ import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
@@ -132,6 +133,8 @@ public abstract class IndexedElement extends AstElement {
     protected boolean smart;
     protected boolean inherited = true;
     protected ElementKind kind;
+    private javax.lang.model.element.Element javaElement;
+    private org.netbeans.api.java.source.ClasspathInfo javaClasspathInfo;
 
     IndexedElement(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
         super(null, null);
@@ -206,7 +209,7 @@ public abstract class IndexedElement extends AstElement {
         return indexedElement;
     }
 
-    static IndexedElement create(AstElement element, ScalaIndex index) {
+    static IndexedElement create(AstElement element, TokenHierarchy th, ScalaIndex index) {
         String in = element.getIn();
         String thename = element.getName();
         StringBuilder base = new StringBuilder();
@@ -218,9 +221,15 @@ public abstract class IndexedElement extends AstElement {
         base.append(';');
         base.append(thename);
         base.append(';');
-        base.append(IndexedElement.computeAttributes(element));
+        base.append(computeAttributes(element, th));
 
-        return IndexedElement.create(element.getName(), base.toString(), "", index, false);
+        return create(element.getName(), base.toString(), "", index, false);
+    }
+
+    public void setJavaInfo(javax.lang.model.element.Element javaElement, org.netbeans.api.java.source.ClasspathInfo javaClasspathInfo) {
+        assert isJava() : "Only IndexedElement for Java's element has javaElement";
+        this.javaElement = javaElement;
+        this.javaClasspathInfo = javaClasspathInfo;
     }
 
     public String getSignature() {
@@ -252,10 +261,12 @@ public abstract class IndexedElement extends AstElement {
         return fqn;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String getIn() {
         return in;
     }
@@ -264,10 +275,12 @@ public abstract class IndexedElement extends AstElement {
         this.kind = kind;
     }
 
+    @Override
     public ElementKind getKind() {
         return kind;
     }
 
+    @Override
     public Set<Modifier> getModifiers() {
         /* @TODO */
         return Collections.emptySet();
@@ -297,10 +310,16 @@ public abstract class IndexedElement extends AstElement {
         return new DefaultParserFile(getFileObject(), null, platform);
     }
 
+    @Override
     public FileObject getFileObject() {
-        if ((fileObject == null) && (fileUrl != null)) {
+        if (fileObject != null) {
+            return fileObject;
+        }
+        
+        if (isJava()) {            
+            fileObject = JavaUtilities.getFileObject(javaElement, javaClasspathInfo);
+        } else if (fileUrl != null && fileUrl.length() > 0) {
             fileObject = ScalaIndex.getFileObject(fileUrl);
-
             if (fileObject == null) {
                 // Don't try again
                 fileUrl = null;
@@ -329,6 +348,22 @@ public abstract class IndexedElement extends AstElement {
 
         assert attributeIndex != -1;
         return attributeIndex + 1;
+    }
+
+    int getOffset() {
+        int offset = 0;
+        if (isJava()) {
+            try {
+                offset = JavaUtilities.getOffset(getFileObject(), javaElement);
+            } catch (IOException ex) {
+            }
+        } else {
+            int OffsetIndex = getAttributeSection(NODE_INDEX);
+            if (OffsetIndex != -1) {
+                offset = IndexedElement.decode(attributes, OffsetIndex, -1);
+            }
+        }
+        return offset;
     }
 
     int getDocOffset() {
@@ -547,7 +582,7 @@ public abstract class IndexedElement extends AstElement {
         return value;
     }
 
-    public static String computeAttributes(AstElement element) {
+    public static String computeAttributes(AstElement element, TokenHierarchy th) {
         OffsetRange docRange = getDocumentationOffset(element);
         int docOffset = -1;
         if (docRange != OffsetRange.NONE) {
@@ -631,8 +666,7 @@ public abstract class IndexedElement extends AstElement {
         sb.append(';');
         index++;
         assert index == IndexedElement.NODE_INDEX;
-        sb.append('0');
-        //sb.append(IndexedElement.encode(element.getNode().getSourceStart()));
+        sb.append(IndexedElement.encode(element.getOffset(th)));
 
         // Documentation offset
         sb.append(';');
@@ -751,8 +785,8 @@ public abstract class IndexedElement extends AstElement {
         sb.append(';');
         index++;
         assert index == IndexedElement.NODE_INDEX;
-        sb.append('0');
-        //sb.append(IndexedElement.encode(element.getNode().getSourceStart()));
+        int offset = 0; // will compute lazily
+        sb.append(encode(offset));
 
         // Documentation offset
         sb.append(';');

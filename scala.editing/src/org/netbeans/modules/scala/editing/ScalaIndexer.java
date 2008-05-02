@@ -44,6 +44,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.Indexer;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
@@ -243,7 +244,7 @@ public class ScalaIndexer implements Indexer {
             if (root == null) {
                 return;
             }
-
+            
             List<AstDef> templates = new ArrayList<AstDef>();
             scan(root, templates);
             analyze(templates);
@@ -313,7 +314,7 @@ public class ScalaIndexer implements Indexer {
                 fqn.append(';');
                 fqn.append(name);
                 fqn.append(';');
-                fqn.append(IndexedElement.computeAttributes(template));
+                fqn.append(IndexedElement.computeAttributes(template, pResult.getTokenHierarchy()));
 
                 List<SimpleType> extendsWith = template.getExtendsWith();
                 if (extendsWith.size() > 0) {
@@ -371,7 +372,7 @@ public class ScalaIndexer implements Indexer {
 
                         case CONSTRUCTOR:
                         case METHOD: {
-                            String attributes = IndexedElement.computeAttributes(child);
+                            String attributes = IndexedElement.computeAttributes(child, pResult.getTokenHierarchy());
                             indexFunction(child, document, attributes);
 
                             break;

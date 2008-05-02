@@ -58,7 +58,6 @@ import org.netbeans.api.java.source.ClassIndex.NameKind;
 import org.netbeans.api.java.source.ClassIndex.SearchScope;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.ElementHandle;
-import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.modules.java.source.JavaSourceAccessor;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.Exceptions;
@@ -85,9 +84,8 @@ public class JavaIndex {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         CompilationController controller = pResult.getJavaController();
         assert controller != null : "Only opened doc has java's CompilationController";
-        
-        JavaSource source = controller.getJavaSource();
-        ClassIndex index = source.getClasspathInfo().getClassIndex();
+
+        ClassIndex index = controller.getClasspathInfo().getClassIndex();
 
         return new JavaIndex(index, controller, scalaIndex);
     }
@@ -97,7 +95,7 @@ public class JavaIndex {
         Set<IndexedElement> idxElements = new HashSet<IndexedElement>();
         for (String pkgName : pkgNames) {
             if (pkgName.length() > 0) {
-                IndexedElement idxElement = IndexedElement.create("", "", pkgName, pkgName, "", 0, scalaIndex, true);
+                IndexedElement idxElement = IndexedElement.create("", "", pkgName, pkgName, null, 0, scalaIndex, true);
                 idxElements.add(idxElement);
             }
         }
@@ -119,7 +117,7 @@ public class JavaIndex {
             pkgName = fqnPrefix.substring(0, lastDot);
             prefix = fqnPrefix.substring(lastDot + 1, fqnPrefix.length());
         }
-        
+
         Elements theElements = controller.getElements();
         PackageElement pe = theElements.getPackageElement(pkgName);
         if (pe != null) {
@@ -138,9 +136,12 @@ public class JavaIndex {
                         base.append(';');
                         base.append(simpleName);
                         base.append(';');
-                        base.append(IndexedElement.computeAttributes(e));
 
-                        IndexedElement idxElement = IndexedElement.create(simpleName, base.toString(), "", scalaIndex, false);
+                        String attrs = IndexedElement.computeAttributes(e);
+                        base.append(attrs);
+
+                        IndexedElement idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
+                        idxElement.setJavaInfo(e, controller.getClasspathInfo());
                         idxElements.add(idxElement);
                     }
                 }
@@ -198,7 +199,7 @@ public class JavaIndex {
                 pkgName = type.substring(0, lastDot);
                 type = type.substring(lastDot + 1, type.length());
             }
-            
+
             fqn = type + "." + name;
         } else {
             fqn = name;
@@ -239,6 +240,9 @@ public class JavaIndex {
                     }
 
                     String simpleMame = e.getSimpleName().toString();
+                    if (!JavaUtilities.startsWith(simpleMame, name)) {
+                        continue;
+                    }
 
                     switch (e.getKind()) {
                         case ENUM_CONSTANT:
@@ -269,9 +273,12 @@ public class JavaIndex {
                             base.append(';');
                             base.append(simpleMame);
                             base.append(';');
-                            base.append(IndexedElement.computeAttributes(e));
 
-                            idxElement = IndexedElement.create(simpleMame, base.toString(), "", scalaIndex, false);
+                            String attrs = IndexedElement.computeAttributes(e);
+                            base.append(attrs);
+
+                            idxElement = IndexedElement.create(simpleMame, base.toString(), null, scalaIndex, false);
+                            idxElement.setJavaInfo(e, controller.getClasspathInfo());
                             break;
                         case CLASS:
                         case ENUM:
