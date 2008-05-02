@@ -44,11 +44,9 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
@@ -58,7 +56,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
@@ -995,18 +992,16 @@ public abstract class IndexedElement extends AstElement {
         return null;
     }
 
-    public static String getHtmlSignature(ElementHandle element) {
+    public static String getHtmlSignature(IndexedElement element) {
         StringBuilder sb = new StringBuilder();
-        IndexedElement indexedElement = null;
-        if (element instanceof IndexedElement) {
-            indexedElement = (IndexedElement) element;
-        }
 
+        IndexedElement indexedElement = element;
         // Insert browser icons... TODO - consult flags etc.
         sb.append("<table width=\"100%\" border=\"0\"><tr>\n"); // NOI18N
 
         sb.append("<td>"); // NOI18N
 
+        /** none indexedElement getIn() may cause none enclosingScope error */
         if (element.getIn() != null) {
             String in = element.getIn();
             if (in != null && in.length() > 0) {

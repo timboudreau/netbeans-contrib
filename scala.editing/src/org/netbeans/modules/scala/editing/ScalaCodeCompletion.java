@@ -1682,11 +1682,14 @@ public class ScalaCodeCompletion implements Completable {
 //                    e.getComments();
 //                }
             }
+        } else {
+            return null;
         }
 
+        
         StringBuilder html = new StringBuilder();
 
-        String htmlSignature = IndexedElement.getHtmlSignature(element);
+        String htmlSignature = IndexedElement.getHtmlSignature((IndexedElement) element);
         if (comment == null) {
             html.append(htmlSignature).append("\n<hr>\n<i>").append(NbBundle.getMessage(ScalaCodeCompletion.class, "NoCommentFound")).append("</i>");
 
