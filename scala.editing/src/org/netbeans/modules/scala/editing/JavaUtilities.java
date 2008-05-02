@@ -765,7 +765,8 @@ public class JavaUtilities {
     }
 
     public static FileObject getFileObject(Element e, ClasspathInfo info) {
-        return org.netbeans.api.java.source.SourceUtils.getFile(ElementHandle.create(e), info);
+        final ElementHandle handle = ElementHandle.create(e);
+        return org.netbeans.api.java.source.SourceUtils.getFile(handle, info);
     }
 
     public static int getOffset(FileObject fo, final Element e) throws IOException {
@@ -801,6 +802,29 @@ public class JavaUtilities {
                 }
             }, true);
         }
+        return result[0];
+    }
+
+    public static String getJavaDoc(FileObject fo, final Element e) throws IOException {
+        final String[] result = new String[]{""};
+
+        final ElementHandle handle = ElementHandle.create(e);
+        JavaSource js = JavaSource.forFileObject(fo);
+        if (js != null) {
+            js.runUserActionTask(new Task<CompilationController>() {
+
+                public void run(CompilationController info) {
+                    try {
+                        info.toPhase(JavaSource.Phase.RESOLVED);
+                    } catch (IOException ioe) {
+                        Exceptions.printStackTrace(ioe);
+                    }
+                    Element el = handle.resolve(info);
+                    result[0] = info.getElements().getDocComment(el);
+                }
+            }, true);
+        }
+
         return result[0];
     }
     // Private innerclasses ----------------------------------------------------
