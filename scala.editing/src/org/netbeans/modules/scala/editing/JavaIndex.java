@@ -56,7 +56,7 @@ import javax.lang.model.util.Types;
 import org.netbeans.api.java.source.ClassIndex;
 import org.netbeans.api.java.source.ClassIndex.NameKind;
 import org.netbeans.api.java.source.ClassIndex.SearchScope;
-import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.modules.java.source.JavaSourceAccessor;
 import org.openide.filesystems.FileStateInvalidException;
@@ -71,23 +71,21 @@ public class JavaIndex {
     public static final Set<SearchScope> ALL_SCOPE = EnumSet.allOf(SearchScope.class);
     public static final Set<SearchScope> SOURCE_SCOPE = EnumSet.of(SearchScope.SOURCE);
     private final ClassIndex index;
-    private final CompilationController controller;
+    private final CompilationInfo info;
     private final ScalaIndex scalaIndex;
 
-    private JavaIndex(ClassIndex index, CompilationController controller, ScalaIndex scalaIndex) {
+    private JavaIndex(ClassIndex index, CompilationInfo info, ScalaIndex scalaIndex) {
         this.index = index;
-        this.controller = controller;
+        this.info = info;
         this.scalaIndex = scalaIndex;
     }
 
-    public static JavaIndex get(org.netbeans.modules.gsf.api.CompilationInfo info, ScalaIndex scalaIndex) {
-        ScalaParserResult pResult = AstUtilities.getParserResult(info);
-        CompilationController controller = pResult.getJavaController();
-        assert controller != null : "Only opened doc has java's CompilationController";
+    public static JavaIndex get(org.netbeans.modules.gsf.api.CompilationInfo gsfInfo, ScalaIndex scalaIndex) {
+        CompilationInfo info = JavaUtilities.getCompilationInfoForScalaFile(gsfInfo.getFileObject());
 
-        ClassIndex index = controller.getClasspathInfo().getClassIndex();
+        ClassIndex index = info.getClasspathInfo().getClassIndex();
 
-        return new JavaIndex(index, controller, scalaIndex);
+        return new JavaIndex(index, info, scalaIndex);
     }
 
     public Set<IndexedElement> getPackages(String fqnPrefix) {
@@ -118,7 +116,7 @@ public class JavaIndex {
             prefix = fqnPrefix.substring(lastDot + 1, fqnPrefix.length());
         }
 
-        Elements theElements = controller.getElements();
+        Elements theElements = info.getElements();
         PackageElement pe = theElements.getPackageElement(pkgName);
         if (pe != null) {
             Set<IndexedElement> idxElements = new HashSet<IndexedElement>();
@@ -141,7 +139,7 @@ public class JavaIndex {
                         base.append(attrs);
 
                         IndexedElement idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
-                        idxElement.setJavaInfo(e, controller.getClasspathInfo());
+                        idxElement.setJavaInfo(e, info.getClasspathInfo());
                         idxElements.add(idxElement);
                     }
                 }
@@ -210,15 +208,15 @@ public class JavaIndex {
         /** always use NameKind.SIMPLE_NAME search index.getDeclaredTypes */
         kind = NameKind.SIMPLE_NAME;
 
-        Elements theElements = controller.getElements();
-        Types theTypes = controller.getTypes();
+        Elements theElements = info.getElements();
+        Types theTypes = info.getTypes();
 
         Set<ElementHandle<TypeElement>> dclTypes = index.getDeclaredTypes(type, kind, scope);
 
         for (ElementHandle<TypeElement> teHandle : dclTypes) {
             IndexedElement idxElement = null;
 
-            TypeElement te = teHandle.resolve(controller);
+            TypeElement te = teHandle.resolve(info);
 
             PackageElement pe = theElements.getPackageOf(te);
             if (pe != null) {
@@ -278,7 +276,7 @@ public class JavaIndex {
                             base.append(attrs);
 
                             idxElement = IndexedElement.create(simpleMame, base.toString(), null, scalaIndex, false);
-                            idxElement.setJavaInfo(e, controller.getClasspathInfo());
+                            idxElement.setJavaInfo(e, info.getClasspathInfo());
                             break;
                         case CLASS:
                         case ENUM:

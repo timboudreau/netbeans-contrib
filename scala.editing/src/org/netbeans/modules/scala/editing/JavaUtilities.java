@@ -718,15 +718,15 @@ public class JavaUtilities {
     }
     private static Map<FileObject, Reference<JavaSource>> scalaFileToJavaSource =
             new WeakHashMap<FileObject, Reference<JavaSource>>();
-    private static Map<FileObject, Reference<CompilationController>> scalaFileToJavaController =
-            new WeakHashMap<FileObject, Reference<CompilationController>>();
+    private static Map<FileObject, Reference<CompilationInfo>> scalaFileToJavaCompilationInfo =
+            new WeakHashMap<FileObject, Reference<CompilationInfo>>();
 
-    public static CompilationController getCompilationControllerForScalaFile(FileObject fo) {
-        Reference<CompilationController> controllerRef = scalaFileToJavaController.get(fo);
-        CompilationController controller = controllerRef != null ? controllerRef.get() : null;
+    public static CompilationInfo getCompilationInfoForScalaFile(FileObject fo) {
+        Reference<CompilationInfo> controllerRef = scalaFileToJavaCompilationInfo.get(fo);
+        CompilationInfo info = controllerRef != null ? controllerRef.get() : null;
 
-        if (controller == null) {
-            final CompilationController[] javaControllers = new CompilationController[1];
+        if (info == null) {
+            final CompilationInfo[] javaControllers = new CompilationInfo[1];
 
             JavaSource source = getJavaSourceForScalaFile(fo);
             try {
@@ -741,11 +741,11 @@ public class JavaUtilities {
                 Exceptions.printStackTrace(ex);
             }
 
-            controller = javaControllers[0];
-            scalaFileToJavaController.put(fo, new WeakReference<CompilationController>(controller));
+            info = javaControllers[0];
+            scalaFileToJavaCompilationInfo.put(fo, new WeakReference<CompilationInfo>(info));
         }
 
-        return controller;
+        return info;
     }
 
     /** 
@@ -785,10 +785,10 @@ public class JavaUtilities {
             try {
                 source.runUserActionTask(new Task<CompilationController>() {
 
-                    public void run(CompilationController _info) throws Exception {
-                        _info.toPhase(Phase.RESOLVED);
+                    public void run(CompilationController controller) throws Exception {
+                        controller.toPhase(Phase.RESOLVED);
                         
-                        info[0] = _info;
+                        info[0] = controller;
                     }
                 }, true);
             } catch (IOException ex) {
@@ -827,10 +827,10 @@ public class JavaUtilities {
             try {
                 source.runUserActionTask(new Task<CompilationController>() {
 
-                    public void run(CompilationController _info) throws Exception {
-                        _info.toPhase(Phase.RESOLVED);
+                    public void run(CompilationController controller) throws Exception {
+                        controller.toPhase(Phase.RESOLVED);
                         
-                        info[0] = _info;
+                        info[0] = controller;
                     }
                 }, true);
             } catch (IOException ex) {

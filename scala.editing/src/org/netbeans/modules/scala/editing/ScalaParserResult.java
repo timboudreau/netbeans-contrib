@@ -62,17 +62,13 @@ public class ScalaParserResult extends ParserResult {
     private boolean commentsAdded;
     private AstScope rootScope;
     private TokenHierarchy<Document> tokenHierarchy;
-    private org.netbeans.api.java.source.CompilationController javaController;
 
-    public ScalaParserResult(ScalaParser parser, ParserFile file, AstScope rootScope, AstTreeNode ast, 
-            TokenHierarchy<Document> th, 
-            org.netbeans.api.java.source.CompilationController javaController) {
+    public ScalaParserResult(ScalaParser parser, ParserFile file, AstScope rootScope, AstTreeNode ast, TokenHierarchy<Document> th) {
         super(parser, file, ScalaMimeResolver.MIME_TYPE);
         this.file = file;
         this.rootScope = rootScope;
         this.ast = ast;
         this.tokenHierarchy = th;
-        this.javaController = javaController;
     }
 
     public ParserResult.AstTreeNode getAst() {
@@ -134,10 +130,6 @@ public class ScalaParserResult extends ParserResult {
         return tokenHierarchy;
     }
     
-    public org.netbeans.api.java.source.CompilationController getJavaController() {
-        return javaController;
-    }
-
     @Override
     public String toString() {
         return "ParseResult(file=" + getFile() + ",rootScope=" + rootScope + ")";
