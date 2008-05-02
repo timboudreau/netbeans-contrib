@@ -79,7 +79,8 @@ public class ScalaIndex {
     public static final Set<SearchScope> SOURCE_SCOPE = EnumSet.of(SearchScope.SOURCE);
     public static final Set<String> TERMS_FQN = Collections.singleton(ScalaIndexer.FIELD_FQN);
     public static final Set<String> TERMS_BASE = Collections.singleton(ScalaIndexer.FIELD_BASE);
-    public static final Set<String> TERMS_EXTEND = Collections.singleton(ScalaIndexer.FIELD_EXTEND_WITH);
+    public static final Set<String> TERMS_EXTEND = Collections.singleton(ScalaIndexer.FIELD_EXTENDS_NAME);
+    public static final Set<String> TERMS_CLASS = Collections.singleton(ScalaIndexer.FIELD_CASE_INSENSITIVE_CLASS_NAME);
     private final Index index;
     private JavaIndex javaIndex;
 
@@ -171,24 +172,24 @@ public class ScalaIndex {
 
     @SuppressWarnings("unchecked")
     public Set<IndexedElement> getConstructors(final String name, NameKind kind,
-            Set<Index.SearchScope> scope) {
+            Set<SearchScope> scope) {
         // TODO - search by the FIELD_CLASS thingy
         return getUnknownFunctions(name, kind, scope, true, null, true, false);
     }
 
     @SuppressWarnings("unchecked")
     public Set<IndexedElement> getAllNames(final String name, NameKind kind,
-            Set<Index.SearchScope> scope, ScalaParserResult context) {
+            Set<SearchScope> scope, ScalaParserResult context) {
         // TODO - search by the FIELD_CLASS thingy
         return getUnknownFunctions(name, kind, scope, false, context, true, true);
     }
 
     public Map<String, String> getAllExtends() {
         final Set<SearchResult> result = new HashSet<SearchResult>();
-        search(ScalaIndexer.FIELD_EXTEND_WITH, "", NameKind.CASE_INSENSITIVE_PREFIX, result, ScalaIndex.ALL_SCOPE, TERMS_EXTEND);
+        search(ScalaIndexer.FIELD_EXTENDS_NAME, "", NameKind.CASE_INSENSITIVE_PREFIX, result, ScalaIndex.ALL_SCOPE, TERMS_EXTEND);
         Map<String, String> classes = new HashMap<String, String>();
         for (SearchResult map : result) {
-            String[] exts = map.getValues(ScalaIndexer.FIELD_EXTEND_WITH);
+            String[] exts = map.getValues(ScalaIndexer.FIELD_EXTENDS_NAME);
 
             if (exts != null) {
                 for (String ext : exts) {
@@ -207,10 +208,10 @@ public class ScalaIndex {
 
     private String getExtends(String className, Set<Index.SearchScope> scope) {
         final Set<SearchResult> result = new HashSet<SearchResult>();
-        search(ScalaIndexer.FIELD_EXTEND_WITH, className.toLowerCase(), NameKind.CASE_INSENSITIVE_PREFIX, result, scope, TERMS_EXTEND);
+        search(ScalaIndexer.FIELD_EXTENDS_NAME, className.toLowerCase(), NameKind.CASE_INSENSITIVE_PREFIX, result, scope, TERMS_EXTEND);
         String target = className.toLowerCase() + ";";
         for (SearchResult map : result) {
-            String[] exts = map.getValues(ScalaIndexer.FIELD_EXTEND_WITH);
+            String[] exts = map.getValues(ScalaIndexer.FIELD_EXTENDS_NAME);
 
             if (exts != null) {
                 for (String ext : exts) {
@@ -253,31 +254,38 @@ public class ScalaIndex {
     }
 
     public Set<IndexedElement> getAllElements(String prefix, String type,
-            NameKind kind, Set<Index.SearchScope> scope, ScalaParserResult context) {
+            NameKind kind, Set<SearchScope> scope, ScalaParserResult context) {
 
         return getByFqn(prefix, type, kind, scope, false, context, true, true, true);
     }
 
     @SuppressWarnings("unchecked")
     public Set<IndexedFunction> getFunctions(String name, String in, NameKind kind,
-            Set<Index.SearchScope> scope, ScalaParserResult context, boolean includeMethods) {
+            Set<SearchScope> scope, ScalaParserResult context, boolean includeMethods) {
         return (Set<IndexedFunction>) (Set) getByFqn(name, in, kind, scope, false, context, includeMethods, false, false);
     }
 
-    public Set<IndexedElement> getPackages(String fqnPrefix) {
-        Set<IndexedElement> idxElements = javaIndex.getPackages(fqnPrefix);
+    public Set<IndexedElement> getPackageContent(String fqnPrefix, NameKind kind, Set<SearchScope> scope) {
+
+        Set<IndexedElement> idxElements = getTypesByFqn(fqnPrefix, kind, scope, null, false, false, true);
+
+        idxElements.addAll(javaIndex.getPackageContent(fqnPrefix));
 
         return idxElements;
     }
+    
+    public Set<IndexedElement> getPackagesAndContent(String fqnPrefix, NameKind kind, Set<SearchScope> scope) {
 
-    public Set<IndexedElement> getPackageContent(String pkgFqn, String prefix) {
-        Set<IndexedElement> idxElements = javaIndex.getPackageContent(pkgFqn, prefix);
+        Set<IndexedElement> idxElements = getTypesByFqn(fqnPrefix, kind, scope, null, false, false, false);
+
+        idxElements.addAll(javaIndex.getPackages(fqnPrefix));
+        idxElements.addAll(javaIndex.getPackageContent(fqnPrefix));
 
         return idxElements;
     }
 
     private Set<IndexedElement> getUnknownFunctions(String name, NameKind kind,
-            Set<Index.SearchScope> scope, boolean onlyConstructors, ScalaParserResult context,
+            Set<SearchScope> scope, boolean onlyConstructors, ScalaParserResult context,
             boolean includeMethods, boolean includeProperties) {
 
         final Set<SearchResult> result = new HashSet<SearchResult>();
@@ -408,8 +416,8 @@ public class ScalaIndex {
         return elements;
     }
 
-    private Set<IndexedElement> getByFqn(String name, String type, NameKind kind,
-            Set<Index.SearchScope> scope, boolean onlyConstructors, ScalaParserResult context,
+    private Set<IndexedElement> getByFqn(String prefix, String type, NameKind kind,
+            Set<SearchScope> scope, boolean onlyConstructors, ScalaParserResult context,
             boolean includeMethods, boolean includeProperties, boolean includeDuplicates) {
         //assert in != null && in.length() > 0;
 
@@ -448,12 +456,9 @@ public class ScalaIndex {
 
         while (true) {
 
-            String fqn;
-            if (type != null && type.length() > 0) {
-                fqn = type + "." + name;
-            } else {
-                fqn = name;
-            }
+            String fqn = type != null && type.length() > 0
+                    ? type + "." + prefix
+                    : prefix;
 
             String lcfqn = fqn.toLowerCase();
             search(field, lcfqn, kind, result, scope, terms);
@@ -531,7 +536,7 @@ public class ScalaIndex {
 
                         int lastDot = elementName.lastIndexOf('.');
                         IndexedElement element = null;
-                        if (name.length() < lastDot) {
+                        if (prefix.length() < lastDot) {
                             int nextDot = elementName.indexOf('.', fqn.length());
                             if (nextDot != -1) {
                                 int flags = IndexedElement.decode(signature, inEndIdx, 0);
@@ -579,14 +584,12 @@ public class ScalaIndex {
                 }
             }
 
-            if (type == null || "AnyRef".equals(type)) { // NOI18N
-
+            if (type == null || "scala.AnyRef".equals(type)) { // NOI18N
                 break;
             }
             type = getExtends(type, scope);
             if (type == null) {
-                type = "AnyRef"; // NOI18N
-
+                type = "scala.AnyRef"; // NOI18N
                 haveRedirected = true;
             }
             // Prevent circularity in types
@@ -597,6 +600,156 @@ public class ScalaIndex {
             }
             inheriting = true;
         }
+
+        return elements;
+    }
+
+    private Set<IndexedElement> getTypesByFqn(String fqnPrefix, NameKind kind,
+            Set<SearchScope> scope, ScalaParserResult context, 
+            boolean onlyConstructors, boolean includeDuplicates, boolean onlyContent) {
+
+        final Set<SearchResult> result = new HashSet<SearchResult>();
+
+        String field = ScalaIndexer.FIELD_CASE_INSENSITIVE_CLASS_NAME;
+        String valueField = ScalaIndexer.FIELD_FQN;
+        Set<String> terms = TERMS_FQN;
+        NameKind originalKind = kind;
+        if (kind == NameKind.EXACT_NAME) {
+            // I can't do exact searches on methods because the method
+            // entries include signatures etc. So turn this into a prefix
+            // search and then compare chopped off signatures with the name
+            kind = NameKind.PREFIX;
+        }
+
+        if (kind == NameKind.CASE_INSENSITIVE_PREFIX || kind == NameKind.CASE_INSENSITIVE_REGEXP) {
+            // TODO - can I do anything about this????
+            //field = ScalaIndexer.FIELD_BASE_LOWER;
+            //terms = FQN_BASE_LOWER;
+        }
+
+        final Set<IndexedElement> elements = includeDuplicates ? new DuplicateElementSet() : new HashSet<IndexedElement>();
+        String searchUrl = null;
+        if (context != null) {
+            try {
+                searchUrl = context.getFile().getFileObject().getURL().toExternalForm();
+            } catch (FileStateInvalidException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
+        String lcfqn = fqnPrefix.toLowerCase();
+        search(field, lcfqn, kind, result, scope, terms);
+
+        for (SearchResult map : result) {
+            String[] signatures = map.getValues(valueField);
+
+            if (signatures != null) {
+                // Check if this file even applies
+                if (context != null) {
+                    String fileUrl = map.getPersistentUrl();
+                    if (searchUrl == null || !searchUrl.equals(fileUrl)) {
+                        boolean isLibrary = fileUrl.indexOf("jsstubs") != -1; // TODO - better algorithm
+
+                        if (!isLibrary && !isReachable(context, fileUrl)) {
+                            continue;
+                        }
+                    }
+                }
+
+                for (String signature : signatures) {
+                    // Lucene returns some inexact matches, TODO investigate why this is necessary
+                    if ((kind == NameKind.PREFIX) && !signature.startsWith(lcfqn)) {
+                        continue;
+                    } else if (kind == NameKind.CASE_INSENSITIVE_PREFIX && !signature.regionMatches(true, 0, lcfqn, 0, lcfqn.length())) {
+                        continue;
+                    } else if (kind == NameKind.CASE_INSENSITIVE_REGEXP) {
+                        int end = signature.indexOf(';');
+                        assert end != -1;
+                        String n = signature.substring(0, end);
+                        try {
+                            if (!n.matches(lcfqn)) {
+                                continue;
+                            }
+                        } catch (Exception e) {
+                            // Silently ignore regexp failures in the search expression
+                            }
+                    } else if (originalKind == NameKind.EXACT_NAME) {
+                        // Make sure the name matches exactly
+                        // We know that the prefix is correct from the first part of
+                        // this if clause, by the signature may have more
+                        if (((signature.length() > lcfqn.length()) &&
+                                (signature.charAt(lcfqn.length()) != ';'))) {
+                            continue;
+                        }
+                    }
+
+                    // XXX THIS DOES NOT WORK WHEN THERE ARE IDENTICAL SIGNATURES!!!
+                    assert map != null;
+
+                    String elementName = null;
+                    int nameEndIdx = signature.indexOf(';');
+                    assert nameEndIdx != -1 : signature;
+                    elementName = signature.substring(0, nameEndIdx);
+                    nameEndIdx++;
+
+                    String funcIn = null;
+                    int inEndIdx = signature.indexOf(';', nameEndIdx);
+                    assert inEndIdx != -1 : signature;
+                    inEndIdx++;
+
+                    int startCs = inEndIdx;
+                    inEndIdx = signature.indexOf(';', startCs);
+                    assert inEndIdx != -1;
+                    if (inEndIdx > startCs) {
+                        // Compute the case sensitive name
+                        elementName = signature.substring(startCs, inEndIdx);
+                        if (kind == NameKind.PREFIX && !elementName.startsWith(fqnPrefix)) {
+                            continue;
+                        } else if (kind == NameKind.EXACT_NAME && !elementName.equals(fqnPrefix)) {
+                            continue;
+                        }
+                    }
+                    inEndIdx++;
+
+                    int flags = IndexedElement.decode(signature, inEndIdx, 0);
+                    if (!IndexedElement.isTemplate(flags)) {
+                        continue;
+                    }
+
+                    IndexedElement element = null;
+                    
+                    int lastDot = elementName.lastIndexOf('.');
+                    if (lastDot == -1) {
+                        // should be class, under default package
+                        element = IndexedElement.create(signature, map.getPersistentUrl(), elementName, elementName, "", inEndIdx, this, false);
+                    } else {
+                        String pkgName = elementName.substring(0, lastDot);
+                        if ((pkgName + ".").equals(fqnPrefix)) { // "java", we should return a class
+                            String simpleName = elementName.substring(lastDot + 1, elementName.length());
+                            element = IndexedElement.create(signature, map.getPersistentUrl(), elementName, simpleName, "", inEndIdx, this, false);
+                        } else {
+                            if (onlyContent) {
+                                continue;
+                            }
+                            // we should return a package
+                            int dotAfterFqnPrefix = pkgName.indexOf('.', fqnPrefix.length());
+                            if (dotAfterFqnPrefix == -1) {
+                                element = new IndexedPackage(null, pkgName, null, this, map.getPersistentUrl(), signature, flags, ElementKind.PACKAGE);
+                            } else { // "java.lang", it's sub folder of wanted, we should fetch "java" only                                
+                                pkgName = pkgName.substring(0, dotAfterFqnPrefix);
+                                element = new IndexedPackage(null, pkgName, null, this, map.getPersistentUrl(), signature, flags, ElementKind.PACKAGE);
+                            }
+                        }
+                    }
+                    
+                    if (element != null) {
+                        elements.add(element);
+                    }
+
+                }
+            }
+        }
+
 
         return elements;
     }

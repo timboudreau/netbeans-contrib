@@ -55,11 +55,15 @@ import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.ClassTemplate;
 import org.netbeans.modules.scala.editing.nodes.Function;
+import org.netbeans.modules.scala.editing.nodes.ObjectTemplate;
+import org.netbeans.modules.scala.editing.nodes.TraitTemplate;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
 import org.netbeans.modules.scala.editing.nodes.Var;
 import org.openide.filesystems.FileObject;
@@ -129,6 +133,8 @@ public abstract class IndexedElement extends AstElement {
     protected boolean smart;
     protected boolean inherited = true;
     protected ElementKind kind;
+    private javax.lang.model.element.Element javaElement;
+    private org.netbeans.api.java.source.ClasspathInfo javaClasspathInfo;
 
     IndexedElement(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
         super(null, null);
@@ -154,10 +160,10 @@ public abstract class IndexedElement extends AstElement {
             return func;
         } else if ((flags & GLOBAL) != 0) {
             ElementKind kind = Character.isUpperCase(name.charAt(0)) ? ElementKind.CLASS : ElementKind.GLOBAL;
-            IndexedTemplate property = new IndexedTemplate(fqn, name, in, index, fileUrl, attributes, flags, kind);
+            IndexedType property = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, kind);
             return property;
         } else {
-            IndexedTemplate property = new IndexedTemplate(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.CLASS);
+            IndexedType property = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.CLASS);
             return property;
         }
     }
@@ -203,23 +209,29 @@ public abstract class IndexedElement extends AstElement {
         return indexedElement;
     }
 
-    static IndexedElement create(AstElement element, ScalaIndex index) {
-            String in = element.getIn();
-            String thename = element.getName();
-            StringBuilder base = new StringBuilder();
-            base.append(thename.toLowerCase());
-            base.append(';');
-            if (in != null) {
-                base.append(in);
-            }
-            base.append(';');
-            base.append(thename);
-            base.append(';');
-            base.append(IndexedElement.computeAttributes(element));
+    static IndexedElement create(AstElement element, TokenHierarchy th, ScalaIndex index) {
+        String in = element.getIn();
+        String thename = element.getName();
+        StringBuilder base = new StringBuilder();
+        base.append(thename.toLowerCase());
+        base.append(';');
+        if (in != null) {
+            base.append(in);
+        }
+        base.append(';');
+        base.append(thename);
+        base.append(';');
+        base.append(computeAttributes(element, th));
 
-            return IndexedElement.create(element.getName(), base.toString(), "", index, false);       
+        return create(element.getName(), base.toString(), "", index, false);
     }
-    
+
+    public void setJavaInfo(javax.lang.model.element.Element javaElement, org.netbeans.api.java.source.ClasspathInfo javaClasspathInfo) {
+        assert isJava() : "Only IndexedElement for Java's element has javaElement";
+        this.javaElement = javaElement;
+        this.javaClasspathInfo = javaClasspathInfo;
+    }
+
     public String getSignature() {
         if (signature == null) {
             StringBuilder sb = new StringBuilder();
@@ -249,10 +261,12 @@ public abstract class IndexedElement extends AstElement {
         return fqn;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String getIn() {
         return in;
     }
@@ -261,10 +275,12 @@ public abstract class IndexedElement extends AstElement {
         this.kind = kind;
     }
 
+    @Override
     public ElementKind getKind() {
         return kind;
     }
 
+    @Override
     public Set<Modifier> getModifiers() {
         /* @TODO */
         return Collections.emptySet();
@@ -294,10 +310,16 @@ public abstract class IndexedElement extends AstElement {
         return new DefaultParserFile(getFileObject(), null, platform);
     }
 
+    @Override
     public FileObject getFileObject() {
-        if ((fileObject == null) && (fileUrl != null)) {
+        if (fileObject != null) {
+            return fileObject;
+        }
+        
+        if (isJava()) {            
+            fileObject = JavaUtilities.getFileObject(javaElement, javaClasspathInfo);
+        } else if (fileUrl != null && fileUrl.length() > 0) {
             fileObject = ScalaIndex.getFileObject(fileUrl);
-
             if (fileObject == null) {
                 // Don't try again
                 fileUrl = null;
@@ -326,6 +348,22 @@ public abstract class IndexedElement extends AstElement {
 
         assert attributeIndex != -1;
         return attributeIndex + 1;
+    }
+
+    int getOffset() {
+        int offset = 0;
+        if (isJava()) {
+            try {
+                offset = JavaUtilities.getOffset(getFileObject(), javaElement);
+            } catch (IOException ex) {
+            }
+        } else {
+            int OffsetIndex = getAttributeSection(NODE_INDEX);
+            if (OffsetIndex != -1) {
+                offset = IndexedElement.decode(attributes, OffsetIndex, -1);
+            }
+        }
+        return offset;
     }
 
     int getDocOffset() {
@@ -508,6 +546,15 @@ public abstract class IndexedElement extends AstElement {
             value = value | PRIVATE;
         }
 
+        if (element instanceof ClassTemplate) {
+            value = value | IndexedElement.CLASS;
+        } else if (element instanceof ObjectTemplate) {
+            value = value | IndexedElement.OBJECT;
+        } else if (element instanceof TraitTemplate) {
+            value = value | IndexedElement.TRAIT;
+        }
+
+
         return value;
     }
 
@@ -535,7 +582,7 @@ public abstract class IndexedElement extends AstElement {
         return value;
     }
 
-    public static String computeAttributes(AstElement element) {
+    public static String computeAttributes(AstElement element, TokenHierarchy th) {
         OffsetRange docRange = getDocumentationOffset(element);
         int docOffset = -1;
         if (docRange != OffsetRange.NONE) {
@@ -619,8 +666,7 @@ public abstract class IndexedElement extends AstElement {
         sb.append(';');
         index++;
         assert index == IndexedElement.NODE_INDEX;
-        sb.append('0');
-        //sb.append(IndexedElement.encode(element.getNode().getSourceStart()));
+        sb.append(IndexedElement.encode(element.getOffset(th)));
 
         // Documentation offset
         sb.append(';');
@@ -739,8 +785,8 @@ public abstract class IndexedElement extends AstElement {
         sb.append(';');
         index++;
         assert index == IndexedElement.NODE_INDEX;
-        sb.append('0');
-        //sb.append(IndexedElement.encode(element.getNode().getSourceStart()));
+        int offset = 0; // will compute lazily
+        sb.append(encode(offset));
 
         // Documentation offset
         sb.append(';');
@@ -761,7 +807,7 @@ public abstract class IndexedElement extends AstElement {
         // Types
         sb.append(';');
         index++;
-        assert index == IndexedElement.TYPE_INDEX;                            
+        assert index == IndexedElement.TYPE_INDEX;
 //            if (type == null) {
 //                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
 //            }
@@ -840,6 +886,12 @@ public abstract class IndexedElement extends AstElement {
 
     public boolean isJava() {
         return (flags & JAVA) != 0;
+    }
+
+    public static boolean isTemplate(int flags) {
+        return (flags & CLASS) != 0 ||
+                (flags & TRAIT) != 0 ||
+                (flags & OBJECT) != 0;
     }
 
     public static String decodeFlags(int flags) {

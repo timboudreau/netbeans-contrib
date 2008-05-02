@@ -40,12 +40,12 @@
 package org.netbeans.modules.groovy.grails.api;
 
 import java.io.File;
-import java.nio.Buffer;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.modules.groovy.grails.KillableProcess;
 import org.netbeans.modules.groovy.grails.settings.GrailsSettings;
 import org.openide.execution.NbProcessDescriptor;
 import org.openide.util.Utilities;
@@ -226,7 +226,9 @@ public final class GrailsRuntime {
             String[] envp = new String[] {"GRAILS_HOME=" // NOI18N
                     + GrailsSettings.getInstance().getGrailsBase()};
 
-            return grailsProcessDesc.exec(null, envp, true, descriptor.getDirectory());
+            return new KillableProcess(
+                    grailsProcessDesc.exec(null, envp, true, descriptor.getDirectory()),
+                    descriptor.getDirectory());
         }
 
     }

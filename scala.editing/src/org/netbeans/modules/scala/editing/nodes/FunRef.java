@@ -52,6 +52,8 @@ public class FunRef extends AstRef {
     private Id call;
     private List<AstElement> params;
     private boolean local;
+    
+    private String retType;
 
     public FunRef(Token idToken, ElementKind kind) {
         super(null, idToken, kind);
@@ -60,9 +62,17 @@ public class FunRef extends AstRef {
     public void setBase(AstExpr base) {
         this.base = base;
     }
+    
+    public AstExpr getBase() {
+        return base;
+    }
 
     public void setCall(Id call) {
         this.call = call;
+    }
+    
+    public Id getCall() {
+        return call;
     }
 
     public void setParams(List<AstElement> params) {
@@ -92,5 +102,13 @@ public class FunRef extends AstRef {
         }
         sb.append(call.getName());
         return sb.toString();
+    }
+    
+    public void setRetType(String retType) {
+        this.retType = retType;
+    }
+    
+    public String getRetType() {
+        return retType;
     }
 }

@@ -39,14 +39,20 @@
 
 package org.netbeans.modules.groovy.grails.api;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.netbeans.api.project.Project;
+import org.openide.execution.NbProcessDescriptor;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Utilities;
 
@@ -56,7 +62,7 @@ import org.openide.util.Utilities;
  */
 public final class ExecutionSupport {
 
-    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(1);
+    private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
     private static ExecutionSupport instance;
 
@@ -88,7 +94,7 @@ public final class ExecutionSupport {
     public Process executeRunApp(GrailsProjectConfig config) throws Exception {
         File directory = FileUtil.toFile(config.getProject().getProjectDirectory());
         Properties props = new Properties();
-        props.setProperty("server.port", config.getPort());
+        props.setProperty("server.port", config.getPort()); // NOI18N
 
         // FIXME fix this hack
         String argument = Utilities.isWindows() ? " REM NB:" +  // NOI18N

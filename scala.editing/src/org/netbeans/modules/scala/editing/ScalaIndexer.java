@@ -44,6 +44,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.Indexer;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
@@ -53,11 +54,8 @@ import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.ClassTemplate;
-import org.netbeans.modules.scala.editing.nodes.ObjectTemplate;
 import org.netbeans.modules.scala.editing.nodes.SimpleType;
 import org.netbeans.modules.scala.editing.nodes.Template;
-import org.netbeans.modules.scala.editing.nodes.TraitTemplate;
 import org.openide.filesystems.FileObject;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
@@ -104,8 +102,6 @@ public class ScalaIndexer implements Indexer {
 
     static final String FIELD_INCLUDES = "includes"; //NOI18N
 
-    static final String FIELD_EXTEND_WITH = "extendWith"; //NOI18N
-
     static final String FIELD_METHOD_NAME = "method"; //NOI18N
 
     /** Attributes: "i" -> private, "o" -> protected, ", "s" - static/notinstance, "d" - documented */
@@ -115,7 +111,7 @@ public class ScalaIndexer implements Indexer {
     private boolean cachedIndexable;
 
     public String getIndexVersion() {
-        return "6.113"; // NOI18N
+        return "6.114"; // NOI18N
 
     }
 
@@ -248,7 +244,7 @@ public class ScalaIndexer implements Indexer {
             if (root == null) {
                 return;
             }
-
+            
             List<AstDef> templates = new ArrayList<AstDef>();
             scan(root, templates);
             analyze(templates);
@@ -310,37 +306,26 @@ public class ScalaIndexer implements Indexer {
 
                 IndexDocument document = factory.createDocument(40); // TODO Measure
 
-                String fqn = template.getQualifiedName() + ";" + ";" + ";";
+                StringBuilder fqn = new StringBuilder();
+                
+                String name = template.getQualifiedName();
+                fqn.append(name.toLowerCase());
+                fqn.append(';');
+                fqn.append(';');
+                fqn.append(name);
+                fqn.append(';');
+                fqn.append(IndexedElement.computeAttributes(template, pResult.getTokenHierarchy()));
 
                 List<SimpleType> extendsWith = template.getExtendsWith();
                 if (extendsWith.size() > 0) {
                     for (SimpleType parent : extendsWith) {
-                        String clz = template.getName();
-                        String superClz = parent.getName();
-                        document.addPair(FIELD_EXTEND_WITH, clz.toLowerCase() + ";" + clz + ";" + superClz, true); // NOI18N
+                        String clz = template.getQualifiedName();
+                        String superClz = parent.getQualifiedName();
+                        document.addPair(FIELD_EXTENDS_NAME, clz.toLowerCase() + ";" + clz + ";" + superClz, true); // NOI18N
                     }
 
                     ClassCache.INSTANCE.refresh();
                 }
-
-                if (template instanceof ClassTemplate) {
-                    ClassTemplate classTemplate = (ClassTemplate) template;
-
-                    flags |= IndexedElement.CLASS;
-                } else if (template instanceof ObjectTemplate) {
-                    ObjectTemplate objectTemplate = (ObjectTemplate) template;
-
-                    flags |= IndexedElement.OBJECT;
-                } else {
-                    assert template instanceof TraitTemplate;
-
-                    TraitTemplate traitTemplate = (TraitTemplate) template;
-                    flags |= IndexedElement.TRAIT;
-                }
-
-
-                String name = template.getName();
-
 
 //                boolean isDocumented = isDocumented(node);
 //                int documentSize = getDocumentSize(node);
@@ -368,7 +353,7 @@ public class ScalaIndexer implements Indexer {
 //                    return;
 //                }
 
-                document.addPair(FIELD_FQN, fqn, true);
+                document.addPair(FIELD_FQN, fqn.toString(), true);
                 document.addPair(FIELD_CASE_INSENSITIVE_CLASS_NAME, name.toLowerCase(), true);
                 document.addPair(FIELD_CLASS_NAME, name, true);
 
@@ -387,7 +372,7 @@ public class ScalaIndexer implements Indexer {
 
                         case CONSTRUCTOR:
                         case METHOD: {
-                            String attributes = IndexedElement.computeAttributes(child);
+                            String attributes = IndexedElement.computeAttributes(child, pResult.getTokenHierarchy());
                             indexFunction(child, document, attributes);
 
                             break;

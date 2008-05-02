@@ -59,14 +59,16 @@ public class AstDef extends AstElement {
     }
 
     public AstScope getBindingScope() {
-        assert bindingScope != null : "Each definition should set binding scope!";
+        assert bindingScope != null : toString() + ": Each definition should set binding scope!";
         return bindingScope;
     }
     
+    @Override
     public int getOffset(TokenHierarchy th) {
         return getBindingScope().getOffset(th);
     }
-
+    
+    @Override
     public int getEndOffset(TokenHierarchy th) {
         return getBindingScope().getEndOffset(th);
     }

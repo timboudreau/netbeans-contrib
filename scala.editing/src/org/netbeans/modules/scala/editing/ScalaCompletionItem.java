@@ -230,7 +230,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         FunctionItem(AstElement element, CompletionRequest request) {
             super(element, request);
             assert element.getKind() == ElementKind.METHOD;
-            function = (IndexedFunction) IndexedElement.create(element, request.index);
+            function = (IndexedFunction) IndexedElement.create(element, request.th, request.index);
         }
 
         FunctionItem(IndexedFunction element, CompletionRequest request) {
@@ -554,6 +554,52 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         }
 
         PackageItem(CompletionRequest request, IndexedElement element) {
+            super(request, element);
+        }
+
+        @Override
+        public String getName() {
+            String name = element.getName();
+            int lastDot = name.lastIndexOf('.');
+            if (lastDot > 0) {
+                name = name.substring(lastDot + 1, name.length());
+            }
+            return name;
+        }
+
+        @Override
+        public String getLhsHtml() {
+            ElementKind kind = getKind();
+            HtmlFormatter formatter = request.formatter;
+            formatter.reset();
+            boolean strike = indexedElement != null && indexedElement.isDeprecated();
+            if (strike) {
+                formatter.deprecated(true);
+            }
+            formatter.name(kind, true);
+            formatter.appendText(getName());
+            formatter.name(kind, false);
+            if (strike) {
+                formatter.deprecated(false);
+            }
+
+            return formatter.getText();
+        }
+        
+        @Override
+        public boolean isSmart() {
+            return true;
+        }        
+    }
+    
+    protected static class TypeItem extends ScalaCompletionItem {
+
+        TypeItem(AstElement element, CompletionRequest request) {
+            super(element, request);
+
+        }
+
+        TypeItem(CompletionRequest request, IndexedElement element) {
             super(request, element);
         }
 

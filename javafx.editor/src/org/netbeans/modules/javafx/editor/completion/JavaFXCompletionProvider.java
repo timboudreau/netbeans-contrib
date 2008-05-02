@@ -75,7 +75,7 @@ public class JavaFXCompletionProvider implements CompletionProvider {
     
     public int getAutoQueryTypes(JTextComponent component, String typedText) {
         // this is temporary for breh:
-        if (Boolean.getBoolean("org.netbeans.modules.javafx.editor.unstable.disable")) {
+        if (!Boolean.getBoolean("org.netbeans.modules.javafx.editor.unstable.enable")) {
             return 0;
         }
         if (".".equals(typedText) || (autoMode && JavaFXCompletionQuery.isJavaIdentifierPart(typedText))) {
@@ -161,7 +161,7 @@ public class JavaFXCompletionProvider implements CompletionProvider {
     
     public CompletionTask createTask(int type, JTextComponent component) {
         // this is temporary for breh:
-        if (Boolean.getBoolean("org.netbeans.modules.javafx.editor.unstable.disable")) {
+        if (!Boolean.getBoolean("org.netbeans.modules.javafx.editor.unstable.enable")) {
             return null;
         }
         if ((type & COMPLETION_QUERY_TYPE) != 0 || type == TOOLTIP_QUERY_TYPE || type == DOCUMENTATION_QUERY_TYPE)

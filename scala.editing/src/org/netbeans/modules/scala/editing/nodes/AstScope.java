@@ -143,7 +143,7 @@ public class AstScope implements Iterable<AstScope> {
         def.setEnclosingScope(this);
     }
 
-    void addRef(AstRef ref) {
+    public void addRef(AstRef ref) {
         if (refs == null) {
             refs = new ArrayList<AstRef>();
         }

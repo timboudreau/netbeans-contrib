@@ -67,6 +67,7 @@ import org.netbeans.modules.scala.editing.ScalaCompletionItem.FunctionItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.KeywordItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.PackageItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.PlainItem;
+import org.netbeans.modules.scala.editing.ScalaCompletionItem.TypeItem;
 import org.netbeans.modules.scala.editing.ScalaParser.Sanitize;
 import org.netbeans.modules.scala.editing.lexer.MaybeCall;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
@@ -311,13 +312,12 @@ public class ScalaCodeCompletion implements Completable {
         // Read-lock due to Token hierarchy use
         doc.readLock();
         try {
-            AstScope root = pResult.getRootScope();
-
             final int astOffset = AstUtilities.getAstOffset(info, lexOffset);
             if (astOffset == -1) {
                 return null;
             }
-            final TokenHierarchy<Document> th = TokenHierarchy.get(document);
+            final AstScope root = pResult.getRootScope();
+            final TokenHierarchy<Document> th = pResult.getTokenHierarchy();
             final FileObject fileObject = info.getFileObject();
             final MaybeCall call = MaybeCall.getCallType(doc, th, lexOffset);
 
@@ -366,14 +366,14 @@ public class ScalaCodeCompletion implements Completable {
 
             TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
             ts.move(lexOffset);
-            while (!ts.moveNext() && !ts.movePrevious()) {
-                assert false : "Should not happen!";
+            if (!ts.moveNext() && !ts.movePrevious()) {
+                return proposals;
             }
 
             Token closetToken = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
             if (closetToken.id() == ScalaTokenId.Import) {
                 request.prefix = "";
-                addPackages(proposals, request);
+                completeImport(proposals, request);
                 return proposals;
             }
 
@@ -404,7 +404,7 @@ public class ScalaCodeCompletion implements Completable {
                             prefix1 = prefix1 + ".";
                         }
                         request.prefix = prefix1;
-                        addPackages(proposals, request);
+                        completeImport(proposals, request);
                         return proposals;
                     }
                 }
@@ -1229,13 +1229,18 @@ public class ScalaCodeCompletion implements Completable {
                     if (closest instanceof FieldRef) {
                         // dog.tal|
                         typeRef = ((FieldRef) closest).getBase().getType();
+                    } else if (closest instanceof FunRef) {
+                        // dog.talk().
+                        type = ((FunRef) closest).getRetType();
                     } else if (closest instanceof IdRef) {
                         // dog.|
+                        typeRef = closest.getType();
+                    } else {
                         typeRef = closest.getType();
                     }
 
                     if (typeRef != null) {
-                        type = typeRef.getName();
+                        type = typeRef.getQualifiedName();
                     }
                 }
             //Node method = AstUtilities.findLocalScope(node, path);
@@ -1551,34 +1556,20 @@ public class ScalaCodeCompletion implements Completable {
         return false;
     }
 
-    private boolean addPackages(List<CompletionProposal> proposals, CompletionRequest request) {
+    private boolean completeImport(List<CompletionProposal> proposals, CompletionRequest request) {
         String fqnPrefix = request.prefix;
         if (fqnPrefix == null) {
             fqnPrefix = "";
         }
 
-        String pkgName = null;
-        String prefix = null;
-
-        int lastDot = fqnPrefix.lastIndexOf('.');
-        if (lastDot == -1) {
-            pkgName = fqnPrefix;
-            prefix = fqnPrefix;
-        } else if (lastDot == fqnPrefix.length() - 1) {
-            pkgName = fqnPrefix.substring(0, lastDot);
-            prefix = "";
-        } else {
-            pkgName = fqnPrefix.substring(0, lastDot);
-            prefix = fqnPrefix.substring(lastDot + 1, fqnPrefix.length());
+        for (IndexedElement element : request.index.getPackagesAndContent(fqnPrefix, request.kind, ScalaIndex.ALL_SCOPE)) {
+            if (element instanceof IndexedPackage) {
+                proposals.add(new PackageItem(element, request));
+            } else if (element instanceof IndexedType) {
+                proposals.add(new TypeItem(request, element));
+            }
         }
 
-        for (IndexedElement element : request.index.getPackageContent(pkgName, prefix)) {
-            proposals.add(new PlainItem(request, element));
-        }
-
-        for (IndexedElement element : request.index.getPackages(fqnPrefix)) {
-            proposals.add(new PackageItem(element, request));
-        }
         return true;
     }
 

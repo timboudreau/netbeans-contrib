@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,33 +20,44 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.groovy.grails.api;
+package org.netbeans.modules.groovy.grailsproject;
 
 import org.netbeans.api.project.Project;
-import org.openide.windows.InputOutput;
 
 /**
- * @param prj
- * @param cmd
- * @param value
- * @author schmidtm
- * @return 
+ *
+ * @author schmidtm, Petr Hejl
  */
-public interface GrailsServer {
-    
-    // FIXME: this can not stay Process, since with some groovy/grails engine running
-    // in the NetBeans VM we certainly don't have a Process. This was changed from the output 
-    // Stream to process to have access to the input-stream as well as a preparation for 
-    // the Grails shell command. 
-    
-    public Process runCommand(Project prj, String cmd, InputOutput io, String dirName);
-    
-    // gets the last error from the grails server in case runCommand returns null.
-    public Exception getLastError();
+public class GrailsServerState {
+
+    private final Project project;
+
+    private final String name;
+
+    /** <i>GuardedBy("this")</i> */
+    private Process process;
+
+    public GrailsServerState (Project prj, String name){
+        this.name = name;
+        this.project = prj;
+    }
+
+    public boolean isRunning() {
+        return process != null;
+    }
+
+    public synchronized Process getProcess() {
+        return process;
+    }
+
+    public synchronized void setProcess(Process process) {
+        this.process = process;
+    }
+
 }

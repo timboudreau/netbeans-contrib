@@ -697,6 +697,8 @@ public class AstElementVisitor extends AstVisitor {
         if (paramTypeNode != null) {
             TypeRef type = visitParamType(paramTypeNode);
             param.setType(type);
+            
+            scope.addRef(type);
         }
 
         scopeStack.peek().addDef(param);
@@ -766,13 +768,10 @@ public class AstElementVisitor extends AstVisitor {
         Function function = visitFunSig(that.getGeneric(0));
         GNode typeNode = that.getGeneric(1);
         if (typeNode != null) {
-            TypeRef type = visitType(typeNode);
+            TypeRef type = visitType(typeNode);            
+            scope.addRef(type);
+            
             function.setType(type);
-        }
-
-        Template enclosingTemplate = currScope.getEnclosingDef(Template.class);
-        if (enclosingTemplate != null) {
-            function.setIn(enclosingTemplate.getName());
         }
 
         currScope.addDef(function);
@@ -794,6 +793,8 @@ public class AstElementVisitor extends AstVisitor {
         if (secondNode != null) {
             if (secondNode.getName().equals("Type")) {
                 TypeRef type = visitType(secondNode);
+                scope.addRef(type);
+            
                 function.setType(type);
 
                 visitExpr(that.getGeneric(2));
@@ -802,11 +803,6 @@ public class AstElementVisitor extends AstVisitor {
             }
         } else {
             visitExpr(that.getGeneric(2));
-        }
-
-        Template enclosingTemplate = currScope.getEnclosingDef(Template.class);
-        if (enclosingTemplate != null) {
-            function.setIn(enclosingTemplate.getName());
         }
 
         currScope.addDef(function);
@@ -835,7 +831,6 @@ public class AstElementVisitor extends AstVisitor {
         Template enclosingTemplate = scopeStack.peek().getEnclosingDef(Template.class);
         if (enclosingTemplate != null) {
             function.setName(enclosingTemplate.getName());
-            function.setIn(enclosingTemplate.getName());
         }
 
         scopeStack.peek().addDef(function);
@@ -919,7 +914,8 @@ public class AstElementVisitor extends AstVisitor {
         GNode paramTypeNode = that.getGeneric(2);
         if (paramTypeNode != null) {
             TypeRef type = visitParamType(paramTypeNode);
-            param.setType(type);
+            param.setType(type);            
+            scope.addRef(type);
         }
 
         scopeStack.peek().addDef(param);
@@ -963,7 +959,8 @@ public class AstElementVisitor extends AstVisitor {
             Var val = new Var(id, scope, ElementKind.FIELD);
             val.setVal();
             val.setType(type);
-
+            scope.addRef(type);
+            
             scopeStack.peek().addDef(val);
         }
 
@@ -980,6 +977,7 @@ public class AstElementVisitor extends AstVisitor {
             AstScope scope = new AstScope(getBoundsTokens(that));
             Var var = new Var(id, scope, ElementKind.FIELD);
             var.setType(type);
+            scope.addRef(type);
 
             scopeStack.peek().addDef(var);
         }
@@ -1016,6 +1014,7 @@ public class AstElementVisitor extends AstVisitor {
             for (Id id : ids) {
                 Var var = new Var(id, scope, ElementKind.FIELD);
                 var.setType(type);
+                scope.addRef(type);
 
                 scopeStack.peek().addDef(var);
             }
@@ -1046,7 +1045,10 @@ public class AstElementVisitor extends AstVisitor {
         GNode typeNode = that.getGeneric(2);
         TypeRef type = typeNode == null ? null : visitType(typeNode);
         for (Id id : ids) {
-            id.setType(type);
+            if (type != null) {
+                id.setType(type);
+                scopeStack.peek().addRef(type);
+            }
         }
 
         AstExpr expr = visitExpr(that.getGeneric(3));
@@ -1182,6 +1184,7 @@ public class AstElementVisitor extends AstVisitor {
             TypeRef type = visitType(that.getGeneric(1));
             if (id != null) {
                 id.setType(type);
+                scopeStack.peek().addRef(type);
             }
         }
 
