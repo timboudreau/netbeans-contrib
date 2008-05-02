@@ -62,8 +62,6 @@ import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
-import org.netbeans.modules.scala.editing.ScalaParser;
-import org.netbeans.modules.scala.editing.rats.LexerScala;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -1163,9 +1161,11 @@ public class ScalaLexUtilities {
             ScalaTokenId id = ts.token().id();
 
             if (id == ScalaTokenId.DocCommentEnd) {
-                endOffset = ts.offsetToken().offset(th);
+                Token<ScalaTokenId> token = ts.offsetToken();
+                endOffset = token.offset(th) + token.length();
             } else if (id == ScalaTokenId.DocCommentStart) {
-                offset = ts.offsetToken().offset(th);
+                Token<ScalaTokenId> token = ts.offsetToken();
+                offset = token.offset(th);
                 done = true;
             } else if (!isWsComment(id) && !isKeyword(id)) {
                 done = true;

@@ -51,6 +51,7 @@ import org.openide.util.NbBundle;
 /**
  *
  * @author Martin Adamek
+ * @author Caoyuan Deng
  */
 public class ScalaCommentFormatter {
 
@@ -205,38 +206,26 @@ public class ScalaCommentFormatter {
     private void process() {
         while (ts.moveNext() && ts.token().id() != ScalaTokenId.CommentTag) {
             Token<ScalaTokenId> token = ts.token();
-            ScalaTokenId id = token.id();
-            String line = token.text().toString();
-            if (line.startsWith("/**")) {
-                summary.append(line.substring(3));
-            } else if (id == ScalaTokenId.DocCommentEnd && line.trim().endsWith("*/")) {
-                summary.append(line.substring(0, line.length() - 2));
-                continue;
-            } else if (line.startsWith("//")) {
-                summary.append(line.substring(2));
-            } else if (line.startsWith("/*")) {
-                summary.append(line.substring(2));
-            } else if (line.startsWith("*")) {
-                summary.append(line.substring(1));
-            } else if (line.startsWith(" *")) {
-                summary.append(line.substring(2));
-            } else {
-                summary.append(line);
-            }
+            String line = token.text().toString().trim();
+            summary.append(removeStar(line)).append(' ');
         }
+        
         ts.movePrevious();
         StringBuilder sb = null;
         while (ts.moveNext()) {
-            if (ts.token().id() == ScalaTokenId.CommentTag) {
+            Token<ScalaTokenId> token = ts.token();
+            if (token.id() == ScalaTokenId.CommentTag) {
                 if (sb != null) {
                     processTag(sb.toString().trim());
                 }
                 sb = new StringBuilder();
             }
             if (sb != null) { // we have some tags
-                sb.append(ts.token().text());
+                String line = token.text().toString().trim();
+                sb.append(removeStar(line));
             }
         }
+        
         if (sb != null) {
             processTag(sb.toString().trim());
         }
@@ -315,5 +304,22 @@ public class ScalaCommentFormatter {
                 rest.append("<br>"); // NOI18N
             }
         }
+    }
+    
+    private String removeStar(String line) {
+            line = line.trim();
+            if (line.startsWith("/**")) {
+                return line.substring(3);
+            } else if (line.trim().endsWith("*/")) {
+                return line.substring(0, line.length() - 2);
+            } else if (line.startsWith("//")) {
+                return line.substring(2);
+            } else if (line.startsWith("/*")) {
+                return line.substring(2);
+            } else if (line.startsWith("*")) {
+                return line.substring(1);
+            } else {
+                return line;
+            }                
     }
 }
