@@ -222,7 +222,7 @@ public class ScalaCommentFormatter {
             }
             if (sb != null) { // we have some tags
                 String line = token.text().toString().trim();
-                sb.append(removeStar(line));
+                sb.append(removeStar(line)).append(' ');
             }
         }
         

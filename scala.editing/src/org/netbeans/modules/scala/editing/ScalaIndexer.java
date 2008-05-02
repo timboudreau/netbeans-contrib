@@ -404,7 +404,6 @@ public class ScalaIndexer implements Indexer {
 
                             break;
                         }
-
                         case FIELD: {
                             indexField(child, document);
 
