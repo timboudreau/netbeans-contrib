@@ -40,6 +40,8 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import javax.swing.text.Document;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
@@ -59,14 +61,17 @@ public class ScalaParserResult extends ParserResult {
     private ScalaParser.Sanitize sanitized;
     private boolean commentsAdded;
     private AstScope rootScope;
+    private TokenHierarchy<Document> tokenHierarchy;
     private org.netbeans.api.java.source.CompilationController javaController;
 
-    public ScalaParserResult(ScalaParser parser, ParserFile file, AstScope rootScope, AstTreeNode ast,
+    public ScalaParserResult(ScalaParser parser, ParserFile file, AstScope rootScope, AstTreeNode ast, 
+            TokenHierarchy<Document> th, 
             org.netbeans.api.java.source.CompilationController javaController) {
         super(parser, file, ScalaMimeResolver.MIME_TYPE);
         this.file = file;
         this.rootScope = rootScope;
         this.ast = ast;
+        this.tokenHierarchy = th;
         this.javaController = javaController;
     }
 
@@ -123,6 +128,10 @@ public class ScalaParserResult extends ParserResult {
 
     public AstScope getRootScope() {
         return rootScope;
+    }
+    
+    public TokenHierarchy<Document> getTokenHierarchy() {
+        return tokenHierarchy;
     }
     
     public org.netbeans.api.java.source.CompilationController getJavaController() {

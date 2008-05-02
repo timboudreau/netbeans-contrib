@@ -67,7 +67,7 @@ import org.netbeans.modules.scala.editing.ScalaCompletionItem.FunctionItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.KeywordItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.PackageItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.PlainItem;
-import org.netbeans.modules.scala.editing.ScalaCompletionItem.TemplateItem;
+import org.netbeans.modules.scala.editing.ScalaCompletionItem.TypeItem;
 import org.netbeans.modules.scala.editing.ScalaParser.Sanitize;
 import org.netbeans.modules.scala.editing.lexer.MaybeCall;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
@@ -84,6 +84,7 @@ import org.netbeans.modules.scala.editing.nodes.Var;
 import org.netbeans.modules.scala.editing.rats.ParserScala;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
 
 /**
  * Code completion handler for JavaScript
@@ -180,9 +181,7 @@ public class ScalaCodeCompletion implements Completable {
     //"[:space:]", "Whitespace (same as \\s)",
     //"[:upper:]", "Uppercase letter",
     //"[:xdigit:]", "Hex digit (0-9, a-f, A-F)",
-    };
-
-    // Strings section 7.8
+    };    // Strings section 7.8
     private static final String[] STRING_ESCAPES =
             new String[]{
         "\\0", "The NUL character (\\u0000)",
@@ -312,13 +311,12 @@ public class ScalaCodeCompletion implements Completable {
         // Read-lock due to Token hierarchy use
         doc.readLock();
         try {
-            AstScope root = pResult.getRootScope();
-
             final int astOffset = AstUtilities.getAstOffset(info, lexOffset);
             if (astOffset == -1) {
                 return null;
             }
-            final TokenHierarchy<Document> th = TokenHierarchy.get(document);
+            final AstScope root = pResult.getRootScope();
+            final TokenHierarchy<Document> th = pResult.getTokenHierarchy();
             final FileObject fileObject = info.getFileObject();
             final MaybeCall call = MaybeCall.getCallType(doc, th, lexOffset);
 
@@ -1230,8 +1228,13 @@ public class ScalaCodeCompletion implements Completable {
                     if (closest instanceof FieldRef) {
                         // dog.tal|
                         typeRef = ((FieldRef) closest).getBase().getType();
+                    } else if (closest instanceof FunRef) {
+                        // dog.talk().
+                        type = ((FunRef) closest).getRetType();
                     } else if (closest instanceof IdRef) {
                         // dog.|
+                        typeRef = closest.getType();
+                    } else {
                         typeRef = closest.getType();
                     }
 
@@ -1562,7 +1565,7 @@ public class ScalaCodeCompletion implements Completable {
             if (element instanceof IndexedPackage) {
                 proposals.add(new PackageItem(element, request));
             } else if (element instanceof IndexedType) {
-                proposals.add(new TemplateItem(request, element));
+                proposals.add(new TypeItem(request, element));
             }
         }
 
@@ -1665,7 +1668,40 @@ public class ScalaCodeCompletion implements Completable {
     }
 
     public String document(CompilationInfo info, ElementHandle handle) {
-        return null;
+        ElementHandle element = handle;
+
+        String comment = null;
+
+        if (element instanceof IndexedElement) {
+            IndexedElement ie = (IndexedElement) handle;
+            if (ie.isDocumented() || ie.isJava()) {
+                comment = ie.getComments();
+//                IndexedElement e = ie.findDocumentedSibling();
+//                if (e != null) {
+//                    element = e;
+//                    e.getComments();
+//                }
+            }
+        }
+
+        StringBuilder html = new StringBuilder();
+
+        if (comment == null) {
+            html.append(element.getName()).append("\n<hr>\n<i>").append(NbBundle.getMessage(ScalaCodeCompletion.class, "NoCommentFound")).append("</i>");
+
+            return html.toString();
+        }
+
+        ScalaCommentFormatter formatter = new ScalaCommentFormatter(comment);
+        String name = element.getName();
+        if (name != null && name.length() > 0) {
+            formatter.setSeqName(name);
+        }
+
+        html.append(IndexedElement.getHtmlSignature(element)).append("\n<hr>\n").append(formatter.toHtml());
+
+        return html.toString();
+
 //        Element element = ElementUtilities.getElement(info, handle);
 //        if (element == null) {
 //            return null;

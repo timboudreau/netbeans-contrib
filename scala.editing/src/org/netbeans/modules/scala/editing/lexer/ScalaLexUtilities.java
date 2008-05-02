@@ -1147,6 +1147,38 @@ public class ScalaLexUtilities {
         return -1;
     }
 
+    public static OffsetRange getDocCommentRangeBefore(TokenHierarchy th, int lexOffset) {
+        TokenSequence<ScalaTokenId> ts = getTokenSequence(th, lexOffset);
+        if (ts == null) {
+            return OffsetRange.NONE;
+        }
+
+        ts.move(lexOffset);
+        int offset = -1;
+        int endOffset = -1;
+        boolean done = false;
+        while (ts.movePrevious() && !done) {
+            ScalaTokenId id = ts.token().id();
+
+            if (id == ScalaTokenId.DocCommentEnd) {
+                Token<ScalaTokenId> token = ts.offsetToken();
+                endOffset = token.offset(th) + token.length();
+            } else if (id == ScalaTokenId.DocCommentStart) {
+                Token<ScalaTokenId> token = ts.offsetToken();
+                offset = token.offset(th);
+                done = true;
+            } else if (!isWsComment(id) && !isKeyword(id)) {
+                done = true;
+            }
+        }
+
+        if (offset != -1 && endOffset != -1) {
+            return new OffsetRange(offset, endOffset);
+        } else {
+            return OffsetRange.NONE;
+        }
+    }
+
     /**
      * Get the comment block for the given offset. The offset may be either within the comment
      * block, or the comment corresponding to a code node, depending on isAfter.
@@ -1234,8 +1266,6 @@ public class ScalaLexUtilities {
 
         return OffsetRange.NONE;
     }
-
-
 //    public static boolean isInsideQuotedString(BaseDocument doc, int offset) {
 //        TokenSequence<?extends ScalaTokenId> ts = FortressLexUtilities.getTokenSequence(doc, offset);
 //
@@ -1473,28 +1503,30 @@ public class ScalaLexUtilities {
         }
 
     }
+    
+    public static boolean isKeyword(ScalaTokenId id) {
+        return id.primaryCategory().equals("keyword");
+    }
 
     public static OffsetRange getRangeOfToken(TokenHierarchy th, Token token) {
         final int offset = token.offset(th);
         return new OffsetRange(offset, offset + token.length());
     }
-    
+
     public static BaseDocument getDocument(FileObject fileObject, boolean openIfNecessary) {
         try {
             DataObject dobj = DataObject.find(fileObject);
-            
+
             EditorCookie ec = dobj.getCookie(EditorCookie.class);
             if (ec != null) {
-                return (BaseDocument)(openIfNecessary ? ec.openDocument() : ec.getDocument());
+                return (BaseDocument) (openIfNecessary ? ec.openDocument() : ec.getDocument());
             }
         } catch (DataObjectNotFoundException ex) {
             Exceptions.printStackTrace(ex);
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
-        
+
         return null;
     }
-
-    
 }

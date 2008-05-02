@@ -192,7 +192,7 @@ public class AstElementVisitor extends AstVisitor {
         if (funTypeTail != null) {
             FunType funType = new FunType(id.getIdToken(), ElementKind.CLASS);
             funType.setLhs(idType);
-            
+
             SimpleType tailType = null;
             if (funTypeTail.getName().equals("WildKey")) {
                 tailType = new SimpleType("_", getIdToken(funTypeTail), ElementKind.CLASS);
@@ -201,7 +201,7 @@ public class AstElementVisitor extends AstVisitor {
                 tailType = new SimpleType(tailId.getName(), tailId.getIdToken(), ElementKind.CLASS);
             }
             funType.setRhs(tailType);
-            
+
             type = funType;
         } else {
             type = idType;
@@ -384,19 +384,43 @@ public class AstElementVisitor extends AstVisitor {
         return literal;
     }
 
+    public List<? extends AstDef> visitDef(GNode that) {
+        enter(that);
+
+        List<? extends AstDef> defs = null;
+
+        GNode what = that.getGeneric(0);
+        if (what.getName().equals("PatVarDef")) {
+            List<Var> vars = visitPatVarDef(what);
+            defs = vars;
+        } else if (what.getName().equals("FunDef")) {
+            AstDef def = visitFunDef(what);
+            defs = Collections.singletonList(def);
+        } else if (what.getName().equals("TypeDef")) {
+            AstDef def = visitTypeDef(what);
+            defs = Collections.singletonList(def);
+        } else if (what.getName().equals("TmplDef")) {
+            AstDef def = visitTmplDef(what);
+            defs = Collections.singletonList(def);
+        }
+
+        exit(that);
+        return defs;
+    }
+
     public Template visitTmplDef(GNode that) {
         enter(that);
 
         Template tmpl = null;
 
-        Object what = that.get(1);
+        Object what = that.get(0);
         boolean caseOne = false;
         GNode defNode = null;
         if (what != null && what instanceof GNode && ((GNode) what).getName().equals("TraitDef")) {
             defNode = (GNode) what;
         } else {
             caseOne = what != null;
-            defNode = that.getGeneric(2);
+            defNode = that.getGeneric(1);
         }
 
         if (defNode.getName().equals("ClassDef")) {
@@ -697,7 +721,7 @@ public class AstElementVisitor extends AstVisitor {
         if (paramTypeNode != null) {
             TypeRef type = visitParamType(paramTypeNode);
             param.setType(type);
-            
+
             scope.addRef(type);
         }
 
@@ -768,9 +792,9 @@ public class AstElementVisitor extends AstVisitor {
         Function function = visitFunSig(that.getGeneric(0));
         GNode typeNode = that.getGeneric(1);
         if (typeNode != null) {
-            TypeRef type = visitType(typeNode);            
+            TypeRef type = visitType(typeNode);
             scope.addRef(type);
-            
+
             function.setType(type);
         }
 
@@ -794,7 +818,7 @@ public class AstElementVisitor extends AstVisitor {
             if (secondNode.getName().equals("Type")) {
                 TypeRef type = visitType(secondNode);
                 scope.addRef(type);
-            
+
                 function.setType(type);
 
                 visitExpr(that.getGeneric(2));
@@ -914,7 +938,7 @@ public class AstElementVisitor extends AstVisitor {
         GNode paramTypeNode = that.getGeneric(2);
         if (paramTypeNode != null) {
             TypeRef type = visitParamType(paramTypeNode);
-            param.setType(type);            
+            param.setType(type);
             scope.addRef(type);
         }
 
@@ -948,8 +972,26 @@ public class AstElementVisitor extends AstVisitor {
         return type;
     }
 
-    public void visitValDcl(GNode that) {
+    public List<Var> visitPatVarDef(GNode that) {
         enter(that);
+
+        List<Var> vars = null;
+
+        GNode what = that.getGeneric(0);
+        if (what.getName().equals("ValDef")) {
+            vars = visitValDef(what);
+        } else if (what.getName().equals("VarDef")) {
+            vars = visitVarDef(what);
+        }
+
+        exit(that);
+        return vars;
+    }
+
+    public List<Var> visitValDcl(GNode that) {
+        enter(that);
+
+        List<Var> vars = new ArrayList<Var>();
 
         List<Id> ids = visitIds(that.getGeneric(0));
         TypeRef type = visitType(that.getGeneric(1));
@@ -960,15 +1002,19 @@ public class AstElementVisitor extends AstVisitor {
             val.setVal();
             val.setType(type);
             scope.addRef(type);
-            
+
             scopeStack.peek().addDef(val);
+            vars.add(val);
         }
 
         exit(that);
+        return vars;
     }
 
-    public void visitVarDcl(GNode that) {
+    public List<Var> visitVarDcl(GNode that) {
         enter(that);
+
+        List<Var> vars = new ArrayList<Var>();
 
         List<Id> ids = visitIds(that.getGeneric(0));
         TypeRef type = visitType(that.getGeneric(1));
@@ -980,13 +1026,17 @@ public class AstElementVisitor extends AstVisitor {
             scope.addRef(type);
 
             scopeStack.peek().addDef(var);
+            vars.add(var);
         }
 
         exit(that);
+        return vars;
     }
 
-    public void visitValDef(GNode that) {
+    public List<Var> visitValDef(GNode that) {
         enter(that);
+
+        List<Var> vars = new ArrayList<Var>();
 
         Object[] patDef = visitPatDef(that.getGeneric(0));
         List<Id> ids = (List<Id>) patDef[0];
@@ -996,15 +1046,19 @@ public class AstElementVisitor extends AstVisitor {
             Var var = new Var(id, scope, ElementKind.FIELD);
             var.setVal();
             var.setExpr(expr);
-
+            
             scopeStack.peek().addDef(var);
+            vars.add(var);
         }
 
         exit(that);
+        return vars;
     }
 
-    public void visitVarDef(GNode that) {
+    public List<Var> visitVarDef(GNode that) {
         enter(that);
+
+        List<Var> vars = new ArrayList<Var>();
 
         GNode what = that.getGeneric(0);
         if (what.getName().equals("Ids")) {
@@ -1015,8 +1069,9 @@ public class AstElementVisitor extends AstVisitor {
                 Var var = new Var(id, scope, ElementKind.FIELD);
                 var.setType(type);
                 scope.addRef(type);
-
+                
                 scopeStack.peek().addDef(var);
+                vars.add(var);
             }
         } else {
             Object[] patDef = visitPatDef(what);
@@ -1028,10 +1083,12 @@ public class AstElementVisitor extends AstVisitor {
                 var.setExpr(expr);
 
                 scopeStack.peek().addDef(var);
+                vars.add(var);
             }
         }
 
         exit(that);
+        return vars;
     }
 
     public Object[] visitPatDef(GNode that) {

@@ -295,7 +295,7 @@ public class ScalaParser implements Parser {
 
         switch (sanitizing) {
             case NEVER:
-                return createParseResult(context.file, null, null, context.javaController);
+                return createParseResult(context.file, null, null, context.th, context.javaController);
 
             case NONE:
 
@@ -345,7 +345,7 @@ public class ScalaParser implements Parser {
             case MISSING_END:
             default:
                 // We're out of tricks - just return the failed parse result
-                return createParseResult(context.file, null, null, context.javaController);
+                return createParseResult(context.file, null, null, context.th, context.javaController);
         }
     }
 
@@ -386,6 +386,8 @@ public class ScalaParser implements Parser {
         if (th == null) {
             th = TokenHierarchy.create(source, ScalaTokenId.language());
         }
+        
+        context.th = th;
 
         final boolean ignoreErrors = sanitizedSource;
 
@@ -414,10 +416,10 @@ public class ScalaParser implements Parser {
                 AstElementVisitor visitor = new AstElementVisitor(node, th);
                 visitor.visit(node);
                 rootScope = visitor.getRootScope();
-                
+
                 ScalaTypeInferencer inferencer = new ScalaTypeInferencer(rootScope, th);
                 inferencer.infer();
-                
+
                 errors = visitor.getErrors();
                 for (GNode errorNode : errors) {
                     String msg = errorNode.getString(0);
@@ -457,7 +459,7 @@ public class ScalaParser implements Parser {
 
         if (rootScope != null) {
             context.sanitized = sanitizing;
-            ScalaParserResult r = createParseResult(context.file, rootScope, null, context.javaController);
+            ScalaParserResult r = createParseResult(context.file, rootScope, null, context.th, context.javaController);
             r.setSanitized(context.sanitized, context.sanitizedRange, context.sanitizedContents);
             r.setSource(source);
             return r;
@@ -467,9 +469,10 @@ public class ScalaParser implements Parser {
     }
 
     private ScalaParserResult createParseResult(ParserFile file, AstScope rootScope, ParserResult.AstTreeNode ast,
+            TokenHierarchy th,
             org.netbeans.api.java.source.CompilationController javaController) {
-        
-        return new ScalaParserResult(this, file, rootScope, ast, javaController);
+
+        return new ScalaParserResult(this, file, rootScope, ast, th, javaController);
     }
 
     private List<Integer> computeLinesOffset(String source) {
@@ -548,11 +551,12 @@ public class ScalaParser implements Parser {
         private int caretOffset;
         private Sanitize sanitized = Sanitize.NONE;
         private TranslatedSource translatedSource;
-        private org.netbeans.api.java.source.CompilationController javaController = null;            
+        private TokenHierarchy th;
+        private org.netbeans.api.java.source.CompilationController javaController = null;
 
-        public Context(ParserFile parserFile, ParseListener listener, String source, 
+        public Context(ParserFile parserFile, ParseListener listener, String source,
                 int caretOffset, TranslatedSource translatedSource,
-                        org.netbeans.api.java.source.CompilationController javaController) {
+                org.netbeans.api.java.source.CompilationController javaController) {
             this.file = parserFile;
             this.listener = listener;
             this.source = source;

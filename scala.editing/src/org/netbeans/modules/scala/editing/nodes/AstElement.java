@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
@@ -103,6 +104,22 @@ public class AstElement implements ElementHandle {
 
     public Token getIdToken() {
         return idToken;
+    }
+    
+    public int getOffset(TokenHierarchy th) {
+        if (idToken != null) {
+            return idToken.offset(th);
+        } else {
+            return 0;
+        }
+    }
+    
+    public int getEndOffset(TokenHierarchy th) {
+        if (idToken != null) {
+            return idToken.offset(th) + idToken.length();
+        } else {
+            return 0;
+        }
     }
     
     public ElementKind getKind() {
