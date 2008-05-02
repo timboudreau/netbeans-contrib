@@ -62,10 +62,10 @@ class AutomaticProject implements Project {
         // SharabilityQueryImplementation
         // CustomizerProvider
         // XXX introduce LookupMerger for ActionProvider, ProjectInformation
-        // XXX move LogicalViewImpl here and use NodeFactorySupport
         lkp = LookupProviderSupport.createCompositeLookup(Lookups.fixed(
                 new FileEncodingQueryImpl(this),
                 new AuxiliaryConfigImpl(this),
+                new LogicalViewImpl(this),
                 this), "Projects/org-netbeans-modules-autoproject/Lookup"); //NOI18N
     }
 
