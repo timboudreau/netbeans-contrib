@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import com.sun.javadoc.Doc;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.EnhancedForLoopTree;
@@ -803,15 +804,15 @@ public class JavaUtilities {
 
         JavaSource source = JavaSource.forFileObject(fo);
         try {
-            source.runWhenScanFinished(new  
-
-                  Task    
-                    
-                    <CompilationController>() {
+            source.runWhenScanFinished(new Task<CompilationController>() {
 
                 public void run(CompilationController info) throws Exception {
                     info.toPhase(Phase.RESOLVED);
-                    result[0] = info.getElements().getDocComment(e);
+                    Doc docComment = info.getElementUtilities().javaDocFor(e);
+                    if (docComment != null) {
+                        result[0] = docComment.getRawCommentText();
+                    }
+                //result[0] = info.getElements().getDocComment(e);
                 }
             }, true);
         } catch (IOException ex) {
