@@ -593,5 +593,5 @@ public class ScalaUtils {
         } else {
             return s.substring(0, length - 3) + "...";
         }
-    }
+    }        
 }

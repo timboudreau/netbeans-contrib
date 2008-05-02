@@ -230,7 +230,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         FunctionItem(AstElement element, CompletionRequest request) {
             super(element, request);
             assert element.getKind() == ElementKind.METHOD;
-            function = (IndexedFunction) IndexedElement.create(element, request.index);
+            function = (IndexedFunction) IndexedElement.create(element, request.th, request.index);
         }
 
         FunctionItem(IndexedFunction element, CompletionRequest request) {

@@ -62,6 +62,8 @@ import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.modules.scala.editing.ScalaMimeResolver;
+import org.netbeans.modules.scala.editing.ScalaParser;
+import org.netbeans.modules.scala.editing.rats.LexerScala;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -1147,6 +1149,36 @@ public class ScalaLexUtilities {
         return -1;
     }
 
+    public static OffsetRange getDocCommentRangeBefore(TokenHierarchy th, int lexOffset) {
+        TokenSequence<ScalaTokenId> ts = getTokenSequence(th, lexOffset);
+        if (ts == null) {
+            return OffsetRange.NONE;
+        }
+
+        ts.move(lexOffset);
+        int offset = -1;
+        int endOffset = -1;
+        boolean done = false;
+        while (ts.movePrevious() && !done) {
+            ScalaTokenId id = ts.token().id();
+
+            if (id == ScalaTokenId.DocCommentEnd) {
+                endOffset = ts.offsetToken().offset(th);
+            } else if (id == ScalaTokenId.DocCommentStart) {
+                offset = ts.offsetToken().offset(th);
+                done = true;
+            } else if (!isWsComment(id) && !isKeyword(id)) {
+                done = true;
+            }
+        }
+
+        if (offset != -1 && endOffset != -1) {
+            return new OffsetRange(offset, endOffset);
+        } else {
+            return OffsetRange.NONE;
+        }
+    }
+
     /**
      * Get the comment block for the given offset. The offset may be either within the comment
      * block, or the comment corresponding to a code node, depending on isAfter.
@@ -1234,8 +1266,6 @@ public class ScalaLexUtilities {
 
         return OffsetRange.NONE;
     }
-
-
 //    public static boolean isInsideQuotedString(BaseDocument doc, int offset) {
 //        TokenSequence<?extends ScalaTokenId> ts = FortressLexUtilities.getTokenSequence(doc, offset);
 //
@@ -1473,28 +1503,30 @@ public class ScalaLexUtilities {
         }
 
     }
+    
+    public static boolean isKeyword(ScalaTokenId id) {
+        return id.primaryCategory().equals("keyword");
+    }
 
     public static OffsetRange getRangeOfToken(TokenHierarchy th, Token token) {
         final int offset = token.offset(th);
         return new OffsetRange(offset, offset + token.length());
     }
-    
+
     public static BaseDocument getDocument(FileObject fileObject, boolean openIfNecessary) {
         try {
             DataObject dobj = DataObject.find(fileObject);
-            
+
             EditorCookie ec = dobj.getCookie(EditorCookie.class);
             if (ec != null) {
-                return (BaseDocument)(openIfNecessary ? ec.openDocument() : ec.getDocument());
+                return (BaseDocument) (openIfNecessary ? ec.openDocument() : ec.getDocument());
             }
         } catch (DataObjectNotFoundException ex) {
             Exceptions.printStackTrace(ex);
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
-        
+
         return null;
     }
-
-    
 }

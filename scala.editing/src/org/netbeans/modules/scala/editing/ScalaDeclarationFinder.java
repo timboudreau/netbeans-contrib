@@ -56,6 +56,7 @@ import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
 /**
@@ -145,23 +146,44 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
             final TokenHierarchy<Document> th = TokenHierarchy.get(document);
 
+            AstElement foundElement = null;
+            boolean isLocal = false;
+
             AstElement closest = root.getDefRef(th, astOffset);
             AstDef def = root.findDef(closest);
             if (def != null) {
-                return new DeclarationLocation(info.getFileObject(), def.getIdToken().offset(th), def);
+                foundElement = def;
+                isLocal = true;
             } else {
                 if (closest instanceof FunRef) {
                     IndexedFunction idxFunction = findMethodDeclaration(info, (FunRef) closest, null);
                     if (idxFunction != null) {
-                        return new DeclarationLocation(idxFunction.getFileObject(), 0, idxFunction);
+                        foundElement = idxFunction;
                     }
                 } else if (closest instanceof TypeRef) {
                     if (!closest.getQualifiedName().equals(TypeRef.UNRESOLVED)) {
                         IndexedType idxType = findTypeDeclaration(info, (TypeRef) closest);
                         if (idxType != null) {
-                            return new DeclarationLocation(idxType.getFileObject(), 0, idxType);
+                            foundElement = idxType;
                         }
                     }
+                }
+            }
+
+            if (foundElement != null) {
+                FileObject fo = null;
+                int offset = 0;
+                if (isLocal) {
+                    fo = info.getFileObject();
+                    offset = foundElement.getIdToken().offset(th);
+                } else {
+                    IndexedElement foundIdxElement = (IndexedElement) foundElement;
+                    fo = foundIdxElement.getFileObject();
+                    offset = foundIdxElement.getOffset();
+                }
+
+                if (fo != null) {
+                    return new DeclarationLocation(fo, offset, foundElement);
                 }
             }
 
@@ -173,24 +195,26 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
     }
 
     /** Locate the method declaration for the given method call */
-    IndexedFunction findMethodDeclaration(CompilationInfo info, FunRef call, Set<IndexedFunction>[] alternativesHolder) {
+    IndexedFunction findMethodDeclaration(CompilationInfo info, FunRef funRef, Set<IndexedFunction>[] alternativesHolder) {
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         ScalaIndex index = ScalaIndex.get(info);
 
         IndexedElement candidate = null;
 
-        String prefix = call.getCall().getName();
+        String prefix = funRef.getCall().getName();
         String in = "";
-        if (call.getBase() != null) {
-            TypeRef baseType = call.getBase().getType();
+        if (funRef.getBase() != null) {
+            TypeRef baseType = funRef.getBase().getType();
             if (baseType != null) {
                 in = baseType.getQualifiedName();
                 Set<IndexedElement> members = index.getElements(prefix, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult);
                 for (IndexedElement member : members) {
                     if (member instanceof IndexedFunction) {
                         IndexedFunction idxFunction = (IndexedFunction) member;
-                        if (idxFunction.getParameters().size() == call.getParams().size()) {
+                        // @Todo compare params' types
+                        if (idxFunction.getName().equals(prefix) && idxFunction.getParameters().size() == funRef.getParams().size()) {
                             candidate = idxFunction;
+                            break;
                         }
                     }
                 }
