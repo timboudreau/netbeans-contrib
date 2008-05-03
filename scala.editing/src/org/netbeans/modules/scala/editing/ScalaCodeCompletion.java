@@ -308,6 +308,8 @@ public class ScalaCodeCompletion implements Completable {
         List<CompletionProposal> proposals = new ArrayList<CompletionProposal>();
 
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
+        pResult.toGlobalPhase(info);
+        
         // Read-lock due to Token hierarchy use
         doc.readLock();
         try {

@@ -85,8 +85,8 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             return;
         }
 
-        ScalaParserResult result = AstUtilities.getParserResult(info);
-        if (result == null) {
+        ScalaParserResult pResult = AstUtilities.getParserResult(info);
+        if (pResult == null) {
             return;
         }
 
@@ -94,20 +94,13 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             return;
         }
 
-        AstScope rootScope = result.getRootScope();
+        AstScope rootScope = pResult.getRootScope();
         if (rootScope == null) {
             return;
         }
-        
-        final Document document;
-        try {
-            document = info.getDocument();
-        } catch (Exception e) {
-            Exceptions.printStackTrace(e);
-            return;
-        }
-        final TokenHierarchy th = TokenHierarchy.get(document);
-        new ScalaTypeInferencer(rootScope, th).globalInfer(info);
+                
+        final TokenHierarchy th = pResult.getTokenHierarchy();
+        pResult.toGlobalPhase(info);
 
         Map<OffsetRange, ColoringAttributes> highlights = new HashMap<OffsetRange, ColoringAttributes>(100);
         visitScopeRecursively(info, rootScope, highlights);

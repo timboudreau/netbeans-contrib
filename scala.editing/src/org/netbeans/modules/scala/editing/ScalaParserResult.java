@@ -42,6 +42,7 @@ package org.netbeans.modules.scala.editing;
 
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.api.ParserResult;
@@ -52,8 +53,12 @@ import org.netbeans.modules.scala.editing.nodes.AstScope;
  * @author Caoyuan Deng
  */
 public class ScalaParserResult extends ParserResult {
+    public enum Phase {
+        Modified,
+        Parsed,
+        GLOBAL_RESOLVED
+    }
 
-    private ParserFile file;
     private AstTreeNode ast;
     private String source;
     private OffsetRange sanitizedRange = OffsetRange.NONE;
@@ -62,13 +67,14 @@ public class ScalaParserResult extends ParserResult {
     private boolean commentsAdded;
     private AstScope rootScope;
     private TokenHierarchy<Document> tokenHierarchy;
+    private Phase phase;
 
     public ScalaParserResult(ScalaParser parser, ParserFile file, AstScope rootScope, AstTreeNode ast, TokenHierarchy<Document> th) {
         super(parser, file, ScalaMimeResolver.MIME_TYPE);
-        this.file = file;
         this.rootScope = rootScope;
         this.ast = ast;
         this.tokenHierarchy = th;
+        this.phase = Phase.Parsed;
     }
 
     public ParserResult.AstTreeNode getAst() {
@@ -130,8 +136,19 @@ public class ScalaParserResult extends ParserResult {
         return tokenHierarchy;
     }
     
+    public Phase getPhase() {
+        return phase == null ? Phase.Modified : phase;
+    }
+    
+    public void toGlobalPhase(CompilationInfo info) {
+        if (this.phase != Phase.GLOBAL_RESOLVED) {
+            new ScalaTypeInferencer(rootScope, tokenHierarchy).globalInfer(info);
+            this.phase = Phase.GLOBAL_RESOLVED;
+        }
+    }
+    
     @Override
     public String toString() {
-        return "ParseResult(file=" + getFile() + ",rootScope=" + rootScope + ")";
+        return "ParserResult(file=" + getFile() + ",rootScope=" + rootScope +",phase=" + phase + ")";
     }
 }
