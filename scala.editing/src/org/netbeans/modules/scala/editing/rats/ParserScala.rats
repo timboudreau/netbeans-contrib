@@ -255,13 +255,13 @@ generic PrefixExpr = ( "-":op / "+":op / "~":op / "!":op )? SimpleExpr ;
 
 /* @DocError in ScalaReference : There is non SimpleExpr with ( void:":":key Type ) */
 generic SimpleExpr = 
-  XmlExpr             SimpleExprRest*                        @SimpleXmlExpr
-/ Literal   TypeArgs? SimpleExprRest*                        @SimpleLiteralExpr
-/ Path      TypeArgs? SimpleExprRest* ( void:":":key Type )? @SimpleIdExpr
-/ "_":key   TypeArgs? SimpleExprRest*                        @SimpleWildCardExpr
-/ ParenExpr TypeArgs? SimpleExprRest* ( void:":":key Type )? @SimpleTupleExpr
-/ BlockExpr TypeArgs? SimpleExprRest*                        @SimpleBlockExpr
-/ NewExpr   TypeArgs? SimpleExprRest*                        @SimpleNewExpr
+  XmlExpr   TypeArgs? SimpleExprRest*                        
+/ Literal   TypeArgs? SimpleExprRest*                        
+/ Path      TypeArgs? SimpleExprRest* ( void:":":key Type )? 
+/ WildKey   TypeArgs? SimpleExprRest*                        
+/ ParenExpr TypeArgs? SimpleExprRest* ( void:":":key Type )? 
+/ BlockExpr TypeArgs? SimpleExprRest*                        
+/ NewExpr   TypeArgs? SimpleExprRest*                        
 ;
 
 generic SimpleExprRest = 
