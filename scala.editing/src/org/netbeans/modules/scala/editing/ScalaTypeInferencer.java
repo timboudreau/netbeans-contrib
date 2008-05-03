@@ -198,7 +198,7 @@ public class ScalaTypeInferencer {
                 }
                 
                 String pkgName = importExpr.getPackageName() + ".";
-                for (IndexedElement element : getImportedTypes(index, importExpr)) {
+                for (IndexedElement element : getImportedTypes(index, pkgName)) {
                     if (element instanceof IndexedType) {
                         if (element.getName().equals(simpleName)) {
                             toResolve.setQualifiedName(pkgName + simpleName);
@@ -217,7 +217,34 @@ public class ScalaTypeInferencer {
                 continue;
             }
             
-            // 2. then search types under the same package
+            // 2. search "scala" packages 
+            for (Import importExpr : imports) {
+                if (!importExpr.isWild()) {
+                    continue;
+                }
+                
+                /* package name starts with "scala" can omit "scala" */
+                String pkgName = "scala." + importExpr.getPackageName() + ".";
+                for (IndexedElement element : getScalaPackageTypes(index, pkgName)) {
+                    if (element instanceof IndexedType) {
+                        if (element.getName().equals(simpleName)) {
+                            toResolve.setQualifiedName(pkgName + simpleName);
+                            resolved = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (resolved) {
+                    break;
+                }
+            }
+                        
+            if (resolved) {
+                continue;
+            }
+
+            // 3. then search types under the same package
             Packaging packaging = toResolve.getPackageElement();
             if (packaging != null) {
                 String pkgName = packaging.getName() + ".";
@@ -230,27 +257,47 @@ public class ScalaTypeInferencer {
                     }
                 }
             }
-            
+                                    
+            if (resolved) {
+                continue;
+            }
         }
 
         for (AstScope _Scope : scope.getScopes()) {
             globalInferRecursively(index, _Scope);
         }
     }
-    private Map<Import, Set<IndexedElement>> importedTypesCache;
+    /* package name starts with "scala" can omit "scala" */
+    private static Map<String, Set<IndexedElement>> scalaPackageTypes;
+    private Map<String, Set<IndexedElement>> importedTypesCache;
     private Map<Packaging, Set<IndexedElement>> packageTypesCache;
 
-    private Set<IndexedElement> getImportedTypes(ScalaIndex index, Import importExpr) {
-        if (importedTypesCache == null) {
-            importedTypesCache = new HashMap<Import, Set<IndexedElement>>();
+    private static Set<IndexedElement> getScalaPackageTypes(ScalaIndex index, String pkgName) {
+        if (scalaPackageTypes == null) {
+            scalaPackageTypes = new HashMap<String, Set<IndexedElement>>();
         }
 
-        Set<IndexedElement> idxElements = importedTypesCache.get(importExpr);
+        Set<IndexedElement> idxElements = scalaPackageTypes.get(pkgName);
         if (idxElements == null) {
-            String pkgName = importExpr.getPackageName() + ".";
             idxElements = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
 
-            importedTypesCache.put(importExpr, idxElements);
+            scalaPackageTypes.put(pkgName, idxElements);
+        }
+
+        return idxElements;
+    }
+
+    
+    private Set<IndexedElement> getImportedTypes(ScalaIndex index, String pkgName) {
+        if (importedTypesCache == null) {
+            importedTypesCache = new HashMap<String, Set<IndexedElement>>();
+        }
+
+        Set<IndexedElement> idxElements = importedTypesCache.get(pkgName);
+        if (idxElements == null) {
+            idxElements = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+
+            importedTypesCache.put(pkgName, idxElements);
         }
 
         return idxElements;
