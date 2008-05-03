@@ -1668,27 +1668,12 @@ public class AstElementVisitor extends AstVisitor {
 
         AstExpr expr = null;
 
+        boolean hasAddedToScope = false;
         GNode what = that.getGeneric(0);
         if (what.getName().equals("NotFunExpr")) {
             expr = visitNotFunExpr(what);
-        } else {
-            visitChildren(what);
-            expr = new AstExpr(getBoundsTokens(that));
-        }
-
-        scopeStack.peek().addExpr(expr);
-
-        exit(that);
-        return expr;
-    }
-
-    public AstExpr visitNotFunExpr(GNode that) {
-        enter(that);
-
-        AstExpr expr = null;
-
-        GNode what = that.getGeneric(0);
-        if (what.getName().equals("IfExpr")) {
+            hasAddedToScope = true;
+        } else if (what.getName().equals("IfExpr")) {
             visitChildren(what);
         } else if (what.getName().equals("WhileExpr")) {
             visitChildren(what);
@@ -1708,13 +1693,31 @@ public class AstElementVisitor extends AstVisitor {
             visitChildren(what);
         } else if (what.getName().equals("MatchExpr")) {
             visitChildren(what);
-        } else if (what.getName().equals("PostfixExpr")) {
-            expr = visitPostfixExpr(what);
         }
 
-        if (expr == null) {
+        if (expr != null && !hasAddedToScope) {
+            scopeStack.peek().addExpr(expr);
+        } else {
+            /** @Todo */
             expr = new AstExpr(getBoundsTokens(that));
         }
+
+        exit(that);
+        return expr;
+    }
+
+    public AstExpr visitNotFunExpr(GNode that) {
+        enter(that);
+
+        /**
+         * all other sub node has been specify a generic node's name via '@',
+         * except pure PostfixExpr
+         */
+        AstExpr expr = visitPostfixExpr(that.getGeneric(0));
+        /* Since NotFunExpr can be dispatched to here by visitChildren, bypassing
+         * visitExpr, we should add to scope here 
+         */
+        scopeStack.peek().addExpr(expr);
 
         exit(that);
         return expr;
@@ -1831,9 +1834,9 @@ public class AstElementVisitor extends AstVisitor {
                     return "todo";
                 }
             };
-            
+
         }
-        
+
         expr.setBase(base);
 
         List<TypeRef> typeArgs = Collections.<TypeRef>emptyList();
