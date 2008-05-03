@@ -179,7 +179,7 @@ public class ScalaTypeInferencer {
                 toResolve = ref.getType();
             }
 
-            if (toResolve != null && !toResolve.getQualifiedName().equals(TypeRef.UNRESOLVED)) {
+            if (toResolve != null && toResolve.isResolved()) {
                 toResolve = null;
             }
 

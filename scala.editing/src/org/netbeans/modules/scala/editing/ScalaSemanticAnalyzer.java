@@ -164,7 +164,7 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         for (AstRef ref : scope.getRefs()) {
             OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, ref.getIdToken());
             if (ref instanceof TypeRef) {
-                if (((TypeRef) ref).getQualifiedName().equals(TypeRef.UNRESOLVED)) {
+                if (!((TypeRef) ref).isResolved()) {
                     highlights.put(idRange, ColoringAttributes.UNUSED); // UNDEFINED without default color yet
                 }
             }

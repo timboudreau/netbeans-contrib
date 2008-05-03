@@ -176,10 +176,14 @@ public class TypeRef extends AstRef {
         PRED_TYPES.put("String", String);
     }
     private List<String> annotations;
-    public static final String UNRESOLVED = "-1";
+    private static final String UNRESOLVED = "-1";
 
     public TypeRef(String name, Token idToken, ElementKind kind) {
         super(name, idToken, kind);
+    }
+    
+    public boolean isResolved() {
+        return !getQualifiedName().equals(UNRESOLVED);
     }
 
     @Override

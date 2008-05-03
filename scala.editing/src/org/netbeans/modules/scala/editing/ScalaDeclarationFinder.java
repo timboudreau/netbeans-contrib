@@ -161,7 +161,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                         foundElement = idxFunction;
                     }
                 } else if (closest instanceof TypeRef) {
-                    if (!closest.getQualifiedName().equals(TypeRef.UNRESOLVED)) {
+                    if (((TypeRef) closest).isResolved()) {
                         IndexedType idxType = findTypeDeclaration(info, (TypeRef) closest);
                         if (idxType != null) {
                             foundElement = idxType;
