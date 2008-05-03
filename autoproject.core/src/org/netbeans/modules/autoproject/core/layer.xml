@@ -4,6 +4,7 @@
     <folder name="Projects">
         <folder name="org-netbeans-modules-autoproject">
             <folder name="Lookup"/>
+            <folder name="Nodes"/>
         </folder>
     </folder>
 </filesystem>

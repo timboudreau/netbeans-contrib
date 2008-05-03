@@ -62,7 +62,6 @@ public class LookupProviderImpl implements LookupProvider {
                 new SourceForBinaryImpl(p),
                 new ProjectInformationImpl(p),
                 new SourcesImpl(p),
-                new LogicalViewImpl(p),
                 new SourceLevelQueryImpl(p),
                 new OpenHook(p, cpp),
                 new ActionProviderImpl(p));
