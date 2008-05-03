@@ -139,7 +139,7 @@ public class JavaIndex {
                         base.append(attrs);
 
                         IndexedElement idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
-                        idxElement.setJavaInfo(e, info.getClasspathInfo());
+                        idxElement.setJavaInfo(e, info);
                         idxElements.add(idxElement);
                     }
                 }
@@ -276,7 +276,7 @@ public class JavaIndex {
                             base.append(attrs);
 
                             idxElement = IndexedElement.create(simpleMame, base.toString(), null, scalaIndex, false);
-                            idxElement.setJavaInfo(e, info.getClasspathInfo());
+                            idxElement.setJavaInfo(e, info);
                             break;
                         case CLASS:
                         case ENUM:

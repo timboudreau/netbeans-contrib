@@ -1675,7 +1675,7 @@ public class ScalaCodeCompletion implements Completable {
         if (element instanceof IndexedElement) {
             IndexedElement ie = (IndexedElement) handle;
             if (ie.isDocumented() || ie.isJava()) {
-                comment = ie.getComments();
+                comment = ie.getComment();
 //                IndexedElement e = ie.findDocumentedSibling();
 //                if (e != null) {
 //                    element = e;

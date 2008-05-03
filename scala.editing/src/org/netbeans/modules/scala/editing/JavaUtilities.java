@@ -722,8 +722,8 @@ public class JavaUtilities {
             new WeakHashMap<FileObject, Reference<CompilationInfo>>();
 
     public static CompilationInfo getCompilationInfoForScalaFile(FileObject fo) {
-        Reference<CompilationInfo> controllerRef = scalaFileToJavaCompilationInfo.get(fo);
-        CompilationInfo info = controllerRef != null ? controllerRef.get() : null;
+        Reference<CompilationInfo> infoRef = scalaFileToJavaCompilationInfo.get(fo);
+        CompilationInfo info = infoRef != null ? infoRef.get() : null;
 
         if (info == null) {
             final CompilationInfo[] javaControllers = new CompilationInfo[1];
@@ -767,28 +767,44 @@ public class JavaUtilities {
         return source;
     }
 
-    public static FileObject getFileObject(Element e, ClasspathInfo info) {
-        final ElementHandle handle = ElementHandle.create(e);
-        return org.netbeans.api.java.source.SourceUtils.getFile(handle, info);
+    public static String getJavaDoc(CompilationInfo info, final Element e) throws IOException {
+        String docComment = null;
+
+        // to resolve javadoc, only needs Phase.ELEMENT_RESOLVED, and we have reached when create info
+        Doc javaDoc = info.getElementUtilities().javaDocFor(e);
+        if (javaDoc != null) {
+            docComment = javaDoc.getRawCommentText();
+        }
+
+        return docComment;
     }
 
-    public static int getOffset(FileObject fo, final Element e) throws IOException {
+    /**
+     * Get fileobject that is origin source of element from current comilationInfo
+     */
+    public static FileObject getOriginFileObject(CompilationInfo info, Element e) {
+        final ElementHandle handle = ElementHandle.create(e);
+        return org.netbeans.api.java.source.SourceUtils.getFile(handle, info.getClasspathInfo());
+    }
+
+    public static int getOffset(CompilationInfo info, final Element e) throws IOException {
         int offset = -1;
 
-        final CompilationInfo[] info = new CompilationInfo[]{null};
-        
-        JavaSource source = JavaSource.forFileObject(fo);
+        FileObject originFo = getOriginFileObject(info, e);
+        final CompilationInfo[] infos = new CompilationInfo[]{null};
+
+        JavaSource source = JavaSource.forFileObject(originFo);
         if (JavaSourceAccessor.getINSTANCE().isDispatchThread()) {
             // already under javac's lock
-            info[0] = JavaSourceAccessor.getINSTANCE().getCurrentCompilationInfo(source, Phase.RESOLVED);
+            infos[0] = JavaSourceAccessor.getINSTANCE().getCurrentCompilationInfo(source, Phase.RESOLVED);
         } else {
             try {
                 source.runUserActionTask(new Task<CompilationController>() {
 
                     public void run(CompilationController controller) throws Exception {
                         controller.toPhase(Phase.RESOLVED);
-                        
-                        info[0] = controller;
+
+                        infos[0] = controller;
                     }
                 }, true);
             } catch (IOException ex) {
@@ -797,57 +813,21 @@ public class JavaUtilities {
 
         }
 
-        if (info[0] != null) {
-            FindDeclarationVisitor v = new FindDeclarationVisitor(e, info[0]);
+        if (infos[0] != null) {
+            FindDeclarationVisitor v = new FindDeclarationVisitor(e, infos[0]);
 
-            CompilationUnitTree cu = info[0].getCompilationUnit();
+            CompilationUnitTree cu = infos[0].getCompilationUnit();
 
             v.scan(cu, null);
             Tree elTree = v.declTree;
 
             if (elTree != null) {
-                offset = (int) info[0].getTrees().getSourcePositions().getStartPosition(cu, elTree);
+                offset = (int) infos[0].getTrees().getSourcePositions().getStartPosition(cu, elTree);
             }
 
         }
 
         return offset;
-    }
-
-    public static String getJavaDoc(FileObject fo, final Element e) throws IOException {
-        String docComment = null;
-
-        final CompilationInfo[] info = new CompilationInfo[]{null};
-        
-        JavaSource source = JavaSource.forFileObject(fo);
-        if (JavaSourceAccessor.getINSTANCE().isDispatchThread()) {
-            // already under javac's lock
-            info[0] = JavaSourceAccessor.getINSTANCE().getCurrentCompilationInfo(source, Phase.RESOLVED);
-        } else {
-            try {
-                source.runUserActionTask(new Task<CompilationController>() {
-
-                    public void run(CompilationController controller) throws Exception {
-                        controller.toPhase(Phase.RESOLVED);
-                        
-                        info[0] = controller;
-                    }
-                }, true);
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-
-        }
-
-        if (info[0] != null) {
-            Doc javaDoc = info[0].getElementUtilities().javaDocFor(e);
-            if (javaDoc != null) {
-                docComment = javaDoc.getRawCommentText();
-            }
-
-        }
-
-        return docComment;
     }
 
     // Private innerclasses ----------------------------------------------------
