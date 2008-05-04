@@ -52,7 +52,7 @@ public class FunRef extends AstRef {
     /** base may be AstExpr, FunRef, FieldRef, IdRef etc */
     private AstElement base;
     private Id call;
-    private List<AstElement> params;
+    private List<AstExpr> params;
     private boolean local;
     private String retType;
 
@@ -76,11 +76,11 @@ public class FunRef extends AstRef {
         return call;
     }
 
-    public void setParams(List<AstElement> params) {
+    public void setParams(List<AstExpr> params) {
         this.params = params;
     }
 
-    public List<AstElement> getParams() {
+    public List<AstExpr> getParams() {
         return params;
     }
 
@@ -98,10 +98,10 @@ public class FunRef extends AstRef {
         if (base != null) {
             TypeRef baseType = base.getType();
             if (baseType != null) {
-                sb.append(baseType.getName());
+                sb.append(" :").append(baseType.getName());
             }
         }
-        sb.append(call.getName());
+        sb.append('.').append(call.getName());
         return sb.toString();
     }
 

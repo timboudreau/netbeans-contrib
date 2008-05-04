@@ -153,18 +153,18 @@ public class ScalaTypeInferencer {
                     toResolve = null;
                     continue;
                 }
-                
+
                 // resolve return type of funRef:
                 AstElement base = funRef.getBase();
                 if (base != null) {
-                    
+
                     String baseTypeStr = null;
                     TypeRef baseType = base.getType();
                     if (baseType == null || (baseType != null && !baseType.isResolved())) {
                         if (base instanceof FunRef) {
                             baseTypeStr = ((FunRef) base).getRetType();
                         } else {
-                        // @todo resolve it first
+                            // @todo resolve it first
                         }
                     } else {
                         baseTypeStr = baseType.getQualifiedName();
@@ -173,24 +173,38 @@ public class ScalaTypeInferencer {
                         // @todo resolve it first
                         continue;
                     }
-                    
+
                     Id call = funRef.getCall();
                     String callName = call == null ? "apply" : call.getName();
-                                        
+
                     Set<IndexedElement> members = index.getElements(callName, baseTypeStr, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null);
                     for (IndexedElement member : members) {
                         if (member instanceof IndexedFunction) {
                             IndexedFunction idxFunction = (IndexedFunction) member;
                             if (idxFunction.getParameters().size() == funRef.getParams().size()) {
-                                String idxRetTypeString = idxFunction.getTypeString();
-                                /** @todo pkg of idxFunction may not be same as ret type */
-                                String pkgName = "";
-                                String hisIn = idxFunction.getIn();
-                                if (hisIn != null) {
-                                    int lastDot = hisIn.lastIndexOf('.');
-                                    pkgName = hisIn.substring(0, lastDot + 1); // include '.'
+                                String idxRetTypeStr = idxFunction.getTypeString();
+                                if (idxRetTypeStr == null) {
+                                    idxRetTypeStr = "void";
                                 }
-                                funRef.setRetType(pkgName + idxRetTypeString);
+                                if (idxRetTypeStr.equals("void")) {
+                                    funRef.setRetType("void");
+                                    break;
+                                }
+                                
+                                int lastDot = idxRetTypeStr.lastIndexOf('.');
+                                if (lastDot == -1) {
+                                    /** @todo try to find pkg of idxFunction */
+                                    String pkgName = "";
+                                    String hisIn = idxFunction.getIn();
+                                    if (hisIn != null) {
+                                        lastDot = hisIn.lastIndexOf('.');
+                                        pkgName = hisIn.substring(0, lastDot + 1); // include '.'
+                                    }
+                                    idxRetTypeStr = pkgName + idxRetTypeStr; // @todo
+                                }
+
+                                funRef.setRetType(idxRetTypeStr);
+                                break;
                             }
                         }
                     }

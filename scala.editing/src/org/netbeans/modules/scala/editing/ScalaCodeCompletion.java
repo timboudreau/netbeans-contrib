@@ -73,6 +73,7 @@ import org.netbeans.modules.scala.editing.lexer.MaybeCall;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.AstExpr;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
@@ -309,7 +310,7 @@ public class ScalaCodeCompletion implements Completable {
 
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         pResult.toGlobalPhase(info);
-        
+
         // Read-lock due to Token hierarchy use
         doc.readLock();
         try {
@@ -407,6 +408,31 @@ public class ScalaCodeCompletion implements Completable {
                         request.prefix = prefix1;
                         completeImport(proposals, request);
                         return proposals;
+                    } else if (closest instanceof IdRef) {
+                        // test if it's an arg of funRef ?
+                        FunRef funRef = null;
+                        while (funRef == null && closestOffset > 0) {
+                            AstElement something = root.getDefRef(th, closestOffset--);
+                            if (something instanceof FunRef) {
+                                funRef = (FunRef) something;
+                                break;
+                            }
+                        }
+                        
+                        if (funRef != null) {
+                            boolean isArg = false;
+                            int argOffset = closest.getPickOffset(th);
+                            for (AstExpr arg : funRef.getParams()) {
+                                if (arg.getBoundsOffset(th) >= argOffset && argOffset <= arg.getBoundsEndOffset(th)) {
+                                    isArg = true;
+                                    break;
+                                }
+                            }
+                            
+                            if (isArg) {
+                                closest = funRef;
+                            }
+                        }
                     }
                 }
 
@@ -1688,7 +1714,7 @@ public class ScalaCodeCompletion implements Completable {
             return null;
         }
 
-        
+
         StringBuilder html = new StringBuilder();
 
         String htmlSignature = IndexedElement.getHtmlSignature((IndexedElement) element);

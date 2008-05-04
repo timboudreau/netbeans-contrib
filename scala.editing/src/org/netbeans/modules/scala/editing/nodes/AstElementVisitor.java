@@ -1612,7 +1612,7 @@ public class AstElementVisitor extends AstVisitor {
     public ArgumentExprs visitArgumentExprs(GNode that) {
         enter(that);
 
-        List<AstElement> args = null;
+        List<AstExpr> args = null;
 
         GNode what = that.getGeneric(0);
         if (what.getName().equals("ParenExpr")) {
@@ -1621,7 +1621,7 @@ public class AstElementVisitor extends AstVisitor {
             // BlockExpr
             visitChildren(what);
             // @Todo
-            args = Collections.<AstElement>emptyList();
+            args = Collections.<AstExpr>emptyList();
         }
 
         ArgumentExprs argExprs = new ArgumentExprs(ElementKind.OTHER);
@@ -1631,33 +1631,33 @@ public class AstElementVisitor extends AstVisitor {
         return argExprs;
     }
 
-    public List<AstElement> visitParenExpr(GNode that) {
+    public List<AstExpr> visitParenExpr(GNode that) {
         enter(that);
 
-        List<AstElement> exprs = null;
+        List<AstExpr> exprs;
 
         GNode exprsNode = that.getGeneric(0);
         if (exprsNode != null) {
             exprs = visitExprs(exprsNode);
         } else {
-            exprs = Collections.<AstElement>emptyList();
+            exprs = Collections.<AstExpr>emptyList();
         }
 
         exit(that);
         return exprs;
     }
 
-    public List<AstElement> visitExprs(GNode that) {
+    public List<AstExpr> visitExprs(GNode that) {
         enter(that);
 
-        List<AstElement> exprs = new ArrayList<AstElement>();
+        List<AstExpr> exprs = new ArrayList<AstExpr>();
         GNode first = that.getGeneric(0);
-        visitChildren(first);
-        exprs.add(new AstElement(ElementKind.OTHER));
+        AstExpr firstExpr = visitExpr(first);
+        exprs.add(firstExpr);
 
         for (Object o : that.getList(1).list()) {
-            visitChildren((GNode) o);
-            exprs.add(new AstElement(ElementKind.OTHER));
+            AstExpr expr = visitExpr((GNode) o);
+            exprs.add(expr);
         }
 
         exit(that);
@@ -1954,8 +1954,6 @@ public class AstElementVisitor extends AstVisitor {
         }
         expr.setMemberChain(memberChain);
         
-
-
         if (errorNode != null) {
             visitError(errorNode);
         }

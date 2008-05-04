@@ -690,7 +690,13 @@ public abstract class IndexedElement extends AstElement {
 //                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
 //            }
         if (type != null) {
-            sb.append(type.getName());
+            if (type.isResolved()) {
+                sb.append(type.getQualifiedName());
+            } else {
+                sb.append(type.getName());
+            }
+        } else {
+            // @Todo
         }
         sb.append(';');
 
@@ -814,7 +820,7 @@ public abstract class IndexedElement extends AstElement {
 //                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
 //            }
         if (type != null) {
-            String typeName = JavaUtilities.getTypeName(type, false).toString();
+            String typeName = JavaUtilities.getTypeName(type, true).toString();
             sb.append(typeName);
         }
         sb.append(';');
