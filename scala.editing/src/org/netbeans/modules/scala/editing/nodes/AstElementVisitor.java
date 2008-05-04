@@ -41,7 +41,6 @@ package org.netbeans.modules.scala.editing.nodes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.scala.editing.nodes.FunRef.ApplyRef;
@@ -1869,6 +1868,7 @@ public class AstElementVisitor extends AstVisitor {
         }
 
         expr.setBase(base);
+        AstElement currBase = base;
 
         if (typeArgsNode != null) {
             List<TypeRef> typeArgs = visitTypeArgs(typeArgsNode);
@@ -1889,11 +1889,7 @@ public class AstElementVisitor extends AstVisitor {
                 FunRef funRef = new FunRef(callId.getIdToken(), ElementKind.CALL);
                 if (paths.size() > 1) {
                     paths.remove(callId);
-                    Token beginToken = paths.get(0).getIdToken();
-                    Token endToken = paths.get(paths.size() - 1).getIdToken();
-                    SimpleExpr baseExpr = new SimpleExpr(new Token[]{beginToken, endToken});
-                    baseExpr.setBase(pathId);
-                    funRef.setBase(baseExpr);
+                    funRef.setBase(pathId);
                     funRef.setCall(callId);
                 } else {
                     funRef.setCall(callId);
@@ -1910,32 +1906,31 @@ public class AstElementVisitor extends AstVisitor {
                     scopeStack.peek().addRef(idRef);
                 }
 
+                currBase = funRef;
             } else {
                 // Similest case, only one PathId
                 IdRef idRef = new IdRef(firstId.getName(), firstId.getIdToken(), ElementKind.VARIABLE);
 
                 scopeStack.peek().addRef(idRef);
+                
+                currBase = idRef;
 
                 if (paths.size() > 1) {
                     // first's field
                     Id fieldId = paths.get(paths.size() - 1);
                     FieldRef fieldRef = new FieldRef(fieldId.getIdToken());
                     paths.remove(fieldId);
-                    Token beginToken = paths.get(0).getIdToken();
-                    Token endToken = paths.get(paths.size() - 1).getIdToken();
-                    SimpleExpr baseExpr = new SimpleExpr(new Token[]{beginToken, endToken});
-                    baseExpr.setBase(pathId);
-                    fieldRef.setBase(baseExpr);
+                    fieldRef.setBase(pathId);
                     fieldRef.setField(fieldId);
 
                     scopeStack.peek().addRef(fieldRef);
+                    
+                    currBase = fieldRef;
                 }
-
             }
 
         }        
 
-        AstElement currBase = base;
         List<AstRef> memberChain = null;
         for (Object o : memberList) {
             if (memberChain == null) {
@@ -1947,6 +1942,7 @@ public class AstElementVisitor extends AstVisitor {
             } else if (member instanceof FieldRef) {
                 ((FieldRef) member).setBase(currBase);
             }
+            
             currBase = member;
             
             scopeStack.peek().addRef(member);
