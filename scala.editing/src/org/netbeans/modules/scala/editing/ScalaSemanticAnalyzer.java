@@ -41,6 +41,7 @@ package org.netbeans.modules.scala.editing;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.text.Document;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
@@ -85,8 +86,8 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             return;
         }
 
-        ScalaParserResult result = AstUtilities.getParserResult(info);
-        if (result == null) {
+        ScalaParserResult pResult = AstUtilities.getParserResult(info);
+        if (pResult == null) {
             return;
         }
 
@@ -94,20 +95,13 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             return;
         }
 
-        AstScope rootScope = result.getRootScope();
+        AstScope rootScope = pResult.getRootScope();
         if (rootScope == null) {
             return;
         }
-        
-        final Document document;
-        try {
-            document = info.getDocument();
-        } catch (Exception e) {
-            Exceptions.printStackTrace(e);
-            return;
-        }
-        final TokenHierarchy th = TokenHierarchy.get(document);
-        new ScalaTypeInferencer(rootScope, th).globalInfer(info);
+                
+        final TokenHierarchy th = pResult.getTokenHierarchy();
+        pResult.toGlobalPhase(info);
 
         Map<OffsetRange, ColoringAttributes> highlights = new HashMap<OffsetRange, ColoringAttributes>(100);
         visitScopeRecursively(info, rootScope, highlights);
@@ -143,6 +137,11 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         final TokenHierarchy th = TokenHierarchy.get(document);
 
         for (AstDef def : scope.getDefs()) {
+            Token idToken = def.getIdToken();
+            if (idToken == null) {
+                continue;
+            }
+
             OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, def.getIdToken());
             switch (def.getKind()) {
                 case MODULE:
@@ -162,9 +161,14 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         }
         
         for (AstRef ref : scope.getRefs()) {
-            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, ref.getIdToken());
+            Token idToken = ref.getIdToken();
+            if (idToken == null) {
+                continue;
+            }
+            
+            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, idToken);
             if (ref instanceof TypeRef) {
-                if (((TypeRef) ref).getQualifiedName().equals(TypeRef.UNRESOLVED)) {
+                if (!((TypeRef) ref).isResolved()) {
                     highlights.put(idRange, ColoringAttributes.UNUSED); // UNDEFINED without default color yet
                 }
             }

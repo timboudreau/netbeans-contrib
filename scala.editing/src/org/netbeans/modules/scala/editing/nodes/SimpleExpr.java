@@ -51,7 +51,7 @@ public class SimpleExpr extends AstExpr implements Postfixable {
     private AstElement base;
     
     private List<TypeRef> typeArgs;
-    private List<AstElement> rest;
+    private List<AstRef> memberChain;
     
     private String prefixOp;
     private Id postfixOp;
@@ -72,8 +72,8 @@ public class SimpleExpr extends AstExpr implements Postfixable {
         this.typeArgs = typeArgs;
     }
     
-    public void setRest(List<AstElement> rest) {
-        this.rest = rest;
+    public void setMemberChain(List<AstRef> memberChain) {
+        this.memberChain = memberChain;
     }
 
     public void setPrefix(String prefixOp) {

@@ -72,14 +72,12 @@ public class AstDef extends AstElement {
         return docBoundsTokens;
     }
     
-    @Override
-    public int getOffset(TokenHierarchy th) {
-        return getBindingScope().getOffset(th);
+    public int getBoundsOffset(TokenHierarchy th) {
+        return getBindingScope().getBoundsOffset(th);
     }
     
-    @Override
-    public int getEndOffset(TokenHierarchy th) {
-        return getBindingScope().getEndOffset(th);
+    public int getBoundsEndOffset(TokenHierarchy th) {
+        return getBindingScope().getBoundsEndOffset(th);
     }
 
     public OffsetRange getRange(TokenHierarchy th) {

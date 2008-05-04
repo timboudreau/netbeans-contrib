@@ -254,7 +254,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             /** @Todo: TokenHierarchy.get(doc) may throw NPE, don't why, need further dig */
             try {
                 TokenHierarchy th = TokenHierarchy.get(doc);
-                return def.getOffset(th);
+                return def.getBoundsOffset(th);
             } catch (Exception ex) {
                 return 0;
             }
@@ -264,7 +264,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
             /** @Todo: TokenHierarchy.get(doc) may throw NPE, don't why, need further dig */
             try {
                 TokenHierarchy th = TokenHierarchy.get(doc);
-                return def.getEndOffset(th);
+                return def.getBoundsEndOffset(th);
             } catch (Exception ex) {
                 return 0;
             }

@@ -174,7 +174,9 @@ public class CodeManager {
             for (Diagnostic diag : diagnostics.diagnostics)
             System.out.println(dianosticPrefix + diag.getMessage(null));
             return null;
-        }
+        } else 
+            diagnostics.clear();
+        
 
         Map<String, byte[]> classBytesDone = manager.getClassBytes();
         classBytesDone.putAll(classBytes);

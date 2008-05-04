@@ -44,11 +44,9 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
@@ -58,7 +56,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
@@ -138,7 +135,7 @@ public abstract class IndexedElement extends AstElement {
     protected boolean inherited = true;
     protected ElementKind kind;
     private javax.lang.model.element.Element javaElement;
-    private org.netbeans.api.java.source.ClasspathInfo javaClasspathInfo;
+    private org.netbeans.api.java.source.CompilationInfo javaInfo;
 
     IndexedElement(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
         super(null, null);
@@ -230,10 +227,10 @@ public abstract class IndexedElement extends AstElement {
         return create(element.getName(), base.toString(), "", index, false);
     }
 
-    public void setJavaInfo(javax.lang.model.element.Element javaElement, org.netbeans.api.java.source.ClasspathInfo javaClasspathInfo) {
+    public void setJavaInfo(javax.lang.model.element.Element javaElement, org.netbeans.api.java.source.CompilationInfo javaInfo) {
         assert isJava() : "Only IndexedElement for Java's element has javaElement";
         this.javaElement = javaElement;
-        this.javaClasspathInfo = javaClasspathInfo;
+        this.javaInfo = javaInfo;
     }
 
     public String getSignature() {
@@ -321,7 +318,7 @@ public abstract class IndexedElement extends AstElement {
         }
 
         if (isJava()) {
-            fileObject = JavaUtilities.getFileObject(javaElement, javaClasspathInfo);
+            fileObject = JavaUtilities.getOriginFileObject(javaInfo, javaElement);
         } else if (fileUrl != null && fileUrl.length() > 0) {
             fileObject = ScalaIndex.getFileObject(fileUrl);
             if (fileObject == null) {
@@ -342,23 +339,11 @@ public abstract class IndexedElement extends AstElement {
         return fileObject;
     }
 
-    protected int getAttributeSection(int section) {
-        assert section != 0; // Obtain directly, and logic below (+1) is wrong
-
-        int attributeIndex = 0;
-        for (int i = 0; i < section; i++) {
-            attributeIndex = attributes.indexOf(';', attributeIndex + 1);
-        }
-
-        assert attributeIndex != -1;
-        return attributeIndex + 1;
-    }
-
     int getOffset() {
         int offset = 0;
         if (isJava()) {
             try {
-                offset = JavaUtilities.getOffset(getFileObject(), javaElement);
+                offset = JavaUtilities.getOffset(javaInfo, javaElement);
             } catch (IOException ex) {
             }
         } else {
@@ -381,16 +366,17 @@ public abstract class IndexedElement extends AstElement {
         return OffsetRange.NONE;
     }
 
-    protected String getComments() {
+    String getComment() {
+        String comment = null;
+        
         if (isJava()) {
             try {
-                String comment = JavaUtilities.getJavaDoc(getFileObject(), javaElement);
-                if (comment != null) {
-                    return "/**" + comment + "*/";
+                String docComment = JavaUtilities.getJavaDoc(javaInfo, javaElement);
+                if (docComment != null) {
+                    comment = "/**" + docComment + "*/";
                 }
-                return null;
             } catch (IOException ex) {
-                return null;
+                Exceptions.printStackTrace(ex);
             }
         } else {
             OffsetRange range = getDocRange();
@@ -399,21 +385,17 @@ public abstract class IndexedElement extends AstElement {
             }
             try {
                 BaseDocument doc = (BaseDocument) getDocument();
-                if (doc == null) {
-                    return null;
-                }
-                if (range.getEnd() < doc.getLength()) {
-                    return doc.getText(range.getStart(), range.getLength());
+                if (doc != null && range.getEnd() < doc.getLength()) {
+                    comment = doc.getText(range.getStart(), range.getLength());
                 }
             } catch (BadLocationException ex) {
                 Exceptions.printStackTrace(ex);
             } catch (IOException ioe) {
                 Exceptions.printStackTrace(ioe);
-                return null;
             }
-
-            return null;
         }
+        
+        return comment;
     }
 
     public String getTypeString() {
@@ -482,6 +464,18 @@ public abstract class IndexedElement extends AstElement {
 
         return null;
     }
+    
+    int getAttributeSection(int section) {
+        assert section != 0; // Obtain directly, and logic below (+1) is wrong
+
+        int attributeIndex = 0;
+        for (int i = 0; i < section; i++) {
+            attributeIndex = attributes.indexOf(';', attributeIndex + 1);
+        }
+
+        assert attributeIndex != -1;
+        return attributeIndex + 1;
+    }    
 
     /** Return a string (suitable for persistence) encoding the given flags */
     public static String encode(int flags) {
@@ -663,7 +657,7 @@ public abstract class IndexedElement extends AstElement {
         sb.append(';');
         index++;
         assert index == IndexedElement.NODE_INDEX;
-        sb.append(IndexedElement.encode(element.getOffset(th)));
+        sb.append(IndexedElement.encode(element.getPickOffset(th)));
 
         // Documentation offset
         sb.append(';');
@@ -696,7 +690,13 @@ public abstract class IndexedElement extends AstElement {
 //                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
 //            }
         if (type != null) {
-            sb.append(type.getName());
+            if (type.isResolved()) {
+                sb.append(type.getQualifiedName());
+            } else {
+                sb.append(type.getName());
+            }
+        } else {
+            // @Todo
         }
         sb.append(';');
 
@@ -820,7 +820,7 @@ public abstract class IndexedElement extends AstElement {
 //                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
 //            }
         if (type != null) {
-            String typeName = JavaUtilities.getTypeName(type, false).toString();
+            String typeName = JavaUtilities.getTypeName(type, true).toString();
             sb.append(typeName);
         }
         sb.append(';');
@@ -829,7 +829,7 @@ public abstract class IndexedElement extends AstElement {
     }
 
     private static OffsetRange getDocumentationOffset(AstElement element, TokenHierarchy th) {
-        int astOffset = element.getOffset(th);
+        int astOffset = element.getPickOffset(th);
         // XXX This is wrong; I should do a
         //int lexOffset = LexUtilities.getLexerOffset(result, astOffset);
         // but I don't have the CompilationInfo in the ParseResult handed to the indexer!!
@@ -995,18 +995,16 @@ public abstract class IndexedElement extends AstElement {
         return null;
     }
 
-    public static String getHtmlSignature(ElementHandle element) {
+    public static String getHtmlSignature(IndexedElement element) {
         StringBuilder sb = new StringBuilder();
-        IndexedElement indexedElement = null;
-        if (element instanceof IndexedElement) {
-            indexedElement = (IndexedElement) element;
-        }
 
+        IndexedElement indexedElement = element;
         // Insert browser icons... TODO - consult flags etc.
         sb.append("<table width=\"100%\" border=\"0\"><tr>\n"); // NOI18N
 
         sb.append("<td>"); // NOI18N
 
+        /** none indexedElement getIn() may cause none enclosingScope error */
         if (element.getIn() != null) {
             String in = element.getIn();
             if (in != null && in.length() > 0) {
@@ -1074,10 +1072,10 @@ public abstract class IndexedElement extends AstElement {
 
             }
             sb.append(")"); // NOI18N
-            
+
             sb.append(" :").append(executable.getTypeString());
         }
-        
+
         sb.append("</td>\n"); // NOI18N
         sb.append("</tr></table>"); // NOI18N
 
