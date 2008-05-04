@@ -1814,7 +1814,8 @@ public class AstElementVisitor extends AstVisitor {
             PathId id = visitPath(baseNode);
             base = id;
         } else if (baseNode.getName().equals("WildKey")) {
-            visitChildren(baseNode);
+            Id id = visitId(baseNode);
+            base = id;
         } else if (baseNode.getName().equals("ParenExpr")) {
             visitChildren(baseNode);
         } else if (baseNode.getName().equals("BlockExpr")) {
@@ -1862,7 +1863,7 @@ public class AstElementVisitor extends AstVisitor {
                 Object next = rest.get(0);
 
                 if (next instanceof ArgumentExprs) {
-                    // Function call
+                    // Function ref
                     List<Id> paths = id.getPaths();
                     Id callId = paths.get(paths.size() - 1);
                     FunRef funRef = new FunRef(callId.getIdToken(), ElementKind.CALL);
@@ -1888,7 +1889,8 @@ public class AstElementVisitor extends AstVisitor {
 
                         scopeStack.peek().addRef(idRef);
                     }
-                } else if (next instanceof PathId) {
+                } else if (next instanceof Id) {
+                    // field ref
                 }
             } else {
                 // Similest case, only one PathId
@@ -1916,9 +1918,14 @@ public class AstElementVisitor extends AstVisitor {
 
         }
 
-        if (that.size() == 4) {
+        GNode error = that.getGeneric(3);
+        if (error != null) {
+            visitError(error);
+        }
+
+        if (that.size() == 5) {
             // Type
-            GNode typeNode = that.getGeneric(3);
+            GNode typeNode = that.getGeneric(4);
             if (typeNode != null) {
                 TypeRef type = visitType(typeNode);
                 expr.setType(type);
@@ -1934,26 +1941,16 @@ public class AstElementVisitor extends AstVisitor {
     public AstElement visitSimpleExprRest(GNode that) {
         enter(that);
 
-        AstElement element = null;
+        AstElement element;
 
-        Object what = that.get(0);
-        if (what instanceof GNode) {
-            GNode whatNode = (GNode) what;
-            if (whatNode.getName().equals("PathRest")) {
-                PathId pathId = visitPath(whatNode.getGeneric(0));
-                element = pathId;
-            } else {
-                element = visitArgumentExprs(whatNode);
-            }
+        GNode what = that.getGeneric(0);
+        if (what.getName().equals("Field")) {
+            element = visitId(what.getGeneric(0));
+        } else if (what.getName().equals("ArgumentExprs")) {
+            element = visitArgumentExprs(what);
         } else {
-            element = new AstElement(
-                    ElementKind.OTHER) {
-
-                @Override
-                public String getName() {
-                    return "_";
-                }
-            };
+            // "_"
+            element = visitId(what);
         }
 
         exit(that);
