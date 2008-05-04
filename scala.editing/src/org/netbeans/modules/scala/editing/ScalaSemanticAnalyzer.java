@@ -41,6 +41,7 @@ package org.netbeans.modules.scala.editing;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.text.Document;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
@@ -136,6 +137,11 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         final TokenHierarchy th = TokenHierarchy.get(document);
 
         for (AstDef def : scope.getDefs()) {
+            Token idToken = def.getIdToken();
+            if (idToken == null) {
+                continue;
+            }
+
             OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, def.getIdToken());
             switch (def.getKind()) {
                 case MODULE:
@@ -155,7 +161,12 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         }
         
         for (AstRef ref : scope.getRefs()) {
-            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, ref.getIdToken());
+            Token idToken = ref.getIdToken();
+            if (idToken == null) {
+                continue;
+            }
+            
+            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, idToken);
             if (ref instanceof TypeRef) {
                 if (!((TypeRef) ref).isResolved()) {
                     highlights.put(idRange, ColoringAttributes.UNUSED); // UNDEFINED without default color yet

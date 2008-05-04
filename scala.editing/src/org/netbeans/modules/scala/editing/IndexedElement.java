@@ -657,7 +657,7 @@ public abstract class IndexedElement extends AstElement {
         sb.append(';');
         index++;
         assert index == IndexedElement.NODE_INDEX;
-        sb.append(IndexedElement.encode(element.getOffset(th)));
+        sb.append(IndexedElement.encode(element.getPickOffset(th)));
 
         // Documentation offset
         sb.append(';');
@@ -823,7 +823,7 @@ public abstract class IndexedElement extends AstElement {
     }
 
     private static OffsetRange getDocumentationOffset(AstElement element, TokenHierarchy th) {
-        int astOffset = element.getOffset(th);
+        int astOffset = element.getPickOffset(th);
         // XXX This is wrong; I should do a
         //int lexOffset = LexUtilities.getLexerOffset(result, astOffset);
         // but I don't have the CompilationInfo in the ParseResult handed to the indexer!!

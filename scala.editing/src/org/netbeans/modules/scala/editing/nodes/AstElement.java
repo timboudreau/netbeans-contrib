@@ -106,19 +106,21 @@ public class AstElement implements ElementHandle {
         return idToken;
     }
     
-    public int getOffset(TokenHierarchy th) {
+    public int getPickOffset(TokenHierarchy th) {
         if (idToken != null) {
             return idToken.offset(th);
         } else {
-            return 0;
+            assert false : getName() + ": Should implement getOffset(th)";
+            return -1;
         }
     }
     
-    public int getEndOffset(TokenHierarchy th) {
+    public int getPickEndOffset(TokenHierarchy th) {
         if (idToken != null) {
             return idToken.offset(th) + idToken.length();
         } else {
-            return 0;
+            assert false : getName() + ": Should implement getOffset(th)";
+            return -1;
         }
     }
     

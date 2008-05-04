@@ -36,7 +36,6 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.api.lexer.Token;
@@ -44,22 +43,23 @@ import org.netbeans.modules.gsf.api.ElementKind;
 
 /**
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
 public class FieldRef extends AstRef {
-    
-    private AstExpr base;
+
+    /** base may be AstExpr, FunRef, FieldRef, IdRef etc */
+    private AstElement base;
     private Id field;
 
     public FieldRef(Token idToken) {
         super(null, idToken, ElementKind.FIELD);
     }
 
-    public void setBase(AstExpr base) {
+    public void setBase(AstElement base) {
         this.base = base;
     }
 
-    public AstExpr getBase() {
+    public AstElement getBase() {
         return base;
     }
 
@@ -84,6 +84,4 @@ public class FieldRef extends AstRef {
     public TypeRef getType() {
         return field.getType();
     }
-    
-    
 }
