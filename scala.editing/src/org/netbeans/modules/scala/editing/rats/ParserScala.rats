@@ -255,21 +255,19 @@ generic PrefixExpr = ( "-":op / "+":op / "~":op / "!":op )? SimpleExpr ;
 
 /* @DocError in ScalaReference : There is non SimpleExpr with ( void:":":key Type ) */
 generic SimpleExpr = 
-  XmlExpr   TypeArgs? SimpleExprRest* ( void:"." SKIP ErrorIdExpected )?                      
-/ Literal   TypeArgs? SimpleExprRest* ( void:"." SKIP ErrorIdExpected )?                       
-/ Path      TypeArgs? SimpleExprRest* ( void:"." SKIP ErrorIdExpected )? ( void:":":key Type )? 
-/ WildKey   TypeArgs? SimpleExprRest* ( void:"." SKIP ErrorIdExpected )?                          
-/ ParenExpr TypeArgs? SimpleExprRest* ( void:"." SKIP ErrorIdExpected )? ( void:":":key Type )? 
-/ BlockExpr TypeArgs? SimpleExprRest* ( void:"." SKIP ErrorIdExpected )?                          
-/ NewExpr   TypeArgs? SimpleExprRest* ( void:"." SKIP ErrorIdExpected )?                       
+  XmlExpr   TypeArgs?                Member* ( void:"." SKIP ErrorIdExpected )?                      
+/ Literal   TypeArgs?                Member* ( void:"." SKIP ErrorIdExpected )?                       
+/ Path      TypeArgs? ArgumentExprs? Member* ( void:"." SKIP ErrorIdExpected )? ( void:":":key Type )? 
+/ WildKey   TypeArgs?                Member* ( void:"." SKIP ErrorIdExpected )?                          
+/ ParenExpr TypeArgs?                Member* ( void:"." SKIP ErrorIdExpected )? ( void:":":key Type )? 
+/ BlockExpr TypeArgs?                Member* ( void:"." SKIP ErrorIdExpected )?                          
+/ NewExpr   TypeArgs?                Member* ( void:"." SKIP ErrorIdExpected )?                       
 ;
 
-generic SimpleExprRest = 
-  Field
-/ ArgumentExprs
+generic Member = 
+  void:".":sep Id TypeArgs? ArgumentExprs?
+/ ArgumentExprs // apply
 / WildKey;
-
-transient generic Field = void:".":sep Id TypeArgs? ;
 
 transient generic NewExpr = 
   void:"new":key ( ClassTemplate / TemplateBody)

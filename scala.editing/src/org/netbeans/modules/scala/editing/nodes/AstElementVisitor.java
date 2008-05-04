@@ -40,12 +40,14 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import xtc.tree.GNode;
 import xtc.tree.Node;
+import xtc.util.Pair;
 
 /**
  *
@@ -1807,24 +1809,51 @@ public class AstElementVisitor extends AstVisitor {
 
         AstElement base = null;
         GNode baseNode = that.getGeneric(0);
+        GNode typeArgsNode = null;
+        Pair memberList = null;
+        GNode errorNode = null;
+        GNode typeNode = null;
         if (baseNode.getName().equals("XmlExpr")) {
             visitChildren(baseNode);
+            typeArgsNode = that.getGeneric(1);
+            memberList = that.getList(2);
+            errorNode = that.getGeneric(3);
         } else if (baseNode.getName().equals("Literal")) {
             Literal literal = visitLiteral(baseNode);
             base = literal;
+            typeArgsNode = that.getGeneric(1);
+            memberList = that.getList(2);
+            errorNode = that.getGeneric(3);
         } else if (baseNode.getName().equals("Path")) {
             PathId id = visitPath(baseNode);
             base = id;
+            typeArgsNode = that.getGeneric(1);
+            memberList = that.getList(3);
+            errorNode = that.getGeneric(4);
+            typeNode = that.getGeneric(5);
         } else if (baseNode.getName().equals("WildKey")) {
             Id id = visitId(baseNode);
             base = id;
+            typeArgsNode = that.getGeneric(1);
+            memberList = that.getList(2);
+            errorNode = that.getGeneric(3);
         } else if (baseNode.getName().equals("ParenExpr")) {
             visitChildren(baseNode);
+            typeArgsNode = that.getGeneric(1);
+            memberList = that.getList(2);
+            errorNode = that.getGeneric(3);
+            typeNode = that.getGeneric(4);
         } else if (baseNode.getName().equals("BlockExpr")) {
             visitChildren(baseNode);
+            typeArgsNode = that.getGeneric(1);
+            memberList = that.getList(2);
+            errorNode = that.getGeneric(3);
         } else if (baseNode.getName().equals("NewExpr")) {
             NewExpr newExpr = visitNewExpr(baseNode);
             base = newExpr;
+            typeArgsNode = that.getGeneric(1);
+            memberList = that.getList(2);
+            errorNode = that.getGeneric(3);
         }
 
         if (base == null) {
@@ -1842,71 +1871,65 @@ public class AstElementVisitor extends AstVisitor {
 
         expr.setBase(base);
 
-        List<TypeRef> typeArgs = Collections.<TypeRef>emptyList();
-        GNode typeArgsNode = that.getGeneric(1);
         if (typeArgsNode != null) {
-            typeArgs = visitTypeArgs(typeArgsNode);
+            List<TypeRef> typeArgs = visitTypeArgs(typeArgsNode);
             expr.setTypeArgs(typeArgs);
         }
 
-        List<AstElement> rest = null;
-        for (Object o : that.getList(2).list()) {
-            if (rest == null) {
-                rest = new ArrayList<AstElement>();
+        List<AstRef> memberChain = null;
+        for (Object o : memberList) {
+            if (memberChain == null) {
+                memberChain = new ArrayList<AstRef>();
             }
-            AstElement element = visitSimpleExprRest((GNode) o);
-            rest.add(element);
+            AstRef element = visitMember((GNode) o);
+            memberChain.add(element);
         }
-        if (rest == null) {
-            rest = Collections.<AstElement>emptyList();
+        if (memberChain == null) {
+            memberChain = Collections.<AstRef>emptyList();
         }
-        expr.setRest(rest);
+        expr.setMemberChain(memberChain);
 
-        if (expr.getBase() instanceof PathId) {
-            // SimpleIdExpr
-            PathId id = (PathId) expr.getBase();
-            Id first = id.getPaths().get(0);
+        if (baseNode.getName().equals("Path")) {
+            GNode directArgsNode = that.getGeneric(2);
+            ArgumentExprs args = directArgsNode == null ? null : visitArgumentExprs(directArgsNode);
 
-            if (rest.size() > 0) {
-                Object next = rest.get(0);
+            PathId pathId = (PathId) expr.getBase();
+            List<Id> paths = pathId.getPaths();
+            Id firstId = paths.get(0);
 
-                if (next instanceof ArgumentExprs) {
-                    // Function ref
-                    List<Id> paths = id.getPaths();
-                    Id callId = paths.get(paths.size() - 1);
-                    FunRef funRef = new FunRef(callId.getIdToken(), ElementKind.CALL);
-                    if (paths.size() > 1) {
-                        paths.remove(callId);
-                        Token beginToken = paths.get(0).getIdToken();
-                        Token endToken = paths.get(paths.size() - 1).getIdToken();
-                        SimpleExpr baseExpr = new SimpleExpr(new Token[]{beginToken, endToken});
-                        baseExpr.setBase(id);
-                        funRef.setBase(baseExpr);
-                        funRef.setCall(callId);
-                    } else {
-                        funRef.setCall(callId);
-                        funRef.setLocal();
-                    }
-
-                    funRef.setParams(((ArgumentExprs) rest.get(0)).getArgs());
-
-                    scopeStack.peek().addRef(funRef);
-
-                    if (!funRef.isLocal()) {
-                        IdRef idRef = new IdRef(first.getName(), first.getIdToken(), ElementKind.VARIABLE);
-
-                        scopeStack.peek().addRef(idRef);
-                    }
-                } else if (next instanceof Id) {
-                    // field ref
+            if (args != null) {
+                // Function ref, we should fetch last id of Paths as call name of funRef
+                Id callId = paths.get(paths.size() - 1);
+                FunRef funRef = new FunRef(callId.getIdToken(), ElementKind.CALL);
+                if (paths.size() > 1) {
+                    paths.remove(callId);
+                    Token beginToken = paths.get(0).getIdToken();
+                    Token endToken = paths.get(paths.size() - 1).getIdToken();
+                    SimpleExpr baseExpr = new SimpleExpr(new Token[]{beginToken, endToken});
+                    baseExpr.setBase(pathId);
+                    funRef.setBase(baseExpr);
+                    funRef.setCall(callId);
+                } else {
+                    funRef.setCall(callId);
+                    funRef.setLocal();
                 }
+
+                funRef.setParams(args.getArgs());
+
+                scopeStack.peek().addRef(funRef);
+
+                if (!funRef.isLocal()) {
+                    IdRef idRef = new IdRef(firstId.getName(), firstId.getIdToken(), ElementKind.VARIABLE);
+
+                    scopeStack.peek().addRef(idRef);
+                }
+
             } else {
                 // Similest case, only one PathId
-                IdRef idRef = new IdRef(first.getName(), first.getIdToken(), ElementKind.VARIABLE);
+                IdRef idRef = new IdRef(firstId.getName(), firstId.getIdToken(), ElementKind.VARIABLE);
 
                 scopeStack.peek().addRef(idRef);
 
-                List<Id> paths = id.getPaths();
                 if (paths.size() > 1) {
                     // first's field
                     Id fieldId = paths.get(paths.size() - 1);
@@ -1915,7 +1938,7 @@ public class AstElementVisitor extends AstVisitor {
                     Token beginToken = paths.get(0).getIdToken();
                     Token endToken = paths.get(paths.size() - 1).getIdToken();
                     SimpleExpr baseExpr = new SimpleExpr(new Token[]{beginToken, endToken});
-                    baseExpr.setBase(id);
+                    baseExpr.setBase(pathId);
                     fieldRef.setBase(baseExpr);
                     fieldRef.setField(fieldId);
 
@@ -1924,45 +1947,51 @@ public class AstElementVisitor extends AstVisitor {
 
             }
 
+
         }
 
-        GNode error = that.getGeneric(3);
-        if (error != null) {
-            visitError(error);
+        if (errorNode != null) {
+            visitError(errorNode);
         }
 
-        if (that.size() == 5) {
+        if (typeNode != null) {
             // Type
-            GNode typeNode = that.getGeneric(4);
-            if (typeNode != null) {
-                TypeRef type = visitType(typeNode);
-                expr.setType(type);
+            TypeRef type = visitType(typeNode);
+            expr.setType(type);
 
-                scopeStack.peek().addRef(type);
-            }
+            scopeStack.peek().addRef(type);
         }
 
         exit(that);
         return expr;
     }
 
-    public AstElement visitSimpleExprRest(GNode that) {
+    public AstRef visitMember(GNode that) {
         enter(that);
 
-        AstElement element;
+        AstRef ref;
 
         GNode what = that.getGeneric(0);
-        if (what.getName().equals("Field")) {
-            element = visitId(what.getGeneric(0));
+        if (what.getName().equals("WildKey")) {
+            Id id = visitId(what);
+            ref = new IdRef("_", id.getIdToken(), ElementKind.OTHER);
         } else if (what.getName().equals("ArgumentExprs")) {
-            element = visitArgumentExprs(what);
+            // apply call
+            ArgumentExprs args = visitArgumentExprs(what);
+            // @todo
+            ref = new IdRef("apply", args.getIdToken(), ElementKind.OTHER);
         } else {
-            // "_"
-            element = visitId(what);
+            // void:".":sep Id TypeArgs? ArgumentExprs?
+            Id id = visitId(what);
+            GNode argsNode = that.getGeneric(1);
+            if (argsNode != null) {
+                ArgumentExprs args = visitArgumentExprs(argsNode);
+            }
+            ref = new FieldRef(id.getIdToken());
         }
 
         exit(that);
-        return element;
+        return ref;
     }
 
     public NewExpr visitNewExpr(GNode that) {
