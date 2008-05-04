@@ -110,7 +110,12 @@ public class ScalaTypeInferencer {
         if (base instanceof PathId) {
             /** Try to find an AstRef, so we can infer its type via it's def */
             Id firstId = ((PathId) base).getPaths().get(0);
-            AstElement firstIdRef = rootScope.getDefRef(th, firstId.getIdToken().offset(th));
+            AstElement firstIdRef = rootScope.getDefRef(th, firstId.getPickOffset(th));
+            if (firstIdRef == null) {
+                // @Todo why this will happen?
+                System.out.println("Null IdRef of base:" + base.toString());
+                return;
+            }
             AstDef def = rootScope.findDef(firstIdRef);
             TypeRef type = null;
             if (def != null) {
