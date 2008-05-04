@@ -122,9 +122,9 @@ public class ScalaTypeInferencer {
             if (type != null) {
                 if (firstIdRef.getType() != null) {
                     // @Todo check type of firstId with def's type 
-                    } else {
-                    firstId.setType(def.getType());
-                    firstIdRef.setType(def.getType());
+                } else {
+                    firstId.setType(type);
+                    firstIdRef.setType(type);
                 }
             }
         }
@@ -189,14 +189,14 @@ public class ScalaTypeInferencer {
 
             String simpleName = toResolve.getName();
             boolean resolved = false;
-            
+
             // 1. search imported types first
             List<Import> imports = toResolve.getEnclosingScope().getDefsInScope(Import.class);
             for (Import importExpr : imports) {
                 if (!importExpr.isWild()) {
                     continue;
                 }
-                
+
                 String pkgName = importExpr.getPackageName() + ".";
                 for (IndexedElement element : getImportedTypes(index, pkgName)) {
                     if (element instanceof IndexedType) {
@@ -207,22 +207,22 @@ public class ScalaTypeInferencer {
                         }
                     }
                 }
-                
+
                 if (resolved) {
                     break;
                 }
             }
-                        
+
             if (resolved) {
                 continue;
             }
-            
+
             // 2. search "scala" packages 
             for (Import importExpr : imports) {
                 if (!importExpr.isWild()) {
                     continue;
                 }
-                
+
                 /* package name starts with "scala" can omit "scala" */
                 String pkgName = "scala." + importExpr.getPackageName() + ".";
                 for (IndexedElement element : getScalaPackageTypes(index, pkgName)) {
@@ -234,12 +234,12 @@ public class ScalaTypeInferencer {
                         }
                     }
                 }
-                
+
                 if (resolved) {
                     break;
                 }
             }
-                        
+
             if (resolved) {
                 continue;
             }
@@ -257,7 +257,7 @@ public class ScalaTypeInferencer {
                     }
                 }
             }
-                                    
+
             if (resolved) {
                 continue;
             }
@@ -287,7 +287,6 @@ public class ScalaTypeInferencer {
         return idxElements;
     }
 
-    
     private Set<IndexedElement> getImportedTypes(ScalaIndex index, String pkgName) {
         if (importedTypesCache == null) {
             importedTypesCache = new HashMap<String, Set<IndexedElement>>();
@@ -302,7 +301,7 @@ public class ScalaTypeInferencer {
 
         return idxElements;
     }
-    
+
     private Set<IndexedElement> getPackageTypes(ScalaIndex index, Packaging packaging) {
         if (packageTypesCache == null) {
             packageTypesCache = new HashMap<Packaging, Set<IndexedElement>>();
@@ -316,6 +315,6 @@ public class ScalaTypeInferencer {
             packageTypesCache.put(packaging, idxElements);
         }
 
-        return idxElements;        
+        return idxElements;
     }
 }

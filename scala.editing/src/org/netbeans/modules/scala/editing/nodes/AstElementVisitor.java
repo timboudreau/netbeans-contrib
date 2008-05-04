@@ -1695,8 +1695,10 @@ public class AstElementVisitor extends AstVisitor {
             visitChildren(what);
         }
 
-        if (expr != null && !hasAddedToScope) {
-            scopeStack.peek().addExpr(expr);
+        if (expr != null) {
+            if (!hasAddedToScope) {
+                scopeStack.peek().addExpr(expr);
+            }
         } else {
             /** @Todo */
             expr = new AstExpr(getBoundsTokens(that));
@@ -1847,10 +1849,16 @@ public class AstElementVisitor extends AstVisitor {
             expr.setTypeArgs(typeArgs);
         }
 
-        List<AstElement> rest = new ArrayList<AstElement>();
+        List<AstElement> rest = null;
         for (Object o : that.getList(2).list()) {
+            if (rest == null) {
+                rest = new ArrayList<AstElement>();
+            }
             AstElement element = visitSimpleExprRest((GNode) o);
             rest.add(element);
+        }
+        if (rest == null) {
+            rest = Collections.<AstElement>emptyList();
         }
         expr.setRest(rest);
 
