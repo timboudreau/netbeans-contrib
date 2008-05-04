@@ -788,15 +788,33 @@ public class JavaUtilities {
     }
 
     public static int getOffset(CompilationInfo info, final Element e) throws IOException {
-        int offset = -1;
+        final int[] offset = new int[]{-1};
 
         FileObject originFo = getOriginFileObject(info, e);
-        final CompilationInfo[] infos = new CompilationInfo[]{null};
+
+        /** @Note
+         * We should create a element handle and a new CompilationInfo, then resolve
+         * a new element from this hanlde and info
+         */
+        final ElementHandle handle = ElementHandle.create(e);
 
         JavaSource source = JavaSource.forFileObject(originFo);
         if (JavaSourceAccessor.getINSTANCE().isDispatchThread()) {
             // already under javac's lock
-            infos[0] = JavaSourceAccessor.getINSTANCE().getCurrentCompilationInfo(source, Phase.RESOLVED);
+            CompilationInfo newInfo = JavaSourceAccessor.getINSTANCE().getCurrentCompilationInfo(source, Phase.RESOLVED);
+
+            Element el = handle.resolve(newInfo);
+            FindDeclarationVisitor v = new FindDeclarationVisitor(el, newInfo);
+
+            CompilationUnitTree cu = newInfo.getCompilationUnit();
+
+            v.scan(cu, null);
+            Tree elTree = v.declTree;
+
+            if (elTree != null) {
+                offset[0] = (int) newInfo.getTrees().getSourcePositions().getStartPosition(cu, elTree);
+            }
+
         } else {
             try {
                 source.runUserActionTask(new Task<CompilationController>() {
@@ -804,7 +822,19 @@ public class JavaUtilities {
                     public void run(CompilationController controller) throws Exception {
                         controller.toPhase(Phase.RESOLVED);
 
-                        infos[0] = controller;
+                        CompilationInfo newInfo = controller;
+                        
+                        Element el = handle.resolve(newInfo);
+                        FindDeclarationVisitor v = new FindDeclarationVisitor(el, newInfo);
+
+                        CompilationUnitTree cu = newInfo.getCompilationUnit();
+
+                        v.scan(cu, null);
+                        Tree elTree = v.declTree;
+
+                        if (elTree != null) {
+                            offset[0] = (int) newInfo.getTrees().getSourcePositions().getStartPosition(cu, elTree);
+                        }
                     }
                 }, true);
             } catch (IOException ex) {
@@ -813,21 +843,7 @@ public class JavaUtilities {
 
         }
 
-        if (infos[0] != null) {
-            FindDeclarationVisitor v = new FindDeclarationVisitor(e, infos[0]);
-
-            CompilationUnitTree cu = infos[0].getCompilationUnit();
-
-            v.scan(cu, null);
-            Tree elTree = v.declTree;
-
-            if (elTree != null) {
-                offset = (int) infos[0].getTrees().getSourcePositions().getStartPosition(cu, elTree);
-            }
-
-        }
-
-        return offset;
+        return offset[0];
     }
 
     // Private innerclasses ----------------------------------------------------
