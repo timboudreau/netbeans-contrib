@@ -150,7 +150,7 @@ public abstract class AstVisitor extends Visitor {
         }
 
         ts.move(loc.endOffset);
-        if (!ts.moveNext() && !ts.movePrevious()) {
+        if (!ts.movePrevious() && !ts.moveNext()) {
             assert false : "Should not happen!";
         }
         Token endToken = ScalaLexUtilities.findPreviousNonWs(ts);
