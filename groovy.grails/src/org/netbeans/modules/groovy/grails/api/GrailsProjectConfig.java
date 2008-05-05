@@ -50,7 +50,7 @@ import org.netbeans.modules.groovy.grails.settings.GrailsSettings;
 public class GrailsProjectConfig {
 
     private static final String DEFAULT_PORT = "8080"; // NOI18N
-    
+
     private final Project prj;
 
     private final GrailsSettings settings = GrailsSettings.getInstance();

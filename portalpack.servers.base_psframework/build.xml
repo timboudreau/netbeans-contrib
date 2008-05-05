@@ -48,12 +48,4 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         </makenbm>
     </target>-->
 
-    <target name="create-l10n-kit">
-         <property name="l10nkit-name" value="build/portalpack-servers-base_psframework-l10nkit.zip"/>
-         <delete file= "${l10nkit-name}"/>
-         <zip destfile="${l10nkit-name}"
-           basedir="src"
-           includes="**/Bundle.properties,**/*.html,**/*.htm"
-         />
-    </target>
 </project>
