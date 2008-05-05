@@ -22,25 +22,34 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 <!-- You may freely edit this file. See harness/README in the NetBeans platform -->
 <!-- for some information on what you could do (e.g. targets to override). -->
 <!-- If you delete this file and reopen the project it will be recreated. -->
-<project name="org.netbeans.modules.portalpack.servers.jnpc" default="netbeans" basedir=".">
-    <description>Builds, tests, and runs the project org.netbeans.modules.portalpack.servers.jnpc.</description>
-    <import file="../../nbbuild/templates/projectized.xml"/>
-    <property name="base.nbm.target.dir" value="build"/>
-   <!-- <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
-        <mkdir dir="build"/>
-        <makenbm file="build/${nbm}"
-                 productdir="${cluster}"
-                 module="${module.jar}"
-                 homepage="${nbm.homepage}"
-                 distribution="${nbm.distribution}"
-                 needsrestart="${nbm.needs.restart}"
-                 global="${nbm.is.global}"
-                 releasedate="${nbm.release.date}"
-		 moduleauthor="${nbm.module.author}">
-            <license file="${basedir}/../../LICENSE"/>
-           
-            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-        </makenbm>
-    </target>-->
-   
+<project name="ml-build" default="netbeans" basedir="../">
+    
+    <description>Portal Pack ML build</description>
+    <import file="../build.xml"/>
+    <target name="create-l10n-kit">
+         <property name="l10nkit-dir" value="build/l10n"/>
+         <property name="l10nkit-zip" value="build/portalpack-visualweb-l10nkit.zip"/>
+         <delete dir="${l10nkit-dir}"/>
+         <delete file="${l10nkit-zip}"/>
+         
+         <mkdir dir="${l10nkit-dir}"/>
+         <mkdir dir="${l10nkit-dir}/en"/>
+         
+         <copydir src="src" includes="**/Bundle.properties,**/*.html,**/*.htm" dest="${l10nkit-dir}/en"/>
+
+         <zip destfile="${l10nkit-zip}"
+           basedir="${l10nkit-dir}"
+         />
+    </target>
+    
+    <target name="compile" depends="projectized-common.compile">
+        <copy todir="build/classes">
+             <fileset dir="l10n/ja"/>
+             <fileset dir="l10n/pt_BR"/>
+             <fileset dir="l10n/zh_CN"/>
+       
+         </copy>
+     </target>
+
+      
 </project>
