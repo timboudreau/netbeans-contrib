@@ -106,33 +106,33 @@ class JavaFXCompletionEnvironment {
     private static final Logger logger = Logger.getLogger(JavaFXCompletionEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    private int offset;
-    private String prefix;
+    private int myOffset;
+    private String myPrefix;
     private boolean isCamelCasePrefix;
-    private CompilationController controller;
-    private TreePath path;
-    private SourcePositions sourcePositions;
+    private CompilationController myController;
+    private TreePath treePath;
+    private SourcePositions mySourcePositions;
     private boolean insideForEachExpressiion = false;
-    private Set<? extends TypeMirror> smartTypes = null;
+    private Set<? extends TypeMirror> mySmartTypes = null;
     private JavaFXCompletionQuery query;
 
     JavaFXCompletionEnvironment(int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
         super();
-        this.offset = offset;
-        this.prefix = prefix;
+        this.myOffset = offset;
+        this.myPrefix = prefix;
         this.isCamelCasePrefix = prefix != null && prefix.length() > 1 && JavaFXCompletionQuery.camelCasePattern.matcher(prefix).matches();
-        this.controller = controller;
-        this.path = path;
-        this.sourcePositions = sourcePositions;
+        this.myController = controller;
+        this.treePath = path;
+        this.mySourcePositions = sourcePositions;
         this.query = query;
     }
 
     public int getOffset() {
-        return offset;
+        return myOffset;
     }
 
     public String getPrefix() {
-        return prefix;
+        return myPrefix;
     }
 
     public boolean isCamelCasePrefix() {
@@ -140,19 +140,19 @@ class JavaFXCompletionEnvironment {
     }
 
     public CompilationController getController() {
-        return controller;
+        return myController;
     }
 
     public CompilationUnitTree getRoot() {
-        return path.getCompilationUnit();
+        return treePath.getCompilationUnit();
     }
 
     public TreePath getPath() {
-        return path;
+        return treePath;
     }
 
     public SourcePositions getSourcePositions() {
-        return sourcePositions;
+        return mySourcePositions;
     }
 
     public void insideForEachExpressiion() {
@@ -164,10 +164,10 @@ class JavaFXCompletionEnvironment {
     }
 
     public Set<? extends TypeMirror> getSmartTypes() throws IOException {
-        if (smartTypes == null) {
-            smartTypes = JavaFXCompletionQuery.getSmartTypes(this);
-            if (smartTypes != null) {
-                Iterator<? extends TypeMirror> it = smartTypes.iterator();
+        if (mySmartTypes == null) {
+            mySmartTypes = JavaFXCompletionQuery.getSmartTypes(this);
+            if (mySmartTypes != null) {
+                Iterator<? extends TypeMirror> it = mySmartTypes.iterator();
                 TypeMirror err = null;
                 if (it.hasNext()) {
                     err = it.next();
@@ -177,11 +177,11 @@ class JavaFXCompletionEnvironment {
                 }
                 if (err != null) {
                     HashSet<TypeMirror> st = new HashSet<TypeMirror>();
-                    smartTypes = st;
+                    mySmartTypes = st;
                 }
             }
         }
-        return smartTypes;
+        return mySmartTypes;
     }
     
     void insideFunctionDefinition() throws IOException {
@@ -1345,7 +1345,6 @@ class JavaFXCompletionEnvironment {
     
     private static TokenSequence<JFXTokenId> nextNonWhitespaceToken(TokenSequence<JFXTokenId> ts) {
         while (ts.moveNext()) {
-            int offset = ts.offset();
             switch (ts.token().id()) {
                 case WS:
                 case LINE_COMMENT:
