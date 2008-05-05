@@ -142,6 +142,10 @@ public class ScalaTypeInferencer {
         inferExpr(lhs, rhs.getType());
     }
 
+    
+    // ------ Global infer
+    
+    
     public void globalInfer(CompilationInfo info) {
         ScalaIndex index = ScalaIndex.get(info);
         globalInferRecursively(index, rootScope);
@@ -151,69 +155,7 @@ public class ScalaTypeInferencer {
         for (AstRef ref : scope.getRefs()) {
             TypeRef toResolve = null;
             if (ref instanceof FunRef) {
-
-                FunRef funRef = (FunRef) ref;
-                toResolve = funRef.getType();
-                if (toResolve != null && (toResolve.isResolved() || funRef.getRetType() != null)) {
-                    toResolve = null;
-                    continue;
-                }
-
-                // resolve return type of funRef:
-                AstElement base = funRef.getBase();
-                if (base != null) {
-
-                    String baseTypeStr = null;
-                    TypeRef baseType = base.getType();
-                    if (baseType == null || (baseType != null && !baseType.isResolved())) {
-                        if (base instanceof FunRef) {
-                            baseTypeStr = ((FunRef) base).getRetType();
-                        } else {
-                            // @todo resolve it first
-                        }
-                    } else {
-                        baseTypeStr = baseType.getQualifiedName();
-                    }
-                    if (baseTypeStr == null) {
-                        // @todo resolve it first
-                        continue;
-                    }
-
-                    Id call = funRef.getCall();
-                    String callName = call == null ? "apply" : call.getName();
-
-                    Set<IndexedElement> members = index.getElements(callName, baseTypeStr, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null);
-                    for (IndexedElement member : members) {
-                        if (member instanceof IndexedFunction) {
-                            IndexedFunction idxFunction = (IndexedFunction) member;
-                            if (idxFunction.getParameters().size() == funRef.getParams().size()) {
-                                String idxRetTypeStr = idxFunction.getTypeString();
-                                if (idxRetTypeStr == null) {
-                                    idxRetTypeStr = "void";
-                                }
-                                if (idxRetTypeStr.equals("void")) {
-                                    funRef.setRetType("void");
-                                    break;
-                                }
-                                
-                                int lastDot = idxRetTypeStr.lastIndexOf('.');
-                                if (lastDot == -1) {
-                                    /** @todo try to find pkg of idxFunction */
-                                    String pkgName = "";
-                                    String hisIn = idxFunction.getIn();
-                                    if (hisIn != null) {
-                                        lastDot = hisIn.lastIndexOf('.');
-                                        pkgName = hisIn.substring(0, lastDot + 1); // include '.'
-                                    }
-                                    idxRetTypeStr = pkgName + idxRetTypeStr; // @todo
-                                }
-
-                                funRef.setRetType(idxRetTypeStr);
-                                break;
-                            }
-                        }
-                    }
-                }
+                globalInferFunRef(index, (FunRef) ref);
                 continue;
             } else if (ref instanceof TypeRef) {
                 toResolve = (TypeRef) ref;
@@ -308,6 +250,70 @@ public class ScalaTypeInferencer {
         for (AstScope _Scope : scope.getScopes()) {
             globalInferRecursively(index, _Scope);
         }
+    }
+
+    private void globalInferFunRef(ScalaIndex index, FunRef funRef) {
+        TypeRef retType = funRef.getType();
+        if (retType != null && (retType.isResolved() || funRef.getRetType() != null)) {
+            return;
+        }
+
+        // resolve return type of funRef:
+        AstElement base = funRef.getBase();
+        if (base != null) {
+
+            String baseTypeStr = null;
+            TypeRef baseType = base.getType();
+            if (baseType == null || (baseType != null && !baseType.isResolved())) {
+                if (base instanceof FunRef) {
+                    baseTypeStr = ((FunRef) base).getRetType();
+                } else {
+                    // @todo resolve it first
+                }
+            } else {
+                baseTypeStr = baseType.getQualifiedName();
+            }
+            if (baseTypeStr == null) {
+                // @todo resolve it first
+                return;
+            }
+
+            Id call = funRef.getCall();
+            String callName = call == null ? "apply" : call.getName();
+
+            Set<IndexedElement> members = index.getElements(callName, baseTypeStr, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null);
+            for (IndexedElement member : members) {
+                if (member instanceof IndexedFunction) {
+                    IndexedFunction idxFunction = (IndexedFunction) member;
+                    if (idxFunction.getParameters().size() == funRef.getParams().size()) {
+                        String idxRetTypeStr = idxFunction.getTypeString();
+                        if (idxRetTypeStr == null) {
+                            idxRetTypeStr = "void";
+                        }
+                        if (idxRetTypeStr.equals("void")) {
+                            funRef.setRetType("void");
+                            break;
+                        }
+
+                        int lastDot = idxRetTypeStr.lastIndexOf('.');
+                        if (lastDot == -1) {
+                            /** @todo try to find pkg of idxFunction */
+                            String pkgName = "";
+                            String hisIn = idxFunction.getIn();
+                            if (hisIn != null) {
+                                lastDot = hisIn.lastIndexOf('.');
+                                pkgName = hisIn.substring(0, lastDot + 1); // include '.'
+                            }
+                            idxRetTypeStr = pkgName + idxRetTypeStr; // @todo
+                        }
+
+                        funRef.setRetType(idxRetTypeStr);
+                        break;
+                    }
+                }
+            }
+        }
+
     }
     /* package name starts with "scala" can omit "scala" */
     private static Map<String, Set<IndexedElement>> scalaPackageTypes;

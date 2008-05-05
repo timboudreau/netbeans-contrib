@@ -38,6 +38,7 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.Collections;
 import java.util.List;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -81,7 +82,7 @@ public class FunRef extends AstRef {
     }
 
     public List<AstExpr> getParams() {
-        return params;
+        return params == null ? Collections.<AstExpr>emptyList() : params;
     }
 
     public void setLocal() {
