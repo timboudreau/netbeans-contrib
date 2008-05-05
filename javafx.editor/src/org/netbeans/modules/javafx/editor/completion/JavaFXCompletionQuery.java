@@ -1553,43 +1553,16 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
 
     private void addLocalConstantsAndTypes(final JavaFXCompletionEnvironment env) throws IOException {
         log("addLocalConstantsAndTypes: " + env.getPrefix());
-        for (String s: getIdentifiers(env)) {
-            results.add(JavaFXCompletionItem.createVariableItem(s, anchorOffset, false));
-        }
     }
 
     private void addLocalMembersAndVars(final JavaFXCompletionEnvironment env) throws IOException {
         log("addLocalMembersAndVars: " + env.getPrefix());
-        for (String s: getIdentifiers(env)) {
-            results.add(JavaFXCompletionItem.createVariableItem(s, anchorOffset, false));
-        }
     }
 
     private void addLocalFieldsAndVars(final JavaFXCompletionEnvironment env) throws IOException {
         log("addLocalFieldsAndVars: " + env.getPrefix());
-        for (String s: getIdentifiers(env)) {
-            results.add(JavaFXCompletionItem.createVariableItem(s, anchorOffset, false));
-        }
     }
 
-    private Set<String> getIdentifiers(JavaFXCompletionEnvironment env) {
-        Set<String> res = new HashSet<String>();
-        String prefix = env.getPrefix();
-        TokenSequence<JFXTokenId> ts = env.getController().getTokenHierarchy().tokenSequence(JFXTokenId.language());
-        while (ts.moveNext()) {
-            Token<JFXTokenId> token = ts.token();
-            if (token.id().equals(JFXTokenId.IDENTIFIER)) {
-                String s = token.text().toString();
-                if (s.length() >= 1) {
-                    if (JavaFXCompletionProvider.startsWith(s, prefix)) {
-                        res.add(s);
-                    }
-                }
-            }
-        }
-        return res;
-    }
-    
     private void addPackages(JavaFXCompletionEnvironment env, String fqnPrefix) {
     }
 
@@ -1616,26 +1589,18 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         kws.add(CLASS_KEYWORD);
         kws.add(VAR_KEYWORD);
         kws.add(FUNCTION_KEYWORD);
-//            kws.add(INTERFACE_KEYWORD);
+        kws.add(PUBLIC_KEYWORD);
+        kws.add(IMPORT_KEYWORD);
         boolean beforeAnyClass = true;
-        boolean beforePublicClass = true;
         for (Tree t : cu.getTypeDecls()) {
             if (t.getKind() == Tree.Kind.CLASS) {
                 int pos = (int) sourcePositions.getEndPosition(cu, t);
                 if (pos != Diagnostic.NOPOS && offset >= pos) {
                     beforeAnyClass = false;
-                    if (((ClassTree) t).getModifiers().getFlags().contains(Modifier.PUBLIC)) {
-                        beforePublicClass = false;
-                        break;
-                    }
                 }
             }
         }
-        if (beforePublicClass) {
-            kws.add(PUBLIC_KEYWORD);
-        }
         if (beforeAnyClass) {
-            kws.add(IMPORT_KEYWORD);
             Tree firstImport = null;
             for (Tree t : cu.getImports()) {
                 firstImport = t;
