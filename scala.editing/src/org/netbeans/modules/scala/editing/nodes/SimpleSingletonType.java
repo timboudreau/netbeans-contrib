@@ -76,7 +76,6 @@ public class SimpleSingletonType extends SimpleType {
             }
         }
         sb.append(".type");
-        sb.append(getTypeArgsName());
         return sb.toString();
     }
 

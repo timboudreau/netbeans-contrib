@@ -40,6 +40,7 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.List;
 import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 
 /**
@@ -48,28 +49,38 @@ import org.netbeans.modules.gsf.api.ElementKind;
  */
 public class FunRef extends AstRef {
 
-    private AstExpr base;
+    /** base may be AstExpr, FunRef, FieldRef, IdRef etc */
+    private AstElement base;
     private Id call;
-    private List<AstElement> params;
+    private List<AstExpr> params;
     private boolean local;
+    private String retType;
 
     public FunRef(Token idToken, ElementKind kind) {
         super(null, idToken, kind);
     }
 
-    public void setBase(AstExpr base) {
+    public void setBase(AstElement base) {
         this.base = base;
+    }
+
+    public AstElement getBase() {
+        return base;
     }
 
     public void setCall(Id call) {
         this.call = call;
     }
 
-    public void setParams(List<AstElement> params) {
+    public Id getCall() {
+        return call;
+    }
+
+    public void setParams(List<AstExpr> params) {
         this.params = params;
     }
 
-    public List<AstElement> getParams() {
+    public List<AstExpr> getParams() {
         return params;
     }
 
@@ -87,10 +98,41 @@ public class FunRef extends AstRef {
         if (base != null) {
             TypeRef baseType = base.getType();
             if (baseType != null) {
-                sb.append(baseType.getName());
+                sb.append(" :").append(baseType.getName());
             }
         }
-        sb.append(call.getName());
+        sb.append('.').append(call.getName());
         return sb.toString();
+    }
+
+    public void setRetType(String retType) {
+        this.retType = retType;
+    }
+
+    public String getRetType() {
+        return retType;
+    }
+
+    // ----- Special FunRef
+    public static class ApplyRef extends FunRef {
+
+        public ApplyRef() {
+            super(null, ElementKind.METHOD);
+        }
+
+        @Override
+        public int getPickOffset(TokenHierarchy th) {
+            return getBase().getPickOffset(th);
+        }
+
+        @Override
+        public int getPickEndOffset(TokenHierarchy th) {
+            return getBase().getPickEndOffset(th);
+        }
+                
+        @Override
+        public String getName() {
+            return "apply";
+        }
     }
 }

@@ -38,18 +38,20 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.text.Document;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.SemanticAnalyzer;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.AstRef;
+import org.netbeans.modules.scala.editing.nodes.TypeRef;
 import org.openide.util.Exceptions;
 
 /**
@@ -84,8 +86,8 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             return;
         }
 
-        ScalaParserResult result = AstUtilities.getParserResult(info);
-        if (result == null) {
+        ScalaParserResult pResult = AstUtilities.getParserResult(info);
+        if (pResult == null) {
             return;
         }
 
@@ -93,10 +95,13 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             return;
         }
 
-        AstScope rootScope = result.getRootScope();
+        AstScope rootScope = pResult.getRootScope();
         if (rootScope == null) {
             return;
         }
+                
+        final TokenHierarchy th = pResult.getTokenHierarchy();
+        pResult.toGlobalPhase(info);
 
         Map<OffsetRange, ColoringAttributes> highlights = new HashMap<OffsetRange, ColoringAttributes>(100);
         visitScopeRecursively(info, rootScope, highlights);
@@ -131,9 +136,14 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
 
         final TokenHierarchy th = TokenHierarchy.get(document);
 
-        for (AstElement definition : scope.getDefs()) {
-            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, definition.getIdToken());
-            switch (definition.getKind()) {
+        for (AstDef def : scope.getDefs()) {
+            Token idToken = def.getIdToken();
+            if (idToken == null) {
+                continue;
+            }
+
+            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, def.getIdToken());
+            switch (def.getKind()) {
                 case MODULE:
                     highlights.put(idRange, ColoringAttributes.CLASS);
                     break;
@@ -148,7 +158,20 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
                     break;
                 default:
             }
-
+        }
+        
+        for (AstRef ref : scope.getRefs()) {
+            Token idToken = ref.getIdToken();
+            if (idToken == null) {
+                continue;
+            }
+            
+            OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, idToken);
+            if (ref instanceof TypeRef) {
+                if (!((TypeRef) ref).isResolved()) {
+                    highlights.put(idRange, ColoringAttributes.UNUSED); // UNDEFINED without default color yet
+                }
+            }
         }
 
         for (AstScope child : scope.getScopes()) {

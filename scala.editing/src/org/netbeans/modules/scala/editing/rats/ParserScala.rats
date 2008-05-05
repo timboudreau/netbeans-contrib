@@ -255,21 +255,19 @@ generic PrefixExpr = ( "-":op / "+":op / "~":op / "!":op )? SimpleExpr ;
 
 /* @DocError in ScalaReference : There is non SimpleExpr with ( void:":":key Type ) */
 generic SimpleExpr = 
-  XmlExpr             SimpleExprRest*                        @SimpleXmlExpr
-/ Literal   TypeArgs? SimpleExprRest*                        @SimpleLiteralExpr
-/ Path      TypeArgs? SimpleExprRest* ( void:":":key Type )? @SimpleIdExpr
-/ "_":key   TypeArgs? SimpleExprRest*                        @SimpleWildCardExpr
-/ ParenExpr TypeArgs? SimpleExprRest* ( void:":":key Type )? @SimpleTupleExpr
-/ BlockExpr TypeArgs? SimpleExprRest*                        @SimpleBlockExpr
-/ NewExpr   TypeArgs? SimpleExprRest*                        @SimpleNewExpr
+  XmlExpr   TypeArgs?                Member* ( void:"." SKIP ErrorIdExpected )?                      
+/ Literal   TypeArgs?                Member* ( void:"." SKIP ErrorIdExpected )?                       
+/ Path      TypeArgs? ArgumentExprs? Member* ( void:"." SKIP ErrorIdExpected )? ( void:":":key Type )? 
+/ WildKey   TypeArgs?                Member* ( void:"." SKIP ErrorIdExpected )?                          
+/ ParenExpr TypeArgs?                Member* ( void:"." SKIP ErrorIdExpected )? ( void:":":key Type )? 
+/ BlockExpr TypeArgs?                Member* ( void:"." SKIP ErrorIdExpected )?                          
+/ NewExpr   TypeArgs?                Member* ( void:"." SKIP ErrorIdExpected )?                       
 ;
 
-generic SimpleExprRest = 
-  PathRest
-/ ArgumentExprs
-/ "_":key;
-
-transient generic PathRest = void:".":sep Path TypeArgs? ;
+generic Member = 
+  void:".":sep Id TypeArgs? ArgumentExprs?
+/ ArgumentExprs // apply
+/ WildKey;
 
 transient generic NewExpr = 
   void:"new":key ( ClassTemplate / TemplateBody)
@@ -528,11 +526,9 @@ generic FunDef =
 generic TypeDef = Id TypeParamClause? void:"=":key Type ;
 
 generic TmplDef =
-  DocComment*
-  ( ( "case":key )? void:"class" :key ClassDef
-  / ( "case":key )? void:"object":key ObjectDef
-  /                 void:"trait" :key TraitDef
-  )
+  ( "case":key )? void:"class" :key ClassDef
+/ ( "case":key )? void:"object":key ObjectDef
+/                 void:"trait" :key TraitDef
 ;
 
 transient generic ClassDef  = Id TypeParamClause? Annotation* AccessModifier? ClassParamClauses ClassTemplateOpt ;
@@ -585,5 +581,5 @@ generic TopStat =
 transient generic Packaging = void:"package":key QualId N? void:"{":sep TopStatSeq void:"}":sep ;
 transient generic Package   = void:"package":key QualId SEMI !( "{":sep );
 
-public generic CompilationUnit = SKIP_N DocComment* Package? TopStatSeq EOF;
+public generic CompilationUnit = SKIP_N Package? TopStatSeq EOF;
 

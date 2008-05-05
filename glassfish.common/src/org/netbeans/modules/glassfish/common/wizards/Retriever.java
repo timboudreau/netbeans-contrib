@@ -67,9 +67,9 @@ import org.openide.util.Utilities;
  */
 public class Retriever implements Runnable {
 
-    public static final int LOCATION_DOWNLOAD_TIMEOUT = 3000;
+    public static final int LOCATION_DOWNLOAD_TIMEOUT = 20000;
     public static final int LOCATION_TRIES = 3;
-    public static final int ZIP_DOWNLOAD_TIMEOUT = 30000;
+    public static final int ZIP_DOWNLOAD_TIMEOUT = 120000;
     
     public static final int STATUS_START = 0;
     public static final int STATUS_CONNECTING = 1;
@@ -271,7 +271,7 @@ public class Retriever implements Runnable {
             final InputStream entryStream = jarStream;
             JarEntry entry;
             while(!shutdown && (entry = (JarEntry) jarStream.getNextEntry()) != null) {
-                String entryName = entry.getName();
+                String entryName = stripTopLevelDir(entry.getName());
                 if(entryName == null || entryName.length() == 0) {
                     continue;
                 }
@@ -389,6 +389,29 @@ public class Retriever implements Runnable {
         }
     }
     
+    private static final String TOP_LEVEL_PREFIX = "glassfishv3"; // NOI18N
+    
+    private String stripTopLevelDir(String name) {
+        if(name.startsWith(TOP_LEVEL_PREFIX)) {
+            int slashIndex = slashIndexOf(name, TOP_LEVEL_PREFIX.length());
+            if(slashIndex >= 0) {
+                name = name.substring(slashIndex + 1);
+            }
+        }
+        return name;
+    }
+    
+    private static int slashIndexOf(String s, int offset) {
+        int len = s.length();
+        for(int i = offset; i < len; i++) {
+            char c = s.charAt(i);
+            if(c == '/' || c == '\\') {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
     private File backupInstallDir(File installDir) throws IOException {
         if(installDir.exists()) {
             File parent = installDir.getParentFile();
@@ -430,13 +453,13 @@ public class Retriever implements Runnable {
         } else if(time == 0) {
             builder.append("no time at all");
         } else {
-            if(time > 360000) {
-                int hours = time / 360000;
-                time %= 360000;
+            if(time >= 3600000) {
+                int hours = time / 3600000;
+                time %= 3600000;
                 builder.append(hours);
                 builder.append(hours > 1 ? " hours" : " hour");
             }
-            if(time > 60000) {
+            if(time >= 60000) {
                 if(builder.length() > 0) {
                     builder.append(", ");
                 }
@@ -445,7 +468,7 @@ public class Retriever implements Runnable {
                 builder.append(minutes);
                 builder.append(minutes > 1 ? " minutes" : " minute");
             }
-            if(time > 1000 || builder.length() > 0) {
+            if(time >= 1000 || builder.length() > 0) {
                 if(builder.length() > 0) {
                     builder.append(", ");
                 }

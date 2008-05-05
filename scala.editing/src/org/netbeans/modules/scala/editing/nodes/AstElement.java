@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
@@ -105,6 +106,24 @@ public class AstElement implements ElementHandle {
         return idToken;
     }
     
+    public int getPickOffset(TokenHierarchy th) {
+        if (idToken != null) {
+            return idToken.offset(th);
+        } else {
+            assert false : getName() + ": Should implement getOffset(th)";
+            return -1;
+        }
+    }
+    
+    public int getPickEndOffset(TokenHierarchy th) {
+        if (idToken != null) {
+            return idToken.offset(th) + idToken.length();
+        } else {
+            assert false : getName() + ": Should implement getOffset(th)";
+            return -1;
+        }
+    }
+    
     public ElementKind getKind() {
         return kind;
     }
@@ -149,7 +168,7 @@ public class AstElement implements ElementHandle {
      * @return the scope that encloses this item 
      */
     public AstScope getEnclosingScope() {
-        assert enclosingScope != null : "Each element should set enclosing scope!, except native TypeRef";
+        assert enclosingScope != null : toString() + ": Each element should set enclosing scope!, except native TypeRef";
         return enclosingScope;
     }
 

@@ -230,7 +230,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         FunctionItem(AstElement element, CompletionRequest request) {
             super(element, request);
             assert element.getKind() == ElementKind.METHOD;
-            function = (IndexedFunction) IndexedElement.create(element, request.index);
+            function = (IndexedFunction) IndexedElement.create(element, request.th, request.index);
         }
 
         FunctionItem(IndexedFunction element, CompletionRequest request) {
@@ -585,16 +585,21 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
             return formatter.getText();
         }
+        
+        @Override
+        public boolean isSmart() {
+            return true;
+        }        
     }
     
-    protected static class TemplateItem extends ScalaCompletionItem {
+    protected static class TypeItem extends ScalaCompletionItem {
 
-        TemplateItem(AstElement element, CompletionRequest request) {
+        TypeItem(AstElement element, CompletionRequest request) {
             super(element, request);
 
         }
 
-        TemplateItem(CompletionRequest request, IndexedElement element) {
+        TypeItem(CompletionRequest request, IndexedElement element) {
             super(request, element);
         }
 
