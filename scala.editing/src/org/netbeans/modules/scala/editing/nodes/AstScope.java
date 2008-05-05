@@ -139,7 +139,6 @@ public class AstScope implements Iterable<AstScope> {
             defs = new ArrayList<AstDef>();
         }
         defs.add(def);
-        addScope(def.getBindingScope());
         def.setEnclosingScope(this);
     }
 
