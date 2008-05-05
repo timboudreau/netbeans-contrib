@@ -77,7 +77,11 @@ public class Function extends AstDef {
     @Override
     public boolean referredBy(AstRef ref) {
         if (ref instanceof FunRef) {
-            return getName().equals(ref.getName()) && params.size() == ((FunRef) ref).getParams().size();
+            FunRef funRef = (FunRef) ref;
+            // only check local call only
+            if (funRef.isLocal()) {
+                return getName().equals(funRef.getCall().getName()) && getParams().size() == funRef.getParams().size();
+            }
         }
         
         return false;
