@@ -40,7 +40,7 @@
  */
 package org.netbeans.modules.javafx.editor.semantic;
 
-import com.sun.javafx.api.tree.FunctionDefinitionTree;
+import com.sun.javafx.api.tree.JavaFXTree;
 import com.sun.source.tree.ArrayTypeTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
@@ -52,6 +52,7 @@ import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
+import com.sun.tools.javafx.tree.JFXClassDeclaration;
 import com.sun.tools.javafx.tree.JFXFunctionDefinition;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -271,6 +272,25 @@ public class Utilities {
             return findTokenWithText(info, name, start, end);
         }
         
+        
+        if (leaf instanceof JavaFXTree && JavaFXTree.JavaFXKind.CLASS_DECLARATION == ((JavaFXTree)leaf).getJavaFXKind()) {
+            String name = ((JFXClassDeclaration) leaf).getName().toString();
+            
+            if (name.length() == 0)
+                return null;
+            
+            SourcePositions positions = info.getTrees().getSourcePositions();
+            CompilationUnitTree cu = info.getCompilationUnit();
+            int start = (int)positions.getStartPosition(cu, leaf);
+            int end   = (int)positions.getEndPosition(cu, leaf);
+            
+            if (start == (-1) || end == (-1)) {
+                return null;
+            }
+            
+            return findTokenWithText(info, name, start, end);
+        }
+        
         throw new IllegalArgumentException("Only MethodDecl, VariableDecl and ClassDecl are accepted by this method.");
     }
 
@@ -404,8 +424,10 @@ public class Utilities {
 //        CompilationUnitTree cu = info.getCompilationUnit();
         
         //XXX: do not use instanceof:
-//        if (leaf instanceof MethodTree || leaf instanceof VariableTree || leaf instanceof ClassTree || leaf instanceof MemberSelectTree) {
-        if (leaf instanceof MethodTree || leaf instanceof FunctionDefinitionTree || leaf instanceof VariableTree || leaf instanceof ClassTree || leaf instanceof MemberSelectTree) {
+        if (leaf instanceof MethodTree || leaf instanceof VariableTree || leaf instanceof ClassTree || leaf instanceof JFXClassDeclaration || leaf instanceof MemberSelectTree) {
+//        Element element = info.getTrees().getElement(tree);
+//        ElementKind kind = element.getKind();
+//        if (kind == ElementKind.METHOD || kind == ElementKind.FIELD || kind == ElementKind.LOCAL_VARIABLE || kind == ElementKind.PARAMETER || kind == ElementKind.CLASS) {
             return findIdentifierSpan(info, doc, tree);
         }
         
