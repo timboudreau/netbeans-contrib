@@ -1,3 +1,43 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ *
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ */
 package org.netbeans.modules.javafx.editor.completion;
 
 import com.sun.javafx.api.tree.JavaFXTree;
@@ -182,7 +222,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         READONLY_KEYWORD
     };
 
-    private static Pattern camelCasePattern = Pattern.compile("(?:\\p{javaUpperCase}(?:\\p{javaLowerCase}|\\p{Digit}|\\.|\\$)*){2,}");
+    static Pattern camelCasePattern = Pattern.compile("(?:\\p{javaUpperCase}(?:\\p{javaLowerCase}|\\p{Digit}|\\.|\\$)*){2,}");
     
     List<JavaFXCompletionItem> results;
     private boolean hasAdditionalItems;
@@ -348,7 +388,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
     }
 
     private void resolveCompletion(CompilationController controller) throws IOException {
-        Env env = getCompletionEnvironment(controller);
+        JavaFXCompletionEnvironment env = getCompletionEnvironment(controller);
         results = new ArrayList<JavaFXCompletionItem>();
         anchorOffset = env.getOffset();
         TreePath path = env.getPath();
@@ -566,7 +606,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideFunctionDefinition(Env env) throws IOException {
+    private void insideFunctionDefinition(JavaFXCompletionEnvironment env) throws IOException {
         JFXFunctionDefinition def = (JFXFunctionDefinition) env.getPath().getLeaf();
         int offset = env.getOffset();
         TreePath path = env.getPath();
@@ -624,14 +664,14 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
     
-    private void insideObjectLiteralPart(JavaFXCompletionQuery.Env env) {
+    private void insideObjectLiteralPart(JavaFXCompletionEnvironment env) {
     }
 
-    private void insideClassDeclaration(JavaFXCompletionQuery.Env env) {
+    private void insideClassDeclaration(JavaFXCompletionEnvironment env) {
         addKeywordsForClassBody(env);
     }
 
-    private void insideCompilationUnit(Env env) throws IOException {
+    private void insideCompilationUnit(JavaFXCompletionEnvironment env) throws IOException {
         if (isTreeBroken(env)) {
             // don't do anything in this case
             return;
@@ -659,7 +699,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
      * @param env
      * @return
      */
-    private boolean isTreeBroken(Env env) {
+    private boolean isTreeBroken(JavaFXCompletionEnvironment env) {
         SourcePositions sourcePositions = env.getSourcePositions();
         CompilationUnitTree root = env.getRoot();
         int start = (int) sourcePositions.getStartPosition(root, root);
@@ -668,7 +708,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         return start == -1 || end == -1;
     }
     
-    private void insideImport(Env env) {
+    private void insideImport(JavaFXCompletionEnvironment env) {
         int offset = env.getOffset();
         String prefix = env.getPrefix();
         ImportTree im = (ImportTree) env.getPath().getLeaf();
@@ -679,7 +719,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideClass(Env env) throws IOException {
+    private void insideClass(JavaFXCompletionEnvironment env) throws IOException {
         int offset = env.getOffset();
         TreePath path = env.getPath();
         ClassTree cls = (ClassTree) path.getLeaf();
@@ -765,7 +805,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideVariable(Env env) throws IOException {
+    private void insideVariable(JavaFXCompletionEnvironment env) throws IOException {
         int offset = env.getOffset();
         TreePath path = env.getPath();
         VariableTree var = (VariableTree) path.getLeaf();
@@ -807,7 +847,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideMethod(Env env) throws IOException {
+    private void insideMethod(JavaFXCompletionEnvironment env) throws IOException {
         int offset = env.getOffset();
         String prefix = env.getPrefix();
         TreePath path = env.getPath();
@@ -883,7 +923,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideModifiers(Env env, TreePath modPath) throws IOException {
+    private void insideModifiers(JavaFXCompletionEnvironment env, TreePath modPath) throws IOException {
         int offset = env.getOffset();
         ModifiersTree mods = (ModifiersTree) modPath.getLeaf();
         Set<Modifier> m = EnumSet.noneOf(Modifier.class);
@@ -926,7 +966,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }   
     
-    private void insideFunctionBlock(Env env, com.sun.tools.javac.util.List<JCStatement> statements) throws IOException {
+    private void insideFunctionBlock(JavaFXCompletionEnvironment env, com.sun.tools.javac.util.List<JCStatement> statements) throws IOException {
         SourcePositions sourcePositions = env.getSourcePositions();
         CompilationUnitTree root = env.getRoot();
         int offset = env.getOffset();
@@ -951,7 +991,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         localResult(env);
         addKeywordsForStatement(env);
     }
-    private void insideBlock(Env env) throws IOException {
+    private void insideBlock(JavaFXCompletionEnvironment env) throws IOException {
         int offset = env.getOffset();
         JFXBlockExpression bl = (JFXBlockExpression) env.getPath().getLeaf();
         SourcePositions sourcePositions = env.getSourcePositions();
@@ -985,7 +1025,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         addKeywordsForStatement(env);
     }
 
-    private void insideMemberSelect(Env env) throws IOException {
+    private void insideMemberSelect(JavaFXCompletionEnvironment env) throws IOException {
         int offset = env.getOffset();
         String prefix = env.getPrefix();
         TreePath path = env.getPath();
@@ -1054,7 +1094,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         addLocalMembersAndVars(env);
     }
 
-    private void insideMethodInvocation(Env env) throws IOException {
+    private void insideMethodInvocation(JavaFXCompletionEnvironment env) throws IOException {
         TreePath path = env.getPath();
         MethodInvocationTree mi = (MethodInvocationTree) path.getLeaf();
         int offset = env.getOffset();
@@ -1083,7 +1123,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         addValueKeywords(env);
     }
 
-    private void insideIf(Env env) throws IOException {
+    private void insideIf(JavaFXCompletionEnvironment env) throws IOException {
         IfTree iff = (IfTree) env.getPath().getLeaf();
         if (env.getSourcePositions().getEndPosition(env.getRoot(), iff.getCondition()) <= env.getOffset()) {
             localResult(env);
@@ -1091,7 +1131,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideWhile(Env env) throws IOException {
+    private void insideWhile(JavaFXCompletionEnvironment env) throws IOException {
         WhileLoopTree wlt = (WhileLoopTree) env.getPath().getLeaf();
         if (env.getSourcePositions().getEndPosition(env.getRoot(), wlt.getCondition()) <= env.getOffset()) {
             localResult(env);
@@ -1099,7 +1139,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideFor(Env env) throws IOException {
+    private void insideFor(JavaFXCompletionEnvironment env) throws IOException {
         int offset = env.getOffset();
         TreePath path = env.getPath();
         ForLoopTree fl = (ForLoopTree) path.getLeaf();
@@ -1163,7 +1203,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideForEach(Env env) throws IOException {
+    private void insideForEach(JavaFXCompletionEnvironment env) throws IOException {
         int offset = env.getOffset();
         TreePath path = env.getPath();
         EnhancedForLoopTree efl = (EnhancedForLoopTree) path.getLeaf();
@@ -1189,7 +1229,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         localResult(env);
     }
 
-    private void insideSwitch(Env env) throws IOException {
+    private void insideSwitch(JavaFXCompletionEnvironment env) throws IOException {
         int offset = env.getOffset();
         String prefix = env.getPrefix();
         TreePath path = env.getPath();
@@ -1216,7 +1256,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideCase(Env env) throws IOException {
+    private void insideCase(JavaFXCompletionEnvironment env) throws IOException {
         int offset = env.getOffset();
         TreePath path = env.getPath();
         CaseTree cst = (CaseTree) path.getLeaf();
@@ -1237,7 +1277,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideParens(Env env) throws IOException {
+    private void insideParens(JavaFXCompletionEnvironment env) throws IOException {
         TreePath path = env.getPath();
         ParenthesizedTree pa = (ParenthesizedTree) path.getLeaf();
         SourcePositions sourcePositions = env.getSourcePositions();
@@ -1271,12 +1311,12 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideTypeCheck(Env env) throws IOException {
+    private void insideTypeCheck(JavaFXCompletionEnvironment env) throws IOException {
         InstanceOfTree iot = (InstanceOfTree) env.getPath().getLeaf();
         TokenSequence<JFXTokenId> ts = findLastNonWhitespaceToken(env, iot, env.getOffset());
     }
 
-    private void insideArrayAccess(Env env) throws IOException {
+    private void insideArrayAccess(JavaFXCompletionEnvironment env) throws IOException {
         int offset = env.getOffset();
         ArrayAccessTree aat = (ArrayAccessTree) env.getPath().getLeaf();
         SourcePositions sourcePositions = env.getSourcePositions();
@@ -1296,7 +1336,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideNewArray(Env env) throws IOException {
+    private void insideNewArray(JavaFXCompletionEnvironment env) throws IOException {
         int offset = env.getOffset();
         TreePath path = env.getPath();
         NewArrayTree nat = (NewArrayTree) path.getLeaf();
@@ -1349,7 +1389,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideAssignment(Env env) throws IOException {
+    private void insideAssignment(JavaFXCompletionEnvironment env) throws IOException {
         int offset = env.getOffset();
         TreePath path = env.getPath();
         AssignmentTree as = (AssignmentTree) path.getLeaf();
@@ -1375,7 +1415,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideCompoundAssignment(Env env) throws IOException {
+    private void insideCompoundAssignment(JavaFXCompletionEnvironment env) throws IOException {
         int offset = env.getOffset();
         CompoundAssignmentTree cat = (CompoundAssignmentTree) env.getPath().getLeaf();
         SourcePositions sourcePositions = env.getSourcePositions();
@@ -1395,7 +1435,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideBinaryTree(Env env) throws IOException {
+    private void insideBinaryTree(JavaFXCompletionEnvironment env) throws IOException {
         int offset = env.getOffset();
         BinaryTree bi = (BinaryTree) env.getPath().getLeaf();
         SourcePositions sourcePositions = env.getSourcePositions();
@@ -1414,7 +1454,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideExpressionStatement(Env env) throws IOException {
+    private void insideExpressionStatement(JavaFXCompletionEnvironment env) throws IOException {
         TreePath path = env.getPath();
         ExpressionStatementTree est = (ExpressionStatementTree) path.getLeaf();
         CompilationController controller = env.getController();
@@ -1492,7 +1532,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void insideExpression(Env env, TreePath exPath) throws IOException {
+    private void insideExpression(JavaFXCompletionEnvironment env, TreePath exPath) throws IOException {
         int offset = env.getOffset();
         String prefix = env.getPrefix();
         Tree et = exPath.getLeaf();
@@ -1507,32 +1547,32 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void localResult(Env env) throws IOException {
+    private void localResult(JavaFXCompletionEnvironment env) throws IOException {
         addLocalMembersAndVars(env);
     }
 
-    private void addLocalConstantsAndTypes(final Env env) throws IOException {
+    private void addLocalConstantsAndTypes(final JavaFXCompletionEnvironment env) throws IOException {
         log("addLocalConstantsAndTypes: " + env.getPrefix());
         for (String s: getIdentifiers(env)) {
             results.add(JavaFXCompletionItem.createVariableItem(s, anchorOffset, false));
         }
     }
 
-    private void addLocalMembersAndVars(final Env env) throws IOException {
+    private void addLocalMembersAndVars(final JavaFXCompletionEnvironment env) throws IOException {
         log("addLocalMembersAndVars: " + env.getPrefix());
         for (String s: getIdentifiers(env)) {
             results.add(JavaFXCompletionItem.createVariableItem(s, anchorOffset, false));
         }
     }
 
-    private void addLocalFieldsAndVars(final Env env) throws IOException {
+    private void addLocalFieldsAndVars(final JavaFXCompletionEnvironment env) throws IOException {
         log("addLocalFieldsAndVars: " + env.getPrefix());
         for (String s: getIdentifiers(env)) {
             results.add(JavaFXCompletionItem.createVariableItem(s, anchorOffset, false));
         }
     }
 
-    private Set<String> getIdentifiers(Env env) {
+    private Set<String> getIdentifiers(JavaFXCompletionEnvironment env) {
         Set<String> res = new HashSet<String>();
         String prefix = env.getPrefix();
         TokenSequence<JFXTokenId> ts = env.getController().getTokenHierarchy().tokenSequence(JFXTokenId.language());
@@ -1550,23 +1590,23 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         return res;
     }
     
-    private void addPackages(Env env, String fqnPrefix) {
+    private void addPackages(JavaFXCompletionEnvironment env, String fqnPrefix) {
     }
 
-    private List<DeclaredType> getSubtypesOf(Env env, DeclaredType baseType) throws IOException {
+    private List<DeclaredType> getSubtypesOf(JavaFXCompletionEnvironment env, DeclaredType baseType) throws IOException {
         return Collections.emptyList();
     }
 
-    private void addMethodArguments(Env env, MethodInvocationTree mit) throws IOException {
+    private void addMethodArguments(JavaFXCompletionEnvironment env, MethodInvocationTree mit) throws IOException {
     }
 
-    private void addKeyword(Env env, String kw, String postfix, boolean smartType) {
+    private void addKeyword(JavaFXCompletionEnvironment env, String kw, String postfix, boolean smartType) {
         if (JavaFXCompletionProvider.startsWith(kw, env.getPrefix())) {
             results.add(JavaFXCompletionItem.createKeywordItem(kw, postfix, anchorOffset, smartType));
         }
     }
 
-    private void addKeywordsForCU(Env env) {
+    private void addKeywordsForCU(JavaFXCompletionEnvironment env) {
         List<String> kws = new ArrayList<String>();
         int offset = env.getOffset();
         String prefix = env.getPrefix();
@@ -1613,7 +1653,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void addKeywordsForClassBody(Env env) {
+    private void addKeywordsForClassBody(JavaFXCompletionEnvironment env) {
         String prefix = env.getPrefix();
         for (String kw : CLASS_BODY_KEYWORDS) {
             if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
@@ -1622,7 +1662,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void addKeywordsForStatement(Env env) {
+    private void addKeywordsForStatement(JavaFXCompletionEnvironment env) {
         String prefix = env.getPrefix();
         for (String kw : STATEMENT_KEYWORDS) {
             if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
@@ -1665,7 +1705,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void addValueKeywords(Env env) throws IOException {
+    private void addValueKeywords(JavaFXCompletionEnvironment env) throws IOException {
         String prefix = env.getPrefix();
         boolean smartType = false;
         if (queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE) {
@@ -1696,7 +1736,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void addClassModifiers(Env env, Set<Modifier> modifiers) {
+    private void addClassModifiers(JavaFXCompletionEnvironment env, Set<Modifier> modifiers) {
         String prefix = env.getPrefix();
         List<String> kws = new ArrayList<String>();
         if (!modifiers.contains(PUBLIC) && !modifiers.contains(PRIVATE)) {
@@ -1713,7 +1753,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private void addMemberModifiers(Env env, Set<Modifier> modifiers, boolean isLocal) {
+    private void addMemberModifiers(JavaFXCompletionEnvironment env, Set<Modifier> modifiers, boolean isLocal) {
         String prefix = env.getPrefix();
         List<String> kws = new ArrayList<String>();
         if (isLocal) {
@@ -1773,7 +1813,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         return ret;
     }
 
-    private static Set<? extends TypeMirror> getSmartTypes1(Env env) throws IOException {
+    static Set<? extends TypeMirror> getSmartTypes(JavaFXCompletionEnvironment env) throws IOException {
         int offset = env.getOffset();
         final CompilationController controller = env.getController();
         TreePath path = env.getPath();
@@ -2032,12 +2072,12 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         return null;
     }
 
-    private TokenSequence<JFXTokenId> findFirstNonWhitespaceToken(Env env, Tree tree, int position) {
+    private TokenSequence<JFXTokenId> findFirstNonWhitespaceToken(JavaFXCompletionEnvironment env, Tree tree, int position) {
         int startPos = (int) env.getSourcePositions().getStartPosition(env.getRoot(), tree);
         return findFirstNonWhitespaceToken(env, startPos, position);
     }
 
-    private TokenSequence<JFXTokenId> findFirstNonWhitespaceToken(Env env, int startPos, int endPos) {
+    private TokenSequence<JFXTokenId> findFirstNonWhitespaceToken(JavaFXCompletionEnvironment env, int startPos, int endPos) {
         TokenSequence<JFXTokenId> ts = env.getController().getTokenHierarchy().tokenSequence(JFXTokenId.language());
         ts.move(startPos);
         ts = nextNonWhitespaceToken(ts);
@@ -2063,12 +2103,12 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         return null;
     }
 
-    private TokenSequence<JFXTokenId> findLastNonWhitespaceToken(Env env, Tree tree, int position) {
+    private TokenSequence<JFXTokenId> findLastNonWhitespaceToken(JavaFXCompletionEnvironment env, Tree tree, int position) {
         int startPos = (int) env.getSourcePositions().getStartPosition(env.getRoot(), tree);
         return findLastNonWhitespaceToken(env, startPos, position);
     }
 
-    private TokenSequence<JFXTokenId> findLastNonWhitespaceToken(Env env, int startPos, int endPos) {
+    private TokenSequence<JFXTokenId> findLastNonWhitespaceToken(JavaFXCompletionEnvironment env, int startPos, int endPos) {
         TokenSequence<JFXTokenId> ts = env.getController().getTokenHierarchy().tokenSequence(JFXTokenId.language());
         ts.move(endPos);
         ts = previousNonWhitespaceToken(ts);
@@ -2113,7 +2153,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
     }
 
-    private Env getCompletionEnvironment(CompilationController controller) throws IOException {
+    private JavaFXCompletionEnvironment getCompletionEnvironment(CompilationController controller) throws IOException {
         controller.toPhase(Phase.PARSED);
         int offset = caretOffset;
         String prefix = null;
@@ -2132,91 +2172,12 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
         log("getCompletionEnvironment caretOffset: " + caretOffset + " offset: " + offset);
         TreePath path = controller.getTreeUtilities().pathFor(offset);
-        return new Env(offset, prefix, controller, path, controller.getTrees().getSourcePositions());
+        return new JavaFXCompletionEnvironment(offset, prefix, controller, path, controller.getTrees().getSourcePositions());
     }
 
     private static void log(String s) {
         if (LOGGABLE) {
             logger.fine(s);
-        }
-    }
-    
-    static class Env {
-
-        private int offset;
-        private String prefix;
-        private boolean isCamelCasePrefix;
-        private CompilationController controller;
-        private TreePath path;
-        private SourcePositions sourcePositions;
-        private boolean insideForEachExpressiion = false;
-        private Set<? extends TypeMirror> smartTypes = null;
-
-        private Env(int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions) {
-            super();
-            this.offset = offset;
-            this.prefix = prefix;
-            this.isCamelCasePrefix = prefix != null && prefix.length() > 1 && camelCasePattern.matcher(prefix).matches();
-            this.controller = controller;
-            this.path = path;
-            this.sourcePositions = sourcePositions;
-        }
-
-        public int getOffset() {
-            return offset;
-        }
-
-        public String getPrefix() {
-            return prefix;
-        }
-
-        public boolean isCamelCasePrefix() {
-            return isCamelCasePrefix;
-        }
-
-        public CompilationController getController() {
-            return controller;
-        }
-
-        public CompilationUnitTree getRoot() {
-            return path.getCompilationUnit();
-        }
-
-        public TreePath getPath() {
-            return path;
-        }
-
-        public SourcePositions getSourcePositions() {
-            return sourcePositions;
-        }
-
-        public void insideForEachExpressiion() {
-            this.insideForEachExpressiion = true;
-        }
-
-        public boolean isInsideForEachExpressiion() {
-            return insideForEachExpressiion;
-        }
-
-        public Set<? extends TypeMirror> getSmartTypes() throws IOException {
-            if (smartTypes == null) {
-                smartTypes = getSmartTypes1(Env.this);
-                if (smartTypes != null) {
-                    Iterator<? extends TypeMirror> it = smartTypes.iterator();
-                    TypeMirror err = null;
-                    if (it.hasNext()) {
-                        err = it.next();
-                        if (it.hasNext() || err.getKind() != TypeKind.ERROR) {
-                            err = null;
-                        }
-                    }
-                    if (err != null) {
-                        HashSet<TypeMirror> st = new HashSet<TypeMirror>();
-                        smartTypes = st;
-                    }
-                }
-            }
-            return smartTypes;
         }
     }
 }
