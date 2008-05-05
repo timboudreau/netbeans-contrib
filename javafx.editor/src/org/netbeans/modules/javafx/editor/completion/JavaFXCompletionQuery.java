@@ -42,12 +42,9 @@ package org.netbeans.modules.javafx.editor.completion;
 
 import com.sun.javafx.api.tree.JavaFXTree;
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.source.tree.ArrayAccessTree;
 import com.sun.source.tree.AssignmentTree;
 import com.sun.source.tree.BinaryTree;
-import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.CaseTree;
-import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.CompoundAssignmentTree;
 import com.sun.source.tree.EnhancedForLoopTree;
@@ -57,67 +54,42 @@ import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.ForLoopTree;
 import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.IfTree;
-import com.sun.source.tree.ImportTree;
-import com.sun.source.tree.InstanceOfTree;
 import com.sun.source.tree.MemberSelectTree;
-import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
-import com.sun.source.tree.ModifiersTree;
-import com.sun.source.tree.NewArrayTree;
-import com.sun.source.tree.ParenthesizedTree;
-import com.sun.source.tree.PrimitiveTypeTree;
-import com.sun.source.tree.StatementTree;
 import com.sun.source.tree.SwitchTree;
 import com.sun.source.tree.Tree;
-import com.sun.source.tree.TryTree;
 import com.sun.source.tree.TypeCastTree;
-import com.sun.source.tree.TypeParameterTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.tree.WhileLoopTree;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
-import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javafx.api.JavafxcTrees;
-import com.sun.tools.javafx.tree.JFXBlockExpression;
-import com.sun.tools.javafx.tree.JFXFunctionDefinition;
-import com.sun.tools.javafx.tree.JFXType;
-import com.sun.tools.javafx.tree.JFXVar;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import javax.lang.model.element.Modifier;
-import static javax.lang.model.element.Modifier.*;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
-import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.type.TypeVariable;
 import javax.swing.JToolTip;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
-import javax.tools.Diagnostic;
 import org.netbeans.api.editor.completion.Completion;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
 import org.netbeans.api.javafx.source.CompilationController;
 import org.netbeans.api.javafx.source.JavaFXSource;
 import org.netbeans.api.javafx.source.JavaFXSource.Phase;
 import org.netbeans.api.javafx.source.Task;
-import org.netbeans.api.javafx.source.TreeUtilities;
-import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.spi.editor.completion.CompletionDocumentation;
 import org.netbeans.spi.editor.completion.CompletionItem;
@@ -131,90 +103,90 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
     private static final Logger logger = Logger.getLogger(JavaFXCompletionProvider.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    private static final String ERROR = "<error>";
-    private static final String INIT = "<init>";
-    private static final String SPACE = " ";
-    private static final String COLON = ":";
-    private static final String SEMI = ";";
-    private static final String EMPTY = "";
-    private static final String ABSTRACT_KEYWORD = "abstract";
-    private static final String AFTER_KEYWORD = "after";
-    private static final String AND_KEYWORD = "and";
-    private static final String AS_KEYWORD = "as";
-    private static final String ASSERT_KEYWORD = "assert";
-    private static final String ATTRIBUTE_KEYWORD = "attribute";
-    private static final String BEFORE_KEYWORD = "before";
-    private static final String BIND_KEYWORD = "bind";
-    private static final String BOUND_KEYWORD = "bound";
-    private static final String BREAK_KEYWORD = "break";
-    private static final String CATCH_KEYWORD = "catch";
-    private static final String CLASS_KEYWORD = "class";
-    private static final String CONTINUE_KEYWORD = "continue";
-    private static final String DELETE_KEYWORD = "delete";
-    private static final String ELSE_KEYWORD = "else";
-    private static final String EXCLUSIVE_KEYWORD = "exclusive";
-    private static final String EXTENDS_KEYWORD = "extends";
-    private static final String FALSE_KEYWORD = "false";
-    private static final String FINALLY_KEYWORD = "finally";
-    private static final String FIRST_KEYWORD = "first";
-    private static final String FOR_KEYWORD = "for";
-    private static final String FROM_KEYWORD = "from";
-    private static final String FUNCTION_KEYWORD = "function";
-    private static final String IF_KEYWORD = "if";
-    private static final String IMPORT_KEYWORD = "import";
-    private static final String INDEXOF_KEYWORD = "indexof";
-    private static final String INIT_KEYWORD = "init";
-    private static final String IN_KEYWORD = "in";
-    private static final String INSERT_KEYWORD = "insert";
-    private static final String INSTANCEOF_KEYWORD = "instanceof";
-    private static final String INTO_KEYWORD = "into";
-    private static final String INVERSE_KEYWORD = "inverse";
-    private static final String LAST_KEYWORD = "last";
-    private static final String LAZY_KEYWORD = "lazy";
-    private static final String LET_KEYWORD = "let";
-    private static final String NEW_KEYWORD = "new";
-    private static final String NOT_KEYWORD = "not";
-    private static final String NULL_KEYWORD = "null";
-    private static final String ON_KEYWORD = "on";
-    private static final String OR_KEYWORD = "or";
-    private static final String OVERRIDE_KEYWORD = "override";
-    private static final String PACKAGE_KEYWORD = "package";
-    private static final String PRIVATE_KEYWORD = "private";
-    private static final String PROTECTED_KEYWORD = "protected";
-    private static final String PUBLIC_KEYWORD = "public";
-    private static final String READONLY_KEYWORD = "readonly";
-    private static final String REPLACE_KEYWORD = "replace";
-    private static final String RETURN_KEYWORD = "return";
-    private static final String REVERSE_KEYWORD = "reverse";
-    private static final String SIZEOF_KEYWORD = "sizeof";
-    private static final String STATIC_KEYWORD = "static";
-    private static final String STEP_KEYWORD = "step";
-    private static final String SUPER_KEYWORD = "super";
-    private static final String THEN_KEYWORD = "then";
-    private static final String THIS_KEYWORD = "this";
-    private static final String THROW_KEYWORD = "throw";
-    private static final String TRANSIENT_KEYWORD = "transient";
-    private static final String TRUE_KEYWORD = "true";
-    private static final String TRY_KEYWORD = "try";
-    private static final String TWEEN_KEYWORD = "tween";
-    private static final String TYPEOF_KEYWORD = "typeof";
-    private static final String VAR_KEYWORD = "var";
-    private static final String WHERE_KEYWORD = "where";
-    private static final String WHILE_KEYWORD = "while";
-    private static final String WITH_KEYWORD = "with";
+    static final String ERROR = "<error>";
+    static final String INIT = "<init>";
+    static final String SPACE = " ";
+    static final String COLON = ":";
+    static final String SEMI = ";";
+    static final String EMPTY = "";
+    static final String ABSTRACT_KEYWORD = "abstract";
+    static final String AFTER_KEYWORD = "after";
+    static final String AND_KEYWORD = "and";
+    static final String AS_KEYWORD = "as";
+    static final String ASSERT_KEYWORD = "assert";
+    static final String ATTRIBUTE_KEYWORD = "attribute";
+    static final String BEFORE_KEYWORD = "before";
+    static final String BIND_KEYWORD = "bind";
+    static final String BOUND_KEYWORD = "bound";
+    static final String BREAK_KEYWORD = "break";
+    static final String CATCH_KEYWORD = "catch";
+    static final String CLASS_KEYWORD = "class";
+    static final String CONTINUE_KEYWORD = "continue";
+    static final String DELETE_KEYWORD = "delete";
+    static final String ELSE_KEYWORD = "else";
+    static final String EXCLUSIVE_KEYWORD = "exclusive";
+    static final String EXTENDS_KEYWORD = "extends";
+    static final String FALSE_KEYWORD = "false";
+    static final String FINALLY_KEYWORD = "finally";
+    static final String FIRST_KEYWORD = "first";
+    static final String FOR_KEYWORD = "for";
+    static final String FROM_KEYWORD = "from";
+    static final String FUNCTION_KEYWORD = "function";
+    static final String IF_KEYWORD = "if";
+    static final String IMPORT_KEYWORD = "import";
+    static final String INDEXOF_KEYWORD = "indexof";
+    static final String INIT_KEYWORD = "init";
+    static final String IN_KEYWORD = "in";
+    static final String INSERT_KEYWORD = "insert";
+    static final String INSTANCEOF_KEYWORD = "instanceof";
+    static final String INTO_KEYWORD = "into";
+    static final String INVERSE_KEYWORD = "inverse";
+    static final String LAST_KEYWORD = "last";
+    static final String LAZY_KEYWORD = "lazy";
+    static final String LET_KEYWORD = "let";
+    static final String NEW_KEYWORD = "new";
+    static final String NOT_KEYWORD = "not";
+    static final String NULL_KEYWORD = "null";
+    static final String ON_KEYWORD = "on";
+    static final String OR_KEYWORD = "or";
+    static final String OVERRIDE_KEYWORD = "override";
+    static final String PACKAGE_KEYWORD = "package";
+    static final String PRIVATE_KEYWORD = "private";
+    static final String PROTECTED_KEYWORD = "protected";
+    static final String PUBLIC_KEYWORD = "public";
+    static final String READONLY_KEYWORD = "readonly";
+    static final String REPLACE_KEYWORD = "replace";
+    static final String RETURN_KEYWORD = "return";
+    static final String REVERSE_KEYWORD = "reverse";
+    static final String SIZEOF_KEYWORD = "sizeof";
+    static final String STATIC_KEYWORD = "static";
+    static final String STEP_KEYWORD = "step";
+    static final String SUPER_KEYWORD = "super";
+    static final String THEN_KEYWORD = "then";
+    static final String THIS_KEYWORD = "this";
+    static final String THROW_KEYWORD = "throw";
+    static final String TRANSIENT_KEYWORD = "transient";
+    static final String TRUE_KEYWORD = "true";
+    static final String TRY_KEYWORD = "try";
+    static final String TWEEN_KEYWORD = "tween";
+    static final String TYPEOF_KEYWORD = "typeof";
+    static final String VAR_KEYWORD = "var";
+    static final String WHERE_KEYWORD = "where";
+    static final String WHILE_KEYWORD = "while";
+    static final String WITH_KEYWORD = "with";
     
-    private static final String[] STATEMENT_KEYWORDS = new String[]{
+    static final String[] STATEMENT_KEYWORDS = new String[]{
         FOR_KEYWORD,
         TRY_KEYWORD, 
         WHILE_KEYWORD
     };
-    private static final String[] STATEMENT_SPACE_KEYWORDS = new String[]{
+    static final String[] STATEMENT_SPACE_KEYWORDS = new String[]{
         INSERT_KEYWORD,
         NEW_KEYWORD,
         THROW_KEYWORD,
         VAR_KEYWORD
     };
-    private static final String[] CLASS_BODY_KEYWORDS = new String[]{
+    static final String[] CLASS_BODY_KEYWORDS = new String[]{
         ABSTRACT_KEYWORD,
         ATTRIBUTE_KEYWORD, 
         FUNCTION_KEYWORD,
@@ -228,10 +200,10 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
     private boolean hasAdditionalItems;
     private JToolTip toolTip;
     private CompletionDocumentation documentation;
-    private int anchorOffset;
+    int anchorOffset;
     private int toolTipOffset;
     private JTextComponent component;
-    private int queryType;
+    int queryType;
     private int caretOffset;
     private String filterPrefix;
     private boolean hasTask;
@@ -401,17 +373,17 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
                 case BIND_EXPRESSION:
                     break;
                 case BLOCK_EXPRESSION:
-                    insideBlock(env);
+                    env.insideBlock();
                     break;
                 case CLASS_DECLARATION:
-                    insideClassDeclaration(env);
+                    env.insideClassDeclaration();
                     break;
                 case FOR_EXPRESSION:
                     break;
                 case FOR_EXPRESSION_IN_CLAUSE:
                     break;
                 case FUNCTION_DEFINITION:
-                    insideFunctionDefinition(env);
+                    env.insideFunctionDefinition();
                     break;
                 case FUNCTION_VALUE:
                     break;
@@ -426,7 +398,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
                 case KEYFRAME_LITERAL:
                     break;
                 case OBJECT_LITERAL_PART:
-                    insideObjectLiteralPart(env);
+                    env.insideObjectLiteralPart();
                     break;
                 case ON_REPLACE:
                     break;
@@ -457,7 +429,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
                 case TYPE_ANY:
                     break;
                 case TYPE_CLASS:
-                    insideClassDeclaration(env);
+                    env.insideClassDeclaration();
                     break;
                 case TYPE_FUNCTIONAL:
                     break;
@@ -468,22 +440,22 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
             log("Java Kind: " + t.getKind());
             switch (t.getKind()) {
                 case COMPILATION_UNIT:
-                    insideCompilationUnit(env);
+                    env.insideCompilationUnit();
                     break;
                 case IMPORT:
-                    insideImport(env);
+                    env.insideImport();
                     break;
                 case CLASS:
-                    insideClass(env);
+                    env.insideClass();
                     break;
                 case VARIABLE:
-                    insideVariable(env);
+                    env.insideVariable();
                     break;
                 case METHOD:
-                    insideMethod(env);
+                    env.insideMethod();
                     break;
                 case MODIFIERS:
-                    insideModifiers(env, path);
+                    env.insideModifiers( path);
                     break;
                 case ANNOTATION:
                     break;
@@ -501,56 +473,54 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
                     //insideBlock(env);
                     break;
                 case MEMBER_SELECT:
-                    insideMemberSelect(env);
+                    env.insideMemberSelect();
                     break;
                 case METHOD_INVOCATION:
-                    insideMethodInvocation(env);
+                    env.insideMethodInvocation();
                     break;
                 case NEW_CLASS:
                     break;
                 case ASSERT:
                 case RETURN:
                 case THROW:
-                    localResult(env);
-                    addValueKeywords(env);
                     break;
                 case CATCH:
                     break;
                 case IF:
-                    insideIf(env);
+                    env.insideIf();
                     break;
                 case WHILE_LOOP:
-                    insideWhile(env);
+                    env.insideWhile();
                     break;
                 case FOR_LOOP:
-                    insideFor(env);
+                    env.insideFor();
                     break;
                 case ENHANCED_FOR_LOOP:
-                    insideForEach(env);
+                    env.insideForEach();
                     break;
                 case SWITCH:
-                    insideSwitch(env);
+                    env.insideSwitch();
                     break;
                 case CASE:
-                    insideCase(env);
+                    env.insideCase();
                     break;
                 case PARENTHESIZED:
-                    insideParens(env);
+                    env.insideParens();
                     break;
                 case TYPE_CAST:
-                    insideExpression(env, path);
+                    env.insideExpression( path);
                     break;
                 case INSTANCE_OF:
-                    insideTypeCheck(env);
+                    env.insideTypeCheck();
                     break;
                 case ARRAY_ACCESS:
-                    insideArrayAccess(env);
+                    env.insideArrayAccess();
                     break;
                 case NEW_ARRAY:
-                    insideNewArray(env);
+                    env.insideNewArray();
                     break;
                 case ASSIGNMENT:
-                    insideAssignment(env);
+                    env.insideAssignment();
                     break;
                 case MULTIPLY_ASSIGNMENT:
                 case DIVIDE_ASSIGNMENT:
@@ -563,7 +533,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
                 case AND_ASSIGNMENT:
                 case XOR_ASSIGNMENT:
                 case OR_ASSIGNMENT:
-                    insideCompoundAssignment(env);
+                    env.insideCompoundAssignment();
                     break;
                 case PREFIX_INCREMENT:
                 case PREFIX_DECREMENT:
@@ -571,7 +541,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
                 case UNARY_MINUS:
                 case BITWISE_COMPLEMENT:
                 case LOGICAL_COMPLEMENT:
-                    localResult(env);
+                    env.localResult();
                     break;
                 case AND:
                 case CONDITIONAL_AND:
@@ -592,1166 +562,18 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
                 case RIGHT_SHIFT:
                 case UNSIGNED_RIGHT_SHIFT:
                 case XOR:
-                    insideBinaryTree(env);
+                    env.insideBinaryTree();
                     break;
                 case CONDITIONAL_EXPRESSION:
                     break;
                 case EXPRESSION_STATEMENT:
-                    insideExpressionStatement(env);
+                    env.insideExpressionStatement();
                     break;
             }
         }
         if (LOGGABLE) {
             log("Results: " + results);
         }
-    }
-
-    private void insideFunctionDefinition(JavaFXCompletionEnvironment env) throws IOException {
-        JFXFunctionDefinition def = (JFXFunctionDefinition) env.getPath().getLeaf();
-        int offset = env.getOffset();
-        TreePath path = env.getPath();
-        CompilationController controller = env.getController();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        int startPos = (int) sourcePositions.getStartPosition(root, def);
-        JFXType retType = def.getJFXReturnType();
-        if (retType == null) {
-            int modPos = (int) sourcePositions.getEndPosition(root, def.getModifiers());
-            if (modPos > startPos) {
-                startPos = modPos;
-            }
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(env, startPos, offset);
-            if (last == null) {
-                addMemberModifiers(env, def.getModifiers().getFlags(), false);
-                return;
-            }
-        } else {
-            if (offset <= sourcePositions.getStartPosition(root, retType)) {
-                addMemberModifiers(env, def.getModifiers().getFlags(), false);
-                return;
-            }
-            startPos = (int) sourcePositions.getEndPosition(root, retType) + 1;
-        }
-        log("start: " + startPos);
-        log("offset: " + offset);
-        String headerText = controller.getText().substring(startPos, offset > startPos ? offset : startPos);
-        int parStart = headerText.indexOf('(');
-        log("parStart: " + parStart);
-        if (parStart >= 0) {
-            int parEnd = headerText.indexOf(')', parStart);
-            if (parEnd > parStart) {
-                headerText = headerText.substring(parEnd + 1).trim();
-            } else {
-                for (JFXVar param : def.getParameters()) {
-                    int parPos = (int) sourcePositions.getEndPosition(root, param);
-                    if (parPos == Diagnostic.NOPOS || offset <= parPos) {
-                        break;
-                    }
-                    parStart = parPos - startPos;
-                }
-                headerText = headerText.substring(parStart).trim();
-                if ("(".equals(headerText) || ",".equals(headerText)) {
-                    addMemberModifiers(env, Collections.<Modifier>emptySet(), true);
-                }
-            }
-        } else if (retType != null && headerText.trim().length() == 0) {
-            insideExpression(env, new TreePath(path, retType));
-        }
-        int bodyPos = (int) sourcePositions.getStartPosition(root, def.getBodyExpression());
-        log("bodyPos: " + bodyPos);
-        if (offset > bodyPos) {
-            insideFunctionBlock(env, def.getBodyExpression().getStatements());
-        }
-    }
-    
-    private void insideObjectLiteralPart(JavaFXCompletionEnvironment env) {
-    }
-
-    private void insideClassDeclaration(JavaFXCompletionEnvironment env) {
-        addKeywordsForClassBody(env);
-    }
-
-    private void insideCompilationUnit(JavaFXCompletionEnvironment env) throws IOException {
-        if (isTreeBroken(env)) {
-            // don't do anything in this case
-            return;
-        }
-        int offset = env.getOffset();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        Tree pkg = root.getPackageName();
-        if (pkg == null || offset <= sourcePositions.getStartPosition(root, root)) {
-            addKeywordsForCU(env);
-            return;
-        }
-        if (offset <= sourcePositions.getStartPosition(root, pkg)) {
-            addPackages(env, env.getPrefix());
-        } else {
-            TokenSequence<JFXTokenId> first = findFirstNonWhitespaceToken(env, (int) sourcePositions.getEndPosition(root, pkg), offset);
-            if (first != null && first.token().id() == JFXTokenId.SEMI) {
-                addKeywordsForCU(env);
-            }
-        }
-    }
-
-    /**
-     * If the tree is broken we are in fact not in the compilation unit.
-     * @param env
-     * @return
-     */
-    private boolean isTreeBroken(JavaFXCompletionEnvironment env) {
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        int start = (int) sourcePositions.getStartPosition(root, root);
-        int end = (int) sourcePositions.getEndPosition(root, root);
-        log("isTreeBroken start: " + start + " end: " + end);
-        return start == -1 || end == -1;
-    }
-    
-    private void insideImport(JavaFXCompletionEnvironment env) {
-        int offset = env.getOffset();
-        String prefix = env.getPrefix();
-        ImportTree im = (ImportTree) env.getPath().getLeaf();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        if (offset <= sourcePositions.getStartPosition(root, im.getQualifiedIdentifier())) {
-            addPackages(env, prefix);
-        }
-    }
-
-    private void insideClass(JavaFXCompletionEnvironment env) throws IOException {
-        int offset = env.getOffset();
-        TreePath path = env.getPath();
-        ClassTree cls = (ClassTree) path.getLeaf();
-        CompilationController controller = env.getController();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        int startPos = (int) sourcePositions.getEndPosition(root, cls.getModifiers());
-        if (startPos <= 0) {
-            startPos = (int) sourcePositions.getStartPosition(root, cls);
-        }
-        String headerText = controller.getText().substring(startPos, offset);
-        int idx = headerText.indexOf('{');
-        //NOI18N
-        if (idx >= 0) {
-            addKeywordsForClassBody(env);
-            return;
-        }
-        TreeUtilities tu = controller.getTreeUtilities();
-        Tree lastImpl = null;
-        for (Tree impl : cls.getImplementsClause()) {
-            int implPos = (int) sourcePositions.getEndPosition(root, impl);
-            if (implPos == Diagnostic.NOPOS || offset <= implPos) {
-                break;
-            }
-            lastImpl = impl;
-            startPos = implPos;
-        }
-        if (lastImpl != null) {
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(env, startPos, offset);
-            if (last != null && last.token().id() == JFXTokenId.COMMA) {
-            }
-            return;
-        }
-        Tree ext = cls.getExtendsClause();
-        if (ext != null) {
-            int extPos = (int) sourcePositions.getEndPosition(root, ext);
-            if (extPos != Diagnostic.NOPOS && offset > extPos) {
-                TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(env, extPos + 1, offset);
-                //addKeyword(env, IMPLEMENTS_KEYWORD, SPACE, false);
-                return;
-            }
-        }
-        TypeParameterTree lastTypeParam = null;
-        for (TypeParameterTree tp : cls.getTypeParameters()) {
-            int tpPos = (int) sourcePositions.getEndPosition(root, tp);
-            if (tpPos == Diagnostic.NOPOS || offset <= tpPos) {
-                break;
-            }
-            lastTypeParam = tp;
-            startPos = tpPos;
-        }
-        if (lastTypeParam != null) {
-            TokenSequence<JFXTokenId> first = findFirstNonWhitespaceToken(env, startPos, offset);
-            if (first != null && first.token().id() == JFXTokenId.GT) {
-                first = nextNonWhitespaceToken(first);
-                if (first != null && first.offset() < offset) {
-                    if (first.token().id() == JFXTokenId.EXTENDS) {
-                        return;
-                    }
-                }
-            } else {
-                if (lastTypeParam.getBounds().isEmpty()) {
-                    addKeyword(env, EXTENDS_KEYWORD, SPACE, false);
-                }
-            }
-            return;
-        }
-        TokenSequence<JFXTokenId> lastNonWhitespaceToken = findLastNonWhitespaceToken(env, startPos, offset);
-        if (lastNonWhitespaceToken != null) {
-            switch (lastNonWhitespaceToken.token().id()) {
-                case EXTENDS:
-                    break;
-                case IDENTIFIER:
-                    break;
-            }
-            return;
-        }
-        lastNonWhitespaceToken = findLastNonWhitespaceToken(env, (int) sourcePositions.getStartPosition(root, cls), offset);
-        if (path.getParentPath().getLeaf().getKind() == Tree.Kind.COMPILATION_UNIT) {
-            addClassModifiers(env, cls.getModifiers().getFlags());
-        } else {
-            addMemberModifiers(env, cls.getModifiers().getFlags(), false);
-        }
-    }
-
-    private void insideVariable(JavaFXCompletionEnvironment env) throws IOException {
-        int offset = env.getOffset();
-        TreePath path = env.getPath();
-        VariableTree var = (VariableTree) path.getLeaf();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        boolean isLocal = path.getParentPath().getLeaf().getKind() != Tree.Kind.CLASS;
-        Tree type = var.getType();
-        int typePos = type.getKind() == Tree.Kind.ERRONEOUS && ((ErroneousTree) type).getErrorTrees().isEmpty() ? (int) sourcePositions.getEndPosition(root, type) : (int) sourcePositions.getStartPosition(root, type);
-        if (offset <= typePos) {
-            addMemberModifiers(env, var.getModifiers().getFlags(), isLocal);
-            ModifiersTree mods = var.getModifiers();
-            return;
-        }
-        Tree init = unwrapErrTree(var.getInitializer());
-        if (init == null) {
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(env, (int) sourcePositions.getEndPosition(root, type), offset);
-            if (last == null) {
-                insideExpression(env, new TreePath(path, type));
-            } else if (last.token().id() == JFXTokenId.EQ) {
-                localResult(env);
-                addValueKeywords(env);
-            }
-        } else {
-            int pos = (int) sourcePositions.getStartPosition(root, init);
-            if (pos < 0) {
-                return;
-            }
-            if (offset <= pos) {
-                TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(env, (int) sourcePositions.getEndPosition(root, type), offset);
-                if (last == null) {
-                    insideExpression(env, new TreePath(path, type));
-                } else if (last.token().id() == JFXTokenId.EQ) {
-                    localResult(env);
-                    addValueKeywords(env);
-                }
-            } else {
-                insideExpression(env, new TreePath(path, init));
-            }
-        }
-    }
-
-    private void insideMethod(JavaFXCompletionEnvironment env) throws IOException {
-        int offset = env.getOffset();
-        String prefix = env.getPrefix();
-        TreePath path = env.getPath();
-        MethodTree mth = (MethodTree) path.getLeaf();
-        CompilationController controller = env.getController();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        int startPos = (int) sourcePositions.getStartPosition(root, mth);
-        Tree retType = mth.getReturnType();
-        if (retType == null) {
-            int modPos = (int) sourcePositions.getEndPosition(root, mth.getModifiers());
-            if (modPos > startPos) {
-                startPos = modPos;
-            }
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(env, startPos, offset);
-            if (last == null) {
-                addMemberModifiers(env, mth.getModifiers().getFlags(), false);
-                return;
-            }
-        } else {
-            if (offset <= sourcePositions.getStartPosition(root, retType)) {
-                addMemberModifiers(env, mth.getModifiers().getFlags(), false);
-                return;
-            }
-            startPos = (int) sourcePositions.getEndPosition(root, retType) + 1;
-        }
-        Tree lastThr = null;
-        for (Tree thr : mth.getThrows()) {
-            int thrPos = (int) sourcePositions.getEndPosition(root, thr);
-            if (thrPos == Diagnostic.NOPOS || offset <= thrPos) {
-                break;
-            }
-            lastThr = thr;
-            startPos = thrPos;
-        }
-        if (lastThr != null) {
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(env, startPos, offset);
-            if (last != null && last.token().id() == JFXTokenId.COMMA) {
-                if (queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE && mth.getBody() != null) {
-                    controller.toPhase(Phase.RESOLVED);
-                    JavafxcTrees trees = controller.getTrees();
-                    for (ExpressionTree thr : mth.getThrows()) {
-                        TypeMirror t = trees.getTypeMirror(new TreePath(path, thr));
-                        if (thr == lastThr) {
-                            break;
-                        }
-                    }
-                }
-            }
-            return;
-        }
-        String headerText = controller.getText().substring(startPos, offset);
-        int parStart = headerText.indexOf('(');
-        if (parStart >= 0) {
-            int parEnd = headerText.indexOf(')', parStart);
-            if (parEnd > parStart) {
-                headerText = headerText.substring(parEnd + 1).trim();
-            } else {
-                for (VariableTree param : mth.getParameters()) {
-                    int parPos = (int) sourcePositions.getEndPosition(root, param);
-                    if (parPos == Diagnostic.NOPOS || offset <= parPos) {
-                        break;
-                    }
-                    parStart = parPos - startPos;
-                }
-                headerText = headerText.substring(parStart).trim();
-                if ("(".equals(headerText) || ",".equals(headerText)) {
-                    addMemberModifiers(env, Collections.<Modifier>emptySet(), true);
-                }
-            }
-        } else if (retType != null && headerText.trim().length() == 0) {
-            insideExpression(env, new TreePath(path, retType));
-        }
-    }
-
-    private void insideModifiers(JavaFXCompletionEnvironment env, TreePath modPath) throws IOException {
-        int offset = env.getOffset();
-        ModifiersTree mods = (ModifiersTree) modPath.getLeaf();
-        Set<Modifier> m = EnumSet.noneOf(Modifier.class);
-        final TokenSequence<?> idTokenSequence = env.getController().getTreeUtilities().tokensFor(mods, env.getSourcePositions());
-        TokenSequence<JFXTokenId> ts = (TokenSequence<JFXTokenId>) idTokenSequence;
-        JFXTokenId lastNonWhitespaceTokenId = null;
-        while (ts.moveNext() && ts.offset() < offset) {
-            lastNonWhitespaceTokenId = ts.token().id();
-            switch (lastNonWhitespaceTokenId) {
-                case PUBLIC:
-                    m.add(PUBLIC);
-                    break;
-                case PROTECTED:
-                    m.add(PROTECTED);
-                    break;
-                case PRIVATE:
-                    m.add(PRIVATE);
-                    break;
-                case STATIC:
-                    m.add(STATIC);
-                    break;
-                case ABSTRACT:
-                    m.add(ABSTRACT);
-                    break;
-            }
-        }
-        TreePath parentPath = modPath.getParentPath();
-        Tree parent = parentPath.getLeaf();
-        TreePath grandParentPath = parentPath.getParentPath();
-        Tree grandParent = grandParentPath != null ? grandParentPath.getLeaf() : null;
-        if (isTopLevelClass(parent, env.getRoot())) {
-            addClassModifiers(env, m);
-        } else if (parent.getKind() != Tree.Kind.VARIABLE || grandParent == null || grandParent.getKind() == Tree.Kind.CLASS) {
-            addMemberModifiers(env, m, false);
-        } else if (parent.getKind() == Tree.Kind.VARIABLE && grandParent.getKind() == Tree.Kind.METHOD) {
-            addMemberModifiers(env, m, true);
-        } else {
-            localResult(env);
-            addKeywordsForStatement(env);
-        }
-    }   
-    
-    private void insideFunctionBlock(JavaFXCompletionEnvironment env, com.sun.tools.javac.util.List<JCStatement> statements) throws IOException {
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        int offset = env.getOffset();
-        StatementTree last = null;
-        for (StatementTree stat : statements) {
-            int pos = (int) sourcePositions.getStartPosition(root, stat);
-            if (pos == Diagnostic.NOPOS || offset <= pos) {
-                break;
-            }
-            last = stat;
-        }
-        if (last == null) {
-        } else if (last.getKind() == Tree.Kind.TRY) {
-            if (((TryTree) last).getFinallyBlock() == null) {
-                addKeyword(env, CATCH_KEYWORD, null, false);
-                addKeyword(env, FINALLY_KEYWORD, null, false);
-                if (((TryTree) last).getCatches().size() == 0) {
-                    return;
-                }
-            }
-        }
-        localResult(env);
-        addKeywordsForStatement(env);
-    }
-    private void insideBlock(JavaFXCompletionEnvironment env) throws IOException {
-        int offset = env.getOffset();
-        JFXBlockExpression bl = (JFXBlockExpression) env.getPath().getLeaf();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        int blockPos = (int) sourcePositions.getStartPosition(root, bl);
-        String text = env.getController().getText().substring(blockPos, offset);
-        if (text.indexOf('{') < 0) {
-            //NOI18N
-            addMemberModifiers(env, Collections.singleton(STATIC), false);
-            return;
-        }
-        StatementTree last = null;
-        for (StatementTree stat : bl.getStatements()) {
-            int pos = (int) sourcePositions.getStartPosition(root, stat);
-            if (pos == Diagnostic.NOPOS || offset <= pos) {
-                break;
-            }
-            last = stat;
-        }
-        if (last == null) {
-        } else if (last.getKind() == Tree.Kind.TRY) {
-            if (((TryTree) last).getFinallyBlock() == null) {
-                addKeyword(env, CATCH_KEYWORD, null, false);
-                addKeyword(env, FINALLY_KEYWORD, null, false);
-                if (((TryTree) last).getCatches().size() == 0) {
-                    return;
-                }
-            }
-        }
-        localResult(env);
-        addKeywordsForStatement(env);
-    }
-
-    private void insideMemberSelect(JavaFXCompletionEnvironment env) throws IOException {
-        int offset = env.getOffset();
-        String prefix = env.getPrefix();
-        TreePath path = env.getPath();
-        MemberSelectTree fa = (MemberSelectTree) path.getLeaf();
-        CompilationController controller = env.getController();
-        CompilationUnitTree root = env.getRoot();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        int expEndPos = (int) sourcePositions.getEndPosition(root, fa.getExpression());
-        boolean afterDot = false;
-        boolean afterLt = false;
-        int openLtNum = 0;
-        JFXTokenId lastNonWhitespaceTokenId = null;
-        TokenSequence<JFXTokenId> ts = controller.getTokenHierarchy().tokenSequence(JFXTokenId.language());
-        ts.move(expEndPos);
-        while (ts.moveNext()) {
-            if (ts.offset() >= offset) {
-                break;
-            }
-            switch (ts.token().id()) {
-                case FLOATING_POINT_LITERAL:
-                    if (ts.offset() != expEndPos || ts.token().text().charAt(0) != '.') {
-                        break;
-                    }
-                case DOT:
-                    afterDot = true;
-                    break;
-                case LT:
-                    afterLt = true;
-                    openLtNum++;
-                    break;
-                case GT:
-                    openLtNum--;
-                    break;
-            }
-            switch (ts.token().id()) {
-                case WS:
-                case LINE_COMMENT:
-                case COMMENT:
-                case DOC_COMMENT:
-                    break;
-                default:
-                    lastNonWhitespaceTokenId = ts.token().id();
-            }
-        }
-        if (!afterDot) {
-            log("insideMemberSelect expEndPos: " + expEndPos + " offset: " + offset);
-            if (expEndPos <= offset) {
-                insideExpression(env, new TreePath(path, fa.getExpression()));
-            }
-            log("insideMemberSelect returning !afterDot");
-            return;
-        }
-        if (openLtNum > 0) {
-            switch (lastNonWhitespaceTokenId) {
-                case QUES:
-                    addKeyword(env, EXTENDS_KEYWORD, SPACE, false);
-                    addKeyword(env, SUPER_KEYWORD, SPACE, false);
-                    break;
-                case LT:
-                case COLON:
-                case EXTENDS:
-                case SUPER:
-                    break;
-            }
-        }
-        addLocalMembersAndVars(env);
-    }
-
-    private void insideMethodInvocation(JavaFXCompletionEnvironment env) throws IOException {
-        TreePath path = env.getPath();
-        MethodInvocationTree mi = (MethodInvocationTree) path.getLeaf();
-        int offset = env.getOffset();
-        TokenSequence<JFXTokenId> ts = findLastNonWhitespaceToken(env, mi, offset);
-        if (ts == null || (ts.token().id() != JFXTokenId.LPAREN && ts.token().id() != JFXTokenId.COMMA)) {
-            SourcePositions sp = env.getSourcePositions();
-            CompilationUnitTree root = env.getRoot();
-            int lastTokenEndOffset = ts.offset() + ts.token().length();
-            for (ExpressionTree arg : mi.getArguments()) {
-                int pos = (int) sp.getEndPosition(root, arg);
-                if (lastTokenEndOffset == pos) {
-                    insideExpression(env, new TreePath(path, arg));
-                    break;
-                }
-                if (offset <= pos) {
-                    break;
-                }
-            }
-            return;
-        }
-        String prefix = env.getPrefix();
-        if (prefix == null || prefix.length() == 0) {
-            addMethodArguments(env, mi);
-        }
-        addLocalMembersAndVars(env);
-        addValueKeywords(env);
-    }
-
-    private void insideIf(JavaFXCompletionEnvironment env) throws IOException {
-        IfTree iff = (IfTree) env.getPath().getLeaf();
-        if (env.getSourcePositions().getEndPosition(env.getRoot(), iff.getCondition()) <= env.getOffset()) {
-            localResult(env);
-            addKeywordsForStatement(env);
-        }
-    }
-
-    private void insideWhile(JavaFXCompletionEnvironment env) throws IOException {
-        WhileLoopTree wlt = (WhileLoopTree) env.getPath().getLeaf();
-        if (env.getSourcePositions().getEndPosition(env.getRoot(), wlt.getCondition()) <= env.getOffset()) {
-            localResult(env);
-            addKeywordsForStatement(env);
-        }
-    }
-
-    private void insideFor(JavaFXCompletionEnvironment env) throws IOException {
-        int offset = env.getOffset();
-        TreePath path = env.getPath();
-        ForLoopTree fl = (ForLoopTree) path.getLeaf();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        Tree lastTree = null;
-        int lastTreePos = offset;
-        for (Tree update : fl.getUpdate()) {
-            int pos = (int) sourcePositions.getEndPosition(root, update);
-            if (pos == Diagnostic.NOPOS || offset <= pos) {
-                break;
-            }
-            lastTree = update;
-            lastTreePos = pos;
-        }
-        if (lastTree == null) {
-            int pos = (int) sourcePositions.getEndPosition(root, fl.getCondition());
-            if (pos != Diagnostic.NOPOS && pos < offset) {
-                lastTree = fl.getCondition();
-                lastTreePos = pos;
-            }
-        }
-        if (lastTree == null) {
-            for (Tree init : fl.getInitializer()) {
-                int pos = (int) sourcePositions.getEndPosition(root, init);
-                if (pos == Diagnostic.NOPOS || offset <= pos) {
-                    break;
-                }
-                lastTree = init;
-                lastTreePos = pos;
-            }
-        }
-        if (lastTree == null) {
-            addLocalFieldsAndVars(env);
-        } else {
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(env, lastTreePos, offset);
-            if (last != null && last.token().id() == JFXTokenId.SEMI) {
-                localResult(env);
-                addValueKeywords(env);
-            } else if (last != null && last.token().id() == JFXTokenId.RPAREN) {
-                localResult(env);
-                addKeywordsForStatement(env);
-            } else {
-                switch (lastTree.getKind()) {
-                    case VARIABLE:
-                        Tree var = ((VariableTree) lastTree).getInitializer();
-                        if (var != null) {
-                            insideExpression(env, new TreePath(new TreePath(path, lastTree), var));
-                        }
-                        break;
-                    case EXPRESSION_STATEMENT:
-                        Tree exp = unwrapErrTree(((ExpressionStatementTree) lastTree).getExpression());
-                        if (exp != null) {
-                            insideExpression(env, new TreePath(new TreePath(path, lastTree), exp));
-                        }
-                        break;
-                    default:
-                        insideExpression(env, new TreePath(path, lastTree));
-                }
-            }
-        }
-    }
-
-    private void insideForEach(JavaFXCompletionEnvironment env) throws IOException {
-        int offset = env.getOffset();
-        TreePath path = env.getPath();
-        EnhancedForLoopTree efl = (EnhancedForLoopTree) path.getLeaf();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        CompilationController controller = env.getController();
-        if (sourcePositions.getStartPosition(root, efl.getExpression()) >= offset) {
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(env, (int) sourcePositions.getEndPosition(root, efl.getVariable()), offset);
-            if (last != null && last.token().id() == JFXTokenId.COLON) {
-                env.insideForEachExpressiion();
-                addKeyword(env, NEW_KEYWORD, SPACE, false);
-                localResult(env);
-            }
-            return;
-        }
-        TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(env, (int) sourcePositions.getEndPosition(root, efl.getExpression()), offset);
-        if (last != null && last.token().id() == JFXTokenId.RPAREN) {
-            addKeywordsForStatement(env);
-        } else {
-            env.insideForEachExpressiion();
-            addKeyword(env, NEW_KEYWORD, SPACE, false);
-        }
-        localResult(env);
-    }
-
-    private void insideSwitch(JavaFXCompletionEnvironment env) throws IOException {
-        int offset = env.getOffset();
-        String prefix = env.getPrefix();
-        TreePath path = env.getPath();
-        SwitchTree st = (SwitchTree) path.getLeaf();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        if (sourcePositions.getStartPosition(root, st.getExpression()) < offset) {
-            CaseTree lastCase = null;
-            for (CaseTree t : st.getCases()) {
-                int pos = (int) sourcePositions.getStartPosition(root, t);
-                if (pos == Diagnostic.NOPOS || offset <= pos) {
-                    break;
-                }
-                lastCase = t;
-            }
-            if (lastCase != null) {
-                localResult(env);
-                addKeywordsForStatement(env);
-            } else {
-                TokenSequence<JFXTokenId> ts = findLastNonWhitespaceToken(env, st, offset);
-                if (ts != null && ts.token().id() == JFXTokenId.LBRACE) {
-                }
-            }
-        }
-    }
-
-    private void insideCase(JavaFXCompletionEnvironment env) throws IOException {
-        int offset = env.getOffset();
-        TreePath path = env.getPath();
-        CaseTree cst = (CaseTree) path.getLeaf();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        CompilationController controller = env.getController();
-        if (cst.getExpression() != null && ((sourcePositions.getStartPosition(root, cst.getExpression()) >= offset) || (cst.getExpression().getKind() == Tree.Kind.ERRONEOUS && ((ErroneousTree) cst.getExpression()).getErrorTrees().isEmpty() && sourcePositions.getEndPosition(root, cst.getExpression()) >= offset))) {
-            TreePath path1 = path.getParentPath();
-            if (path1.getLeaf().getKind() == Tree.Kind.SWITCH) {
-                TypeMirror tm = controller.getTrees().getTypeMirror(new TreePath(path1, ((SwitchTree) path1.getLeaf()).getExpression()));
-            }
-        } else {
-            TokenSequence<JFXTokenId> ts = findLastNonWhitespaceToken(env, cst, offset);
-            if (ts != null && ts.token().id() == JFXTokenId.COLON) {
-                localResult(env);
-                addKeywordsForStatement(env);
-            }
-        }
-    }
-
-    private void insideParens(JavaFXCompletionEnvironment env) throws IOException {
-        TreePath path = env.getPath();
-        ParenthesizedTree pa = (ParenthesizedTree) path.getLeaf();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        Tree exp = unwrapErrTree(pa.getExpression());
-        if (exp == null || env.getOffset() <= sourcePositions.getStartPosition(root, exp)) {
-            HashSet<TypeElement> toExclude = new HashSet<TypeElement>();
-            if (queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE && path.getParentPath().getLeaf().getKind() != Tree.Kind.SWITCH) {
-                Set<? extends TypeMirror> smarts = env.getSmartTypes();
-                if (smarts != null) {
-                    for (TypeMirror smart : smarts) {
-                        if (smart != null) {
-                            if (smart.getKind() == TypeKind.DECLARED) {
-                                for (DeclaredType subtype : getSubtypesOf(env, (DeclaredType) smart)) {
-                                    TypeElement elem = (TypeElement) subtype.asElement();
-                                    toExclude.add(elem);
-                                }
-                            } else if (smart.getKind() == TypeKind.ARRAY) {
-                                try {
-                                } catch (IllegalArgumentException iae) {
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            addLocalMembersAndVars(env);
-            addValueKeywords(env);
-        } else {
-            insideExpression(env, new TreePath(path, exp));
-        }
-    }
-
-    private void insideTypeCheck(JavaFXCompletionEnvironment env) throws IOException {
-        InstanceOfTree iot = (InstanceOfTree) env.getPath().getLeaf();
-        TokenSequence<JFXTokenId> ts = findLastNonWhitespaceToken(env, iot, env.getOffset());
-    }
-
-    private void insideArrayAccess(JavaFXCompletionEnvironment env) throws IOException {
-        int offset = env.getOffset();
-        ArrayAccessTree aat = (ArrayAccessTree) env.getPath().getLeaf();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        int aaTextStart = (int) sourcePositions.getEndPosition(root, aat.getExpression());
-        if (aaTextStart != Diagnostic.NOPOS) {
-            Tree expr = unwrapErrTree(aat.getIndex());
-            if (expr == null || offset <= (int) sourcePositions.getStartPosition(root, expr)) {
-                String aatText = env.getController().getText().substring(aaTextStart, offset);
-                int bPos = aatText.indexOf('[');
-                //NOI18N
-                if (bPos > -1) {
-                    localResult(env);
-                    addValueKeywords(env);
-                }
-            }
-        }
-    }
-
-    private void insideNewArray(JavaFXCompletionEnvironment env) throws IOException {
-        int offset = env.getOffset();
-        TreePath path = env.getPath();
-        NewArrayTree nat = (NewArrayTree) path.getLeaf();
-        if (nat.getInitializers() != null) {
-            SourcePositions sourcePositions = env.getSourcePositions();
-            CompilationUnitTree root = env.getRoot();
-            Tree last = null;
-            int lastPos = offset;
-            for (Tree init : nat.getInitializers()) {
-                int pos = (int) sourcePositions.getEndPosition(root, init);
-                if (pos == Diagnostic.NOPOS || offset <= pos) {
-                    break;
-                }
-                last = init;
-                lastPos = pos;
-            }
-            if (last != null) {
-                TokenSequence<JFXTokenId> ts = findLastNonWhitespaceToken(env, lastPos, offset);
-                if (ts != null && ts.token().id() == JFXTokenId.COMMA) {
-                    TreePath parentPath = path.getParentPath();
-                    TreePath gparentPath = parentPath.getParentPath();
-                    if (parentPath.getLeaf().getKind() == Tree.Kind.ANNOTATION || gparentPath.getLeaf().getKind() == Tree.Kind.ANNOTATION) {
-                        addLocalConstantsAndTypes(env);
-                    } else {
-                        localResult(env);
-                        addValueKeywords(env);
-                    }
-                }
-                return;
-            }
-        }
-        TokenSequence<JFXTokenId> ts = findLastNonWhitespaceToken(env, nat, offset);
-        switch (ts.token().id()) {
-            case LBRACKET:
-            case LBRACE:
-                TreePath parentPath = path.getParentPath();
-                TreePath gparentPath = parentPath.getParentPath();
-                if (parentPath.getLeaf().getKind() == Tree.Kind.ANNOTATION || gparentPath.getLeaf().getKind() == Tree.Kind.ANNOTATION) {
-                    addLocalConstantsAndTypes(env);
-                } else {
-                    localResult(env);
-                    addValueKeywords(env);
-                }
-                break;
-            case RBRACKET:
-                if (nat.getDimensions().size() > 0) {
-                    insideExpression(env, path);
-                }
-                break;
-        }
-    }
-
-    private void insideAssignment(JavaFXCompletionEnvironment env) throws IOException {
-        int offset = env.getOffset();
-        TreePath path = env.getPath();
-        AssignmentTree as = (AssignmentTree) path.getLeaf();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        int asTextStart = (int) sourcePositions.getEndPosition(root, as.getVariable());
-        if (asTextStart != Diagnostic.NOPOS) {
-            Tree expr = unwrapErrTree(as.getExpression());
-            if (expr == null || offset <= (int) sourcePositions.getStartPosition(root, expr)) {
-                String asText = env.getController().getText().substring(asTextStart, offset);
-                int eqPos = asText.indexOf('=');
-                if (eqPos > -1) {
-                    if (path.getParentPath().getLeaf().getKind() == Tree.Kind.ANNOTATION) {
-                        addLocalConstantsAndTypes(env);
-                    } else {
-                        localResult(env);
-                        addValueKeywords(env);
-                    }
-                }
-            } else {
-                insideExpression(env, new TreePath(path, expr));
-            }
-        }
-    }
-
-    private void insideCompoundAssignment(JavaFXCompletionEnvironment env) throws IOException {
-        int offset = env.getOffset();
-        CompoundAssignmentTree cat = (CompoundAssignmentTree) env.getPath().getLeaf();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        int catTextStart = (int) sourcePositions.getEndPosition(root, cat.getVariable());
-        if (catTextStart != Diagnostic.NOPOS) {
-            Tree expr = unwrapErrTree(cat.getExpression());
-            if (expr == null || offset <= (int) sourcePositions.getStartPosition(root, expr)) {
-                String catText = env.getController().getText().substring(catTextStart, offset);
-                int eqPos = catText.indexOf('=');
-                //NOI18N
-                if (eqPos > -1) {
-                    localResult(env);
-                    addValueKeywords(env);
-                }
-            }
-        }
-    }
-
-    private void insideBinaryTree(JavaFXCompletionEnvironment env) throws IOException {
-        int offset = env.getOffset();
-        BinaryTree bi = (BinaryTree) env.getPath().getLeaf();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        CompilationUnitTree root = env.getRoot();
-        int pos = (int) sourcePositions.getEndPosition(root, bi.getRightOperand());
-        if (pos != Diagnostic.NOPOS && pos < offset) {
-            return;
-        }
-        pos = (int) sourcePositions.getEndPosition(root, bi.getLeftOperand());
-        if (pos != Diagnostic.NOPOS) {
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(env, pos, offset);
-            if (last != null) {
-                localResult(env);
-                addValueKeywords(env);
-            }
-        }
-    }
-
-    private void insideExpressionStatement(JavaFXCompletionEnvironment env) throws IOException {
-        TreePath path = env.getPath();
-        ExpressionStatementTree est = (ExpressionStatementTree) path.getLeaf();
-        CompilationController controller = env.getController();
-        Tree t = est.getExpression();
-        if (t.getKind() == Tree.Kind.ERRONEOUS) {
-            Iterator<? extends Tree> it = ((ErroneousTree) t).getErrorTrees().iterator();
-            if (it.hasNext()) {
-                t = it.next();
-            } else {
-                TokenSequence<JFXTokenId> ts = controller.getTokenHierarchy().tokenSequence(JFXTokenId.language());
-                ts.move((int) env.getSourcePositions().getStartPosition(env.getRoot(), est));
-                ts.movePrevious();
-                switch (ts.token().id()) {
-                    case FOR:
-                    case IF:
-                    case WHILE:
-                        return;
-                }
-                localResult(env);
-                Tree parentTree = path.getParentPath().getLeaf();
-                switch (parentTree.getKind()) {
-                    case FOR_LOOP:env.getPath().getLeaf();
-                        if (((ForLoopTree) parentTree).getStatement() == est) {
-                            addKeywordsForStatement(env);
-                        } else {
-                            addValueKeywords(env);
-                        }
-                        break;
-                    case ENHANCED_FOR_LOOP:
-                        if (((EnhancedForLoopTree) parentTree).getStatement() == est) {
-                            addKeywordsForStatement(env);
-                        } else {
-                            addValueKeywords(env);
-                        }
-                        break;
-                    case VARIABLE:
-                        addValueKeywords(env);
-                        break;
-                    default:
-                        addKeywordsForStatement(env);
-                        break;
-                }
-                return;
-            }
-        }
-        TreePath tPath = new TreePath(path, t);
-        if (t.getKind() == Tree.Kind.MODIFIERS) {
-            insideModifiers(env, tPath);
-        } else if (t.getKind() == Tree.Kind.MEMBER_SELECT && ERROR.contentEquals(((MemberSelectTree) t).getIdentifier())) {
-            controller.toPhase(Phase.ELEMENTS_RESOLVED);
-            TreePath expPath = new TreePath(tPath, ((MemberSelectTree) t).getExpression());
-            TypeMirror type = controller.getTrees().getTypeMirror(expPath);
-            switch (type.getKind()) {
-                case TYPEVAR:
-                    type = ((TypeVariable) type).getUpperBound();
-                    if (type == null) {
-                        return;
-                    }
-                case ARRAY:
-                case DECLARED:
-                case BOOLEAN:
-                case BYTE:
-                case CHAR:
-                case DOUBLE:
-                case FLOAT:
-                case INT:
-                case LONG:
-                case SHORT:
-                case VOID:
-                    break;
-                default:
-            }
-        } else {
-            insideExpression(env, tPath);
-        }
-    }
-
-    private void insideExpression(JavaFXCompletionEnvironment env, TreePath exPath) throws IOException {
-        int offset = env.getOffset();
-        String prefix = env.getPrefix();
-        Tree et = exPath.getLeaf();
-        Tree parent = exPath.getParentPath().getLeaf();
-        CompilationController controller = env.getController();
-        int endPos = (int) env.getSourcePositions().getEndPosition(env.getRoot(), et);
-        if (endPos != Diagnostic.NOPOS && endPos < offset) {
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(env, endPos, offset);
-            if (last != null) {
-                return;
-            }
-        }
-    }
-
-    private void localResult(JavaFXCompletionEnvironment env) throws IOException {
-        addLocalMembersAndVars(env);
-    }
-
-    private void addLocalConstantsAndTypes(final JavaFXCompletionEnvironment env) throws IOException {
-        log("addLocalConstantsAndTypes: " + env.getPrefix());
-    }
-
-    private void addLocalMembersAndVars(final JavaFXCompletionEnvironment env) throws IOException {
-        log("addLocalMembersAndVars: " + env.getPrefix());
-    }
-
-    private void addLocalFieldsAndVars(final JavaFXCompletionEnvironment env) throws IOException {
-        log("addLocalFieldsAndVars: " + env.getPrefix());
-    }
-
-    private void addPackages(JavaFXCompletionEnvironment env, String fqnPrefix) {
-    }
-
-    private List<DeclaredType> getSubtypesOf(JavaFXCompletionEnvironment env, DeclaredType baseType) throws IOException {
-        return Collections.emptyList();
-    }
-
-    private void addMethodArguments(JavaFXCompletionEnvironment env, MethodInvocationTree mit) throws IOException {
-    }
-
-    private void addKeyword(JavaFXCompletionEnvironment env, String kw, String postfix, boolean smartType) {
-        if (JavaFXCompletionProvider.startsWith(kw, env.getPrefix())) {
-            results.add(JavaFXCompletionItem.createKeywordItem(kw, postfix, anchorOffset, smartType));
-        }
-    }
-
-    private void addKeywordsForCU(JavaFXCompletionEnvironment env) {
-        List<String> kws = new ArrayList<String>();
-        int offset = env.getOffset();
-        String prefix = env.getPrefix();
-        CompilationUnitTree cu = env.getRoot();
-        SourcePositions sourcePositions = env.getSourcePositions();
-        kws.add(ABSTRACT_KEYWORD);
-        kws.add(CLASS_KEYWORD);
-        kws.add(VAR_KEYWORD);
-        kws.add(FUNCTION_KEYWORD);
-        kws.add(PUBLIC_KEYWORD);
-        kws.add(IMPORT_KEYWORD);
-        boolean beforeAnyClass = true;
-        for (Tree t : cu.getTypeDecls()) {
-            if (t.getKind() == Tree.Kind.CLASS) {
-                int pos = (int) sourcePositions.getEndPosition(cu, t);
-                if (pos != Diagnostic.NOPOS && offset >= pos) {
-                    beforeAnyClass = false;
-                }
-            }
-        }
-        if (beforeAnyClass) {
-            Tree firstImport = null;
-            for (Tree t : cu.getImports()) {
-                firstImport = t;
-                break;
-            }
-            Tree pd = cu.getPackageName();
-            if ((pd != null && offset <= sourcePositions.getStartPosition(cu, cu)) || (pd == null && (firstImport == null || sourcePositions.getStartPosition(cu, firstImport) >= offset))) {
-                kws.add(PACKAGE_KEYWORD);
-            }
-        }
-        for (String kw : kws) {
-            if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
-                results.add(JavaFXCompletionItem.createKeywordItem(kw, SPACE, anchorOffset, false));
-            }
-        }
-    }
-
-    private void addKeywordsForClassBody(JavaFXCompletionEnvironment env) {
-        String prefix = env.getPrefix();
-        for (String kw : CLASS_BODY_KEYWORDS) {
-            if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
-                results.add(JavaFXCompletionItem.createKeywordItem(kw, SPACE, anchorOffset, false));
-            }
-        }
-    }
-
-    private void addKeywordsForStatement(JavaFXCompletionEnvironment env) {
-        String prefix = env.getPrefix();
-        for (String kw : STATEMENT_KEYWORDS) {
-            if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
-                results.add(JavaFXCompletionItem.createKeywordItem(kw, null, anchorOffset, false));
-            }
-        }
-        for (String kw : STATEMENT_SPACE_KEYWORDS) {
-            if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
-                results.add(JavaFXCompletionItem.createKeywordItem(kw, SPACE, anchorOffset, false));
-            }
-        }
-        if (JavaFXCompletionProvider.startsWith(RETURN_KEYWORD, prefix)) {
-            TreePath mth = JavaFXCompletionProvider.getPathElementOfKind(Tree.Kind.METHOD, env.getPath());
-            String postfix = SPACE;
-            if (mth != null) {
-                Tree rt = ((MethodTree) mth.getLeaf()).getReturnType();
-                if (rt == null || rt.getKind() == Tree.Kind.PRIMITIVE_TYPE && ((PrimitiveTypeTree) rt).getPrimitiveTypeKind() == TypeKind.VOID) {
-                    postfix = SEMI;
-                }
-            }
-            results.add(JavaFXCompletionItem.createKeywordItem(RETURN_KEYWORD, postfix, anchorOffset, false));
-        }
-        TreePath tp = env.getPath();
-        while (tp != null) {
-            switch (tp.getLeaf().getKind()) {
-                case DO_WHILE_LOOP:
-                case ENHANCED_FOR_LOOP:
-                case FOR_LOOP:
-                case WHILE_LOOP:
-                    if (JavaFXCompletionProvider.startsWith(CONTINUE_KEYWORD, prefix)) {
-                        results.add(JavaFXCompletionItem.createKeywordItem(CONTINUE_KEYWORD, SEMI, anchorOffset, false));
-                    }
-                case SWITCH:
-                    if (JavaFXCompletionProvider.startsWith(BREAK_KEYWORD, prefix)) {
-                        results.add(JavaFXCompletionItem.createKeywordItem(BREAK_KEYWORD, SEMI, anchorOffset, false));
-                    }
-                    break;
-            }
-            tp = tp.getParentPath();
-        }
-    }
-
-    private void addValueKeywords(JavaFXCompletionEnvironment env) throws IOException {
-        String prefix = env.getPrefix();
-        boolean smartType = false;
-        if (queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE) {
-            Set<? extends TypeMirror> smartTypes = env.getSmartTypes();
-            if (smartTypes != null && !smartTypes.isEmpty()) {
-                for (TypeMirror st : smartTypes) {
-                    if (st.getKind() == TypeKind.BOOLEAN) {
-                        smartType = true;
-                        break;
-                    }
-                }
-            }
-        }
-        if (JavaFXCompletionProvider.startsWith(FALSE_KEYWORD, prefix)) {
-            results.add(JavaFXCompletionItem.createKeywordItem(FALSE_KEYWORD, null, anchorOffset, smartType));
-        }
-        if (JavaFXCompletionProvider.startsWith(TRUE_KEYWORD, prefix)) {
-            results.add(JavaFXCompletionItem.createKeywordItem(TRUE_KEYWORD, null, anchorOffset, smartType));
-        }
-        if (JavaFXCompletionProvider.startsWith(NULL_KEYWORD, prefix)) {
-            results.add(JavaFXCompletionItem.createKeywordItem(NULL_KEYWORD, null, anchorOffset, false));
-        }
-        if (JavaFXCompletionProvider.startsWith(NEW_KEYWORD, prefix)) {
-            results.add(JavaFXCompletionItem.createKeywordItem(NEW_KEYWORD, SPACE, anchorOffset, false));
-        }
-        if (JavaFXCompletionProvider.startsWith(BIND_KEYWORD, prefix)) {
-            results.add(JavaFXCompletionItem.createKeywordItem(BIND_KEYWORD, SPACE, anchorOffset, false));
-        }
-    }
-
-    private void addClassModifiers(JavaFXCompletionEnvironment env, Set<Modifier> modifiers) {
-        String prefix = env.getPrefix();
-        List<String> kws = new ArrayList<String>();
-        if (!modifiers.contains(PUBLIC) && !modifiers.contains(PRIVATE)) {
-            kws.add(PUBLIC_KEYWORD);
-        }
-        if (!modifiers.contains(FINAL) && !modifiers.contains(ABSTRACT)) {
-            kws.add(ABSTRACT_KEYWORD);
-        }
-        kws.add(CLASS_KEYWORD);
-        for (String kw : kws) {
-            if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
-                results.add(JavaFXCompletionItem.createKeywordItem(kw, SPACE, anchorOffset, false));
-            }
-        }
-    }
-
-    private void addMemberModifiers(JavaFXCompletionEnvironment env, Set<Modifier> modifiers, boolean isLocal) {
-        String prefix = env.getPrefix();
-        List<String> kws = new ArrayList<String>();
-        if (isLocal) {
-        } else {
-            if (!modifiers.contains(PUBLIC) && !modifiers.contains(PROTECTED) && !modifiers.contains(PRIVATE)) {
-                kws.add(PUBLIC_KEYWORD);
-                kws.add(PROTECTED_KEYWORD);
-                kws.add(PRIVATE_KEYWORD);
-            }
-            if (!modifiers.contains(FINAL) && !modifiers.contains(ABSTRACT)) {
-                kws.add(ABSTRACT_KEYWORD);
-            }
-            if (!modifiers.contains(STATIC)) {
-                kws.add(STATIC_KEYWORD);
-            }
-            kws.add(READONLY_KEYWORD);
-        }
-        for (String kw : kws) {
-            if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
-                results.add(JavaFXCompletionItem.createKeywordItem(kw, SPACE, anchorOffset, false));
-            }
-        }
-    }
-
-    private boolean isTopLevelClass(Tree tree, CompilationUnitTree root) {
-        if (tree.getKind() == Tree.Kind.CLASS || (tree.getKind() == Tree.Kind.EXPRESSION_STATEMENT && ((ExpressionStatementTree) tree).getExpression().getKind() == Tree.Kind.ERRONEOUS)) {
-            for (Tree t : root.getTypeDecls()) {
-                if (tree == t) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     static boolean isJavaIdentifierPart(String text) {
@@ -2037,75 +859,6 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         return null;
     }
 
-    private TokenSequence<JFXTokenId> findFirstNonWhitespaceToken(JavaFXCompletionEnvironment env, Tree tree, int position) {
-        int startPos = (int) env.getSourcePositions().getStartPosition(env.getRoot(), tree);
-        return findFirstNonWhitespaceToken(env, startPos, position);
-    }
-
-    private TokenSequence<JFXTokenId> findFirstNonWhitespaceToken(JavaFXCompletionEnvironment env, int startPos, int endPos) {
-        TokenSequence<JFXTokenId> ts = env.getController().getTokenHierarchy().tokenSequence(JFXTokenId.language());
-        ts.move(startPos);
-        ts = nextNonWhitespaceToken(ts);
-        if (ts == null || ts.offset() >= endPos) {
-            return null;
-        }
-        return ts;
-    }
-
-    private TokenSequence<JFXTokenId> nextNonWhitespaceToken(TokenSequence<JFXTokenId> ts) {
-        while (ts.moveNext()) {
-            int offset = ts.offset();
-            switch (ts.token().id()) {
-                case WS:
-                case LINE_COMMENT:
-                case COMMENT:
-                case DOC_COMMENT:
-                    break;
-                default:
-                    return ts;
-            }
-        }
-        return null;
-    }
-
-    private TokenSequence<JFXTokenId> findLastNonWhitespaceToken(JavaFXCompletionEnvironment env, Tree tree, int position) {
-        int startPos = (int) env.getSourcePositions().getStartPosition(env.getRoot(), tree);
-        return findLastNonWhitespaceToken(env, startPos, position);
-    }
-
-    private TokenSequence<JFXTokenId> findLastNonWhitespaceToken(JavaFXCompletionEnvironment env, int startPos, int endPos) {
-        TokenSequence<JFXTokenId> ts = env.getController().getTokenHierarchy().tokenSequence(JFXTokenId.language());
-        ts.move(endPos);
-        ts = previousNonWhitespaceToken(ts);
-        if (ts == null || ts.offset() < startPos) {
-            return null;
-        }
-        return ts;
-    }
-
-    private TokenSequence<JFXTokenId> previousNonWhitespaceToken(TokenSequence<JFXTokenId> ts) {
-        while (ts.movePrevious()) {
-            switch (ts.token().id()) {
-                case WS:
-                case LINE_COMMENT:
-                case COMMENT:
-                case DOC_COMMENT:
-                    break;
-                default:
-                    return ts;
-            }
-        }
-        return null;
-    }
-
-    private Tree unwrapErrTree(Tree tree) {
-        if (tree != null && tree.getKind() == Tree.Kind.ERRONEOUS) {
-            Iterator<? extends Tree> it = ((ErroneousTree) tree).getErrorTrees().iterator();
-            tree = it.hasNext() ? it.next() : null;
-        }
-        return tree;
-    }
-
     private String fullName(Tree tree) {
         switch (tree.getKind()) {
             case IDENTIFIER:
@@ -2137,7 +890,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
         log("getCompletionEnvironment caretOffset: " + caretOffset + " offset: " + offset);
         TreePath path = controller.getTreeUtilities().pathFor(offset);
-        return new JavaFXCompletionEnvironment(offset, prefix, controller, path, controller.getTrees().getSourcePositions());
+        return new JavaFXCompletionEnvironment(offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
     }
 
     private static void log(String s) {
