@@ -74,10 +74,6 @@ public class JavaFXCompletionProvider implements CompletionProvider {
     private static final String ERROR = "<error>"; //NOI18N
     
     public int getAutoQueryTypes(JTextComponent component, String typedText) {
-        // this is temporary for breh:
-        if (!Boolean.getBoolean("org.netbeans.modules.javafx.editor.unstable.enable")) {
-            return 0;
-        }
         if (".".equals(typedText) || (autoMode && JavaFXCompletionQuery.isJavaIdentifierPart(typedText))) {
             if (isJavaFXContext(component, component.getSelectionStart() - 1))
                 return COMPLETION_QUERY_TYPE;
@@ -160,10 +156,6 @@ public class JavaFXCompletionProvider implements CompletionProvider {
     }
     
     public CompletionTask createTask(int type, JTextComponent component) {
-        // this is temporary for breh:
-        if (!Boolean.getBoolean("org.netbeans.modules.javafx.editor.unstable.enable")) {
-            return null;
-        }
         if ((type & COMPLETION_QUERY_TYPE) != 0 || type == TOOLTIP_QUERY_TYPE || type == DOCUMENTATION_QUERY_TYPE)
             return new AsyncCompletionTask(new JavaFXCompletionQuery(type, component.getSelectionStart(), true), component);
         return null;
