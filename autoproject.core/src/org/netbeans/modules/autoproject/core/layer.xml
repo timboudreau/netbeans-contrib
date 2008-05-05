@@ -5,6 +5,7 @@
         <folder name="org-netbeans-modules-autoproject">
             <folder name="Lookup"/>
             <folder name="Nodes"/>
+            <folder name="Actions"/>
         </folder>
     </folder>
 </filesystem>
