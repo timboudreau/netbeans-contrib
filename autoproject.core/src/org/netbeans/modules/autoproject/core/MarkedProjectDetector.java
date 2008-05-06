@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -21,12 +21,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,46 +31,35 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.hibernate.loaders.reveng;
 
-import java.io.IOException;
+package org.netbeans.modules.autoproject.core;
+
+import java.io.File;
+import org.netbeans.modules.autoproject.spi.Cache;
+import org.netbeans.modules.autoproject.spi.ProjectDetector;
 import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataObjectExistsException;
-import org.openide.loaders.MultiDataObject;
-import org.openide.loaders.UniFileLoader;
-import org.openide.util.NbBundle;
+import org.openide.filesystems.FileUtil;
 
 /**
- *
- * @author gowri
+ * Notices projects specifically marked as such.
  */
-public class HibernateRevengDataLoader extends UniFileLoader {
+public class MarkedProjectDetector implements ProjectDetector {
 
-    public static final String REQUIRED_MIME = "text/x-hibernate-reveng+xml";
-    private static final long serialVersionUID = 1L;
+    /** public for lookup */
+    public MarkedProjectDetector() {}
 
-    public HibernateRevengDataLoader() {
-        super("org.netbeans.modules.hibernate.loaders.reveng.HibernateRevengDataObject");
+    public boolean isProject(FileObject projectDirectory) {
+        File d = FileUtil.toFile(projectDirectory);
+        if (d != null) {
+            return Boolean.parseBoolean(Cache.get(d + Cache.PROJECT));
+        } else {
+            return false;
+        }
     }
 
-    @Override
-    protected String defaultDisplayName() {
-        return NbBundle.getMessage(HibernateRevengDataLoader.class, "LBL_HibernateReveng_loader_name");
-    }
-
-    @Override
-    protected void initialize() {
-        super.initialize();
-        getExtensions().addMimeType(REQUIRED_MIME);
-    }
-
-    protected MultiDataObject createMultiObject(FileObject primaryFile) throws DataObjectExistsException, IOException {
-        return new HibernateRevengDataObject(primaryFile, this);
-    }
-
-    @Override
-    protected String actionsContext() {
-        return "Loaders/" + REQUIRED_MIME + "/Actions";
-    }
 }
