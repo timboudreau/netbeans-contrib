@@ -45,10 +45,13 @@ import com.sun.source.tree.ExpressionStatementTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.ReturnTree;
+import com.sun.source.tree.Scope;
 import com.sun.source.tree.ThrowTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
+import com.sun.source.util.Trees;
+import com.sun.tools.javafx.api.JavafxcTrees;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -57,11 +60,15 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.*;
+import javax.lang.model.util.ElementFilter;
 import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Position;
@@ -84,6 +91,13 @@ import org.openide.xml.XMLUtil;
  * @author Dusan Balek
  */
 public abstract class JavaFXCompletionItem implements CompletionItem {
+    public static final String COLOR_END = "</font>"; //NOI18N
+    public static final String STRIKE = "<s>"; //NOI18N
+    public static final String STRIKE_END = "</s>"; //NOI18N
+    public static final String BOLD = "<b>"; //NOI18N
+    public static final String BOLD_END = "</b>"; //NOI18N
+
+    protected int substitutionOffset;
     
     protected static int SMART_TYPE = 1000;
     private static final String GENERATE_TEXT = NbBundle.getMessage(JavaFXCompletionItem.class, "generate_Lbl");
@@ -108,15 +122,16 @@ public abstract class JavaFXCompletionItem implements CompletionItem {
                 throw new IllegalArgumentException("kind=" + elem.getKind());
         }
     }
-
-    public static final String COLOR_END = "</font>"; //NOI18N
-    public static final String STRIKE = "<s>"; //NOI18N
-    public static final String STRIKE_END = "</s>"; //NOI18N
-    public static final String BOLD = "<b>"; //NOI18N
-    public static final String BOLD_END = "</b>"; //NOI18N
-
-    protected int substitutionOffset;
     
+    public static final JavaFXCompletionItem createTypeItem(TypeElement elem, DeclaredType type, int substitutionOffset, boolean isDeprecated, boolean insideNew, boolean smartType) {
+        switch (elem.getKind()) {
+            case CLASS:
+                return new ClassItem(elem, type, 0, substitutionOffset, isDeprecated, insideNew, smartType);
+            default:
+                throw new IllegalArgumentException("kind=" + elem.getKind());
+        }
+    }
+
     protected JavaFXCompletionItem(int substitutionOffset) {
         this.substitutionOffset = substitutionOffset;
     }
@@ -809,6 +824,289 @@ public abstract class JavaFXCompletionItem implements CompletionItem {
             return sb.toString();
         }
     }    
+    static class ClassItem extends JavaFXCompletionItem {
+        
+        private static final String CLASS = "org/netbeans/modules/editor/resources/completion/class_16.png"; //NOI18N
+        private static final String CLASS_COLOR = "<font color=#560000>"; //NOI18N
+        private static final String PKG_COLOR = "<font color=#808080>"; //NOI18N
+        private static ImageIcon icon;
+        
+        private int dim;
+        private boolean isDeprecated;
+        private boolean insideNew;
+        private boolean smartType;
+        private String simpleName;
+        private String typeName;
+        private CharSequence sortText;
+        private String leftText;
+        private DeclaredType type;
+        
+        private ClassItem(TypeElement elem, DeclaredType type, int dim, int substitutionOffset, boolean isDeprecated, boolean insideNew, boolean smartType) {
+            super(substitutionOffset);
+            this.dim = dim;
+            this.isDeprecated = isDeprecated;
+            this.insideNew = insideNew;
+            this.smartType = smartType;
+            this.simpleName = elem.getSimpleName().toString();
+            this.typeName = type != null ? type.toString() : null;
+            this.type = type;
+            this.sortText = this.simpleName;
+        }
+        
+        public int getSortPriority() {
+            return smartType ? 800 - SMART_TYPE : 800;
+        }
+        
+        public CharSequence getSortText() {
+            return sortText;
+        }
+        
+        public CharSequence getInsertPrefix() {
+            return simpleName;
+        }
+
+        public boolean instantSubstitution(JTextComponent component) {
+            return false;
+        }
+    
+//        public CompletionTask createDocumentationTask() {
+//            return typeHandle.getKind() == TypeKind.DECLARED ? JavaCompletionProvider.createDocTask(ElementHandle.from(typeHandle)) : null;
+//        }
+
+        protected ImageIcon getIcon(){
+            if (icon == null) icon = new ImageIcon(org.openide.util.Utilities.loadImage(CLASS));
+            return icon;            
+        }
+
+        protected String getLeftHtmlText() {
+            if (leftText == null) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(getColor());
+                if (isDeprecated)
+                    sb.append(STRIKE);
+                sb.append(escape(typeName));
+                for(int i = 0; i < dim; i++)
+                    sb.append("[]"); //NOI18N
+                if (isDeprecated)
+                    sb.append(STRIKE_END);
+                sb.append(COLOR_END);
+                leftText = sb.toString();
+            }
+            return leftText;
+        }
+        
+        protected String getColor() {
+            return CLASS_COLOR;
+        }
+
+        protected void substituteText(final JTextComponent c, final int offset, int len, String toAdd) {
+            final BaseDocument doc = (BaseDocument)c.getDocument();
+            final StringBuilder text = new StringBuilder();
+            final int semiPos = toAdd != null && toAdd.endsWith(";") ? findPositionForSemicolon(c) : -2; //NOI18N
+            if (semiPos > -2)
+                toAdd = toAdd.length() > 1 ? toAdd.substring(0, toAdd.length() - 1) : null;
+            if (toAdd != null && !toAdd.equals("\n")) {//NOI18N
+                JavaFXSource js = JavaFXSource.forDocument(c.getDocument());
+                TokenSequence<JFXTokenId> sequence = js.getTokenHierarchy().tokenSequence();
+                sequence = sequence.subSequence(offset + len);
+                if (sequence == null || !sequence.moveNext() && !sequence.movePrevious()) {
+                    text.append(toAdd);
+                    toAdd = null;
+                }
+                boolean added = false;
+                while(toAdd != null && toAdd.length() > 0) {
+                    String tokenText = sequence.token().text().toString();
+                    if (tokenText.startsWith(toAdd)) {
+                        len = sequence.offset() - offset + toAdd.length();
+                        text.append(toAdd);
+                        toAdd = null;
+                    } else if (toAdd.startsWith(tokenText)) {
+                        sequence.moveNext();
+                        len = sequence.offset() - offset;
+                        text.append(toAdd.substring(0, tokenText.length()));
+                        toAdd = toAdd.substring(tokenText.length());
+                        added = true;
+                    } else if (sequence.token().id() == JFXTokenId.WS && sequence.token().text().toString().indexOf('\n') < 0) {//NOI18N
+                        if (!sequence.moveNext()) {
+                            text.append(toAdd);
+                            toAdd = null;
+                        }
+                    } else {
+                        if (!added)
+                            text.append(toAdd);
+                        toAdd = null;
+                    }
+                }
+            }
+            final int finalLen = len;
+            JavaFXSource js = JavaFXSource.forDocument(doc);
+            try {
+                js.runUserActionTask(new Task<CompilationController>() {
+
+                    public void run(CompilationController controller) throws IOException {
+                        controller.toPhase(Phase.ANALYZED);
+                        TypeElement elem = (TypeElement)type.asElement();
+                        boolean asTemplate = false;
+                        StringBuilder sb = new StringBuilder();
+                        int cnt = 1;
+                        sb.append("${PAR"); //NOI18N
+                        sb.append(cnt++);
+                        if ((type == null || type.getKind() != TypeKind.ERROR) &&
+                                EnumSet.range(ElementKind.PACKAGE, ElementKind.INTERFACE).contains(elem.getEnclosingElement().getKind())) {
+                            sb.append(" type=\""); //NOI18N
+                            sb.append(elem.getQualifiedName());
+                            sb.append("\" default=\""); //NOI18N
+                            sb.append(elem.getSimpleName());
+                        } else {
+                            sb.append(" default=\""); //NOI18N
+                            sb.append(elem.getQualifiedName());
+                        }
+                        sb.append("\" editable=false}"); //NOI18N
+                        Iterator<? extends TypeMirror> tas = type != null ? type.getTypeArguments().iterator() : null;
+                        if (tas != null && tas.hasNext()) {
+                            sb.append('<'); //NOI18N
+                            while (tas.hasNext()) {
+                                TypeMirror ta = tas.next();
+                                sb.append("${PAR"); //NOI18N
+                                sb.append(cnt++);
+                                if (ta.getKind() == TypeKind.TYPEVAR) {
+                                    TypeVariable tv = (TypeVariable)ta;
+                                    if (elem == tv.asElement().getEnclosingElement()) {
+                                        sb.append(" type=\""); //NOI18N
+                                        ta = tv.getUpperBound();
+                                        sb.append(ta.toString());
+                                        sb.append("\" default=\""); //NOI18N
+                                        sb.append(ta.toString());
+                                    } else {
+                                        sb.append(" editable=false default=\""); //NOI18N
+                                        sb.append(ta.toString());
+                                        asTemplate = true;
+                                    }
+                                    sb.append("\"}"); //NOI18N
+                                } else if (ta.getKind() == TypeKind.WILDCARD) {
+                                    sb.append(" type=\""); //NOI18N
+                                    TypeMirror bound = ((WildcardType)ta).getExtendsBound();
+                                    if (bound == null)
+                                        bound = ((WildcardType)ta).getSuperBound();
+                                    sb.append(bound != null ? bound.toString() : "Object"); //NOI18N
+                                    sb.append("\" default=\""); //NOI18N
+                                    sb.append(bound != null ? bound.toString() : "Object"); //NOI18N
+                                    sb.append("\"}"); //NOI18N
+                                    asTemplate = true;
+                                } else if (ta.getKind() == TypeKind.ERROR) {
+                                    sb.append(" default=\""); //NOI18N
+                                    sb.append(((ErrorType)ta).asElement().getSimpleName());
+                                    sb.append("\"}"); //NOI18N
+                                    asTemplate = true;
+                                } else {
+                                    sb.append(" type=\""); //NOI18N
+                                    sb.append(ta.toString());
+                                    sb.append("\" default=\""); //NOI18N
+                                    sb.append(ta.toString());
+                                    sb.append("\" editable=false}"); //NOI18N
+                                    asTemplate = true;
+                                }
+                                if (tas.hasNext())
+                                    sb.append(", "); //NOI18N
+                            }
+                            sb.append('>'); //NOI18N
+                        }
+                        for(int i = 0; i < dim; i++) {
+                            sb.append("[${PAR"); //NOI18N
+                            sb.append(cnt++);
+                            sb.append(" instanceof=\"int\" default=\"\"}]"); //NOI18N
+                            asTemplate = true;
+                        }
+                        if (asTemplate) {
+                            if (insideNew)
+                                sb.append("${cursor completionInvoke}"); //NOI18N
+                            if (finalLen > 0) {
+                                doc.atomicLock();
+                                try {
+                                    doc.remove(offset, finalLen);
+                                } catch (BadLocationException e) {
+                                    // Can't update
+                                } finally {
+                                    doc.atomicUnlock();
+                                }
+                            }
+                            CodeTemplateManager ctm = CodeTemplateManager.get(doc);
+                            if (ctm != null)
+                                ctm.createTemporary(sb.append(text).toString()).insert(c);
+                        } else {
+                            // Update the text
+                            doc.atomicLock();
+                            try {
+                                Position semiPosition = semiPos > -1 && !insideNew ? doc.createPosition(semiPos) : null;
+                                TreePath tp = controller.getTreeUtilities().pathFor(offset);
+                                CharSequence cs = elem.getSimpleName(); 
+                                if (!insideNew)
+                                    cs = text.insert(0, cs);
+                                String textToReplace = doc.getText(offset, finalLen);
+                                if (textToReplace.contentEquals(cs)) return;
+                                doc.remove(offset, finalLen);
+                                doc.insertString(offset, cs.toString(), null);
+                                if (semiPosition != null)
+                                    doc.insertString(semiPosition.getOffset(), ";", null); //NOI18N
+                            } catch (BadLocationException e) {
+                                // Can't update
+                            } finally {
+                                doc.atomicUnlock();
+                            }
+                            if (insideNew && type != null && type.getKind() == TypeKind.DECLARED) {
+                                ExecutableElement ctor = null;
+                                JavafxcTrees trees = controller.getTrees();
+                                Scope scope = controller.getTreeUtilities().scopeFor(offset);
+                                int val = 0; // no constructors seen yet
+                                for (ExecutableElement ee : ElementFilter.constructorsIn(elem.getEnclosedElements())) {
+                                    if (trees.isAccessible(scope, ee, type)) {
+                                        if (ctor != null) {
+                                            val = 2; // more than one accessible constructors seen
+                                            break;
+                                        }
+                                        ctor = ee;
+                                    }
+                                    val = 1; // constructor seen
+                                }
+                                if (val != 1 || ctor != null) {
+                                    final JavaFXCompletionItem item = null;
+                                    
+                                    // TODO:
+//                                            val == 0 ? 
+//                                                createDefaultConstructorItem(elem, offset, true) :
+//                                                val == 2 || Utilities.hasAccessibleInnerClassConstructor(elem, scope, trees) ? 
+//                                                    null : createExecutableItem(ctor, (ExecutableType)controller.getTypes().asMemberOf(type, ctor), offset, false, false, false, true);
+                                    try {
+                                        final Position offPosition = doc.createPosition(offset);
+                                        SwingUtilities.invokeLater(new Runnable() {
+                                            public void run() {
+                                                if (item != null) {
+                                                    item.substituteText(c, offPosition.getOffset(), c.getSelectionEnd() - offPosition.getOffset(), text.toString());
+                                                } else {
+                                                    //Temporary ugly solution
+                                                    SwingUtilities.invokeLater(new Runnable() {
+                                                        public void run() {
+                                                            Completion.get().showCompletion();
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        });
+                                    }
+                                    catch (BadLocationException e) {}
+                                }
+                            }
+                        }
+                    }
+                }, true);
+            } catch (IOException ioe) {                
+            }
+        }
+        
+        public String toString() {
+            return simpleName;
+        }        
+    }
 
     private static final int PUBLIC_LEVEL = 3;
     private static final int PROTECTED_LEVEL = 2;
