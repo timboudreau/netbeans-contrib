@@ -43,6 +43,7 @@ package org.netbeans.modules.javafx.editor.completion;
 
 import com.sun.source.tree.ExpressionStatementTree;
 import com.sun.source.tree.ExpressionTree;
+import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.ReturnTree;
 import com.sun.source.tree.ThrowTree;
 import com.sun.source.tree.Tree;
@@ -56,7 +57,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.*;
 import javax.swing.ImageIcon;
 import javax.swing.text.BadLocationException;
@@ -95,6 +98,15 @@ public abstract class JavaFXCompletionItem implements CompletionItem {
 
     public static final JavaFXCompletionItem createVariableItem(String varName, int substitutionOffset, boolean smartType) {
         return new VariableItem(null, varName, substitutionOffset, smartType);
+    }
+    
+    public static final JavaFXCompletionItem createExecutableItem(ExecutableElement elem, ExecutableType type, int substitutionOffset, boolean isInherited, boolean isDeprecated, boolean inImport, boolean smartType) {
+        switch (elem.getKind()) {
+            case METHOD:
+                return new MethodItem(elem, type, substitutionOffset, isInherited, isDeprecated, inImport, smartType);
+            default:
+                throw new IllegalArgumentException("kind=" + elem.getKind());
+        }
     }
 
     public static final String COLOR_END = "</font>"; //NOI18N
@@ -498,7 +510,306 @@ public abstract class JavaFXCompletionItem implements CompletionItem {
             return (typeName != null ? typeName + " " : "") + varName; //NOI18N
         }
    }
-    
+        static class MethodItem extends JavaFXCompletionItem {
+        
+        private static final String METHOD_PUBLIC = "org/netbeans/modules/editor/resources/completion/method_16.png"; //NOI18N
+        private static final String METHOD_PROTECTED = "org/netbeans/modules/editor/resources/completion/method_protected_16.png"; //NOI18N
+        private static final String METHOD_PACKAGE = "org/netbeans/modules/editor/resources/completion/method_package_private_16.png"; //NOI18N
+        private static final String METHOD_PRIVATE = "org/netbeans/modules/editor/resources/completion/method_private_16.png"; //NOI18N        
+        private static final String METHOD_ST_PUBLIC = "org/netbeans/modules/editor/resources/completion/method_static_16.png"; //NOI18N
+        private static final String METHOD_ST_PROTECTED = "org/netbeans/modules/editor/resources/completion/method_static_protected_16.png"; //NOI18N
+        private static final String METHOD_ST_PRIVATE = "org/netbeans/modules/editor/resources/completion/method_static_private_16.png"; //NOI18N
+        private static final String METHOD_ST_PACKAGE = "org/netbeans/modules/editor/resources/completion/method_static_package_private_16.png"; //NOI18N
+        private static final String METHOD_COLOR = "<font color=#000000>"; //NOI18N
+        private static final String PARAMETER_NAME_COLOR = "<font color=#a06001>"; //NOI18N
+        private static ImageIcon icon[][] = new ImageIcon[2][4];
+
+        private boolean isInherited;
+        private boolean isDeprecated;
+        private boolean inImport;
+        private boolean smartType;
+        private String simpleName;
+        protected Set<Modifier> modifiers;
+        private List<ParamDesc> params;
+        private String typeName;
+        private boolean isPrimitive;
+        private String sortText;
+        private String leftText;
+        private String rightText;
+        
+        private MethodItem(ExecutableElement elem, ExecutableType type, int substitutionOffset, boolean isInherited, boolean isDeprecated, boolean inImport, boolean smartType) {
+            super(substitutionOffset);
+            this.isInherited = isInherited;
+            this.isDeprecated = isDeprecated;
+            this.inImport = inImport;
+            this.smartType = smartType;
+            this.simpleName = elem.getSimpleName().toString();
+            this.modifiers = elem.getModifiers();
+            this.params = new ArrayList<ParamDesc>();
+            Iterator<? extends VariableElement> it = elem.getParameters().iterator();
+            Iterator<? extends TypeMirror> tIt = type.getParameterTypes().iterator();
+            while(it.hasNext() && tIt.hasNext()) {
+                TypeMirror tm = tIt.next();
+                this.params.add(new ParamDesc(tm.toString(), tm.toString(), it.next().getSimpleName().toString()));
+            }
+            TypeMirror retType = type.getReturnType();
+            this.typeName = retType.toString();
+            this.isPrimitive = retType.getKind().isPrimitive() || retType.getKind() == TypeKind.VOID;
+        }
+        
+        public int getSortPriority() {
+            return smartType ? 500 - SMART_TYPE : 500;
+        }
+        
+        public CharSequence getSortText() {
+            if (sortText == null) {
+                StringBuilder sortParams = new StringBuilder();
+                sortParams.append('(');
+                int cnt = 0;
+                for(Iterator<ParamDesc> it = params.iterator(); it.hasNext();) {
+                    ParamDesc param = it.next();
+                    sortParams.append(param.typeName);
+                    if (it.hasNext()) {
+                        sortParams.append(',');
+                    }
+                    cnt++;
+                }
+                sortParams.append(')');
+                sortText = simpleName + "#" + ((cnt < 10 ? "0" : "") + cnt) + "#" + sortParams.toString(); //NOI18N
+            }
+            return sortText;
+        }
+        
+        public CharSequence getInsertPrefix() {
+            return simpleName;
+        }
+        
+        protected String getLeftHtmlText() {
+            if (leftText == null) {
+                StringBuilder lText = new StringBuilder();
+                lText.append(METHOD_COLOR);
+                if (!isInherited)
+                    lText.append(BOLD);
+                if (isDeprecated)
+                    lText.append(STRIKE);
+                lText.append(simpleName);
+                if (isDeprecated)
+                    lText.append(STRIKE_END);
+                if (!isInherited)
+                    lText.append(BOLD_END);
+                lText.append(COLOR_END);
+                lText.append('(');
+                for (Iterator<ParamDesc> it = params.iterator(); it.hasNext();) {
+                    ParamDesc paramDesc = it.next();
+                    lText.append(escape(paramDesc.typeName));
+                    lText.append(' ');
+                    lText.append(PARAMETER_NAME_COLOR);
+                    lText.append(paramDesc.name);
+                    lText.append(COLOR_END);
+                    if (it.hasNext()) {
+                        lText.append(", "); //NOI18N
+                    }
+                }
+                lText.append(')');
+                return lText.toString();
+            }
+            return leftText;
+        }
+        
+        protected String getRightHtmlText() {
+            if (rightText == null)
+                rightText = escape(typeName);
+            return rightText;
+        }
+        
+//        public CompletionTask createDocumentationTask() {
+//            return JavaFXCompletionProvider.createDocTask(elementHandle);
+//        }
+
+        protected ImageIcon getIcon() {
+            int level = getProtectionLevel(modifiers);
+            boolean isStatic = modifiers.contains(Modifier.STATIC);
+            ImageIcon cachedIcon = icon[isStatic?1:0][level];
+            if (cachedIcon != null)
+                return cachedIcon;
+            
+            String iconPath = METHOD_PUBLIC;            
+            if (isStatic) {
+                switch (level) {
+                    case PRIVATE_LEVEL:
+                        iconPath = METHOD_ST_PRIVATE;
+                        break;
+
+                    case PACKAGE_LEVEL:
+                        iconPath = METHOD_ST_PACKAGE;
+                        break;
+
+                    case PROTECTED_LEVEL:
+                        iconPath = METHOD_ST_PROTECTED;
+                        break;
+
+                    case PUBLIC_LEVEL:
+                        iconPath = METHOD_ST_PUBLIC;
+                        break;
+                }
+            }else{
+                switch (level) {
+                    case PRIVATE_LEVEL:
+                        iconPath = METHOD_PRIVATE;
+                        break;
+
+                    case PACKAGE_LEVEL:
+                        iconPath = METHOD_PACKAGE;
+                        break;
+
+                    case PROTECTED_LEVEL:
+                        iconPath = METHOD_PROTECTED;
+                        break;
+
+                    case PUBLIC_LEVEL:
+                        iconPath = METHOD_PUBLIC;
+                        break;
+                }
+            }
+            ImageIcon newIcon = new ImageIcon(org.openide.util.Utilities.loadImage(iconPath));
+            icon[isStatic?1:0][level] = newIcon;
+            return newIcon;            
+        }
+        
+        protected void substituteText(final JTextComponent c, int offset, int len, String toAdd) {
+            if (toAdd == null) {
+                if (isPrimitive) {
+                    try {
+                        final String[] ret = new String[1];
+                        JavaFXSource js = JavaFXSource.forDocument(c.getDocument());
+                        js.runUserActionTask(new Task<CompilationController>() {
+
+                            public void run(CompilationController controller) throws Exception {
+                                controller.toPhase(Phase.PARSED);
+                                TreePath tp = controller.getTreeUtilities().pathFor(c.getSelectionEnd());
+                                Tree tree = tp.getLeaf();
+                                if (tree.getKind() == Tree.Kind.IDENTIFIER || tree.getKind() == Tree.Kind.PRIMITIVE_TYPE)
+                                    tp = tp.getParentPath();
+                                if (tp.getLeaf().getKind() == Tree.Kind.MEMBER_SELECT ||
+                                    (tp.getLeaf().getKind() == Tree.Kind.METHOD_INVOCATION && ((MethodInvocationTree)tp.getLeaf()).getMethodSelect() == tree))
+                                    tp = tp.getParentPath();
+                                if (tp.getLeaf().getKind() == Tree.Kind.EXPRESSION_STATEMENT || tp.getLeaf().getKind() == Tree.Kind.BLOCK)
+                                    ret[0] = ";"; //NOI18N
+                            }
+                        }, true);
+                        toAdd = ret[0];
+                    } catch (IOException ex) {
+                    }
+                }
+            }
+            if (inImport || params.isEmpty()) {
+                String add = "()"; //NOI18N
+                if (toAdd != null && !add.startsWith(toAdd))
+                    add += toAdd;
+                super.substituteText(c, offset, len, add);
+                if ("(".equals(toAdd)) //NOI18N
+                    c.setCaretPosition(c.getCaretPosition() - 1);
+            } else {
+                String add = "()"; //NOI18N
+                if (toAdd != null && !add.startsWith(toAdd))
+                    add += toAdd;
+                BaseDocument doc = (BaseDocument)c.getDocument();
+                String text = ""; //NOI18N
+                int semiPos = add.endsWith(";") ? findPositionForSemicolon(c) : -2; //NOI18N
+                if (semiPos > -2)
+                    add = add.length() > 1 ? add.substring(0, add.length() - 1) : null;
+                JavaFXSource js = JavaFXSource.forDocument(c.getDocument());
+                TokenSequence<JFXTokenId> sequence = js.getTokenHierarchy().tokenSequence();
+                sequence = sequence.subSequence(offset + len);
+                if (sequence == null || !sequence.moveNext() && !sequence.movePrevious()) {
+                    text += add;
+                    add = null;
+                }
+                boolean added = false;
+                while(add != null && add.length() > 0) {
+                    String tokenText = sequence.token().text().toString();
+                    if (tokenText.startsWith(add)) {
+                        len = sequence.offset() - offset + add.length();
+                        text += add;
+                        add = null;
+                    } else if (add.startsWith(tokenText)) {
+                        sequence.moveNext();
+                        len = sequence.offset() - offset;
+                        text += add.substring(0, tokenText.length());
+                        add = add.substring(tokenText.length());
+                        added = true;
+                    } else if (sequence.token().id() == JFXTokenId.WS && sequence.token().text().toString().indexOf('\n') < 0) {//NOI18N
+                        if (!sequence.moveNext()) {
+                            text += add;
+                            add = null;
+                        }
+                    } else {
+                        if (!added)
+                            text += add;
+                        add = null;
+                    }
+                }
+                doc.atomicLock();
+                try {
+                    Position semiPosition = semiPos > -1 ? doc.createPosition(semiPos) : null;
+                    if (len > 0)
+                        doc.remove(offset, len);
+                    doc.insertString(offset, getInsertPrefix().toString(), null);                    
+                    if (semiPosition != null)
+                        doc.insertString(semiPosition.getOffset(), ";", null); //NOI18N
+                } catch (BadLocationException e) {
+                    // Can't update
+                } finally {
+                    doc.atomicUnlock();
+                }
+                CodeTemplateManager ctm = CodeTemplateManager.get(doc);
+                if (ctm != null) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append('('); //NOI18N
+                    if (text.length() > 1) {
+                        for (Iterator<ParamDesc> it = params.iterator(); it.hasNext();) {
+                            ParamDesc paramDesc = it.next();
+                            sb.append("${"); //NOI18N
+                            sb.append(paramDesc.name);
+                            sb.append('}'); //NOI18N
+                            if (it.hasNext())
+                                sb.append(", "); //NOI18N
+                        }
+                        sb.append(')');//NOI18N
+                        if (text.length() > 2)
+                            sb.append(text.substring(2));
+                    }
+                    ctm.createTemporary(sb.toString()).insert(c);
+                    Completion.get().showToolTip();
+                }
+            }
+        }        
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            for (Modifier mod : modifiers) {
+                sb.append(mod.toString());
+                sb.append(' ');
+            }
+            sb.append(typeName);
+            sb.append(' ');
+            sb.append(simpleName);
+            sb.append('(');
+            for (Iterator<ParamDesc> it = params.iterator(); it.hasNext();) {
+                ParamDesc paramDesc = it.next();
+                sb.append(paramDesc.typeName);
+                sb.append(' ');
+                sb.append(paramDesc.name);
+                if (it.hasNext()) {
+                    sb.append(", "); //NOI18N
+                }
+            }
+            sb.append(')');
+            return sb.toString();
+        }
+    }    
+
     private static final int PUBLIC_LEVEL = 3;
     private static final int PROTECTED_LEVEL = 2;
     private static final int PACKAGE_LEVEL = 1;

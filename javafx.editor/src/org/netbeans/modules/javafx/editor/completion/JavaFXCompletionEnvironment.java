@@ -40,6 +40,8 @@
  */
 package org.netbeans.modules.javafx.editor.completion;
 
+import com.sun.javafx.api.tree.JavaFXTree;
+import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.source.tree.ArrayAccessTree;
 import com.sun.source.tree.AssignmentTree;
 import com.sun.source.tree.BinaryTree;
@@ -86,13 +88,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import static javax.lang.model.element.Modifier.*;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
+import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
 import org.netbeans.api.javafx.source.CompilationController;
@@ -1074,7 +1081,8 @@ class JavaFXCompletionEnvironment {
         if (t.getKind() == Tree.Kind.MODIFIERS) {
             insideModifiers(tPath);
         } else if (t.getKind() == Tree.Kind.MEMBER_SELECT && ERROR.contentEquals(((MemberSelectTree) t).getIdentifier())) {
-            controller.toPhase(Phase.ELEMENTS_RESOLVED);
+            //controller.toPhase(Phase.ELEMENTS_RESOLVED);
+            controller.toPhase(Phase.ANALYZED);
             TreePath expPath = new TreePath(tPath, ((MemberSelectTree) t).getExpression());
             TypeMirror type = controller.getTrees().getTypeMirror(expPath);
             switch (type.getKind()) {
@@ -1127,6 +1135,54 @@ class JavaFXCompletionEnvironment {
 
     private void addLocalMembersAndVars() throws IOException {
         log("addLocalMembersAndVars: " + getPrefix());
+        getController().toPhase(Phase.ANALYZED);
+        
+        for (TreePath tp = getPath(); tp != null; tp = tp.getParentPath()) {
+            log("  tree kind: " + tp.getLeaf().getKind());
+            Tree t = tp.getLeaf();
+            if (t.getKind() != Tree.Kind.OTHER || ! (t instanceof JavaFXTree)) {
+                continue;
+            }
+            JavaFXTree jfxt = (JavaFXTree) t;
+            JavaFXKind k = jfxt.getJavaFXKind();
+            log("  fx kind: " + k);
+            if (k != JavaFXKind.CLASS_DECLARATION) {
+                continue;
+            }
+            TypeMirror tm = getController().getTrees().getTypeMirror(tp);
+            log("  tm == " + tm + " ---- tm.getKind() == " + (tm == null ? "null" : tm.getKind()));
+            if (tm == null || tm.getKind() != TypeKind.DECLARED) {
+                continue;
+            }
+            
+            DeclaredType dt = (DeclaredType)tm;
+            log("  elementKind == " + dt.asElement().getKind());
+            if (dt.asElement().getKind() != ElementKind.CLASS) {
+                continue;
+            }
+            Elements elements = getController().getElements();
+            for (Element member : elements.getAllMembers((TypeElement) dt.asElement())) {
+                log("    member == " + member + " member.getKind() " + member.getKind());
+                String s = member.getSimpleName().toString();
+                if (JavaFXCompletionProvider.startsWith(s, getPrefix())) {
+                    if (member.getKind() == ElementKind.METHOD) {
+                        query.results.add(
+                            JavaFXCompletionItem.createExecutableItem(
+                                (ExecutableElement)member,
+                                (ExecutableType)member.asType(),
+                                myOffset, false, false, false, false)
+                        );
+                    }
+                    if (member.getKind() == ElementKind.FIELD) {
+                        query.results.add(
+                            JavaFXCompletionItem.createVariableItem(
+                                member.getSimpleName().toString(),
+                                myOffset, false)
+                        );
+                    }
+                }
+            }
+        }
     }
 
     private void addLocalFieldsAndVars() throws IOException {
