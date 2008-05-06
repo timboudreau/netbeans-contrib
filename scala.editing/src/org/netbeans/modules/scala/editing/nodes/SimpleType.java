@@ -73,13 +73,8 @@ public class SimpleType extends TypeRef {
     public List<List<TypeRef>> getTypeArgsList() {
         return typeArgsList == null ? Collections.<List<TypeRef>>emptyList() : typeArgsList;
     }
-
-    @Override
-    public String getName() {
-        return super.getName() + getTypeArgsName();
-    }       
     
-    protected String getTypeArgsName() {
+    public String getTypeArgsName() {
         StringBuilder sb = new StringBuilder();
         for (List<TypeRef> typeArgs : getTypeArgsList()) {
             sb.append("[");

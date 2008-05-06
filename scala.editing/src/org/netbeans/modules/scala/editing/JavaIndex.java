@@ -38,19 +38,12 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import java.io.IOException;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
@@ -63,13 +56,9 @@ import javax.lang.model.util.Types;
 import org.netbeans.api.java.source.ClassIndex;
 import org.netbeans.api.java.source.ClassIndex.NameKind;
 import org.netbeans.api.java.source.ClassIndex.SearchScope;
-import org.netbeans.api.java.source.ClasspathInfo;
-import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
-import org.netbeans.api.java.source.JavaSource;
-import org.netbeans.api.java.source.Task;
 import org.netbeans.modules.java.source.JavaSourceAccessor;
-import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.Exceptions;
 
@@ -79,81 +68,56 @@ import org.openide.util.Exceptions;
  */
 public class JavaIndex {
 
-    public static final Set<SearchScope> JAVA_ALL_SCOPE = EnumSet.allOf(SearchScope.class);
-    public static final Set<SearchScope> JAVA_SOURCE_SCOPE = EnumSet.of(SearchScope.SOURCE);
-    private static Map<FileObject, Reference<JavaSource>> fileToJavaSource =
-            new WeakHashMap<FileObject, Reference<JavaSource>>();
-    private static Map<FileObject, Reference<CompilationController>> fileToJavaController =
-            new WeakHashMap<FileObject, Reference<CompilationController>>();
+    public static final Set<SearchScope> ALL_SCOPE = EnumSet.allOf(SearchScope.class);
+    public static final Set<SearchScope> SOURCE_SCOPE = EnumSet.of(SearchScope.SOURCE);
     private final ClassIndex index;
-    private final JavaSource source;
-    private final CompilationController controller;
+    private final CompilationInfo info;
     private final ScalaIndex scalaIndex;
 
-    private JavaIndex(ClassIndex index, JavaSource source, CompilationController controller, ScalaIndex scalaIndex) {
+    private JavaIndex(ClassIndex index, CompilationInfo info, ScalaIndex scalaIndex) {
         this.index = index;
-        this.source = source;
-        this.controller = controller;
+        this.info = info;
         this.scalaIndex = scalaIndex;
     }
 
-    public static JavaIndex get(org.netbeans.modules.gsf.api.CompilationInfo info, ScalaIndex scalaIndex) {
-        FileObject fo = info.getFileObject();
-        /** 
-         * @Note: We cannot create js via JavaSource.forFileObject(fo) here, which
-         * does not support virtual source yet (only ".java" and ".class" files 
-         * are supported), but we can create js via JavaSource.create(cpInfo);
-         */
-        Reference<JavaSource> sourceRef = fileToJavaSource.get(fo);
-        JavaSource source = sourceRef != null ? sourceRef.get() : null;
-        if (source == null) {
-            ClasspathInfo javaCpInfo = ClasspathInfo.create(fo);
-            source = JavaSource.create(javaCpInfo);
-            fileToJavaSource.put(fo, new WeakReference<JavaSource>(source));
+    public static JavaIndex get(org.netbeans.modules.gsf.api.CompilationInfo gsfInfo, ScalaIndex scalaIndex) {
+        CompilationInfo info = JavaUtilities.getCompilationInfoForScalaFile(gsfInfo.getFileObject());
 
-        }
+        ClassIndex index = info.getClasspathInfo().getClassIndex();
 
-        Reference<CompilationController> controllerRef = fileToJavaController.get(fo);
-        CompilationController controller = controllerRef != null ? controllerRef.get() : null;
-        if (controller == null) {
-            final org.netbeans.api.java.source.CompilationController[] javaControllers =
-                    new org.netbeans.api.java.source.CompilationController[1];
-            try {
-                source.runUserActionTask(new Task<CompilationController>() {
-
-                    public void run(CompilationController controller) throws Exception {
-                        controller.toPhase(JavaSource.Phase.ELEMENTS_RESOLVED);
-                        javaControllers[0] = controller;
-                    }
-                }, true);
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-
-            controller = javaControllers[0];
-            fileToJavaController.put(fo, new WeakReference<CompilationController>(controller));
-        }
-
-        ClassIndex index = source.getClasspathInfo().getClassIndex();
-
-        return new JavaIndex(index, source, controller, scalaIndex);
+        return new JavaIndex(index, info, scalaIndex);
     }
 
     public Set<IndexedElement> getPackages(String fqnPrefix) {
-        Set<String> pkgNames = index.getPackageNames(fqnPrefix, true, JAVA_ALL_SCOPE);
+        Set<String> pkgNames = index.getPackageNames(fqnPrefix, true, ALL_SCOPE);
         Set<IndexedElement> idxElements = new HashSet<IndexedElement>();
         for (String pkgName : pkgNames) {
             if (pkgName.length() > 0) {
-                IndexedElement idxElement = IndexedElement.create("", "", pkgName, pkgName, "", 0, scalaIndex, true);
+                IndexedElement idxElement = IndexedElement.create("", "", pkgName, pkgName, null, 0, scalaIndex, true);
                 idxElements.add(idxElement);
             }
         }
         return idxElements;
     }
 
-    public Set<IndexedElement> getPackageContent(String pkgFqn, String prefix) {
-        Elements theElements = controller.getElements();
-        PackageElement pe = theElements.getPackageElement(pkgFqn);
+    public Set<IndexedElement> getPackageContent(String fqnPrefix) {
+        String pkgName = null;
+        String prefix = null;
+
+        int lastDot = fqnPrefix.lastIndexOf('.');
+        if (lastDot == -1) {
+            pkgName = fqnPrefix;
+            prefix = "";
+        } else if (lastDot == fqnPrefix.length() - 1) {
+            pkgName = fqnPrefix.substring(0, lastDot);
+            prefix = "";
+        } else {
+            pkgName = fqnPrefix.substring(0, lastDot);
+            prefix = fqnPrefix.substring(lastDot + 1, fqnPrefix.length());
+        }
+
+        Elements theElements = info.getElements();
+        PackageElement pe = theElements.getPackageElement(pkgName);
         if (pe != null) {
             Set<IndexedElement> idxElements = new HashSet<IndexedElement>();
             for (Element e : pe.getEnclosedElements()) {
@@ -170,9 +134,12 @@ public class JavaIndex {
                         base.append(';');
                         base.append(simpleName);
                         base.append(';');
-                        base.append(IndexedElement.computeAttributes(e));
 
-                        IndexedElement idxElement = IndexedElement.create(simpleName, base.toString(), "", scalaIndex, false);
+                        String attrs = IndexedElement.computeAttributes(e);
+                        base.append(attrs);
+
+                        IndexedElement idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
+                        idxElement.setJavaInfo(e, info);
                         idxElements.add(idxElement);
                     }
                 }
@@ -186,7 +153,7 @@ public class JavaIndex {
             Set<SearchScope> scope, boolean onlyConstructors, ScalaParserResult context,
             boolean includeMethods, boolean includeProperties, boolean includeDuplicates) {
 
-        final Set<IndexedElement> idxElements = includeDuplicates ? new DuplicateElementSet() : new HashSet<IndexedElement>();        
+        final Set<IndexedElement> idxElements = includeDuplicates ? new DuplicateElementSet() : new HashSet<IndexedElement>();
 
         JavaSourceAccessor.getINSTANCE().lockJavaCompiler();
 
@@ -222,8 +189,15 @@ public class JavaIndex {
             type = "Object";
         }
 
+        String pkgName = "";
         String fqn;
         if (type != null && type.length() > 0) {
+            int lastDot = type.lastIndexOf('.');
+            if (lastDot > 0) {
+                pkgName = type.substring(0, lastDot);
+                type = type.substring(lastDot + 1, type.length());
+            }
+
             fqn = type + "." + name;
         } else {
             fqn = name;
@@ -234,18 +208,23 @@ public class JavaIndex {
         /** always use NameKind.SIMPLE_NAME search index.getDeclaredTypes */
         kind = NameKind.SIMPLE_NAME;
 
-        Elements theElements = controller.getElements();
-        Types theTypes = controller.getTypes();
+        Elements theElements = info.getElements();
+        Types theTypes = info.getTypes();
 
         Set<ElementHandle<TypeElement>> dclTypes = index.getDeclaredTypes(type, kind, scope);
 
         for (ElementHandle<TypeElement> teHandle : dclTypes) {
             IndexedElement idxElement = null;
 
-            TypeElement te = teHandle.resolve(controller);
+            TypeElement te = teHandle.resolve(info);
 
             PackageElement pe = theElements.getPackageOf(te);
             if (pe != null) {
+                if (!pkgName.equals("")) {
+                    if (!pe.getQualifiedName().toString().equals(pkgName)) {
+                        continue;
+                    }
+                }
             }
 
             TypeMirror typeMirror = te.asType();
@@ -253,13 +232,16 @@ public class JavaIndex {
 
             if (te != null) {
                 for (Element e : theElements.getAllMembers(te)) {
-                    
+
                     if (e.getModifiers().contains(Modifier.PRIVATE)) {
                         continue;
                     }
-                    
+
                     String simpleMame = e.getSimpleName().toString();
-                    
+                    if (!JavaUtilities.startsWith(simpleMame, name)) {
+                        continue;
+                    }
+
                     switch (e.getKind()) {
                         case ENUM_CONSTANT:
                         case EXCEPTION_PARAMETER:
@@ -289,9 +271,12 @@ public class JavaIndex {
                             base.append(';');
                             base.append(simpleMame);
                             base.append(';');
-                            base.append(IndexedElement.computeAttributes(e));
 
-                            idxElement = IndexedElement.create(simpleMame, base.toString(), "", scalaIndex, false);
+                            String attrs = IndexedElement.computeAttributes(e);
+                            base.append(attrs);
+
+                            idxElement = IndexedElement.create(simpleMame, base.toString(), null, scalaIndex, false);
+                            idxElement.setJavaInfo(e, info);
                             break;
                         case CLASS:
                         case ENUM:

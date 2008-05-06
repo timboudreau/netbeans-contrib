@@ -112,10 +112,9 @@
                     </test-dependency>
                 </test-type>
             </test-dependencies>
-            <friend-packages>
-                <friend>org.netbeans.modules.featureentries</friend>
+            <public-packages>
                 <package>org.netbeans.modules.autoupdate.featureondemand.api</package>
-            </friend-packages>
+            </public-packages>
         </data>
     </configuration>
 </project>

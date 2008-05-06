@@ -47,17 +47,17 @@ import org.netbeans.modules.gsf.api.ElementKind;
  */
 public class ArgumentExprs extends AstElement {
     
-    private List<AstElement> args;
+    private List<AstExpr> args;
 
     public ArgumentExprs(ElementKind kind) {
         super(kind);
     }
     
-    public void setArgs(List<AstElement> args) {
+    public void setArgs(List<AstExpr> args) {
         this.args = args;
     }
     
-    public List<AstElement> getArgs() {
+    public List<AstExpr> getArgs() {
         return args;
     }
 

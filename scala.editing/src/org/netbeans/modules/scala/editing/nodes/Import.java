@@ -39,6 +39,7 @@
 package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
@@ -81,6 +82,17 @@ public class Import extends AstDef {
         return wild;
     }
 
+    public String getPackageName() {
+        StringBuilder sb = new StringBuilder();
+        for (Iterator<Id> itr = paths.iterator(); itr.hasNext();) {
+            sb.append(itr.next().getName());
+            if (itr.hasNext()) {
+                sb.append(".");
+            }
+        }
+        return sb.toString();
+    }
+    
     @Override
     public String getName() {
         StringBuilder sb = new StringBuilder();        

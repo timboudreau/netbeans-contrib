@@ -39,8 +39,24 @@
 
 package org.netbeans.modules.groovy.grails.api;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
-import org.netbeans.modules.groovy.grails.settings.Settings;
+import java.util.Enumeration;
+import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.groovy.grails.KillableProcess;
+import org.netbeans.modules.groovy.grails.RuntimeHelper;
+import org.netbeans.modules.groovy.grails.server.GrailsInstance;
+import org.netbeans.modules.groovy.grails.server.GrailsInstanceProvider;
+import org.netbeans.modules.groovy.grails.settings.GrailsSettings;
+import org.openide.execution.NbProcessDescriptor;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
 
 /**
@@ -49,11 +65,23 @@ import org.openide.util.Utilities;
  */
 public final class GrailsRuntime {
 
-    private static final String WIN_EXECUTABLE = "\\bin\\grails.bat"; // NOI18N
+    static {
+        GrailsInstance.Accessor.DEFAULT = new GrailsInstance.Accessor() {
 
-    private static final String NIX_EXECUTABLE = "/bin/grails"; // NOI18N
+            @Override
+            public String getVersion(GrailsRuntime runtime) {
+                return runtime.getVersion();
+            }
+        };
+    }
+
+    private static final Logger LOGGER = Logger.getLogger(GrailsRuntime.class.getName());
 
     private static GrailsRuntime instance;
+
+    private boolean initialized;
+
+    private String version;
 
     private GrailsRuntime() {
         super();
@@ -62,28 +90,224 @@ public final class GrailsRuntime {
     public static synchronized GrailsRuntime getInstance() {
         if (instance == null) {
             instance = new GrailsRuntime();
+            GrailsSettings.getInstance().addPropertyChangeListener(new PropertyChangeListener() {
+
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if (GrailsSettings.GRAILS_BASE_PROPERTY.equals(evt.getPropertyName())) {
+                        instance.reload();
+                        GrailsInstanceProvider.getInstance().runtimeChanged();
+                    }
+                }
+            });
+            instance.reload();
         }
         return instance;
     }
 
-    public boolean isConfigured() {
-        Settings settings = Settings.getInstance();
-
-        if (settings == null) {
-            return false;
+    public Callable<Process> createCommand(CommandDescriptor descriptor) {
+        if (!isConfigured()) {
+            throw new IllegalStateException("Grails not configured"); // NOI18N
         }
+        return new GrailsCallable(descriptor);
+    }
 
-        String grailsBase = settings.getGrailsBase();
-
+    public boolean isConfigured() {
+        String grailsBase = GrailsSettings.getInstance().getGrailsBase();
         if (grailsBase == null) {
             return false;
         }
 
-        return checkForGrailsExecutable(new File(grailsBase));
+        return RuntimeHelper.isValidRuntime(new File(grailsBase));
     }
 
-    private boolean checkForGrailsExecutable(File pathToGrails) {
-        String pathToBinary = Utilities.isWindows() ? WIN_EXECUTABLE : NIX_EXECUTABLE;
-        return new File(pathToGrails, pathToBinary).isFile();
+    // TODO not public API unless it is really needed
+    private String getVersion() {
+        synchronized (this) {
+            if (initialized) {
+                return version;
+            }
+
+            String grailsBase = GrailsSettings.getInstance().getGrailsBase();
+            if (grailsBase != null) {
+                version = RuntimeHelper.getRuntimeVersion(new File(grailsBase));
+            }
+            initialized = true;
+
+            return version;
+        }
+    }
+
+    /**
+     * Reloads the runtime instance variables.
+     */
+    private void reload() {
+        synchronized (this) {
+            initialized = false;
+        }
+
+        // figure out the version on background
+        // default executor as general purpose should be enough for this
+        RequestProcessor.getDefault().post(new Runnable() {
+
+            public void run() {
+                synchronized (this) {
+                    if (initialized) {
+                        return;
+                    }
+
+                    String grailsBase = GrailsSettings.getInstance().getGrailsBase();
+                    if (grailsBase != null) {
+                        version = RuntimeHelper.getRuntimeVersion(new File(grailsBase));
+                    }
+                    initialized = true;
+                }
+            }
+        });
+    }
+
+    private static String createJvmArguments(Properties properties) {
+        StringBuilder builder = new StringBuilder();
+        int i = 0;
+
+        for (Enumeration e = properties.propertyNames(); e.hasMoreElements();) {
+            String key = e.nextElement().toString();
+            String value = properties.getProperty(key);
+            if (value != null) {
+                if (i > 0) {
+                    builder.append(" "); // NOI18N
+                }
+                builder.append("-D").append(key); // NOI18N
+                builder.append("="); // NOI18N
+                builder.append(value);
+                i++;
+            }
+        }
+        return builder.toString();
+    }
+
+    private static String createCommandArguments(String[] arguments) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < arguments.length; i++) {
+            if (i > 0) {
+                builder.append(" "); // NOI18N
+            }
+            builder.append(arguments[i]);
+        }
+        return builder.toString();
+    }
+
+    private static void checkForServer(CommandDescriptor descriptor, Process process) {
+        if ("run-app".equals(descriptor.getName()) || "run-app-https".equals(descriptor.getName())) { // NOI18N
+            Project project = FileOwnerQuery.getOwner(
+                    FileUtil.toFileObject(descriptor.getDirectory()));
+            if (project != null) {
+                GrailsInstanceProvider.getInstance().serverStarted(project, process);
+            }
+        }
+    }
+
+    /**
+     * <i>Immutable</i>
+     */
+    public static final class CommandDescriptor {
+
+        private final String name;
+
+        private final File directory;
+
+        private final GrailsEnvironment environment;
+
+        private final String[] arguments;
+
+        private final Properties props;
+
+        public CommandDescriptor(String name, File directory, GrailsEnvironment env) {
+            this(name, directory, env, new String[] {}, new Properties());
+        }
+
+        public CommandDescriptor(String name, File directory, GrailsEnvironment env, String[] arguments) {
+            this(name, directory, env, arguments, new Properties());
+        }
+
+        public CommandDescriptor(String name, File directory, GrailsEnvironment env, String[] arguments, Properties props) {
+            this.name = name;
+            this.directory = directory;
+            this.environment = env;
+            this.arguments = arguments.clone();
+            this.props = new Properties(props);
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public File getDirectory() {
+            return directory;
+        }
+
+        public GrailsEnvironment getEnvironment() {
+            return environment;
+        }
+
+        public String[] getArguments() {
+            return arguments.clone();
+        }
+
+        public Properties getProps() {
+            return new Properties(props);
+        }
+
+    }
+
+    private static class GrailsCallable implements Callable<Process> {
+
+        private final CommandDescriptor descriptor;
+
+        public GrailsCallable(CommandDescriptor descriptor) {
+            this.descriptor = descriptor;
+        }
+
+        public Process call() throws Exception {
+            String executable =  Utilities.isWindows() ? RuntimeHelper.WIN_EXECUTABLE : RuntimeHelper.NIX_EXECUTABLE;
+            File grailsExecutable = new File(GrailsSettings.getInstance().getGrailsBase(), executable);
+
+            if (!grailsExecutable.exists()) {
+                LOGGER.log(Level.WARNING, "Executable doesn't exist: "
+                        + grailsExecutable.getAbsolutePath());
+
+                return null;
+            }
+
+            LOGGER.log(Level.FINEST, "About to run: " + descriptor.getName());
+
+            Properties props = new Properties(descriptor.getProps());
+            if (descriptor.getEnvironment() != null && descriptor.getEnvironment().isCustom()) {
+                props.setProperty("grails.env", descriptor.getEnvironment().toString()); // NOI18N
+            }
+
+            StringBuilder command = new StringBuilder();
+            command.append(createJvmArguments(props));
+            if (descriptor.getEnvironment() != null && !descriptor.getEnvironment().isCustom()) {
+                command.append(" ").append(descriptor.getEnvironment().toString());
+            }
+            command.append(" ").append(descriptor.getName());
+            command.append(" ").append(createCommandArguments(descriptor.getArguments()));
+
+            LOGGER.log(Level.FINEST, "Command is: " + command.toString());
+
+            NbProcessDescriptor grailsProcessDesc = new NbProcessDescriptor(
+                    grailsExecutable.getAbsolutePath(), command.toString());
+
+            String[] envp = new String[] {"GRAILS_HOME=" // NOI18N
+                    + GrailsSettings.getInstance().getGrailsBase()};
+
+            Process process = new KillableProcess(
+                    grailsProcessDesc.exec(null, envp, true, descriptor.getDirectory()),
+                    descriptor.getDirectory());
+
+            checkForServer(descriptor, process);
+            return process;
+        }
+
     }
 }

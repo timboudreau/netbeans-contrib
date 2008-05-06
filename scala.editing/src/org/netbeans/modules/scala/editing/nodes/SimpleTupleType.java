@@ -77,7 +77,6 @@ public class SimpleTupleType extends SimpleType {
             }
         }
         sb.append(")");
-        sb.append(getTypeArgsName());
         
         return sb.toString();
     }

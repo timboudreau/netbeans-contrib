@@ -41,8 +41,12 @@ package org.netbeans.modules.groovy.grails.api;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
 import org.netbeans.junit.NbTestCase;
-import org.netbeans.modules.groovy.grails.settings.Settings;
+import org.netbeans.modules.groovy.grails.settings.GrailsSettings;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Utilities;
@@ -57,18 +61,97 @@ public class GrailsRuntimeTest extends NbTestCase {
         super(name);
     }
 
+    @Override
+    protected void setUp() throws Exception {
+        clearWorkDir();
+        super.tearDown();
+    }
+
     public void testConfigured() throws IOException {
-        final Settings settings = Settings.getInstance();
+        final GrailsSettings settings = GrailsSettings.getInstance();
         final GrailsRuntime runtime = GrailsRuntime.getInstance();
+
         String path = getWorkDirPath();
+        FileObject workDir = FileUtil.createFolder(FileUtil.normalizeFile(getWorkDir()));
 
         assertFalse(runtime.isConfigured());
         settings.setGrailsBase(path);
         assertFalse(runtime.isConfigured());
 
-        FileObject dir = FileUtil.createFolder(FileUtil.normalizeFile(new File(getWorkDir(), "bin")));
+        FileObject dir = workDir.createFolder("bin");
         assertFalse(runtime.isConfigured());
-        FileObject executable = dir.createData(Utilities.isWindows() ? "grails.bat" : "grails");
+        dir.createData(Utilities.isWindows() ? "grails.bat" : "grails");
         assertTrue(runtime.isConfigured());
+    }
+
+    public void testCommandDescriptor() throws IOException {
+        GrailsRuntime.CommandDescriptor desc = new GrailsRuntime.CommandDescriptor(
+                "test", getWorkDir(), GrailsEnvironment.DEV);
+
+        assertEquals("test", desc.getName());
+        assertEquals(getWorkDir(), desc.getDirectory());
+        assertEquals(GrailsEnvironment.DEV, desc.getEnvironment());
+        assertEquals(new String[] {}, desc.getArguments());
+        assertEquals(new Properties(), desc.getProps());
+
+        String[] args = new String[] {"arg1", "arg2"};
+        desc = new GrailsRuntime.CommandDescriptor(
+                "test", getWorkDir(), GrailsEnvironment.DEV, args);
+
+        assertEquals("test", desc.getName());
+        assertEquals(getWorkDir(), desc.getDirectory());
+        assertEquals(GrailsEnvironment.DEV, desc.getEnvironment());
+        assertEquals(args, desc.getArguments());
+        assertEquals(new Properties(), desc.getProps());
+
+        Properties props = new Properties();
+        props.setProperty("prop1", "value1");
+        props.setProperty("prop2", "value2");
+
+        desc = new GrailsRuntime.CommandDescriptor(
+                "test", getWorkDir(), GrailsEnvironment.DEV, args, props);
+
+        assertEquals("test", desc.getName());
+        assertEquals(getWorkDir(), desc.getDirectory());
+        assertEquals(GrailsEnvironment.DEV, desc.getEnvironment());
+        assertEquals(args, desc.getArguments());
+        assertEquals(props, desc.getProps());
+
+        // test immutability
+        desc.getArguments()[0] = "wrong";
+        assertEquals(args, desc.getArguments());
+        desc.getProps().setProperty("wrong", "wrong");
+        assertEquals(props, desc.getProps());
+
+        String[] correctArgs = args.clone();
+        args[0] = "wrong";
+        assertEquals(correctArgs, desc.getArguments());
+        Properties correctProps = new Properties(props);
+        props.setProperty("wrong", "wrong");
+        assertEquals(correctProps, desc.getProps());
+    }
+
+    private static void assertEquals(String[] expected, String[] value) {
+        assertEquals(expected.length, value.length);
+
+        for (int i = 0; i < expected.length; i++) {
+            assertEquals(expected[i], value[i]);
+        }
+    }
+
+    private static void assertEquals(Properties expected, Properties value) {
+        Set<String> valueNames = new HashSet<String>();
+        for (Enumeration e = value.propertyNames(); e.hasMoreElements();) {
+            valueNames.add(e.nextElement().toString());
+        }
+
+        for (Enumeration e = expected.propertyNames(); e.hasMoreElements();) {
+            String propName = e.nextElement().toString();
+            String propValue = expected.getProperty(propName);
+            assertTrue(valueNames.remove(propName));
+            assertEquals(expected.getProperty(propName), propValue);
+        }
+
+        assertTrue(valueNames.isEmpty());
     }
 }

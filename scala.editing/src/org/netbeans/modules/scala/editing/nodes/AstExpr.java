@@ -36,7 +36,6 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.api.lexer.Token;
@@ -49,13 +48,13 @@ import org.netbeans.modules.gsf.api.OffsetRange;
  * @author dcaoyuan
  */
 public class AstExpr extends AstElement {
-    
-    private Token[] boundsTokens;    
-    
+
+    private Token[] boundsTokens;
+
     public AstExpr(Token[] boundsTokens) {
         super(ElementKind.OTHER);
         assert boundsTokens.length == 2;
-        this.boundsTokens = boundsTokens;  
+        this.boundsTokens = boundsTokens;
     }
 
     public Token[] getBoundsTokens() {
@@ -63,21 +62,29 @@ public class AstExpr extends AstElement {
     }
 
     public OffsetRange getRange(TokenHierarchy th) {
-        return new OffsetRange(getOffset(th), getEndOffset(th));
+        return new OffsetRange(getBoundsOffset(th), getBoundsEndOffset(th));
     }
 
-    public int getOffset(TokenHierarchy th) {
+    @Override
+    public int getPickOffset(TokenHierarchy th) {
+        return getBoundsOffset(th);
+    }
+
+    @Override
+    public int getPickEndOffset(TokenHierarchy th) {
+        return getBoundsEndOffset(th);
+    }
+
+    public int getBoundsOffset(TokenHierarchy th) {
         return boundsTokens[0].offset(th);
     }
-    
-    public int getEndOffset(TokenHierarchy th) {
+
+    public int getBoundsEndOffset(TokenHierarchy th) {
         return boundsTokens[1].offset(th) + boundsTokens[1].length();
     }
-        
-    
+
     @Override
     public String getName() {
         return "expr";
     }
-            
 }

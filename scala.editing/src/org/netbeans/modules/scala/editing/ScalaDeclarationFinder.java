@@ -53,9 +53,10 @@ import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
-import org.netbeans.modules.scala.editing.nodes.AstRef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
+import org.netbeans.modules.scala.editing.nodes.TypeRef;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
 /**
@@ -118,43 +119,6 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         return OffsetRange.NONE;
     }
 
-    /** Locate the method declaration for the given method call */
-    IndexedFunction findMethodDeclaration(CompilationInfo info, FunRef call, Set<IndexedFunction>[] alternativesHolder) {
-        String prefix = call.getName();
-        ScalaParserResult parseResult = AstUtilities.getParserResult(info);
-        ScalaIndex index = ScalaIndex.get(info);
-        Set<IndexedElement> functions = index.getAllNames(prefix,
-                NameKind.EXACT_NAME, ScalaIndex.ALL_SCOPE, parseResult);
-
-        IndexedElement candidate = findBestElementMatch(info, /*name,*/ functions/*, (BaseDocument)info.getDocument(),
-                astOffset, lexOffset, path, closest, index*/);
-        if (candidate instanceof IndexedFunction) {
-            return (IndexedFunction) candidate;
-        }
-        return null;
-    }
-
-    private IndexedElement findBestElementMatch(CompilationInfo info, /*String name,*/ Set<IndexedElement> elements/*,
-            BaseDocument doc, int astOffset, int lexOffset, AstPath path/ Node call, JsIndex index*/) {
-        // For now no good heuristics to pick a method.
-        // Possible things to consider:
-        // -- scope - whether the method is local
-        // -- builtins should get some priority over libraries
-        // -- other methods called which can help disambiguate
-        // -- documentation?
-        if (elements.size() > 0) {
-            IndexedElement e = elements.iterator().next();
-            IndexedElement r = e.findRealFileElement();
-            if (r != null) {
-                return r;
-            }
-
-            return e;
-        }
-
-        return null;
-    }
-
     public DeclarationLocation findDeclaration(CompilationInfo info, int lexOffset) {
 
         final Document document;
@@ -182,10 +146,45 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
             final TokenHierarchy<Document> th = TokenHierarchy.get(document);
 
+            AstElement foundElement = null;
+            boolean isLocal = false;
+
             AstElement closest = root.getDefRef(th, astOffset);
             AstDef def = root.findDef(closest);
             if (def != null) {
-                return new DeclarationLocation(info.getFileObject(), def.getIdToken().offset(th), def);
+                foundElement = def;
+                isLocal = true;
+            } else {
+                if (closest instanceof FunRef) {
+                    IndexedFunction idxFunction = findMethodDeclaration(info, (FunRef) closest, null);
+                    if (idxFunction != null) {
+                        foundElement = idxFunction;
+                    }
+                } else if (closest instanceof TypeRef) {
+                    if (((TypeRef) closest).isResolved()) {
+                        IndexedType idxType = findTypeDeclaration(info, (TypeRef) closest);
+                        if (idxType != null) {
+                            foundElement = idxType;
+                        }
+                    }
+                }
+            }
+
+            if (foundElement != null) {
+                FileObject fo = null;
+                int offset = 0;
+                if (isLocal) {
+                    fo = info.getFileObject();
+                    offset = foundElement.getIdToken().offset(th);
+                } else {
+                    IndexedElement foundIdxElement = (IndexedElement) foundElement;
+                    fo = foundIdxElement.getFileObject();
+                    offset = foundIdxElement.getOffset();
+                }
+
+                if (fo != null) {
+                    return new DeclarationLocation(fo, offset, foundElement);
+                }
             }
 
             return DeclarationLocation.NONE;
@@ -194,4 +193,59 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             doc.readUnlock();
         }
     }
+
+    /** Locate the method declaration for the given method call */
+    IndexedFunction findMethodDeclaration(CompilationInfo info, FunRef funRef, Set<IndexedFunction>[] alternativesHolder) {
+        ScalaParserResult pResult = AstUtilities.getParserResult(info);
+        ScalaIndex index = ScalaIndex.get(info);
+
+        IndexedElement candidate = null;
+
+        String prefix = funRef.getCall().getName();
+        String in = "";
+        if (funRef.getBase() != null) {
+            TypeRef baseType = funRef.getBase().getType();
+            if (baseType != null) {
+                in = baseType.getQualifiedName();
+                Set<IndexedElement> members = index.getElements(prefix, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult);
+                for (IndexedElement member : members) {
+                    if (member instanceof IndexedFunction) {
+                        IndexedFunction idxFunction = (IndexedFunction) member;
+                        // @Todo compare params' types
+                        if (idxFunction.getName().equals(prefix) && idxFunction.getParameters().size() == funRef.getParams().size()) {
+                            candidate = idxFunction;
+                            break;
+                        }
+                    }
                 }
+            }
+        }
+
+        return (IndexedFunction) candidate;
+    }
+
+    IndexedType findTypeDeclaration(CompilationInfo info, TypeRef type) {
+        ScalaParserResult pResult = AstUtilities.getParserResult(info);
+        ScalaIndex index = ScalaIndex.get(info);
+
+        IndexedType candidate = null;
+
+        String qName = type.getQualifiedName();
+
+        int lastDot = qName.lastIndexOf('.');
+        if (lastDot != -1) {
+            // should include "." to narrow the search result?
+            String pkgName = qName.substring(0, lastDot + 1);
+            String simpleName = qName.substring(lastDot + 1, qName.length());
+            Set<IndexedElement> idxTypes = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
+            for (IndexedElement idxType : idxTypes) {
+                if (idxType instanceof IndexedType) {
+                    if (idxType.getName().equals(simpleName)) {
+                        candidate = (IndexedType) idxType;
+                    }
+                }
+            }
+        }
+        return candidate;
+    }
+}

@@ -38,14 +38,16 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.scala.editing;
 
+import com.sun.javadoc.Doc;
 import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.EnhancedForLoopTree;
 import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.MethodInvocationTree;
+import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.NewClassTree;
 import com.sun.source.tree.Scope;
 import com.sun.source.tree.Tree;
@@ -53,8 +55,12 @@ import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
+import com.sun.source.util.TreePathScanner;
 import com.sun.source.util.Trees;
 
+import java.io.IOException;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -62,47 +68,55 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.*;
 import javax.lang.model.util.*;
 
+import org.netbeans.api.java.source.ClasspathInfo;
+import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.ElementHandle;
+import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.SourceUtils;
+import org.netbeans.api.java.source.Task;
+import org.netbeans.modules.java.source.JavaSourceAccessor;
+import org.openide.filesystems.FileObject;
+import org.openide.util.Exceptions;
 
 /**
  *
  * @author Dusan Balek
  */
 public class JavaUtilities {
-    
+
     private static final String CAPTURED_WILDCARD = "<captured wildcard>"; //NOI18N
     private static final String ERROR = "<error>"; //NOI18N
     private static final String UNKNOWN = "<unknown>"; //NOI18N
-
     private static boolean caseSensitive = true;
     private static boolean showDeprecatedMembers = true;
-    
     private static boolean inited;
-    
     private static String cachedPrefix = null;
     private static Pattern cachedPattern = null;
-    
+
     public static boolean startsWith(String theString, String prefix) {
-        if (theString == null || theString.length() == 0 || ERROR.equals(theString))
+        if (theString == null || theString.length() == 0 || ERROR.equals(theString)) {
             return false;
-        if (prefix == null || prefix.length() == 0)
+        }
+        if (prefix == null || prefix.length() == 0) {
             return true;
-        return isCaseSensitive() ? theString.startsWith(prefix) :
-            theString.toLowerCase().startsWith(prefix.toLowerCase());
+        }
+        return isCaseSensitive() ? theString.startsWith(prefix) : theString.toLowerCase().startsWith(prefix.toLowerCase());
     }
-    
+
     public static boolean startsWithCamelCase(String theString, String prefix) {
-        if (theString == null || theString.length() == 0 || prefix == null || prefix.length() == 0)
+        if (theString == null || theString.length() == 0 || prefix == null || prefix.length() == 0) {
             return false;
+        }
         if (!prefix.equals(cachedPrefix) || cachedPattern == null) {
             StringBuilder sb = new StringBuilder();
             int lastIndex = 0;
             int index;
             do {
                 index = findNextUpper(prefix, lastIndex + 1);
-                String token = prefix.substring(lastIndex, index == -1 ? prefix.length(): index);
-                sb.append(token); 
+                String token = prefix.substring(lastIndex, index == -1 ? prefix.length() : index);
+                sb.append(token);
                 sb.append(index != -1 ? "[\\p{javaLowerCase}\\p{Digit}_\\$]*" : ".*"); // NOI18N         
                 lastIndex = index;
             } while (index != -1);
@@ -111,11 +125,12 @@ public class JavaUtilities {
         }
         return cachedPattern.matcher(theString).matches();
     }
-    
-    private static int findNextUpper(String text, int offset) {        
+
+    private static int findNextUpper(String text, int offset) {
         for (int i = offset; i < text.length(); i++) {
-            if (Character.isUpperCase(text.charAt(i)))
+            if (Character.isUpperCase(text.charAt(i))) {
                 return i;
+            }
         }
         return -1;
     }
@@ -152,68 +167,75 @@ public class JavaUtilities {
 //                    ExtSettingsDefaults.defaultShowDeprecatedMembers));
 //        }
 //    }
-
     public static int getImportanceLevel(String fqn) {
         int weight = 50;
         if (fqn.startsWith("java.lang") || fqn.startsWith("java.util")) // NOI18N
+        {
             weight -= 10;
-        else if (fqn.startsWith("org.omg") || fqn.startsWith("org.apache")) // NOI18N
+        } else if (fqn.startsWith("org.omg") || fqn.startsWith("org.apache")) // NOI18N
+        {
             weight += 10;
-        else if (fqn.startsWith("com.sun") || fqn.startsWith("com.ibm") || fqn.startsWith("com.apple")) // NOI18N
+        } else if (fqn.startsWith("com.sun") || fqn.startsWith("com.ibm") || fqn.startsWith("com.apple")) // NOI18N
+        {
             weight += 20;
-        else if (fqn.startsWith("sun") || fqn.startsWith("sunw") || fqn.startsWith("netscape")) // NOI18N
+        } else if (fqn.startsWith("sun") || fqn.startsWith("sunw") || fqn.startsWith("netscape")) // NOI18N
+        {
             weight += 30;
+        }
         return weight;
     }
-    
+
     public static boolean hasAccessibleInnerClassConstructor(Element e, Scope scope, Trees trees) {
-        DeclaredType dt = (DeclaredType)e.asType();
+        DeclaredType dt = (DeclaredType) e.asType();
         for (TypeElement inner : ElementFilter.typesIn(e.getEnclosedElements())) {
             if (trees.isAccessible(scope, inner, dt)) {
-                DeclaredType innerType = (DeclaredType)inner.asType();
+                DeclaredType innerType = (DeclaredType) inner.asType();
                 for (ExecutableElement ctor : ElementFilter.constructorsIn(inner.getEnclosedElements())) {
-                    if (trees.isAccessible(scope, ctor, innerType))
+                    if (trees.isAccessible(scope, ctor, innerType)) {
                         return true;
+                    }
                 }
             }
         }
         return false;
     }
-        
+
     public static TreePath getPathElementOfKind(Tree.Kind kind, TreePath path) {
         return getPathElementOfKind(EnumSet.of(kind), path);
     }
-    
+
     public static TreePath getPathElementOfKind(EnumSet<Tree.Kind> kinds, TreePath path) {
         while (path != null) {
-            if (kinds.contains(path.getLeaf().getKind()))
+            if (kinds.contains(path.getLeaf().getKind())) {
                 return path;
+            }
             path = path.getParentPath();
         }
-        return null;        
-    }        
-    
-    
+        return null;
+    }
+
     public static CharSequence getTypeName(TypeMirror type, boolean fqn) {
         return getTypeName(type, fqn, false);
     }
-    
+
     public static CharSequence getTypeName(TypeMirror type, boolean fqn, boolean varArg) {
-	if (type == null)
-            return ""; //NOI18N
+        if (type == null) {
+            return "";
+        } //NOI18N
         return new TypeNameVisitor(varArg).visit(type, fqn);
     }
-    
+
     public static CharSequence getElementName(Element el, boolean fqn) {
-        if (el == null || el.asType().getKind() == TypeKind.NONE)
-            return ""; //NOI18N
+        if (el == null || el.asType().getKind() == TypeKind.NONE) {
+            return "";
+        } //NOI18N
         return new ElementNameVisitor().visit(el, fqn);
     }
-    
+
     public static Collection<? extends Element> getForwardReferences(TreePath path, int pos, SourcePositions sourcePositions, Trees trees) {
         HashSet<Element> refs = new HashSet<Element>();
-        while(path != null) {
-            switch(path.getLeaf().getKind()) {
+        while (path != null) {
+            switch (path.getLeaf().getKind()) {
                 case BLOCK:
                 case CLASS:
                     return refs;
@@ -221,41 +243,47 @@ public class JavaUtilities {
                     refs.add(trees.getElement(path));
                     TreePath parent = path.getParentPath();
                     if (parent.getLeaf().getKind() == Tree.Kind.CLASS) {
-                        boolean isStatic = ((VariableTree)path.getLeaf()).getModifiers().getFlags().contains(Modifier.STATIC);
-                        for(Tree member : ((ClassTree)parent.getLeaf()).getMembers()) {
+                        boolean isStatic = ((VariableTree) path.getLeaf()).getModifiers().getFlags().contains(Modifier.STATIC);
+                        for (Tree member : ((ClassTree) parent.getLeaf()).getMembers()) {
                             if (member.getKind() == Tree.Kind.VARIABLE && sourcePositions.getStartPosition(path.getCompilationUnit(), member) >= pos &&
-                                    (isStatic || !((VariableTree)member).getModifiers().getFlags().contains(Modifier.STATIC)))
+                                    (isStatic || !((VariableTree) member).getModifiers().getFlags().contains(Modifier.STATIC))) {
                                 refs.add(trees.getElement(new TreePath(parent, member)));
+                            }
                         }
                     }
                     return refs;
                 case ENHANCED_FOR_LOOP:
-                    EnhancedForLoopTree efl = (EnhancedForLoopTree)path.getLeaf();
-                    if (sourcePositions.getEndPosition(path.getCompilationUnit(), efl.getExpression()) >= pos)
-                        refs.add(trees.getElement(new TreePath(path, efl.getVariable())));                        
+                    EnhancedForLoopTree efl = (EnhancedForLoopTree) path.getLeaf();
+                    if (sourcePositions.getEndPosition(path.getCompilationUnit(), efl.getExpression()) >= pos) {
+                        refs.add(trees.getElement(new TreePath(path, efl.getVariable())));
+                    }
             }
             path = path.getParentPath();
         }
         return refs;
     }
-    
+
     public static List<String> varNamesSuggestions(TypeMirror type, String prefix, Types types, Elements elements, Iterable<? extends Element> locals, boolean isConst) {
         List<String> result = new ArrayList<String>();
-        if (type == null)
+        if (type == null) {
             return result;
+        }
         List<String> vnct = varNamesForType(type, types, elements);
         if (isConst) {
             List<String> ls = new ArrayList<String>(vnct.size());
-            for (String s : vnct)
+            for (String s : vnct) {
                 ls.add(getConstName(s));
+            }
             vnct = ls;
         }
         String p = prefix;
         while (p != null && p.length() > 0) {
             List<String> l = new ArrayList<String>();
-            for(String name : vnct)
-                if (startsWith(name, p))
+            for (String name : vnct) {
+                if (startsWith(name, p)) {
                     l.add(name);
+                }
+            }
             if (l.isEmpty()) {
                 p = nextName(p);
             } else {
@@ -279,7 +307,9 @@ public class JavaUtilities {
                     char c = name.charAt(0);
                     name = Character.toString(++c);
                     if (c == 'z') //NOI18N
+                    {
                         isPrimitive = false;
+                    }
                 } else {
                     name += cnt++;
                 }
@@ -290,25 +320,29 @@ public class JavaUtilities {
     }
 
     public static boolean inAnonymousOrLocalClass(TreePath path) {
-        if (path == null)
+        if (path == null) {
             return false;
+        }
         TreePath parentPath = path.getParentPath();
-        if (path.getLeaf().getKind() == Tree.Kind.CLASS && parentPath.getLeaf().getKind() != Tree.Kind.COMPILATION_UNIT && parentPath.getLeaf().getKind() != Tree.Kind.CLASS)                
+        if (path.getLeaf().getKind() == Tree.Kind.CLASS && parentPath.getLeaf().getKind() != Tree.Kind.COMPILATION_UNIT && parentPath.getLeaf().getKind() != Tree.Kind.CLASS) {
             return true;
+        }
         return inAnonymousOrLocalClass(parentPath);
     }
-        
+
     private static List<String> varNamesForType(TypeMirror type, Types types, Elements elements) {
         switch (type.getKind()) {
             case ARRAY:
                 TypeElement iterableTE = elements.getTypeElement("java.lang.Iterable"); //NOI18N
                 TypeMirror iterable = iterableTE != null ? types.getDeclaredType(iterableTE) : null;
-                TypeMirror ct = ((ArrayType)type).getComponentType();
-                if (ct.getKind() == TypeKind.ARRAY && iterable != null && types.isSubtype(ct, iterable))
+                TypeMirror ct = ((ArrayType) type).getComponentType();
+                if (ct.getKind() == TypeKind.ARRAY && iterable != null && types.isSubtype(ct, iterable)) {
                     return varNamesForType(ct, types, elements);
+                }
                 List<String> vnct = new ArrayList<String>();
-                for (String name : varNamesForType(ct, types, elements))
-                    vnct.add(name.endsWith("s") ? name + "es" : name + "s"); //NOI18N
+                for (String name : varNamesForType(ct, types, elements)) {
+                    vnct.add(name.endsWith("s") ? name + "es" : name + "s");
+                } //NOI18N
                 return vnct;
             case BOOLEAN:
             case BYTE:
@@ -322,67 +356,79 @@ public class JavaUtilities {
             case TYPEVAR:
                 return Collections.<String>singletonList(type.toString().toLowerCase());
             case ERROR:
-                String tn = ((ErrorType)type).asElement().getSimpleName().toString();
-                if (tn.toUpperCase().contentEquals(tn))
+                String tn = ((ErrorType) type).asElement().getSimpleName().toString();
+                if (tn.toUpperCase().contentEquals(tn)) {
                     return Collections.<String>singletonList(tn.toLowerCase());
+                }
                 StringBuilder sb = new StringBuilder();
                 ArrayList<String> al = new ArrayList<String>();
                 if ("Iterator".equals(tn)) //NOI18N
-                    al.add("it"); //NOI18N
-                while((tn = nextName(tn)).length() > 0) {
+                {
+                    al.add("it");
+                } //NOI18N
+                while ((tn = nextName(tn)).length() > 0) {
                     al.add(tn);
                     sb.append(tn.charAt(0));
                 }
-                if (sb.length() > 0)
+                if (sb.length() > 0) {
                     al.add(sb.toString());
+                }
                 return al;
             case DECLARED:
                 iterableTE = elements.getTypeElement("java.lang.Iterable"); //NOI18N
                 iterable = iterableTE != null ? types.getDeclaredType(iterableTE) : null;
-                tn = ((DeclaredType)type).asElement().getSimpleName().toString();
-                if (tn.toUpperCase().contentEquals(tn))
+                tn = ((DeclaredType) type).asElement().getSimpleName().toString();
+                if (tn.toUpperCase().contentEquals(tn)) {
                     return Collections.<String>singletonList(tn.toLowerCase());
+                }
                 sb = new StringBuilder();
                 al = new ArrayList<String>();
                 if ("Iterator".equals(tn)) //NOI18N
-                    al.add("it"); //NOI18N
-                while((tn = nextName(tn)).length() > 0) {
+                {
+                    al.add("it");
+                } //NOI18N
+                while ((tn = nextName(tn)).length() > 0) {
                     al.add(tn);
                     sb.append(tn.charAt(0));
                 }
                 if (iterable != null && types.isSubtype(type, iterable)) {
-                    List<? extends TypeMirror> tas = ((DeclaredType)type).getTypeArguments();
+                    List<? extends TypeMirror> tas = ((DeclaredType) type).getTypeArguments();
                     if (tas.size() > 0) {
                         TypeMirror et = tas.get(0);
                         if (et.getKind() == TypeKind.ARRAY || (et.getKind() != TypeKind.WILDCARD && types.isSubtype(et, iterable))) {
                             al.addAll(varNamesForType(et, types, elements));
                         } else {
-                            for (String name : varNamesForType(et, types, elements))
-                                al.add(name.endsWith("s") ? name + "es" : name + "s"); //NOI18N
+                            for (String name : varNamesForType(et, types, elements)) {
+                                al.add(name.endsWith("s") ? name + "es" : name + "s");
+                            } //NOI18N
                         }
                     }
                 }
-                if (sb.length() > 0)
+                if (sb.length() > 0) {
                     al.add(sb.toString());
+                }
                 return al;
             case WILDCARD:
-                TypeMirror bound = ((WildcardType)type).getExtendsBound();
-                if (bound == null)
-                    bound = ((WildcardType)type).getSuperBound();
-                if (bound != null)
+                TypeMirror bound = ((WildcardType) type).getExtendsBound();
+                if (bound == null) {
+                    bound = ((WildcardType) type).getSuperBound();
+                }
+                if (bound != null) {
                     return varNamesForType(bound, types, elements);
+                }
         }
         return Collections.<String>emptyList();
     }
-    
+
     private static String getConstName(String s) {
         StringBuilder sb = new StringBuilder();
         boolean prevUpper = false;
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             if (Character.isUpperCase(c)) {
-                if (!prevUpper)
+                if (!prevUpper) {
                     sb.append('_');
+                }
                 sb.append(c);
                 prevUpper = true;
             } else {
@@ -392,7 +438,7 @@ public class JavaUtilities {
         }
         return sb.toString();
     }
-    
+
     private static String nextName(CharSequence name) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < name.length(); i++) {
@@ -406,7 +452,7 @@ public class JavaUtilities {
         }
         return sb.toString();
     }
-    
+
     private static boolean isClashing(String varName, Iterable<? extends Element> locals) {
         return false;
 //        if (JavaTokenContext.getKeyword(varName) != null)
@@ -417,44 +463,44 @@ public class JavaUtilities {
 //        }
 //        return false;
     }
-    
 
-    private static class TypeNameVisitor extends SimpleTypeVisitor6<StringBuilder,Boolean> {
-        
+    private static class TypeNameVisitor extends SimpleTypeVisitor6<StringBuilder, Boolean> {
+
         private boolean varArg;
-        
+
         private TypeNameVisitor(boolean varArg) {
             super(new StringBuilder());
             this.varArg = varArg;
         }
-        
+
         @Override
         public StringBuilder defaultAction(TypeMirror t, Boolean p) {
             return DEFAULT_VALUE.append(t);
         }
-        
+
         @Override
         public StringBuilder visitDeclared(DeclaredType t, Boolean p) {
             Element e = t.asElement();
             if (e instanceof TypeElement) {
-                TypeElement te = (TypeElement)e;
+                TypeElement te = (TypeElement) e;
                 DEFAULT_VALUE.append((p ? te.getQualifiedName() : te.getSimpleName()).toString());
                 Iterator<? extends TypeMirror> it = t.getTypeArguments().iterator();
                 if (it.hasNext()) {
                     DEFAULT_VALUE.append("<"); //NOI18N
-                    while(it.hasNext()) {
+                    while (it.hasNext()) {
                         visit(it.next(), p);
-                        if (it.hasNext())
-                            DEFAULT_VALUE.append(", "); //NOI18N
+                        if (it.hasNext()) {
+                            DEFAULT_VALUE.append(", ");
+                        } //NOI18N
                     }
                     DEFAULT_VALUE.append(">"); //NOI18N
                 }
-                return DEFAULT_VALUE;                
+                return DEFAULT_VALUE;
             } else {
                 return DEFAULT_VALUE.append(UNKNOWN); //NOI18N
             }
         }
-                        
+
         @Override
         public StringBuilder visitArray(ArrayType t, Boolean p) {
             boolean isVarArg = varArg;
@@ -468,8 +514,9 @@ public class JavaUtilities {
             Element e = t.asElement();
             if (e != null) {
                 String name = e.getSimpleName().toString();
-                if (!CAPTURED_WILDCARD.equals(name))
+                if (!CAPTURED_WILDCARD.equals(name)) {
                     return DEFAULT_VALUE.append(name);
+                }
             }
             DEFAULT_VALUE.append("?"); //NOI18N
             TypeMirror bound = t.getLowerBound();
@@ -480,8 +527,9 @@ public class JavaUtilities {
                 bound = t.getUpperBound();
                 if (bound != null && bound.getKind() != TypeKind.NULL) {
                     DEFAULT_VALUE.append(" extends "); //NOI18N
-                    if (bound.getKind() == TypeKind.TYPEVAR)
-                        bound = ((TypeVariable)bound).getLowerBound();
+                    if (bound.getKind() == TypeKind.TYPEVAR) {
+                        bound = ((TypeVariable) bound).getLowerBound();
+                    }
                     visit(bound, p);
                 }
             }
@@ -497,12 +545,13 @@ public class JavaUtilities {
                 bound = t.getExtendsBound();
                 if (bound != null) {
                     DEFAULT_VALUE.append(" extends "); //NOI18N
-                    if (bound.getKind() == TypeKind.WILDCARD)
-                        bound = ((WildcardType)bound).getSuperBound();
+                    if (bound.getKind() == TypeKind.WILDCARD) {
+                        bound = ((WildcardType) bound).getSuperBound();
+                    }
                     visit(bound, p);
                 } else if (len == 0) {
                     bound = SourceUtils.getBound(t);
-                    if (bound != null && (bound.getKind() != TypeKind.DECLARED || !((TypeElement)((DeclaredType)bound).asElement()).getQualifiedName().contentEquals("java.lang.Object"))) { //NOI18N
+                    if (bound != null && (bound.getKind() != TypeKind.DECLARED || !((TypeElement) ((DeclaredType) bound).asElement()).getQualifiedName().contentEquals("java.lang.Object"))) { //NOI18N
                         DEFAULT_VALUE.append(" extends "); //NOI18N
                         visit(bound, p);
                     }
@@ -518,15 +567,15 @@ public class JavaUtilities {
         public StringBuilder visitError(ErrorType t, Boolean p) {
             Element e = t.asElement();
             if (e instanceof TypeElement) {
-                TypeElement te = (TypeElement)e;
+                TypeElement te = (TypeElement) e;
                 return DEFAULT_VALUE.append((p ? te.getQualifiedName() : te.getSimpleName()).toString());
             }
             return DEFAULT_VALUE;
         }
     }
-    
-    private static class ElementNameVisitor extends SimpleElementVisitor6<StringBuilder,Boolean> {
-        
+
+    private static class ElementNameVisitor extends SimpleElementVisitor6<StringBuilder, Boolean> {
+
         private ElementNameVisitor() {
             super(new StringBuilder());
         }
@@ -536,18 +585,18 @@ public class JavaUtilities {
             return DEFAULT_VALUE.append((p ? e.getQualifiedName() : e.getSimpleName()).toString());
         }
 
-	@Override
+        @Override
         public StringBuilder visitType(TypeElement e, Boolean p) {
             return DEFAULT_VALUE.append((p ? e.getQualifiedName() : e.getSimpleName()).toString());
-        }        
-    }    
-    
+        }
+    }
+
     /**
      * @since 2.12
      */
     public static ExecutableElement fuzzyResolveMethodInvocation(CompilationInfo info, TreePath path, TypeMirror[] proposed, int[] index) {
         assert path.getLeaf().getKind() == Kind.METHOD_INVOCATION || path.getLeaf().getKind() == Kind.NEW_CLASS;
-        
+
         if (path.getLeaf().getKind() == Kind.METHOD_INVOCATION) {
             List<TypeMirror> actualTypes = new LinkedList<TypeMirror>();
             MethodInvocationTree mit = (MethodInvocationTree) path.getLeaf();
@@ -578,10 +627,10 @@ public class JavaUtilities {
             if (on == null || on.getKind() != TypeKind.DECLARED) {
                 return null;
             }
-            
+
             return resolveMethod(info, actualTypes, (DeclaredType) on, false, false, methodName, proposed, index);
         }
-        
+
         if (path.getLeaf().getKind() == Kind.NEW_CLASS) {
             List<TypeMirror> actualTypes = new LinkedList<TypeMirror>();
             NewClassTree nct = (NewClassTree) path.getLeaf();
@@ -592,14 +641,14 @@ public class JavaUtilities {
             }
 
             TypeMirror on = info.getTrees().getTypeMirror(new TreePath(path, nct.getIdentifier()));
-            
+
             if (on == null || on.getKind() != TypeKind.DECLARED) {
                 return null;
             }
-            
+
             return resolveMethod(info, actualTypes, (DeclaredType) on, false, true, null, proposed, index);
         }
-        
+
         return null;
     }
 
@@ -607,21 +656,21 @@ public class JavaUtilities {
         if (constr) {
             return ElementFilter.constructorsIn(info.getElements().getAllMembers(e));
         }
-        
+
         List<ExecutableElement> result = new LinkedList<ExecutableElement>();
-        
+
         for (ExecutableElement ee : ElementFilter.methodsIn(info.getElements().getAllMembers(e))) {
             if (name.equals(ee.getSimpleName().toString())) {
                 result.add(ee);
             }
         }
-        
+
         return result;
     }
-    
+
     private static ExecutableElement resolveMethod(CompilationInfo info, List<TypeMirror> foundTypes, DeclaredType on, boolean statik, boolean constr, String name, TypeMirror[] candidateType, int[] index) {
         ExecutableElement found = null;
-        
+
         OUTER:
         for (ExecutableElement ee : execsIn(info, (TypeElement) on.asElement(), constr, name)) {
             if (ee.getParameters().size() == foundTypes.size() /*XXX: variable arg count*/) {
@@ -667,6 +716,176 @@ public class JavaUtilities {
 
         return found;
     }
-    
-    
+    private static Map<FileObject, Reference<JavaSource>> scalaFileToJavaSource =
+            new WeakHashMap<FileObject, Reference<JavaSource>>();
+    private static Map<FileObject, Reference<CompilationInfo>> scalaFileToJavaCompilationInfo =
+            new WeakHashMap<FileObject, Reference<CompilationInfo>>();
+
+    public static CompilationInfo getCompilationInfoForScalaFile(FileObject fo) {
+        Reference<CompilationInfo> infoRef = scalaFileToJavaCompilationInfo.get(fo);
+        CompilationInfo info = infoRef != null ? infoRef.get() : null;
+
+        if (info == null) {
+            final CompilationInfo[] javaControllers = new CompilationInfo[1];
+
+            JavaSource source = getJavaSourceForScalaFile(fo);
+            try {
+                source.runUserActionTask(new Task<CompilationController>() {
+
+                    public void run(CompilationController controller) throws Exception {
+                        controller.toPhase(Phase.ELEMENTS_RESOLVED);
+                        javaControllers[0] = controller;
+                    }
+                }, true);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+
+            info = javaControllers[0];
+            scalaFileToJavaCompilationInfo.put(fo, new WeakReference<CompilationInfo>(info));
+        }
+
+        return info;
+    }
+
+    /** 
+     * @Note: We cannot create javasource via JavaSource.forFileObject(fo) here, which
+     * does not support virtual source yet (only ".java" and ".class" files 
+     * are supported), but we can create js via JavaSource.create(cpInfo);
+     */
+    private static JavaSource getJavaSourceForScalaFile(FileObject fo) {
+        Reference<JavaSource> sourceRef = scalaFileToJavaSource.get(fo);
+        JavaSource source = sourceRef != null ? sourceRef.get() : null;
+
+        if (source == null) {
+            ClasspathInfo javaCpInfo = ClasspathInfo.create(fo);
+            source = JavaSource.create(javaCpInfo);
+            scalaFileToJavaSource.put(fo, new WeakReference<JavaSource>(source));
+
+        }
+
+        return source;
+    }
+
+    public static String getJavaDoc(CompilationInfo info, final Element e) throws IOException {
+        String docComment = null;
+
+        // to resolve javadoc, only needs Phase.ELEMENT_RESOLVED, and we have reached when create info
+        Doc javaDoc = info.getElementUtilities().javaDocFor(e);
+        if (javaDoc != null) {
+            docComment = javaDoc.getRawCommentText();
+        }
+
+        return docComment;
+    }
+
+    /**
+     * Get fileobject that is origin source of element from current comilationInfo
+     */
+    public static FileObject getOriginFileObject(CompilationInfo info, Element e) {
+        final ElementHandle handle = ElementHandle.create(e);
+        return org.netbeans.api.java.source.SourceUtils.getFile(handle, info.getClasspathInfo());
+    }
+
+    public static int getOffset(CompilationInfo info, final Element e) throws IOException {
+        final int[] offset = new int[]{-1};
+
+        FileObject originFo = getOriginFileObject(info, e);
+
+        /** @Note
+         * We should create a element handle and a new CompilationInfo, then resolve
+         * a new element from this hanlde and info
+         */
+        final ElementHandle handle = ElementHandle.create(e);
+
+        JavaSource source = JavaSource.forFileObject(originFo);
+        if (JavaSourceAccessor.getINSTANCE().isDispatchThread()) {
+            // already under javac's lock
+            CompilationInfo newInfo = JavaSourceAccessor.getINSTANCE().getCurrentCompilationInfo(source, Phase.RESOLVED);
+
+            Element el = handle.resolve(newInfo);
+            FindDeclarationVisitor v = new FindDeclarationVisitor(el, newInfo);
+
+            CompilationUnitTree cu = newInfo.getCompilationUnit();
+
+            v.scan(cu, null);
+            Tree elTree = v.declTree;
+
+            if (elTree != null) {
+                offset[0] = (int) newInfo.getTrees().getSourcePositions().getStartPosition(cu, elTree);
+            }
+
+        } else {
+            try {
+                source.runUserActionTask(new Task<CompilationController>() {
+
+                    public void run(CompilationController controller) throws Exception {
+                        controller.toPhase(Phase.RESOLVED);
+
+                        CompilationInfo newInfo = controller;
+                        
+                        Element el = handle.resolve(newInfo);
+                        FindDeclarationVisitor v = new FindDeclarationVisitor(el, newInfo);
+
+                        CompilationUnitTree cu = newInfo.getCompilationUnit();
+
+                        v.scan(cu, null);
+                        Tree elTree = v.declTree;
+
+                        if (elTree != null) {
+                            offset[0] = (int) newInfo.getTrees().getSourcePositions().getStartPosition(cu, elTree);
+                        }
+                    }
+                }, true);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+
+        }
+
+        return offset[0];
+    }
+
+    // Private innerclasses ----------------------------------------------------
+    private static class FindDeclarationVisitor
+            extends TreePathScanner<Void, Void> {
+
+        private Element element;
+        private Tree declTree;
+        private CompilationInfo info;
+
+        public FindDeclarationVisitor(Element element, CompilationInfo info) {
+            this.element = element;
+            this.info = info;
+        }
+
+        @Override
+        public Void visitClass(ClassTree tree, Void d) {
+            handleDeclaration();
+            super.visitClass(tree, d);
+            return null;
+        }
+
+        @Override
+        public Void visitMethod(MethodTree tree, Void d) {
+            handleDeclaration();
+            super.visitMethod(tree, d);
+            return null;
+        }
+
+        @Override
+        public Void visitVariable(VariableTree tree, Void d) {
+            handleDeclaration();
+            super.visitVariable(tree, d);
+            return null;
+        }
+
+        public void handleDeclaration() {
+            Element found = info.getTrees().getElement(getCurrentPath());
+
+            if (element.equals(found)) {
+                declTree = getCurrentPath().getLeaf();
+            }
+        }
+    }
 }

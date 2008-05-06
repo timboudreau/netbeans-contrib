@@ -40,7 +40,7 @@
 package org.netbeans.modules.groovy.grails.api;
 
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.groovy.grails.settings.Settings;
+import org.netbeans.modules.groovy.grails.settings.GrailsSettings;
 
 
 /**
@@ -49,15 +49,30 @@ import org.netbeans.modules.groovy.grails.settings.Settings;
  */
 public class GrailsProjectConfig {
 
-    private final Project prj;
-    private final Settings settings = Settings.getInstance();
+    private static final String DEFAULT_PORT = "8080"; // NOI18N
 
-    public GrailsProjectConfig(Project prj) {
+    private final Project prj;
+
+    private final GrailsSettings settings = GrailsSettings.getInstance();
+
+    private GrailsProjectConfig(Project prj) {
         this.prj = prj;
     }
 
+    public static GrailsProjectConfig forProject(Project project) {
+        return new GrailsProjectConfig(project);
+    }
+
+    public Project getProject() {
+        return prj;
+    }
+
     public String getPort() {
-        return settings.getPortForProject(prj);
+        String port = settings.getPortForProject(prj);
+        if (port == null) {
+            port = DEFAULT_PORT;
+        }
+        return port;
     }
 
     public void setPort(String port) {
@@ -65,11 +80,11 @@ public class GrailsProjectConfig {
         settings.setPortForProject(prj, port);
     }
 
-    public GrailsEnvironment getEnv() {
+    public GrailsEnvironment getEnvironment() {
         return settings.getEnvForProject(prj);
     }
 
-    public void setEnv(GrailsEnvironment env) {
+    public void setEnvironment(GrailsEnvironment env) {
         assert env != null;
         settings.setEnvForProject(prj, env);
     }

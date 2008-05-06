@@ -49,6 +49,7 @@ import java.security.CodeSource;
 import java.security.PermissionCollection;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.text.StyledDocument;
+import javax.tools.Diagnostic.Kind;
 import org.netbeans.modules.javafx.editor.*;
 import java.security.Permissions;
 import java.util.ArrayList;
@@ -223,8 +224,7 @@ public class PreviewThread extends Thread {
                     comp = null;
             }
             for (Window frame : suspectedList) {
-                if (!obj.equals(frame) && frame.isVisible())
-                    frame.dispose();
+                frame.dispose();
             }
             List <Diagnostic> diagnostics = CodeManager.getDiagnostics();
             if (!diagnostics.isEmpty()) {
@@ -294,7 +294,11 @@ public class PreviewThread extends Thread {
                     }
                     foMap.add(source);
                     offsetMap.add(diagnostic.getPosition());
-                    text+= "<a href=" + i + ">" + name + " : " + diagnostic.getLineNumber() + "</a>\n" + " " + "<font color=#a40000>" + diagnostic.getMessage(null) + "</font>" + "<br>";
+                    if (diagnostic.getKind() == Kind.WARNING) {
+                        text+= "<a href=" + i + ">" + name + " : " + diagnostic.getLineNumber() + "</a>\n" + " " + "<font color=#540000>: warning: " + diagnostic.getMessage(null) + "</font>" + "<br>";
+                    }else{
+                        text+= "<a href=" + i + ">" + name + " : " + diagnostic.getLineNumber() + "</a>\n" + " " + "<font color=#a40000>" + diagnostic.getMessage(null) + "</font>" + "<br>";
+                    }
                     i++;
                 }
             }

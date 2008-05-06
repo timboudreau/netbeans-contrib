@@ -74,7 +74,6 @@ public class SimpleIdType extends SimpleType {
                 sb.append(".");
             }
         }
-        sb.append(getTypeArgsName());
         return sb.toString();
     }
 
