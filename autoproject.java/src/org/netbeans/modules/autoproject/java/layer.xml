@@ -13,6 +13,11 @@
                     <attr name="position" intvalue="1000"/>
                 </file>
             </folder>
+            <folder name="Actions">
+                <file name="org-netbeans-modules-autoproject-java-actions-AntActions.instance">
+                    <attr name="position" intvalue="1000"/>
+                </file>
+            </folder>
         </folder>
     </folder>
 </filesystem>

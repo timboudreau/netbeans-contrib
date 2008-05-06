@@ -65,6 +65,7 @@ import org.openide.util.Utilities;
  */
 public class Cache {
 
+    public static final String PROJECT = "#project";
     public static final String ENCODING = "#encoding";
     public static final String ACTION = "#action.";
 
