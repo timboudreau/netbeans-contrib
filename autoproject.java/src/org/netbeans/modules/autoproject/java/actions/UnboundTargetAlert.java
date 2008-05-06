@@ -61,6 +61,8 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
 
+// XXX permit the build script to be overridden...
+
 /**
  * Alert in case a common global action is invoked by the user but there is no binding.
  * The user is prompted to pick one.
