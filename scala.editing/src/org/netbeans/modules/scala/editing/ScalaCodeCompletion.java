@@ -420,16 +420,16 @@ public class ScalaCodeCompletion implements Completable {
                         }
                         
                         if (funRef != null) {
-                            boolean isArg = false;
+                            boolean isHisArg = false;
                             int argOffset = closest.getPickOffset(th);
                             for (AstExpr arg : funRef.getParams()) {
                                 if (arg.getBoundsOffset(th) >= argOffset && argOffset <= arg.getBoundsEndOffset(th)) {
-                                    isArg = true;
+                                    isHisArg = true;
                                     break;
                                 }
                             }
                             
-                            if (isArg) {
+                            if (isHisArg) {
                                 closest = funRef;
                             }
                         }

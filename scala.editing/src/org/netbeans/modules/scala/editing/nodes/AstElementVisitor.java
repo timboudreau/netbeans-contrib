@@ -2034,7 +2034,13 @@ public class AstElementVisitor extends AstVisitor {
         } else {
             // void:".":sep Id TypeArgs? ArgumentExprs?
             Id id = visitId(what);
-            GNode argsNode = that.getGeneric(1);
+            
+            GNode typeArgsNode = that.getGeneric(1);
+            if (typeArgsNode != null) {
+                List<TypeRef> typeArgs = visitTypeArgs(typeArgsNode);
+            }
+            
+            GNode argsNode = that.getGeneric(2);
             if (argsNode != null) {
                 ArgumentExprs argExprs = visitArgumentExprs(argsNode);
 

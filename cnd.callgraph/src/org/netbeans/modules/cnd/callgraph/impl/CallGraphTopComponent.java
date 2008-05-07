@@ -42,10 +42,21 @@
 package org.netbeans.modules.cnd.callgraph.impl;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeListener;
 import java.io.Serializable;
 import java.util.logging.Logger;
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTabbedPane;
 import org.netbeans.modules.cnd.callgraph.api.CallModel;
 import org.netbeans.modules.cnd.callgraph.impl.CallGraphPanel;
+import org.openide.awt.MouseUtils;
+import org.openide.awt.TabbedPaneFactory;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -60,24 +71,74 @@ public final class CallGraphTopComponent extends TopComponent {
     private static CallGraphTopComponent instance;
     /** path to the icon used by the component and its open action */
 //    static final String ICON_PATH = "SET/PATH/TO/ICON/HERE";
-
     private static final String PREFERRED_ID = "CallGraphTopComponent"; // NOI18N
+
+    private JPopupMenu pop;
+    private PopupListener listener;
+    private CloseListener closeL;
+
 
     private CallGraphTopComponent() {
         initComponents();
         setName(NbBundle.getMessage(CallGraphTopComponent.class, "CTL_CallGraphTopComponent")); // NOI18N
         setToolTipText(NbBundle.getMessage(CallGraphTopComponent.class, "HINT_CallGraphTopComponent")); // NOI18N
 //        setIcon(Utilities.loadImage(ICON_PATH, true));
+        pop = new JPopupMenu();
+        pop.add(new Close());
+        pop.add(new CloseAll());
+        pop.add(new CloseAllButCurrent());
+        listener = new PopupListener();
+        closeL = new CloseListener();
     }
 
     public void setModel(CallModel model) {
-        setName(model.getName()+" - "+NbBundle.getMessage(getClass(), "CTL_CallGraphTopComponent")); // NOI18N
-        removeAll();
         CallGraphPanel panel = new CallGraphPanel();
-        add(panel, BorderLayout.CENTER);
-        validate();
+        panel.setName(model.getName());
+        panel.setToolTipText(panel.getName()+" - "+NbBundle.getMessage(getClass(), "CTL_CallGraphTopComponent")); // NOI18N
+        if (false) {
+            addPanel(panel);
+        } else {
+            addTabPanel(panel);
+        }
         panel.setModel(model);
         panel.requestFocusInWindow();
+    }
+
+    void addPanel(JPanel panel) {
+        setName(panel.getToolTipText());
+        removeAll();
+        add(panel, BorderLayout.CENTER);
+        validate();
+    }
+    
+    void addTabPanel(JPanel panel) {
+        if (getComponentCount() == 0) {
+            add(panel, BorderLayout.CENTER);
+        } else {
+            Component comp = getComponent(0);
+            if (comp instanceof JTabbedPane) {
+                ((JTabbedPane) comp).addTab(panel.getName() + "  ", null, panel, panel.getToolTipText()); // NOI18N
+                ((JTabbedPane) comp).setSelectedComponent(panel);
+                comp.validate();
+            } else if (comp instanceof JButton) {
+                setName(panel.getToolTipText());
+                remove(comp);
+                add(panel, BorderLayout.CENTER);
+            } else {
+                setName(NbBundle.getMessage(getClass(), "CTL_CallGraphTopComponent")); // NOI18N
+                remove(comp);
+                JTabbedPane pane = TabbedPaneFactory.createCloseButtonTabbedPane();
+                pane.addMouseListener(listener);
+                pane.addPropertyChangeListener(closeL);
+                add(pane, BorderLayout.CENTER);
+                pane.addTab(comp.getName() + "  ", null, comp, ((JPanel) comp).getToolTipText()); //NOI18N
+                pane.addTab(panel.getName() + "  ", null, panel, panel.getToolTipText()); //NOI18N
+                pane.setSelectedComponent(panel);
+                pane.validate();
+            }
+        }
+        validate();
+        requestActive();
     }
     
     /** This method is called from within the constructor to
@@ -93,6 +154,8 @@ public final class CallGraphTopComponent extends TopComponent {
         setLayout(new java.awt.BorderLayout());
 
         org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(CallGraphTopComponent.class, "NO_VIEW_AVAILABLE")); // NOI18N
+        jButton1.setEnabled(false);
+        jButton1.setFocusable(false);
         add(jButton1, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -141,7 +204,19 @@ public final class CallGraphTopComponent extends TopComponent {
 
     @Override
     public void componentClosed() {
-    // TODO add custom code on component closing
+        if (getComponentCount() == 0) {
+            return;
+        }
+        Component comp = getComponent(0);
+        if (comp instanceof JTabbedPane) {
+            JTabbedPane pane = (JTabbedPane) comp;
+            Component[] c =  pane.getComponents();
+            for (int i = 0; i< c.length; i++) {
+                removePanel((CallGraphPanel) c[i]);
+            }
+        } else if (comp instanceof CallGraphPanel) {
+            removePanel((CallGraphPanel) comp);
+        }
     }
 
     /** replaces this in object stream */
@@ -155,12 +230,90 @@ public final class CallGraphTopComponent extends TopComponent {
         return PREFERRED_ID;
     }
 
+    private void removePanel(JPanel panel) {
+        Component comp = getComponentCount() > 0 ? getComponent(0) : null;
+        if (comp instanceof JTabbedPane) {
+            JTabbedPane tabs = (JTabbedPane) comp;
+            if (panel == null) {
+                panel = (JPanel) tabs.getSelectedComponent();
+            }
+            tabs.remove(panel);
+            if (tabs.getComponentCount() == 1) {
+                Component c = tabs.getComponent(0);
+                tabs.removeMouseListener(listener);
+                tabs.removePropertyChangeListener(closeL);
+                remove(tabs);
+                add(c, BorderLayout.CENTER);
+                setName(((JPanel)c).getToolTipText());
+            }
+        } else {
+            if (comp != null) {
+                remove(comp);
+            }
+            close();
+        }
+        validate();
+    }
+
+    private void closeAllButCurrent() {
+        Component comp = getComponent(0);
+        if (comp instanceof JTabbedPane) {
+            JTabbedPane tabs = (JTabbedPane) comp;
+            Component current = tabs.getSelectedComponent();
+            Component[] c =  tabs.getComponents();
+            for (int i = 0; i< c.length; i++) {
+                if (c[i]!=current) {
+                    removePanel((CallGraphPanel) c[i]);
+                }
+            }
+        }
+    }
+
     final static class ResolvableHelper implements Serializable {
-
         private static final long serialVersionUID = 1L;
-
         public Object readResolve() {
             return CallGraphTopComponent.getDefault();
+        }
+    }
+
+    private class CloseListener implements PropertyChangeListener {
+        public void propertyChange(java.beans.PropertyChangeEvent evt) {
+            if (TabbedPaneFactory.PROP_CLOSE.equals(evt.getPropertyName())) {
+                removePanel((JPanel) evt.getNewValue());
+            }
+        }
+    }
+
+    private class PopupListener extends MouseUtils.PopupMouseAdapter {        
+        protected void showPopup (MouseEvent e) {
+            pop.show(CallGraphTopComponent.this, e.getX(), e.getY());
+        }
+    }
+
+    private class Close extends AbstractAction {
+        public Close() {
+            super(NbBundle.getMessage(CallGraphTopComponent.class, "LBL_CloseWindow"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            removePanel(null);
+        }
+    }
+    
+    private final class CloseAll extends AbstractAction {
+        public CloseAll() {
+            super(NbBundle.getMessage(CallGraphTopComponent.class, "LBL_CloseAll"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            close();
+        }
+    }
+    
+    private class CloseAllButCurrent extends AbstractAction {
+        public CloseAllButCurrent() {
+            super(NbBundle.getMessage(CallGraphTopComponent.class, "LBL_CloseAllButCurrent"));
+        }
+        public void actionPerformed(ActionEvent e) {
+            closeAllButCurrent();
         }
     }
 }
