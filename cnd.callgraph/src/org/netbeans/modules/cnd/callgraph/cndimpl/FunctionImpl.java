@@ -134,4 +134,8 @@ public class FunctionImpl implements Function {
         return super.hashCode();
     }
 
+    @Override
+    public String toString() {
+        return getName();
+    }
 }
