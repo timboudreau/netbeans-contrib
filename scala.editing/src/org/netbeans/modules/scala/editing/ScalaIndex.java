@@ -245,9 +245,15 @@ public class ScalaIndex {
                 break;
             }
         }
+        
+        /** @TODO we need a better way to check if it's of scala */
 
         if (!ofScala) {
             elements = javaIndex.getByFqn(prefix, type, toJavaNameKind(kind), toJavaSearchScope(scope), false, context, true, true, false);
+        }
+        
+        if (elements.size() == 0) {
+            elements = javaIndex.getByFqn(prefix, "Object", toJavaNameKind(kind), toJavaSearchScope(scope), false, context, true, true, false);
         }
 
         return elements;
