@@ -261,7 +261,7 @@ public class JavaIndex {
                             break;
                         case METHOD:
                             et = (ExecutableType) (typeMirror.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) typeMirror, e) : e.asType());
-                            String in = e.getEnclosingElement().getSimpleName().toString();
+                            String in = pe.getQualifiedName().toString() + "." + e.getEnclosingElement().getSimpleName().toString();
                             StringBuilder base = new StringBuilder();
                             base.append(simpleMame.toLowerCase());
                             base.append(';');

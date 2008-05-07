@@ -42,6 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -230,6 +231,38 @@ public class ScalaIndex {
         return null;
     }
 
+    public Set<String> getImports(String className, Set<Index.SearchScope> scope) {
+        final Set<SearchResult> result = new HashSet<SearchResult>();
+        search(ScalaIndexer.FIELD_IMPORT, className.toLowerCase(), NameKind.CASE_INSENSITIVE_PREFIX, result, scope, TERMS_EXTEND);
+        String target = className.toLowerCase() + ";";
+        for (SearchResult map : result) {
+            String[] importAttrs = map.getValues(ScalaIndexer.FIELD_IMPORT);
+
+            if (importAttrs != null) {
+                Set<String> imports = new HashSet<String>();
+                for (String importAttr : importAttrs) {
+                    if (importAttr.startsWith(target)) {
+                        // Make sure it's a case match
+                        int caseIndex = target.length();
+                        int caseEnd = importAttr.indexOf(';', caseIndex);
+                        if (className.equals(importAttr.substring(caseIndex, caseEnd))) {
+                            int pkgNameEnd = importAttr.indexOf(";", caseEnd + 1);
+                            String pkgName = importAttr.substring(caseEnd + 1, pkgNameEnd);
+                            int typeNameEnd = importAttr.indexOf(";", pkgNameEnd + 1);
+                            String typeName = importAttr.substring(pkgNameEnd + 1, typeNameEnd);
+                            // @todo only wild "_" ?
+                            imports.add(pkgName);
+                        }
+                    }
+                }
+                return imports;
+            }
+        }
+
+        return Collections.<String>emptySet();
+    }
+
+    
     /** Return both functions and properties matching the given prefix, of the
      * given (possibly null) type
      */
