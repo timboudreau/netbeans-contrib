@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,71 +31,34 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
+ *
  * Contributor(s):
- * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ *
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.cnd.callgraph.cndimpl;
+package org.netbeans.modules.groovy.grailsproject.actions;
 
-import org.netbeans.modules.cnd.api.model.CsmFunction;
-import org.netbeans.modules.cnd.api.model.xref.CsmReference;
-import org.netbeans.modules.cnd.callgraph.api.Call;
-import org.netbeans.modules.cnd.callgraph.api.Function;
-import org.netbeans.modules.cnd.modelutil.CsmUtilities;
+import org.netbeans.modules.groovy.grails.api.GrailsRuntime;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.util.NbBundle;
 
 /**
  *
- * @author Alexander Simon
+ * @author Petr Hejl
  */
-public class CallImpl implements Call {
+public final class ConfigSupport {
 
-    private Function owner;
-    private CsmReference reference;
-    private Function function;
-    private boolean nameOrder;
-    
-    public CallImpl(CsmFunction owner, CsmReference reference, CsmFunction function, boolean nameOrder){
-        this.owner = new FunctionImpl(owner);
-        this.reference = reference;
-        this.function = new FunctionImpl(function);
-        this.nameOrder = nameOrder;
+    private ConfigSupport() {
+        super();
     }
 
-    public Object getReferencedCall() {
-        return reference;
-    }
-
-    public void open() {
-        CsmUtilities.openSource(reference);
-    }
-
-    public Function getCallee() {
-        return function;
-    }
-
-    public Function getCaller() {
-        return owner;
-    }
-
-    public int compareTo(Call o) {
-        if (nameOrder) {
-            return getCaller().getName().compareTo(o.getCaller().getName());
-        }
-        int diff = reference.getStartOffset() - ((CallImpl)o).reference.getStartOffset();
-        if (diff == 0) {
-             return getCallee().getName().compareTo(o.getCallee().getName());
-       }
-        return diff;
-    }
-
-    @Override
-    public String toString() {
-        if (nameOrder) {
-            return getCaller().getName()+"<-"+getCallee().getName();
-        } else {
-            return getCallee().getName()+"->"+getCaller().getName();
+    public static void showConfigurationWarning(GrailsRuntime runtime) {
+        if (!runtime.isConfigured()) {
+            String msg = NbBundle.getMessage(ConfigSupport.class, "MSG_Runtime_Not_Configured");
+            DialogDisplayer.getDefault().notify(
+                    new NotifyDescriptor.Message(msg, NotifyDescriptor.WARNING_MESSAGE));
         }
     }
 }
