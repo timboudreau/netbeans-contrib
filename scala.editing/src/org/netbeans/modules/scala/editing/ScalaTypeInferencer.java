@@ -112,8 +112,8 @@ public class ScalaTypeInferencer {
             Id firstId = ((PathId) base).getPaths().get(0);
             AstElement firstIdRef = rootScope.getDefRef(th, firstId.getPickOffset(th));
             if (firstIdRef == null) {
-                // @Todo why this will happen?
-                System.out.println("Null IdRef of base:" + base.toString());
+                // this should not happen
+                System.out.println("Null IdRef of PathId: " + base.toString());
                 return;
             }
             AstDef def = rootScope.findDef(firstIdRef);
@@ -180,8 +180,13 @@ public class ScalaTypeInferencer {
                 if (!importExpr.isWild()) {
                     continue;
                 }
+                
 
-                String pkgName = importExpr.getPackageName() + ".";
+                String pkgName = importExpr.getPackageName() + ".";                
+                if (pkgName.startsWith("_root_.")) {
+                    pkgName.substring(7, pkgName.length());
+                }
+               
                 for (IndexedElement element : getImportedTypes(index, pkgName)) {
                     if (element instanceof IndexedType) {
                         if (element.getName().equals(simpleName)) {
@@ -206,9 +211,14 @@ public class ScalaTypeInferencer {
                 if (!importExpr.isWild()) {
                     continue;
                 }
-
+                
+                String pkgName = importExpr.getPackageName() + ".";
+                if (pkgName.startsWith("_root_.")) {
+                    continue;
+                }
+                
                 /* package name starts with "scala" can omit "scala" */
-                String pkgName = "scala." + importExpr.getPackageName() + ".";
+                pkgName = "scala." + pkgName + ".";
                 for (IndexedElement element : getScalaPackageTypes(index, pkgName)) {
                     if (element instanceof IndexedType) {
                         if (element.getName().equals(simpleName)) {
