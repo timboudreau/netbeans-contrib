@@ -202,11 +202,19 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         IndexedElement candidate = null;
 
         String prefix = funRef.getCall().getName();
-        String in = "";
-        if (funRef.getBase() != null) {
-            TypeRef baseType = funRef.getBase().getType();
-            if (baseType != null) {
-                in = baseType.getQualifiedName();
+        String in = null;
+        AstElement base = funRef.getBase();
+        if (base != null) {
+            TypeRef baseType = base.getType();
+            if (base instanceof FunRef) {
+                in = ((FunRef) base).getRetType();
+            } else {
+                if (baseType != null) {
+                    in = baseType.getQualifiedName();
+                }
+            }
+            
+            if (in != null) {
                 Set<IndexedElement> members = index.getElements(prefix, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult);
                 for (IndexedElement member : members) {
                     if (member instanceof IndexedFunction) {
@@ -219,6 +227,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                     }
                 }
             }
+
         }
 
         return (IndexedFunction) candidate;
