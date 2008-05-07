@@ -124,7 +124,7 @@ public class ScalaOccurrencesFinder implements OccurrencesFinder {
 
         final TokenHierarchy th = TokenHierarchy.get(document);
         
-        AstElement closest = rootScope.getDefRef(th, caretPosition);
+        AstElement closest = rootScope.findDefRef(th, caretPosition);
 
         int astOffset = AstUtilities.getAstOffset(info, caretPosition);
         if (astOffset == -1) {

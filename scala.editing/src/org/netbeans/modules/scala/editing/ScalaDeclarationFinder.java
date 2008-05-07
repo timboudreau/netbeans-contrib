@@ -149,7 +149,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             AstElement foundElement = null;
             boolean isLocal = false;
 
-            AstElement closest = root.getDefRef(th, astOffset);
+            AstElement closest = root.findDefRef(th, astOffset);
             AstDef def = root.findDef(closest);
             if (def != null) {
                 foundElement = def;
