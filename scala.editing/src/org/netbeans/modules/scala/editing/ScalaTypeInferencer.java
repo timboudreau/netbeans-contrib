@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Set;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.nodes.AssignmentExpr;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
@@ -57,7 +58,9 @@ import org.netbeans.modules.scala.editing.nodes.Import;
 import org.netbeans.modules.scala.editing.nodes.Packaging;
 import org.netbeans.modules.scala.editing.nodes.PathId;
 import org.netbeans.modules.scala.editing.nodes.SimpleExpr;
+import org.netbeans.modules.scala.editing.nodes.Template;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.Var;
 
 /**
  *
@@ -82,12 +85,31 @@ public class ScalaTypeInferencer {
             inferExpr(expr, null);
         }
 
-        for (AstRef ref : scope.getRefs()) {
-            if (ref.getType() == null) {
-                AstDef def = rootScope.findDef(ref);
-                if (def != null) {
-                    ref.setType(def.getType());
+        for (AstDef def : scope.getDefs()) {
+            if (def instanceof Var) {
+                if (def.getKind() != ElementKind.PARAMETER) {
+                    Template enclosingTmpl = def.getEnclosingDef(Template.class);
+                    if (enclosingTmpl != null && enclosingTmpl.getBindingScope() == def.getEnclosingScope()) {
+                        def.setKind(ElementKind.FIELD);
+                    } else {
+                        def.setKind(ElementKind.VARIABLE);
+                    }
                 }
+            }
+        }
+
+        for (AstRef ref : scope.getRefs()) {
+            AstDef def = rootScope.findDef(ref);
+            if (def == null) {
+                continue;
+            }
+
+            if (def instanceof Var) {
+                ref.setKind(def.getKind());
+            }
+
+            if (ref.getType() == null) {
+                ref.setType(def.getType());
             }
         }
 
@@ -110,7 +132,7 @@ public class ScalaTypeInferencer {
         if (base instanceof PathId) {
             /** Try to find an AstRef, so we can infer its type via it's def */
             Id firstId = ((PathId) base).getPaths().get(0);
-            AstElement firstIdRef = rootScope.getDefRef(th, firstId.getPickOffset(th));
+            AstElement firstIdRef = rootScope.findDefRef(th, firstId.getPickOffset(th));
             if (firstIdRef == null) {
                 // this should not happen
                 System.out.println("Null IdRef of PathId: " + base.toString());

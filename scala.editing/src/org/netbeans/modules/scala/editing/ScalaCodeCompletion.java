@@ -391,10 +391,10 @@ public class ScalaCodeCompletion implements Completable {
                 //request.path = path;
                 //request.fqn = AstUtilities.getFqn(path, null, null);
 
-                AstElement closest = root.getDefRef(th, offset);
+                AstElement closest = root.findDefRef(th, offset);
                 int closestOffset = offset - 1;
                 while (closest == null && closestOffset > 0) {
-                    closest = root.getDefRef(th, closestOffset--);
+                    closest = root.findDefRef(th, closestOffset--);
                 }
 
                 if (closest != null) {
@@ -412,13 +412,9 @@ public class ScalaCodeCompletion implements Completable {
                         // test if it's an arg of funRef ?
                         FunRef funRef = null;
                         while (funRef == null && closestOffset > 0) {
-                            AstElement something = root.getDefRef(th, closestOffset--);
-                            if (something instanceof FunRef) {
-                                funRef = (FunRef) something;
-                                break;
-                            }
+                            funRef = root.findRef(FunRef.class, th, closestOffset--);
                         }
-                        
+
                         if (funRef != null) {
                             boolean isHisArg = false;
                             int argOffset = closest.getPickOffset(th);
@@ -428,7 +424,7 @@ public class ScalaCodeCompletion implements Completable {
                                     break;
                                 }
                             }
-                            
+
                             if (isHisArg) {
                                 closest = funRef;
                             }
@@ -1884,7 +1880,7 @@ public class ScalaCodeCompletion implements Completable {
             }
 
             FunRef call = null;
-            AstElement closest = root.getDefRef(th, astOffset);
+            AstElement closest = root.findDefRef(th, astOffset);
             if (closest instanceof FunRef) {
                 call = (FunRef) closest;
             }
