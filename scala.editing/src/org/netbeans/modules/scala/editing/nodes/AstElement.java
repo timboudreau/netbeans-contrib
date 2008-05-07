@@ -124,6 +124,10 @@ public class AstElement implements ElementHandle {
         }
     }
     
+    public void setKind(ElementKind kind) {
+        this.kind = kind;
+    }
+    
     public ElementKind getKind() {
         return kind;
     }

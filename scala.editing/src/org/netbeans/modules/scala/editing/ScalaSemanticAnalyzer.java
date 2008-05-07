@@ -45,12 +45,14 @@ import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
+import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.SemanticAnalyzer;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.AstRef;
+import org.netbeans.modules.scala.editing.nodes.IdRef;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
 import org.openide.util.Exceptions;
 
@@ -167,7 +169,11 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             }
             
             OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, idToken);
-            if (ref instanceof TypeRef) {
+            if (ref instanceof IdRef) {
+                if (ref.getKind() == ElementKind.FIELD) {
+                    highlights.put(idRange, ColoringAttributes.FIELD);
+                }
+            } else if (ref instanceof TypeRef) {
                 if (!((TypeRef) ref).isResolved()) {
                     highlights.put(idRange, ColoringAttributes.UNUSED); // UNDEFINED without default color yet
                 }
