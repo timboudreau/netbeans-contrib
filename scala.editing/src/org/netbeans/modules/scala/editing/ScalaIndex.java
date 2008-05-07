@@ -42,7 +42,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -81,6 +80,7 @@ public class ScalaIndex {
     public static final Set<String> TERMS_FQN = Collections.singleton(ScalaIndexer.FIELD_FQN);
     public static final Set<String> TERMS_BASE = Collections.singleton(ScalaIndexer.FIELD_BASE);
     public static final Set<String> TERMS_EXTEND = Collections.singleton(ScalaIndexer.FIELD_EXTENDS_NAME);
+    public static final Set<String> TERMS_IMPORT = Collections.singleton(ScalaIndexer.FIELD_IMPORT);
     public static final Set<String> TERMS_CLASS = Collections.singleton(ScalaIndexer.FIELD_CASE_INSENSITIVE_CLASS_NAME);
     private final Index index;
     private JavaIndex javaIndex;
@@ -233,7 +233,7 @@ public class ScalaIndex {
 
     public Set<String> getImports(String className, Set<Index.SearchScope> scope) {
         final Set<SearchResult> result = new HashSet<SearchResult>();
-        search(ScalaIndexer.FIELD_IMPORT, className.toLowerCase(), NameKind.CASE_INSENSITIVE_PREFIX, result, scope, TERMS_EXTEND);
+        search(ScalaIndexer.FIELD_IMPORT, className.toLowerCase(), NameKind.CASE_INSENSITIVE_PREFIX, result, scope, TERMS_IMPORT);
         String target = className.toLowerCase() + ";";
         for (SearchResult map : result) {
             String[] importAttrs = map.getValues(ScalaIndexer.FIELD_IMPORT);
