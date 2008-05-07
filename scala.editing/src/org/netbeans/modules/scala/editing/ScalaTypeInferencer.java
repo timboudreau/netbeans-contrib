@@ -91,8 +91,8 @@ public class ScalaTypeInferencer {
             }
         }
 
-        for (AstScope _Scope : scope.getScopes()) {
-            inferRecursively(_Scope);
+        for (AstScope _scope : scope.getScopes()) {
+            inferRecursively(_scope);
         }
     }
 
@@ -141,11 +141,7 @@ public class ScalaTypeInferencer {
         inferExpr(rhs, null);
         inferExpr(lhs, rhs.getType());
     }
-
-    
     // ------ Global infer
-    
-    
     public void globalInfer(CompilationInfo info) {
         ScalaIndex index = ScalaIndex.get(info);
         globalInferRecursively(index, rootScope);
@@ -163,102 +159,20 @@ public class ScalaTypeInferencer {
                 toResolve = ref.getType();
             }
 
-            if (toResolve != null && toResolve.isResolved()) {
-                toResolve = null;
-            }
-
             if (toResolve == null) {
                 continue;
             }
 
-            String simpleName = toResolve.getName();
-            boolean resolved = false;
-
-            // 1. search imported types first
-            List<Import> imports = toResolve.getEnclosingScope().getDefsInScope(Import.class);
-            for (Import importExpr : imports) {
-                if (!importExpr.isWild()) {
-                    continue;
-                }
-                
-
-                String pkgName = importExpr.getPackageName() + ".";                
-                if (pkgName.startsWith("_root_.")) {
-                    pkgName.substring(7, pkgName.length());
-                }
-               
-                for (IndexedElement element : getImportedTypes(index, pkgName)) {
-                    if (element instanceof IndexedType) {
-                        if (element.getName().equals(simpleName)) {
-                            toResolve.setQualifiedName(pkgName + simpleName);
-                            resolved = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (resolved) {
-                    break;
-                }
-            }
-
-            if (resolved) {
+            if (toResolve.isResolved()) {
                 continue;
             }
 
-            // 2. search "scala" packages 
-            for (Import importExpr : imports) {
-                if (!importExpr.isWild()) {
-                    continue;
-                }
-                
-                String pkgName = importExpr.getPackageName() + ".";
-                if (pkgName.startsWith("_root_.")) {
-                    continue;
-                }
-                
-                /* package name starts with "scala" can omit "scala" */
-                pkgName = "scala." + pkgName + ".";
-                for (IndexedElement element : getScalaPackageTypes(index, pkgName)) {
-                    if (element instanceof IndexedType) {
-                        if (element.getName().equals(simpleName)) {
-                            toResolve.setQualifiedName(pkgName + simpleName);
-                            resolved = true;
-                            break;
-                        }
-                    }
-                }
+            globalInferTypeRef(index, toResolve);
 
-                if (resolved) {
-                    break;
-                }
-            }
-
-            if (resolved) {
-                continue;
-            }
-
-            // 3. then search types under the same package
-            Packaging packaging = toResolve.getPackageElement();
-            if (packaging != null) {
-                String pkgName = packaging.getName() + ".";
-                for (IndexedElement element : getPackageTypes(index, packaging)) {
-                    if (element instanceof IndexedType) {
-                        if (element.getName().equals(simpleName)) {
-                            toResolve.setQualifiedName(pkgName + simpleName);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (resolved) {
-                continue;
-            }
         }
 
-        for (AstScope _Scope : scope.getScopes()) {
-            globalInferRecursively(index, _Scope);
+        for (AstScope _scope : scope.getScopes()) {
+            globalInferRecursively(index, _scope);
         }
     }
 
@@ -325,10 +239,97 @@ public class ScalaTypeInferencer {
         }
 
     }
+
+    private boolean globalInferTypeRef(ScalaIndex index, TypeRef type) {
+        boolean resolved = false;
+
+        String simpleName = type.getName();
+
+        // 1. search imported types first
+        List<Import> imports = type.getEnclosingScope().getDefsInScope(Import.class);
+        for (Import importExpr : imports) {
+            if (!importExpr.isWild()) {
+                continue;
+            }
+
+
+            String pkgName = importExpr.getPackageName() + ".";
+            if (pkgName.startsWith("_root_.")) {
+                pkgName.substring(7, pkgName.length());
+            }
+
+            for (IndexedElement element : getImportedTypes(index, pkgName)) {
+                if (element instanceof IndexedType) {
+                    if (element.getName().equals(simpleName)) {
+                        type.setQualifiedName(pkgName + simpleName);
+                        resolved = true;
+                        break;
+                    }
+                }
+            }
+
+            if (resolved) {
+                break;
+            }
+        }
+
+        if (resolved) {
+            return true;
+        }
+
+        // 2. search "scala" packages 
+        for (Import importExpr : imports) {
+            if (!importExpr.isWild()) {
+                continue;
+            }
+
+            String pkgName = importExpr.getPackageName() + ".";
+            if (pkgName.startsWith("_root_.")) {
+                continue;
+            }
+
+            /* package name starts with "scala" can omit "scala" */
+            pkgName = "scala." + pkgName + ".";
+            for (IndexedElement element : getScalaPackageTypes(index, pkgName)) {
+                if (element instanceof IndexedType) {
+                    if (element.getName().equals(simpleName)) {
+                        type.setQualifiedName(pkgName + simpleName);
+                        resolved = true;
+                        break;
+                    }
+                }
+            }
+
+            if (resolved) {
+                break;
+            }
+        }
+
+        if (resolved) {
+            return true;
+        }
+
+        // 3. then search types under the same package
+        Packaging packaging = type.getPackageElement();
+        if (packaging != null) {
+            String pkgName = packaging.getName() + ".";
+            for (IndexedElement element : getPackageTypes(index, pkgName)) {
+                if (element instanceof IndexedType) {
+                    if (element.getName().equals(simpleName)) {
+                        type.setQualifiedName(pkgName + simpleName);
+                        resolved = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return resolved;
+    }
     /* package name starts with "scala" can omit "scala" */
     private static Map<String, Set<IndexedElement>> scalaPackageTypes;
     private Map<String, Set<IndexedElement>> importedTypesCache;
-    private Map<Packaging, Set<IndexedElement>> packageTypesCache;
+    private Map<String, Set<IndexedElement>> packageTypesCache;
 
     private static Set<IndexedElement> getScalaPackageTypes(ScalaIndex index, String pkgName) {
         if (scalaPackageTypes == null) {
@@ -360,17 +361,16 @@ public class ScalaTypeInferencer {
         return idxElements;
     }
 
-    private Set<IndexedElement> getPackageTypes(ScalaIndex index, Packaging packaging) {
+    private Set<IndexedElement> getPackageTypes(ScalaIndex index, String pkgName) {
         if (packageTypesCache == null) {
-            packageTypesCache = new HashMap<Packaging, Set<IndexedElement>>();
+            packageTypesCache = new HashMap<String, Set<IndexedElement>>();
         }
 
-        Set<IndexedElement> idxElements = packageTypesCache.get(packaging);
+        Set<IndexedElement> idxElements = packageTypesCache.get(pkgName);
         if (idxElements == null) {
-            String pkgName = packaging.getName() + ".";
             idxElements = index.getPackageContent(pkgName, NameKind.PREFIX, ScalaIndex.ALL_SCOPE);
 
-            packageTypesCache.put(packaging, idxElements);
+            packageTypesCache.put(pkgName, idxElements);
         }
 
         return idxElements;
