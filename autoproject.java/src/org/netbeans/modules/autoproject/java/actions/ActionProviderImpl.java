@@ -103,6 +103,7 @@ public class ActionProviderImpl implements ActionProvider {
              */
             // XXX deploy, redeploy
             // XXX rename, move, copy, delete
+            // XXX profile and debug should work by calling an Ant target for run but using presetdef to override <java> to add extra args
         };
     }
 

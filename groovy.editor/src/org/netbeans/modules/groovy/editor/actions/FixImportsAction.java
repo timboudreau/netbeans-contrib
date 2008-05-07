@@ -38,8 +38,9 @@
  */
 package org.netbeans.modules.groovy.editor.actions;
 
+import java.awt.Dialog;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
+import java.util.MissingResourceException;
 import javax.swing.AbstractAction;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
@@ -53,7 +54,6 @@ import org.netbeans.modules.groovy.editor.parser.GroovyParserManager;
 import org.netbeans.modules.groovy.editor.parser.GroovyParserResult;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import java.util.List;
 import org.netbeans.api.java.classpath.ClassPath;
@@ -63,7 +63,10 @@ import org.netbeans.api.java.source.ClassIndex;
 import org.netbeans.api.java.source.ClassIndex.NameKind;
 import java.util.Set;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import javax.lang.model.element.TypeElement;
+import javax.swing.Icon;
 import org.codehaus.groovy.control.ErrorCollector;
 import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
 import org.codehaus.groovy.syntax.SyntaxException;
@@ -75,20 +78,26 @@ import org.netbeans.modules.groovy.editor.AstUtilities;
 import org.netbeans.modules.groovy.editor.hints.spi.EditList;
 import org.netbeans.modules.groovy.editor.lexer.LexUtilities;
 import org.netbeans.modules.groovy.editor.lexer.GroovyTokenId;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
+import org.netbeans.api.java.source.ui.ElementIcons;
 
 /**
  *
  * @author schmidtm
  */
-public class FixImportsAction extends AbstractAction implements EditorAction {
+public class FixImportsAction extends AbstractAction implements EditorAction, Runnable {
 
     private final Logger LOG = Logger.getLogger(FixImportsAction.class.getName());
-    String NAME = "Fix-Imports";
+    String MENU_NAME = NbBundle.getMessage(FixImportsAction.class, "FixImportsActionMenuString");
+    Document doc = null;
 
     public FixImportsAction() {
-        super("Fix-Imports");
-        putValue("PopupMenuText", NAME);
-        LOG.setLevel(Level.FINEST);
+        super(NbBundle.getMessage(FixImportsAction.class, "FixImportsActionMenuString"));
+        putValue("PopupMenuText", MENU_NAME);
+        // LOG.setLevel(Level.FINEST);
     }
 
     @Override
@@ -98,91 +107,150 @@ public class FixImportsAction extends AbstractAction implements EditorAction {
         return true;
     }
 
+
     void actionPerformed(final JTextComponent comp) {
         LOG.log(Level.FINEST, "actionPerformed(final JTextComponent comp)");
 
         assert comp != null;
-        Document doc = comp.getDocument();
+        doc = comp.getDocument();
 
         if (doc != null) {
-            DataObject dob = NbEditorUtilities.getDataObject(doc);
-            if (dob != null) {
-                FileObject fo = dob.getPrimaryFile();
-                Lookup lkp = Lookup.getDefault();
-
-                if (lkp != null && fo != null) {
-                    GroovyParserManager parserManager = lkp.lookup(GroovyParserManager.class);
-                    if (parserManager != null) {
-                        GroovyParserResult result = parserManager.getParsingResultByFileObject(fo);
-
-                        if (result != null) {
-                            
-                            ErrorCollector errorCollector = result.getErrorCollector();
-                            List errList = errorCollector.getErrors();
-                            
-                            if (errList != null) {
-                                for (Object error : errList) {
-                                    if (error instanceof SyntaxErrorMessage) {
-                                        SyntaxException se = ((SyntaxErrorMessage)error).getCause();
-                                        if (se != null) {
-                                            String errorMessage = se.getMessage();
-                                            String missingClass = getMissingClassName(errorMessage);
-                                            
-                                            if (missingClass != null) {
-                                                LOG.log(Level.FINEST, "Missing Class " + missingClass);
-                                                
-                                                List<String> importCandidates = getImportCandidate(fo, missingClass);
-                                                
-                                                if (!importCandidates.isEmpty()) {
-                                                    int firstFreePosition = 0;
-                                                    BaseDocument baseDoc = AstUtilities.getBaseDocument(fo, true);
-
-                                                    firstFreePosition = getImportPosition(baseDoc);
-                                                    
-                                                    if (firstFreePosition != -1) {
-                                                        EditList edits = null;
-                                                        if (baseDoc != null) {
-                                                            edits = new EditList(baseDoc);
-                                                        }
-                                                        
-                                                        LOG.log(Level.FINEST, "Importing here: " + firstFreePosition);
-                                                        
-                                                        if (importCandidates.size() == 1) {
-                                                            LOG.log(Level.FINEST, "Importing class!");
-                                                            LOG.log(Level.FINEST, importCandidates.toString());
-                                                            
-                                                            String fqnName = importCandidates.get(0);
-                                                            edits.replace(firstFreePosition, 0,
-                                                                    "import " + fqnName + ";\n", false, 0);
-                                                            
-                                                            edits.apply();
-                                                            
-                                                        } else {
-                                                            LOG.log(Level.FINEST, "Present Chooser between: ");
-                                                            LOG.log(Level.FINEST, importCandidates.toString());
-                                                        }
-                                                    }
-                                                }
-                                                
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        LOG.log(Level.FINEST, "Couldn't get GroovyParserManager from global lookup");
-                    }
-                } else {
-                    LOG.log(Level.FINEST, "Couldn't get global lookup");
+            RequestProcessor.getDefault().post(this);
+        }
+    }
+    
+    GroovyParserResult getParserResultFromGlobalLookup(FileObject fo) {
+        GroovyParserResult result = null;
+        Lookup lkp = Lookup.getDefault();
+        if (lkp != null) {
+            GroovyParserManager parserManager = lkp.lookup(GroovyParserManager.class);
+            if (parserManager != null) {
+                result = parserManager.getParsingResultByFileObject(fo);
+                if (result == null) {
+                    LOG.log(Level.FINEST, "Couldn't get GroovyParserResult");
                 }
-
+            } else {
+                LOG.log(Level.FINEST, "Couldn't get GroovyParserManager from global lookup");
             }
+        } else {
+            LOG.log(Level.FINEST, "Couldn't get global lookup");
         }
 
+        return result;
+    }
+    
+    
+    
+    public void run() {
+        DataObject dob = NbEditorUtilities.getDataObject(doc);
+        
+        if (dob == null) {
+            LOG.log(Level.FINEST, "Could not get DataObject for document");
+            return;
+        }
+        
+        FileObject fo = dob.getPrimaryFile();
+        GroovyParserResult result = getParserResultFromGlobalLookup(fo);
+
+        if (result == null) {
+            LOG.log(Level.FINEST, "Could not get GroovyParserResult");
+            return;
+        }
+        
+        ErrorCollector errorCollector = result.getErrorCollector();
+        List errList = errorCollector.getErrors();
+        
+        if (errList == null) {
+            LOG.log(Level.FINEST, "Could not get list of errors");
+            return;
+        }
+
+        List<String> missingNames = new ArrayList<String>();
+        
+        // loop over the list of errors, remove duplicates and 
+        // populate list of missing imports.
+        
+        for (Object error : errList) {
+            if (error instanceof SyntaxErrorMessage) {
+                SyntaxException se = ((SyntaxErrorMessage) error).getCause();
+                if (se != null) {
+                    String missingClassName = getMissingClassName(se.getMessage());
+
+                    if (missingClassName != null) {
+                        if(!missingNames.contains(missingClassName)){
+                            missingNames.add(missingClassName);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // go over list of missing imports, fix it - if there is only one 
+        // candidate or populate choosers input list.
+        
+        Map<String,List> multipleCandidates = new HashMap<String,List>();
+
+        for (String name : missingNames) {
+            List<ImportCandidate> importCandidates = getImportCandidate(fo, name);
+            
+            if (importCandidates.isEmpty()) {
+                // nothing to import
+                return;
+                }
+            
+            int size = importCandidates.size();
+            
+            if (size == 1) {
+                doImport(fo, importCandidates.get(0).getFqnName());
+            } else {
+                LOG.log(Level.FINEST, "Adding to multipleCandidates: " + name);
+                multipleCandidates.put(name, importCandidates);
+            }
+        }
+        
+        // do we have multiple candidate? In this case we need to present a
+        // chooser
+        
+        List<String> listToFix = null;
+        
+        if(!multipleCandidates.isEmpty()){
+            LOG.log(Level.FINEST, "multipleCandidates.size(): " + multipleCandidates.size());
+            listToFix = presentChooser(multipleCandidates);
+        }
+        
+        if(listToFix != null && !listToFix.isEmpty()){
+            LOG.log(Level.FINEST, "listToFix.size(): " + listToFix.size());
+            for (String fqn : listToFix) {
+                doImport(fo, fqn);
+            }
+        }
+        
         return;
     }
 
+    
+    private List<String> presentChooser(Map<String,List> multipleCandidates){
+        LOG.log(Level.FINEST, "presentChooser()");
+        List<String> result = new ArrayList<String>();
+        ImportChooserInnerPanel panel = new ImportChooserInnerPanel();
+
+        panel.initPanel(multipleCandidates);
+
+        DialogDescriptor dd = new DialogDescriptor(panel, NbBundle.getMessage(FixImportsAction.class, "FixImportsDialogTitle")); //NOI18N
+        Dialog d = DialogDisplayer.getDefault().createDialog(dd);
+
+        d.setVisible(true);
+        d.setVisible(false);
+        d.dispose();
+
+        if (dd.getValue() == DialogDescriptor.OK_OPTION) {
+            result = panel.getSelections();
+        }
+        
+        return result;
+    }
+    
+    
     public void actionPerformed(ActionEvent e) {
         LOG.log(Level.FINEST, "actionPerformed(ActionEvent e)");
 
@@ -207,11 +275,62 @@ public class FixImportsAction extends AbstractAction implements EditorAction {
     public Class getShortDescriptionBundleClass() {
         return FixImportsAction.class;
     }
+    
+    public class ImportCandidate {
+        String Name;
+        String fqnName;
+        Icon icon;
+        int importantsLevel;
 
-    List<String> getImportCandidate(FileObject fo, String missingClass) {
+        public ImportCandidate(String Name, String fqnName, Icon icon, int importantsLevel) {
+            this.Name = Name;
+            this.fqnName = fqnName;
+            this.icon = icon;
+            this.importantsLevel = importantsLevel;
+        }
+
+        public String getName() {
+            return Name;
+        }
+
+        public void setName(String Name) {
+            this.Name = Name;
+        }
+
+        public String getFqnName() {
+            return fqnName;
+        }
+
+        public void setFqnName(String fqnName) {
+            this.fqnName = fqnName;
+        }
+
+        public Icon getIcon() {
+            return icon;
+        }
+
+        public void setIcon(Icon icon) {
+            this.icon = icon;
+        }
+
+        public int getImportantsLevel() {
+            return importantsLevel;
+        }
+
+        public void setImportantsLevel(int importantsLevel) {
+            this.importantsLevel = importantsLevel;
+        }
+
+        
+        
+        
+    }
+    
+
+    List<ImportCandidate> getImportCandidate(FileObject fo, String missingClass) {
         LOG.log(Level.FINEST, "Looking for class: " + missingClass);
 
-        List<String> result = new ArrayList<String>();
+        List<ImportCandidate> result = new ArrayList<ImportCandidate>();
 
         ClassPath bootPath = ClassPath.getClassPath(fo, ClassPath.BOOT);
         ClassPath compilePath = ClassPath.getClassPath(fo, ClassPath.COMPILE);
@@ -238,7 +357,12 @@ public class FixImportsAction extends AbstractAction implements EditorAction {
                     ek == javax.lang.model.element.ElementKind.INTERFACE) {
                 String fqnName = typeName.getQualifiedName();
                 LOG.log(Level.FINEST, "Found     : " + fqnName);
-                result.add(fqnName);
+                
+                Icon icon = ElementIcons.getElementIcon(ek, null);
+                int level = getImportanceLevel(fqnName);
+                
+                ImportCandidate candidate = new ImportCandidate(missingClass, fqnName, icon, level);
+                result.add(candidate);
             }
 
         }
@@ -246,6 +370,21 @@ public class FixImportsAction extends AbstractAction implements EditorAction {
         return result;
 
     }
+    
+     public static int getImportanceLevel(String fqn) {
+        int weight = 50;
+        if (fqn.startsWith("java.lang") || fqn.startsWith("java.util")) // NOI18N
+            weight -= 10;
+        else if (fqn.startsWith("org.omg") || fqn.startsWith("org.apache")) // NOI18N
+            weight += 10;
+        else if (fqn.startsWith("com.sun") || fqn.startsWith("com.ibm") || fqn.startsWith("com.apple")) // NOI18N
+            weight += 20;
+        else if (fqn.startsWith("sun") || fqn.startsWith("sunw") || fqn.startsWith("netscape")) // NOI18N
+            weight += 30;
+        return weight;
+    }
+    
+    
     
     String getMissingClassName(String errorMessage){
         String ERR_PREFIX = "unable to resolve class "; // NOI18N
@@ -267,49 +406,58 @@ public class FixImportsAction extends AbstractAction implements EditorAction {
     int getImportPosition(BaseDocument doc){
         TokenSequence<?> ts = LexUtilities.getGroovyTokenSequence(doc, 1);
         
-        int importEnd       = 0;
-        int packageOffset   = 0;
+        // LOG.setLevel(Level.FINEST);
+        
+        int importEnd       = -1;
+        int packageOffset   = -1;
         
         while (ts.moveNext()) {
             Token t = ts.token();
+            int offset = ts.offset();
             
             if(t.id() == GroovyTokenId.LITERAL_import) {
-                int offset = ts.offset();
+                LOG.log(Level.FINEST, "GroovyTokenId.LITERAL_import found");
                 importEnd = offset;                
             } 
             else if (t.id() == GroovyTokenId.LITERAL_package){
-                packageOffset = ts.offset();
+                LOG.log(Level.FINEST, "GroovyTokenId.LITERAL_package found");
+                packageOffset = offset;
             }
         }
         
         int useOffset = 0;
         
         // sanity check: package *before* import
-        if(packageOffset > importEnd) {
+        if(importEnd != -1 && packageOffset > importEnd) {
+            LOG.log(Level.FINEST, "packageOffset > importEnd");
             return -1;
         }
         
         // nothing set:
-        if(importEnd == 0 && packageOffset == 0){
+        if(importEnd == -1 && packageOffset == -1){
             // place imports in the first line
-            return 1;
+            LOG.log(Level.FINEST, "importEnd == -1 && packageOffset == -1");
+            return 0;
         
         }
         // only package set:
-        else if(importEnd == 0 && packageOffset != 0){
+        else if(importEnd == -1 && packageOffset != -1){
             // place imports behind package statement
+            LOG.log(Level.FINEST, "importEnd == -1 && packageOffset != -1");
             useOffset = packageOffset;
         }
         
         // only imports set:
-        else if(importEnd != 0 && packageOffset == 0){
+        else if(importEnd != -1 && packageOffset == -1){
             // place imports after the last import statement
+            LOG.log(Level.FINEST, "importEnd != -1 && packageOffset == -1");
             useOffset = importEnd;
         }
         
         // both package & import set:
-        else if(importEnd != 0 && packageOffset != 0){
+        else if(importEnd != -1 && packageOffset != -1){
             // place imports right after the last import statement
+            LOG.log(Level.FINEST, "importEnd != -1 && packageOffset != -1");
             useOffset = importEnd;
             
         }
@@ -326,7 +474,24 @@ public class FixImportsAction extends AbstractAction implements EditorAction {
         return Utilities.getRowStartFromLineOffset(doc, lineOffset + 1);              
 
     }
-    
-    
-    
+
+    private void doImport(FileObject fo, String fqnName) throws MissingResourceException {
+        int firstFreePosition = 0;
+        BaseDocument baseDoc = AstUtilities.getBaseDocument(fo, true);
+
+        firstFreePosition = getImportPosition(baseDoc);
+
+        if (firstFreePosition != -1) {
+            if (baseDoc == null) {
+                return;
+            }
+            
+            EditList edits = new EditList(baseDoc);
+            LOG.log(Level.FINEST, "Importing here: " + firstFreePosition);
+
+            edits.replace(firstFreePosition, 0, "import " + fqnName + "\n", false, 0);
+            edits.apply();
+        }
+    }
+
 }
