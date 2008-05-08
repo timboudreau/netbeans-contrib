@@ -70,8 +70,11 @@ public class Function extends AstDef {
         this.params = params;
     }
 
+    /**
+     * @return null or params 
+     */
     public List<Var> getParams() {
-        return params == null ? Collections.<Var>emptyList() : params;
+        return params;
     }
 
     @Override
@@ -80,17 +83,17 @@ public class Function extends AstDef {
             FunRef funRef = (FunRef) ref;
             // only check local call only
             if (funRef.isLocal()) {
-                return getName().equals(funRef.getCall().getName()) && getParams().size() == funRef.getParams().size();
+                return getName().equals(funRef.getCall().getName()) && params != null && params.size() == funRef.getParams().size();
             }
         }
-        
+
         return false;
     }
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-        if (getTypeParam().size() > 0) {
+        if (!getTypeParam().isEmpty()) {
             formatter.appendHtml("[");
 
             for (Iterator<TypeRef> itr = getTypeParam().iterator(); itr.hasNext();) {
@@ -105,22 +108,24 @@ public class Function extends AstDef {
             formatter.appendHtml("]");
         }
 
-        formatter.appendHtml("(");
-        if (getParams().size() > 0) {
-            formatter.parameters(true);
+        if (params != null) {
+            formatter.appendHtml("(");
+            if (!params.isEmpty()) {
+                formatter.parameters(true);
 
-            for (Iterator<Var> itr = getParams().iterator(); itr.hasNext();) {
-                Var param = itr.next();
-                param.htmlFormat(formatter);
+                for (Iterator<Var> itr = getParams().iterator(); itr.hasNext();) {
+                    Var param = itr.next();
+                    param.htmlFormat(formatter);
 
-                if (itr.hasNext()) {
-                    formatter.appendHtml(", ");
+                    if (itr.hasNext()) {
+                        formatter.appendHtml(", ");
+                    }
                 }
-            }
 
-            formatter.parameters(false);
+                formatter.parameters(false);
+            }
+            formatter.appendHtml(")");
         }
-        formatter.appendHtml(")");
 
         if (getType() != null) {
             formatter.appendHtml(" :");

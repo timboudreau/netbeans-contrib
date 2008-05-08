@@ -54,6 +54,7 @@ import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstExpr;
 import org.netbeans.modules.scala.editing.nodes.AstRef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.netbeans.modules.scala.editing.nodes.Id;
 import org.netbeans.modules.scala.editing.nodes.Import;
@@ -280,6 +281,76 @@ public class ScalaTypeInferencer {
         }
     }
 
+    private void globalInferFieldRef(ScalaIndex index, FieldRef fieldRef) {
+        TypeRef retType = fieldRef.getType();
+        if (retType != null && (retType.isResolved() || fieldRef.getRetType() != null)) {
+            return;
+        }
+
+        // resolve return type of funRef:
+        AstElement base = fieldRef.getBase();
+        if (base != null) {
+
+            String baseTypeStr = null;
+            TypeRef baseType = base.getType();
+            if (baseType == null || (baseType != null && !baseType.isResolved())) {
+                if (base instanceof FunRef) {
+                    baseTypeStr = ((FunRef) base).getRetType();
+                } else if (base instanceof FieldRef){
+                    baseTypeStr = ((FieldRef) base).getRetType();
+                } else {
+                    // @Todo how to resolve it?
+                }
+            } else {
+                baseTypeStr = baseType.getQualifiedName();
+            }
+            if (baseTypeStr == null) {
+                // @todo resolve it first
+                return;
+            }
+
+            Id field = fieldRef.getField();
+            String fieldName = field.getName();
+
+            Set<IndexedElement> members = index.getElements(fieldName, baseTypeStr, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null);
+            for (IndexedElement member : members) {
+                if (member instanceof IndexedFunction) {
+                    IndexedFunction idxFunction = (IndexedFunction) member;
+                    if (idxFunction.isNullParams()) {
+                        String idxRetTypeStr = idxFunction.getTypeString();
+                        if (idxRetTypeStr == null) {
+                            idxRetTypeStr = "void";
+                        }
+                        if (idxRetTypeStr.equals("void")) {
+                            fieldRef.setRetType("void");
+                            break;
+                        }
+
+                        int lastDot = idxRetTypeStr.lastIndexOf('.');
+                        if (lastDot == -1) {
+                            /** try to find pkg of idxRetTypeStr */
+                            String hisIn = idxFunction.getIn();
+                            if (hisIn != null) {
+                                int pkgNameEnd = hisIn.lastIndexOf('.');
+                                if (pkgNameEnd != -1) {
+                                    String hisPkgName = hisIn.substring(0, pkgNameEnd);
+                                    Set<String> importPkgs = getImportPkgs(index, hisIn);
+                                    idxRetTypeStr = globalInferTypeRef(index, idxRetTypeStr, hisPkgName, importPkgs);
+                                } else {
+                                    System.out.println("found idx function without package: " + idxFunction.getName());
+                                }
+                            } else {
+                                // @todo
+                            }
+                        }
+
+                        fieldRef.setRetType(idxRetTypeStr);
+                        break;
+                    }
+                }
+            }
+        }
+    }
     /**
      * 
      * @return null or full qualifier type name 
