@@ -42,6 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.netbeans.modules.gsf.api.Indexer;
@@ -332,11 +333,11 @@ public class ScalaIndexer implements Indexer {
 
                 StringBuilder fqn = new StringBuilder();
 
-                String name = template.getQualifiedName();
-                fqn.append(name.toLowerCase());
+                String qName = template.getQualifiedName();
+                fqn.append(qName.toLowerCase());
                 fqn.append(';');
                 fqn.append(';');
-                fqn.append(name);
+                fqn.append(qName);
                 fqn.append(';');
                 fqn.append(IndexedElement.computeAttributes(template, pResult.getTokenHierarchy()));
 
@@ -354,21 +355,28 @@ public class ScalaIndexer implements Indexer {
                 List<Import> imports = template.getBindingScope().getDefsInScope(Import.class);
 
                 if (imports.size() > 0) {
+                    Set<String> importPkgs = new HashSet<String>();
                     for (Import importExpr : imports) {
                         String pkgName = importExpr.getPackageName();
                         StringBuilder importAttr = new StringBuilder();
                         importAttr.append(clz.toLowerCase()).append(";").append(clz).append(";").append(pkgName).append(";");
                         if (importExpr.isWild()) {
                             importAttr.append("_").append(";");
+                            
+                            importPkgs.add(pkgName);
                             document.addPair(FIELD_IMPORT, importAttr.toString(), true);
                         } else {
                             List<TypeRef> importedTypes = importExpr.getImportedTypes();
                             for (TypeRef type : importedTypes) {
                                 importAttr.append(type.getName()).append(";");
+                                
+                                importPkgs.add(pkgName);
                                 document.addPair(FIELD_IMPORT, importAttr.toString(), true);
                             }
                         }
                     }
+                    
+                    ScalaTypeInferencer.updateClassToImportPkgsCache(qName, importPkgs);
                 }
 
 //                boolean isDocumented = isDocumented(node);
@@ -398,8 +406,8 @@ public class ScalaIndexer implements Indexer {
 //                }
 
                 document.addPair(FIELD_FQN, fqn.toString(), true);
-                document.addPair(FIELD_CASE_INSENSITIVE_CLASS_NAME, name.toLowerCase(), true);
-                document.addPair(FIELD_CLASS_NAME, name, true);
+                document.addPair(FIELD_CASE_INSENSITIVE_CLASS_NAME, qName.toLowerCase(), true);
+                document.addPair(FIELD_CLASS_NAME, qName, true);
 
                 // Add the fields, etc.. Recursively add the children classes or modules if any
                 for (AstDef child : template.getBindingScope().getDefs()) {

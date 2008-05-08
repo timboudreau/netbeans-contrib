@@ -262,7 +262,7 @@ public class ScalaTypeInferencer {
                                 int pkgNameEnd = hisIn.lastIndexOf('.');
                                 if (pkgNameEnd != -1) {
                                     String hisPkgName = hisIn.substring(0, pkgNameEnd);
-                                    Set<String> importPkgs = index.getImports(hisIn, ScalaIndex.ALL_SCOPE);
+                                    Set<String> importPkgs = getImportPkgs(index, hisIn);
                                     idxRetTypeStr = globalInferTypeRef(index, idxRetTypeStr, hisPkgName, importPkgs);
                                 } else {
                                     System.out.println("found idx function without package: " + idxFunction.getName());
@@ -364,11 +364,39 @@ public class ScalaTypeInferencer {
 
         return null;
     }
-    /* package name starts with "scala" can omit "scala" */
+    /** Map<InClassQName + "." + TypeRefSName, TypeRefQName> */
+    private static Map<String, String> globalTypeRefsCache;
+    private static Map<String, Set<String>> classToImportPkgsCache;
+    /* package name starts with "java.lang" can omit "java.lang" */
     private static Set<IndexedElement> javaLangPackageTypes;
+    /* package name starts with "scala" can omit "scala" */
     private static Map<String, Set<IndexedElement>> scalaPackageTypes;
     private Map<String, Set<IndexedElement>> importedTypesCache;
     private Map<String, Set<IndexedElement>> packageTypesCache;
+
+    /**
+     * @Note: need to be updated when class is modified   
+     */
+    private static Set<String> getImportPkgs(ScalaIndex index, String classQName) {
+        if (classToImportPkgsCache == null) {
+            classToImportPkgsCache = new HashMap<String, Set<String>>();
+        }
+
+        Set<String> importPkgs = classToImportPkgsCache.get(classQName);
+        if (importPkgs == null) {
+            importPkgs = index.getImports(classQName, ScalaIndex.ALL_SCOPE);
+
+            classToImportPkgsCache.put(classQName, importPkgs);
+        }
+
+        return importPkgs;
+    }
+    
+    public static void updateClassToImportPkgsCache(String classQName, Set<String> importPkgs) {
+        if (classToImportPkgsCache != null && classToImportPkgsCache.containsKey(classQName)) {
+            classToImportPkgsCache.put(classQName, importPkgs);
+        }
+    }
 
     private static Set<IndexedElement> getJavaLangPackageTypes(ScalaIndex index) {
         if (javaLangPackageTypes == null) {
