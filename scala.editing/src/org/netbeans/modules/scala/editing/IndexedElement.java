@@ -56,6 +56,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.editor.options.MacrosEditor;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
@@ -159,13 +160,18 @@ public abstract class IndexedElement extends AstElement {
             ElementKind kind = ((flags & CONSTRUCTOR) != 0) ? ElementKind.CONSTRUCTOR : ElementKind.METHOD;
             IndexedFunction func = new IndexedFunction(fqn, name, in, index, fileUrl, attributes, flags, kind);
             return func;
-        } else if ((flags & GLOBAL) != 0) {
-            ElementKind kind = Character.isUpperCase(name.charAt(0)) ? ElementKind.CLASS : ElementKind.GLOBAL;
-            IndexedType property = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, kind);
-            return property;
+        } else if ((flags & CLASS) != 0) {
+            IndexedType type = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.CLASS);
+            return type;
+        } else if ((flags & OBJECT) != 0) {
+            IndexedType type = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.CLASS);
+            return type;
+        } else if ((flags & TRAIT) != 0) {
+            IndexedType type = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.MODULE);
+            return type;
         } else {
-            IndexedType property = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.CLASS);
-            return property;
+            IndexedType field = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.FIELD);
+            return field;
         }
     }
 
@@ -272,17 +278,42 @@ public abstract class IndexedElement extends AstElement {
         return in;
     }
 
-    public void setKind(ElementKind kind) {
-        this.kind = kind;
-    }
-
     @Override
     public ElementKind getKind() {
-        return kind;
+        if (isJava()) {
+            switch (javaElement.getKind()) {
+                case PACKAGE:
+                    return ElementKind.PACKAGE;
+                case CONSTRUCTOR:
+                    return ElementKind.CONSTRUCTOR;
+                case METHOD:
+                    return ElementKind.METHOD;
+                case FIELD:
+                    return ElementKind.FIELD;
+                case CLASS:
+                    return ElementKind.CLASS;
+                case INTERFACE:
+                    return ElementKind.MODULE;
+                default:
+                    return ElementKind.OTHER;
+            }
+        } else {
+            if (kind != null) {
+                return kind;
+            }
+            if (isConstructor()) {
+                return ElementKind.CONSTRUCTOR;
+            } else if (isFunction()) {
+                return ElementKind.METHOD;
+            } else {
+                return ElementKind.FIELD;
+            }
+        }
     }
 
     @Override
     public Set<Modifier> getModifiers() {
+
         /* @TODO */
         return Collections.emptySet();
     }
@@ -368,7 +399,7 @@ public abstract class IndexedElement extends AstElement {
 
     String getComment() {
         String comment = null;
-        
+
         if (isJava()) {
             try {
                 String docComment = JavaUtilities.getJavaDoc(javaInfo, javaElement);
@@ -394,7 +425,7 @@ public abstract class IndexedElement extends AstElement {
                 Exceptions.printStackTrace(ioe);
             }
         }
-        
+
         return comment;
     }
 
@@ -464,7 +495,7 @@ public abstract class IndexedElement extends AstElement {
 
         return null;
     }
-    
+
     int getAttributeSection(int section) {
         assert section != 0; // Obtain directly, and logic below (+1) is wrong
 
@@ -475,7 +506,7 @@ public abstract class IndexedElement extends AstElement {
 
         assert attributeIndex != -1;
         return attributeIndex + 1;
-    }    
+    }
 
     /** Return a string (suitable for persistence) encoding the given flags */
     public static String encode(int flags) {
@@ -510,15 +541,24 @@ public abstract class IndexedElement extends AstElement {
     public static int computeFlags(AstElement element) {
         int flags = 0;
 
-        ElementKind k = element.getKind();
-        if (k == ElementKind.CONSTRUCTOR) {
-            flags = flags | CONSTRUCTOR;
+        if (element instanceof ClassTemplate) {
+            flags = flags | IndexedElement.CLASS;
+        } else if (element instanceof ObjectTemplate) {
+            flags = flags | IndexedElement.OBJECT;
+        } else if (element instanceof TraitTemplate) {
+            flags = flags | IndexedElement.TRAIT;
+            flags = flags | STATIC;
         }
 
-        if (k == ElementKind.METHOD || k == ElementKind.CONSTRUCTOR) {
-            flags = flags | FUNCTION;
-        } else if (k == ElementKind.GLOBAL) {
-            flags = flags | GLOBAL;
+        switch (element.getKind()) {
+            case CONSTRUCTOR:
+                flags = flags | CONSTRUCTOR;
+                break;
+            case METHOD:
+                flags = flags | FUNCTION;
+                break;
+            default:
+                break;
         }
 
         if (element.getModifiers().contains(Modifier.STATIC)) {
@@ -537,15 +577,6 @@ public abstract class IndexedElement extends AstElement {
             flags = flags | PROTECTED;
         }
 
-        if (element instanceof ClassTemplate) {
-            flags = flags | IndexedElement.CLASS;
-        } else if (element instanceof ObjectTemplate) {
-            flags = flags | IndexedElement.OBJECT;
-        } else if (element instanceof TraitTemplate) {
-            flags = flags | IndexedElement.TRAIT;
-            flags = flags | STATIC;
-        }
-
         return flags;
     }
 
@@ -553,13 +584,21 @@ public abstract class IndexedElement extends AstElement {
     public static int computeFlags(javax.lang.model.element.Element jelement) {
         int flags = 0 | IndexedElement.JAVA;
 
-        javax.lang.model.element.ElementKind k = jelement.getKind();
-        if (k == javax.lang.model.element.ElementKind.CONSTRUCTOR) {
-            flags = flags | CONSTRUCTOR;
-        }
-
-        if (k == javax.lang.model.element.ElementKind.METHOD || k == javax.lang.model.element.ElementKind.CONSTRUCTOR) {
-            flags = flags | FUNCTION;
+        switch (jelement.getKind()) {
+            case CLASS:
+                flags = flags | CLASS;
+                break;
+            case INTERFACE:
+                flags = flags | TRAIT;
+                break;
+            case CONSTRUCTOR:
+                flags = flags | CONSTRUCTOR;
+                break;
+            case METHOD:
+                flags = flags | FUNCTION;
+                break;
+            default:
+                break;
         }
 
         if (jelement.getModifiers().contains(javax.lang.model.element.Modifier.STATIC)) {
@@ -735,7 +774,9 @@ public abstract class IndexedElement extends AstElement {
 
         assert index == IndexedElement.FLAG_INDEX;
         StringBuilder sb = new StringBuilder();
+
         int flags = computeFlags(jelement);
+
         // Add in info from documentation
 //            if (typeMap != null) {
 //                // Most flags are already handled by AstElement.getFlags()...
