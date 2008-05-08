@@ -99,31 +99,19 @@ public class AstScope implements Iterable<AstScope> {
     }
 
     public List<AstScope> getScopes() {
-        if (scopes == null) {
-            return Collections.emptyList();
-        }
-        return scopes;
+        return scopes == null ? Collections.<AstScope>emptyList() : scopes;
     }
 
     public List<AstDef> getDefs() {
-        if (defs == null) {
-            return Collections.emptyList();
-        }
-        return defs;
+        return defs == null ? Collections.<AstDef>emptyList() : defs;
     }
 
     public List<AstRef> getRefs() {
-        if (refs == null) {
-            return Collections.emptyList();
-        }
-        return refs;
+        return refs == null ? Collections.<AstRef>emptyList() : refs;
     }
 
     public List<AstExpr> getExprs() {
-        if (exprs == null) {
-            return Collections.emptyList();
-        }
-        return exprs;
+        return exprs == null ? Collections.<AstExpr>emptyList() : exprs;
     }
 
     void addScope(AstScope scope) {
@@ -320,7 +308,6 @@ public class AstScope implements Iterable<AstScope> {
         return null;
     }
 
-    
     public AstExpr findExpr(TokenHierarchy th, int offset) {
         if (exprs != null) {
             if (!exprsSorted) {
@@ -367,6 +354,7 @@ public class AstScope implements Iterable<AstScope> {
 
     public List<AstElement> findOccurrences(AstElement element) {
         AstDef def = null;
+
         if (element instanceof AstDef) {
             def = (AstDef) element;
         } else if (element instanceof AstRef) {
@@ -398,19 +386,20 @@ public class AstScope implements Iterable<AstScope> {
 
     public AstDef findDef(AstRef ref) {
         AstScope closestScope = ref.getEnclosingScope();
-        return findDefInScopeRecursively(closestScope, ref);
+        return closestScope.findDefInScopeRecursively(ref);
     }
 
-    private AstDef findDefInScopeRecursively(AstScope scope, AstRef ref) {
-        for (AstDef def : scope.getDefs()) {
-            if (def.referredBy(ref)) {
-                return def;
+    private final AstDef findDefInScopeRecursively(AstRef ref) {
+        if (defs != null) {
+            for (AstDef def : defs) {
+                if (def.referredBy(ref)) {
+                    return def;
+                }
             }
         }
 
-        AstScope parentScope = scope.getParent();
-        if (parentScope != null) {
-            return parentScope.findDefInScopeRecursively(parentScope, ref);
+        if (parent != null) {
+            return parent.findDefInScopeRecursively(ref);
         }
 
         return null;
@@ -418,29 +407,36 @@ public class AstScope implements Iterable<AstScope> {
 
     public List<AstRef> findRefs(AstDef def) {
         List<AstRef> result = new ArrayList<AstRef>();
-        
+
         AstScope enclosingScope = def.getEnclosingScope();
-        findRefsInScopeRecursively(enclosingScope, def, result);
-        
+        enclosingScope.findRefsInScopeRecursively(def, result);
+
         return result;
     }
 
-    private void findRefsInScopeRecursively(AstScope scope, AstDef def, List<AstRef> result) {
+    private final void findRefsInScopeRecursively(AstDef def, List<AstRef> result) {
         // find if there is closest override def, if so, we shoud bypass it now :
-        for (AstDef _def : scope.getDefs()) {
-            if (_def != def && _def.mayEqual(def)) {
-                return;
+        if (defs != null) {
+            for (AstDef _def : defs) {
+                if (_def != def && _def.mayEqual(def)) {
+                    return;
+                }
             }
         }
 
-        for (AstRef ref : scope.getRefs()) {
-            if (def.referredBy(ref)) {
-                result.add(ref);
+        if (refs != null) {
+            for (AstRef ref : refs) {
+                if (def.referredBy(ref)) {
+                    result.add(ref);
+                }
+
             }
         }
 
-        for (AstScope _scope : scope.getScopes()) {
-            findRefsInScopeRecursively(_scope, def, result);
+        if (scopes != null) {
+            for (AstScope scope : scopes) {
+                scope.findRefsInScopeRecursively(def, result);
+            }
         }
     }
 
@@ -482,16 +478,17 @@ public class AstScope implements Iterable<AstScope> {
         return result;
     }
 
-    private <T extends AstDef> void getDefsInScopeRecursively(Class<T> clazz, List<T> result) {
-        for (AstDef def : getDefs()) {
-            if (clazz.isInstance(def)) {
-                result.add((T) def);
+    private final <T extends AstDef> void getDefsInScopeRecursively(Class<T> clazz, List<T> result) {
+        if (defs != null) {
+            for (AstDef def : defs) {
+                if (clazz.isInstance(def)) {
+                    result.add((T) def);
+                }
             }
         }
 
-        AstScope parentScope = getParent();
-        if (parentScope != null) {
-            parentScope.getDefsInScopeRecursively(clazz, result);
+        if (parent != null) {
+            parent.getDefsInScopeRecursively(clazz, result);
         }
     }
 
@@ -501,13 +498,11 @@ public class AstScope implements Iterable<AstScope> {
     }
 
     public <T extends AstDef> T getEnclosingDef(Class<T> clazz) {
-        AstDef binding = getBindingDef();
-        if (binding != null && clazz.isInstance(binding)) {
-            return (T) binding;
+        if (bindingDef != null && clazz.isInstance(bindingDef)) {
+            return (T) bindingDef;
         } else {
-            AstScope parentScope = getParent();
-            if (parentScope != null) {
-                return parentScope.getEnclosingDef(clazz);
+            if (parent != null) {
+                return parent.getEnclosingDef(clazz);
             } else {
                 return null;
             }
@@ -518,9 +513,7 @@ public class AstScope implements Iterable<AstScope> {
     public String toString() {
         return "Scope(Binding=" + bindingDef + "," + ",defs=" + getDefs() + ",refs=" + getRefs() + ")";
     }
-    
     // ----- inner classes
-
     private static class ScopeComparator implements Comparator<AstScope> {
 
         private TokenHierarchy th;
