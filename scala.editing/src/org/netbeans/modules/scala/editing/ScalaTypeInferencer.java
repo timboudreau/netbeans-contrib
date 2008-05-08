@@ -353,7 +353,7 @@ public class ScalaTypeInferencer {
             }
         }
 
-        // 6. search auto-imported "scala." package
+        // 5. search auto-imported "scala." package
         for (IndexedElement element : getScalaPackageTypes(index)) {
             if (element instanceof IndexedType) {
                 if (element.getName().equals(simpleName)) {
@@ -362,7 +362,7 @@ public class ScalaTypeInferencer {
             }
         }
 
-        // 5. search auto-imported "java.lang." package
+        // 6. search auto-imported "java.lang." package
         for (IndexedElement element : getJavaLangPackageTypes(index)) {
             if (element instanceof IndexedType) {
                 if (element.getName().equals(simpleName)) {
