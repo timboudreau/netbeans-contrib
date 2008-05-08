@@ -44,6 +44,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JEditorPane;
@@ -94,7 +95,10 @@ public class CodeTemplateUtils {
                     codeTemplateDescriptionConstructor.newInstance(
                         templateName,
                         "",
-                        templateText);
+                        templateText,
+                        null,
+                        null,
+                        editorPane.getContentType());
                 
                 Map modifiedTemplatesMap = new HashMap(templatesMap);
                 modifiedTemplatesMap.put(templateName, codeTemplateDescription);
@@ -198,6 +202,9 @@ public class CodeTemplateUtils {
                    String.class,
                    String.class,
                    String.class,
+                   List.class,
+                   String.class,
+                   String.class
                 });
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
