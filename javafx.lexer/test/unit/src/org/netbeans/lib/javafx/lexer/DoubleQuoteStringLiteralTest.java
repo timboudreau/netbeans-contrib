@@ -46,7 +46,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.netbeans.api.javafx.lexer.JavaFXTokenId;
+import org.netbeans.api.javafx.lexer.JFXTokenId;
 
 /**
  * Set of the tests around the processing the JavaFX Double Quote String Literals
@@ -85,102 +85,102 @@ public class DoubleQuoteStringLiteralTest extends LexerTestBase {
     @Test
     public void testHelloWorld() throws Exception {
         setSource("\"He{\"l{\"l\"}o\"} world\"");
-        assertNextTokenIs(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"He{", 0);
-        assertNextTokenIs(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"l{", 4);
-        assertNextTokenIs(JavaFXTokenId.STRING_LITERAL, "\"l\"", 7);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}o\"", 10);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "} world\"", 13);
+        assertNextTokenIs(JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"He{", 0);
+        assertNextTokenIs(JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"l{", 4);
+        assertNextTokenIs(JFXTokenId.STRING_LITERAL, "\"l\"", 7);
+        assertNextTokenIs(JFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}o\"", 10);
+        assertNextTokenIs(JFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "} world\"", 13);
     }
 
     @Test
     public void testRBRACE_QUOTE_STRING_LITERAL() throws Exception {
         setSource("\"{a}{b}\"");
-        assertNextTokenIs(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "a", 2);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}{", 3);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "b", 5);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\"", 6);
+        assertNextTokenIs(JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "a", 2);
+        assertNextTokenIs(JFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}{", 3);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "b", 5);
+        assertNextTokenIs(JFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\"", 6);
     }
 
     @Test
     public void testRBRACE_QUOTE_STRING_LITERAL$ForeignQuote$1() throws Exception {
         setSource("\"'{a}{b}\"");
-        assertNextTokenIs(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"'{", 0);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "a", 3);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}{", 4);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "b", 6);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\"", 7);
+        assertNextTokenIs(JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"'{", 0);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "a", 3);
+        assertNextTokenIs(JFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}{", 4);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "b", 6);
+        assertNextTokenIs(JFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\"", 7);
     }
 
     @Test
     public void testRBRACE_QUOTE_STRING_LITERAL$ForeignQuote$2() throws Exception {
         setSource("\"''{a}{b}\"");
-        assertNextTokenIs(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"''{", 0);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "a", 4);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}{", 5);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "b", 7);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\"", 8);
+        assertNextTokenIs(JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"''{", 0);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "a", 4);
+        assertNextTokenIs(JFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}{", 5);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "b", 7);
+        assertNextTokenIs(JFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\"", 8);
     }
 
     @Test
     public void testRBRACE_QUOTE_STRING_LITERAL$ForeignQuote$3() throws Exception {
         setSource("\"{a}'$'{b}\"");
-        assertNextTokenIs(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "a", 2);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}'$'{", 3);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "b", 8);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\"", 9);
+        assertNextTokenIs(JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "a", 2);
+        assertNextTokenIs(JFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}'$'{", 3);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "b", 8);
+        assertNextTokenIs(JFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\"", 9);
     }
 
     @Test
     public void testRBRACE_QUOTE_STRING_LITERAL$ForeignQuote$4() throws Exception {
         setSource("\"{a}{b}'$'\"");
-        assertNextTokenIs(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "a", 2);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}{", 3);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "b", 5);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}'$'\"", 6);
+        assertNextTokenIs(JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "a", 2);
+        assertNextTokenIs(JFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}{", 3);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "b", 5);
+        assertNextTokenIs(JFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}'$'\"", 6);
     }
 
     @Test
     public void testRBRACE_QUOTE_STRING_LITERAL$Escape$LBRACE() throws Exception {
         setSource("\"{a}{b}\\{\"");
-        assertNextTokenIs(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "a", 2);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}{", 3);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "b", 5);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\\{\"", 6);
+        assertNextTokenIs(JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "a", 2);
+        assertNextTokenIs(JFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}{", 3);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "b", 5);
+        assertNextTokenIs(JFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\\{\"", 6);
     }
 
     @Test
     public void testDoubleQUOTE_LBRACE_STRING_LITERAL() throws Exception {
         setSource("\"{");
-        assertNextTokenIs(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
+        assertNextTokenIs(JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
     }
 
     @Test
     public void testDoubleQUOTE_LBRACE_STRING_LITERAL1() throws Exception {
         setSource("\" {");
-        assertNextTokenIs(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\" {", 0);
+        assertNextTokenIs(JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\" {", 0);
     }
 
     @Test
     public void testCodeBlock() throws Exception {
         setSource("\"{a}\"");
-        assertNextTokenIs(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "a", 2);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\"", 3);
+        assertNextTokenIs(JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "a", 2);
+        assertNextTokenIs(JFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\"", 3);
     }
 
     @Test
     public void testNewLineAndBraceAfterComplexString() throws Exception {
         setSource("\"{a}{b}\"\n}");
-        assertNextTokenIs(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "a", 2);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}{", 3);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "b", 5);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\"", 6);
-        assertNextTokenIs(JavaFXTokenId.WHITESPACE, "\n", 8);
-        assertNextTokenIs(JavaFXTokenId.RBRACE, "}", 9);
+        assertNextTokenIs(JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "a", 2);
+        assertNextTokenIs(JFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}{", 3);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "b", 5);
+        assertNextTokenIs(JFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\"", 6);
+        assertNextTokenIs(JFXTokenId.WS, "\n", 8);
+        assertNextTokenIs(JFXTokenId.RBRACE, "}", 9);
     }
 }
