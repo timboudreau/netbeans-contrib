@@ -398,9 +398,7 @@ public class ScalaCodeCompletion implements Completable {
                 }
 
                 if (closest != null) {
-                    if (closest instanceof FunRef || closest instanceof FieldRef) {
-                        // dog.t| or dog.talk()|
-                    } else if (closest instanceof Import) {
+                    if (closest instanceof Import) {
                         String prefix1 = ((Import) closest).getName();
                         if (request.prefix.equals("")) {
                             prefix1 = prefix1 + ".";
@@ -428,6 +426,19 @@ public class ScalaCodeCompletion implements Completable {
                             if (isHisArg) {
                                 closest = funRef;
                             }
+                        }
+                    }
+
+                    if (closest instanceof FunRef || closest instanceof FieldRef) {
+                        if (!request.prefix.equals("")) {
+                            // dog.ta|
+                            if (closest instanceof FunRef && !((FunRef) closest).isLocal()) {
+                                closest = ((FunRef) closest).getBase();
+                            } else {
+                                closest = ((FieldRef) closest).getBase();
+                            }
+                        } else {
+                            // dog.|
                         }
                     }
                 }
@@ -577,7 +588,7 @@ public class ScalaCodeCompletion implements Completable {
         String prefix = request.prefix;
 
         // Regular expression matching.  {
-        for (int i = 0, n = REGEXP_WORDS.length; i < n; i += 2) {
+        for (int i = 0,   n = REGEXP_WORDS.length; i < n; i += 2) {
             String word = REGEXP_WORDS[i];
             String desc = REGEXP_WORDS[i + 1];
 
@@ -613,7 +624,7 @@ public class ScalaCodeCompletion implements Completable {
         request.anchor = rowStart + i;
 
         // Regular expression matching.  {
-        for (int j = 0, n = JSDOC_WORDS.length; j < n; j++) {
+        for (int j = 0,   n = JSDOC_WORDS.length; j < n; j++) {
             String word = JSDOC_WORDS[j];
             if (startsWith(word, prefix)) {
                 //KeywordItem item = new KeywordItem(word, desc, request);
