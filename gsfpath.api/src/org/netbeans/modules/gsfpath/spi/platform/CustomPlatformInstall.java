@@ -38,34 +38,31 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.napi.gsfret.source;
 
-import org.netbeans.api.gsf.Element;
+package org.netbeans.modules.gsfpath.spi.platform;
+
+import org.openide.WizardDescriptor;
 
 
 /**
- * This file is originally from Retouche, the Java Support
- * infrastructure in NetBeans. I have modified the file as little
- * as possible to make merging Retouche fixes back as simple as
- * possible. 
- *
- * Represents the abstract syntax tree for compilation units (source
- * files) and package declarations (package-info.java).
- *
- * @see "The Java Language Specification, 3rd ed, sections 7.3, and 7.4"
- *
- * @author Peter von der Ah&eacute;
- * @since 1.6
+ * Defines an API for registering custom Java platform installer. The installer
+ * is responsible for instantiation of {@link JavaPlatform} through the provided
+ * TemplateWizard.Iterator. If your installer selects the platform on the local disk you
+ * probably don't want to use this class, the {@link PlatformInstall} class
+ * creates an platform chooser for you. You want to use this class if the
+ * platform is not on the local disk, eg. you want to download it from the web.
+ * @author Tomas Zezula
+ * @since 1.5
  */
-
-public class CompilationUnitTree {
-    private Iterable<?extends Element> files;
-
-//    public void setFiles(Iterable<?extends ComFile> files) {
-//        this.files = files;
-//    }
-//
-//    public Iterable<?extends ComFile> getFiles() {
-//        return files;
-//    }
+public abstract class CustomPlatformInstall extends GeneralPlatformInstall {
+    
+    /**
+     * Returns the {@link WizardDescriptor#InstantiatingIterator} used to install
+     * the platform.
+     * @return TemplateWizard.Iterator instance responsible for instantiating
+     * the platform. The instantiate method of the returned iterator should
+     * return the Set containing the created JavaPlatform.
+     */
+    public abstract WizardDescriptor.InstantiatingIterator<WizardDescriptor> createIterator();
+    
 }
