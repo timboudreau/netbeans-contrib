@@ -46,6 +46,7 @@ import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -140,6 +141,7 @@ public abstract class IndexedElement extends AstElement {
     protected ElementKind kind;
     private javax.lang.model.element.Element javaElement;
     private org.netbeans.api.java.source.CompilationInfo javaInfo;
+    private Set<Modifier> modifiers;
 
     IndexedElement(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
         super(null, null);
@@ -322,9 +324,27 @@ public abstract class IndexedElement extends AstElement {
 
     @Override
     public Set<Modifier> getModifiers() {
+        if (modifiers == null) {
+            modifiers = new HashSet<Modifier>();
 
-        /* @TODO */
-        return Collections.emptySet();
+            if (isPrivate()) {
+                modifiers.add(Modifier.PRIVATE);
+            } else if (isProtected()) {
+                modifiers.add(Modifier.PROTECTED);
+            } else if (isPublic()) {
+                modifiers.add(Modifier.PUBLIC);
+            }
+
+            if (isStatic()) {
+                modifiers.add(Modifier.STATIC);
+            }
+
+            if (modifiers.isEmpty()) {
+                modifiers = Collections.<Modifier>emptySet();
+            }
+        }
+
+        return modifiers;
     }
 
     public String getFilenameUrl() {
@@ -634,7 +654,7 @@ public abstract class IndexedElement extends AstElement {
         }
 
         if (jelement.getModifiers().contains(javax.lang.model.element.Modifier.PROTECTED)) {
-            flags = flags | IndexedElement.PROTECTED;
+            flags = flags | PROTECTED;
         }
 
         return flags;
@@ -911,7 +931,11 @@ public abstract class IndexedElement extends AstElement {
     }
 
     public boolean isPublic() {
-        return (flags & PRIVATE) == 0;
+        return !isPrivate() && !isProtected();
+    }
+
+    public boolean isProtected() {
+        return (flags & PROTECTED) != 0;
     }
 
     public boolean isPrivate() {
