@@ -1089,9 +1089,9 @@
         <Container class="javax.swing.JPanel" name="jPanel4">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-              <JTabbedPaneConstraints tabName="Remove">
+              <JTabbedPaneConstraints tabName="Delete">
                 <Property name="tabTitle" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                  <PlainString value="Remove"/>
+                  <PlainString value="Delete"/>
                 </Property>
               </JTabbedPaneConstraints>
             </Constraint>
@@ -1102,12 +1102,12 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="jLabelRemoveBaseDN" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabelDeleteBaseDN" min="-2" max="-2" attributes="0"/>
                           <Component id="jScrollPane16" min="-2" pref="124" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jTextFieldRemoveBaseDN" min="-2" pref="309" max="-2" attributes="1"/>
+                          <Component id="jTextFieldDeleteBaseDN" min="-2" pref="309" max="-2" attributes="1"/>
                           <Component id="jPanel13" max="32767" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -1119,8 +1119,8 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="jLabelRemoveBaseDN" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jTextFieldRemoveBaseDN" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabelDeleteBaseDN" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jTextFieldDeleteBaseDN" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
@@ -1133,12 +1133,12 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JLabel" name="jLabelRemoveBaseDN">
+            <Component class="javax.swing.JLabel" name="jLabelDeleteBaseDN">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Base DN :" noResource="true"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JTextField" name="jTextFieldRemoveBaseDN">
+            <Component class="javax.swing.JTextField" name="jTextFieldDeleteBaseDN">
             </Component>
             <Container class="javax.swing.JPanel" name="jPanel13">
               <Properties>
@@ -1154,52 +1154,57 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="1" attributes="0">
                           <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="jScrollPane17" pref="91" max="32767" attributes="1"/>
-                              <Component id="jComboBoxRemoveFilter" alignment="1" pref="91" max="32767" attributes="1"/>
+                              <Component id="jScrollPane17" pref="109" max="32767" attributes="1"/>
+                              <Component id="jComboBoxDeleteFilter" alignment="1" pref="109" max="32767" attributes="1"/>
+                          </Group>
+                          <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="jButtonDeleteFilterUnselect" alignment="0" max="32767" attributes="1"/>
+                              <Component id="jButtonDeleteFilterSelectOr" alignment="0" max="32767" attributes="1"/>
+                              <Component id="jButtonDeleteFilterSelectAnd" alignment="0" min="-2" max="-2" attributes="1"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="jButtonRemoveFilterUnselect" alignment="0" max="32767" attributes="1"/>
-                              <Component id="jButtonRemoveFilterSelectOr" alignment="0" max="32767" attributes="1"/>
-                              <Component id="jButtonRemoveFilterSelectAnd" alignment="0" min="-2" max="-2" attributes="1"/>
-                          </Group>
-                          <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
-                          <Component id="jScrollPane18" min="-2" pref="144" max="-2" attributes="0"/>
+                          <Component id="jScrollPane18" min="-2" pref="127" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
+                      <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jScrollPane18" alignment="0" pref="258" max="32767" attributes="1"/>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="jComboBoxRemoveFilter" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="jScrollPane17" pref="231" max="32767" attributes="0"/>
+                              <Group type="103" alignment="1" groupAlignment="1" attributes="0">
+                                  <Component id="jScrollPane18" alignment="0" pref="258" max="32767" attributes="1"/>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="jComboBoxDeleteFilter" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="jScrollPane17" pref="231" max="32767" attributes="0"/>
+                                  </Group>
                               </Group>
                               <Group type="102" alignment="0" attributes="0">
-                                  <EmptySpace min="-2" pref="83" max="-2" attributes="0"/>
-                                  <Component id="jButtonRemoveFilterSelectAnd" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="82" max="-2" attributes="0"/>
+                                  <Component id="jButtonDeleteFilterSelectAnd" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="jButtonRemoveFilterSelectOr" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jButtonDeleteFilterSelectOr" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="jButtonRemoveFilterUnselect" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jButtonDeleteFilterUnselect" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <EmptySpace min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JComboBox" name="jComboBoxRemoveFilter">
+                <Component class="javax.swing.JComboBox" name="jComboBoxDeleteFilter">
                   <Properties>
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                       <StringArray count="0"/>
                     </Property>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jComboBoxDeleteFilterActionPerformed"/>
+                  </Events>
                 </Component>
                 <Container class="javax.swing.JScrollPane" name="jScrollPane17">
                   <AuxValues>
@@ -1208,7 +1213,7 @@
 
                   <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
                   <SubComponents>
-                    <Component class="javax.swing.JList" name="jListRemoveFilterAvailable">
+                    <Component class="javax.swing.JList" name="jListDeleteFilterAvailable">
                       <Properties>
                         <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
                           <StringArray count="0"/>
@@ -1217,7 +1222,7 @@
                     </Component>
                   </SubComponents>
                 </Container>
-                <Component class="javax.swing.JButton" name="jButtonRemoveFilterSelectAnd">
+                <Component class="javax.swing.JButton" name="jButtonDeleteFilterSelectAnd">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="and &gt;" noResource="true"/>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
@@ -1226,8 +1231,11 @@
                       </Border>
                     </Property>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonDeleteFilterSelectAndActionPerformed"/>
+                  </Events>
                 </Component>
-                <Component class="javax.swing.JButton" name="jButtonRemoveFilterSelectOr">
+                <Component class="javax.swing.JButton" name="jButtonDeleteFilterSelectOr">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="or  &gt;" noResource="true"/>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
@@ -1236,8 +1244,11 @@
                       </Border>
                     </Property>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonDeleteFilterSelectOrActionPerformed"/>
+                  </Events>
                 </Component>
-                <Component class="javax.swing.JButton" name="jButtonRemoveFilterUnselect">
+                <Component class="javax.swing.JButton" name="jButtonDeleteFilterUnselect">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="  &lt; " noResource="true"/>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
@@ -1246,6 +1257,9 @@
                       </Border>
                     </Property>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonDeleteFilterUnselectActionPerformed"/>
+                  </Events>
                 </Component>
                 <Container class="javax.swing.JScrollPane" name="jScrollPane18">
                   <AuxValues>
@@ -1254,12 +1268,15 @@
 
                   <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
                   <SubComponents>
-                    <Component class="javax.swing.JList" name="jListRemoveFilterSeleted">
+                    <Component class="javax.swing.JList" name="jListDeleteFilterSeleted">
                       <Properties>
                         <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
                           <StringArray count="0"/>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jListDeleteFilterSeletedItemOnSelected"/>
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>
@@ -1272,7 +1289,7 @@
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
-                <Component class="javax.swing.JTree" name="jTreeRemove">
+                <Component class="javax.swing.JTree" name="jTreeDelete">
                   <Events>
                     <EventHandler event="valueChanged" listener="javax.swing.event.TreeSelectionListener" parameters="javax.swing.event.TreeSelectionEvent" handler="removeTreeOnSelected"/>
                   </Events>
