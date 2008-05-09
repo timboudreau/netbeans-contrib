@@ -470,10 +470,10 @@ public class ScalaCodeCompletion implements Completable {
                 return proposals;
             }
 
-            // Try to complete methods
-            if (completeFunctions(proposals, request)) {
-                return proposals;
-            }
+            // @todo Try to complete methods inheried and predef's methods 
+//            if (completeFunctions(proposals, request)) {
+//                return proposals;
+//            }
         } finally {
             doc.readUnlock();
         }
@@ -1170,7 +1170,7 @@ public class ScalaCodeCompletion implements Completable {
 
         Set<IndexedElement> matches;
         if (fqn != null) {
-            matches = index.getElements(prefix, fqn, kind, ScalaIndex.ALL_SCOPE, result);
+            matches = index.getElements(prefix, fqn, kind, ScalaIndex.ALL_SCOPE, result, false);
         } else {
 //            if (prefix.length() == 0) {
 //                proposals.clear();
@@ -1182,7 +1182,7 @@ public class ScalaCodeCompletion implements Completable {
         }
         // Also add in non-fqn-prefixed elements
         if (includeNonFqn) {
-            Set<IndexedElement> top = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, result);
+            Set<IndexedElement> top = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, result, false);
             if (top.size() > 0) {
                 matches.addAll(top);
             }
@@ -1374,7 +1374,7 @@ public class ScalaCodeCompletion implements Completable {
                     // Test::Unit when there's a call to Foo.x, we'll try
                     // Test::Unit::Foo, and Test::Foo
                     while (elements.size() == 0 && fqn != null && !fqn.equals(typeStr)) {
-                        elements = index.getElements(prefix, fqn + "." + typeStr, kind, ScalaIndex.ALL_SCOPE, result);
+                        elements = index.getElements(prefix, fqn + "." + typeStr, kind, ScalaIndex.ALL_SCOPE, result, false);
 
                         int f = fqn.lastIndexOf("::");
 
@@ -1386,7 +1386,7 @@ public class ScalaCodeCompletion implements Completable {
                     }
 
                     // Add methods in the class (without an FQN)
-                    Set<IndexedElement> m = index.getElements(prefix, typeStr, kind, ScalaIndex.ALL_SCOPE, result);
+                    Set<IndexedElement> m = index.getElements(prefix, typeStr, kind, ScalaIndex.ALL_SCOPE, result, false);
 
                     if (m.size() > 0) {
                         elements = m;
@@ -1394,7 +1394,7 @@ public class ScalaCodeCompletion implements Completable {
                 }
             } else if (lhs != null && lhs.length() > 0) {
                 // No type but an LHS - perhaps it's a type?
-                Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, result);
+                Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, result, false);
 
                 if (m.size() > 0) {
                     elements = m;
@@ -1416,20 +1416,22 @@ public class ScalaCodeCompletion implements Completable {
             for (IndexedElement element : elements) {
                 // Skip constructors - you don't want to call
                 //   x.Foo !
-//                if (element.getKind() == ElementKind.CONSTRUCTOR) {
-//                    continue;
-//                }
+                if (element.getKind() == ElementKind.CONSTRUCTOR) {
+                    continue;
+                }
 
                 // Don't include private or protected methods on other objects
                 if (skipPrivate && element.isPrivate()) {
                     continue;
                 }
-//
+
+                
+                
 //                // We can only call static methods
 //                if (skipInstanceMethods && !method.isStatic()) {
 //                    continue;
 //                }
-//
+
                 if (element.isNoDoc()) {
                     continue;
                 }
@@ -1512,25 +1514,25 @@ public class ScalaCodeCompletion implements Completable {
                     Set<IndexedElement> elements = index.getConstructors(prefix, kind, ScalaIndex.ALL_SCOPE);
                     String lhs = request.call == null ? null : request.call.getLhs();
                     if (lhs != null && lhs.length() > 0) {
-                        Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, null);
+                        Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, null, true);
                         if (m.size() > 0) {
                             if (elements.size() == 0) {
                                 elements = new HashSet<IndexedElement>();
                             }
                             for (IndexedElement f : m) {
-                                if (f.getKind() == ElementKind.CONSTRUCTOR || f.getKind() == ElementKind.PACKAGE) {
+                                if (f.getKind() == ElementKind.CONSTRUCTOR) {
                                     elements.add(f);
                                 }
                             }
                         }
                     } else if (prefix.length() > 0) {
-                        Set<IndexedElement> m = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, null);
+                        Set<IndexedElement> m = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, null, true);
                         if (m.size() > 0) {
                             if (elements.size() == 0) {
                                 elements = new HashSet<IndexedElement>();
                             }
                             for (IndexedElement f : m) {
-                                if (f.getKind() == ElementKind.CONSTRUCTOR || f.getKind() == ElementKind.PACKAGE) {
+                                if (f.getKind() == ElementKind.CONSTRUCTOR) {
                                     elements.add(f);
                                 }
                             }

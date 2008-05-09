@@ -607,12 +607,19 @@ public abstract class IndexedElement extends AstElement {
             case INTERFACE:
                 flags = flags | TRAIT;
                 break;
+            case ENUM:
+                flags = flags | OBJECT;
+                break;
             case CONSTRUCTOR:
                 flags = flags | CONSTRUCTOR;
                 flags = flags | FUNCTION;
                 break;
             case METHOD:
                 flags = flags | FUNCTION;
+                break;
+            case ENUM_CONSTANT:
+            case FIELD:
+                flags = flags | FIELD;
                 break;
             default:
                 break;

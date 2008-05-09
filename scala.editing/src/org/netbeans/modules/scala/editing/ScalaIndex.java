@@ -267,9 +267,10 @@ public class ScalaIndex {
      * given (possibly null) type
      */
     public Set<IndexedElement> getElements(String prefix, String type,
-            NameKind kind, Set<Index.SearchScope> scope, ScalaParserResult context) {
+            NameKind kind, Set<Index.SearchScope> scope, ScalaParserResult context,
+            boolean onlyConstructors) {
 
-        Set<IndexedElement> elements = getByFqn(prefix, type, kind, scope, false, context, true, true, false);
+        Set<IndexedElement> elements = getByFqn(prefix, type, kind, scope, onlyConstructors, context, true, true, false);
         // Is there at least one non-inheried member?
         boolean ofScala = false;
         for (IndexedElement element : elements) {
@@ -282,11 +283,11 @@ public class ScalaIndex {
         /** @TODO we need a better way to check if it's of scala */
 
         if (!ofScala) {
-            elements = javaIndex.getByFqn(prefix, type, toJavaNameKind(kind), toJavaSearchScope(scope), false, context, true, true, false);
+            elements = javaIndex.getByFqn(prefix, type, toJavaNameKind(kind), toJavaSearchScope(scope), onlyConstructors, context, true, true, false);
         }
         
         if (elements.size() == 0) {
-            elements = javaIndex.getByFqn(prefix, "Object", toJavaNameKind(kind), toJavaSearchScope(scope), false, context, true, true, false);
+            elements = javaIndex.getByFqn(prefix, "java.lang.Object", toJavaNameKind(kind), toJavaSearchScope(scope), onlyConstructors, context, true, true, false);
         }
 
         return elements;

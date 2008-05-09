@@ -237,47 +237,66 @@ public class JavaIndex {
                         continue;
                     }
 
-                    String simpleMame = e.getSimpleName().toString();
-                    if (!JavaUtilities.startsWith(simpleMame, name)) {
+                    String simpleName = e.getSimpleName().toString();
+                    if (!JavaUtilities.startsWith(simpleName, name)) {
                         continue;
                     }
 
+                    String in = pe.getQualifiedName().toString() + "." + e.getEnclosingElement().getSimpleName().toString();
+
                     switch (e.getKind()) {
-                        case ENUM_CONSTANT:
                         case EXCEPTION_PARAMETER:
-                        case FIELD:
                         case LOCAL_VARIABLE:
                         case PARAMETER:
-                            if ("this".equals(simpleMame) || "class".equals(simpleMame) || "super".equals(simpleMame)) {
+                            break;
+                        case ENUM_CONSTANT:
+                        case FIELD: {
+                            if ("this".equals(simpleName) || "class".equals(simpleName) || "super".equals(simpleName)) {
                                 //results.add(JavaCompletionItem.createKeywordItem(ename, null, anchorOffset, false));
-                                } else {
+                            } else {
                                 TypeMirror tm = typeMirror.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) typeMirror, e) : e.asType();
                             //results.add(JavaCompletionItem.createVariableItem((VariableElement) e, tm, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), isOfSmartType(env, tm, smartTypes)));
                             }
-                            break;
-                        case CONSTRUCTOR:
-                            ExecutableType et = (ExecutableType) (typeMirror.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) typeMirror, e) : e.asType());
-                            //results.add(JavaCompletionItem.createExecutableItem((ExecutableElement) e, et, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), inImport, isOfSmartType(env, type, smartTypes)));
-                            break;
-                        case METHOD:
-                            et = (ExecutableType) (typeMirror.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) typeMirror, e) : e.asType());
-                            String in = pe.getQualifiedName().toString() + "." + e.getEnclosingElement().getSimpleName().toString();
+
                             StringBuilder base = new StringBuilder();
-                            base.append(simpleMame.toLowerCase());
+                            base.append(simpleName.toLowerCase());
                             base.append(';');
                             if (in != null) {
                                 base.append(in);
                             }
                             base.append(';');
-                            base.append(simpleMame);
+                            base.append(simpleName);
                             base.append(';');
 
                             String attrs = IndexedElement.computeAttributes(e);
                             base.append(attrs);
 
-                            idxElement = IndexedElement.create(simpleMame, base.toString(), null, scalaIndex, false);
+                            idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
                             idxElement.setJavaInfo(e, info);
                             break;
+                        }
+                        case CONSTRUCTOR:
+                            simpleName = e.getEnclosingElement().getSimpleName().toString();
+                        case METHOD: {
+                            ExecutableType et = (ExecutableType) (typeMirror.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) typeMirror, e) : e.asType());
+
+                            StringBuilder base = new StringBuilder();
+                            base.append(simpleName.toLowerCase());
+                            base.append(';');
+                            if (in != null) {
+                                base.append(in);
+                            }
+                            base.append(';');
+                            base.append(simpleName);
+                            base.append(';');
+
+                            String attrs = IndexedElement.computeAttributes(e);
+                            base.append(attrs);
+
+                            idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
+                            idxElement.setJavaInfo(e, info);
+                            break;
+                        }
                         case CLASS:
                         case ENUM:
                         case INTERFACE:
@@ -296,9 +315,11 @@ public class JavaIndex {
                     } else if (!isFunction && !includeProperties) {
                         continue;
                     }
+                    
                     if (onlyConstructors && !idxElement.getKind().name().equals(ElementKind.CONSTRUCTOR.name())) {
                         continue;
                     }
+                    
                     if (!haveRedirected) {
                         idxElement.setSmart(true);
                     }

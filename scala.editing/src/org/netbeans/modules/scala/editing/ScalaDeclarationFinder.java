@@ -223,7 +223,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             }
 
             if (in != null) {
-                Set<IndexedElement> members = index.getElements(prefix, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult);
+                Set<IndexedElement> members = index.getElements(prefix, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult, false);
                 for (IndexedElement member : members) {
                     if (member instanceof IndexedFunction) {
                         IndexedFunction idxFunction = (IndexedFunction) member;
@@ -263,7 +263,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             }
 
             if (in != null) {
-                Set<IndexedElement> members = index.getElements(prefix, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult);
+                Set<IndexedElement> members = index.getElements(prefix, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult, false);
                 for (IndexedElement member : members) {
                     if (member instanceof IndexedFunction) {
                         if (member.isNullParams()) {

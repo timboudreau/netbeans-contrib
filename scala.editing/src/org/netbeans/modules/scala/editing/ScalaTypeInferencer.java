@@ -280,7 +280,7 @@ public class ScalaTypeInferencer {
             Id call = funRef.getCall();
             String callName = call == null ? "apply" : call.getName();
 
-            Set<IndexedElement> members = index.getElements(callName, baseTypeStr, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null);
+            Set<IndexedElement> members = index.getElements(callName, baseTypeStr, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
             for (IndexedElement member : members) {
                 if (member instanceof IndexedFunction) {
                     IndexedFunction idxFunction = (IndexedFunction) member;
@@ -351,7 +351,7 @@ public class ScalaTypeInferencer {
             Id field = fieldRef.getField();
             String fieldName = field.getName();
 
-            Set<IndexedElement> members = index.getElements(fieldName, baseTypeStr, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null);
+            Set<IndexedElement> members = index.getElements(fieldName, baseTypeStr, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
             for (IndexedElement member : members) {
                 boolean isCandicate = false;
                 String idxRetTypeStr = null;
