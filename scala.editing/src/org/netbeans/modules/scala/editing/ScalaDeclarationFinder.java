@@ -214,6 +214,8 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             TypeRef baseType = base.getType();
             if (base instanceof FunRef) {
                 in = ((FunRef) base).getRetType();
+            } else if (base instanceof FieldRef) {
+                in = ((FieldRef) base).getRetType();
             } else {
                 if (baseType != null) {
                     in = baseType.getQualifiedName();
@@ -252,6 +254,8 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             TypeRef baseType = base.getType();
             if (base instanceof FunRef) {
                 in = ((FunRef) base).getRetType();
+            } else if (base instanceof FieldRef) {
+                in = ((FieldRef) base).getRetType();
             } else {
                 if (baseType != null) {
                     in = baseType.getQualifiedName();
