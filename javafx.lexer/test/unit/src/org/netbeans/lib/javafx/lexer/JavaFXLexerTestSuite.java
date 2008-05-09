@@ -55,8 +55,6 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
 //	JavaFXLexerTest3.class,
     DoubleQuoteStringLiteralTest.class,
-    JavaFXLexerStateTest.class,
-    NewLineAndBraceAfterComplexStringStateTest.class,
     NewLineAndBraceAfterComplexStringTest.class,
     StringLiteralModificationTest.class            
 })

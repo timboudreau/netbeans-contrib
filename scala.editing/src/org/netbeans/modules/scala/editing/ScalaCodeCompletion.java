@@ -391,16 +391,14 @@ public class ScalaCodeCompletion implements Completable {
                 //request.path = path;
                 //request.fqn = AstUtilities.getFqn(path, null, null);
 
-                AstElement closest = root.getDefRef(th, offset);
+                AstElement closest = root.findDefRef(th, offset);
                 int closestOffset = offset - 1;
                 while (closest == null && closestOffset > 0) {
-                    closest = root.getDefRef(th, closestOffset--);
+                    closest = root.findDefRef(th, closestOffset--);
                 }
 
                 if (closest != null) {
-                    if (closest instanceof FunRef || closest instanceof FieldRef) {
-                        // dog.t| or dog.talk()|
-                    } else if (closest instanceof Import) {
+                    if (closest instanceof Import) {
                         String prefix1 = ((Import) closest).getName();
                         if (request.prefix.equals("")) {
                             prefix1 = prefix1 + ".";
@@ -412,26 +410,35 @@ public class ScalaCodeCompletion implements Completable {
                         // test if it's an arg of funRef ?
                         FunRef funRef = null;
                         while (funRef == null && closestOffset > 0) {
-                            AstElement something = root.getDefRef(th, closestOffset--);
-                            if (something instanceof FunRef) {
-                                funRef = (FunRef) something;
-                                break;
-                            }
+                            funRef = root.findRef(FunRef.class, th, closestOffset--);
                         }
-                        
+
                         if (funRef != null) {
-                            boolean isArg = false;
+                            boolean isHisArg = false;
                             int argOffset = closest.getPickOffset(th);
                             for (AstExpr arg : funRef.getParams()) {
                                 if (arg.getBoundsOffset(th) >= argOffset && argOffset <= arg.getBoundsEndOffset(th)) {
-                                    isArg = true;
+                                    isHisArg = true;
                                     break;
                                 }
                             }
-                            
-                            if (isArg) {
+
+                            if (isHisArg) {
                                 closest = funRef;
                             }
+                        }
+                    }
+
+                    if (closest instanceof FunRef || closest instanceof FieldRef) {
+                        if (!request.prefix.equals("")) {
+                            // dog.ta|
+                            if (closest instanceof FunRef && !((FunRef) closest).isLocal()) {
+                                closest = ((FunRef) closest).getBase();
+                            } else {
+                                closest = ((FieldRef) closest).getBase();
+                            }
+                        } else {
+                            // dog.|
                         }
                     }
                 }
@@ -463,10 +470,10 @@ public class ScalaCodeCompletion implements Completable {
                 return proposals;
             }
 
-            // Try to complete methods
-            if (completeFunctions(proposals, request)) {
-                return proposals;
-            }
+            // @todo Try to complete methods inheried and predef's methods 
+//            if (completeFunctions(proposals, request)) {
+//                return proposals;
+//            }
         } finally {
             doc.readUnlock();
         }
@@ -581,7 +588,7 @@ public class ScalaCodeCompletion implements Completable {
         String prefix = request.prefix;
 
         // Regular expression matching.  {
-        for (int i = 0, n = REGEXP_WORDS.length; i < n; i += 2) {
+        for (int i = 0,   n = REGEXP_WORDS.length; i < n; i += 2) {
             String word = REGEXP_WORDS[i];
             String desc = REGEXP_WORDS[i + 1];
 
@@ -617,7 +624,7 @@ public class ScalaCodeCompletion implements Completable {
         request.anchor = rowStart + i;
 
         // Regular expression matching.  {
-        for (int j = 0, n = JSDOC_WORDS.length; j < n; j++) {
+        for (int j = 0,   n = JSDOC_WORDS.length; j < n; j++) {
             String word = JSDOC_WORDS[j];
             if (startsWith(word, prefix)) {
                 //KeywordItem item = new KeywordItem(word, desc, request);
@@ -1163,7 +1170,7 @@ public class ScalaCodeCompletion implements Completable {
 
         Set<IndexedElement> matches;
         if (fqn != null) {
-            matches = index.getElements(prefix, fqn, kind, ScalaIndex.ALL_SCOPE, result);
+            matches = index.getElements(prefix, fqn, kind, ScalaIndex.ALL_SCOPE, result, false);
         } else {
 //            if (prefix.length() == 0) {
 //                proposals.clear();
@@ -1175,7 +1182,7 @@ public class ScalaCodeCompletion implements Completable {
         }
         // Also add in non-fqn-prefixed elements
         if (includeNonFqn) {
-            Set<IndexedElement> top = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, result);
+            Set<IndexedElement> top = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, result, false);
             if (top.size() > 0) {
                 matches.addAll(top);
             }
@@ -1246,19 +1253,19 @@ public class ScalaCodeCompletion implements Completable {
 
             Set<IndexedElement> elements = Collections.emptySet();
 
-            String type = call.getType();
+            String typeStr = call.getType();
             String lhs = call.getLhs();
 
-            if (type == null) {
+            if (typeStr == null) {
                 if (closest != null) {
                     TypeRef typeRef = null;
 
                     if (closest instanceof FieldRef) {
                         // dog.tal|
-                        typeRef = ((FieldRef) closest).getBase().getType();
+                        typeStr = ((FieldRef) closest).getRetType();
                     } else if (closest instanceof FunRef) {
                         // dog.talk().
-                        type = ((FunRef) closest).getRetType();
+                        typeStr = ((FunRef) closest).getRetType();
                     } else if (closest instanceof IdRef) {
                         // dog.|
                         typeRef = closest.getType();
@@ -1267,7 +1274,7 @@ public class ScalaCodeCompletion implements Completable {
                     }
 
                     if (typeRef != null) {
-                        type = typeRef.getQualifiedName();
+                        typeStr = typeRef.getQualifiedName();
                     }
                 }
             //Node method = AstUtilities.findLocalScope(node, path);
@@ -1282,7 +1289,7 @@ public class ScalaCodeCompletion implements Completable {
             //} 
             }
 
-            if (type == null && call.getPrevCallParenPos() != -1) {
+            if (typeStr == null && call.getPrevCallParenPos() != -1) {
                 // It's some sort of call
                 assert call.getType() == null;
                 assert call.getLhs() == null;
@@ -1315,7 +1322,7 @@ public class ScalaCodeCompletion implements Completable {
 //                        }
 //                    }
                 }
-            } else if (type == null && lhs != null && closest != null) {
+            } else if (typeStr == null && lhs != null && closest != null) {
 //                Node method = AstUtilities.findLocalScope(node, path);
 //
 //                if (method != null) {
@@ -1324,7 +1331,7 @@ public class ScalaCodeCompletion implements Completable {
 //                }
             }
 
-            if ((type == null) && (lhs != null) && (closest != null) && call.isSimpleIdentifier()) {
+            if ((typeStr == null) && (lhs != null) && (closest != null) && call.isSimpleIdentifier()) {
 //                Node method = AstUtilities.findLocalScope(node, path);
 //
 //                if (method != null) {
@@ -1337,9 +1344,9 @@ public class ScalaCodeCompletion implements Completable {
 
             // I'm not doing any data flow analysis at this point, so
             // I can't do anything with a LHS like "foo.". Only actual types.
-            if (type != null && type.length() > 0) {
+            if (typeStr != null && typeStr.length() > 0) {
                 if ("this".equals(lhs)) {
-                    type = fqn;
+                    typeStr = fqn;
                     skipPrivate = false;
 //                } else if ("super".equals(lhs)) {
 //                    skipPrivate = false;
@@ -1361,13 +1368,13 @@ public class ScalaCodeCompletion implements Completable {
 //                    }
                 }
 
-                if (type != null && type.length() > 0) {
+                if (typeStr != null && typeStr.length() > 0) {
                     // Possibly a class on the left hand side: try searching with the class as a qualifier.
                     // Try with the LHS + current FQN recursively. E.g. if we're in
                     // Test::Unit when there's a call to Foo.x, we'll try
                     // Test::Unit::Foo, and Test::Foo
-                    while (elements.size() == 0 && fqn != null && !fqn.equals(type)) {
-                        elements = index.getElements(prefix, fqn + "." + type, kind, ScalaIndex.ALL_SCOPE, result);
+                    while (elements.size() == 0 && fqn != null && !fqn.equals(typeStr)) {
+                        elements = index.getElements(prefix, fqn + "." + typeStr, kind, ScalaIndex.ALL_SCOPE, result, false);
 
                         int f = fqn.lastIndexOf("::");
 
@@ -1379,7 +1386,7 @@ public class ScalaCodeCompletion implements Completable {
                     }
 
                     // Add methods in the class (without an FQN)
-                    Set<IndexedElement> m = index.getElements(prefix, type, kind, ScalaIndex.ALL_SCOPE, result);
+                    Set<IndexedElement> m = index.getElements(prefix, typeStr, kind, ScalaIndex.ALL_SCOPE, result, false);
 
                     if (m.size() > 0) {
                         elements = m;
@@ -1387,7 +1394,7 @@ public class ScalaCodeCompletion implements Completable {
                 }
             } else if (lhs != null && lhs.length() > 0) {
                 // No type but an LHS - perhaps it's a type?
-                Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, result);
+                Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, result, false);
 
                 if (m.size() > 0) {
                     elements = m;
@@ -1396,7 +1403,7 @@ public class ScalaCodeCompletion implements Completable {
 
             // Try just the method call (e.g. across all classes). This is ignoring the 
             // left hand side because we can't resolve it.
-            if ((elements.size() == 0) && (prefix.length() > 0 || type == null)) {
+            if ((elements.size() == 0) && (prefix.length() > 0 || typeStr == null)) {
 //                if (prefix.length() == 0) {
 //                    proposals.clear();
 //                    proposals.add(new KeywordItem("", "Type more characters to see matches", request));
@@ -1409,20 +1416,22 @@ public class ScalaCodeCompletion implements Completable {
             for (IndexedElement element : elements) {
                 // Skip constructors - you don't want to call
                 //   x.Foo !
-//                if (element.getKind() == ElementKind.CONSTRUCTOR) {
-//                    continue;
-//                }
+                if (element.getKind() == ElementKind.CONSTRUCTOR) {
+                    continue;
+                }
 
                 // Don't include private or protected methods on other objects
                 if (skipPrivate && element.isPrivate()) {
                     continue;
                 }
-//
+
+                
+                
 //                // We can only call static methods
 //                if (skipInstanceMethods && !method.isStatic()) {
 //                    continue;
 //                }
-//
+
                 if (element.isNoDoc()) {
                     continue;
                 }
@@ -1505,25 +1514,25 @@ public class ScalaCodeCompletion implements Completable {
                     Set<IndexedElement> elements = index.getConstructors(prefix, kind, ScalaIndex.ALL_SCOPE);
                     String lhs = request.call == null ? null : request.call.getLhs();
                     if (lhs != null && lhs.length() > 0) {
-                        Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, null);
+                        Set<IndexedElement> m = index.getElements(prefix, lhs, kind, ScalaIndex.ALL_SCOPE, null, true);
                         if (m.size() > 0) {
                             if (elements.size() == 0) {
                                 elements = new HashSet<IndexedElement>();
                             }
                             for (IndexedElement f : m) {
-                                if (f.getKind() == ElementKind.CONSTRUCTOR || f.getKind() == ElementKind.PACKAGE) {
+                                if (f.getKind() == ElementKind.CONSTRUCTOR) {
                                     elements.add(f);
                                 }
                             }
                         }
                     } else if (prefix.length() > 0) {
-                        Set<IndexedElement> m = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, null);
+                        Set<IndexedElement> m = index.getElements(prefix, null, kind, ScalaIndex.ALL_SCOPE, null, true);
                         if (m.size() > 0) {
                             if (elements.size() == 0) {
                                 elements = new HashSet<IndexedElement>();
                             }
                             for (IndexedElement f : m) {
-                                if (f.getKind() == ElementKind.CONSTRUCTOR || f.getKind() == ElementKind.PACKAGE) {
+                                if (f.getKind() == ElementKind.CONSTRUCTOR) {
                                     elements.add(f);
                                 }
                             }
@@ -1884,7 +1893,7 @@ public class ScalaCodeCompletion implements Completable {
             }
 
             FunRef call = null;
-            AstElement closest = root.getDefRef(th, astOffset);
+            AstElement closest = root.findDefRef(th, astOffset);
             if (closest instanceof FunRef) {
                 call = (FunRef) closest;
             }

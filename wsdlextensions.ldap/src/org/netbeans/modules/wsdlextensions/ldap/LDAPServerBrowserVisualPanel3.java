@@ -47,8 +47,8 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
     private Map mSelectedObjectMap = new HashMap();
     private List mSelectedAttrList = new ArrayList();
     private List mResultSetAttrList = new ArrayList();
-    private String mSelectedDN="";
-    private String mMainAttrInAdd="";
+    private String mSelectedDN = "";
+    private String mMainAttrInAdd = "";
 
     /** Creates new form LDAPServerBrowserVisualPanel3 */
     public LDAPServerBrowserVisualPanel3() {
@@ -67,6 +67,8 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
             jListSelected = jListSearchFilterSeleted;
         } else if (mFunction.equals("Update")) {
             jListSelected = jListUpdateFilterSeleted;
+        } else {
+            jListSelected = jListDeleteFilterSeleted;
         }
         Object[] selected = jListSelected.getSelectedValues();
         if (selected.length == 0) {
@@ -103,10 +105,14 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
             jCombobox = jComboBoxSearchFilter;
             jListAvailable = jListSearchFilterAvailable;
             jListSelected = jListSearchFilterSeleted;
-        } else {
+        } else if (mFunction.equals("Update")) {
             jCombobox = jComboBoxUpdateFilter;
             jListAvailable = jListUpdateFilterAvailable;
             jListSelected = jListUpdateFilterSeleted;
+        } else {
+            jCombobox = jComboBoxDeleteFilter;
+            jListAvailable = jListDeleteFilterAvailable;
+            jListSelected = jListDeleteFilterSeleted;
         }
         jCombobox.getModel().setSelectedItem(comboboxItemName);
         List listAvailable = getUnselectedAttribute(comboboxItemName);
@@ -118,11 +124,6 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
         jListSelected.removeAll();
         jListSelected.setListData(new Vector(jListData));
 
-        listAvailable = null;
-        jListData = null;
-        jCombobox = null;
-        jListAvailable = null;
-        jListSelected = null;
     }
 
     private void initiatePopupMenu() {
@@ -278,6 +279,21 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
                 }
             }
         });
+        
+        jListDeleteFilterSeleted.addMouseListener(new MouseAdapter() {
+
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger() && e.getClickCount() == 1) {
+                    showPopupMenu(e);
+                }
+            }
+
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger() && e.getClickCount() == 1) {
+                    showPopupMenu(e);
+                }
+            }
+        });
 
 
     }
@@ -322,6 +338,8 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
             jListSelected = jListSearchFilterSeleted;
         } else if (mFunction.equals("Update")) {
             jListSelected = jListUpdateFilterSeleted;
+        } else {
+            jListSelected = jListDeleteFilterSeleted;
         }
         Object[] selected = jListSelected.getSelectedValues();
         if (selected.length < 2) {
@@ -397,6 +415,8 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
             jListSelected = jListSearchFilterSeleted;
         } else if (mFunction.equals("Update")) {
             jListSelected = jListUpdateFilterSeleted;
+        } else {
+            jListSelected = jListDeleteFilterSeleted;
         }
         Object[] selected = jListSelected.getSelectedValues();
         if (selected.length < 2) {
@@ -456,7 +476,7 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
         conn = (LdapConnection) wd.getProperty("LDAP_CONNECTION");
 
         base = conn.getDn();
-        mSelectedDN=base;
+        mSelectedDN = base;
         ldapTree.initiate(conn);
         DefaultTreeModel treeModel = ldapTree.getTreeModel();
         jTreeSearch.setModel(treeModel);
@@ -471,9 +491,9 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
         jTreeUpdate.invalidate();
         jTextFieldUpdateBaseDN.setText(base);
 
-        jTreeRemove.setModel(treeModel);
-        jTreeRemove.invalidate();
-        jTextFieldRemoveBaseDN.setText(base);
+        jTreeDelete.setModel(treeModel);
+        jTreeDelete.invalidate();
+        jTextFieldDeleteBaseDN.setText(base);
 
         treeModel = null;
 
@@ -483,21 +503,21 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        if (null != objectList) {
+        if (objectList != null) {
             readObjectClasses(objectList);
+            initiateAdd(objectList);
         }
-        initiateAdd(objectList);
     }
 
     public void store(WizardDescriptor wd) {
-        LdapConnection conn = (LdapConnection) wd.getProperty("LDAP_CONNECTION");
+        LdapConnection con = (LdapConnection) wd.getProperty("LDAP_CONNECTION");
         String fileName = (String) wd.getProperty("FILE_NAME");
         try {
             Project project = (Project) wd.getProperty("project");
             File dir = new File(FileUtil.toFile(project.getProjectDirectory()).getAbsolutePath() + File.separator + "src" + File.separator + "ldapwsdls");
             dir.mkdirs();
             GenerateXSD genXsd = new GenerateXSD(dir, mSelectedObjectMap, mFunction, fileName, mSelectedDN, mMainAttrInAdd);
-            GenerateWSDL genWsdl = new GenerateWSDL(dir, mSelectedObjectMap, mFunction, fileName, conn);
+            GenerateWSDL genWsdl = new GenerateWSDL(dir, mSelectedObjectMap, mFunction, fileName, con);
             genXsd.generate();
             genWsdl.generate();
             project.getProjectDirectory().refresh();
@@ -509,31 +529,35 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
     }
 
     public void readObjectClasses(List list) {
-        if (null != list) {
-            SortedComboboxModel searchComboboxModel = new SortedComboboxModel();
-            SortedComboboxModel updateComboboxModel = new SortedComboboxModel();
-            for (int i = 0; i < list.size(); i++) {
-                String item = (String) list.get(i);
-                searchComboboxModel.addElement(item);
-                updateComboboxModel.addElement(item);
-                try {
-                    mObjectClassesMap.put(item, conn.getObjectClass(item));
-                } catch (NamingException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
-            }
-            jComboBoxSearchFilter.setModel(searchComboboxModel);
-            jComboBoxResultSet.setModel(searchComboboxModel);
-            jComboBoxSearchFilter.setSelectedIndex(0);
-            jComboBoxResultSet.setSelectedIndex(0);
-            searchComboboxModel = null;
-
-            jComboBoxUpdateFilter.setModel(updateComboboxModel);
-            jComboBoxUpdateSet.setModel(updateComboboxModel);
-            jComboBoxUpdateFilter.setSelectedIndex(0);
-            jComboBoxUpdateSet.setSelectedIndex(0);
-            updateComboboxModel = null;
+        if (list.size() < 1) {
+            return;
         }
+        SortedComboboxModel searchComboboxModel = new SortedComboboxModel();
+        SortedComboboxModel updateComboboxModel = new SortedComboboxModel();
+        SortedComboboxModel deleteComboboxModel = new SortedComboboxModel();
+        for (int i = 0; i < list.size(); i++) {
+            String item = (String) list.get(i);
+            searchComboboxModel.addElement(item);
+            updateComboboxModel.addElement(item);
+            deleteComboboxModel.addElement(item);
+            try {
+                mObjectClassesMap.put(item, conn.getObjectClass(item));
+            } catch (NamingException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        jComboBoxSearchFilter.setModel(searchComboboxModel);
+        jComboBoxResultSet.setModel(searchComboboxModel);
+        jComboBoxSearchFilter.setSelectedIndex(0);
+        jComboBoxResultSet.setSelectedIndex(0);
+
+        jComboBoxUpdateFilter.setModel(updateComboboxModel);
+        jComboBoxUpdateSet.setModel(updateComboboxModel);
+        jComboBoxUpdateFilter.setSelectedIndex(0);
+        jComboBoxUpdateSet.setSelectedIndex(0);
+
+        jComboBoxDeleteFilter.setModel(deleteComboboxModel);
+        jComboBoxDeleteFilter.setSelectedIndex(0);
     }
 
     public List getUnselectedAttribute(String objName) {
@@ -565,10 +589,14 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
             jCombobox = jComboBoxSearchFilter;
             jListAvailable = jListSearchFilterAvailable;
             jListSelected = jListSearchFilterSeleted;
-        } else {
+        } else if (mFunction.equals("Update")) {
             jCombobox = jComboBoxUpdateFilter;
             jListAvailable = jListUpdateFilterAvailable;
             jListSelected = jListUpdateFilterSeleted;
+        } else {
+            jCombobox = jComboBoxDeleteFilter;
+            jListAvailable = jListDeleteFilterAvailable;
+            jListSelected = jListDeleteFilterSeleted;
         }
         Object[] selected = jListAvailable.getSelectedValues();
         if (selected.length == 0) {
@@ -625,6 +653,8 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
             jListSelected = jListSearchFilterSeleted;
         } else if (mFunction.equals("Update")) {
             jListSelected = jListUpdateFilterSeleted;
+        } else {
+            jListSelected = jListDeleteFilterSeleted;
         }
         Object[] selected = jListSelected.getSelectedValues();
         if (selected.length == 0) {
@@ -684,6 +714,10 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
             jCombobox = jComboBoxUpdateFilter;
             jListSelected = jListUpdateFilterSeleted;
             jListSelectedResult = jListUpdateSetSelected;
+        } else {
+            jCombobox = jComboBoxDeleteFilter;
+            jListSelected = jListDeleteFilterAvailable;
+            jListSelectedResult = jListDeleteFilterSeleted;
         }
         jListSelected.removeAll();
         jListSelected.setListData(new Vector(new ArrayList()));
@@ -695,7 +729,7 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
     }
 
     private void refreshUpdateSetSelectList() {
-        mSelectedAttrList.clear();
+        mResultSetAttrList.clear();
         Iterator it = mSelectedObjectMap.values().iterator();
         while (it.hasNext()) {
             LdifObjectClass loc = (LdifObjectClass) it.next();
@@ -704,18 +738,26 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
                 Iterator it2 = resultSet.iterator();
                 while (it2.hasNext()) {
                     UpdateSetAttribute usa2 = (UpdateSetAttribute) it2.next();
-                    mSelectedAttrList.add(new String(usa2.getOpType() + " " + usa2.getObjName() + "." + usa2.getAttrName()));
+                    mResultSetAttrList.add(new String(usa2.getOpType() + " " + usa2.getObjName() + "." + usa2.getAttrName()));
                 }
             }
         }
         jListUpdateSetSelected.removeAll();
-        jListUpdateSetSelected.setListData(new Vector(mSelectedAttrList));
+        jListUpdateSetSelected.setListData(new Vector(mResultSetAttrList));
     }
 
 //add operation code begin
     private void initiateAdd(List list) {
+        if (list.size() < 1) {
+            return;
+        }
+        SortedListModel listModel = new SortedListModel();
+        for (int i = 0; i < list.size(); i++) {
+            String item = (String) list.get(i);
+            listModel.addElement(item);
+        }
         jListAddObjcecClassAvailable.removeAll();
-        jListAddObjcecClassAvailable.setListData(new Vector(list));
+        jListAddObjcecClassAvailable.setListData(new Vector(listModel.getElements()));
         jListAddObjcecClassAvailable.setSelectedIndex(0);
         jListAddObjectClassSelect.removeAll();
         jListAddObjectClassSelect.setListData(new Vector());
@@ -763,7 +805,7 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
             return;
         }
         String str = (String) selected[0];
-        mMainAttrInAdd=str;
+        mMainAttrInAdd = str;
 //        mSelectedObjectMap.put("MainAttribute", str);
     }
 
@@ -846,19 +888,19 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
         jScrollPane15 = new javax.swing.JScrollPane();
         jListUpdateSetSelected = new javax.swing.JList();
         jPanel4 = new javax.swing.JPanel();
-        jLabelRemoveBaseDN = new javax.swing.JLabel();
-        jTextFieldRemoveBaseDN = new javax.swing.JTextField();
+        jLabelDeleteBaseDN = new javax.swing.JLabel();
+        jTextFieldDeleteBaseDN = new javax.swing.JTextField();
         jPanel13 = new javax.swing.JPanel();
-        jComboBoxRemoveFilter = new javax.swing.JComboBox();
+        jComboBoxDeleteFilter = new javax.swing.JComboBox();
         jScrollPane17 = new javax.swing.JScrollPane();
-        jListRemoveFilterAvailable = new javax.swing.JList();
-        jButtonRemoveFilterSelectAnd = new javax.swing.JButton();
-        jButtonRemoveFilterSelectOr = new javax.swing.JButton();
-        jButtonRemoveFilterUnselect = new javax.swing.JButton();
+        jListDeleteFilterAvailable = new javax.swing.JList();
+        jButtonDeleteFilterSelectAnd = new javax.swing.JButton();
+        jButtonDeleteFilterSelectOr = new javax.swing.JButton();
+        jButtonDeleteFilterUnselect = new javax.swing.JButton();
         jScrollPane18 = new javax.swing.JScrollPane();
-        jListRemoveFilterSeleted = new javax.swing.JList();
+        jListDeleteFilterSeleted = new javax.swing.JList();
         jScrollPane16 = new javax.swing.JScrollPane();
-        jTreeRemove = new javax.swing.JTree();
+        jTreeDelete = new javax.swing.JTree();
 
         jTabbedPane1.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -1426,22 +1468,48 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
 
         jTabbedPane1.addTab("Update", jPanel3);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabelRemoveBaseDN, "Base DN :"); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabelDeleteBaseDN, "Base DN :"); // NOI18N
 
         jPanel13.setBorder(javax.swing.BorderFactory.createTitledBorder("remove filter"));
 
-        jScrollPane17.setViewportView(jListRemoveFilterAvailable);
+        jComboBoxDeleteFilter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxDeleteFilterActionPerformed(evt);
+            }
+        });
 
-        org.openide.awt.Mnemonics.setLocalizedText(jButtonRemoveFilterSelectAnd, "and >"); // NOI18N
-        jButtonRemoveFilterSelectAnd.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jScrollPane17.setViewportView(jListDeleteFilterAvailable);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jButtonRemoveFilterSelectOr, "or  >"); // NOI18N
-        jButtonRemoveFilterSelectOr.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        org.openide.awt.Mnemonics.setLocalizedText(jButtonDeleteFilterSelectAnd, "and >"); // NOI18N
+        jButtonDeleteFilterSelectAnd.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jButtonDeleteFilterSelectAnd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDeleteFilterSelectAndActionPerformed(evt);
+            }
+        });
 
-        org.openide.awt.Mnemonics.setLocalizedText(jButtonRemoveFilterUnselect, "  < "); // NOI18N
-        jButtonRemoveFilterUnselect.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        org.openide.awt.Mnemonics.setLocalizedText(jButtonDeleteFilterSelectOr, "or  >"); // NOI18N
+        jButtonDeleteFilterSelectOr.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jButtonDeleteFilterSelectOr.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDeleteFilterSelectOrActionPerformed(evt);
+            }
+        });
 
-        jScrollPane18.setViewportView(jListRemoveFilterSeleted);
+        org.openide.awt.Mnemonics.setLocalizedText(jButtonDeleteFilterUnselect, "  < "); // NOI18N
+        jButtonDeleteFilterUnselect.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jButtonDeleteFilterUnselect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDeleteFilterUnselectActionPerformed(evt);
+            }
+        });
+
+        jListDeleteFilterSeleted.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jListDeleteFilterSeletedItemOnSelected(evt);
+            }
+        });
+        jScrollPane18.setViewportView(jListDeleteFilterSeleted);
 
         org.jdesktop.layout.GroupLayout jPanel13Layout = new org.jdesktop.layout.GroupLayout(jPanel13);
         jPanel13.setLayout(jPanel13Layout);
@@ -1449,42 +1517,43 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
             jPanel13Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel13Layout.createSequentialGroup()
                 .add(jPanel13Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jScrollPane17, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 91, Short.MAX_VALUE)
-                    .add(jComboBoxRemoveFilter, 0, 91, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(jScrollPane17, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE)
+                    .add(jComboBoxDeleteFilter, 0, 109, Short.MAX_VALUE))
+                .add(5, 5, 5)
                 .add(jPanel13Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(jButtonRemoveFilterUnselect, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jButtonRemoveFilterSelectOr, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jButtonRemoveFilterSelectAnd))
-                .add(6, 6, 6)
-                .add(jScrollPane18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 144, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jButtonDeleteFilterUnselect, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(jButtonDeleteFilterSelectOr, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(jButtonDeleteFilterSelectAnd))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jScrollPane18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 127, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanel13Layout.setVerticalGroup(
             jPanel13Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel13Layout.createSequentialGroup()
                 .add(jPanel13Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jScrollPane18, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel13Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, jScrollPane18, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel13Layout.createSequentialGroup()
+                            .add(jComboBoxDeleteFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(jScrollPane17, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 231, Short.MAX_VALUE)))
                     .add(jPanel13Layout.createSequentialGroup()
-                        .add(jComboBoxRemoveFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(82, 82, 82)
+                        .add(jButtonDeleteFilterSelectAnd)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jScrollPane17, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 231, Short.MAX_VALUE))
-                    .add(jPanel13Layout.createSequentialGroup()
-                        .add(83, 83, 83)
-                        .add(jButtonRemoveFilterSelectAnd)
+                        .add(jButtonDeleteFilterSelectOr)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jButtonRemoveFilterSelectOr)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jButtonRemoveFilterUnselect)))
+                        .add(jButtonDeleteFilterUnselect)))
                 .addContainerGap())
         );
 
-        jTreeRemove.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+        jTreeDelete.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
             public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
                 removeTreeOnSelected(evt);
             }
         });
-        jScrollPane16.setViewportView(jTreeRemove);
+        jScrollPane16.setViewportView(jTreeDelete);
 
         org.jdesktop.layout.GroupLayout jPanel4Layout = new org.jdesktop.layout.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -1492,11 +1561,11 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
             jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel4Layout.createSequentialGroup()
                 .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabelRemoveBaseDN)
+                    .add(jLabelDeleteBaseDN)
                     .add(jScrollPane16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 124, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jTextFieldRemoveBaseDN, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 309, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jTextFieldDeleteBaseDN, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 309, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jPanel13, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -1505,8 +1574,8 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
             .add(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabelRemoveBaseDN)
-                    .add(jTextFieldRemoveBaseDN, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jLabelDeleteBaseDN)
+                    .add(jTextFieldDeleteBaseDN, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel13, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1514,7 +1583,7 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
                 .addContainerGap())
         );
 
-        jTabbedPane1.addTab("Remove", jPanel4);
+        jTabbedPane1.addTab("Delete", jPanel4);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -1533,7 +1602,7 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
         // TODO add your handling code here:
         TreePath path = evt.getPath();
         jTextFieldSearchBaseDN.setText(treePathToDN(path));
-        mSelectedDN=treePathToDN(path);
+        mSelectedDN = treePathToDN(path);
         path = null;
 }//GEN-LAST:event_searchTreeOnSelected
 
@@ -1541,7 +1610,7 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
         // TODO add your handling code here:
         TreePath path = evt.getPath();
         jTextFieldAddBaseDN.setText(treePathToDN(path));
-        mSelectedDN=treePathToDN(path);
+        mSelectedDN = treePathToDN(path);
         path = null;
     }//GEN-LAST:event_addTreeOnSelected
 
@@ -1549,15 +1618,15 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
         // TODO add your handling code here:
         TreePath path = evt.getPath();
         jTextFieldUpdateBaseDN.setText(treePathToDN(path));
-        mSelectedDN=treePathToDN(path);
+        mSelectedDN = treePathToDN(path);
         path = null;
     }//GEN-LAST:event_updateTreeOnSelected
 
     private void removeTreeOnSelected(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_removeTreeOnSelected
         // TODO add your handling code here:
         TreePath path = evt.getPath();
-        jTextFieldRemoveBaseDN.setText(treePathToDN(path));
-        mSelectedDN=treePathToDN(path);
+        jTextFieldDeleteBaseDN.setText(treePathToDN(path));
+        mSelectedDN = treePathToDN(path);
         path = null;
     }//GEN-LAST:event_removeTreeOnSelected
 
@@ -1634,12 +1703,12 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
         jListSearchResultAvailable.setListData(new Vector(listAvailable));
 
         jListSearchResultSelected.removeAll();
-        jListSearchResultSelected.setListData(new Vector(mResultSetAttrList)); 
+        jListSearchResultSelected.setListData(new Vector(mResultSetAttrList));
     }//GEN-LAST:event_jButtonResultSetSelectActionPerformed
 
     private void jButtonSearchFilterUnselectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSearchFilterUnselectActionPerformed
         // TODO add your handling code here:
-        unSelectFilter();               
+        unSelectFilter();
     }//GEN-LAST:event_jButtonSearchFilterUnselectActionPerformed
 
     private void jButtonResultSetUnselectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonResultSetUnselectActionPerformed
@@ -1700,7 +1769,7 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
         jListSearchResultAvailable.setListData(new Vector(ret));
 
         jListSearchResultSelected.removeAll();
-        jListSearchResultSelected.setListData(new Vector(mResultSetAttrList));  
+        jListSearchResultSelected.setListData(new Vector(mResultSetAttrList));
     }//GEN-LAST:event_jButtonResultSetUnselectActionPerformed
 
     private void jButtonSearchFilterSelectOrActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSearchFilterSelectOrActionPerformed
@@ -1845,11 +1914,11 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
     }//GEN-LAST:event_jComboBoxUpdateFilterActionPerformed
 
     private void jListSearchFilterAvailableValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jListSearchFilterAvailableValueChanged
-    // TODO add your handling code here:
+        // TODO add your handling code here:
     }//GEN-LAST:event_jListSearchFilterAvailableValueChanged
 
     private void jListSearchResultAvailableValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jListSearchResultAvailableValueChanged
-    // TODO add your handling code here:
+        // TODO add your handling code here:
     }//GEN-LAST:event_jListSearchResultAvailableValueChanged
 
     private void jComboBoxSearchFilterPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jComboBoxSearchFilterPropertyChange
@@ -1884,7 +1953,11 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
             mFunction = "Update";
             refreshDisplay();
         }
-        
+        if (index == 3) {
+            mFunction = "Delete";
+            refreshDisplay();
+        }
+
     }//GEN-LAST:event_selectedTabIndexChange
 
     private void jComboBoxUpdateSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxUpdateSetActionPerformed
@@ -2111,34 +2184,34 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
         }
 
         jComboBoxUpdateSet.getModel().setSelectedItem(finalObjName);
-        List ret = new ArrayList();
-        if (finalObjName != null && finalObjName.length() > 0) {
-            LdifObjectClass fianlObj = (LdifObjectClass) mObjectClassesMap.get(finalObjName);
-            List mays = fianlObj.getMay();
-            List musts = fianlObj.getMust();
-            List selectedattr = DisplayFormatControl.updateSetAttrToAttr(fianlObj.getResultSet());
-            if (musts != null) {
-//                for (int i = 0; i < musts.size(); i++) {
-//                    ret.add("* " + (String) musts.get(i));
-//                }
-                ret.addAll(musts);
-            }
-            if (mays != null) {
-                ret.addAll(mays);
-            }
-            if (selectedattr != null) {
-                ret.removeAll(selectedattr);
-            }
-        }
-//        mResultSetAttrList.removeAll(listCurrentSelected);
-
-        jListUpdateSetAvailable.removeAll();
-        jListUpdateSetAvailable.setListData(new Vector(ret));
+//        List ret = new ArrayList();
+//        if (finalObjName != null && finalObjName.length() > 0) {
+//            LdifObjectClass fianlObj = (LdifObjectClass) mObjectClassesMap.get(finalObjName);
+//            List mays = fianlObj.getMay();
+//            List musts = fianlObj.getMust();
+//            List selectedattr = DisplayFormatControl.updateSetAttrToAttr(fianlObj.getResultSet());
+//            if (musts != null) {
+////                for (int i = 0; i < musts.size(); i++) {
+////                    ret.add("* " + (String) musts.get(i));
+////                }
+//                ret.addAll(musts);
+//            }
+//            if (mays != null) {
+//                ret.addAll(mays);
+//            }
+//            if (selectedattr != null) {
+//                ret.removeAll(selectedattr);
+//            }
+//        }
+////        mResultSetAttrList.removeAll(listCurrentSelected);
+//
+//        jListUpdateSetAvailable.removeAll();
+//        jListUpdateSetAvailable.setListData(new Vector(ret));
 
 //        jListUpdateSetSelected.removeAll();
 //        jListUpdateSetSelected.setListData(new Vector(mResultSetAttrList)); 
         refreshUpdateSetSelectList();
-        
+
     }//GEN-LAST:event_jButtonUpdateSetUnselectActionPerformed
 
     private void jButtonUpdateFilterUnselectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUpdateFilterUnselectActionPerformed
@@ -2183,7 +2256,7 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
 
         jListAddObjcecClassAvailable.removeAll();
         jListAddObjcecClassAvailable.setListData(new Vector(objAvaiList));
-        
+
     }//GEN-LAST:event_jButtonAddObjectSelectActionPerformed
 
     private void jListAddObjcecClassAvailableValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jListAddObjcecClassAvailableValueChanged
@@ -2249,7 +2322,7 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
         jListAddObjcecClassAvailable.setListData(new Vector(objAvaiList));
 
         jListAddObjcecClassAvailable.setSelectedValue(objName, true);
-        
+
     }//GEN-LAST:event_jButtonAddObjectUnselectActionPerformed
 
     private void jButtonAddAttributeSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddAttributeSelectActionPerformed
@@ -2310,14 +2383,159 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
         refreshAddTabSelectedAttrsList();
     }//GEN-LAST:event_jButtonAddAttributeUnselectActionPerformed
 
+private void jComboBoxDeleteFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxDeleteFilterActionPerformed
+// TODO add your handling code here:
+    String objName = jComboBoxDeleteFilter.getSelectedItem().toString();
+    List attributeList = getUnselectedAttribute(objName);
+    jListDeleteFilterAvailable.removeAll();
+    jListDeleteFilterAvailable.setListData(new Vector(attributeList));
+}//GEN-LAST:event_jComboBoxDeleteFilterActionPerformed
+
+private void jButtonDeleteFilterSelectAndActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteFilterSelectAndActionPerformed
+// TODO add your handling code here:
+    filterAdd("And");
+}//GEN-LAST:event_jButtonDeleteFilterSelectAndActionPerformed
+
+private void jButtonDeleteFilterSelectOrActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteFilterSelectOrActionPerformed
+// TODO add your handling code here:
+    filterAdd("Or");
+}//GEN-LAST:event_jButtonDeleteFilterSelectOrActionPerformed
+
+private void jButtonDeleteFilterUnselectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteFilterUnselectActionPerformed
+// TODO add your handling code here:
+    unSelectFilter();
+}//GEN-LAST:event_jButtonDeleteFilterUnselectActionPerformed
+
+private void jListDeleteFilterSeletedItemOnSelected(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListDeleteFilterSeletedItemOnSelected
+// TODO add your handling code here:
+    Object[] selected = jListDeleteFilterSeleted.getSelectedValues();
+        if (selected.length == 0) {
+            return;
+        }
+        int[] lastSelectedIndexes = jListDeleteFilterSeleted.getSelectedIndices();
+        if (evt.getClickCount() == 1) {
+            int currentSelectedIndex = jListDeleteFilterSeleted.locationToIndex(evt.getPoint());
+            int currentBracketDepth = 0;
+            int beginIndex = currentSelectedIndex;
+            int endIndex = currentSelectedIndex;
+
+            String str = DisplayFormatControl.toAttribute((String) jListDeleteFilterSeleted.getSelectedValue());
+            int index = str.indexOf(".");
+            String obj = str.substring(0, index);
+            String att = str.substring(index + 1);
+
+            int endFlag = 0;
+            int beginFlag = 0;
+
+            Iterator it1 = mSelectedAttrList.iterator();
+            SearchFilterAttribute currentSelectedAttribute = null;
+            while (it1.hasNext()) {
+                SearchFilterAttribute sfa = (SearchFilterAttribute) it1.next();
+                if (sfa.getObjName().equals(obj) & sfa.getAttributeName().equals(att)) {
+                    currentSelectedAttribute = sfa;
+                    currentBracketDepth = sfa.getBracketDepth();
+                    break;
+                }
+                sfa = null;
+            }
+            selected = null;
+            if (currentSelectedAttribute == null) {
+                return;
+            }
+
+            if (currentBracketDepth > 0) {
+                //get the beginIndex and endIndex;      
+                if (!(currentSelectedAttribute.getBracketEndDepth() > 0)) {
+                    for (int i = currentSelectedIndex + 1; i < mSelectedAttrList.size(); i++) {
+                        boolean stopFlag = false;
+                        Iterator it = mSelectedAttrList.iterator();
+                        while (it.hasNext()) {
+                            SearchFilterAttribute sfa = (SearchFilterAttribute) it.next();
+                            if (sfa.getPositionIndex() != i) {
+                                continue;
+                            }
+                            if (sfa.getBracketDepth() >= currentBracketDepth) {
+                                if (sfa.getBracketEndDepth() <= 0) {
+
+                                    endFlag += sfa.getBracketBeginDepth();
+                                } else {
+                                    if (endFlag - sfa.getBracketEndDepth() < 0) {
+                                        stopFlag = true;
+                                    } else {
+                                        endFlag -= sfa.getBracketEndDepth();
+                                    }
+                                }
+                                endIndex = i;
+                            } else {
+                                stopFlag = true;
+                            }
+                            sfa = null;
+                            break;
+                        }
+                        if (stopFlag) {
+                            break;
+                        }
+                    }
+                }
+                if (!(currentSelectedAttribute.getBracketBeginDepth() > 0)) {
+                    for (int j = currentSelectedIndex - 1; j >= 0; j--) {
+                        boolean stopFlag2 = false;
+                        Iterator it = mSelectedAttrList.iterator();
+                        while (it.hasNext()) {
+                            SearchFilterAttribute sfa2 = (SearchFilterAttribute) it.next();
+                            if (sfa2.getPositionIndex() != j) {
+                                continue;
+                            }
+                            if (sfa2.getBracketDepth() >= currentBracketDepth) {
+                                if (sfa2.getBracketBeginDepth() <= 0) {
+//                                beginIndex = j;
+                                    beginFlag += sfa2.getBracketEndDepth();
+                                } else {
+                                    if (beginFlag - sfa2.getBracketBeginDepth() < 0) {
+                                        stopFlag2 = true;
+                                    } else {
+
+                                        beginFlag -= sfa2.getBracketBeginDepth();
+                                    }
+                                }
+                                beginIndex = j;
+                                break;
+                            } else {
+                                stopFlag2 = true;
+                            }
+                            sfa2 = null;
+                            break;
+                        }
+                        if (stopFlag2) {
+                            break;
+                        }
+                    }
+                }
+                int lastLength = lastSelectedIndexes.length;
+                int currentLength = endIndex - beginIndex + 1;
+                int[] selectedIndexs = new int[lastLength + currentLength];
+                int j;
+                for (j = 0; j < currentLength; j++) {
+                    selectedIndexs[j] = beginIndex + j;
+                }
+                if (lastLength > 0) {
+                    for (j = currentLength; j < lastLength + currentLength; j++) {
+                        selectedIndexs[j] = lastSelectedIndexes[j - currentLength];
+                    }
+                }
+                jListDeleteFilterSeleted.setSelectedIndices(selectedIndexs);
+            }
+        }
+}//GEN-LAST:event_jListDeleteFilterSeletedItemOnSelected
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonAddAttributeSelect;
     private javax.swing.JButton jButtonAddAttributeUnselect;
     private javax.swing.JButton jButtonAddObjectSelect;
     private javax.swing.JButton jButtonAddObjectUnselect;
-    private javax.swing.JButton jButtonRemoveFilterSelectAnd;
-    private javax.swing.JButton jButtonRemoveFilterSelectOr;
-    private javax.swing.JButton jButtonRemoveFilterUnselect;
+    private javax.swing.JButton jButtonDeleteFilterSelectAnd;
+    private javax.swing.JButton jButtonDeleteFilterSelectOr;
+    private javax.swing.JButton jButtonDeleteFilterUnselect;
     private javax.swing.JButton jButtonResultSetSelect;
     private javax.swing.JButton jButtonResultSetUnselect;
     private javax.swing.JButton jButtonSearchFilterSelectAnd;
@@ -2328,21 +2546,21 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
     private javax.swing.JButton jButtonUpdateFilterUnselect;
     private javax.swing.JButton jButtonUpdateSetSelect;
     private javax.swing.JButton jButtonUpdateSetUnselect;
-    private javax.swing.JComboBox jComboBoxRemoveFilter;
+    private javax.swing.JComboBox jComboBoxDeleteFilter;
     private javax.swing.JComboBox jComboBoxResultSet;
     private javax.swing.JComboBox jComboBoxSearchFilter;
     private javax.swing.JComboBox jComboBoxUpdateFilter;
     private javax.swing.JComboBox jComboBoxUpdateSet;
     private javax.swing.JLabel jLabelAddBaseDN;
-    private javax.swing.JLabel jLabelRemoveBaseDN;
+    private javax.swing.JLabel jLabelDeleteBaseDN;
     private javax.swing.JLabel jLabelSearchBaseDN;
     private javax.swing.JLabel jLabelUpdateBaseDN;
     private javax.swing.JList jListAddAttributeAvailable;
     private javax.swing.JList jListAddAttributeSelect;
     private javax.swing.JList jListAddObjcecClassAvailable;
     private javax.swing.JList jListAddObjectClassSelect;
-    private javax.swing.JList jListRemoveFilterAvailable;
-    private javax.swing.JList jListRemoveFilterSeleted;
+    private javax.swing.JList jListDeleteFilterAvailable;
+    private javax.swing.JList jListDeleteFilterSeleted;
     private javax.swing.JList jListSearchFilterAvailable;
     private javax.swing.JList jListSearchFilterSeleted;
     private javax.swing.JList jListSearchResultAvailable;
@@ -2387,11 +2605,11 @@ public final class LDAPServerBrowserVisualPanel3 extends JPanel {
     private javax.swing.JScrollPane jScrollPane9;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextField jTextFieldAddBaseDN;
-    private javax.swing.JTextField jTextFieldRemoveBaseDN;
+    private javax.swing.JTextField jTextFieldDeleteBaseDN;
     private javax.swing.JTextField jTextFieldSearchBaseDN;
     private javax.swing.JTextField jTextFieldUpdateBaseDN;
     private javax.swing.JTree jTreeAdd;
-    private javax.swing.JTree jTreeRemove;
+    private javax.swing.JTree jTreeDelete;
     private javax.swing.JTree jTreeSearch;
     private javax.swing.JTree jTreeUpdate;
     // End of variables declaration//GEN-END:variables

@@ -39,6 +39,7 @@
 
 package org.netbeans.modules.groovy.grailsproject.actions;
 
+import org.netbeans.modules.groovy.grailsproject.execution.LineSnooper;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -46,8 +47,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-import org.netbeans.modules.groovy.grailsproject.StreamInputThread;
-import org.netbeans.modules.groovy.grailsproject.StreamRedirectThread;
+import org.netbeans.modules.groovy.grailsproject.execution.StreamInputThread;
+import org.netbeans.modules.groovy.grailsproject.execution.StreamRedirectThread;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.windows.IOProvider;
@@ -59,6 +60,7 @@ import java.util.concurrent.CountDownLatch;
 import org.netbeans.modules.groovy.grails.api.ExecutionSupport;
 import org.netbeans.modules.groovy.grails.api.GrailsProjectConfig;
 import org.netbeans.modules.groovy.grailsproject.GrailsServerState;
+import org.openide.filesystems.FileUtil;
 
 
 /**
@@ -211,16 +213,19 @@ import org.netbeans.modules.groovy.grailsproject.GrailsServerState;
             writer.close();
             io.getErr().close();
 
-            } catch (Exception e) {
-                LOG.log(Level.WARNING, "problem with process: " + e);
-                LOG.log(Level.WARNING, "message " + e.getLocalizedMessage());
-                
-                writer.close();
-                io.getErr().close();
-                
-                displayGrailsProcessError(e);
-            }
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "problem with process: " + e);
+            LOG.log(Level.WARNING, "message " + e.getLocalizedMessage());
+
+            writer.close();
+            io.getErr().close();
+
+            displayGrailsProcessError(e);
+        } finally {
+            // temporary fix
+            FileUtil.refreshFor(FileUtil.toFile(prj.getProjectDirectory()));
         }
+    }
         
     void displayGrailsProcessError(Exception reason) {
         DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(

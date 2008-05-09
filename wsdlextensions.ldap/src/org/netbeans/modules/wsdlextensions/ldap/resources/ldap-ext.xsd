@@ -57,6 +57,7 @@
             <xs:enumeration value="updateRequest"/>
             <xs:enumeration value="compareRequest"/>
             <xs:enumeration value="insertRequest"/>
+            <xs:enumeration value="deleteRequest"/>
             <xs:enumeration value="addConnectionRequest"/>
         </xs:restriction>
     </xs:simpleType>
@@ -112,6 +113,7 @@
                 <xs:attribute name="keystorepassword" type="xs:string" use="optional"/>
                 <xs:attribute name="keystoreusername" type="xs:string" use="optional"/>
                 <xs:attribute name="keystoretype" type="xs:string" use="optional"/>
+                <xs:attribute name="tlssecurity" type="xs:string" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

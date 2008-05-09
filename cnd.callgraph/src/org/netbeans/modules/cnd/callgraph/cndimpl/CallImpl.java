@@ -81,7 +81,7 @@ public class CallImpl implements Call {
 
     public int compareTo(Call o) {
         if (nameOrder) {
-            return getCallee().getName().compareTo(o.getCallee().getName());
+            return getCaller().getName().compareTo(o.getCaller().getName());
         }
         int diff = reference.getStartOffset() - ((CallImpl)o).reference.getStartOffset();
         if (diff == 0) {
@@ -89,5 +89,13 @@ public class CallImpl implements Call {
        }
         return diff;
     }
-    
+
+    @Override
+    public String toString() {
+        if (nameOrder) {
+            return getCaller().getName()+"<-"+getCallee().getName();
+        } else {
+            return getCallee().getName()+"->"+getCaller().getName();
+        }
+    }
 }

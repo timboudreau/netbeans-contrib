@@ -44,10 +44,12 @@ import java.util.Map;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.groovy.grails.api.GrailsRuntime;
 import org.netbeans.spi.server.ServerInstanceImplementation;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Children;
+import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
 
@@ -59,53 +61,95 @@ public final class GrailsInstance implements ServerInstanceImplementation {
 
     private final GrailsChildFactory childFactory;
 
-    private GrailsInstance(GrailsInstanceProvider provider) {
+    private final GrailsRuntime runtime;
+
+    private final Node node;
+
+    private GrailsInstance(GrailsInstanceProvider provider, GrailsRuntime runtime) {
         this.childFactory = new GrailsChildFactory(provider);
+        this.runtime = runtime;
+        this.node = new GrailsNode(Children.create(childFactory, false), getDisplayName());
     }
 
     public static final GrailsInstance forProvider(GrailsInstanceProvider provider) {
-        return new GrailsInstance(provider);
+        // when we will support multiple runtimes it has to be list of instances
+        return new GrailsInstance(provider, GrailsRuntime.getInstance());
     }
 
     public Node getBasicNode() {
-        return new GrailsNode(Children.LEAF);
+        synchronized (this) {
+            return new FilterNode(node, Children.LEAF);
+        }
     }
 
     public Node getFullNode() {
-        return new GrailsNode(Children.create(childFactory, false));
+        synchronized (this) {
+            return node;
+        }
     }
 
     public JComponent getCustomizer() {
         return null;
     }
 
-    public String getDisplayName() {
-        return NbBundle.getMessage(GrailsInstance.class, "GrailsInstance.displayName", "");
+    public final String getDisplayName() {
+        String version = Accessor.DEFAULT.getVersion(runtime);
+        if (version == null) {
+            version = NbBundle.getMessage(GrailsInstance.class, "GrailsInstance.unknownVersion");
+        }
+        return NbBundle.getMessage(GrailsInstance.class, "GrailsInstance.displayName", version);
     }
 
-    public String getServerDisplayName() {
+    public final String getServerDisplayName() {
         return NbBundle.getMessage(GrailsInstance.class, "GrailsInstance.serverDisplayName");
     }
 
-    public void refresh() {
+    public final void refreshChildren() {
         childFactory.refresh();
     }
 
-    public boolean isRemovable() {
+    public final void refreshNode() {
+        synchronized (this) {
+            node.setDisplayName(getDisplayName());
+        }
+    }
+
+    public final boolean isRemovable() {
         return false;
     }
 
-    public void remove() {
+    public final void remove() {
         // noop
+    }
+
+    /**
+     * The accessor pattern class.
+     */
+    public abstract static class Accessor {
+
+        /** The default accessor. */
+        public static Accessor DEFAULT;
+
+        static {
+            // invokes static initializer of GrailsRuntime.class
+            // that will assign value to the DEFAULT field above
+            Class c = GrailsRuntime.class;
+            try {
+                Class.forName(c.getName(), true, c.getClassLoader());
+            } catch (ClassNotFoundException ex) {
+                assert false : ex;
+            }
+        }
+
+        public abstract String getVersion(GrailsRuntime runtime);
+
     }
 
     private static class GrailsNode extends AbstractNode {
 
-        public GrailsNode(Children children) {
+        public GrailsNode(Children children, String displayName) {
             super(children);
-            // FIXME get version from runtime
-            setDisplayName(NbBundle.getMessage(
-                    GrailsInstance.class, "GrailsInstance.displayName", "N/A"));
+            setDisplayName(displayName);
             setIconBaseWithExtension(
                     "org/netbeans/modules/groovy/grails/resources/GrailsIcon.png"); // NOI18N
         }

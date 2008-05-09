@@ -41,7 +41,6 @@
 
 package org.netbeans.modules.cnd.callgraph.impl;
 
-import org.netbeans.modules.cnd.callgraph.cndimpl.*;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;

@@ -60,15 +60,27 @@ public final class ExecutionSupport {
 
     private static ExecutionSupport instance;
 
-    private ExecutionSupport() {
-        super();
+    private final GrailsRuntime runtime;
+
+    private ExecutionSupport(GrailsRuntime runtime) {
+        this.runtime = runtime;
     }
 
     public static synchronized ExecutionSupport getInstance() {
         if (instance == null) {
-            instance = new ExecutionSupport();
+            instance = new ExecutionSupport(GrailsRuntime.getInstance());
         }
         return instance;
+    }
+
+    private static ExecutionSupport forRuntime(GrailsRuntime runtime) {
+        if (runtime == null) {
+            throw new NullPointerException("Runtime is null"); // NOI18N
+        }
+        if (!runtime.isConfigured()) {
+            return null;
+        }
+        return new ExecutionSupport(runtime);
     }
 
     public Process executeCreateApp(File directory) throws Exception {
@@ -85,6 +97,30 @@ public final class ExecutionSupport {
         return execute(descriptor);
     }
 
+    public Callable<Process> createRunApp(final GrailsProjectConfig config) {
+        return new Callable<Process>() {
+
+            public Process call() throws Exception {
+                File directory = FileUtil.toFile(config.getProject().getProjectDirectory());
+
+                Properties props = new Properties();
+                String port = config.getPort();
+                if (port != null) {
+                    props.setProperty("server.port", port); // NOI18N
+                }
+
+                // FIXME fix this hack
+                String argument = Utilities.isWindows() ? " REM NB:" +  // NOI18N
+                            config.getProject().getProjectDirectory().getName() : "";
+
+                GrailsRuntime.CommandDescriptor descriptor = new GrailsRuntime.CommandDescriptor(
+                        "run-app", directory, config.getEnvironment(), new String[] {argument}, props);
+
+                return runtime.createCommand(descriptor).call();
+            }
+        };
+    }
+
     public Process executeRunApp(GrailsProjectConfig config) throws Exception {
         File directory = FileUtil.toFile(config.getProject().getProjectDirectory());
 
@@ -99,8 +135,20 @@ public final class ExecutionSupport {
                     config.getProject().getProjectDirectory().getName() : "";
 
         GrailsRuntime.CommandDescriptor descriptor = new GrailsRuntime.CommandDescriptor(
-                "run-app", directory, config.getEnvironment(), new String[] {argument}, props);
+                "run-app", directory, config.getEnvironment(), new String[] {argument}, props); // NOI18N
         return execute(descriptor);
+    }
+
+    public Callable<Process> createSimpleCommand(final String command, final GrailsProjectConfig config) {
+        return new Callable<Process>() {
+
+            public Process call() throws Exception {
+                File directory = FileUtil.toFile(config.getProject().getProjectDirectory());
+                GrailsRuntime.CommandDescriptor descriptor = new GrailsRuntime.CommandDescriptor(
+                        command, directory, config.getEnvironment());
+                return runtime.createCommand(descriptor).call();
+            }
+        };
     }
 
     public Process executeSimpleCommand(String command, GrailsProjectConfig config) throws Exception {
@@ -111,7 +159,7 @@ public final class ExecutionSupport {
     }
 
     private Process execute(GrailsRuntime.CommandDescriptor descriptor) throws Exception {
-        Callable<Process> callable = GrailsRuntime.getInstance().createCommand(descriptor);
+        Callable<Process> callable = runtime.createCommand(descriptor);
         Future<Process> future = EXECUTOR.submit(callable);
         try {
             return future.get();

@@ -56,7 +56,7 @@ public class FunctionImpl implements Function {
 
     public boolean isVurtual() {
         try {
-            CsmFunction f = (CsmFunction) getDeclaration();
+            CsmFunction f = getDeclaration();
             if (CsmKindUtilities.isClassMember(f)) {
                 CsmClass cls = ((CsmMember) f).getContainingClass();
                 if (cls != null && cls.getName().length() > 0) {
@@ -74,7 +74,7 @@ public class FunctionImpl implements Function {
     private String createHtmlDisplayName() {
         String displayName = function.getName().toString().replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;"); // NOI18N
         try {
-            CsmFunction f = (CsmFunction) getDeclaration();
+            CsmFunction f = getDeclaration();
             if (CsmKindUtilities.isClassMember(f)) {
                 CsmClass cls = ((CsmMember) f).getContainingClass();
                 if (cls != null && cls.getName().length() > 0) {
@@ -101,7 +101,7 @@ public class FunctionImpl implements Function {
 
     public Image getIcon() {
         try {
-            return CsmImageLoader.getImage((CsmFunction) getDefinition());
+            return CsmImageLoader.getImage(getDefinition());
         } catch (AssertionError ex) {
             ex.printStackTrace();
         } catch (Exception ex) {
@@ -134,4 +134,8 @@ public class FunctionImpl implements Function {
         return super.hashCode();
     }
 
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

@@ -46,7 +46,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.netbeans.api.javafx.lexer.JavaFXTokenId;
+import org.netbeans.api.javafx.lexer.JFXTokenId;
 
 /**
  *
@@ -81,12 +81,12 @@ public class NewLineAndBraceAfterComplexStringTest  extends LexerTestBase {
     @Test
     public void testNewLineAndBraceAfterComplexString() throws Exception {
         setSource("\"{a}{b}\"\n}");
-        assertNextTokenIs(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "a", 2);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}{", 3);
-        assertNextTokenIs(JavaFXTokenId.IDENTIFIER, "b", 5);
-        assertNextTokenIs(JavaFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\"", 6);
-        assertNextTokenIs(JavaFXTokenId.WHITESPACE, "\n", 8);
-        assertNextTokenIs(JavaFXTokenId.RBRACE, "}", 9);
+        assertNextTokenIs(JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "a", 2);
+        assertNextTokenIs(JFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}{", 3);
+        assertNextTokenIs(JFXTokenId.IDENTIFIER, "b", 5);
+        assertNextTokenIs(JFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\"", 6);
+        assertNextTokenIs(JFXTokenId.WS, "\n", 8);
+        assertNextTokenIs(JFXTokenId.RBRACE, "}", 9);
     }
 }
