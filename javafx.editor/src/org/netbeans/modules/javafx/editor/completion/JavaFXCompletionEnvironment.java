@@ -817,9 +817,7 @@ class JavaFXCompletionEnvironment {
                                         }
                                     }
                             } else {
-                                if (el == null && exp.getKind() == Tree.Kind.PRIMITIVE_TYPE)
-                                    el = controller.getTypes().boxedClass((PrimitiveType)type);
-                                addMembers(type, el, kinds, baseType, inImport, insideNew);
+                                addMembers(type);
                             }
                             break;
                         default:
@@ -1336,8 +1334,42 @@ class JavaFXCompletionEnvironment {
         }
     }
     
-    private void addMembers(final TypeMirror type, final Element elem, final EnumSet<ElementKind> kinds, final DeclaredType baseType, final boolean inImport, final boolean insideNew) throws IOException {
-        log("addMembers: " + type + " elem: " + elem);
+    private void addMembers(final TypeMirror type) throws IOException {
+        log("addMembers: " + type);
+        getController().toPhase(Phase.ANALYZED);
+        
+        if (type == null || type.getKind() != TypeKind.DECLARED) {
+            log("RETURNING: type.getKind() == " + type.getKind());
+            return;
+        }
+
+        DeclaredType dt = (DeclaredType)type;
+        log("  elementKind == " + dt.asElement().getKind());
+        if (dt.asElement().getKind() != ElementKind.CLASS) {
+            return;
+        }
+        Elements elements = getController().getElements();
+        for (Element member : elements.getAllMembers((TypeElement) dt.asElement())) {
+            log("    member == " + member + " member.getKind() " + member.getKind());
+            String s = member.getSimpleName().toString();
+            if (JavaFXCompletionProvider.startsWith(s, getPrefix())) {
+                if (member.getKind() == ElementKind.METHOD) {
+                    query.results.add(
+                        JavaFXCompletionItem.createExecutableItem(
+                            (ExecutableElement)member,
+                            (ExecutableType)member.asType(),
+                            myOffset, false, false, false, false)
+                    );
+                }
+                if (member.getKind() == ElementKind.FIELD) {
+                    query.results.add(
+                        JavaFXCompletionItem.createVariableItem(
+                            member.getSimpleName().toString(),
+                            myOffset, false)
+                    );
+                }
+            }
+        }
     }
 
     void localResult() throws IOException {
@@ -1369,37 +1401,7 @@ class JavaFXCompletionEnvironment {
             }
             TypeMirror tm = getController().getTrees().getTypeMirror(tp);
             log("  tm == " + tm + " ---- tm.getKind() == " + (tm == null ? "null" : tm.getKind()));
-            if (tm == null || tm.getKind() != TypeKind.DECLARED) {
-                continue;
-            }
-            
-            DeclaredType dt = (DeclaredType)tm;
-            log("  elementKind == " + dt.asElement().getKind());
-            if (dt.asElement().getKind() != ElementKind.CLASS) {
-                continue;
-            }
-            Elements elements = getController().getElements();
-            for (Element member : elements.getAllMembers((TypeElement) dt.asElement())) {
-                log("    member == " + member + " member.getKind() " + member.getKind());
-                String s = member.getSimpleName().toString();
-                if (JavaFXCompletionProvider.startsWith(s, getPrefix())) {
-                    if (member.getKind() == ElementKind.METHOD) {
-                        query.results.add(
-                            JavaFXCompletionItem.createExecutableItem(
-                                (ExecutableElement)member,
-                                (ExecutableType)member.asType(),
-                                myOffset, false, false, false, false)
-                        );
-                    }
-                    if (member.getKind() == ElementKind.FIELD) {
-                        query.results.add(
-                            JavaFXCompletionItem.createVariableItem(
-                                member.getSimpleName().toString(),
-                                myOffset, false)
-                        );
-                    }
-                }
-            }
+            addMembers(tm);
         }
     }
 
