@@ -123,7 +123,8 @@ public abstract class IndexedElement extends AstElement {
     public static final int TRAIT = 1 << 13;
     /** This is a function with null params */
     public static final int NULL_PARAMS = 1 << 14;
-    public static final int JAVA = 1 << 15;
+    public static final int FIELD = 1 << 15;
+    public static final int JAVA = 1 << 16;
     protected String fqn;
     protected String name;
     protected String in;
@@ -154,14 +155,16 @@ public abstract class IndexedElement extends AstElement {
 
     static IndexedElement create(String attributes, String fileUrl, String fqn, String name, String in, int attrIndex, ScalaIndex index, boolean createPackage) {
         int flags = IndexedElement.decode(attributes, attrIndex, 0);
+
         if (createPackage) {
-            IndexedPackage func = new IndexedPackage(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.PACKAGE);
-            return func;
+            IndexedPackage pkg = new IndexedPackage(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.PACKAGE);
+            return pkg;
         }
+
         if ((flags & FUNCTION) != 0) {
             ElementKind kind = ((flags & CONSTRUCTOR) != 0) ? ElementKind.CONSTRUCTOR : ElementKind.METHOD;
-            IndexedFunction func = new IndexedFunction(fqn, name, in, index, fileUrl, attributes, flags, kind);
-            return func;
+            IndexedFunction fun = new IndexedFunction(fqn, name, in, index, fileUrl, attributes, flags, kind);
+            return fun;
         } else if ((flags & CLASS) != 0) {
             IndexedType type = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.CLASS);
             return type;
@@ -171,8 +174,12 @@ public abstract class IndexedElement extends AstElement {
         } else if ((flags & TRAIT) != 0) {
             IndexedType type = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.MODULE);
             return type;
+        } else if ((flags & FIELD) != 0) {
+            IndexedField field = new IndexedField(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.FIELD);
+            return field;
         } else {
-            IndexedType field = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.FIELD);
+            /** @Todo assert false */
+            IndexedField field = new IndexedField(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.FIELD);
             return field;
         }
     }
@@ -544,24 +551,31 @@ public abstract class IndexedElement extends AstElement {
         int flags = 0;
 
         if (element instanceof ClassTemplate) {
-            flags = flags | IndexedElement.CLASS;
+            flags = flags | CLASS;
         } else if (element instanceof ObjectTemplate) {
-            flags = flags | IndexedElement.OBJECT;
+            flags = flags | OBJECT;
         } else if (element instanceof TraitTemplate) {
-            flags = flags | IndexedElement.TRAIT;
+            flags = flags | TRAIT;
             flags = flags | STATIC;
+        } else if (element instanceof Function) {
+            Function fun = (Function) element;
+            flags = flags | FUNCTION;
+            if (fun.getParams() == null) {
+                flags = flags | NULL_PARAMS;
+            }
         }
 
         switch (element.getKind()) {
             case CONSTRUCTOR:
                 flags = flags | CONSTRUCTOR;
                 break;
-            case METHOD:
-                flags = flags | FUNCTION;
+            case FIELD:
+                flags = flags | FIELD;
                 break;
             default:
                 break;
         }
+
 
         if (element.getModifiers().contains(Modifier.STATIC)) {
             flags = flags | STATIC;
@@ -595,6 +609,7 @@ public abstract class IndexedElement extends AstElement {
                 break;
             case CONSTRUCTOR:
                 flags = flags | CONSTRUCTOR;
+                flags = flags | FUNCTION;
                 break;
             case METHOD:
                 flags = flags | FUNCTION;
@@ -623,7 +638,7 @@ public abstract class IndexedElement extends AstElement {
         //Map<String,String> typeMap = element.getDocProps();
 
         // Look up compatibility
-        int index = IndexedElement.FLAG_INDEX;
+        int index = FLAG_INDEX;
         String compatibility = "";
 //            if (file.getNameExt().startsWith("stub_")) { // NOI18N
 //                int astOffset = element.getNode().getSourceStart();
@@ -646,9 +661,10 @@ public abstract class IndexedElement extends AstElement {
 //                }
 //            }
 
-        assert index == IndexedElement.FLAG_INDEX;
+        assert index == FLAG_INDEX;
         StringBuilder sb = new StringBuilder();
-        int flags = IndexedElement.computeFlags(element);
+
+        int flags = computeFlags(element);
         // Add in info from documentation
 //            if (typeMap != null) {
 //                // Most flags are already handled by AstElement.getFlags()...
@@ -665,15 +681,13 @@ public abstract class IndexedElement extends AstElement {
         // Parameters
         sb.append(';');
         index++;
-        assert index == IndexedElement.ARG_INDEX;
+        assert index == ARG_INDEX;
         if (element instanceof Function) {
             Function function = (Function) element;
 
-            int argIndex = 0;
             List<Var> params = function.getParams();
-            if (params == null) {
-                flags = flags | NULL_PARAMS;
-            } else {
+            if (params != null) {
+                int argIndex = 0;
                 for (Var param : params) {
                     String paramName = param.getName();
                     if (argIndex == 0 && "super".equals(paramName)) { // NOI18N
@@ -702,13 +716,13 @@ public abstract class IndexedElement extends AstElement {
         // Node offset
         sb.append(';');
         index++;
-        assert index == IndexedElement.NODE_INDEX;
+        assert index == NODE_INDEX;
         sb.append(IndexedElement.encode(element.getPickOffset(th)));
 
         // Documentation offset
         sb.append(';');
         index++;
-        assert index == IndexedElement.DOC_START_INDEX;
+        assert index == DOC_START_INDEX;
         if (docRange != OffsetRange.NONE) {
             sb.append(IndexedElement.encode(docRange.getStart()));
         }
@@ -716,7 +730,7 @@ public abstract class IndexedElement extends AstElement {
         // Documentation end offset
         sb.append(';');
         index++;
-        assert index == IndexedElement.DOC_END_INDEX;
+        assert index == DOC_END_INDEX;
         if (docRange != OffsetRange.NONE) {
             sb.append(IndexedElement.encode(docRange.getEnd()));
         }
@@ -724,13 +738,13 @@ public abstract class IndexedElement extends AstElement {
         // Browser compatibility
         sb.append(';');
         index++;
-        assert index == IndexedElement.BROWSER_INDEX;
+        assert index == BROWSER_INDEX;
         sb.append(compatibility);
 
         // Types
         sb.append(';');
         index++;
-        assert index == IndexedElement.TYPE_INDEX;
+        assert index == TYPE_INDEX;
         TypeRef type = element.getType();
 //            if (type == null) {
 //                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
@@ -756,7 +770,7 @@ public abstract class IndexedElement extends AstElement {
         //Map<String,String> typeMap = element.getDocProps();
 
         // Look up compatibility
-        int index = IndexedElement.FLAG_INDEX;
+        int index = FLAG_INDEX;
         String compatibility = "";
 //            if (file.getNameExt().startsWith("stub_")) { // NOI18N
 //                int astOffset = element.getNode().getSourceStart();
@@ -779,7 +793,7 @@ public abstract class IndexedElement extends AstElement {
 //                }
 //            }
 
-        assert index == IndexedElement.FLAG_INDEX;
+        assert index == FLAG_INDEX;
         StringBuilder sb = new StringBuilder();
 
         int flags = computeFlags(jelement);
@@ -793,14 +807,14 @@ public abstract class IndexedElement extends AstElement {
 //                }
 //            }
         if (docRange != OffsetRange.NONE) {
-            flags = flags | IndexedElement.DOCUMENTED;
+            flags = flags | DOCUMENTED;
         }
         sb.append(IndexedElement.encode(flags));
 
         // Parameters
         sb.append(';');
         index++;
-        assert index == IndexedElement.ARG_INDEX;
+        assert index == ARG_INDEX;
         if (jelement instanceof ExecutableElement) {
             ExecutableElement func = (ExecutableElement) jelement;
             ExecutableType funcType = (ExecutableType) func.asType();
@@ -834,14 +848,14 @@ public abstract class IndexedElement extends AstElement {
         // Node offset
         sb.append(';');
         index++;
-        assert index == IndexedElement.NODE_INDEX;
+        assert index == NODE_INDEX;
         int offset = 0; // will compute lazily
         sb.append(encode(offset));
 
         // Documentation offset
         sb.append(';');
         index++;
-        assert index == IndexedElement.DOC_START_INDEX;
+        assert index == DOC_START_INDEX;
         if (docRange != OffsetRange.NONE) {
             sb.append(IndexedElement.encode(docRange.getStart()));
         }
@@ -849,7 +863,7 @@ public abstract class IndexedElement extends AstElement {
         // Documentation end offset
         sb.append(';');
         index++;
-        assert index == IndexedElement.DOC_END_INDEX;
+        assert index == DOC_END_INDEX;
         if (docRange != OffsetRange.NONE) {
             sb.append(IndexedElement.encode(docRange.getEnd()));
         }
@@ -857,13 +871,13 @@ public abstract class IndexedElement extends AstElement {
         // Browser compatibility
         sb.append(';');
         index++;
-        assert index == IndexedElement.BROWSER_INDEX;
+        assert index == BROWSER_INDEX;
         sb.append(compatibility);
 
         // Types
         sb.append(';');
         index++;
-        assert index == IndexedElement.TYPE_INDEX;
+        assert index == TYPE_INDEX;
 //            if (type == null) {
 //                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
 //            }
@@ -907,6 +921,10 @@ public abstract class IndexedElement extends AstElement {
 
     public boolean isNullParams() {
         return (flags & NULL_PARAMS) != 0;
+    }
+
+    public boolean isField() {
+        return (flags & FIELD) != 0;
     }
 
     public boolean isStatic() {

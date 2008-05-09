@@ -119,6 +119,7 @@ public class AstScope implements Iterable<AstScope> {
             scopes = new ArrayList<AstScope>();
         }
         scopes.add(scope);
+        scopesSorted = false;
         scope.parent = this;
     }
 
@@ -127,6 +128,7 @@ public class AstScope implements Iterable<AstScope> {
             defs = new ArrayList<AstDef>();
         }
         defs.add(def);
+        defsSorted = false;
         def.setEnclosingScope(this);
     }
 
@@ -135,6 +137,7 @@ public class AstScope implements Iterable<AstScope> {
             refs = new ArrayList<AstRef>();
         }
         refs.add(ref);
+        refsSorted = false;
         ref.setEnclosingScope(this);
     }
 
@@ -143,6 +146,7 @@ public class AstScope implements Iterable<AstScope> {
             exprs = new ArrayList<AstExpr>();
         }
         exprs.add(expr);
+        exprsSorted = false;
         expr.setEnclosingScope(this);
     }
 
@@ -153,7 +157,7 @@ public class AstScope implements Iterable<AstScope> {
             return Collections.<AstScope>emptySet().iterator();
         }
     }
-
+    
     public AstElement findDefRef(TokenHierarchy th, int offset) {
         // Always seach refs first, since ref can be included in def
         if (refs != null) {

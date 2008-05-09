@@ -36,55 +36,39 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes;
 
-import java.util.Iterator;
-import java.util.List;
-import org.netbeans.api.lexer.Token;
+package org.netbeans.modules.scala.editing;
+
 import org.netbeans.modules.gsf.api.ElementKind;
 
 /**
  *
- * @author Caoyuan Deng
+ * @author dcaoyuan
  */
-public class PathId extends Id {
-
-    private List<Id> paths;
-
-    public PathId(Token idToken, ElementKind kind) {
-        super(null, idToken, kind);
+public class IndexedField extends IndexedElement {
+    
+    IndexedField(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
+        super(fqn, name, in, index, fileUrl, attributes, flags, kind);
     }
-
-    public void setPaths(List<Id> paths) {
-        this.paths = paths;
-    }
-
-    public List<Id> getPaths() {
-        return paths;
+    
+    @Override
+    public String toString() {
+        return getSignature() + ":" + getFilenameUrl() + ";" + decodeFlags(flags);
     }
 
     @Override
-    public String getName() {
-        StringBuilder sb = new StringBuilder();
-        for (Iterator<Id> itr = getPaths().iterator(); itr.hasNext();) {
-            sb.append(itr.next().getName());
-            if (itr.hasNext()) {
-                sb.append(".");
+    public String getSignature() {
+        if (signature == null) {
+            StringBuilder sb = new StringBuilder();
+            if (in != null) {
+                sb.append(in);
+                sb.append('.');
             }
+            sb.append(name);
+            signature = sb.toString();
         }
-        return sb.toString();
+
+        return signature;
     }
 
-    @Override
-    public void setType(TypeRef type) {
-        // @Todo
-        paths.get(paths.size() - 1).setType(type);
-    }        
-
-    @Override
-    public TypeRef getType() {
-        // @Todo
-        return paths.get(paths.size() - 1).getType();
-    }
-        
 }

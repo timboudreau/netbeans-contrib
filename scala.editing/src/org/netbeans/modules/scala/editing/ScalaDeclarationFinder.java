@@ -54,6 +54,7 @@ import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
 import org.openide.filesystems.FileObject;
@@ -160,6 +161,11 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                     if (idxFunction != null) {
                         foundElement = idxFunction;
                     }
+                } else if (closest instanceof FieldRef) {
+                    IndexedElement idxElement = findFieldDeclaration(info, (FieldRef) closest, null);
+                    if (idxElement != null) {
+                        foundElement = idxElement;
+                    }
                 } else if (closest instanceof TypeRef) {
                     if (((TypeRef) closest).isResolved()) {
                         IndexedType idxType = findTypeDeclaration(info, (TypeRef) closest);
@@ -213,7 +219,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                     in = baseType.getQualifiedName();
                 }
             }
-            
+
             if (in != null) {
                 Set<IndexedElement> members = index.getElements(prefix, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult);
                 for (IndexedElement member : members) {
@@ -231,6 +237,48 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
         }
 
         return (IndexedFunction) candidate;
+    }
+
+    IndexedElement findFieldDeclaration(CompilationInfo info, FieldRef field, Set<IndexedFunction>[] alternativesHolder) {
+        ScalaParserResult pResult = AstUtilities.getParserResult(info);
+        ScalaIndex index = ScalaIndex.get(info);
+
+        IndexedElement candidate = null;
+
+        String prefix = field.getField().getName();
+        String in = null;
+        AstElement base = field.getBase();
+        if (base != null) {
+            TypeRef baseType = base.getType();
+            if (base instanceof FunRef) {
+                in = ((FunRef) base).getRetType();
+            } else {
+                if (baseType != null) {
+                    in = baseType.getQualifiedName();
+                }
+            }
+
+            if (in != null) {
+                Set<IndexedElement> members = index.getElements(prefix, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult);
+                for (IndexedElement member : members) {
+                    if (member instanceof IndexedFunction) {
+                        if (member.isNullParams()) {
+                            candidate = member;
+                            break;
+                        }
+                    } else if (member instanceof IndexedField) {
+                        IndexedField idxField = (IndexedField) member;
+                        if (idxField.getName().equals(prefix)) {
+                            candidate = idxField;
+                            break;
+                        }
+                    }
+                }
+            }
+
+        }
+
+        return candidate;
     }
 
     IndexedType findTypeDeclaration(CompilationInfo info, TypeRef type) {

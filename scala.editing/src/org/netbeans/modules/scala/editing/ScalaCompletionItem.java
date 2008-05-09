@@ -269,53 +269,55 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
                 formatter.deprecated(false);
             }
 
-            Collection<String> parameters = function.getParameters();
+            if (!function.isNullParams()) {
+                Collection<String> parameters = function.getParameters();
 
-            formatter.appendHtml("("); // NOI18N
+                formatter.appendHtml("("); // NOI18N
 
-            if ((parameters != null) && (parameters.size() > 0)) {
+                if (parameters != null && parameters.size() > 0) {
 
-                Iterator<String> it = parameters.iterator();
+                    Iterator<String> itr = parameters.iterator();
 
-                while (it.hasNext()) { // && tIt.hasNext()) {
+                    while (itr.hasNext()) { // && tIt.hasNext()) {
+                        formatter.parameters(true);
 
-                    formatter.parameters(true);
+                        String param = itr.next();
+                        int typeIdx = param.indexOf(':');
+                        if (typeIdx != -1) {
+                            if (function.isJava()) {
+                                formatter.type(true);
+                                // TODO - call JsUtils.normalizeTypeString() on this string?
+                                formatter.appendText(param, typeIdx + 1, param.length());
+                                formatter.type(false);
 
-                    String param = it.next();
-                    int typeIndex = param.indexOf(':');
-                    if (typeIndex != -1) {
-                        if (function.isJava()) {
-                            formatter.type(true);
-                            // TODO - call JsUtils.normalizeTypeString() on this string?
-                            formatter.appendText(param, typeIndex + 1, param.length());
-                            formatter.type(false);
+                                formatter.appendHtml(" ");
+                                formatter.appendText(param, 0, typeIdx);
+                            } else {
+                                formatter.appendText(param, 0, typeIdx);
+                                formatter.parameters(false);
+                                formatter.appendHtml(" :");
+                                formatter.parameters(true);
 
-                            formatter.appendHtml(" ");
-                            formatter.appendText(param, 0, typeIndex);
+                                formatter.type(true);
+                                // TODO - call JsUtils.normalizeTypeString() on this string?
+                                formatter.appendText(param, typeIdx + 1, param.length());
+                                formatter.type(false);
+                            }
                         } else {
-                            formatter.appendText(param, 0, typeIndex);
-                            formatter.parameters(false);
-                            formatter.appendHtml(" :");
-                            formatter.parameters(true);
-
-                            formatter.type(true);
-                            // TODO - call JsUtils.normalizeTypeString() on this string?
-                            formatter.appendText(param, typeIndex + 1, param.length());
-                            formatter.type(false);
+                            formatter.appendText(param);
                         }
-                    } else {
-                        formatter.appendText(param);
+
+                        formatter.parameters(false);
+
+                        if (itr.hasNext()) {
+                            formatter.appendText(", "); // NOI18N
+                        }
                     }
 
-                    formatter.parameters(false);
-
-                    if (it.hasNext()) {
-                        formatter.appendText(", "); // NOI18N
-                    }
                 }
 
+                formatter.appendHtml(")"); // NOI18N
             }
-            formatter.appendHtml(")"); // NOI18N
 
             if (indexedElement != null &&
                     indexedElement.getTypeString() != null &&
@@ -336,14 +338,20 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
         @Override
         public String getCustomInsertTemplate() {
+            StringBuilder sb = new StringBuilder();
+
             final String insertPrefix = getInsertPrefix();
+            sb.append(insertPrefix);
+            
+            if (function.isNullParams()) {
+                return sb.toString();
+            }
+            
             List<String> params = getInsertParams();
             String startDelimiter = "(";
             String endDelimiter = ")";
             int paramCount = params.size();
 
-            StringBuilder sb = new StringBuilder();
-            sb.append(insertPrefix);
             sb.append(startDelimiter);
 
             int id = 1;
@@ -393,7 +401,6 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
     protected static class KeywordItem extends ScalaCompletionItem {
 
         private static final String KEYWORD = "org/netbeans/modules/scala/editing/resources/scala16x16.png"; //NOI18N
-
         private final String keyword;
         private final String description;
 
@@ -585,13 +592,13 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
 
             return formatter.getText();
         }
-        
+
         @Override
         public boolean isSmart() {
             return true;
-        }        
+        }
     }
-    
+
     protected static class TypeItem extends ScalaCompletionItem {
 
         TypeItem(AstElement element, CompletionRequest request) {
