@@ -32,7 +32,7 @@ public final class GenerateWSDLAction extends CookieAction {
 
                 if (objs != null) {
                     for (int i = 0; i < objs.size(); i++) {
-                        LdifObjectClass objclass = (LdifObjectClass) objs.get(i);
+//                        LdifObjectClass objclass = (LdifObjectClass) objs.get(i);
 //                        GenerateXSD genXsd = new GenerateXSD(wsdlDir, objclass,
 //                                "Search");
 //                        GenerateWSDL genWSDL = new GenerateWSDL(wsdlDir,

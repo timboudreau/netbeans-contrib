@@ -50,9 +50,12 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.StartTlsRequest;
+import javax.naming.ldap.StartTlsResponse;
 import org.netbeans.modules.wsdlextensions.ldap.LdapConnectionProperties;
 import org.netbeans.modules.wsdlextensions.ldap.ldif.LdifObjectClass;
 import org.openide.util.Exceptions;
@@ -63,7 +66,7 @@ import org.openide.util.Exceptions;
  */
 public class LdapConnection extends LdapConnectionProperties {
 
-    private DirContext connection;
+    private LdapContext connection;
     private String dn;
     
     public LdapConnection() {
@@ -110,12 +113,12 @@ public class LdapConnection extends LdapConnectionProperties {
         return false;
     }
 
-    public DirContext getConnection() {
+    public LdapContext getConnection() {
         if (null != connection) {
             return connection;
         }
 
-        DirContext ret = null;
+        LdapContext ret = null;
         try {
             if (!isEmpty(this.getTruststore())) {
                 System.setProperty("javax.net.ssl.trustStore", this.getTruststore());
@@ -155,7 +158,11 @@ public class LdapConnection extends LdapConnectionProperties {
                 env.put(Context.SECURITY_PROTOCOL, this.getProtocol());
             }
 
-            ret = new InitialDirContext(env);
+            ret = new InitialLdapContext(env,null);
+//            if (this.getTlssecurity().toUpperCase().equals("YES")) {
+//                StartTlsResponse tls = (StartTlsResponse) ret.extendedOperation(new StartTlsRequest());
+//                tls.negotiate();
+//            }
             connection = ret;
         } catch (Exception ex) {
             ex.printStackTrace();

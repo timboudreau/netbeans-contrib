@@ -63,6 +63,8 @@ public class AdvancedLoginDialog extends javax.swing.JDialog {
         jLabelKeystoreUsername = new javax.swing.JLabel();
         jTextFieldSSLType = new javax.swing.JTextField();
         jLabelSSLType = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jComboBoxTLSSecurity = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -149,6 +151,10 @@ public class AdvancedLoginDialog extends javax.swing.JDialog {
 
         jLabelSSLType.setText(org.openide.util.NbBundle.getMessage(AdvancedLoginDialog.class, "AdvancedLoginDialog.jLabelSSLType.text")); // NOI18N
 
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(AdvancedLoginDialog.class, "AdvancedLoginDialog.jLabel1.text")); // NOI18N
+
+        jComboBoxTLSSecurity.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "NO", "YES" }));
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -159,12 +165,13 @@ public class AdvancedLoginDialog extends javax.swing.JDialog {
                         .addContainerGap()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 2, Short.MAX_VALUE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 7, Short.MAX_VALUE)
                                 .add(jLabelPrincipal, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jTextFieldPrincipal, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE))
+                                .add(jTextFieldPrincipal, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 228, Short.MAX_VALUE))
                             .add(layout.createSequentialGroup()
                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                                    .add(jLabel1)
                                     .add(layout.createSequentialGroup()
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                         .add(jLabelKeyStorePassword))
@@ -184,33 +191,35 @@ public class AdvancedLoginDialog extends javax.swing.JDialog {
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                         .add(jLabelTrustStorePassword))
                                     .add(jLabelKeystore, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 67, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .add(jLabelProtocol, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE)
+                                    .add(jLabelProtocol, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 107, Short.MAX_VALUE)
                                     .add(jLabelAuthenticationType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 101, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPasswordFieldKeyStore, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jTextFieldKeystore, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPasswordFieldTrustStore, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                                    .add(jTextFieldAuthentication, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                                    .add(jTextFieldProtocol, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                                    .add(jTextFieldTruststore, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                                    .add(jTextFieldTruststoreType, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                                    .add(jTextFieldKeystoreType, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                                    .add(jTextFieldKeystoreUserName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                                        .add(jButtonOK, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jButtonCancel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))))
+                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jTextFieldKeystore, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPasswordFieldTrustStore, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                                    .add(jTextFieldAuthentication, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                                    .add(jTextFieldProtocol, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                                    .add(jTextFieldTruststore, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                                    .add(jTextFieldTruststoreType, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                                    .add(jTextFieldKeystoreType, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                                    .add(jTextFieldKeystoreUserName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                                    .add(jPasswordFieldKeyStore, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                                    .add(jComboBoxTLSSecurity, 0, 229, Short.MAX_VALUE)))))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(46, 46, 46)
                         .add(jLabelCredential, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 67, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jPasswordFieldCredential, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE))
+                        .add(jPasswordFieldCredential, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(12, 12, 12)
                         .add(jLabelSSLType)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jTextFieldSSLType, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)))
+                        .add(jTextFieldSSLType, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 227, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(122, 122, 122)
+                        .add(jButtonOK, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(41, 41, 41)
+                        .add(jButtonCancel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -262,13 +271,16 @@ public class AdvancedLoginDialog extends javax.swing.JDialog {
                     .add(jLabelKeystoreUsername))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jPasswordFieldKeyStore, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabelKeyStorePassword))
+                    .add(jLabelKeyStorePassword)
+                    .add(jPasswordFieldKeyStore, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jComboBoxTLSSecurity, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel1))
+                .add(13, 13, 13)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jButtonOK, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jButtonCancel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                    .add(jButtonCancel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
         );
 
         pack();
@@ -291,6 +303,7 @@ public class AdvancedLoginDialog extends javax.swing.JDialog {
         conn.setKeystoretype(this.jTextFieldKeystoreType.getText());
         conn.setKeystoreusername(this.jTextFieldKeystoreUserName.getText());
         conn.setKeystorepassword(this.jPasswordFieldKeyStore.getText());
+        conn.setTlssecurity(this.jComboBoxTLSSecurity.getSelectedItem().toString());
 
         this.dispose();
 }//GEN-LAST:event_jButtonOKActionPerformed
@@ -329,6 +342,8 @@ windowClosing(java.awt.event.WindowEvent e) {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonCancel;
     private javax.swing.JButton jButtonOK;
+    private javax.swing.JComboBox jComboBoxTLSSecurity;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabelAuthenticationType;
     private javax.swing.JLabel jLabelCredential;
     private javax.swing.JLabel jLabelKeyStorePassword;

@@ -19,6 +19,7 @@
             <xsd:element name="keystoreusername" type="xsd:string" minOccurs="0"></xsd:element>
             <xsd:element name="keystorepassword" type="xsd:string" minOccurs="0"></xsd:element>
             <xsd:element name="keystoretype" type="xsd:string" minOccurs="0"></xsd:element>
+            <xsd:element name="tlssecurity" type="xsd:string" minOccurs="0"></xsd:element>
         </xsd:sequence>
     </xsd:complexType>
     

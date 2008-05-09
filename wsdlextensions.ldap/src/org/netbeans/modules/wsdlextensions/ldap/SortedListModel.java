@@ -27,7 +27,9 @@ import javax.swing.AbstractListModel;
  * @author Gary
  */
 public class SortedListModel extends AbstractListModel {
+
     private List items = null;
+
     public SortedListModel() {
         items = new ArrayList();
     }
@@ -39,19 +41,22 @@ public class SortedListModel extends AbstractListModel {
     public String getElementAt(int index) {
         return (String) items.get(index);
     }
-    
+
     public void addElement(String item) {
         if (items.size() == 0) {
             items.add(item);
         } else if (items.size() > 0) {
+            boolean flag = true;
             for (int i = 0; i < items.size(); i++) {
                 String str = (String) items.get(i);
                 if (str.compareTo(item) > 0) {
                     items.add(i, item);
-                    break;
-                } else if (str.compareTo(item) == 0) {
+                    flag = false;
                     break;
                 }
+            }
+            if (flag) {
+                items.add(item);
             }
         }
     }
@@ -66,11 +71,11 @@ public class SortedListModel extends AbstractListModel {
             }
         }
     }
-    
+
     public void removeElements() {
         items.clear();
     }
-    
+
     public List getElements() {
         return items;
     }
