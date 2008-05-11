@@ -878,13 +878,13 @@ public class AstElementVisitor extends AstVisitor {
         return objectTmpl;
     }
 
-    public Type visitTypeDcl(GNode that) {
+    public TypeAlias visitTypeDcl(GNode that) {
         enter(that);
 
         Id id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getBoundsTokens(that));
         scopeStack.peek().addScope(scope);
-        Type type = new Type(id, scope);
+        TypeAlias type = new TypeAlias(id, scope);
 
         scopeStack.peek().addDef(type);
 
@@ -896,13 +896,13 @@ public class AstElementVisitor extends AstVisitor {
         return type;
     }
 
-    public Type visitTypeDef(GNode that) {
+    public TypeAlias visitTypeDef(GNode that) {
         enter(that);
 
         Id id = visitId(that.getGeneric(0));
         AstScope scope = new AstScope(getBoundsTokens(that));
         scopeStack.peek().addScope(scope);
-        Type type = new Type(id, scope);
+        TypeAlias type = new TypeAlias(id, scope);
 
         scopeStack.peek().addDef(type);
 
