@@ -102,7 +102,7 @@ public class ScalaIndexer implements Indexer {
     private boolean cachedIndexable;
 
     public String getIndexVersion() {
-        return "6.117"; // NOI18N
+        return "6.118"; // NOI18N
 
     }
 
