@@ -222,13 +222,13 @@ public class TypeRef extends AstRef {
     }
 
     /**
-     * Used to ref global type
+     * Used to ref remote type, which has only qualifiedName field
      * 
      */
-    public static class PseduTypeRef extends TypeRef {
+    public static class PseudTypeRef extends TypeRef {
 
-        public PseduTypeRef() {
-            super("psedo", null, ElementKind.CLASS);
+        public PseudTypeRef() {
+            super("pseud type ref", null, ElementKind.CLASS);
             setEnclosingScope(AstScope.emptyScope());
         }
 

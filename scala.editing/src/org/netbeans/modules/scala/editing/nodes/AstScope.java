@@ -577,12 +577,12 @@ public class AstScope implements Iterable<AstScope> {
 
                 @Override
                 public int getBoundsOffset(TokenHierarchy th) {
-                    return 0;
+                    return -1;
                 }
 
                 @Override
                 public int getBoundsEndOffset(TokenHierarchy th) {
-                    return 0;
+                    return -1;
                 }
             };
         }

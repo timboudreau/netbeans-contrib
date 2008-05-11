@@ -75,13 +75,13 @@ public class FunType extends TypeRef {
     /** Since idToken is null, we should implement getPickOffset */
     @Override
     public int getPickOffset(TokenHierarchy th) {
-        return lhs.getPickOffset(th);
+        return -1;
     }
 
     /** Since idToken is null, we should implement getPickEndOffset */
     @Override
     public int getPickEndOffset(TokenHierarchy th) {
-        return lhs.getPickEndOffset(th) + 2;
+        return -1;
     }    
     
     /** Since name is null, we should implement getName() */

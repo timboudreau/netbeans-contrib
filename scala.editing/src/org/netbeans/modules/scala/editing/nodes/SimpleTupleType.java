@@ -43,6 +43,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 
@@ -64,6 +65,18 @@ public class SimpleTupleType extends SimpleType {
     public List<TypeRef> getTypes() {
         return types == null ? Collections.<TypeRef>emptyList() : types;
     }
+
+    @Override
+    public int getPickOffset(TokenHierarchy th) {
+        return -1;
+    }        
+
+    /** @Todo how to define tuple type's pick offsets?
+     */
+    @Override
+    public int getPickEndOffset(TokenHierarchy th) {
+        return -1;
+    }        
 
     @Override
     public String getName() {

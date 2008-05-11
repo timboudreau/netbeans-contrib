@@ -40,7 +40,7 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.scala.editing.nodes.TypeRef.PseduTypeRef;
+import org.netbeans.modules.scala.editing.nodes.TypeRef.PseudTypeRef;
 
 /**
  *
@@ -54,7 +54,7 @@ public class FieldRef extends AstRef {
 
     public FieldRef(Token idToken) {
         super(null, idToken, ElementKind.FIELD);
-        setType(new PseduTypeRef());
+        setType(new PseudTypeRef());
     }
 
     public void setBase(AstElement base) {
