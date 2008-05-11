@@ -21,10 +21,10 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
+ * Contributor(s): Denis Stepanov
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -38,42 +38,28 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
+package org.netbeans.modules.properties.rbe;
 
-package org.netbeans.lib.javafx.lexer;
-
-import org.netbeans.api.javafx.lexer.JavaFXTokenId;
-import org.netbeans.api.lexer.PartType;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 
 /**
- *
- * @author Victor G. Vasilyev
+ * The Bundle
+ * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class TestableToken {
-        public static final int UNKNOWN_LENGHT = -1;
-        
-        public final JavaFXTokenId id;
-        public final int tokenLenght;
-        public final String text;
-        public final PartType partType;
-        
-        public TestableToken(JavaFXTokenId id) {
-            this.id = id;
-            this.tokenLenght = UNKNOWN_LENGHT;
-            this.text = null;
-            this.partType = null;
+public class Bundle {
+
+    Set<Locale> locales;
+
+    public void addLocale(Locale locale) {
+        if (locales == null) {
+            locales = new HashSet<Locale>();
         }
-        
-        public TestableToken(JavaFXTokenId id, int tokenLenght, PartType partType) {
-            this.id = id;
-            this.tokenLenght = tokenLenght;
-            this.text = null;            
-            this.partType = null;
-        }
-        
-        public TestableToken(JavaFXTokenId id, String text) {
-            this.id = id;
-            this.tokenLenght = UNKNOWN_LENGHT;
-            this.text = text;            
-            this.partType = null;
-        }
+        locales.add(locale);
+    }
+
+    public Set<Locale> getLocales() {
+        return locales;
+    }
 }

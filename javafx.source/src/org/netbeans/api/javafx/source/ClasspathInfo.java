@@ -41,8 +41,12 @@ package org.netbeans.api.javafx.source;
 
 import java.net.URL;
 import javax.swing.event.ChangeListener;
+import javax.tools.JavaFileManager;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.javafx.platform.JavaFXPlatform;
+import org.netbeans.modules.javafx.source.classpath.CachingFileManager;
+import org.netbeans.modules.javafx.source.classpath.ProxyFileManager;
+import org.netbeans.modules.javafx.source.classpath.SourceFileManager;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.filesystems.FileObject;
 
@@ -52,7 +56,10 @@ import org.openide.filesystems.FileObject;
  */
 public class ClasspathInfo {
     private static final ClassPath EMPTY_PATH = ClassPathSupport.createClassPath(new URL[0]);
-    private ClassPath bootPath, compilePath, srcPath;
+    private ClassPath bootPath;
+    private ClassPath compilePath;
+    private ClassPath srcPath;
+    private JavaFileManager fileManager;
     
     static ClasspathInfo create(FileObject fo) {
         ClassPath bootPath = ClassPath.getClassPath(fo, ClassPath.BOOT);
@@ -81,6 +88,38 @@ public class ClasspathInfo {
         this.srcPath = srcPath;
     }
 
+    public ClassPath getClassPath (PathKind pathKind) {
+	switch( pathKind ) {
+	    case BOOT:
+		return bootPath;
+	    case COMPILE:
+		return compilePath;
+	    case SOURCE:
+		return srcPath;
+	    default:
+		assert false : "Unknown path type";     //NOI18N
+		return null;
+	}
+    }
+
+    public static enum PathKind {	
+	BOOT,	
+	COMPILE,	
+	SOURCE,	
+//	OUTPUT,
+    }
+
+    
+    synchronized JavaFileManager getFileManager() {
+        if (fileManager == null) {
+            fileManager = new ProxyFileManager (
+                    new CachingFileManager(bootPath), // cacheFile, ignoreExcludes
+                    new CachingFileManager(compilePath), // ignoreExcludes
+                    new SourceFileManager(srcPath)
+            );
+        }
+        return this.fileManager;
+    }
 
     // XXX: Temporal, until there is a file manager implementation
     String getBootPath() {

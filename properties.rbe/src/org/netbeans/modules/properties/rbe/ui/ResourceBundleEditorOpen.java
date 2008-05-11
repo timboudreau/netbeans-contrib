@@ -21,10 +21,10 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
+ * Contributor(s): Denis Stepanov
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -38,55 +38,40 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
+package org.netbeans.modules.properties.rbe.ui;
 
-package org.netbeans.lib.javafx.lexer;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.netbeans.api.javafx.lexer.JavaFXTokenId;
+import org.netbeans.modules.properties.PropertiesDataObject;
+import org.openide.windows.CloneableOpenSupport;
+import org.openide.windows.CloneableTopComponent;
 
 /**
- *
- * @author Victor G. Vasilyev
+ * The RBE Open support
+ * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class NewLineAndBraceAfterComplexStringStateTest  extends LexerStateTestBase {
+public class ResourceBundleEditorOpen extends CloneableOpenSupport {
 
-    @Before
-    public void setUp() {
+    private final PropertiesDataObject dataObject;
+
+    public ResourceBundleEditorOpen(PropertiesDataObject dataObject) {
+        super(new ResourceBundleEditorEnvironment(dataObject));
+        this.dataObject = dataObject;
     }
 
-    @After
-    public void tearDown() {
+    @Override
+    protected CloneableTopComponent createCloneableTopComponent() {
+        return new ResourceBundleEditorComponent(dataObject);
     }
 
-    @Test
-    public void testCase1() {
-        System.out.println("testCase1");
-        instance.setSource("\"{a}{b}\"\n}");
-        nextToken();
-        assertEquals(JavaFXTokenId.QUOTE_LBRACE_STRING_LITERAL, token.id);
-        Object state1 = assertStateHas(1, '\"', false, null);
-        nextToken();
-        assertEquals(JavaFXTokenId.IDENTIFIER, token.id);
-        Object state1_1 = assertStateHas(1, '\"', false, null);
-        assertSame(state1, state1_1);
-        nextToken();
-        assertEquals(JavaFXTokenId.RBRACE_LBRACE_STRING_LITERAL, token.id);
-        Object state1_2 = assertStateHas(1, '\"', false, null);
-        assertNotNull(state1);
-        assertNotNull(state1_2);
-        System.out.println("state1: " + state1);
-        System.out.println("state1_2: " + state1_2);
-        assertSame(state1, state1_2);
-        nextToken();
-        assertEquals(JavaFXTokenId.IDENTIFIER, token.id);
-        Object state1_3 = assertStateHas(1, '\"', false, null);
-        assertSame(state1, state1_3);
-        nextToken();
-        assertEquals(JavaFXTokenId.RBRACE_QUOTE_STRING_LITERAL, token.id);
-        assertNull(instance.state());
+    @Override
+    protected String messageOpening() {
+        return "messageOpening"; //FIXME
+
     }
 
+    @Override
+    protected String messageOpened() {
+        return "messageOpened"; //FIXME
+
+    }
 }
+

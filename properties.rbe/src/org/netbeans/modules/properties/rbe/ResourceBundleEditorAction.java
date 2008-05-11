@@ -21,10 +21,10 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
+ * Contributor(s): Denis Stepanov
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -38,55 +38,52 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
+package org.netbeans.modules.properties.rbe;
 
-package org.netbeans.lib.javafx.lexer;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.netbeans.api.javafx.lexer.JFXTokenId;
+import org.netbeans.modules.properties.PropertiesDataObject;
+import org.netbeans.modules.properties.rbe.ui.ResourceBundleEditorOpen;
+import org.openide.nodes.Node;
+import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
+import org.openide.util.actions.CookieAction;
 
 /**
- *
- * @author Victor G. Vasilyev
+ * The RBE Action
+ * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class NewLineAndBraceAfterComplexStringTest  extends LexerTestBase {
+public class ResourceBundleEditorAction extends CookieAction {
 
-    public NewLineAndBraceAfterComplexStringTest() {
+    protected void performAction(Node[] activatedNodes) {
+        PropertiesDataObject dataObject = activatedNodes[0].getLookup().lookup(PropertiesDataObject.class);
+        ResourceBundleEditorOpen editor = new ResourceBundleEditorOpen(dataObject);
+        editor.open();
     }
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
+    protected int mode() {
+        return CookieAction.MODE_EXACTLY_ONE;
     }
 
-    @AfterClass
-    public static void tearDownClass() throws Exception {
+    public String getName() {
+        return NbBundle.getMessage(ResourceBundleEditorAction.class, "CTL_ResourceBundleEditorAction");
     }
 
-    @Before
+    protected Class[] cookieClasses() {
+        return new Class[]{PropertiesDataObject.class};
+    }
+
     @Override
-    public void setUp() {
-        super.setUp();
+    protected void initialize() {
+        super.initialize();
+        putValue("noIconInMenu", Boolean.TRUE);
     }
 
-    @After 
+    public HelpCtx getHelpCtx() {
+        return HelpCtx.DEFAULT_HELP;
+    }
+
     @Override
-    public void tearDown() {
-        super.tearDown();
-    }
-    
-
-    @Test
-    public void testNewLineAndBraceAfterComplexString() throws Exception {
-        setSource("\"{a}{b}\"\n}");
-        assertNextTokenIs(JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
-        assertNextTokenIs(JFXTokenId.IDENTIFIER, "a", 2);
-        assertNextTokenIs(JFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}{", 3);
-        assertNextTokenIs(JFXTokenId.IDENTIFIER, "b", 5);
-        assertNextTokenIs(JFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\"", 6);
-        assertNextTokenIs(JFXTokenId.WS, "\n", 8);
-        assertNextTokenIs(JFXTokenId.RBRACE, "}", 9);
+    protected boolean asynchronous() {
+        return false;
     }
 }
+

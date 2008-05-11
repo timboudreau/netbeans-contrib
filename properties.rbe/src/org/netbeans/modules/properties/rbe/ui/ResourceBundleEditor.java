@@ -21,10 +21,10 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
+ * Contributor(s): Denis Stepanov
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -38,62 +38,12 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
-package org.netbeans.lib.javafx.lexer;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.netbeans.api.javafx.lexer.JavaFXTokenId;
-import org.netbeans.lib.javafx.lexer.JavaFXLexerStateController.BraceQuoteTracker;
+package org.netbeans.modules.properties.rbe.ui;
 
 /**
- *
- * @author victor G. Vasilyev
+ * The Resource Bundle Editor
+ * TODO
+ * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public abstract class LexerStateTestBase {
-    protected static JavaFXLexerTestAdapter instance;
-    protected static int version = 1;
-    
-    protected TestableToken token;
-    protected BraceQuoteTracker state;
-
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        instance = new JavaFXLexerTestAdapter(null, version);
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-        instance.release();
-        instance = null;
-    }
-
-    protected Object assertStateHas(int braceDepth, char quote, boolean percentIsFormat) {
-        Object s = instance.state();
-        assertNotNull(s);
-        assertTrue(s instanceof BraceQuoteTracker);
-        state = (BraceQuoteTracker)s;
-        assertEquals(braceDepth, state.getBraceDepth());
-        assertEquals(quote, state.getQuote());
-        assertEquals(percentIsFormat, state.isPercentIsFormat());
-        return state;
-    }    
-    
-    protected Object assertStateHas(int braceDepth, char quote, 
-                            boolean percentIsFormat, BraceQuoteTracker prev) {
-        state = (BraceQuoteTracker)assertStateHas(braceDepth, quote, percentIsFormat);
-        assertSame("The state should define expected prev state.", prev, state.getPrev());
-        return state;
-    }    
-    
-   protected void nextToken() {
-        instance.nextToken();
-        token = instance.getTestableToken();       
-   }
-
+public class ResourceBundleEditor {
 }

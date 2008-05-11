@@ -21,10 +21,10 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
+ * Contributor(s): Denis Stepanov
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -38,55 +38,30 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
+package org.netbeans.modules.properties.rbe.ui;
 
-package org.netbeans.lib.javafx.lexer;
-
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.netbeans.api.javafx.lexer.JFXTokenId;
+import org.openide.explorer.view.BeanTreeView;
 
 /**
- *
- * @author Victor G. Vasilyev
+ * The base BeanTreeView class with collapse all method 
+ * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class NewLineAndBraceAfterComplexStringTest  extends LexerTestBase {
+public class ImprovedBeanTreeView extends BeanTreeView {
 
-    public NewLineAndBraceAfterComplexStringTest() {
-    }
+    /** 
+     * Collapses all paths.
+     */
+    public void collapseAll() {
+        int i = 0;
+        int j;
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
+        do {
+            do {
+                j = tree.getRowCount();
+                tree.collapseRow(i);
+            } while (j != tree.getRowCount());
 
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @Before
-    @Override
-    public void setUp() {
-        super.setUp();
-    }
-
-    @After 
-    @Override
-    public void tearDown() {
-        super.tearDown();
-    }
-    
-
-    @Test
-    public void testNewLineAndBraceAfterComplexString() throws Exception {
-        setSource("\"{a}{b}\"\n}");
-        assertNextTokenIs(JFXTokenId.QUOTE_LBRACE_STRING_LITERAL, "\"{", 0);
-        assertNextTokenIs(JFXTokenId.IDENTIFIER, "a", 2);
-        assertNextTokenIs(JFXTokenId.RBRACE_LBRACE_STRING_LITERAL, "}{", 3);
-        assertNextTokenIs(JFXTokenId.IDENTIFIER, "b", 5);
-        assertNextTokenIs(JFXTokenId.RBRACE_QUOTE_STRING_LITERAL, "}\"", 6);
-        assertNextTokenIs(JFXTokenId.WS, "\n", 8);
-        assertNextTokenIs(JFXTokenId.RBRACE, "}", 9);
+            i++;
+        } while (i < tree.getRowCount());
     }
 }

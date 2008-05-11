@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="RBE">
+            <file name="org-netbeans-modules-properties-rbe-ResourceBundleEditorAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-properties">
+                <folder name="Actions">
+                    <file name="org-netbeans-modules-properties-rbe-ResourceBundleEditorAction-separatorAfter.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="375"/>
+                    </file>
+                    <file name="org-netbeans-modules-properties-rbe-ResourceBundleEditorAction-separatorBefore.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="325"/>
+                    </file>
+                    <file name="org-netbeans-modules-properties-rbe-ResourceBundleEditorAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/RBE/org-netbeans-modules-properties-rbe-ResourceBundleEditorAction.instance"/>
+                        <attr name="position" intvalue="350"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

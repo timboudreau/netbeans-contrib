@@ -41,6 +41,7 @@ package org.netbeans.modules.hibernate.hqleditor.ui;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import org.netbeans.api.project.Project;
@@ -66,6 +67,8 @@ public final class HQLEditorTopComponent extends TopComponent {
     /** path to the icon used by the component and its open action */
     static final String ICON_PATH = "org/netbeans/modules/hibernate/hqleditor/ui/resources/runsql.png";
 
+    
+    private HashMap<String, HibernateConfiguration> hibernateConfigMap = new HashMap<String, HibernateConfiguration>();
    
     private static final String PREFERRED_ID = "HQLEditorTopComponent";
 
@@ -101,7 +104,11 @@ public final class HQLEditorTopComponent extends TopComponent {
                 return;
             }
             ArrayList<HibernateConfiguration> configurations = env.getAllHibernateConfigurationsFromProject();
-            hibernateConfigurationComboBox.setModel(new DefaultComboBoxModel(configurations.toArray()));
+            for(HibernateConfiguration hibernateConfiguration : configurations) {
+                hibernateConfigMap.put(hibernateConfiguration.getSessionFactory().getAttributeValue("name"),  //NOI18N
+                        hibernateConfiguration);
+            }
+            hibernateConfigurationComboBox.setModel(new DefaultComboBoxModel(hibernateConfigMap.keySet().toArray()));
         }
         
     }
@@ -133,6 +140,7 @@ public final class HQLEditorTopComponent extends TopComponent {
         runHQLButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         toolBar.add(runHQLButton);
 
+        hqlEditor.setContentType("text/x-hql");
         jScrollPane1.setViewportView(hqlEditor);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
