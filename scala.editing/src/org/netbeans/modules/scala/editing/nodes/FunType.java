@@ -39,7 +39,6 @@
 
 package org.netbeans.modules.scala.editing.nodes;
 
-import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
@@ -73,19 +72,17 @@ public class FunType extends TypeRef {
         return rhs;
     }
 
-    /** Since idToken is null, we should implement getPickOffset*/
+    /** Since idToken is null, we should implement getPickOffset */
     @Override
     public int getPickOffset(TokenHierarchy th) {
-        Token lhsIdToken = lhs.getIdToken();
-        return lhsIdToken.offset(th) + lhsIdToken.length() + 1;
+        return lhs.getPickOffset(th);
     }
 
-    /** Since idToken is null, we should implement getPickEndOffset*/
+    /** Since idToken is null, we should implement getPickEndOffset */
     @Override
     public int getPickEndOffset(TokenHierarchy th) {
-        return rhs.getIdToken().offset(th) - 1;
-    }
-    
+        return lhs.getPickEndOffset(th) + 2;
+    }    
     
     /** Since name is null, we should implement getName() */
     @Override
@@ -94,7 +91,7 @@ public class FunType extends TypeRef {
         if (lhs == null) {
             sb.append("(");
             sb.append(")");
-        } else if (lhs instanceof WrappedType && ((WrappedType)lhs).getMore() == WrappedType.More.ByName) {
+        } else if (lhs instanceof WrappedType && ((WrappedType) lhs).getMore() == WrappedType.More.ByName) {
             sb.append("(");
             sb.append(lhs.getName());
             sb.append(")");
@@ -113,7 +110,7 @@ public class FunType extends TypeRef {
         if (lhs == null) {
             formatter.appendText("(");
             formatter.appendText(")");
-        } else if (lhs instanceof WrappedType && ((WrappedType)lhs).getMore() == WrappedType.More.ByName) {
+        } else if (lhs instanceof WrappedType && ((WrappedType) lhs).getMore() == WrappedType.More.ByName) {
             formatter.appendText("(");
             lhs.htmlFormat(formatter);
             formatter.appendText(")");

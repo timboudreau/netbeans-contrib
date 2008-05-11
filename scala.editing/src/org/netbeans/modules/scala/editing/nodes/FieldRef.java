@@ -40,6 +40,7 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.scala.editing.nodes.TypeRef.PseduTypeRef;
 
 /**
  *
@@ -54,6 +55,7 @@ public class FieldRef extends AstRef {
 
     public FieldRef(Token idToken) {
         super(null, idToken, ElementKind.FIELD);
+        setType(new PseduTypeRef(null));
     }
 
     public void setBase(AstElement base) {
@@ -85,8 +87,9 @@ public class FieldRef extends AstRef {
         return sb.toString();
     }
 
-    public void setRetType(String retType) {
-        this.retType = retType;
+    public void setRetType(String retTypeStr) {
+        getType().setQualifiedName(retTypeStr);
+        this.retType = retTypeStr;
     }
 
     public String getRetType() {

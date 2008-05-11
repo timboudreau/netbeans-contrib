@@ -40,10 +40,11 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.scala.editing.nodes.FunRef.ApplyRef;
+import org.netbeans.modules.scala.editing.nodes.FunRef.ApplyFunRef;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.util.Pair;
@@ -300,7 +301,7 @@ public class AstElementVisitor extends AstVisitor {
                 Id tailId = visitId(funTypeTail);
                 tailType = new SimpleType(tailId.getName(), tailId.getIdToken(), ElementKind.CLASS);
             }
-            
+
             funType.setRhs(tailType);
 
             type = funType;
@@ -1820,17 +1821,97 @@ public class AstElementVisitor extends AstVisitor {
         Pair others = that.getList(1);
         if (!others.isEmpty()) {
             List<SimpleExpr> exprs = new ArrayList<SimpleExpr>();
-            List<Id> ops = new ArrayList<Id>();
             exprs.add(first);
+            List<Id> ops = new ArrayList<Id>();
 
+            List<InfixOpExprs> infixOpExprsList = new ArrayList<InfixOpExprs>();
+
+            SimpleExpr lExpr = first;
             for (Object other : others) {
                 GNode otherNode = (GNode) other;
-                ops.add(visitId(otherNode.getGeneric(0)));
-                exprs.add(visitPrefixExpr(otherNode.getGeneric(1)));
+                Id op = visitId(otherNode.getGeneric(0));
+                SimpleExpr rExpr = visitPrefixExpr(otherNode.getGeneric(1));
+
+                ops.add(op);
+                exprs.add(rExpr);
+
+                /** precedence:
+                (all letters)
+                |
+                ^
+                &
+                < >
+                = !
+                :
+                + -
+                 * / %
+                (all other special characters)
+                 */
+                int precedence = 0;
+                String opName = op.getName();
+                if (opName.equals("*") || opName.equals("/") || opName.equals("%")) {
+                    precedence = 1;
+                } else if (opName.equals("+") || opName.equals("-")) {
+                    precedence = 2;
+                } else if (opName.equals(":")) {
+                    precedence = 3;
+                } else if (opName.equals("=") || opName.equals("!")) {
+                    precedence = 4;
+                } else if (opName.equals("<") || opName.equals(">")) {
+                    precedence = 5;
+                } else if (opName.equals("&")) {
+                    precedence = 6;
+                } else if (opName.equals("^")) {
+                    precedence = 7;
+                } else if (opName.equals("|")) {
+                    precedence = 8;
+                } else if (Character.isISOControl(opName.charAt(0))) {
+                    precedence = 0;
+                } else {
+                    precedence = 9;
+                }
+
+                InfixOpExprs opExprs = new InfixOpExprs();
+                opExprs.op = op;
+                opExprs.precedence = precedence;
+                opExprs.lhs = lExpr;
+                opExprs.rhs = rExpr;
+
+                infixOpExprsList.add(opExprs);
+
+                lExpr = rExpr;
             }
             InfixExpr infixExpr = new InfixExpr(getBoundsTokens(that));
-            infixExpr.setExprs(exprs);
             infixExpr.setOps(ops);
+            infixExpr.setExprs(exprs);
+
+            Collections.sort(infixOpExprsList, InfixOpExprsComparator.getInstance());
+
+            FunRef lastFunRef = null;
+            while (!infixOpExprsList.isEmpty()) {
+                InfixOpExprs currInfixOpExprs = infixOpExprsList.get(0);
+
+                Id callId = currInfixOpExprs.op;
+                lastFunRef = new FunRef(callId.getIdToken(), ElementKind.CALL);
+                lastFunRef.setBase(currInfixOpExprs.lhs);
+                lastFunRef.setCall(callId);
+                lastFunRef.setParams(Collections.<AstElement>singletonList(currInfixOpExprs.rhs));
+                
+                scopeStack.peek().addRef(lastFunRef);
+                
+                infixOpExprsList.remove(0);
+
+                for (InfixOpExprs infixOpExprs : infixOpExprsList) {
+                    if (infixOpExprs.lhs == currInfixOpExprs.rhs) {
+                        infixOpExprs.lhs = lastFunRef;
+                    }
+                    if (infixOpExprs.rhs == currInfixOpExprs.lhs) {
+                        infixOpExprs.rhs = lastFunRef;
+                    }
+                }
+            }
+            
+            infixExpr.setTopFunRef(lastFunRef);
 
             expr = infixExpr;
         } else {
@@ -1911,7 +1992,8 @@ public class AstElementVisitor extends AstVisitor {
 
         if (base == null) {
             // @TODO
-            base = new AstExpr(getBoundsTokens(baseNode)) {
+            base = new AstExpr(getBoundsTokens(
+                    baseNode)) {
 
                 @Override
                 public String getName() {
@@ -2035,7 +2117,7 @@ public class AstElementVisitor extends AstVisitor {
         } else if (what.getName().equals("ArgumentExprs")) {
             // apply call
             ArgumentExprs argExprs = visitArgumentExprs(what);
-            ApplyRef apply = new ApplyRef();
+            ApplyFunRef apply = new ApplyFunRef();
             apply.setParams(argExprs.getArgs());
             // base not set yet, should be set later by SimpleExpr
             ref = apply;
@@ -2319,5 +2401,32 @@ public class AstElementVisitor extends AstVisitor {
 
         exit(that);
         return type;
+    }
+    // ----- Helper inner classes
+    private static class InfixOpExprs {
+
+        Id op;
+        int precedence;
+        AstElement lhs;
+        AstElement rhs;
+    }
+
+    private static class InfixOpExprsComparator implements Comparator<InfixOpExprs> {
+
+        private static InfixOpExprsComparator instance;
+
+        static InfixOpExprsComparator getInstance() {
+            if (instance == null) {
+                instance = new InfixOpExprsComparator();
+            }
+            return instance;
+        }
+
+        private InfixOpExprsComparator() {
+        }
+
+        public int compare(InfixOpExprs o1, InfixOpExprs o2) {
+            return o1.precedence < o2.precedence ? -1 : 1;
+        }
     }
 }

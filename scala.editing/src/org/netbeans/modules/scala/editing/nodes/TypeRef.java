@@ -49,7 +49,7 @@ import org.netbeans.modules.gsf.api.ElementKind;
  * @author Caoyuan Deng
  */
 public class TypeRef extends AstRef {
-    
+
     public static final TypeRef Any = new TypeRef("Any", null, ElementKind.CLASS) {
 
         @Override
@@ -181,7 +181,7 @@ public class TypeRef extends AstRef {
     public TypeRef(String name, Token idToken, ElementKind kind) {
         super(name, idToken, kind);
     }
-    
+
     public boolean isResolved() {
         return !getQualifiedName().equals(UNRESOLVED);
     }
@@ -219,5 +219,23 @@ public class TypeRef extends AstRef {
 
     public void setQualifiedName(String qualifiedName) {
         this.qualifiedName = qualifiedName;
-    }            
+    }
+
+    /**
+     * Used to ref global type
+     * 
+     */
+    public static class PseduTypeRef extends TypeRef {
+
+        public PseduTypeRef(String qualifiedName) {
+            super("psedo", null, ElementKind.CLASS);
+            setQualifiedName(qualifiedName);
+            setEnclosingScope(AstScope.emptyScope());
+        }
+
+        @Override
+        public String getQualifiedName() {
+            return qualifiedName == null ? UNRESOLVED : qualifiedName;
+        }
+    }
 }

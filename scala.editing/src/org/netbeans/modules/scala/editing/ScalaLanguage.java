@@ -66,7 +66,7 @@ public class ScalaLanguage implements GsfLanguage {
 
     public boolean isIdentifierChar(char c) {
         return Character.isJavaIdentifierPart(c) || (// Globals, fields and parameter prefixes (for blocks and symbols)
-                c == '$') || (c == '@') || (c == '&') || (c == ':') || (// Function name suffixes
+                c == '$') || (c == '@') || (c == '&') || (// Function name suffixes
                 c == '!') || (c == '?') || (c == '=');
 
     }
