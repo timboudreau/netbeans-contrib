@@ -170,14 +170,14 @@ public class ScalaTypeInferencer {
     }
     // ------ Global infer
     private Map<AstRef, AstScope> newResolvedRefs = new HashMap<AstRef, AstScope>();
-    
+
     public void globalInfer(CompilationInfo info) {
         ScalaIndex index = ScalaIndex.get(info);
         globalInferRecursively(index, rootScope);
-        
+
         for (Entry<AstRef, AstScope> entry : newResolvedRefs.entrySet()) {
             entry.getValue().addRef(entry.getKey());
-        }        
+        }
     }
 
     private void globalInferRecursively(ScalaIndex index, AstScope scope) {
@@ -225,7 +225,7 @@ public class ScalaTypeInferencer {
 
     private void globalInferFunRef(ScalaIndex index, FunRef funRef) {
         TypeRef retType = funRef.getType();
-        if (retType != null && (retType.isResolved() || funRef.getRetType() != null)) {
+        if (retType != null && retType.isResolved()) {
             return;
         }
 
@@ -236,11 +236,7 @@ public class ScalaTypeInferencer {
             String baseTypeStr = null;
             TypeRef baseType = base.getType();
             if (baseType == null || (baseType != null && !baseType.isResolved())) {
-                if (base instanceof FunRef) {
-                    baseTypeStr = ((FunRef) base).getRetType();
-                } else if (base instanceof FieldRef) {
-                    baseTypeStr = ((FieldRef) base).getRetType();
-                } else if (base instanceof PathId) {
+                if (base instanceof PathId) {
                     List<Id> paths = ((PathId) base).getPaths();
                     if (paths.size() > 1) {
                         // Is this a qualifiered name or member chain?
@@ -253,17 +249,17 @@ public class ScalaTypeInferencer {
                             fieldRef.setBase(currBase);
                             fieldRef.setField(field);
                             globalInferFieldRef(index, fieldRef);
-                            if (fieldRef.getRetType() != null) {
+                            if (fieldRef.getType() != null && fieldRef.getType().isResolved()) {
                                 newResolvedRefs.put(fieldRef, funRef.getEnclosingScope());
-                                
+
                                 currBase = fieldRef;
-                                baseTypeStr = ((FieldRef) currBase).getRetType();
+                                baseTypeStr = ((FieldRef) currBase).getType().getQualifiedName();
                             } else {
                                 // @Todo cannot be resolved, should be qualifiered name?
                                 break;
                             }
                         }
-                        
+
                         funRef.setBase(currBase);
                     }
                 } else {
@@ -272,6 +268,7 @@ public class ScalaTypeInferencer {
             } else {
                 baseTypeStr = baseType.getQualifiedName();
             }
+
             if (baseTypeStr == null) {
                 // @todo resolve it first
                 return;
@@ -290,7 +287,7 @@ public class ScalaTypeInferencer {
                             idxRetTypeStr = "void";
                         }
                         if (idxRetTypeStr.equals("void")) {
-                            funRef.setRetType("void");
+                            funRef.setRetTypeStr("void");
                             break;
                         }
 
@@ -312,7 +309,7 @@ public class ScalaTypeInferencer {
                             }
                         }
 
-                        funRef.setRetType(idxRetTypeStr);
+                        funRef.setRetTypeStr(idxRetTypeStr);
                         break;
                     }
                 }
@@ -322,7 +319,7 @@ public class ScalaTypeInferencer {
 
     private void globalInferFieldRef(ScalaIndex index, FieldRef fieldRef) {
         TypeRef retType = fieldRef.getType();
-        if (retType != null && (retType.isResolved() || fieldRef.getRetType() != null)) {
+        if (retType != null && retType.isResolved()) {
             return;
         }
 
@@ -332,14 +329,8 @@ public class ScalaTypeInferencer {
 
             String baseTypeStr = null;
             TypeRef baseType = base.getType();
-            if (baseType == null || (baseType != null && !baseType.isResolved())) {
-                if (base instanceof FunRef) {
-                    baseTypeStr = ((FunRef) base).getRetType();
-                } else if (base instanceof FieldRef) {
-                    baseTypeStr = ((FieldRef) base).getRetType();
-                } else {
-                    // @Todo how to resolve it?
-                }
+            if (baseType == null || (baseType != null && !baseType.isResolved())) {                
+                // @Todo how to resolve it?
             } else {
                 baseTypeStr = baseType.getQualifiedName();
             }
@@ -373,7 +364,7 @@ public class ScalaTypeInferencer {
                         idxRetTypeStr = "void";
                     }
                     if (idxRetTypeStr.equals("void")) {
-                        fieldRef.setRetType("void");
+                        fieldRef.setRetTypeStr("void");
                         break;
                     }
 
@@ -395,7 +386,7 @@ public class ScalaTypeInferencer {
                         }
                     }
 
-                    fieldRef.setRetType(idxRetTypeStr);
+                    fieldRef.setRetTypeStr(idxRetTypeStr);
                     break;
                 }
             }

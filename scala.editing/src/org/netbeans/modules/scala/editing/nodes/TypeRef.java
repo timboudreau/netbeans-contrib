@@ -227,9 +227,8 @@ public class TypeRef extends AstRef {
      */
     public static class PseduTypeRef extends TypeRef {
 
-        public PseduTypeRef(String qualifiedName) {
+        public PseduTypeRef() {
             super("psedo", null, ElementKind.CLASS);
-            setQualifiedName(qualifiedName);
             setEnclosingScope(AstScope.emptyScope());
         }
 

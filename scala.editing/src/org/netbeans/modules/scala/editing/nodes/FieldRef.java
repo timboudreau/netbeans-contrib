@@ -51,11 +51,10 @@ public class FieldRef extends AstRef {
     /** base may be AstExpr, FunRef, FieldRef, IdRef etc */
     private AstElement base;
     private Id field;
-    private String retType;
 
     public FieldRef(Token idToken) {
         super(null, idToken, ElementKind.FIELD);
-        setType(new PseduTypeRef(null));
+        setType(new PseduTypeRef());
     }
 
     public void setBase(AstElement base) {
@@ -69,7 +68,7 @@ public class FieldRef extends AstRef {
     public void setField(Id field) {
         this.field = field;
     }
-    
+
     public Id getField() {
         return field;
     }
@@ -87,13 +86,7 @@ public class FieldRef extends AstRef {
         return sb.toString();
     }
 
-    public void setRetType(String retTypeStr) {
+    public void setRetTypeStr(String retTypeStr) {
         getType().setQualifiedName(retTypeStr);
-        this.retType = retTypeStr;
     }
-
-    public String getRetType() {
-        return retType;
-    }
-    
 }

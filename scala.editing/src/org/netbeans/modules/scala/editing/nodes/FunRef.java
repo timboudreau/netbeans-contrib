@@ -56,11 +56,10 @@ public class FunRef extends AstRef {
     private Id call;
     private List<? extends AstElement> params;
     private boolean local;
-    private String retTypeStr;
 
     public FunRef(Token idToken, ElementKind kind) {
         super(null, idToken, kind);
-        setType(new PseduTypeRef(null));
+        setType(new PseduTypeRef());
     }
 
     public void setBase(AstElement base) {
@@ -108,13 +107,8 @@ public class FunRef extends AstRef {
         return sb.toString();
     }
     
-    public void setRetType(String retTypeStr) {
+    public void setRetTypeStr(String retTypeStr) {
         getType().setQualifiedName(retTypeStr);
-        this.retTypeStr = retTypeStr;
-    }
-
-    public String getRetType() {
-        return retTypeStr;
     }
     
     // ----- Special FunRef
