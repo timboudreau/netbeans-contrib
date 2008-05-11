@@ -73,7 +73,7 @@ public class FunType extends TypeRef {
     }
 
     @Override
-    public java.lang.String getName() {
+    public String getName() {
         StringBuilder sb = new StringBuilder();
         if (lhs == null) {
             sb.append("(");
@@ -83,7 +83,7 @@ public class FunType extends TypeRef {
             sb.append(lhs.getName());
             sb.append(")");
         } else {
-            sb.append(lhs);
+            sb.append(lhs.getName());
         }
         sb.append("=>");
         sb.append(rhs.getName());
