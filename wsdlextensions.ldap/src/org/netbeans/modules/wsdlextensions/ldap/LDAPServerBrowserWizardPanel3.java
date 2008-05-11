@@ -5,6 +5,10 @@
 package org.netbeans.modules.wsdlextensions.ldap;
 
 import java.awt.Component;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
@@ -50,37 +54,40 @@ public class LDAPServerBrowserWizardPanel3 implements WizardDescriptor.Panel {
 
     public final void removeChangeListener(ChangeListener l) {
     }
-    /*
     private final Set<ChangeListener> listeners = new HashSet<ChangeListener>(1); // or can use ChangeSupport in NB 6.0
-    public final void addChangeListener(ChangeListener l) {
-    synchronized (listeners) {
-    listeners.add(l);
-    }
-    }
-    public final void removeChangeListener(ChangeListener l) {
-    synchronized (listeners) {
-    listeners.remove(l);
-    }
-    }
+
+
+//    public final void addChangeListener(ChangeListener l) {
+//        synchronized (listeners) {
+//            listeners.add(l);
+//        }
+//    }
+//
+//    public final void removeChangeListener(ChangeListener l) {
+//        synchronized (listeners) {
+//            listeners.remove(l);
+//        }
+//    }
+
     protected final void fireChangeEvent() {
-    Iterator<ChangeListener> it;
-    synchronized (listeners) {
-    it = new HashSet<ChangeListener>(listeners).iterator();
+        Iterator<ChangeListener> it;
+        synchronized (listeners) {
+            it = new HashSet<ChangeListener>(listeners).iterator();
+        }
+        ChangeEvent ev = new ChangeEvent(this);
+        while (it.hasNext()) {
+            it.next().stateChanged(ev);
+        }
     }
-    ChangeEvent ev = new ChangeEvent(this);
-    while (it.hasNext()) {
-    it.next().stateChanged(ev);
-    }
-    }
-     */
+
 
     // You can use a settings object to keep track of state. Normally the
     // settings object will be the WizardDescriptor, so you can use
     // WizardDescriptor.getProperty & putProperty to store information entered
     // by the user.
     public void readSettings(Object settings) {
-        WizardDescriptor wd=(WizardDescriptor)settings;
-        component.read(wd);        
+        WizardDescriptor wd = (WizardDescriptor) settings;
+        component.read(wd);
     }
 
     public void storeSettings(Object settings) {

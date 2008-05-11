@@ -189,7 +189,7 @@ public class SourceUtils {
             return false;
         }
         List<Var> params = method.getParams();
-        if (params.size() != 1) {
+        if (params != null && params.size() != 1) {
             return false;
         }
 //        TypeMirror param = params.get(0).asType();

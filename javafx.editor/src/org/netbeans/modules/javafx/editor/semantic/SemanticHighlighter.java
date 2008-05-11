@@ -41,6 +41,7 @@ package org.netbeans.modules.javafx.editor.semantic;
 import com.sun.javafx.api.tree.ClassDeclarationTree;
 import com.sun.javafx.api.tree.FunctionDefinitionTree;
 import com.sun.javafx.api.tree.JavaFXTreePathScanner;
+import com.sun.javafx.api.tree.JavaFXVariableTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.MemberSelectTree;
@@ -283,7 +284,7 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
         }
 
         @Override
-        public Void visitVariable(VariableTree tree, List<Result> list) {
+        public Void visitVariable(JavaFXVariableTree tree, List<Result> list) {
             SourcePositions sourcePositions = info.getTrees().getSourcePositions();
             long start = sourcePositions.getStartPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
             long end = sourcePositions.getEndPosition(info.getCompilationUnit(), getCurrentPath().getLeaf());
@@ -297,6 +298,11 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
 
             TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
             while (ts.moveNext()) {
+                // do not highlight parameters and local variables
+                if (element != null && !element.getKind().isField()) {
+                    continue;
+                }
+
                 Token t = ts.token();
                 if (JFXTokenId.IDENTIFIER.equals(t.id())) { // first identifier is a name
                     start = ts.offset();
@@ -323,20 +329,13 @@ public class SemanticHighlighter implements CancellableTask<CompilationInfo> {
             Element element = info.getTrees().getElement(getCurrentPath());
             Set<Modifier> modifiers = element != null ? element.getModifiers() : null;
             
-//            if (element != null && element.getKind().isField()) {
-//                TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
-//                if (ts.moveNext()) {
-//                    Token t = ts.token();
-//                    start = ts.offset();
-//                    end = start + t.length();
-//                    boolean isStatic = modifiers != null && modifiers.contains(Modifier.STATIC);
-////                    identifiers.add(new Result(start, end, ID_IDENTIFIER, t, isStatic)); // identfiers chache
-//                    list.add(new Result(start, end, ID_IDENTIFIER, t)); // debug only
-//                }
-//            }
-
             TokenSequence<JFXTokenId> ts = tu.tokensFor(tree);
             while (ts.moveNext()) {
+                // do not highlight parameters and local variables
+                if (element != null && !element.getKind().isField()) {
+                    continue;
+                }
+                    
                 Token t = ts.token();
                 if (JFXTokenId.IDENTIFIER.equals(t.id())) {
                     start = ts.offset();

@@ -27,13 +27,14 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="1" attributes="0">
-                              <EmptySpace pref="2" max="32767" attributes="0"/>
+                              <EmptySpace pref="7" max="32767" attributes="0"/>
                               <Component id="jLabelPrincipal" min="-2" pref="101" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jTextFieldPrincipal" pref="223" max="32767" attributes="3"/>
+                              <Component id="jTextFieldPrincipal" pref="228" max="32767" attributes="3"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                                   <Group type="102" alignment="1" attributes="0">
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="jLabelKeyStorePassword" min="-2" max="-2" attributes="0"/>
@@ -59,25 +60,21 @@
                                       <Component id="jLabelTrustStorePassword" min="-2" max="-2" attributes="0"/>
                                   </Group>
                                   <Component id="jLabelKeystore" alignment="1" min="-2" pref="67" max="-2" attributes="1"/>
-                                  <Component id="jLabelProtocol" alignment="1" pref="103" max="32767" attributes="0"/>
+                                  <Component id="jLabelProtocol" alignment="1" pref="107" max="32767" attributes="0"/>
                                   <Component id="jLabelAuthenticationType" alignment="1" min="-2" pref="101" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="jPasswordFieldKeyStore" alignment="1" pref="223" max="32767" attributes="1"/>
-                                  <Component id="jTextFieldKeystore" alignment="1" pref="223" max="32767" attributes="1"/>
-                                  <Component id="jPasswordFieldTrustStore" alignment="1" pref="223" max="32767" attributes="1"/>
-                                  <Component id="jTextFieldAuthentication" pref="223" max="32767" attributes="1"/>
-                                  <Component id="jTextFieldProtocol" alignment="0" pref="223" max="32767" attributes="1"/>
-                                  <Component id="jTextFieldTruststore" alignment="0" pref="223" max="32767" attributes="1"/>
-                                  <Component id="jTextFieldTruststoreType" alignment="0" pref="223" max="32767" attributes="1"/>
-                                  <Component id="jTextFieldKeystoreType" alignment="0" pref="223" max="32767" attributes="1"/>
-                                  <Component id="jTextFieldKeystoreUserName" alignment="0" pref="223" max="32767" attributes="1"/>
-                                  <Group type="102" alignment="1" attributes="0">
-                                      <Component id="jButtonOK" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="jButtonCancel" min="-2" max="-2" attributes="0"/>
-                                  </Group>
+                                  <Component id="jTextFieldKeystore" alignment="1" pref="229" max="32767" attributes="1"/>
+                                  <Component id="jPasswordFieldTrustStore" alignment="1" pref="229" max="32767" attributes="1"/>
+                                  <Component id="jTextFieldAuthentication" pref="229" max="32767" attributes="1"/>
+                                  <Component id="jTextFieldProtocol" alignment="0" pref="229" max="32767" attributes="1"/>
+                                  <Component id="jTextFieldTruststore" alignment="0" pref="229" max="32767" attributes="1"/>
+                                  <Component id="jTextFieldTruststoreType" alignment="0" pref="229" max="32767" attributes="1"/>
+                                  <Component id="jTextFieldKeystoreType" alignment="0" pref="229" max="32767" attributes="1"/>
+                                  <Component id="jTextFieldKeystoreUserName" alignment="0" pref="229" max="32767" attributes="1"/>
+                                  <Component id="jPasswordFieldKeyStore" alignment="0" pref="229" max="32767" attributes="1"/>
+                                  <Component id="jComboBoxTLSSecurity" alignment="0" pref="229" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                       </Group>
@@ -86,13 +83,19 @@
                       <EmptySpace min="-2" pref="46" max="-2" attributes="0"/>
                       <Component id="jLabelCredential" min="-2" pref="67" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jPasswordFieldCredential" pref="223" max="32767" attributes="2"/>
+                      <Component id="jPasswordFieldCredential" pref="235" max="32767" attributes="2"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                       <Component id="jLabelSSLType" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jTextFieldSSLType" pref="223" max="32767" attributes="1"/>
+                      <Component id="jTextFieldSSLType" pref="227" max="32767" attributes="1"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="-2" pref="122" max="-2" attributes="0"/>
+                      <Component id="jButtonOK" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
+                      <Component id="jButtonCancel" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -159,15 +162,19 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jPasswordFieldKeyStore" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabelKeyStorePassword" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jPasswordFieldKeyStore" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jComboBoxTLSSecurity" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="13" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jButtonOK" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jButtonCancel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -393,6 +400,23 @@
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/wsdlextensions/ldap/Bundle.properties" key="AdvancedLoginDialog.jLabelSSLType.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel1">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/wsdlextensions/ldap/Bundle.properties" key="AdvancedLoginDialog.jLabel1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JComboBox" name="jComboBoxTLSSecurity">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="2">
+            <StringItem index="0" value="NO"/>
+            <StringItem index="1" value="YES"/>
+          </StringArray>
         </Property>
       </Properties>
     </Component>

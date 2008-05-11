@@ -44,6 +44,8 @@ package org.netbeans.modules.groovy.support.customizer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JComponent;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.groovy.support.GroovyProjectExtender;
 import org.netbeans.spi.project.ui.support.ProjectCustomizer;
 import org.netbeans.spi.project.ui.support.ProjectCustomizer.Category;
 import org.openide.util.Lookup;
@@ -55,7 +57,7 @@ import org.openide.util.NbBundle;
  */
 public final class GroovyCustomizer implements ProjectCustomizer.CompositeCategoryProvider {
 
-    private static final String GROOVY = "Groovy";
+    private static final String GROOVY = "Groovy"; // NOI18N
 
     public static GroovyCustomizer create() {
         return new GroovyCustomizer();
@@ -68,18 +70,36 @@ public final class GroovyCustomizer implements ProjectCustomizer.CompositeCatego
                 null,
                 (ProjectCustomizer.Category[]) null
                 );
-        category.setStoreListener(new StoreActionListener());
+        category.setStoreListener(new StoreActionListener(context));
         return category;
     }
 
     public JComponent createComponent(Category category, Lookup context) {
-        return new GroovyCustomizerPanel();
+        Project project = context.lookup(Project.class);
+        GroovyProjectExtender extender = null;
+        if (project != null) {
+            extender = project.getLookup().lookup(GroovyProjectExtender.class);
+        }
+        return new GroovyCustomizerPanel(extender);
     }
     
     private static final class StoreActionListener implements ActionListener {
 
+        private final Lookup context;
+        
+        public StoreActionListener(Lookup context) {
+            this.context = context;
+        }
+        
         public void actionPerformed(ActionEvent e) {
-            // do the tricks here
+            
+            Project project = context.lookup(Project.class);
+            if (project != null) {
+                GroovyProjectExtender extender = project.getLookup().lookup(GroovyProjectExtender.class);
+                if (extender != null) {
+                    extender.enableGroovy();
+                }
+            }
         }
         
     }

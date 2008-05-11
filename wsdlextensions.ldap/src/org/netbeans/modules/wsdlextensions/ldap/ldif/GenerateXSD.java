@@ -172,7 +172,9 @@ public class GenerateXSD {
             ret += getTab(level + 2) + "<xsd:element name=\"attributes\" type=\"tns:UpdateType\"></xsd:element>" + "\n";
         } else if (mFunction.equals("Add")) {
             ret += getTab(level + 2) + "<xsd:element name=\"attributes\" type=\"tns:AddType\"></xsd:element>" + "\n";
-        }
+        } else if (mFunction.equals("Delete")) {
+            ret += getTab(level + 2) + "<xsd:element name=\"attributes\" type=\"tns:SearchFilterType\"></xsd:element>" + "\n";
+        } 
         ret += getTab(level + 2) + "<xsd:element name=\"connection\" type=\"ldap:ConnectionType\"></xsd:element>" + "\n";
         ret += getTab(level + 1) + "</xsd:sequence>" + "\n";
         ret += getTab(level) + "</xsd:complexType>" + "\n";
@@ -225,11 +227,11 @@ public class GenerateXSD {
 
         ret += getTab(level) + "<xsd:complexType name=\"ResponseType\" >" + "\n";
         ret += getTab(level + 1) + "<xsd:sequence>" + "\n";
-        ret += getTab(level + 2) + "<xsd:element name=\"property\" type=\"ldap:ResponsePropertyType\"/>" + "\n";
+        ret += getTab(level + 2) + "<xsd:element name=\"property\" type=\"tns:ResponsePropertyType\"/>" + "\n";
         if (mFunction.equals("Search")) {
             ret += getTab(level + 2) + "<xsd:element name=\"ResponseElements\" maxOccurs=\"unbounded\" type=\"tns:ResponseAttributeType\"/>" + "\n";
         } else {
-            ret += getTab(level + 2) + "<xsd:element name=\"OperationResult\" maxOccurs=\"unbounded\" type=\"xsd:boolean\"/>" + "\n";
+            ret += getTab(level + 2) + "<xsd:element name=\"OperationResult\" maxOccurs=\"unbounded\" type=\"xsd:string\"/>" + "\n";
         }
         ret += getTab(level + 1) + "</xsd:sequence>" + "\n";
         ret += getTab(level) + "</xsd:complexType>" + "\n";
@@ -372,6 +374,17 @@ public class GenerateXSD {
         ret += generateElement("Fault", "ldap:FaultType", null, level);
         return ret;
     }
+    
+    private String generateResponsePropertyType(int level){
+        String ret = "";
+        ret+=getTab(level)+"<xsd:complexType name=\"ResponsePropertyType\" >\n";
+        ret+=getTab(level+1)+"<xsd:sequence>\n";
+        ret+=generateElement("code", "xsd:string", null, level+2);
+        ret+=generateElement("requestId", "xsd:string", null, level+2);
+        ret+=getTab(level+1)+"</xsd:sequence>\n";
+        ret+=getTab(level)+"</xsd:complexType>\n\n";    
+        return ret;
+    }
 
     private String generateAttribute(String tag, String use, String type, String fixed, int level) {
         String ret = "";
@@ -467,6 +480,7 @@ public class GenerateXSD {
         ret += this.generateRequestPropertyType(1);
         ret += this.generateSearchFilterType(mLdif, 1);
         ret += this.generateResponseType(1);
+        ret += this.generateResponsePropertyType(1);
         ret += this.generateResponseAttributeType(mLdif, 1);
         ret += this.generateGlobalElements(1);
         ret += this.generateSchemaTail();
@@ -482,6 +496,7 @@ public class GenerateXSD {
         ret += this.generateUpdateType(1);
         ret += this.generateSearchFilterType(mLdif, 1);
         ret += this.generateResponseType(1);
+        ret += this.generateResponsePropertyType(1);
         ret += this.generateUpdateElementsType(mLdif, 1);
         ret += this.generateGlobalElements(1);
         ret += this.generateSchemaTail();
@@ -495,6 +510,7 @@ public class GenerateXSD {
         ret += this.generateRequestType(1);
         ret += this.generateRequestPropertyType(1);
         ret += this.generateResponseType(1);
+        ret += this.generateResponsePropertyType(1);
         ret += this.generateAddType(1);
         ret += this.generateAddAttributesType(mLdif, 1);
         ret += this.generateGlobalElements(1);
@@ -509,9 +525,38 @@ public class GenerateXSD {
         ret += this.generateRequestType(1);
         ret += this.generateRequestPropertyType(1);
         ret += this.generateResponseType(1);
+        ret += this.generateResponsePropertyType(1);
         ret += this.generateAddTypeMain(1);
         ret += this.generateAddMainAttributeType(1);
         ret += this.generateAddAttributesTypeMain(1);
+        ret += this.generateGlobalElements(1);
+        ret += this.generateSchemaTail();
+        return ret;
+    }
+    
+    private String generateDeleteSchema(LdifObjectClass mLdif) {
+        String ret = "";
+        ret += this.generateXMLHead();
+        ret += this.generateSchemaHead(mLdif.getName());
+        ret += this.generateRequestType(1);
+        ret += this.generateRequestPropertyType(1);
+        ret += this.generateSearchFilterType(mLdif, 1);
+        ret += this.generateResponseType(1);
+        ret += this.generateResponsePropertyType(1);
+        ret += this.generateGlobalElements(1);
+        ret += this.generateSchemaTail(); 
+        return ret;
+    }
+    
+    private String generateDeleteMainSchema() {
+        String ret = "";
+        ret += this.generateXMLHead();
+        ret += this.generateSchemaHead(mFileName);
+        ret += this.generateRequestType(1);
+        ret += this.generateRequestPropertyType(1);
+        ret += this.generateMainSearchFilterType(1);
+        ret += this.generateResponseType(1);
+        ret += this.generateResponsePropertyType(1);
         ret += this.generateGlobalElements(1);
         ret += this.generateSchemaTail();
         return ret;
@@ -522,8 +567,10 @@ public class GenerateXSD {
             return generateSearchSchema(mLdif);
         } else if (mFunction.equals("Add")) {
             return generateAddSchema(mLdif);
-        } else {
+        } else if (mFunction.equals("Update")){
             return generateUpdateSchema(mLdif);
+        } else {
+            return generateDeleteSchema(mLdif);
         }
     }
 
@@ -535,6 +582,7 @@ public class GenerateXSD {
         ret += this.generateRequestPropertyType(1);
         ret += this.generateMainSearchFilterType(1);
         ret += this.generateResponseType(1);
+        ret += this.generateResponsePropertyType(1);
         ret += this.generateMainResponseAttributeType(1);
         ret += this.generateGlobalElements(1);
         ret += this.generateSchemaTail();
@@ -551,6 +599,7 @@ public class GenerateXSD {
         ret += this.generateUpdateType(1);
         ret += this.generateMainSearchFilterType(1);
         ret += this.generateResponseType(1);
+        ret += this.generateResponsePropertyType(1);
         ret += this.generateMainUpdateElementsType(1);
         ret += this.generateGlobalElements(1);
         ret += this.generateSchemaTail();
@@ -562,9 +611,10 @@ public class GenerateXSD {
             return generateSearchMainSchema();
         } else if (mFunction.equals("Add")) {
             return generateAddMainSchema();
-        } else {
-//        }else{    
+        } else if (mFunction.equals("Update")){ 
             return generateUpdateMainSchema();
+        } else {
+            return generateDeleteMainSchema();
         }
 
     }

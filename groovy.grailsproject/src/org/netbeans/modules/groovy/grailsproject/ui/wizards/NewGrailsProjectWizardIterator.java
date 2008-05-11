@@ -44,12 +44,13 @@ import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import java.util.logging.Logger;
-import org.netbeans.modules.groovy.grails.api.GrailsServer;
-import org.netbeans.modules.groovy.grails.api.GrailsServerFactory;
 import org.netbeans.api.progress.ProgressHandle;
 import java.io.BufferedReader;
 import java.util.concurrent.CountDownLatch;
+import org.netbeans.modules.groovy.grails.api.GrailsRuntime;
+import org.netbeans.modules.groovy.grailsproject.GrailsProjectSettings;
 import org.netbeans.modules.groovy.grailsproject.actions.PublicSwingWorker;
+import org.netbeans.spi.project.ui.support.ProjectChooser;
 
 
 
@@ -60,7 +61,7 @@ import org.netbeans.modules.groovy.grailsproject.actions.PublicSwingWorker;
 public class NewGrailsProjectWizardIterator implements  WizardDescriptor.InstantiatingIterator,
                                                         WizardDescriptor.ProgressInstantiatingIterator{
 
-    private static final Logger logger = Logger.getLogger(NewGrailsProjectWizardIterator.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(NewGrailsProjectWizardIterator.class.getName());
     
     private transient int index;
     private transient WizardDescriptor.Panel[] panels;
@@ -72,8 +73,7 @@ public class NewGrailsProjectWizardIterator implements  WizardDescriptor.Instant
     CountDownLatch serverFinished = new CountDownLatch(1);
     boolean        serverRunning = false;
     boolean        serverConfigured = true;
-    GrailsServer server = GrailsServerFactory.getServer();
-    
+    int baseCount;
     
     private WizardDescriptor.Panel[] createPanels () {
         
@@ -89,39 +89,48 @@ public class NewGrailsProjectWizardIterator implements  WizardDescriptor.Instant
     }
     
    public Set instantiate(ProgressHandle handle) throws IOException {
-        
-            this.handle = handle;
+        this.handle = handle;
 
-            Set<FileObject> resultSet = new HashSet<FileObject>();
-            
-            serverRunning = true;
-            
-            new PublicSwingWorker( null, "create-app " + (String) wiz.getProperty("projectName"), 
-                                    (String) wiz.getProperty("projectFolder"), 
-                                    handle, serverFinished).start();
-            
-            try {
-                serverFinished.await();
-                } catch (InterruptedException ex) {
-                    Exceptions.printStackTrace(ex);
-                    }
-                   
-            serverRunning = false;
-            File dirF = new File((String) wiz.getProperty("projectFolder"));
+        Set<FileObject> resultSet = new HashSet<FileObject>();
 
-           if (dirF != null) {
-               dirF = FileUtil.normalizeFile(dirF);
-               FileObject dir = FileUtil.toFileObject(dirF);
-               
-               if (dir == null) {
-                   logger.warning("Folder was expected, but not found: " + dirF.getCanonicalPath());
-               } else {
-                   resultSet.add(dir);
+        serverRunning = true;
+
+        new PublicSwingWorker( null, "create-app " + (String) wiz.getProperty("projectName"), 
+                                ((File) wiz.getProperty("projectFolder")).getAbsolutePath(), 
+                                handle, serverFinished).start();
+
+        try {
+            serverFinished.await();
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+                }
+
+        serverRunning = false;
+        File dirF = (File) wiz.getProperty("projectFolder");
+
+       if (dirF != null) {
+           dirF = FileUtil.normalizeFile(dirF);
+           FileObject dir = FileUtil.toFileObject(dirF);
+
+           if (dir == null) {
+               LOGGER.warning("Folder was expected, but not found: " + dirF.getCanonicalPath());
+           } else {
+               resultSet.add(dir);
+               GrailsProjectSettings.getDefault().setNewProjectCount(baseCount);
+
+               File parentDir = dirF.getParentFile();
+
+               if (parentDir != null && parentDir.exists() && parentDir.isDirectory()) {
+                   GrailsProjectSettings.getDefault().setLastUsedArtifactFolder(dirF.getParentFile());
                }
            }
+           dirF = (dirF != null) ? dirF.getParentFile() : null;
+           if (dirF != null && dirF.exists()) {
+               ProjectChooser.setProjectsFolder(dirF);
+           }
+       }
 
-            return resultSet;
-
+       return resultSet;
     }
     
     public Set instantiate() throws IOException {
@@ -136,12 +145,17 @@ public class NewGrailsProjectWizardIterator implements  WizardDescriptor.Instant
         this.wiz = wizard;
         index = 0;
         
-        if(!server.serverConfigured()) {
+        if(!GrailsRuntime.getInstance().isConfigured()) {
             wizard.putProperty("WizardPanel_errorMessage", 
                     NbBundle.getMessage(NewGrailsProjectWizardIterator.class, 
                     "NewGrailsProjectWizardIterator.NoGrailsServerConfigured"));
             serverConfigured = false;
             }
+        
+        // get project counter from GrailsConfiguration
+        
+        baseCount = GrailsProjectSettings.getDefault().getNewProjectCount() + 1;
+        wizard.putProperty("WizardPanel_GrailsProjectCounter", new Integer(baseCount));      
         
         panels = createPanels();
         String[] steps = createSteps();

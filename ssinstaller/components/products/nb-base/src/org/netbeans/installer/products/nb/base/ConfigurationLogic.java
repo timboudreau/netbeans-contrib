@@ -91,7 +91,7 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
         
         /////////////////////////////////////////////////////////////////////////////
         
-        final File jdkHome = new File("/usr/java");
+        final File jdkHome = new File (System.getProperty("java.home"));
         try {
             progress.setDetail(getString("CL.install.jdk.home")); // NOI18N
             JavaInfo info = JavaUtils.getInfo(jdkHome);

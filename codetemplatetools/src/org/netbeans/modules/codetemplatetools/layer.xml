@@ -115,6 +115,18 @@ made subject to such option by the copyright holder.
             </file>
         </folder>
     </folder>
+    <folder name="Toolbars">
+        <folder name="CodeTemplateTools">
+            <file name="org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-CreateTemplateAction.instance"/>
+                <attr name="position" intvalue="100"/>
+            </file>
+            <file name="org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.instance"/>
+                <attr name="position" intvalue="200"/>
+            </file>        
+        </folder>
+    </folder>
     <folder name="Editors">
         <folder name="text">
             <folder name="base">
@@ -204,10 +216,10 @@ made subject to such option by the copyright holder.
         <file name="D-J R V.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.instance"/>
         </file>
-        <file name="D-J SPACE.shadow">
+	<file name="OS-E.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-ExpandTemplateAction.instance"/>
         </file>
-        <file name="D-J T.shadow">
+        <file name="OS-S.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-SurroundWithAction.instance"/>
         </file>
     </folder>

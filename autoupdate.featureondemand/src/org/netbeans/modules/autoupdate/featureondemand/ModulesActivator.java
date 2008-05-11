@@ -63,12 +63,17 @@ public class ModulesActivator {
     private Collection<UpdateElement> modules4enable;
     private RequestProcessor.Task enableTask = null;
     private OperationContainer<OperationSupport> enableContainer;
+    private ProgressHandle enableHandle;
     
     public ModulesActivator (Collection<UpdateElement> modules) {
         if (modules == null || modules.isEmpty ()) {
             throw new IllegalArgumentException ("Cannot construct ModulesActivator with null or empty Collection " + modules);
         }
         modules4enable = modules;
+    }
+
+    public void assignEnableHandle (ProgressHandle handle) {
+        this.enableHandle = handle;
     }
     
     public RequestProcessor.Task getEnableTask () {
@@ -119,9 +124,11 @@ public class ModulesActivator {
             throw new IllegalArgumentException ("Some are invalid for enable: " + enableContainer.listInvalid ());
         }
         OperationSupport enableSupport = enableContainer.getSupport ();
-        ProgressHandle enableHandle = ProgressHandleFactory.createHandle (
-                getBundle ("ModulesActivator_Enable",
-                presentUpdateElements (FindComponentModules.getVisibleUpdateElements (modules4enable))));
+        if (enableHandle == null) {
+            enableHandle = ProgressHandleFactory.createHandle (
+                    getBundle ("ModulesActivator_Enable",
+                    presentUpdateElements (FindComponentModules.getVisibleUpdateElements (modules4enable))));
+            }
         enableSupport.doOperation (enableHandle);
     }
     

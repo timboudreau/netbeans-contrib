@@ -69,23 +69,23 @@ public class AstScope implements Iterable<AstScope> {
         assert boundsTokens.length == 2;
         this.boundsTokens = boundsTokens;
     }
-    
+
     public Token[] getBoundsTokens() {
         return boundsTokens;
     }
 
     public OffsetRange getRange(TokenHierarchy th) {
-        return new OffsetRange(getOffset(th), getEndOffset(th));
+        return new OffsetRange(getBoundsOffset(th), getBoundsEndOffset(th));
     }
 
-    public int getOffset(TokenHierarchy th) {
+    public int getBoundsOffset(TokenHierarchy th) {
         return boundsTokens[0].offset(th);
     }
-    
-    public int getEndOffset(TokenHierarchy th) {
+
+    public int getBoundsEndOffset(TokenHierarchy th) {
         return boundsTokens[1].offset(th) + boundsTokens[1].length();
     }
-    
+
     public void setBindingDef(AstDef bindingDef) {
         this.bindingDef = bindingDef;
     }
@@ -99,31 +99,19 @@ public class AstScope implements Iterable<AstScope> {
     }
 
     public List<AstScope> getScopes() {
-        if (scopes == null) {
-            return Collections.emptyList();
-        }
-        return scopes;
+        return scopes == null ? Collections.<AstScope>emptyList() : scopes;
     }
 
     public List<AstDef> getDefs() {
-        if (defs == null) {
-            return Collections.emptyList();
-        }
-        return defs;
+        return defs == null ? Collections.<AstDef>emptyList() : defs;
     }
 
     public List<AstRef> getRefs() {
-        if (refs == null) {
-            return Collections.emptyList();
-        }
-        return refs;
+        return refs == null ? Collections.<AstRef>emptyList() : refs;
     }
 
     public List<AstExpr> getExprs() {
-        if (exprs == null) {
-            return Collections.emptyList();
-        }
-        return exprs;
+        return exprs == null ? Collections.<AstExpr>emptyList() : exprs;
     }
 
     void addScope(AstScope scope) {
@@ -131,6 +119,7 @@ public class AstScope implements Iterable<AstScope> {
             scopes = new ArrayList<AstScope>();
         }
         scopes.add(scope);
+        scopesSorted = false;
         scope.parent = this;
     }
 
@@ -139,15 +128,16 @@ public class AstScope implements Iterable<AstScope> {
             defs = new ArrayList<AstDef>();
         }
         defs.add(def);
-        addScope(def.getBindingScope());
+        defsSorted = false;
         def.setEnclosingScope(this);
     }
 
-    void addRef(AstRef ref) {
+    public void addRef(AstRef ref) {
         if (refs == null) {
             refs = new ArrayList<AstRef>();
         }
         refs.add(ref);
+        refsSorted = false;
         ref.setEnclosingScope(this);
     }
 
@@ -156,9 +146,10 @@ public class AstScope implements Iterable<AstScope> {
             exprs = new ArrayList<AstExpr>();
         }
         exprs.add(expr);
+        exprsSorted = false;
         expr.setEnclosingScope(this);
     }
-    
+
     public Iterator<AstScope> iterator() {
         if (scopes != null) {
             return scopes.iterator();
@@ -166,31 +157,12 @@ public class AstScope implements Iterable<AstScope> {
             return Collections.<AstScope>emptySet().iterator();
         }
     }
-
-    public AstElement getDefRef(TokenHierarchy th, int offset) {
-        if (defs != null) {
-            if (!defsSorted) {
-                Collections.sort(defs, new ElementComparator(th));
-                defsSorted = true;
-            }
-            int low = 0;
-            int high = defs.size() - 1;
-            while (low <= high) {
-                int mid = (low + high) >> 1;
-                AstDef middle = defs.get(mid);
-                if (offset < middle.getIdToken().offset(th)) {
-                    high = mid - 1;
-                } else if (offset >= middle.getIdToken().offset(th) + middle.getIdToken().length()) {
-                    low = mid + 1;
-                } else {
-                    return middle;
-                }
-            }
-        }
-
+    
+    public AstElement findDefRef(TokenHierarchy th, int offset) {
+        // Always seach refs first, since ref can be included in def
         if (refs != null) {
             if (!refsSorted) {
-                Collections.sort(refs, new ElementComparator(th));
+                Collections.sort(refs, new RefComparator(th));
                 refsSorted = true;
             }
             int low = 0;
@@ -198,9 +170,29 @@ public class AstScope implements Iterable<AstScope> {
             while (low <= high) {
                 int mid = (low + high) >> 1;
                 AstRef middle = refs.get(mid);
-                if (offset < middle.getIdToken().offset(th)) {
+                if (offset < middle.getPickOffset(th)) {
                     high = mid - 1;
-                } else if (offset >= middle.getIdToken().offset(th) + middle.getIdToken().length()) {
+                } else if (offset >= middle.getPickEndOffset(th)) {
+                    low = mid + 1;
+                } else {
+                    return middle;
+                }
+            }
+        }
+
+        if (defs != null) {
+            if (!defsSorted) {
+                Collections.sort(defs, new DefComparator(th));
+                defsSorted = true;
+            }
+            int low = 0;
+            int high = defs.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstDef middle = defs.get(mid);
+                if (offset < middle.getPickOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getPickEndOffset(th)) {
                     low = mid + 1;
                 } else {
                     return middle;
@@ -218,12 +210,12 @@ public class AstScope implements Iterable<AstScope> {
             while (low <= high) {
                 int mid = (low + high) >> 1;
                 AstScope middle = scopes.get(mid);
-                if (offset < middle.getOffset(th)) {
+                if (offset < middle.getBoundsOffset(th)) {
                     high = mid - 1;
-                } else if (offset >= middle.getEndOffset(th)) {
+                } else if (offset >= middle.getBoundsEndOffset(th)) {
                     low = mid + 1;
                 } else {
-                    return middle.getDefRef(th, offset);
+                    return middle.findDefRef(th, offset);
                 }
             }
         }
@@ -231,7 +223,96 @@ public class AstScope implements Iterable<AstScope> {
         return null;
     }
 
-    public AstExpr getExpr(TokenHierarchy th, int offset) {
+    public <T extends AstDef> T findDef(Class<T> clazz, TokenHierarchy th, int offset) {
+        if (defs != null) {
+            if (!defsSorted) {
+                Collections.sort(defs, new DefComparator(th));
+                defsSorted = true;
+            }
+            int low = 0;
+            int high = defs.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstDef middle = defs.get(mid);
+                if (offset < middle.getPickOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getPickEndOffset(th)) {
+                    low = mid + 1;
+                } else {
+                    return clazz.isInstance(middle) ? (T) middle : null;
+                }
+            }
+        }
+
+        if (scopes != null) {
+            if (!scopesSorted) {
+                Collections.sort(scopes, new ScopeComparator(th));
+                scopesSorted = true;
+            }
+            int low = 0;
+            int high = scopes.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstScope middle = scopes.get(mid);
+                if (offset < middle.getBoundsOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getBoundsEndOffset(th)) {
+                    low = mid + 1;
+                } else {
+                    return (T) middle.findDef(clazz, th, offset);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public <T extends AstRef> T findRef(Class<T> clazz, TokenHierarchy th, int offset) {
+        if (refs != null) {
+            if (!refsSorted) {
+                Collections.sort(refs, new RefComparator(th));
+                refsSorted = true;
+            }
+            int low = 0;
+            int high = refs.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstRef middle = refs.get(mid);
+                if (offset < middle.getPickOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getPickEndOffset(th)) {
+                    low = mid + 1;
+                } else {
+                    return clazz.isInstance(middle) ? (T) middle : null;
+                }
+            }
+        }
+
+
+        if (scopes != null) {
+            if (!scopesSorted) {
+                Collections.sort(scopes, new ScopeComparator(th));
+                scopesSorted = true;
+            }
+            int low = 0;
+            int high = scopes.size() - 1;
+            while (low <= high) {
+                int mid = (low + high) >> 1;
+                AstScope middle = scopes.get(mid);
+                if (offset < middle.getBoundsOffset(th)) {
+                    high = mid - 1;
+                } else if (offset >= middle.getBoundsEndOffset(th)) {
+                    low = mid + 1;
+                } else {
+                    return (T) middle.findRef(clazz, th, offset);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public AstExpr findExpr(TokenHierarchy th, int offset) {
         if (exprs != null) {
             if (!exprsSorted) {
                 Collections.sort(exprs, new ExprComparator(th));
@@ -242,9 +323,9 @@ public class AstScope implements Iterable<AstScope> {
             while (low <= high) {
                 int mid = (low + high) >> 1;
                 AstExpr middle = exprs.get(mid);
-                if (offset < middle.getOffset(th)) {
+                if (offset < middle.getBoundsOffset(th)) {
                     high = mid - 1;
-                } else if (offset >= middle.getEndOffset(th)) {
+                } else if (offset >= middle.getBoundsEndOffset(th)) {
                     low = mid + 1;
                 } else {
                     return middle;
@@ -262,12 +343,12 @@ public class AstScope implements Iterable<AstScope> {
             while (low <= high) {
                 int mid = (low + high) >> 1;
                 AstScope middle = scopes.get(mid);
-                if (offset < middle.getOffset(th)) {
+                if (offset < middle.getBoundsOffset(th)) {
                     high = mid - 1;
-                } else if (offset >= middle.getEndOffset(th)) {
+                } else if (offset >= middle.getBoundsEndOffset(th)) {
                     low = mid + 1;
                 } else {
-                    return middle.getExpr(th, offset);
+                    return middle.findExpr(th, offset);
                 }
             }
         }
@@ -275,9 +356,9 @@ public class AstScope implements Iterable<AstScope> {
         return null;
     }
 
-    
     public List<AstElement> findOccurrences(AstElement element) {
         AstDef def = null;
+
         if (element instanceof AstDef) {
             def = (AstDef) element;
         } else if (element instanceof AstRef) {
@@ -290,8 +371,7 @@ public class AstScope implements Iterable<AstScope> {
 
         List<AstElement> occurrences = new ArrayList<AstElement>();
         occurrences.add(def);
-
-        findRefs(def, occurrences);
+        occurrences.addAll(findRefs(def));
 
         return occurrences;
     }
@@ -310,50 +390,62 @@ public class AstScope implements Iterable<AstScope> {
 
     public AstDef findDef(AstRef ref) {
         AstScope closestScope = ref.getEnclosingScope();
-        return findDefInScope(closestScope, ref);
+        return closestScope.findDefInScopeRecursively(ref);
     }
 
-    private AstDef findDefInScope(AstScope scope, AstRef ref) {
-        for (AstDef def : scope.getDefs()) {
-            if (def.referredBy(ref)) {
-                return def;
+    private final AstDef findDefInScopeRecursively(AstRef ref) {
+        if (defs != null) {
+            for (AstDef def : defs) {
+                if (def.referredBy(ref)) {
+                    return def;
+                }
             }
         }
 
-        AstScope parentScope = scope.getParent();
-        if (parentScope != null) {
-            return parentScope.findDefInScope(parentScope, ref);
+        if (parent != null) {
+            return parent.findDefInScopeRecursively(ref);
         }
 
         return null;
     }
 
-    public void findRefs(AstDef def, List<AstElement> refs) {
+    public List<AstRef> findRefs(AstDef def) {
+        List<AstRef> result = new ArrayList<AstRef>();
+
         AstScope enclosingScope = def.getEnclosingScope();
-        findRefsInScope(enclosingScope, def, refs);
+        enclosingScope.findRefsInScopeRecursively(def, result);
+
+        return result;
     }
 
-    private void findRefsInScope(AstScope scope, AstDef def, List<AstElement> refs) {
-        // find if there is closest override def, if so, we shoud bypass now :
-        for (AstDef _def : scope.getDefs()) {
-            if (_def != def && _def.mayEqual(def)) {
-                return;
+    private final void findRefsInScopeRecursively(AstDef def, List<AstRef> result) {
+        // find if there is closest override def, if so, we shoud bypass it now :
+        if (defs != null) {
+            for (AstDef _def : defs) {
+                if (_def != def && _def.mayEqual(def)) {
+                    return;
+                }
             }
         }
 
-        for (AstRef ref : scope.getRefs()) {
-            if (def.referredBy(ref)) {
-                refs.add(ref);
+        if (refs != null) {
+            for (AstRef ref : refs) {
+                if (def.referredBy(ref)) {
+                    result.add(ref);
+                }
+
             }
         }
 
-        for (AstScope _scope : scope.getScopes()) {
-            findRefsInScope(_scope, def, refs);
+        if (scopes != null) {
+            for (AstScope scope : scopes) {
+                scope.findRefsInScopeRecursively(def, result);
+            }
         }
     }
 
     private boolean contains(TokenHierarchy th, int offset) {
-        return offset >= getOffset(th) && offset < getEndOffset(th);
+        return offset >= getBoundsOffset(th) && offset < getBoundsEndOffset(th);
     }
 
     public AstScope getClosestScope(TokenHierarchy th, int offset) {
@@ -390,16 +482,17 @@ public class AstScope implements Iterable<AstScope> {
         return result;
     }
 
-    private <T extends AstDef> void getDefsInScopeRecursively(Class<T> clazz, List<T> result) {
-        for (AstDef def : getDefs()) {
-            if (clazz.isInstance(def)) {
-                result.add((T) def);
+    private final <T extends AstDef> void getDefsInScopeRecursively(Class<T> clazz, List<T> result) {
+        if (defs != null) {
+            for (AstDef def : defs) {
+                if (clazz.isInstance(def)) {
+                    result.add((T) def);
+                }
             }
         }
 
-        AstScope parentScope = getParent();
-        if (parentScope != null) {
-            parentScope.getDefsInScopeRecursively(clazz, result);
+        if (parent != null) {
+            parent.getDefsInScopeRecursively(clazz, result);
         }
     }
 
@@ -409,13 +502,11 @@ public class AstScope implements Iterable<AstScope> {
     }
 
     public <T extends AstDef> T getEnclosingDef(Class<T> clazz) {
-        AstDef binding = getBindingDef();
-        if (binding != null && clazz.isInstance(binding)) {
-            return (T) binding;
+        if (bindingDef != null && clazz.isInstance(bindingDef)) {
+            return (T) bindingDef;
         } else {
-            AstScope parentScope = getParent();
-            if (parentScope != null) {
-                return parentScope.getEnclosingDef(clazz);
+            if (parent != null) {
+                return parent.getEnclosingDef(clazz);
             } else {
                 return null;
             }
@@ -426,8 +517,9 @@ public class AstScope implements Iterable<AstScope> {
     public String toString() {
         return "Scope(Binding=" + bindingDef + "," + ",defs=" + getDefs() + ",refs=" + getRefs() + ")";
     }
-
+    // ----- inner classes
     private static class ScopeComparator implements Comparator<AstScope> {
+
         private TokenHierarchy th;
 
         public ScopeComparator(TokenHierarchy th) {
@@ -435,11 +527,12 @@ public class AstScope implements Iterable<AstScope> {
         }
 
         public int compare(AstScope o1, AstScope o2) {
-            return o1.getOffset(th) < o2.getOffset(th) ? -1 : 1;
+            return o1.getBoundsOffset(th) < o2.getBoundsOffset(th) ? -1 : 1;
         }
     }
 
     private static class ExprComparator implements Comparator<AstExpr> {
+
         private TokenHierarchy th;
 
         public ExprComparator(TokenHierarchy th) {
@@ -447,19 +540,33 @@ public class AstScope implements Iterable<AstScope> {
         }
 
         public int compare(AstExpr o1, AstExpr o2) {
-            return o1.getOffset(th) < o2.getOffset(th) ? -1 : 1;
+            return o1.getBoundsOffset(th) < o2.getBoundsOffset(th) ? -1 : 1;
         }
     }
 
-    private static class ElementComparator implements Comparator<AstElement> {
+    private static class DefComparator implements Comparator<AstDef> {
+
         private TokenHierarchy th;
 
-        public ElementComparator(TokenHierarchy th) {
+        public DefComparator(TokenHierarchy th) {
             this.th = th;
         }
-        
-        public int compare(AstElement o1, AstElement o2) {
-            return o1.getIdToken().offset(th) < o2.getIdToken().offset(th) ? -1 : 1;
+
+        public int compare(AstDef o1, AstDef o2) {
+            return o1.getPickOffset(th) < o2.getPickOffset(th) ? -1 : 1;
+        }
+    }
+
+    private static class RefComparator implements Comparator<AstRef> {
+
+        private TokenHierarchy th;
+
+        public RefComparator(TokenHierarchy th) {
+            this.th = th;
+        }
+
+        public int compare(AstRef o1, AstRef o2) {
+            return o1.getPickOffset(th) < o2.getPickEndOffset(th) ? -1 : 1;
         }
     }
 }

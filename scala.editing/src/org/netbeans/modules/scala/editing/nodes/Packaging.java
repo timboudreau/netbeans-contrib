@@ -52,7 +52,6 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
 public class Packaging extends AstDef {
 
     private List<Id> ids;
-    private List<List<Id>> imports;
     private boolean top;
 
     public Packaging(Token idToken, AstScope bindingScope) {
@@ -65,14 +64,6 @@ public class Packaging extends AstDef {
 
     public List<Id> getIds() {
         return ids == null ? Collections.<Id>emptyList() : ids;
-    }
-
-    public void setImports(List<List<Id>> imports) {
-        this.imports = imports;
-    }
-
-    public List<List<Id>> getImports() {
-        return imports;
     }
 
     @Override

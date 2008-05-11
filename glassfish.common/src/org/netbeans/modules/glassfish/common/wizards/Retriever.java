@@ -67,9 +67,9 @@ import org.openide.util.Utilities;
  */
 public class Retriever implements Runnable {
 
-    public static final int LOCATION_DOWNLOAD_TIMEOUT = 3000;
+    public static final int LOCATION_DOWNLOAD_TIMEOUT = 20000;
     public static final int LOCATION_TRIES = 3;
-    public static final int ZIP_DOWNLOAD_TIMEOUT = 30000;
+    public static final int ZIP_DOWNLOAD_TIMEOUT = 120000;
     
     public static final int STATUS_START = 0;
     public static final int STATUS_CONNECTING = 1;
@@ -271,7 +271,7 @@ public class Retriever implements Runnable {
             final InputStream entryStream = jarStream;
             JarEntry entry;
             while(!shutdown && (entry = (JarEntry) jarStream.getNextEntry()) != null) {
-                String entryName = stripGlassfish(entry.getName());
+                String entryName = stripTopLevelDir(entry.getName());
                 if(entryName == null || entryName.length() == 0) {
                     continue;
                 }
@@ -338,8 +338,15 @@ public class Retriever implements Runnable {
             return;
         }
 
-        File binDir = new File(installDir, "bin");
-        if(!binDir.exists()) {
+        List<File> binList = new ArrayList<File>();
+        for(String binPath: new String[] { "bin", "glassfish/bin", "javadb/bin" }) {
+            File dir = new File(installDir, binPath);
+            if(dir.exists()) {
+                binList.add(dir);
+            }
+        }
+        
+        if(binList.size() == 0) {
             return;
         }
 
@@ -354,23 +361,27 @@ public class Retriever implements Runnable {
 
         if(chmod.isFile()) {
             try {
-                List<String> argv = new ArrayList<String>();
-                argv.add(chmod.getAbsolutePath());
-                argv.add("u+rx"); // NOI18N
+                for(File binDir: binList) {
+                    List<String> argv = new ArrayList<String>();
+                    argv.add(chmod.getAbsolutePath());
+                    argv.add("u+rx"); // NOI18N
 
-                String[] files = binDir.list();
+                    String[] files = binDir.list();
 
-                for(String file : files) {
-                    argv.add(file);
-                }
+                    for(String file : files) {
+                        if(file.indexOf('.') == -1) {
+                            argv.add(file);
+                        }
+                    }
 
-                ProcessBuilder pb = new ProcessBuilder(argv);
-                pb.directory(binDir);
-                Process process = pb.start();
-                int chmoded = process.waitFor();
-                
-                if(chmoded != 0) {
-                    throw new IOException("could not run " + argv + " : Exit value=" + chmoded); // NOI18N
+                    ProcessBuilder pb = new ProcessBuilder(argv);
+                    pb.directory(binDir);
+                    Process process = pb.start();
+                    int chmoded = process.waitFor();
+
+                    if(chmoded != 0) {
+                        throw new IOException("could not run " + argv + " : Exit value=" + chmoded); // NOI18N
+                    }
                 }
             } catch (Exception ex) {
                 Logger.getLogger("glassfish").log(Level.INFO, ex.getLocalizedMessage(), ex);
@@ -378,14 +389,27 @@ public class Retriever implements Runnable {
         }
     }
     
-    private String stripGlassfish(String name) {
-        if(name.startsWith("glassfish")) {
-            name = name.substring(9);
-            if(name.startsWith("/") || name.startsWith("\\")) {
-                name = name.substring(1);
+    private static final String TOP_LEVEL_PREFIX = "glassfishv3"; // NOI18N
+    
+    private String stripTopLevelDir(String name) {
+        if(name.startsWith(TOP_LEVEL_PREFIX)) {
+            int slashIndex = slashIndexOf(name, TOP_LEVEL_PREFIX.length());
+            if(slashIndex >= 0) {
+                name = name.substring(slashIndex + 1);
             }
         }
         return name;
+    }
+    
+    private static int slashIndexOf(String s, int offset) {
+        int len = s.length();
+        for(int i = offset; i < len; i++) {
+            char c = s.charAt(i);
+            if(c == '/' || c == '\\') {
+                return i;
+            }
+        }
+        return -1;
     }
     
     private File backupInstallDir(File installDir) throws IOException {
@@ -429,13 +453,13 @@ public class Retriever implements Runnable {
         } else if(time == 0) {
             builder.append("no time at all");
         } else {
-            if(time > 360000) {
-                int hours = time / 360000;
-                time %= 360000;
+            if(time >= 3600000) {
+                int hours = time / 3600000;
+                time %= 3600000;
                 builder.append(hours);
                 builder.append(hours > 1 ? " hours" : " hour");
             }
-            if(time > 60000) {
+            if(time >= 60000) {
                 if(builder.length() > 0) {
                     builder.append(", ");
                 }
@@ -444,7 +468,7 @@ public class Retriever implements Runnable {
                 builder.append(minutes);
                 builder.append(minutes > 1 ? " minutes" : " minute");
             }
-            if(time > 1000 || builder.length() > 0) {
+            if(time >= 1000 || builder.length() > 0) {
                 if(builder.length() > 0) {
                     builder.append(", ");
                 }

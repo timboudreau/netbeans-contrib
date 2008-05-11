@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+ You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+ The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ Microsystems, Inc. All Rights Reserved.
+-->
+
+<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
+<!-- for some information on what you could do (e.g. targets to override). -->
+<!-- If you delete this file and reopen the project it will be recreated. -->
+<project name="ml-build" default="netbeans" basedir="../">
+    
+    <description>Portal Pack ML build</description>
+    <import file="../build.xml"/>
+    <target name="create-l10n-kit">
+         <property name="l10nkit-dir" value="build/l10n"/>
+         <property name="l10nkit-zip" value="build/portalpack-visualweb-l10nkit.zip"/>
+         <delete dir="${l10nkit-dir}"/>
+         <delete file="${l10nkit-zip}"/>
+         
+         <mkdir dir="${l10nkit-dir}"/>
+         <mkdir dir="${l10nkit-dir}/en"/>
+         
+         <copydir src="src" includes="**/Bundle.properties,**/*.html,**/*.htm" dest="${l10nkit-dir}/en"/>
+
+         <zip destfile="${l10nkit-zip}"
+           basedir="${l10nkit-dir}"
+         />
+    </target>
+    
+    <target name="compile" depends="projectized-common.compile">
+        <copy todir="build/classes">
+             <fileset dir="l10n/ja"/>
+             <fileset dir="l10n/pt_BR"/>
+             <fileset dir="l10n/zh_CN"/>
+       
+         </copy>
+     </target>
+
+      
+</project>

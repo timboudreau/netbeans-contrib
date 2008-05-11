@@ -39,6 +39,7 @@
 
 package org.netbeans.api.javafx.source;
 
+import org.netbeans.modules.javafx.source.classpath.SourceFileObject;
 import com.sun.javafx.api.JavafxcTask;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javac.util.Context;
@@ -67,6 +68,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
+import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.openide.cookies.EditorCookie;
@@ -190,14 +192,10 @@ public final class JavaFXSource {
 
     JavafxcTaskImpl createJavafxcTask(DiagnosticListener<JavaFileObject> diagnosticListener) {
         JavafxcTool tool = JavafxcTool.create();
-        JavacFileManager fileManager = tool.getStandardFileManager(null, null, Charset.defaultCharset());
+        JavaFileManager fileManager = cpInfo.getFileManager();
         JavaFileObject jfo = (JavaFileObject) SourceFileObject.create(files.iterator().next(), null); // XXX
         
         List<String> options = new ArrayList<String>();
-// XXX : replace with real file manager implementation
-        options.add("-Xbootclasspath:" + cpInfo.getBootPath()+File.pathSeparatorChar+cpInfo.getCompilePath());
-//        options.add("-classpath:" + cpInfo.getCompilePath());
-//        options.add("-sourcepath:" + cpInfo.getSrcPath());
         options.add("-Xjcov"); //NOI18N, Make the compiler store end positions
         options.add("-XDdisableStringFolding"); //NOI18N
         

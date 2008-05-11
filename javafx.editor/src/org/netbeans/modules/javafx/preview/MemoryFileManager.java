@@ -78,9 +78,6 @@ public final class MemoryFileManager extends ForwardingJavaFileManager {
         Iterator <Entry <String, byte[]>> it = set.iterator();
         while (it.hasNext()) {
             Entry <String, byte[]> entry = it.next();
-            String name = entry.getKey();
-            int pos = name.lastIndexOf(".");
-            String pack = name.substring(0, pos);
             buffers.add(new ClassInputBuffer(entry.getKey(), entry.getValue()));
         }
     }

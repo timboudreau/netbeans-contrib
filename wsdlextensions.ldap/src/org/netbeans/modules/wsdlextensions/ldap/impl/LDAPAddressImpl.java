@@ -143,4 +143,12 @@ public class LDAPAddressImpl extends LDAPComponentImpl implements LDAPAddress {
     public String getKeystoretype() {
         return getAttribute(LDAPAttribute.LDAP_KEYSTORETYPE_PROPERTY);
     }
+
+    public String getTlssecurity() {
+        return getAttribute(LDAPAttribute.LDAP_TLSSECURITY_PROPERTY);
+    }
+
+    public void setTlssecurity(String tlssecurity) {
+        setAttribute(LDAPAddress.LDAP_TLSSECURITY_PROPERTY, LDAPAttribute.LDAP_TLSSECURITY_PROPERTY, tlssecurity);
+    }
 }

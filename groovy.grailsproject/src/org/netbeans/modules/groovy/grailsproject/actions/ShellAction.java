@@ -28,13 +28,25 @@
 package org.netbeans.modules.groovy.grailsproject.actions;
 
 import java.awt.event.ActionEvent;
+import java.util.concurrent.Callable;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectInformation;
+import org.netbeans.modules.groovy.grails.api.ExecutionSupport;
+import org.netbeans.modules.groovy.grails.api.GrailsProjectConfig;
+import org.netbeans.modules.groovy.grails.api.GrailsRuntime;
+import org.netbeans.modules.groovy.grailsproject.execution.DefaultDescriptor;
+import org.netbeans.modules.groovy.grailsproject.execution.ExecutionService;
+import org.netbeans.modules.groovy.grailsproject.execution.LineSnooper;
+import org.openide.filesystems.FileObject;
 
 public class ShellAction extends AbstractAction {
 
-    Project prj;
+    private static final Logger LOG = Logger.getLogger(ShellAction.class.getName());
+
+    private final Project prj;
 
     public ShellAction(Project prj) {
         super("Open Shell");
@@ -46,6 +58,19 @@ public class ShellAction extends AbstractAction {
     }
 
     public void actionPerformed(ActionEvent e) {
-        new PublicSwingWorker(prj, "shell").start();
+        final GrailsRuntime runtime = GrailsRuntime.getInstance();
+        if (!runtime.isConfigured()) {
+            ConfigSupport.showConfigurationWarning(runtime);
+            return;
+        }
+        
+        Callable<Process> callable = ExecutionSupport.getInstance().createSimpleCommand("shell",
+                GrailsProjectConfig.forProject(prj));
+        ProjectInformation inf = prj.getLookup().lookup(ProjectInformation.class);
+        String displayName = inf.getDisplayName() + " (shell)"; // NOI18N
+        ExecutionService service = new ExecutionService(callable, displayName,
+                new DefaultDescriptor(prj, true));
+
+        service.run();
     }
 }

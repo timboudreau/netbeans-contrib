@@ -27,6 +27,7 @@
  */
 package org.netbeans.modules.groovy.grailsproject.actions;
 
+import org.netbeans.modules.groovy.grailsproject.execution.LineSnooper;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import java.io.File;
@@ -37,6 +38,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.Enumeration;
 import org.netbeans.modules.groovy.grails.api.GrailsProjectConfig;
+import org.netbeans.modules.groovy.grails.api.GrailsRuntime;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
@@ -52,7 +54,7 @@ public class CreateWarFileAction extends AbstractAction implements LineSnooper {
     public CreateWarFileAction(Project prj) {
         super("Create war file");
         this.prj = prj;
-        prjConfig = new GrailsProjectConfig(prj);
+        prjConfig = GrailsProjectConfig.forProject(prj);
         autodeploy = prjConfig.getAutoDeployFlag();
 
     }
@@ -62,6 +64,12 @@ public class CreateWarFileAction extends AbstractAction implements LineSnooper {
     }
 
     public void actionPerformed(ActionEvent e) {
+        final GrailsRuntime runtime = GrailsRuntime.getInstance();
+        if (!runtime.isConfigured()) {
+            ConfigSupport.showConfigurationWarning(runtime);
+            return;
+        }
+        
         psw = new PublicSwingWorker(prj, "war", this);
         psw.start();
 

@@ -44,18 +44,32 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.TypeMirror;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
+import org.netbeans.modules.scala.editing.nodes.ClassTemplate;
+import org.netbeans.modules.scala.editing.nodes.Function;
+import org.netbeans.modules.scala.editing.nodes.ObjectTemplate;
+import org.netbeans.modules.scala.editing.nodes.TraitTemplate;
+import org.netbeans.modules.scala.editing.nodes.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.Var;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
 
 /**
  * An element coming from the Lucene index - not tied to an AST.
@@ -65,16 +79,17 @@ import org.openide.util.Exceptions;
  * @author Caoyuan Deng
  */
 public abstract class IndexedElement extends AstElement {
-    
+
     protected static final int NAME_INDEX = 0;
     protected static final int IN_INDEX = 1;
     protected static final int CASE_SENSITIVE_INDEX = 2;
     protected static final int FLAG_INDEX = 3;
     protected static final int ARG_INDEX = 4;
     protected static final int NODE_INDEX = 5;
-    protected static final int DOC_INDEX = 6;
-    protected static final int BROWSER_INDEX = 7;
-    protected static final int TYPE_INDEX = 8;
+    protected static final int DOC_START_INDEX = 6;
+    protected static final int DOC_END_INDEX = 7;
+    protected static final int BROWSER_INDEX = 8;
+    protected static final int TYPE_INDEX = 9;
     // ------------- Flags/attributes -----------------
 
     // This should go into IndexedElement
@@ -104,12 +119,13 @@ public abstract class IndexedElement extends AstElement {
     public static final int DOC_ONLY = 1 << 9;
     /** This is a constant/final */
     public static final int FINAL = 1 << 10;
-    
     public static final int CLASS = 1 << 11;
     public static final int OBJECT = 1 << 12;
     public static final int TRAIT = 1 << 13;
-            
-        
+    /** This is a function with null params */
+    public static final int NULL_PARAMS = 1 << 14;
+    public static final int FIELD = 1 << 15;
+    public static final int JAVA = 1 << 16;
     protected String fqn;
     protected String name;
     protected String in;
@@ -123,6 +139,9 @@ public abstract class IndexedElement extends AstElement {
     protected boolean smart;
     protected boolean inherited = true;
     protected ElementKind kind;
+    private javax.lang.model.element.Element javaElement;
+    private org.netbeans.api.java.source.CompilationInfo javaInfo;
+    private Set<Modifier> modifiers;
 
     IndexedElement(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
         super(null, null);
@@ -138,21 +157,32 @@ public abstract class IndexedElement extends AstElement {
 
     static IndexedElement create(String attributes, String fileUrl, String fqn, String name, String in, int attrIndex, ScalaIndex index, boolean createPackage) {
         int flags = IndexedElement.decode(attributes, attrIndex, 0);
+
         if (createPackage) {
-            IndexedPackage func = new IndexedPackage(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.PACKAGE);
-            return func;
+            IndexedPackage pkg = new IndexedPackage(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.PACKAGE);
+            return pkg;
         }
+
         if ((flags & FUNCTION) != 0) {
             ElementKind kind = ((flags & CONSTRUCTOR) != 0) ? ElementKind.CONSTRUCTOR : ElementKind.METHOD;
-            IndexedFunction func = new IndexedFunction(fqn, name, in, index, fileUrl, attributes, flags, kind);
-            return func;
-        } else if ((flags & GLOBAL) != 0) {
-            ElementKind kind = Character.isUpperCase(name.charAt(0)) ? ElementKind.CLASS : ElementKind.GLOBAL;
-            IndexedTemplate property = new IndexedTemplate(fqn, name, in, index, fileUrl, attributes, flags, kind);
-            return property;
+            IndexedFunction fun = new IndexedFunction(fqn, name, in, index, fileUrl, attributes, flags, kind);
+            return fun;
+        } else if ((flags & CLASS) != 0) {
+            IndexedType type = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.CLASS);
+            return type;
+        } else if ((flags & OBJECT) != 0) {
+            IndexedType type = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.CLASS);
+            return type;
+        } else if ((flags & TRAIT) != 0) {
+            IndexedType type = new IndexedType(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.MODULE);
+            return type;
+        } else if ((flags & FIELD) != 0) {
+            IndexedField field = new IndexedField(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.FIELD);
+            return field;
         } else {
-            IndexedTemplate property = new IndexedTemplate(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.CLASS);
-            return property;
+            /** @Todo assert false */
+            IndexedField field = new IndexedField(fqn, name, in, index, fileUrl, attributes, flags, ElementKind.FIELD);
+            return field;
         }
     }
 
@@ -197,6 +227,29 @@ public abstract class IndexedElement extends AstElement {
         return indexedElement;
     }
 
+    static IndexedElement create(AstElement element, TokenHierarchy th, ScalaIndex index) {
+        String in = element.getIn();
+        String thename = element.getName();
+        StringBuilder base = new StringBuilder();
+        base.append(thename.toLowerCase());
+        base.append(';');
+        if (in != null) {
+            base.append(in);
+        }
+        base.append(';');
+        base.append(thename);
+        base.append(';');
+        base.append(computeAttributes(element, th));
+
+        return create(element.getName(), base.toString(), "", index, false);
+    }
+
+    public void setJavaInfo(javax.lang.model.element.Element javaElement, org.netbeans.api.java.source.CompilationInfo javaInfo) {
+        assert isJava() : "Only IndexedElement for Java's element has javaElement";
+        this.javaElement = javaElement;
+        this.javaInfo = javaInfo;
+    }
+
     public String getSignature() {
         if (signature == null) {
             StringBuilder sb = new StringBuilder();
@@ -226,25 +279,72 @@ public abstract class IndexedElement extends AstElement {
         return fqn;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String getIn() {
         return in;
     }
 
-    public void setKind(ElementKind kind) {
-        this.kind = kind;
-    }
-
+    @Override
     public ElementKind getKind() {
-        return kind;
+        if (isJava()) {
+            switch (javaElement.getKind()) {
+                case PACKAGE:
+                    return ElementKind.PACKAGE;
+                case CONSTRUCTOR:
+                    return ElementKind.CONSTRUCTOR;
+                case METHOD:
+                    return ElementKind.METHOD;
+                case FIELD:
+                    return ElementKind.FIELD;
+                case CLASS:
+                    return ElementKind.CLASS;
+                case INTERFACE:
+                    return ElementKind.MODULE;
+                default:
+                    return ElementKind.OTHER;
+            }
+        } else {
+            if (kind != null) {
+                return kind;
+            }
+            if (isConstructor()) {
+                return ElementKind.CONSTRUCTOR;
+            } else if (isFunction()) {
+                return ElementKind.METHOD;
+            } else {
+                return ElementKind.FIELD;
+            }
+        }
     }
 
+    @Override
     public Set<Modifier> getModifiers() {
-        /* @TODO */
-        return Collections.emptySet();
+        if (modifiers == null) {
+            modifiers = new HashSet<Modifier>();
+
+            if (isPrivate()) {
+                modifiers.add(Modifier.PRIVATE);
+            } else if (isProtected()) {
+                modifiers.add(Modifier.PROTECTED);
+            } else if (isPublic()) {
+                modifiers.add(Modifier.PUBLIC);
+            }
+
+            if (isStatic()) {
+                modifiers.add(Modifier.STATIC);
+            }
+
+            if (modifiers.isEmpty()) {
+                modifiers = Collections.<Modifier>emptySet();
+            }
+        }
+
+        return modifiers;
     }
 
     public String getFilenameUrl() {
@@ -259,7 +359,7 @@ public abstract class IndexedElement extends AstElement {
                 return null;
             }
 
-        //document = NbUtilities.getBaseDocument(fileObject, true);
+            document = NbUtilities.getBaseDocument(fileObject, true);
         }
 
         return document;
@@ -271,10 +371,16 @@ public abstract class IndexedElement extends AstElement {
         return new DefaultParserFile(getFileObject(), null, platform);
     }
 
+    @Override
     public FileObject getFileObject() {
-        if ((fileObject == null) && (fileUrl != null)) {
-            fileObject = ScalaIndex.getFileObject(fileUrl);
+        if (fileObject != null) {
+            return fileObject;
+        }
 
+        if (isJava()) {
+            fileObject = JavaUtilities.getOriginFileObject(javaInfo, javaElement);
+        } else if (fileUrl != null && fileUrl.length() > 0) {
+            fileObject = ScalaIndex.getFileObject(fileUrl);
             if (fileObject == null) {
                 // Don't try again
                 fileUrl = null;
@@ -293,77 +399,63 @@ public abstract class IndexedElement extends AstElement {
         return fileObject;
     }
 
-    protected int getAttributeSection(int section) {
-        assert section != 0; // Obtain directly, and logic below (+1) is wrong
-
-        int attributeIndex = 0;
-        for (int i = 0; i < section; i++) {
-            attributeIndex = attributes.indexOf(';', attributeIndex + 1);
+    int getOffset() {
+        int offset = 0;
+        if (isJava()) {
+            try {
+                offset = JavaUtilities.getOffset(javaInfo, javaElement);
+            } catch (IOException ex) {
+            }
+        } else {
+            int OffsetIndex = getAttributeSection(NODE_INDEX);
+            if (OffsetIndex != -1) {
+                offset = IndexedElement.decode(attributes, OffsetIndex, -1);
+            }
         }
-
-        assert attributeIndex != -1;
-        return attributeIndex + 1;
+        return offset;
     }
 
-    int getDocOffset() {
-        int docOffsetIndex = getAttributeSection(DOC_INDEX);
-        if (docOffsetIndex != -1) {
-            int docOffset = IndexedElement.decode(attributes, docOffsetIndex, -1);
-            return docOffset;
+    OffsetRange getDocRange() {
+        int docOffsetIndex = getAttributeSection(DOC_START_INDEX);
+        int docEndOffsetIndex = getAttributeSection(DOC_END_INDEX);
+        if (docOffsetIndex != -1 && docEndOffsetIndex != -1) {
+            int docOffset = decode(attributes, docOffsetIndex, -1);
+            int docEndOffset = decode(attributes, docEndOffsetIndex, -1);
+            return new OffsetRange(docOffset, docEndOffset);
         }
-        return -1;
+        return OffsetRange.NONE;
     }
 
-    protected List<String> getComments() {
-        int docOffsetIndex = getAttributeSection(DOC_INDEX);
-        if (docOffsetIndex != -1) {
-            int docOffset = IndexedElement.decode(attributes, docOffsetIndex, -1);
-            if (docOffset == -1) {
+    String getComment() {
+        String comment = null;
+
+        if (isJava()) {
+            try {
+                String docComment = JavaUtilities.getJavaDoc(javaInfo, javaElement);
+                if (docComment != null) {
+                    comment = "/**" + docComment + "*/";
+                }
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        } else {
+            OffsetRange range = getDocRange();
+            if (range == OffsetRange.NONE) {
                 return null;
             }
             try {
                 BaseDocument doc = (BaseDocument) getDocument();
-                if (doc == null) {
-                    return null;
-                }
-                if (docOffset < doc.getLength()) {
-                    //return LexUtilities.gatherDocumentation(null, doc, docOffset);
-                    OffsetRange range = ScalaLexUtilities.getCommentBlock(doc, docOffset, false);
-                    if (range != OffsetRange.NONE) {
-                        String comment = doc.getText(range.getStart(), range.getLength());
-                        String[] lines = comment.split("\n");
-                        List<String> comments = new ArrayList<String>();
-                        for (int i = 0, n = lines.length; i < n; i++) {
-                            String line = lines[i];
-                            line = line.trim();
-                            if (i == n - 1 && line.endsWith("*/")) {
-                                line = line.substring(0, line.length() - 2);
-                            }
-                            if (line.startsWith("/**")) {
-                                comments.add(line.substring(3));
-                            } else if (line.startsWith("/*")) {
-                                comments.add(line.substring(2));
-                            } else if (line.startsWith("//")) {
-                                comments.add(line.substring(2));
-                            } else if (line.startsWith("*")) {
-                                comments.add(line.substring(1));
-                            } else {
-                                comments.add(line);
-                            }
-                        }
-                        return comments;
-                    }
-                    return Collections.emptyList();
+                if (doc != null && range.getEnd() < doc.getLength()) {
+                    comment = doc.getText(range.getStart(), range.getLength());
                 }
             } catch (BadLocationException ex) {
                 Exceptions.printStackTrace(ex);
             } catch (IOException ioe) {
                 Exceptions.printStackTrace(ioe);
-                return null;
             }
         }
 
-        return null;
+        return comment;
     }
 
     public String getTypeString() {
@@ -432,6 +524,19 @@ public abstract class IndexedElement extends AstElement {
 
         return null;
     }
+
+    int getAttributeSection(int section) {
+        assert section != 0; // Obtain directly, and logic below (+1) is wrong
+
+        int attributeIndex = 0;
+        for (int i = 0; i < section; i++) {
+            attributeIndex = attributes.indexOf(';', attributeIndex + 1);
+        }
+
+        assert attributeIndex != -1;
+        return attributeIndex + 1;
+    }
+
     /** Return a string (suitable for persistence) encoding the given flags */
     public static String encode(int flags) {
         return Integer.toString(flags, 16);
@@ -461,30 +566,364 @@ public abstract class IndexedElement extends AstElement {
         return value;
     }
 
-    public static int getFlags(AstElement element) {
-        // Return the flags corresponding to the given AST element
-        int value = 0;
+    /** Return the flags corresponding to the given AST element */
+    public static int computeFlags(AstElement element) {
+        int flags = 0;
 
-        ElementKind k = element.getKind();
-        if (k == ElementKind.CONSTRUCTOR) {
-            value = value | CONSTRUCTOR;
+        if (element instanceof ClassTemplate) {
+            flags = flags | CLASS;
+        } else if (element instanceof ObjectTemplate) {
+            flags = flags | OBJECT;
+        } else if (element instanceof TraitTemplate) {
+            flags = flags | TRAIT;
+            flags = flags | STATIC;
+        } else if (element instanceof Function) {
+            Function fun = (Function) element;
+            flags = flags | FUNCTION;
+            if (fun.getParams() == null) {
+                flags = flags | NULL_PARAMS;
+            }
         }
-        if (k == ElementKind.METHOD || k == ElementKind.CONSTRUCTOR) {
-            value = value | FUNCTION;
-        } else if (k == ElementKind.GLOBAL) {
-            value = value | GLOBAL;
+
+        switch (element.getKind()) {
+            case CONSTRUCTOR:
+                flags = flags | CONSTRUCTOR;
+                break;
+            case FIELD:
+                flags = flags | FIELD;
+                break;
+            default:
+                break;
         }
+
+
         if (element.getModifiers().contains(Modifier.STATIC)) {
-            value = value | STATIC;
-        }
-        if (element.getModifiers().contains(Modifier.DEPRECATED)) {
-            value = value | DEPRECATED;
-        }
-        if (element.getModifiers().contains(Modifier.PRIVATE)) {
-            value = value | PRIVATE;
+            flags = flags | STATIC;
         }
 
-        return value;
+        if (element.getModifiers().contains(Modifier.DEPRECATED)) {
+            flags = flags | DEPRECATED;
+        }
+
+        if (element.getModifiers().contains(Modifier.PRIVATE)) {
+            flags = flags | PRIVATE;
+        }
+
+        if (element.getModifiers().contains(Modifier.PROTECTED)) {
+            flags = flags | PROTECTED;
+        }
+
+        return flags;
+    }
+
+    /** Return the flags corresponding to the given Java element */
+    public static int computeFlags(javax.lang.model.element.Element jelement) {
+        int flags = 0 | IndexedElement.JAVA;
+
+        switch (jelement.getKind()) {
+            case CLASS:
+                flags = flags | CLASS;
+                break;
+            case INTERFACE:
+                flags = flags | TRAIT;
+                break;
+            case ENUM:
+                flags = flags | OBJECT;
+                break;
+            case CONSTRUCTOR:
+                flags = flags | CONSTRUCTOR;
+                flags = flags | FUNCTION;
+                break;
+            case METHOD:
+                flags = flags | FUNCTION;
+                break;
+            case ENUM_CONSTANT:
+            case FIELD:
+                flags = flags | FIELD;
+                break;
+            default:
+                break;
+        }
+
+        if (jelement.getModifiers().contains(javax.lang.model.element.Modifier.STATIC)) {
+            flags = flags | STATIC;
+        }
+
+        if (jelement.getModifiers().contains(javax.lang.model.element.Modifier.PRIVATE)) {
+            flags = flags | PRIVATE;
+        }
+
+        if (jelement.getModifiers().contains(javax.lang.model.element.Modifier.PROTECTED)) {
+            flags = flags | PROTECTED;
+        }
+
+        return flags;
+    }
+
+    public static String computeAttributes(AstElement element, TokenHierarchy th) {
+        OffsetRange docRange = getDocumentationOffset(element, th);
+        //Map<String,String> typeMap = element.getDocProps();
+
+        // Look up compatibility
+        int index = FLAG_INDEX;
+        String compatibility = "";
+//            if (file.getNameExt().startsWith("stub_")) { // NOI18N
+//                int astOffset = element.getNode().getSourceStart();
+//                int lexOffset = astOffset;
+//                TranslatedSource source = pResult.getTranslatedSource();
+//                if (source != null) {
+//                    lexOffset = source.getLexicalOffset(astOffset);
+//                }
+//                try {
+//                    String line = doc.getText(lexOffset,
+//                            Utilities.getRowEnd(doc, lexOffset)-lexOffset);
+//                    int compatIdx = line.indexOf("COMPAT="); // NOI18N
+//                    if (compatIdx != -1) {
+//                        compatIdx += "COMPAT=".length(); // NOI18N
+//                        EnumSet<BrowserVersion> es = BrowserVersion.fromFlags(line.substring(compatIdx));
+//                        compatibility = BrowserVersion.toCompactFlags(es);
+//                    }
+//                } catch (BadLocationException ex) {
+//                    Exceptions.printStackTrace(ex);
+//                }
+//            }
+
+        assert index == FLAG_INDEX;
+        StringBuilder sb = new StringBuilder();
+
+        int flags = computeFlags(element);
+        // Add in info from documentation
+//            if (typeMap != null) {
+//                // Most flags are already handled by AstElement.getFlags()...
+//                // Consider handling the rest too
+//                if (typeMap.get("@ignore") != null) { // NOI18N
+//                    flags = flags | IndexedElement.NODOC;
+//                }
+//            }
+        if (docRange != OffsetRange.NONE) {
+            flags = flags | DOCUMENTED;
+        }
+        sb.append(IndexedElement.encode(flags));
+
+        // Parameters
+        sb.append(';');
+        index++;
+        assert index == ARG_INDEX;
+        if (element instanceof Function) {
+            Function function = (Function) element;
+
+            List<Var> params = function.getParams();
+            if (params != null) {
+                int argIndex = 0;
+                for (Var param : params) {
+                    String paramName = param.getName();
+                    if (argIndex == 0 && "super".equals(paramName)) { // NOI18N
+                        // Prototype inserts these as the first param to handle inheritance/super
+
+                        argIndex++;
+                        continue;
+                    }
+                    if (argIndex > 0) {
+                        sb.append(',');
+                    }
+                    sb.append(paramName);
+                    TypeRef paramType = param.getType();
+                    if (paramType != null) {
+                        String typeName = paramType.getName();
+                        if (typeName != null) {
+                            sb.append(':');
+                            sb.append(typeName);
+                        }
+                    }
+                    argIndex++;
+                }
+            }
+        }
+
+        // Node offset
+        sb.append(';');
+        index++;
+        assert index == NODE_INDEX;
+        sb.append(IndexedElement.encode(element.getPickOffset(th)));
+
+        // Documentation offset
+        sb.append(';');
+        index++;
+        assert index == DOC_START_INDEX;
+        if (docRange != OffsetRange.NONE) {
+            sb.append(IndexedElement.encode(docRange.getStart()));
+        }
+
+        // Documentation end offset
+        sb.append(';');
+        index++;
+        assert index == DOC_END_INDEX;
+        if (docRange != OffsetRange.NONE) {
+            sb.append(IndexedElement.encode(docRange.getEnd()));
+        }
+
+        // Browser compatibility
+        sb.append(';');
+        index++;
+        assert index == BROWSER_INDEX;
+        sb.append(compatibility);
+
+        // Types
+        sb.append(';');
+        index++;
+        assert index == TYPE_INDEX;
+        TypeRef type = element.getType();
+//            if (type == null) {
+//                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
+//            }
+        if (type != null) {
+            if (type.isResolved()) {
+                sb.append(type.getQualifiedName());
+            } else {
+                sb.append(type.getName());
+            }
+        } else {
+            // @Todo
+        }
+        sb.append(';');
+
+        return sb.toString();
+    }
+
+    public static String computeAttributes(javax.lang.model.element.Element jelement) {
+        OffsetRange docRange = OffsetRange.NONE;
+
+        TypeMirror type = jelement.asType();
+        //Map<String,String> typeMap = element.getDocProps();
+
+        // Look up compatibility
+        int index = FLAG_INDEX;
+        String compatibility = "";
+//            if (file.getNameExt().startsWith("stub_")) { // NOI18N
+//                int astOffset = element.getNode().getSourceStart();
+//                int lexOffset = astOffset;
+//                TranslatedSource source = pResult.getTranslatedSource();
+//                if (source != null) {
+//                    lexOffset = source.getLexicalOffset(astOffset);
+//                }
+//                try {
+//                    String line = doc.getText(lexOffset,
+//                            Utilities.getRowEnd(doc, lexOffset)-lexOffset);
+//                    int compatIdx = line.indexOf("COMPAT="); // NOI18N
+//                    if (compatIdx != -1) {
+//                        compatIdx += "COMPAT=".length(); // NOI18N
+//                        EnumSet<BrowserVersion> es = BrowserVersion.fromFlags(line.substring(compatIdx));
+//                        compatibility = BrowserVersion.toCompactFlags(es);
+//                    }
+//                } catch (BadLocationException ex) {
+//                    Exceptions.printStackTrace(ex);
+//                }
+//            }
+
+        assert index == FLAG_INDEX;
+        StringBuilder sb = new StringBuilder();
+
+        int flags = computeFlags(jelement);
+
+        // Add in info from documentation
+//            if (typeMap != null) {
+//                // Most flags are already handled by AstElement.getFlags()...
+//                // Consider handling the rest too
+//                if (typeMap.get("@ignore") != null) { // NOI18N
+//                    flags = flags | IndexedElement.NODOC;
+//                }
+//            }
+        if (docRange != OffsetRange.NONE) {
+            flags = flags | DOCUMENTED;
+        }
+        sb.append(IndexedElement.encode(flags));
+
+        // Parameters
+        sb.append(';');
+        index++;
+        assert index == ARG_INDEX;
+        if (jelement instanceof ExecutableElement) {
+            ExecutableElement func = (ExecutableElement) jelement;
+            ExecutableType funcType = (ExecutableType) func.asType();
+
+            int argIndex = 0;
+            Iterator<? extends VariableElement> itr = func.getParameters().iterator();
+            Iterator<? extends TypeMirror> tItr = funcType.getParameterTypes().iterator();
+            while (itr.hasNext()) {
+                String paramName = itr.next().getSimpleName().toString();
+                if (argIndex == 0 && "super".equals(paramName)) {
+                    // Prototype inserts these as the first param to handle inheritance/super
+                    argIndex++;
+                    continue;
+                }
+                if (argIndex > 0) {
+                    sb.append(',');
+                }
+                sb.append(paramName);
+                if (tItr.hasNext()) {
+                    TypeMirror tm = tItr.next();
+                    String paramType = JavaUtilities.getTypeName(tm, false, func.isVarArgs() && !tItr.hasNext()).toString();
+                    sb.append(':');
+                    sb.append(paramType);
+                }
+                argIndex++;
+            }
+            type = funcType.getReturnType();
+        }
+
+
+        // Node offset
+        sb.append(';');
+        index++;
+        assert index == NODE_INDEX;
+        int offset = 0; // will compute lazily
+        sb.append(encode(offset));
+
+        // Documentation offset
+        sb.append(';');
+        index++;
+        assert index == DOC_START_INDEX;
+        if (docRange != OffsetRange.NONE) {
+            sb.append(IndexedElement.encode(docRange.getStart()));
+        }
+
+        // Documentation end offset
+        sb.append(';');
+        index++;
+        assert index == DOC_END_INDEX;
+        if (docRange != OffsetRange.NONE) {
+            sb.append(IndexedElement.encode(docRange.getEnd()));
+        }
+
+        // Browser compatibility
+        sb.append(';');
+        index++;
+        assert index == BROWSER_INDEX;
+        sb.append(compatibility);
+
+        // Types
+        sb.append(';');
+        index++;
+        assert index == TYPE_INDEX;
+//            if (type == null) {
+//                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
+//            }
+        if (type != null) {
+            String typeName = JavaUtilities.getTypeName(type, true).toString();
+            sb.append(typeName);
+        }
+        sb.append(';');
+
+        return sb.toString();
+    }
+
+    private static OffsetRange getDocumentationOffset(AstElement element, TokenHierarchy th) {
+        int astOffset = element.getPickOffset(th);
+        // XXX This is wrong; I should do a
+        //int lexOffset = LexUtilities.getLexerOffset(result, astOffset);
+        // but I don't have the CompilationInfo in the ParseResult handed to the indexer!!
+        int lexOffset = astOffset;
+        return ScalaLexUtilities.getDocCommentRangeBefore(th, lexOffset);
     }
 
     public boolean isDocumented() {
@@ -492,7 +931,11 @@ public abstract class IndexedElement extends AstElement {
     }
 
     public boolean isPublic() {
-        return (flags & PRIVATE) == 0;
+        return !isPrivate() && !isProtected();
+    }
+
+    public boolean isProtected() {
+        return (flags & PROTECTED) != 0;
     }
 
     public boolean isPrivate() {
@@ -501,6 +944,18 @@ public abstract class IndexedElement extends AstElement {
 
     public boolean isFunction() {
         return (flags & FUNCTION) != 0;
+    }
+
+    public boolean isConstructor() {
+        return (flags & CONSTRUCTOR) != 0;
+    }
+
+    public boolean isNullParams() {
+        return (flags & NULL_PARAMS) != 0;
+    }
+
+    public boolean isField() {
+        return (flags & FIELD) != 0;
     }
 
     public boolean isStatic() {
@@ -515,16 +970,22 @@ public abstract class IndexedElement extends AstElement {
         return (flags & FINAL) != 0;
     }
 
-    public boolean isConstructor() {
-        return (flags & CONSTRUCTOR) != 0;
-    }
-
     public boolean isDeprecated() {
         return (flags & DEPRECATED) != 0;
     }
 
     public boolean isDocOnly() {
         return (flags & DOC_ONLY) != 0;
+    }
+
+    public boolean isJava() {
+        return (flags & JAVA) != 0;
+    }
+
+    public static boolean isTemplate(int flags) {
+        return (flags & CLASS) != 0 ||
+                (flags & TRAIT) != 0 ||
+                (flags & OBJECT) != 0;
     }
 
     public static String decodeFlags(int flags) {
@@ -633,5 +1094,106 @@ public abstract class IndexedElement extends AstElement {
         }
 
         return null;
+    }
+
+    public static String getHtmlSignature(IndexedElement element) {
+        StringBuilder sb = new StringBuilder();
+
+        IndexedElement indexedElement = element;
+        // Insert browser icons... TODO - consult flags etc.
+        sb.append("<table width=\"100%\" border=\"0\"><tr>\n"); // NOI18N
+
+        sb.append("<td>"); // NOI18N
+
+        /** none indexedElement getIn() may cause none enclosingScope error */
+        if (element.getIn() != null) {
+            String in = element.getIn();
+            if (in != null && in.length() > 0) {
+                sb.append("<i>"); // NOI18N
+                sb.append(in);
+                sb.append("</i>"); // NOI18N
+
+                if (indexedElement != null) {
+                    String url = indexedElement.getFilenameUrl();
+                    if (url != null) {
+                        if (url.indexOf("jsstubs/stub_core_") != -1) { // NOI18N
+                            sb.append(" (Core JavaScript)");
+                        } else if (url.indexOf("jsstubs/stub_") != -1) { // NOI18N
+                            sb.append(" (DOM)");
+                        }
+                    }
+                }
+
+                sb.append("<br>"); // NOI18N
+            }
+        }
+        // TODO - share this between Navigator implementation and here...
+        sb.append("<b>"); // NOI18N
+        sb.append(element.getName());
+        sb.append("</b>"); // NOI18N
+
+        if (element instanceof IndexedFunction) {
+            IndexedFunction function = (IndexedFunction) element;
+            Collection<String> parameters = function.getParameters();
+
+            if (!function.isNullParams()) {
+                sb.append("("); // NOI18N
+                if ((parameters != null) && (parameters.size() > 0)) {
+
+                    for (Iterator<String> it = parameters.iterator(); it.hasNext();) {
+                        String ve = it.next();
+                        int typeIndex = ve.indexOf(':');
+                        if (typeIndex != -1) {
+                            sb.append("<font color=\"#808080\">"); // NOI18N
+                            for (int i = typeIndex + 1, n = ve.length(); i < n; i++) {
+                                char c = ve.charAt(i);
+                                if (c == '<') { // Handle types... Array<String> etc
+                                    sb.append("&lt;");
+                                } else if (c == '>') {
+                                    sb.append("&gt;");
+                                } else {
+                                    sb.append(c);
+                                }
+                            }
+                            //sb.append(ve, typeIndex+1, ve.length());
+                            sb.append("</font>"); // NOI18N
+                            sb.append(" ");
+                            sb.append("<font color=\"#a06001\">"); // NOI18N
+                            sb.append(ve, 0, typeIndex);
+                            sb.append("</font>"); // NOI18N
+                        } else {
+                            sb.append("<font color=\"#a06001\">"); // NOI18N
+                            sb.append(ve);
+                            sb.append("</font>"); // NOI18N
+                        }
+
+                        if (it.hasNext()) {
+                            sb.append(", "); // NOI18N
+                        }
+                    }
+
+                }
+                sb.append(")"); // NOI18N
+            }
+
+            sb.append(" :").append(function.getTypeString());
+        }
+
+        sb.append("</td>\n"); // NOI18N
+        sb.append("</tr></table>"); // NOI18N
+
+        if (indexedElement != null && indexedElement.getFilenameUrl() != null && indexedElement.getFilenameUrl().indexOf("jsstubs") == -1) {
+            sb.append(NbBundle.getMessage(ScalaCodeCompletion.class, "FileLabel"));
+            sb.append(" <tt>"); // NOI18N
+            String file = indexedElement.getFilenameUrl();
+            int baseIndex = file.lastIndexOf('/');
+            if (baseIndex != -1) {
+                file = file.substring(baseIndex + 1);
+            }
+            sb.append(file);
+            sb.append("</tt><br>"); // NOI18N
+        }
+
+        return sb.toString();
     }
 }

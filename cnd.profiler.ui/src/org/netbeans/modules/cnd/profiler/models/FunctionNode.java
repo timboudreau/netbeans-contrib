@@ -5,17 +5,24 @@
 
 package org.netbeans.modules.cnd.profiler.models;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import org.netbeans.modules.cnd.profiler.data.Function;
+import javax.swing.Action;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.cnd.api.model.CsmModel;
+import org.netbeans.modules.cnd.api.model.CsmModelAccessor;
+import org.netbeans.modules.cnd.api.model.CsmOffsetableDeclaration;
+import org.netbeans.modules.cnd.api.model.CsmProject;
+import org.netbeans.modules.cnd.api.model.services.CsmFunctionDefinitionResolver;
+import org.netbeans.modules.cnd.modelutil.CsmUtilities;
 import org.netbeans.modules.cnd.profiler.data.FunctionContainer;
 import org.netbeans.modules.cnd.profiler.views.Column;
+import org.netbeans.spi.project.ui.support.MainProjectSensitiveActions;
+import org.netbeans.spi.project.ui.support.ProjectActionPerformer;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 import org.openide.util.lookup.Lookups;
 
@@ -40,6 +47,27 @@ public class FunctionNode extends AbstractNode {
         if (!getKeys().isEmpty()) {
             setChildren(new MyChildren());
         }
+    }
+
+    @Override
+    public Action getPreferredAction() {
+        return MainProjectSensitiveActions.mainProjectSensitiveAction(new ProjectActionPerformer() {
+                public boolean enable(final Project project) {
+                    return true;
+                }
+
+                public void perform(final Project project) {
+                    CsmModel csmModel = CsmModelAccessor.getModel();
+                    CsmProject csmProject = csmModel.getProject(project);
+                    Collection<CsmOffsetableDeclaration> declarations = 
+                            CsmFunctionDefinitionResolver.getDefault().findDeclarationByName(csmProject, fc.getFunction().getName());
+                    if (declarations != null && !declarations.isEmpty()) {
+                        CsmOffsetableDeclaration declaration = declarations.iterator().next();
+                        CsmUtilities.openSource(declaration);
+                    }
+                }
+            }, "Go to source" // NOI18N
+            , null);
     }
     
     protected FunctionNode(Column[] columns, FunctionNodeModel nodeModel) {

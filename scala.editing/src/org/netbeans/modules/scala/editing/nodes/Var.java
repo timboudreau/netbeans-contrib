@@ -49,6 +49,7 @@ public class Var extends AstDef {
 
     private boolean val;
     private boolean implicate;
+    private AstExpr expr;
 
     public Var(Id id, AstScope bindingScope, ElementKind kind) {
         super(id.getName(), id.getIdToken(), bindingScope, kind);
@@ -70,6 +71,11 @@ public class Var extends AstDef {
     public boolean getImplicate() {
         return implicate;
     }
+    
+    public void setExpr(AstExpr expr) {
+        this.expr = expr;
+        getBindingScope().addExpr(expr);
+    }
 
     @Override
     public boolean referredBy(AstRef ref) {
@@ -82,6 +88,17 @@ public class Var extends AstDef {
                 return false;
         }
     }
+
+    @Override
+    public TypeRef getType() {
+        if (super.getType() == null) {
+            if (expr != null) {
+                return expr.getType();
+            }
+        }
+        
+        return super.getType();
+    }    
 
     @Override
     public boolean mayEqual(AstDef def) {

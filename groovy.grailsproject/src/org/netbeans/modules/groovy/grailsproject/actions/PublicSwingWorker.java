@@ -39,16 +39,16 @@
 
 package org.netbeans.modules.groovy.grailsproject.actions;
 
+import org.netbeans.modules.groovy.grailsproject.execution.LineSnooper;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-import org.netbeans.modules.groovy.grails.api.GrailsServer;
-import org.netbeans.modules.groovy.grails.api.GrailsServerFactory;
-import org.netbeans.modules.groovy.grailsproject.StreamInputThread;
-import org.netbeans.modules.groovy.grailsproject.StreamRedirectThread;
+import org.netbeans.modules.groovy.grailsproject.execution.StreamInputThread;
+import org.netbeans.modules.groovy.grailsproject.execution.StreamRedirectThread;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.windows.IOProvider;
@@ -57,7 +57,10 @@ import org.openide.windows.OutputWriter;
 import org.netbeans.api.project.Project;
 import org.openide.util.Cancellable;
 import java.util.concurrent.CountDownLatch;
-import org.netbeans.modules.groovy.grails.api.GrailsServerState;
+import org.netbeans.modules.groovy.grails.api.ExecutionSupport;
+import org.netbeans.modules.groovy.grails.api.GrailsProjectConfig;
+import org.netbeans.modules.groovy.grailsproject.GrailsServerState;
+import org.openide.filesystems.FileUtil;
 
 
 /**
@@ -127,12 +130,17 @@ import org.netbeans.modules.groovy.grails.api.GrailsServerState;
             io.select();
             writer = io.getOut();
 
-            GrailsServer server = GrailsServerFactory.getServer();
-            process = server.runCommand(prj, command, io, dirName);
-
-            if (process == null) {
-                displayGrailsProcessError(server.getLastError());
-                return;
+            // FIXME hack that should be cleaned
+            if (command.startsWith("create-app")) {
+                process = ExecutionSupport.getInstance().executeCreateApp(new File(dirName));
+            } else if (command.startsWith("run-app")) {
+                process = ExecutionSupport.getInstance().executeRunApp(GrailsProjectConfig.forProject(prj));
+                GrailsServerState state = prj.getLookup().lookup(GrailsServerState.class);
+                if (state != null) {
+                    state.setProcess(process);
+                }
+            } else {
+                process = ExecutionSupport.getInstance().executeSimpleCommand(command, GrailsProjectConfig.forProject(prj));
             }
 
             assert process != null;
@@ -205,18 +213,19 @@ import org.netbeans.modules.groovy.grails.api.GrailsServerState;
             writer.close();
             io.getErr().close();
 
-            } catch (Exception e) {
-                LOG.log(Level.WARNING, "problem with process: " + e);
-                LOG.log(Level.WARNING, "message " + e.getLocalizedMessage());
-                
-                writer.close();
-                io.getErr().close();
-                
-                displayGrailsProcessError(e);
-                
-                e.printStackTrace();
-            }
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "problem with process: " + e);
+            LOG.log(Level.WARNING, "message " + e.getLocalizedMessage());
+
+            writer.close();
+            io.getErr().close();
+
+            displayGrailsProcessError(e);
+        } finally {
+            // temporary fix
+            FileUtil.refreshFor(FileUtil.toFile(prj.getProjectDirectory()));
         }
+    }
         
     void displayGrailsProcessError(Exception reason) {
         DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(
@@ -234,7 +243,12 @@ import org.netbeans.modules.groovy.grails.api.GrailsServerState;
                 GrailsServerState serverState = prj.getLookup().lookup(GrailsServerState.class);
 
                 if (serverState != null) {
-                    serverState.destroy();
+                    //serverState.destroy();
+                    synchronized (serverState) {
+                        Process process = serverState.getProcess();
+                        serverState.setProcess(null);
+                        process.destroy();
+                    }
                 } else {
                     LOG.log(Level.WARNING, "Could not get serverState through lookup");
                 }

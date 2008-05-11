@@ -41,23 +41,25 @@
 
 package org.netbeans.modules.javafx.editor;
 
-import com.sun.javafx.api.tree.ClassDeclarationTree;
-import com.sun.javafx.api.tree.JavaFXTree;
-import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.javafx.api.tree.JavaFXTreePathScanner;
-import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.util.TreePath;
-import com.sun.tools.javafx.tree.JFXTree;
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type;
+import com.sun.tools.javafx.code.JavafxTypes;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Set;
-import javax.lang.model.type.TypeMirror;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
 import org.netbeans.api.javafx.source.CompilationController;
-import org.netbeans.api.javafx.source.CompilationInfo;
 import org.netbeans.api.javafx.source.JavaFXSource;
 import org.netbeans.api.javafx.source.JavaFXSource.Phase;
 import org.netbeans.api.javafx.source.Task;
@@ -83,12 +85,10 @@ public class GoToSupport {
     }
 
     public static void goTo(Document doc, int offset, boolean goToSource) {
-        System.err.println("go to at " + offset);
         performGoTo(doc, offset, goToSource, false, false);
     }
 
     public static String getGoToElementTooltip(Document doc, final int offset, final boolean goToSource) {
-        System.err.println("get tooltip at " + offset);
         return performGoTo(doc, offset, goToSource, true, false);
     }
 
@@ -98,7 +98,6 @@ public class GoToSupport {
     }
 
     private static String performGoTo(final Document doc, final int off, final boolean goToSource, final boolean tooltip, final boolean javadoc) {
-        final int offset = off+1; // XXX - bad positions from AST
         try {
             final FileObject fo = getFileObject(doc);
             
@@ -118,7 +117,7 @@ public class GoToSupport {
                         return;
 
                     Token<JFXTokenId>[] token = new Token[1];
-                    int[] span = getIdentifierSpan(doc, offset, token);
+                    int[] span = getIdentifierSpan(doc, off, token);
 
                     if (span == null) {
 //                        CALLER.beep(goToSource, javadoc);
@@ -126,39 +125,46 @@ System.err.println("not an identifier");
                         return ;
                     }
                     
-//                    if (token[0] != null) result[0] = token[0].text().toString(); // XXX
-
+                    final int offset = span[0] + 1;
                     TreePath path = controller.getTreeUtilities().pathFor(offset);
                     
                     Tree leaf = path.getLeaf();
-//                    System.err.println("tree=" + leaf);
-//                    System.err.println("kind=" + leaf.getKind());
-//                    if (leaf instanceof JavaFXTree && Tree.Kind.OTHER.equals(leaf.getKind()))
-//                        System.err.println("jfkind=" + ((JavaFXTree)leaf).getJavaFXKind());
+                    if (leaf == null) return;
+//                    System.err.println("leaf=" + leaf);
 
-                    TreePath parent = path.getParentPath();
-                    Tree parentLeaf = parent.getLeaf();
-
-//                    System.err.println("pLeaf=" + parentLeaf);
-//                    System.err.println("pKind=" + parentLeaf.getKind());
-//                    if (parentLeaf instanceof JavaFXTree && Tree.Kind.OTHER.equals(parentLeaf.getKind()))
-//                        System.err.println("jfkind=" + ((JavaFXTree)parentLeaf).getJavaFXKind());
-                   
-                    if (check(path, null, null, JavaFXKind.TYPE_CLASS)) { // IDENTIFIER or MEMBER_SELECT
-                        TypeMirror tm = controller.getTrees().getTypeMirror(path);
-//                        System.err.println("type:" + tm);
-                        if (tm == null) return;
+                    Element el = controller.getTrees().getElement(path);
+//                    System.err.println("el=" + el);
+                    if (el == null) return;
+ 
+                    if (tooltip) {
+                        result[0] = getElementTooltip(el);
+                        return;
+                    } else {
+                        if (goToSource && el instanceof VariableElement) {
+                            Symbol sym = (Symbol)el;
+                            Type type = sym.asType();
+                            
+                            // handle sequences as their element type
+                            JavafxTypes types = controller.getJavafxTypes();
+                            if (types.isSequence(type)) {
+                                type = types.elementType(type);
+                            }
+                            
+                            if (type != null && type.getKind() == TypeKind.DECLARED) {
+                                el = ((DeclaredType)type).asElement();
+                                
+                                if (el == null) return;
+                            }
+                        }
                         
-                        result[0] = tm.toString();
-                        if (!tooltip) goToType(controller, tm);
-                    }
-                    
-                    if (check(path, Tree.Kind.IDENTIFIER, null, JavaFXKind.CLASS_DECLARATION) || // superclass
-                        check(path, Tree.Kind.IDENTIFIER, null, JavaFXKind.INSTANTIATE)) { // type
-                        TypeMirror tm = controller.getTrees().getTypeMirror(path);
-//                        System.err.println("type:" + tm);
-                        result[0] = tm.toString();
-                        if (!tooltip) goToType(controller, tm);                        
+                        TreePath elpath = controller.getPath(el);
+                        Tree tree = elpath != null && path.getCompilationUnit() == elpath.getCompilationUnit()? elpath.getLeaf(): null;
+                        
+                        if (tree != null) {
+                            long startPos = controller.getTrees().getSourcePositions().getStartPosition(controller.getCompilationUnit(), tree);
+                            
+                            if (startPos != -1l) doOpen(fo, (int)startPos);
+                        }                        
                     }
                 }
             }, true);
@@ -169,23 +175,26 @@ System.err.println("not an identifier");
         }
     }
     
-    private static boolean check(TreePath path, Tree.Kind kind, Tree.Kind pKind, JavaFXKind pfxKind) {
-        Tree leaf = path.getLeaf();
-        if (kind != null && !kind.equals(leaf.getKind())) return false;
-        
-        TreePath parent = path.getParentPath();
-        Tree parentLeaf = parent.getLeaf();
-        
-        if (pKind != null && ! pKind.equals(parentLeaf.getKind())) return false;
-        if (pfxKind != null) {
-            if (! Tree.Kind.OTHER.equals(parentLeaf.getKind())) return false;
-            if (! (parentLeaf instanceof JavaFXTree)) return false;
-            if (! pfxKind.equals(((JavaFXTree)parentLeaf).getJavaFXKind())) return false;
+    
+    private static String getElementTooltip (Element elem) {
+        if (elem instanceof VariableElement) {
+            String ret = "";
+            VariableElement var = (VariableElement)elem;
+            ElementKind kind = var.getKind();
+            if (kind == ElementKind.FIELD) ret = ret + var.getEnclosingElement() + ".";
+            return ret + var + " : " + var.asType();
         }
         
-        return true;
+        if (elem instanceof TypeElement) {
+            return elem.toString();
+        }
+        if (elem instanceof ExecutableElement) {
+            ExecutableElement var = (ExecutableElement)elem;
+            return "" + var.getEnclosingElement() + "." + var + " : " + var.getReturnType();
+        }
+        return null;
     }
-    
+
     private static final Set<JFXTokenId> USABLE_TOKEN_IDS = EnumSet.of(JFXTokenId.IDENTIFIER, JFXTokenId.THIS, JFXTokenId.SUPER);
 
     public static int[] getIdentifierSpan(Document doc, int offset, Token<JFXTokenId>[] token) {
@@ -221,31 +230,6 @@ System.err.println("not an identifier");
         return new int [] {ts.offset(), ts.offset() + t.length()};
     }
 
-    private static void goToType(final CompilationInfo ci, final TypeMirror tm) {
-        final CompilationUnitTree unit = ci.getCompilationUnit();
-        final int[] ret = new int[] {-1};
-        new JavaFXTreePathScanner<Void, Void>() {
-      
-            public @Override Void visitClassDeclaration(ClassDeclarationTree tree, Void v) {
-                TypeMirror found = ci.getTrees().getTypeMirror(getCurrentPath());
-                if (tm.equals(found)) {
-                    long pos = ci.getTrees().getSourcePositions().getStartPosition(unit, tree);
-                    ret[0] = (int)pos;
-                }
-
-                super.visitClassDeclaration(tree, null);
-
-                return null;
-            }
-            
-        }.scan(unit, null);
-        if (ret[0] != -1) {
-            doOpen(ci.getJavaFXSource().getFileObject(), ret[0]);
-        } else { // try java type
-            openJava(ci, tm.toString());
-        }
-    }
-    
     private static boolean doOpen(FileObject fo, int offset) {
         try {
             DataObject od = DataObject.find(fo);
@@ -279,22 +263,6 @@ System.err.println("not an identifier");
         } catch (IOException e) {
         }
         
-        return false;
-    }
-
-    private static boolean openJava(CompilationInfo ci, String name) {
-        // This doesn't work, LinkageError is caused by the fact that
-        // out Element class is comming from different source (javafxc)
-        // than java support's Element class
-/*        Elements elements = ci.getElements();
-        TypeElement elem = elements.getTypeElement(name);     //NOI18N
-        FileObject ref = ci.getJavaFXSource().getFileObject();
-        return ElementOpen.open(org.netbeans.api.java.source.ClasspathInfo.create(ref), elem);
- */
-        return false;
-    }
-    
-    static boolean openFx(CompilationInfo context, String name) {
         return false;
     }
 }

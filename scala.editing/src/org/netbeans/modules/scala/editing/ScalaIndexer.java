@@ -42,8 +42,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.netbeans.modules.gsf.api.Indexer;
 import org.netbeans.modules.gsf.api.ParserFile;
@@ -51,18 +51,13 @@ import org.netbeans.modules.gsf.api.ParserResult;
 import org.netbeans.modules.gsf.api.IndexDocument;
 import org.netbeans.modules.gsf.api.IndexDocumentFactory;
 import org.netbeans.modules.gsf.api.Modifier;
-import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.ClassTemplate;
-import org.netbeans.modules.scala.editing.nodes.Function;
-import org.netbeans.modules.scala.editing.nodes.ObjectTemplate;
+import org.netbeans.modules.scala.editing.nodes.Import;
 import org.netbeans.modules.scala.editing.nodes.SimpleType;
 import org.netbeans.modules.scala.editing.nodes.Template;
-import org.netbeans.modules.scala.editing.nodes.TraitTemplate;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
-import org.netbeans.modules.scala.editing.nodes.Var;
 import org.openide.filesystems.FileObject;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
@@ -92,35 +87,22 @@ public class ScalaIndexer implements Indexer {
     // ;flags;;args;offset;docoffset;browsercompat;types;
     // (between flags and args you have the case sensitive name for flags)
     static final String FIELD_FQN = "fqn"; //NOI18N
-
     static final String FIELD_BASE = "base"; //NOI18N
-
     static final String FIELD_CLASS = "clz"; //NOI18N
-
     static final String FIELD_EXTENDS_NAME = "extends"; //NOI18N
-
     static final String FIELD_CLASS_NAME = "class"; //NOI18N
-
     static final String FIELD_CASE_INSENSITIVE_CLASS_NAME = "class-ig"; //NOI18N
-
     static final String FIELD_REQUIRE = "require"; //NOI18N
-
     static final String FIELD_REQUIRES = "requires"; //NOI18N
-
-    static final String FIELD_INCLUDES = "includes"; //NOI18N
-
-    static final String FIELD_EXTEND_WITH = "extendWith"; //NOI18N
-
+    static final String FIELD_IMPORT = "import"; //NOI18N
     static final String FIELD_METHOD_NAME = "method"; //NOI18N
-
     /** Attributes: "i" -> private, "o" -> protected, ", "s" - static/notinstance, "d" - documented */
     static final String FIELD_FIELD_NAME = "field"; //NOI18N
-
     private FileObject cachedFo;
     private boolean cachedIndexable;
 
     public String getIndexVersion() {
-        return "6.113"; // NOI18N
+        return "6.117"; // NOI18N
 
     }
 
@@ -184,6 +166,41 @@ public class ScalaIndexer implements Indexer {
 
     }
 
+    private static int getModifiersFlag(Set<Modifier> modifiers) {
+        int flags = modifiers.contains(Modifier.STATIC) ? IndexedElement.STATIC : 0;
+        if (modifiers.contains(Modifier.PRIVATE)) {
+            flags |= IndexedElement.PRIVATE;
+        } else if (modifiers.contains(Modifier.PROTECTED)) {
+            flags |= IndexedElement.PROTECTED;
+        }
+
+        return flags;
+    }
+
+    public File getPreindexedData() {
+        return null;
+    }
+    private static FileObject preindexedDb;
+
+    /** For testing only */
+    public static void setPreindexedDb(FileObject preindexedDb) {
+        ScalaIndexer.preindexedDb = preindexedDb;
+    }
+
+    public FileObject getPreindexedDb() {
+        if (preindexedDb == null) {
+            File preindexed = InstalledFileLocator.getDefault().locate(
+                    "preindexed-scala", "org.netbeans.modules.scala.editing", false); // NOI18N
+
+//            if (preindexed == null || !preindexed.isDirectory()) {
+//                throw new RuntimeException("Can't locate preindexed directory. Installation might be damaged"); // NOI18N
+//
+//            }
+//            preindexedDb = FileUtil.toFileObject(preindexed);
+        }
+        return preindexedDb;
+    }
+
     public List<IndexDocument> index(ParserResult result, IndexDocumentFactory factory) throws IOException {
         ParserFile file = result.getFile();
         if (file.isPlatform()) {
@@ -207,7 +224,6 @@ public class ScalaIndexer implements Indexer {
 
         private final ParserFile file;
         private String url;
-        private String imports;
         private final ScalaParserResult pResult;
         private IndexDocumentFactory factory;
         private List<IndexDocument> documents = new ArrayList<IndexDocument>();
@@ -315,37 +331,53 @@ public class ScalaIndexer implements Indexer {
 
                 IndexDocument document = factory.createDocument(40); // TODO Measure
 
-                String fqn = template.getQualifiedName() + ";" + ";" + ";";
+                StringBuilder fqn = new StringBuilder();
+
+                String qName = template.getQualifiedName();
+                fqn.append(qName.toLowerCase());
+                fqn.append(';');
+                fqn.append(';');
+                fqn.append(qName);
+                fqn.append(';');
+                fqn.append(IndexedElement.computeAttributes(template, pResult.getTokenHierarchy()));
 
                 List<SimpleType> extendsWith = template.getExtendsWith();
+                String clz = template.getQualifiedName();
                 if (extendsWith.size() > 0) {
                     for (SimpleType parent : extendsWith) {
-                        String clz = template.getName();
-                        String superClz = parent.getName();
-                        document.addPair(FIELD_EXTEND_WITH, clz.toLowerCase() + ";" + clz + ";" + superClz, true); // NOI18N
+                        String superClz = parent.getQualifiedName();
+                        document.addPair(FIELD_EXTENDS_NAME, clz.toLowerCase() + ";" + clz + ";" + superClz, true); // NOI18N
                     }
 
                     ClassCache.INSTANCE.refresh();
                 }
 
-                if (template instanceof ClassTemplate) {
-                    ClassTemplate classTemplate = (ClassTemplate) template;
+                List<Import> imports = template.getBindingScope().getDefsInScope(Import.class);
 
-                    flags |= IndexedElement.CLASS;
-                } else if (template instanceof ObjectTemplate) {
-                    ObjectTemplate objectTemplate = (ObjectTemplate) template;
-
-                    flags |= IndexedElement.OBJECT;
-                } else {
-                    assert template instanceof TraitTemplate;
-
-                    TraitTemplate traitTemplate = (TraitTemplate) template;
-                    flags |= IndexedElement.TRAIT;
+                if (imports.size() > 0) {
+                    Set<String> importPkgs = new HashSet<String>();
+                    for (Import importExpr : imports) {
+                        String pkgName = importExpr.getPackageName();
+                        StringBuilder importAttr = new StringBuilder();
+                        importAttr.append(clz.toLowerCase()).append(";").append(clz).append(";").append(pkgName).append(";");
+                        if (importExpr.isWild()) {
+                            importAttr.append("_").append(";");
+                            
+                            importPkgs.add(pkgName);
+                            document.addPair(FIELD_IMPORT, importAttr.toString(), true);
+                        } else {
+                            List<TypeRef> importedTypes = importExpr.getImportedTypes();
+                            for (TypeRef type : importedTypes) {
+                                importAttr.append(type.getName()).append(";");
+                                
+                                importPkgs.add(pkgName);
+                                document.addPair(FIELD_IMPORT, importAttr.toString(), true);
+                            }
+                        }
+                    }
+                    
+                    ScalaTypeInferencer.updateClassToImportPkgsCache(qName, importPkgs);
                 }
-
-
-                String name = template.getName();
-
 
 //                boolean isDocumented = isDocumented(node);
 //                int documentSize = getDocumentSize(node);
@@ -373,9 +405,9 @@ public class ScalaIndexer implements Indexer {
 //                    return;
 //                }
 
-                document.addPair(FIELD_FQN, fqn, true);
-                document.addPair(FIELD_CASE_INSENSITIVE_CLASS_NAME, name.toLowerCase(), true);
-                document.addPair(FIELD_CLASS_NAME, name, true);
+                document.addPair(FIELD_FQN, fqn.toString(), true);
+                document.addPair(FIELD_CASE_INSENSITIVE_CLASS_NAME, qName.toLowerCase(), true);
+                document.addPair(FIELD_CLASS_NAME, qName, true);
 
                 // Add the fields, etc.. Recursively add the children classes or modules if any
                 for (AstDef child : template.getBindingScope().getDefs()) {
@@ -392,14 +424,12 @@ public class ScalaIndexer implements Indexer {
 
                         case CONSTRUCTOR:
                         case METHOD: {
-                            String signature = computeSignature(child);
-                            indexFunction(child, document, signature);
+                            indexFunction(child, document);
 
                             break;
                         }
-
                         case FIELD: {
-                            indexField(child, document, nodoc);
+                            indexField(child, document);
 
                             break;
                         }
@@ -413,125 +443,9 @@ public class ScalaIndexer implements Indexer {
             }
         }
 
-        private String computeSignature(AstElement element) {
-            OffsetRange docRange = getDocumentationOffset(element);
-            int docOffset = -1;
-            if (docRange != OffsetRange.NONE) {
-                docOffset = docRange.getStart();
-            }
-            //Map<String,String> typeMap = element.getDocProps();
+        private void indexFunction(AstElement element, IndexDocument document) {
+            String attributes = IndexedElement.computeAttributes(element, pResult.getTokenHierarchy());
 
-            // Look up compatibility
-            int index = IndexedElement.FLAG_INDEX;
-            String compatibility = "";
-//            if (file.getNameExt().startsWith("stub_")) { // NOI18N
-//                int astOffset = element.getNode().getSourceStart();
-//                int lexOffset = astOffset;
-//                TranslatedSource source = pResult.getTranslatedSource();
-//                if (source != null) {
-//                    lexOffset = source.getLexicalOffset(astOffset);
-//                }
-//                try {
-//                    String line = doc.getText(lexOffset,
-//                            Utilities.getRowEnd(doc, lexOffset)-lexOffset);
-//                    int compatIdx = line.indexOf("COMPAT="); // NOI18N
-//                    if (compatIdx != -1) {
-//                        compatIdx += "COMPAT=".length(); // NOI18N
-//                        EnumSet<BrowserVersion> es = BrowserVersion.fromFlags(line.substring(compatIdx));
-//                        compatibility = BrowserVersion.toCompactFlags(es);
-//                    }
-//                } catch (BadLocationException ex) {
-//                    Exceptions.printStackTrace(ex);
-//                }
-//            }
-
-            assert index == IndexedElement.FLAG_INDEX;
-            StringBuilder sb = new StringBuilder();
-            int flags = IndexedElement.getFlags(element);
-            // Add in info from documentation
-//            if (typeMap != null) {
-//                // Most flags are already handled by AstElement.getFlags()...
-//                // Consider handling the rest too
-//                if (typeMap.get("@ignore") != null) { // NOI18N
-//                    flags = flags | IndexedElement.NODOC;
-//                }
-//            }
-            if (docOffset != -1) {
-                flags = flags | IndexedElement.DOCUMENTED;
-            }
-            sb.append(IndexedElement.encode(flags));
-
-            // Parameters
-            sb.append(';');
-            index++;
-            assert index == IndexedElement.ARG_INDEX;
-            if (element instanceof Function) {
-                Function func = (Function) element;
-
-                int argIndex = 0;
-                for (Var param : func.getParams()) {
-                    String paramName = param.getName();
-                    if (argIndex == 0 && "super".equals(paramName)) { // NOI18N
-                        // Prototype inserts these as the first param to handle inheritance/super
-
-                        argIndex++;
-                        continue;
-                    }
-                    if (argIndex > 0) {
-                        sb.append(',');
-                    }
-                    sb.append(paramName);
-                    TypeRef paramType = param.getType();
-                    if (paramType != null) {
-                        String typeName = paramType.getName();
-                        if (typeName != null) {
-                            sb.append(':');
-                            sb.append(typeName);
-                        }
-                    }
-                    argIndex++;
-                }
-            }
-
-            // Node offset
-            sb.append(';');
-            index++;
-            assert index == IndexedElement.NODE_INDEX;
-            sb.append('0');
-            //sb.append(IndexedElement.encode(element.getNode().getSourceStart()));
-
-            // Documentation offset
-            sb.append(';');
-            index++;
-            assert index == IndexedElement.DOC_INDEX;
-            if (docOffset != -1) {
-                sb.append(IndexedElement.encode(docOffset));
-            }
-
-            // Browser compatibility
-            sb.append(';');
-            index++;
-            assert index == IndexedElement.BROWSER_INDEX;
-            sb.append(compatibility);
-
-            // Types
-            sb.append(';');
-            index++;
-            assert index == IndexedElement.TYPE_INDEX;
-            TypeRef type = element.getType();
-//            if (type == null) {
-//                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
-//            }
-            if (type != null) {
-                sb.append(type.getName());
-            }
-            sb.append(';');
-
-            String signature = sb.toString();
-            return signature;
-        }
-
-        private void indexFunction(AstElement element, IndexDocument document, String signature) {
             String in = element.getIn();
             String name = element.getName();
             StringBuilder base = new StringBuilder();
@@ -543,7 +457,7 @@ public class ScalaIndexer implements Indexer {
             base.append(';');
             base.append(name);
             base.append(';');
-            base.append(signature);
+            base.append(attributes);
             document.addPair(FIELD_BASE, base.toString(), true);
 
             StringBuilder fqn = new StringBuilder();
@@ -560,7 +474,7 @@ public class ScalaIndexer implements Indexer {
             }
             fqn.append(name);
             fqn.append(';');
-            fqn.append(signature);
+            fqn.append(attributes);
             document.addPair(FIELD_FQN, fqn.toString(), true);
 
 //            FunctionCache cache = FunctionCache.INSTANCE;
@@ -569,81 +483,39 @@ public class ScalaIndexer implements Indexer {
 //            }
         }
 
-        private void indexField(AstElement child, IndexDocument document, boolean nodoc) {
-            String signature = child.getName();
-            int flags = getModifiersFlag(child.getModifiers());
-            if (nodoc) {
-                flags |= IndexedElement.NODOC;
+        private void indexField(AstElement element, IndexDocument document) {
+            String attributes = IndexedElement.computeAttributes(element, pResult.getTokenHierarchy());
+
+            String in = element.getIn();
+            String name = element.getName();
+            StringBuilder base = new StringBuilder();
+            base.append(name.toLowerCase());
+            base.append(';');
+            if (in != null) {
+                base.append(in);
             }
+            base.append(';');
+            base.append(name);
+            base.append(';');
+            base.append(attributes);
+            document.addPair(FIELD_BASE, base.toString(), true);
 
-            if (flags != 0) {
-                StringBuilder sb = new StringBuilder(signature);
-                sb.append(';');
-                sb.append(IndexedElement.encode(flags));
-                signature = sb.toString();
+            StringBuilder fqn = new StringBuilder();
+            if (in != null && in.length() > 0) {
+                fqn.append(in.toLowerCase());
+                fqn.append('.');
             }
-
-            // TODO - gather documentation on fields? naeh
-            document.addPair(FIELD_FIELD_NAME, signature, true);
+            fqn.append(name.toLowerCase());
+            fqn.append(';');
+            fqn.append(';');
+            if (in != null && in.length() > 0) {
+                fqn.append(in);
+                fqn.append('.');
+            }
+            fqn.append(name);
+            fqn.append(';');
+            fqn.append(attributes);
+            document.addPair(FIELD_FQN, fqn.toString(), true);
         }
-
-        private OffsetRange getDocumentationOffset(AstElement element) {
-            return OffsetRange.NONE; // @TODO
-//            int astOffset = element.getEnclosingScope().getRange().getStart();
-//            // XXX This is wrong; I should do a
-//            //int lexOffset = LexUtilities.getLexerOffset(result, astOffset);
-//            // but I don't have the CompilationInfo in the ParseResult handed to the indexer!!
-//            int lexOffset = astOffset;
-//            try {
-//                if (lexOffset > doc.getLength()) {
-//                    return OffsetRange.NONE;
-//                }
-//                lexOffset = Utilities.getRowStart(doc, lexOffset);
-//            } catch (BadLocationException ex) {
-//                Exceptions.printStackTrace(ex);
-//            }
-//            OffsetRange range = ScalaLexUtilities.getCommentBlock(doc, lexOffset, true);
-//            if (range != OffsetRange.NONE) {
-//                return range;
-//            } else {
-//                return OffsetRange.NONE;
-//            }
-
-        }
-    }
-
-    private static int getModifiersFlag(Set<Modifier> modifiers) {
-        int flags = modifiers.contains(Modifier.STATIC) ? IndexedElement.STATIC : 0;
-        if (modifiers.contains(Modifier.PRIVATE)) {
-            flags |= IndexedElement.PRIVATE;
-        } else if (modifiers.contains(Modifier.PROTECTED)) {
-            flags |= IndexedElement.PROTECTED;
-        }
-
-        return flags;
-    }
-
-    public File getPreindexedData() {
-        return null;
-    }
-    private static FileObject preindexedDb;
-
-    /** For testing only */
-    public static void setPreindexedDb(FileObject preindexedDb) {
-        ScalaIndexer.preindexedDb = preindexedDb;
-    }
-
-    public FileObject getPreindexedDb() {
-        if (preindexedDb == null) {
-            File preindexed = InstalledFileLocator.getDefault().locate(
-                    "preindexed-scala", "org.netbeans.modules.scala.editing", false); // NOI18N
-
-//            if (preindexed == null || !preindexed.isDirectory()) {
-//                throw new RuntimeException("Can't locate preindexed directory. Installation might be damaged"); // NOI18N
-//
-//            }
-//            preindexedDb = FileUtil.toFileObject(preindexed);
-        }
-        return preindexedDb;
     }
 }   

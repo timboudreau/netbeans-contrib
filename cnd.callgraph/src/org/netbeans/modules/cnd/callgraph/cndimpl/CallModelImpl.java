@@ -123,7 +123,7 @@ public class CallModelImpl implements CallModel {
             }
             List<Call> res = new ArrayList<Call>();
             for(Map.Entry<CsmFunction,CsmReference> r : set.entrySet()){
-                res.add(new CallImpl(r.getKey(), r.getValue(), getFunctionDeclaration((CsmFunction)owner), true));
+                res.add(new CallImpl(r.getKey(), r.getValue(), getFunctionDeclaration(owner), true));
             }
             return res;
         } else {
@@ -168,7 +168,7 @@ public class CallModelImpl implements CallModel {
         FunctionImpl definitionImpl = (FunctionImpl) definition;
         CsmFunction owner = definitionImpl.getDefinition();
         if (CsmKindUtilities.isFunctionDefinition(owner)) {
-            final List<CsmOffsetable> list = CsmFileInfoQuery.getDefault().getUnusedCodeBlocks(((CsmFunction)owner).getContainingFile());
+            final List<CsmOffsetable> list = CsmFileInfoQuery.getDefault().getUnusedCodeBlocks((owner).getContainingFile());
             final HashMap<CsmFunction,CsmReference> set = new HashMap<CsmFunction,CsmReference>();
             references.accept((CsmScope)owner, new CsmFileReferences.Visitor() {
                 public void visit(CsmReference r) {
@@ -196,7 +196,7 @@ public class CallModelImpl implements CallModel {
             });
             List<Call> res = new ArrayList<Call>();
             for(Map.Entry<CsmFunction,CsmReference> r : set.entrySet()){
-                res.add(new CallImpl( getFunctionDeclaration(((CsmFunction)owner)), r.getValue(),r.getKey(), false));
+                res.add(new CallImpl( getFunctionDeclaration((owner)), r.getValue(),r.getKey(), false));
             }
             return res;
         } else {

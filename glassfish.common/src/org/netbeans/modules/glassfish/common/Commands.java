@@ -41,8 +41,10 @@ package org.netbeans.modules.glassfish.common;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -161,7 +163,7 @@ public class Commands {
                     continue;
                 }
                 
-                String engine = getFirstEngine(appAttrs.getValue("nb-engine_value"));
+                String engine = getPreferredEngine(appAttrs.getValue("nb-engine_value"));
                 
                 String name = appAttrs.getValue("nb-name_value");
                 if(name == null || name.length() == 0) {
@@ -172,6 +174,14 @@ public class Commands {
                 String path = appAttrs.getValue("nb-location_value");
                 if(path.startsWith("file:")) {
                     path = path.substring(5);
+                }
+                
+                String contextRoot = appAttrs.getValue("nb-context-root_value");
+                if(contextRoot == null) {
+                    contextRoot = name;
+                }
+                if(contextRoot.startsWith("/")) {
+                    contextRoot = contextRoot.substring(1);
                 }
 
                 // Add app to proper list in result map
@@ -184,7 +194,7 @@ public class Commands {
                     appMap.put(engine, appList);
                 }
                 
-                appList.add(new AppDesc(name, path));
+                appList.add(new AppDesc(name, path, contextRoot));
             }
 
             return true;
@@ -192,14 +202,32 @@ public class Commands {
 
         // XXX temporary patch to handle engine descriptions like <web, ejb>
         // until we have better display semantics for such things.
-        private String getFirstEngine(String engineList) {
+        // XXX bias order of list for JavaONE demos.
+        private static final List<String> engineBias = 
+                Arrays.asList(new String [] { "jruby", "web", "ejb" });
+        
+        private String getPreferredEngine(String engineList) {
             String [] engines = engineList.split(",");
-            for(String engine: engines) {
-                if(!skipContainer(engine)) {
-                    return engine;
+            String engine = null;
+            int bias = -1;
+            for(int i = 0; i < engines.length; i++) {
+                if(!skipContainer(engines[i])) {
+                    engines[i] = engines[i].trim();
+                    int newBias = engineBias.indexOf(engines[i]);
+                    if(newBias >= 0 && (bias == -1 || newBias < bias)) {
+                        bias = newBias;
+                    }
+                    if(engine == null) {
+                        engine = engines[i];
+                    }
                 }
             }
-            return "unknown";
+            if(bias != -1) {
+                engine = engineBias.get(bias);
+            } else if(engine == null) {
+                engine = "unknown";
+            }
+            return engine;
         }
 
         /**

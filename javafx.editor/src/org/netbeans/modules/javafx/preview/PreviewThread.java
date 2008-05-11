@@ -42,13 +42,17 @@
 package org.netbeans.modules.javafx.preview;
 
 import java.awt.Color;
+import java.awt.Window;
 import java.io.File;
+import java.lang.reflect.Method;
 import java.security.CodeSource;
 import java.security.PermissionCollection;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.text.StyledDocument;
+import javax.tools.Diagnostic.Kind;
 import org.netbeans.modules.javafx.editor.*;
 import java.security.Permissions;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.JComponent;
@@ -56,6 +60,7 @@ import javax.swing.JComponent;
 //import sun.awt.AppContext;
 //import sun.awt.SunToolkit;
 import javax.swing.JEditorPane;
+import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.Document;
@@ -193,6 +198,8 @@ public class PreviewThread extends Thread {
     class R implements Runnable {
                 
         public void run() {
+            List <Window> initialList = getOwnerlessWindowsList();
+            
             if (!checkJavaVersion()) {
                 comp = getVrongVersion();
                 return;
@@ -203,58 +210,54 @@ public class PreviewThread extends Thread {
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
             }
+
+            List <Window> suspectedList = getOwnerlessWindowsList();
+            suspectedList.removeAll(initialList);
+            
             if (obj != null) {
                 comp = CodeManager.parseObj(obj);
+            } else {
+                if (!suspectedList.isEmpty()) {
+                    comp = CodeManager.parseObj(suspectedList.get(0));
+                    suspectedList.remove(0);
+                } else
+                    comp = null;
+            }
+            for (Window frame : suspectedList) {
+                frame.dispose();
+            }
+            List <Diagnostic> diagnostics = CodeManager.getDiagnostics();
+            if (!diagnostics.isEmpty()) {
+                comp = processDiagnostic(diagnostics);
+            }
+            else {
                 if (comp == null) {
                     comp = JavaFXDocument.getNothingPane();
                 }
             }
-            else {
-                List <Diagnostic> diagnostics = CodeManager.getDiagnostics();
-                if (!diagnostics.isEmpty()) {
-                    JEditorPane pane = new JEditorPane();
-                    pane.setEditable(false);
-                    pane.setEditorKit(new HTMLEditorKit());
-                    Hyperlink hl = new Hyperlink();
-                    pane.addHyperlinkListener(hl);
-                    //pane.setFont(new FontUIResource("Monospaced", FontUIResource.PLAIN, 20));
-                    String text = "";
-                    int i = 0;
-                    Vector<Object> foMap = new Vector<Object>();
-                    Vector<Long> offsetMap = new Vector<Long>();
-                    for (Diagnostic diagnostic : diagnostics) {
-                        Object source = diagnostic.getSource();
-                        String name = "";
-                        if (diagnostic.getSource() != null)
-                        {
-                            if (diagnostic.getSource() instanceof MemoryFileObject) {
-                                MemoryFileObject mfo = (MemoryFileObject)source;
-                                name = mfo.getFilePath();
-                            } else {
-                                JavaFileObject jFO = (JavaFileObject) source;
-                                File file = new File(jFO.toUri());
-                                FileObject regularFO = FileUtil.toFileObject(file);
-                                name = regularFO.getPath();
-                                source = regularFO;
-                            }
-                            foMap.add(source);
-                            offsetMap.add(diagnostic.getPosition());
-                            text+= "<a href=" + i + ">" + name + " : " + diagnostic.getLineNumber() + "</a>\n" + " " + "<font color=#a40000>" + diagnostic.getMessage(null) + "</font>" + "<br>";
-                            i++;
-                        }
-                    }
-                    pane.setText(text);
-                    hl.setMaps(foMap, offsetMap);
-                    comp = pane;
-                }
-                else {
-                    if (comp == null) {
-                        comp = JavaFXDocument.getNothingPane();
-                    }
-                }
-            }
         }
+        
+    
+        private List <Window> getOwnerlessWindowsList() {
+            List <Window> list = new ArrayList<Window>();
 
+            Method getOwnerlessWindows = null;
+            Window windows[] = null;
+            try {
+                // to compille under JDK 1.5
+                //windows = Window.getOwnerlessWindows();
+                getOwnerlessWindows = Window.class.getDeclaredMethod("getOwnerlessWindows");
+                windows = (Window[])getOwnerlessWindows.invoke(null);
+            } catch (Exception ex) {
+            }
+            if (windows != null)
+                for (Window window : windows) {
+                    if (window instanceof JFrame)
+                        list.add((JFrame)window);
+                }
+            return list;
+        }
+                
         private boolean checkJavaVersion() {
             String version = System.getProperty("java.runtime.version");
             if (!version.startsWith("1.6"))
@@ -263,6 +266,47 @@ public class PreviewThread extends Thread {
                 return true;
         }
 
+        private JComponent processDiagnostic(List <Diagnostic> diagnostics) {
+            JEditorPane pane = new JEditorPane();
+            pane.setEditable(false);
+            pane.setEditorKit(new HTMLEditorKit());
+            Hyperlink hl = new Hyperlink();
+            pane.addHyperlinkListener(hl);
+            //pane.setFont(new FontUIResource("Monospaced", FontUIResource.PLAIN, 20));
+            String text = "";
+            int i = 0;
+            Vector<Object> foMap = new Vector<Object>();
+            Vector<Long> offsetMap = new Vector<Long>();
+            for (Diagnostic diagnostic : diagnostics) {
+                Object source = diagnostic.getSource();
+                String name = "";
+                if (diagnostic.getSource() != null)
+                {
+                    if (diagnostic.getSource() instanceof MemoryFileObject) {
+                        MemoryFileObject mfo = (MemoryFileObject)source;
+                        name = mfo.getFilePath();
+                    } else {
+                        JavaFileObject jFO = (JavaFileObject) source;
+                        File file = new File(jFO.toUri());
+                        FileObject regularFO = FileUtil.toFileObject(file);
+                        name = regularFO.getPath();
+                        source = regularFO;
+                    }
+                    foMap.add(source);
+                    offsetMap.add(diagnostic.getPosition());
+                    if (diagnostic.getKind() == Kind.WARNING) {
+                        text+= "<a href=" + i + ">" + name + " : " + diagnostic.getLineNumber() + "</a>\n" + " " + "<font color=#540000>: warning: " + diagnostic.getMessage(null) + "</font>" + "<br>";
+                    }else{
+                        text+= "<a href=" + i + ">" + name + " : " + diagnostic.getLineNumber() + "</a>\n" + " " + "<font color=#a40000>" + diagnostic.getMessage(null) + "</font>" + "<br>";
+                    }
+                    i++;
+                }
+            }
+            pane.setText(text);
+            hl.setMaps(foMap, offsetMap);
+            return pane;
+        }
+        
         private JComponent getNothig() {
             JTextArea jta = new JTextArea();
             jta.append(nothingToShow);
@@ -305,7 +349,7 @@ public class PreviewThread extends Thread {
             
             ((JavaFXDocument)doc).setCompile();
             task = ee.execute("prim", new R(), IOProvider.getDefault().getIO("JavaFX preview", false));
-  
+
             task.addTaskListener(new TaskListener() {
                 public void taskFinished(Task task) {
                     ((JavaFXDocument)doc).renderPreview(comp);

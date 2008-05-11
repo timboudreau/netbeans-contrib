@@ -3,5 +3,5 @@ OpenIDE-Module: org.netbeans.modules.javafx.kit
 OpenIDE-Module-Layer: org/netbeans/modules/javafx/kit/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/javafx/kit/Bundle.properties
 OpenIDE-Module-Requires: org.netbeans.api.javahelp.Help
-OpenIDE-Module-Specification-Version: 1.1.0
+OpenIDE-Module-Specification-Version: 1.1.1
 

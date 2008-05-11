@@ -12,6 +12,7 @@ import javax.swing.JFileChooser;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
 import java.io.File;
+import java.text.MessageFormat;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -23,22 +24,41 @@ import javax.swing.text.Document;
  * @author  schmidtm
  */
 public class GetProjectLocationPanel extends WizardSettingsPanel implements DocumentListener {
-    GetProjectLocationStep parentStep;
-    
-        
+
+    private GetProjectLocationStep parentStep;
+
     boolean valid(WizardDescriptor settings) {
-        
-        if(projectNameTextField.getText().length() > 0 && 
-                (new File(projectLocationTextField.getText()).isDirectory()) 
-                ) {
+        if(projectNameTextField.getText().length() > 0
+                && (new File(projectLocationTextField.getText()).isDirectory())) {
             return true;
-            }
-        
-            return false;
         }
+
+        return false;
+    }
     
     void read (WizardDescriptor d) {
-        //TODO:
+        File projectLocation = (File) d.getProperty ("projectFolder");  //NOI18N
+        if (projectLocation == null || projectLocation.getParentFile() == null || !projectLocation.getParentFile().isDirectory ()) {
+            projectLocation = ProjectChooser.getProjectsFolder();
+        } else {
+            projectLocation = projectLocation.getParentFile();
+        }
+        
+        Integer count = (Integer) d.getProperty("WizardPanel_GrailsProjectCounter");
+        String formater = NbBundle.getMessage(GetProjectLocationPanel.class, "TXT_GrailsApplication");
+        
+        int baseCount = count.intValue();
+        
+        String newPrjName = (String) d.getProperty ("name"); //NOI18N
+        if (newPrjName == null) {        
+            while ((newPrjName = validFreeProjectName(projectLocation, formater, baseCount)) == null) {
+                baseCount++;
+            }
+        }
+        
+        projectLocationTextField.setText(projectLocation.getAbsolutePath());
+        projectFolderTextField.setText( projectLocation.getAbsolutePath() + File.separatorChar + projectNameTextField.getText() );        
+        projectNameTextField.setText(newPrjName);
     }
     
     void validate (WizardDescriptor d) throws WizardValidationException {
@@ -47,10 +67,10 @@ public class GetProjectLocationPanel extends WizardSettingsPanel implements Docu
 
     void store( WizardDescriptor d ) {
         // d.putProperty( "setAsMain", setAsMainCheckBox.isSelected() && setAsMainCheckBox.isVisible() ? Boolean.TRUE : Boolean.FALSE ); // NOI18N
-        d.putProperty( "projectFolder", projectFolderTextField.getText() ); // NOI18N
+        d.putProperty( "projectFolder", new File(projectFolderTextField.getText().trim()) ); // NOI18N
         d.putProperty( "projectName", projectNameTextField.getText() ); // NOI18N
         parentStep.fireChangeEvent();
-        }
+    }
     
     
     
@@ -60,12 +80,6 @@ public class GetProjectLocationPanel extends WizardSettingsPanel implements Docu
         initComponents();
         
         setName(NbBundle.getMessage(GetProjectLocationPanel.class,"LAB_ConfigureProject")); // NOI18N
-        
-        // set the default project directory 
-        
-        String projectsFolderPath = ProjectChooser.getProjectsFolder().getPath();
-        projectLocationTextField.setText(projectsFolderPath);
-        projectFolderTextField.setText( projectsFolderPath + File.separatorChar + projectNameTextField.getText() );
         
         // register event listeners to auto-update some fields.
         
@@ -211,7 +225,7 @@ public class GetProjectLocationPanel extends WizardSettingsPanel implements Docu
             String projectName = projectNameTextField.getText();
             String projectFolder = projectLocationTextField.getText(); 
              
-            getProjectFolderTextField().setText( projectFolder + File.separatorChar + projectName );
+            getProjectFolderTextField().setText( new File(projectFolder, projectName).getAbsolutePath() );
             
             parentStep.fireChangeEvent();
             
@@ -221,6 +235,12 @@ public class GetProjectLocationPanel extends WizardSettingsPanel implements Docu
 
     public javax.swing.JTextField getProjectFolderTextField() {
         return projectFolderTextField;
+    }
+    
+    private String validFreeProjectName (final File parentFolder, final String formater, final int index) {
+        String name = MessageFormat.format(formater, index);
+        File file = new File (parentFolder, name);
+        return file.exists() ? null : name;
     }
     
 }
