@@ -290,7 +290,7 @@ public class AstElementVisitor extends AstVisitor {
 
         GNode funTypeTail = that.getGeneric(1);
         if (funTypeTail != null) {
-            FunType funType = new FunType(id.getIdToken(), ElementKind.CLASS);
+            FunType funType = new FunType();
             funType.setLhs(idType);
 
             SimpleType tailType = null;
@@ -300,6 +300,7 @@ public class AstElementVisitor extends AstVisitor {
                 Id tailId = visitId(funTypeTail);
                 tailType = new SimpleType(tailId.getName(), tailId.getIdToken(), ElementKind.CLASS);
             }
+            
             funType.setRhs(tailType);
 
             type = funType;
@@ -2104,7 +2105,7 @@ public class AstElementVisitor extends AstVisitor {
             TypeRef rhs = visitType(rhsNode);
 
             // use rhs as the idToken
-            FunType funType = new FunType(rhs.getIdToken(), ElementKind.CLASS);
+            FunType funType = new FunType();
             funType.setLhs(lhs);
             funType.setRhs(rhs);
 
@@ -2115,7 +2116,7 @@ public class AstElementVisitor extends AstVisitor {
             GNode rhsNode = node.getGeneric(1);
             TypeRef rhs = visitType(rhsNode);
 
-            FunType funType = new FunType(rhs.getIdToken(), ElementKind.CLASS);
+            FunType funType = new FunType();
             funType.setLhs(lhs);
             funType.setRhs(rhs);
 
