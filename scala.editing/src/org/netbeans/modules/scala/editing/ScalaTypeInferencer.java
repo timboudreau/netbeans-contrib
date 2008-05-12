@@ -124,12 +124,15 @@ public class ScalaTypeInferencer {
     }
 
     private void inferExpr(AstExpr expr, TypeRef knownExprType) {
+        if (knownExprType != null) {
+            expr.setType(knownExprType);
+        }
+
         if (expr instanceof SimpleExpr) {
             inferSimpleExpr((SimpleExpr) expr, knownExprType);
         } else if (expr instanceof AssignmentExpr) {
             inferAssignmentExpr((AssignmentExpr) expr);
         }
-
     }
 
     private void inferSimpleExpr(SimpleExpr expr, TypeRef knownExprType) {
@@ -329,8 +332,7 @@ public class ScalaTypeInferencer {
 
             String baseTypeStr = null;
             TypeRef baseType = base.getType();
-            if (baseType == null || (baseType != null && !baseType.isResolved())) {                
-                // @Todo how to resolve it?
+            if (baseType == null || (baseType != null && !baseType.isResolved())) {                // @Todo how to resolve it?
             } else {
                 baseTypeStr = baseType.getQualifiedName();
             }

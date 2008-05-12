@@ -43,7 +43,7 @@ import java.util.List;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.scala.editing.nodes.TypeRef.PseudTypeRef;
+import org.netbeans.modules.scala.editing.nodes.TypeRef.RemoteTypeRef;
 
 /**
  *
@@ -59,7 +59,7 @@ public class FunRef extends AstRef {
 
     public FunRef(Token idToken, ElementKind kind) {
         super(null, idToken, kind);
-        setType(new PseudTypeRef());
+        setType(new RemoteTypeRef());
     }
 
     public void setBase(AstElement base) {

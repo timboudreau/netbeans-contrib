@@ -1817,6 +1817,9 @@ public class AstElementVisitor extends AstVisitor {
         AstExpr expr = null;
 
         SimpleExpr first = visitPrefixExpr(that.getGeneric(0));
+        
+        // Should add expr to scope here
+        scopeStack.peek().addExpr(first);
 
         Pair others = that.getList(1);
         if (!others.isEmpty()) {
@@ -1831,7 +1834,10 @@ public class AstElementVisitor extends AstVisitor {
                 GNode otherNode = (GNode) other;
                 Id op = visitId(otherNode.getGeneric(0));
                 SimpleExpr rExpr = visitPrefixExpr(otherNode.getGeneric(1));
-
+                
+                // Should add expr to scope here
+                scopeStack.peek().addExpr(rExpr);
+                
                 ops.add(op);
                 exprs.add(rExpr);
 

@@ -225,10 +225,10 @@ public class TypeRef extends AstRef {
      * Used to ref remote type, which has only qualifiedName field
      * 
      */
-    public static class PseudTypeRef extends TypeRef {
+    public static class RemoteTypeRef extends TypeRef {
 
-        public PseudTypeRef() {
-            super("pseud type ref", null, ElementKind.CLASS);
+        public RemoteTypeRef() {
+            super("remote type ref", null, ElementKind.CLASS);
             setEnclosingScope(AstScope.emptyScope());
         }
 
