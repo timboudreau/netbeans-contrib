@@ -1830,8 +1830,9 @@ public class AstElementVisitor extends AstVisitor {
             List<InfixOpExprs> infixOpExprsList = new ArrayList<InfixOpExprs>();
 
             SimpleExpr lExpr = first;
-            for (Object other : others) {
-                GNode otherNode = (GNode) other;
+            for (int i = 0; i < others.size(); i++) {
+                GNode otherNode = (GNode) others.get(i);
+                
                 Id op = visitId(otherNode.getGeneric(0));
                 SimpleExpr rExpr = visitPrefixExpr(otherNode.getGeneric(1));
                 
@@ -1856,25 +1857,25 @@ public class AstElementVisitor extends AstVisitor {
                 int precedence = 0;
                 String opName = op.getName();
                 if (opName.equals("*") || opName.equals("/") || opName.equals("%")) {
-                    precedence = 1;
+                    precedence = 1 * 10000 + i;
                 } else if (opName.equals("+") || opName.equals("-")) {
-                    precedence = 2;
+                    precedence = 2 * 10000 + i;
                 } else if (opName.equals(":")) {
-                    precedence = 3;
+                    precedence = 3 * 10000 + i;
                 } else if (opName.equals("=") || opName.equals("!")) {
-                    precedence = 4;
+                    precedence = 4 * 10000 + i;
                 } else if (opName.equals("<") || opName.equals(">")) {
-                    precedence = 5;
+                    precedence = 5 * 10000 + i;
                 } else if (opName.equals("&")) {
-                    precedence = 6;
+                    precedence = 6 * 10000 + i;
                 } else if (opName.equals("^")) {
-                    precedence = 7;
+                    precedence = 7 * 10000 + i;
                 } else if (opName.equals("|")) {
-                    precedence = 8;
+                    precedence = 8 * 10000 + i;
                 } else if (Character.isISOControl(opName.charAt(0))) {
-                    precedence = 0;
+                    precedence = 0 * 10000 + i;
                 } else {
-                    precedence = 9;
+                    precedence = 9 * 10000 + i;
                 }
 
                 InfixOpExprs opExprs = new InfixOpExprs();
@@ -1893,29 +1894,37 @@ public class AstElementVisitor extends AstVisitor {
 
             Collections.sort(infixOpExprsList, InfixOpExprsComparator.getInstance());
 
+            AstElement currLhs = infixOpExprsList.get(0).lhs;
             FunRef lastFunRef = null;
-            while (!infixOpExprsList.isEmpty()) {
-                InfixOpExprs currInfixOpExprs = infixOpExprsList.get(0);
-
+            for (InfixOpExprs currInfixOpExprs : infixOpExprsList) {
                 Id callId = currInfixOpExprs.op;
                 lastFunRef = new FunRef(callId.getIdToken(), ElementKind.CALL);
-                lastFunRef.setBase(currInfixOpExprs.lhs);
+                lastFunRef.setBase(currLhs);
                 lastFunRef.setCall(callId);
                 lastFunRef.setParams(Collections.<AstElement>singletonList(currInfixOpExprs.rhs));
                 
-                scopeStack.peek().addRef(lastFunRef);
+                currLhs = lastFunRef;
                 
-                infixOpExprsList.remove(0);
-
-                for (InfixOpExprs infixOpExprs : infixOpExprsList) {
-                    if (infixOpExprs.lhs == currInfixOpExprs.rhs) {
-                        infixOpExprs.lhs = lastFunRef;
-                    }
-                    if (infixOpExprs.rhs == currInfixOpExprs.lhs) {
-                        infixOpExprs.rhs = lastFunRef;
-                    }
-                }
-            }
+                scopeStack.peek().addRef(lastFunRef);                
+            }            
+            
+//            AstElement currLhs = infixOpExprsList.get(0).lhs;
+//            FunRef lastFunRef = null;
+//            while (!infixOpExprsList.isEmpty()) {
+//                InfixOpExprs currInfixOpExprs = infixOpExprsList.get(0);
+//
+//                Id callId = currInfixOpExprs.op;
+//                lastFunRef = new FunRef(callId.getIdToken(), ElementKind.CALL);
+//                lastFunRef.setBase(currLhs);
+//                lastFunRef.setCall(callId);
+//                lastFunRef.setParams(Collections.<AstElement>singletonList(currInfixOpExprs.rhs));
+//                
+//                currLhs = lastFunRef;
+//                
+//                scopeStack.peek().addRef(lastFunRef);
+//                
+//                infixOpExprsList.remove(0);
+//            }
             
             infixExpr.setTopFunRef(lastFunRef);
 

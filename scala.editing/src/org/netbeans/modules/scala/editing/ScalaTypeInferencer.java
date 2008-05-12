@@ -161,6 +161,8 @@ public class ScalaTypeInferencer {
                     firstId.setType(type);
                     firstIdRef.setType(type);
                 }
+                
+                expr.setType(type);
             }
         }
     }
