@@ -1908,24 +1908,6 @@ public class AstElementVisitor extends AstVisitor {
                 scopeStack.peek().addRef(lastFunRef);                
             }            
             
-//            AstElement currLhs = infixOpExprsList.get(0).lhs;
-//            FunRef lastFunRef = null;
-//            while (!infixOpExprsList.isEmpty()) {
-//                InfixOpExprs currInfixOpExprs = infixOpExprsList.get(0);
-//
-//                Id callId = currInfixOpExprs.op;
-//                lastFunRef = new FunRef(callId.getIdToken(), ElementKind.CALL);
-//                lastFunRef.setBase(currLhs);
-//                lastFunRef.setCall(callId);
-//                lastFunRef.setParams(Collections.<AstElement>singletonList(currInfixOpExprs.rhs));
-//                
-//                currLhs = lastFunRef;
-//                
-//                scopeStack.peek().addRef(lastFunRef);
-//                
-//                infixOpExprsList.remove(0);
-//            }
-            
             infixExpr.setTopFunRef(lastFunRef);
 
             expr = infixExpr;
