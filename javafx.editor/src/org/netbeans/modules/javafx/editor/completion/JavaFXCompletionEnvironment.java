@@ -122,33 +122,33 @@ class JavaFXCompletionEnvironment {
     private static final Logger logger = Logger.getLogger(JavaFXCompletionEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    private int myOffset;
-    private String myPrefix;
-    private boolean isCamelCasePrefix;
-    private CompilationController myController;
-    private TreePath treePath;
-    private SourcePositions mySourcePositions;
+    private final int offset;
+    private final String prefix;
+    private final boolean isCamelCasePrefix;
+    private final CompilationController controller;
+    private final TreePath path;
+    private final SourcePositions sourcePositions;
     private boolean insideForEachExpressiion = false;
-    private Set<? extends TypeMirror> mySmartTypes = null;
-    private JavaFXCompletionQuery query;
+    private Set<? extends TypeMirror> smartTypes = null;
+    private final JavaFXCompletionQuery query;
 
     JavaFXCompletionEnvironment(int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
         super();
-        this.myOffset = offset;
-        this.myPrefix = prefix;
+        this.offset = offset;
+        this.prefix = prefix;
         this.isCamelCasePrefix = prefix != null && prefix.length() > 1 && JavaFXCompletionQuery.camelCasePattern.matcher(prefix).matches();
-        this.myController = controller;
-        this.treePath = path;
-        this.mySourcePositions = sourcePositions;
+        this.controller = controller;
+        this.path = path;
+        this.sourcePositions = sourcePositions;
         this.query = query;
     }
 
     public int getOffset() {
-        return myOffset;
+        return offset;
     }
 
     public String getPrefix() {
-        return myPrefix;
+        return prefix;
     }
 
     public boolean isCamelCasePrefix() {
@@ -156,19 +156,19 @@ class JavaFXCompletionEnvironment {
     }
 
     public CompilationController getController() {
-        return myController;
+        return controller;
     }
 
     public CompilationUnitTree getRoot() {
-        return treePath.getCompilationUnit();
+        return path.getCompilationUnit();
     }
 
     public TreePath getPath() {
-        return treePath;
+        return path;
     }
 
     public SourcePositions getSourcePositions() {
-        return mySourcePositions;
+        return sourcePositions;
     }
 
     public void insideForEachExpressiion() {
@@ -180,10 +180,10 @@ class JavaFXCompletionEnvironment {
     }
 
     public Set<? extends TypeMirror> getSmartTypes() throws IOException {
-        if (mySmartTypes == null) {
-            mySmartTypes = JavaFXCompletionQuery.getSmartTypes(this);
-            if (mySmartTypes != null) {
-                Iterator<? extends TypeMirror> it = mySmartTypes.iterator();
+        if (smartTypes == null) {
+            Set<? extends TypeMirror> stypes = JavaFXCompletionQuery.getSmartTypes(this);
+            if (stypes != null) {
+                Iterator<? extends TypeMirror> it = stypes.iterator();
                 TypeMirror err = null;
                 if (it.hasNext()) {
                     err = it.next();
@@ -193,19 +193,17 @@ class JavaFXCompletionEnvironment {
                 }
                 if (err != null) {
                     HashSet<TypeMirror> st = new HashSet<TypeMirror>();
-                    mySmartTypes = st;
+                    smartTypes = st;
+                } else {
+                    smartTypes = stypes;
                 }
             }
         }
-        return mySmartTypes;
+        return smartTypes;
     }
     
     void insideFunctionDefinition() throws IOException {
         JFXFunctionDefinition def = (JFXFunctionDefinition) getPath().getLeaf();
-        int offset = getOffset();
-        TreePath path = getPath();
-        CompilationController controller = getController();
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
         int startPos = (int) sourcePositions.getStartPosition(root, def);
         JFXType retType = def.getJFXReturnType();
@@ -270,8 +268,6 @@ class JavaFXCompletionEnvironment {
             // don't do anything in this case
             return;
         }
-        int offset = getOffset();
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
         Tree pkg = root.getPackageName();
         if (pkg == null || offset <= sourcePositions.getStartPosition(root, root)) {
@@ -294,7 +290,6 @@ class JavaFXCompletionEnvironment {
      * @return
      */
     boolean isTreeBroken() {
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
         int start = (int) sourcePositions.getStartPosition(root, root);
         int end = (int) sourcePositions.getEndPosition(root, root);
@@ -303,10 +298,7 @@ class JavaFXCompletionEnvironment {
     }
     
     void insideImport() {
-        int offset = getOffset();
-        String prefix = getPrefix();
         ImportTree im = (ImportTree) getPath().getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
         if (offset <= sourcePositions.getStartPosition(root, im.getQualifiedIdentifier())) {
             addPackages(prefix);
@@ -314,11 +306,7 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideClass() throws IOException {
-        int offset = getOffset();
-        TreePath path = getPath();
         ClassTree cls = (ClassTree) path.getLeaf();
-        CompilationController controller = getController();
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
         int startPos = (int) sourcePositions.getEndPosition(root, cls.getModifiers());
         if (startPos <= 0) {
@@ -400,10 +388,7 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideVariable() throws IOException {
-        int offset = getOffset();
-        TreePath path = getPath();
         VariableTree var = (VariableTree) path.getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
         boolean isLocal = path.getParentPath().getLeaf().getKind() != Tree.Kind.CLASS;
         Tree type = var.getType();
@@ -442,12 +427,7 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideMethod() throws IOException {
-        int offset = getOffset();
-        String prefix = getPrefix();
-        TreePath path = getPath();
         MethodTree mth = (MethodTree) path.getLeaf();
-        CompilationController controller = getController();
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
         int startPos = (int) sourcePositions.getStartPosition(root, mth);
         Tree retType = mth.getReturnType();
@@ -509,7 +489,6 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideModifiers(TreePath modPath) throws IOException {
-        int offset = getOffset();
         ModifiersTree mods = (ModifiersTree) modPath.getLeaf();
         Set<Modifier> m = EnumSet.noneOf(Modifier.class);
         final TokenSequence<?> idTokenSequence = getController().getTreeUtilities().tokensFor(mods, getSourcePositions());
@@ -552,9 +531,7 @@ class JavaFXCompletionEnvironment {
     }   
     
     void insideFunctionBlock(com.sun.tools.javac.util.List<JCStatement> statements) throws IOException {
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
-        int offset = getOffset();
         StatementTree last = null;
         for (StatementTree stat : statements) {
             int pos = (int) sourcePositions.getStartPosition(root, stat);
@@ -578,9 +555,7 @@ class JavaFXCompletionEnvironment {
     }
     
     void insideBlock() throws IOException {
-        int offset = getOffset();
         JFXBlockExpression bl = (JFXBlockExpression) getPath().getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
         int blockPos = (int) sourcePositions.getStartPosition(root, bl);
         String text = getController().getText().substring(blockPos, offset);
@@ -612,13 +587,8 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideMemberSelect() throws IOException {
-            int offset = getOffset();
-            String prefix = getPrefix();
-            TreePath path = getPath();
             MemberSelectTree fa = (MemberSelectTree)path.getLeaf();
-            CompilationController controller = getController();
             CompilationUnitTree root = getRoot();
-            SourcePositions sourcePositions = getSourcePositions();
             int expEndPos = (int)sourcePositions.getEndPosition(root, fa.getExpression());
             boolean afterDot = false;
             boolean afterLt = false;
@@ -878,9 +848,7 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideMethodInvocation() throws IOException {
-        TreePath path = getPath();
         MethodInvocationTree mi = (MethodInvocationTree) path.getLeaf();
-        int offset = getOffset();
         TokenSequence<JFXTokenId> ts = findLastNonWhitespaceToken(mi, offset);
         if (ts == null || (ts.token().id() != JFXTokenId.LPAREN && ts.token().id() != JFXTokenId.COMMA)) {
             SourcePositions sp = getSourcePositions();
@@ -898,7 +866,6 @@ class JavaFXCompletionEnvironment {
             }
             return;
         }
-        String prefix = getPrefix();
         if (prefix == null || prefix.length() == 0) {
             addMethodArguments(mi);
         }
@@ -923,10 +890,8 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideFor() throws IOException {
-        int offset = getOffset();
         TreePath path = getPath();
         ForLoopTree fl = (ForLoopTree) path.getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
         Tree lastTree = null;
         int lastTreePos = offset;
@@ -987,12 +952,8 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideForEach() throws IOException {
-        int offset = getOffset();
-        TreePath path = getPath();
         EnhancedForLoopTree efl = (EnhancedForLoopTree) path.getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
-        CompilationController controller = getController();
         if (sourcePositions.getStartPosition(root, efl.getExpression()) >= offset) {
             TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken((int) sourcePositions.getEndPosition(root, efl.getVariable()), offset);
             if (last != null && last.token().id() == JFXTokenId.COLON) {
@@ -1013,11 +974,7 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideSwitch() throws IOException {
-        int offset = getOffset();
-        String prefix = getPrefix();
-        TreePath path = getPath();
         SwitchTree st = (SwitchTree) path.getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
         if (sourcePositions.getStartPosition(root, st.getExpression()) < offset) {
             CaseTree lastCase = null;
@@ -1040,12 +997,8 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideCase() throws IOException {
-        int offset = getOffset();
-        TreePath path = getPath();
         CaseTree cst = (CaseTree) path.getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
-        CompilationController controller = getController();
         if (cst.getExpression() != null && ((sourcePositions.getStartPosition(root, cst.getExpression()) >= offset) || (cst.getExpression().getKind() == Tree.Kind.ERRONEOUS && ((ErroneousTree) cst.getExpression()).getErrorTrees().isEmpty() && sourcePositions.getEndPosition(root, cst.getExpression()) >= offset))) {
             TreePath path1 = path.getParentPath();
             if (path1.getLeaf().getKind() == Tree.Kind.SWITCH) {
@@ -1061,9 +1014,7 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideParens() throws IOException {
-        TreePath path = getPath();
         ParenthesizedTree pa = (ParenthesizedTree) path.getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
         Tree exp = unwrapErrTree(pa.getExpression());
         if (exp == null || getOffset() <= sourcePositions.getStartPosition(root, exp)) {
@@ -1100,9 +1051,7 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideArrayAccess() throws IOException {
-        int offset = getOffset();
         ArrayAccessTree aat = (ArrayAccessTree) getPath().getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
         int aaTextStart = (int) sourcePositions.getEndPosition(root, aat.getExpression());
         if (aaTextStart != Diagnostic.NOPOS) {
@@ -1120,11 +1069,8 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideNewArray() throws IOException {
-        int offset = getOffset();
-        TreePath path = getPath();
         NewArrayTree nat = (NewArrayTree) path.getLeaf();
         if (nat.getInitializers() != null) {
-            SourcePositions sourcePositions = getSourcePositions();
             CompilationUnitTree root = getRoot();
             Tree last = null;
             int lastPos = offset;
@@ -1173,10 +1119,7 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideAssignment() throws IOException {
-        int offset = getOffset();
-        TreePath path = getPath();
         AssignmentTree as = (AssignmentTree) path.getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
         int asTextStart = (int) sourcePositions.getEndPosition(root, as.getVariable());
         if (asTextStart != Diagnostic.NOPOS) {
@@ -1199,9 +1142,7 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideCompoundAssignment() throws IOException {
-        int offset = getOffset();
         CompoundAssignmentTree cat = (CompoundAssignmentTree) getPath().getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
         int catTextStart = (int) sourcePositions.getEndPosition(root, cat.getVariable());
         if (catTextStart != Diagnostic.NOPOS) {
@@ -1219,9 +1160,7 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideBinaryTree() throws IOException {
-        int offset = getOffset();
         BinaryTree bi = (BinaryTree) getPath().getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
         CompilationUnitTree root = getRoot();
         int pos = (int) sourcePositions.getEndPosition(root, bi.getRightOperand());
         if (pos != Diagnostic.NOPOS && pos < offset) {
@@ -1238,9 +1177,7 @@ class JavaFXCompletionEnvironment {
     }
 
     void insideExpressionStatement() throws IOException {
-        TreePath path = getPath();
         ExpressionStatementTree est = (ExpressionStatementTree) path.getLeaf();
-        CompilationController controller = getController();
         Tree t = est.getExpression();
         if (t.getKind() == Tree.Kind.ERRONEOUS) {
             Iterator<? extends Tree> it = ((ErroneousTree) t).getErrorTrees().iterator();
@@ -1310,18 +1247,17 @@ class JavaFXCompletionEnvironment {
                 case VOID:
                     break;
                 default:
+                    
             }
+            log("NOT IMPLEMENTED: insideExpressionStatement ");
         } else {
             insideExpression(tPath);
         }
     }
 
     void insideExpression(TreePath exPath) throws IOException {
-        int offset = getOffset();
-        String prefix = getPrefix();
         Tree et = exPath.getLeaf();
         Tree parent = exPath.getParentPath().getLeaf();
-        CompilationController controller = getController();
         int endPos = (int) getSourcePositions().getEndPosition(getRoot(), et);
         if (endPos != Diagnostic.NOPOS && endPos < offset) {
             TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(endPos, offset);
@@ -1329,6 +1265,8 @@ class JavaFXCompletionEnvironment {
                 return;
             }
         }
+        log("NOT IMPLEMENTED: insideExpression " + exPath);
+        
     }
     
     private void addMembers(final TypeMirror type) throws IOException {
@@ -1355,14 +1293,14 @@ class JavaFXCompletionEnvironment {
                         JavaFXCompletionItem.createExecutableItem(
                             (ExecutableElement)member,
                             (ExecutableType)member.asType(),
-                            myOffset, false, false, false, false)
+                            offset, false, false, false, false)
                     );
                 }
                 if (member.getKind() == ElementKind.FIELD) {
                     query.results.add(
                         JavaFXCompletionItem.createVariableItem(
                             member.getSimpleName().toString(),
-                            myOffset, false)
+                            offset, false)
                     );
                 }
             }
@@ -1427,10 +1365,7 @@ class JavaFXCompletionEnvironment {
 
     private void addKeywordsForCU() {
         List<String> kws = new ArrayList<String>();
-        int offset = getOffset();
-        String prefix = getPrefix();
         CompilationUnitTree cu = getRoot();
-        SourcePositions sourcePositions = getSourcePositions();
         kws.add(ABSTRACT_KEYWORD);
         kws.add(CLASS_KEYWORD);
         kws.add(VAR_KEYWORD);
@@ -1465,7 +1400,6 @@ class JavaFXCompletionEnvironment {
     }
 
     private void addKeywordsForClassBody() {
-        String prefix = getPrefix();
         for (String kw : CLASS_BODY_KEYWORDS) {
             if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
                 query.results.add(JavaFXCompletionItem.createKeywordItem(kw, SPACE, query.anchorOffset, false));
@@ -1474,7 +1408,6 @@ class JavaFXCompletionEnvironment {
     }
 
     private void addKeywordsForStatement() {
-        String prefix = getPrefix();
         for (String kw : STATEMENT_KEYWORDS) {
             if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
                 query.results.add(JavaFXCompletionItem.createKeywordItem(kw, null, query.anchorOffset, false));
@@ -1517,7 +1450,6 @@ class JavaFXCompletionEnvironment {
     }
 
     private void addValueKeywords() throws IOException {
-        String prefix = getPrefix();
         boolean smartType = false;
         if (query.queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE) {
             Set<? extends TypeMirror> smartTypes = getSmartTypes();
@@ -1548,7 +1480,6 @@ class JavaFXCompletionEnvironment {
     }
 
     private void addClassModifiers(Set<Modifier> modifiers) {
-        String prefix = getPrefix();
         List<String> kws = new ArrayList<String>();
         if (!modifiers.contains(PUBLIC) && !modifiers.contains(PRIVATE)) {
             kws.add(PUBLIC_KEYWORD);
@@ -1565,7 +1496,6 @@ class JavaFXCompletionEnvironment {
     }
 
     private void addMemberModifiers(Set<Modifier> modifiers, boolean isLocal) {
-        String prefix = getPrefix();
         List<String> kws = new ArrayList<String>();
         if (isLocal) {
         } else {
@@ -1591,8 +1521,6 @@ class JavaFXCompletionEnvironment {
     
     private void addPackageContent(PackageElement pe, EnumSet<ElementKind> kinds, DeclaredType baseType, boolean insideNew) throws IOException {
             Set<? extends TypeMirror> smartTypes = query.queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE ? getSmartTypes() : null;
-            String prefix = getPrefix();
-            CompilationController controller = getController();
             Elements elements = controller.getElements();
             Types types = controller.getTypes();
             JavafxcTrees trees = controller.getTrees();
