@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,13 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
+ * Contributor(s): Denis Stepanov
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,24 +37,44 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
- * Contributor(s):
- * 
- * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.properties.rbe;
 
-package org.netbeans.modules.scala.editing.nodes;
-
-import org.netbeans.modules.gsf.api.ElementKind;
+import java.util.Comparator;
+import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
- *
- * @author Caoyuan Deng
+ * The Bundle
+ * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class Type extends AstDef {
-    
-    public Type(Id id, AstScope bindingScope) {
-        super(id.getName(), id.getIdToken(), bindingScope, ElementKind.CLASS);
+public class Bundle {
+
+    Set<Locale> locales;
+
+    public void addLocale(Locale locale) {
+        if (locales == null) {
+            locales = new TreeSet<Locale>(new LocaleComparator());
+        }
+        locales.add(locale);
     }
 
+    public Set<Locale> getLocales() {
+        return locales;
+    }
+
+    static class LocaleComparator implements Comparator<Locale> {
+
+        public int compare(Locale locale1, Locale locale2) {
+            int diff = locale1.getLanguage().compareTo(locale2.getLanguage());
+            if (diff == 0) {
+                diff = locale1.getCountry().compareTo(locale2.getCountry());
+                if (diff == 0) {
+                    diff = locale1.getVariant().compareTo(locale2.getVariant());
+                }
+            }
+            return diff;
+        }
+    }
 }

@@ -40,6 +40,7 @@ package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.scala.editing.nodes.TypeRef.RemoteTypeRef;
 
 /**
  *
@@ -50,10 +51,10 @@ public class FieldRef extends AstRef {
     /** base may be AstExpr, FunRef, FieldRef, IdRef etc */
     private AstElement base;
     private Id field;
-    private String retType;
 
     public FieldRef(Token idToken) {
         super(null, idToken, ElementKind.FIELD);
+        setType(new RemoteTypeRef());
     }
 
     public void setBase(AstElement base) {
@@ -67,7 +68,7 @@ public class FieldRef extends AstRef {
     public void setField(Id field) {
         this.field = field;
     }
-    
+
     public Id getField() {
         return field;
     }
@@ -85,12 +86,7 @@ public class FieldRef extends AstRef {
         return sb.toString();
     }
 
-    public void setRetType(String retType) {
-        this.retType = retType;
+    public void setRetTypeStr(String retTypeStr) {
+        getType().setQualifiedName(retTypeStr);
     }
-
-    public String getRetType() {
-        return retType;
-    }
-    
 }

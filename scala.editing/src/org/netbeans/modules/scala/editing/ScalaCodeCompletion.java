@@ -416,8 +416,8 @@ public class ScalaCodeCompletion implements Completable {
                         if (funRef != null) {
                             boolean isHisArg = false;
                             int argOffset = closest.getPickOffset(th);
-                            for (AstExpr arg : funRef.getParams()) {
-                                if (arg.getBoundsOffset(th) >= argOffset && argOffset <= arg.getBoundsEndOffset(th)) {
+                            for (AstElement arg : funRef.getParams()) {
+                                if (arg.getPickOffset(th) >= argOffset && argOffset <= arg.getPickEndOffset(th)) {
                                     isHisArg = true;
                                     break;
                                 }
@@ -1262,10 +1262,10 @@ public class ScalaCodeCompletion implements Completable {
 
                     if (closest instanceof FieldRef) {
                         // dog.tal|
-                        typeStr = ((FieldRef) closest).getRetType();
+                        typeRef = closest.getType();
                     } else if (closest instanceof FunRef) {
                         // dog.talk().
-                        typeStr = ((FunRef) closest).getRetType();
+                        typeRef = closest.getType();
                     } else if (closest instanceof IdRef) {
                         // dog.|
                         typeRef = closest.getType();

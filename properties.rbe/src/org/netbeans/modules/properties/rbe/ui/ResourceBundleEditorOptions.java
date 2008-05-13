@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,51 +20,31 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
- * Contributor(s):
- * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ *
+ * Contributor(s): Denis Stepanov
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
  */
-
-package org.netbeans.modules.groovy.grailsproject;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import org.netbeans.spi.project.DeleteOperationImplementation;
-import org.openide.filesystems.FileObject;
-import org.netbeans.api.project.Project;
+package org.netbeans.modules.properties.rbe.ui;
 
 /**
- *
- * @author schmidtm
+ * The Resource Bundle Editor options
+ * TODO
+ * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class GrailsProjectDeleteImplementation implements DeleteOperationImplementation {
-    Project project;
-
-    public GrailsProjectDeleteImplementation(Project project) {
-        this.project = project;
-    }
-
+public class ResourceBundleEditorOptions {
     
-    public void notifyDeleting() throws IOException {
-        return;
-    }
-
-    public void notifyDeleted() throws IOException {
-        return;
-    }
-
-    public List<FileObject> getMetadataFiles() {
-        return getDataFiles();
-    }
-
-    public List<FileObject> getDataFiles() {
-        List<FileObject> dataFiles = new ArrayList<FileObject>();
-        
-        dataFiles.add(project.getProjectDirectory());
-        
-        return dataFiles;
-    }
-
 }

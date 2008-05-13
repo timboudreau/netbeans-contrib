@@ -59,6 +59,7 @@ import org.netbeans.modules.groovy.editor.hints.spi.RuleContext;
 import org.netbeans.modules.groovy.editor.hints.spi.SelectionRule;
 import org.netbeans.modules.groovy.editor.hints.spi.UserConfigurableRule;
 import org.netbeans.modules.groovy.editor.parser.GroovyParserResult;
+import org.netbeans.modules.groovy.editor.parser.GroovyParser.GroovyError;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.Error;
 import org.netbeans.modules.gsf.api.HintsProvider;
@@ -69,6 +70,9 @@ import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
 import org.openide.util.Exceptions;
 import org.netbeans.spi.editor.hints.Fix;
+import org.netbeans.modules.groovy.editor.GroovyCompilerErrorID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -76,6 +80,7 @@ import org.netbeans.spi.editor.hints.Fix;
  */
 public class GroovyHintsProvider implements HintsProvider{
     
+    public static final Logger LOG = Logger.getLogger(GroovyHintsProvider.class.getName()); // NOI18N
     private boolean cancelled;
     private List<SelectionRule> testSelectionHints;
     private Map<NodeType,List<AstRule>> testHints;
@@ -131,14 +136,71 @@ public class GroovyHintsProvider implements HintsProvider{
         }
     }
 
-    public List<Error> computeErrors(CompilationInfo info, List<ErrorDescription> hints) {
+    public List<Error> computeErrors(CompilationInfo info, List<ErrorDescription> result) {
         // Return all the errors we -haven't- added custom error hints for:
+        
+       // LOG.setLevel(Level.FINEST);
+       LOG.log(Level.FINEST, "computeErrors()");
+       
+        
+       try {
+            if (info.getDocument() == null) {
+                // Document probably closed
+                return Collections.emptyList();
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+       
         GroovyParserResult rpr = AstUtilities.getParseResult(info);
-        if (rpr != null) {
-            return rpr.getDiagnostics();
+        
+        if (rpr == null) {
+            return Collections.emptyList();
+        }
+
+        List<Error> errors = rpr.getDiagnostics();
+        LOG.log(Level.FINEST, "errors.size() : " + errors.size());
+
+        if (errors == null || errors.size() == 0) {
+            return Collections.emptyList();
+        }
+
+        cancelled = false;
+        
+        Map<GroovyCompilerErrorID,List<ErrorRule>> hints = testErrors;
+        
+        if (hints == null) {
+            hints = RulesManager.getInstance().getErrors();
+        }
+
+        if (hints.isEmpty() || isCancelled()) {
+            return errors;
         }
         
-        return Collections.emptyList();
+        LOG.log(Level.FINEST, "hints.size() : " + hints.size());
+        
+        List<Description> descriptions = new ArrayList<Description>();
+        
+        List<Error> unhandled = new ArrayList<Error>();
+        
+        for (Error error : errors) {
+            if (error instanceof GroovyError) {
+                LOG.log(Level.FINEST, "error instanceof GroovyError : " + error.getDescription());
+                if (!applyRules((GroovyError) error, info, hints, descriptions)) {
+                    LOG.log(Level.FINEST, "Adding error to unhandled");
+                    unhandled.add(error);
+                }
+            }
+        }
+        
+        if (descriptions.size() > 0) {
+            for (Description desc : descriptions) {
+                ErrorDescription errorDesc = createDescription(desc, info, -1);
+                result.add(errorDesc);
+            }
+        }
+        
+        return unhandled;
     }
 
     private boolean isTest() {
@@ -179,6 +241,47 @@ public class GroovyHintsProvider implements HintsProvider{
             rule.run(context, result);
         }
     }
+
+    /** Apply error rules and return true iff somebody added an error description for it */
+    private boolean applyRules(GroovyError error, CompilationInfo info, Map<GroovyCompilerErrorID,List<ErrorRule>> hints,
+            List<Description> result) {
+        
+       // LOG.setLevel(Level.FINEST);
+       LOG.log(Level.FINEST, "applyRules(...)");
+        
+        GroovyCompilerErrorID code = error.getId();
+        if (code != null) {
+            List<ErrorRule> rules = hints.get(code);
+
+            if (rules != null) {
+                int countBefore = result.size();
+                RuleContext context = new RuleContext();
+                context.compilationInfo = info;
+                try {
+                    context.doc = (BaseDocument) info.getDocument();
+                    if (context.doc == null) {
+                        // Document closed
+                        return false;
+                    }
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+                
+                for (ErrorRule rule : rules) {
+                    if (!rule.appliesTo(info)) {
+                        continue;
+                    }
+                    rule.run(context, error, result);
+                }
+                
+                return countBefore < result.size();
+            }
+        }
+        
+        return false;
+    }    
+    
+    
     
 private ErrorDescription createDescription(Description desc, CompilationInfo info, int caretPos) {
         Rule rule = desc.getRule();

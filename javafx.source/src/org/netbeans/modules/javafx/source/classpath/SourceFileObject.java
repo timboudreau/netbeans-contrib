@@ -39,7 +39,7 @@
  * made subject to such option by the copyright holder.
  */
 
-package org.netbeans.api.javafx.source;
+package org.netbeans.modules.javafx.source.classpath;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;

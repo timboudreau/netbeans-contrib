@@ -40,16 +40,21 @@ import org.openide.util.NbBundle;
 import java.io.File;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.FileObject;
-import org.openide.util.Exceptions;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import org.netbeans.api.progress.ProgressHandle;
 import java.io.BufferedReader;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import org.netbeans.api.project.ProjectInformation;
+import org.netbeans.modules.groovy.grails.api.ExecutionSupport;
+import org.netbeans.modules.groovy.grails.api.GrailsProjectConfig;
 import org.netbeans.modules.groovy.grails.api.GrailsRuntime;
 import org.netbeans.modules.groovy.grailsproject.GrailsProject;
 import org.netbeans.modules.groovy.grailsproject.SourceCategory;
-import org.netbeans.modules.groovy.grailsproject.actions.PublicSwingWorker;
+import org.netbeans.modules.groovy.grailsproject.execution.DefaultDescriptor;
+import org.netbeans.modules.groovy.grailsproject.execution.ExecutionService;
+import org.openide.util.Task;
 
 
 /**
@@ -82,27 +87,27 @@ public class NewArtifactWizardIterator implements  WizardDescriptor.Instantiatin
         switch(cat){
             case DOMAIN:
                 wizardTitle = NbBundle.getMessage(NewArtifactWizardIterator.class,"WIZARD_TITLE_DOMAIN");
-                serverCommand = NbBundle.getMessage(NewArtifactWizardIterator.class,"SERVER_COMMAND_DOMAIN");
+                serverCommand = "create-domain-class"; // NOI18N
                 break;
             case CONTROLLERS:
                 wizardTitle = NbBundle.getMessage(NewArtifactWizardIterator.class,"WIZARD_TITLE_CONTROLLERS");
-                serverCommand = NbBundle.getMessage(NewArtifactWizardIterator.class,"SERVER_COMMAND_CONTROLLERS");
+                serverCommand = "create-controller"; // NOI18N
                 break;
             case SERVICES:
                 wizardTitle = NbBundle.getMessage(NewArtifactWizardIterator.class,"WIZARD_TITLE_SERVICES");
-                serverCommand = NbBundle.getMessage(NewArtifactWizardIterator.class,"SERVER_COMMAND_SERVICES");
+                serverCommand = "create-service"; // NOI18N
                 break; 
             case VIEWS:
                 wizardTitle = NbBundle.getMessage(NewArtifactWizardIterator.class,"WIZARD_TITLE_VIEWS");
-                serverCommand = NbBundle.getMessage(NewArtifactWizardIterator.class,"SERVER_COMMAND_VIEWS");
+                serverCommand = "generate-views"; // NOI18N
                 break;    
             case TAGLIB:
                 wizardTitle = NbBundle.getMessage(NewArtifactWizardIterator.class,"WIZARD_TITLE_TAGLIB");
-                serverCommand = NbBundle.getMessage(NewArtifactWizardIterator.class,"SERVER_COMMAND_TAGLIB");
+                serverCommand = "create-tag-lib"; // NOI18N
                 break;    
             case SCRIPTS:
                 wizardTitle = NbBundle.getMessage(NewArtifactWizardIterator.class,"WIZARD_TITLE_SCRIPTS");
-                serverCommand = NbBundle.getMessage(NewArtifactWizardIterator.class,"SERVER_COMMAND_SCRIPTS");
+                serverCommand = "create-script"; // NOI18N
                 break;    
             }
         }
@@ -119,16 +124,22 @@ public class NewArtifactWizardIterator implements  WizardDescriptor.Instantiatin
             Set<FileObject> resultSet = new HashSet<FileObject>();
             
             serverRunning = true;
-            
-            new PublicSwingWorker(project, serverCommand  + " " + pls.getDomainClassName(),
-                                    null, handle, serverFinished).start();
-            
-            try {
-                serverFinished.await();
-                } catch (InterruptedException ex) {
-                    Exceptions.printStackTrace(ex);
-                    }
 
+            handle.start(100);
+            try {
+                ProjectInformation inf = project.getLookup().lookup(ProjectInformation.class);
+                String displayName = inf.getDisplayName() + " (" + serverCommand + ")"; // NOI18N
+
+                Callable<Process> callable = ExecutionSupport.getInstance().createSimpleCommand(
+                        serverCommand, GrailsProjectConfig.forProject(project), pls.getDomainClassName());
+                ExecutionService service = new ExecutionService(callable, displayName,
+                        new DefaultDescriptor(project, new ProgressSnooper(handle, 100, 2) , null, false, false, true, true, false));
+
+                Task task = service.run();
+                task.waitFinished();
+            } finally {
+                handle.progress(100);
+            }
             serverRunning = false;
             
             LOG.log(Level.FINEST, "Artifact Name: " + pls.getFileName());
