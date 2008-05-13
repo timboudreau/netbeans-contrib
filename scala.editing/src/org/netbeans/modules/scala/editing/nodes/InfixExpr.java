@@ -47,6 +47,7 @@ import org.netbeans.api.lexer.Token;
  */
 public class InfixExpr extends AstExpr implements Postfixable {
 
+    private FunRef topFunRef;
     private List<SimpleExpr> exprs;
     private List<Id> ops;
     private Id postfixOp;
@@ -55,6 +56,14 @@ public class InfixExpr extends AstExpr implements Postfixable {
         super(boundsTokens);
     }
 
+    public void setTopFunRef(FunRef topFunRef) {
+        this.topFunRef = topFunRef;
+    }
+    
+    public FunRef getTopFunRef() {
+        return topFunRef;
+    }
+    
     public void setExprs(List<SimpleExpr> types) {
         this.exprs = types;
     }
@@ -81,7 +90,7 @@ public class InfixExpr extends AstExpr implements Postfixable {
     
     @Override
     public TypeRef getType() {
-        return exprs.get(0).getType(); // @todo
-
+        return topFunRef.getType(); // @todo
     }
+
 }

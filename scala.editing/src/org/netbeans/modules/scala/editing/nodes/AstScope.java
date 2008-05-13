@@ -66,7 +66,6 @@ public class AstScope implements Iterable<AstScope> {
     private Token[] boundsTokens;
 
     public AstScope(Token[] boundsTokens) {
-        assert boundsTokens.length == 2;
         this.boundsTokens = boundsTokens;
     }
 
@@ -157,7 +156,7 @@ public class AstScope implements Iterable<AstScope> {
             return Collections.<AstScope>emptySet().iterator();
         }
     }
-    
+
     public AstElement findDefRef(TokenHierarchy th, int offset) {
         // Always seach refs first, since ref can be included in def
         if (refs != null) {
@@ -568,6 +567,27 @@ public class AstScope implements Iterable<AstScope> {
         public int compare(AstRef o1, AstRef o2) {
             return o1.getPickOffset(th) < o2.getPickEndOffset(th) ? -1 : 1;
         }
+    }
+    // Sinleton EmptyScope
+    private static AstScope EmptyScope;
+
+    public static AstScope emptyScope() {
+        if (EmptyScope == null) {
+            EmptyScope = new AstScope(null) {
+
+                @Override
+                public int getBoundsOffset(TokenHierarchy th) {
+                    return -1;
+                }
+
+                @Override
+                public int getBoundsEndOffset(TokenHierarchy th) {
+                    return -1;
+                }
+            };
+        }
+        
+        return EmptyScope;
     }
 }
 

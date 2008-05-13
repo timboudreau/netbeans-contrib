@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,81 +31,45 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.editing.nodes;
+package org.netbeans.modules.groovy.grailsproject.ui.wizards;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
+import java.io.IOException;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.modules.groovy.grailsproject.execution.LineSnooper;
 
 /**
  *
- * @author dcaoyuan
+ * @author Petr Hejl
  */
-public class SimpleTupleType extends SimpleType {
-    private List<TypeRef> types;
-    
-    public SimpleTupleType(Token idToken, ElementKind kind) {
-        super(null, idToken, kind);
-    }
-    
-    public void setTypes(List<TypeRef> types) {
-        this.types = types;
-    }
-    
-    public List<TypeRef> getTypes() {
-        return types == null ? Collections.<TypeRef>emptyList() : types;
+public class ProgressSnooper implements LineSnooper {
+
+    private final ProgressHandle progress;
+
+    private final int max;
+
+    private final int step;
+
+    private int value;
+
+    public ProgressSnooper(ProgressHandle progress, int max, int step) {
+        this.progress = progress;
+        this.max = max;
+        this.step = step;
     }
 
-    @Override
-    public int getPickOffset(TokenHierarchy th) {
-        return -1;
-    }        
-
-    /** @Todo how to define tuple type's pick offsets?
-     */
-    @Override
-    public int getPickEndOffset(TokenHierarchy th) {
-        return -1;
-    }        
-
-    @Override
-    public String getName() {
-        StringBuilder sb = new StringBuilder();
-        
-        sb.append("(");
-        for (Iterator<TypeRef> itr = getTypes().iterator(); itr.hasNext();) {
-            sb.append(itr.next().getName());
-            if (itr.hasNext()) {
-                sb.append(", ");
-            }
+    public void lineFilter(String line) throws IOException {
+        value += step;
+        if (value > max) {
+                        value = max;
         }
-        sb.append(")");
-        
-        return sb.toString();
+
+        progress.progress(value);
     }
-    
-    
-    @Override
-    public void htmlFormat(HtmlFormatter formatter) {
-        super.htmlFormat(formatter);
-        formatter.appendText("(");
-        for (Iterator<TypeRef> itr = getTypes().iterator(); itr.hasNext();) {
-            itr.next().htmlFormat(formatter);
-            if (itr.hasNext()) {
-                formatter.appendText(", ");
-            }
-        }
-        formatter.appendText(")");
-        htmlFormatTypeArgs(formatter);
-    }        
+
 }

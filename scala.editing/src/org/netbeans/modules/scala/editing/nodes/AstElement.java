@@ -110,7 +110,7 @@ public class AstElement implements ElementHandle {
         if (idToken != null) {
             return idToken.offset(th);
         } else {
-            assert false : getName() + ": Should implement getOffset(th)";
+            assert false : getName() + ": Should implement getPickOffset(th)";
             return -1;
         }
     }
@@ -119,7 +119,7 @@ public class AstElement implements ElementHandle {
         if (idToken != null) {
             return idToken.offset(th) + idToken.length();
         } else {
-            assert false : getName() + ": Should implement getOffset(th)";
+            assert false : getName() + ": Should implement getPickEndOffset(th)";
             return -1;
         }
     }

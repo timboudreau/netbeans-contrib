@@ -43,6 +43,7 @@ import java.util.List;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.scala.editing.nodes.TypeRef.RemoteTypeRef;
 
 /**
  *
@@ -53,12 +54,12 @@ public class FunRef extends AstRef {
     /** base may be AstExpr, FunRef, FieldRef, IdRef etc */
     private AstElement base;
     private Id call;
-    private List<AstExpr> params;
+    private List<? extends AstElement> params;
     private boolean local;
-    private String retType;
 
     public FunRef(Token idToken, ElementKind kind) {
         super(null, idToken, kind);
+        setType(new RemoteTypeRef());
     }
 
     public void setBase(AstElement base) {
@@ -77,12 +78,12 @@ public class FunRef extends AstRef {
         return call;
     }
 
-    public void setParams(List<AstExpr> params) {
+    public void setParams(List<? extends AstElement> params) {
         this.params = params;
     }
 
-    public List<AstExpr> getParams() {
-        return params == null ? Collections.<AstExpr>emptyList() : params;
+    public List<? extends AstElement> getParams() {
+        return params == null ? Collections.<AstElement>emptyList() : params;
     }
 
     public void setLocal() {
@@ -105,19 +106,15 @@ public class FunRef extends AstRef {
         sb.append('.').append(call.getName());
         return sb.toString();
     }
-
-    public void setRetType(String retType) {
-        this.retType = retType;
+    
+    public void setRetTypeStr(String retTypeStr) {
+        getType().setQualifiedName(retTypeStr);
     }
-
-    public String getRetType() {
-        return retType;
-    }
-
+    
     // ----- Special FunRef
-    public static class ApplyRef extends FunRef {
+    public static class ApplyFunRef extends FunRef {
 
-        public ApplyRef() {
+        public ApplyFunRef() {
             super(null, ElementKind.METHOD);
         }
 

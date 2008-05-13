@@ -49,7 +49,7 @@ import org.netbeans.modules.gsf.api.ElementKind;
  * @author Caoyuan Deng
  */
 public class TypeRef extends AstRef {
-    
+
     public static final TypeRef Any = new TypeRef("Any", null, ElementKind.CLASS) {
 
         @Override
@@ -181,7 +181,7 @@ public class TypeRef extends AstRef {
     public TypeRef(String name, Token idToken, ElementKind kind) {
         super(name, idToken, kind);
     }
-    
+
     public boolean isResolved() {
         return !getQualifiedName().equals(UNRESOLVED);
     }
@@ -219,5 +219,22 @@ public class TypeRef extends AstRef {
 
     public void setQualifiedName(String qualifiedName) {
         this.qualifiedName = qualifiedName;
-    }            
+    }
+
+    /**
+     * Used to ref remote type, which has only qualifiedName field
+     * 
+     */
+    public static class RemoteTypeRef extends TypeRef {
+
+        public RemoteTypeRef() {
+            super("remote type ref", null, ElementKind.CLASS);
+            setEnclosingScope(AstScope.emptyScope());
+        }
+
+        @Override
+        public String getQualifiedName() {
+            return qualifiedName == null ? UNRESOLVED : qualifiedName;
+        }
+    }
 }

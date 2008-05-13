@@ -38,24 +38,22 @@ import org.netbeans.api.project.Project;
 import org.openide.filesystems.FileObject;
 import org.openide.util.actions.Presenter;
 
-public class GrailsServerCommandAction extends AbstractAction implements Presenter.Popup {
+public class GrailsCommandAction extends AbstractAction implements Presenter.Popup {
 
-    JMenu grailsCommandMenu = new JMenu("Grails");
-    Project project;
+    private final JMenu grailsCommandMenu = new JMenu("Grails");
+    private final Project project;
     
-    public GrailsServerCommandAction (Project project){
+    public GrailsCommandAction (Project project){
         this.project = project;
         
         grailsCommandMenu.add(new CreateWarFileAction(project));
         grailsCommandMenu.add(new GrailsTargetAction(project, "Compile", "compile"));
         grailsCommandMenu.add(new GrailsTargetAction(project, "Statistics", "stats"));
         grailsCommandMenu.add(new GrailsTargetAction(project, "Upgrade", "upgrade"));
-        grailsCommandMenu.add(new GrailsTargetAction(project, "Help", "help"));
-        grailsCommandMenu.add(new ShellAction(project));
         
         List<String> cmdlist = getCustomScripts();
         
-        if(!cmdlist.isEmpty()){
+        if (!cmdlist.isEmpty()){
             grailsCommandMenu.addSeparator();
             
             for (String cmd : cmdlist) {

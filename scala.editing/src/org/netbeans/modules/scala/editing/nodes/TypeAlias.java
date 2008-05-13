@@ -45,9 +45,9 @@ import org.netbeans.modules.gsf.api.ElementKind;
  *
  * @author Caoyuan Deng
  */
-public class Type extends AstDef {
+public class TypeAlias extends AstDef {
     
-    public Type(Id id, AstScope bindingScope) {
+    public TypeAlias(Id id, AstScope bindingScope) {
         super(id.getName(), id.getIdToken(), bindingScope, ElementKind.CLASS);
     }
 
