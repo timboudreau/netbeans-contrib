@@ -40,9 +40,10 @@
  */
 package org.netbeans.modules.properties.rbe;
 
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * The Bundle
@@ -54,12 +55,26 @@ public class Bundle {
 
     public void addLocale(Locale locale) {
         if (locales == null) {
-            locales = new HashSet<Locale>();
+            locales = new TreeSet<Locale>(new LocaleComparator());
         }
         locales.add(locale);
     }
 
     public Set<Locale> getLocales() {
         return locales;
+    }
+
+    static class LocaleComparator implements Comparator<Locale> {
+
+        public int compare(Locale locale1, Locale locale2) {
+            int diff = locale1.getLanguage().compareTo(locale2.getLanguage());
+            if (diff == 0) {
+                diff = locale1.getCountry().compareTo(locale2.getCountry());
+                if (diff == 0) {
+                    diff = locale1.getVariant().compareTo(locale2.getVariant());
+                }
+            }
+            return diff;
+        }
     }
 }

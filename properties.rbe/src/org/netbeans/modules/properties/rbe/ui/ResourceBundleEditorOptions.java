@@ -41,9 +41,10 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 /**
- * The Resource Bundle Editor
+ * The Resource Bundle Editor options
  * TODO
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class ResourceBundleEditor {
+public class ResourceBundleEditorOptions {
+    
 }
