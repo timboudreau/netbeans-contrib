@@ -58,12 +58,12 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
 
     /** Creates a new instance of WorkflowFrameworkProvider */
     public SAWFrameworkProvider() {
-        super(NbBundle.getBundle(SAWFrameworkProvider.class).getString("OpenIDE-Module-Name"), NbBundle.getBundle(SAWFrameworkProvider.class).getString("OpenIDE-Module-Short-Description"));
+        super(NbBundle.getBundle(SAWFrameworkProvider.class).getString("SAW_FRAMEWORK"), NbBundle.getBundle(SAWFrameworkProvider.class).getString("SAW_FRAMEWORK_DESC"));
     }
 
     public WebModuleExtender createWebModuleExtender(WebModule wm, ExtenderController controller) {
 
-        boolean customizer = (wm != null && isInWebModule(wm));
+      //  boolean customizer = (wm != null && isInWebModule(wm));
         sawFrameworkWizardPanel1 = new SAWFrameworkWizardPanel1(this, wm, controller);
 
         return sawFrameworkWizardPanel1;
@@ -99,12 +99,8 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
     public boolean isInWebModule(WebModule webModule) {
 
         try {
-            FileObject fileObject = webModule.getWebInf().getFileObject("ImplementationType", "properties");
-            FileObject webInfObj = webModule.getWebInf();
              
               ClassPath cp = ClassPath.getClassPath(webModule.getDocumentBase(), ClassPath.COMPILE);
-              if (fileObject == null )                   
-                    return false;
               if(cp == null || cp.findResource("com/sun/saw/Workflow.class") == null) { //NOI18N)
                   return false;
                 } 
@@ -126,14 +122,10 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
             Project project = FileOwnerQuery.getOwner(documentBase);
             Sources sources = ProjectUtils.getSources(project);
             SourceGroup[] sourceGroup = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
-            for (int j = 0; j < sourceGroup.length; j++) {
-                if (sourceGroup[j].getRootFolder().getParent().getName().equals("src")) {
-                    FileObject[] fileObjectArray = sourceGroup[j].getRootFolder().getParent().getChildren();
-
-                    for (int i = 0; i < fileObjectArray.length; i++) {
-
-                        if (fileObjectArray[i].getName().equals("java")) {
-                            org.openide.filesystems.FileObject fObject10 = fileObjectArray[i].createData("ImplementationType", "properties");
+            
+                    if(sourceGroup.length > 0) {
+                            FileObject fileObject = sourceGroup[0].getRootFolder();
+                            org.openide.filesystems.FileObject fObject10 = fileObject.createData("ImplementationType", "properties");
                             org.openide.filesystems.FileLock fLock1 = fObject10.lock();
                             java.io.OutputStream ostream = fObject10.getOutputStream(fLock1);
                             ostream.write(("ImplementationType=" + selectedValue).getBytes());
@@ -148,7 +140,7 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
                             ostream1.flush();
                             ostream1.close();
                             fLock2.releaseLock(); */
-                            org.openide.filesystems.FileObject fObject12 = fileObjectArray[i].createData("WorkflowConfig", "properties");
+                            org.openide.filesystems.FileObject fObject12 = fileObject.createData("WorkflowConfig", "properties");
 
                             org.openide.filesystems.FileLock fLock3 = fObject12.lock();
                             java.io.OutputStream ostream2 = fObject12.getOutputStream(fLock3);
@@ -168,18 +160,12 @@ public class SAWFrameworkProvider extends WebFrameworkProvider {
                             ostream2.close();
                             fLock3.releaseLock();
                         }
-                    }
-                }
-            }
-
-
-
-            String content = readResource(Repository.getDefault().getDefaultFileSystem().findResource("velocity/templates/SAW").getInputStream(), "UTF-8"); //NOI18N
-            FileObject target = FileUtil.createData(wm.getWebInf(), "SAW.tld");//NOI18N
-            createFile(target, content, "UTF-8"); //NOI18N 
+            
+            FileObject sawTldFileObject = Repository.getDefault().getDefaultFileSystem().findResource("velocity/templates/SAW");
+            FileUtil.copyFile(sawTldFileObject, wm.getWebInf(), "SAW", "tld");
 
         } catch (IOException ex) {
-           
+           ex.printStackTrace();
         }
     }
 
