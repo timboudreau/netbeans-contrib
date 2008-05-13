@@ -45,13 +45,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 import java.util.Locale;
 import javax.swing.ActionMap;
 import javax.swing.BoxLayout;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import org.netbeans.modules.properties.Element.ItemElem;
 import org.netbeans.modules.properties.PropertiesDataObject;
+import org.netbeans.modules.properties.rbe.Constants;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.nodes.AbstractNode;
@@ -129,27 +129,31 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
     }
 
     protected void updateSelectedProperty() {
-        uiWindow.getRightPanel().removeAll();
+        boolean reseted = false;
         for (Node selectedNode : explorer.getSelectedNodes()) {
             if (selectedNode instanceof BundlePropertyNode) {
+                if (!reseted) {
+                    uiWindow.getRightPanel().removeAll();
+                    reseted = true;
+                }
                 BundlePropertyNode bundlePropertyNode = (BundlePropertyNode) selectedNode;
                 for (Locale locale : bundlePropertyNode.getProperty().getBundle().getLocales()) {
-                    JScrollPane jScrollPane1 = new JScrollPane();
-                    JTextArea jTextArea1 = new JTextArea();
-                    jTextArea1.setLineWrap(true);
-                    jTextArea1.setWrapStyleWord(true);
-                    jTextArea1.setColumns(20);
-                    jTextArea1.setRows(5);
-                    jScrollPane1.setViewportView(jTextArea1);
-
+                    UIPropertyPanel propertyPanel = new UIPropertyPanel();
                     ItemElem item = bundlePropertyNode.getProperty().getLocaleRepresentation().get(locale);
+                    if (Constants.DEFAULT_LOCALE.equals(locale)) {
+                        propertyPanel.getTitleLabel().setText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "DefaultLocale"));
+                    } else {
+                        String title = String.format("%s (%s)%s", locale.getDisplayLanguage(),
+                                locale.getLanguage(), locale.getDisplayCountry().length() > 0 ? " - " + locale.getDisplayCountry() : "");
+                        propertyPanel.getTitleLabel().setText(title);
+                    }
                     if (item != null) {
-                        jTextArea1.setText(
+                        propertyPanel.getTextArea().setText(
                                 "Value: " + item.getValue() + "\n" +
                                 "Comment: " + item.getComment());
                     }
 
-                    uiWindow.getRightPanel().add(jScrollPane1);
+                    uiWindow.getRightPanel().add(propertyPanel);
                 }
             }
         }
@@ -158,7 +162,7 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
 
     @Override
     public Image getIcon() {
-        return Utilities.loadImage("org/netbeans/modules/rbe/resources/propertiesObject.png"); // NOI18N
+        return Utilities.loadImage("org/netbeans/modules/properties/rbe/resources/propertiesObject.png"); // NOI18N
 
     }
 

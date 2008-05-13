@@ -42,9 +42,11 @@ package org.netbeans.modules.javafx.editor.completion;
 
 import com.sun.javafx.api.tree.JavaFXTree;
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
+import com.sun.source.tree.ArrayAccessTree;
 import com.sun.source.tree.AssignmentTree;
 import com.sun.source.tree.BinaryTree;
 import com.sun.source.tree.CaseTree;
+import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.CompoundAssignmentTree;
 import com.sun.source.tree.EnhancedForLoopTree;
@@ -54,8 +56,14 @@ import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.ForLoopTree;
 import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.IfTree;
+import com.sun.source.tree.ImportTree;
+import com.sun.source.tree.InstanceOfTree;
 import com.sun.source.tree.MemberSelectTree;
+import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.ModifiersTree;
+import com.sun.source.tree.NewArrayTree;
+import com.sun.source.tree.ParenthesizedTree;
 import com.sun.source.tree.SwitchTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.TypeCastTree;
@@ -64,6 +72,10 @@ import com.sun.source.tree.WhileLoopTree;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javafx.api.JavafxcTrees;
+import com.sun.tools.javafx.tree.JFXBlockExpression;
+import com.sun.tools.javafx.tree.JFXClassDeclaration;
+import com.sun.tools.javafx.tree.JFXFunctionDefinition;
+import com.sun.tools.javafx.tree.JFXObjectLiteralPart;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -91,6 +103,7 @@ import org.netbeans.api.javafx.source.JavaFXSource;
 import org.netbeans.api.javafx.source.JavaFXSource.Phase;
 import org.netbeans.api.javafx.source.Task;
 import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.modules.javafx.editor.completion.environment.*;
 import org.netbeans.spi.editor.completion.CompletionDocumentation;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
@@ -98,95 +111,95 @@ import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
-final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<CompilationController> {
+public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<CompilationController> {
     
     private static final Logger logger = Logger.getLogger(JavaFXCompletionProvider.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    static final String ERROR = "<error>";
-    static final String INIT = "<init>";
-    static final String SPACE = " ";
-    static final String COLON = ":";
-    static final String SEMI = ";";
-    static final String EMPTY = "";
-    static final String ABSTRACT_KEYWORD = "abstract";
-    static final String AFTER_KEYWORD = "after";
-    static final String AND_KEYWORD = "and";
-    static final String AS_KEYWORD = "as";
-    static final String ASSERT_KEYWORD = "assert";
-    static final String ATTRIBUTE_KEYWORD = "attribute";
-    static final String BEFORE_KEYWORD = "before";
-    static final String BIND_KEYWORD = "bind";
-    static final String BOUND_KEYWORD = "bound";
-    static final String BREAK_KEYWORD = "break";
-    static final String CATCH_KEYWORD = "catch";
-    static final String CLASS_KEYWORD = "class";
-    static final String CONTINUE_KEYWORD = "continue";
-    static final String DELETE_KEYWORD = "delete";
-    static final String ELSE_KEYWORD = "else";
-    static final String EXCLUSIVE_KEYWORD = "exclusive";
-    static final String EXTENDS_KEYWORD = "extends";
-    static final String FALSE_KEYWORD = "false";
-    static final String FINALLY_KEYWORD = "finally";
-    static final String FIRST_KEYWORD = "first";
-    static final String FOR_KEYWORD = "for";
-    static final String FROM_KEYWORD = "from";
-    static final String FUNCTION_KEYWORD = "function";
-    static final String IF_KEYWORD = "if";
-    static final String IMPORT_KEYWORD = "import";
-    static final String INDEXOF_KEYWORD = "indexof";
-    static final String INIT_KEYWORD = "init";
-    static final String IN_KEYWORD = "in";
-    static final String INSERT_KEYWORD = "insert";
-    static final String INSTANCEOF_KEYWORD = "instanceof";
-    static final String INTO_KEYWORD = "into";
-    static final String INVERSE_KEYWORD = "inverse";
-    static final String LAST_KEYWORD = "last";
-    static final String LAZY_KEYWORD = "lazy";
-    static final String LET_KEYWORD = "let";
-    static final String NEW_KEYWORD = "new";
-    static final String NOT_KEYWORD = "not";
-    static final String NULL_KEYWORD = "null";
-    static final String ON_KEYWORD = "on";
-    static final String OR_KEYWORD = "or";
-    static final String OVERRIDE_KEYWORD = "override";
-    static final String PACKAGE_KEYWORD = "package";
-    static final String PRIVATE_KEYWORD = "private";
-    static final String PROTECTED_KEYWORD = "protected";
-    static final String PUBLIC_KEYWORD = "public";
-    static final String READONLY_KEYWORD = "readonly";
-    static final String REPLACE_KEYWORD = "replace";
-    static final String RETURN_KEYWORD = "return";
-    static final String REVERSE_KEYWORD = "reverse";
-    static final String SIZEOF_KEYWORD = "sizeof";
-    static final String STATIC_KEYWORD = "static";
-    static final String STEP_KEYWORD = "step";
-    static final String SUPER_KEYWORD = "super";
-    static final String THEN_KEYWORD = "then";
-    static final String THIS_KEYWORD = "this";
-    static final String THROW_KEYWORD = "throw";
-    static final String TRANSIENT_KEYWORD = "transient";
-    static final String TRUE_KEYWORD = "true";
-    static final String TRY_KEYWORD = "try";
-    static final String TWEEN_KEYWORD = "tween";
-    static final String TYPEOF_KEYWORD = "typeof";
-    static final String VAR_KEYWORD = "var";
-    static final String WHERE_KEYWORD = "where";
-    static final String WHILE_KEYWORD = "while";
-    static final String WITH_KEYWORD = "with";
+    public static final String ERROR = "<error>";
+    public static final String INIT = "<init>";
+    public static final String SPACE = " ";
+    public static final String COLON = ":";
+    public static final String SEMI = ";";
+    public static final String EMPTY = "";
+    public static final String ABSTRACT_KEYWORD = "abstract";
+    public static final String AFTER_KEYWORD = "after";
+    public static final String AND_KEYWORD = "and";
+    public static final String AS_KEYWORD = "as";
+    public static final String ASSERT_KEYWORD = "assert";
+    public static final String ATTRIBUTE_KEYWORD = "attribute";
+    public static final String BEFORE_KEYWORD = "before";
+    public static final String BIND_KEYWORD = "bind";
+    public static final String BOUND_KEYWORD = "bound";
+    public static final String BREAK_KEYWORD = "break";
+    public static final String CATCH_KEYWORD = "catch";
+    public static final String CLASS_KEYWORD = "class";
+    public static final String CONTINUE_KEYWORD = "continue";
+    public static final String DELETE_KEYWORD = "delete";
+    public static final String ELSE_KEYWORD = "else";
+    public static final String EXCLUSIVE_KEYWORD = "exclusive";
+    public static final String EXTENDS_KEYWORD = "extends";
+    public static final String FALSE_KEYWORD = "false";
+    public static final String FINALLY_KEYWORD = "finally";
+    public static final String FIRST_KEYWORD = "first";
+    public static final String FOR_KEYWORD = "for";
+    public static final String FROM_KEYWORD = "from";
+    public static final String FUNCTION_KEYWORD = "function";
+    public static final String IF_KEYWORD = "if";
+    public static final String IMPORT_KEYWORD = "import";
+    public static final String INDEXOF_KEYWORD = "indexof";
+    public static final String INIT_KEYWORD = "init";
+    public static final String IN_KEYWORD = "in";
+    public static final String INSERT_KEYWORD = "insert";
+    public static final String INSTANCEOF_KEYWORD = "instanceof";
+    public static final String INTO_KEYWORD = "into";
+    public static final String INVERSE_KEYWORD = "inverse";
+    public static final String LAST_KEYWORD = "last";
+    public static final String LAZY_KEYWORD = "lazy";
+    public static final String LET_KEYWORD = "let";
+    public static final String NEW_KEYWORD = "new";
+    public static final String NOT_KEYWORD = "not";
+    public static final String NULL_KEYWORD = "null";
+    public static final String ON_KEYWORD = "on";
+    public static final String OR_KEYWORD = "or";
+    public static final String OVERRIDE_KEYWORD = "override";
+    public static final String PACKAGE_KEYWORD = "package";
+    public static final String PRIVATE_KEYWORD = "private";
+    public static final String PROTECTED_KEYWORD = "protected";
+    public static final String PUBLIC_KEYWORD = "public";
+    public static final String READONLY_KEYWORD = "readonly";
+    public static final String REPLACE_KEYWORD = "replace";
+    public static final String RETURN_KEYWORD = "return";
+    public static final String REVERSE_KEYWORD = "reverse";
+    public static final String SIZEOF_KEYWORD = "sizeof";
+    public static final String STATIC_KEYWORD = "static";
+    public static final String STEP_KEYWORD = "step";
+    public static final String SUPER_KEYWORD = "super";
+    public static final String THEN_KEYWORD = "then";
+    public static final String THIS_KEYWORD = "this";
+    public static final String THROW_KEYWORD = "throw";
+    public static final String TRANSIENT_KEYWORD = "transient";
+    public static final String TRUE_KEYWORD = "true";
+    public static final String TRY_KEYWORD = "try";
+    public static final String TWEEN_KEYWORD = "tween";
+    public static final String TYPEOF_KEYWORD = "typeof";
+    public static final String VAR_KEYWORD = "var";
+    public static final String WHERE_KEYWORD = "where";
+    public static final String WHILE_KEYWORD = "while";
+    public static final String WITH_KEYWORD = "with";
     
-    static final String[] STATEMENT_KEYWORDS = new String[]{
+    public static final String[] STATEMENT_KEYWORDS = new String[]{
         FOR_KEYWORD,
         TRY_KEYWORD, 
         WHILE_KEYWORD
     };
-    static final String[] STATEMENT_SPACE_KEYWORDS = new String[]{
+    public static final String[] STATEMENT_SPACE_KEYWORDS = new String[]{
         INSERT_KEYWORD,
         NEW_KEYWORD,
         THROW_KEYWORD,
         VAR_KEYWORD
     };
-    static final String[] CLASS_BODY_KEYWORDS = new String[]{
+    public static final String[] CLASS_BODY_KEYWORDS = new String[]{
         ABSTRACT_KEYWORD,
         ATTRIBUTE_KEYWORD, 
         FUNCTION_KEYWORD,
@@ -203,7 +216,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
     int anchorOffset;
     private int toolTipOffset;
     private JTextComponent component;
-    int queryType;
+    public int queryType;
     private int caretOffset;
     private String filterPrefix;
     private boolean hasTask;
@@ -363,214 +376,7 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         JavaFXCompletionEnvironment env = getCompletionEnvironment(controller);
         results = new ArrayList<JavaFXCompletionItem>();
         anchorOffset = env.getOffset();
-        TreePath path = env.getPath();
-        Tree t = path.getLeaf();
-        if (t instanceof JavaFXTree && t.getKind() == Tree.Kind.OTHER) {
-            JavaFXTree jfxt = (JavaFXTree) t;
-            JavaFXKind k = jfxt.getJavaFXKind();
-            log("JavaFXKind: " + k);
-            switch (k) {
-                case BIND_EXPRESSION:
-                    break;
-                case BLOCK_EXPRESSION:
-                    env.insideBlock();
-                    break;
-                case CLASS_DECLARATION:
-                    env.insideClassDeclaration();
-                    break;
-                case FOR_EXPRESSION:
-                    break;
-                case FOR_EXPRESSION_IN_CLAUSE:
-                    break;
-                case FUNCTION_DEFINITION:
-                    env.insideFunctionDefinition();
-                    break;
-                case FUNCTION_VALUE:
-                    break;
-                case INIT_DEFINITION:
-                    break;
-                case INSTANTIATE:
-                    break;
-                case INTERPOLATE:
-                    break;
-                case INTERPOLATE_VALUE:
-                    break;
-                case KEYFRAME_LITERAL:
-                    break;
-                case OBJECT_LITERAL_PART:
-                    env.insideObjectLiteralPart();
-                    break;
-                case ON_REPLACE:
-                    break;
-                case POSTINIT_DEFINITION:
-                    break;
-                case SEQUENCE_DELETE:
-                    break;
-                case SEQUENCE_EMPTY:
-                    break;
-                case SEQUENCE_EXPLICIT:
-                    break;
-                case SEQUENCE_INDEXED:
-                    break;
-                case SEQUENCE_INSERT:
-                    break;
-                case SEQUENCE_RANGE:
-                    break;
-                case SEQUENCE_SLICE:
-                    break;
-                case SET_ATTRIBUTE_TO_OBJECT:
-                    break;
-                case STRING_EXPRESSION:
-                    break;
-                case TIME_LITERAL:
-                    break;
-                case TRIGGER_WRAPPER:
-                    break;
-                case TYPE_ANY:
-                    break;
-                case TYPE_CLASS:
-                    env.insideClassDeclaration();
-                    break;
-                case TYPE_FUNCTIONAL:
-                    break;
-                case TYPE_UNKNOWN:
-                    break;
-            }
-        } else {
-            log("Java Kind: " + t.getKind());
-            switch (t.getKind()) {
-                case COMPILATION_UNIT:
-                    env.insideCompilationUnit();
-                    break;
-                case IMPORT:
-                    env.insideImport();
-                    break;
-                case CLASS:
-                    env.insideClass();
-                    break;
-                case VARIABLE:
-                    env.insideVariable();
-                    break;
-                case METHOD:
-                    env.insideMethod();
-                    break;
-                case MODIFIERS:
-                    env.insideModifiers( path);
-                    break;
-                case ANNOTATION:
-                    break;
-                case TYPE_PARAMETER:
-                    break;
-                case PARAMETERIZED_TYPE:
-                    break;
-                case UNBOUNDED_WILDCARD:
-                case EXTENDS_WILDCARD:
-                case SUPER_WILDCARD:
-                    TreePath parentPath = path.getParentPath();
-
-                    break;
-                case BLOCK:
-                    //insideBlock(env);
-                    break;
-                case MEMBER_SELECT:
-                    env.insideMemberSelect();
-                    break;
-                case METHOD_INVOCATION:
-                    env.insideMethodInvocation();
-                    break;
-                case NEW_CLASS:
-                    break;
-                case ASSERT:
-                case RETURN:
-                case THROW:
-                    break;
-                case CATCH:
-                    break;
-                case IF:
-                    env.insideIf();
-                    break;
-                case WHILE_LOOP:
-                    env.insideWhile();
-                    break;
-                case FOR_LOOP:
-                    env.insideFor();
-                    break;
-                case ENHANCED_FOR_LOOP:
-                    env.insideForEach();
-                    break;
-                case SWITCH:
-                    env.insideSwitch();
-                    break;
-                case CASE:
-                    env.insideCase();
-                    break;
-                case PARENTHESIZED:
-                    env.insideParens();
-                    break;
-                case TYPE_CAST:
-                    env.insideExpression( path);
-                    break;
-                case INSTANCE_OF:
-                    env.insideTypeCheck();
-                    break;
-                case ARRAY_ACCESS:
-                    env.insideArrayAccess();
-                    break;
-                case NEW_ARRAY:
-                    env.insideNewArray();
-                    break;
-                case ASSIGNMENT:
-                    env.insideAssignment();
-                    break;
-                case MULTIPLY_ASSIGNMENT:
-                case DIVIDE_ASSIGNMENT:
-                case REMAINDER_ASSIGNMENT:
-                case PLUS_ASSIGNMENT:
-                case MINUS_ASSIGNMENT:
-                case LEFT_SHIFT_ASSIGNMENT:
-                case RIGHT_SHIFT_ASSIGNMENT:
-                case UNSIGNED_RIGHT_SHIFT_ASSIGNMENT:
-                case AND_ASSIGNMENT:
-                case XOR_ASSIGNMENT:
-                case OR_ASSIGNMENT:
-                    env.insideCompoundAssignment();
-                    break;
-                case PREFIX_INCREMENT:
-                case PREFIX_DECREMENT:
-                case UNARY_PLUS:
-                case UNARY_MINUS:
-                case BITWISE_COMPLEMENT:
-                case LOGICAL_COMPLEMENT:
-                    env.localResult();
-                    break;
-                case AND:
-                case CONDITIONAL_AND:
-                case CONDITIONAL_OR:
-                case DIVIDE:
-                case EQUAL_TO:
-                case GREATER_THAN:
-                case GREATER_THAN_EQUAL:
-                case LEFT_SHIFT:
-                case LESS_THAN:
-                case LESS_THAN_EQUAL:
-                case MINUS:
-                case MULTIPLY:
-                case NOT_EQUAL_TO:
-                case OR:
-                case PLUS:
-                case REMAINDER:
-                case RIGHT_SHIFT:
-                case UNSIGNED_RIGHT_SHIFT:
-                case XOR:
-                    env.insideBinaryTree();
-                    break;
-                case CONDITIONAL_EXPRESSION:
-                    break;
-                case EXPRESSION_STATEMENT:
-                    env.insideExpressionStatement();
-                    break;
-            }
-        }
+        env.inside(env.getPath().getLeaf());
         if (LOGGABLE) {
             log("Results: " + results);
         }
@@ -890,7 +696,187 @@ final class JavaFXCompletionQuery extends AsyncCompletionQuery implements Task<C
         }
         log("getCompletionEnvironment caretOffset: " + caretOffset + " offset: " + offset);
         TreePath path = controller.getTreeUtilities().pathFor(offset);
-        return new JavaFXCompletionEnvironment(offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+        Tree t = path.getLeaf();
+        if (t instanceof JavaFXTree && t.getKind() == Tree.Kind.OTHER) {
+            JavaFXTree jfxt = (JavaFXTree) t;
+            JavaFXKind k = jfxt.getJavaFXKind();
+            log("JavaFXKind: " + k);
+            switch (k) {
+                case BIND_EXPRESSION:
+                    break;
+                case BLOCK_EXPRESSION:
+                    return new BlockExpressionEnvironment((JFXBlockExpression)t, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case CLASS_DECLARATION:
+                    return new ClassDeclarationEnvironment((JFXClassDeclaration)t, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case FOR_EXPRESSION:
+                    break;
+                case FOR_EXPRESSION_IN_CLAUSE:
+                    break;
+                case FUNCTION_DEFINITION:
+                    return new FunctionDefinitionEnvironment((JFXFunctionDefinition) t,offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case FUNCTION_VALUE:
+                    break;
+                case INIT_DEFINITION:
+                    break;
+                case INSTANTIATE:
+                    break;
+                case INTERPOLATE:
+                    break;
+                case INTERPOLATE_VALUE:
+                    break;
+                case KEYFRAME_LITERAL:
+                    break;
+                case OBJECT_LITERAL_PART:
+                    return new ObjectLiteralPartEnvironment((JFXObjectLiteralPart) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case ON_REPLACE:
+                    break;
+                case POSTINIT_DEFINITION:
+                    break;
+                case SEQUENCE_DELETE:
+                    break;
+                case SEQUENCE_EMPTY:
+                    break;
+                case SEQUENCE_EXPLICIT:
+                    break;
+                case SEQUENCE_INDEXED:
+                    break;
+                case SEQUENCE_INSERT:
+                    break;
+                case SEQUENCE_RANGE:
+                    break;
+                case SEQUENCE_SLICE:
+                    break;
+                case SET_ATTRIBUTE_TO_OBJECT:
+                    break;
+                case STRING_EXPRESSION:
+                    break;
+                case TIME_LITERAL:
+                    break;
+                case TRIGGER_WRAPPER:
+                    break;
+                case TYPE_ANY:
+                    break;
+                case TYPE_CLASS:
+                    //return new ClassDeclarationEnvironment((JFXClassDeclaration)t, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+
+                case TYPE_FUNCTIONAL:
+                    break;
+                case TYPE_UNKNOWN:
+                    break;
+            }
+        } else {
+            log("Java Kind: " + t.getKind());
+            switch (t.getKind()) {
+                case COMPILATION_UNIT:
+                    return new CompilationUnitEnvironment((CompilationUnitTree) t,offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case IMPORT:
+                    return new ImportTreeEnvironment((ImportTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case CLASS:
+                    return new ClassTreeEnvironment((ClassTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case VARIABLE:
+                    return new VariableTreeEnvironment((VariableTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case METHOD:
+                    return new MethodTreeEnvironment((MethodTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case MODIFIERS:
+                    return new ModifiersTreeEnvironment((ModifiersTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case ANNOTATION:
+                    break;
+                case TYPE_PARAMETER:
+                    break;
+                case PARAMETERIZED_TYPE:
+                    break;
+                case UNBOUNDED_WILDCARD:
+                case EXTENDS_WILDCARD:
+                case SUPER_WILDCARD:
+                    TreePath parentPath = path.getParentPath();
+
+                    break;
+                case BLOCK:
+                    //insideBlock(env);
+                    break;
+                case MEMBER_SELECT:
+                    return new MemberSelectTreeEnvironment((MemberSelectTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case METHOD_INVOCATION:
+                    return new MethodInvocationTreeEnvironment((MethodInvocationTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case NEW_CLASS:
+                    break;
+                case ASSERT:
+                case RETURN:
+                case THROW:
+                    break;
+                case CATCH:
+                    break;
+                case IF:
+                    return new IfTreeEnvironment((IfTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case WHILE_LOOP:
+                    return new WhileLoopTreeEnvironment((WhileLoopTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case FOR_LOOP:
+                    return new ForLoopTreeEnvironment((ForLoopTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case SWITCH:
+                    return new SwitchTreeEnvironment((SwitchTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case CASE:
+                    return new CaseTreeEnvironment((CaseTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case PARENTHESIZED:
+                    return new ParenthesizedTreeEnvironment((ParenthesizedTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case TYPE_CAST:
+                    break;
+                case INSTANCE_OF:
+                    return new InstanceOfTreeEnvironment((InstanceOfTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case ARRAY_ACCESS:
+                    return new ArrayAccessTreeEnvironment((ArrayAccessTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case NEW_ARRAY:
+                    return new NewArrayTreeEnvironment((NewArrayTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case ASSIGNMENT:
+                    return new AssignmentTreeEnvironment((AssignmentTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case MULTIPLY_ASSIGNMENT:
+                case DIVIDE_ASSIGNMENT:
+                case REMAINDER_ASSIGNMENT:
+                case PLUS_ASSIGNMENT:
+                case MINUS_ASSIGNMENT:
+                case LEFT_SHIFT_ASSIGNMENT:
+                case RIGHT_SHIFT_ASSIGNMENT:
+                case UNSIGNED_RIGHT_SHIFT_ASSIGNMENT:
+                case AND_ASSIGNMENT:
+                case XOR_ASSIGNMENT:
+                case OR_ASSIGNMENT:
+                    return new CompoundAssignmentTreeEnvironment((CompoundAssignmentTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case PREFIX_INCREMENT:
+                case PREFIX_DECREMENT:
+                case UNARY_PLUS:
+                case UNARY_MINUS:
+                case BITWISE_COMPLEMENT:
+                case LOGICAL_COMPLEMENT:
+                    // TODO: ???
+                    break;
+                case AND:
+                case CONDITIONAL_AND:
+                case CONDITIONAL_OR:
+                case DIVIDE:
+                case EQUAL_TO:
+                case GREATER_THAN:
+                case GREATER_THAN_EQUAL:
+                case LEFT_SHIFT:
+                case LESS_THAN:
+                case LESS_THAN_EQUAL:
+                case MINUS:
+                case MULTIPLY:
+                case NOT_EQUAL_TO:
+                case OR:
+                case PLUS:
+                case REMAINDER:
+                case RIGHT_SHIFT:
+                case UNSIGNED_RIGHT_SHIFT:
+                case XOR:
+                    return new BinaryTreeEnvironment((BinaryTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                case CONDITIONAL_EXPRESSION:
+                    break;
+                case EXPRESSION_STATEMENT:
+                    // ???
+                    break;
+            }
+        }
+
+        return new JavaFXCompletionEnvironment(null, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
     }
 
     private static void log(String s) {
