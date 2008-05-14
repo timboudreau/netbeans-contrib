@@ -73,7 +73,6 @@ import org.netbeans.modules.scala.editing.lexer.MaybeCall;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
-import org.netbeans.modules.scala.editing.nodes.AstExpr;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
@@ -1258,23 +1257,23 @@ public class ScalaCodeCompletion implements Completable {
 
             if (typeStr == null) {
                 if (closest != null) {
-                    TypeRef typeRef = null;
+                    TypeRef type = null;
 
                     if (closest instanceof FieldRef) {
                         // dog.tal|
-                        typeRef = closest.getType();
+                        type = closest.getType();
                     } else if (closest instanceof FunRef) {
                         // dog.talk().
-                        typeRef = closest.getType();
+                        type = closest.getType();
                     } else if (closest instanceof IdRef) {
                         // dog.|
-                        typeRef = closest.getType();
+                        type = closest.getType();
                     } else {
-                        typeRef = closest.getType();
+                        type = closest.getType();
                     }
 
-                    if (typeRef != null) {
-                        typeStr = typeRef.getQualifiedName();
+                    if (type != null) {
+                        typeStr = type.getQualifiedName();
                     }
                 }
             //Node method = AstUtilities.findLocalScope(node, path);

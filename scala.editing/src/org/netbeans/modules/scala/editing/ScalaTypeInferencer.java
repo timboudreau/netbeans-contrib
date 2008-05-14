@@ -59,6 +59,7 @@ import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.netbeans.modules.scala.editing.nodes.Id;
+import org.netbeans.modules.scala.editing.nodes.IdRef;
 import org.netbeans.modules.scala.editing.nodes.Import;
 import org.netbeans.modules.scala.editing.nodes.Packaging;
 import org.netbeans.modules.scala.editing.nodes.PathId;
@@ -130,47 +131,40 @@ public class ScalaTypeInferencer {
         }
 
         if (expr instanceof SimpleExpr) {
-            inferSimpleExpr((SimpleExpr) expr, knownExprType);
+            inferSimpleExpr((SimpleExpr) expr);
         } else if (expr instanceof AssignmentExpr) {
             inferAssignmentExpr((AssignmentExpr) expr);
         }
     }
 
-    private void inferSimpleExpr(SimpleExpr expr, TypeRef knownExprType) {
-        AstElement base = ((SimpleExpr) expr).getBase();
+    private void inferSimpleExpr(SimpleExpr expr) {
+        AstElement base = expr.getBase();
         if (base instanceof PathId) {
             /** Try to find an AstRef, so we can infer its type via it's def */
-            Id firstId = ((PathId) base).getPaths().get(0);
+            PathId pathId = (PathId) base;
+            Id firstId = pathId.getPaths().get(0);
             AstElement firstIdRef = rootScope.findDefRef(th, firstId.getPickOffset(th));
             if (firstIdRef == null) {
                 // this should not happen
                 System.out.println("Null IdRef of PathId: " + base.toString());
                 return;
             }
-            AstDef def = rootScope.findDef(firstIdRef);
-            TypeRef type = null;
-            if (def != null) {
-                type = def.getType();
-            } else if (knownExprType != null) {
-                type = knownExprType;
-            }
 
+            TypeRef type = firstIdRef.getType();
             if (type != null) {
                 if (firstIdRef.getType() != null) {
                     // @Todo check type of firstId with def's type 
                 } else {
                     firstId.setType(type);
-                    firstIdRef.setType(type);
                 }
 
-                expr.setType(type);
             }
         }
     }
 
     private void inferAssignmentExpr(AssignmentExpr expr) {
-        AstExpr lhs = ((AssignmentExpr) expr).getLhs();
-        AstExpr rhs = ((AssignmentExpr) expr).getRhs();
+        AstExpr lhs = expr.getLhs();
+        AstExpr rhs = expr.getRhs();
         inferExpr(rhs, null);
         inferExpr(lhs, rhs.getType());
     }
@@ -179,8 +173,9 @@ public class ScalaTypeInferencer {
 
     public void globalInfer(CompilationInfo info) {
         ScalaIndex index = ScalaIndex.get(info);
-        globalInferRecursively(index, rootScope);
 
+        newResolvedRefs.clear();
+        globalInferRecursively(index, rootScope);
         for (Entry<AstRef, AstScope> entry : newResolvedRefs.entrySet()) {
             entry.getValue().addRef(entry.getKey());
         }
@@ -201,27 +196,11 @@ public class ScalaTypeInferencer {
                 toResolve = ref.getType();
             }
 
-            if (toResolve == null) {
+            if (toResolve == null || toResolve != null && toResolve.isResolved()) {
                 continue;
             }
 
-            if (toResolve.isResolved()) {
-                continue;
-            }
-
-            List<Import> imports = toResolve.getEnclosingScope().getDefsInScope(Import.class);
-            List<String> importPkgs = new ArrayList<String>();
-            for (Import importExpr : imports) {
-                if (importExpr.isWild()) {
-                    importPkgs.add(importExpr.getPackageName());
-                }
-            }
-            Packaging packaging = toResolve.getPackageElement();
-            String ofPackage = packaging == null ? null : packaging.getName();
-            String qualifiedName = globalInferTypeRef(index, toResolve.getName(), ofPackage, importPkgs);
-            if (qualifiedName != null) {
-                toResolve.setQualifiedName(qualifiedName);
-            }
+            globalInferTypeRef(index, toResolve);
         }
 
         for (AstScope _scope : scope.getScopes()) {
@@ -249,30 +228,45 @@ public class ScalaTypeInferencer {
             } else {
                 if (base instanceof PathId) {
                     List<Id> paths = ((PathId) base).getPaths();
-                    if (paths.size() > 1) {
+                    if (paths.size() > 0) {
                         // Is this a qualifiered name or member chain?
                         // let's try member chain first
                         Iterator<Id> itr = paths.iterator();
-                        AstElement currBase = itr.next();
+                        Id firstId = itr.next();
+                        IdRef idRef = new IdRef(firstId.getName(), firstId.getIdToken(), ElementKind.VARIABLE);
+                        idRef.setEnclosingScope(funRef.getEnclosingScope());
+                        newResolvedRefs.put(idRef, funRef.getEnclosingScope());
+                        AstRef currBase = idRef;
                         while (itr.hasNext()) {
                             Id field = itr.next();
-                            FieldRef fieldRef = new FieldRef(field.getIdToken());
-                            fieldRef.setBase(currBase);
-                            fieldRef.setField(field);
-                            globalInferFieldRef(index, fieldRef);
-                            if (fieldRef.getType() != null && fieldRef.getType().isResolved()) {
-                                newResolvedRefs.put(fieldRef, funRef.getEnclosingScope());
+                            FieldRef aFieldRef = new FieldRef(field.getIdToken());
+                            aFieldRef.setBase(currBase);
+                            aFieldRef.setField(field);
+                            globalInferFieldRef(index, aFieldRef);
+                            TypeRef aFieldRefType = aFieldRef.getType();
+                            if (aFieldRefType != null && aFieldRefType.isResolved()) {
+                                newResolvedRefs.put(aFieldRef, funRef.getEnclosingScope());
 
-                                currBase = fieldRef;
-                                baseTypeStr = ((FieldRef) currBase).getType().getQualifiedName();
+                                currBase = aFieldRef;
                             } else {
                                 // @Todo cannot be resolved, should be qualifiered name?
                                 break;
                             }
                         }
-
+                        
                         funRef.setBase(currBase);
-                    }
+                        
+                        baseType = currBase.getType();
+                        if (baseType != null) {
+                            if (!baseType.isResolved()) {
+                                globalInferTypeRef(index, baseType);
+                            }
+                            
+                            if (baseType.isResolved()) {
+                                baseTypeStr = baseType.getQualifiedName();
+                            }
+                        }
+                    } 
                 } else {
                     // @todo resolve it first
                 }
@@ -310,7 +304,7 @@ public class ScalaTypeInferencer {
                     baseTypeStr = qualifiedName;
                     funRef.setBase(new PseudoTypeRef(qualifiedName));
                     funRef.setCall(new Id("apply", objectName.getIdToken(), ElementKind.VARIABLE));
-                    
+
                     funRef.setApply();
                     callName = "apply";
                     baseTypeTmpl = "object";
@@ -369,16 +363,62 @@ public class ScalaTypeInferencer {
             return;
         }
 
-        // resolve return type of funRef:
+        // resolve return type of fieldRef:
         AstElement base = fieldRef.getBase();
         if (base != null) {
 
             String baseTypeStr = null;
             TypeRef baseType = base.getType();
-            if (baseType == null || (baseType != null && !baseType.isResolved())) {                // @Todo how to resolve it?
-            } else {
+            if (baseType != null && baseType.isResolved()) {
                 baseTypeStr = baseType.getQualifiedName();
+            } else {
+                if (base instanceof PathId) {
+                    List<Id> paths = ((PathId) base).getPaths();
+                    if (paths.size() > 0) {
+                        // Is this a qualifiered name or member chain?
+                        // let's try member chain first
+                        Iterator<Id> itr = paths.iterator();
+                        Id firstId = itr.next();
+                        IdRef idRef = new IdRef(firstId.getName(), firstId.getIdToken(), ElementKind.VARIABLE);
+                        idRef.setEnclosingScope(fieldRef.getEnclosingScope());
+                        newResolvedRefs.put(idRef, fieldRef.getEnclosingScope());
+                        AstRef currBase = idRef;
+                        while (itr.hasNext()) {
+                            Id field = itr.next();
+                            FieldRef aFieldRef = new FieldRef(field.getIdToken());
+                            aFieldRef.setBase(currBase);
+                            aFieldRef.setField(field);
+                            globalInferFieldRef(index, aFieldRef);
+                            TypeRef aFieldRefType = aFieldRef.getType();
+                            if (aFieldRefType != null && aFieldRefType.isResolved()) {
+                                newResolvedRefs.put(aFieldRef, fieldRef.getEnclosingScope());
+
+                                currBase = aFieldRef;
+                            } else {
+                                // @Todo cannot be resolved, should be qualifiered name?
+                                break;
+                            }
+                        }
+
+                        fieldRef.setBase(currBase);
+                        
+                        baseType = idRef.getType();
+                        if (baseType != null) {
+                            if (!baseType.isResolved()) {
+                                globalInferTypeRef(index, baseType);
+                            }
+                            
+                            if (baseType.isResolved()) {
+                                baseTypeStr = baseType.getQualifiedName();
+                            }
+                        }
+                        
+                    }
+                } else {
+                    // @todo resolve it first
+                }
             }
+
             if (baseTypeStr == null) {
                 // @todo resolve it first
                 return;
@@ -436,6 +476,23 @@ public class ScalaTypeInferencer {
                 }
             }
         }
+    }
+
+    private String globalInferTypeRef(ScalaIndex index, TypeRef type) {
+        List<Import> imports = type.getEnclosingScope().getDefsInScope(Import.class);
+        List<String> importPkgs = new ArrayList<String>();
+        for (Import importExpr : imports) {
+            if (importExpr.isWild()) {
+                importPkgs.add(importExpr.getPackageName());
+            }
+        }
+        Packaging packaging = type.getPackageElement();
+        String ofPackage = packaging == null ? null : packaging.getName();
+        String qualifiedName = globalInferTypeRef(index, type.getName(), ofPackage, importPkgs);
+        if (qualifiedName != null) {
+            type.setQualifiedName(qualifiedName);
+        }
+        return qualifiedName;
     }
 
     /**

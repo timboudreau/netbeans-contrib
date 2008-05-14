@@ -1817,7 +1817,7 @@ public class AstElementVisitor extends AstVisitor {
         AstExpr expr = null;
 
         SimpleExpr first = visitPrefixExpr(that.getGeneric(0));
-        
+
         // Should add expr to scope here
         scopeStack.peek().addExpr(first);
 
@@ -1832,13 +1832,13 @@ public class AstElementVisitor extends AstVisitor {
             SimpleExpr lExpr = first;
             for (int i = 0; i < others.size(); i++) {
                 GNode otherNode = (GNode) others.get(i);
-                
+
                 Id op = visitId(otherNode.getGeneric(0));
                 SimpleExpr rExpr = visitPrefixExpr(otherNode.getGeneric(1));
-                
+
                 // Should add expr to scope here
                 scopeStack.peek().addExpr(rExpr);
-                
+
                 ops.add(op);
                 exprs.add(rExpr);
 
@@ -1902,12 +1902,12 @@ public class AstElementVisitor extends AstVisitor {
                 lastFunRef.setBase(currLhs);
                 lastFunRef.setCall(callId);
                 lastFunRef.setParams(Collections.<AstElement>singletonList(currInfixOpExprs.rhs));
-                
+
                 currLhs = lastFunRef;
-                
-                scopeStack.peek().addRef(lastFunRef);                
-            }            
-            
+
+                scopeStack.peek().addRef(lastFunRef);
+            }
+
             infixExpr.setTopFunRef(lastFunRef);
 
             expr = infixExpr;
@@ -2017,47 +2017,54 @@ public class AstElementVisitor extends AstVisitor {
             Id firstId = paths.get(0);
 
             if (argExprs != null) {
+                // dog.sound.concat(arg0)
                 // Function ref, we should fetch last id of Paths as call name of funRef
                 Id callId = paths.get(paths.size() - 1);
+                paths.remove(callId);
+
                 FunRef funRef = new FunRef(callId.getIdToken(), ElementKind.CALL);
-                if (paths.size() > 1) {
-                    paths.remove(callId);
+
+                if (paths.size() > 0) {
+                    // Cannot resolve the ref here, should be done when global type inference
                     funRef.setBase(pathId);
-                    funRef.setCall(callId);
-                } else {
-                    funRef.setCall(callId);
                 }
+                
+                funRef.setCall(callId);
 
                 funRef.setParams(argExprs.getArgs());
 
+                expr.setBase(funRef);
+
                 scopeStack.peek().addRef(funRef);
-
-                if (!funRef.isLocal()) {
-                    IdRef idRef = new IdRef(firstId.getName(), firstId.getIdToken(), ElementKind.VARIABLE);
-
-                    scopeStack.peek().addRef(idRef);
-                }
 
                 currBase = funRef;
             } else {
+                // dog.sound
                 // Similest case, only one PathId
                 IdRef idRef = new IdRef(firstId.getName(), firstId.getIdToken(), ElementKind.VARIABLE);
 
                 scopeStack.peek().addRef(idRef);
 
-                currBase = idRef;
-
                 if (paths.size() > 1) {
                     // first's field
                     Id fieldId = paths.get(paths.size() - 1);
-                    FieldRef fieldRef = new FieldRef(fieldId.getIdToken());
                     paths.remove(fieldId);
+
+                    FieldRef fieldRef = new FieldRef(fieldId.getIdToken());
+
+                    // Cannot resolve the ref here, should be done when global type inference
                     fieldRef.setBase(pathId);
                     fieldRef.setField(fieldId);
+
+                    expr.setBase(fieldRef);
 
                     scopeStack.peek().addRef(fieldRef);
 
                     currBase = fieldRef;
+                } else {
+                    expr.setBase(idRef);
+
+                    currBase = idRef;
                 }
             }
 

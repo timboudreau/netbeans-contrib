@@ -77,12 +77,16 @@ public class PathId extends Id {
 
     @Override
     public void setType(TypeRef type) {
+        this.type = type;
         // @Todo
         paths.get(paths.size() - 1).setType(type);
     }        
 
     @Override
     public TypeRef getType() {
+        if (type != null) {
+            return type;
+        }
         // @Todo
         return paths.get(paths.size() - 1).getType();
     }
