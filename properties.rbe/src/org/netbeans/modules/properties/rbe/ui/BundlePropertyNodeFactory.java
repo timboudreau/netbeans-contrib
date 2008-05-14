@@ -51,6 +51,7 @@ import org.netbeans.modules.properties.PropertiesDataObject;
 import org.netbeans.modules.properties.Util;
 import org.netbeans.modules.properties.rbe.Bundle;
 import org.netbeans.modules.properties.rbe.BundleProperty;
+import org.netbeans.modules.properties.rbe.Constants;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
 
@@ -110,7 +111,7 @@ public class BundlePropertyNodeFactory extends ChildFactory<BundleProperty> {
                 Locale locale;
                 String localeSuffix = Util.getLocaleSuffix(bundleStructure.getNthEntry(e));
                 if ("".equals(localeSuffix)) {
-                    locale = new Locale("__", "", "");
+                    locale = Constants.DEFAULT_LOCALE;
                 } else {
                     locale = new Locale(Util.getLanguage(localeSuffix), Util.getCountry(localeSuffix), Util.getVariant(localeSuffix));
                 }

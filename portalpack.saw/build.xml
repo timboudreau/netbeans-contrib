@@ -17,17 +17,17 @@
                 <mkdir dir="libs"/>
                 
                 <get src="${saw.api.download.url}" 
-                        dest="libs/${saw.api}"/>
+                        dest="libs/${saw.api}" usetimestamp="true"/>
                 <copy file="libs/${saw.api}"
 	        todir="${cluster}/modules/ext/portalpack/saw"/>
                 
                 <get src="${saw.impl.jcaps.download.url}" 
-                        dest="libs/${saw.impl.jcaps}"/>
+                        dest="libs/${saw.impl.jcaps}" usetimestamp="true"/>
                 <copy file="libs/${saw.impl.jcaps}"
 	        todir="${cluster}/modules/ext/portalpack/saw"/>
                 
                 <get src="${saw.api.javadoc.download.url}" 
-                        dest="libs/${saw.api.javadoc}"/>
+                        dest="libs/${saw.api.javadoc}" usetimestamp="true"/>
                 <copy file="libs/${saw.api.javadoc}"
 	        todir="${cluster}/modules/ext/portalpack/saw"/>
                 
@@ -36,6 +36,10 @@
    	 <target name="clean" depends="projectized-common.clean">
 	       
 	         <delete dir="${basedir}/download" quiet="true"/>
+         </target>
+         
+         <target name="clean_libs">
+             <delete dir="${basedir}/libs" quiet="true"/>
          </target>
    	 
    	 <target name="dist" depends="clean,nbm">

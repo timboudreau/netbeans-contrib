@@ -51,6 +51,8 @@ public interface Descriptor {
 
         LineSnooper getOutputSnooper();
 
+        boolean isControlable();
+        
         /* Select the tab on run */
         boolean isFrontWindow();
 

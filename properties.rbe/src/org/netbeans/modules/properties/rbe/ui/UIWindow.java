@@ -62,6 +62,14 @@ public class UIWindow extends javax.swing.JPanel {
         return rightPanel;
     }
 
+    public JButton getCollapseAllButton() {
+        return collapseAllButton;
+    }
+
+    public JButton getExpandAllButton() {
+        return expandAllButton;
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -72,39 +80,43 @@ public class UIWindow extends javax.swing.JPanel {
         expandAllButton = new javax.swing.JButton();
         collapseAllButton = new javax.swing.JButton();
         treePanel = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
         rightPanel = new javax.swing.JPanel();
 
+        splitPane.setContinuousLayout(true);
+        splitPane.setMinimumSize(new java.awt.Dimension(15, 6));
+
+        leftPanel.setPreferredSize(new java.awt.Dimension(270, 200));
+
         toolbar.setFloatable(false);
-        toolbar.setRollover(true);
+        toolbar.setMinimumSize(new java.awt.Dimension(50, 31));
+        toolbar.setPreferredSize(new java.awt.Dimension(50, 31));
 
         expandAllButton.setText(org.openide.util.NbBundle.getMessage(UIWindow.class, "UIWindow.expandAllButton.text")); // NOI18N
         expandAllButton.setFocusable(false);
         expandAllButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        expandAllButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         toolbar.add(expandAllButton);
 
         collapseAllButton.setText(org.openide.util.NbBundle.getMessage(UIWindow.class, "UIWindow.collapseAllButton.text")); // NOI18N
-        collapseAllButton.setFocusable(false);
         collapseAllButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        collapseAllButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         toolbar.add(collapseAllButton);
 
         org.jdesktop.layout.GroupLayout treePanelLayout = new org.jdesktop.layout.GroupLayout(treePanel);
         treePanel.setLayout(treePanelLayout);
         treePanelLayout.setHorizontalGroup(
             treePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 225, Short.MAX_VALUE)
+            .add(0, 170, Short.MAX_VALUE)
         );
         treePanelLayout.setVerticalGroup(
             treePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 489, Short.MAX_VALUE)
+            .add(0, 531, Short.MAX_VALUE)
         );
 
         org.jdesktop.layout.GroupLayout leftPanelLayout = new org.jdesktop.layout.GroupLayout(leftPanel);
         leftPanel.setLayout(leftPanelLayout);
         leftPanelLayout.setHorizontalGroup(
             leftPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(toolbar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 225, Short.MAX_VALUE)
+            .add(toolbar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
             .add(treePanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         leftPanelLayout.setVerticalGroup(
@@ -117,18 +129,12 @@ public class UIWindow extends javax.swing.JPanel {
 
         splitPane.setLeftComponent(leftPanel);
 
-        org.jdesktop.layout.GroupLayout rightPanelLayout = new org.jdesktop.layout.GroupLayout(rightPanel);
-        rightPanel.setLayout(rightPanelLayout);
-        rightPanelLayout.setHorizontalGroup(
-            rightPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 403, Short.MAX_VALUE)
-        );
-        rightPanelLayout.setVerticalGroup(
-            rightPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 520, Short.MAX_VALUE)
-        );
+        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        splitPane.setRightComponent(rightPanel);
+        rightPanel.setLayout(new javax.swing.BoxLayout(rightPanel, javax.swing.BoxLayout.LINE_AXIS));
+        jScrollPane1.setViewportView(rightPanel);
+
+        splitPane.setRightComponent(jScrollPane1);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -136,28 +142,22 @@ public class UIWindow extends javax.swing.JPanel {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(5, 5, 5)
-                .add(splitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 634, Short.MAX_VALUE)
+                .add(splitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
                 .add(5, 5, 5))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .add(5, 5, 5)
-                .add(splitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 520, Short.MAX_VALUE)
+                .add(splitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 562, Short.MAX_VALUE)
                 .add(5, 5, 5))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    public JButton getCollapseAllButton() {
-        return collapseAllButton;
-    }
-
-    public JButton getExpandAllButton() {
-        return expandAllButton;
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton collapseAllButton;
     private javax.swing.JButton expandAllButton;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel leftPanel;
     private javax.swing.JPanel rightPanel;
     private javax.swing.JSplitPane splitPane;
