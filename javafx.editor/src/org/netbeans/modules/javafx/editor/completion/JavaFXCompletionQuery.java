@@ -74,6 +74,8 @@ import com.sun.source.util.TreePath;
 import com.sun.tools.javafx.api.JavafxcTrees;
 import com.sun.tools.javafx.tree.JFXBlockExpression;
 import com.sun.tools.javafx.tree.JFXClassDeclaration;
+import com.sun.tools.javafx.tree.JFXForExpression;
+import com.sun.tools.javafx.tree.JFXForExpressionInClause;
 import com.sun.tools.javafx.tree.JFXFunctionDefinition;
 import com.sun.tools.javafx.tree.JFXObjectLiteralPart;
 import java.io.IOException;
@@ -709,9 +711,9 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                 case CLASS_DECLARATION:
                     return new ClassDeclarationEnvironment((JFXClassDeclaration)t, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
                 case FOR_EXPRESSION:
-                    break;
+                    return new ForExpressionEnvironment((JFXForExpression)t, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
                 case FOR_EXPRESSION_IN_CLAUSE:
-                    break;
+                    return new ForExpressionInClauseEnvironment((JFXForExpressionInClause)t, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
                 case FUNCTION_DEFINITION:
                     return new FunctionDefinitionEnvironment((JFXFunctionDefinition) t,offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
                 case FUNCTION_VALUE:
@@ -811,7 +813,7 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                 case WHILE_LOOP:
                     return new WhileLoopTreeEnvironment((WhileLoopTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
                 case FOR_LOOP:
-                    return new ForLoopTreeEnvironment((ForLoopTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    break;
                 case SWITCH:
                     return new SwitchTreeEnvironment((SwitchTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
                 case CASE:

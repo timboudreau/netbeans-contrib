@@ -202,28 +202,6 @@ public class JavaFXCompletionEnvironment<T extends Tree> {
         }
     }
 
-
-//    void insideForEach() throws IOException {
-//        EnhancedForLoopTree efl = (EnhancedForLoopTree) path.getLeaf();
-//        if (sourcePositions.getStartPosition(root, efl.getExpression()) >= offset) {
-//            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken((int) sourcePositions.getEndPosition(root, efl.getVariable()), offset);
-//            if (last != null && last.token().id() == JFXTokenId.COLON) {
-//                insideForEachExpressiion();
-//                addKeyword(NEW_KEYWORD, SPACE, false);
-//                localResult();
-//            }
-//            return;
-//        }
-//        TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken((int) sourcePositions.getEndPosition(root, efl.getExpression()), offset);
-//        if (last != null && last.token().id() == JFXTokenId.RPAREN) {
-//            addKeywordsForStatement();
-//        } else {
-//            insideForEachExpressiion();
-//            addKeyword(NEW_KEYWORD, SPACE, false);
-//        }
-//        localResult();
-//    }
-
     void insideTypeCheck() throws IOException {
         InstanceOfTree iot = (InstanceOfTree) getPath().getLeaf();
         TokenSequence<JFXTokenId> ts = findLastNonWhitespaceToken(iot, getOffset());
