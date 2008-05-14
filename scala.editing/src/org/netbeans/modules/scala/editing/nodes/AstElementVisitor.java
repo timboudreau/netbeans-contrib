@@ -2026,7 +2026,6 @@ public class AstElementVisitor extends AstVisitor {
                     funRef.setCall(callId);
                 } else {
                     funRef.setCall(callId);
-                    funRef.setLocal();
                 }
 
                 funRef.setParams(argExprs.getArgs());

@@ -65,6 +65,7 @@ import org.netbeans.modules.scala.editing.nodes.PathId;
 import org.netbeans.modules.scala.editing.nodes.SimpleExpr;
 import org.netbeans.modules.scala.editing.nodes.Template;
 import org.netbeans.modules.scala.editing.nodes.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.TypeRef.PseudoTypeRef;
 import org.netbeans.modules.scala.editing.nodes.Var;
 
 /**
@@ -161,7 +162,7 @@ public class ScalaTypeInferencer {
                     firstId.setType(type);
                     firstIdRef.setType(type);
                 }
-                
+
                 expr.setType(type);
             }
         }
@@ -234,13 +235,18 @@ public class ScalaTypeInferencer {
             return;
         }
 
+        String baseTypeTmpl = null;
+        String baseTypeStr = null;
+        String callName = null;
+
         // resolve return type of funRef:
         AstElement base = funRef.getBase();
         if (base != null) {
 
-            String baseTypeStr = null;
             TypeRef baseType = base.getType();
-            if (baseType == null || (baseType != null && !baseType.isResolved())) {
+            if (baseType != null && baseType.isResolved()) {
+                baseTypeStr = baseType.getQualifiedName();
+            } else {
                 if (base instanceof PathId) {
                     List<Id> paths = ((PathId) base).getPaths();
                     if (paths.size() > 1) {
@@ -270,8 +276,6 @@ public class ScalaTypeInferencer {
                 } else {
                     // @todo resolve it first
                 }
-            } else {
-                baseTypeStr = baseType.getQualifiedName();
             }
 
             if (baseTypeStr == null) {
@@ -280,43 +284,80 @@ public class ScalaTypeInferencer {
             }
 
             Id call = funRef.getCall();
-            String callName = call == null ? "apply" : call.getName();
+            callName = call == null ? "apply" : call.getName();
 
-            Set<IndexedElement> members = index.getElements(callName, baseTypeStr, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
-            for (IndexedElement member : members) {
-                if (member instanceof IndexedFunction) {
-                    IndexedFunction idxFunction = (IndexedFunction) member;
-                    if (idxFunction.getParameters().size() == funRef.getParams().size()) {
-                        String idxRetTypeStr = idxFunction.getTypeString();
-                        if (idxRetTypeStr == null) {
-                            idxRetTypeStr = "void";
-                        }
-                        if (idxRetTypeStr.equals("void")) {
-                            funRef.setRetTypeStr("void");
-                            break;
-                        }
+        } else {
+            // it's a local call or Object's apply
+            TypeRef type = funRef.getType();
+            if (type != null && type.isResolved()) {
+                // a local call, should has been resolved
+                return;
+            } else {
+                Id objectName = funRef.getCall();
 
-                        int lastDot = idxRetTypeStr.lastIndexOf('.');
-                        if (lastDot == -1) {
-                            /** try to find pkg of idxRetTypeStr */
-                            String hisIn = idxFunction.getIn();
-                            if (hisIn != null) {
-                                int pkgNameEnd = hisIn.lastIndexOf('.');
-                                if (pkgNameEnd != -1) {
-                                    String hisPkgName = hisIn.substring(0, pkgNameEnd);
-                                    Set<String> importPkgs = getImportPkgs(index, hisIn);
-                                    idxRetTypeStr = globalInferTypeRef(index, idxRetTypeStr, hisPkgName, importPkgs);
-                                } else {
-                                    System.out.println("found idx function without package: " + idxFunction.getName());
-                                }
-                            } else {
-                                // @todo
-                            }
-                        }
+                List<Import> imports = funRef.getEnclosingScope().getDefsInScope(Import.class);
+                List<String> importPkgs = new ArrayList<String>();
+                for (Import importExpr : imports) {
+                    if (importExpr.isWild()) {
+                        importPkgs.add(importExpr.getPackageName());
+                    }
+                }
+                Packaging packaging = funRef.getPackageElement();
+                String ofPackage = packaging == null ? null : packaging.getName();
 
-                        funRef.setRetTypeStr(idxRetTypeStr);
+                String qualifiedName = globalInferTypeRef(index, objectName.getName(), ofPackage, importPkgs);
+                if (qualifiedName != null) {
+                    baseTypeStr = qualifiedName;
+                    funRef.setBase(new PseudoTypeRef(qualifiedName));
+                    funRef.setCall(new Id("apply", objectName.getIdToken(), ElementKind.VARIABLE));
+                    
+                    funRef.setApply();
+                    callName = "apply";
+                    baseTypeTmpl = "object";
+                }
+
+            }
+        }
+
+        if (baseTypeStr == null || callName == null) {
+            return;
+        }
+
+        Set<IndexedElement> members = index.getElements(callName, baseTypeStr, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, null, false);
+        for (IndexedElement member : members) {
+            if (member instanceof IndexedFunction) {
+                IndexedFunction idxFunction = (IndexedFunction) member;
+
+                if (idxFunction.isReferredBy(funRef)) {
+                    String idxRetTypeStr = idxFunction.getTypeString();
+                    if (idxRetTypeStr == null) {
+                        idxRetTypeStr = "void";
+                    }
+                    if (idxRetTypeStr.equals("void")) {
+                        funRef.setRetTypeStr("void");
                         break;
                     }
+
+                    int lastDot = idxRetTypeStr.lastIndexOf('.');
+                    if (lastDot == -1) {
+                        /** try to find pkg of idxRetTypeStr */
+                        String hisIn = idxFunction.getIn();
+                        if (hisIn != null) {
+                            int pkgNameEnd = hisIn.lastIndexOf('.');
+                            if (pkgNameEnd != -1) {
+                                String hisPkgName = hisIn.substring(0, pkgNameEnd);
+                                Set<String> importPkgs = getImportPkgs(index, hisIn);
+                                idxRetTypeStr = globalInferTypeRef(index, idxRetTypeStr, hisPkgName, importPkgs);
+                            } else {
+                                System.out.println("found idx function without package: " + idxFunction.getName());
+                            }
+                        } else {
+                            // @todo
+                            }
+                    }
+
+                    funRef.setRetTypeStr(idxRetTypeStr);
+                    break;
                 }
             }
         }
