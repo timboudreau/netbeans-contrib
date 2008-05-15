@@ -1,0 +1,3 @@
+org.netbeans.modules.debugger.javafx.ui.models.VariablesTreeModelFilter
+org.netbeans.modules.debugger.javafx.ui.models.BoldVariablesTableModelFilterFirst
+org.netbeans.modules.debugger.javafx.ui.models.NumericDisplayFilter
