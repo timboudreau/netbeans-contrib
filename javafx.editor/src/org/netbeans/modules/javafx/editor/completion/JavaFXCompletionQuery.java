@@ -895,7 +895,9 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                     break;
             }
         }
-
+        if (result == null) {
+            result = new JavaFXCompletionEnvironment();
+        }
         result.init(offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
         return result;
     }
