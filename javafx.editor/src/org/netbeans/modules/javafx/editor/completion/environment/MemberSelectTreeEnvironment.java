@@ -39,8 +39,6 @@
 
 package org.netbeans.modules.javafx.editor.completion.environment;
 
-import com.sun.source.tree.AnnotationTree;
-import com.sun.source.tree.AssignmentTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.ClassTree;
@@ -152,62 +150,29 @@ public class MemberSelectTreeEnvironment extends JavaFXCompletionEnvironment<Mem
                     boolean insideNew = false;
                     if (parent.getKind() == Tree.Kind.CLASS && ((ClassTree)parent).getExtendsClause() == fa) {
                         kinds = EnumSet.of(CLASS);
-                    } else if (parent.getKind() == Tree.Kind.CLASS && ((ClassTree)parent).getImplementsClause().contains(fa)) {
-                        kinds = EnumSet.of(INTERFACE);
                     } else if (parent.getKind() == Tree.Kind.IMPORT) {
                         inImport = true;
-                        kinds = ((ImportTree)parent).isStatic() ? EnumSet.of(CLASS, ENUM, INTERFACE, ANNOTATION_TYPE, FIELD, METHOD, ENUM_CONSTANT) : EnumSet.of(CLASS, ANNOTATION_TYPE, ENUM, INTERFACE);
+                        kinds = ((ImportTree)parent).isStatic() ? EnumSet.of(CLASS, ENUM, FIELD, METHOD, ENUM_CONSTANT) : EnumSet.of(CLASS, ENUM);
                     } else if (parent.getKind() == Tree.Kind.NEW_CLASS && ((NewClassTree)parent).getIdentifier() == fa) {
                         insideNew = true;
-                        kinds = EnumSet.of(CLASS, INTERFACE, ANNOTATION_TYPE);
+                        kinds = EnumSet.of(CLASS);
                         if (grandParent.getKind() == Tree.Kind.THROW)
                             baseType = controller.getTypes().getDeclaredType(controller.getElements().getTypeElement("java.lang.Throwable")); //NOI18N
                     } else if (parent.getKind() == Tree.Kind.PARAMETERIZED_TYPE && ((ParameterizedTypeTree)parent).getTypeArguments().contains(fa)) {
-                        kinds = EnumSet.of(CLASS, ENUM, ANNOTATION_TYPE, INTERFACE);
-                    } else if (parent.getKind() == Tree.Kind.ANNOTATION) {
-                        if (((AnnotationTree)parent).getAnnotationType() == fa) {
-                            kinds = EnumSet.of(ANNOTATION_TYPE);
-                        } else {
-                            Iterator<? extends ExpressionTree> it = ((AnnotationTree)parent).getArguments().iterator();
-                            if (it.hasNext()) {
-                                ExpressionTree et = it.next();
-                                if (et == fa || (et.getKind() == Tree.Kind.ASSIGNMENT && ((AssignmentTree)et).getExpression() == fa)) {
-                                    Element el = controller.getTrees().getElement(expPath);
-                                    if (type.getKind() == TypeKind.ERROR && el.getKind().isClass()) {
-                                        el = controller.getElements().getPackageElement(((TypeElement)el).getQualifiedName());
-                                    }
-                                    if (el instanceof PackageElement)
-                                        addPackageContent((PackageElement)el, EnumSet.of(CLASS, ENUM, ANNOTATION_TYPE, INTERFACE), null, false);
-                                    else if (type.getKind() == TypeKind.DECLARED)
-                                        addMemberConstantsAndTypes((DeclaredType)type, el);
-                                    return;
-                                }
-                            }
-                            kinds = EnumSet.of(CLASS, ENUM, ANNOTATION_TYPE, INTERFACE, FIELD, METHOD, ENUM_CONSTANT);
-                        }
-                    } else if (parent.getKind() == Tree.Kind.ASSIGNMENT && ((AssignmentTree)parent).getExpression() == fa && grandParent != null && grandParent.getKind() == Tree.Kind.ANNOTATION) {
-                        Element el = controller.getTrees().getElement(expPath);
-                        if (type.getKind() == TypeKind.ERROR && el.getKind().isClass()) {
-                            el = controller.getElements().getPackageElement(((TypeElement)el).getQualifiedName());
-                        }
-                        if (el instanceof PackageElement)
-                            addPackageContent((PackageElement)el, EnumSet.of(CLASS, ENUM, ANNOTATION_TYPE, INTERFACE), null, false);
-                        else if (type.getKind() == TypeKind.DECLARED)
-                            addMemberConstantsAndTypes((DeclaredType)type, el);
-                        return;
+                        kinds = EnumSet.of(CLASS, ENUM);
                     } else if (parent.getKind() == Tree.Kind.VARIABLE && ((VariableTree)parent).getType() == fa && grandParent.getKind() == Tree.Kind.CATCH) {
                         if (query.queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE) {
                             // TODO:
-//                            exs = controller.getTreeUtilities().getUncaughtExceptions(grandParentPath.getParentPath());
+                            log("NOT IMPLEMENTED:  exs = controller.getTreeUtilities().getUncaughtExceptions(grandParentPath.getParentPath());");
                         }
-                        kinds = EnumSet.of(CLASS, INTERFACE);
+                        kinds = EnumSet.of(CLASS);
                         baseType = controller.getTypes().getDeclaredType(controller.getElements().getTypeElement("java.lang.Throwable")); //NOI18N
                     } else if (parent.getKind() == Tree.Kind.METHOD && ((MethodTree)parent).getThrows().contains(fa)) {
                         Types types = controller.getTypes();
                         if (query.queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE && ((MethodTree)parent).getBody() != null) {
-                            controller.toPhase(Phase.RESOLVED);
+                            controller.toPhase(Phase.ANALYZED);
                             // TODO:
-                            // exs = controller.getTreeUtilities().getUncaughtExceptions(new TreePath(path, ((MethodTree)parent).getBody()));
+                            log("NOT IMPLEMENTED exs = controller.getTreeUtilities().getUncaughtExceptions(new TreePath(path, ((MethodTree)parent).getBody())); ");
                             JavafxcTrees trees = controller.getTrees();
                             for (ExpressionTree thr : ((MethodTree)parent).getThrows()) {
                                 if (sourcePositions.getEndPosition(root, thr) >= offset)
@@ -218,7 +183,7 @@ public class MemberSelectTreeEnvironment extends JavaFXCompletionEnvironment<Mem
                                         it.remove();
                             }
                         }
-                        kinds = EnumSet.of(CLASS, INTERFACE);
+                        kinds = EnumSet.of(CLASS);
                         baseType = controller.getTypes().getDeclaredType(controller.getElements().getTypeElement("java.lang.Throwable")); //NOI18N
                     } else if (parent.getKind() == Tree.Kind.METHOD && ((MethodTree)parent).getDefaultValue() == fa) {
                         Element el = controller.getTrees().getElement(expPath);
@@ -226,7 +191,7 @@ public class MemberSelectTreeEnvironment extends JavaFXCompletionEnvironment<Mem
                             el = controller.getElements().getPackageElement(((TypeElement)el).getQualifiedName());
                         }
                         if (el instanceof PackageElement)
-                            addPackageContent((PackageElement)el, EnumSet.of(CLASS, ENUM, ANNOTATION_TYPE, INTERFACE), null, false);
+                            addPackageContent((PackageElement)el, EnumSet.of(CLASS, ENUM), null, false);
                         else if (type.getKind() == TypeKind.DECLARED)
                             addMemberConstantsAndTypes((DeclaredType)type, el);
                         return;
@@ -234,9 +199,9 @@ public class MemberSelectTreeEnvironment extends JavaFXCompletionEnvironment<Mem
                         kinds = EnumSet.of(METHOD);
                     } else if (parent.getKind() == Tree.Kind.ENHANCED_FOR_LOOP && ((EnhancedForLoopTree)parent).getExpression() == fa) {
                         insideForEachExpressiion();
-                        kinds = EnumSet.of(CLASS, ENUM, ANNOTATION_TYPE, INTERFACE, FIELD, METHOD, ENUM_CONSTANT);
+                        kinds = EnumSet.of(CLASS, ENUM, FIELD, METHOD, ENUM_CONSTANT);
                     } else {
-                        kinds = EnumSet.of(CLASS, ENUM, ANNOTATION_TYPE, INTERFACE, FIELD, METHOD, ENUM_CONSTANT);
+                        kinds = EnumSet.of(CLASS, ENUM, FIELD, METHOD, ENUM_CONSTANT);
                     }
                     switch (type.getKind()) {
                         case TYPEVAR:
