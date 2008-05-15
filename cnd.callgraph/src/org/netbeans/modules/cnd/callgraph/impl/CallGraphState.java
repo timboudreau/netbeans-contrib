@@ -63,17 +63,22 @@ public class CallGraphState {
         return model;
     }
 
-    //public CallGraphScene getScene() {
-    //    return scene;
-    //}
     public void doLayout(){
-        scene.doLayout();
+        if (scene != null) {
+            scene.doLayout();
+        }
     }
+    
     public void addCallToScene(Call element){
-        scene.addCallToScene(element);
+        if (scene != null) {
+            scene.addCallToScene(element);
+        }
     }
+    
     public void addFunctionToScene(Function element){
-        scene.addFunctionToScene(element);
+        if (scene != null) {
+            scene.addFunctionToScene(element);
+        }
     }
 
     public Action[] getActions() {

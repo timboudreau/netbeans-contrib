@@ -72,18 +72,12 @@ public class CallModelImpl implements CallModel {
     private CsmFileReferences references;
     private CsmProject project;
     private CsmFunction root;
-    private boolean isCalls;
     
-    public CallModelImpl(CsmProject project, CsmFunction root, boolean isCalls){
+    public CallModelImpl(CsmProject project, CsmFunction root){
         repository = CsmReferenceRepository.getDefault();
         references = CsmFileReferences.getDefault();
         this.project = project;
         this.root = root;
-        this.isCalls = isCalls;
-    }
-
-    public boolean isCalls() {
-        return isCalls;
     }
 
     public Function getRoot() {

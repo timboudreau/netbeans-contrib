@@ -69,6 +69,7 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.NbPreferences;
 import org.openide.util.actions.Presenter;
 
 /**
@@ -76,24 +77,35 @@ import org.openide.util.actions.Presenter;
  * @author Alexander Simon
  */
 public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, HelpCtx.Provider  {
-    
+    private static final boolean SHOW_GRAPH = true;
     private ExplorerManager explorerManager = new ExplorerManager();
     private AbstractNode root;
     private Action[] actions;
     private CallModel model;
-    private boolean isCalls = true;
-    private CallGraphScene scene = new CallGraphScene();
+    private boolean isCalls;
+    public static final String IS_CALLS = "CallGraphIsCalls"; // NOI18N
+
+    
+    private CallGraphScene scene;
     private static double dividerLocation = 0.5;
     
     /** Creates new form CallGraphPanel */
     public CallGraphPanel() {
         initComponents();
+        isCalls = NbPreferences.forModule(CallGraphPanel.class).getBoolean(IS_CALLS, true);
         getTreeView().setRootVisible(false);
         Children.Array children = new Children.SortedArray();
-        actions = new Action[]{new RefreshAction(),
-                               null, new WhoIsCalledAction(), new WhoCallsAction(),
-                               null, new ExportAction(scene, this)};
-        scene.setExportAction(actions[actions.length-1]);
+        if (SHOW_GRAPH) {
+            scene = new CallGraphScene();
+            actions = new Action[]{new RefreshAction(),
+                                   null, new WhoIsCalledAction(), new WhoCallsAction(),
+                                   null, new ExportAction(scene, this)};
+            scene.setExportAction(actions[actions.length-1]);
+        } else {
+            actions = new Action[]{new RefreshAction(),
+                                   null, new WhoIsCalledAction(), new WhoCallsAction()};
+            
+        }
         root = new AbstractNode(children){
             @Override
             public Action[] getActions(boolean context) {
@@ -101,31 +113,38 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
             }
         };
         getExplorerManager().setRootContext(root);
-        addComponentListener(new ComponentListener() {
-            public void componentResized(ComponentEvent e) {
-                jSplitPane1.setDividerLocation(dividerLocation);
-            }
-            public void componentMoved(ComponentEvent e) {
-            }
-            public void componentShown(ComponentEvent e) {
-            }
-            public void componentHidden(ComponentEvent e) {
-            }
-        });
-        jSplitPane1.addPropertyChangeListener(
-                        new PropertyChangeListener(){
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (JSplitPane.DIVIDER_LOCATION_PROPERTY.equals(evt.getPropertyName())) {
-                   dividerLocation = ((double)jSplitPane1.getDividerLocation())/
-                   ((double)(jSplitPane1.getWidth() - jSplitPane1.getDividerSize()));
+        if (SHOW_GRAPH) {
+            addComponentListener(new ComponentListener() {
+                public void componentResized(ComponentEvent e) {
+                    jSplitPane1.setDividerLocation(dividerLocation);
                 }
-            }
-        });
+                public void componentMoved(ComponentEvent e) {
+                }
+                public void componentShown(ComponentEvent e) {
+                }
+                public void componentHidden(ComponentEvent e) {
+                }
+            });
+            jSplitPane1.addPropertyChangeListener(
+                            new PropertyChangeListener(){
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if (JSplitPane.DIVIDER_LOCATION_PROPERTY.equals(evt.getPropertyName())) {
+                       dividerLocation = ((double)jSplitPane1.getDividerLocation())/
+                       ((double)(jSplitPane1.getWidth() - jSplitPane1.getDividerSize()));
+                    }
+                }
+            });
         
-        initGraph();
+            initGraph();
+        } else {
+            remove(jSplitPane1);
+            jSplitPane1.remove(treeView);
+            add(treeView, java.awt.BorderLayout.CENTER);
+        }
     }
     
     private void initGraph() {
+        graphView.setViewportView(scene.createView());
         GraphLayout<Function,Call> layout = new GridGraphLayout<Function,Call>();
         SceneLayout sceneLayout = LayoutFactory.createSceneGraphLayout(scene, layout);
         scene.setLayout(sceneLayout);
@@ -147,7 +166,7 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
         callers = new javax.swing.JToggleButton();
         jSplitPane1 = new javax.swing.JSplitPane();
         treeView = new BeanTreeView();
-        graphView = new JScrollPane(scene.createView());
+        graphView = new JScrollPane();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -223,6 +242,7 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
     
     private void setDirection(boolean direction){
         isCalls = direction;
+        NbPreferences.forModule(CallGraphPanel.class).putBoolean(IS_CALLS, isCalls);
         updateButtons();
         update();
     }
@@ -234,14 +254,18 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
     
     public void setModel(CallModel model) {
         this.model = model;
-        this.isCalls = model.isCalls();
-        scene.setModel(model);
+        //this.isCalls = model.isCalls();
+        if (SHOW_GRAPH) {
+            scene.setModel(model);
+        }
         updateButtons();
         update();
     }
 
     private synchronized void update() {
-        scene.clean();
+        if (SHOW_GRAPH) {
+            scene.clean();
+        }
         model.refresh();
         final Function function = model.getRoot();
         if (function != null){
