@@ -40,6 +40,9 @@
  */
 package org.netbeans.modules.javafx.editor.completion;
 
+import com.sun.javafx.api.tree.BlockExpressionTree;
+import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.javafx.api.tree.ForExpressionTree;
 import com.sun.javafx.api.tree.JavaFXTree;
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.source.tree.CompilationUnitTree;
@@ -50,6 +53,7 @@ import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.PrimitiveTypeTree;
+import com.sun.source.tree.StatementTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
@@ -293,17 +297,40 @@ public class JavaFXCompletionEnvironment<T extends Tree> {
             JavaFXTree jfxt = (JavaFXTree) t;
             JavaFXKind k = jfxt.getJavaFXKind();
             log("  fx kind: " + k);
-            if (k != JavaFXKind.CLASS_DECLARATION) {
-                continue;
+            if (k == JavaFXKind.CLASS_DECLARATION) {
+                TypeMirror tm = getController().getTrees().getTypeMirror(tp);
+                log("  tm == " + tm + " ---- tm.getKind() == " + (tm == null ? "null" : tm.getKind()));
+                addMembers(tm);
             }
-            TypeMirror tm = getController().getTrees().getTypeMirror(tp);
-            log("  tm == " + tm + " ---- tm.getKind() == " + (tm == null ? "null" : tm.getKind()));
-            addMembers(tm);
+            if (k == JavaFXKind.BLOCK_EXPRESSION) {
+                BlockExpressionTree bet = (BlockExpressionTree)jfxt;
+                log("  block expression: " + bet + "\n");
+                for (StatementTree st : bet.getStatements()) {
+                    TreePath expPath = new TreePath(tp, st);
+                    log("    expPath == " + expPath.getLeaf());
+                    JavafxcTrees trees = controller.getTrees();
+                    Element type = trees.getElement(expPath);
+                    if (type == null) {
+                        continue;
+                    }
+                    log("    type.getKind() == " + type.getKind());
+                    if (type.getKind() == ElementKind.LOCAL_VARIABLE) {
+                        log("    adding " + type.getSimpleName());
+                        addResult(JavaFXCompletionItem.createVariableItem(
+                            type.getSimpleName().toString(), offset, false));
+                    }
+                }
+            }
+            if (k == JavaFXKind.FOR_EXPRESSION) {
+                ForExpressionTree fet = (ForExpressionTree)jfxt;
+                log("  for expression: " + fet + "\n");
+                for (ForExpressionInClauseTree fetic : fet.getInClauses()) {
+                    log("  fetic: " + fetic + "\n");
+                        addResult(JavaFXCompletionItem.createVariableItem(
+                            fetic.getVariable().getName().toString(), offset, false));
+                }
+            }
         }
-    }
-
-    protected void addLocalFieldsAndVars() throws IOException {
-        log("NOT IMPLEMENTED: addLocalFieldsAndVars: " + getPrefix());
     }
 
     protected void addPackages(String fqnPrefix) {
