@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.debugger.javafx.projects
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/debugger/javafx/projects/Bundle.properties
+OpenIDE-Module-Provides: org.netbeans.spi.debugger.jpda.EditorContext, org.netbeans.spi.debugger.javafx.SourcePathProvider
+OpenIDE-Module-Specification-Version: 1.0
+

@@ -50,7 +50,7 @@ made subject to such option by the copyright holder.
                 xmlns:projdeps="http://www.netbeans.org/ns/ant-project-references/1"
                 xmlns:projdeps2="http://www.netbeans.org/ns/ant-project-references/2"
                 exclude-result-prefixes="xalan p projdeps projdeps2">
-    <!-- XXX should use namespaces for NB in-VM tasks from ant/browsetask and debuggerjpda/ant (Ant 1.6.1 and higher only) -->
+    <!-- XXX should use namespaces for NB in-VM tasks from ant/browsetask and debuggerjavafx/ant (Ant 1.6.1 and higher only) -->
     <xsl:output method="xml" indent="yes" encoding="UTF-8" xalan:indent-amount="4"/>
     <xsl:template match="/">
         
@@ -443,9 +443,9 @@ JavaFX SDK is working only on top of JDK 6 (or higher).
                 </macrodef>
             </target>
             
-            <target name="-init-macrodef-nbjpda">
+            <target name="-init-macrodef-nbjavafx">
                 <macrodef>
-                    <xsl:attribute name="name">nbjpdastart</xsl:attribute>
+                    <xsl:attribute name="name">nbjavafxstart</xsl:attribute>
                     <xsl:attribute name="uri">http://www.netbeans.org/ns/javafx-project/1</xsl:attribute>
                     <attribute>
                         <xsl:attribute name="name">name</xsl:attribute>
@@ -460,7 +460,7 @@ JavaFX SDK is working only on top of JDK 6 (or higher).
                         <xsl:attribute name="default"></xsl:attribute>
                     </attribute>
                     <sequential>
-                        <nbjpdastart transport="dt_socket" addressproperty="jpda.address" name="@{{name}}" stopclassname="@{{stopclassname}}">
+                        <nbjavafxstart transport="dt_socket" addressproperty="javafx.address" name="@{{name}}" stopclassname="@{{stopclassname}}">
                             <classpath>
                                 <path path="@{{classpath}}"/>
                             </classpath>
@@ -469,20 +469,20 @@ JavaFX SDK is working only on top of JDK 6 (or higher).
                                     <path path="${{platform.bootcp}}"/>
                                 </bootclasspath>
                             </xsl:if>
-                        </nbjpdastart>
+                        </nbjavafxstart>
                     </sequential>
                 </macrodef>
                 <macrodef>
-                    <xsl:attribute name="name">nbjpdareload</xsl:attribute>
+                    <xsl:attribute name="name">nbjavafxreload</xsl:attribute>
                     <xsl:attribute name="uri">http://www.netbeans.org/ns/javafx-project/1</xsl:attribute>
                     <attribute>
                         <xsl:attribute name="name">dir</xsl:attribute>
                         <xsl:attribute name="default">${build.classes.dir}</xsl:attribute>
                     </attribute>
                     <sequential>
-                        <nbjpdareload>
+                        <nbjavafxreload>
                             <fileset includes="${{fix.includes}}*.class" dir="@{{dir}}"/>
-                        </nbjpdareload>
+                        </nbjavafxreload>
                     </sequential>
                 </macrodef>
             </target>
@@ -537,7 +537,7 @@ JavaFX SDK is working only on top of JDK 6 (or higher).
                             <arg line="${{main.class}}"/>
                             <jvmarg line="${{debug-args-line}}"/>
                             <jvmarg value="-Djava.library.path=${{platform.bootcp}}"/>
-                            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${{jpda.address}}"/>
+                            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${{javafx.address}}"/>
                             <jvmarg line="${{run.jvmargs}}"/>
                             <classpath>
                                 <path path="${{platform.bootcp}}"/>
@@ -636,7 +636,7 @@ JavaFX SDK is working only on top of JDK 6 (or higher).
             </target>
             
             <target name="init">
-                <xsl:attribute name="depends">-pre-init,-init-private,-init-user,-init-project,-do-init,-post-init,-init-check,-init-macrodef-property,-init-macrodef-javac,-init-macrodef-junit,-init-macrodef-nbjpda,-init-macrodef-debug,-init-macrodef-java-build,-init-macrodef-java-run,-init-presetdef-jar</xsl:attribute>
+                <xsl:attribute name="depends">-pre-init,-init-private,-init-user,-init-project,-do-init,-post-init,-init-check,-init-macrodef-property,-init-macrodef-javac,-init-macrodef-junit,-init-macrodef-nbjavafx,-init-macrodef-debug,-init-macrodef-java-build,-init-macrodef-java-run,-init-presetdef-jar</xsl:attribute>
             </target>
             
             <xsl:comment>
@@ -859,7 +859,7 @@ JavaFX SDK is working only on top of JDK 6 (or higher).
             <target name="-debug-start-debugger">
                 <xsl:attribute name="if">netbeans.home</xsl:attribute>
                 <xsl:attribute name="depends">init</xsl:attribute>
-                <javafxproject1:nbjpdastart name="${{debug.class}}"/>
+                <javafxproject1:nbjavafxstart name="${{debug.class}}"/>
             </target>
             
             <target name="-debug-start-debuggee">
@@ -880,7 +880,7 @@ JavaFX SDK is working only on top of JDK 6 (or higher).
             <target name="-debug-start-debugger-stepinto">
                 <xsl:attribute name="if">netbeans.home</xsl:attribute>
                 <xsl:attribute name="depends">init</xsl:attribute>
-                <javafxproject1:nbjpdastart stopclassname="${{main.class}}"/>
+                <javafxproject1:nbjavafxstart stopclassname="${{main.class}}"/>
             </target>
             
             <target name="debug-stepinto">
@@ -909,7 +909,7 @@ JavaFX SDK is working only on top of JDK 6 (or higher).
             <target name="-do-debug-fix">
                 <xsl:attribute name="if">netbeans.home</xsl:attribute>
                 <xsl:attribute name="depends">init,-pre-debug-fix,compile-single</xsl:attribute>
-                <javafxproject1:nbjpdareload/>
+                <javafxproject1:nbjavafxreload/>
             </target>
             
             <target name="debug-fix">

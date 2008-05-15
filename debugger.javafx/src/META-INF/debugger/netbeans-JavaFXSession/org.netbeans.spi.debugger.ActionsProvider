@@ -1,0 +1,9 @@
+org.netbeans.modules.debugger.javafx.actions.StepActionProvider
+org.netbeans.modules.debugger.javafx.actions.StepIntoActionProvider
+org.netbeans.modules.debugger.javafx.actions.StepOperationActionProvider
+org.netbeans.modules.debugger.javafx.actions.RunIntoMethodActionProvider
+org.netbeans.modules.debugger.javafx.actions.StartActionProvider
+org.netbeans.modules.debugger.javafx.actions.KillActionProvider
+org.netbeans.modules.debugger.javafx.actions.PauseActionProvider
+org.netbeans.modules.debugger.javafx.actions.ContinueActionProvider
+org.netbeans.modules.debugger.javafx.actions.PopToHereActionProvider

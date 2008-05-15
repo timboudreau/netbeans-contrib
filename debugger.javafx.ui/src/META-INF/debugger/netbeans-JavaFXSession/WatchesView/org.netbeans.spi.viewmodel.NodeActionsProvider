@@ -1,0 +1,3 @@
+org.netbeans.modules.debugger.javafx.ui.models.WatchesActionsProvider
+org.netbeans.modules.debugger.javafx.ui.models.VariablesActionsProvider
+org.netbeans.modules.debugger.javafx.ui.models.VariablesTreeModelFilterSI
