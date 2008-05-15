@@ -42,48 +42,18 @@ package org.netbeans.modules.javafx.editor.completion;
 
 import com.sun.javafx.api.tree.JavaFXTree;
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.source.tree.AnnotationTree;
-import com.sun.source.tree.ArrayAccessTree;
-import com.sun.source.tree.AssignmentTree;
-import com.sun.source.tree.BinaryTree;
-import com.sun.source.tree.CaseTree;
-import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.CompoundAssignmentTree;
-import com.sun.source.tree.EnhancedForLoopTree;
 import com.sun.source.tree.ErroneousTree;
-import com.sun.source.tree.ExpressionStatementTree;
-import com.sun.source.tree.ExpressionTree;
-import com.sun.source.tree.ForLoopTree;
 import com.sun.source.tree.IdentifierTree;
-import com.sun.source.tree.IfTree;
-import com.sun.source.tree.ImportTree;
 import com.sun.source.tree.InstanceOfTree;
 import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
-import com.sun.source.tree.ModifiersTree;
-import com.sun.source.tree.NewArrayTree;
-import com.sun.source.tree.NewClassTree;
-import com.sun.source.tree.ParameterizedTypeTree;
-import com.sun.source.tree.ParenthesizedTree;
 import com.sun.source.tree.PrimitiveTypeTree;
-import com.sun.source.tree.StatementTree;
-import com.sun.source.tree.SwitchTree;
 import com.sun.source.tree.Tree;
-import com.sun.source.tree.TryTree;
-import com.sun.source.tree.TypeCastTree;
-import com.sun.source.tree.TypeParameterTree;
-import com.sun.source.tree.VariableTree;
-import com.sun.source.tree.WhileLoopTree;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
-import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javafx.api.JavafxcTrees;
-import com.sun.tools.javafx.tree.JFXBlockExpression;
-import com.sun.tools.javafx.tree.JFXFunctionDefinition;
-import com.sun.tools.javafx.tree.JFXType;
-import com.sun.tools.javafx.tree.JFXVar;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -105,50 +75,61 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.type.TypeVariable;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
 import org.netbeans.api.javafx.source.CompilationController;
 import org.netbeans.api.javafx.source.JavaFXSource.Phase;
-import org.netbeans.api.javafx.source.TreeUtilities;
 import org.netbeans.api.lexer.TokenSequence;
 import static org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery.*;
-import static javax.lang.model.element.ElementKind.*;
 
-class JavaFXCompletionEnvironment {
+public class JavaFXCompletionEnvironment<T extends Tree> {
     
     private static final Logger logger = Logger.getLogger(JavaFXCompletionEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    private int myOffset;
-    private String myPrefix;
-    private boolean isCamelCasePrefix;
-    private CompilationController myController;
-    private TreePath treePath;
-    private SourcePositions mySourcePositions;
-    private boolean insideForEachExpressiion = false;
-    private Set<? extends TypeMirror> mySmartTypes = null;
-    private JavaFXCompletionQuery query;
+    protected int offset;
+    protected String prefix;
+    protected boolean isCamelCasePrefix;
+    protected CompilationController controller;
+    protected TreePath path;
+    protected SourcePositions sourcePositions;
+    protected boolean insideForEachExpressiion = false;
+    protected Set<? extends TypeMirror> smartTypes = null;
+    protected CompilationUnitTree root;
+    protected JavaFXCompletionQuery query;
 
-    JavaFXCompletionEnvironment(int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
-        super();
-        this.myOffset = offset;
-        this.myPrefix = prefix;
+    protected JavaFXCompletionEnvironment() {
+    }
+    
+    /*
+     * Thies method must be called after constructor before a call to resolveCompletion
+     */
+    void init(int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
+        this.offset = offset;
+        this.prefix = prefix;
         this.isCamelCasePrefix = prefix != null && prefix.length() > 1 && JavaFXCompletionQuery.camelCasePattern.matcher(prefix).matches();
-        this.myController = controller;
-        this.treePath = path;
-        this.mySourcePositions = sourcePositions;
+        this.controller = controller;
+        this.path = path;
+        this.sourcePositions = sourcePositions;
         this.query = query;
+        this.root = path.getCompilationUnit();
+    }
+    
+    /**
+     * This method should be overriden in subclasses
+     */
+    protected void inside(T t) throws IOException {
+        log("NOT IMPLEMENTED inside " + t);
     }
 
     public int getOffset() {
-        return myOffset;
+        return offset;
     }
 
     public String getPrefix() {
-        return myPrefix;
+        return prefix;
     }
 
     public boolean isCamelCasePrefix() {
@@ -156,19 +137,19 @@ class JavaFXCompletionEnvironment {
     }
 
     public CompilationController getController() {
-        return myController;
+        return controller;
     }
 
     public CompilationUnitTree getRoot() {
-        return treePath.getCompilationUnit();
+        return root;
     }
 
     public TreePath getPath() {
-        return treePath;
+        return path;
     }
 
     public SourcePositions getSourcePositions() {
-        return mySourcePositions;
+        return sourcePositions;
     }
 
     public void insideForEachExpressiion() {
@@ -180,10 +161,10 @@ class JavaFXCompletionEnvironment {
     }
 
     public Set<? extends TypeMirror> getSmartTypes() throws IOException {
-        if (mySmartTypes == null) {
-            mySmartTypes = JavaFXCompletionQuery.getSmartTypes(this);
-            if (mySmartTypes != null) {
-                Iterator<? extends TypeMirror> it = mySmartTypes.iterator();
+        if (smartTypes == null) {
+            Set<? extends TypeMirror> stypes = JavaFXCompletionQuery.getSmartTypes(this);
+            if (stypes != null) {
+                Iterator<? extends TypeMirror> it = stypes.iterator();
                 TypeMirror err = null;
                 if (it.hasNext()) {
                     err = it.next();
@@ -193,679 +174,28 @@ class JavaFXCompletionEnvironment {
                 }
                 if (err != null) {
                     HashSet<TypeMirror> st = new HashSet<TypeMirror>();
-                    mySmartTypes = st;
+                    smartTypes = st;
+                } else {
+                    smartTypes = stypes;
                 }
             }
         }
-        return mySmartTypes;
+        return smartTypes;
     }
     
-    void insideFunctionDefinition() throws IOException {
-        JFXFunctionDefinition def = (JFXFunctionDefinition) getPath().getLeaf();
-        int offset = getOffset();
-        TreePath path = getPath();
-        CompilationController controller = getController();
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        int startPos = (int) sourcePositions.getStartPosition(root, def);
-        JFXType retType = def.getJFXReturnType();
-        if (retType == null) {
-            int modPos = (int) sourcePositions.getEndPosition(root, def.getModifiers());
-            if (modPos > startPos) {
-                startPos = modPos;
-            }
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(startPos, offset);
-            if (last == null) {
-                addMemberModifiers(def.getModifiers().getFlags(), false);
-                return;
-            }
-        } else {
-            if (offset <= sourcePositions.getStartPosition(root, retType)) {
-                addMemberModifiers(def.getModifiers().getFlags(), false);
-                return;
-            }
-            startPos = (int) sourcePositions.getEndPosition(root, retType) + 1;
-        }
-        log("start: " + startPos);
-        log("offset: " + offset);
-        String headerText = controller.getText().substring(startPos, offset > startPos ? offset : startPos);
-        int parStart = headerText.indexOf('(');
-        log("parStart: " + parStart);
-        if (parStart >= 0) {
-            int parEnd = headerText.indexOf(')', parStart);
-            if (parEnd > parStart) {
-                headerText = headerText.substring(parEnd + 1).trim();
-            } else {
-                for (JFXVar param : def.getParameters()) {
-                    int parPos = (int) sourcePositions.getEndPosition(root, param);
-                    if (parPos == Diagnostic.NOPOS || offset <= parPos) {
-                        break;
-                    }
-                    parStart = parPos - startPos;
-                }
-                headerText = headerText.substring(parStart).trim();
-                if ("(".equals(headerText) || ",".equals(headerText)) {
-                    addMemberModifiers(Collections.<Modifier>emptySet(), true);
-                }
-            }
-        } else if (retType != null && headerText.trim().length() == 0) {
-            insideExpression(new TreePath(path, retType));
-        }
-        int bodyPos = (int) sourcePositions.getStartPosition(root, def.getBodyExpression());
-        log("bodyPos: " + bodyPos);
-        if (offset > bodyPos) {
-            insideFunctionBlock(def.getBodyExpression().getStatements());
-        }
-    }
-    
-    void insideObjectLiteralPart() {
-    }
-
-    void insideClassDeclaration() {
-        addKeywordsForClassBody();
-    }
-
-    void insideCompilationUnit() throws IOException {
-        if (isTreeBroken()) {
-            // don't do anything in this case
-            return;
-        }
-        int offset = getOffset();
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        Tree pkg = root.getPackageName();
-        if (pkg == null || offset <= sourcePositions.getStartPosition(root, root)) {
-            addKeywordsForCU();
-            return;
-        }
-        if (offset <= sourcePositions.getStartPosition(root, pkg)) {
-            addPackages(getPrefix());
-        } else {
-            TokenSequence<JFXTokenId> first = findFirstNonWhitespaceToken((int) sourcePositions.getEndPosition(root, pkg), offset);
-            if (first != null && first.token().id() == JFXTokenId.SEMI) {
-                addKeywordsForCU();
-            }
-        }
-    }
-
     /**
      * If the tree is broken we are in fact not in the compilation unit.
      * @param env
      * @return
      */
-    boolean isTreeBroken() {
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
+    protected boolean isTreeBroken() {
         int start = (int) sourcePositions.getStartPosition(root, root);
         int end = (int) sourcePositions.getEndPosition(root, root);
         log("isTreeBroken start: " + start + " end: " + end);
         return start == -1 || end == -1;
     }
     
-    void insideImport() {
-        int offset = getOffset();
-        String prefix = getPrefix();
-        ImportTree im = (ImportTree) getPath().getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        if (offset <= sourcePositions.getStartPosition(root, im.getQualifiedIdentifier())) {
-            addPackages(prefix);
-        }
-    }
-
-    void insideClass() throws IOException {
-        int offset = getOffset();
-        TreePath path = getPath();
-        ClassTree cls = (ClassTree) path.getLeaf();
-        CompilationController controller = getController();
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        int startPos = (int) sourcePositions.getEndPosition(root, cls.getModifiers());
-        if (startPos <= 0) {
-            startPos = (int) sourcePositions.getStartPosition(root, cls);
-        }
-        String headerText = controller.getText().substring(startPos, offset);
-        int idx = headerText.indexOf('{');
-        //NOI18N
-        if (idx >= 0) {
-            addKeywordsForClassBody();
-            return;
-        }
-        TreeUtilities tu = controller.getTreeUtilities();
-        Tree lastImpl = null;
-        for (Tree impl : cls.getImplementsClause()) {
-            int implPos = (int) sourcePositions.getEndPosition(root, impl);
-            if (implPos == Diagnostic.NOPOS || offset <= implPos) {
-                break;
-            }
-            lastImpl = impl;
-            startPos = implPos;
-        }
-        if (lastImpl != null) {
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(startPos, offset);
-            if (last != null && last.token().id() == JFXTokenId.COMMA) {
-            }
-            return;
-        }
-        Tree ext = cls.getExtendsClause();
-        if (ext != null) {
-            int extPos = (int) sourcePositions.getEndPosition(root, ext);
-            if (extPos != Diagnostic.NOPOS && offset > extPos) {
-                TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(extPos + 1, offset);
-                //addKeyword(IMPLEMENTS_KEYWORD, SPACE, false);
-                return;
-            }
-        }
-        TypeParameterTree lastTypeParam = null;
-        for (TypeParameterTree tp : cls.getTypeParameters()) {
-            int tpPos = (int) sourcePositions.getEndPosition(root, tp);
-            if (tpPos == Diagnostic.NOPOS || offset <= tpPos) {
-                break;
-            }
-            lastTypeParam = tp;
-            startPos = tpPos;
-        }
-        if (lastTypeParam != null) {
-            TokenSequence<JFXTokenId> first = findFirstNonWhitespaceToken(startPos, offset);
-            if (first != null && first.token().id() == JFXTokenId.GT) {
-                first = nextNonWhitespaceToken(first);
-                if (first != null && first.offset() < offset) {
-                    if (first.token().id() == JFXTokenId.EXTENDS) {
-                        return;
-                    }
-                }
-            } else {
-                if (lastTypeParam.getBounds().isEmpty()) {
-                    addKeyword(EXTENDS_KEYWORD, SPACE, false);
-                }
-            }
-            return;
-        }
-        TokenSequence<JFXTokenId> lastNonWhitespaceToken = findLastNonWhitespaceToken(startPos, offset);
-        if (lastNonWhitespaceToken != null) {
-            switch (lastNonWhitespaceToken.token().id()) {
-                case EXTENDS:
-                    break;
-                case IDENTIFIER:
-                    break;
-            }
-            return;
-        }
-        lastNonWhitespaceToken = findLastNonWhitespaceToken((int) sourcePositions.getStartPosition(root, cls), offset);
-        if (path.getParentPath().getLeaf().getKind() == Tree.Kind.COMPILATION_UNIT) {
-            addClassModifiers(cls.getModifiers().getFlags());
-        } else {
-            addMemberModifiers(cls.getModifiers().getFlags(), false);
-        }
-    }
-
-    void insideVariable() throws IOException {
-        int offset = getOffset();
-        TreePath path = getPath();
-        VariableTree var = (VariableTree) path.getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        boolean isLocal = path.getParentPath().getLeaf().getKind() != Tree.Kind.CLASS;
-        Tree type = var.getType();
-        int typePos = type.getKind() == Tree.Kind.ERRONEOUS && ((ErroneousTree) type).getErrorTrees().isEmpty() ? (int) sourcePositions.getEndPosition(root, type) : (int) sourcePositions.getStartPosition(root, type);
-        if (offset <= typePos) {
-            addMemberModifiers(var.getModifiers().getFlags(), isLocal);
-            ModifiersTree mods = var.getModifiers();
-            return;
-        }
-        Tree init = unwrapErrTree(var.getInitializer());
-        if (init == null) {
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken((int) sourcePositions.getEndPosition(root, type), offset);
-            if (last == null) {
-                insideExpression(new TreePath(path, type));
-            } else if (last.token().id() == JFXTokenId.EQ) {
-                localResult();
-                addValueKeywords();
-            }
-        } else {
-            int pos = (int) sourcePositions.getStartPosition(root, init);
-            if (pos < 0) {
-                return;
-            }
-            if (offset <= pos) {
-                TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken((int) sourcePositions.getEndPosition(root, type), offset);
-                if (last == null) {
-                    insideExpression(new TreePath(path, type));
-                } else if (last.token().id() == JFXTokenId.EQ) {
-                    localResult();
-                    addValueKeywords();
-                }
-            } else {
-                insideExpression(new TreePath(path, init));
-            }
-        }
-    }
-
-    void insideMethod() throws IOException {
-        int offset = getOffset();
-        String prefix = getPrefix();
-        TreePath path = getPath();
-        MethodTree mth = (MethodTree) path.getLeaf();
-        CompilationController controller = getController();
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        int startPos = (int) sourcePositions.getStartPosition(root, mth);
-        Tree retType = mth.getReturnType();
-        if (retType == null) {
-            int modPos = (int) sourcePositions.getEndPosition(root, mth.getModifiers());
-            if (modPos > startPos) {
-                startPos = modPos;
-            }
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(startPos, offset);
-            if (last == null) {
-                addMemberModifiers(mth.getModifiers().getFlags(), false);
-                return;
-            }
-        } else {
-            if (offset <= sourcePositions.getStartPosition(root, retType)) {
-                addMemberModifiers(mth.getModifiers().getFlags(), false);
-                return;
-            }
-            startPos = (int) sourcePositions.getEndPosition(root, retType) + 1;
-        }
-        Tree lastThr = null;
-        for (Tree thr : mth.getThrows()) {
-            int thrPos = (int) sourcePositions.getEndPosition(root, thr);
-            if (thrPos == Diagnostic.NOPOS || offset <= thrPos) {
-                break;
-            }
-            lastThr = thr;
-            startPos = thrPos;
-        }
-        if (lastThr != null) {
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(startPos, offset);
-            if (last != null && last.token().id() == JFXTokenId.COMMA) {
-                // TODO:
-            }
-            return;
-        }
-        String headerText = controller.getText().substring(startPos, offset);
-        int parStart = headerText.indexOf('(');
-        if (parStart >= 0) {
-            int parEnd = headerText.indexOf(')', parStart);
-            if (parEnd > parStart) {
-                headerText = headerText.substring(parEnd + 1).trim();
-            } else {
-                for (VariableTree param : mth.getParameters()) {
-                    int parPos = (int) sourcePositions.getEndPosition(root, param);
-                    if (parPos == Diagnostic.NOPOS || offset <= parPos) {
-                        break;
-                    }
-                    parStart = parPos - startPos;
-                }
-                headerText = headerText.substring(parStart).trim();
-                if ("(".equals(headerText) || ",".equals(headerText)) {
-                    addMemberModifiers(Collections.<Modifier>emptySet(), true);
-                }
-            }
-        } else if (retType != null && headerText.trim().length() == 0) {
-            insideExpression(new TreePath(path, retType));
-        }
-    }
-
-    void insideModifiers(TreePath modPath) throws IOException {
-        int offset = getOffset();
-        ModifiersTree mods = (ModifiersTree) modPath.getLeaf();
-        Set<Modifier> m = EnumSet.noneOf(Modifier.class);
-        final TokenSequence<?> idTokenSequence = getController().getTreeUtilities().tokensFor(mods, getSourcePositions());
-        TokenSequence<JFXTokenId> ts = (TokenSequence<JFXTokenId>) idTokenSequence;
-        JFXTokenId lastNonWhitespaceTokenId = null;
-        while (ts.moveNext() && ts.offset() < offset) {
-            lastNonWhitespaceTokenId = ts.token().id();
-            switch (lastNonWhitespaceTokenId) {
-                case PUBLIC:
-                    m.add(PUBLIC);
-                    break;
-                case PROTECTED:
-                    m.add(PROTECTED);
-                    break;
-                case PRIVATE:
-                    m.add(PRIVATE);
-                    break;
-                case STATIC:
-                    m.add(STATIC);
-                    break;
-                case ABSTRACT:
-                    m.add(ABSTRACT);
-                    break;
-            }
-        }
-        TreePath parentPath = modPath.getParentPath();
-        Tree parent = parentPath.getLeaf();
-        TreePath grandParentPath = parentPath.getParentPath();
-        Tree grandParent = grandParentPath != null ? grandParentPath.getLeaf() : null;
-        if (parent.getKind() == Tree.Kind.CLASS) {
-            addClassModifiers(m);
-        } else if (parent.getKind() != Tree.Kind.VARIABLE || grandParent == null || grandParent.getKind() == Tree.Kind.CLASS) {
-            addMemberModifiers(m, false);
-        } else if (parent.getKind() == Tree.Kind.VARIABLE && grandParent.getKind() == Tree.Kind.METHOD) {
-            addMemberModifiers(m, true);
-        } else {
-            localResult();
-            addKeywordsForStatement();
-        }
-    }   
-    
-    void insideFunctionBlock(com.sun.tools.javac.util.List<JCStatement> statements) throws IOException {
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        int offset = getOffset();
-        StatementTree last = null;
-        for (StatementTree stat : statements) {
-            int pos = (int) sourcePositions.getStartPosition(root, stat);
-            if (pos == Diagnostic.NOPOS || offset <= pos) {
-                break;
-            }
-            last = stat;
-        }
-        if (last == null) {
-        } else if (last.getKind() == Tree.Kind.TRY) {
-            if (((TryTree) last).getFinallyBlock() == null) {
-                addKeyword(CATCH_KEYWORD, null, false);
-                addKeyword(FINALLY_KEYWORD, null, false);
-                if (((TryTree) last).getCatches().size() == 0) {
-                    return;
-                }
-            }
-        }
-        localResult();
-        addKeywordsForStatement();
-    }
-    
-    void insideBlock() throws IOException {
-        int offset = getOffset();
-        JFXBlockExpression bl = (JFXBlockExpression) getPath().getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        int blockPos = (int) sourcePositions.getStartPosition(root, bl);
-        String text = getController().getText().substring(blockPos, offset);
-        if (text.indexOf('{') < 0) {
-            //NOI18N
-            addMemberModifiers(Collections.singleton(STATIC), false);
-            return;
-        }
-        StatementTree last = null;
-        for (StatementTree stat : bl.getStatements()) {
-            int pos = (int) sourcePositions.getStartPosition(root, stat);
-            if (pos == Diagnostic.NOPOS || offset <= pos) {
-                break;
-            }
-            last = stat;
-        }
-        if (last == null) {
-        } else if (last.getKind() == Tree.Kind.TRY) {
-            if (((TryTree) last).getFinallyBlock() == null) {
-                addKeyword(CATCH_KEYWORD, null, false);
-                addKeyword(FINALLY_KEYWORD, null, false);
-                if (((TryTree) last).getCatches().size() == 0) {
-                    return;
-                }
-            }
-        }
-        localResult();
-        addKeywordsForStatement();
-    }
-
-    void insideMemberSelect() throws IOException {
-            int offset = getOffset();
-            String prefix = getPrefix();
-            TreePath path = getPath();
-            MemberSelectTree fa = (MemberSelectTree)path.getLeaf();
-            CompilationController controller = getController();
-            CompilationUnitTree root = getRoot();
-            SourcePositions sourcePositions = getSourcePositions();
-            int expEndPos = (int)sourcePositions.getEndPosition(root, fa.getExpression());
-            boolean afterDot = false;
-            boolean afterLt = false;
-            int openLtNum = 0;
-            JFXTokenId lastNonWhitespaceTokenId = null;
-            TokenSequence<JFXTokenId> ts = controller.getTokenHierarchy().tokenSequence(JFXTokenId.language());
-            ts.move(expEndPos);
-            while (ts.moveNext()) {
-                if (ts.offset() >= offset) {
-                    break;
-                }
-                switch (ts.token().id()) {
-                    case DECIMAL_LITERAL:
-                        if (ts.offset() != expEndPos || ts.token().text().charAt(0) != '.')
-                            break;
-                    case DOT:
-                        afterDot = true;
-                        break;
-                    case LT:
-                        afterLt = true;
-                        openLtNum++;
-                        break;
-                    case GT:
-                        openLtNum--;
-                        break;
-                }
-                switch (ts.token().id()) {
-                    case WS:
-                    case LINE_COMMENT:
-                    case COMMENT:
-                    case DOC_COMMENT:
-                        break;
-                    default:
-                        lastNonWhitespaceTokenId = ts.token().id();
-                }
-            }
-            if (!afterDot) {
-                if (expEndPos <= offset)
-                    insideExpression(new TreePath(path, fa.getExpression()));
-                return;
-            }
-        
-            if (lastNonWhitespaceTokenId != JFXTokenId.STAR) {
-                controller.toPhase(Phase.ANALYZED);
-                TreePath parentPath = path.getParentPath();
-                Tree parent = parentPath != null ? parentPath.getLeaf() : null;
-                TreePath grandParentPath = parentPath != null ? parentPath.getParentPath() : null;
-                Tree grandParent = grandParentPath != null ? grandParentPath.getLeaf() : null;
-                ExpressionTree exp = fa.getExpression();
-                TreePath expPath = new TreePath(path, exp);
-                TypeMirror type = controller.getTrees().getTypeMirror(expPath);
-                if (type != null) {
-                    EnumSet<ElementKind> kinds;
-                    DeclaredType baseType = null;
-                    Set<TypeMirror> exs = null;
-                    boolean inImport = false;
-                    boolean insideNew = false;
-                    if (parent.getKind() == Tree.Kind.CLASS && ((ClassTree)parent).getExtendsClause() == fa) {
-                        kinds = EnumSet.of(CLASS);
-                    } else if (parent.getKind() == Tree.Kind.CLASS && ((ClassTree)parent).getImplementsClause().contains(fa)) {
-                        kinds = EnumSet.of(INTERFACE);
-                    } else if (parent.getKind() == Tree.Kind.IMPORT) {
-                        inImport = true;
-                        kinds = ((ImportTree)parent).isStatic() ? EnumSet.of(CLASS, ENUM, INTERFACE, ANNOTATION_TYPE, FIELD, METHOD, ENUM_CONSTANT) : EnumSet.of(CLASS, ANNOTATION_TYPE, ENUM, INTERFACE);
-                    } else if (parent.getKind() == Tree.Kind.NEW_CLASS && ((NewClassTree)parent).getIdentifier() == fa) {
-                        insideNew = true;
-                        kinds = EnumSet.of(CLASS, INTERFACE, ANNOTATION_TYPE);
-                        if (grandParent.getKind() == Tree.Kind.THROW)
-                            baseType = controller.getTypes().getDeclaredType(controller.getElements().getTypeElement("java.lang.Throwable")); //NOI18N
-                    } else if (parent.getKind() == Tree.Kind.PARAMETERIZED_TYPE && ((ParameterizedTypeTree)parent).getTypeArguments().contains(fa)) {
-                        kinds = EnumSet.of(CLASS, ENUM, ANNOTATION_TYPE, INTERFACE);
-                    } else if (parent.getKind() == Tree.Kind.ANNOTATION) {
-                        if (((AnnotationTree)parent).getAnnotationType() == fa) {
-                            kinds = EnumSet.of(ANNOTATION_TYPE);
-                        } else {
-                            Iterator<? extends ExpressionTree> it = ((AnnotationTree)parent).getArguments().iterator();
-                            if (it.hasNext()) {
-                                ExpressionTree et = it.next();
-                                if (et == fa || (et.getKind() == Tree.Kind.ASSIGNMENT && ((AssignmentTree)et).getExpression() == fa)) {
-                                    Element el = controller.getTrees().getElement(expPath);
-                                    if (type.getKind() == TypeKind.ERROR && el.getKind().isClass()) {
-                                        el = controller.getElements().getPackageElement(((TypeElement)el).getQualifiedName());
-                                    }
-                                    if (el instanceof PackageElement)
-                                        addPackageContent((PackageElement)el, EnumSet.of(CLASS, ENUM, ANNOTATION_TYPE, INTERFACE), null, false);
-                                    else if (type.getKind() == TypeKind.DECLARED)
-                                        addMemberConstantsAndTypes((DeclaredType)type, el);
-                                    return;
-                                }
-                            }
-                            kinds = EnumSet.of(CLASS, ENUM, ANNOTATION_TYPE, INTERFACE, FIELD, METHOD, ENUM_CONSTANT);
-                        }
-                    } else if (parent.getKind() == Tree.Kind.ASSIGNMENT && ((AssignmentTree)parent).getExpression() == fa && grandParent != null && grandParent.getKind() == Tree.Kind.ANNOTATION) {
-                        Element el = controller.getTrees().getElement(expPath);
-                        if (type.getKind() == TypeKind.ERROR && el.getKind().isClass()) {
-                            el = controller.getElements().getPackageElement(((TypeElement)el).getQualifiedName());
-                        }
-                        if (el instanceof PackageElement)
-                            addPackageContent((PackageElement)el, EnumSet.of(CLASS, ENUM, ANNOTATION_TYPE, INTERFACE), null, false);
-                        else if (type.getKind() == TypeKind.DECLARED)
-                            addMemberConstantsAndTypes((DeclaredType)type, el);
-                        return;
-                    } else if (parent.getKind() == Tree.Kind.VARIABLE && ((VariableTree)parent).getType() == fa && grandParent.getKind() == Tree.Kind.CATCH) {
-                        if (query.queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE) {
-                            // TODO:
-//                            exs = controller.getTreeUtilities().getUncaughtExceptions(grandParentPath.getParentPath());
-                        }
-                        kinds = EnumSet.of(CLASS, INTERFACE);
-                        baseType = controller.getTypes().getDeclaredType(controller.getElements().getTypeElement("java.lang.Throwable")); //NOI18N
-                    } else if (parent.getKind() == Tree.Kind.METHOD && ((MethodTree)parent).getThrows().contains(fa)) {
-                        Types types = controller.getTypes();
-                        if (query.queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE && ((MethodTree)parent).getBody() != null) {
-                            controller.toPhase(Phase.RESOLVED);
-                            // TODO:
-                            // exs = controller.getTreeUtilities().getUncaughtExceptions(new TreePath(path, ((MethodTree)parent).getBody()));
-                            JavafxcTrees trees = controller.getTrees();
-                            for (ExpressionTree thr : ((MethodTree)parent).getThrows()) {
-                                if (sourcePositions.getEndPosition(root, thr) >= offset)
-                                    break;
-                                TypeMirror t = trees.getTypeMirror(new TreePath(path, thr));
-                                for (Iterator<TypeMirror> it = exs.iterator(); it.hasNext();)
-                                    if (types.isSubtype(it.next(), t))
-                                        it.remove();
-                            }
-                        }
-                        kinds = EnumSet.of(CLASS, INTERFACE);
-                        baseType = controller.getTypes().getDeclaredType(controller.getElements().getTypeElement("java.lang.Throwable")); //NOI18N
-                    } else if (parent.getKind() == Tree.Kind.METHOD && ((MethodTree)parent).getDefaultValue() == fa) {
-                        Element el = controller.getTrees().getElement(expPath);
-                        if (type.getKind() == TypeKind.ERROR && el.getKind().isClass()) {
-                            el = controller.getElements().getPackageElement(((TypeElement)el).getQualifiedName());
-                        }
-                        if (el instanceof PackageElement)
-                            addPackageContent((PackageElement)el, EnumSet.of(CLASS, ENUM, ANNOTATION_TYPE, INTERFACE), null, false);
-                        else if (type.getKind() == TypeKind.DECLARED)
-                            addMemberConstantsAndTypes((DeclaredType)type, el);
-                        return;
-                    } else if (afterLt) {
-                        kinds = EnumSet.of(METHOD);
-                    } else if (parent.getKind() == Tree.Kind.ENHANCED_FOR_LOOP && ((EnhancedForLoopTree)parent).getExpression() == fa) {
-                        insideForEachExpressiion();
-                        kinds = EnumSet.of(CLASS, ENUM, ANNOTATION_TYPE, INTERFACE, FIELD, METHOD, ENUM_CONSTANT);
-                    } else {
-                        kinds = EnumSet.of(CLASS, ENUM, ANNOTATION_TYPE, INTERFACE, FIELD, METHOD, ENUM_CONSTANT);
-                    }
-                    switch (type.getKind()) {
-                        case TYPEVAR:
-                            while(type != null && type.getKind() == TypeKind.TYPEVAR)
-                                type = ((TypeVariable)type).getUpperBound();
-                            if (type == null)
-                                return;
-                            type = controller.getTypes().capture(type);
-                        case ARRAY:
-                        case DECLARED:
-                        case BOOLEAN:
-                        case BYTE:
-                        case CHAR:
-                        case DOUBLE:
-                        case FLOAT:
-                        case INT:
-                        case LONG:
-                        case SHORT:
-                        case VOID:
-                            boolean b = exp.getKind() == Tree.Kind.PARENTHESIZED || exp.getKind() == Tree.Kind.TYPE_CAST;
-                            while(b) {
-                                if (exp.getKind() == Tree.Kind.PARENTHESIZED) {
-                                    exp = ((ParenthesizedTree)exp).getExpression();
-                                    expPath = new TreePath(expPath, exp);
-                                } else if (exp.getKind() == Tree.Kind.TYPE_CAST) {
-                                    exp = ((TypeCastTree)exp).getExpression();
-                                    expPath = new TreePath(expPath, exp);
-                                } else {
-                                    b = false;
-                                }
-                            }
-                            Element el = controller.getTrees().getElement(expPath);
-                            if (el != null && (el.getKind().isClass() || el.getKind().isInterface())) {
-                                if (parent.getKind() == Tree.Kind.NEW_CLASS && ((NewClassTree)parent).getIdentifier() == fa && prefix != null) {
-                                    String typeName = el.toString() + "." + prefix; //NOI18N
-                                    log("NOT IMPLEMENTED: handling members of " + typeName);
-//                                    TypeMirror tm = controller.getTreeUtilities().parseType(typeName, getScope().getEnclosingClass());
-//                                    if (tm != null && tm.getKind() == TypeKind.DECLARED)
-//                                        addMembers(tm, ((DeclaredType)tm).asElement(), EnumSet.of(CONSTRUCTOR), null, inImport, insideNew);
-                                }
-                            }
-                            if (exs != null) {
-                                Elements elements = controller.getElements();
-                                for (TypeMirror ex : exs)
-                                    if (ex.getKind() == TypeKind.DECLARED) {
-                                        Element e = ((DeclaredType)ex).asElement();
-                                        if (e.getEnclosingElement() == el && JavaFXCompletionProvider.startsWith(e.getSimpleName().toString(), prefix)) { 
-                                            query.results.add(JavaFXCompletionItem.createTypeItem((TypeElement)e, (DeclaredType)ex, getOffset(), elements.isDeprecated(e), insideNew, true));
-                                        }
-                                    }
-                            } else {
-                                addMembers(type);
-                            }
-                            break;
-                        default:
-                            el = controller.getTrees().getElement(expPath);
-                            if (type.getKind() == TypeKind.ERROR && el != null && el.getKind().isClass()) {
-                                el = controller.getElements().getPackageElement(((TypeElement)el).getQualifiedName());
-                            }
-                            if (el != null && el.getKind() == PACKAGE) {                                
-                                if (parent.getKind() == Tree.Kind.NEW_CLASS && ((NewClassTree)parent).getIdentifier() == fa && prefix != null) {
-                                    String typeName = el + "." + prefix; //NOI18N
-                                    log("NOT IMPLEMENTED: handling members of " + typeName);
-//                                    TypeMirror tm = controller.getTreeUtilities().parseType(typeName, getScope().getEnclosingClass());
-//                                    if (tm != null && tm.getKind() == TypeKind.DECLARED)
-//                                        addMembers(tm, ((DeclaredType)tm).asElement(), EnumSet.of(CONSTRUCTOR), null, inImport, insideNew);
-                                }
-                                if (exs != null) {
-                                    Elements elements = controller.getElements();
-                                    for (TypeMirror ex : exs)
-                                        if (ex.getKind() == TypeKind.DECLARED) {
-                                            Element e = ((DeclaredType)ex).asElement();
-                                            if (e.getEnclosingElement() == el && JavaFXCompletionProvider.startsWith(e.getSimpleName().toString(), prefix) ) {
-                                                query.results.add(JavaFXCompletionItem.createTypeItem((TypeElement)e, (DeclaredType)ex, getOffset(), elements.isDeprecated(e), false, true));
-                                            }
-                                        }
-                                } else {
-                                    addPackageContent((PackageElement)el, kinds, baseType, insideNew);
-                                }
-                                if (query.results.isEmpty() && ((PackageElement)el).getQualifiedName() == el.getSimpleName()) {
-                                    // no package content? Check for unimported class
-//                                    ClassIndex ci = controller.getClasspathInfo().getClassIndex();
-//                                    if (el.getEnclosedElements().isEmpty() && ci.getPackageNames(el.getSimpleName() + ".", true, EnumSet.allOf(ClassIndex.SearchScope.class)).isEmpty()) {
-//                                        Trees trees = controller.getTrees();
-//                                        Scope scope = getScope();
-//                                        for (ElementHandle<TypeElement> teHandle : ci.getDeclaredTypes(el.getSimpleName().toString(), ClassIndex.NameKind.SIMPLE_NAME, EnumSet.allOf(ClassIndex.SearchScope.class))) {
-//                                            TypeElement te = teHandle.resolve(controller);
-//                                            if (te != null && trees.isAccessible(scope, te))
-//                                                addMembers(te.asType(), te, kinds, baseType, inImport, insideNew);
-//                                        }
-//                                    }
-                                }
-                            }
-                    }
-                } else if (parent.getKind() == Tree.Kind.COMPILATION_UNIT && ((CompilationUnitTree)parent).getPackageName() == fa) {
-                    PackageElement pe = controller.getElements().getPackageElement(fullName(exp));
-                    if (pe != null)
-                        addPackageContent(pe, EnumSet.of(ElementKind.PACKAGE), null, false);
-                }
-            }
-    }
-    
-    private String fullName(Tree tree) {
+    protected String fullName(Tree tree) {
         switch (tree.getKind()) {
         case IDENTIFIER:
             return ((IdentifierTree)tree).getName().toString();
@@ -877,461 +207,31 @@ class JavaFXCompletionEnvironment {
         }
     }
 
-    void insideMethodInvocation() throws IOException {
-        TreePath path = getPath();
-        MethodInvocationTree mi = (MethodInvocationTree) path.getLeaf();
-        int offset = getOffset();
-        TokenSequence<JFXTokenId> ts = findLastNonWhitespaceToken(mi, offset);
-        if (ts == null || (ts.token().id() != JFXTokenId.LPAREN && ts.token().id() != JFXTokenId.COMMA)) {
-            SourcePositions sp = getSourcePositions();
-            CompilationUnitTree root = getRoot();
-            int lastTokenEndOffset = ts.offset() + ts.token().length();
-            for (ExpressionTree arg : mi.getArguments()) {
-                int pos = (int) sp.getEndPosition(root, arg);
-                if (lastTokenEndOffset == pos) {
-                    insideExpression(new TreePath(path, arg));
-                    break;
-                }
-                if (offset <= pos) {
-                    break;
-                }
-            }
-            return;
-        }
-        String prefix = getPrefix();
-        if (prefix == null || prefix.length() == 0) {
-            addMethodArguments(mi);
-        }
-        addLocalMembersAndVars();
-        addValueKeywords();
-    }
-
-    void insideIf() throws IOException {
-        IfTree iff = (IfTree) getPath().getLeaf();
-        if (getSourcePositions().getEndPosition(getRoot(), iff.getCondition()) <= getOffset()) {
-            localResult();
-            addKeywordsForStatement();
-        }
-    }
-
-    void insideWhile() throws IOException {
-        WhileLoopTree wlt = (WhileLoopTree) getPath().getLeaf();
-        if (getSourcePositions().getEndPosition(getRoot(), wlt.getCondition()) <= getOffset()) {
-            localResult();
-            addKeywordsForStatement();
-        }
-    }
-
-    void insideFor() throws IOException {
-        int offset = getOffset();
-        TreePath path = getPath();
-        ForLoopTree fl = (ForLoopTree) path.getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        Tree lastTree = null;
-        int lastTreePos = offset;
-        for (Tree update : fl.getUpdate()) {
-            int pos = (int) sourcePositions.getEndPosition(root, update);
-            if (pos == Diagnostic.NOPOS || offset <= pos) {
-                break;
-            }
-            lastTree = update;
-            lastTreePos = pos;
-        }
-        if (lastTree == null) {
-            int pos = (int) sourcePositions.getEndPosition(root, fl.getCondition());
-            if (pos != Diagnostic.NOPOS && pos < offset) {
-                lastTree = fl.getCondition();
-                lastTreePos = pos;
-            }
-        }
-        if (lastTree == null) {
-            for (Tree init : fl.getInitializer()) {
-                int pos = (int) sourcePositions.getEndPosition(root, init);
-                if (pos == Diagnostic.NOPOS || offset <= pos) {
-                    break;
-                }
-                lastTree = init;
-                lastTreePos = pos;
-            }
-        }
-        if (lastTree == null) {
-            addLocalFieldsAndVars();
-        } else {
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(lastTreePos, offset);
-            if (last != null && last.token().id() == JFXTokenId.SEMI) {
-                localResult();
-                addValueKeywords();
-            } else if (last != null && last.token().id() == JFXTokenId.RPAREN) {
-                localResult();
-                addKeywordsForStatement();
-            } else {
-                switch (lastTree.getKind()) {
-                    case VARIABLE:
-                        Tree var = ((VariableTree) lastTree).getInitializer();
-                        if (var != null) {
-                            insideExpression(new TreePath(new TreePath(path, lastTree), var));
-                        }
-                        break;
-                    case EXPRESSION_STATEMENT:
-                        Tree exp = unwrapErrTree(((ExpressionStatementTree) lastTree).getExpression());
-                        if (exp != null) {
-                            insideExpression(new TreePath(new TreePath(path, lastTree), exp));
-                        }
-                        break;
-                    default:
-                        insideExpression(new TreePath(path, lastTree));
-                }
-            }
-        }
-    }
-
-    void insideForEach() throws IOException {
-        int offset = getOffset();
-        TreePath path = getPath();
-        EnhancedForLoopTree efl = (EnhancedForLoopTree) path.getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        CompilationController controller = getController();
-        if (sourcePositions.getStartPosition(root, efl.getExpression()) >= offset) {
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken((int) sourcePositions.getEndPosition(root, efl.getVariable()), offset);
-            if (last != null && last.token().id() == JFXTokenId.COLON) {
-                insideForEachExpressiion();
-                addKeyword(NEW_KEYWORD, SPACE, false);
-                localResult();
-            }
-            return;
-        }
-        TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken((int) sourcePositions.getEndPosition(root, efl.getExpression()), offset);
-        if (last != null && last.token().id() == JFXTokenId.RPAREN) {
-            addKeywordsForStatement();
-        } else {
-            insideForEachExpressiion();
-            addKeyword(NEW_KEYWORD, SPACE, false);
-        }
-        localResult();
-    }
-
-    void insideSwitch() throws IOException {
-        int offset = getOffset();
-        String prefix = getPrefix();
-        TreePath path = getPath();
-        SwitchTree st = (SwitchTree) path.getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        if (sourcePositions.getStartPosition(root, st.getExpression()) < offset) {
-            CaseTree lastCase = null;
-            for (CaseTree t : st.getCases()) {
-                int pos = (int) sourcePositions.getStartPosition(root, t);
-                if (pos == Diagnostic.NOPOS || offset <= pos) {
-                    break;
-                }
-                lastCase = t;
-            }
-            if (lastCase != null) {
-                localResult();
-                addKeywordsForStatement();
-            } else {
-                TokenSequence<JFXTokenId> ts = findLastNonWhitespaceToken(st, offset);
-                if (ts != null && ts.token().id() == JFXTokenId.LBRACE) {
-                }
-            }
-        }
-    }
-
-    void insideCase() throws IOException {
-        int offset = getOffset();
-        TreePath path = getPath();
-        CaseTree cst = (CaseTree) path.getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        CompilationController controller = getController();
-        if (cst.getExpression() != null && ((sourcePositions.getStartPosition(root, cst.getExpression()) >= offset) || (cst.getExpression().getKind() == Tree.Kind.ERRONEOUS && ((ErroneousTree) cst.getExpression()).getErrorTrees().isEmpty() && sourcePositions.getEndPosition(root, cst.getExpression()) >= offset))) {
-            TreePath path1 = path.getParentPath();
-            if (path1.getLeaf().getKind() == Tree.Kind.SWITCH) {
-                TypeMirror tm = controller.getTrees().getTypeMirror(new TreePath(path1, ((SwitchTree) path1.getLeaf()).getExpression()));
-            }
-        } else {
-            TokenSequence<JFXTokenId> ts = findLastNonWhitespaceToken(cst, offset);
-            if (ts != null && ts.token().id() == JFXTokenId.COLON) {
-                localResult();
-                addKeywordsForStatement();
-            }
-        }
-    }
-
-    void insideParens() throws IOException {
-        TreePath path = getPath();
-        ParenthesizedTree pa = (ParenthesizedTree) path.getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        Tree exp = unwrapErrTree(pa.getExpression());
-        if (exp == null || getOffset() <= sourcePositions.getStartPosition(root, exp)) {
-            HashSet<TypeElement> toExclude = new HashSet<TypeElement>();
-            if (query.queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE && path.getParentPath().getLeaf().getKind() != Tree.Kind.SWITCH) {
-                Set<? extends TypeMirror> smarts = getSmartTypes();
-                if (smarts != null) {
-                    for (TypeMirror smart : smarts) {
-                        if (smart != null) {
-                            if (smart.getKind() == TypeKind.DECLARED) {
-                                for (DeclaredType subtype : getSubtypesOf((DeclaredType) smart)) {
-                                    TypeElement elem = (TypeElement) subtype.asElement();
-                                    toExclude.add(elem);
-                                }
-                            } else if (smart.getKind() == TypeKind.ARRAY) {
-                                try {
-                                } catch (IllegalArgumentException iae) {
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            addLocalMembersAndVars();
-            addValueKeywords();
-        } else {
-            insideExpression(new TreePath(path, exp));
-        }
-    }
-
     void insideTypeCheck() throws IOException {
         InstanceOfTree iot = (InstanceOfTree) getPath().getLeaf();
         TokenSequence<JFXTokenId> ts = findLastNonWhitespaceToken(iot, getOffset());
     }
 
-    void insideArrayAccess() throws IOException {
-        int offset = getOffset();
-        ArrayAccessTree aat = (ArrayAccessTree) getPath().getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        int aaTextStart = (int) sourcePositions.getEndPosition(root, aat.getExpression());
-        if (aaTextStart != Diagnostic.NOPOS) {
-            Tree expr = unwrapErrTree(aat.getIndex());
-            if (expr == null || offset <= (int) sourcePositions.getStartPosition(root, expr)) {
-                String aatText = getController().getText().substring(aaTextStart, offset);
-                int bPos = aatText.indexOf('[');
-                //NOI18N
-                if (bPos > -1) {
-                    localResult();
-                    addValueKeywords();
-                }
-            }
-        }
-    }
 
-    void insideNewArray() throws IOException {
-        int offset = getOffset();
-        TreePath path = getPath();
-        NewArrayTree nat = (NewArrayTree) path.getLeaf();
-        if (nat.getInitializers() != null) {
-            SourcePositions sourcePositions = getSourcePositions();
-            CompilationUnitTree root = getRoot();
-            Tree last = null;
-            int lastPos = offset;
-            for (Tree init : nat.getInitializers()) {
-                int pos = (int) sourcePositions.getEndPosition(root, init);
-                if (pos == Diagnostic.NOPOS || offset <= pos) {
-                    break;
-                }
-                last = init;
-                lastPos = pos;
-            }
-            if (last != null) {
-                TokenSequence<JFXTokenId> ts = findLastNonWhitespaceToken(lastPos, offset);
-                if (ts != null && ts.token().id() == JFXTokenId.COMMA) {
-                    TreePath parentPath = path.getParentPath();
-                    TreePath gparentPath = parentPath.getParentPath();
-                    if (parentPath.getLeaf().getKind() == Tree.Kind.ANNOTATION || gparentPath.getLeaf().getKind() == Tree.Kind.ANNOTATION) {
-                        addLocalConstantsAndTypes();
-                    } else {
-                        localResult();
-                        addValueKeywords();
-                    }
-                }
-                return;
-            }
-        }
-        TokenSequence<JFXTokenId> ts = findLastNonWhitespaceToken(nat, offset);
-        switch (ts.token().id()) {
-            case LBRACKET:
-            case LBRACE:
-                TreePath parentPath = path.getParentPath();
-                TreePath gparentPath = parentPath.getParentPath();
-                if (parentPath.getLeaf().getKind() == Tree.Kind.ANNOTATION || gparentPath.getLeaf().getKind() == Tree.Kind.ANNOTATION) {
-                    addLocalConstantsAndTypes();
-                } else {
-                    localResult();
-                    addValueKeywords();
-                }
-                break;
-            case RBRACKET:
-                if (nat.getDimensions().size() > 0) {
-                    insideExpression(path);
-                }
-                break;
-        }
-    }
-
-    void insideAssignment() throws IOException {
-        int offset = getOffset();
-        TreePath path = getPath();
-        AssignmentTree as = (AssignmentTree) path.getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        int asTextStart = (int) sourcePositions.getEndPosition(root, as.getVariable());
-        if (asTextStart != Diagnostic.NOPOS) {
-            Tree expr = unwrapErrTree(as.getExpression());
-            if (expr == null || offset <= (int) sourcePositions.getStartPosition(root, expr)) {
-                String asText = getController().getText().substring(asTextStart, offset);
-                int eqPos = asText.indexOf('=');
-                if (eqPos > -1) {
-                    if (path.getParentPath().getLeaf().getKind() == Tree.Kind.ANNOTATION) {
-                        addLocalConstantsAndTypes();
-                    } else {
-                        localResult();
-                        addValueKeywords();
-                    }
-                }
-            } else {
-                insideExpression(new TreePath(path, expr));
-            }
-        }
-    }
-
-    void insideCompoundAssignment() throws IOException {
-        int offset = getOffset();
-        CompoundAssignmentTree cat = (CompoundAssignmentTree) getPath().getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        int catTextStart = (int) sourcePositions.getEndPosition(root, cat.getVariable());
-        if (catTextStart != Diagnostic.NOPOS) {
-            Tree expr = unwrapErrTree(cat.getExpression());
-            if (expr == null || offset <= (int) sourcePositions.getStartPosition(root, expr)) {
-                String catText = getController().getText().substring(catTextStart, offset);
-                int eqPos = catText.indexOf('=');
-                //NOI18N
-                if (eqPos > -1) {
-                    localResult();
-                    addValueKeywords();
-                }
-            }
-        }
-    }
-
-    void insideBinaryTree() throws IOException {
-        int offset = getOffset();
-        BinaryTree bi = (BinaryTree) getPath().getLeaf();
-        SourcePositions sourcePositions = getSourcePositions();
-        CompilationUnitTree root = getRoot();
-        int pos = (int) sourcePositions.getEndPosition(root, bi.getRightOperand());
-        if (pos != Diagnostic.NOPOS && pos < offset) {
-            return;
-        }
-        pos = (int) sourcePositions.getEndPosition(root, bi.getLeftOperand());
-        if (pos != Diagnostic.NOPOS) {
-            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(pos, offset);
-            if (last != null) {
-                localResult();
-                addValueKeywords();
-            }
-        }
-    }
-
-    void insideExpressionStatement() throws IOException {
-        TreePath path = getPath();
-        ExpressionStatementTree est = (ExpressionStatementTree) path.getLeaf();
-        CompilationController controller = getController();
-        Tree t = est.getExpression();
-        if (t.getKind() == Tree.Kind.ERRONEOUS) {
-            Iterator<? extends Tree> it = ((ErroneousTree) t).getErrorTrees().iterator();
-            if (it.hasNext()) {
-                t = it.next();
-            } else {
-                TokenSequence<JFXTokenId> ts = controller.getTokenHierarchy().tokenSequence(JFXTokenId.language());
-                ts.move((int) getSourcePositions().getStartPosition(getRoot(), est));
-                ts.movePrevious();
-                switch (ts.token().id()) {
-                    case FOR:
-                    case IF:
-                    case WHILE:
-                        return;
-                }
-                localResult();
-                Tree parentTree = path.getParentPath().getLeaf();
-                switch (parentTree.getKind()) {
-                    case FOR_LOOP:getPath().getLeaf();
-                        if (((ForLoopTree) parentTree).getStatement() == est) {
-                            addKeywordsForStatement();
-                        } else {
-                            addValueKeywords();
-                        }
-                        break;
-                    case ENHANCED_FOR_LOOP:
-                        if (((EnhancedForLoopTree) parentTree).getStatement() == est) {
-                            addKeywordsForStatement();
-                        } else {
-                            addValueKeywords();
-                        }
-                        break;
-                    case VARIABLE:
-                        addValueKeywords();
-                        break;
-                    default:
-                        addKeywordsForStatement();
-                        break;
-                }
-                return;
-            }
-        }
-        TreePath tPath = new TreePath(path, t);
-        if (t.getKind() == Tree.Kind.MODIFIERS) {
-            insideModifiers(tPath);
-        } else if (t.getKind() == Tree.Kind.MEMBER_SELECT && ERROR.contentEquals(((MemberSelectTree) t).getIdentifier())) {
-            //controller.toPhase(Phase.ELEMENTS_RESOLVED);
-            controller.toPhase(Phase.ANALYZED);
-            TreePath expPath = new TreePath(tPath, ((MemberSelectTree) t).getExpression());
-            TypeMirror type = controller.getTrees().getTypeMirror(expPath);
-            switch (type.getKind()) {
-                case TYPEVAR:
-                    type = ((TypeVariable) type).getUpperBound();
-                    if (type == null) {
-                        return;
-                    }
-                case ARRAY:
-                case DECLARED:
-                case BOOLEAN:
-                case BYTE:
-                case CHAR:
-                case DOUBLE:
-                case FLOAT:
-                case INT:
-                case LONG:
-                case SHORT:
-                case VOID:
-                    break;
-                default:
-            }
-        } else {
-            insideExpression(tPath);
-        }
-    }
-
-    void insideExpression(TreePath exPath) throws IOException {
-        int offset = getOffset();
-        String prefix = getPrefix();
+    protected void insideExpression(TreePath exPath) throws IOException {
         Tree et = exPath.getLeaf();
         Tree parent = exPath.getParentPath().getLeaf();
-        CompilationController controller = getController();
-        int endPos = (int) getSourcePositions().getEndPosition(getRoot(), et);
+        int endPos = (int) getSourcePositions().getEndPosition(root, et);
         if (endPos != Diagnostic.NOPOS && endPos < offset) {
             TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken(endPos, offset);
             if (last != null) {
                 return;
             }
         }
+        log("NOT IMPLEMENTED: insideExpression " + exPath);
+        
     }
     
-    private void addMembers(final TypeMirror type) throws IOException {
+    protected void addResult(JavaFXCompletionItem i) {
+        query.results.add(i);
+    }
+    
+    protected void addMembers(final TypeMirror type) throws IOException {
         log("addMembers: " + type);
         getController().toPhase(Phase.ANALYZED);
         
@@ -1351,36 +251,36 @@ class JavaFXCompletionEnvironment {
             String s = member.getSimpleName().toString();
             if (JavaFXCompletionProvider.startsWith(s, getPrefix())) {
                 if (member.getKind() == ElementKind.METHOD) {
-                    query.results.add(
+                    addResult(
                         JavaFXCompletionItem.createExecutableItem(
                             (ExecutableElement)member,
                             (ExecutableType)member.asType(),
-                            myOffset, false, false, false, false)
+                            offset, false, false, false, false)
                     );
                 }
                 if (member.getKind() == ElementKind.FIELD) {
-                    query.results.add(
+                    addResult(
                         JavaFXCompletionItem.createVariableItem(
                             member.getSimpleName().toString(),
-                            myOffset, false)
+                            offset, false)
                     );
                 }
             }
         }
     }
 
-    void localResult() throws IOException {
+    protected void localResult() throws IOException {
         addLocalMembersAndVars();
     }
     
-    private void addMemberConstantsAndTypes(final TypeMirror type, final Element elem) throws IOException {
+    protected void addMemberConstantsAndTypes(final TypeMirror type, final Element elem) throws IOException {
         log("addMemberConstantsAndTypes: " + type + " elem: " + elem);
     }
-    private void addLocalConstantsAndTypes() throws IOException {
+    protected void addLocalConstantsAndTypes() throws IOException {
         log("addLocalConstantsAndTypes: " + getPrefix());
     }
 
-    private void addLocalMembersAndVars() throws IOException {
+    protected void addLocalMembersAndVars() throws IOException {
         log("addLocalMembersAndVars: " + getPrefix());
         getController().toPhase(Phase.ANALYZED);
         
@@ -1402,35 +302,31 @@ class JavaFXCompletionEnvironment {
         }
     }
 
-    private void addLocalFieldsAndVars() throws IOException {
+    protected void addLocalFieldsAndVars() throws IOException {
         log("NOT IMPLEMENTED: addLocalFieldsAndVars: " + getPrefix());
     }
 
-    private void addPackages(String fqnPrefix) {
+    protected void addPackages(String fqnPrefix) {
         log("NOT IMPLEMENTED: addPackages " + fqnPrefix);
     }
 
-    private List<DeclaredType> getSubtypesOf(DeclaredType baseType) throws IOException {
+    protected List<DeclaredType> getSubtypesOf(DeclaredType baseType) throws IOException {
         log("NOT IMPLEMENTED: getSubtypesOf " + baseType);
         return Collections.emptyList();
     }
 
-    private void addMethodArguments(MethodInvocationTree mit) throws IOException {
+    protected void addMethodArguments(MethodInvocationTree mit) throws IOException {
         log("NOT IMPLEMENTED: addMethodArguments " + mit);
     }
 
-    private void addKeyword(String kw, String postfix, boolean smartType) {
+    protected void addKeyword(String kw, String postfix, boolean smartType) {
         if (JavaFXCompletionProvider.startsWith(kw, getPrefix())) {
-            query.results.add(JavaFXCompletionItem.createKeywordItem(kw, postfix, query.anchorOffset, smartType));
+            addResult(JavaFXCompletionItem.createKeywordItem(kw, postfix, query.anchorOffset, smartType));
         }
     }
 
-    private void addKeywordsForCU() {
+    protected void addKeywordsForCU() {
         List<String> kws = new ArrayList<String>();
-        int offset = getOffset();
-        String prefix = getPrefix();
-        CompilationUnitTree cu = getRoot();
-        SourcePositions sourcePositions = getSourcePositions();
         kws.add(ABSTRACT_KEYWORD);
         kws.add(CLASS_KEYWORD);
         kws.add(VAR_KEYWORD);
@@ -1438,9 +334,9 @@ class JavaFXCompletionEnvironment {
         kws.add(PUBLIC_KEYWORD);
         kws.add(IMPORT_KEYWORD);
         boolean beforeAnyClass = true;
-        for (Tree t : cu.getTypeDecls()) {
+        for (Tree t : root.getTypeDecls()) {
             if (t.getKind() == Tree.Kind.CLASS) {
-                int pos = (int) sourcePositions.getEndPosition(cu, t);
+                int pos = (int) sourcePositions.getEndPosition(root, t);
                 if (pos != Diagnostic.NOPOS && offset >= pos) {
                     beforeAnyClass = false;
                 }
@@ -1448,41 +344,39 @@ class JavaFXCompletionEnvironment {
         }
         if (beforeAnyClass) {
             Tree firstImport = null;
-            for (Tree t : cu.getImports()) {
+            for (Tree t : root.getImports()) {
                 firstImport = t;
                 break;
             }
-            Tree pd = cu.getPackageName();
-            if ((pd != null && offset <= sourcePositions.getStartPosition(cu, cu)) || (pd == null && (firstImport == null || sourcePositions.getStartPosition(cu, firstImport) >= offset))) {
+            Tree pd = root.getPackageName();
+            if ((pd != null && offset <= sourcePositions.getStartPosition(root, root)) || (pd == null && (firstImport == null || sourcePositions.getStartPosition(root, firstImport) >= offset))) {
                 kws.add(PACKAGE_KEYWORD);
             }
         }
         for (String kw : kws) {
             if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
-                query.results.add(JavaFXCompletionItem.createKeywordItem(kw, SPACE, query.anchorOffset, false));
+                addResult(JavaFXCompletionItem.createKeywordItem(kw, SPACE, query.anchorOffset, false));
             }
         }
     }
 
-    private void addKeywordsForClassBody() {
-        String prefix = getPrefix();
+    protected void addKeywordsForClassBody() {
         for (String kw : CLASS_BODY_KEYWORDS) {
             if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
-                query.results.add(JavaFXCompletionItem.createKeywordItem(kw, SPACE, query.anchorOffset, false));
+                addResult(JavaFXCompletionItem.createKeywordItem(kw, SPACE, query.anchorOffset, false));
             }
         }
     }
 
-    private void addKeywordsForStatement() {
-        String prefix = getPrefix();
+    protected void addKeywordsForStatement() {
         for (String kw : STATEMENT_KEYWORDS) {
             if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
-                query.results.add(JavaFXCompletionItem.createKeywordItem(kw, null, query.anchorOffset, false));
+                addResult(JavaFXCompletionItem.createKeywordItem(kw, null, query.anchorOffset, false));
             }
         }
         for (String kw : STATEMENT_SPACE_KEYWORDS) {
             if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
-                query.results.add(JavaFXCompletionItem.createKeywordItem(kw, SPACE, query.anchorOffset, false));
+                addResult(JavaFXCompletionItem.createKeywordItem(kw, SPACE, query.anchorOffset, false));
             }
         }
         if (JavaFXCompletionProvider.startsWith(RETURN_KEYWORD, prefix)) {
@@ -1494,7 +388,7 @@ class JavaFXCompletionEnvironment {
                     postfix = SEMI;
                 }
             }
-            query.results.add(JavaFXCompletionItem.createKeywordItem(RETURN_KEYWORD, postfix, query.anchorOffset, false));
+            addResult(JavaFXCompletionItem.createKeywordItem(RETURN_KEYWORD, postfix, query.anchorOffset, false));
         }
         TreePath tp = getPath();
         while (tp != null) {
@@ -1504,11 +398,11 @@ class JavaFXCompletionEnvironment {
                 case FOR_LOOP:
                 case WHILE_LOOP:
                     if (JavaFXCompletionProvider.startsWith(CONTINUE_KEYWORD, prefix)) {
-                        query.results.add(JavaFXCompletionItem.createKeywordItem(CONTINUE_KEYWORD, SEMI, query.anchorOffset, false));
+                        addResult(JavaFXCompletionItem.createKeywordItem(CONTINUE_KEYWORD, SEMI, query.anchorOffset, false));
                     }
                 case SWITCH:
                     if (JavaFXCompletionProvider.startsWith(BREAK_KEYWORD, prefix)) {
-                        query.results.add(JavaFXCompletionItem.createKeywordItem(BREAK_KEYWORD, SEMI, query.anchorOffset, false));
+                        addResult(JavaFXCompletionItem.createKeywordItem(BREAK_KEYWORD, SEMI, query.anchorOffset, false));
                     }
                     break;
             }
@@ -1516,11 +410,9 @@ class JavaFXCompletionEnvironment {
         }
     }
 
-    private void addValueKeywords() throws IOException {
-        String prefix = getPrefix();
+    protected void addValueKeywords() throws IOException {
         boolean smartType = false;
         if (query.queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE) {
-            Set<? extends TypeMirror> smartTypes = getSmartTypes();
             if (smartTypes != null && !smartTypes.isEmpty()) {
                 for (TypeMirror st : smartTypes) {
                     if (st.getKind() == TypeKind.BOOLEAN) {
@@ -1531,24 +423,23 @@ class JavaFXCompletionEnvironment {
             }
         }
         if (JavaFXCompletionProvider.startsWith(FALSE_KEYWORD, prefix)) {
-            query.results.add(JavaFXCompletionItem.createKeywordItem(FALSE_KEYWORD, null, query.anchorOffset, smartType));
+            addResult(JavaFXCompletionItem.createKeywordItem(FALSE_KEYWORD, null, query.anchorOffset, smartType));
         }
         if (JavaFXCompletionProvider.startsWith(TRUE_KEYWORD, prefix)) {
-            query.results.add(JavaFXCompletionItem.createKeywordItem(TRUE_KEYWORD, null, query.anchorOffset, smartType));
+            addResult(JavaFXCompletionItem.createKeywordItem(TRUE_KEYWORD, null, query.anchorOffset, smartType));
         }
         if (JavaFXCompletionProvider.startsWith(NULL_KEYWORD, prefix)) {
-            query.results.add(JavaFXCompletionItem.createKeywordItem(NULL_KEYWORD, null, query.anchorOffset, false));
+            addResult(JavaFXCompletionItem.createKeywordItem(NULL_KEYWORD, null, query.anchorOffset, false));
         }
         if (JavaFXCompletionProvider.startsWith(NEW_KEYWORD, prefix)) {
-            query.results.add(JavaFXCompletionItem.createKeywordItem(NEW_KEYWORD, SPACE, query.anchorOffset, false));
+            addResult(JavaFXCompletionItem.createKeywordItem(NEW_KEYWORD, SPACE, query.anchorOffset, false));
         }
         if (JavaFXCompletionProvider.startsWith(BIND_KEYWORD, prefix)) {
-            query.results.add(JavaFXCompletionItem.createKeywordItem(BIND_KEYWORD, SPACE, query.anchorOffset, false));
+            addResult(JavaFXCompletionItem.createKeywordItem(BIND_KEYWORD, SPACE, query.anchorOffset, false));
         }
     }
 
-    private void addClassModifiers(Set<Modifier> modifiers) {
-        String prefix = getPrefix();
+    protected void addClassModifiers(Set<Modifier> modifiers) {
         List<String> kws = new ArrayList<String>();
         if (!modifiers.contains(PUBLIC) && !modifiers.contains(PRIVATE)) {
             kws.add(PUBLIC_KEYWORD);
@@ -1559,13 +450,12 @@ class JavaFXCompletionEnvironment {
         kws.add(CLASS_KEYWORD);
         for (String kw : kws) {
             if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
-                query.results.add(JavaFXCompletionItem.createKeywordItem(kw, SPACE, query.anchorOffset, false));
+                addResult(JavaFXCompletionItem.createKeywordItem(kw, SPACE, query.anchorOffset, false));
             }
         }
     }
 
-    private void addMemberModifiers(Set<Modifier> modifiers, boolean isLocal) {
-        String prefix = getPrefix();
+    protected void addMemberModifiers(Set<Modifier> modifiers, boolean isLocal) {
         List<String> kws = new ArrayList<String>();
         if (isLocal) {
         } else {
@@ -1584,15 +474,13 @@ class JavaFXCompletionEnvironment {
         }
         for (String kw : kws) {
             if (JavaFXCompletionProvider.startsWith(kw, prefix)) {
-                query.results.add(JavaFXCompletionItem.createKeywordItem(kw, SPACE, query.anchorOffset, false));
+                addResult(JavaFXCompletionItem.createKeywordItem(kw, SPACE, query.anchorOffset, false));
             }
         }
     }
     
-    private void addPackageContent(PackageElement pe, EnumSet<ElementKind> kinds, DeclaredType baseType, boolean insideNew) throws IOException {
+    protected void addPackageContent(PackageElement pe, EnumSet<ElementKind> kinds, DeclaredType baseType, boolean insideNew) throws IOException {
             Set<? extends TypeMirror> smartTypes = query.queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE ? getSmartTypes() : null;
-            String prefix = getPrefix();
-            CompilationController controller = getController();
             Elements elements = controller.getElements();
             Types types = controller.getTypes();
             JavafxcTrees trees = controller.getTrees();
@@ -1600,7 +488,7 @@ class JavaFXCompletionEnvironment {
                 if (e.getKind().isClass() || e.getKind().isInterface()) {
                     String name = e.getSimpleName().toString();
                         if (JavaFXCompletionProvider.startsWith(name, prefix)) {
-                            query.results.add(JavaFXCompletionItem.createTypeItem((TypeElement)e, (DeclaredType)e.asType(), getOffset(), elements.isDeprecated(e), insideNew, false));
+                            addResult(JavaFXCompletionItem.createTypeItem((TypeElement)e, (DeclaredType)e.asType(), getOffset(), elements.isDeprecated(e), insideNew, false));
                     }
                 }
             }
@@ -1610,12 +498,12 @@ class JavaFXCompletionEnvironment {
             addPackages(pkgName);
         }
     
-    private TokenSequence<JFXTokenId> findLastNonWhitespaceToken(Tree tree, int position) {
-        int startPos = (int) getSourcePositions().getStartPosition(getRoot(), tree);
+    protected TokenSequence<JFXTokenId> findLastNonWhitespaceToken(Tree tree, int position) {
+        int startPos = (int) getSourcePositions().getStartPosition(root, tree);
         return findLastNonWhitespaceToken(startPos, position);
     }
 
-    private TokenSequence<JFXTokenId> findLastNonWhitespaceToken(int startPos, int endPos) {
+    protected TokenSequence<JFXTokenId> findLastNonWhitespaceToken(int startPos, int endPos) {
         TokenSequence<JFXTokenId> ts = getController().getTokenHierarchy().tokenSequence(JFXTokenId.language());
         ts.move(endPos);
         ts = previousNonWhitespaceToken(ts);
@@ -1626,11 +514,11 @@ class JavaFXCompletionEnvironment {
     }
     
     private TokenSequence<JFXTokenId> findFirstNonWhitespaceToken(Tree tree, int position) {
-        int startPos = (int) getSourcePositions().getStartPosition(getRoot(), tree);
+        int startPos = (int) getSourcePositions().getStartPosition(root, tree);
         return findFirstNonWhitespaceToken(startPos, position);
     }
 
-    private TokenSequence<JFXTokenId> findFirstNonWhitespaceToken(int startPos, int endPos) {
+    protected TokenSequence<JFXTokenId> findFirstNonWhitespaceToken(int startPos, int endPos) {
         TokenSequence<JFXTokenId> ts = getController().getTokenHierarchy().tokenSequence(JFXTokenId.language());
         ts.move(startPos);
         ts = nextNonWhitespaceToken(ts);
@@ -1640,7 +528,7 @@ class JavaFXCompletionEnvironment {
         return ts;
     }
     
-    private static TokenSequence<JFXTokenId> nextNonWhitespaceToken(TokenSequence<JFXTokenId> ts) {
+    protected static TokenSequence<JFXTokenId> nextNonWhitespaceToken(TokenSequence<JFXTokenId> ts) {
         while (ts.moveNext()) {
             switch (ts.token().id()) {
                 case WS:
@@ -1670,7 +558,7 @@ class JavaFXCompletionEnvironment {
         return null;
     }
     
-    private static Tree unwrapErrTree(Tree tree) {
+    protected static Tree unwrapErrTree(Tree tree) {
         if (tree != null && tree.getKind() == Tree.Kind.ERRONEOUS) {
             Iterator<? extends Tree> it = ((ErroneousTree) tree).getErrorTrees().iterator();
             tree = it.hasNext() ? it.next() : null;

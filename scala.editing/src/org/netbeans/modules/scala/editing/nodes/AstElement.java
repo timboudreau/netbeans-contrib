@@ -68,7 +68,7 @@ public class AstElement implements ElementHandle {
     private ElementKind kind;
     private AstScope enclosingScope;
     private Set<Modifier> mods;
-    private TypeRef type;
+    protected TypeRef type;
     protected String qualifiedName;
     
     public AstElement( ElementKind kind) {
@@ -164,7 +164,7 @@ public class AstElement implements ElementHandle {
      * @Note: enclosingScope will be set when call
      *   {@link AstScope#addDef(Def)} or {@link AstScope#addUsage(Usage)}
      */
-    protected void setEnclosingScope(AstScope enclosingScope) {
+    public void setEnclosingScope(AstScope enclosingScope) {
         this.enclosingScope = enclosingScope;
     }
 

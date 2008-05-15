@@ -71,7 +71,8 @@ import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
 import org.openide.util.Exceptions;
 import org.netbeans.spi.editor.hints.Fix;
 import org.netbeans.modules.groovy.editor.GroovyCompilerErrorID;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -79,6 +80,7 @@ import org.netbeans.modules.groovy.editor.GroovyCompilerErrorID;
  */
 public class GroovyHintsProvider implements HintsProvider{
     
+    public static final Logger LOG = Logger.getLogger(GroovyHintsProvider.class.getName()); // NOI18N
     private boolean cancelled;
     private List<SelectionRule> testSelectionHints;
     private Map<NodeType,List<AstRule>> testHints;
@@ -137,6 +139,9 @@ public class GroovyHintsProvider implements HintsProvider{
     public List<Error> computeErrors(CompilationInfo info, List<ErrorDescription> result) {
         // Return all the errors we -haven't- added custom error hints for:
         
+       // LOG.setLevel(Level.FINEST);
+       LOG.log(Level.FINEST, "@@@ computeErrors()");
+        
        try {
             if (info.getDocument() == null) {
                 // Document probably closed
@@ -153,6 +158,7 @@ public class GroovyHintsProvider implements HintsProvider{
         }
 
         List<Error> errors = rpr.getDiagnostics();
+        LOG.log(Level.FINEST, "@@@ errors.size() : {0}", errors.size());
 
         if (errors == null || errors.size() == 0) {
             return Collections.emptyList();
@@ -169,6 +175,7 @@ public class GroovyHintsProvider implements HintsProvider{
         if (hints.isEmpty() || isCancelled()) {
             return errors;
         }
+        LOG.log(Level.FINEST, "@@@ hints.size() : {0}", hints.size());
         
         List<Description> descriptions = new ArrayList<Description>();
         
@@ -176,14 +183,23 @@ public class GroovyHintsProvider implements HintsProvider{
         
         for (Error error : errors) {
             if (error instanceof GroovyError) {
-                if (!applyRules((GroovyError)error, info, hints, descriptions)) {
+                LOG.log(Level.FINEST, "@@@ ----------------------------------------------------\n");
+                LOG.log(Level.FINEST, "@@@ error.getDescription()   : {0}\n", error.getDescription());
+                LOG.log(Level.FINEST, "@@@ error.getKey()           : {0}\n", error.getKey());
+                LOG.log(Level.FINEST, "@@@ error.getDisplayName()   : {0}\n", error.getDisplayName());
+                LOG.log(Level.FINEST, "@@@ error.getStartPosition() : {0}\n", error.getStartPosition());
+                LOG.log(Level.FINEST, "@@@ error.getEndPosition()   : {0}\n", error.getEndPosition());
+                if (!applyRules((GroovyError) error, info, hints, descriptions)) {
+                    LOG.log(Level.FINEST, "@@@ Adding error to unhandled");
                     unhandled.add(error);
                 }
             }
         }
+        LOG.log(Level.FINEST, "@@@ descriptions.size() =  {0}", descriptions.size());
         
         if (descriptions.size() > 0) {
             for (Description desc : descriptions) {
+                LOG.log(Level.FINEST, "@@@ Creating this description : {0}\n", desc.getDescription());
                 ErrorDescription errorDesc = createDescription(desc, info, -1);
                 result.add(errorDesc);
             }
@@ -234,6 +250,10 @@ public class GroovyHintsProvider implements HintsProvider{
     /** Apply error rules and return true iff somebody added an error description for it */
     private boolean applyRules(GroovyError error, CompilationInfo info, Map<GroovyCompilerErrorID,List<ErrorRule>> hints,
             List<Description> result) {
+        
+       // LOG.setLevel(Level.FINEST);
+       LOG.log(Level.FINEST, "applyRules(...)");
+        
         GroovyCompilerErrorID code = error.getId();
         if (code != null) {
             List<ErrorRule> rules = hints.get(code);

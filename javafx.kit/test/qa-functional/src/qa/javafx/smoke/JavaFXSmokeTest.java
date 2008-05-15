@@ -2,6 +2,7 @@ package qa.javafx.smoke;
 
 import java.io.File;
 import java.io.FileFilter;
+import javax.swing.JToggleButton;
 import org.netbeans.jellytools.Bundle;
 import org.netbeans.jellytools.JellyTestCase;
 import org.netbeans.jellytools.MainWindowOperator;
@@ -13,15 +14,17 @@ import org.netbeans.jellytools.actions.OpenAction;
 import org.netbeans.jellytools.nodes.Node;
 import org.netbeans.jellytools.nodes.ProjectRootNode;
 import org.netbeans.jemmy.TimeoutExpiredException;
+import org.netbeans.jemmy.operators.ContainerOperator;
 import org.netbeans.jemmy.operators.JButtonOperator;
 import org.netbeans.jemmy.operators.JCheckBoxOperator;
 import org.netbeans.jemmy.operators.JDialogOperator;
+import org.netbeans.jemmy.operators.JInternalFrameOperator;
 import org.netbeans.jemmy.operators.JMenuBarOperator;
-import org.netbeans.jemmy.operators.JRadioButtonOperator;
 import org.netbeans.jemmy.operators.JTabbedPaneOperator;
 import org.netbeans.jemmy.operators.JTableOperator;
 import org.netbeans.jemmy.operators.JTextComponentOperator;
 import org.netbeans.jemmy.operators.JTextFieldOperator;
+import org.netbeans.jemmy.operators.JToggleButtonOperator;
 import org.netbeans.junit.NbTestSuite;
 
 //import org.junit.Test;
@@ -43,7 +46,9 @@ import org.netbeans.junit.NbTestSuite;
 public class JavaFXSmokeTest extends JellyTestCase{  
 
     protected static final String PROJECT_NAME_HELLO_WORLD = "HelloWorld";
+    public static final String PREVIEW_FRAME_TITLE = "Hello World JavaFX";
 
+    
     public static final String  BUILD_SUCCESSFUL = "BUILD SUCCESSFUL";
     public static final String  BUILD_FAILED = "BUILD FAILED";
 
@@ -59,7 +64,7 @@ public class JavaFXSmokeTest extends JellyTestCase{
         suite.addTest(new JavaFXSmokeTest("testMainFile"));
         suite.addTest(new JavaFXSmokeTest("testEditor"));
         suite.addTest(new JavaFXSmokeTest("testProjectBuilding"));
-        //suite.addTest(new JavaFXSmokeTest("testPreviewMode"));
+        suite.addTest(new JavaFXSmokeTest("testPreview"));
         return suite;
     }
 
@@ -229,8 +234,32 @@ public class JavaFXSmokeTest extends JellyTestCase{
 
         
         //System.out.println("[output] " + outputText);
-        assertTrue("", outputText.contains(BUILD_SUCCESSFUL));
+        assertTrue("Project is not built!", outputText.contains(BUILD_SUCCESSFUL));
         
         
     }
+    
+    public void testPreview() {
+        System.setOut(getLog());
+        Node umlNode = new Node(ProjectsTabOperator.invoke().tree(), PROJECT_NAME_HELLO_WORLD);
+        TopComponentOperator main = new TopComponentOperator("Main.fx");
+        JTextComponentOperator textComponent = new JTextComponentOperator(main);
+        String sample = "samples/helloworld/HelloWorld.fx";
+        String text = Util.getSampleText(sample);
+        assertNotNull("Sample \"" + sample + "\" was not found", text);
+        textComponent.setText(text);
+        //new JButtonOperator(main, "Enable Preview").push();
+        ContainerOperator cont = new ContainerOperator(main, new Util.ClassNameComponentChooser("PreviewButton"));
+        Util.showComponents(cont);
+        JToggleButtonOperator preview = new JToggleButtonOperator((JToggleButton) cont.getSource());
+        preview.push();
+        Util.sleep(7000);
+        
+        JInternalFrameOperator mainInternalFrame = new JInternalFrameOperator(main, PREVIEW_FRAME_TITLE);
+        
+        assertNotNull("Internal Frame: \"" + PREVIEW_FRAME_TITLE + "\" is not shown in the Preview!"  , mainInternalFrame);
+        //Util.showComponents(new TopComponentOperator("Main.fx"));
+        //Util.showComponents(main);
+    }
+    
 }
