@@ -1,10 +1,10 @@
 package qa.javafx.smoke;
 
+import qa.javafx.functional.library.Util;
 import java.io.File;
 import java.io.FileFilter;
 import javax.swing.JToggleButton;
 import org.netbeans.jellytools.Bundle;
-import org.netbeans.jellytools.JellyTestCase;
 import org.netbeans.jellytools.MainWindowOperator;
 import org.netbeans.jellytools.NewProjectWizardOperator;
 import org.netbeans.jellytools.OutputTabOperator;
@@ -28,6 +28,7 @@ import org.netbeans.jemmy.operators.JToggleButtonOperator;
 import org.netbeans.junit.NbTestSuite;
 
 //import org.junit.Test;
+import qa.javafx.functional.library.JavaFXTestCase;
 //import static org.junit.Assert.*;
 
 //import org.junit.Test;
@@ -43,15 +44,7 @@ import org.netbeans.junit.NbTestSuite;
  */
 
 
-public class JavaFXSmokeTest extends JellyTestCase{  
-
-    protected static final String PROJECT_NAME_HELLO_WORLD = "HelloWorld";
-    public static final String PREVIEW_FRAME_TITLE = "Hello World JavaFX";
-
-    
-    public static final String  BUILD_SUCCESSFUL = "BUILD SUCCESSFUL";
-    public static final String  BUILD_FAILED = "BUILD FAILED";
-
+public class JavaFXSmokeTest extends JavaFXTestCase{  
     
     public JavaFXSmokeTest(String name) {
         super(name);
@@ -249,7 +242,7 @@ public class JavaFXSmokeTest extends JellyTestCase{
         assertNotNull("Sample \"" + sample + "\" was not found", text);
         textComponent.setText(text);
         //new JButtonOperator(main, "Enable Preview").push();
-        ContainerOperator cont = new ContainerOperator(main, new Util.ClassNameComponentChooser("PreviewButton"));
+        ContainerOperator cont = new ContainerOperator(main, new ClassNameComponentChooser("PreviewButton"));
         Util.showComponents(cont);
         JToggleButtonOperator preview = new JToggleButtonOperator((JToggleButton) cont.getSource());
         preview.push();

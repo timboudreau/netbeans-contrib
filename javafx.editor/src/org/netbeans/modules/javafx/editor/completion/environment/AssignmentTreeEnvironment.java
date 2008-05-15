@@ -67,12 +67,8 @@ public class AssignmentTreeEnvironment extends JavaFXCompletionEnvironment<Assig
                 String asText = getController().getText().substring(asTextStart, offset);
                 int eqPos = asText.indexOf('=');
                 if (eqPos > -1) {
-                    if (path.getParentPath().getLeaf().getKind() == Tree.Kind.ANNOTATION) {
-                        addLocalConstantsAndTypes();
-                    } else {
-                        localResult();
-                        addValueKeywords();
-                    }
+                    localResult();
+                    addValueKeywords();
                 }
             } else {
                 insideExpression(new TreePath(path, expr));

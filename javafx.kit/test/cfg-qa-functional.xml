@@ -48,7 +48,8 @@ made subject to such option by the copyright holder.
     <testbag testattribs="validation,stable" executor="ide" name="qa-functional tests">
         <testset dir="qa-functional/src">
             <patternset>
-                <include name="**/*Test.class"/>
+                <include name="**/JavaFXSmokeTest.class"/>
+                <include name="**/JavaFXProjectTest.class"/>
             </patternset>
         </testset>
     </testbag>

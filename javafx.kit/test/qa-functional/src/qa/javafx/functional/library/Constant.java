@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,47 +34,21 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.cnd.callgraph.api.ui;
-
-import org.netbeans.modules.cnd.callgraph.api.CallModel;
-import org.openide.nodes.Node;
-import org.openide.util.Lookup;
+package qa.javafx.functional.library;
 
 /**
  *
- * @author Alexander Simon
+ * @author andromeda
  */
-public abstract class CallGraphModelFactory {
-    private static final CallGraphModelFactory DEFAULT = new Default();
+public interface Constant {
     
-    protected CallGraphModelFactory() {
-    }
-
-    public abstract CallModel getModel(Node[] activatedNodes);
+    String PROJECT_JAVA_APPLICATION = "Java Application";
+    String PROJECT_JAVAFX_APPLICATION = "JavaFX Script Application";
     
-    public static CallGraphModelFactory getDefault() {
-        return DEFAULT;
-    }
-
-    private static final class Default extends CallGraphModelFactory {
-        private final Lookup.Result<CallGraphModelFactory> res;
-
-        private Default() {
-            res = Lookup.getDefault().lookupResult(CallGraphModelFactory.class);
-        }
-
-        @Override
-        public CallModel getModel(Node[] activatedNodes) {
-            for (CallGraphModelFactory resolver : res.allInstances()) {
-                CallModel out = resolver.getModel(activatedNodes);
-                if (out != null) {
-                    return out;
-                }
-            }
-            return null;
-        }
-    }    
+    
+    String PROJECT_CATEGORY_JAVA = "Java";
+    String PROJECT_CATEGORY_JAVAFX = "JavaFX";
 }

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,68 +34,48 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+package qa.javafx.functional.library;
 
-package org.netbeans.modules.cnd.callgraph.cndimpl;
-
-import org.netbeans.modules.cnd.api.model.CsmFunction;
-import org.netbeans.modules.cnd.api.model.xref.CsmReference;
-import org.netbeans.modules.cnd.callgraph.api.Call;
-import org.netbeans.modules.cnd.callgraph.api.Function;
-import org.netbeans.modules.cnd.modelutil.CsmUtilities;
+import java.awt.Component;
+import org.netbeans.jellytools.JellyTestCase;
+import org.netbeans.jemmy.ComponentChooser;
 
 /**
  *
- * @author Alexander Simon
+ * @author Alexandr Scherbatiy sunflower@netbeans.org
  */
-public class CallImpl implements Call {
+public class JavaFXTestCase extends JellyTestCase {
 
-    private Function owner;
-    private CsmReference reference;
-    private Function function;
-    private boolean nameOrder;
-    
-    public CallImpl(CsmFunction owner, CsmReference reference, CsmFunction function, boolean nameOrder){
-        this.owner = new FunctionImpl(owner);
-        this.reference = reference;
-        this.function = new FunctionImpl(function);
-        this.nameOrder = nameOrder;
-    }
+    public static final String PROJECT_NAME_HELLO_WORLD = "HelloWorld";
+    public static final String PREVIEW_FRAME_TITLE = "Hello World JavaFX";
+    public static final String BUILD_SUCCESSFUL = "BUILD SUCCESSFUL";
+    public static final String BUILD_FAILED = "BUILD FAILED";
 
-    public Object getReferencedCall() {
-        return reference;
-    }
-
-    public void open() {
-        CsmUtilities.openSource(reference);
-    }
-
-    public Function getCallee() {
-        return function;
-    }
-
-    public Function getCaller() {
-        return owner;
-    }
-
-    public int compareTo(Call o) {
-        if (nameOrder) {
-            return getCaller().getName().compareTo(o.getCaller().getName());
-        }
-        int diff = reference.getStartOffset() - ((CallImpl)o).reference.getStartOffset();
-        if (diff == 0) {
-             return getCallee().getName().compareTo(o.getCallee().getName());
-       }
-        return diff;
+    public JavaFXTestCase(String name) {
+        super(name);
     }
 
     @Override
-    public String toString() {
-        if (nameOrder) {
-            return getCaller().getName()+"<-"+getCallee().getName();
-        } else {
-            return getCallee().getName()+"->"+getCaller().getName();
+    protected void setUp() throws Exception {
+        System.out.println("[fx test case] setup");
+    }
+
+    public class ClassNameComponentChooser implements ComponentChooser {
+
+        String text;
+
+        public ClassNameComponentChooser(String text) {
+            this.text = text;
+        }
+
+        public boolean checkComponent(Component component) {
+            return component.toString().contains(text);
+        }
+
+        public String getDescription() {
+            return "ButtonComponentChooser: \"" + text + "\"";
         }
     }
 }

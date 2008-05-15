@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,49 +34,28 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+package qa.javafx.functional.project;
 
-package org.netbeans.modules.cnd.callgraph.api;
-
-import java.awt.Image;
+import qa.javafx.functional.library.JavaFXTestCase;
+import qa.javafx.functional.library.project.JavaFXProject;
 
 /**
  *
- * @author Alexander Simon
+ * @author Alexandr Scherbatiy sunflower@netbeans.org
  */
-public interface Function {
-    /**
-     * 
-     * @return Function short name
-     */
-    String getName();
-    
-    /**
-     * 
-     * @return Function html name to display in tree/list view
-     */
-    String getHtmlDisplayName();
 
-    /**
-     * 
-     * @return Function full name
-     */
-    String getDescription();
-    
-    /**
-     * 
-     * @return Function icon
-     */
-    Image getIcon();
-    
-    /**
-     * @return true if function is virtual
-     */
-    boolean isVurtual();
 
-    /**
-     * Open function in editor
-     */
-    void open();
+public class JavaFXProjectTest extends JavaFXTestCase {
+
+    public JavaFXProjectTest(String name) {
+        super(name);
+    }
+    
+    
+    public void testCreateEmptyProject(){
+        JavaFXProject project = JavaFXProject.createProject("Test");
+    }
+    
 }

@@ -43,6 +43,8 @@ import com.sun.tools.javafx.tree.JFXForExpressionInClause;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.api.javafx.lexer.JFXTokenId;
+import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionEnvironment;
 
 /**
@@ -55,9 +57,39 @@ public class ForExpressionInClauseEnvironment extends JavaFXCompletionEnvironmen
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
     @Override
-    protected void inside(JFXForExpressionInClause t) throws IOException {
-        log("inside JFXForExpressionInClause " + t);
+    protected void inside(JFXForExpressionInClause feic) throws IOException {
+        log("inside JFXForExpressionInClause " + feic);
         log("  prefix: " + prefix);
+        int start = (int)sourcePositions.getStartPosition(root, feic);
+        log("  offset: " + offset);
+        log("  start: " + start);
+        TokenSequence<JFXTokenId> ts = controller.getTokenHierarchy().tokenSequence(JFXTokenId.language());
+        ts.move(start);
+        boolean afterLBracket = false;
+        loop: while (ts.moveNext()) {
+            if (ts.offset() >= offset) {
+                break;
+            }
+            switch (ts.token().id()) {
+                case WS:
+                case LINE_COMMENT:
+                case COMMENT:
+                case DOC_COMMENT:
+                    continue;
+                case LBRACKET:
+                    afterLBracket = true;
+                    break loop;
+                default:
+                    // TODO:
+            }
+        }
+        log("  afterLBracket: " + afterLBracket);
+        if (afterLBracket) {
+            // numbers here
+        } else {
+            // sequences here
+        }
+
     }
 
     private static void log(String s) {

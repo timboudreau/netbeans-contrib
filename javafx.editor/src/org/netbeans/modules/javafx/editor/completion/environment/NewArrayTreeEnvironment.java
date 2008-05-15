@@ -78,12 +78,8 @@ public class NewArrayTreeEnvironment extends JavaFXCompletionEnvironment<NewArra
                 if (ts != null && ts.token().id() == JFXTokenId.COMMA) {
                     TreePath parentPath = path.getParentPath();
                     TreePath gparentPath = parentPath.getParentPath();
-                    if (parentPath.getLeaf().getKind() == Tree.Kind.ANNOTATION || gparentPath.getLeaf().getKind() == Tree.Kind.ANNOTATION) {
-                        addLocalConstantsAndTypes();
-                    } else {
-                        localResult();
-                        addValueKeywords();
-                    }
+                    localResult();
+                    addValueKeywords();
                 }
                 return;
             }
@@ -94,12 +90,8 @@ public class NewArrayTreeEnvironment extends JavaFXCompletionEnvironment<NewArra
             case LBRACE:
                 TreePath parentPath = path.getParentPath();
                 TreePath gparentPath = parentPath.getParentPath();
-                if (parentPath.getLeaf().getKind() == Tree.Kind.ANNOTATION || gparentPath.getLeaf().getKind() == Tree.Kind.ANNOTATION) {
-                    addLocalConstantsAndTypes();
-                } else {
-                    localResult();
-                    addValueKeywords();
-                }
+                localResult();
+                addValueKeywords();
                 break;
             case RBRACKET:
                 if (nat.getDimensions().size() > 0) {

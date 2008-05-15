@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
@@ -34,35 +34,28 @@
  * 
  * Contributor(s):
  * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.cnd.callgraph.api;
-
-import java.util.List;
+package qa.javafx.functional.library.project;
 
 /**
  *
- * @author Alexander Simon
+ * @author Alexandr Scherbatiy
  */
-public interface CallModel {
-    /**
-     * 
-     * @param function
-     * @return list of all function definitions that has call of function
-     */
-    List<Call> getCallers(Function declaration);
-    
-    /**
-     * 
-     * @param definition
-     * @return list of all called functions from definition
-     */
-    List<Call> getCallees(Function definition);
 
-    Function getRoot();
+public class JavaFXProject extends JavaProject {
     
-    String getName();
+    public JavaFXProject(String name){
+        super(name, ProjectType.JAVAFX_APPLICATION);
+    }
+
+    public JavaFXProject(JavaProject javaProject){
+        this(javaProject.getName());
+    }
     
-    void refresh();
+    public static JavaFXProject createProject(String name){
+        return new JavaFXProject(JavaProject.createProject(name, ProjectType.JAVAFX_APPLICATION));
+    }
+ 
 }

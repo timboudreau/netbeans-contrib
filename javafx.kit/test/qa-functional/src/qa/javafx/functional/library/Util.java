@@ -7,7 +7,7 @@
  * and open the template in the editor.
  */
 
-package qa.javafx.smoke;
+package qa.javafx.functional.library;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -35,6 +35,7 @@ public class Util {
     
     
     protected static final String XTEST_DATA = "xtest.data";
+    protected static final String XTEST_WORK_DIR = "xtest.workdir";
     protected static final String XTEST_DATA_PATH = System.getProperty(XTEST_DATA);
 
 
@@ -45,7 +46,8 @@ public class Util {
     private static final int N = 3;
     private static final int WAIT_TIME = 2000;
 
-
+    public static String WORK_DIR = System.getProperty(XTEST_WORK_DIR);
+    
     public static String getXtestDataPath() {
         return System.getProperty(XTEST_DATA) + "/data";
     }
@@ -213,25 +215,7 @@ public class Util {
 
 
 // =================== Utility Operations  ===================
-    static class ClassNameComponentChooser implements ComponentChooser {
-
-        String text;
-
-        ClassNameComponentChooser(String text) {
-            this.text = text;
-        }
-
-        public boolean checkComponent(Component component) {
-            return component.toString().contains(text);
-        }
-
-        public String getDescription() {
-            return "ButtonComponentChooser: \"" + text + "\"";
-        }
-    }
-
-
-
+    
     public static void sleep() {
         sleep(WAIT_TIME);
     }

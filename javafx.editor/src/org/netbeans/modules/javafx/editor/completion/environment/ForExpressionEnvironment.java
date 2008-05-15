@@ -46,6 +46,8 @@ import java.util.logging.Logger;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionEnvironment;
+import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionItem;
+import static org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery.*;
 
 /**
  *
@@ -66,28 +68,49 @@ public class ForExpressionEnvironment extends JavaFXCompletionEnvironment<JFXFor
         TokenSequence<JFXTokenId> ts = controller.getTokenHierarchy().tokenSequence(JFXTokenId.language());
         ts.move(start);
         boolean afterIdentifier = false;
-        w: while (ts.moveNext()) {
+        boolean afterFor = false;
+        boolean afterLParen = false;
+        while (ts.moveNext()) {
             if (ts.offset() >= offset) {
                 break;
             }
             switch (ts.token().id()) {
+                case FOR:
+                    afterFor = true;
+                    break;
+                case LPAREN:
+                    if (afterLParen) {
+                        // too many parens
+                        return;
+                    }
+                    afterLParen = true;
+                    break;
                 case WS:
                 case LINE_COMMENT:
                 case COMMENT:
                 case DOC_COMMENT:
-                    continue w;
+                    continue;
                 case IDENTIFIER:
                     afterIdentifier = true;
-                    break w;
+                    break;
                 default:
-                    // TODO:
+                    log("  default: " + ts.token().id());
+                    // there is too much, return nothing
+                    return;
             }
         }
         log("  afterIdentifier: " + afterIdentifier);
         if (afterIdentifier) {
-            // only in here:
-        } else {
-            // check whether the identifier is ok and if yes put there in
+            addResult(JavaFXCompletionItem.createKeywordItem(IN_KEYWORD, " ", offset, false));
+            return;
+        } 
+        if (afterLParen) {
+            if (prefix != null && prefix.length() > 0) {
+                // ok the user has already typed something
+                log("  NOT IMPLEMENTED: suggest ending the variable name and \"in \" after");
+            } else {
+                log("  NOT IMPLEMENTED: suggest a variable name");
+            }
         }
     }
 
