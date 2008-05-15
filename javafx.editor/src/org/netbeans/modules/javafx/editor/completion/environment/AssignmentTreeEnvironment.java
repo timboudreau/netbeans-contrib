@@ -41,15 +41,12 @@ package org.netbeans.modules.javafx.editor.completion.environment;
 
 import com.sun.source.tree.AssignmentTree;
 import com.sun.source.tree.Tree;
-import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.tools.Diagnostic;
-import org.netbeans.api.javafx.source.CompilationController;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionEnvironment;
-import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery;
 
 /**
  *
@@ -60,10 +57,6 @@ public class AssignmentTreeEnvironment extends JavaFXCompletionEnvironment<Assig
     private static final Logger logger = Logger.getLogger(AssignmentTreeEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    public AssignmentTreeEnvironment(AssignmentTree t, int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
-        super(t, offset, prefix, controller, path, sourcePositions, query);
-    }
-    
     @Override
     protected void inside(AssignmentTree as) throws IOException {
         log("inside AssignmentTree " + as);

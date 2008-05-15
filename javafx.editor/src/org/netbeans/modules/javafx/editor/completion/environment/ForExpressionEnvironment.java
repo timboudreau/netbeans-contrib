@@ -39,17 +39,13 @@
 
 package org.netbeans.modules.javafx.editor.completion.environment;
 
-import com.sun.source.util.SourcePositions;
-import com.sun.source.util.TreePath;
 import com.sun.tools.javafx.tree.JFXForExpression;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
-import org.netbeans.api.javafx.source.CompilationController;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionEnvironment;
-import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery;
 
 /**
  *
@@ -60,10 +56,6 @@ public class ForExpressionEnvironment extends JavaFXCompletionEnvironment<JFXFor
     private static final Logger logger = Logger.getLogger(ForExpressionEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    public ForExpressionEnvironment(JFXForExpression t, int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
-        super(t, offset, prefix, controller, path, sourcePositions, query);
-    }
-    
     @Override
     protected void inside(JFXForExpression foe) throws IOException {
         log("inside JFXForExpression " + foe);

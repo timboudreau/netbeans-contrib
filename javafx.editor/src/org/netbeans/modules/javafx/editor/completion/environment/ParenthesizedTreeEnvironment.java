@@ -41,7 +41,6 @@ package org.netbeans.modules.javafx.editor.completion.environment;
 
 import com.sun.source.tree.ParenthesizedTree;
 import com.sun.source.tree.Tree;
-import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import java.io.IOException;
 import java.util.HashSet;
@@ -52,10 +51,8 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import org.netbeans.api.javafx.source.CompilationController;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionProvider;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionEnvironment;
-import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery;
 
 /**
  *
@@ -66,10 +63,6 @@ public class ParenthesizedTreeEnvironment extends JavaFXCompletionEnvironment<Pa
     private static final Logger logger = Logger.getLogger(ParenthesizedTreeEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    public ParenthesizedTreeEnvironment(ParenthesizedTree t, int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
-        super(t, offset, prefix, controller, path, sourcePositions, query);
-    }
-    
     @Override
     protected void inside(ParenthesizedTree pa) throws IOException {
         log("inside ParenthesizedTree " + pa);

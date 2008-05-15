@@ -40,13 +40,9 @@
 package org.netbeans.modules.javafx.editor.completion.environment;
 
 import com.sun.source.tree.InstanceOfTree;
-import com.sun.source.util.SourcePositions;
-import com.sun.source.util.TreePath;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.javafx.source.CompilationController;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionEnvironment;
-import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery;
 
 /**
  *
@@ -57,10 +53,6 @@ public class InstanceOfTreeEnvironment extends JavaFXCompletionEnvironment<Insta
     private static final Logger logger = Logger.getLogger(InstanceOfTreeEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    public InstanceOfTreeEnvironment(InstanceOfTree t, int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
-        super(t, offset, prefix, controller, path, sourcePositions, query);
-    }
-    
     @Override
     protected void inside(InstanceOfTree t) {
         log("inside InstanceOfTree " + t);

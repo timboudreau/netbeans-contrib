@@ -89,19 +89,24 @@ public class JavaFXCompletionEnvironment<T extends Tree> {
     private static final Logger logger = Logger.getLogger(JavaFXCompletionEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    protected final int offset;
-    protected final String prefix;
-    protected final boolean isCamelCasePrefix;
-    protected final CompilationController controller;
-    protected final TreePath path;
-    protected final SourcePositions sourcePositions;
+    protected int offset;
+    protected String prefix;
+    protected boolean isCamelCasePrefix;
+    protected CompilationController controller;
+    protected TreePath path;
+    protected SourcePositions sourcePositions;
     protected boolean insideForEachExpressiion = false;
     protected Set<? extends TypeMirror> smartTypes = null;
-    protected final CompilationUnitTree root;
-    protected final JavaFXCompletionQuery query;
+    protected CompilationUnitTree root;
+    protected JavaFXCompletionQuery query;
 
-    protected JavaFXCompletionEnvironment(T t, int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
-        super();
+    protected JavaFXCompletionEnvironment() {
+    }
+    
+    /*
+     * Thies method must be called after constructor before a call to resolveCompletion
+     */
+    void init(int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
         this.offset = offset;
         this.prefix = prefix;
         this.isCamelCasePrefix = prefix != null && prefix.length() > 1 && JavaFXCompletionQuery.camelCasePattern.matcher(prefix).matches();

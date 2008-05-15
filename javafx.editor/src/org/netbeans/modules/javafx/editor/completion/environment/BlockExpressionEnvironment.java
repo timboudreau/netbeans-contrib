@@ -42,17 +42,13 @@ package org.netbeans.modules.javafx.editor.completion.environment;
 import com.sun.source.tree.StatementTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.TryTree;
-import com.sun.source.util.SourcePositions;
-import com.sun.source.util.TreePath;
 import com.sun.tools.javafx.tree.JFXBlockExpression;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.tools.Diagnostic;
-import org.netbeans.api.javafx.source.CompilationController;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionEnvironment;
-import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery;
 import static javax.lang.model.element.Modifier.*;
 import static org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery.*;
 
@@ -65,10 +61,6 @@ public class BlockExpressionEnvironment extends JavaFXCompletionEnvironment<JFXB
     private static final Logger logger = Logger.getLogger(BlockExpressionEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    public BlockExpressionEnvironment(JFXBlockExpression t, int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
-        super(t, offset, prefix, controller, path, sourcePositions, query);
-    }
-    
     @Override
     protected void inside(JFXBlockExpression t) throws IOException {
         log("inside JFXBlockExpression " + t);

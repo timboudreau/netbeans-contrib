@@ -42,11 +42,9 @@ package org.netbeans.modules.javafx.editor.completion;
 
 import com.sun.javafx.api.tree.JavaFXTree;
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.source.tree.ArrayAccessTree;
 import com.sun.source.tree.AssignmentTree;
 import com.sun.source.tree.BinaryTree;
 import com.sun.source.tree.CaseTree;
-import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.CompoundAssignmentTree;
 import com.sun.source.tree.EnhancedForLoopTree;
@@ -56,14 +54,8 @@ import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.ForLoopTree;
 import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.IfTree;
-import com.sun.source.tree.ImportTree;
-import com.sun.source.tree.InstanceOfTree;
 import com.sun.source.tree.MemberSelectTree;
-import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
-import com.sun.source.tree.ModifiersTree;
-import com.sun.source.tree.NewArrayTree;
-import com.sun.source.tree.ParenthesizedTree;
 import com.sun.source.tree.SwitchTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.TypeCastTree;
@@ -72,12 +64,6 @@ import com.sun.source.tree.WhileLoopTree;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javafx.api.JavafxcTrees;
-import com.sun.tools.javafx.tree.JFXBlockExpression;
-import com.sun.tools.javafx.tree.JFXClassDeclaration;
-import com.sun.tools.javafx.tree.JFXForExpression;
-import com.sun.tools.javafx.tree.JFXForExpressionInClause;
-import com.sun.tools.javafx.tree.JFXFunctionDefinition;
-import com.sun.tools.javafx.tree.JFXObjectLiteralPart;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -378,6 +364,12 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
         JavaFXCompletionEnvironment env = getCompletionEnvironment(controller);
         results = new ArrayList<JavaFXCompletionItem>();
         anchorOffset = env.getOffset();
+        
+        // make sure the init method was called
+        if (env.query != this) {
+            throw new IllegalStateException("init method not called before resolveCompletion");
+        }
+        
         env.inside(env.getPath().getLeaf());
         if (LOGGABLE) {
             log("Results: " + results);
@@ -699,6 +691,7 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
         log("getCompletionEnvironment caretOffset: " + caretOffset + " offset: " + offset);
         TreePath path = controller.getTreeUtilities().pathFor(offset);
         Tree t = path.getLeaf();
+        JavaFXCompletionEnvironment result = null;
         if (t instanceof JavaFXTree && t.getKind() == Tree.Kind.OTHER) {
             JavaFXTree jfxt = (JavaFXTree) t;
             JavaFXKind k = jfxt.getJavaFXKind();
@@ -707,15 +700,20 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                 case BIND_EXPRESSION:
                     break;
                 case BLOCK_EXPRESSION:
-                    return new BlockExpressionEnvironment((JFXBlockExpression)t, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new BlockExpressionEnvironment();
+                    break;
                 case CLASS_DECLARATION:
-                    return new ClassDeclarationEnvironment((JFXClassDeclaration)t, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new ClassDeclarationEnvironment();
+                    break;
                 case FOR_EXPRESSION:
-                    return new ForExpressionEnvironment((JFXForExpression)t, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new ForExpressionEnvironment();
+                    break;
                 case FOR_EXPRESSION_IN_CLAUSE:
-                    return new ForExpressionInClauseEnvironment((JFXForExpressionInClause)t, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new ForExpressionInClauseEnvironment();
+                    break;
                 case FUNCTION_DEFINITION:
-                    return new FunctionDefinitionEnvironment((JFXFunctionDefinition) t,offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new FunctionDefinitionEnvironment();
+                    break;
                 case FUNCTION_VALUE:
                     break;
                 case INIT_DEFINITION:
@@ -729,7 +727,8 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                 case KEYFRAME_LITERAL:
                     break;
                 case OBJECT_LITERAL_PART:
-                    return new ObjectLiteralPartEnvironment((JFXObjectLiteralPart) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new ObjectLiteralPartEnvironment();
+                    break;
                 case ON_REPLACE:
                     break;
                 case POSTINIT_DEFINITION:
@@ -759,8 +758,8 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                 case TYPE_ANY:
                     break;
                 case TYPE_CLASS:
-                    //return new ClassDeclarationEnvironment((JFXClassDeclaration)t, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
-
+                    //result = new ClassDeclarationEnvironment();
+                    break;
                 case TYPE_FUNCTIONAL:
                     break;
                 case TYPE_UNKNOWN:
@@ -770,17 +769,23 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
             log("Java Kind: " + t.getKind());
             switch (t.getKind()) {
                 case COMPILATION_UNIT:
-                    return new CompilationUnitEnvironment((CompilationUnitTree) t,offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new CompilationUnitEnvironment();
+                    break;
                 case IMPORT:
-                    return new ImportTreeEnvironment((ImportTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new ImportTreeEnvironment();
+                    break;
                 case CLASS:
-                    return new ClassTreeEnvironment((ClassTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new ClassTreeEnvironment();
+                    break;
                 case VARIABLE:
-                    return new VariableTreeEnvironment((VariableTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new VariableTreeEnvironment();
+                    break;
                 case METHOD:
-                    return new MethodTreeEnvironment((MethodTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new MethodTreeEnvironment();
+                    break;
                 case MODIFIERS:
-                    return new ModifiersTreeEnvironment((ModifiersTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new ModifiersTreeEnvironment();
+                    break;
                 case ANNOTATION:
                     break;
                 case TYPE_PARAMETER:
@@ -797,9 +802,11 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                     //insideBlock(env);
                     break;
                 case MEMBER_SELECT:
-                    return new MemberSelectTreeEnvironment((MemberSelectTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new MemberSelectTreeEnvironment();
+                    break;
                 case METHOD_INVOCATION:
-                    return new MethodInvocationTreeEnvironment((MethodInvocationTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new MethodInvocationTreeEnvironment();
+                    break;
                 case NEW_CLASS:
                     break;
                 case ASSERT:
@@ -809,27 +816,36 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                 case CATCH:
                     break;
                 case IF:
-                    return new IfTreeEnvironment((IfTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new IfTreeEnvironment();
+                    break;
                 case WHILE_LOOP:
-                    return new WhileLoopTreeEnvironment((WhileLoopTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new WhileLoopTreeEnvironment();
+                    break;
                 case FOR_LOOP:
                     break;
                 case SWITCH:
-                    return new SwitchTreeEnvironment((SwitchTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new SwitchTreeEnvironment();
+                    break;
                 case CASE:
-                    return new CaseTreeEnvironment((CaseTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new CaseTreeEnvironment();
+                    break;
                 case PARENTHESIZED:
-                    return new ParenthesizedTreeEnvironment((ParenthesizedTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new ParenthesizedTreeEnvironment();
+                    break;
                 case TYPE_CAST:
                     break;
                 case INSTANCE_OF:
-                    return new InstanceOfTreeEnvironment((InstanceOfTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new InstanceOfTreeEnvironment();
+                    break;
                 case ARRAY_ACCESS:
-                    return new ArrayAccessTreeEnvironment((ArrayAccessTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new ArrayAccessTreeEnvironment();
+                    break;
                 case NEW_ARRAY:
-                    return new NewArrayTreeEnvironment((NewArrayTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new NewArrayTreeEnvironment();
+                    break;
                 case ASSIGNMENT:
-                    return new AssignmentTreeEnvironment((AssignmentTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new AssignmentTreeEnvironment();
+                    break;
                 case MULTIPLY_ASSIGNMENT:
                 case DIVIDE_ASSIGNMENT:
                 case REMAINDER_ASSIGNMENT:
@@ -841,7 +857,8 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                 case AND_ASSIGNMENT:
                 case XOR_ASSIGNMENT:
                 case OR_ASSIGNMENT:
-                    return new CompoundAssignmentTreeEnvironment((CompoundAssignmentTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new CompoundAssignmentTreeEnvironment();
+                    break;
                 case PREFIX_INCREMENT:
                 case PREFIX_DECREMENT:
                 case UNARY_PLUS:
@@ -869,7 +886,8 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                 case RIGHT_SHIFT:
                 case UNSIGNED_RIGHT_SHIFT:
                 case XOR:
-                    return new BinaryTreeEnvironment((BinaryTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new BinaryTreeEnvironment();
+                    break;
                 case CONDITIONAL_EXPRESSION:
                     break;
                 case EXPRESSION_STATEMENT:
@@ -878,7 +896,8 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
             }
         }
 
-        return new JavaFXCompletionEnvironment(null, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+        result.init(offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+        return result;
     }
 
     private static void log(String s) {

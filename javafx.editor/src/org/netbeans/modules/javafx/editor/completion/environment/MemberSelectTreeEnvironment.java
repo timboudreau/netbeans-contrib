@@ -54,7 +54,6 @@ import com.sun.source.tree.ParenthesizedTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.TypeCastTree;
 import com.sun.source.tree.VariableTree;
-import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javafx.api.JavafxcTrees;
 import java.io.IOException;
@@ -74,13 +73,11 @@ import javax.lang.model.type.TypeVariable;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
-import org.netbeans.api.javafx.source.CompilationController;
 import org.netbeans.api.javafx.source.JavaFXSource.Phase;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionEnvironment;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionItem;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionProvider;
-import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery;
 import static org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery.*;
 import static javax.lang.model.element.ElementKind.*;
 
@@ -93,10 +90,6 @@ public class MemberSelectTreeEnvironment extends JavaFXCompletionEnvironment<Mem
     private static final Logger logger = Logger.getLogger(MemberSelectTreeEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    public MemberSelectTreeEnvironment(MemberSelectTree t, int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
-        super(t, offset, prefix, controller, path, sourcePositions, query);
-    }
-    
     @Override
     protected void inside(MemberSelectTree fa) throws IOException {
         log("inside MemberSelectTree " + fa);

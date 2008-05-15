@@ -42,17 +42,13 @@ package org.netbeans.modules.javafx.editor.completion.environment;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.TypeParameterTree;
-import com.sun.source.util.SourcePositions;
-import com.sun.source.util.TreePath;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.tools.Diagnostic;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
-import org.netbeans.api.javafx.source.CompilationController;
 import org.netbeans.api.javafx.source.TreeUtilities;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionEnvironment;
-import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery;
 import static org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery.*;
 
 /**
@@ -64,10 +60,6 @@ public class ClassTreeEnvironment extends JavaFXCompletionEnvironment<ClassTree>
     private static final Logger logger = Logger.getLogger(ClassTreeEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    public ClassTreeEnvironment(ClassTree t, int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
-        super(t, offset, prefix, controller, path, sourcePositions, query);
-    }
-    
     @Override
     protected void inside(ClassTree t) {
         log("inside ClassTree " + t);

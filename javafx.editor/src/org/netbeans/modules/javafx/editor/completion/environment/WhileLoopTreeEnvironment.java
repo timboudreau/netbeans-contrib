@@ -40,14 +40,10 @@
 package org.netbeans.modules.javafx.editor.completion.environment;
 
 import com.sun.source.tree.WhileLoopTree;
-import com.sun.source.util.SourcePositions;
-import com.sun.source.util.TreePath;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.api.javafx.source.CompilationController;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionEnvironment;
-import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery;
 
 /**
  *
@@ -58,10 +54,6 @@ public class WhileLoopTreeEnvironment extends JavaFXCompletionEnvironment<WhileL
     private static final Logger logger = Logger.getLogger(WhileLoopTreeEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    public WhileLoopTreeEnvironment(WhileLoopTree t, int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
-        super(t, offset, prefix, controller, path, sourcePositions, query);
-    }
-    
     @Override
     protected void inside(WhileLoopTree t) throws IOException {
         log("inside WhileLoopTree " + t);
