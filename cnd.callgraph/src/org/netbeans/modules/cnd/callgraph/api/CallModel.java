@@ -60,8 +60,6 @@ public interface CallModel {
      */
     List<Call> getCallees(Function definition);
 
-    boolean isCalls();
-    
     Function getRoot();
     
     String getName();

@@ -62,7 +62,6 @@ public class CallGraphModelFactoryImpl extends CallGraphModelFactory {
         }
         CsmFunction function = null;
         CsmProject project = null;
-        boolean isCalls = true;
         CsmReference ref = CsmReferenceResolver.getDefault().findReference(activatedNodes[0]);
         if (ref == null) {
             return null;
@@ -75,11 +74,10 @@ public class CallGraphModelFactoryImpl extends CallGraphModelFactory {
             obj = ref.getReferencedObject();
             if (CsmKindUtilities.isFunction(obj)) {
                 function = (CsmFunction) obj;
-                isCalls = false;
             }
         }
         if (function != null) {
-            return new CallModelImpl(project, function, isCalls);
+            return new CallModelImpl(project, function);
         }
         return null;
     }
