@@ -100,7 +100,6 @@ public class JavaFXCompletionEnvironment<T extends Tree> {
     protected TreePath path;
     protected SourcePositions sourcePositions;
     protected boolean insideForEachExpressiion = false;
-    protected Set<? extends TypeMirror> smartTypes = null;
     protected CompilationUnitTree root;
     protected JavaFXCompletionQuery query;
 
@@ -164,27 +163,12 @@ public class JavaFXCompletionEnvironment<T extends Tree> {
         return insideForEachExpressiion;
     }
 
+    /*
+     * Might be overriden in subclasses
+     */
     public Set<? extends TypeMirror> getSmartTypes() throws IOException {
-        if (smartTypes == null) {
-            Set<? extends TypeMirror> stypes = JavaFXCompletionQuery.getSmartTypes(this);
-            if (stypes != null) {
-                Iterator<? extends TypeMirror> it = stypes.iterator();
-                TypeMirror err = null;
-                if (it.hasNext()) {
-                    err = it.next();
-                    if (it.hasNext() || err.getKind() != TypeKind.ERROR) {
-                        err = null;
-                    }
-                }
-                if (err != null) {
-                    HashSet<TypeMirror> st = new HashSet<TypeMirror>();
-                    smartTypes = st;
-                } else {
-                    smartTypes = stypes;
-                }
-            }
-        }
-        return smartTypes;
+        log("NOT IMPLEMENTED getSmartTypes() " + this);
+        return new HashSet<TypeMirror>();
     }
     
     /**
@@ -435,22 +419,11 @@ public class JavaFXCompletionEnvironment<T extends Tree> {
     }
 
     protected void addValueKeywords() throws IOException {
-        boolean smartType = false;
-        if (query.queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE) {
-            if (smartTypes != null && !smartTypes.isEmpty()) {
-                for (TypeMirror st : smartTypes) {
-                    if (st.getKind() == TypeKind.BOOLEAN) {
-                        smartType = true;
-                        break;
-                    }
-                }
-            }
-        }
         if (JavaFXCompletionProvider.startsWith(FALSE_KEYWORD, prefix)) {
-            addResult(JavaFXCompletionItem.createKeywordItem(FALSE_KEYWORD, null, query.anchorOffset, smartType));
+            addResult(JavaFXCompletionItem.createKeywordItem(FALSE_KEYWORD, null, query.anchorOffset, false));
         }
         if (JavaFXCompletionProvider.startsWith(TRUE_KEYWORD, prefix)) {
-            addResult(JavaFXCompletionItem.createKeywordItem(TRUE_KEYWORD, null, query.anchorOffset, smartType));
+            addResult(JavaFXCompletionItem.createKeywordItem(TRUE_KEYWORD, null, query.anchorOffset, false));
         }
         if (JavaFXCompletionProvider.startsWith(NULL_KEYWORD, prefix)) {
             addResult(JavaFXCompletionItem.createKeywordItem(NULL_KEYWORD, null, query.anchorOffset, false));
@@ -504,7 +477,6 @@ public class JavaFXCompletionEnvironment<T extends Tree> {
     }
     
     protected void addPackageContent(PackageElement pe, EnumSet<ElementKind> kinds, DeclaredType baseType, boolean insideNew) throws IOException {
-            Set<? extends TypeMirror> smartTypes = query.queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE ? getSmartTypes() : null;
             Elements elements = controller.getElements();
             Types types = controller.getTypes();
             JavafxcTrees trees = controller.getTrees();
