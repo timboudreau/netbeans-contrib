@@ -280,9 +280,6 @@ public class JavaFXCompletionEnvironment<T extends Tree> {
     protected void addMemberConstantsAndTypes(final TypeMirror type, final Element elem) throws IOException {
         log("addMemberConstantsAndTypes: " + type + " elem: " + elem);
     }
-    protected void addLocalConstantsAndTypes() throws IOException {
-        log("addLocalConstantsAndTypes: " + getPrefix());
-    }
 
     protected void addLocalMembersAndVars() throws IOException {
         log("addLocalMembersAndVars: " + getPrefix());
