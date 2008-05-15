@@ -207,7 +207,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
         IndexedElement candidate = null;
 
-        String prefix = funRef.getCall().getName();
+        String callName = funRef.getCall().getName();
         String in = null;
         AstElement base = funRef.getBase();
         if (base != null) {
@@ -217,12 +217,11 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
             }
 
             if (in != null) {
-                Set<IndexedElement> members = index.getElements(prefix, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult, false);
+                Set<IndexedElement> members = index.getElements(callName, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult, false);
                 for (IndexedElement member : members) {
                     if (member instanceof IndexedFunction) {
                         IndexedFunction idxFunction = (IndexedFunction) member;
-                        // @Todo compare params' types
-                        if (idxFunction.getName().equals(prefix) && idxFunction.getParameters().size() == funRef.getParams().size()) {
+                        if (idxFunction.isReferredBy(funRef)) {
                             candidate = idxFunction;
                             break;
                         }

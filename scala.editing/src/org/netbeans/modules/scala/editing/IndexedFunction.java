@@ -36,27 +36,27 @@
  * 
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.scala.editing.nodes.FunRef;
 
 /**
  *
  * @author Tor Norbye
  */
 public class IndexedFunction extends IndexedElement {
+
     private String[] args;
     private List<String> parameters;
-    
+
     IndexedFunction(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
         super(fqn, name, in, index, fileUrl, attributes, flags, kind);
     }
-    
-    
+
     @Override
     public String toString() {
         return getSignature() + ":" + getFilenameUrl() + ";" + decodeFlags(flags);
@@ -107,7 +107,7 @@ public class IndexedFunction extends IndexedElement {
         if (parameters == null) {
             String[] a = getArgs();
 
-            if ((a != null) && (a.length > 0)) {
+            if (a != null && a.length > 0) {
                 parameters = new ArrayList<String>(a.length);
 
                 for (String arg : a) {
@@ -119,5 +119,28 @@ public class IndexedFunction extends IndexedElement {
         }
 
         return parameters;
+    }
+
+    public boolean isReferredBy(FunRef funRef) {
+        List<String> idxParamSigs = getParameters();
+        /** @todo compare param type */
+        boolean containsVariableArg = false;
+        for (String idxParamSig : idxParamSigs) {
+            int colon = idxParamSig.indexOf(':');
+            String idxParamName = idxParamSig.substring(0, colon);
+            String idxParamType = idxParamSig.substring(colon + 1, idxParamSig.length());
+            if (idxParamType.endsWith("*")) {
+                containsVariableArg = true;
+                break;
+            }
+        }
+
+        if (getName().equals(funRef.getCall().getName()) || getName().equals("apply") && funRef.isLocal()) {
+            if (idxParamSigs.size() == funRef.getParams().size() || containsVariableArg) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }

@@ -91,9 +91,7 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
     private static Image PACKAGE_BADGE = Utilities.loadImage("org/netbeans/modules/groovy/grailsproject/resources/packageBadge.gif"); // NOI18N
     private final SourceGroup g;
     private SourceCategory category = SourceCategory.NONE;
-    private final Logger LOG = Logger.getLogger(TreeRootNode.class.getName());
     GrailsProject project;
-    private static DataObject[] templates;
 
     public TreeRootNode(SourceGroup g, GrailsProject project) {
         this(DataFolder.findFolder(g.getRootFolder()), g);
@@ -102,10 +100,6 @@ public final class TreeRootNode extends FilterNode implements PropertyChangeList
 
         String pathName = g.getName();
         String dirName = getDirName(g);
-        
-//        LOG.setLevel(Level.FINEST);
-//        LOG.log(Level.FINEST, "Pathname : " + pathName);
-//        LOG.log(Level.FINEST, "Dirname  : " + dirName);
         
         category = getCategoryForName(dirName);
 

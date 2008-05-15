@@ -52,4 +52,19 @@ public class IdRef extends AstRef {
         super(name, idToken, kind);
     }
 
+    @Override
+    public TypeRef getType() {
+        if (type != null) {
+            return type;
+        }
+        
+        AstDef def = getEnclosingScope().findDef(this);
+        if (def != null) {
+            type = def.getType();
+            setKind(def.getKind());
+            return type;
+        }
+        
+        return null;
+    }    
 }
