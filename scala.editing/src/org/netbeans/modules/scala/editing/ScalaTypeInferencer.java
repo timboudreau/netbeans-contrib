@@ -92,27 +92,10 @@ public class ScalaTypeInferencer {
             inferExpr(expr, null);
         }
 
-        for (AstDef def : scope.getDefs()) {
-            if (def instanceof Var) {
-                if (def.getKind() != ElementKind.PARAMETER) {
-                    Template enclosingTmpl = def.getEnclosingDef(Template.class);
-                    if (enclosingTmpl != null && enclosingTmpl.getBindingScope() == def.getEnclosingScope()) {
-                        def.setKind(ElementKind.FIELD);
-                    } else {
-                        def.setKind(ElementKind.VARIABLE);
-                    }
-                }
-            }
-        }
-
         for (AstRef ref : scope.getRefs()) {
-            AstDef def = rootScope.findDef(ref);
+            AstDef def = scope.findDef(ref);
             if (def == null) {
                 continue;
-            }
-
-            if (def instanceof Var) {
-                ref.setKind(def.getKind());
             }
 
             if (ref.getType() == null) {
@@ -120,8 +103,8 @@ public class ScalaTypeInferencer {
             }
         }
 
-        for (AstScope _scope : scope.getScopes()) {
-            inferRecursively(_scope);
+        for (AstScope subScope : scope.getScopes()) {
+            inferRecursively(subScope);
         }
     }
 
@@ -138,28 +121,6 @@ public class ScalaTypeInferencer {
     }
 
     private void inferSimpleExpr(SimpleExpr expr) {
-        AstElement base = expr.getBase();
-        if (base instanceof PathId) {
-            /** Try to find an AstRef, so we can infer its type via it's def */
-            PathId pathId = (PathId) base;
-            Id firstId = pathId.getPaths().get(0);
-            AstElement firstIdRef = rootScope.findDefRef(th, firstId.getPickOffset(th));
-            if (firstIdRef == null) {
-                // this should not happen
-                System.out.println("Null IdRef of PathId: " + base.toString());
-                return;
-            }
-
-            TypeRef type = firstIdRef.getType();
-            if (type != null) {
-                if (firstIdRef.getType() != null) {
-                    // @Todo check type of firstId with def's type 
-                } else {
-                    firstId.setType(type);
-                }
-
-            }
-        }
     }
 
     private void inferAssignmentExpr(AssignmentExpr expr) {
@@ -183,7 +144,7 @@ public class ScalaTypeInferencer {
         /** 
          * Since we do not compute type inference dependencies yet, we are not sure
          * the proper inference order. To resolve dependencies, rhe simplest way 
-         * here is do it twice:
+         * here is doing it twice:
          */        
         newResolvedRefs.clear();
         globalInferRecursively(index, rootScope);
@@ -215,8 +176,8 @@ public class ScalaTypeInferencer {
             globalInferTypeRef(index, toResolve);
         }
 
-        for (AstScope _scope : scope.getScopes()) {
-            globalInferRecursively(index, _scope);
+        for (AstScope subScope : scope.getScopes()) {
+            globalInferRecursively(index, subScope);
         }
     }
 
@@ -503,7 +464,7 @@ public class ScalaTypeInferencer {
         }
         return qualifiedName;
     }
-
+    
     /**
      * 
      * @return null or full qualifier type name 

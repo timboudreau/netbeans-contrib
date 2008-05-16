@@ -1140,6 +1140,13 @@ public class AstElementVisitor extends AstVisitor {
         List<Var> vars = new ArrayList<Var>();
 
         AstScope currScope = scopeStack.peek();
+        
+        ElementKind kind = ElementKind.VARIABLE;
+        AstDef enclodingDef = currScope.getBindingDef();
+        if (enclodingDef != null && enclodingDef instanceof Template) {
+            kind = ElementKind.FIELD;
+        }
+        
         AstScope scope = new AstScope(getBoundsTokens(that));
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
@@ -1148,7 +1155,7 @@ public class AstElementVisitor extends AstVisitor {
         TypeRef type = visitType(that.getGeneric(1));
 
         for (Id id : ids) {
-            Var val = new Var(id, scope, ElementKind.FIELD);
+            Var val = new Var(id, scope, kind);
             val.setVal();
             val.setType(type);
             scope.addRef(type);
@@ -1168,6 +1175,13 @@ public class AstElementVisitor extends AstVisitor {
         List<Var> vars = new ArrayList<Var>();
 
         AstScope currScope = scopeStack.peek();
+        
+        ElementKind kind = ElementKind.VARIABLE;
+        AstDef enclodingDef = currScope.getBindingDef();
+        if (enclodingDef != null && enclodingDef instanceof Template) {
+            kind = ElementKind.FIELD;
+        }
+        
         AstScope scope = new AstScope(getBoundsTokens(that));
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
@@ -1176,7 +1190,7 @@ public class AstElementVisitor extends AstVisitor {
         TypeRef type = visitType(that.getGeneric(1));
 
         for (Id id : ids) {
-            Var var = new Var(id, scope, ElementKind.FIELD);
+            Var var = new Var(id, scope, kind);
             var.setType(type);
             scope.addRef(type);
 
@@ -1195,6 +1209,13 @@ public class AstElementVisitor extends AstVisitor {
         List<Var> vars = new ArrayList<Var>();
 
         AstScope currScope = scopeStack.peek();
+        
+        ElementKind kind = ElementKind.VARIABLE;
+        AstDef enclodingDef = currScope.getBindingDef();
+        if (enclodingDef != null && enclodingDef instanceof Template) {
+            kind = ElementKind.FIELD;
+        }
+        
         AstScope scope = new AstScope(getBoundsTokens(that));
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
@@ -1203,7 +1224,7 @@ public class AstElementVisitor extends AstVisitor {
         List<Id> ids = (List<Id>) patDef[0];
         AstExpr expr = (AstExpr) patDef[1];
         for (Id id : ids) {
-            Var var = new Var(id, scope, ElementKind.FIELD);
+            Var var = new Var(id, scope, kind);
             var.setVal();
             var.setExpr(expr);
 
@@ -1222,6 +1243,13 @@ public class AstElementVisitor extends AstVisitor {
         List<Var> vars = new ArrayList<Var>();
 
         AstScope currScope = scopeStack.peek();
+        
+        ElementKind kind = ElementKind.VARIABLE;
+        AstDef enclodingDef = currScope.getBindingDef();
+        if (enclodingDef != null && enclodingDef instanceof Template) {
+            kind = ElementKind.FIELD;
+        }
+        
         AstScope scope = new AstScope(getBoundsTokens(that));
         scopeStack.peek().addScope(scope);
         scopeStack.push(scope);
@@ -1231,7 +1259,7 @@ public class AstElementVisitor extends AstVisitor {
             List<Id> ids = visitIds(what);
             TypeRef type = visitType(that.getGeneric(1));
             for (Id id : ids) {
-                Var var = new Var(id, scope, ElementKind.FIELD);
+                Var var = new Var(id, scope, kind);
                 var.setType(type);
                 scope.addRef(type);
 
@@ -1244,7 +1272,7 @@ public class AstElementVisitor extends AstVisitor {
             AstExpr expr = (AstExpr) patDef[1];
             scope = new AstScope(getBoundsTokens(that));
             for (Id id : ids) {
-                Var var = new Var(id, scope, ElementKind.FIELD);
+                Var var = new Var(id, scope, kind);
                 var.setExpr(expr);
 
                 currScope.addDef(var);
