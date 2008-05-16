@@ -141,6 +141,10 @@ public class ScalaParserResult extends ParserResult {
     }
     
     public void toGlobalPhase(CompilationInfo info) {
+        if (rootScope == null) {
+            return;
+        }
+        
         if (this.phase != Phase.GLOBAL_RESOLVED) {
             new ScalaTypeInferencer(rootScope, tokenHierarchy).globalInfer(info);
             this.phase = Phase.GLOBAL_RESOLVED;
