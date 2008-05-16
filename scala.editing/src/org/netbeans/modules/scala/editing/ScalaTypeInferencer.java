@@ -73,8 +73,21 @@ import org.netbeans.modules.scala.editing.nodes.TypeRef.PseudoTypeRef;
  */
 public class ScalaTypeInferencer {
 
+    /** Map<InClassQName + "." + TypeRefSName, TypeRefQName> */
+    private static Map<String, String> globalTypeRefsCache;
+    private static Map<String, Set<String>> classToImportPkgsCache;
+    /* types of "java.lang." will be automatically imported */
+    private static Set<IndexedElement> javaLangPackageTypes;
+    /* types of "scala." will be automatically imported */
+    private static Set<IndexedElement> scalaPackageTypes;
+    /* package name starts with "scala" can omit "scala" */
+    private static Map<String, Set<IndexedElement>> scalaPrecedingPackageTypes;
+    private Map<String, Set<IndexedElement>> importedTypesCache;
+    private Map<String, Set<IndexedElement>> packageTypesCache;
+    // ----- private used vars:
     private AstScope rootScope;
     private TokenHierarchy th;
+    private Map<AstRef, AstScope> newResolvedRefs = new HashMap<AstRef, AstScope>();
 
     public ScalaTypeInferencer(AstScope rootScope, TokenHierarchy th) {
         this.rootScope = rootScope;
@@ -82,77 +95,9 @@ public class ScalaTypeInferencer {
     }
 
     public void infer() {
-        inferRecursively(rootScope);
-    }
-
-    private void inferRecursively(AstScope scope) {
-        for (AstExpr expr : scope.getExprs()) {
-            inferExpr(expr, null);
-        }
-
-        for (AstRef ref : scope.getRefs()) {
-            AstDef def = scope.findDef(ref);
-            if (def == null) {
-                continue;
-            }
-
-            if (ref.getType() == null) {
-                ref.setType(def.getType());
-            }
-        }
-
-        for (AstScope subScope : scope.getScopes()) {
-            inferRecursively(subScope);
-        }
-    }
-
-    private void inferExpr(AstExpr expr, TypeRef knownExprType) {
-        if (knownExprType != null) {
-            expr.setType(knownExprType);
-        }
-
-        if (expr instanceof SimpleExpr) {
-            inferSimpleExpr((SimpleExpr) expr);
-        } else if (expr instanceof AssignmentExpr) {
-            inferAssignmentExpr((AssignmentExpr) expr);
-        }
-    }
-
-    private void inferSimpleExpr(SimpleExpr expr) {
-        TypeRef exprType = expr.getType();
-        if (exprType == null) {
-            return;
-        }
-        
-        AstElement base = expr.getBase();
-        TypeRef baseType = base.getType();
-        if (baseType != null && baseType.isResolved()) {
-            return;
-        }
-
-        if (base instanceof IdRef) {
-            // resolve its def's type.
-             AstDef def = rootScope.findDef(base);
-            if (def != null) {
-                TypeRef type = def.getType();
-                if (type != null) {
-                    // @Todo check type of def with expr's type 
-                } else {
-                    def.setType(exprType);
-                }
-            }           
-        } 
-    }
-
-    private void inferAssignmentExpr(AssignmentExpr expr) {
-        AstExpr lhs = expr.getLhs();
-        AstExpr rhs = expr.getRhs();
-        inferExpr(rhs, null);
-        inferExpr(lhs, rhs.getType());
+        // anything can do? should all inder global?
     }
     // ------ Global infer
-    private Map<AstRef, AstScope> newResolvedRefs = new HashMap<AstRef, AstScope>();
-
     public void globalInfer(CompilationInfo info) {
         ScalaIndex index = ScalaIndex.get(info);
 
@@ -176,6 +121,10 @@ public class ScalaTypeInferencer {
     }
 
     private void globalInferRecursively(ScalaIndex index, AstScope scope) {
+        for (AstExpr expr : scope.getExprs()) {
+            globalInferExpr(expr, null);
+        }
+        
         for (AstRef ref : scope.getRefs()) {
             TypeRef toResolve = null;
             if (ref instanceof FunRef) {
@@ -576,17 +525,51 @@ public class ScalaTypeInferencer {
 
         return null;
     }
-    /** Map<InClassQName + "." + TypeRefSName, TypeRefQName> */
-    private static Map<String, String> globalTypeRefsCache;
-    private static Map<String, Set<String>> classToImportPkgsCache;
-    /* types of "java.lang." will be automatically imported */
-    private static Set<IndexedElement> javaLangPackageTypes;
-    /* types of "scala." will be automatically imported */
-    private static Set<IndexedElement> scalaPackageTypes;
-    /* package name starts with "scala" can omit "scala" */
-    private static Map<String, Set<IndexedElement>> scalaPrecedingPackageTypes;
-    private Map<String, Set<IndexedElement>> importedTypesCache;
-    private Map<String, Set<IndexedElement>> packageTypesCache;
+
+    private void globalInferExpr(AstExpr expr, TypeRef knownExprType) {
+        if (knownExprType != null) {
+            expr.setType(knownExprType);
+        }
+
+        if (expr instanceof SimpleExpr) {
+            globalInferSimpleExpr((SimpleExpr) expr);
+        } else if (expr instanceof AssignmentExpr) {
+            globalInferAssignmentExpr((AssignmentExpr) expr);
+        }
+    }
+
+    private void globalInferSimpleExpr(SimpleExpr expr) {
+        TypeRef exprType = expr.getType();
+        if (exprType == null) {
+            return;
+        }
+
+        AstElement base = expr.getBase();
+        TypeRef baseType = base.getType();
+        if (baseType != null && baseType.isResolved()) {
+            return;
+        }
+
+        if (base instanceof IdRef) {
+            // resolve its def's type.
+            AstDef def = rootScope.findDef(base);
+            if (def != null) {
+                TypeRef type = def.getType();
+                if (type != null) {
+                    // @Todo check type of def with expr's type 
+                } else {
+                    def.setType(exprType);
+                }
+            }
+        }
+    }
+
+    private void globalInferAssignmentExpr(AssignmentExpr expr) {
+        AstExpr lhs = expr.getLhs();
+        AstExpr rhs = expr.getRhs();
+        globalInferExpr(rhs, null);
+        globalInferExpr(lhs, rhs.getType());
+    }
 
     /**
      * @Note: need to be updated when class is modified   
