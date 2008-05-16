@@ -127,6 +127,9 @@ public class IndexedFunction extends IndexedElement {
         boolean containsVariableArg = false;
         for (String idxParamSig : idxParamSigs) {
             int colon = idxParamSig.indexOf(':');
+            if (colon == -1) {
+                continue;
+            }
             String idxParamName = idxParamSig.substring(0, colon);
             String idxParamType = idxParamSig.substring(colon + 1, idxParamSig.length());
             if (idxParamType.endsWith("*")) {
