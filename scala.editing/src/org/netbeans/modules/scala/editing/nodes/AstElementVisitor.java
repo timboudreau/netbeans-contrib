@@ -1279,6 +1279,18 @@ public class AstElementVisitor extends AstVisitor {
         exit(that);
         return new Object[]{ids, expr};
     }
+    
+    public void visitCaseClauses(GNode that) {
+        enter(that);
+        
+        visitCaseClause(that.getGeneric(0)); // first
+        
+        for (Object o : that.getList(1)) {
+            visitCaseClause((GNode) o);
+        }
+        
+        exit(that);
+    }
 
     public void visitCaseClause(GNode that) {
         enter(that);
@@ -1671,10 +1683,8 @@ public class AstElementVisitor extends AstVisitor {
         if (what.getName().equals("ParenExpr")) {
             args = visitParenExpr(what);
         } else {
-            // BlockExpr
-            visitChildren(what);
-            // @Todo
-            args = Collections.<AstExpr>emptyList();
+            BlockExpr arg = visitBlockExpr(what);
+            args = Collections.<AstExpr>singletonList(arg);
         }
 
         ArgumentExprs argExprs = new ArgumentExprs(ElementKind.OTHER);
@@ -1698,6 +1708,23 @@ public class AstElementVisitor extends AstVisitor {
 
         exit(that);
         return exprs;
+    }
+    
+    public BlockExpr visitBlockExpr(GNode that) {
+        enter(that);
+        
+        GNode what = that.getGeneric(0);
+        if (what.getName().equals("CaseClauses")) {
+            visitCaseClauses(what);
+        } else if (what.getName().equals("Block")) {
+            visitBlock(what);
+        }
+        
+        // @todo
+        BlockExpr expr = new BlockExpr(getBoundsTokens(that));
+        
+        exit(that);
+        return expr;
     }
 
     public List<AstExpr> visitExprs(GNode that) {
