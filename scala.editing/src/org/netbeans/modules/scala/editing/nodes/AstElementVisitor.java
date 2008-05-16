@@ -1545,11 +1545,9 @@ public class AstElementVisitor extends AstVisitor {
             } else if (modifierNode.getName().equals("AccessModifier")) {
                 modifier = visitAccessModifier(modifierNode);
             }
-        } else if (what instanceof String) {
-            modifier = (String) what;
+        } else {
+            modifier = "abstract";
         }
-
-        visitChildren(that);
 
         exit(that);
         return modifier;
@@ -1764,23 +1762,6 @@ public class AstElementVisitor extends AstVisitor {
         return expr;
     }
 
-    public AstExpr visitNotFunExpr(GNode that) {
-        enter(that);
-
-        /**
-         * all other sub node has been specify a generic node's name via '@',
-         * except pure PostfixExpr
-         */
-        AstExpr expr = visitPostfixExpr(that.getGeneric(0));
-        /* Since NotFunExpr can be dispatched to here by visitChildren, bypassing
-         * visitExpr, we should add to scope here 
-         */
-        scopeStack.peek().addExpr(expr);
-
-        exit(that);
-        return expr;
-    }
-
     public AstExpr visitAssignmentExpr(GNode that) {
         enter(that);
 
@@ -1791,6 +1772,22 @@ public class AstElementVisitor extends AstVisitor {
         lhs.setType(rhs.getType());
         expr.setLhs(lhs);
         expr.setRhs(rhs);
+
+        exit(that);
+        return expr;
+    }
+
+    public AstExpr visitNotFunExpr(GNode that) {
+        enter(that);
+
+        /**
+         * all other sub node has been specify a generic node's name via '@',
+         * except pure PostfixExpr
+         */
+        AstExpr expr = visitPostfixExpr(that.getGeneric(0));
+        /* Since NotFunExpr can be dispatched to here by visitChildren, bypassing
+         * visitExpr, we should add to scope in visitPostfixExpr or visitInfixExpr
+         */
 
         exit(that);
         return expr;
@@ -1911,8 +1908,10 @@ public class AstElementVisitor extends AstVisitor {
             infixExpr.setTopFunRef(lastFunRef);
 
             expr = infixExpr;
+            scopeStack.peek().addExpr(infixExpr);
         } else {
             expr = first;
+            // has been added to scope 
         }
 
         exit(that);
