@@ -42,7 +42,6 @@ package org.netbeans.modules.javafx.editor.completion.environment;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
-import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import java.io.IOException;
 import java.util.Collections;
@@ -51,10 +50,8 @@ import java.util.logging.Logger;
 import javax.lang.model.element.Modifier;
 import javax.tools.Diagnostic;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
-import org.netbeans.api.javafx.source.CompilationController;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionEnvironment;
-import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery;
 
 /**
  *
@@ -65,10 +62,6 @@ public class MethodTreeEnvironment extends JavaFXCompletionEnvironment<MethodTre
     private static final Logger logger = Logger.getLogger(MethodTreeEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    public MethodTreeEnvironment(MethodTree t, int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
-        super(t, offset, prefix, controller, path, sourcePositions, query);
-    }
-    
     @Override
     protected void inside(MethodTree t) throws IOException {
         log("inside MethodTree " + t);

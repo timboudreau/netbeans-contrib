@@ -41,17 +41,13 @@ package org.netbeans.modules.javafx.editor.completion.environment;
 
 import com.sun.source.tree.CaseTree;
 import com.sun.source.tree.SwitchTree;
-import com.sun.source.util.SourcePositions;
-import com.sun.source.util.TreePath;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.tools.Diagnostic;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
-import org.netbeans.api.javafx.source.CompilationController;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionEnvironment;
-import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery;
 
 /**
  *
@@ -62,10 +58,6 @@ public class SwitchTreeEnvironment extends JavaFXCompletionEnvironment<SwitchTre
     private static final Logger logger = Logger.getLogger(SwitchTreeEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    public SwitchTreeEnvironment(SwitchTree t, int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
-        super(t, offset, prefix, controller, path, sourcePositions, query);
-    }
-    
     @Override
     protected void inside(SwitchTree st) throws IOException {
         log("inside SwitchTree " + st);

@@ -40,6 +40,9 @@
  */
 package org.netbeans.modules.javafx.editor.completion;
 
+import com.sun.javafx.api.tree.BlockExpressionTree;
+import com.sun.javafx.api.tree.ForExpressionInClauseTree;
+import com.sun.javafx.api.tree.ForExpressionTree;
 import com.sun.javafx.api.tree.JavaFXTree;
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
 import com.sun.source.tree.CompilationUnitTree;
@@ -50,6 +53,7 @@ import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.PrimitiveTypeTree;
+import com.sun.source.tree.StatementTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
@@ -89,19 +93,23 @@ public class JavaFXCompletionEnvironment<T extends Tree> {
     private static final Logger logger = Logger.getLogger(JavaFXCompletionEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    protected final int offset;
-    protected final String prefix;
-    protected final boolean isCamelCasePrefix;
-    protected final CompilationController controller;
-    protected final TreePath path;
-    protected final SourcePositions sourcePositions;
+    protected int offset;
+    protected String prefix;
+    protected boolean isCamelCasePrefix;
+    protected CompilationController controller;
+    protected TreePath path;
+    protected SourcePositions sourcePositions;
     protected boolean insideForEachExpressiion = false;
-    protected Set<? extends TypeMirror> smartTypes = null;
-    protected final CompilationUnitTree root;
-    protected final JavaFXCompletionQuery query;
+    protected CompilationUnitTree root;
+    protected JavaFXCompletionQuery query;
 
-    protected JavaFXCompletionEnvironment(T t, int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
-        super();
+    protected JavaFXCompletionEnvironment() {
+    }
+    
+    /*
+     * Thies method must be called after constructor before a call to resolveCompletion
+     */
+    void init(int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
         this.offset = offset;
         this.prefix = prefix;
         this.isCamelCasePrefix = prefix != null && prefix.length() > 1 && JavaFXCompletionQuery.camelCasePattern.matcher(prefix).matches();
@@ -155,27 +163,12 @@ public class JavaFXCompletionEnvironment<T extends Tree> {
         return insideForEachExpressiion;
     }
 
+    /*
+     * Might be overriden in subclasses
+     */
     public Set<? extends TypeMirror> getSmartTypes() throws IOException {
-        if (smartTypes == null) {
-            Set<? extends TypeMirror> stypes = JavaFXCompletionQuery.getSmartTypes(this);
-            if (stypes != null) {
-                Iterator<? extends TypeMirror> it = stypes.iterator();
-                TypeMirror err = null;
-                if (it.hasNext()) {
-                    err = it.next();
-                    if (it.hasNext() || err.getKind() != TypeKind.ERROR) {
-                        err = null;
-                    }
-                }
-                if (err != null) {
-                    HashSet<TypeMirror> st = new HashSet<TypeMirror>();
-                    smartTypes = st;
-                } else {
-                    smartTypes = stypes;
-                }
-            }
-        }
-        return smartTypes;
+        log("NOT IMPLEMENTED getSmartTypes() " + this);
+        return new HashSet<TypeMirror>();
     }
     
     /**
@@ -201,28 +194,6 @@ public class JavaFXCompletionEnvironment<T extends Tree> {
             return null;
         }
     }
-
-
-//    void insideForEach() throws IOException {
-//        EnhancedForLoopTree efl = (EnhancedForLoopTree) path.getLeaf();
-//        if (sourcePositions.getStartPosition(root, efl.getExpression()) >= offset) {
-//            TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken((int) sourcePositions.getEndPosition(root, efl.getVariable()), offset);
-//            if (last != null && last.token().id() == JFXTokenId.COLON) {
-//                insideForEachExpressiion();
-//                addKeyword(NEW_KEYWORD, SPACE, false);
-//                localResult();
-//            }
-//            return;
-//        }
-//        TokenSequence<JFXTokenId> last = findLastNonWhitespaceToken((int) sourcePositions.getEndPosition(root, efl.getExpression()), offset);
-//        if (last != null && last.token().id() == JFXTokenId.RPAREN) {
-//            addKeywordsForStatement();
-//        } else {
-//            insideForEachExpressiion();
-//            addKeyword(NEW_KEYWORD, SPACE, false);
-//        }
-//        localResult();
-//    }
 
     void insideTypeCheck() throws IOException {
         InstanceOfTree iot = (InstanceOfTree) getPath().getLeaf();
@@ -293,9 +264,6 @@ public class JavaFXCompletionEnvironment<T extends Tree> {
     protected void addMemberConstantsAndTypes(final TypeMirror type, final Element elem) throws IOException {
         log("addMemberConstantsAndTypes: " + type + " elem: " + elem);
     }
-    protected void addLocalConstantsAndTypes() throws IOException {
-        log("addLocalConstantsAndTypes: " + getPrefix());
-    }
 
     protected void addLocalMembersAndVars() throws IOException {
         log("addLocalMembersAndVars: " + getPrefix());
@@ -310,17 +278,40 @@ public class JavaFXCompletionEnvironment<T extends Tree> {
             JavaFXTree jfxt = (JavaFXTree) t;
             JavaFXKind k = jfxt.getJavaFXKind();
             log("  fx kind: " + k);
-            if (k != JavaFXKind.CLASS_DECLARATION) {
-                continue;
+            if (k == JavaFXKind.CLASS_DECLARATION) {
+                TypeMirror tm = getController().getTrees().getTypeMirror(tp);
+                log("  tm == " + tm + " ---- tm.getKind() == " + (tm == null ? "null" : tm.getKind()));
+                addMembers(tm);
             }
-            TypeMirror tm = getController().getTrees().getTypeMirror(tp);
-            log("  tm == " + tm + " ---- tm.getKind() == " + (tm == null ? "null" : tm.getKind()));
-            addMembers(tm);
+            if (k == JavaFXKind.BLOCK_EXPRESSION) {
+                BlockExpressionTree bet = (BlockExpressionTree)jfxt;
+                log("  block expression: " + bet + "\n");
+                for (StatementTree st : bet.getStatements()) {
+                    TreePath expPath = new TreePath(tp, st);
+                    log("    expPath == " + expPath.getLeaf());
+                    JavafxcTrees trees = controller.getTrees();
+                    Element type = trees.getElement(expPath);
+                    if (type == null) {
+                        continue;
+                    }
+                    log("    type.getKind() == " + type.getKind());
+                    if (type.getKind() == ElementKind.LOCAL_VARIABLE) {
+                        log("    adding " + type.getSimpleName());
+                        addResult(JavaFXCompletionItem.createVariableItem(
+                            type.getSimpleName().toString(), offset, false));
+                    }
+                }
+            }
+            if (k == JavaFXKind.FOR_EXPRESSION) {
+                ForExpressionTree fet = (ForExpressionTree)jfxt;
+                log("  for expression: " + fet + "\n");
+                for (ForExpressionInClauseTree fetic : fet.getInClauses()) {
+                    log("  fetic: " + fetic + "\n");
+                        addResult(JavaFXCompletionItem.createVariableItem(
+                            fetic.getVariable().getName().toString(), offset, false));
+                }
+            }
         }
-    }
-
-    protected void addLocalFieldsAndVars() throws IOException {
-        log("NOT IMPLEMENTED: addLocalFieldsAndVars: " + getPrefix());
     }
 
     protected void addPackages(String fqnPrefix) {
@@ -428,22 +419,11 @@ public class JavaFXCompletionEnvironment<T extends Tree> {
     }
 
     protected void addValueKeywords() throws IOException {
-        boolean smartType = false;
-        if (query.queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE) {
-            if (smartTypes != null && !smartTypes.isEmpty()) {
-                for (TypeMirror st : smartTypes) {
-                    if (st.getKind() == TypeKind.BOOLEAN) {
-                        smartType = true;
-                        break;
-                    }
-                }
-            }
-        }
         if (JavaFXCompletionProvider.startsWith(FALSE_KEYWORD, prefix)) {
-            addResult(JavaFXCompletionItem.createKeywordItem(FALSE_KEYWORD, null, query.anchorOffset, smartType));
+            addResult(JavaFXCompletionItem.createKeywordItem(FALSE_KEYWORD, null, query.anchorOffset, false));
         }
         if (JavaFXCompletionProvider.startsWith(TRUE_KEYWORD, prefix)) {
-            addResult(JavaFXCompletionItem.createKeywordItem(TRUE_KEYWORD, null, query.anchorOffset, smartType));
+            addResult(JavaFXCompletionItem.createKeywordItem(TRUE_KEYWORD, null, query.anchorOffset, false));
         }
         if (JavaFXCompletionProvider.startsWith(NULL_KEYWORD, prefix)) {
             addResult(JavaFXCompletionItem.createKeywordItem(NULL_KEYWORD, null, query.anchorOffset, false));
@@ -497,7 +477,6 @@ public class JavaFXCompletionEnvironment<T extends Tree> {
     }
     
     protected void addPackageContent(PackageElement pe, EnumSet<ElementKind> kinds, DeclaredType baseType, boolean insideNew) throws IOException {
-            Set<? extends TypeMirror> smartTypes = query.queryType == JavaFXCompletionProvider.COMPLETION_QUERY_TYPE ? getSmartTypes() : null;
             Elements elements = controller.getElements();
             Types types = controller.getTypes();
             JavafxcTrees trees = controller.getTrees();

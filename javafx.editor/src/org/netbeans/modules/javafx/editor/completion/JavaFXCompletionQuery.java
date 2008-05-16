@@ -42,56 +42,19 @@ package org.netbeans.modules.javafx.editor.completion;
 
 import com.sun.javafx.api.tree.JavaFXTree;
 import com.sun.javafx.api.tree.JavaFXTree.JavaFXKind;
-import com.sun.source.tree.ArrayAccessTree;
-import com.sun.source.tree.AssignmentTree;
-import com.sun.source.tree.BinaryTree;
-import com.sun.source.tree.CaseTree;
-import com.sun.source.tree.ClassTree;
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.CompoundAssignmentTree;
-import com.sun.source.tree.EnhancedForLoopTree;
-import com.sun.source.tree.ErroneousTree;
-import com.sun.source.tree.ExpressionStatementTree;
-import com.sun.source.tree.ExpressionTree;
-import com.sun.source.tree.ForLoopTree;
 import com.sun.source.tree.IdentifierTree;
-import com.sun.source.tree.IfTree;
-import com.sun.source.tree.ImportTree;
-import com.sun.source.tree.InstanceOfTree;
 import com.sun.source.tree.MemberSelectTree;
-import com.sun.source.tree.MethodInvocationTree;
-import com.sun.source.tree.MethodTree;
-import com.sun.source.tree.ModifiersTree;
-import com.sun.source.tree.NewArrayTree;
-import com.sun.source.tree.ParenthesizedTree;
-import com.sun.source.tree.SwitchTree;
 import com.sun.source.tree.Tree;
-import com.sun.source.tree.TypeCastTree;
-import com.sun.source.tree.VariableTree;
-import com.sun.source.tree.WhileLoopTree;
-import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
-import com.sun.tools.javafx.api.JavafxcTrees;
-import com.sun.tools.javafx.tree.JFXBlockExpression;
-import com.sun.tools.javafx.tree.JFXClassDeclaration;
-import com.sun.tools.javafx.tree.JFXFunctionDefinition;
-import com.sun.tools.javafx.tree.JFXObjectLiteralPart;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import javax.lang.model.type.ArrayType;
-import javax.lang.model.type.ExecutableType;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
 import javax.swing.JToolTip;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -376,6 +339,12 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
         JavaFXCompletionEnvironment env = getCompletionEnvironment(controller);
         results = new ArrayList<JavaFXCompletionItem>();
         anchorOffset = env.getOffset();
+        
+        // make sure the init method was called
+        if (env.query != this) {
+            throw new IllegalStateException("init method not called before resolveCompletion");
+        }
+        
         env.inside(env.getPath().getLeaf());
         if (LOGGABLE) {
             log("Results: " + results);
@@ -404,265 +373,6 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
             }
         }
         return ret;
-    }
-
-    static Set<? extends TypeMirror> getSmartTypes(JavaFXCompletionEnvironment env) throws IOException {
-        int offset = env.getOffset();
-        final CompilationController controller = env.getController();
-        TreePath path = env.getPath();
-        Tree lastTree = null;
-        int dim = 0;
-        while (path != null) {
-            Tree tree = path.getLeaf();
-            switch (tree.getKind()) {
-                case VARIABLE:
-                    TypeMirror type = controller.getTrees().getTypeMirror(new TreePath(path, ((VariableTree) tree).getType()));
-                    if (type == null) {
-                        return null;
-                    }
-                    while (dim-- > 0) {
-                        if (type.getKind() == TypeKind.ARRAY) {
-                            type = ((ArrayType) type).getComponentType();
-                        } else {
-                            return null;
-                        }
-                    }
-                    return type != null ? Collections.singleton(type) : null;
-                case ASSIGNMENT:
-                    type = controller.getTrees().getTypeMirror(new TreePath(path, ((AssignmentTree) tree).getVariable()));
-                    if (type == null) {
-                        return null;
-                    }
-                    TreePath parentPath = path.getParentPath();
-                    if (parentPath != null && parentPath.getLeaf().getKind() == Tree.Kind.ANNOTATION && type.getKind() == TypeKind.EXECUTABLE) {
-                        type = ((ExecutableType) type).getReturnType();
-                        while (dim-- > 0) {
-                            if (type.getKind() == TypeKind.ARRAY) {
-                                type = ((ArrayType) type).getComponentType();
-                            } else {
-                                return null;
-                            }
-                        }
-                        if (type.getKind() == TypeKind.ARRAY) {
-                            type = ((ArrayType) type).getComponentType();
-                        }
-                    }
-                    return type != null ? Collections.singleton(type) : null;
-                case RETURN:
-                    TreePath methodPath = JavaFXCompletionProvider.getPathElementOfKind(Tree.Kind.METHOD, path);
-                    if (methodPath == null) {
-                        return null;
-                    }
-                    Tree retTree = ((MethodTree) methodPath.getLeaf()).getReturnType();
-                    if (retTree == null) {
-                        return null;
-                    }
-                    type = controller.getTrees().getTypeMirror(new TreePath(methodPath, retTree));
-                    return type != null ? Collections.singleton(type) : null;
-                case THROW:
-                    methodPath = JavaFXCompletionProvider.getPathElementOfKind(Tree.Kind.METHOD, path);
-                    if (methodPath == null) {
-                        return null;
-                    }
-                    HashSet<TypeMirror> ret = new HashSet<TypeMirror>();
-                    JavafxcTrees trees = controller.getTrees();
-                    for (ExpressionTree thr : ((MethodTree) methodPath.getLeaf()).getThrows()) {
-                        type = trees.getTypeMirror(new TreePath(methodPath, thr));
-                        if (type != null) {
-                            ret.add(type);
-                        }
-                    }
-                    return ret;
-                case IF:
-                    IfTree iff = (IfTree) tree;
-                    return null;
-                case WHILE_LOOP:
-                    WhileLoopTree wl = (WhileLoopTree) tree;
-                    return null;
-                case FOR_LOOP:
-                    ForLoopTree fl = (ForLoopTree) tree;
-                    Tree cond = fl.getCondition();
-                    if (lastTree != null) {
-                        if (cond instanceof ErroneousTree) {
-                            Iterator<? extends Tree> itt = ((ErroneousTree) cond).getErrorTrees().iterator();
-                            if (itt.hasNext()) {
-                                cond = itt.next();
-                            }
-                        }
-                        return null;
-                    }
-                    SourcePositions sourcePositions = env.getSourcePositions();
-                    CompilationUnitTree root = env.getRoot();
-                    if (cond != null && sourcePositions.getEndPosition(root, cond) < offset) {
-                        return null;
-                    }
-                    Tree lastInit = null;
-                    for (Tree init : fl.getInitializer()) {
-                        if (sourcePositions.getEndPosition(root, init) >= offset) {
-                            return null;
-                        }
-                        lastInit = init;
-                    }
-                    String text = null;
-                    if (lastInit == null) {
-                        text = controller.getText().substring((int) sourcePositions.getStartPosition(root, fl), offset).trim();
-                        int idx = text.indexOf('(');
-                        if (idx >= 0) {
-                            text = text.substring(idx + 1);
-                        }
-                    } else {
-                        text = controller.getText().substring((int) sourcePositions.getEndPosition(root, lastInit), offset).trim();
-                    }
-                    return null;
-                case ENHANCED_FOR_LOOP:
-                    EnhancedForLoopTree efl = (EnhancedForLoopTree) tree;
-                    Tree expr = efl.getExpression();
-                    if (lastTree != null) {
-                        if (expr instanceof ErroneousTree) {
-                            Iterator<? extends Tree> itt = ((ErroneousTree) expr).getErrorTrees().iterator();
-                            if (itt.hasNext()) {
-                                expr = itt.next();
-                            }
-                        }
-                        if (expr != lastTree) {
-                            return null;
-                        }
-                    } else {
-                        sourcePositions = env.getSourcePositions();
-                        root = env.getRoot();
-                        text = null;
-                        if (efl.getVariable() == null) {
-                            text = controller.getText().substring((int) sourcePositions.getStartPosition(root, efl), offset).trim();
-                            int idx = text.indexOf('(');
-                            if (idx >= 0) {
-                                text = text.substring(idx + 1);
-                            }
-                        } else {
-                            text = controller.getText().substring((int) sourcePositions.getEndPosition(root, efl.getVariable()), offset).trim();
-                        }
-                        if (!":".equals(text)) {
-                            return null;
-                        }
-                    }
-                    TypeMirror var = efl.getVariable() != null ? controller.getTrees().getTypeMirror(new TreePath(path, efl.getVariable())) : null;
-                    return var != null ? Collections.singleton(var) : null;
-                case SWITCH:
-                    SwitchTree sw = (SwitchTree) tree;
-                    if (sw.getExpression() != lastTree) {
-                        return null;
-                    }
-                    ret = new HashSet<TypeMirror>();
-                    return ret;
-                case METHOD_INVOCATION:
-                    return null;
-                case NEW_CLASS:
-                    return null;
-                case NEW_ARRAY:
-                    return null;
-                case CASE:
-                    CaseTree ct = (CaseTree) tree;
-                    ExpressionTree exp = ct.getExpression();
-                    if (exp != null && env.getSourcePositions().getEndPosition(env.getRoot(), exp) >= offset) {
-                        parentPath = path.getParentPath();
-                        if (parentPath.getLeaf().getKind() == Tree.Kind.SWITCH) {
-                            exp = ((SwitchTree) parentPath.getLeaf()).getExpression();
-                            type = controller.getTrees().getTypeMirror(new TreePath(parentPath, exp));
-                            return type != null ? Collections.singleton(type) : null;
-                        }
-                    }
-                    return null;
-                case ANNOTATION:
-                    return null;
-                case REMAINDER_ASSIGNMENT:
-                case AND_ASSIGNMENT:
-                case XOR_ASSIGNMENT:
-                case OR_ASSIGNMENT:
-                case PREFIX_INCREMENT:
-                case PREFIX_DECREMENT:
-                case BITWISE_COMPLEMENT:
-                case LEFT_SHIFT:
-                case RIGHT_SHIFT:
-                case UNSIGNED_RIGHT_SHIFT:
-                case LEFT_SHIFT_ASSIGNMENT:
-                case RIGHT_SHIFT_ASSIGNMENT:
-                case UNSIGNED_RIGHT_SHIFT_ASSIGNMENT:
-                case AND:
-                case OR:
-                case XOR:
-                case REMAINDER:
-                    ret = new HashSet<TypeMirror>();
-                    return ret;
-                case CONDITIONAL_AND:
-                case CONDITIONAL_OR:
-                case LOGICAL_COMPLEMENT:
-                    return null;
-                case PLUS:
-                    BinaryTree bt = (BinaryTree) tree;
-                    TypeMirror tm = controller.getTrees().getTypeMirror(new TreePath(path, bt.getLeftOperand()));
-                    if (tm == null) {
-                        return null;
-                    }
-                    if (tm.getKind().isPrimitive()) {
-                        ret = new HashSet<TypeMirror>();
-                        return ret;
-                    }
-                    return Collections.singleton(tm);
-                case PLUS_ASSIGNMENT:
-                    CompoundAssignmentTree cat = (CompoundAssignmentTree) tree;
-                    tm = controller.getTrees().getTypeMirror(new TreePath(path, cat.getVariable()));
-                    if (tm == null) {
-                        return null;
-                    }
-                    if (tm.getKind().isPrimitive()) {
-                        ret = new HashSet<TypeMirror>();
-                        return ret;
-                    }
-                    return Collections.singleton(tm);
-                case MULTIPLY_ASSIGNMENT:
-                case DIVIDE_ASSIGNMENT:
-                case MINUS_ASSIGNMENT:
-                case DIVIDE:
-                case EQUAL_TO:
-                case GREATER_THAN:
-                case GREATER_THAN_EQUAL:
-                case LESS_THAN:
-                case LESS_THAN_EQUAL:
-                case MINUS:
-                case MULTIPLY:
-                case NOT_EQUAL_TO:
-                case UNARY_PLUS:
-                case UNARY_MINUS:
-                    ret = new HashSet<TypeMirror>();
-//                        types = controller.getTypes();
-//                        ret.add(types.getPrimitiveType(TypeKind.BYTE));
-//                        ret.add(types.getPrimitiveType(TypeKind.CHAR));
-//                        ret.add(types.getPrimitiveType(TypeKind.DOUBLE));
-//                        ret.add(types.getPrimitiveType(TypeKind.FLOAT));
-//                        ret.add(types.getPrimitiveType(TypeKind.INT));
-//                        ret.add(types.getPrimitiveType(TypeKind.LONG));
-//                        ret.add(types.getPrimitiveType(TypeKind.SHORT));
-                    return ret;
-                case EXPRESSION_STATEMENT:
-                    exp = ((ExpressionStatementTree) tree).getExpression();
-                    if (exp.getKind() == Tree.Kind.PARENTHESIZED) {
-                        text = controller.getText().substring((int) env.getSourcePositions().getStartPosition(env.getRoot(), exp), offset).trim();
-                        if (text.endsWith(")")) {
-                            //NOI18N
-                            return null;
-                        }
-                    }
-                    break;
-                case TYPE_CAST:
-                    TypeCastTree tct = (TypeCastTree) tree;
-                    if (env.getSourcePositions().getEndPosition(env.getRoot(), tct.getType()) <= offset) {
-                        return null;
-                    }
-                    break;
-            }
-            lastTree = tree;
-            path = path.getParentPath();
-        }
-        return null;
     }
 
     private String fullName(Tree tree) {
@@ -697,6 +407,7 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
         log("getCompletionEnvironment caretOffset: " + caretOffset + " offset: " + offset);
         TreePath path = controller.getTreeUtilities().pathFor(offset);
         Tree t = path.getLeaf();
+        JavaFXCompletionEnvironment result = null;
         if (t instanceof JavaFXTree && t.getKind() == Tree.Kind.OTHER) {
             JavaFXTree jfxt = (JavaFXTree) t;
             JavaFXKind k = jfxt.getJavaFXKind();
@@ -705,15 +416,20 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                 case BIND_EXPRESSION:
                     break;
                 case BLOCK_EXPRESSION:
-                    return new BlockExpressionEnvironment((JFXBlockExpression)t, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new BlockExpressionEnvironment();
+                    break;
                 case CLASS_DECLARATION:
-                    return new ClassDeclarationEnvironment((JFXClassDeclaration)t, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new ClassDeclarationEnvironment();
+                    break;
                 case FOR_EXPRESSION:
+                    result = new ForExpressionEnvironment();
                     break;
                 case FOR_EXPRESSION_IN_CLAUSE:
+                    result = new ForExpressionInClauseEnvironment();
                     break;
                 case FUNCTION_DEFINITION:
-                    return new FunctionDefinitionEnvironment((JFXFunctionDefinition) t,offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new FunctionDefinitionEnvironment();
+                    break;
                 case FUNCTION_VALUE:
                     break;
                 case INIT_DEFINITION:
@@ -727,7 +443,8 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                 case KEYFRAME_LITERAL:
                     break;
                 case OBJECT_LITERAL_PART:
-                    return new ObjectLiteralPartEnvironment((JFXObjectLiteralPart) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new ObjectLiteralPartEnvironment();
+                    break;
                 case ON_REPLACE:
                     break;
                 case POSTINIT_DEFINITION:
@@ -757,8 +474,8 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                 case TYPE_ANY:
                     break;
                 case TYPE_CLASS:
-                    //return new ClassDeclarationEnvironment((JFXClassDeclaration)t, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
-
+                    //result = new ClassDeclarationEnvironment();
+                    break;
                 case TYPE_FUNCTIONAL:
                     break;
                 case TYPE_UNKNOWN:
@@ -768,17 +485,23 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
             log("Java Kind: " + t.getKind());
             switch (t.getKind()) {
                 case COMPILATION_UNIT:
-                    return new CompilationUnitEnvironment((CompilationUnitTree) t,offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new CompilationUnitEnvironment();
+                    break;
                 case IMPORT:
-                    return new ImportTreeEnvironment((ImportTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new ImportTreeEnvironment();
+                    break;
                 case CLASS:
-                    return new ClassTreeEnvironment((ClassTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new ClassTreeEnvironment();
+                    break;
                 case VARIABLE:
-                    return new VariableTreeEnvironment((VariableTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new VariableTreeEnvironment();
+                    break;
                 case METHOD:
-                    return new MethodTreeEnvironment((MethodTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new MethodTreeEnvironment();
+                    break;
                 case MODIFIERS:
-                    return new ModifiersTreeEnvironment((ModifiersTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new ModifiersTreeEnvironment();
+                    break;
                 case ANNOTATION:
                     break;
                 case TYPE_PARAMETER:
@@ -795,9 +518,11 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                     //insideBlock(env);
                     break;
                 case MEMBER_SELECT:
-                    return new MemberSelectTreeEnvironment((MemberSelectTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new MemberSelectTreeEnvironment();
+                    break;
                 case METHOD_INVOCATION:
-                    return new MethodInvocationTreeEnvironment((MethodInvocationTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new MethodInvocationTreeEnvironment();
+                    break;
                 case NEW_CLASS:
                     break;
                 case ASSERT:
@@ -807,27 +532,36 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                 case CATCH:
                     break;
                 case IF:
-                    return new IfTreeEnvironment((IfTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new IfTreeEnvironment();
+                    break;
                 case WHILE_LOOP:
-                    return new WhileLoopTreeEnvironment((WhileLoopTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new WhileLoopTreeEnvironment();
+                    break;
                 case FOR_LOOP:
-                    return new ForLoopTreeEnvironment((ForLoopTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    break;
                 case SWITCH:
-                    return new SwitchTreeEnvironment((SwitchTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new SwitchTreeEnvironment();
+                    break;
                 case CASE:
-                    return new CaseTreeEnvironment((CaseTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new CaseTreeEnvironment();
+                    break;
                 case PARENTHESIZED:
-                    return new ParenthesizedTreeEnvironment((ParenthesizedTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new ParenthesizedTreeEnvironment();
+                    break;
                 case TYPE_CAST:
                     break;
                 case INSTANCE_OF:
-                    return new InstanceOfTreeEnvironment((InstanceOfTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new InstanceOfTreeEnvironment();
+                    break;
                 case ARRAY_ACCESS:
-                    return new ArrayAccessTreeEnvironment((ArrayAccessTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new ArrayAccessTreeEnvironment();
+                    break;
                 case NEW_ARRAY:
-                    return new NewArrayTreeEnvironment((NewArrayTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new NewArrayTreeEnvironment();
+                    break;
                 case ASSIGNMENT:
-                    return new AssignmentTreeEnvironment((AssignmentTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new AssignmentTreeEnvironment();
+                    break;
                 case MULTIPLY_ASSIGNMENT:
                 case DIVIDE_ASSIGNMENT:
                 case REMAINDER_ASSIGNMENT:
@@ -839,7 +573,8 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                 case AND_ASSIGNMENT:
                 case XOR_ASSIGNMENT:
                 case OR_ASSIGNMENT:
-                    return new CompoundAssignmentTreeEnvironment((CompoundAssignmentTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new CompoundAssignmentTreeEnvironment();
+                    break;
                 case PREFIX_INCREMENT:
                 case PREFIX_DECREMENT:
                 case UNARY_PLUS:
@@ -867,7 +602,8 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                 case RIGHT_SHIFT:
                 case UNSIGNED_RIGHT_SHIFT:
                 case XOR:
-                    return new BinaryTreeEnvironment((BinaryTree) t,offset,prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+                    result = new BinaryTreeEnvironment();
+                    break;
                 case CONDITIONAL_EXPRESSION:
                     break;
                 case EXPRESSION_STATEMENT:
@@ -875,8 +611,11 @@ public final class JavaFXCompletionQuery extends AsyncCompletionQuery implements
                     break;
             }
         }
-
-        return new JavaFXCompletionEnvironment(null, offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+        if (result == null) {
+            result = new JavaFXCompletionEnvironment();
+        }
+        result.init(offset, prefix, controller, path, controller.getTrees().getSourcePositions(), this);
+        return result;
     }
 
     private static void log(String s) {

@@ -1,0 +1,4 @@
+org.netbeans.modules.debugger.javafx.ui.actions.RunToCursorActionProvider
+org.netbeans.modules.debugger.javafx.ui.actions.ToggleBreakpointActionProvider
+org.netbeans.modules.debugger.javafx.ui.actions.MakeCalleeCurrentActionProvider
+org.netbeans.modules.debugger.javafx.ui.actions.MakeCallerCurrentActionProvider

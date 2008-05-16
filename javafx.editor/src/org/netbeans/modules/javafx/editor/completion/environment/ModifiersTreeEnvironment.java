@@ -41,7 +41,6 @@ package org.netbeans.modules.javafx.editor.completion.environment;
 
 import com.sun.source.tree.ModifiersTree;
 import com.sun.source.tree.Tree;
-import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import java.io.IOException;
 import java.util.EnumSet;
@@ -51,10 +50,8 @@ import java.util.logging.Logger;
 import javax.lang.model.element.Modifier;
 import static javax.lang.model.element.Modifier.*;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
-import org.netbeans.api.javafx.source.CompilationController;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionEnvironment;
-import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery;
 
 /**
  *
@@ -65,10 +62,6 @@ public class ModifiersTreeEnvironment extends JavaFXCompletionEnvironment<Modifi
     private static final Logger logger = Logger.getLogger(ModifiersTreeEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    public ModifiersTreeEnvironment(ModifiersTree t, int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
-        super(t, offset, prefix, controller, path, sourcePositions, query);
-    }
-    
     @Override
     protected void inside(ModifiersTree t) throws IOException {
         log("inside ModifiersTree " + t);

@@ -42,7 +42,6 @@ package org.netbeans.modules.javafx.editor.completion.environment;
 import com.sun.source.tree.StatementTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.TryTree;
-import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javac.tree.JCTree.JCStatement;
 import com.sun.tools.javafx.tree.JFXFunctionDefinition;
@@ -55,10 +54,8 @@ import java.util.logging.Logger;
 import javax.lang.model.element.Modifier;
 import javax.tools.Diagnostic;
 import org.netbeans.api.javafx.lexer.JFXTokenId;
-import org.netbeans.api.javafx.source.CompilationController;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionEnvironment;
-import org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery;
 import static org.netbeans.modules.javafx.editor.completion.JavaFXCompletionQuery.*;
 
 /**
@@ -70,10 +67,6 @@ public class FunctionDefinitionEnvironment extends JavaFXCompletionEnvironment<J
     private static final Logger logger = Logger.getLogger(FunctionDefinitionEnvironment.class.getName());
     private static final boolean LOGGABLE = logger.isLoggable(Level.FINE);
 
-    public FunctionDefinitionEnvironment(JFXFunctionDefinition t, int offset, String prefix, CompilationController controller, TreePath path, SourcePositions sourcePositions, JavaFXCompletionQuery query) {
-        super(t, offset, prefix, controller, path, sourcePositions, query);
-    }
-    
     @Override
     protected void inside(JFXFunctionDefinition t) throws IOException {
         log("inside JFXFunctionDefinition " + t);
