@@ -1,6 +1,0 @@
-    </volume>
-    <volume>
-        <type>javadoc</type>
-        <resource>nbinst:///javafx-sdk1.0/docs</resource>
-    </volume>
-</library>

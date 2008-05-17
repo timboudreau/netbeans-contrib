@@ -70,7 +70,7 @@ class LogicalViewImpl implements LogicalViewProvider {
     }
 
     public Node createLogicalView() {
-        return new ProjectNodeWrapper(new RootNode(project));
+        return new RootNode(project);
     }
 
     public Node findPath(Node root, Object target) {
@@ -142,7 +142,7 @@ class LogicalViewImpl implements LogicalViewProvider {
             actions.add(null);
              */
             actions.add(SystemAction.get(FindAction.class));
-            actions.add(ProjectNodeWrapper.GENERIC_PROJECTS_ACTIONS_MARKER);
+            addFromLayers(actions, "Projects/Actions"); // NOI18N
             actions.add(null);
             /* XXX
             actions.add(CommonProjectActions.customizeProjectAction());
