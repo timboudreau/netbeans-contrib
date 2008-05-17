@@ -287,7 +287,7 @@ public class RubyLogicalViewProvider implements LogicalViewProvider {
             String dirName = FileUtil.getFileDisplayName(project.getProjectDirectory());
             return NbBundle.getMessage(RubyLogicalViewProvider.class, "RubyLogicalViewProvider.ProjectTooltipDescription", dirName, platformDesc);
         }
-                
+        
         public @Override String getHtmlDisplayName() {
             String dispName = super.getDisplayName();
             try {
@@ -324,18 +324,6 @@ public class RubyLogicalViewProvider implements LogicalViewProvider {
         public @Override HelpCtx getHelpCtx() {
             return new HelpCtx(RubyLogicalViewRootNode.class);
         }
-        
-        /*
-        public boolean canDestroy() {
-            return true;
-        }
-         
-        public void destroy() throws IOException {
-            System.out.println("Destroy " + project.getProjectDirectory());
-            LogicalViews.closeProjectAction().actionPerformed(new ActionEvent(this, 0, ""));
-            project.getProjectDirectory().delete();
-        }
-         */
         
         // Private methods -------------------------------------------------------------
         
@@ -401,10 +389,6 @@ public class RubyLogicalViewProvider implements LogicalViewProvider {
             return actions.toArray(new Action[actions.size()]);
         }
         
-//        private boolean isBroken() {
-//            return this.broken;
-//        }
-//        
 //        private void setBroken(boolean broken) {
 //            this.broken = broken;
 //            //brokenLinksAction.setEnabled(broken);

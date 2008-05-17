@@ -271,7 +271,7 @@ public class J2SELogicalViewProvider implements LogicalViewProvider {
             String prjDirDispName = FileUtil.getFileDisplayName(project.getProjectDirectory());
             return NbBundle.getMessage(J2SELogicalViewProvider.class, "HINT_project_root_node", prjDirDispName);
         }
-                
+        
         public String getHtmlDisplayName() {
             String dispName = super.getDisplayName();
             try {
@@ -292,7 +292,7 @@ public class J2SELogicalViewProvider implements LogicalViewProvider {
             Image original = super.getOpenedIcon(type);
             return broken || illegalState ? Utilities.mergeImages(original, brokenProjectBadge, 8, 0) : original;
         }
-                
+        
         public Action[] getActions( boolean context ) {
             return getAdditionalActions();
         }
@@ -308,18 +308,6 @@ public class J2SELogicalViewProvider implements LogicalViewProvider {
         public HelpCtx getHelpCtx() {
             return new HelpCtx(J2SELogicalViewRootNode.class);
         }
-        
-        /*
-        public boolean canDestroy() {
-            return true;
-        }
-         
-        public void destroy() throws IOException {
-            System.out.println("Destroy " + project.getProjectDirectory());
-            LogicalViews.closeProjectAction().actionPerformed(new ActionEvent(this, 0, ""));
-            project.getProjectDirectory().delete();
-        }
-         */
         
         // Private methods -------------------------------------------------
         
@@ -375,10 +363,6 @@ public class J2SELogicalViewProvider implements LogicalViewProvider {
                     actions.add(null);
                 }
             }
-        }
-        
-        private boolean isBroken() {
-            return this.broken;
         }
         
         private void setBroken(boolean broken) {
