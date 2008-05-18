@@ -40,7 +40,6 @@ package org.netbeans.modules.scala.editing.nodes.exprs;
 
 import org.netbeans.modules.scala.editing.nodes.*;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
-import org.netbeans.modules.scala.editing.nodes.types.ParameterizedType;
 import java.util.Collections;
 import java.util.List;
 import org.netbeans.api.lexer.Token;
@@ -51,18 +50,18 @@ import org.netbeans.api.lexer.Token;
  */
 public class NewExpr extends AstExpr {
 
-    private List<ParameterizedType> parents;
+    private List<TypeRef> parents;
 
     public NewExpr(Token[] boundsTokens) {
         super(boundsTokens);
     }
 
-    public void setParents(List<ParameterizedType> parents) {
+    public void setParents(List<TypeRef> parents) {
         this.parents = parents;
     }
 
-    public List<ParameterizedType> getParents() {
-        return parents == null ? Collections.<ParameterizedType>emptyList() : parents;
+    public List<TypeRef> getParents() {
+        return parents == null ? Collections.<TypeRef>emptyList() : parents;
     }
 
     @Override

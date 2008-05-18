@@ -38,77 +38,80 @@
  */
 package org.netbeans.modules.scala.editing.nodes.types;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 
 /**
+ * TypeRef of parameters
  *
  * @author dcaoyuan
  */
-public class ParameterizedType extends TypeRef {
-
-    private List<String> annotations;
-    private List<List<TypeRef>> typeArgsList;
-
-    public ParameterizedType(String name, Token idToken, ElementKind kind) {
-        super(name, idToken, kind);
-    }
-
-    public void setAnnotations(List<String> annotations) {
-        this.annotations = annotations;
-    }
-
-    public List<String> getAnnotations() {
-        return annotations;
-    }
-
-    public void setTypeArgsList(List<List<TypeRef>> typeArgsList) {
-        this.typeArgsList = typeArgsList;
-    }
-
-    public List<List<TypeRef>> getTypeArgsList() {
-        return typeArgsList == null ? Collections.<List<TypeRef>>emptyList() : typeArgsList;
-    }
+public class ParameterType extends TypeRef {
     
-    public String getTypeArgsName() {
+    public enum More {
+
+        Pure,
+        Star,
+        ByName,
+    }
+           
+    private More more;
+    private TypeRef wrappedType;
+
+    public ParameterType(Token idToken, ElementKind kind) {
+        super(null, idToken, kind);
+    }
+
+    public void setWrappedType(TypeRef wrappedType) {
+        this.wrappedType = wrappedType;
+    }
+
+    public TypeRef getWrappedType() {
+        return wrappedType;
+    }
+
+    public void setMore(More more) {
+        this.more = more;
+    }
+
+    public More getMore() {
+        return more;
+    }
+
+    @Override
+    public String getName() {
         StringBuilder sb = new StringBuilder();
-        for (List<TypeRef> typeArgs : getTypeArgsList()) {
-            sb.append("[");
-            if (typeArgs.size() == 0) {
-                // wildcard
-                sb.append("_");
-            } else {
-                for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
-                    sb.append(itr.next().getName());
-                    if (itr.hasNext()) {
-                        sb.append(", ");
-                    }
-                }
-            }
-            sb.append("]");
+        switch (more) {
+            case Star:
+                sb.append(wrappedType.getName());
+                sb.append("*");
+                break;
+            case ByName:
+                sb.append("=>");
+                sb.append(wrappedType.getName());
+                break;
+            default:
+                sb.append(wrappedType.getName());
         }
         return sb.toString();
     }
 
-    public void htmlFormatTypeArgs(HtmlFormatter formatter) {
-        for (List<TypeRef> typeArgs : getTypeArgsList()) {
-            formatter.appendText("[");
-            if (typeArgs.size() == 0) {
-                // wildcard
-                formatter.appendText("_");
-            } else {
-                for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
-                    itr.next().htmlFormat(formatter);
-                    if (itr.hasNext()) {
-                        formatter.appendText(", ");
-                    }
-                }
-            }
-            formatter.appendText("]");
+
+    @Override
+    public void htmlFormat(HtmlFormatter formatter) {
+        super.htmlFormat(formatter);
+        switch (more) {
+            case Star:
+                wrappedType.htmlFormat(formatter);
+                formatter.appendText("*");
+                break;
+            case ByName:
+                formatter.appendText("\u21D2");
+                wrappedType.htmlFormat(formatter);
+                break;
+            default:
+                wrappedType.htmlFormat(formatter);                
         }
     }
 }

@@ -55,7 +55,6 @@ import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.Importing;
-import org.netbeans.modules.scala.editing.nodes.types.ParameterizedType;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.openide.filesystems.FileObject;
@@ -341,10 +340,10 @@ public class ScalaIndexer implements Indexer {
                 fqn.append(';');
                 fqn.append(IndexedElement.computeAttributes(template, pResult.getTokenHierarchy()));
 
-                List<ParameterizedType> extendsWith = template.getExtendsWith();
+                List<TypeRef> extendsWith = template.getExtendsWith();
                 String clz = template.getQualifiedName();
                 if (extendsWith.size() > 0) {
-                    for (ParameterizedType parent : extendsWith) {
+                    for (TypeRef parent : extendsWith) {
                         String superClz = parent.getQualifiedName();
                         document.addPair(FIELD_EXTENDS_NAME, clz.toLowerCase() + ";" + clz + ";" + superClz, true); // NOI18N
                     }

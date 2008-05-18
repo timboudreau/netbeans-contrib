@@ -38,11 +38,14 @@
  */
 package org.netbeans.modules.scala.editing.nodes.tmpls;
 
-import org.netbeans.modules.scala.editing.nodes.*;
-import org.netbeans.modules.scala.editing.nodes.types.ParameterizedType;
 import java.util.Collections;
 import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstRef;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.Id;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 
 /**
  *
@@ -52,7 +55,7 @@ public abstract class Template extends AstDef {
 
     private boolean caseOne;
 
-    private List<ParameterizedType> extendsWith;
+    private List<TypeRef> extendsWith;
     
     public Template(Id id, AstScope bindingScope, ElementKind kind) {
         super(id.getName(), id.getIdToken(), bindingScope, kind);
@@ -66,12 +69,12 @@ public abstract class Template extends AstDef {
         return caseOne;
     }
     
-    public void setExtendsWith(List<ParameterizedType> extendsWith) {
+    public void setExtendsWith(List<TypeRef> extendsWith) {
         this.extendsWith = extendsWith;
     }
     
-    public List<ParameterizedType> getExtendsWith() {
-        return extendsWith == null ? Collections.<ParameterizedType>emptyList() : extendsWith;
+    public List<TypeRef> getExtendsWith() {
+        return extendsWith == null ? Collections.<TypeRef>emptyList() : extendsWith;
     }
 
     @Override

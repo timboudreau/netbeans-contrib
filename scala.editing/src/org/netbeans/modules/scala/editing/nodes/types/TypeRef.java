@@ -38,11 +38,14 @@
  */
 package org.netbeans.modules.scala.editing.nodes.types;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstRef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
@@ -179,11 +182,48 @@ public class TypeRef extends AstRef {
         PRED_TYPES.put("char", Char);
         PRED_TYPES.put("String", String);
     }
-    private List<String> annotations;
     private static final String UNRESOLVED = "-1";
+    private List<String> annotations;
+    private List<List<TypeRef>> typeArgsList;
 
     public TypeRef(String name, Token idToken, ElementKind kind) {
         super(name, idToken, kind);
+    }
+
+    public void setAnnotations(List<String> annotations) {
+        this.annotations = annotations;
+    }
+
+    public List<String> getAnnotations() {
+        return annotations;
+    }
+
+    public void setTypeArgsList(List<List<TypeRef>> typeArgsList) {
+        this.typeArgsList = typeArgsList;
+    }
+
+    public List<List<TypeRef>> getTypeArgsList() {
+        return typeArgsList == null ? Collections.<List<TypeRef>>emptyList() : typeArgsList;
+    }
+
+    public String getTypeArgsName() {
+        StringBuilder sb = new StringBuilder();
+        for (List<TypeRef> typeArgs : getTypeArgsList()) {
+            sb.append("[");
+            if (typeArgs.size() == 0) {
+                // wildcard
+                sb.append("_");
+            } else {
+                for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
+                    sb.append(itr.next().getName());
+                    if (itr.hasNext()) {
+                        sb.append(", ");
+                    }
+                }
+            }
+            sb.append("]");
+        }
+        return sb.toString();
     }
 
     public boolean isResolved() {
@@ -228,7 +268,25 @@ public class TypeRef extends AstRef {
     @Override
     public TypeRef getType() {
         return this;
-    }        
+    }
+
+    public void htmlFormatTypeArgs(HtmlFormatter formatter) {
+        for (List<TypeRef> typeArgs : getTypeArgsList()) {
+            formatter.appendText("[");
+            if (typeArgs.size() == 0) {
+                // wildcard
+                formatter.appendText("_");
+            } else {
+                for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
+                    itr.next().htmlFormat(formatter);
+                    if (itr.hasNext()) {
+                        formatter.appendText(", ");
+                    }
+                }
+            }
+            formatter.appendText("]");
+        }
+    }
 
     /**
      * Used to ref remote type, which has qualifiedName field only
