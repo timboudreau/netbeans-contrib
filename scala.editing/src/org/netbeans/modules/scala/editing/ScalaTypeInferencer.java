@@ -50,7 +50,7 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.NameKind;
-import org.netbeans.modules.scala.editing.nodes.AssignmentExpr;
+import org.netbeans.modules.scala.editing.nodes.exprs.AssignmentExpr;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstExpr;
@@ -60,12 +60,12 @@ import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.netbeans.modules.scala.editing.nodes.Id;
 import org.netbeans.modules.scala.editing.nodes.IdRef;
-import org.netbeans.modules.scala.editing.nodes.Import;
+import org.netbeans.modules.scala.editing.nodes.Importing;
 import org.netbeans.modules.scala.editing.nodes.Packaging;
 import org.netbeans.modules.scala.editing.nodes.PathId;
-import org.netbeans.modules.scala.editing.nodes.SimpleExpr;
-import org.netbeans.modules.scala.editing.nodes.TypeRef;
-import org.netbeans.modules.scala.editing.nodes.TypeRef.PseudoTypeRef;
+import org.netbeans.modules.scala.editing.nodes.exprs.SimpleExpr;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef.PseudoTypeRef;
 
 /**
  *
@@ -230,11 +230,11 @@ public class ScalaTypeInferencer {
             } else {
                 Id objectName = funRef.getCall();
 
-                List<Import> imports = funRef.getEnclosingScope().getDefsInScope(Import.class);
+                List<Importing> importings = funRef.getEnclosingScope().getDefsInScope(Importing.class);
                 List<String> importPkgs = new ArrayList<String>();
-                for (Import importExpr : imports) {
-                    if (importExpr.isWild()) {
-                        importPkgs.add(importExpr.getPackageName());
+                for (Importing importing : importings) {
+                    if (importing.isWild()) {
+                        importPkgs.add(importing.getPackageName());
                     }
                 }
                 Packaging packaging = funRef.getPackageElement();
@@ -416,11 +416,11 @@ public class ScalaTypeInferencer {
     }
 
     private String globalInferTypeRef(ScalaIndex index, TypeRef type) {
-        List<Import> imports = type.getEnclosingScope().getDefsInScope(Import.class);
+        List<Importing> importings = type.getEnclosingScope().getDefsInScope(Importing.class);
         List<String> importPkgs = new ArrayList<String>();
-        for (Import importExpr : imports) {
-            if (importExpr.isWild()) {
-                importPkgs.add(importExpr.getPackageName());
+        for (Importing importing : importings) {
+            if (importing.isWild()) {
+                importPkgs.add(importing.getPackageName());
             }
         }
         Packaging packaging = type.getPackageElement();

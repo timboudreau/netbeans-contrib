@@ -60,7 +60,7 @@ import org.netbeans.modules.scala.editing.ScalaParserResult;
 import org.netbeans.modules.scala.editing.SourceUtils;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.ObjectTemplate;
+import org.netbeans.modules.scala.editing.nodes.tmpls.ObjectTemplate;
 import org.netbeans.modules.scala.editing.nodes.Packaging;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;

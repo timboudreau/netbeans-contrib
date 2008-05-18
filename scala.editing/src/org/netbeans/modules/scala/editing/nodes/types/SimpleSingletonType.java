@@ -36,39 +36,62 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes;
 
+package org.netbeans.modules.scala.editing.nodes.types;
+
+import org.netbeans.modules.scala.editing.nodes.*;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import org.netbeans.api.lexer.Token;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
 
 /**
  *
- * @author Caoyuan Deng
+ * @author dcaoyuan
  */
-public class NewExpr extends AstExpr {
-
-    private List<SimpleType> parents;
-
-    public NewExpr(Token[] boundsTokens) {
-        super(boundsTokens);
+public class SimpleSingletonType extends ParameterizedType {
+    
+    private List<Id> ids;
+    
+    public SimpleSingletonType(Token idToken, ElementKind kind) {
+        super(null, idToken, kind);
     }
-
-    public void setParents(List<SimpleType> parents) {
-        this.parents = parents;
+    
+    public void setIds(List<Id> ids) {
+        this.ids = ids;
     }
-
-    public List<SimpleType> getParents() {
-        return parents == null ? Collections.<SimpleType>emptyList() : parents;
+    
+    public List<Id> getIds() {
+        return ids == null ? Collections.<Id>emptyList() : ids;
     }
 
     @Override
-    public TypeRef getType() {
-        /** @Todo */
-        if (getParents().size() > 0) {
-            return getParents().get(0);
-        } else {
-            return null;
+    public String getName() {
+        StringBuilder sb = new StringBuilder();
+        for (Iterator<Id> itr = getIds().iterator(); itr.hasNext();) {
+            sb.append(itr.next().getName());
+            if (itr.hasNext()) {
+                sb.append(".");
+            }
         }
+        sb.append(".type");
+        return sb.toString();
     }
+
+
+    @Override
+    public void htmlFormat(HtmlFormatter formatter) {
+        super.htmlFormat(formatter);
+        for (Iterator<Id> itr = getIds().iterator(); itr.hasNext();) {
+            formatter.appendText(itr.next().getName());
+            if (itr.hasNext()) {
+                formatter.appendText(".");
+            }
+        }
+        formatter.appendText(".type");
+        htmlFormatTypeArgs(formatter);
+    }        
+
 }

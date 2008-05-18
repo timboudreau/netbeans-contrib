@@ -54,10 +54,10 @@ import org.netbeans.modules.gsf.api.Modifier;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.netbeans.modules.scala.editing.nodes.Import;
-import org.netbeans.modules.scala.editing.nodes.SimpleType;
-import org.netbeans.modules.scala.editing.nodes.Template;
-import org.netbeans.modules.scala.editing.nodes.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.Importing;
+import org.netbeans.modules.scala.editing.nodes.types.ParameterizedType;
+import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.openide.filesystems.FileObject;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
@@ -341,10 +341,10 @@ public class ScalaIndexer implements Indexer {
                 fqn.append(';');
                 fqn.append(IndexedElement.computeAttributes(template, pResult.getTokenHierarchy()));
 
-                List<SimpleType> extendsWith = template.getExtendsWith();
+                List<ParameterizedType> extendsWith = template.getExtendsWith();
                 String clz = template.getQualifiedName();
                 if (extendsWith.size() > 0) {
-                    for (SimpleType parent : extendsWith) {
+                    for (ParameterizedType parent : extendsWith) {
                         String superClz = parent.getQualifiedName();
                         document.addPair(FIELD_EXTENDS_NAME, clz.toLowerCase() + ";" + clz + ";" + superClz, true); // NOI18N
                     }
@@ -352,11 +352,11 @@ public class ScalaIndexer implements Indexer {
                     ClassCache.INSTANCE.refresh();
                 }
 
-                List<Import> imports = template.getBindingScope().getDefsInScope(Import.class);
+                List<Importing> imports = template.getBindingScope().getDefsInScope(Importing.class);
 
                 if (imports.size() > 0) {
                     Set<String> importPkgs = new HashSet<String>();
-                    for (Import importExpr : imports) {
+                    for (Importing importExpr : imports) {
                         String pkgName = importExpr.getPackageName();
                         StringBuilder importAttr = new StringBuilder();
                         importAttr.append(clz.toLowerCase()).append(";").append(clz).append(";").append(pkgName).append(";");

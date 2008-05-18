@@ -38,6 +38,7 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;

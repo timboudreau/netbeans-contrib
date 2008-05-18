@@ -36,55 +36,23 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes;
+package org.netbeans.modules.scala.editing.nodes.tmpls;
 
-import java.util.Collections;
-import java.util.List;
+import org.netbeans.modules.scala.editing.nodes.*;
 import org.netbeans.modules.gsf.api.ElementKind;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public abstract class Template extends AstDef {
+public class ClassTemplate extends Template {
 
-    private boolean caseOne;
-
-    private List<SimpleType> extendsWith;
-    
-    public Template(Id id, AstScope bindingScope, ElementKind kind) {
-        super(id.getName(), id.getIdToken(), bindingScope, kind);
-    }
-
-    public void setCaseOne() {
-        this.caseOne = true;
-    }
-
-    public boolean isCaseOne() {
-        return caseOne;
-    }
-    
-    public void setExtendsWith(List<SimpleType> extendsWith) {
-        this.extendsWith = extendsWith;
-    }
-    
-    public List<SimpleType> getExtendsWith() {
-        return extendsWith == null ? Collections.<SimpleType>emptyList() : extendsWith;
+    public ClassTemplate(Id id, AstScope bindingScope) {
+        super(id, bindingScope, ElementKind.CLASS);
     }
 
     @Override
-    public boolean referredBy(AstRef ref) {
-        switch (ref.getKind()) {
-            case CLASS:
-                return getName().equals(ref.getName());
-            case VARIABLE:
-                if (isCaseOne()) {
-                    return getName().equals(ref.getName());
-                } else {
-                    return false;
-                }
-            default:
-                return false;
-        }
+    public String getBinaryName() {
+        return getName();
     }
 }

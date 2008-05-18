@@ -36,55 +36,20 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes;
 
-import java.util.Iterator;
-import java.util.List;
-import org.netbeans.api.lexer.Token;
+package org.netbeans.modules.scala.editing.nodes.tmpls;
+
+import org.netbeans.modules.scala.editing.nodes.*;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class CompoundType extends TypeRef {
-
-    private List<TypeRef> types;
-
-    public CompoundType(Token idToken, ElementKind kind) {
-        super(null, idToken, kind);
+public class TypeAlias extends AstDef {
+    
+    public TypeAlias(Id id, AstScope bindingScope) {
+        super(id.getName(), id.getIdToken(), bindingScope, ElementKind.CLASS);
     }
 
-    public void setTypes(List<TypeRef> types) {
-        this.types = types;
-    }
-
-    public List<TypeRef> getTypes() {
-        return types;
-    }
-
-    @Override
-    public String getName() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(types.get(0).getName());
-        for (Iterator<TypeRef> itr = types.iterator(); itr.hasNext();) {
-            sb.append(itr.next().getName());
-            if (itr.hasNext()) {
-                sb.append(" with ");
-            }
-        }
-        return sb.toString();
-    }
-
-    @Override
-    public void htmlFormat(HtmlFormatter formatter) {
-        types.get(0).htmlFormat(formatter);
-        for (Iterator<TypeRef> itr = types.iterator(); itr.hasNext();) {
-            itr.next().htmlFormat(formatter);
-            if (itr.hasNext()) {
-                formatter.appendText(" with ");
-            }
-        }
-    }
 }

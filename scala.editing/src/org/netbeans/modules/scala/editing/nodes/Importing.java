@@ -38,79 +38,76 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 
 /**
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
-public class WrappedType extends TypeRef {
+public class Importing extends AstDef {
+
+    private List<Id> paths;
+    private List<TypeRef> importedTypes;
+    private boolean wild;
+
+    public Importing(Token idToken, AstScope bindingScope) {
+        super(null, idToken, bindingScope, ElementKind.OTHER);
+    }
     
-    public enum More {
-
-        Pure,
-        Star,
-        ByName,
+    public void setPaths(List<Id> paths) {
+        this.paths = paths;
     }
-           
-    private More more;
-    private TypeRef wrappedType;
-
-    public WrappedType(Token idToken, ElementKind kind) {
-        super(null, idToken, kind);
+    
+    public List<Id> getPaths() {
+        return paths;
     }
-
-    public void setWrappedType(TypeRef wrappedType) {
-        this.wrappedType = wrappedType;
+    
+    public void setImportedTypes(List<TypeRef> importedTypes) {
+        this.importedTypes = importedTypes;
     }
-
-    public TypeRef getWrappedType() {
-        return wrappedType;
+    
+    public List<TypeRef> getImportedTypes() {
+        return importedTypes == null ? Collections.<TypeRef>emptyList() : importedTypes;
     }
-
-    public void setMore(More more) {
-        this.more = more;
+    
+    public void setWild() {
+        this.wild = true;
+    }
+    
+    public boolean isWild() {
+        return wild;
     }
 
-    public More getMore() {
-        return more;
-    }
-
-    @Override
-    public String getName() {
+    public String getPackageName() {
         StringBuilder sb = new StringBuilder();
-        switch (more) {
-            case Star:
-                sb.append(wrappedType.getName());
-                sb.append("*");
-                break;
-            case ByName:
-                sb.append("=>");
-                sb.append(wrappedType.getName());
-                break;
-            default:
-                sb.append(wrappedType.getName());
+        for (Iterator<Id> itr = paths.iterator(); itr.hasNext();) {
+            sb.append(itr.next().getName());
+            if (itr.hasNext()) {
+                sb.append(".");
+            }
         }
         return sb.toString();
     }
-
-
+    
     @Override
-    public void htmlFormat(HtmlFormatter formatter) {
-        super.htmlFormat(formatter);
-        switch (more) {
-            case Star:
-                wrappedType.htmlFormat(formatter);
-                formatter.appendText("*");
-                break;
-            case ByName:
-                formatter.appendText("\u21D2");
-                wrappedType.htmlFormat(formatter);
-                break;
-            default:
-                wrappedType.htmlFormat(formatter);                
+    public String getName() {
+        StringBuilder sb = new StringBuilder();        
+        for (Id id : paths) {
+            sb.append(id.getName()).append(".");
         }
+        if (isWild()) {
+            sb.append("_");
+            return sb.toString();
+        }
+        if (getImportedTypes().size() == 1) {
+            sb.append(getImportedTypes().get(0).getName());
+        }
+        return sb.toString();
     }
+        
 }

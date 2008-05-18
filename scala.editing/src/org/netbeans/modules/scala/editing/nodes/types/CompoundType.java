@@ -36,70 +36,55 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.scala.editing.nodes.types;
 
-package org.netbeans.modules.scala.editing.nodes;
-
+import java.util.Iterator;
 import java.util.List;
 import org.netbeans.api.lexer.Token;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class SimpleExpr extends AstExpr implements Postfixable {
-        
-    private AstElement base;
-    
-    private List<TypeRef> typeArgs;
-    private List<AstRef> memberChain;
-    
-    private String prefixOp;
-    private Id postfixOp;
-    
-    public SimpleExpr(Token[] boundsTokens) {
-        super(boundsTokens);
+public class CompoundType extends TypeRef {
+
+    private List<TypeRef> types;
+
+    public CompoundType(Token idToken, ElementKind kind) {
+        super(null, idToken, kind);
     }
 
-    public void setBase(AstElement base) {
-        this.base = base;
-    }
-    
-    public AstElement getBase() {
-        return base;
-    }
-    
-    public void setTypeArgs(List<TypeRef> typeArgs) {
-        this.typeArgs = typeArgs;
-    }
-    
-    public void setMemberChain(List<AstRef> memberChain) {
-        this.memberChain = memberChain;
+    public void setTypes(List<TypeRef> types) {
+        this.types = types;
     }
 
-    public void setPrefix(String prefixOp) {
-        this.prefixOp = prefixOp;
-    }
- 
-    public void setPostfixOp(Id postfixOp) {
-        this.postfixOp = postfixOp;
+    public List<TypeRef> getTypes() {
+        return types;
     }
 
-    public Id getPostfixOp() {
-        return postfixOp;
-    }
-        
-    
     @Override
-    public TypeRef getType() {
-        if (type != null) {
-            return type;
+    public String getName() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(types.get(0).getName());
+        for (Iterator<TypeRef> itr = types.iterator(); itr.hasNext();) {
+            sb.append(itr.next().getName());
+            if (itr.hasNext()) {
+                sb.append(" with ");
+            }
         }
-        
-        if (memberChain != null && !memberChain.isEmpty()) {
-            return memberChain.get(memberChain.size() - 1).getType();
-        } else {
-            return base.getType();
+        return sb.toString();
+    }
+
+    @Override
+    public void htmlFormat(HtmlFormatter formatter) {
+        types.get(0).htmlFormat(formatter);
+        for (Iterator<TypeRef> itr = types.iterator(); itr.hasNext();) {
+            itr.next().htmlFormat(formatter);
+            if (itr.hasNext()) {
+                formatter.appendText(" with ");
+            }
         }
     }
-        
 }

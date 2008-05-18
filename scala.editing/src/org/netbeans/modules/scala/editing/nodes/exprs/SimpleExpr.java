@@ -36,15 +36,72 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes;
+
+package org.netbeans.modules.scala.editing.nodes.exprs;
+
+import org.netbeans.modules.scala.editing.nodes.*;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import java.util.List;
+import org.netbeans.api.lexer.Token;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public interface Postfixable {
+public class SimpleExpr extends AstExpr implements Postfixable {
+        
+    private AstElement base;
+    
+    private List<TypeRef> typeArgs;
+    private List<AstRef> memberChain;
+    
+    private String prefixOp;
+    private Id postfixOp;
+    
+    public SimpleExpr(Token[] boundsTokens) {
+        super(boundsTokens);
+    }
 
-    void setPostfixOp(Id postfixOp);
+    public void setBase(AstElement base) {
+        this.base = base;
+    }
+    
+    public AstElement getBase() {
+        return base;
+    }
+    
+    public void setTypeArgs(List<TypeRef> typeArgs) {
+        this.typeArgs = typeArgs;
+    }
+    
+    public void setMemberChain(List<AstRef> memberChain) {
+        this.memberChain = memberChain;
+    }
 
-    Id getPostfixOp();
+    public void setPrefix(String prefixOp) {
+        this.prefixOp = prefixOp;
+    }
+ 
+    public void setPostfixOp(Id postfixOp) {
+        this.postfixOp = postfixOp;
+    }
+
+    public Id getPostfixOp() {
+        return postfixOp;
+    }
+        
+    
+    @Override
+    public TypeRef getType() {
+        if (type != null) {
+            return type;
+        }
+        
+        if (memberChain != null && !memberChain.isEmpty()) {
+            return memberChain.get(memberChain.size() - 1).getType();
+        } else {
+            return base.getType();
+        }
+    }
+        
 }

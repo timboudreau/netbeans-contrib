@@ -36,24 +36,81 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes;
+package org.netbeans.modules.scala.editing.nodes.types;
 
 import org.netbeans.api.lexer.Token;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
 
 /**
  *
- * @author Caoyuan Deng
+ * @author dcaoyuan
  */
-public class BlockExpr extends AstExpr {
+public class WrappedType extends TypeRef {
     
-    private AstExpr returnExpr;
-    
-    public BlockExpr(Token[] boundsTokens) {
-        super(boundsTokens);
+    public enum More {
+
+        Pure,
+        Star,
+        ByName,
     }
-    
-    public BlockExpr setReturnExpr(AstExpr returnExpr) {
-        this.returnExpr = returnExpr;
-        return this;
+           
+    private More more;
+    private TypeRef wrappedType;
+
+    public WrappedType(Token idToken, ElementKind kind) {
+        super(null, idToken, kind);
+    }
+
+    public void setWrappedType(TypeRef wrappedType) {
+        this.wrappedType = wrappedType;
+    }
+
+    public TypeRef getWrappedType() {
+        return wrappedType;
+    }
+
+    public void setMore(More more) {
+        this.more = more;
+    }
+
+    public More getMore() {
+        return more;
+    }
+
+    @Override
+    public String getName() {
+        StringBuilder sb = new StringBuilder();
+        switch (more) {
+            case Star:
+                sb.append(wrappedType.getName());
+                sb.append("*");
+                break;
+            case ByName:
+                sb.append("=>");
+                sb.append(wrappedType.getName());
+                break;
+            default:
+                sb.append(wrappedType.getName());
+        }
+        return sb.toString();
+    }
+
+
+    @Override
+    public void htmlFormat(HtmlFormatter formatter) {
+        super.htmlFormat(formatter);
+        switch (more) {
+            case Star:
+                wrappedType.htmlFormat(formatter);
+                formatter.appendText("*");
+                break;
+            case ByName:
+                formatter.appendText("\u21D2");
+                wrappedType.htmlFormat(formatter);
+                break;
+            default:
+                wrappedType.htmlFormat(formatter);                
+        }
     }
 }

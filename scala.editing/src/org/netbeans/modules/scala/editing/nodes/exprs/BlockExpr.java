@@ -36,37 +36,25 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.scala.editing.nodes.exprs;
 
-package org.netbeans.modules.scala.editing.nodes;
-
+import org.netbeans.modules.scala.editing.nodes.*;
 import org.netbeans.api.lexer.Token;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class AssignmentExpr extends AstExpr {
+public class BlockExpr extends AstExpr {
     
-    private AstExpr lhs;
-    private AstExpr rhs;
+    private AstExpr returnExpr;
     
-    public AssignmentExpr(Token[] boundsTokens) {
+    public BlockExpr(Token[] boundsTokens) {
         super(boundsTokens);
     }
-
-    public void setLhs(AstExpr lhs) {
-        this.lhs = lhs;
-    }
     
-    public AstExpr getLhs() {
-        return lhs;
-    }
-    
-    public void setRhs(AstExpr rhs) {
-        this.rhs = rhs;
-    }
-    
-    public AstExpr getRhs() {
-        return rhs;
+    public BlockExpr setReturnExpr(AstExpr returnExpr) {
+        this.returnExpr = returnExpr;
+        return this;
     }
 }

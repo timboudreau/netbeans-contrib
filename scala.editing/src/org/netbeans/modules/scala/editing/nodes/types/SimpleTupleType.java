@@ -36,61 +36,76 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes;
 
+package org.netbeans.modules.scala.editing.nodes.types;
+
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
 
 /**
  *
- * @author Caoyuan Deng
+ * @author dcaoyuan
  */
-public class InfixExpr extends AstExpr implements Postfixable {
-
-    private FunRef topFunRef;
-    private List<SimpleExpr> exprs;
-    private List<Id> ops;
-    private Id postfixOp;
-
-    public InfixExpr(Token[] boundsTokens) {
-        super(boundsTokens);
-    }
-
-    public void setTopFunRef(FunRef topFunRef) {
-        this.topFunRef = topFunRef;
+public class SimpleTupleType extends ParameterizedType {
+    private List<TypeRef> types;
+    
+    public SimpleTupleType(Token idToken, ElementKind kind) {
+        super(null, idToken, kind);
     }
     
-    public FunRef getTopFunRef() {
-        return topFunRef;
+    public void setTypes(List<TypeRef> types) {
+        this.types = types;
     }
     
-    public void setExprs(List<SimpleExpr> types) {
-        this.exprs = types;
+    public List<TypeRef> getTypes() {
+        return types == null ? Collections.<TypeRef>emptyList() : types;
     }
 
-    public List<SimpleExpr> getExprs() {
-        return exprs;
-    }
+    @Override
+    public int getPickOffset(TokenHierarchy th) {
+        return -1;
+    }        
 
-    public void setOps(List<Id> ops) {
-        this.ops = ops;
-    }
+    /** @Todo how to define tuple type's pick offsets?
+     */
+    @Override
+    public int getPickEndOffset(TokenHierarchy th) {
+        return -1;
+    }        
 
-    public List<Id> getOps() {
-        return ops;
+    @Override
+    public String getName() {
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append("(");
+        for (Iterator<TypeRef> itr = getTypes().iterator(); itr.hasNext();) {
+            sb.append(itr.next().getName());
+            if (itr.hasNext()) {
+                sb.append(", ");
+            }
+        }
+        sb.append(")");
+        
+        return sb.toString();
     }
-
-    public void setPostfixOp(Id postfixOp) {
-        this.postfixOp = postfixOp;
-    }
-
-    public Id getPostfixOp() {
-        return postfixOp;
-    }
+    
     
     @Override
-    public TypeRef getType() {
-        return topFunRef.getType(); // @todo
-    }
-
+    public void htmlFormat(HtmlFormatter formatter) {
+        super.htmlFormat(formatter);
+        formatter.appendText("(");
+        for (Iterator<TypeRef> itr = getTypes().iterator(); itr.hasNext();) {
+            itr.next().htmlFormat(formatter);
+            if (itr.hasNext()) {
+                formatter.appendText(", ");
+            }
+        }
+        formatter.appendText(")");
+        htmlFormatTypeArgs(formatter);
+    }        
 }

@@ -38,6 +38,7 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 
@@ -117,11 +118,11 @@ public class Var extends AstDef {
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-        TypeRef type = getType();
-        if (type != null) {
+        TypeRef myType = getType();
+        if (myType != null) {
             formatter.type(true);
             formatter.appendHtml(" :");
-            type.htmlFormat(formatter);
+            myType.htmlFormat(formatter);
             formatter.type(false);
         }
     }

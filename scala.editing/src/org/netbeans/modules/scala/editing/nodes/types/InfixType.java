@@ -36,35 +36,62 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes;
 
+package org.netbeans.modules.scala.editing.nodes.types;
+
+import org.netbeans.modules.scala.editing.nodes.*;
 import java.util.List;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.gsf.api.HtmlFormatter;
 
 /**
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
-public class ArgumentExprs extends AstElement {
+public class InfixType extends TypeRef {
     
-    private List<AstExpr> args;
-
-    public ArgumentExprs(ElementKind kind) {
-        super(kind);
+    private List<TypeRef> types;
+    private List<Id> ops;
+    
+    public InfixType(Token idToken, ElementKind kind) {
+        super(null, idToken, kind);
     }
     
-    public void setArgs(List<AstExpr> args) {
-        this.args = args;
+    public void setTypes(List<TypeRef> types) {
+        this.types = types;
     }
     
-    public List<AstExpr> getArgs() {
-        return args;
+    public List<TypeRef> getTypes() {
+        return types;
+    }
+    
+    public void setOps(List<Id> ops) {
+        this.ops = ops;
+    }
+    
+    public List<Id> getOps() {
+        return ops;
     }
 
     @Override
-    public String getName() {
-        return "args";
-    }
+    public java.lang.String getName() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(types.get(0).getName());
+        for (int i = 1; i < types.size(); i++) {
+            sb.append(" ").append(ops.get(i - 1).getName()).append(" ");
+            sb.append(types.get(i).getName());
+        }
+        return sb.toString();
+    }    
     
-    
+    @Override
+    public void htmlFormat(HtmlFormatter formatter) {
+        types.get(0).htmlFormat(formatter);
+        for (int i = 1; i < types.size(); i++) {
+            formatter.appendText(" " + ops.get(i - 1) + " ");
+            types.get(i).htmlFormat(formatter);
+        }
+    }        
+
 }

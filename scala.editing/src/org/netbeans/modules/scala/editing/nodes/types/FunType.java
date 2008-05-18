@@ -36,12 +36,10 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import org.netbeans.api.lexer.Token;
+package org.netbeans.modules.scala.editing.nodes.types;
+
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 
@@ -49,43 +47,78 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
  *
  * @author Caoyuan Deng
  */
-public class SimpleIdType extends SimpleType {
-
-    private List<Id> paths;
-
-    public SimpleIdType(Token idToken, ElementKind kind) {
-        super(null, idToken, kind);
+public class FunType extends TypeRef {
+    
+    private TypeRef lhs;
+    private TypeRef rhs;
+    
+    public FunType() {
+        super(null, null, ElementKind.CLASS);
+    }
+    
+    public void setLhs(TypeRef lhs) {
+        this.lhs = lhs;
+    }
+    
+    public TypeRef getLhs() {
+        return lhs;
+    }
+    
+    public void setRhs(TypeRef rhs) {
+        this.rhs = rhs;
+    }
+    
+    public TypeRef getRhs() {
+        return rhs;
     }
 
-    public void setPaths(List<Id> ids) {
-        this.paths = ids;
+    /** Since idToken is null, we should implement getPickOffset */
+    @Override
+    public int getPickOffset(TokenHierarchy th) {
+        return -1;
     }
 
-    public List<Id> getPaths() {
-        return paths == null ? Collections.<Id>emptyList() : paths;
-    }
-
+    /** Since idToken is null, we should implement getPickEndOffset */
+    @Override
+    public int getPickEndOffset(TokenHierarchy th) {
+        return -1;
+    }    
+    
+    /** Since name is null, we should implement getName() */
     @Override
     public String getName() {
         StringBuilder sb = new StringBuilder();
-        for (Iterator<Id> itr = getPaths().iterator(); itr.hasNext();) {
-            sb.append(itr.next().getName());
-            if (itr.hasNext()) {
-                sb.append(".");
-            }
+        if (lhs == null) {
+            sb.append("(");
+            sb.append(")");
+        } else if (lhs instanceof WrappedType && ((WrappedType) lhs).getMore() == WrappedType.More.ByName) {
+            sb.append("(");
+            sb.append(lhs.getName());
+            sb.append(")");
+        } else {
+            sb.append(lhs.getName());
         }
+        sb.append("=>");
+        sb.append(rhs.getName());
         return sb.toString();
     }
-
+    
+    
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-        for (Iterator<Id> itr = getPaths().iterator(); itr.hasNext();) {
-            formatter.appendText(itr.next().getName());
-            if (itr.hasNext()) {
-                formatter.appendText(".");
-            }
+        if (lhs == null) {
+            formatter.appendText("(");
+            formatter.appendText(")");
+        } else if (lhs instanceof WrappedType && ((WrappedType) lhs).getMore() == WrappedType.More.ByName) {
+            formatter.appendText("(");
+            lhs.htmlFormat(formatter);
+            formatter.appendText(")");
+        } else {
+            lhs.htmlFormat(formatter);
         }
-        htmlFormatTypeArgs(formatter);
-    }
+        formatter.appendText("\u21D2");
+        rhs.htmlFormat(formatter);
+    }    
+
 }

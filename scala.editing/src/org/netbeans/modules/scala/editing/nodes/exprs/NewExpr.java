@@ -36,61 +36,42 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.scala.editing.nodes.exprs;
 
-package org.netbeans.modules.scala.editing.nodes;
-
+import org.netbeans.modules.scala.editing.nodes.*;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.ParameterizedType;
+import java.util.Collections;
 import java.util.List;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.gsf.api.ElementKind;
-import org.netbeans.modules.gsf.api.HtmlFormatter;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class InfixType extends TypeRef {
-    
-    private List<TypeRef> types;
-    private List<Id> ops;
-    
-    public InfixType(Token idToken, ElementKind kind) {
-        super(null, idToken, kind);
+public class NewExpr extends AstExpr {
+
+    private List<ParameterizedType> parents;
+
+    public NewExpr(Token[] boundsTokens) {
+        super(boundsTokens);
     }
-    
-    public void setTypes(List<TypeRef> types) {
-        this.types = types;
+
+    public void setParents(List<ParameterizedType> parents) {
+        this.parents = parents;
     }
-    
-    public List<TypeRef> getTypes() {
-        return types;
-    }
-    
-    public void setOps(List<Id> ops) {
-        this.ops = ops;
-    }
-    
-    public List<Id> getOps() {
-        return ops;
+
+    public List<ParameterizedType> getParents() {
+        return parents == null ? Collections.<ParameterizedType>emptyList() : parents;
     }
 
     @Override
-    public java.lang.String getName() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(types.get(0).getName());
-        for (int i = 1; i < types.size(); i++) {
-            sb.append(" ").append(ops.get(i - 1).getName()).append(" ");
-            sb.append(types.get(i).getName());
+    public TypeRef getType() {
+        /** @Todo */
+        if (getParents().size() > 0) {
+            return getParents().get(0);
+        } else {
+            return null;
         }
-        return sb.toString();
-    }    
-    
-    @Override
-    public void htmlFormat(HtmlFormatter formatter) {
-        types.get(0).htmlFormat(formatter);
-        for (int i = 1; i < types.size(); i++) {
-            formatter.appendText(" " + ops.get(i - 1) + " ");
-            types.get(i).htmlFormat(formatter);
-        }
-    }        
-
+    }
 }

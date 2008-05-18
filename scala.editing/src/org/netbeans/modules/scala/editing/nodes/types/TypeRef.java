@@ -36,13 +36,17 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes;
+package org.netbeans.modules.scala.editing.nodes.types;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
+import org.netbeans.modules.scala.editing.nodes.AstRef;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
+import org.netbeans.modules.scala.editing.nodes.Importing;
 
 /**
  *
@@ -204,11 +208,11 @@ public class TypeRef extends AstRef {
             return qualifiedName;
         }
 
-        List<Import> imports = getEnclosingScope().getDefsInScope(Import.class);
-        for (Import importDef : imports) {
-            for (TypeRef importedType : importDef.getImportedTypes()) {
+        List<Importing> importings = getEnclosingScope().getDefsInScope(Importing.class);
+        for (Importing importing : importings) {
+            for (TypeRef importedType : importing.getImportedTypes()) {
                 if (importedType.getName().equals(getName())) {
-                    qualifiedName = importDef.getPackageName() + "." + importedType.getName();
+                    qualifiedName = importing.getPackageName() + "." + importedType.getName();
                     return qualifiedName;
                 }
             }

@@ -38,6 +38,8 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

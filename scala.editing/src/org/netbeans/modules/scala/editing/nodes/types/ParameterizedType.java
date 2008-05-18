@@ -36,8 +36,7 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
-package org.netbeans.modules.scala.editing.nodes;
+package org.netbeans.modules.scala.editing.nodes.types;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -50,47 +49,66 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
  *
  * @author dcaoyuan
  */
-public class SimpleSingletonType extends SimpleType {
-    
-    private List<Id> ids;
-    
-    public SimpleSingletonType(Token idToken, ElementKind kind) {
-        super(null, idToken, kind);
-    }
-    
-    public void setIds(List<Id> ids) {
-        this.ids = ids;
-    }
-    
-    public List<Id> getIds() {
-        return ids == null ? Collections.<Id>emptyList() : ids;
+public class ParameterizedType extends TypeRef {
+
+    private List<String> annotations;
+    private List<List<TypeRef>> typeArgsList;
+
+    public ParameterizedType(String name, Token idToken, ElementKind kind) {
+        super(name, idToken, kind);
     }
 
-    @Override
-    public String getName() {
+    public void setAnnotations(List<String> annotations) {
+        this.annotations = annotations;
+    }
+
+    public List<String> getAnnotations() {
+        return annotations;
+    }
+
+    public void setTypeArgsList(List<List<TypeRef>> typeArgsList) {
+        this.typeArgsList = typeArgsList;
+    }
+
+    public List<List<TypeRef>> getTypeArgsList() {
+        return typeArgsList == null ? Collections.<List<TypeRef>>emptyList() : typeArgsList;
+    }
+    
+    public String getTypeArgsName() {
         StringBuilder sb = new StringBuilder();
-        for (Iterator<Id> itr = getIds().iterator(); itr.hasNext();) {
-            sb.append(itr.next().getName());
-            if (itr.hasNext()) {
-                sb.append(".");
+        for (List<TypeRef> typeArgs : getTypeArgsList()) {
+            sb.append("[");
+            if (typeArgs.size() == 0) {
+                // wildcard
+                sb.append("_");
+            } else {
+                for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
+                    sb.append(itr.next().getName());
+                    if (itr.hasNext()) {
+                        sb.append(", ");
+                    }
+                }
             }
+            sb.append("]");
         }
-        sb.append(".type");
         return sb.toString();
     }
 
-
-    @Override
-    public void htmlFormat(HtmlFormatter formatter) {
-        super.htmlFormat(formatter);
-        for (Iterator<Id> itr = getIds().iterator(); itr.hasNext();) {
-            formatter.appendText(itr.next().getName());
-            if (itr.hasNext()) {
-                formatter.appendText(".");
+    public void htmlFormatTypeArgs(HtmlFormatter formatter) {
+        for (List<TypeRef> typeArgs : getTypeArgsList()) {
+            formatter.appendText("[");
+            if (typeArgs.size() == 0) {
+                // wildcard
+                formatter.appendText("_");
+            } else {
+                for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
+                    itr.next().htmlFormat(formatter);
+                    if (itr.hasNext()) {
+                        formatter.appendText(", ");
+                    }
+                }
             }
+            formatter.appendText("]");
         }
-        formatter.appendText(".type");
-        htmlFormatTypeArgs(formatter);
-    }        
-
+    }
 }

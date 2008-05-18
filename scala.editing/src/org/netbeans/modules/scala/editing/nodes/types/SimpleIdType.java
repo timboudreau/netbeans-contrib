@@ -36,8 +36,9 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes;
+package org.netbeans.modules.scala.editing.nodes.types;
 
+import org.netbeans.modules.scala.editing.nodes.*;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -47,68 +48,45 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
 
 /**
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
-public class SimpleType extends TypeRef {
+public class SimpleIdType extends ParameterizedType {
 
-    private List<String> annotations;
-    private List<List<TypeRef>> typeArgsList;
+    private List<Id> paths;
 
-    public SimpleType(String name, Token idToken, ElementKind kind) {
-        super(name, idToken, kind);
+    public SimpleIdType(Token idToken, ElementKind kind) {
+        super(null, idToken, kind);
     }
 
-    public void setAnnotations(List<String> annotations) {
-        this.annotations = annotations;
+    public void setPaths(List<Id> ids) {
+        this.paths = ids;
     }
 
-    public List<String> getAnnotations() {
-        return annotations;
+    public List<Id> getPaths() {
+        return paths == null ? Collections.<Id>emptyList() : paths;
     }
 
-    public void setTypeArgsList(List<List<TypeRef>> typeArgsList) {
-        this.typeArgsList = typeArgsList;
-    }
-
-    public List<List<TypeRef>> getTypeArgsList() {
-        return typeArgsList == null ? Collections.<List<TypeRef>>emptyList() : typeArgsList;
-    }
-    
-    public String getTypeArgsName() {
+    @Override
+    public String getName() {
         StringBuilder sb = new StringBuilder();
-        for (List<TypeRef> typeArgs : getTypeArgsList()) {
-            sb.append("[");
-            if (typeArgs.size() == 0) {
-                // wildcard
-                sb.append("_");
-            } else {
-                for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
-                    sb.append(itr.next().getName());
-                    if (itr.hasNext()) {
-                        sb.append(", ");
-                    }
-                }
+        for (Iterator<Id> itr = getPaths().iterator(); itr.hasNext();) {
+            sb.append(itr.next().getName());
+            if (itr.hasNext()) {
+                sb.append(".");
             }
-            sb.append("]");
         }
         return sb.toString();
     }
 
-    public void htmlFormatTypeArgs(HtmlFormatter formatter) {
-        for (List<TypeRef> typeArgs : getTypeArgsList()) {
-            formatter.appendText("[");
-            if (typeArgs.size() == 0) {
-                // wildcard
-                formatter.appendText("_");
-            } else {
-                for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
-                    itr.next().htmlFormat(formatter);
-                    if (itr.hasNext()) {
-                        formatter.appendText(", ");
-                    }
-                }
+    @Override
+    public void htmlFormat(HtmlFormatter formatter) {
+        super.htmlFormat(formatter);
+        for (Iterator<Id> itr = getPaths().iterator(); itr.hasNext();) {
+            formatter.appendText(itr.next().getName());
+            if (itr.hasNext()) {
+                formatter.appendText(".");
             }
-            formatter.appendText("]");
         }
+        htmlFormatTypeArgs(formatter);
     }
 }

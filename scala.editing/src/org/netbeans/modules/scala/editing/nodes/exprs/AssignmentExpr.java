@@ -37,18 +37,37 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.scala.editing.nodes;
+package org.netbeans.modules.scala.editing.nodes.exprs;
 
-import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.scala.editing.nodes.*;
+import org.netbeans.api.lexer.Token;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class TypeAlias extends AstDef {
+public class AssignmentExpr extends AstExpr {
     
-    public TypeAlias(Id id, AstScope bindingScope) {
-        super(id.getName(), id.getIdToken(), bindingScope, ElementKind.CLASS);
+    private AstExpr lhs;
+    private AstExpr rhs;
+    
+    public AssignmentExpr(Token[] boundsTokens) {
+        super(boundsTokens);
     }
 
+    public void setLhs(AstExpr lhs) {
+        this.lhs = lhs;
+    }
+    
+    public AstExpr getLhs() {
+        return lhs;
+    }
+    
+    public void setRhs(AstExpr rhs) {
+        this.rhs = rhs;
+    }
+    
+    public AstExpr getRhs() {
+        return rhs;
+    }
 }

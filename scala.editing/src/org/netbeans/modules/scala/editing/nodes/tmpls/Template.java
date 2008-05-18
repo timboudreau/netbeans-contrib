@@ -36,27 +36,57 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes;
+package org.netbeans.modules.scala.editing.nodes.tmpls;
 
+import org.netbeans.modules.scala.editing.nodes.*;
+import org.netbeans.modules.scala.editing.nodes.types.ParameterizedType;
+import java.util.Collections;
+import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class TraitTemplate extends Template {
+public abstract class Template extends AstDef {
 
-    public TraitTemplate(Id id, AstScope bindingScope) {
-        super(id, bindingScope, ElementKind.MODULE);
+    private boolean caseOne;
+
+    private List<ParameterizedType> extendsWith;
+    
+    public Template(Id id, AstScope bindingScope, ElementKind kind) {
+        super(id.getName(), id.getIdToken(), bindingScope, kind);
     }
 
-    @Override
-    public String getBinaryName() {
-        return getName();
+    public void setCaseOne() {
+        this.caseOne = true;
     }
 
-    @Override
     public boolean isCaseOne() {
-        return false;
+        return caseOne;
+    }
+    
+    public void setExtendsWith(List<ParameterizedType> extendsWith) {
+        this.extendsWith = extendsWith;
+    }
+    
+    public List<ParameterizedType> getExtendsWith() {
+        return extendsWith == null ? Collections.<ParameterizedType>emptyList() : extendsWith;
+    }
+
+    @Override
+    public boolean referredBy(AstRef ref) {
+        switch (ref.getKind()) {
+            case CLASS:
+                return getName().equals(ref.getName());
+            case VARIABLE:
+                if (isCaseOne()) {
+                    return getName().equals(ref.getName());
+                } else {
+                    return false;
+                }
+            default:
+                return false;
+        }
     }
 }

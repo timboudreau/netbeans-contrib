@@ -36,22 +36,17 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.scala.editing.nodes;
+package org.netbeans.modules.scala.editing.nodes.exprs;
 
-import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.scala.editing.nodes.*;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class ClassTemplate extends Template {
+public interface Postfixable {
 
-    public ClassTemplate(Id id, AstScope bindingScope) {
-        super(id, bindingScope, ElementKind.CLASS);
-    }
+    void setPostfixOp(Id postfixOp);
 
-    @Override
-    public String getBinaryName() {
-        return getName();
-    }
+    Id getPostfixOp();
 }
