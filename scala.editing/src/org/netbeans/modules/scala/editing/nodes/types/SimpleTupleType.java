@@ -51,7 +51,7 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
  *
  * @author dcaoyuan
  */
-public class SimpleTupleType extends ParameterizedType {
+public class SimpleTupleType extends TypeRef {
     private List<TypeRef> types;
     
     public SimpleTupleType(Token idToken, ElementKind kind) {
