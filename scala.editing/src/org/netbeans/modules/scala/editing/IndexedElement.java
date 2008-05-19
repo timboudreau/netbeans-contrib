@@ -264,6 +264,11 @@ public abstract class IndexedElement extends AstElement {
         return signature;
     }
 
+    @Override
+    public String toString() {
+        return getSignature() + ":" + getFilenameUrl() + ";" + decodeFlags(flags);
+    }    
+    
     public ScalaIndex getIndex() {
         return index;
     }
