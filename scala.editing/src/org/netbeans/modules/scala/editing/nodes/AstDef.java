@@ -51,6 +51,7 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 public class AstDef extends AstElement {
 
     private AstScope bindingScope;
+    private Token[] docBoundsTokens;
 
     public AstDef(String name, Token idToken, AstScope bindingScope, ElementKind kind) {
         super(name, idToken, kind);
@@ -59,16 +60,24 @@ public class AstDef extends AstElement {
     }
 
     public AstScope getBindingScope() {
-        assert bindingScope != null : "Each definition should set binding scope!";
+        assert bindingScope != null : toString() + ": Each definition should set binding scope!";
         return bindingScope;
     }
     
-    public int getOffset(TokenHierarchy th) {
-        return getBindingScope().getOffset(th);
+    public void setDocBoundsToken(Token[] docBoundsTokens) {
+        this.docBoundsTokens = docBoundsTokens;
     }
-
-    public int getEndOffset(TokenHierarchy th) {
-        return getBindingScope().getEndOffset(th);
+    
+    public Token[] getDocBoundsTokens() {
+        return docBoundsTokens;
+    }
+    
+    public int getBoundsOffset(TokenHierarchy th) {
+        return getBindingScope().getBoundsOffset(th);
+    }
+    
+    public int getBoundsEndOffset(TokenHierarchy th) {
+        return getBindingScope().getBoundsEndOffset(th);
     }
 
     public OffsetRange getRange(TokenHierarchy th) {

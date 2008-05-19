@@ -36,35 +36,42 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing.nodes;
 
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef.PseudoTypeRef;
 
 /**
  *
- * @author dcaoyuan
+ * @author Caoyuan Deng
  */
 public class FieldRef extends AstRef {
-    
-    private AstExpr base;
+
+    /** base may be AstExpr, FunRef, FieldRef, IdRef etc */
+    private AstElement base;
     private Id field;
 
     public FieldRef(Token idToken) {
         super(null, idToken, ElementKind.FIELD);
+        setType(new PseudoTypeRef());
     }
 
-    public void setBase(AstExpr base) {
+    public void setBase(AstElement base) {
         this.base = base;
     }
 
-    public AstExpr getBase() {
+    public AstElement getBase() {
         return base;
     }
 
     public void setField(Id field) {
         this.field = field;
+    }
+
+    public Id getField() {
+        return field;
     }
 
     @Override
@@ -80,10 +87,7 @@ public class FieldRef extends AstRef {
         return sb.toString();
     }
 
-    @Override
-    public TypeRef getType() {
-        return field.getType();
+    public void setRetTypeStr(String retTypeStr) {
+        getType().setQualifiedName(retTypeStr);
     }
-    
-    
 }

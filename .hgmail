@@ -52,3 +52,4 @@ cvs@web.netbeans.org=api.web.dd/*,hibernatelib/*,hibernate/*,web.webrest/*
 cvs@websvc.netbeans.org=websvc.axis2/*,websvc.wsitlib/*
 cvs@xml.netbeans.org=o.sample.registry.model/*
 cvs@xtest.netbeans.org=xtest/*
+jesse.glick@sun.com=autoproject.*/*

@@ -42,6 +42,7 @@ public enum LDAPAttribute implements Attribute {
     LDAP_KEYSTORE_PROPERTY("keystore"),
     LDAP_KEYSTOREUSERNAME_PROPERTY("keystoreusername"),
     LDAP_KEYSTOREPASSWORD_PROPERTY("keystorepassword"),
+    LDAP_TLSSECURITY_PROPERTY("tlssecurity"),
     LDAP_KEYSTORETYPE_PROPERTY("keystoretype");
     private String name;
     private Class type;

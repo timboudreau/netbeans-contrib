@@ -56,9 +56,8 @@ import javax.lang.model.util.Types;
 import org.netbeans.api.java.source.ClassIndex;
 import org.netbeans.api.java.source.ClassIndex.NameKind;
 import org.netbeans.api.java.source.ClassIndex.SearchScope;
-import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
-import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.modules.java.source.JavaSourceAccessor;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.util.Exceptions;
@@ -72,24 +71,21 @@ public class JavaIndex {
     public static final Set<SearchScope> ALL_SCOPE = EnumSet.allOf(SearchScope.class);
     public static final Set<SearchScope> SOURCE_SCOPE = EnumSet.of(SearchScope.SOURCE);
     private final ClassIndex index;
-    private final CompilationController controller;
+    private final CompilationInfo info;
     private final ScalaIndex scalaIndex;
 
-    private JavaIndex(ClassIndex index, CompilationController controller, ScalaIndex scalaIndex) {
+    private JavaIndex(ClassIndex index, CompilationInfo info, ScalaIndex scalaIndex) {
         this.index = index;
-        this.controller = controller;
+        this.info = info;
         this.scalaIndex = scalaIndex;
     }
 
-    public static JavaIndex get(org.netbeans.modules.gsf.api.CompilationInfo info, ScalaIndex scalaIndex) {
-        ScalaParserResult pResult = AstUtilities.getParserResult(info);
-        CompilationController controller = pResult.getJavaController();
-        assert controller != null : "Only opened doc has java's CompilationController";
-        
-        JavaSource source = controller.getJavaSource();
-        ClassIndex index = source.getClasspathInfo().getClassIndex();
+    public static JavaIndex get(org.netbeans.modules.gsf.api.CompilationInfo gsfInfo, ScalaIndex scalaIndex) {
+        CompilationInfo info = JavaUtilities.getCompilationInfoForScalaFile(gsfInfo.getFileObject());
 
-        return new JavaIndex(index, controller, scalaIndex);
+        ClassIndex index = info.getClasspathInfo().getClassIndex();
+
+        return new JavaIndex(index, info, scalaIndex);
     }
 
     public Set<IndexedElement> getPackages(String fqnPrefix) {
@@ -97,7 +93,7 @@ public class JavaIndex {
         Set<IndexedElement> idxElements = new HashSet<IndexedElement>();
         for (String pkgName : pkgNames) {
             if (pkgName.length() > 0) {
-                IndexedElement idxElement = IndexedElement.create("", "", pkgName, pkgName, "", 0, scalaIndex, true);
+                IndexedElement idxElement = IndexedElement.create("", "", pkgName, pkgName, null, 0, scalaIndex, true);
                 idxElements.add(idxElement);
             }
         }
@@ -119,8 +115,8 @@ public class JavaIndex {
             pkgName = fqnPrefix.substring(0, lastDot);
             prefix = fqnPrefix.substring(lastDot + 1, fqnPrefix.length());
         }
-        
-        Elements theElements = controller.getElements();
+
+        Elements theElements = info.getElements();
         PackageElement pe = theElements.getPackageElement(pkgName);
         if (pe != null) {
             Set<IndexedElement> idxElements = new HashSet<IndexedElement>();
@@ -138,9 +134,12 @@ public class JavaIndex {
                         base.append(';');
                         base.append(simpleName);
                         base.append(';');
-                        base.append(IndexedElement.computeAttributes(e));
 
-                        IndexedElement idxElement = IndexedElement.create(simpleName, base.toString(), "", scalaIndex, false);
+                        String attrs = IndexedElement.computeAttributes(e);
+                        base.append(attrs);
+
+                        IndexedElement idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
+                        idxElement.setJavaInfo(e, info);
                         idxElements.add(idxElement);
                     }
                 }
@@ -198,7 +197,7 @@ public class JavaIndex {
                 pkgName = type.substring(0, lastDot);
                 type = type.substring(lastDot + 1, type.length());
             }
-            
+
             fqn = type + "." + name;
         } else {
             fqn = name;
@@ -209,15 +208,15 @@ public class JavaIndex {
         /** always use NameKind.SIMPLE_NAME search index.getDeclaredTypes */
         kind = NameKind.SIMPLE_NAME;
 
-        Elements theElements = controller.getElements();
-        Types theTypes = controller.getTypes();
+        Elements theElements = info.getElements();
+        Types theTypes = info.getTypes();
 
         Set<ElementHandle<TypeElement>> dclTypes = index.getDeclaredTypes(type, kind, scope);
 
         for (ElementHandle<TypeElement> teHandle : dclTypes) {
             IndexedElement idxElement = null;
 
-            TypeElement te = teHandle.resolve(controller);
+            TypeElement te = teHandle.resolve(info);
 
             PackageElement pe = theElements.getPackageOf(te);
             if (pe != null) {
@@ -238,41 +237,66 @@ public class JavaIndex {
                         continue;
                     }
 
-                    String simpleMame = e.getSimpleName().toString();
+                    String simpleName = e.getSimpleName().toString();
+                    if (!JavaUtilities.startsWith(simpleName, name)) {
+                        continue;
+                    }
+
+                    String in = pe.getQualifiedName().toString() + "." + e.getEnclosingElement().getSimpleName().toString();
 
                     switch (e.getKind()) {
-                        case ENUM_CONSTANT:
                         case EXCEPTION_PARAMETER:
-                        case FIELD:
                         case LOCAL_VARIABLE:
                         case PARAMETER:
-                            if ("this".equals(simpleMame) || "class".equals(simpleMame) || "super".equals(simpleMame)) {
+                            break;
+                        case ENUM_CONSTANT:
+                        case FIELD: {
+                            if ("this".equals(simpleName) || "class".equals(simpleName) || "super".equals(simpleName)) {
                                 //results.add(JavaCompletionItem.createKeywordItem(ename, null, anchorOffset, false));
-                                } else {
+                            } else {
                                 TypeMirror tm = typeMirror.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) typeMirror, e) : e.asType();
                             //results.add(JavaCompletionItem.createVariableItem((VariableElement) e, tm, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), isOfSmartType(env, tm, smartTypes)));
                             }
-                            break;
-                        case CONSTRUCTOR:
-                            ExecutableType et = (ExecutableType) (typeMirror.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) typeMirror, e) : e.asType());
-                            //results.add(JavaCompletionItem.createExecutableItem((ExecutableElement) e, et, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), inImport, isOfSmartType(env, type, smartTypes)));
-                            break;
-                        case METHOD:
-                            et = (ExecutableType) (typeMirror.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) typeMirror, e) : e.asType());
-                            String in = e.getEnclosingElement().getSimpleName().toString();
+
                             StringBuilder base = new StringBuilder();
-                            base.append(simpleMame.toLowerCase());
+                            base.append(simpleName.toLowerCase());
                             base.append(';');
                             if (in != null) {
                                 base.append(in);
                             }
                             base.append(';');
-                            base.append(simpleMame);
+                            base.append(simpleName);
                             base.append(';');
-                            base.append(IndexedElement.computeAttributes(e));
 
-                            idxElement = IndexedElement.create(simpleMame, base.toString(), "", scalaIndex, false);
+                            String attrs = IndexedElement.computeAttributes(e);
+                            base.append(attrs);
+
+                            idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
+                            idxElement.setJavaInfo(e, info);
                             break;
+                        }
+                        case CONSTRUCTOR:
+                            simpleName = e.getEnclosingElement().getSimpleName().toString();
+                        case METHOD: {
+                            ExecutableType et = (ExecutableType) (typeMirror.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) typeMirror, e) : e.asType());
+
+                            StringBuilder base = new StringBuilder();
+                            base.append(simpleName.toLowerCase());
+                            base.append(';');
+                            if (in != null) {
+                                base.append(in);
+                            }
+                            base.append(';');
+                            base.append(simpleName);
+                            base.append(';');
+
+                            String attrs = IndexedElement.computeAttributes(e);
+                            base.append(attrs);
+
+                            idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
+                            idxElement.setJavaInfo(e, info);
+                            break;
+                        }
                         case CLASS:
                         case ENUM:
                         case INTERFACE:
@@ -291,9 +315,11 @@ public class JavaIndex {
                     } else if (!isFunction && !includeProperties) {
                         continue;
                     }
+                    
                     if (onlyConstructors && !idxElement.getKind().name().equals(ElementKind.CONSTRUCTOR.name())) {
                         continue;
                     }
+                    
                     if (!haveRedirected) {
                         idxElement.setSmart(true);
                     }

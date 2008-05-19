@@ -36,7 +36,6 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.wsdlextensions.ldap;
 
 import java.util.ArrayList;
@@ -47,11 +46,13 @@ import javax.swing.DefaultComboBoxModel;
  *
  * @author tianlize
  */
-public class SortedComboboxModel extends DefaultComboBoxModel{
-    private List items=null;
-    public SortedComboboxModel(){
-        items=new ArrayList();
-    }     
+public class SortedComboboxModel extends DefaultComboBoxModel {
+
+    private List items = null;
+
+    public SortedComboboxModel() {
+        items = new ArrayList();
+    }
 
     public int getSize() {
         return items.size();
@@ -60,19 +61,22 @@ public class SortedComboboxModel extends DefaultComboBoxModel{
     public String getElementAt(int index) {
         return (String) items.get(index);
     }
-    
+
     public void addElement(String item) {
         if (items.size() == 0) {
             items.add(item);
         } else if (items.size() > 0) {
+            boolean flag = true;
             for (int i = 0; i < items.size(); i++) {
                 String str = (String) items.get(i);
                 if (str.compareTo(item) > 0) {
                     items.add(i, item);
-                    break;
-                } else if (str.compareTo(item) == 0) {
+                    flag = false;
                     break;
                 }
+            }
+            if (flag) {
+                items.add(item);
             }
         }
     }
@@ -87,13 +91,12 @@ public class SortedComboboxModel extends DefaultComboBoxModel{
             }
         }
     }
-    
+
     public void removeElements() {
         items.clear();
     }
-    
+
     public List getElements() {
         return items;
     }
-
 }

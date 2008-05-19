@@ -38,6 +38,7 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
 
@@ -71,7 +72,7 @@ public class Var extends AstDef {
     public boolean getImplicate() {
         return implicate;
     }
-    
+
     public void setExpr(AstExpr expr) {
         this.expr = expr;
         getBindingScope().addExpr(expr);
@@ -91,14 +92,16 @@ public class Var extends AstDef {
 
     @Override
     public TypeRef getType() {
-        if (super.getType() == null) {
-            if (expr != null) {
-                return expr.getType();
-            }
+        if (type != null) {
+            return type;
         }
-        
-        return super.getType();
-    }    
+
+        if (expr != null) {
+            return expr.getType();
+        }
+
+        return null;
+    }
 
     @Override
     public boolean mayEqual(AstDef def) {
@@ -110,16 +113,16 @@ public class Var extends AstDef {
             default:
                 return false;
         }
-    }        
+    }
 
     @Override
     public void htmlFormat(HtmlFormatter formatter) {
         super.htmlFormat(formatter);
-        TypeRef type = getType();
-        if (type != null) {
+        TypeRef myType = getType();
+        if (myType != null) {
             formatter.type(true);
             formatter.appendHtml(" :");
-            type.htmlFormat(formatter);
+            myType.htmlFormat(formatter);
             formatter.type(false);
         }
     }

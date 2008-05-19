@@ -97,8 +97,14 @@ final class PagebeanPackagePanel implements WizardDescriptor.Panel, ChangeListen
             wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(PagebeanPackagePanel.class, "MSG_InvalidPackageName", packageName)); // NOI18N
             return false;
         }
+        
+        return gui.valid(wizard);
 
-        return true;
+    }
+    
+    public void disableNewPortletCreateOption()
+    {
+        gui.disableNewPortletCreateOption();
     }
 
     public synchronized void addChangeListener(ChangeListener l) {
@@ -138,6 +144,7 @@ final class PagebeanPackagePanel implements WizardDescriptor.Panel, ChangeListen
 
         if (isValid()) {
             ((WizardDescriptor) settings).putProperty(JsfProjectConstants.PROP_JSF_PAGEBEAN_PACKAGE, gui.getPackageName());
+            gui.store(wizard);
         }
     }
 

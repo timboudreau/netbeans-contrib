@@ -38,10 +38,13 @@
  */
 package org.netbeans.modules.scala.editing.nodes;
 
+import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
@@ -67,7 +70,7 @@ public class AstElement implements ElementHandle {
     private ElementKind kind;
     private AstScope enclosingScope;
     private Set<Modifier> mods;
-    private TypeRef type;
+    protected TypeRef type;
     protected String qualifiedName;
     
     public AstElement( ElementKind kind) {
@@ -103,6 +106,28 @@ public class AstElement implements ElementHandle {
 
     public Token getIdToken() {
         return idToken;
+    }
+    
+    public int getPickOffset(TokenHierarchy th) {
+        if (idToken != null) {
+            return idToken.offset(th);
+        } else {
+            assert false : getName() + ": Should implement getPickOffset(th)";
+            return -1;
+        }
+    }
+    
+    public int getPickEndOffset(TokenHierarchy th) {
+        if (idToken != null) {
+            return idToken.offset(th) + idToken.length();
+        } else {
+            assert false : getName() + ": Should implement getPickEndOffset(th)";
+            return -1;
+        }
+    }
+    
+    public void setKind(ElementKind kind) {
+        this.kind = kind;
     }
     
     public ElementKind getKind() {
@@ -141,7 +166,7 @@ public class AstElement implements ElementHandle {
      * @Note: enclosingScope will be set when call
      *   {@link AstScope#addDef(Def)} or {@link AstScope#addUsage(Usage)}
      */
-    protected void setEnclosingScope(AstScope enclosingScope) {
+    public void setEnclosingScope(AstScope enclosingScope) {
         this.enclosingScope = enclosingScope;
     }
 
@@ -149,7 +174,7 @@ public class AstElement implements ElementHandle {
      * @return the scope that encloses this item 
      */
     public AstScope getEnclosingScope() {
-        assert enclosingScope != null : "Each element should set enclosing scope!, except native TypeRef";
+        assert enclosingScope != null : toString() + ": Each element should set enclosing scope!, except native TypeRef";
         return enclosingScope;
     }
 

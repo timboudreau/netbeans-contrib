@@ -26,6 +26,15 @@ public abstract class LdapConnectionProperties {
     private String keystorepassword = "";
     private String keystoreusername = "";
     private String keystoretype = "";
+    private String tlssecurity = "";
+
+    public String getTlssecurity() {
+        return tlssecurity;
+    }
+
+    public void setTlssecurity(String tlssecurity) {
+        this.tlssecurity = tlssecurity;
+    }
 
     public String getSsltype() {
         return ssltype;
