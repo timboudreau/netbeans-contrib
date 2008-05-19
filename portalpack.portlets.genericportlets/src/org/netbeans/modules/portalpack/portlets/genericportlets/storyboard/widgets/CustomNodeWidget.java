@@ -18,8 +18,18 @@
   */
 package org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widgets;
 
+import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import org.netbeans.api.visual.action.AcceptProvider;
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.ConnectorState;
 import org.netbeans.api.visual.vmd.VMDNodeWidget;
 import org.netbeans.api.visual.widget.Scene;
+import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.EventObject;
+import org.netbeans.modules.portalpack.portlets.genericportlets.node.PublicRenderParameterNode;
+import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc.IPCGraphScene;
 
 /**
  *
@@ -33,6 +43,7 @@ public class CustomNodeWidget extends VMDNodeWidget {
    public CustomNodeWidget(Scene scene)
    {
        super(scene);
+       createAcceptAction();
    }
 
     public String getNodeKey() {
@@ -49,5 +60,48 @@ public class CustomNodeWidget extends VMDNodeWidget {
 
     public void setPortletName(String portletName) {
         this.portletName = portletName;
+    }
+    
+    private void createAcceptAction()
+    {
+        getActions().addAction(ActionFactory.createAcceptAction(new AcceptProvider() {
+
+          public ConnectorState isAcceptable(Widget widget, Point point, Transferable transferable) {
+                Object obj = null;
+                try {
+
+                    obj = transferable.getTransferData(new DataFlavor("application/x-java-openide-nodednd; class=org.openide.nodes.Node", "application/x-java-openide-nodednd")); //NOI18N
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                if (obj == null) {
+                    return ConnectorState.REJECT;
+                } else if (obj instanceof PublicRenderParameterNode) {
+                    return ConnectorState.ACCEPT;
+                }
+                return ConnectorState.REJECT;
+            }
+
+            public void accept(Widget widget, Point point, Transferable transferable) {
+                try {
+                    Object obj = transferable.getTransferData(new DataFlavor("application/x-java-openide-nodednd; class=org.openide.nodes.Node", "application/x-java-openide-nodednd")); //NOI18N
+                    if(obj instanceof PublicRenderParameterNode){
+                        PublicRenderParameterNode node = (PublicRenderParameterNode) obj;
+                        addPublicRenderParameterPin(node);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }));
+        
+    }
+    
+    private void addPublicRenderParameterPin(PublicRenderParameterNode node)
+    {
+        EventObject evt = node.getCoordinationObject();
+        IPCGraphScene scene = (IPCGraphScene)this.getScene();
+        scene.addPublicRenderParameter(nodeKey, evt);
     }
 }

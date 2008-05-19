@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <portlet-app xmlns='http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd' version='1.0'>
 	<portlet>
-		<description>Created By Visual Web</description>
-		<portlet-name>VisualWebJSF</portlet-name>
-		<display-name>Visual Web JSF Portlet</display-name>
+		<description>${portlet_desc}</description>
+		<portlet-name>${portlet_name}</portlet-name>
+		<display-name>${portlet_display_name}</display-name>
 		<portlet-class>com.sun.faces.portlet.FacesPortlet</portlet-class>
 		<init-param>
                         <description>Portlet init view page</description>
@@ -18,8 +18,8 @@
 		<supported-locale>en</supported-locale>
                 <resource-bundle>messages</resource-bundle>
 		<portlet-info>
-                        <title>${portlet_name}</title>
-                        <short-title>${portlet_name}</short-title>
+                        <title>${portlet_title}</title>
+                        <short-title>${portlet_short_title}</short-title>
 			<keywords>Visual Web JSF Portlet</keywords>
 		</portlet-info>
 	</portlet>

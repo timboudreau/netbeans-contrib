@@ -38,6 +38,7 @@ public class CustomPinWidget extends VMDPinWidget {
     private int type = -1;
     public static int PUBLISH_EVENT_TYPE = 0;
     public static int PROCESS_EVENT_TYPE = 1;
+    public static int RENDERPARAM_TYPE = 2;
     
     public CustomPinWidget(Scene scene)
     {

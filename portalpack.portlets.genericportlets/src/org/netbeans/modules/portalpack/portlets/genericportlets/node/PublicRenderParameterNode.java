@@ -25,9 +25,11 @@ import java.util.Map;
 import java.util.logging.Logger;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PublicRenderParameterType;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.EventObject;
 import org.netbeans.modules.schema2beans.BaseBean;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.Node.Property;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -78,6 +80,26 @@ public class PublicRenderParameterNode extends AbstractNode{
     public String getID()
     {
         return id;
+    }
+    
+    public EventObject getCoordinationObject()
+    {
+            EventObject evt = new EventObject();
+            evt.setPublicRenderParamId(publicRenderParameterType.getIdentifier());
+            evt.setType(EventObject.PUBLIC_RENDER_PARAMETER_TYPE);
+            if(publicRenderParameterType.getQname() != null)
+                evt.setQName(publicRenderParameterType.getQname());
+            else
+                evt.setName(publicRenderParameterType.getName());
+            try {
+
+                evt.setDefaultNameSpace(dobj.getPortletApp().getPortletDefaultNamespace());
+            } catch (IOException ex) {
+                logger.info(ex.getMessage());
+                //don't do anything
+            }
+            evt.setAlias(publicRenderParameterType.getAlias());
+            return evt;
     }
 
     @Override
