@@ -300,7 +300,6 @@ generic Block =
   EXIT_NL_ENABLE 
 ;
 
-/* @DocError in ScalaReference: ( "implicit":key )? Def */
 transient generic BlockStat = 
   Import
 / ( "implicit":key / "lazy":key )* Def
