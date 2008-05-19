@@ -39,6 +39,7 @@ public class NodePopUpMenuProvider implements PopupMenuProvider, ActionListener{
      private static final String ACTION_REMOVE = "Remove"; //NOI18N
      private static final String ACTION_ADD = "Add"; //NOI18N
      private static final String ACTION_ADD_PROCESS_EVENT = "Add_Process_Event"; //NOI18N
+     private static final String ACTION_ADD_PUBLIC_RENDER_PARAM="Add_Publi_Render_Param"; //NOI18N
      private String nodeKey="";
      private JPopupMenu menu;
      /** Creates a new instance of NodePopUpMenuProvider */
@@ -64,8 +65,15 @@ public class NodePopUpMenuProvider implements PopupMenuProvider, ActionListener{
         item1.setActionCommand(ACTION_ADD_PROCESS_EVENT);
         item1.addActionListener(this);
         item1.setBackground(Color.WHITE);
-        item.setToolTipText(NbBundle.getMessage(NodePopUpMenuProvider.class, "MENU_ADD_PROCESS_EVENT_TOOLTIP"));
+        item1.setToolTipText(NbBundle.getMessage(NodePopUpMenuProvider.class, "MENU_ADD_PROCESS_EVENT_TOOLTIP"));
         menu.add(item1);
+        
+        JMenuItem item2 = new JMenuItem(NbBundle.getMessage(NodePopUpMenuProvider.class, "MENU_ADD_PUBLIC_RENDER_PARAM"));
+        item2.setActionCommand(ACTION_ADD_PUBLIC_RENDER_PARAM);
+        item2.addActionListener(this);
+        item2.setBackground(Color.WHITE);
+        menu.add(item2);
+
         
         menu.setBackground(Color.white);
         
@@ -82,6 +90,8 @@ public class NodePopUpMenuProvider implements PopupMenuProvider, ActionListener{
             scene.addEvent(nodeKey);
         }else if(e.getActionCommand().equals(ACTION_ADD_PROCESS_EVENT)){
             scene.addNewProcessEvent(nodeKey);
+        }else if(e.getActionCommand().equals(ACTION_ADD_PUBLIC_RENDER_PARAM)) {
+            scene.addPublicRenderParameter(nodeKey, null);
         }
     }
     

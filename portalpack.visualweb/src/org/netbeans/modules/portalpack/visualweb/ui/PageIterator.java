@@ -75,8 +75,10 @@ import org.netbeans.api.project.libraries.Library;
 import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.AppContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.WebDescriptorGenerator;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.listeners.PortletXMLChangeEventNotificationHelper;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.InitParamType;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletInfoType;
@@ -92,6 +94,7 @@ import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.*;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /** A template wizard iterator for new JSF page action
@@ -111,7 +114,7 @@ public class PageIterator implements TemplateWizard.Iterator {
         Project project = Templates.getProject(wizard);
         SourceGroup[] sourceGroups = ProjectUtils.getSources(project).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
 
-        WizardDescriptor.Panel packagePanel = new PagebeanPackagePanel(project);
+        PagebeanPackagePanel packagePanel = new PagebeanPackagePanel(project);
         WizardDescriptor.Panel javaPanel = new SimpleTargetChooserPanel(project, sourceGroups, packagePanel, false);
         String templateType = Templates.getTemplate(wizard).getExt();
         panels = new WizardDescriptor.Panel[]{javaPanel};
@@ -140,6 +143,26 @@ public class PageIterator implements TemplateWizard.Iterator {
         if (!JsfProjectUtils.isWebProject(project)) {
             return;
         }
+        
+        //decide if to create a new portlet 
+        if(JsfProjectUtils.isJsfProject(project))
+            packagePanel.disableNewPortletCreateOption();
+        else{
+            WebModule webModule = JsfProjectUtils.getWebModule(project);
+            FileObject webInf = webModule.getWebInf();
+            if(webInf != null)
+            {
+                FileObject portletXmlOb = webInf.getFileObject("portlet", "xml");
+                if(portletXmlOb != null)
+                {
+                    File portletXml = FileUtil.toFile(portletXmlOb);
+                    PortletApp portletApp = getPortletApp(portletXml);
+                    if(isJSFPortletEntryPresent(portletApp))
+                        packagePanel.disableNewPortletCreateOption();
+
+                }
+            }
+        }
 
         // Always start with the document root or under
         FileObject docRoot = JsfProjectUtils.getDocumentRoot(project);
@@ -164,7 +187,8 @@ public class PageIterator implements TemplateWizard.Iterator {
                 wizard.setTargetName(name);
                 return;
             }
-        }
+        }        
+        
     }
 
     public void uninitialize(TemplateWizard wizard) {
@@ -186,6 +210,8 @@ public class PageIterator implements TemplateWizard.Iterator {
         Project project = Templates.getProject(wizard);
         DataObject dTemplate = DataObject.find(template);
         String targetName = Templates.getTargetName(wizard);
+        
+        PortletContext context = (PortletContext)wizard.getProperty("context");
         Set result = Collections.EMPTY_SET;
 
         // Visual Web framework is not initialized
@@ -228,25 +254,19 @@ public class PageIterator implements TemplateWizard.Iterator {
                     String jsfPortletFolderRelativePath = JsfProjectUtils.getRelativePathForJsfPortlet(webModule.getDocumentBase(), dir);
 
                     if (!filePortlet.exists()) {
-                        String content = JsfProjectUtils.readResource(Thread.currentThread().getContextClassLoader().getResourceAsStream("org/netbeans/modules/portalpack/visualweb/templates/portlet.xml.template"), "UTF-8"); // NOI18N
-
-                        content = content.replace("${page_name}", jsfPortletFolderRelativePath + targetName + "." + template.getExt()); // NOI18N
-
-                        content = content.replace("${portlet_name}", ProjectUtils.getInformation(project).getDisplayName()); // NOI18N
-
-                        FileObject target = FileUtil.createData(webModule.getWebInf(), "portlet.xml"); // NOI18N
-
-                        JsfProjectUtils.createFile(target, content, "UTF-8"); //NOI18N
-
-                        //fire portlet add event
-                        PortletContext context = new PortletContext();
-                        context.setPortletName("VisualWebJSF");
-                        context.setPortletClass("com.sun.faces.portlet.FacesPortlet");
-                        if (webModule.getWebInf() != null) {
-                            String webInfPath = FileUtil.toFile(webModule.getWebInf()).getAbsolutePath();
-                            PortletXMLChangeEventNotificationHelper.firePortletAddEvent(context, new AppContext(), webInfPath);
+                        
+                        context.setPortletVersion(NetbeanConstants.PORTLET_1_0);
+                        context.setPortletClass("com.sun.faces.portlet.FacesPortlet"); //NOI18N
+                        WebDescriptorGenerator wGen = new WebDescriptorGenerator();
+                        try {
+                            wGen.createPortletXml(FileUtil.toFile(webModule.getWebInf()).getAbsolutePath(), context, new HashMap());
+                        } catch (Exception ex) {
+                            logger.log(Level.SEVERE,"Unable to create portlet.xml",ex);
                         }
-                    } else {
+                        
+                    } 
+                    
+                    {
                         //If portlet.xml exists, may be created by PortletSupport framework.
                         //Check if a JSF portlet entry is there in portlet.xml.
                         //If yes, then do nothing in portlet.xml
@@ -254,9 +274,9 @@ public class PageIterator implements TemplateWizard.Iterator {
                         PortletApp portletApp = getPortletApp(filePortlet);
                         if (portletApp != null && !isJSFPortletEntryPresent(portletApp)) {
                             PortletType portletType = portletApp.newPortletType();
-                            portletType.addDescription("Created By Visual Web");
-                            portletType.setPortletName("VisualWebJSF");
-                            portletType.addDisplayName("Visual Web JSF Portlet");
+                            portletType.addDescription(context.getPortletDescription());
+                            portletType.setPortletName(context.getPortletName());
+                            portletType.addDisplayName(context.getPortletDisplayName());
                             portletType.setPortletClass("com.sun.faces.portlet.FacesPortlet"); //NOI18N
 
                             InitParamType initParam = portletType.newInitParamType();
@@ -277,8 +297,8 @@ public class PageIterator implements TemplateWizard.Iterator {
                             portletType.setSupportedLocale(new String[]{"en"}); //NOI18N
 
                             PortletInfoType portletInfo = portletType.newPortletInfoType();
-                            portletInfo.setTitle(ProjectUtils.getInformation(project).getDisplayName());
-                            portletInfo.setShortTitle(ProjectUtils.getInformation(project).getDisplayName());
+                            portletInfo.setTitle(context.getPortletTitle());
+                            portletInfo.setShortTitle(context.getPortletShortTitle());
 
                             portletType.setPortletInfo(portletInfo);
                             portletType.setResourceBundle("messages");//NOI18N
@@ -299,8 +319,6 @@ public class PageIterator implements TemplateWizard.Iterator {
                             savePortletXML(portletApp, filePortlet);
 
                             //fire add portlet event
-                            PortletContext context = new PortletContext();
-                            context.setPortletName("VisualWebJSF");
                             context.setPortletClass("com.sun.faces.portlet.FacesPortlet");
                             if (webModule.getWebInf() != null) {
                                 String webInfPath = FileUtil.toFile(webModule.getWebInf()).getAbsolutePath();

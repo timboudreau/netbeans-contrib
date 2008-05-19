@@ -18,6 +18,7 @@
 package org.netbeans.modules.portalpack.portlets.genericportlets.node.actions.ui;
 
 import javax.xml.namespace.QName;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.EventObject;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -30,15 +31,26 @@ import org.openide.util.NbBundle;
 public class AddRenderParameterPanel extends javax.swing.JDialog {
     
     private PortletXMLDataObject dbObj;
+    private String portletName;
+    private EventObject prp;
     /** Creates new form AddRenderParameterPanel */
     public AddRenderParameterPanel(java.awt.Frame parent,PortletXMLDataObject dbObj) {
+        this(parent,dbObj,null);
+    }
+    
+    public AddRenderParameterPanel(java.awt.Frame parent,PortletXMLDataObject dbObj,String portletName) {
         super(parent,true);
         this.dbObj = dbObj;
+        this.portletName = portletName;
         initComponents();
         setLocation(parent.getX()+(parent.getWidth()-getWidth())/2,parent.getY()+(parent.getHeight()-getHeight())/2);
         setVisible(true);
     }
     
+    public EventObject getCoordinationObject()
+    {
+        return prp;
+    }
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -66,6 +78,7 @@ public class AddRenderParameterPanel extends javax.swing.JDialog {
 
         nameSpaceTf.setToolTipText(org.openide.util.NbBundle.getMessage(AddRenderParameterPanel.class, "TT_NAMESPACE")); // NOI18N
 
+        jLabel2.setForeground(new java.awt.Color(255, 0, 0));
         jLabel2.setText(org.openide.util.NbBundle.getMessage(AddRenderParameterPanel.class, "LBL_LOCAL_PART")); // NOI18N
 
         localPartTf.setToolTipText(org.openide.util.NbBundle.getMessage(AddRenderParameterPanel.class, "TT_LOCAL_PART")); // NOI18N
@@ -74,6 +87,7 @@ public class AddRenderParameterPanel extends javax.swing.JDialog {
 
         jLabel3.setText(org.openide.util.NbBundle.getMessage(AddRenderParameterPanel.class, "LBL_PREFIX")); // NOI18N
 
+        jLabel4.setForeground(new java.awt.Color(255, 0, 0));
         jLabel4.setText(org.openide.util.NbBundle.getMessage(AddRenderParameterPanel.class, "LBL_ID")); // NOI18N
 
         identifierTf.setToolTipText(org.openide.util.NbBundle.getMessage(AddRenderParameterPanel.class, "TT_Add_Identifier")); // NOI18N
@@ -194,17 +208,53 @@ private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     
     if(namespace == null || namespace.length() ==0) namespace = null;
     QName qName = null;
-
-    if((prefix == null || prefix.length() == 0) && namespace == null)
+    if(portletName == null)
     {
-        String name = localPart;
-        dbObj.getPortletXmlHelper().addPublicRenderParameterAsName(identifier, name);
-    }else{
-        if(prefix == null || prefix.length() == 0)
-            qName = new QName(namespace,localPart);
-        else
-            qName = new QName(namespace,localPart,prefix);
-        dbObj.getPortletXmlHelper().addPublicRenderParameterAsQName(identifier, qName);
+        prp = new EventObject();
+        if((prefix == null || prefix.length() == 0) && namespace == null)
+        {
+            String name = localPart;
+            prp.setName(name);
+            dbObj.getPortletXmlHelper().addPublicRenderParameterAsName(identifier, name);
+        }else{
+            if(prefix == null || prefix.length() == 0)
+                qName = new QName(namespace,localPart);
+            else
+                qName = new QName(namespace,localPart,prefix);
+            prp.setQName(qName);
+            dbObj.getPortletXmlHelper().addPublicRenderParameterAsQName(identifier, qName);
+        }
+        prp.setPublicRenderParamId(identifier);
+        prp.setType(EventObject.PUBLIC_RENDER_PARAMETER_TYPE);
+    } else { //also add Supported render parameter
+        
+        Object prpType = dbObj.getPortletXmlHelper().getPublicRenderParameterForId(identifier);
+        if(prpType != null)
+        {
+             Object[] param = {identifier};
+             NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(AddRenderParameterPanel.class, "MSG_RENDER_PARAM_WITH_SAME_ID_EXISTS",param),
+                                                    NotifyDescriptor.WARNING_MESSAGE);
+             DialogDisplayer.getDefault().notify(nd);
+             return;
+        }
+        prp = new EventObject();
+        if((prefix == null || prefix.length() == 0) && namespace == null)
+        {
+            String name = localPart;
+            prp.setName(name);
+        }else{
+            if(prefix == null || prefix.length() == 0)
+                qName = new QName(namespace,localPart);
+            else
+                qName = new QName(namespace,localPart,prefix);
+            prp.setQName(qName);
+        }
+        
+        prp.setPublicRenderParamId(identifier);
+        prp.setType(EventObject.PUBLIC_RENDER_PARAMETER_TYPE);
+        
+        prp = dbObj.getPortletXmlHelper().addSupportedPublicRenderParameter(portletName, prp);
+        
     }
     this.setVisible(false);
     this.dispose();

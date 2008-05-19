@@ -1,5 +1,0 @@
-org.netbeans.modules.debugger.javafx.ui.models.MonitorModel
-org.netbeans.modules.debugger.javafx.ui.models.ThreadsTableModel
-org.netbeans.modules.debugger.javafx.ui.models.ThreadsNodeModel
-org.netbeans.modules.debugger.javafx.ui.models.ThreadsTreeExpansionModel
-org.netbeans.modules.debugger.javafx.ui.models.ThreadsActionsProvider

@@ -33,9 +33,8 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
          <delete file="${l10nkit-zip}"/>
          
          <mkdir dir="${l10nkit-dir}"/>
-         <mkdir dir="${l10nkit-dir}/en"/>
          
-         <copydir src="src" includes="**/Bundle.properties,**/*.html,**/*.htm" dest="${l10nkit-dir}/en"/>
+         <copydir src="src" includes="**/Bundle.properties,**/*.html,**/*.htm" dest="${l10nkit-dir}/src"/>
 
          <zip destfile="${l10nkit-zip}"
            basedir="${l10nkit-dir}"

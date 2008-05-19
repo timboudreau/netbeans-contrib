@@ -37,54 +37,61 @@
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.debugger.javafx;
+package org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc.actions;
 
-import org.netbeans.api.debugger.javafx.JavaFXDebugger;
-import org.netbeans.api.debugger.DebuggerEngine;
-import org.netbeans.api.debugger.Session;
-import org.netbeans.spi.debugger.ContextProvider;
-import org.netbeans.spi.debugger.DebuggerEngineProvider;
+import java.awt.Color;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import org.netbeans.api.visual.action.PopupMenuProvider;
+import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc.IPCGraphScene;
+import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widgets.CustomPinWidget;
+import org.openide.util.NbBundle;
 
 /**
  *
- * @author alex
+ * @author satyaranjan
  */
-public class JavaFXEngineProvider extends DebuggerEngineProvider{
+public class PublicRenderParamPinPopUpMenuProvider implements PopupMenuProvider, ActionListener{
+    private IPCGraphScene scene;
 
-    static final String JAVAFX_LANGUAGE = "JavaFX";
-    private DebuggerEngine.Destructor destructor;
-    private Session                     session;  
+    private static final String ACTION_REMOVE_PRP = "Remove_PRP"; //NOI18N
 
-    public JavaFXEngineProvider (ContextProvider contextProvider) {
-        session = contextProvider.lookupFirst(null, Session.class);
-    }
+    private JPopupMenu menu;
+    private CustomPinWidget widget;
     
-    @Override
-    public String[] getLanguages() {
-        return new String[]{JAVAFX_LANGUAGE};
+    public PublicRenderParamPinPopUpMenuProvider(IPCGraphScene scene)
+    {
+        this.scene = scene;
+        menu = new JPopupMenu(NbBundle.getMessage(EventPinPopUpMenuProvider.class, "MENU_POP_UP"));
+        JMenuItem item;
+
+        item = new JMenuItem(NbBundle.getMessage(EventPinPopUpMenuProvider.class, "MENU_REMOVE"));
+        item.setActionCommand(ACTION_REMOVE_PRP);
+        item.addActionListener(this);
+        item.setBackground(Color.WHITE);
+        menu.add(item);
+
     }
 
-    @Override
-    public String getEngineTypeID() {
-        return JavaFXDebugger.ENGINE_ID; //NOI18N
+    public JPopupMenu getPopupMenu(Widget widget, Point localLocation) {
+        if (widget instanceof CustomPinWidget) {
+            this.widget = (CustomPinWidget) widget;
+        }
+        widget = null;
+        return menu;
     }
 
-    @Override
-    public Object[] getServices() {
-        return new Object[]{};
+    public void actionPerformed(ActionEvent e) {
+          if (e.getActionCommand().equals(ACTION_REMOVE_PRP)) {
+            if (widget == null) {
+                return;
+            }
+            scene.getTaskHandler().removePublicRenderParameterPinFromNode(widget);
+        }
     }
 
-    @Override
-    public void setDestructor(DebuggerEngine.Destructor desctuctor) {
-        this.destructor = desctuctor;
-    }
-
-    public DebuggerEngine.Destructor getDestructor() {
-        return destructor;
-    }
-
-    public Session getSession () {
-        return session;
-    }
-    
 }
