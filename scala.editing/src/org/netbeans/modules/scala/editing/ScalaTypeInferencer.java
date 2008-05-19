@@ -371,7 +371,7 @@ public class ScalaTypeInferencer {
 
                 if (member instanceof IndexedFunction) {
                     IndexedFunction idxFunction = (IndexedFunction) member;
-                    if (idxFunction.isNullParams()) {
+                    if (idxFunction.isNullArgs()) {
                         isCandicate = true;
                         idxRetTypeStr = idxFunction.getTypeString();
                     }

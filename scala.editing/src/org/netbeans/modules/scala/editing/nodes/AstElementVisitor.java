@@ -1972,7 +1972,7 @@ public class AstElementVisitor extends AstVisitor {
                 lastFunRef = new FunRef(callId.getIdToken(), ElementKind.CALL);
                 lastFunRef.setBase(currLhs);
                 lastFunRef.setCall(callId);
-                lastFunRef.setParams(Collections.<AstElement>singletonList(currInfixOpExprs.rhs));
+                lastFunRef.setArgs(Collections.<AstElement>singletonList(currInfixOpExprs.rhs));
 
                 currLhs = lastFunRef;
 
@@ -2104,7 +2104,7 @@ public class AstElementVisitor extends AstVisitor {
                 
                 funRef.setCall(callId);
 
-                funRef.setParams(argExprs.getArgs());
+                funRef.setArgs(argExprs.getArgs());
 
                 expr.setBase(funRef);
 
@@ -2194,7 +2194,7 @@ public class AstElementVisitor extends AstVisitor {
             // apply call
             ArgumentExprs argExprs = visitArgumentExprs(what);
             ApplyFunRef apply = new ApplyFunRef();
-            apply.setParams(argExprs.getArgs());
+            apply.setArgs(argExprs.getArgs());
             // base not set yet, should be set later by SimpleExpr
             ref = apply;
         } else {
@@ -2212,7 +2212,7 @@ public class AstElementVisitor extends AstVisitor {
 
                 FunRef funRef = new FunRef(id.getIdToken(), ElementKind.CALL);
                 funRef.setCall(id);
-                funRef.setParams(argExprs.getArgs());
+                funRef.setArgs(argExprs.getArgs());
                 // base not set yet, should be set later by SimpleExpr
                 ref = funRef;
             } else {

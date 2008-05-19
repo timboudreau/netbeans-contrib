@@ -55,7 +55,7 @@ public class FunRef extends AstRef {
     /** base may be AstExpr, FunRef, FieldRef, IdRef etc */
     private AstElement base;
     private Id call;
-    private List<? extends AstElement> params;
+    private List<? extends AstElement> args;
     private boolean apply;
 
     public FunRef(Token idToken, ElementKind kind) {
@@ -79,12 +79,12 @@ public class FunRef extends AstRef {
         return call;
     }
 
-    public void setParams(List<? extends AstElement> params) {
-        this.params = params;
+    public void setArgs(List<? extends AstElement> args) {
+        this.args = args;
     }
 
-    public List<? extends AstElement> getParams() {
-        return params == null ? Collections.<AstElement>emptyList() : params;
+    public List<? extends AstElement> getArgs() {
+        return args == null ? Collections.<AstElement>emptyList() : args;
     }
 
     public boolean isLocal() {

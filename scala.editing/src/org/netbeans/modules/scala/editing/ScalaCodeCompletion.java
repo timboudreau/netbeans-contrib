@@ -415,7 +415,7 @@ public class ScalaCodeCompletion implements Completable {
                         if (funRef != null) {
                             boolean isHisArg = false;
                             int argOffset = closest.getPickOffset(th);
-                            for (AstElement arg : funRef.getParams()) {
+                            for (AstElement arg : funRef.getArgs()) {
                                 if (arg.getPickOffset(th) >= argOffset && argOffset <= arg.getPickEndOffset(th)) {
                                     isHisArg = true;
                                     break;
@@ -1839,10 +1839,10 @@ public class ScalaCodeCompletion implements Completable {
         //            }
         //        }
 
-        List<String> params = method.getParameters();
+        List<String> args = method.getArgs();
 
-        if ((params != null) && (params.size() > 0)) {
-            return new ParameterInfo(params, index, anchorOffset);
+        if (args != null && args.size() > 0) {
+            return new ParameterInfo(args, index, anchorOffset);
         }
 
         return ParameterInfo.NONE;

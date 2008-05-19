@@ -123,7 +123,7 @@ public abstract class IndexedElement extends AstElement {
     public static final int OBJECT = 1 << 12;
     public static final int TRAIT = 1 << 13;
     /** This is a function with null params */
-    public static final int NULL_PARAMS = 1 << 14;
+    public static final int NULL_ARGS = 1 << 14;
     public static final int FIELD = 1 << 15;
     public static final int JAVA = 1 << 16;
     protected String fqn;
@@ -581,7 +581,7 @@ public abstract class IndexedElement extends AstElement {
             Function fun = (Function) element;
             flags = flags | FUNCTION;
             if (fun.getParams() == null) {
-                flags = flags | NULL_PARAMS;
+                flags = flags | NULL_ARGS;
             }
         }
 
@@ -790,6 +790,28 @@ public abstract class IndexedElement extends AstElement {
         return sb.toString();
     }
 
+    private static void computeAttributesSeg(TypeRef type, StringBuilder sb) {
+        if (type.isResolved()) {
+            sb.append(type.getQualifiedName());
+        } else {
+            sb.append(type.getName());
+        }
+        
+        List<List<TypeRef>> typeArgsList = type.getTypeArgsList();
+        for (Iterator<List<TypeRef>> itr = typeArgsList.iterator(); itr.hasNext();) {
+            sb.append("[");
+            List<TypeRef> typeArgs = itr.next();
+            for (Iterator<TypeRef> itr1 = typeArgs.iterator(); itr1.hasNext();) {
+                TypeRef typeArg = itr1.next();
+                computeAttributesSeg(typeArg, sb);
+                if (itr1.hasNext()) {
+                    sb.append(",");
+                }
+            }
+            sb.append("]");
+        }
+    }
+
     public static String computeAttributes(javax.lang.model.element.Element jelement) {
         OffsetRange docRange = OffsetRange.NONE;
 
@@ -950,8 +972,8 @@ public abstract class IndexedElement extends AstElement {
         return (flags & CONSTRUCTOR) != 0;
     }
 
-    public boolean isNullParams() {
-        return (flags & NULL_PARAMS) != 0;
+    public boolean isNullArgs() {
+        return (flags & NULL_ARGS) != 0;
     }
 
     public boolean isField() {
@@ -1134,13 +1156,13 @@ public abstract class IndexedElement extends AstElement {
 
         if (element instanceof IndexedFunction) {
             IndexedFunction function = (IndexedFunction) element;
-            Collection<String> parameters = function.getParameters();
+            Collection<String> args = function.getArgs();
 
-            if (!function.isNullParams()) {
+            if (!function.isNullArgs()) {
                 sb.append("("); // NOI18N
-                if ((parameters != null) && (parameters.size() > 0)) {
+                if ((args != null) && (args.size() > 0)) {
 
-                    for (Iterator<String> it = parameters.iterator(); it.hasNext();) {
+                    for (Iterator<String> it = args.iterator(); it.hasNext();) {
                         String ve = it.next();
                         int typeIndex = ve.indexOf(':');
                         if (typeIndex != -1) {

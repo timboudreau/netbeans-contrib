@@ -84,7 +84,7 @@ public class Function extends AstDef {
             FunRef funRef = (FunRef) ref;
             // only check local call only
             if (funRef.isLocal()) {
-                return getName().equals(funRef.getCall().getName()) && params != null && params.size() == funRef.getParams().size();
+                return getName().equals(funRef.getCall().getName()) && params != null && params.size() == funRef.getArgs().size();
             }
         }
 

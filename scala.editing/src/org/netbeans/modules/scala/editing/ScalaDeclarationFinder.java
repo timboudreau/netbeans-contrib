@@ -253,7 +253,7 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
                 Set<IndexedElement> members = index.getElements(prefix, in, NameKind.PREFIX, ScalaIndex.ALL_SCOPE, pResult, false);
                 for (IndexedElement member : members) {
                     if (member instanceof IndexedFunction) {
-                        if (member.isNullParams()) {
+                        if (member.isNullArgs()) {
                             candidate = member;
                             break;
                         }

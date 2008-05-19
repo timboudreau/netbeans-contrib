@@ -38,8 +38,7 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
@@ -50,8 +49,7 @@ import org.netbeans.modules.scala.editing.nodes.FunRef;
  */
 public class IndexedFunction extends IndexedElement {
 
-    private String[] args;
-    private List<String> parameters;
+    private List<String> args;
 
     IndexedFunction(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
         super(fqn, name, in, index, fileUrl, attributes, flags, kind);
@@ -72,13 +70,13 @@ public class IndexedFunction extends IndexedElement {
             }
             sb.append(name);
             sb.append("(");
-            List<String> parameterList = getParameters();
-            if (parameterList.size() > 0) {
-                for (int i = 0, n = parameterList.size(); i < n; i++) {
+            List<String> myArgs = getArgs();
+            if (myArgs.size() > 0) {
+                for (int i = 0, n = myArgs.size(); i < n; i++) {
                     if (i > 0) {
                         sb.append(",");
                     }
-                    sb.append(parameterList.get(i));
+                    sb.append(myArgs.get(i));
                 }
             }
             sb.append(")");
@@ -88,58 +86,43 @@ public class IndexedFunction extends IndexedElement {
         return signature;
     }
 
-    public String[] getArgs() {
+    public List<String> getArgs() {
         if (args == null) {
+            String[] argArray;
             int argIndex = getAttributeSection(ARG_INDEX);
             int endIndex = attributes.indexOf(';', argIndex);
             if (endIndex > argIndex) {
                 String argsPortion = attributes.substring(argIndex, endIndex);
-                args = argsPortion.split(","); // NOI18N
+                argArray = argsPortion.split(","); // NOI18N
             } else {
-                args = new String[0];
+                argArray = new String[0];
             }
+
+            args = Arrays.asList(argArray);            
         }
 
         return args;
     }
 
-    public List<String> getParameters() {
-        if (parameters == null) {
-            String[] a = getArgs();
-
-            if (a != null && a.length > 0) {
-                parameters = new ArrayList<String>(a.length);
-
-                for (String arg : a) {
-                    parameters.add(arg);
-                }
-            } else {
-                parameters = Collections.emptyList();
-            }
-        }
-
-        return parameters;
-    }
-
     public boolean isReferredBy(FunRef funRef) {
-        List<String> idxParamSigs = getParameters();
+        List<String> myArgs = getArgs();
         /** @todo compare param type */
-        boolean containsVariableArg = false;
-        for (String idxParamSig : idxParamSigs) {
-            int colon = idxParamSig.indexOf(':');
+        boolean containsVariableLengthArg = false;
+        for (String myArg : myArgs) {
+            int colon = myArg.indexOf(':');
             if (colon == -1) {
                 continue;
             }
-            String idxParamName = idxParamSig.substring(0, colon);
-            String idxParamType = idxParamSig.substring(colon + 1, idxParamSig.length());
-            if (idxParamType.endsWith("*")) {
-                containsVariableArg = true;
+            String myArgName = myArg.substring(0, colon);
+            String myArgType = myArg.substring(colon + 1, myArg.length());
+            if (myArgType.endsWith("*")) {
+                containsVariableLengthArg = true;
                 break;
             }
         }
 
         if (getName().equals(funRef.getCall().getName()) || getName().equals("apply") && funRef.isLocal()) {
-            if (idxParamSigs.size() == funRef.getParams().size() || containsVariableArg) {
+            if (myArgs.size() == funRef.getArgs().size() || containsVariableLengthArg) {
                 return true;
             }
         }
