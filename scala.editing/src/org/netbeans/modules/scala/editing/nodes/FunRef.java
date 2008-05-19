@@ -112,8 +112,8 @@ public class FunRef extends AstRef {
         return sb.toString();
     }
     
-    public void setRetTypeStr(String retTypeStr) {
-        getType().setQualifiedName(retTypeStr);
+    public void setTypeByQualifiedName(String typeQualifiedName) {
+        getType().setQualifiedName(typeQualifiedName);
     }
     
     // ----- Special FunRef

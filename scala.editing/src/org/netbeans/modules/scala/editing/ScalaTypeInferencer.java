@@ -269,7 +269,7 @@ public class ScalaTypeInferencer {
                         idxRetTypeStr = "void";
                     }
                     if (idxRetTypeStr.equals("void")) {
-                        funRef.setRetTypeStr("void");
+                        funRef.setTypeByQualifiedName("void");
                         break;
                     }
 
@@ -291,7 +291,7 @@ public class ScalaTypeInferencer {
                             }
                     }
 
-                    funRef.setRetTypeStr(idxRetTypeStr);
+                    funRef.setTypeByQualifiedName(idxRetTypeStr);
                     break;
                 }
             }
