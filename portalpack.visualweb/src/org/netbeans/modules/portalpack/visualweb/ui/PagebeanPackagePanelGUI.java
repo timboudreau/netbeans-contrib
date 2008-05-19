@@ -46,13 +46,21 @@ package org.netbeans.modules.portalpack.visualweb.ui;
 // import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectUtils;
 // import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectConstants;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.WebDescriptorGenerator;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeansUtil;
+import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
 
 /**
@@ -63,15 +71,22 @@ public class PagebeanPackagePanelGUI extends javax.swing.JPanel implements Docum
 
     private Project project;
     private final List/*<ChangeListener>*/ listeners = new ArrayList();
-
+    private List availablePortlets = null;
+    private boolean isCreateNewPortlet = true;
     /** Creates new form SimpleTargetChooserGUI */
     public PagebeanPackagePanelGUI(Project project) {
         this.project = project;
-
+        
         initComponents();
         initValues(project);
+        pnameTf.getDocument().addDocumentListener(this);
+        portletTitleTf.getDocument().addDocumentListener(this);
+        portletShortTitleTf.getDocument().addDocumentListener(this);
+        portletDisplayNameTf.getDocument().addDocumentListener(this);
+        portletDescTf.getDocument().addDocumentListener(this);
 
         packageTextField.getDocument().addDocumentListener(this);
+        availablePortlets = getAvailablePortlets();
     }
 
     public void initValues(Project project) {
@@ -101,6 +116,15 @@ public class PagebeanPackagePanelGUI extends javax.swing.JPanel implements Docum
     public synchronized void removeChangeListener(ChangeListener l) {
         listeners.remove(l);
     }
+
+    public void disableNewPortletCreateOption() {
+        pnameTf.setEnabled(false);
+        portletTitleTf.setEnabled(false);
+        portletShortTitleTf.setEnabled(false);
+        portletDisplayNameTf.setEnabled(false);
+        portletDescTf.setEnabled(false);
+        isCreateNewPortlet = false;
+    }
     
     private void fireChange() {
         ChangeEvent e = new ChangeEvent(this);
@@ -113,57 +137,240 @@ public class PagebeanPackagePanelGUI extends javax.swing.JPanel implements Docum
             ((ChangeListener)it.next()).stateChanged(e);
         }
     }
+    
+     boolean valid(WizardDescriptor wizardDescriptor)
+    {
+        if(wizardDescriptor == null) 
+            return true;
         
+        if(!isCreateNewPortlet) return true;
+        
+        String packageName = getPackageName();
+        if (!JsfProjectUtils.isValidJavaPackageName(packageName)) {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(PagebeanPackagePanelGUI.class, "MSG_InvalidPackageName", packageName)); // NOI18N
+            return false;
+        }
+        String portletName = pnameTf.getText();
+        if(!CoreUtil.validateString(portletName,false))
+        {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage",
+                    org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "MSG_INVALID_PORTLET_NAME"));
+            return false; 
+        }else if(availablePortlets != null && availablePortlets.contains(portletName)){
+             wizardDescriptor.putProperty("WizardPanel_errorMessage",
+                    org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "MSG_PORTLET_ALREADY_PRESENT"));
+            return false;
+        }else if(!CoreUtil.validateString(portletTitleTf.getText(),true)){
+            wizardDescriptor.putProperty("WizardPanel_errorMessage",
+                    org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "MSG_INVALID_PORTLET_TITLE"));
+            return false; 
+        }else if(portletShortTitleTf.getText() != null &&
+                    portletShortTitleTf.getText().trim().length() != 0 &&
+                    !CoreUtil.validateString(portletShortTitleTf.getText(),true)){
+            wizardDescriptor.putProperty("WizardPanel_errorMessage",
+                    org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "MSG_INVALID_PORTLET_SHORT_TITLE"));
+            return false; 
+        }else if(!CoreUtil.validateXmlString(portletDisplayNameTf.getText().trim()))
+        {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage",
+                    org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "MSG_INVALID_PORTLET_DISPLAY_NAME"));
+            return false; 
+        }else if(!CoreUtil.validateXmlString(portletDescTf.getText().trim()))
+        {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage",
+                    org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "MSG_INVALID_PORTLET_DESC"));
+            return false; 
+        }
+        
+        
+        wizardDescriptor.putProperty("WizardPanel_errorMessage", "");
+        
+        return true;
+    }
+    public void store(WizardDescriptor d) {
+        
+        PortletContext context = (PortletContext)d.getProperty("context");
+        
+        if(context == null)
+            context = new PortletContext();
+        
+        context.setPortletName(pnameTf.getText().trim());
+        context.setPortletDescription(portletDescTf.getText().trim());
+        context.setPortletDisplayName(portletDisplayNameTf.getText().trim());
+        context.setPortletTitle(portletTitleTf.getText().trim());
+        context.setPortletShortTitle(portletShortTitleTf.getText().trim());
+        
+        List modeList = new ArrayList();
+            
+        modeList.add("VIEW");
+            
+        context.setModes((String [])modeList.toArray(new String[0]));
+            
+        d.putProperty("context",context);
+        d.putProperty("PACKAGE_NAME", getPackageName());
+        
+    }
+    
+    public List getAvailablePortlets()
+    {
+        String webInfDir = NetbeansUtil.getWebInfDir(project);
+        File portletXml = new File(webInfDir+File.separator+"portlet.xml");
+        if(!portletXml.exists()) {
+           
+        }else{
+          
+           return WebDescriptorGenerator.getPortlets(portletXml);
+        }
+        return Collections.EMPTY_LIST;
+    }   
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
      * always regenerated by the Form Editor.
      */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         packageLabel = new javax.swing.JLabel();
         packageTextField = new javax.swing.JTextField();
+        portletNameLabel = new javax.swing.JLabel();
+        pnameTf = new javax.swing.JTextField();
+        portletDisplayNameLabel = new javax.swing.JLabel();
+        portletDisplayNameTf = new javax.swing.JTextField();
+        portletDescLabel = new javax.swing.JLabel();
+        portletDescTf = new javax.swing.JTextField();
+        portletTitleLabel = new javax.swing.JLabel();
+        portletTitleTf = new javax.swing.JTextField();
+        portletShortTitleLabel = new javax.swing.JLabel();
+        portletShortTitleTf = new javax.swing.JTextField();
 
-        setLayout(new java.awt.GridBagLayout());
-
-        getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(PagebeanPackagePanelGUI.class).getString("AD_PagebeanPackagePanelGUI"));
         packageLabel.setDisplayedMnemonic(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "MNE_PagebeanPackage_Label").charAt(0));
         packageLabel.setLabelFor(packageTextField);
-        packageLabel.setText(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "LBL_PagebeanPackage_Label"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 6, 0);
-        add(packageLabel, gridBagConstraints);
+        packageLabel.setText(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "LBL_PagebeanPackage_Label")); // NOI18N
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 6, 6, 0);
-        add(packageTextField, gridBagConstraints);
-        packageTextField.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(PagebeanPackagePanelGUI.class).getString("AD_packageTextField"));
+        portletNameLabel.setLabelFor(pnameTf);
+        portletNameLabel.setText(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "LBL_PORTLET_NAME")); // NOI18N
 
+        portletDisplayNameLabel.setLabelFor(portletDisplayNameTf);
+        portletDisplayNameLabel.setText(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "LBL_PORTLET_DISPLAY_NAME")); // NOI18N
+
+        portletDescLabel.setLabelFor(portletDescTf);
+        portletDescLabel.setText(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "LBL_PORTLET_DESC")); // NOI18N
+
+        portletTitleLabel.setLabelFor(portletTitleTf);
+        portletTitleLabel.setText(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "LBL_PORTLET_TITLE")); // NOI18N
+
+        portletShortTitleLabel.setLabelFor(portletShortTitleTf);
+        portletShortTitleLabel.setText(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "LBL_PORTLET_SHORT_TITLE")); // NOI18N
+
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(packageLabel)
+                    .add(portletDescLabel)
+                    .add(portletTitleLabel)
+                    .add(portletShortTitleLabel)
+                    .add(portletNameLabel)
+                    .add(portletDisplayNameLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(packageTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, portletShortTitleTf)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, portletTitleTf)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, portletDescTf)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, portletDisplayNameTf)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, pnameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(packageLabel)
+                    .add(packageTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(29, 29, 29)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(portletNameLabel)
+                    .add(pnameTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(portletDisplayNameLabel)
+                    .add(portletDisplayNameTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(portletDescLabel)
+                    .add(portletDescTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(portletTitleLabel)
+                    .add(portletTitleTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(portletShortTitleLabel)
+                    .add(portletShortTitleTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(20, Short.MAX_VALUE))
+        );
+
+        packageTextField.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(PagebeanPackagePanelGUI.class).getString("AD_packageTextField")); // NOI18N
+        portletNameLabel.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "ACSN_Portlet_Name")); // NOI18N
+        portletNameLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "ACSD_Portlet_Name")); // NOI18N
+        portletDisplayNameLabel.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "ACSN_Portlet_Display_Name")); // NOI18N
+        portletDisplayNameLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "ACSD_Portlet_Display_Name")); // NOI18N
+        portletDescLabel.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "ACSN_Portlet_Desc")); // NOI18N
+        portletDescLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "ACSD_Portlet_Desc")); // NOI18N
+        portletTitleLabel.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "ACSN_Portlet_Title")); // NOI18N
+        portletTitleLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "ASCD_Portlet_Title")); // NOI18N
+        portletShortTitleLabel.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "ACSN_Portlet_Short_Title")); // NOI18N
+        portletShortTitleLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(PagebeanPackagePanelGUI.class, "ASCD_Portlet_Short_Title")); // NOI18N
+
+        getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getBundle(PagebeanPackagePanelGUI.class).getString("AD_PagebeanPackagePanelGUI")); // NOI18N
     }// </editor-fold>//GEN-END:initComponents
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel packageLabel;
     private javax.swing.JTextField packageTextField;
+    private javax.swing.JTextField pnameTf;
+    private javax.swing.JLabel portletDescLabel;
+    private javax.swing.JTextField portletDescTf;
+    private javax.swing.JLabel portletDisplayNameLabel;
+    private javax.swing.JTextField portletDisplayNameTf;
+    private javax.swing.JLabel portletNameLabel;
+    private javax.swing.JLabel portletShortTitleLabel;
+    private javax.swing.JTextField portletShortTitleTf;
+    private javax.swing.JLabel portletTitleLabel;
+    private javax.swing.JTextField portletTitleTf;
     // End of variables declaration//GEN-END:variables
 
     // DocumentListener implementation -----------------------------------------
     
     public void changedUpdate(javax.swing.event.DocumentEvent e) {
-        fireChange();
+        updateText(e);
     }    
     
     public void insertUpdate(javax.swing.event.DocumentEvent e) {
-        fireChange();
+        updateText(e);
     }
     
     public void removeUpdate(javax.swing.event.DocumentEvent e) {
+        updateText(e);
+    }
+    
+    private void updateText(javax.swing.event.DocumentEvent e) {
+        Document doc = e.getDocument();
+        
+        if (doc == pnameTf.getDocument()) {
+            // Change in the project name
+            
+            String portletName = pnameTf.getText();
+            portletDescTf.setText(portletName);
+            portletDisplayNameTf.setText(portletName);
+            portletTitleTf.setText(portletName);
+            portletShortTitleTf.setText(portletName);   
+        }
         fireChange();
     }
 }
