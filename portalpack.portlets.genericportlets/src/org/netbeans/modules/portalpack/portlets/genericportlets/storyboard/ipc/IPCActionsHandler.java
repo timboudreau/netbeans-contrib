@@ -66,6 +66,23 @@ public class IPCActionsHandler {
             }
         }
     }
+    
+    public void removePublicRenderParameterPinFromNode(CustomPinWidget pin) {
+        String nodeKey = pin.getNodeKey();
+        PortletNode node = (PortletNode) scene.getPortletNode(nodeKey);
+        EventObject event = pin.getEvent();
+        String identifier = event.getPublicRenderParamId();
+        if (node != null) {
+            try {
+                if (event != null) {
+                    node.getDataObject().getPortletXmlHelper().removeSupportedPublicRenderParameter(node.getName(), identifier);
+                    scene.removePin(pin.getKey());
+                }
+            } catch (Exception e) {
+                logger.log(Level.SEVERE,"Could not remove event properly",e);
+            }
+        }
+    }
 
     public void generatePublishEventSource(String nodeKey, EventObject evtObject) {
         PortletNode portletNode = scene.getPortletNode(nodeKey);

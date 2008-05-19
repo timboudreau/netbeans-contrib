@@ -30,6 +30,10 @@ public class EventObject {
     private String valueType;
     private URI defaultNameSpace;
     private QName[] aliases;
+    private String type;
+    private String publicRenderParamId;
+    public static final String PUBLIC_RENDER_PARAMETER_TYPE = "public_render_parameter";
+    public static final String EVENT_TYPE = "eventing";
     
     public void setQName(QName qName)
     {
@@ -102,6 +106,25 @@ public class EventObject {
     public String getValueType()
     {
         return valueType;
+    }
+    
+    public String getType()
+    {
+        return type;
+    }
+    
+    public void setType(String type)
+    {
+        this.type = type;
+    }
+    
+    public void setPublicRenderParamId(String id)
+    {
+        this.publicRenderParamId = id;
+    }
+    public String getPublicRenderParamId()
+    {
+        return publicRenderParamId;
     }
     
 }
