@@ -198,7 +198,7 @@ public class OpenedBluejProjects implements PropertyChangeListener {
             String id = WindowManager.getDefault().findTopComponentID(active);
             if ("projectTabLogical_tc".equals(id)) { // NOI18N
                 BluejViewTopComponent.findInstance().open();
-                BluejViewTopComponent.findInstance().requestActive();
+//                BluejViewTopComponent.findInstance().requestActive();
             }
             TopComponent.getRegistry().addPropertyChangeListener(this);
         }
@@ -211,7 +211,7 @@ public class OpenedBluejProjects implements PropertyChangeListener {
                     TopComponent.getRegistry().removePropertyChangeListener(this);
                     listenerAdded = false;
                     BluejViewTopComponent.findInstance().open();
-                    BluejViewTopComponent.findInstance().requestActive();
+//                    BluejViewTopComponent.findInstance().requestActive();
                 }
             }
         }
