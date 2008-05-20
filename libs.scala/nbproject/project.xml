@@ -46,30 +46,6 @@ made subject to such option by the copyright holder.
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
             <code-name-base>org.netbeans.libs.scala</code-name-base>
             <module-dependencies/>
-            <class-path-extension>
-                <runtime-relative-path>ext/scala-library-2.7.1.jar</runtime-relative-path>
-                <binary-origin>external/scala-library-2.7.1.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/scala-compiler-2.7.1.jar</runtime-relative-path>
-                <binary-origin>external/scala-compiler-2.7.1.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/scala-dbc-2.7.1.jar</runtime-relative-path>
-                <binary-origin>external/scala-dbc-2.7.1.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/scala-dbc-2.7.1.jar</runtime-relative-path>
-                <binary-origin>external/scala-dbc-2.7.1.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/scala-decoder-2.7.1.jar</runtime-relative-path>
-                <binary-origin>external/scala-decoder-2.7.1.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/sbaz-2.7.1.jar</runtime-relative-path>
-                <binary-origin>external/sbaz-2.7.1.jar</binary-origin>
-            </class-path-extension>
             <public-packages>
                 <package>scala</package>
                 <package>scala.actors</package>
@@ -152,6 +128,30 @@ made subject to such option by the copyright holder.
                 <package>scala.xml.pull</package>
                 <package>scala.xml.transform</package>
             </public-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/scala-library-2.7.1.jar</runtime-relative-path>
+                <binary-origin>external/scala-library-2.7.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/scala-compiler-2.7.1.jar</runtime-relative-path>
+                <binary-origin>external/scala-compiler-2.7.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/scala-dbc-2.7.1.jar</runtime-relative-path>
+                <binary-origin>external/scala-dbc-2.7.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/scala-dbc-2.7.1.jar</runtime-relative-path>
+                <binary-origin>external/scala-dbc-2.7.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/scala-decoder-2.7.1.jar</runtime-relative-path>
+                <binary-origin>external/scala-decoder-2.7.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/sbaz-2.7.1.jar</runtime-relative-path>
+                <binary-origin>external/sbaz-2.7.1.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>
