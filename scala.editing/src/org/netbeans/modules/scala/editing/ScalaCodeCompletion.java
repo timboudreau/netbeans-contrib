@@ -49,7 +49,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.Completable;
+import org.netbeans.modules.gsf.api.CodeCompletionHandler;
 import org.netbeans.modules.gsf.api.CompletionProposal;
 import org.netbeans.modules.gsf.api.ElementHandle;
 import org.netbeans.modules.gsf.api.ElementKind;
@@ -62,7 +62,10 @@ import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
+import org.netbeans.modules.gsf.api.CodeCompletionContext;
+import org.netbeans.modules.gsf.api.CodeCompletionResult;
 import org.netbeans.modules.gsf.api.OffsetRange;
+import org.netbeans.modules.gsf.spi.DefaultCompletionResult;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.FunctionItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.KeywordItem;
 import org.netbeans.modules.scala.editing.ScalaCompletionItem.PackageItem;
@@ -122,7 +125,7 @@ import org.openide.util.NbBundle;
  * @author Tor Norbye
  * @author Caoyuan Deng
  */
-public class ScalaCodeCompletion implements Completable {
+public class ScalaCodeCompletion implements CodeCompletionHandler {
 
     private boolean caseSensitive;
     private static final String[] REGEXP_WORDS =
@@ -284,8 +287,14 @@ public class ScalaCodeCompletion implements Completable {
     public ScalaCodeCompletion() {
     }
 
-    public List<CompletionProposal> complete(CompilationInfo info, int lexOffset, String prefix,
-            NameKind kind, QueryType queryType, boolean caseSensitive, HtmlFormatter formatter) {
+    public CodeCompletionResult complete(CodeCompletionContext context) {
+        CompilationInfo info = context.getInfo();
+        int lexOffset = context.getCaretOffset();
+        String prefix = context.getPrefix();
+        NameKind kind = context.getNameKind();
+        QueryType queryType = context.getQueryType();
+        this.caseSensitive = context.isCaseSensitive();
+        HtmlFormatter formatter = context.getFormatter();
         // Temporary: case insensitive matches don't work very well for JavaScript
         if (kind == NameKind.CASE_INSENSITIVE_PREFIX) {
             kind = NameKind.PREFIX;
@@ -294,18 +303,18 @@ public class ScalaCodeCompletion implements Completable {
         if (prefix == null) {
             prefix = "";
         }
-        this.caseSensitive = caseSensitive;
 
         final Document document;
         try {
             document = info.getDocument();
         } catch (Exception e) {
             Exceptions.printStackTrace(e);
-            return null;
+            return CodeCompletionResult.NONE;
         }
         final BaseDocument doc = (BaseDocument) document;
 
         List<CompletionProposal> proposals = new ArrayList<CompletionProposal>();
+        DefaultCompletionResult completionResult = new DefaultCompletionResult(proposals, false);
 
         ScalaParserResult pResult = AstUtilities.getParserResult(info);
         pResult.toGlobalPhase(info);
@@ -315,7 +324,7 @@ public class ScalaCodeCompletion implements Completable {
         try {
             final int astOffset = AstUtilities.getAstOffset(info, lexOffset);
             if (astOffset == -1) {
-                return null;
+                return CodeCompletionResult.NONE;
             }
             final AstScope root = pResult.getRootScope();
             final TokenHierarchy<Document> th = pResult.getTokenHierarchy();
@@ -326,6 +335,7 @@ public class ScalaCodeCompletion implements Completable {
             // and I don't want to pass dozens of parameters from method to method; just pass
             // a request context with supporting info needed by the various completion helpers i
             CompletionRequest request = new CompletionRequest();
+            request.completionResult = completionResult;
             request.result = pResult;
             request.formatter = formatter;
             request.lexOffset = lexOffset;
@@ -343,39 +353,39 @@ public class ScalaCodeCompletion implements Completable {
 
             Token<? extends TokenId> token = ScalaLexUtilities.getToken(doc, lexOffset);
             if (token == null) {
-                return proposals;
+                return completionResult;
             }
 
             TokenId id = token.id();
             if (id == ScalaTokenId.LineComment) {
                 // TODO - Complete symbols in comments?
-                return proposals;
+                return completionResult;
             } else if (id == ScalaTokenId.BlockCommentData) {
                 try {
                     completeComments(proposals, request);
                 } catch (BadLocationException ex) {
                     Exceptions.printStackTrace(ex);
                 }
-                return proposals;
+                return completionResult;
             } else if (id == ScalaTokenId.StringLiteral) {
                 //completeStrings(proposals, request);
-                return proposals;
+                return completionResult;
             } else if (id == ScalaTokenId.REGEXP_LITERAL || id == ScalaTokenId.REGEXP_END) {
                 completeRegexps(proposals, request);
-                return proposals;
+                return completionResult;
             }
 
             TokenSequence ts = ScalaLexUtilities.getTokenSequence(th, lexOffset);
             ts.move(lexOffset);
             if (!ts.moveNext() && !ts.movePrevious()) {
-                return proposals;
+                return completionResult;
             }
 
             Token closetToken = ScalaLexUtilities.findPreviousNonWsNonComment(ts);
             if (closetToken.id() == ScalaTokenId.Import) {
                 request.prefix = "";
                 completeImport(proposals, request);
-                return proposals;
+                return completionResult;
             }
 
             if (root != null) {
@@ -404,7 +414,7 @@ public class ScalaCodeCompletion implements Completable {
                         }
                         request.prefix = prefix1;
                         completeImport(proposals, request);
-                        return proposals;
+                        return completionResult;
                     } else if (closest instanceof IdRef) {
                         // test if it's an arg of funRef ?
                         FunRef funRef = null;
@@ -448,17 +458,17 @@ public class ScalaCodeCompletion implements Completable {
 
             if (root == null) {
                 completeKeywords(proposals, request);
-                return proposals;
+                return completionResult;
             }
 
             // Try to complete "new" RHS
             if (completeNew(proposals, request)) {
-                return proposals;
+                return completionResult;
             }
 
             if (call.getLhs() != null || request.call.getPrevCallParenPos() != -1) {
                 completeObjectMembers(proposals, request);
-                return proposals;
+                return completionResult;
             }
 
             completeKeywords(proposals, request);
@@ -466,7 +476,7 @@ public class ScalaCodeCompletion implements Completable {
             addLocals(proposals, request);
 
             if (completeObjectMembers(proposals, request)) {
-                return proposals;
+                return completionResult;
             }
 
             // @todo Try to complete methods inheried and predef's methods 
@@ -477,7 +487,7 @@ public class ScalaCodeCompletion implements Completable {
             doc.readUnlock();
         }
 
-        return proposals;
+        return completionResult;
     }
 
     private void addLocals(List<CompletionProposal> proposals, CompletionRequest request) {
@@ -2014,7 +2024,7 @@ public class ScalaCodeCompletion implements Completable {
     }
 
     protected static class CompletionRequest {
-
+        private DefaultCompletionResult completionResult;
         protected TokenHierarchy<Document> th;
         protected CompilationInfo info;
         protected AstElement element;

@@ -105,7 +105,7 @@ import org.netbeans.modules.fortress.editing.lexer.FortressLexUtilities;
  * @author Caoyuan Deng
  * @author Tor Norbye
  */
-public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.BracketCompletion {
+public class FortressBracketCompleter implements org.netbeans.modules.gsf.api.KeystrokeHandler {
 
     /** When true, automatically reflows comments that are being edited according to the rdoc
      * conventions as well as the right hand side margin

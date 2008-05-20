@@ -18,54 +18,30 @@
  */
 package org.netbeans.modules.erlang.platform.index;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import org.netbeans.modules.gsf.api.GsfLanguage;
 import org.netbeans.api.lexer.Language;
-import org.netbeans.api.lexer.TokenId;
-
-
-/*
- * Language/lexing configuration for Ruby
- *
- * @author Tor Norbye
- */
-
-
-/*
- * Language/lexing configuration for Ruby
- *
- * @author Tor Norbye
- */
 import org.netbeans.modules.erlang.editing.Erlang;
-import org.openide.filesystems.FileObject;
+import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
 
-public class ErlangGsfLanguage implements GsfLanguage {
+public class ErlangGsfLanguage extends DefaultLanguageConfig {
         
     private Language lexerLanguage;
     
     public ErlangGsfLanguage() {
     }
 
-    public List<?extends TokenId> getRelevantTokenTypes() {
-        List<TokenId> list = new ArrayList<TokenId>(30);
-        return list;
-    }
-
+    @Override
     public String getLineCommentPrefix() {
         return "%"; // NOI18N
     }
 
+    @Override
     public boolean isIdentifierChar(char c) {
         return Character.isJavaIdentifierPart(c) || (// Globals, fields and parameter prefixes (for blocks and symbols)
         c == '$') || (c == '@') || (c == '&') || (c == ':') || (// Function name suffixes
         c == '!') || (c == '?') || (c == '=');
     }
 
+    @Override
     public Language getLexerLanguage() {
         /** 
          * Ugly hacking for waiting for GLF language inited 
@@ -85,20 +61,14 @@ public class ErlangGsfLanguage implements GsfLanguage {
         return lexerLanguage;
     }
 
-    public Collection<FileObject> getCoreLibraries() {
-        return Collections.emptyList();
-    }
-    
+    @Override
     public String getDisplayName() {
         return "Erlang";
     }
     
+    @Override
     public String getPreferredExtension() {
         return "erl"; // NOI18N
-    }
-
-    public Map<String,String> getSourceGroupNames() {
-        return Collections.emptyMap();
     }
 }
 
