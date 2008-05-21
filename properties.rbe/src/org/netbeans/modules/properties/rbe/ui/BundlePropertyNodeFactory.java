@@ -61,15 +61,30 @@ import org.openide.nodes.Node;
  */
 public class BundlePropertyNodeFactory extends ChildFactory<BundleProperty> {
 
+    /** The properties data object */
     private PropertiesDataObject dataObject;
+    /** The display mode */
+    private RBE.DisplayMode mode;
 
-    public BundlePropertyNodeFactory(PropertiesDataObject dataObject) {
+    public BundlePropertyNodeFactory(PropertiesDataObject dataObject, RBE.DisplayMode mode) {
         super();
         this.dataObject = dataObject;
+        this.mode = mode;
     }
 
     @Override
     protected boolean createKeys(List<BundleProperty> toPopulate) {
+        switch (mode) {
+            case Flat:
+                createAsFlat(toPopulate);
+                break;
+            case Tree:
+                createAsTree(toPopulate);
+        }
+        return true;
+    }
+
+    protected void createAsTree(List<BundleProperty> toPopulate) {
         BundleStructure bundleStructure = dataObject.getBundleStructure();
 
         char separator = '.';
@@ -88,12 +103,12 @@ public class BundlePropertyNodeFactory extends ChildFactory<BundleProperty> {
                 if (rootProperty != null) {
                     end = true;
                 } else if (lastSeparator == -1) {
-                    rootProperty = new BundleProperty(propertyName, bundle);
+                    rootProperty = new BundleProperty(propertyName, propertyName, bundle);
                     rootProperties.add(rootProperty);
                     mapping.put(propertyName, rootProperty);
                     end = true;
                 } else {
-                    rootProperty = new BundleProperty(propertyName.substring(lastSeparator + 1), bundle);
+                    rootProperty = new BundleProperty(propertyName.substring(lastSeparator + 1), propertyName, bundle);
                     mapping.put(propertyName, rootProperty);
                     // Created property but it isnt root property -> continue
                     propertyName = propertyName.substring(0, lastSeparator);
@@ -120,7 +135,27 @@ public class BundlePropertyNodeFactory extends ChildFactory<BundleProperty> {
             }
         }
         toPopulate.addAll(rootProperties);
-        return true;
+    }
+
+    protected void createAsFlat(List<BundleProperty> toPopulate) {
+        BundleStructure bundleStructure = dataObject.getBundleStructure();
+        Bundle bundle = new Bundle();
+        for (int k = 0; k < bundleStructure.getKeyCount(); k++) {
+            String propertyName = bundleStructure.getKeys()[k];
+            BundleProperty bundleProperty = new BundleProperty(propertyName, propertyName, bundle);
+            for (int e = 0; e < bundleStructure.getEntryCount(); e++) {
+                Locale locale;
+                String localeSuffix = Util.getLocaleSuffix(bundleStructure.getNthEntry(e));
+                if ("".equals(localeSuffix)) {
+                    locale = Constants.DEFAULT_LOCALE;
+                } else {
+                    locale = new Locale(Util.getLanguage(localeSuffix), Util.getCountry(localeSuffix), Util.getVariant(localeSuffix));
+                }
+                ItemElem item = bundleStructure.getItem(e, k);
+                bundleProperty.addLocaleRepresentation(locale, item);
+            }
+            toPopulate.add(bundleProperty);
+        }
     }
 
     @Override
