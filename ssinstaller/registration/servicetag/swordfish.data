@@ -1,0 +1,10 @@
+sstools.product_urn=urn:uuid:83fe3287-0a2e-11dc-b7cf-080020a9ed93
+sstools.product_name=Sun Studio Express 07/08
+sstools.product_version=Express
+product_parent_urn=urn:uuid:5072b0f1-b54a-4567-81e6-89b75772edbb
+product_parent=Sun Studio
+nb.product_urn=urn:uuid:5a381dd1-a4f2-11dc-8f02-080020a9ed93
+nb.product_name=NetBeans Integrated Development Environment 6.1
+nb.product_version=6.1
+nb.parent.product_urn=urn:uuid:bc76c157-8a3c-4da7-97d2-41d561ffe234
+nb.parent.product_name=Development Tools
