@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.apisupport.project</type>
+    <configuration>
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
+            <code-name-base>org.netbeans.mobility.plugins.proguardlibrary</code-name-base>
+            <suite-component/>
+            <module-dependencies/>
+            <public-packages>
+                <package>proguard</package>
+                <package>proguard.ant</package>
+                <package>proguard.classfile</package>
+                <package>proguard.classfile.attribute</package>
+                <package>proguard.classfile.attribute.annotation</package>
+                <package>proguard.classfile.attribute.annotation.visitor</package>
+                <package>proguard.classfile.attribute.preverification</package>
+                <package>proguard.classfile.attribute.preverification.visitor</package>
+                <package>proguard.classfile.attribute.visitor</package>
+                <package>proguard.classfile.constant</package>
+                <package>proguard.classfile.constant.visitor</package>
+                <package>proguard.classfile.editor</package>
+                <package>proguard.classfile.instruction</package>
+                <package>proguard.classfile.instruction.visitor</package>
+                <package>proguard.classfile.io</package>
+                <package>proguard.classfile.util</package>
+                <package>proguard.classfile.visitor</package>
+                <package>proguard.evaluation</package>
+                <package>proguard.evaluation.value</package>
+                <package>proguard.io</package>
+                <package>proguard.obfuscate</package>
+                <package>proguard.optimize</package>
+                <package>proguard.optimize.evaluation</package>
+                <package>proguard.optimize.info</package>
+                <package>proguard.optimize.peephole</package>
+                <package>proguard.preverify</package>
+                <package>proguard.shrink</package>
+                <package>proguard.util</package>
+                <package>proguard.wtk</package>
+            </public-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/proguard.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/proguard.jar</binary-origin>
+            </class-path-extension>
+        </data>
+    </configuration>
+</project>
