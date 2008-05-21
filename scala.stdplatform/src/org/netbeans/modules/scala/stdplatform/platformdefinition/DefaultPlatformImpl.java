@@ -47,12 +47,11 @@ import java.util.*;
 import java.net.MalformedURLException;
 import org.netbeans.api.scala.platform.JavaPlatform;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.util.Exceptions;
 
 import org.openide.util.NbBundle;
 import org.openide.filesystems.FileUtil;
+import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Utilities;
 
 /**
@@ -66,7 +65,6 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
     public static final String DEFAULT_PLATFORM_ANT_NAME = "default_platform";           //NOI18N
 
     @SuppressWarnings("unchecked")  //Properties cast to Map<String,String>
-
     static JavaPlatform create(Map<String, String> properties, List<URL> sources, List<URL> javadoc) {
         if (properties == null) {
             properties = new HashMap<String, String>();
@@ -101,10 +99,28 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
             File scalaHomeFile = FileUtil.normalizeFile(new File(scalaHome));       //NOI18N
             return scalaHomeFile;
         } else {
-            NotifyDescriptor d = new NotifyDescriptor.Message(
-                    "SCALA_HOME environment variable may not be set, or is invalid.\n" +
-                    "Please set SCALA_HOME first!", NotifyDescriptor.INFORMATION_MESSAGE);
-            DialogDisplayer.getDefault().notify(d);
+            File clusterFile = InstalledFileLocator.getDefault().locate(
+                    "modules/org-netbeans-modules-scala-stdplatform.jar", null, false);
+
+            if (clusterFile != null) {
+                File bundlingScalaFile =
+                        new File(clusterFile.getParentFile().getParentFile().getAbsoluteFile(), "scala"); // NOI18N
+                assert bundlingScalaFile.exists() && bundlingScalaFile.isDirectory() : "No bundling Scala platform found";
+
+                for (File scalaFile : bundlingScalaFile.listFiles()) {
+                    String fileName = scalaFile.getName();
+                    if (scalaFile.isDirectory() && fileName.startsWith("scala")) {
+                        scalaHome = scalaFile.getAbsolutePath();
+                        System.setProperty("scala.home", scalaHome);
+                        int dash = fileName.indexOf('-');
+                        String scalaVersion = fileName.substring(dash + 1, fileName.length());
+                        System.setProperty("scala.specification.version", scalaVersion);
+
+                        return scalaFile;
+                    }
+                }
+            }
+
             return null;
         }
     }
