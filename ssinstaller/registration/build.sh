@@ -5,11 +5,12 @@ LENGTH=`wc -l register.sh | sed s/register.sh// | sed s/' '//g`
 LENGTH=`expr $LENGTH + 1`
 echo $LENGTH
 DISTRS="intel-S2 sparc-S2 intel-Linux"
-DISTRS="intel-S2"
+#DISTRS="intel-S2"
 #rm -rf $TARS 
 IMAGES_DIR=/shared/dp/sstrunk/latest/output/image_tars
 #IMAGES_DIR=/shared/dp/sstrunk
 rm -rf build
+mkdir -p $RESDIR
 for distr in $DISTRS
 do
     echo Generating $distr
