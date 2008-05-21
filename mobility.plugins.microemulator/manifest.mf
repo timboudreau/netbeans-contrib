@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.modules.mobility.plugins.microemulator
-OpenIDE-Module-Layer: org/netbeans/modules/mobility/plugins/microemulator/layer.xml
-OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/mobility/plugins/microemulator/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
-
