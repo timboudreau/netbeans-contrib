@@ -41,123 +41,47 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.Collection;
-import java.util.Locale;
 import javax.swing.ActionMap;
 import javax.swing.BoxLayout;
-import org.netbeans.modules.properties.Element.ItemElem;
 import org.netbeans.modules.properties.PropertiesDataObject;
-import org.netbeans.modules.properties.rbe.Constants;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
+import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.CloneableTopComponent;
 
 /**
  * The Resourcebundle editor top component
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class ResourceBundleEditorComponent extends CloneableTopComponent implements ExplorerManager.Provider, PropertyChangeListener {
+public class ResourceBundleEditorComponent extends CloneableTopComponent implements ExplorerManager.Provider {
 
     public static final String PREFERRED_ID = "ResourceBundleEditorComponent";
     /** Properties data object */
     private final PropertiesDataObject dataObject;
     /** The Explorer manager for nodes */
     private ExplorerManager explorer;
-    /** The UI window */
-    private UIWindow uiWindow;
-    /** The tree view */
-    ImprovedBeanTreeView treeView;
 
+    /** The tree view */
     public ResourceBundleEditorComponent(PropertiesDataObject dataObject) {
         this.dataObject = dataObject;
 
+        explorer = new ExplorerManager();
+        RBE rbe = new RBE(dataObject);
+
+        InstanceContent ic = new InstanceContent();
+        ic.add(rbe);
+        ic.add(explorer);
+
+        associateLookup(new ProxyLookup(ExplorerUtils.createLookup(explorer, new ActionMap()), new AbstractLookup(ic)));
+
         setName(dataObject.getName() + ".properties");
         setToolTipText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "CTL_ResourceBundleEditorComponent"));
-
-        treeView = new ImprovedBeanTreeView();
-        treeView.setRootVisible(false);
-
-        explorer = new ExplorerManager();
-        explorer.addPropertyChangeListener(this);
-        explorer.setRootContext(new AbstractNode(Children.create(new BundlePropertyNodeFactory(dataObject), true)));
-        associateLookup(ExplorerUtils.createLookup(explorer, new ActionMap()));
-
-        uiWindow = new UIWindow();
-        uiWindow.getTreePanel().setLayout(new BoxLayout(uiWindow.getTreePanel(), BoxLayout.PAGE_AXIS));
-        uiWindow.getRightPanel().setLayout(new BoxLayout(uiWindow.getRightPanel(), BoxLayout.PAGE_AXIS));
-        uiWindow.getTreePanel().add(treeView);
-
-        uiWindow.getCollapseAllButton().addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                collapseAll();
-            }
-        });
-
-        uiWindow.getExpandAllButton().addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                expandAll();
-            }
-        });
-
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        add(uiWindow);
-    }
-
-    public void expandAll() {
-        treeView.expandAll();
-    }
-
-    public void collapseAll() {
-        treeView.collapseAll();
-    }
-
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (ExplorerManager.PROP_SELECTED_NODES.equals(evt.getPropertyName())) {
-            updateSelectedProperty();
-        }
-    }
-
-    protected void updateSelectedProperty() {
-        boolean reseted = false;
-        for (Node selectedNode : explorer.getSelectedNodes()) {
-            if (selectedNode instanceof BundlePropertyNode) {
-                if (!reseted) {
-                    uiWindow.getRightPanel().removeAll();
-                    reseted = true;
-                }
-                BundlePropertyNode bundlePropertyNode = (BundlePropertyNode) selectedNode;
-                for (Locale locale : bundlePropertyNode.getProperty().getBundle().getLocales()) {
-                    UIPropertyPanel propertyPanel = new UIPropertyPanel();
-                    ItemElem item = bundlePropertyNode.getProperty().getLocaleRepresentation().get(locale);
-                    if (Constants.DEFAULT_LOCALE.equals(locale)) {
-                        propertyPanel.getTitleLabel().setText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "DefaultLocale"));
-                    } else {
-                        String title = String.format("%s (%s)%s", locale.getDisplayLanguage(),
-                                locale.getLanguage(), locale.getDisplayCountry().length() > 0 ? " - " + locale.getDisplayCountry() : "");
-                        propertyPanel.getTitleLabel().setText(title);
-                    }
-                    if (item != null) {
-                        propertyPanel.getTextArea().setText(
-                                "Value: " + item.getValue() + "\n" +
-                                "Comment: " + item.getComment());
-                    }
-
-                    uiWindow.getRightPanel().add(propertyPanel);
-                }
-            }
-        }
-        uiWindow.getRightPanel().updateUI();
+        add(new UIWindow(getLookup()));
     }
 
     @Override

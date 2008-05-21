@@ -40,7 +40,10 @@
  */
 package org.netbeans.modules.properties.rbe.ui;
 
+import javax.swing.text.Position.Bias;
+import javax.swing.tree.TreePath;
 import org.openide.explorer.view.BeanTreeView;
+import org.openide.nodes.Node;
 
 /**
  * The base BeanTreeView class with collapse all method 
@@ -52,16 +55,15 @@ public class ImprovedBeanTreeView extends BeanTreeView {
      * Collapses all paths.
      */
     public void collapseAll() {
-        int i = 0;
-        int j;
+        for (int i = 0; i < tree.getRowCount(); i++) {
+            tree.collapseRow(i);
+        }
+    }
 
-        do {
-            do {
-                j = tree.getRowCount();
-                tree.collapseRow(i);
-            } while (j != tree.getRowCount());
-
-            i++;
-        } while (i < tree.getRowCount());
+    public void expandByPrefix(String prefix) {
+        System.out.println(prefix);
+        TreePath treePath = tree.getNextMatch(prefix, 0, Bias.Forward);
+        System.out.println(treePath.toString());
+        tree.expandPath(treePath);
     }
 }
