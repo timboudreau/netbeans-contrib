@@ -135,7 +135,7 @@ public class Util {
      * @return instance of SpecificationVersion representing the version; never null
      */
     public static SpecificationVersion getSpecificationVersion(JavaPlatform plat) {
-         String version = plat.getSystemProperties().get("java.specification.version");   // NOI18N
+         String version = plat.getSystemProperties().get("scala.specification.version");   // NOI18N
          if (version == null) {
              version = "1.1";
          }
