@@ -40,64 +40,70 @@
  */
 package org.netbeans.modules.gsfret.hints.infrastructure;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import org.netbeans.modules.gsf.api.HintsProvider;
-import org.netbeans.modules.gsf.Language;
-import org.netbeans.modules.gsf.LanguageRegistry;
-import org.netbeans.modules.gsf.api.Hint;
-import org.netbeans.modules.gsf.api.RuleContext;
-import org.netbeans.napi.gsfret.source.CompilationInfo;
-import org.netbeans.modules.gsfret.editor.semantic.ScanningCancellableTask;
-import org.netbeans.spi.editor.hints.ErrorDescription;
-import org.netbeans.spi.editor.hints.HintsController;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import javax.swing.JComponent;
+import org.netbeans.spi.options.OptionsPanelController;
+import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 
-/**
- * Task which delegates to the language plugins for actual hints-computation
- * 
- * @author Tor Norbye
- */
-public class HintsTask extends ScanningCancellableTask<CompilationInfo> {
-    
-    public HintsTask() {
+final class HintsOptionsPanelController extends OptionsPanelController {
+    private GsfHintsManager manager;
+    private HintsPanel panel;
+    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    private boolean changed;
+                    
+    HintsOptionsPanelController(GsfHintsManager manager) {
+        this.manager = manager;
+    }
+
+    public void update() {
+        panel.update();
     }
     
-    public void run(CompilationInfo info) throws Exception {
-        resume();
-        
-        List<ErrorDescription> result = new ArrayList<ErrorDescription>();
-        Set<String> mimeTypes = info.getEmbeddedMimeTypes();
-        for (String mimeType : mimeTypes) {
-            Language language = LanguageRegistry.getInstance().getLanguageByMimeType(mimeType);
-            if (language == null) {
-                continue;
-            }
-            
-            HintsProvider provider = language.getHintsProvider();
-
-            if (provider == null) {
-                continue;
-            }
-
-            GsfHintsManager manager = language.getHintsManager();
-            RuleContext ruleContext = manager.createRuleContext(info, language, -1, -1, -1);
-            List<Hint> hints = new ArrayList<Hint>();
-
-            if (ruleContext != null) {
-                provider.computeHints(manager, ruleContext, hints);
-            }
-            
-            if (isCancelled()) {
-                return;
-            }
-
-            for (Hint hint : hints) {
-                ErrorDescription desc = manager.createDescription(hint, ruleContext, false);
-                result.add(desc);
-            }
+    public void applyChanges() {
+        if ( isChanged() ) {
+            panel.applyChanges();
         }
-        
-        HintsController.setErrors(info.getFileObject(), HintsTask.class.getName(), result);
     }
+    
+    public void cancel() {
+        panel.cancel();
+    }
+    
+    public boolean isValid() {
+        return true; 
+    }
+    
+    public boolean isChanged() {
+        return panel == null ? false : panel.isChanged();
+    }
+    
+    public HelpCtx getHelpCtx() {
+	return null; // new HelpCtx("...ID") if you have a help set
+    }
+    
+    public synchronized JComponent getComponent(Lookup masterLookup) {
+        if ( panel == null ) {
+            panel = new HintsPanel(manager.getHintsTreeModel());
+        }
+        return panel;
+    }
+    
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+	pcs.addPropertyChangeListener(l);
+    }
+    
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+	pcs.removePropertyChangeListener(l);
+    }
+        
+    void changed() {
+	if (!changed) {
+	    changed = true;
+	    pcs.firePropertyChange(OptionsPanelController.PROP_CHANGED, false, true);
+	}
+	pcs.firePropertyChange(OptionsPanelController.PROP_VALID, null, null);
+    }
+    
 }
