@@ -56,9 +56,11 @@ public class BundleProperty implements Comparable<BundleProperty> {
 
     /** The property bundle */
     private Bundle bundle;
-    /** The name of this property */
+    /** The name of the property */
     private String name;
-    /** The different locale representation of this property */
+    /** The fullname of the property */
+    private String fullname;
+    /** The different locale representation of the property */
     private Map<Locale, ItemElem> localeRepresentation;
     /** The children properties */
     private List<BundleProperty> childrenProperties;
@@ -66,8 +68,9 @@ public class BundleProperty implements Comparable<BundleProperty> {
     public BundleProperty() {
     }
 
-    public BundleProperty(String name, Bundle bundle) {
+    public BundleProperty(String name, String fullname, Bundle bundle) {
         this.name = name;
+        this.fullname = fullname;
         this.bundle = bundle;
     }
 
@@ -92,6 +95,14 @@ public class BundleProperty implements Comparable<BundleProperty> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getFullname() {
+        return fullname;
+    }
+
+    public void setFullName(String fullname) {
+        this.fullname = fullname;
     }
 
     public Bundle getBundle() {

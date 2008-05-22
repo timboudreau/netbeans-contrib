@@ -72,7 +72,7 @@ public class BundlePropertyNode extends AbstractNode implements Comparable<Bundl
 
     @Override
     public String getName() {
-        return property.getName();
+        return property.getFullname();
     }
 
     @Override

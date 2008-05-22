@@ -50,7 +50,7 @@ import org.netbeans.modules.scala.editing.nodes.exprs.BlockExpr;
 import org.netbeans.modules.scala.editing.nodes.exprs.NewExpr;
 import org.netbeans.modules.scala.editing.nodes.exprs.AssignmentExpr;
 import org.netbeans.modules.scala.editing.nodes.exprs.Postfixable;
-import org.netbeans.modules.scala.editing.nodes.types.ParameterType;
+import org.netbeans.modules.scala.editing.nodes.types.ParamType;
 import org.netbeans.modules.scala.editing.nodes.types.InfixType;
 import org.netbeans.modules.scala.editing.nodes.types.CompoundType;
 import org.netbeans.modules.scala.editing.nodes.types.SimpleTupleType;
@@ -1118,18 +1118,18 @@ public class AstElementVisitor extends AstVisitor {
 
         Object first = that.get(0);
         GNode typeNode = null;
-        ParameterType.More more = ParameterType.More.Pure;
+        ParamType.More more = ParamType.More.Pure;
         if (first instanceof GNode) {
             typeNode = (GNode) first;
             if (that.size() == 2) {
-                more = ParameterType.More.Star;
+                more = ParamType.More.Star;
             }
         } else {
             typeNode = that.getGeneric(1);
-            more = ParameterType.More.ByName;
+            more = ParamType.More.ByName;
         }
         TypeRef toWrap = visitType(typeNode);
-        ParameterType type = new ParameterType(toWrap.getIdToken(), ElementKind.CLASS);
+        ParamType type = new ParamType(toWrap.getIdToken(), ElementKind.CLASS);
         type.setWrappedType(toWrap);
         type.setMore(more);
 

@@ -1,9 +1,9 @@
-Name: Scala runtime library
+Name: Scala Bazaar library
 Version: 2.7.1
-Description: Scala runtime library
+Description: Scala Bazaar library
 License: BSD-like
 Origin: http://www.scala-lang.org/
-Files: scala-library-2.7.1.jar
+Files: sbaz-2.7.1.jar
 Source: http://www.scala-lang.org/downloads/license.html
 
 Copyright (c) 2002-2008 EPFL, Lausanne, unless otherwise specified.

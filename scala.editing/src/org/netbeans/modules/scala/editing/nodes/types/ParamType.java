@@ -47,7 +47,7 @@ import org.netbeans.modules.gsf.api.HtmlFormatter;
  *
  * @author dcaoyuan
  */
-public class ParameterType extends TypeRef {
+public class ParamType extends TypeRef {
     
     public enum More {
 
@@ -59,7 +59,7 @@ public class ParameterType extends TypeRef {
     private More more;
     private TypeRef wrappedType;
 
-    public ParameterType(Token idToken, ElementKind kind) {
+    public ParamType(Token idToken, ElementKind kind) {
         super(null, idToken, kind);
     }
 

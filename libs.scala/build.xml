@@ -44,11 +44,16 @@ made subject to such option by the copyright holder.
     <import file="../../nbbuild/templates/projectized.xml"/>
     
     <target name="release" depends="init">
-        <unzip dest="${cluster}/scalasrc" src="external/scala-library-src-2.7.1.jar"/>
-        <unzip dest="${cluster}/scalasrc" src="external/scala-compiler-src-2.7.1.jar"/>
-        <unzip dest="${cluster}/scalasrc" src="external/scala-dbc-src-2.7.1.jar"/>
-        <unzip dest="${cluster}/scalasrc" src="external/scala-decoder-src-2.7.1.jar"/>
-        <unzip dest="${cluster}/scalasrc" src="external/sbaz-src-2.7.1.jar"/>
+        <untar compression="gzip" dest="${cluster}/scala/" src="external/scala-2.7.1.final.tar.gz"/>
+        
+        <unzip dest="${scala.dir}/src" src="${scala.dir}/src/scala-library-src.jar"/>
+        <unzip dest="${scala.dir}/src" src="${scala.dir}/src/scala-compiler-src.jar"/>
+        <unzip dest="${scala.dir}/src" src="${scala.dir}/src/scala-dbc-src.jar"/>
+        <unzip dest="${scala.dir}/src" src="${scala.dir}/src/scala-decoder-src.jar"/>
+        <unzip dest="${scala.dir}/src" src="${scala.dir}/src/sbaz-src.jar"/>
+        <delete>
+            <fileset dir="${scala.dir}/src" includes="*.jar"/>
+        </delete>
     </target>    
     
 </project>
