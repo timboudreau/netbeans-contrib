@@ -1,3 +1,4 @@
+cd `dirname "$0"`
 TARDIR=`pwd`/build/tars
 RESDIR=`pwd`/build/result
 SRCDIR=`pwd`
