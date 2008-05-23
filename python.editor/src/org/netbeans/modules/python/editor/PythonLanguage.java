@@ -41,48 +41,36 @@
 package org.netbeans.modules.python.editor;
 
 import org.netbeans.modules.python.editor.lexer.PythonTokenId;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import org.netbeans.modules.gsf.api.GsfLanguage;
 import org.netbeans.api.lexer.Language;
-import org.openide.filesystems.FileObject;
+import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
 
-/*
- * Language/lexing configuration for Python
- *
- * @author Martin Adamek
- */
-public class PythonLanguage implements GsfLanguage {
+public class PythonLanguage extends DefaultLanguageConfig {
     
     public PythonLanguage() {
     }
 
+    @Override
     public String getLineCommentPrefix() {
         return "#"; // NOI18N
     }
 
+    @Override
     public boolean isIdentifierChar(char c) {
         return false;//RubyUtils.isIdentifierChar(c);
     }
 
+    @Override
     public Language getLexerLanguage() {
         return PythonTokenId.language();
     }
 
-    public Collection<FileObject> getCoreLibraries() {
-        return Collections.emptyList();
-    }
-
+    @Override
     public String getDisplayName() {
         return "Python";
     }
 
+    @Override
     public String getPreferredExtension() {
         return "py"; // NOI18N
-    }
-
-    public Map<String,String> getSourceGroupNames() {
-        return Collections.emptyMap();
     }
 }

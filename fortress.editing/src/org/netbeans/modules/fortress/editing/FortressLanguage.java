@@ -40,45 +40,37 @@
  */
 package org.netbeans.modules.fortress.editing;
 
-import java.util.Map;
-import java.util.Collection;
-import java.util.Collections;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.fortress.editing.lexer.FortressTokenId;
-import org.netbeans.modules.gsf.api.GsfLanguage;
+import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
 
-
-import org.openide.filesystems.FileObject;
-public class FortressLanguage implements GsfLanguage {
+public class FortressLanguage extends DefaultLanguageConfig {
 
     public FortressLanguage() {
     }
 
+    @Override
     public String getLineCommentPrefix() {
         return FortressUtils.getLineCommentPrefix();
     }
 
+    @Override
     public boolean isIdentifierChar(char c) {
         return FortressUtils.isIdentifierChar(c);
     }
 
+    @Override
     public Language getLexerLanguage() {
         return FortressTokenId.language();
     }
-
-    public Collection<FileObject> getCoreLibraries() {
-        return Collections.emptyList();
-    }
     
+    @Override
     public String getDisplayName() {
         return "Fortress";
     }
 
+    @Override
     public String getPreferredExtension() {
         return "fss"; // NOI18N
-    }
-
-    public Map<String,String> getSourceGroupNames() {
-        return Collections.emptyMap();
     }
 }

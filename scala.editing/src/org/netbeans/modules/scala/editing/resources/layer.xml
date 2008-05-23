@@ -82,7 +82,7 @@
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaLanguage"/>
                 </file>
                 <file name="bracket.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.BracketCompletion"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.KeystrokeHandler"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaBracketCompleter"/>
                 </file>
                 <file name="formatter.instance">
@@ -94,7 +94,7 @@
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaParser"/>
                 </file>
                 <file name="completion.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Completable"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.CodeCmpletionHandler"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaCodeCompletion"/>
                 </file>
                 <file name="structure.instance">

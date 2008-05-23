@@ -18,7 +18,6 @@
  */
 package org.netbeans.modules.erlang.platform.gsf;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -44,17 +43,17 @@ import javax.swing.text.JTextComponent;
 //import org.jruby.ast.Node;
 //import org.jruby.ast.types.INameNode;
 //import org.jruby.lexer.yacc.ISourcePosition;
+import org.netbeans.modules.gsf.api.CodeCompletionContext;
 import org.netbeans.modules.gsf.api.CompilationInfo;
-import org.netbeans.modules.gsf.api.Completable;
+import org.netbeans.modules.gsf.api.CodeCompletionHandler;
+import org.netbeans.modules.gsf.api.CodeCompletionResult;
 import org.netbeans.modules.gsf.api.CompletionProposal;
 import org.netbeans.modules.gsf.api.Element;
 import org.netbeans.modules.gsf.api.ElementHandle;
-import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
-import static org.netbeans.modules.gsf.api.Index.*;
-import org.netbeans.modules.gsf.api.NameKind;
 import org.netbeans.modules.gsf.api.ParameterInfo;
 //import org.netbeans.editor.Utilities;
+import org.netbeans.modules.gsf.spi.DefaultCompletionResult;
 //import org.netbeans.editor.Utilities;
 //import org.netbeans.modules.ruby.elements.AstClassElement;
 //import org.netbeans.modules.ruby.elements.AstElement;
@@ -95,7 +94,7 @@ import org.netbeans.modules.gsf.api.ParameterInfo;
  *
  * @author Tor Norbye
  */
-public class CodeCompleter implements Completable {
+public class CodeCompleter implements CodeCompletionHandler {
     /** Live code template parameter: compute an unused local variable name */
     private static final String KEY_UNUSEDLOCAL = "unusedlocal"; // NOI18N
 
@@ -1023,8 +1022,7 @@ public class CodeCompleter implements Completable {
 //    }
 
     // TODO: Move to the top
-    public List<CompletionProposal> complete(CompilationInfo info, int caretOffset, String prefix,
-        NameKind kind, QueryType queryType, boolean caseSensitive, HtmlFormatter formatter) {
+    public CodeCompletionResult complete(CodeCompletionContext context) {
         List<CompletionProposal> proposals = new ArrayList<CompletionProposal>();
 //        this.caseSensitive = caseSensitive;
 //        this.formatter = formatter;
@@ -1428,7 +1426,7 @@ public class CodeCompleter implements Completable {
 //            return proposals;
 //        }
 
-        return proposals;
+        return new DefaultCompletionResult(proposals, false);
     }
 
     //    private boolean isClassName(String s) {

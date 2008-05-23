@@ -60,7 +60,7 @@ import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
-import org.netbeans.modules.gsf.api.BracketCompletion;
+import org.netbeans.modules.gsf.api.KeystrokeHandler;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
@@ -90,7 +90,7 @@ import org.openide.util.Exceptions;
  * @author Tor Norbye
  * @author Caoyuan Deng
  */
-public class ScalaBracketCompleter implements BracketCompletion {
+public class ScalaBracketCompleter implements KeystrokeHandler {
 
     /** When true, automatically reflows comments that are being edited according to the rdoc
      * conventions as well as the right hand side margin

@@ -41,29 +41,28 @@
 package org.netbeans.modules.scala.editing;
 
 import java.io.File;
-import java.util.Map;
 import java.util.Collection;
 import java.util.Collections;
 import org.netbeans.api.lexer.Language;
-import org.netbeans.modules.gsf.api.GsfLanguage;
-
-
+import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.InstalledFileLocator;
 
-public class ScalaLanguage implements GsfLanguage {
+public class ScalaLanguage extends DefaultLanguageConfig {
 
     private static FileObject scalaStubsFo;
 
     public ScalaLanguage() {
     }
 
+    @Override
     public String getLineCommentPrefix() {
         return "//";
     }
 
+    @Override
     public boolean isIdentifierChar(char c) {
         return Character.isJavaIdentifierPart(c) || (// Globals, fields and parameter prefixes (for blocks and symbols)
                 c == '$') || (c == '@') || (c == '&') || (// Function name suffixes
@@ -71,10 +70,12 @@ public class ScalaLanguage implements GsfLanguage {
 
     }
 
+    @Override
     public Language getLexerLanguage() {
         return ScalaTokenId.language();
     }
 
+    @Override
     public Collection<FileObject> getCoreLibraries() {
         return Collections.singletonList(getScalaStubFo());
     }
@@ -112,16 +113,14 @@ public class ScalaLanguage implements GsfLanguage {
         return scalaStubsFo;
     }
 
+    @Override
     public String getDisplayName() {
         return "Scala";
     }
 
+    @Override
     public String getPreferredExtension() {
         return "scala"; // NOI18N
 
-    }
-
-    public Map<String, String> getSourceGroupNames() {
-        return Collections.emptyMap();
     }
 }

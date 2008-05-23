@@ -91,7 +91,7 @@ public class FunType extends TypeRef {
         if (lhs == null) {
             sb.append("(");
             sb.append(")");
-        } else if (lhs instanceof ParameterType && ((ParameterType) lhs).getMore() == ParameterType.More.ByName) {
+        } else if (lhs instanceof ParamType && ((ParamType) lhs).getMore() == ParamType.More.ByName) {
             sb.append("(");
             sb.append(lhs.getName());
             sb.append(")");
@@ -110,7 +110,7 @@ public class FunType extends TypeRef {
         if (lhs == null) {
             formatter.appendText("(");
             formatter.appendText(")");
-        } else if (lhs instanceof ParameterType && ((ParameterType) lhs).getMore() == ParameterType.More.ByName) {
+        } else if (lhs instanceof ParamType && ((ParamType) lhs).getMore() == ParamType.More.ByName) {
             formatter.appendText("(");
             lhs.htmlFormat(formatter);
             formatter.appendText(")");

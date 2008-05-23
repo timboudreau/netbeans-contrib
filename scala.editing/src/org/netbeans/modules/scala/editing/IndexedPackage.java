@@ -55,11 +55,6 @@ public class IndexedPackage extends IndexedElement {
     }
     
     @Override
-    public String toString() {
-        return getSignature() + ":" + getFilenameUrl() + ";" + decodeFlags(flags);
-    }
-
-    @Override
     public String getSignature() {
         if (signature == null) {
             StringBuilder sb = new StringBuilder();
