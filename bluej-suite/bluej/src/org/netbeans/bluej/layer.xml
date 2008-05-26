@@ -10,7 +10,9 @@
    </folder>
   <folder name="Services">
       <folder name="JavaHelp">
-            <file name="bluej-helpset.xml" url="bluej-helpset.xml"/>
+            <file name="bluej-helpset.xml" url="bluej-helpset.xml">
+                <attr name="position" intvalue="353"/> <!-- after java helpset -->
+             </file>
         </folder>
   </folder>
     <folder name="Templates">
