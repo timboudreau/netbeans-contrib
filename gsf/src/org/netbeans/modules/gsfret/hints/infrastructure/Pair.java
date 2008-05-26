@@ -38,44 +38,27 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
-package org.netbeans.modules.gsf.api;
-
-import java.awt.event.ActionEvent;
-import javax.swing.Action;
-import javax.swing.text.JTextComponent;
-import org.netbeans.modules.gsf.api.annotations.CheckForNull;
-import org.netbeans.modules.gsf.api.annotations.NonNull;
+package org.netbeans.modules.gsfret.hints.infrastructure;
 
 /**
- * Interface for actions that should be added into the set of
- * actions managed by the editor kit (which can then be bound to
- * editor keybindings rathr than global shortcuts, etc.)
- * 
- * @todo Provide a way to set the updateMask in BaseAction?
- * 
- * @author Tor Norbye
+ *
+ * @author Jan Lahoda
  */
-public interface EditorAction extends Action {
-    /** 
-     * Action was invoked from an editor. 
-     */
-    void actionPerformed(@CheckForNull ActionEvent evt, @NonNull final JTextComponent target);
-    /**
-     * Return true iff this action applies to the given mime type. This method is only called once,
-     * at startup, to determine which editor kits to register the action with.
-     * @param mimeType The mime type to check
-     * @return True iff this action is enabled for the given mimetype
-     */
-    boolean appliesTo(String mimeType);
-    /**
-     * Return the action name that the action will be registered as. This is the name
-     * the action will be refererred to as when registering keyboard shortcuts.
-     */
-    @NonNull String getActionName();
-    /**
-     * Return the class for the package where there should be a Bundle.properties file
-     * localizing the action (by the action name).
-     */
-    @NonNull Class getShortDescriptionBundleClass();
+final class Pair<A, B> {
+
+    private A a;
+    private B b;
+
+    Pair(A a, B b) {
+        this.a = a;
+        this.b = b;
+    }
+
+    public A getA() {
+        return a;
+    }
+
+    public B getB() {
+        return b;
+    }
 }

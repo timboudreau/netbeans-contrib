@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
+ * 
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,13 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,45 +31,61 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.gsf.api;
 
-import java.awt.event.ActionEvent;
-import javax.swing.Action;
-import javax.swing.text.JTextComponent;
+import java.util.Collection;
+import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.gsf.api.HintsProvider.HintsManager;
 import org.netbeans.modules.gsf.api.annotations.CheckForNull;
 import org.netbeans.modules.gsf.api.annotations.NonNull;
 
 /**
- * Interface for actions that should be added into the set of
- * actions managed by the editor kit (which can then be bound to
- * editor keybindings rathr than global shortcuts, etc.)
- * 
- * @todo Provide a way to set the updateMask in BaseAction?
+ * Information about the current context a rule is being asked to evaluate.
  * 
  * @author Tor Norbye
  */
-public interface EditorAction extends Action {
-    /** 
-     * Action was invoked from an editor. 
-     */
-    void actionPerformed(@CheckForNull ActionEvent evt, @NonNull final JTextComponent target);
-    /**
-     * Return true iff this action applies to the given mime type. This method is only called once,
-     * at startup, to determine which editor kits to register the action with.
-     * @param mimeType The mime type to check
-     * @return True iff this action is enabled for the given mimetype
-     */
-    boolean appliesTo(String mimeType);
-    /**
-     * Return the action name that the action will be registered as. This is the name
-     * the action will be refererred to as when registering keyboard shortcuts.
-     */
-    @NonNull String getActionName();
-    /**
-     * Return the class for the package where there should be a Bundle.properties file
-     * localizing the action (by the action name).
-     */
-    @NonNull Class getShortDescriptionBundleClass();
+public class RuleContext {
+
+    public RuleContext() {
+    }
+
+    /** The HintsManager associated with this rule context */
+    @NonNull
+    public HintsManager manager;
+    
+    /** The current caret offset (for caret-based rules), or -1 */
+    public int caretOffset = -1;
+    
+    /** The start of the current selection (if any) or -1 */
+    public int selectionStart = -1;
+    
+    /** The end of the current selection (if any) or -1 */
+    public int selectionEnd;
+    
+    /** The CompilationInfo corresponding to this rule context */
+    @NonNull
+    public CompilationInfo compilationInfo;
+    
+    /** The document */
+    @NonNull
+    public BaseDocument doc;
+    
+    /** All the embedded parser results for this compilation info */
+    @NonNull
+    public Collection<? extends ParserResult> parserResults;
+    
+    /** The FIRST parser result (if parserResults.size() > 0) or null */
+    @CheckForNull
+    public ParserResult parserResult;
+
+    // Fields useful for subclasses
+    // TODO - push into subclasses?
+    public int lexOffset;
+    public int astOffset;
 }

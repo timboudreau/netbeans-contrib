@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -38,44 +38,23 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.gsf.api;
 
-import java.awt.event.ActionEvent;
-import javax.swing.Action;
-import javax.swing.text.JTextComponent;
-import org.netbeans.modules.gsf.api.annotations.CheckForNull;
-import org.netbeans.modules.gsf.api.annotations.NonNull;
+import org.netbeans.spi.editor.hints.Severity;
 
-/**
- * Interface for actions that should be added into the set of
- * actions managed by the editor kit (which can then be bound to
- * editor keybindings rathr than global shortcuts, etc.)
- * 
- * @todo Provide a way to set the updateMask in BaseAction?
- * 
- * @author Tor Norbye
- */
-public interface EditorAction extends Action {
-    /** 
-     * Action was invoked from an editor. 
-     */
-    void actionPerformed(@CheckForNull ActionEvent evt, @NonNull final JTextComponent target);
-    /**
-     * Return true iff this action applies to the given mime type. This method is only called once,
-     * at startup, to determine which editor kits to register the action with.
-     * @param mimeType The mime type to check
-     * @return True iff this action is enabled for the given mimetype
-     */
-    boolean appliesTo(String mimeType);
-    /**
-     * Return the action name that the action will be registered as. This is the name
-     * the action will be refererred to as when registering keyboard shortcuts.
-     */
-    @NonNull String getActionName();
-    /**
-     * Return the class for the package where there should be a Bundle.properties file
-     * localizing the action (by the action name).
-     */
-    @NonNull Class getShortDescriptionBundleClass();
+public enum HintSeverity {
+    ERROR, WARNING, CURRENT_LINE_WARNING;
+
+    public Severity toEditorSeverity() {
+        switch (this) {
+            case ERROR:
+                return Severity.ERROR;
+            case WARNING:
+                return Severity.VERIFIER;
+            case CURRENT_LINE_WARNING:
+                return Severity.HINT;
+            default:
+                return null;
+        }
+    }
 }
