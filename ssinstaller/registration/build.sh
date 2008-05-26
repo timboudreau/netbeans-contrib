@@ -6,7 +6,7 @@ LENGTH=`wc -l register.sh | sed s/register.sh// | sed s/' '//g`
 LENGTH=`expr $LENGTH + 1`
 echo $LENGTH
 DISTRS="intel-S2 sparc-S2 intel-Linux"
-#DISTRS="intel-S2"
+#DISTRS="intel-Linux"
 #rm -rf $TARS 
 IMAGES_DIR=/shared/dp/sstrunk/latest/output/image_tars
 #IMAGES_DIR=/shared/dp/sstrunk
@@ -18,7 +18,7 @@ do
     mkdir -p $TARDIR/$distr
     cd $TARDIR/$distr
     DISTR_NAME=$RESDIR/sunstudio-$distr.sh
-    bzcat $IMAGES_DIR/*.$distr.tar.bz2 | tar -xf - 
+    bzcat $IMAGES_DIR/*.$distr.tar.bz2 | /usr/sfw/bin/gtar -xf - 
     cp -r $SRCDIR/servicetag $TARDIR/$distr
     tar cf $TARDIR/sunstudio.$distr.tar *
     bzip2 $TARDIR/sunstudio.$distr.tar
