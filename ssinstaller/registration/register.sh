@@ -43,7 +43,7 @@ STDIR="./servicetag"
 ################################################################
 
 
-cd `dirname "$0"`
+#cd `dirname "$0"`
 PWD=`pwd`
 PATH=/usr/bin:/usr/sbin:/bin:$PWD/SUNWspro/bin
 MYNAME=`basename "$0"`
