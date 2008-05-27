@@ -58,6 +58,7 @@ import org.netbeans.modules.gsf.api.TranslatedSource;
 import org.netbeans.modules.gsf.spi.DefaultParseListener;
 import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import org.netbeans.modules.java.source.usages.VirtualSourceProvider;
+import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.Packaging;
 import org.netbeans.modules.scala.editing.nodes.tmpls.Template;
@@ -67,6 +68,7 @@ import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 /**
+ * Vitual java source 
  *
  * @author Caoyuan Deng
  */
@@ -84,7 +86,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
         while (it.hasNext()) {
             File file = it.next();
             /** @Todo */
-            List<Template> templates = Collections.<Template>emptyList();//getTemplates(file);
+            List<Template> templates = getTemplates(file);
             if (templates.isEmpty()) {
                 // source is probably broken and there is no AST
                 // let's generate empty Java stub with simple name equal to file name
@@ -158,7 +160,9 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
             if (pResult != null) {
                 AstScope rootScope = pResult.getRootScope();
                 if (rootScope != null) {
-                    List<Template> templates = rootScope.getDefsInScope(Template.class);
+                    List<Template> templates = new ArrayList<Template>();
+                    scan(rootScope, templates);
+                    
                     resultList.addAll(templates);
                 }
             } else {
@@ -167,6 +171,18 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
         }
 
         return resultList;
+    }
+
+    private static void scan(AstScope scope, List<Template> templates) {
+        for (AstDef def : scope.getDefs()) {
+            if (def instanceof Template) {
+                templates.add((Template) def);
+            }
+        }
+
+        for (AstScope _scope : scope.getScopes()) {
+            scan(_scope, templates);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -187,7 +203,7 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
 
         public CharSequence generateClass(Template template) throws FileNotFoundException {
 
-            String fileName = template.getName().replace('.', '/');
+            String fileName = template.getQualifiedName().replace('.', '/');
             toCompile.add(fileName);
 
             StringWriter sw = new StringWriter();
@@ -201,8 +217,11 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
 
                 //genImports(template, out);
 
-                printModifiers(out, template.getModifiers());
-
+                out.println("/**");
+                out.println(" * A virtual class " + template.getName());
+                out.println(" */");
+                
+                printModifiers(out, template.getModifiers());                
                 out.print("class ");
                 out.println(template.getName());
 
@@ -217,6 +236,10 @@ public class ScalaVirtualSourceProvider implements VirtualSourceProvider {
 
 
                 out.println(" {");
+                
+                out.print("public " + template.getName() + "() {};");
+
+                out.print("public void vitualMethod() {};");
 
                 out.println("}");
             } finally {

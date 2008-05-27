@@ -43,6 +43,7 @@
 package org.netbeans.modules.glassfish.javaee;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import org.netbeans.api.java.platform.JavaPlatform;
@@ -51,12 +52,14 @@ import org.netbeans.modules.glassfish.javaee.ide.Hk2PluginProperties;
 import org.netbeans.modules.j2ee.deployment.common.api.J2eeLibraryTypeProvider;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformImpl;
+import org.netbeans.spi.glassfish.ServerUtilities;
 import org.netbeans.spi.project.libraries.LibraryImplementation;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
 
-/**
+    
+    /**
  *
  * @author Ludo
  */
@@ -65,7 +68,7 @@ public class Hk2JavaEEPlatformImpl extends J2eePlatformImpl {
     private Hk2PluginProperties properties;
     private Hk2DeploymentManager dm;
     private LibraryImplementation[] libraries;
-    
+
     /**
      * 
      * @param dm 
@@ -78,7 +81,23 @@ public class Hk2JavaEEPlatformImpl extends J2eePlatformImpl {
     
     // Persistence provider strings
     private static final String PERSISTENCE_PROV_ECLIPSELINK = "org.eclipse.persistence.jpa.PersistenceProvider"; //NOI18N
-       
+
+    // WEB SERVICES PROPERTIES 
+    // TODO - shall be removed and usages replaced by values from j2eeserver or websvc apis after api redesign
+    private static final String TOOL_WSCOMPILE = "wscompile";
+    private static final String TOOL_JSR109 = "jsr109";
+    private static final String TOOL_WSIMPORT = "wsimport";
+    private static final String TOOL_WSGEN = "wsgen";
+    private static final String TOOL_KEYSTORE = "keystore";
+    private static final String TOOL_KEYSTORECLIENT = "keystoreClient";
+    private static final String TOOL_TRUSTSTORE = "truststore";
+    private static final String TOOL_TRUSTSTORECLIENT = "truststoreClient";
+    private static final String TOOL_WSIT = "wsit";
+    private static final String TOOL_JAXWSTESTER = "jaxws-tester";
+    private static final String TOOL_APPCLIENTRUNTIME = "appClientRuntime";
+    private static final String KEYSTORE_LOCATION = "config/keystore.jks";
+    private static final String TRUSTSTORE_LOCATION = "config/cacerts.jks";    
+    
     /**
      * 
      * @param toolName 
@@ -97,12 +116,63 @@ public class Hk2JavaEEPlatformImpl extends J2eePlatformImpl {
             return true;
         }
         
-        if("defaultPersistenceProviderJavaEE5".equals(toolName)) {
+        if("defaultPersistenceProviderJavaEE5".equals(toolName)) {  //NOI18N
             return true;
         }
         if("eclipseLinkPersistenceProviderIsDefault".equals(toolName)) {
             return true;
         }        
+
+        File wsLib = null;
+        File jsr109lib = null;
+        
+        String gfRootStr = properties.getGlassfishRoot();
+        if (gfRootStr != null) {
+            wsLib = ServerUtilities.getJarName(gfRootStr, "webservices-rt");
+            jsr109lib = new File(gfRootStr, "jsr109-impl");
+        }
+
+        // WEB SERVICES SUPPORT
+        if ((wsLib != null) && (wsLib.exists())) {      // existence of webservice libraries
+            if (TOOL_WSGEN.equals(toolName)) {         //NOI18N
+                return true;
+            }
+            if (TOOL_WSIMPORT.equals(toolName)) {      //NOI18N
+                return true;
+            }
+            if (TOOL_WSIT.equals(toolName)) {          //NOI18N
+                return true;
+            }
+            if (TOOL_JAXWSTESTER.equals(toolName)) {  //NOI18N
+                return true;
+            }
+            if (TOOL_JSR109.equals(toolName)) {        //NOI18N
+                // FIXME ---> jsr109 is not supported currently
+//                if ((jsr109lib != null) && (jsr109lib.exists())) {
+//                    return true;
+//                }
+                return false;
+            }
+            if (TOOL_KEYSTORE.equals(toolName)) {      //NOI18N
+                return true;
+            }
+            if (TOOL_KEYSTORECLIENT.equals(toolName)) {//NOI18N
+                return true;
+            }
+            if (TOOL_TRUSTSTORE.equals(toolName)) {    //NOI18N
+                return true;
+            }
+            if (TOOL_TRUSTSTORECLIENT.equals(toolName)) {  //NOI18N
+                return true;
+            }
+            if (TOOL_WSCOMPILE.equals(toolName)) {     //NOI18N
+                return false;   // TODO - the support is there - need to find the right classpath then change to true
+            }
+            if (TOOL_APPCLIENTRUNTIME.equals(toolName)) { //NOI18N
+                return false;    //TODO - when the support becomes available, change to true
+            }
+        }
+        
         return false;     
     }
     
@@ -112,10 +182,45 @@ public class Hk2JavaEEPlatformImpl extends J2eePlatformImpl {
      * @return 
      */
     public File[] getToolClasspathEntries(String toolName) {
+
+        String gfRootStr = properties.getGlassfishRoot();
+        if (TOOL_WSGEN.equals(toolName) || TOOL_WSIMPORT.equals(toolName)) {
+            String[] entries = new String[] {"javax.javaee", 
+                                             "webservices-api", 
+                                             "webservices-rt", 
+                                             "webservices-tools", 
+                                             "jsr109-impl"};
+            ArrayList<File> cPath = new ArrayList<File>();
+            for (String entry : entries) {
+                File f = ServerUtilities.getJarName(gfRootStr, entry);
+                if ((f != null) && (f.exists())) {
+                    cPath.add(f);
+                }
+            }
+            return cPath.toArray(new File[cPath.size()]);
+        }
+
+        File domainDir = null;
+        File gfRoot = new File(gfRootStr);
+        if ((gfRoot != null) && (gfRoot.exists())) {
+            domainDir = new File(gfRoot, "/domains/domain1"); // TODO - find domain correctly
+        }
+        
+        if (TOOL_KEYSTORE.equals(toolName) || TOOL_KEYSTORECLIENT.equals(toolName)) {
+            return new File[] {
+                new File(domainDir, KEYSTORE_LOCATION)  //NOI18N
+            };
+        }
+                
+        if (TOOL_TRUSTSTORE.equals(toolName) || TOOL_TRUSTSTORECLIENT.equals(toolName)) {
+            return new File[] {
+                new File(domainDir, TRUSTSTORE_LOCATION)  //NOI18N
+            };
+        }
+        
         return new File[0];
     }
-    
-    /**
+/**
      * 
      * @return 
      */
