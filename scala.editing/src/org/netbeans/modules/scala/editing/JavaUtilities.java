@@ -769,7 +769,7 @@ public class JavaUtilities {
 
     public static String getJavaDoc(CompilationInfo info, final Element e) throws IOException {
         String docComment = null;
-
+        
         // to resolve javadoc, only needs Phase.ELEMENT_RESOLVED, and we have reached when create info
         Doc javaDoc = info.getElementUtilities().javaDocFor(e);
         if (javaDoc != null) {
