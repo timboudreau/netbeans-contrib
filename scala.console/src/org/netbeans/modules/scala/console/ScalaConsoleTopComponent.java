@@ -57,7 +57,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import java.io.Serializable;
 import javax.swing.UIManager;
