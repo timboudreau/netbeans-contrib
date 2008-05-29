@@ -39,11 +39,9 @@
 package org.netbeans.modules.fortress.editing;
 
 import com.sun.fortress.nodes.Node;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.swing.text.BadLocationException;
 import org.netbeans.modules.gsf.api.ColoringAttributes;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OccurrencesFinder;
@@ -54,7 +52,6 @@ import org.netbeans.modules.fortress.editing.lexer.FortressTokenId;
 import org.netbeans.modules.fortress.editing.visitors.Scope;
 import org.netbeans.modules.fortress.editing.visitors.Signature;
 import org.netbeans.modules.gsf.api.ElementKind;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -141,36 +138,35 @@ public class FortressOccurrencesFinder implements OccurrencesFinder {
         // . to the end of Scanf as a CallNode, which is a weird highlight.
         // We don't want occurrences highlights that span lines.
         if (closest != null) {
+            BaseDocument doc = (BaseDocument) info.getDocument();
+            if (doc == null) {
+                // Document was just closed
+                return;
+            }
             try {
-                BaseDocument doc = (BaseDocument) info.getDocument();
-                if (doc == null) {
-                    // Document was just closed
-                    return;
-                }
                 doc.readLock();
-                try {
-                    int length = doc.getLength();
-                    OffsetRange astRange = closest.getNameRange();
-                    OffsetRange lexRange = FortressLexUtilities.getLexerOffsets(info, astRange);
-                    int lexStartPos = lexRange.getStart();
-                    int lexEndPos = lexRange.getEnd();
+                int length = doc.getLength();
+                OffsetRange astRange = closest.getNameRange();
+                OffsetRange lexRange = FortressLexUtilities.getLexerOffsets(info, astRange);
+                int lexStartPos = lexRange.getStart();
+                int lexEndPos = lexRange.getEnd();
 
-                    // If the buffer was just modified where a lot of text was deleted,
-                    // the parse tree positions could be pointing outside the valid range
-                    if (lexStartPos > length) {
-                        lexStartPos = length;
-                    }
-                    if (lexEndPos > length) {
-                        lexEndPos = length;
-                    }
+                // If the buffer was just modified where a lot of text was deleted,
+                // the parse tree positions could be pointing outside the valid range
+                if (lexStartPos > length) {
+                    lexStartPos = length;
+                }
+                if (lexEndPos > length) {
+                    lexEndPos = length;
+                }
 
-                    // One special case I care about: highlighting method exit points. In
-                    // this case, the full def node is selected, which typically spans
-                    // lines. This should trigger if you put the caret on the method definition
-                    // line, unless it's in a comment there.
-                    org.netbeans.api.lexer.Token<? extends FortressTokenId> token = FortressLexUtilities.getToken(doc, caretPosition);
-                    //boolean isFunctionKeyword = (token != null) && token.id() == JsTokenId.FUNCTION;
-                    boolean isMethodName = closest.getKind() == ElementKind.METHOD;
+                // One special case I care about: highlighting method exit points. In
+                // this case, the full def node is selected, which typically spans
+                // lines. This should trigger if you put the caret on the method definition
+                // line, unless it's in a comment there.
+                org.netbeans.api.lexer.Token<? extends FortressTokenId> token = FortressLexUtilities.getToken(doc, caretPosition);
+                //boolean isFunctionKeyword = (token != null) && token.id() == JsTokenId.FUNCTION;
+                boolean isMethodName = closest.getKind() == ElementKind.METHOD;
                 //boolean isReturn = closest.getType() == Token.RETURN && astOffset < closest.getSourceStart() + "return".length();
 
 //                    if (isMethodName) {
@@ -208,11 +204,8 @@ public class FortressOccurrencesFinder implements OccurrencesFinder {
 //                        // but we only highlight the methodname itself
 //                        closest = null;
 //                    }
-                } finally {
-                    doc.readUnlock();
-                }
-            } catch (IOException ioe) {
-                Exceptions.printStackTrace(ioe);
+            } finally {
+                doc.readUnlock();
             }
         }
 

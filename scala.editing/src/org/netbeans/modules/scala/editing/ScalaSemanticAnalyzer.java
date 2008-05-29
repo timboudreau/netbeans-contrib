@@ -55,7 +55,6 @@ import org.netbeans.modules.scala.editing.nodes.AstScope;
 import org.netbeans.modules.scala.editing.nodes.AstRef;
 import org.netbeans.modules.scala.editing.nodes.IdRef;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
-import org.openide.util.Exceptions;
 
 /**
  *  
@@ -129,11 +128,8 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
     }
 
     private void visitScopeRecursively(CompilationInfo info, AstScope scope, Map<OffsetRange, Set<ColoringAttributes>> highlights) {
-        final Document document;
-        try {
-            document = info.getDocument();
-        } catch (Exception e) {
-            Exceptions.printStackTrace(e);
+        final Document document = info.getDocument();
+        if (document == null) {
             return;
         }
 

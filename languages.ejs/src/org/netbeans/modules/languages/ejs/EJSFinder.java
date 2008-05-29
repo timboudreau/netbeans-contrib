@@ -28,12 +28,10 @@
 
 package org.netbeans.modules.languages.ejs;
 
-import java.io.IOException;
 import javax.swing.text.Document;
 import org.netbeans.modules.gsf.api.CompilationInfo;
 import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.javascript.editing.JsDeclarationFinder;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -42,13 +40,9 @@ import org.openide.util.Exceptions;
 public class EJSFinder extends JsDeclarationFinder {
     @Override
     public DeclarationLocation findDeclaration( CompilationInfo info, int caretOffset) {
-        try {
-            Document doc = info.getDocument();
-            if (EJSCompleter.isWithinJavascript(doc, caretOffset)) {
-                return super.findDeclaration(info, caretOffset);
-            }
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
+        Document doc = info.getDocument();
+        if (doc != null && EJSCompleter.isWithinJavascript(doc, caretOffset)) {
+            return super.findDeclaration(info, caretOffset);
         }
         
         return DeclarationLocation.NONE;

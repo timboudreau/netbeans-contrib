@@ -1583,6 +1583,9 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
         // leaf "node" which contains the comment line and then comment block
         try {
             BaseDocument doc = (BaseDocument) info.getDocument();
+            if (doc == null) {
+                return ranges;
+            }
             length = doc.getLength();
 
 //            if (RubyUtils.isRhtmlDocument(doc)) {
@@ -1668,9 +1671,6 @@ public class ScalaBracketCompleter implements KeystrokeHandler {
             }
         } catch (BadLocationException ble) {
             Exceptions.printStackTrace(ble);
-            return ranges;
-        } catch (IOException ioe) {
-            Exceptions.printStackTrace(ioe);
             return ranges;
         }
 

@@ -38,7 +38,6 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -304,11 +303,8 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
             prefix = "";
         }
 
-        final Document document;
-        try {
-            document = info.getDocument();
-        } catch (Exception e) {
-            Exceptions.printStackTrace(e);
+        final Document document = info.getDocument();
+        if (document == null) {
             return CodeCompletionResult.NONE;
         }
         final BaseDocument doc = (BaseDocument) document;
@@ -895,6 +891,9 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
     public String getPrefix(CompilationInfo info, int lexOffset, boolean upToOffset) {
         try {
             BaseDocument doc = (BaseDocument) info.getDocument();
+            if (doc == null) {
+                return null;
+            }
 
             TokenHierarchy<Document> th = TokenHierarchy.get((Document) doc);
             doc.readLock(); // Read-lock due to token hierarchy use
@@ -1157,8 +1156,6 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
                 doc.readUnlock();
             }
         // Else: normal identifier: just return null and let the machinery do the rest
-        } catch (IOException ioe) {
-            Exceptions.printStackTrace(ioe);
         } catch (BadLocationException ble) {
             Exceptions.printStackTrace(ble);
         }
@@ -1885,6 +1882,9 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
             // Adjust offset to the left
             BaseDocument doc = (BaseDocument) info.getDocument();
+            if (doc == null) {
+                return false;
+            }
             TokenHierarchy th = TokenHierarchy.get(doc);
             int newLexOffset = ScalaLexUtilities.findSpaceBegin(doc, lexOffset);
             if (newLexOffset < lexOffset) {
@@ -2004,9 +2004,6 @@ public class ScalaCodeCompletion implements CodeCompletionHandler {
 
             }
             anchorOffsetHolder[0] = anchorOffset;
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-            return false;
         } catch (BadLocationException ble) {
             Exceptions.printStackTrace(ble);
             return false;
