@@ -40,6 +40,7 @@ package org.netbeans.modules.scala.editing;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -63,9 +64,9 @@ import org.openide.util.Exceptions;
 public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
 
     private boolean cancelled;
-    private Map<OffsetRange, ColoringAttributes> semanticHighlights;
+    private Map<OffsetRange, Set<ColoringAttributes>> semanticHighlights;
 
-    public Map<OffsetRange, ColoringAttributes> getHighlights() {
+    public Map<OffsetRange, Set<ColoringAttributes>> getHighlights() {
         return semanticHighlights;
     }
 
@@ -105,7 +106,7 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         final TokenHierarchy th = pResult.getTokenHierarchy();
         pResult.toGlobalPhase(info);
 
-        Map<OffsetRange, ColoringAttributes> highlights = new HashMap<OffsetRange, ColoringAttributes>(100);
+        Map<OffsetRange, Set<ColoringAttributes>> highlights = new HashMap<OffsetRange, Set<ColoringAttributes>>(100);
         visitScopeRecursively(info, rootScope, highlights);
 
         if (highlights.size() > 0) {
@@ -127,7 +128,7 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
         }
     }
 
-    private void visitScopeRecursively(CompilationInfo info, AstScope scope, Map<OffsetRange, ColoringAttributes> highlights) {
+    private void visitScopeRecursively(CompilationInfo info, AstScope scope, Map<OffsetRange, Set<ColoringAttributes>> highlights) {
         final Document document;
         try {
             document = info.getDocument();
@@ -147,16 +148,16 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, def.getIdToken());
             switch (def.getKind()) {
                 case MODULE:
-                    highlights.put(idRange, ColoringAttributes.CLASS);
+                    highlights.put(idRange, ColoringAttributes.CLASS_SET);
                     break;
                 case CLASS:
-                    highlights.put(idRange, ColoringAttributes.CLASS);
+                    highlights.put(idRange, ColoringAttributes.CLASS_SET);
                     break;
                 case METHOD:
-                    highlights.put(idRange, ColoringAttributes.METHOD);
+                    highlights.put(idRange, ColoringAttributes.METHOD_SET);
                     break;
                 case FIELD:
-                    highlights.put(idRange, ColoringAttributes.FIELD);
+                    highlights.put(idRange, ColoringAttributes.FIELD_SET);
                     break;
                 default:
             }
@@ -171,11 +172,11 @@ public class ScalaSemanticAnalyzer implements SemanticAnalyzer {
             OffsetRange idRange = ScalaLexUtilities.getRangeOfToken(th, idToken);
             if (ref instanceof IdRef) {
                 if (ref.getKind() == ElementKind.FIELD) {
-                    highlights.put(idRange, ColoringAttributes.FIELD);
+                    highlights.put(idRange, ColoringAttributes.FIELD_SET);
                 }
             } else if (ref instanceof TypeRef) {
                 if (!((TypeRef) ref).isResolved()) {
-                    highlights.put(idRange, ColoringAttributes.UNUSED); // UNDEFINED without default color yet
+                    highlights.put(idRange, ColoringAttributes.UNUSED_SET); // UNDEFINED without default color yet
                 }
             }
         }
