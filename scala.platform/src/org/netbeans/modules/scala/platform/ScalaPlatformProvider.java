@@ -40,17 +40,17 @@
  */
 package org.netbeans.modules.scala.platform;
 
-import org.netbeans.api.scala.platform.JavaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatform;
 
 import java.beans.PropertyChangeListener;
 
-public interface JavaPlatformProvider {
+public interface ScalaPlatformProvider {
 
     public static final String PROP_INSTALLED_PLATFORMS = "installedPlatforms"; //NOI18N
 
-    public JavaPlatform [] getInstalledPlatforms ();
+    public ScalaPlatform [] getInstalledPlatforms ();
 
-    public JavaPlatform getDefaultPlatform ();
+    public ScalaPlatform getDefaultPlatform ();
 
     public void addPropertyChangeListener (PropertyChangeListener listener);
 

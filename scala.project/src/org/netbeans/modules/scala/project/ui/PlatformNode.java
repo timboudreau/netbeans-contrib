@@ -71,8 +71,8 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.WeakListeners;
 import org.openide.ErrorManager;
-import org.netbeans.api.scala.platform.JavaPlatform;
-import org.netbeans.api.scala.platform.JavaPlatformManager;
+import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.modules.scala.project.J2SEProjectUtil;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
@@ -89,7 +89,7 @@ import org.openide.xml.XMLUtil;
  * Listens on the {@link PropertyEvaluator} for change of
  * the ant property holding the platform name.
  * It displays the content of boot classpath.
- * @see JavaPlatform
+ * @see ScalaPlatform
  * @author Tomas Zezula
  */
 class PlatformNode extends AbstractNode implements ChangeListener {
@@ -111,7 +111,7 @@ class PlatformNode extends AbstractNode implements ChangeListener {
     }
 
     public String getDisplayName () {
-        JavaPlatform plat = pp.getPlatform();
+        ScalaPlatform plat = pp.getPlatform();
         String name;
         if (plat != null) {
             name = plat.getDisplayName();
@@ -196,7 +196,7 @@ class PlatformNode extends AbstractNode implements ChangeListener {
         }
 
         private List getKeys () {            
-            JavaPlatform platform = ((PlatformNode)this.getNode()).pp.getPlatform();
+            ScalaPlatform platform = ((PlatformNode)this.getNode()).pp.getPlatform();
             if (platform == null) {
                 return Collections.EMPTY_LIST;
             }
@@ -233,7 +233,7 @@ class PlatformNode extends AbstractNode implements ChangeListener {
         
         private final PropertyEvaluator evaluator;
         private final String platformPropName;
-        private JavaPlatform platformCache;
+        private ScalaPlatform platformCache;
         private final ChangeSupport changeSupport = new ChangeSupport(this);
         
         public PlatformProvider (PropertyEvaluator evaluator, String platformPropName) {
@@ -246,7 +246,7 @@ class PlatformNode extends AbstractNode implements ChangeListener {
             return this.evaluator.getProperty(this.platformPropName);
         }
         
-        public JavaPlatform getPlatform () {
+        public ScalaPlatform getPlatform () {
             if (platformCache == null) {
                 final String platformSystemName = getPlatformId();
                 platformCache = J2SEProjectUtil.getActivePlatform (platformSystemName);
@@ -257,9 +257,9 @@ class PlatformNode extends AbstractNode implements ChangeListener {
                 //Issue: #57840: Broken platform 'default_platform'
                 if (ErrorManager.getDefault().isLoggable(ErrorManager.INFORMATIONAL) && platformCache == null) {
                     StringBuffer message = new StringBuffer ("RequestedPlatform: "+platformSystemName+" not found.\nInstalled Platforms:\n");    //NOI18N
-                    JavaPlatform[] platforms = JavaPlatformManager.getDefault().getInstalledPlatforms();
+                    ScalaPlatform[] platforms = ScalaPlatformManager.getDefault().getInstalledPlatforms();
                     for (int i=0; i<platforms.length; i++) {
-                        message.append ("Name: "+platforms[i].getProperties().get("platform.ant.name")+" Broken: "+ (platforms[i].getInstallFolders().size() == 0) + "\n");  //NOI18N
+                        message.append ("Name: "+platforms[i].getProperties().get("scala.platform.ant.name")+" Broken: "+ (platforms[i].getInstallFolders().size() == 0) + "\n");  //NOI18N
                     }
                     ErrorManager.getDefault().log (ErrorManager.INFORMATIONAL, message.toString());
                 }
@@ -293,7 +293,7 @@ class PlatformNode extends AbstractNode implements ChangeListener {
         }
         
         public boolean hasJavadoc() {
-            JavaPlatform platform = platformProvider.getPlatform();            
+            ScalaPlatform platform = platformProvider.getPlatform();            
             if (platform == null) {
                 return false;
             }
@@ -302,7 +302,7 @@ class PlatformNode extends AbstractNode implements ChangeListener {
         }
 
         public void showJavadoc() {
-            JavaPlatform platform = platformProvider.getPlatform();            
+            ScalaPlatform platform = platformProvider.getPlatform();            
             if (platform != null) {                            
                 URL[] javadocRoots = getJavadocRoots(platform);
                 URL pageURL = ShowJavadocAction.findJavadoc("overview-summary.html",javadocRoots);
@@ -314,7 +314,7 @@ class PlatformNode extends AbstractNode implements ChangeListener {
         }
         
         
-        private static URL[]  getJavadocRoots (JavaPlatform platform) {
+        private static URL[]  getJavadocRoots (ScalaPlatform platform) {
             Set result = new HashSet ();
             List/*<ClassPath.Entry>*/ l = platform.getBootstrapLibraries().entries();            
             for (Iterator it = l.iterator(); it.hasNext();) {

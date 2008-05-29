@@ -59,7 +59,7 @@ public final class PlatformsCustomizer {
      * @param  platform which should be seelcted, may be null
      * @return boolean for future extension, currently always true
      */
-    public static boolean showCustomizer (JavaPlatform platform) {
+    public static boolean showCustomizer (ScalaPlatform platform) {
         org.netbeans.modules.scala.platform.ui.PlatformsCustomizer  customizer =
                 new org.netbeans.modules.scala.platform.ui.PlatformsCustomizer (platform);
         javax.swing.JButton close = new javax.swing.JButton(NbBundle.getMessage(PlatformsCustomizer.class,"CTL_Close"));

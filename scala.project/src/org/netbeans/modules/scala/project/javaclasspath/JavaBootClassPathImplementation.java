@@ -52,21 +52,27 @@ import java.beans.PropertyChangeSupport;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.openide.util.WeakListeners;
 
 final class JavaBootClassPathImplementation implements ClassPathImplementation, PropertyChangeListener {
 
-    private static final String PLATFORM_ACTIVE = "java.platform.active";        //NOI18N
-    private static final String ANT_NAME = "java.platform.ant.name";             //NOI18N
-    private static final String J2SE = "j2se";                              //NOI18N
+    private static final String PLATFORM_ACTIVE = "java.platform.active";       //NOI18N
+    private static final String ANT_NAME = "java.platform.ant.name";            //NOI18N
+    private static final String J2SE = "j2se";                                  //NOI18N
+    private static final String SCALA_PLATFORM_ACTIVE = "platform.active";      //NOI18N
 
     private final PropertyEvaluator evaluator;
     private JavaPlatformManager platformManager;
+    private ScalaPlatformManager scalaPlatformManager;
     //name of project active platform
     private String activePlatformName;
+    private String activeScalaPlatformName;
     //active platform is valid (not broken reference)
     private boolean isActivePlatformValid;
+    private boolean isActiveScalaPlatformValid;
     private List<PathResourceImplementation> resourcesCache;
     private PropertyChangeSupport support = new PropertyChangeSupport(this);
     private long eventId;
@@ -93,6 +99,15 @@ final class JavaBootClassPathImplementation implements ClassPathImplementation, 
             final ClassPath cp = jp.getBootstrapLibraries();
             assert cp != null : jp;
             for (ClassPath.Entry entry : cp.entries()) {
+                result.add(ClassPathSupport.createResource(entry.getURL()));
+            }
+        }
+        
+        ScalaPlatform sp = findActiveScalaPlatform();
+        if (sp != null) {
+            final org.netbeans.modules.gsfpath.api.classpath.ClassPath cp = sp.getBootstrapLibraries();
+            assert cp != null : cp;
+            for (org.netbeans.modules.gsfpath.api.classpath.ClassPath.Entry entry : cp.entries()) {
                 result.add(ClassPathSupport.createResource(entry.getURL()));
             }
         }
@@ -127,6 +142,18 @@ final class JavaBootClassPathImplementation implements ClassPathImplementation, 
         final JavaPlatform activePlatform = platformManager.getDefaultPlatform();
         //final JavaPlatform activePlatform = J2SEProjectUtil.getActivePlatform (this.activePlatformName);
         this.isActivePlatformValid = activePlatform != null;
+        return activePlatform;
+    }
+    
+    private ScalaPlatform findActiveScalaPlatform () {
+        if (this.scalaPlatformManager == null) {
+            this.scalaPlatformManager = ScalaPlatformManager.getDefault();
+            this.scalaPlatformManager.addPropertyChangeListener(WeakListeners.propertyChange(this, this.platformManager));
+        }                
+        this.activeScalaPlatformName = evaluator.getProperty(SCALA_PLATFORM_ACTIVE);
+        final ScalaPlatform activePlatform = scalaPlatformManager.getDefaultPlatform();
+        //final JavaPlatform activePlatform = J2SEProjectUtil.getActivePlatform (this.activePlatformName);
+        this.isActiveScalaPlatformValid = activePlatform != null;
         return activePlatform;
     }
     

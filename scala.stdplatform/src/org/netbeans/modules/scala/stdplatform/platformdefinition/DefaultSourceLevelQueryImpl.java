@@ -41,8 +41,8 @@
 
 package org.netbeans.modules.scala.stdplatform.platformdefinition;
 
-import org.netbeans.api.scala.platform.JavaPlatform;
-import org.netbeans.api.scala.platform.JavaPlatformManager;
+import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.modules.gsfpath.spi.queries.SourceLevelQueryImplementation;
 import org.openide.filesystems.FileObject;
 
@@ -61,7 +61,7 @@ public class DefaultSourceLevelQueryImpl implements SourceLevelQueryImplementati
         assert javaFile != null : "javaFile has to be non null";   //NOI18N
         String ext = javaFile.getExt();
         if (JAVA_EXT.equalsIgnoreCase (ext)) {
-            JavaPlatform jp = JavaPlatformManager.getDefault().getDefaultPlatform();
+            ScalaPlatform jp = ScalaPlatformManager.getDefault().getDefaultPlatform();
             assert jp != null : "JavaPlatformManager.getDefaultPlatform returned null";     //NOI18N
             String s = jp.getSpecification().getVersion().toString();
             if (s.equals("1.6") || s.equals("1.7")) {

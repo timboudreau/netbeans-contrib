@@ -40,7 +40,7 @@
  */
 package org.netbeans.modules.scala.platform;
 
-import org.netbeans.api.scala.platform.JavaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatform;
 import org.openide.filesystems.*;
 import org.openide.cookies.InstanceCookie;
 import org.openide.ErrorManager;
@@ -53,15 +53,15 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeSupport;
 import org.openide.util.Lookup;
 
-public class DefaultJavaPlatformProvider implements JavaPlatformProvider, FileChangeListener {
+public class DefaultScalaPlatformProvider implements ScalaPlatformProvider, FileChangeListener {
 
     private static final String PLATFORM_STORAGE = "Services/Platforms/org-netbeans-api-scala-Platform";  //NOI18N
 
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private FileObject storage;
-    private JavaPlatform defaultPlatform;
+    private ScalaPlatform defaultPlatform;
 
-    public DefaultJavaPlatformProvider () {
+    public DefaultScalaPlatformProvider () {
         storage = Repository.getDefault().getDefaultFileSystem().findResource(PLATFORM_STORAGE);
         if (storage == null) {
             // Turn this off since it can confuse unit tests running w/o layer merging.
@@ -72,8 +72,8 @@ public class DefaultJavaPlatformProvider implements JavaPlatformProvider, FileCh
         }
     }
 
-    public JavaPlatform[] getInstalledPlatforms() {
-        List<JavaPlatform> platforms = new ArrayList<JavaPlatform>();
+    public ScalaPlatform[] getInstalledPlatforms() {
+        List<ScalaPlatform> platforms = new ArrayList<ScalaPlatform>();
         if (storage != null) {
             try {
                 for (FileObject platformDefinition : storage.getChildren()) {
@@ -85,8 +85,8 @@ public class DefaultJavaPlatformProvider implements JavaPlatformProvider, FileCh
                         continue;
                     }
                     else  if (ic instanceof InstanceCookie.Of) {
-                        if (((InstanceCookie.Of)ic).instanceOf(JavaPlatform.class)) {
-                            platforms.add((JavaPlatform) ic.instanceCreate());
+                        if (((InstanceCookie.Of)ic).instanceOf(ScalaPlatform.class)) {
+                            platforms.add((ScalaPlatform) ic.instanceCreate());
                         }
                         else {
                             ErrorManager.getDefault().log(ErrorManager.WARNING,"DefaultPlatformStorage: The file: "+    //NOI18N
@@ -95,8 +95,8 @@ public class DefaultJavaPlatformProvider implements JavaPlatformProvider, FileCh
                     }
                     else {
                         Object instance = ic.instanceCreate();
-                        if (instance instanceof JavaPlatform) {
-                            platforms.add((JavaPlatform) instance);
+                        if (instance instanceof ScalaPlatform) {
+                            platforms.add((ScalaPlatform) instance);
                         }
                         else {
                             ErrorManager.getDefault().log(ErrorManager.WARNING,"DefaultPlatformStorage: The file: "+    //NOI18N
@@ -111,12 +111,12 @@ public class DefaultJavaPlatformProvider implements JavaPlatformProvider, FileCh
                 ErrorManager.getDefault().notify (ioe);
             }
         }
-        return platforms.toArray(new JavaPlatform[platforms.size()]);
+        return platforms.toArray(new ScalaPlatform[platforms.size()]);
     }
     
-    public JavaPlatform getDefaultPlatform() {
+    public ScalaPlatform getDefaultPlatform() {
         if (this.defaultPlatform == null) {
-            JavaPlatform[] allPlatforms = this.getInstalledPlatforms();
+            ScalaPlatform[] allPlatforms = this.getInstalledPlatforms();
             for (int i=0; i< allPlatforms.length; i++) {
                 if ("default_platform".equals(allPlatforms[i].getProperties().get("scala.platform.ant.name"))) {  //NOI18N
                     defaultPlatform = allPlatforms[i];

@@ -40,10 +40,8 @@ package org.netbeans.modules.scala.editing;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
@@ -59,22 +57,15 @@ public class JavaScalaMapping {
     public static boolean isScala(TypeElement te) {
         for (Element e : te.getEnclosedElements()) {
             if (e.getKind() == ElementKind.METHOD) {
-                ExecutableElement method = (ExecutableElement) e;
-                ExecutableType methodType = (ExecutableType) method.asType();
+                Element enclosingElement = e.getEnclosingElement();
+                if (enclosingElement.getKind() == ElementKind.INTERFACE) {
+                    TypeMirror superTm = enclosingElement.asType();
+                    TypeElement superTe = superTm.getKind() == TypeKind.DECLARED
+                            ? (TypeElement) ((DeclaredType) superTm).asElement()
+                            : null;
 
-                if (e.getSimpleName().toString().equals(TAG_METHOD) && method.getParameters().isEmpty()) {
-                    if (methodType.getReturnType().getKind() == TypeKind.INT) {
-                        Element enclosingElement = e.getEnclosingElement();
-                        if (enclosingElement.getKind() == ElementKind.INTERFACE) {
-                            TypeMirror superTm = enclosingElement.asType();
-                            TypeElement superTe = superTm.getKind() == TypeKind.DECLARED
-                                    ? (TypeElement) ((DeclaredType) superTm).asElement()
-                                    : null;
-
-                            if (superTe != null && superTe.getQualifiedName().toString().equals(SCALA_OBJECT)) {
-                                return true;
-                            }
-                        }
+                    if (superTe != null && superTe.getQualifiedName().toString().equals(SCALA_OBJECT)) {
+                        return true;
                     }
                 }
             }

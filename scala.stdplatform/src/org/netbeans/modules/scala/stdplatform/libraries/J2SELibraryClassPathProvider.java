@@ -48,7 +48,7 @@ import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import org.netbeans.modules.gsfpath.spi.classpath.ClassPathProvider;
 import org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport;
-import org.netbeans.api.scala.platform.JavaPlatformManager;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
@@ -86,7 +86,7 @@ public class J2SELibraryClassPathProvider implements ClassPathProvider {
                     resources = lib.getContent(J2SELibraryTypeProvider.VOLUME_TYPE_CLASSPATH);
                     return new ClassPath[] {ClassPathSupport.createClassPath(resources.toArray(new URL[resources.size()]))};
                 } else if (ClassPath.BOOT.equals(type)) {
-                    return new ClassPath[] {JavaPlatformManager.getDefault().getDefaultPlatform().getBootstrapLibraries()};
+                    return new ClassPath[] {ScalaPlatformManager.getDefault().getDefaultPlatform().getBootstrapLibraries()};
                 } else {
                     return new ClassPath[] {null};
                 }

@@ -49,46 +49,46 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import org.netbeans.modules.scala.platform.FallbackDefaultJavaPlatform;
-import org.netbeans.modules.scala.platform.JavaPlatformProvider;
+import org.netbeans.modules.scala.platform.FallbackDefaultScalaPlatform;
+import org.netbeans.modules.scala.platform.ScalaPlatformProvider;
 import org.openide.util.Lookup;
 import org.openide.util.LookupListener;
 import org.openide.util.LookupEvent;
 import org.openide.modules.SpecificationVersion;
 
 /**
- * JavaPlatformManager provides access to list of installed Java Platforms in the system. It can enumerate them,
+ * ScalaPlatformManager provides access to list of installed Scala Platforms in the system. It can enumerate them,
  * assign serializable IDs to their instances. It also defines a `default' platform, which represents NetBeans'
  * own runtime environment.
  *
  * @author Radko Najman, Svata Dedic, Tomas Zezula
  */
-public final class JavaPlatformManager {
+public final class ScalaPlatformManager {
 
     /**
      * Property name of the installedPlatforms property
      */
     public static final String PROP_INSTALLED_PLATFORMS="installedPlatforms";   //NOI18N
 
-    private static JavaPlatformManager instance = null;
+    private static ScalaPlatformManager instance = null;
 
-    private Lookup.Result<JavaPlatformProvider> providers;
-    private Collection<? extends JavaPlatformProvider> lastProviders = Collections.emptySet();
+    private Lookup.Result<ScalaPlatformProvider> providers;
+    private Collection<? extends ScalaPlatformProvider> lastProviders = Collections.emptySet();
     private boolean providersValid = false;
     private PropertyChangeListener pListener;
-    private Collection<JavaPlatform> cachedPlatforms;
+    private Collection<ScalaPlatform> cachedPlatforms;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
-    /** Creates a new instance of JavaPlatformManager */
-    public JavaPlatformManager() {
+    /** Creates a new instance of ScalaPlatformManager */
+    public ScalaPlatformManager() {
     }
 
-    /** Gets an instance of JavaPlatformManager. It the instance doesn't exist it will be created.
-     * @return the instance of JavaPlatformManager
+    /** Gets an instance of ScalaPlatformManager. It the instance doesn't exist it will be created.
+     * @return the instance of ScalaPlatformManager
      */
-    public static synchronized JavaPlatformManager getDefault() {
+    public static synchronized ScalaPlatformManager getDefault() {
         if (instance == null)
-            instance = new JavaPlatformManager();
+            instance = new ScalaPlatformManager();
 
         return instance;
     }
@@ -97,27 +97,27 @@ public final class JavaPlatformManager {
      * Returns default platform. The platform the IDE is running on.
      * @return the default platform (never null as of org.netbeans.modules.java.platform/1 1.9)
      */
-    public JavaPlatform getDefaultPlatform() {
-        for (JavaPlatformProvider provider : getProviders()) {
-            JavaPlatform defaultPlatform = provider.getDefaultPlatform ();
+    public ScalaPlatform getDefaultPlatform() {
+        for (ScalaPlatformProvider provider : getProviders()) {
+            ScalaPlatform defaultPlatform = provider.getDefaultPlatform ();
             if (defaultPlatform!=null) {
                 return defaultPlatform;
             }
         }
-        return new FallbackDefaultJavaPlatform();
+        return new FallbackDefaultScalaPlatform();
     }
 
     /** Gets an array of JavaPlatfrom objects.
      * @return the array of java platform definitions.
      */
-    public synchronized JavaPlatform[] getInstalledPlatforms() {
+    public synchronized ScalaPlatform[] getInstalledPlatforms() {
         if (cachedPlatforms == null) {
-            cachedPlatforms = new HashSet<JavaPlatform>();
-            for (JavaPlatformProvider provider : getProviders()) {
+            cachedPlatforms = new HashSet<ScalaPlatform>();
+            for (ScalaPlatformProvider provider : getProviders()) {
                 cachedPlatforms.addAll(Arrays.asList(provider.getInstalledPlatforms()));
             }
         }
-        return cachedPlatforms.toArray(new JavaPlatform[cachedPlatforms.size()]);
+        return cachedPlatforms.toArray(new ScalaPlatform[cachedPlatforms.size()]);
     }
 
     /**
@@ -128,12 +128,12 @@ public final class JavaPlatformManager {
      * Specification with Profile(null,null) means any profile but at least 1.
      * For example Specification ("CLDC", new Profile[] { new Profile("MIMDP",null), new Profile(null,null)})
      * matches all CLDC platforms with MIDP profile of any versions and any additional profile.
-     * @return JavaPlatform[], never returns null, may return empty array when no platform matches given
+     * @return ScalaPlatform[], never returns null, may return empty array when no platform matches given
      * query.
      */
-    public JavaPlatform[] getPlatforms (String platformDisplayName, Specification platformSpec) {
-        Collection<JavaPlatform> result = new ArrayList<JavaPlatform>();
-        for (JavaPlatform platform : getInstalledPlatforms()) {
+    public ScalaPlatform[] getPlatforms (String platformDisplayName, Specification platformSpec) {
+        Collection<ScalaPlatform> result = new ArrayList<ScalaPlatform>();
+        for (ScalaPlatform platform : getInstalledPlatforms()) {
             String name = platformDisplayName == null ? null : platform.getDisplayName(); //Don't ask for display name when not needed
             Specification spec = platformSpec == null ?  null : platform.getSpecification(); //Don't ask for platform spec when not needed
             if ((platformDisplayName==null || name.equalsIgnoreCase(platformDisplayName)) &&
@@ -141,11 +141,11 @@ public final class JavaPlatformManager {
                 result.add(platform);
             }
         }
-        return result.toArray(new JavaPlatform[result.size()]);
+        return result.toArray(new ScalaPlatform[result.size()]);
     }
 
     /**
-     * Adds PropertyChangeListener to the JavaPlatformManager, the listener is notified
+     * Adds PropertyChangeListener to the ScalaPlatformManager, the listener is notified
      * when the platform is added,removed or modified.
      * @param l the listener, can not be null
      */
@@ -155,7 +155,7 @@ public final class JavaPlatformManager {
     }
 
     /**
-     * Removes PropertyChangeListener to the JavaPlatformManager.
+     * Removes PropertyChangeListener to the ScalaPlatformManager.
      * @param l the listener, can not be null
      */
     public void removePropertyChangeListener (PropertyChangeListener l) {
@@ -207,34 +207,34 @@ public final class JavaPlatformManager {
                (version == null || version.equals (platformProfile.getVersion())));
     }
 
-    private synchronized Collection<? extends JavaPlatformProvider> getProviders() {
+    private synchronized Collection<? extends ScalaPlatformProvider> getProviders() {
         if (!this.providersValid) {
             if (this.providers == null) {
-                this.providers = Lookup.getDefault().lookupResult(JavaPlatformProvider.class);
+                this.providers = Lookup.getDefault().lookupResult(ScalaPlatformProvider.class);
                 this.providers.addLookupListener (new LookupListener () {
                     public void resultChanged(LookupEvent ev) {
                         resetCache (true);
-                        JavaPlatformManager.this.firePropertyChange(PROP_INSTALLED_PLATFORMS);
+                        ScalaPlatformManager.this.firePropertyChange(PROP_INSTALLED_PLATFORMS);
                     }
                 });
             }
             if (this.pListener == null ) {
                 this.pListener = new PropertyChangeListener() {
                     public void propertyChange(PropertyChangeEvent evt) {
-                        JavaPlatformManager.this.resetCache (false);
-                        JavaPlatformManager.this.firePropertyChange(PROP_INSTALLED_PLATFORMS);
+                        ScalaPlatformManager.this.resetCache (false);
+                        ScalaPlatformManager.this.firePropertyChange(PROP_INSTALLED_PLATFORMS);
                     }
                 };
             }
-            Collection<? extends JavaPlatformProvider> instances = this.providers.allInstances();
-            Collection<JavaPlatformProvider> toAdd = new HashSet<JavaPlatformProvider>(instances);
+            Collection<? extends ScalaPlatformProvider> instances = this.providers.allInstances();
+            Collection<ScalaPlatformProvider> toAdd = new HashSet<ScalaPlatformProvider>(instances);
             toAdd.removeAll (this.lastProviders);
-            Collection<JavaPlatformProvider> toRemove = new HashSet<JavaPlatformProvider>(this.lastProviders);
+            Collection<ScalaPlatformProvider> toRemove = new HashSet<ScalaPlatformProvider>(this.lastProviders);
             toRemove.removeAll (instances);
-            for (JavaPlatformProvider provider : toRemove) {
+            for (ScalaPlatformProvider provider : toRemove) {
                 provider.removePropertyChangeListener (pListener);
             }
-            for (JavaPlatformProvider provider : toAdd) {
+            for (ScalaPlatformProvider provider : toAdd) {
                 provider.addPropertyChangeListener (pListener);
             }
             this.lastProviders = instances;
@@ -245,7 +245,7 @@ public final class JavaPlatformManager {
 
 
     private synchronized void resetCache (boolean resetProviders) {
-        JavaPlatformManager.this.cachedPlatforms = null;
+        ScalaPlatformManager.this.cachedPlatforms = null;
         this.providersValid &= !resetProviders;
     }
 

@@ -49,7 +49,7 @@ import java.net.MalformedURLException;
 import java.io.File;
 
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.netbeans.api.scala.platform.JavaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatform;
 import org.netbeans.api.scala.platform.Specification;
 import org.netbeans.modules.gsfpath.spi.classpath.PathResourceImplementation;
 import org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport;
@@ -60,16 +60,16 @@ import org.openide.filesystems.URLMapper;
 import org.openide.ErrorManager;
 
 /**
- * Implementation of the JavaPlatform API class, which serves proper
+ * Implementation of the ScalaPlatform API class, which serves proper
  * bootstrap classpath information.
  */
-public class J2SEPlatformImpl extends JavaPlatform {
+public class J2SEPlatformImpl extends ScalaPlatform {
     
     public static final String PROP_ANT_NAME = "antName";                   //NOI18N
     public static final String PLATFORM_J2SE = "std";                      //NOI18N
 
-    protected static final String PLAT_PROP_ANT_NAME="platform.ant.name";             //NOI18N
-    protected static final String PLAT_PROP_ARCH_FOLDER="platform.arch.folder";       //NOI18N
+    protected static final String PLAT_PROP_ANT_NAME="scala.platform.ant.name";             //NOI18N
+    protected static final String PLAT_PROP_ARCH_FOLDER="scala.platform.arch.folder";       //NOI18N
     protected static final String SYSPROP_BOOT_CLASSPATH = "scala.boot.class.path";     // NOI18N
     protected static final String SYSPROP_JAVA_CLASS_PATH = "scala.class.path";        // NOI18N
     protected static final String SYSPROP_JAVA_EXT_PATH = "scala.ext.dirs";            //NOI18N

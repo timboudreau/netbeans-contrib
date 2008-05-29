@@ -50,7 +50,7 @@ import java.net.URL;
 import java.net.MalformedURLException;
 import java.util.logging.Logger;
 import java.util.zip.ZipFile;
-import org.netbeans.api.scala.platform.JavaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatform;
 import org.netbeans.modules.gsfpath.spi.classpath.PathResourceImplementation;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileUtil;
@@ -134,7 +134,7 @@ public class Util {
      *
      * @return instance of SpecificationVersion representing the version; never null
      */
-    public static SpecificationVersion getSpecificationVersion(JavaPlatform plat) {
+    public static SpecificationVersion getSpecificationVersion(ScalaPlatform plat) {
          String version = plat.getSystemProperties().get("scala.specification.version");   // NOI18N
          if (version == null) {
              version = "1.1";
