@@ -38,8 +38,6 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -52,22 +50,28 @@ import javax.lang.model.type.TypeMirror;
 public class JavaScalaMapping {
 
     private static final String SCALA_OBJECT = "scala.ScalaObject";
-    private static final String TAG_METHOD = "$tag";
 
     public static boolean isScala(TypeElement te) {
-        for (Element e : te.getEnclosedElements()) {
-            if (e.getKind() == ElementKind.METHOD) {
-                Element enclosingElement = e.getEnclosingElement();
-                if (enclosingElement.getKind() == ElementKind.INTERFACE) {
-                    TypeMirror superTm = enclosingElement.asType();
-                    TypeElement superTe = superTm.getKind() == TypeKind.DECLARED
-                            ? (TypeElement) ((DeclaredType) superTm).asElement()
-                            : null;
+        if (te.getQualifiedName().toString().equals(SCALA_OBJECT)) {
+            return true;
+        }
 
-                    if (superTe != null && superTe.getQualifiedName().toString().equals(SCALA_OBJECT)) {
-                        return true;
-                    }
-                }
+        TypeMirror superTm = te.getSuperclass();
+        TypeElement superTe = superTm.getKind() == TypeKind.DECLARED
+                ? (TypeElement) ((DeclaredType) superTm).asElement()
+                : null;
+
+        if (superTe != null && isScala(superTe)) {
+            return true;
+        }
+
+        for (TypeMirror interfaceTm : te.getInterfaces()) {
+            TypeElement interfaceTe = interfaceTm.getKind() == TypeKind.DECLARED
+                    ? (TypeElement) ((DeclaredType) interfaceTm).asElement()
+                    : null;
+
+            if (interfaceTe != null && isScala(interfaceTe)) {
+                return true;
             }
         }
 
