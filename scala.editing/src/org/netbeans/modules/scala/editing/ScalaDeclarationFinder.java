@@ -58,7 +58,6 @@ import org.netbeans.modules.scala.editing.nodes.FieldRef;
 import org.netbeans.modules.scala.editing.nodes.FunRef;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.openide.filesystems.FileObject;
-import org.openide.util.Exceptions;
 
 /**
  * 
@@ -122,11 +121,8 @@ public class ScalaDeclarationFinder implements DeclarationFinder {
 
     public DeclarationLocation findDeclaration(CompilationInfo info, int lexOffset) {
 
-        final Document document;
-        try {
-            document = info.getDocument();
-        } catch (Exception e) {
-            Exceptions.printStackTrace(e);
+        final Document document = info.getDocument();
+        if (document == null) {
             return DeclarationLocation.NONE;
         }
         final BaseDocument doc = (BaseDocument) document;

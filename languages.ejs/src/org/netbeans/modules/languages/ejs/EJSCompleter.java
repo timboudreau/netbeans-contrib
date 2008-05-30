@@ -28,7 +28,6 @@
 
 package org.netbeans.modules.languages.ejs;
 
-import java.io.IOException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.modules.gsf.api.CompilationInfo;
@@ -38,7 +37,6 @@ import org.netbeans.modules.gsf.api.CodeCompletionContext;
 import org.netbeans.modules.gsf.api.CodeCompletionResult;
 import org.netbeans.modules.javascript.editing.JsCodeCompletion;
 import org.netbeans.modules.languages.ejs.lexer.api.EJSTokenId;
-import org.openide.util.Exceptions;
 
 /**
  * EJS code completer
@@ -55,19 +53,14 @@ public class EJSCompleter extends JsCodeCompletion {
         CompilationInfo info = context.getInfo();
         int caretOffset = context.getCaretOffset();
 
-        System.out.println("ldo1000000");
-        try {
-            Document doc = info.getDocument();
-        System.out.println("ldo1222222");
-            if (isWithinJavascript(doc, caretOffset)) {
-        System.out.println("ldo333333");
-                return super.complete(context);
-            }
-        } catch (IOException ex) {
-        System.out.println("ldo1444444");
-            Exceptions.printStackTrace(ex);
+        //System.out.println("ldo1000000");
+        Document doc = info.getDocument();
+        //System.out.println("ldo1222222");
+        if (doc != null && isWithinJavascript(doc, caretOffset)) {
+        //System.out.println("ldo333333");
+            return super.complete(context);
         }
-        System.out.println("ldoemptylist1000000");
+        //System.out.println("ldoemptylist1000000");
         return CodeCompletionResult.NONE;
     }
 
@@ -81,7 +74,7 @@ public class EJSCompleter extends JsCodeCompletion {
     public QueryType getAutoQuery(JTextComponent component, String typedText) {
         Document doc = component.getDocument();
         int caretOffset =  component.getCaret().getDot();
-        if (isWithinJavascript(component.getDocument(), caretOffset)) {
+        if (isWithinJavascript(doc, caretOffset)) {
             return super.getAutoQuery(component, typedText);
         }
         

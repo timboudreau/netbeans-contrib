@@ -130,14 +130,11 @@ public class AstUtilities {
         OffsetRange range = OffsetRange.NONE;
 
         Span span = node.getSpan();
-        try {
-            BaseDocument doc = (BaseDocument) info.getDocument();
-            int begin = getOffset(doc, span.getBegin().getLine(), span.getBegin().column() + 1);
-            int end = getOffset(doc, span.getEnd().getLine(), span.getEnd().column() + 1);
-            range = new OffsetRange(begin, end);
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        BaseDocument doc = (BaseDocument) info.getDocument();
+        int begin = getOffset(doc, span.getBegin().getLine(), span.getBegin().column() + 1);
+        int end = getOffset(doc, span.getEnd().getLine(), span.getEnd().column() + 1);
+        range = new OffsetRange(begin, end);
+
         return range;
     }
 

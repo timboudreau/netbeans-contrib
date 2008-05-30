@@ -38,7 +38,6 @@
  */
 package org.netbeans.modules.scala.editing;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -59,7 +58,6 @@ import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -166,12 +164,7 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         private ScalaStructureItem(AstDef def, CompilationInfo info, HtmlFormatter formatter) {
             this.def = def;
             this.info = info;
-
-            try {
-                this.doc = info.getDocument();
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
+            this.doc = info.getDocument();
 
             if (doc == null) {
                 ScalaLexUtilities.getDocument(info.getFileObject(), true);
@@ -251,7 +244,11 @@ public class ScalaStructureAnalyzer implements StructureScanner {
         }
 
         public long getPosition() {
-            /** @Todo: TokenHierarchy.get(doc) may throw NPE, don't why, need further dig */
+            /** @Todo: TokenHierarchy.get(doc) may throw NPE, don't why, need further dig
+             * NOTE - CompilationInfo.getDocument() can return null - this generally happens when documents
+             * are closed or deleted while (a slower) parse tree related task such as navigation/folding
+             * is performed. Therefore, you need to make sure doc != null. (TN)
+             */
             try {
                 TokenHierarchy th = TokenHierarchy.get(doc);
                 return def.getBoundsOffset(th);
