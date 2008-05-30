@@ -44,6 +44,16 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import org.netbeans.api.lexer.Language;
+import org.netbeans.modules.gsf.api.CodeCompletionHandler;
+import org.netbeans.modules.gsf.api.DeclarationFinder;
+import org.netbeans.modules.gsf.api.Formatter;
+import org.netbeans.modules.gsf.api.Indexer;
+import org.netbeans.modules.gsf.api.InstantRenamer;
+import org.netbeans.modules.gsf.api.KeystrokeHandler;
+import org.netbeans.modules.gsf.api.OccurrencesFinder;
+import org.netbeans.modules.gsf.api.Parser;
+import org.netbeans.modules.gsf.api.SemanticAnalyzer;
+import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
 import org.netbeans.modules.scala.editing.lexer.ScalaTokenId;
 import org.openide.filesystems.FileObject;
@@ -122,5 +132,57 @@ public class ScalaLanguage extends DefaultLanguageConfig {
     public String getPreferredExtension() {
         return "scala"; // NOI18N
 
+    }
+
+    // Service Registrations
+    
+    @Override
+    public KeystrokeHandler getKeystrokeHandler() {
+        return new ScalaBracketCompleter();
+    }
+
+    @Override
+    public Formatter getFormatter() {
+        return new ScalaFormatter();
+    }
+
+    @Override
+    public Parser getParser() {
+        return new ScalaParser();
+    }
+
+    @Override
+    public CodeCompletionHandler getCompletionHandler() {
+        return new ScalaCodeCompletion();
+    }
+
+    @Override
+    public StructureScanner getStructureScanner() {
+        return new ScalaStructureAnalyzer();
+    }
+
+    @Override
+    public Indexer getIndexer() {
+        return new ScalaIndexer();
+    }
+
+    @Override
+    public DeclarationFinder getDeclarationFinder() {
+        return new ScalaDeclarationFinder();
+    }
+
+    @Override
+    public SemanticAnalyzer getSemanticAnalyzer() {
+        return new ScalaSemanticAnalyzer();
+    }
+
+    @Override
+    public OccurrencesFinder getOccurrencesFinder() {
+        return new ScalaOccurrencesFinder();
+    }
+
+    @Override
+    public InstantRenamer getInstantRenamer() {
+        return new ScalaInstantRenamer();
     }
 }

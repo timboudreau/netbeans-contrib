@@ -78,48 +78,7 @@
         <folder name="text">
             <folder name="x-scala">
                 <file name="language.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.GsfLanguage"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaLanguage"/>
-                </file>
-                <file name="bracket.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.KeystrokeHandler"/>
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaBracketCompleter"/>
-                </file>
-                <file name="formatter.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Formatter"/>
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaFormatter"/>
-                </file>
-                <file name="parser.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Parser"/>
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaParser"/>
-                </file>
-                <file name="completion.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.CodeCmpletionHandler"/>
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaCodeCompletion"/>
-                </file>
-                <file name="structure.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.StructureScanner"/>
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaStructureAnalyzer"/>
-                </file>
-                <file name="indexer.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.Indexer"/>
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaIndexer"/>
-                </file>
-                <file name="declarationfinder.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.DeclarationFinder"/>
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaDeclarationFinder"/>
-                </file>
-                <file name="semantic.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.SemanticAnalyzer"/>
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaSemanticAnalyzer"/>
-                </file>
-                <file name="occurrences.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.OccurrencesFinder"/>
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaOccurrencesFinder"/>
-                </file>
-                <file name="renamer.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.modules.gsf.api.InstantRenamer"/>
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaInstantRenamer"/>
                 </file>
             </folder>
         </folder>
