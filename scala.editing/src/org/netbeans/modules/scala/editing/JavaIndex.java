@@ -120,42 +120,73 @@ public class JavaIndex {
         Elements theElements = info.getElements();
         PackageElement pe = theElements.getPackageElement(pkgName);
         if (pe != null) {
+            Set<Element> foundElements = new HashSet<Element>();
+            Set<String> scalaElementNames = new HashSet<String>();
+
             Set<IndexedElement> idxElements = new HashSet<IndexedElement>();
+
             for (Element e : pe.getEnclosedElements()) {
+                String simpleName = e.getSimpleName().toString();
+                
                 TypeMirror tm = e.asType();
                 TypeElement te = tm.getKind() == TypeKind.DECLARED
                         ? (TypeElement) ((DeclaredType) tm).asElement()
                         : null;
-                
+
                 if (te != null) {
-                    if (JavaScalaMapping.isScala(te)) {
+                    JavaScalaMapping.ScalaKind scalaKind = JavaScalaMapping.getScalaKind(te);
+                    if (scalaKind != null) {
+                        switch (scalaKind) {
+                            case Trait:
+                                scalaElementNames.add(simpleName + "$class");
+                                break;
+                            case Object:
+                                int dollor = simpleName.lastIndexOf('$');
+                                if (dollor != -1) {
+                                    scalaElementNames.add(simpleName.substring(0, dollor));
+                                }
+                                break;
+                        }
+                        
                         continue;
                     }
                 }
 
                 if (e.getKind().isClass() || e.getKind().isInterface()) {
-                    String simpleName = e.getSimpleName().toString();
+
                     if (JavaUtilities.startsWith(simpleName, prefix)) {
-                        String in = "";
-                        StringBuilder base = new StringBuilder();
-                        base.append(simpleName.toLowerCase());
-                        base.append(';');
-                        if (in != null) {
-                            base.append(in);
-                        }
-                        base.append(';');
-                        base.append(simpleName);
-                        base.append(';');
-
-                        String attrs = IndexedElement.computeAttributes(e);
-                        base.append(attrs);
-
-                        IndexedElement idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
-                        idxElement.setJavaInfo(e, info);
-                        idxElements.add(idxElement);
+                        foundElements.add(e);
                     }
                 }
+
             }
+
+            for (Element e : foundElements) {
+                String simpleName = e.getSimpleName().toString();
+                
+                if (scalaElementNames.contains(simpleName)) {
+                    continue;
+                }
+
+                String in = "";
+                StringBuilder base = new StringBuilder();
+                base.append(simpleName.toLowerCase());
+                base.append(';');
+                if (in != null) {
+                    base.append(in);
+                }
+                base.append(';');
+                base.append(simpleName);
+                base.append(';');
+
+                String attrs = IndexedElement.computeAttributes(e);
+                base.append(attrs);
+
+                IndexedElement idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
+                idxElement.setJavaInfo(e, info);
+                idxElements.add(idxElement);
+            }
+
             return idxElements;
         }
         return Collections.<IndexedElement>emptySet();

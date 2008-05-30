@@ -38,6 +38,8 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -49,10 +51,50 @@ import javax.lang.model.type.TypeMirror;
  */
 public class JavaScalaMapping {
 
+    public enum ScalaKind {
+
+        Class,
+        Object,
+        Trait
+    }
     private static final String SCALA_OBJECT = "scala.ScalaObject";
+    private static final String SCALA_OBJECT_MODULE = "MODULE$";
+
+    public static ScalaKind getScalaKind(TypeElement te) {
+        if (!isScala(te)) {
+            return null;
+        }
+
+        ScalaKind kind = ScalaKind.Class;
+        
+        String sName = te.getSimpleName().toString();
+        
+        if (te.getKind() == ElementKind.INTERFACE) {
+            kind = ScalaKind.Trait;
+        } else {
+            
+            for (Element e : te.getEnclosedElements()) {
+                if (e.getSimpleName().toString().equals(SCALA_OBJECT_MODULE)) {
+                    TypeMirror tm1 = e.asType();
+                    TypeElement te1 = tm1.getKind() == TypeKind.DECLARED
+                            ? (TypeElement) ((DeclaredType) tm1).asElement()
+                            : null;
+
+                    if (te1.getSimpleName().toString().equals(sName)) {
+                        kind = ScalaKind.Object;
+                        break;
+                    }
+
+                }
+            }
+        }
+
+        return kind;
+    }
 
     public static boolean isScala(TypeElement te) {
         if (te.getQualifiedName().toString().equals(SCALA_OBJECT)) {
+
             return true;
         }
 
