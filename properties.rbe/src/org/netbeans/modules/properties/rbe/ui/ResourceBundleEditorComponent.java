@@ -43,7 +43,6 @@ package org.netbeans.modules.properties.rbe.ui;
 import java.awt.Image;
 import javax.swing.BoxLayout;
 import org.netbeans.modules.properties.PropertiesDataObject;
-import org.openide.explorer.ExplorerManager;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.windows.CloneableTopComponent;
@@ -57,8 +56,6 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent {
     public static final String PREFERRED_ID = "ResourceBundleEditorComponent";
     /** Properties data object */
     private final PropertiesDataObject dataObject;
-    /** The Explorer manager for nodes */
-    private ExplorerManager explorer;
 
     /** The tree view */
     public ResourceBundleEditorComponent(PropertiesDataObject dataObject) {

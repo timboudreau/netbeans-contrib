@@ -41,6 +41,8 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 import java.awt.Image;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import org.netbeans.modules.properties.rbe.BundleProperty;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -55,11 +57,16 @@ import org.openide.util.lookup.Lookups;
 public class BundlePropertyNode extends AbstractNode implements Comparable<BundlePropertyNode> {
 
     private BundleProperty property;
+    private boolean showFullname = true;
 
     public BundlePropertyNode(BundleProperty property) {
         super(property.getChildrenProperties().size() == 0 ? Children.LEAF : new ChildrenProperties(property), Lookups.singleton(property));
         this.property = property;
+    }
 
+    private BundlePropertyNode(BundleProperty property, boolean showFullname) {
+        this(property);
+        this.showFullname = showFullname;
     }
 
     public BundleProperty getProperty() {
@@ -77,7 +84,7 @@ public class BundlePropertyNode extends AbstractNode implements Comparable<Bundl
 
     @Override
     public String getDisplayName() {
-        return property.getName();
+        return showFullname ? property.getFullname() : property.getName();
     }
 
     @Override
@@ -94,12 +101,13 @@ public class BundlePropertyNode extends AbstractNode implements Comparable<Bundl
         return property.compareTo(o.property);
     }
 
-    private static class ChildrenProperties extends Children.Keys<BundleProperty> {
+    private static class ChildrenProperties extends Children.Keys<BundleProperty> implements PropertyChangeListener {
 
         private BundleProperty bundleProperty;
 
         public ChildrenProperties(BundleProperty bundleProperty) {
             this.bundleProperty = bundleProperty;
+            bundleProperty.addPropertyChangeListener(this);
         }
 
         @Override
@@ -109,7 +117,13 @@ public class BundlePropertyNode extends AbstractNode implements Comparable<Bundl
 
         @Override
         protected Node[] createNodes(BundleProperty childProperty) {
-            return new Node[]{new BundlePropertyNode(childProperty)};
+            return new Node[]{new BundlePropertyNode(childProperty, false)};
+        }
+
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (BundleProperty.PROPERTY_CHILDREN.equals(evt.getPropertyName())) {
+                addNotify();
+            }
         }
     }
 }

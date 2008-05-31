@@ -46,5 +46,8 @@ package org.netbeans.modules.properties.rbe.ui;
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
 public class ResourceBundleEditorOptions {
-    
+
+    public static String getSeparator() {
+        return ".";
+    }
 }

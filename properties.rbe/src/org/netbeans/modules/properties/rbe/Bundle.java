@@ -40,18 +40,15 @@
  */
 package org.netbeans.modules.properties.rbe;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import org.netbeans.modules.properties.BundleStructure;
 import org.netbeans.modules.properties.Element.ItemElem;
 import org.netbeans.modules.properties.Util;
+import org.netbeans.modules.properties.rbe.ui.ResourceBundleEditorOptions;
 
 /**
  * The Bundle
@@ -59,8 +56,16 @@ import org.netbeans.modules.properties.Util;
  */
 public class Bundle {
 
-    Set<Locale> locales;
-    BundleStructure bundleStructure;
+    /** The bundle structure form data object */
+    private BundleStructure bundleStructure;
+    /** The all locales which contains bundle */
+    private Set<Locale> locales;
+    private Set<BundleProperty> properties;
+    /* Tree values */
+    /** Last builded tree separator, if null -> not builded tree */
+    private String treeSeparator = null;
+    private Set<BundleProperty> treeRootProperties;
+    /* Constants */
     /** The default locale */
     public final static Locale DEFAULT_LOCALE = new Locale("__", "", "");
 
@@ -72,78 +77,89 @@ public class Bundle {
         return locales;
     }
 
-    public List<BundleProperty> getProperties() {
-        locales = new HashSet<Locale>();
-        List<BundleProperty> properties = new ArrayList<BundleProperty>();
-        for (int k = 0; k < bundleStructure.getKeyCount(); k++) {
-            String propertyName = bundleStructure.getKeys()[k];
-            BundleProperty bundleProperty = new BundleProperty(propertyName, propertyName, this);
-            for (int e = 0; e < bundleStructure.getEntryCount(); e++) {
-                Locale locale;
-                String localeSuffix = Util.getLocaleSuffix(bundleStructure.getNthEntry(e));
-                if ("".equals(localeSuffix)) {
-                    locale = DEFAULT_LOCALE;
-                } else {
-                    locale = new Locale(Util.getLanguage(localeSuffix), Util.getCountry(localeSuffix), Util.getVariant(localeSuffix));
+    public synchronized Set<BundleProperty> getProperties() {
+        if (properties == null) {
+            locales = new HashSet<Locale>();
+            properties = new TreeSet<BundleProperty>();
+            for (int k = 0; k < bundleStructure.getKeyCount(); k++) {
+                String propertyName = bundleStructure.getKeys()[k];
+                BundleProperty bundleProperty = new BundleProperty(getPropertyName(propertyName), propertyName, this);
+                for (int e = 0; e < bundleStructure.getEntryCount(); e++) {
+                    Locale locale;
+                    String localeSuffix = Util.getLocaleSuffix(bundleStructure.getNthEntry(e));
+                    if ("".equals(localeSuffix)) {
+                        locale = DEFAULT_LOCALE;
+                    } else {
+                        locale = new Locale(Util.getLanguage(localeSuffix), Util.getCountry(localeSuffix), Util.getVariant(localeSuffix));
+                    }
+                    ItemElem item = bundleStructure.getItem(e, k);
+                    bundleProperty.addLocaleRepresentation(locale, item);
+                    locales.add(locale);
                 }
-                ItemElem item = bundleStructure.getItem(e, k);
-                bundleProperty.addLocaleRepresentation(locale, item);
-                locales.add(locale);
+                properties.add(bundleProperty);
             }
-            properties.add(bundleProperty);
         }
         return properties;
     }
 
     public Set<BundleProperty> getPropertiesAsTree(String separator) {
-        locales = new HashSet<Locale>();
-        Map<String, BundleProperty> mapping = new HashMap<String, BundleProperty>();
+        if (treeRootProperties == null) {
+            treeRootProperties = new TreeSet<BundleProperty>();
+            treeRootProperties.addAll(createChildren(null, getProperties()));
+            treeSeparator = separator;
+        }
+        return treeRootProperties;
+    }
+
+    /**
+     * Creates children properties for specefic property
+     * @param rootProperty root property
+     * @param properties all childen properties
+     * @return
+     */
+    private synchronized Set<BundleProperty> createChildren(BundleProperty rootProperty, Set<BundleProperty> properties) {
+        int offset = rootProperty == null ? 0 : rootProperty.getFullname().length() + getTreeSeparator().length();
         Set<BundleProperty> rootProperties = new TreeSet<BundleProperty>();
-        for (int k = 0; k < bundleStructure.getKeyCount(); k++) {
-            String propertyName = bundleStructure.getKeys()[k];
-            BundleProperty bundleProperty = null;
-            BundleProperty childProperty = null;
-            BundleProperty rootProperty = null;
-            boolean end = false;
-            while (!end) {
-                int lastSeparator = propertyName.lastIndexOf(separator);
-                rootProperty = mapping.get(propertyName);
-                if (rootProperty != null) {
-                    end = true;
-                } else if (lastSeparator == -1) {
-                    rootProperty = new BundleProperty(propertyName, propertyName, this);
-                    rootProperties.add(rootProperty);
-                    mapping.put(propertyName, rootProperty);
-                    end = true;
+        BundleProperty currentRoot = null;
+        Set<BundleProperty> currentChildren = new TreeSet<BundleProperty>();
+        for (BundleProperty property : properties) {
+            if (currentRoot != null && property.getFullname().startsWith(currentRoot.getFullname() + getTreeSeparator())) {
+                currentChildren.add(property);
+            } else {
+                if (currentRoot != null) {
+                    currentRoot.addChildrenProperties(createChildren(currentRoot, currentChildren));
+                    rootProperties.add(currentRoot);
+                    currentChildren.clear();
+                }
+                int index = property.getFullname().indexOf(getTreeSeparator(), offset);
+                if (index != -1) {
+                    String fullname = property.getFullname().substring(0, index);
+                    currentRoot = new BundleProperty(getPropertyName(fullname), fullname, this);
+                    currentChildren.add(property);
                 } else {
-                    rootProperty = new BundleProperty(propertyName.substring(lastSeparator + 1), propertyName, this);
-                    mapping.put(propertyName, rootProperty);
-                    // Created property but it isnt root property -> continue
-                    propertyName = propertyName.substring(0, lastSeparator);
+                    currentRoot = property;
                 }
-                if (childProperty != null) {
-                    rootProperty.addChildProperty(childProperty);
-                }
-                if (bundleProperty == null) {
-                    // first created/found property is our bundle property
-                    bundleProperty = rootProperty;
-                }
-                childProperty = rootProperty;
-            }
-            for (int e = 0; e < bundleStructure.getEntryCount(); e++) {
-                Locale locale;
-                String localeSuffix = Util.getLocaleSuffix(bundleStructure.getNthEntry(e));
-                if ("".equals(localeSuffix)) {
-                    locale = DEFAULT_LOCALE;
-                } else {
-                    locale = new Locale(Util.getLanguage(localeSuffix), Util.getCountry(localeSuffix), Util.getVariant(localeSuffix));
-                }
-                ItemElem item = bundleStructure.getItem(e, k);
-                bundleProperty.addLocaleRepresentation(locale, item);
-                locales.add(locale);
             }
         }
+        if (currentRoot != null && !rootProperties.contains(currentRoot)) {
+            currentRoot.addChildrenProperties(createChildren(currentRoot, currentChildren));
+            rootProperties.add(currentRoot);
+        }
         return rootProperties;
+    }
+
+    /**
+     * Gets property name, fullname property "a.b.c" has name "c"
+     * @param fullname
+     * @return
+     */
+    private String getPropertyName(String fullname) {
+        int lastIndex = fullname.lastIndexOf(ResourceBundleEditorOptions.getSeparator());
+        return lastIndex == -1 ? fullname : fullname.substring(lastIndex + 1);
+    }
+
+    private String getTreeSeparator() {
+        return ResourceBundleEditorOptions.getSeparator();
     }
 
     static class LocaleComparator implements Comparator<Locale> {
