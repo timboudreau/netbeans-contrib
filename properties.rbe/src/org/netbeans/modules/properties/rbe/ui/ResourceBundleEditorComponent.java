@@ -41,23 +41,18 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 import java.awt.Image;
-import javax.swing.ActionMap;
 import javax.swing.BoxLayout;
 import org.netbeans.modules.properties.PropertiesDataObject;
 import org.openide.explorer.ExplorerManager;
-import org.openide.explorer.ExplorerUtils;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import org.openide.util.lookup.AbstractLookup;
-import org.openide.util.lookup.InstanceContent;
-import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.CloneableTopComponent;
 
 /**
  * The Resourcebundle editor top component
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class ResourceBundleEditorComponent extends CloneableTopComponent implements ExplorerManager.Provider {
+public class ResourceBundleEditorComponent extends CloneableTopComponent {
 
     public static final String PREFERRED_ID = "ResourceBundleEditorComponent";
     /** Properties data object */
@@ -68,20 +63,10 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
     /** The tree view */
     public ResourceBundleEditorComponent(PropertiesDataObject dataObject) {
         this.dataObject = dataObject;
-
-        explorer = new ExplorerManager();
-        RBE rbe = new RBE(dataObject);
-
-        InstanceContent ic = new InstanceContent();
-        ic.add(rbe);
-        ic.add(explorer);
-
-        associateLookup(new ProxyLookup(ExplorerUtils.createLookup(explorer, new ActionMap()), new AbstractLookup(ic)));
-
         setName(dataObject.getName() + ".properties");
         setToolTipText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "CTL_ResourceBundleEditorComponent"));
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        add(new UIWindow(getLookup()));
+        add(new UIWindow(new RBE(dataObject)));
     }
 
     @Override
@@ -98,9 +83,5 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
     @Override
     protected String preferredID() {
         return PREFERRED_ID;
-    }
-
-    public ExplorerManager getExplorerManager() {
-        return explorer;
     }
 }

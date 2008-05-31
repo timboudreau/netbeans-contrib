@@ -86,7 +86,6 @@ public class BundleProperty implements Comparable<BundleProperty> {
             localeRepresentation = new HashMap<Locale, ItemElem>();
         }
         localeRepresentation.put(locale, itemElem);
-        bundle.addLocale(locale);
     }
 
     public String getName() {
@@ -122,6 +121,6 @@ public class BundleProperty implements Comparable<BundleProperty> {
     }
 
     public int compareTo(BundleProperty o) {
-        return this.name.compareToIgnoreCase(o.name);
+        return this.fullname.compareToIgnoreCase(o.fullname);
     }
 }

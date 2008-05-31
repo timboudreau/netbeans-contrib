@@ -5,8 +5,10 @@
  */
 package org.netbeans.modules.properties.rbe.ui;
 
-import javax.swing.JLabel;
-import javax.swing.JTextArea;
+import java.util.Locale;
+import org.netbeans.modules.properties.Element.ItemElem;
+import org.netbeans.modules.properties.rbe.Bundle;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -15,19 +17,22 @@ import javax.swing.JTextArea;
 public class UIPropertyPanel extends javax.swing.JPanel {
 
     /** Creates new form Propertypanel */
-    public UIPropertyPanel() {
+    public UIPropertyPanel(Locale locale, ItemElem itemElem, Bundle bundle) {
         initComponents();
+        if (Bundle.DEFAULT_LOCALE.equals(locale)) {
+            titleLabel.setText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "DefaultLocale"));
+        } else {
+            String title = String.format("%s (%s)%s", locale.getDisplayLanguage(),
+                    locale.getLanguage(), locale.getDisplayCountry().length() > 0 ? " - " + locale.getDisplayCountry() : "");
+            titleLabel.setText(title);
+        }
+        if (itemElem != null) {
+            textArea.setText(
+                    "Value: " + itemElem.getValue() + "\n" +
+                    "Comment: " + itemElem.getComment());
+        }
     }
 
-    public JTextArea getTextArea() {
-        return textArea;
-    }
-
-    public JLabel getTitleLabel() {
-        return titleLabel;
-    }
-
-    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
