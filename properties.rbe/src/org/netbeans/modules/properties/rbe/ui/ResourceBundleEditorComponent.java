@@ -41,8 +41,11 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 import java.awt.Image;
+import javax.swing.ActionMap;
 import javax.swing.BoxLayout;
 import org.netbeans.modules.properties.PropertiesDataObject;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.ExplorerUtils;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.windows.CloneableTopComponent;
@@ -51,15 +54,20 @@ import org.openide.windows.CloneableTopComponent;
  * The Resourcebundle editor top component
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class ResourceBundleEditorComponent extends CloneableTopComponent {
+public class ResourceBundleEditorComponent extends CloneableTopComponent implements ExplorerManager.Provider {
 
     public static final String PREFERRED_ID = "ResourceBundleEditorComponent";
     /** Properties data object */
     private final PropertiesDataObject dataObject;
+    /** The explorer manager */
+    private ExplorerManager explorerManager;
 
     /** The tree view */
     public ResourceBundleEditorComponent(PropertiesDataObject dataObject) {
         this.dataObject = dataObject;
+        explorerManager = new ExplorerManager();
+        associateLookup(ExplorerUtils.createLookup(explorerManager, new ActionMap()));
+
         setName(dataObject.getName() + ".properties");
         setToolTipText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "CTL_ResourceBundleEditorComponent"));
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -80,5 +88,9 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent {
     @Override
     protected String preferredID() {
         return PREFERRED_ID;
+    }
+
+    public ExplorerManager getExplorerManager() {
+        return explorerManager;
     }
 }

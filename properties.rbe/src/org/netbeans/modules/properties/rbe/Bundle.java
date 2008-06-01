@@ -62,8 +62,6 @@ public class Bundle {
     private Set<Locale> locales;
     private Set<BundleProperty> properties;
     /* Tree values */
-    /** Last builded tree separator, if null -> not builded tree */
-    private String treeSeparator = null;
     private Set<BundleProperty> treeRootProperties;
     /* Constants */
     /** The default locale */
@@ -102,11 +100,10 @@ public class Bundle {
         return properties;
     }
 
-    public Set<BundleProperty> getPropertiesAsTree(String separator) {
+    public Set<BundleProperty> getPropertiesAsTree() {
         if (treeRootProperties == null) {
             treeRootProperties = new TreeSet<BundleProperty>();
             treeRootProperties.addAll(createChildren(null, getProperties()));
-            treeSeparator = separator;
         }
         return treeRootProperties;
     }

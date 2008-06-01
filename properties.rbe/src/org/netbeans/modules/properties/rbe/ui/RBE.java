@@ -29,7 +29,7 @@ public class RBE {
     }
 
     public Node createTree() {
-        return new AbstractNode(Children.create(new BundlePropertyNodeFactory(bundle, mode), true));
+        return new AbstractNode(Children.create(new BundlePropertyNodeFactory(bundle, this), true));
     }
 
     public DisplayMode getMode() {

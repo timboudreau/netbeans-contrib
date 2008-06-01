@@ -57,16 +57,13 @@ import org.openide.util.lookup.Lookups;
 public class BundlePropertyNode extends AbstractNode implements Comparable<BundlePropertyNode> {
 
     private BundleProperty property;
-    private boolean showFullname = true;
+    private RBE rbe;
 
-    public BundlePropertyNode(BundleProperty property) {
-        super(property.getChildrenProperties().size() == 0 ? Children.LEAF : new ChildrenProperties(property), Lookups.singleton(property));
+    public BundlePropertyNode(BundleProperty property, RBE rbe) {
+        super((property.getChildrenProperties().size() == 0) || (rbe.getMode() == RBE.DisplayMode.FLAT)
+                ? Children.LEAF : new ChildrenProperties(property, rbe), Lookups.singleton(property));
         this.property = property;
-    }
-
-    private BundlePropertyNode(BundleProperty property, boolean showFullname) {
-        this(property);
-        this.showFullname = showFullname;
+        this.rbe = rbe;
     }
 
     public BundleProperty getProperty() {
@@ -84,7 +81,7 @@ public class BundlePropertyNode extends AbstractNode implements Comparable<Bundl
 
     @Override
     public String getDisplayName() {
-        return showFullname ? property.getFullname() : property.getName();
+        return rbe.getMode() == RBE.DisplayMode.FLAT ? property.getFullname() : property.getName();
     }
 
     @Override
@@ -104,9 +101,11 @@ public class BundlePropertyNode extends AbstractNode implements Comparable<Bundl
     private static class ChildrenProperties extends Children.Keys<BundleProperty> implements PropertyChangeListener {
 
         private BundleProperty bundleProperty;
+        private RBE rbe;
 
-        public ChildrenProperties(BundleProperty bundleProperty) {
+        public ChildrenProperties(BundleProperty bundleProperty, RBE rbe) {
             this.bundleProperty = bundleProperty;
+            this.rbe = rbe;
             bundleProperty.addPropertyChangeListener(this);
         }
 
@@ -117,7 +116,7 @@ public class BundlePropertyNode extends AbstractNode implements Comparable<Bundl
 
         @Override
         protected Node[] createNodes(BundleProperty childProperty) {
-            return new Node[]{new BundlePropertyNode(childProperty, false)};
+            return new Node[]{new BundlePropertyNode(childProperty, rbe)};
         }
 
         public void propertyChange(PropertyChangeEvent evt) {

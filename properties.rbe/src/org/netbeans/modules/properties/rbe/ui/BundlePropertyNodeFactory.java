@@ -53,18 +53,18 @@ import org.openide.nodes.Node;
 public class BundlePropertyNodeFactory extends ChildFactory<BundleProperty> {
 
     /** The display mode */
-    private RBE.DisplayMode mode;
     private Bundle bundle;
+    private RBE rbe;
 
-    public BundlePropertyNodeFactory(Bundle bundle, RBE.DisplayMode mode) {
+    public BundlePropertyNodeFactory(Bundle bundle, RBE rbe) {
         super();
-        this.mode = mode;
         this.bundle = bundle;
+        this.rbe = rbe;
     }
 
     @Override
     protected boolean createKeys(List<BundleProperty> toPopulate) {
-        switch (mode) {
+        switch (rbe.getMode()) {
             case FLAT:
                 createAsFlat(toPopulate);
                 break;
@@ -79,11 +79,11 @@ public class BundlePropertyNodeFactory extends ChildFactory<BundleProperty> {
     }
 
     private void createAsTree(List<BundleProperty> toPopulate) {
-        toPopulate.addAll(bundle.getPropertiesAsTree("."));
+        toPopulate.addAll(bundle.getPropertiesAsTree());
     }
 
     @Override
     protected Node createNodeForKey(BundleProperty bundleProperty) {
-        return new BundlePropertyNode(bundleProperty);
+        return new BundlePropertyNode(bundleProperty, rbe);
     }
 }

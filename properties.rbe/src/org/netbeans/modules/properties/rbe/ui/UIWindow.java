@@ -45,6 +45,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.util.Locale;
 import javax.swing.BoxLayout;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.openide.explorer.ExplorerManager;
@@ -55,7 +56,7 @@ import org.openide.util.Exceptions;
  * The UI window
  * @author  Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class UIWindow extends javax.swing.JPanel implements PropertyChangeListener, ExplorerManager.Provider {
+public class UIWindow extends javax.swing.JPanel implements PropertyChangeListener {
 
     private ImprovedBeanTreeView treeView;
     private ExplorerManager explorer;
@@ -65,7 +66,7 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
     public UIWindow(RBE rbe) {
         this.rbe = rbe;
         initComponents();
-        explorer = new ExplorerManager();
+
         searchTextField.getDocument().addDocumentListener(new DocumentListener() {
 
             public void insertUpdate(DocumentEvent e) {
@@ -81,8 +82,6 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
             }
         });
 
-        explorer.addPropertyChangeListener(this);
-        explorer.setRootContext(rbe.createTree());
 
         treeView = new ImprovedBeanTreeView();
         treeView.setRootVisible(false);
@@ -90,6 +89,21 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
         treePanel.setLayout(new BoxLayout(treePanel, BoxLayout.PAGE_AXIS));
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.PAGE_AXIS));
         treePanel.add(treeView);
+    }
+
+    @Override
+    public void addNotify() {
+
+        ExplorerManager.Provider provider = (ExplorerManager.Provider) SwingUtilities.getAncestorOfClass(ExplorerManager.Provider.class, this);
+        if (provider == null) {
+            throw new IllegalArgumentException("Cannot find an Explorer provider!");
+        } else {
+            explorer = provider.getExplorerManager();
+        }
+        explorer.addPropertyChangeListener(this);
+        explorer.setRootContext(rbe.createTree());
+        
+        super.addNotify();
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
@@ -307,11 +321,6 @@ private void changeModeButtonActionPerformed(java.awt.event.ActionEvent evt) {//
             }
         }
         return prefix.length();
-    }
-    
-    
-    public ExplorerManager getExplorerManager() {
-        return explorer;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
