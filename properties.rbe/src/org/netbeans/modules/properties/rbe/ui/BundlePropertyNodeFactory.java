@@ -40,18 +40,9 @@
  */
 package org.netbeans.modules.properties.rbe.ui;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import org.netbeans.modules.properties.BundleStructure;
-import org.netbeans.modules.properties.Element.ItemElem;
-import org.netbeans.modules.properties.PropertiesDataObject;
-import org.netbeans.modules.properties.Util;
 import org.netbeans.modules.properties.rbe.Bundle;
 import org.netbeans.modules.properties.rbe.BundleProperty;
-import org.netbeans.modules.properties.rbe.Constants;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
 
@@ -61,105 +52,38 @@ import org.openide.nodes.Node;
  */
 public class BundlePropertyNodeFactory extends ChildFactory<BundleProperty> {
 
-    /** The properties data object */
-    private PropertiesDataObject dataObject;
     /** The display mode */
-    private RBE.DisplayMode mode;
+    private Bundle bundle;
+    private RBE rbe;
 
-    public BundlePropertyNodeFactory(PropertiesDataObject dataObject, RBE.DisplayMode mode) {
+    public BundlePropertyNodeFactory(Bundle bundle, RBE rbe) {
         super();
-        this.dataObject = dataObject;
-        this.mode = mode;
+        this.bundle = bundle;
+        this.rbe = rbe;
     }
 
     @Override
     protected boolean createKeys(List<BundleProperty> toPopulate) {
-        switch (mode) {
-            case Flat:
+        switch (rbe.getMode()) {
+            case FLAT:
                 createAsFlat(toPopulate);
                 break;
-            case Tree:
+            case TREE:
                 createAsTree(toPopulate);
         }
         return true;
     }
 
-    protected void createAsTree(List<BundleProperty> toPopulate) {
-        BundleStructure bundleStructure = dataObject.getBundleStructure();
-
-        char separator = '.';
-        Bundle bundle = new Bundle();
-        Map<String, BundleProperty> mapping = new HashMap<String, BundleProperty>();
-        List<BundleProperty> rootProperties = new ArrayList<BundleProperty>();
-        for (int k = 0; k < bundleStructure.getKeyCount(); k++) {
-            String propertyName = bundleStructure.getKeys()[k];
-            BundleProperty bundleProperty = null;
-            BundleProperty childProperty = null;
-            BundleProperty rootProperty = null;
-            boolean end = false;
-            while (!end) {
-                int lastSeparator = propertyName.lastIndexOf(separator);
-                rootProperty = mapping.get(propertyName);
-                if (rootProperty != null) {
-                    end = true;
-                } else if (lastSeparator == -1) {
-                    rootProperty = new BundleProperty(propertyName, propertyName, bundle);
-                    rootProperties.add(rootProperty);
-                    mapping.put(propertyName, rootProperty);
-                    end = true;
-                } else {
-                    rootProperty = new BundleProperty(propertyName.substring(lastSeparator + 1), propertyName, bundle);
-                    mapping.put(propertyName, rootProperty);
-                    // Created property but it isnt root property -> continue
-                    propertyName = propertyName.substring(0, lastSeparator);
-                }
-                if (childProperty != null) {
-                    rootProperty.addChildProperty(childProperty);
-                }
-                if (bundleProperty == null) {
-                    // first created/found property is our bundle property
-                    bundleProperty = rootProperty;
-                }
-                childProperty = rootProperty;
-            }
-            for (int e = 0; e < bundleStructure.getEntryCount(); e++) {
-                Locale locale;
-                String localeSuffix = Util.getLocaleSuffix(bundleStructure.getNthEntry(e));
-                if ("".equals(localeSuffix)) {
-                    locale = Constants.DEFAULT_LOCALE;
-                } else {
-                    locale = new Locale(Util.getLanguage(localeSuffix), Util.getCountry(localeSuffix), Util.getVariant(localeSuffix));
-                }
-                ItemElem item = bundleStructure.getItem(e, k);
-                bundleProperty.addLocaleRepresentation(locale, item);
-            }
-        }
-        toPopulate.addAll(rootProperties);
+    private void createAsFlat(List<BundleProperty> toPopulate) {
+        toPopulate.addAll(bundle.getProperties());
     }
 
-    protected void createAsFlat(List<BundleProperty> toPopulate) {
-        BundleStructure bundleStructure = dataObject.getBundleStructure();
-        Bundle bundle = new Bundle();
-        for (int k = 0; k < bundleStructure.getKeyCount(); k++) {
-            String propertyName = bundleStructure.getKeys()[k];
-            BundleProperty bundleProperty = new BundleProperty(propertyName, propertyName, bundle);
-            for (int e = 0; e < bundleStructure.getEntryCount(); e++) {
-                Locale locale;
-                String localeSuffix = Util.getLocaleSuffix(bundleStructure.getNthEntry(e));
-                if ("".equals(localeSuffix)) {
-                    locale = Constants.DEFAULT_LOCALE;
-                } else {
-                    locale = new Locale(Util.getLanguage(localeSuffix), Util.getCountry(localeSuffix), Util.getVariant(localeSuffix));
-                }
-                ItemElem item = bundleStructure.getItem(e, k);
-                bundleProperty.addLocaleRepresentation(locale, item);
-            }
-            toPopulate.add(bundleProperty);
-        }
+    private void createAsTree(List<BundleProperty> toPopulate) {
+        toPopulate.addAll(bundle.getPropertiesAsTree());
     }
 
     @Override
     protected Node createNodeForKey(BundleProperty bundleProperty) {
-        return new BundlePropertyNode(bundleProperty);
+        return new BundlePropertyNode(bundleProperty, rbe);
     }
 }

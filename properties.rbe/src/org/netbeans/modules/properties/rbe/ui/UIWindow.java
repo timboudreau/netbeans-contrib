@@ -45,15 +45,12 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.util.Locale;
 import javax.swing.BoxLayout;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import org.netbeans.modules.properties.Element.ItemElem;
-import org.netbeans.modules.properties.rbe.Constants;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
-import org.openide.util.NbBundle;
 
 /**
  * The UI window
@@ -66,8 +63,10 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
     private RBE rbe;
 
     /** Creates new form NewJPanel */
-    public UIWindow(Lookup lookup) {
+    public UIWindow(RBE rbe) {
+        this.rbe = rbe;
         initComponents();
+
         searchTextField.getDocument().addDocumentListener(new DocumentListener() {
 
             public void insertUpdate(DocumentEvent e) {
@@ -84,24 +83,27 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
         });
 
 
-        explorer = lookup.lookup(ExplorerManager.class);
-        if (explorer == null) {
-            throw new IllegalStateException("Cannot find instance of ExplorerManager in lookup!");
-        }
-        rbe = lookup.lookup(RBE.class);
-        if (rbe == null) {
-            throw new IllegalStateException("Cannot find instance of RBE in lookup!");
-        }
-
-        explorer.addPropertyChangeListener(this);
-        explorer.setRootContext(rbe.createTree());
-
         treeView = new ImprovedBeanTreeView();
         treeView.setRootVisible(false);
 
         treePanel.setLayout(new BoxLayout(treePanel, BoxLayout.PAGE_AXIS));
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.PAGE_AXIS));
         treePanel.add(treeView);
+    }
+
+    @Override
+    public void addNotify() {
+
+        ExplorerManager.Provider provider = (ExplorerManager.Provider) SwingUtilities.getAncestorOfClass(ExplorerManager.Provider.class, this);
+        if (provider == null) {
+            throw new IllegalArgumentException("Cannot find an Explorer provider!");
+        } else {
+            explorer = provider.getExplorerManager();
+        }
+        explorer.addPropertyChangeListener(this);
+        explorer.setRootContext(rbe.createTree());
+        
+        super.addNotify();
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
@@ -125,27 +127,11 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
         rightPanel.removeAll();
         if (bundlePropertyNode != null) {
             for (Locale locale : bundlePropertyNode.getProperty().getBundle().getLocales()) {
-                UIPropertyPanel propertyPanel = new UIPropertyPanel();
-                ItemElem item = bundlePropertyNode.getProperty().getLocaleRepresentation().get(locale);
-                if (Constants.DEFAULT_LOCALE.equals(locale)) {
-                    propertyPanel.getTitleLabel().setText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "DefaultLocale"));
-                } else {
-                    String title = String.format("%s (%s)%s", locale.getDisplayLanguage(),
-                            locale.getLanguage(), locale.getDisplayCountry().length() > 0 ? " - " + locale.getDisplayCountry() : "");
-                    propertyPanel.getTitleLabel().setText(title);
-                }
-                if (item != null) {
-                    propertyPanel.getTextArea().setText(
-                            "Value: " + item.getValue() + "\n" +
-                            "Comment: " + item.getComment());
-                }
-                rightPanel.add(propertyPanel);
+                rightPanel.add(new UIPropertyPanel(locale, bundlePropertyNode.getProperty().getLocaleRepresentation().get(locale), bundlePropertyNode.getProperty().getBundle()));
             }
         }
         rightPanel.updateUI();
     }
-
-    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -287,16 +273,15 @@ private void collapseAllButtonActionPerformed(java.awt.event.ActionEvent evt) {/
     }
 
 private void changeModeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_changeModeButtonActionPerformed
-    if (rbe.getMode() == RBE.DisplayMode.Flat) {
+    if (rbe.getMode() == RBE.DisplayMode.FLAT) {
         changeModeButton.setText("Flat");
-        rbe.setMode(RBE.DisplayMode.Tree);
+        rbe.setMode(RBE.DisplayMode.TREE);
         explorer.setRootContext(rbe.createTree());
-
         collapseAllButton.setEnabled(true);
         expandAllButton.setEnabled(true);
     } else {
         changeModeButton.setText("Tree");
-        rbe.setMode(RBE.DisplayMode.Flat);
+        rbe.setMode(RBE.DisplayMode.FLAT);
         explorer.setRootContext(rbe.createTree());
         collapseAllButton.setEnabled(false);
         expandAllButton.setEnabled(false);

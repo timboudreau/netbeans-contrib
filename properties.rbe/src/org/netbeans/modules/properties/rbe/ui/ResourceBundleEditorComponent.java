@@ -48,9 +48,6 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import org.openide.util.lookup.AbstractLookup;
-import org.openide.util.lookup.InstanceContent;
-import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.CloneableTopComponent;
 
 /**
@@ -62,26 +59,19 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
     public static final String PREFERRED_ID = "ResourceBundleEditorComponent";
     /** Properties data object */
     private final PropertiesDataObject dataObject;
-    /** The Explorer manager for nodes */
-    private ExplorerManager explorer;
+    /** The explorer manager */
+    private ExplorerManager explorerManager;
 
     /** The tree view */
     public ResourceBundleEditorComponent(PropertiesDataObject dataObject) {
         this.dataObject = dataObject;
-
-        explorer = new ExplorerManager();
-        RBE rbe = new RBE(dataObject);
-
-        InstanceContent ic = new InstanceContent();
-        ic.add(rbe);
-        ic.add(explorer);
-
-        associateLookup(new ProxyLookup(ExplorerUtils.createLookup(explorer, new ActionMap()), new AbstractLookup(ic)));
+        explorerManager = new ExplorerManager();
+        associateLookup(ExplorerUtils.createLookup(explorerManager, new ActionMap()));
 
         setName(dataObject.getName() + ".properties");
         setToolTipText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "CTL_ResourceBundleEditorComponent"));
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        add(new UIWindow(getLookup()));
+        add(new UIWindow(new RBE(dataObject)));
     }
 
     @Override
@@ -101,6 +91,6 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
     }
 
     public ExplorerManager getExplorerManager() {
-        return explorer;
+        return explorerManager;
     }
 }
