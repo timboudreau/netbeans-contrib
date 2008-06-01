@@ -90,6 +90,9 @@
                 <file name="language.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.fortress.editing.FortressLanguage"/>
                 </file>
+                <file name="structure.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.fortress.editing.FortressStructureAnalyzer"/>
+                </file> 
             </folder>
         </folder>
     </folder>

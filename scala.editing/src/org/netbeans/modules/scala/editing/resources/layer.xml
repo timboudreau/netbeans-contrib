@@ -80,6 +80,9 @@
                 <file name="language.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaLanguage"/>
                 </file>
+                <file name="structure.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.scala.editing.ScalaStructureAnalyzer"/>
+                </file> 
             </folder>
         </folder>
     </folder>

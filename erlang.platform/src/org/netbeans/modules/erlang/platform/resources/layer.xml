@@ -47,6 +47,7 @@
     <folder name="GsfPlugins">
         <folder name="text">
             <folder name="x-erlang">
+                <attr name="useCustomEditorKit" boolvalue="true"/>
                 <file name="language.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.erlang.platform.index.ErlangGsfLanguage"/>
                 </file>
