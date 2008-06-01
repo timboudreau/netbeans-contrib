@@ -90,6 +90,11 @@ public class ErlangGsfLanguage extends DefaultLanguageConfig {
     }
 
     @Override
+    public boolean hasFormatter() {
+        return true;
+    }
+    
+    @Override
     public Formatter getFormatter() {
         return new org.netbeans.modules.erlang.platform.gsf.Formatter();
     }

@@ -142,6 +142,11 @@ public class ScalaLanguage extends DefaultLanguageConfig {
     }
 
     @Override
+    public boolean hasFormatter() {
+        return true;
+    }
+
+    @Override
     public Formatter getFormatter() {
         return new ScalaFormatter();
     }
@@ -154,6 +159,11 @@ public class ScalaLanguage extends DefaultLanguageConfig {
     @Override
     public CodeCompletionHandler getCompletionHandler() {
         return new ScalaCodeCompletion();
+    }
+
+    @Override
+    public boolean hasStructureScanner() {
+        return true;
     }
 
     @Override
@@ -174,6 +184,11 @@ public class ScalaLanguage extends DefaultLanguageConfig {
     @Override
     public SemanticAnalyzer getSemanticAnalyzer() {
         return new ScalaSemanticAnalyzer();
+    }
+
+    @Override
+    public boolean hasOccurrencesFinder() {
+        return true;
     }
 
     @Override

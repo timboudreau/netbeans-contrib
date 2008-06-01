@@ -42,7 +42,6 @@ package org.netbeans.modules.fortress.editing;
 
 import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.fortress.editing.lexer.FortressTokenId;
-import org.netbeans.modules.gsf.api.Formatter;
 import org.netbeans.modules.gsf.api.InstantRenamer;
 import org.netbeans.modules.gsf.api.KeystrokeHandler;
 import org.netbeans.modules.gsf.api.OccurrencesFinder;
@@ -94,6 +93,11 @@ public class FortressLanguage extends DefaultLanguageConfig {
     }
 
     @Override
+    public boolean hasStructureScanner() {
+        return true;
+    }
+    
+    @Override
     public StructureScanner getStructureScanner() {
         return new FortressStructureAnalyzer();
     }
@@ -101,6 +105,11 @@ public class FortressLanguage extends DefaultLanguageConfig {
     @Override
     public SemanticAnalyzer getSemanticAnalyzer() {
         return new FortressSemanticAnalyzer();
+    }
+
+    @Override
+    public boolean hasOccurrencesFinder() {
+        return true;
     }
 
     @Override
