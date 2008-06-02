@@ -476,7 +476,7 @@ jarsigner.storepass=${jarsigner.storepass}
         <build-product dir="Fortran_95_Compiler"/>
         <build-product dir="DBX_Debugging_Tools"/>
         <build-product dir="build_tools"/>
-        <build-product dir="X-Designer" group="other-group"/>
+    <!--    <build-product dir="X-Designer" group="other-group"/> -->
         
         <build-product dir="support_files"/>
         <build-product dir="Performance_Library" group="other-group"/>
@@ -601,7 +601,7 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="fortran" version="1.0.0.0.0"/>
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
-    	    <component uid="x-designer" version="1.0.0.0.0"/>
+    	    <!--<component uid="x-designer" version="1.0.0.0.0"/>-->
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
@@ -620,11 +620,10 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="fortran" version="1.0.0.0.0"/>
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
-    	    <component uid="x-designer" version="1.0.0.0.0"/>
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
-                                 <property name="product.data.all.location" value="http://endif.russia.sun.com/installer/packaged" />
+            <property name="product.data.all.location" value="http://endif.russia.sun.com/installer/packaged" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
         <!-- End of addition -->	
@@ -641,7 +640,6 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="fortran" version="1.0.0.0.0"/>
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
-    	    <component uid="x-designer" version="1.0.0.0.0"/>
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
@@ -661,11 +659,10 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="fortran" version="1.0.0.0.0"/>
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
-    	    <component uid="x-designer" version="1.0.0.0.0"/>
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
-                                 <property name="product.data.all.location" value="http://endif.russia.sun.com/installer/packaged" />
+            <property name="product.data.all.location" value="http://endif.russia.sun.com/installer/packaged" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
         <!-- End of addition -->
@@ -681,7 +678,6 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="fortran" version="1.0.0.0.0"/>
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
-    	    <component uid="x-designer" version="1.0.0.0.0"/>
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
@@ -701,11 +697,10 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="fortran" version="1.0.0.0.0"/>
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
-    	    <component uid="x-designer" version="1.0.0.0.0"/>
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
-                                 <property name="product.data.all.location" value="http://endif.russia.sun.com/installer/packaged" />
+            <property name="product.data.all.location" value="http://endif.russia.sun.com/installer/packaged" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
         <!-- End of addition -->
