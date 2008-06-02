@@ -50,7 +50,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.event.ChangeListener;
-import org.netbeans.api.scala.platform.JavaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatform;
 import org.netbeans.modules.scala.stdplatform.platformdefinition.PlatformConvertor;
 import org.netbeans.modules.scala.stdplatform.platformdefinition.Util;
 import org.openide.ErrorManager;
@@ -136,7 +136,7 @@ public class J2SEWizardIterator implements WizardDescriptor.InstantiatingIterato
     public java.util.Set instantiate() throws IOException {
         //Workaround #44444
         this.detectPanel.storeSettings (this.wizard);
-        Set<JavaPlatform> result = new HashSet<JavaPlatform> ();
+        Set<ScalaPlatform> result = new HashSet<ScalaPlatform> ();
         for (NewJ2SEPlatform platform : getPlatforms()) {
             if (platform.isValid()) {
                 final String systemName = platform.getAntName();
@@ -148,7 +148,7 @@ public class J2SEWizardIterator implements WizardDescriptor.InstantiatingIterato
                         new IllegalStateException(msg), ErrorManager.USER, null, msg,null, null);
                 }                       
                 DataObject dobj = PlatformConvertor.create(platform, DataFolder.findFolder(platformsFolder),systemName);
-                result.add(dobj.getNodeDelegate().getLookup().lookup(JavaPlatform.class));
+                result.add(dobj.getNodeDelegate().getLookup().lookup(ScalaPlatform.class));
             }
         }        
         return Collections.unmodifiableSet(result);

@@ -50,7 +50,7 @@ import org.netbeans.modules.scala.stdplatform.platformdefinition.Util;
 import java.io.IOException;
 import java.util.Collections;
 
-import org.netbeans.api.scala.platform.JavaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatform;
 import org.openide.WizardDescriptor;
 
 /**

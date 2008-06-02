@@ -45,7 +45,7 @@ import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.*;
 import java.net.MalformedURLException;
-import org.netbeans.api.scala.platform.JavaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatform;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import org.openide.util.Exceptions;
 
@@ -65,7 +65,7 @@ public class DefaultPlatformImpl extends J2SEPlatformImpl {
     public static final String DEFAULT_PLATFORM_ANT_NAME = "default_platform";           //NOI18N
 
     @SuppressWarnings("unchecked")  //Properties cast to Map<String,String>
-    static JavaPlatform create(Map<String, String> properties, List<URL> sources, List<URL> javadoc) {
+    static ScalaPlatform create(Map<String, String> properties, List<URL> sources, List<URL> javadoc) {
         if (properties == null) {
             properties = new HashMap<String, String>();
         }

@@ -55,8 +55,8 @@ import javax.swing.Action;
 import javax.swing.JSeparator;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.netbeans.api.scala.platform.JavaPlatform;
-import org.netbeans.api.scala.platform.JavaPlatformManager;
+import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
@@ -215,7 +215,7 @@ public class J2SELogicalViewProvider implements LogicalViewProvider {
         }
         
         final String platformId = this.evaluator.getProperty("platform.active");  //NOI18N
-        final JavaPlatform activePlatform = J2SEProjectUtil.getActivePlatform (platformId);
+        final ScalaPlatform activePlatform = J2SEProjectUtil.getActivePlatform (platformId);
         if (activePlatform == null) {
             return true;
         }        
@@ -394,10 +394,10 @@ public class J2SELogicalViewProvider implements LogicalViewProvider {
                 setEnabled(broken);
                 evaluator.addPropertyChangeListener(this);
                 // When evaluator fires changes that platform properties were
-                // removed the platform still exists in JavaPlatformManager.
+                // removed the platform still exists in ScalaPlatformManager.
                 // That's why I have to listen here also on JPM:
-                weakPCL = WeakListeners.propertyChange(this, JavaPlatformManager.getDefault());
-                JavaPlatformManager.getDefault().addPropertyChangeListener(weakPCL);
+                weakPCL = WeakListeners.propertyChange(this, ScalaPlatformManager.getDefault());
+                ScalaPlatformManager.getDefault().addPropertyChangeListener(weakPCL);
                 J2SELogicalViewProvider.this.addChangeListener(WeakListeners.change(this, J2SELogicalViewProvider.this));
             }
             

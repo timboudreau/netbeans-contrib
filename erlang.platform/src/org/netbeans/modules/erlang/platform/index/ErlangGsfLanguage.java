@@ -20,6 +20,11 @@ package org.netbeans.modules.erlang.platform.index;
 
 import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.erlang.editing.Erlang;
+import org.netbeans.modules.erlang.platform.gsf.CodeCompleter;
+import org.netbeans.modules.gsf.api.CodeCompletionHandler;
+import org.netbeans.modules.gsf.api.Formatter;
+import org.netbeans.modules.gsf.api.Indexer;
+import org.netbeans.modules.gsf.api.Parser;
 import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
 
 public class ErlangGsfLanguage extends DefaultLanguageConfig {
@@ -69,6 +74,39 @@ public class ErlangGsfLanguage extends DefaultLanguageConfig {
     @Override
     public String getPreferredExtension() {
         return "erl"; // NOI18N
+    }
+
+    @Override
+    public boolean isUsingCustomEditorKit() {
+        // Use Schliemann instead of the custom GSF editor kit
+        return true;
+    }
+
+    // Service Registrations
+    
+    @Override
+    public Parser getParser() {
+        return new ErlangLanguageParser();
+    }
+
+    @Override
+    public boolean hasFormatter() {
+        return true;
+    }
+    
+    @Override
+    public Formatter getFormatter() {
+        return new org.netbeans.modules.erlang.platform.gsf.Formatter();
+    }
+
+    @Override
+    public CodeCompletionHandler getCompletionHandler() {
+        return new CodeCompleter();
+    }
+
+    @Override
+    public Indexer getIndexer() {
+        return new ErlangIndexer();
     }
 }
 

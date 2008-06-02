@@ -52,15 +52,15 @@ import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import org.openide.filesystems.FileObject;
 
 /**
- * JavaPlatform describes a java platform in a way that the IDE tools may utilize. It may serve as
- * description of the platform a java project targets, or it may provide access to tools from the
+ * ScalaPlatform describes a Scala platform in a way that the IDE tools may utilize. It may serve as
+ * description of the platform a Scala project targets, or it may provide access to tools from the
  * particular SDK installation. It also provides information about individual platforms, for example
- * the Java platform version implemented, vendor name or implementation version. It is also possible
+ * the Scala platform version implemented, vendor name or implementation version. It is also possible
  * to enumerate services that the IDE supports, which are implemented as a part of the Platform.
  *
  * @author Radko Najman, Svata Dedic, Tomas Zezula
  */
-public abstract class JavaPlatform {
+public abstract class ScalaPlatform {
 
     //List of names of mutable properties
     /**
@@ -86,8 +86,8 @@ public abstract class JavaPlatform {
     private Map<String,String> sysproperties = Collections.emptyMap();
     private PropertyChangeSupport supp;
     
-    /** Creates a new instance of JavaPlatform */
-    protected JavaPlatform() {
+    /** Creates a new instance of ScalaPlatform */
+    protected ScalaPlatform() {
     }
 
     /**
@@ -195,10 +195,10 @@ public abstract class JavaPlatform {
     /**
      * Get the "default platform", meaning the JDK on which NetBeans itself is running.
      * @return the default platform, if it can be found, or null
-     * @see JavaPlatformManager#getDefaultPlatform
+     * @see ScalaPlatformManager#getDefaultPlatform
      */
-    public static JavaPlatform getDefault() {
-        return JavaPlatformManager.getDefault().getDefaultPlatform();
+    public static ScalaPlatform getDefault() {
+        return ScalaPlatformManager.getDefault().getDefaultPlatform();
     }
 
 

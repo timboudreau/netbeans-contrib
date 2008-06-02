@@ -49,7 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import org.netbeans.api.project.SourceGroup;
-import org.netbeans.api.scala.platform.JavaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatform;
 import org.netbeans.modules.java.api.common.SourceRoots;
 import org.netbeans.modules.gsfpath.spi.classpath.ClassPathFactory;
 import org.netbeans.modules.gsfpath.spi.classpath.ClassPathProvider;
@@ -192,7 +192,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         if (cp == null) {
             List<PathResourceImplementation> resources = new ArrayList<PathResourceImplementation>();
 
-            JavaPlatform platform = bootClassPathImpl.findActivePlatform();
+            ScalaPlatform platform = bootClassPathImpl.findActivePlatform();
             if (platform != null) {
                 ClassPath platformSourcesCp = platform.getSourceFolders();
                 for (ClassPath.Entry entry : platformSourcesCp.entries()) {
@@ -307,7 +307,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
     private synchronized ClassPath getBootSourcesClassPath() {
         ClassPath cp = cache[8];
         if (cp == null) {
-            JavaPlatform platform = bootClassPathImpl.findActivePlatform();
+            ScalaPlatform platform = bootClassPathImpl.findActivePlatform();
             if (platform != null) {
                 cp = platform.getSourceFolders();
             }

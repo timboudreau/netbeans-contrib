@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.netbeans.api.scala.platform.JavaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatform;
 import org.netbeans.api.scala.platform.Specification;
 import org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport;
 import org.openide.filesystems.FileObject;
@@ -64,9 +64,9 @@ import org.openide.util.NbCollections;
  * Basic impl in case no other providers can be found.
  * @author Jesse Glick
  */
-public class FallbackDefaultJavaPlatform extends JavaPlatform {
+public class FallbackDefaultScalaPlatform extends ScalaPlatform {
 
-    public FallbackDefaultJavaPlatform() {
+    public FallbackDefaultScalaPlatform() {
         setSystemProperties(NbCollections.checkedMapByFilter(System.getProperties(), String.class, String.class, false));
     }
 

@@ -41,6 +41,8 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 import java.awt.Image;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import org.netbeans.modules.properties.rbe.BundleProperty;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -55,11 +57,13 @@ import org.openide.util.lookup.Lookups;
 public class BundlePropertyNode extends AbstractNode implements Comparable<BundlePropertyNode> {
 
     private BundleProperty property;
+    private RBE rbe;
 
-    public BundlePropertyNode(BundleProperty property) {
-        super(property.getChildrenProperties().size() == 0 ? Children.LEAF : new ChildrenProperties(property), Lookups.singleton(property));
+    public BundlePropertyNode(BundleProperty property, RBE rbe) {
+        super((property.getChildrenProperties().size() == 0) || (rbe.getMode() == RBE.DisplayMode.FLAT)
+                ? Children.LEAF : new ChildrenProperties(property, rbe), Lookups.singleton(property));
         this.property = property;
-
+        this.rbe = rbe;
     }
 
     public BundleProperty getProperty() {
@@ -77,7 +81,7 @@ public class BundlePropertyNode extends AbstractNode implements Comparable<Bundl
 
     @Override
     public String getDisplayName() {
-        return property.getName();
+        return rbe.getMode() == RBE.DisplayMode.FLAT ? property.getFullname() : property.getName();
     }
 
     @Override
@@ -94,12 +98,15 @@ public class BundlePropertyNode extends AbstractNode implements Comparable<Bundl
         return property.compareTo(o.property);
     }
 
-    private static class ChildrenProperties extends Children.Keys<BundleProperty> {
+    private static class ChildrenProperties extends Children.Keys<BundleProperty> implements PropertyChangeListener {
 
         private BundleProperty bundleProperty;
+        private RBE rbe;
 
-        public ChildrenProperties(BundleProperty bundleProperty) {
+        public ChildrenProperties(BundleProperty bundleProperty, RBE rbe) {
             this.bundleProperty = bundleProperty;
+            this.rbe = rbe;
+            bundleProperty.addPropertyChangeListener(this);
         }
 
         @Override
@@ -109,7 +116,13 @@ public class BundlePropertyNode extends AbstractNode implements Comparable<Bundl
 
         @Override
         protected Node[] createNodes(BundleProperty childProperty) {
-            return new Node[]{new BundlePropertyNode(childProperty)};
+            return new Node[]{new BundlePropertyNode(childProperty, rbe)};
+        }
+
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (BundleProperty.PROPERTY_CHILDREN.equals(evt.getPropertyName())) {
+                addNotify();
+            }
         }
     }
 }

@@ -63,8 +63,8 @@ import java.util.Locale;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.UIManager;
-import org.netbeans.api.scala.platform.JavaPlatform;
-import org.netbeans.api.scala.platform.JavaPlatformManager;
+import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.modules.scala.platform.wizard.PlatformInstallIterator;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
@@ -93,12 +93,12 @@ public class PlatformsCustomizer extends javax.swing.JPanel implements PropertyC
 
     private PlatformCategoriesChildren children;
     private ExplorerManager manager;
-    private final JavaPlatform initialPlatform;
+    private final ScalaPlatform initialPlatform;
 
     /** Creates new form PlatformsCustomizer */
-    public PlatformsCustomizer (JavaPlatform initialPlatform) {
+    public PlatformsCustomizer (ScalaPlatform initialPlatform) {
         this.initialPlatform = (initialPlatform == null) ?
-            JavaPlatformManager.getDefault().getDefaultPlatform() : initialPlatform;
+            ScalaPlatformManager.getDefault().getDefaultPlatform() : initialPlatform;
         initComponents();
     }
 
@@ -331,7 +331,7 @@ public class PlatformsCustomizer extends javax.swing.JPanel implements PropertyC
                 if (wiz.getValue() == WizardDescriptor.FINISH_OPTION) {
                     this.getChildren().refreshPlatforms();
                     Set result = wiz.getInstantiatedObjects();
-                    this.expandPlatforms (result.size() == 0 ? null : (JavaPlatform)result.iterator().next());
+                    this.expandPlatforms (result.size() == 0 ? null : (ScalaPlatform)result.iterator().next());
                 }
             } finally {
                 dlg.dispose();
@@ -361,7 +361,7 @@ public class PlatformsCustomizer extends javax.swing.JPanel implements PropertyC
             return;
         }
         JComponent target = messageArea;
-        JavaPlatform platform = pNode.getLookup().lookup(JavaPlatform.class);
+        ScalaPlatform platform = pNode.getLookup().lookup(ScalaPlatform.class);
         if (platform != null) {
             this.removeButton.setEnabled (isDefaultPLatform(platform));            
             if (platform.getInstallFolders().size() != 0) {
@@ -402,22 +402,22 @@ public class PlatformsCustomizer extends javax.swing.JPanel implements PropertyC
         container.add (component);
     }
 
-    private static boolean isDefaultPLatform (JavaPlatform platform) {
-        JavaPlatform defaultPlatform = JavaPlatformManager.getDefault().getDefaultPlatform();
+    private static boolean isDefaultPLatform (ScalaPlatform platform) {
+        ScalaPlatform defaultPlatform = ScalaPlatformManager.getDefault().getDefaultPlatform();
         return defaultPlatform!=null && !defaultPlatform.equals(platform);
     }
 
-    private void expandPlatforms (JavaPlatform platform) {
+    private void expandPlatforms (ScalaPlatform platform) {
         ExplorerManager mgr = this.getExplorerManager();
         Node node = mgr.getRootContext();
         expandAllNodes(this.platforms, node, mgr, platform);
     }
 
-    private static void expandAllNodes (BeanTreeView btv, Node node, ExplorerManager mgr, JavaPlatform platform) {
+    private static void expandAllNodes (BeanTreeView btv, Node node, ExplorerManager mgr, ScalaPlatform platform) {
         btv.expandNode (node);
         Children ch = node.getChildren();
         if ( ch == Children.LEAF ) {
-            if (platform != null && platform.equals(node.getLookup().lookup(JavaPlatform.class))) {
+            if (platform != null && platform.equals(node.getLookup().lookup(ScalaPlatform.class))) {
                 try {
                     mgr.setSelectedNodes (new Node[] {node});
                 } catch (PropertyVetoException e) {
@@ -589,7 +589,7 @@ public class PlatformsCustomizer extends javax.swing.JPanel implements PropertyC
                     try {
                         DataObject dobj = DataObject.find(child);
                         Node node = dobj.getNodeDelegate();
-                        JavaPlatform platform = node.getLookup().lookup(JavaPlatform.class);
+                        ScalaPlatform platform = node.getLookup().lookup(ScalaPlatform.class);
                         if (platform != null) {
                             String platformType = platform.getSpecification().getName();
                             if (platformType != null) {

@@ -115,7 +115,7 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
     
     private RequestProcessor.Task    saveTask;
     
-    private Reference<JavaPlatform>   refPlatform = new WeakReference<JavaPlatform>(null);
+    private Reference<ScalaPlatform>   refPlatform = new WeakReference<ScalaPlatform>(null);
     
     private LinkedList<PropertyChangeEvent> keepAlive = new LinkedList<PropertyChangeEvent>();
     
@@ -161,7 +161,7 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
     }
     
     public Class instanceClass() {
-        return JavaPlatform.class;
+        return ScalaPlatform.class;
     }
     
     public Object instanceCreate() throws java.io.IOException, ClassNotFoundException {
@@ -189,14 +189,14 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
                     throw new java.io.IOException(ex.getMessage());
             }
 
-            JavaPlatform inst = createPlatform(handler);
-            refPlatform = new WeakReference<JavaPlatform>(inst);
+            ScalaPlatform inst = createPlatform(handler);
+            refPlatform = new WeakReference<ScalaPlatform>(inst);
             return inst;
         }
     }
     
-    JavaPlatform createPlatform(H handler) {
-        JavaPlatform p;
+    ScalaPlatform createPlatform(H handler) {
+        ScalaPlatform p;
         
         if (handler.isDefault) {
             p = DefaultPlatformImpl.create (handler.properties, handler.sources, handler.javadoc);
@@ -214,7 +214,7 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
     }
     
     public boolean instanceOf(Class<?> type) {
-        return (type.isAssignableFrom(JavaPlatform.class));
+        return (type.isAssignableFrom(ScalaPlatform.class));
     }
     
     static int DELAY = 2000;
@@ -236,7 +236,7 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
         synchronized (this) {
             e = keepAlive.removeFirst();
         }
-        JavaPlatform plat = (JavaPlatform)e.getSource();
+        ScalaPlatform plat = (ScalaPlatform)e.getSource();
         try {
             holder.getPrimaryFile().getFileSystem().runAtomicAction(
                 new W(plat, holder, defaultPlatform));
@@ -273,7 +273,7 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
         return (Class)obj;
     }
     
-    public static DataObject create(final JavaPlatform plat, final DataFolder f, final String idName) throws IOException {
+    public static DataObject create(final ScalaPlatform plat, final DataFolder f, final String idName) throws IOException {
         W w = new W(plat, f, idName);
         f.getPrimaryFile().getFileSystem().runAtomicAction(w);
         try {
@@ -302,7 +302,7 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
         return w.holder;
     }
 
-    public static void generatePlatformProperties (JavaPlatform platform, String systemName, EditableProperties props) throws IOException {
+    public static void generatePlatformProperties (ScalaPlatform platform, String systemName, EditableProperties props) throws IOException {
         String homePropName = createName(systemName,"home");      //NOI18N
         String bootClassPathPropName = createName(systemName,"bootclasspath");    //NOI18N
         String compilerType= createName (systemName,"compiler");  //NOI18N
@@ -351,7 +351,7 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
         return "platforms." + platName + "." + propType;        //NOI18N
     }
 
-    private static String getCompilerType (JavaPlatform platform) {
+    private static String getCompilerType (ScalaPlatform platform) {
         assert platform != null;
         String prop = platform.getSystemProperties().get("java.specification.version"); //NOI18N
         assert prop != null;
@@ -418,19 +418,19 @@ public class PlatformConvertor implements Environment.Provider, InstanceCookie.O
     }
 
     static class W implements FileSystem.AtomicAction {
-        JavaPlatform instance;
+        ScalaPlatform instance;
         MultiDataObject holder;
         String name;
         DataFolder f;
         boolean defaultPlatform;
 
-        W(JavaPlatform instance, MultiDataObject holder, boolean defaultPlatform) {
+        W(ScalaPlatform instance, MultiDataObject holder, boolean defaultPlatform) {
             this.instance = instance;
             this.holder = holder;
             this.defaultPlatform = defaultPlatform;
         }
         
-        W(JavaPlatform instance, DataFolder f, String n) {
+        W(ScalaPlatform instance, DataFolder f, String n) {
             this.instance = instance;
             this.name = n;
             this.f = f;

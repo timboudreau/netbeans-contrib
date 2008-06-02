@@ -44,8 +44,8 @@ import java.beans.PropertyChangeEvent;
 import org.netbeans.modules.gsfpath.spi.classpath.ClassPathImplementation;
 import org.netbeans.modules.gsfpath.spi.classpath.PathResourceImplementation;
 import org.netbeans.modules.gsfpath.spi.classpath.support.ClassPathSupport;
-import org.netbeans.api.scala.platform.JavaPlatform;
-import org.netbeans.api.scala.platform.JavaPlatformManager;
+import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -60,12 +60,12 @@ final class BootClassPathImplementation implements ClassPathImplementation, Prop
 
     private static final String PLATFORM_ACTIVE = "platform.active";        //NOI18N
 
-    private static final String ANT_NAME = "platform.ant.name";             //NOI18N
+    private static final String ANT_NAME = "scala.platform.ant.name";             //NOI18N
 
     private static final String J2SE = "std";                              //NOI18N
 
     private final PropertyEvaluator evaluator;
-    private JavaPlatformManager platformManager;
+    private ScalaPlatformManager platformManager;
     //name of project active platform
     private String activePlatformName;
     //active platform is valid (not broken reference)
@@ -89,7 +89,7 @@ final class BootClassPathImplementation implements ClassPathImplementation, Prop
             currentId = eventId;
         }
 
-        JavaPlatform jp = findActivePlatform();
+        ScalaPlatform jp = findActivePlatform();
         final List<PathResourceImplementation> result = new ArrayList<PathResourceImplementation>();
         if (jp != null) {
             //TODO: May also listen on CP, but from Platform it should be fixed.            
@@ -120,13 +120,13 @@ final class BootClassPathImplementation implements ClassPathImplementation, Prop
         this.support.removePropertyChangeListener(listener);
     }
 
-    public JavaPlatform findActivePlatform() {
+    public ScalaPlatform findActivePlatform() {
         if (this.platformManager == null) {
-            this.platformManager = JavaPlatformManager.getDefault();
+            this.platformManager = ScalaPlatformManager.getDefault();
             this.platformManager.addPropertyChangeListener(WeakListeners.propertyChange(this, this.platformManager));
         }
         this.activePlatformName = evaluator.getProperty(PLATFORM_ACTIVE);
-        final JavaPlatform activePlatform = J2SEProjectUtil.getActivePlatform(this.activePlatformName);
+        final ScalaPlatform activePlatform = J2SEProjectUtil.getActivePlatform(this.activePlatformName);
         this.isActivePlatformValid = activePlatform != null;
         return activePlatform;
     }
@@ -135,7 +135,7 @@ final class BootClassPathImplementation implements ClassPathImplementation, Prop
         if (evt.getSource() == this.evaluator && evt.getPropertyName().equals(PLATFORM_ACTIVE)) {
             //Active platform was changed
             resetCache();
-        } else if (evt.getSource() == this.platformManager && JavaPlatformManager.PROP_INSTALLED_PLATFORMS.equals(evt.getPropertyName()) && activePlatformName != null) {
+        } else if (evt.getSource() == this.platformManager && ScalaPlatformManager.PROP_INSTALLED_PLATFORMS.equals(evt.getPropertyName()) && activePlatformName != null) {
             //Platform definitions were changed, check if the platform was not resolved or deleted
             if (this.isActivePlatformValid) {
                 if (J2SEProjectUtil.getActivePlatform(this.activePlatformName) == null) {

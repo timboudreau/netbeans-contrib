@@ -59,8 +59,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.netbeans.api.scala.platform.JavaPlatform;
-import org.netbeans.api.scala.platform.JavaPlatformManager;
+import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.scala.stdplatform.platformdefinition.J2SEPlatformImpl;
@@ -452,7 +452,7 @@ public class DetectPanel extends javax.swing.JPanel {
 
         public void readSettings(WizardDescriptor settings) {           
             this.wiz = settings;
-            JavaPlatform platform = this.iterator.getPlatform();
+            ScalaPlatform platform = this.iterator.getPlatform();
             String srcPath = null;
             String jdocPath = null;
             ClassPath src = platform.getSourceFolders();
@@ -629,7 +629,7 @@ public class DetectPanel extends javax.swing.JPanel {
                 this.wiz.putProperty( "WizardPanel_errorMessage",NbBundle.getMessage(DetectPanel.class,"ERROR_InvalidDisplayName"));    //NOI18N
             }
             else {                
-                JavaPlatform[] platforms = JavaPlatformManager.getDefault().getInstalledPlatforms();                
+                ScalaPlatform[] platforms = ScalaPlatformManager.getDefault().getInstalledPlatforms();                
                 for (int i=0; i<platforms.length; i++) {
                     if (name.equals (platforms[i].getDisplayName())) {
                         usedDisplayName = true;
@@ -660,8 +660,8 @@ public class DetectPanel extends javax.swing.JPanel {
         }
         
         private static boolean platformExists (String antName) {
-            JavaPlatformManager mgr = JavaPlatformManager.getDefault();
-            JavaPlatform[] platforms = mgr.getInstalledPlatforms();
+            ScalaPlatformManager mgr = ScalaPlatformManager.getDefault();
+            ScalaPlatform[] platforms = mgr.getInstalledPlatforms();
             for (int i=0; i < platforms.length; i++) {
                 if (platforms[i] instanceof J2SEPlatformImpl) {
                     String val = ((J2SEPlatformImpl)platforms[i]).getAntName();
