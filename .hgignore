@@ -38,7 +38,6 @@
 ^htmldiff/.*\.nbm$
 ^htmldiff/diff$
 ^other/jfind/dist$
-^omnidebugger/external/debugger\.jar$
 ^other/oome/netbeans$
 ^other/oome/.*-subst\.mf$
 ^other/oome/tmp_insanesrc$
