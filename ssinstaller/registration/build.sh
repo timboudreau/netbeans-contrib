@@ -22,7 +22,7 @@ do
     cp -r $SRCDIR/servicetag $TARDIR/$distr
     tar cf $TARDIR/sunstudio.$distr.tar *
     bzip2 $TARDIR/sunstudio.$distr.tar
-    cat $SRCDIR/register.sh | sed s/__tail_length/"$LENGTH \$0"/ >  $DISTR_NAME
+    cat $SRCDIR/register.sh | sed s/__sum1/$sum1 | sed s/__sum2/$sum2 | sed s/__tail_length/"$LENGTH \$0"/ >  $DISTR_NAME
     cat $TARDIR/sunstudio.$distr.tar.bz2 >>  $DISTR_NAME
     chmod u+x  $DISTR_NAME
     echo

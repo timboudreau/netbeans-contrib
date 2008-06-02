@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<product  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+   xmlns="http://xml.netbeans.org/schema/ProductDescription"
+   xsi:schemaLocation='http://xml.netbeans.org/schema/ProductDescription ProductDescription.xsd'
+   name="Sun Studio X"  source="/shared/dp/sstrunk/" version="">       
+    <group name="MARKETING_NAME compilers and tools" >
+        <component  name="MARKETING_NAME C Compiler"
+                       uid="cc" dependency="support-files">
+            <block platform="solaris-x86">
+                <svr source="SPROcc"/>
+            </block>
+            <block platform="solaris-sparc">
+                <svr source="SPROcc"/>
+            </block>
+            <block platform="linux-x86">
+                <rpm source="sun-cc-VERSION.i386.rpm"/>
+            </block>
+        </component>
+        <component  name="MARKETING_NAME C++ Compiler"
+                       uid="cpp" dependency="support-files">
+            <block platform="solaris-x86">
+                <svr source="SPROcpl"/>
+                <svr source="SPROcplx"/>
+                <svr source="SPROtl7x"/>
+                <svr source="SPROtlbn7"/>
+                <svr source="SPROtll7"/>
+                <svr source="SPROtll7x"/>
+            </block>
+            <block platform="solaris-sparc">
+                <svr source="SPROcpl"/>
+                <svr source="SPROcplx"/>
+                <svr source="SPROtl7x"/>
+                <svr source="SPROtlbn7"/>
+                <svr source="SPROtll7"/>
+                <svr source="SPROtll7x"/>
+            </block>
+            <block platform="linux-x86">
+                <rpm source="sun-cpl-VERSION.i386.rpm"/>
+                <rpm source="sun-cplx-VERSION.x86_64.rpm"/>
+                <rpm source="sun-tll7-VERSION.i386.rpm"/>
+                <rpm source="sun-tlbn7-VERSION.i386.rpm"/>
+                <rpm source="sun-tl7x-VERSION.x86_64.rpm"/>
+                <rpm source="sun-tll7x-VERSION.x86_64.rpm"/>
+            </block>
+        </component>
+        <component  name="MARKETING_NAME Fortran 95 Compiler"
+                       uid="fortran" dependency="support-files">
+            <block platform="solaris-x86">
+                <svr source="SPROf90"/>
+                <svr source="SPROftool"/>
+            </block>
+            <block platform="solaris-sparc">
+                <svr source="SPROf90"/>
+                <svr source="SPROftool"/>
+            </block>
+            <block platform="linux-x86">
+                <rpm source="sun-ftool-VERSION.i386.rpm"/>
+                <rpm source="sun-f90-VERSION.i386.rpm"/>
+            </block>
+        </component>
+        <component  name="MARKETING_NAME DBX Debugging Tools"
+                       uid="dbx"
+                       dependency="support-files">
+            <block platform="solaris-x86">
+                <svr source="SPROdbx"/>
+                <svr source="SPROdbxx"/>
+                <svr source="SPROjdbx"/>
+                <svr source="SPROjdbxx"/>
+                <svr source="SPROmrdbx"/>
+            </block>
+            <block platform="solaris-sparc">
+                <svr source="SPROdbx"/>
+                <svr source="SPROdbxx"/>
+                <svr source="SPROjdbx"/>
+                <svr source="SPROjdbxx"/>
+                <svr source="SPROmrdbx"/>
+            </block>
+            <block platform="linux-x86">
+                <rpm source="sun-dbx-VERSION.i386.rpm"/>
+                <rpm source="sun-dbxx-VERSION.x86_64.rpm"/>
+                <rpm source="sun-jdbx-VERSION.i386.rpm"/>
+                <rpm source="sun-jdbxx-VERSION.x86_64.rpm"/>
+                <rpm source="sun-mrdbx-VERSION.i386.rpm"/>
+            </block>
+        </component>
+        <component  name="MARKETING_NAME build tools"
+                       uid="dmake"
+                       dependency="support-files">
+            <block platform="solaris-x86">
+                <svr source="SPROdmake"/>
+            </block>
+            <block platform="solaris-sparc">
+                <svr source="SPROdmake"/>
+            </block>
+            <block platform="linux-x86">
+                <rpm source="sun-dmake-VERSION.i386.rpm"/>
+            </block>
+        </component>
+        <component  name="MARKETING_NAME demos"
+                       uid="demos"
+                       dependency="support-files">
+            <block platform="solaris-x86">
+                <svr source="SPROdemo"/>
+            </block>
+            <block platform="solaris-sparc">
+                <svr source="SPROdemo"/>
+            </block>
+            <block platform="linux-x86">
+            </block>
+        </component>
+        <component  name="MARKETING_NAME support files"
+                       uid="support-files">
+            <block platform="solaris-x86">
+                <svr source="SPROcmpl"/>
+                <svr source="SPROctags"/>
+                <svr source="SPROdbxui"/>
+                <svr source="SPROdwrfb"/>
+                <svr source="SPROdwrfx"/>
+                <svr source="SPROfd"/>
+                <svr source="SPROgc"/>
+                <svr source="SPROgcx"/>
+                <svr source="SPROidext"/>
+                <svr source="SPROudchk"/>
+                <svr source="SPROl90"/>
+                <svr source="SPROl90s"/>
+                <svr source="SPROl90sx"/>
+                <svr source="SPROl90x"/>
+                <svr source="SPROlang"/>
+                <svr source="SPROlangx"/>
+                <svr source="SPROlgc"/>
+                <svr source="SPROlgcx"/>
+                <svr source="SPROmrgc"/>
+                <svr source="SPROm9xs"/>
+                <svr source="SPROmr3m"/>
+                <svr source="SPROmrcc"/>
+                <svr source="SPROmrcom"/>
+                <svr source="SPROmrcpl"/>
+                <svr source="SPROmrdmk"/>
+                <svr source="SPROmrdwf"/>
+                <svr source="SPROmrftn"/>
+                <svr source="SPROmride"/>
+                <svr source="SPROmrpan"/>
+                <svr source="SPROmrpgn"/>
+                <svr source="SPROmrsbe"/>
+                <svr source="SPROmrstd"/>
+                <svr source="SPROmrtcv"/>
+                <svr source="SPROpnsn"/>
+                <svr source="SPROprfan"/>
+                <svr source="SPROprflb"/>
+                <svr source="SPROsbe"/>
+                <svr source="SPROsbld"/>
+                <svr source="SPROsbldx"/>
+                <svr source="SPROscl"/>
+                <svr source="SPROsclx"/>
+                <svr source="SPROsmpx"/>
+                <svr source="SPROsmsx"/>
+                <svr source="SPROstl4a"/>
+                <svr source="SPROstl4h"/>
+                <svr source="SPROstl4o"/>
+                <svr source="SPROstl4x"/>
+                <svr source="SPROstl4y"/>
+                <svr source="SPROsunms"/>
+                <svr source="SPROsvc"/>
+                <svr source="SPROtdemo"/>
+                <svr source="SPROutool"/>
+                <svr source="SPROlklnt"/>
+                <svr source="SPROmrmp"/>
+                <svr source="SPROsysprp"/>
+            </block>
+            <block platform="solaris-sparc">
+                <svr source="SPROcmpl"/>
+                <svr source="SPROctags"/>
+                <svr source="SPROdbxui"/>
+                <svr source="SPROdwrfb"/>
+                <svr source="SPROdwrfx"/>
+                <svr source="SPROfd"/>
+                <svr source="SPROgc"/>
+                <svr source="SPROgcx"/>
+                <svr source="SPROidext"/>
+                <svr source="SPROipl"/>
+                <svr source="SPROiplg"/>
+                <svr source="SPROiplx"/>
+                <svr source="SPROl77s"/>
+                <svr source="SPROl77sx"/>
+                <svr source="SPROl90"/>
+                <svr source="SPROl90s"/>
+                <svr source="SPROl90sx"/>
+                <svr source="SPROl90x"/>
+                <svr source="SPROlang"/>
+                <svr source="SPROlangx"/>
+                <svr source="SPROlgc"/>
+                <svr source="SPROmrgc"/>
+                <svr source="SPROlcxs"/>
+                <svr source="SPROlgcx"/>
+                <svr source="SPROlklnt"/>
+                <svr source="SPROm9xs"/>
+                <svr source="SPROm9xsx"/>
+                <svr source="SPROm9xpx"/>
+                <svr source="SPROmr3m"/>
+                <svr source="SPROmripl"/>
+                <svr source="SPROmrmp"/>
+                <svr source="SPROmrcc"/>
+                <svr source="SPROmrcom"/>
+                <svr source="SPROmrcpl"/>
+                <svr source="SPROmrdmk"/>
+                <svr source="SPROmrdwf"/>
+                <svr source="SPROmrftn"/>
+                <svr source="SPROmride"/>
+                <svr source="SPROmrpan"/>
+                <svr source="SPROmrpgn"/>
+                <svr source="SPROmrsbe"/>
+                <svr source="SPROmrstd"/>
+                <svr source="SPROmrtcv"/>
+                <svr source="SPROpnsn"/>
+                <svr source="SPROplck"/>
+                <svr source="SPROprfan"/>
+                <svr source="SPROprflb"/>
+                <svr source="SPROrdbkb"/>
+                <svr source="SPROrdbkx"/>
+                <svr source="SPROsbe"/>
+                <svr source="SPROsbld"/>
+                <svr source="SPROsbldx"/>
+                <svr source="SPROscl"/>
+                <svr source="SPROsclx"/>
+                <svr source="SPROsmpx"/>
+                <svr source="SPROsmsx"/>
+                <svr source="SPROstl4a"/>
+                <svr source="SPROstl4h"/>
+                <svr source="SPROstl4o"/>
+                <svr source="SPROstl4x"/>
+                <svr source="SPROstl4y"/>
+                <svr source="SPROsunms"/>
+                <svr source="SPROsvc"/>
+                <svr source="SPROtdemo"/>
+                <svr source="SPROutool"/>
+                <svr source="SPROudchk"/>
+                <svr source="SPROsslnk"/>
+                <svr source="SPROsysprp"/>
+            </block>
+            <block platform="linux-x86">
+                <rpm source="sun-dwrfb-VERSION.i386.rpm"/>
+                <rpm source="sun-lang-VERSION.i386.rpm"/>
+                <rpm source="sun-rtm-VERSION.i386.rpm"/>
+                <rpm source="sun-svc-VERSION.x86_64.rpm"/>
+                <rpm source="sun-utool-VERSION.i386.rpm"/>
+                <rpm source="sun-mrlnx-VERSION.i386.rpm"/>
+                <rpm source="sun-rtmx-VERSION.x86_64.rpm"/>
+                <rpm source="sun-dbxui-VERSION.i386.rpm"/>
+                <rpm source="sun-l90-VERSION.i386.rpm"/>
+                <rpm source="sun-l90s-VERSION.i386.rpm"/>
+                <rpm source="sun-idext-VERSION.i386.rpm"/>
+                <rpm source="sun-l90sx-VERSION.x86_64.rpm"/>
+                <rpm source="sun-l90x-VERSION.x86_64.rpm"/>
+                <rpm source="sun-langx-VERSION.x86_64.rpm"/>
+                <rpm source="sun-mrdmk-VERSION.i386.rpm"/>
+                <rpm source="sun-mrdwf-VERSION.i386.rpm"/>
+                <rpm source="sun-mride-VERSION.i386.rpm"/>
+                <rpm source="sun-mr3m-VERSION.i386.rpm"/>
+                <rpm source="sun-mrcc-VERSION.i386.rpm"/>
+                <rpm source="sun-mrcom-VERSION.i386.rpm"/>
+                <rpm source="sun-mrcpl-VERSION.i386.rpm"/>
+                <rpm source="sun-mrftn-VERSION.i386.rpm"/>
+                <rpm source="sun-mrstd-VERSION.i386.rpm"/>
+                <rpm source="sun-mrpan-VERSION.i386.rpm"/>
+                <rpm source="sun-mrpgn-VERSION.i386.rpm"/>
+                <rpm source="sun-pnsn-VERSION.i386.rpm"/>
+                <rpm source="sun-prfan-VERSION.x86_64.rpm"/>
+                <rpm source="sun-prflb-VERSION.x86_64.rpm"/>
+                <rpm source="sun-scl-VERSION.i386.rpm"/>
+                <rpm source="sun-sclx-VERSION.x86_64.rpm"/>
+                <rpm source="sun-tdemo-VERSION.i386.rpm"/>
+                <rpm source="sun-udchk-VERSION.i386.rpm"/>
+                <rpm source="sun-stl4a-VERSION.i386.rpm"/>
+                <rpm source="sun-stl4h-VERSION.i386.rpm"/>
+                <rpm source="sun-stl4o-VERSION.i386.rpm"/>
+                <rpm source="sun-stl4x-VERSION.x86_64.rpm"/>
+                <rpm source="sun-stl4y-VERSION.x86_64.rpm"/>
+                <rpm source="sun-sysprp-VERSION.i386.rpm"/>
+            </block>
+        </component>
+    </group>
+    <component  name="MARKETING_NAME Performance Library"
+                   uid="perf-lib" >
+        <block platform="solaris-x86">
+            <svr source="SPROplg" />
+            <svr source="SPROpl"/>
+            <svr source="SPROplx"/>
+            <svr source="SPROpls"/>
+            <svr source="SPROplsx"/>
+            <svr source="SPROmrpl"/>
+            <svr source="SPROipl"/>
+            <svr source="SPROiplg"/>
+            <svr source="SPROiplx"/>
+            <svr source="SPROmripl"/>
+        </block>
+        <block platform="solaris-sparc">
+            <svr source="SPROplg" />
+            <svr source="SPROpl"/>
+            <svr source="SPROplx"/>
+            <svr source="SPROpls"/>
+            <svr source="SPROplsx"/>
+            <svr source="SPROmrpl"/>
+        </block>
+        <block platform="linux-x86">
+            <rpm source="sun-mrpl-VERSION.noarch.rpm"/>
+            <rpm source="sun-pl-VERSION.i386.rpm"/>
+            <rpm source="sun-plg-VERSION.noarch.rpm"/>
+            <rpm source="sun-pls-VERSION.i386.rpm"/>
+            <rpm source="sun-plsx-VERSION.x86_64.rpm"/>
+            <rpm source="sun-plx-VERSION.x86_64.rpm"/>
+            <rpm source="sun-ipl-VERSION.i386.rpm"/>
+            <rpm source="sun-iplg-VERSION.noarch.rpm"/>
+            <rpm source="sun-iplx-VERSION.x86_64.rpm"/>
+            <rpm source="sun-mripl-VERSION.noarch.rpm"/>
+        </block>
+    </component>
+    <component  name="MARKETING_NAME Third-party Source"
+                   uid="third-party-source" >
+        <block platform="solaris-x86">
+            <svr source="SPROdwrfs"/>
+            <svr source="SPROctsrc"/>
+        </block>
+        <block platform="solaris-sparc">
+            <svr source="SPROdwrfs"/>
+            <svr source="SPROctsrc"/>
+        </block>
+        <block platform="linux-x86">
+            <rpm source="sun-dwrfs-VERSION.i386.rpm"/>
+        </block>
+    </component>
+    <component  name="IDE"
+                   uid="ide" >
+        <block>
+            <nbm source="netbeans-6.1-platfomr.zip"/>
+            <nbm source="netbeans-6.1-nb6.0-etc.zip"/>
+            <nbm source="netbeans-6.1-ide.zip"/>
+            <nbm source="netbeans-6.1-cnd.zip"/>
+            <nbm source="atd-cluster.zip"/>
+        </block>
+    </component>
+</product>

@@ -53,4 +53,4 @@ cvs@websvc.netbeans.org=websvc.axis2/*,websvc.wsitlib/*
 cvs@xml.netbeans.org=o.sample.registry.model/*
 cvs@xtest.netbeans.org=xtest/*
 jesse.glick@sun.com=autoproject.*/*
-Leonid.Mesnik@sun.com=ssinstaller/*
+spde-installer-iteam@sun.com=ssinstaller/*
