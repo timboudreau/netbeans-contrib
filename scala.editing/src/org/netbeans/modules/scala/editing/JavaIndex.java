@@ -179,7 +179,7 @@ public class JavaIndex {
                 base.append(simpleName);
                 base.append(';');
 
-                String attrs = IndexedElement.computeAttributes(e);
+                String attrs = IndexedElement.encodeAttributes(e);
                 base.append(attrs);
 
                 IndexedElement idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
@@ -278,7 +278,7 @@ public class JavaIndex {
 
             TypeMirror tm = te.asType();
             TypeElement typeElem = tm.getKind() == TypeKind.DECLARED ? (TypeElement) ((DeclaredType) tm).asElement() : null;
-
+            
             if (te != null) {
                 for (Element e : theElements.getAllMembers(te)) {
 
@@ -317,7 +317,7 @@ public class JavaIndex {
                             base.append(simpleName);
                             base.append(';');
 
-                            String attrs = IndexedElement.computeAttributes(e);
+                            String attrs = IndexedElement.encodeAttributes(e);
                             base.append(attrs);
 
                             idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
@@ -339,7 +339,7 @@ public class JavaIndex {
                             base.append(simpleName);
                             base.append(';');
 
-                            String attrs = IndexedElement.computeAttributes(e);
+                            String attrs = IndexedElement.encodeAttributes(e);
                             base.append(attrs);
 
                             idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);

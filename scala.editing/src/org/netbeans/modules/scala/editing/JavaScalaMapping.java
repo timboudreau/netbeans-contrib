@@ -38,9 +38,11 @@
  */
 package org.netbeans.modules.scala.editing;
 
+import java.util.List;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -64,15 +66,14 @@ public class JavaScalaMapping {
         if (!isScala(te)) {
             return null;
         }
-
+        
         ScalaKind kind = ScalaKind.Class;
         
         String sName = te.getSimpleName().toString();
         
         if (te.getKind() == ElementKind.INTERFACE) {
             kind = ScalaKind.Trait;
-        } else {
-            
+        } else {            
             for (Element e : te.getEnclosedElements()) {
                 if (e.getSimpleName().toString().equals(SCALA_OBJECT_MODULE)) {
                     TypeMirror tm1 = e.asType();
@@ -94,7 +95,6 @@ public class JavaScalaMapping {
 
     public static boolean isScala(TypeElement te) {
         if (te.getQualifiedName().toString().equals(SCALA_OBJECT)) {
-
             return true;
         }
 
