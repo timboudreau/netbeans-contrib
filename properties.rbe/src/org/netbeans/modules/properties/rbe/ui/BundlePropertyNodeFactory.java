@@ -41,7 +41,6 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 import java.util.List;
-import org.netbeans.modules.properties.rbe.model.Bundle;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
@@ -52,13 +51,10 @@ import org.openide.nodes.Node;
  */
 public class BundlePropertyNodeFactory extends ChildFactory<BundleProperty> {
 
-    /** The display mode */
-    private Bundle bundle;
     private RBE rbe;
 
-    public BundlePropertyNodeFactory(Bundle bundle, RBE rbe) {
+    public BundlePropertyNodeFactory(RBE rbe) {
         super();
-        this.bundle = bundle;
         this.rbe = rbe;
     }
 
@@ -75,11 +71,11 @@ public class BundlePropertyNodeFactory extends ChildFactory<BundleProperty> {
     }
 
     private void createAsFlat(List<BundleProperty> toPopulate) {
-        toPopulate.addAll(bundle.getProperties().values());
+        toPopulate.addAll(rbe.getBundle().getProperties().values());
     }
 
     private void createAsTree(List<BundleProperty> toPopulate) {
-        toPopulate.addAll(bundle.getPropertiesAsTree());
+        toPopulate.addAll(rbe.getBundle().getPropertiesAsTree());
     }
 
     @Override

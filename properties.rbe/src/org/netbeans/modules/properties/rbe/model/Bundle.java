@@ -93,7 +93,7 @@ public class Bundle {
             } else {
                 group.addChildenProperty(property);
             }
-        } else {
+        } else if (treeRootProperties != null) {
             treeRootProperties.add(property);
         }
         return property;
@@ -203,18 +203,18 @@ public class Bundle {
     private String getTreeSeparator() {
         return ResourceBundleEditorOptions.getSeparator();
     }
+}
 
-    private static class LocaleComparator implements Comparator<Locale> {
+class LocaleComparator implements Comparator<Locale> {
 
-        public int compare(Locale locale1, Locale locale2) {
-            int diff = locale1.getLanguage().compareTo(locale2.getLanguage());
+    public int compare(Locale locale1, Locale locale2) {
+        int diff = locale1.getLanguage().compareTo(locale2.getLanguage());
+        if (diff == 0) {
+            diff = locale1.getCountry().compareTo(locale2.getCountry());
             if (diff == 0) {
-                diff = locale1.getCountry().compareTo(locale2.getCountry());
-                if (diff == 0) {
-                    diff = locale1.getVariant().compareTo(locale2.getVariant());
-                }
+                diff = locale1.getVariant().compareTo(locale2.getVariant());
             }
-            return diff;
         }
+        return diff;
     }
 }

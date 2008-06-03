@@ -50,6 +50,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.BeanTreeView;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 
@@ -102,9 +104,12 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
             explorer = provider.getExplorerManager();
         }
         explorer.addPropertyChangeListener(this);
-        explorer.setRootContext(rbe.createTree());
-
+        updateBeanTree();
         super.addNotify();
+    }
+
+    protected void updateBeanTree() {
+        explorer.setRootContext(new AbstractNode(Children.create(new BundlePropertyNodeFactory(rbe), true)));
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
@@ -281,16 +286,15 @@ private void changeModeButtonActionPerformed(java.awt.event.ActionEvent evt) {//
     if (rbe.getMode() == RBE.DisplayMode.FLAT) {
         changeModeButton.setText("Flat");
         rbe.setMode(RBE.DisplayMode.TREE);
-        explorer.setRootContext(rbe.createTree());
         collapseAllButton.setEnabled(true);
         expandAllButton.setEnabled(true);
     } else {
         changeModeButton.setText("Tree");
         rbe.setMode(RBE.DisplayMode.FLAT);
-        explorer.setRootContext(rbe.createTree());
         collapseAllButton.setEnabled(false);
         expandAllButton.setEnabled(false);
     }
+    updateBeanTree();
 }//GEN-LAST:event_changeModeButtonActionPerformed
 
 private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
