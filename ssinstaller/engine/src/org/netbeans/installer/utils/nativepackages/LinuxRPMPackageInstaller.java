@@ -8,10 +8,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.installer.product.components.Product;
-import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.SystemUtils;
-import org.netbeans.installer.utils.exceptions.InstallationException;
-import org.netbeans.installer.utils.exceptions.UninstallationException;
 import org.netbeans.installer.utils.helper.Platform;
 
 /**
@@ -36,7 +33,7 @@ public class LinuxRPMPackageInstaller implements NativePackageInstaller {
         String packageName = getPackageName(pathToPackage);
         if (packageName != null) {
             try {
-                LogManager.log("executing command: rpm -i " + pathToPackage + (target == null? "": " --root " + target));
+              //  LogManager.log("executing command: rpm -i " + pathToPackage + (target == null? "": " --root " + target));
                 Process p = null;
             
                 if (target == null) {
@@ -89,7 +86,7 @@ public class LinuxRPMPackageInstaller implements NativePackageInstaller {
         }
     }
  
-    public void uninstall(Product product) throws UninstallationException {
+    public void uninstall(Product product) throws InstallationException {
         String packagesValue = product.getProperty(PACKAGES_COUNTER);
         List<String> arguments = new LinkedList<String>();
         arguments.add("rpm");
@@ -102,13 +99,13 @@ public class LinuxRPMPackageInstaller implements NativePackageInstaller {
             arguments.add(target);
         }*/
         try {
-            LogManager.log("executing command: " + listToString(arguments));
+           // LogManager.log("executing command: " + listToString(arguments));
             Process p = new ProcessBuilder(arguments).start();
-            if (p.waitFor() != 0) throw new UninstallationException("'rpm -e' returned " + String.valueOf(p.exitValue()));
+            if (p.waitFor() != 0) throw new InstallationException("'rpm -e' returned " + String.valueOf(p.exitValue()));
         } catch (InterruptedException ex) {
-            throw new UninstallationException("Error executing 'rpm -e'!", ex);
+            throw new InstallationException("Error executing 'rpm -e'!", ex);
         } catch (IOException ex) {
-            throw new UninstallationException("Error executing 'rpm -e'!", ex);
+            throw new InstallationException("Error executing 'rpm -e'!", ex);
         }        
     }
     

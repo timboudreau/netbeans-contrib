@@ -6,9 +6,6 @@ import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.installer.product.components.Product;
-import org.netbeans.installer.utils.LogManager;
-import org.netbeans.installer.utils.exceptions.InstallationException;
-import org.netbeans.installer.utils.exceptions.UninstallationException;
 
 /**
  *
@@ -27,7 +24,7 @@ public class LinuxDebianPackageInstaller implements NativePackageInstaller {
         String packageName = getPackageName(pathToPackage);
         if (packageName != null) {
             try {
-                LogManager.log("executing command: dpkg -i " + pathToPackage);
+               // LogManager.log("executing command: dpkg -i " + pathToPackage);
                 Process p = new ProcessBuilder("dpkg", "-i", pathToPackage).start();
                 if (p.waitFor() != 0) throw new InstallationException("'dpkg -i' returned " + String.valueOf(p.exitValue()));
                 product.setProperty(PACKAGE + String.valueOf(counter), packageName);        
@@ -40,18 +37,18 @@ public class LinuxDebianPackageInstaller implements NativePackageInstaller {
         }
     }
 
-    public void uninstall(Product product) throws UninstallationException {
+    public void uninstall(Product product) throws InstallationException {
         String packagesValue = product.getProperty(PACKAGES_COUNTER);
         for(int packageNumber=1; packageNumber<=parseInteger(packagesValue); packageNumber++) {
             try {
                 String value = product.getProperty(PACKAGE + String.valueOf(packageNumber));
-                LogManager.log("executing command: dpkg -P " + value);
+               // LogManager.log("executing command: dpkg -P " + value);
                 Process p = new ProcessBuilder("dpkg", "-P", value).start();
-                if (p.waitFor() != 0) throw new UninstallationException("'dpkg -P' returned " + String.valueOf(p.exitValue()));
+                if (p.waitFor() != 0) throw new InstallationException("'dpkg -P' returned " + String.valueOf(p.exitValue()));
             } catch (InterruptedException ex) {
-                throw new UninstallationException("Error executing 'dpkg -P'!", ex);
+                throw new InstallationException("Error executing 'dpkg -P'!", ex);
             } catch (IOException ex) {
-                throw new UninstallationException("Error executing 'dpkg -P'!", ex);
+                throw new InstallationException("Error executing 'dpkg -P'!", ex);
             }
         }
     }
