@@ -44,6 +44,7 @@ import java.awt.Image;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import org.netbeans.modules.properties.rbe.model.BundleProperty;
+import org.netbeans.modules.properties.rbe.model.TreeItem;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -56,35 +57,30 @@ import org.openide.util.lookup.Lookups;
  */
 public class BundlePropertyNode extends AbstractNode implements PropertyChangeListener, Comparable<BundlePropertyNode> {
 
-    private BundleProperty property;
+    private TreeItem<BundleProperty> treeItem;
     private RBE rbe;
 
-    public BundlePropertyNode(BundleProperty property, RBE rbe) {
-        super((property.getChildrenProperties().size() == 0) || (rbe.getMode() == RBE.DisplayMode.FLAT)
-            ? Children.LEAF : new ChildrenProperties(property, rbe), Lookups.singleton(property));
-        this.property = property;
+    public BundlePropertyNode(TreeItem<BundleProperty> treeItem, RBE rbe) {
+        super(treeItem.isLeaf() ? Children.LEAF : new ChildrenProperties(treeItem, rbe), Lookups.singleton(treeItem.getValue()));
+        this.treeItem = treeItem;
         this.rbe = rbe;
-        if (property.getChildrenProperties().size() == 0) {
-            property.addPropertyChangeListener(this);
+        if (treeItem.isLeaf()) {
+            treeItem.addPropertyChangeListener(this);
         }
     }
 
     public BundleProperty getProperty() {
-        return property;
-    }
-
-    public void setProperty(BundleProperty property) {
-        this.property = property;
+        return treeItem.getValue();
     }
 
     @Override
     public String getName() {
-        return property.getFullname();
+        return treeItem.getValue().getFullname();
     }
 
     @Override
     public String getDisplayName() {
-        return rbe.getMode() == RBE.DisplayMode.FLAT ? property.getFullname() : property.getName();
+        return treeItem.getRoot() == null ? treeItem.getValue().getFullname() : treeItem.getValue().getName();
     }
 
     @Override
@@ -98,40 +94,41 @@ public class BundlePropertyNode extends AbstractNode implements PropertyChangeLi
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
-        if (BundleProperty.PROPERTY_CHILDREN.equals(evt.getPropertyName())) {
-            setChildren(new ChildrenProperties(property, rbe));
+        if (TreeItem.PROPERTY_CHILDREN.equals(evt.getPropertyName())) {
+            setChildren(new ChildrenProperties(treeItem, rbe));
         }
     }
 
     public int compareTo(BundlePropertyNode o) {
-        return property.compareTo(o.property);
+        return treeItem.compareTo(o.treeItem);
     }
 
-    private static class ChildrenProperties extends Children.Keys<BundleProperty> implements PropertyChangeListener {
+    private static class ChildrenProperties extends Children.Keys<TreeItem<BundleProperty>> implements PropertyChangeListener {
 
-        private BundleProperty bundleProperty;
+        private TreeItem<BundleProperty> treeItem;
         private RBE rbe;
 
-        public ChildrenProperties(BundleProperty bundleProperty, RBE rbe) {
-            this.bundleProperty = bundleProperty;
+        public ChildrenProperties(TreeItem<BundleProperty> treeItem, RBE rbe) {
+            this.treeItem = treeItem;
             this.rbe = rbe;
-            bundleProperty.addPropertyChangeListener(this);
+            treeItem.addPropertyChangeListener(this);
         }
 
         @Override
         protected void addNotify() {
-            setKeys(bundleProperty.getChildrenProperties());
-        }
-
-        @Override
-        protected Node[] createNodes(BundleProperty childProperty) {
-            return new Node[]{new BundlePropertyNode(childProperty, rbe)};
+            setKeys(treeItem.getChildren());
         }
 
         public void propertyChange(PropertyChangeEvent evt) {
-            if (BundleProperty.PROPERTY_CHILDREN.equals(evt.getPropertyName())) {
+            if (TreeItem.PROPERTY_CHILDREN.equals(evt.getPropertyName())) {
                 addNotify();
             }
+        }
+
+        @Override
+        protected Node[] createNodes(TreeItem<BundleProperty> key) {
+            System.out.println(key.getValue().getFullname());
+            return new Node[]{new BundlePropertyNode(key, rbe)};
         }
     }
 }

@@ -42,14 +42,10 @@ package org.netbeans.modules.properties.rbe.model;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 import org.netbeans.modules.properties.Element.ItemElem;
 
 /**
@@ -66,15 +62,12 @@ public final class BundleProperty implements Comparable<BundleProperty> {
     private String fullname;
     /** The different locale representation of the property */
     private Map<Locale, ItemElem> localeRepresentation;
-    /** The children properties */
-    private Set<BundleProperty> childrenProperties;
     /** The property change support */
     private PropertyChangeSupport propertyChangeSupport;
     /** The property change event names */
     public static final String PROPERTY_LOCALES = "PROPERTY_LOCALES";
-    public static final String PROPERTY_CHILDREN = "PROPERTY_CHILDREN";
 
-    public BundleProperty(String name, String fullname, Bundle bundle) {
+    public BundleProperty(Bundle bundle, String name, String fullname) {
         this.name = name;
         this.fullname = fullname;
         this.bundle = bundle;
@@ -106,36 +99,8 @@ public final class BundleProperty implements Comparable<BundleProperty> {
         return localeRepresentation == null ? Collections.<Locale, ItemElem>emptyMap() : Collections.unmodifiableMap(localeRepresentation);
     }
 
-    public Set<BundleProperty> getChildrenProperties() {
-        return childrenProperties == null ? Collections.<BundleProperty>emptySet() : Collections.unmodifiableSet(childrenProperties);
-    }
-
     public boolean isEmpty() {
         return localeRepresentation == null ? true : localeRepresentation.isEmpty();
-    }
-
-    public void addChildenProperty(BundleProperty bundleProperty) {
-        if (childrenProperties == null) {
-            childrenProperties = new HashSet<BundleProperty>();
-        }
-        childrenProperties.add(bundleProperty);
-        propertyChangeSupport.firePropertyChange(PROPERTY_CHILDREN, null, null);
-    }
-
-    public void addChildrenProperties(Collection<BundleProperty> bundleProperties) {
-        if (childrenProperties == null) {
-            childrenProperties = new TreeSet<BundleProperty>();
-        }
-        childrenProperties.addAll(bundleProperties);
-        propertyChangeSupport.firePropertyChange(PROPERTY_CHILDREN, null, null);
-    }
-
-    public void removeChildenProperty(BundleProperty bundleProperty) {
-        if (childrenProperties == null) {
-            childrenProperties = new HashSet<BundleProperty>();
-        }
-        childrenProperties.remove(bundleProperty);
-        propertyChangeSupport.firePropertyChange(PROPERTY_CHILDREN, null, null);
     }
 
     public void addLocaleRepresentation(Locale locale, ItemElem itemElem) {

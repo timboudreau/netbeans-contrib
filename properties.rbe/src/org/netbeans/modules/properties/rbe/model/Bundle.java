@@ -43,9 +43,11 @@ package org.netbeans.modules.properties.rbe.model;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import org.netbeans.modules.properties.BundleStructure;
@@ -66,13 +68,16 @@ public class Bundle {
     /** The properties */
     private SortedMap<String, BundleProperty> properties;
     /* Tree values */
-    private Set<BundleProperty> treeRootProperties;
+//    private Set<BundleProperty> treeRootProperties;
+    private TreeItem<BundleProperty> treeRoot;
     /* Constants */
     /** The default locale */
     public final static Locale DEFAULT_LOCALE = new Locale("__", "", "");
 
     public Bundle(BundleStructure bundleStructure) {
         this.bundleStructure = bundleStructure;
+        locales = new TreeSet<Locale>(new LocaleComparator());
+
     }
 
     public Set<Locale> getLocales() {
@@ -83,53 +88,66 @@ public class Bundle {
      * Adds property
      * @param fullname
      */
-    public synchronized BundleProperty addProperty(String fullname) {
-        String groupName = getPropertyGroupName(fullname);
-        BundleProperty property = createProperty(getPropertyName(fullname), fullname);
-        if (!"".equals(groupName)) {
-            BundleProperty group = properties.get(groupName);
-            if (group == null) {
-                addProperty(groupName).addChildenProperty(property);
-            } else {
-                group.addChildenProperty(property);
+    public synchronized void addProperty(String fullname) {
+        TreeItem<BundleProperty> tree = treeRoot;
+        StringTokenizer st = new StringTokenizer(fullname, getTreeSeparator());
+
+        while (st.hasMoreTokens()) {
+            boolean finded = false;
+            String group = st.nextToken();
+            for (TreeItem<BundleProperty> item : tree.getChildren()) {
+                if (item.getValue().getFullname().equals(group)) {
+                    tree = item;
+                    finded = true;
+                    break;
+                }
             }
-        } else if (treeRootProperties != null) {
-            treeRootProperties.add(property);
+            if (finded == false) {
+                while (true) {
+                    BundleProperty property = createProperty(group,
+                        tree.getValue() == null ? group : tree.getValue().getFullname() + group);
+                    TreeItem<BundleProperty> treeItem = new TreeItem<BundleProperty>(property);
+                    tree.addChild(treeItem);
+                    tree = treeItem;
+                    if (st.hasMoreTokens()) {
+                        group = st.nextToken();
+                    } else {
+                        break;
+                    }
+                }
+            }
         }
-        return property;
     }
 
-    public synchronized SortedMap<String, BundleProperty> getProperties() {
+    protected synchronized SortedMap<String, BundleProperty> getProperties() {
         if (properties == null) {
-            locales = new TreeSet<Locale>(new LocaleComparator());
             properties = new TreeMap<String, BundleProperty>();
-            for (int k = 0; k < bundleStructure.getKeyCount(); k++) {
+            for (int k = 0; k <
+                bundleStructure.getKeyCount(); k++) {
                 String propertyName = bundleStructure.getKeys()[k];
                 BundleProperty bundleProperty = createProperty(getPropertyName(propertyName), propertyName);
-                for (int e = 0; e < bundleStructure.getEntryCount(); e++) {
-                    Locale locale;
+                for (int e = 0; e <
+                    bundleStructure.getEntryCount(); e++) {
                     String localeSuffix = Util.getLocaleSuffix(bundleStructure.getNthEntry(e));
-                    if ("".equals(localeSuffix)) {
-                        locale = DEFAULT_LOCALE;
-                    } else {
-                        locale = new Locale(Util.getLanguage(localeSuffix), Util.getCountry(localeSuffix), Util.getVariant(localeSuffix));
-                    }
+                    Locale locale = localeSuffix.length() == 0 ? DEFAULT_LOCALE : new Locale(Util.getLanguage(localeSuffix), Util.getCountry(localeSuffix), Util.getVariant(localeSuffix));
                     ItemElem item = bundleStructure.getItem(e, k);
                     bundleProperty.addLocaleRepresentation(locale, item);
                     locales.add(locale);
                 }
+
                 properties.put(bundleProperty.getFullname(), bundleProperty);
             }
         }
+
         return Collections.unmodifiableSortedMap(properties);
     }
 
-    public Set<BundleProperty> getPropertiesAsTree() {
-        if (treeRootProperties == null) {
-            treeRootProperties = new TreeSet<BundleProperty>();
-            treeRootProperties.addAll(createChildren(null, new TreeSet<BundleProperty>(properties.values()))); //Copy to avoid concurrent modification
+    public TreeItem<BundleProperty> getPropertiesTree() {
+        if (treeRoot == null) {
+            treeRoot = new TreeItem<BundleProperty>(null);
+            treeRoot = createChildren(null, null, new TreeSet<BundleProperty>(getProperties().values()));
         }
-        return treeRootProperties;
+        return treeRoot;
     }
 
     /**
@@ -138,44 +156,45 @@ public class Bundle {
      * @param groupProperties all properties of the group property subtree
      * @return child properties of the group property
      */
-    private synchronized Set<BundleProperty> createChildren(BundleProperty groupProperty, Collection<BundleProperty> groupProperties) {
+    private TreeItem<BundleProperty> createChildren(TreeItem<BundleProperty> tree, BundleProperty groupProperty, Collection<BundleProperty> groupProperties) {
+        TreeItem<BundleProperty> subtree = new TreeItem<BundleProperty>(groupProperty);
         int offset = groupProperty == null ? 0 : groupProperty.getFullname().length() + getTreeSeparator().length();
-        Set<BundleProperty> childProperties = new TreeSet<BundleProperty>();
         BundleProperty subgroup = null;
         Set<BundleProperty> subgroupProperties = new TreeSet<BundleProperty>();
         for (BundleProperty property : groupProperties) {
+            System.out.println(property.getFullname());
             if (subgroup != null && property.getFullname().startsWith(subgroup.getFullname() + getTreeSeparator())) {
                 //Property is from the current group property subtree
                 subgroupProperties.add(property);
             } else {
                 if (subgroup != null) {
                     //Property is from the different group
-                    subgroup.addChildrenProperties(createChildren(subgroup, subgroupProperties));
-                    childProperties.add(subgroup);
+                    createChildren(subtree, subgroup, subgroupProperties);
                     subgroupProperties.clear();
                 }
                 //Finding the new subgroup property
                 int index = property.getFullname().indexOf(getTreeSeparator(), offset);
                 if (index != -1) {
                     String fullname = property.getFullname().substring(0, index);
-                    subgroup = createProperty(getPropertyName(fullname), fullname);
+                    subgroup =
+                        createProperty(getPropertyName(fullname), fullname);
                     subgroupProperties.add(property);
                 } else {
                     subgroup = property;
                 }
+
             }
         }
-        if (subgroup != null && !childProperties.contains(subgroup)) {
-            subgroup.addChildrenProperties(createChildren(subgroup, subgroupProperties));
-            childProperties.add(subgroup);
+//        createChildren(subtree, subgroup, subgroupProperties);
+        if (tree != null) {
+            tree.addChild(subtree);
         }
-        return childProperties;
+        return subtree;
     }
 
     private BundleProperty createProperty(String name, String fullname) {
-        BundleProperty bundleProperty = new BundleProperty(name, fullname, this);
+        BundleProperty bundleProperty = new BundleProperty(this, name, fullname);
         properties.put(fullname, bundleProperty);
-        System.out.println("New property" + bundleProperty.getFullname());
         return bundleProperty;
     }
 

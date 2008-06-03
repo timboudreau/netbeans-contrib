@@ -110,7 +110,8 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
     }
 
     protected void updateBeanTree() {
-        explorer.setRootContext(new AbstractNode(Children.create(new BundlePropertyNodeFactory(rbe), true)));
+        explorer.setRootContext(new AbstractNode(Children.create(new BundlePropertyNodeFactory(rbe), true)) {
+        });
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
