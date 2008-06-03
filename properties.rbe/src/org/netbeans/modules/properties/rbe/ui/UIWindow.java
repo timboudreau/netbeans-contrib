@@ -48,6 +48,7 @@ import javax.swing.BoxLayout;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.AbstractNode;
@@ -305,37 +306,20 @@ private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         if (root.getChildren().getNodes().length == 0) {
             return root;
         }
-        int xdiff = 0;
-        Node xnode = root;
         for (Node node : root.getChildren().getNodes()) {
-            Node leafNode = getNode(node, prefix);
-            int diff = startWithLength(prefix, leafNode.getName());
-            if (diff > xdiff) {
-                xdiff = diff;
-                xnode = leafNode;
+            BundleProperty property = node.getLookup().lookup(BundleProperty.class);
+            if (property != null && property.getFullname().startsWith(prefix)) {
+                return node;
+            }
+            Node subnode = getNode(node, prefix);
+            property = subnode.getLookup().lookup(BundleProperty.class);
+            if (property != null && property.getFullname().startsWith(prefix)) {
+                return subnode;
             }
         }
-        int diff = startWithLength(prefix, root.getName());
-        if (diff >= xdiff) {
-            return root;
-        }
-        return xnode;
+        return root;
     }
-
-    protected int startWithLength(String prefix, String string) {
-        char[] prefixArray = prefix.toCharArray();
-        char[] stringArray = string.toCharArray();
-        if (prefix.length() > string.length()) {
-            return 0;
-        }
-        for (int i = 0; i < prefix.length(); i++) {
-            if (prefixArray[i] != stringArray[i]) {
-                return i;
-            }
-        }
-        return prefix.length();
-    }
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton changeModeButton;
     private javax.swing.JButton collapseAllButton;
@@ -351,7 +335,7 @@ private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     // End of variables declaration//GEN-END:variables
 }
 
- class ImprovedBeanTreeView extends BeanTreeView {
+class ImprovedBeanTreeView extends BeanTreeView {
 
     /** 
      * Collapses all paths.

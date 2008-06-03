@@ -54,7 +54,7 @@ import org.openide.util.lookup.Lookups;
  * The Bundle property node
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class BundlePropertyNode extends AbstractNode implements Comparable<BundlePropertyNode> {
+public class BundlePropertyNode extends AbstractNode implements PropertyChangeListener, Comparable<BundlePropertyNode> {
 
     private BundleProperty property;
     private RBE rbe;
@@ -64,6 +64,9 @@ public class BundlePropertyNode extends AbstractNode implements Comparable<Bundl
             ? Children.LEAF : new ChildrenProperties(property, rbe), Lookups.singleton(property));
         this.property = property;
         this.rbe = rbe;
+        if (property.getChildrenProperties().size() == 0) {
+            property.addPropertyChangeListener(this);
+        }
     }
 
     public BundleProperty getProperty() {
@@ -92,6 +95,12 @@ public class BundlePropertyNode extends AbstractNode implements Comparable<Bundl
     @Override
     public Image getOpenedIcon(int type) {
         return Utilities.loadImage("org/netbeans/modules/properties/rbe/resources/propertiesKey.gif");
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (BundleProperty.PROPERTY_CHILDREN.equals(evt.getPropertyName())) {
+            setChildren(new ChildrenProperties(property, rbe));
+        }
     }
 
     public int compareTo(BundlePropertyNode o) {

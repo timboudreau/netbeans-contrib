@@ -196,8 +196,8 @@ public class Bundle {
      * @return
      */
     private String getPropertyGroupName(String fullname) {
-        int firstIndex = fullname.indexOf(getTreeSeparator());
-        return firstIndex == -1 ? "" : fullname.substring(0, firstIndex);
+        int lastIndex = fullname.lastIndexOf(getTreeSeparator());
+        return lastIndex == -1 ? "" : fullname.substring(0, lastIndex);
     }
 
     private String getTreeSeparator() {
