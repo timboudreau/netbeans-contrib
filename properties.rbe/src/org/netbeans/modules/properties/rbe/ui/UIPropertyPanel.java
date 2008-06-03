@@ -7,7 +7,7 @@ package org.netbeans.modules.properties.rbe.ui;
 
 import java.util.Locale;
 import org.netbeans.modules.properties.Element.ItemElem;
-import org.netbeans.modules.properties.rbe.Bundle;
+import org.netbeans.modules.properties.rbe.model.Bundle;
 import org.openide.util.NbBundle;
 
 /**

@@ -5,10 +5,7 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 import org.netbeans.modules.properties.PropertiesDataObject;
-import org.netbeans.modules.properties.rbe.Bundle;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.nodes.Node;
+import org.netbeans.modules.properties.rbe.model.Bundle;
 
 /**
  *
@@ -28,16 +25,16 @@ public class RBE {
         bundle = new Bundle(propertiesDataObject.getBundleStructure());
     }
 
-    public Node createTree() {
-        return new AbstractNode(Children.create(new BundlePropertyNodeFactory(bundle, this), true));
-    }
-
     public DisplayMode getMode() {
         return mode;
     }
 
     public void setMode(DisplayMode mode) {
         this.mode = mode;
+    }
+
+    public Bundle getBundle() {
+        return bundle;
     }
 
     public static enum DisplayMode {
