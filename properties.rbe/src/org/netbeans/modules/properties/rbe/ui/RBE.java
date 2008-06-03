@@ -5,7 +5,7 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 import org.netbeans.modules.properties.PropertiesDataObject;
-import org.netbeans.modules.properties.rbe.Bundle;
+import org.netbeans.modules.properties.rbe.model.Bundle;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -38,6 +38,10 @@ public class RBE {
 
     public void setMode(DisplayMode mode) {
         this.mode = mode;
+    }
+
+    public Bundle getBundle() {
+        return bundle;
     }
 
     public static enum DisplayMode {

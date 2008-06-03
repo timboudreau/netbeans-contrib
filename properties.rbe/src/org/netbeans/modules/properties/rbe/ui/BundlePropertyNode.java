@@ -43,7 +43,7 @@ package org.netbeans.modules.properties.rbe.ui;
 import java.awt.Image;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import org.netbeans.modules.properties.rbe.BundleProperty;
+import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
@@ -61,7 +61,7 @@ public class BundlePropertyNode extends AbstractNode implements Comparable<Bundl
 
     public BundlePropertyNode(BundleProperty property, RBE rbe) {
         super((property.getChildrenProperties().size() == 0) || (rbe.getMode() == RBE.DisplayMode.FLAT)
-                ? Children.LEAF : new ChildrenProperties(property, rbe), Lookups.singleton(property));
+            ? Children.LEAF : new ChildrenProperties(property, rbe), Lookups.singleton(property));
         this.property = property;
         this.rbe = rbe;
     }
