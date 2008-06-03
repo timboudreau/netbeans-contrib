@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="contrib/omnidebugger/external" basedir=".">
-    <target name="download">
-        <get src="http://lambdacs.com/debugger/ODB1.5.jar" dest="debugger.jar" usetimestamp="true" verbose="true"/>
-    </target>
-    <target name="clean">
-        <delete file="debugger.jar"/>
-    </target>
-</project>

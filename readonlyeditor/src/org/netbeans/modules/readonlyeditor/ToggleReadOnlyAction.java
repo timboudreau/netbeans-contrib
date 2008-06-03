@@ -125,14 +125,14 @@ public class ToggleReadOnlyAction extends BaseAction implements Presenter.Toolba
         toggleReadOnlyButton.setText("");
         boolean openEditorsInReadOnlyMode = NbPreferences.forModule(ReadOnlyEditorPanel.class).getBoolean("openEditorsInReadOnlyMode", false);
         toggleReadOnlyButton.setIcon(openEditorsInReadOnlyMode ? READONLY_ICON : WRITABLE_ICON);
-        toggleReadOnlyButton.setToolTipText("Make " + (openEditorsInReadOnlyMode ? "Writable" : "ReadOnly")); // NOI18N
+        toggleReadOnlyButton.setToolTipText("Make " + (openEditorsInReadOnlyMode ? "Writable" : "Readonly")); // NOI18N
         return toggleReadOnlyButton;
     }
 
     private void adjustLabel(JTextComponent target) {
         if (target != null && toggleReadOnlyButton != null) {
             toggleReadOnlyButton.setIcon((target.isEditable() ? WRITABLE_ICON : READONLY_ICON));
-            toggleReadOnlyButton.setToolTipText("Make " + (target.isEditable() ? "ReadOnly" : "Writable")); // NOI18N
+            toggleReadOnlyButton.setToolTipText("Make " + (target.isEditable() ? "Readonly" : "Writable")); // NOI18N
         }
     }
 }
