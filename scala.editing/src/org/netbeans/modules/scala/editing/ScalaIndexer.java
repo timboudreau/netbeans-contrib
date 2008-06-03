@@ -338,7 +338,7 @@ public class ScalaIndexer implements Indexer {
                 fqn.append(';');
                 fqn.append(qName);
                 fqn.append(';');
-                fqn.append(IndexedElement.computeAttributes(template, pResult.getTokenHierarchy()));
+                fqn.append(IndexedElement.encodeAttributes(template, pResult.getTokenHierarchy()));
 
                 List<TypeRef> extendsWith = template.getExtendsWith();
                 String clz = template.getQualifiedName();
@@ -443,7 +443,7 @@ public class ScalaIndexer implements Indexer {
         }
 
         private void indexFunction(AstElement element, IndexDocument document) {
-            String attributes = IndexedElement.computeAttributes(element, pResult.getTokenHierarchy());
+            String attributes = IndexedElement.encodeAttributes(element, pResult.getTokenHierarchy());
 
             String in = element.getIn();
             String name = element.getName();
@@ -483,7 +483,7 @@ public class ScalaIndexer implements Indexer {
         }
 
         private void indexField(AstElement element, IndexDocument document) {
-            String attributes = IndexedElement.computeAttributes(element, pResult.getTokenHierarchy());
+            String attributes = IndexedElement.encodeAttributes(element, pResult.getTokenHierarchy());
 
             String in = element.getIn();
             String name = element.getName();

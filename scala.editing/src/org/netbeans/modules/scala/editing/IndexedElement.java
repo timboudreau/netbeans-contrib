@@ -239,7 +239,7 @@ public abstract class IndexedElement extends AstElement {
         base.append(';');
         base.append(thename);
         base.append(';');
-        base.append(computeAttributes(element, th));
+        base.append(encodeAttributes(element, th));
 
         return create(element.getName(), base.toString(), "", index, false);
     }
@@ -665,7 +665,7 @@ public abstract class IndexedElement extends AstElement {
         return flags;
     }
 
-    public static String computeAttributes(AstElement element, TokenHierarchy th) {
+    public static String encodeAttributes(AstElement element, TokenHierarchy th) {
         OffsetRange docRange = getDocumentationOffset(element, th);
         //Map<String,String> typeMap = element.getDocProps();
 
@@ -795,29 +795,33 @@ public abstract class IndexedElement extends AstElement {
         return sb.toString();
     }
 
-    private static void computeAttributesSeg(TypeRef type, StringBuilder sb) {
+    /**
+     * We'll keep the sigunature as same as java's class file format for type paramters, also
+     * @see org.netbeans.modules.scala.editing.JavaUtilities#getTypeName(TypeMirror, boolean, boolean)
+     */
+    private static void encodeAttributesOfTypeRef(TypeRef type, StringBuilder sb) {
         if (type.isResolved()) {
             sb.append(type.getQualifiedName());
         } else {
             sb.append(type.getName());
         }
-        
+                
         List<List<TypeRef>> typeArgsList = type.getTypeArgsList();
         for (Iterator<List<TypeRef>> itr = typeArgsList.iterator(); itr.hasNext();) {
-            sb.append("[");
+            sb.append("<");
             List<TypeRef> typeArgs = itr.next();
             for (Iterator<TypeRef> itr1 = typeArgs.iterator(); itr1.hasNext();) {
                 TypeRef typeArg = itr1.next();
-                computeAttributesSeg(typeArg, sb);
+                encodeAttributesOfTypeRef(typeArg, sb);
                 if (itr1.hasNext()) {
                     sb.append(",");
                 }
             }
-            sb.append("]");
+            sb.append(">");
         }
     }
 
-    public static String computeAttributes(javax.lang.model.element.Element jelement) {
+    public static String encodeAttributes(javax.lang.model.element.Element jelement) {
         OffsetRange docRange = OffsetRange.NONE;
 
         TypeMirror type = jelement.asType();
