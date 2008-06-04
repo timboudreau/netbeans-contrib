@@ -5,23 +5,16 @@
 package org.netbeans.installer.utils.nativepackages;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.installer.product.components.Product;
-import org.netbeans.installer.utils.LogManager;
-import org.netbeans.installer.utils.exceptions.InstallationException;
-import org.netbeans.installer.utils.exceptions.UninstallationException;
 
 /**
  *
@@ -74,7 +67,7 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
         if (analizer.containsPackages()) {
             for (String packageName : analizer) {
                 try {
-                    LogManager.log("executing command: pkgadd -n -d " + pathToPackage + " " + packageName);
+                   // LogManager.log("executing command: pkgadd -n -d " + pathToPackage + " " + packageName);
                     Process p = new ProcessBuilder( pkgRoot + "/pkgadd", "-n",
                             "-a", defaultAdminFile.getAbsolutePath(),
                             "-r", defaultResponse.getAbsolutePath(),
@@ -110,23 +103,23 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
         }
     }
 
-    public void uninstall(Product product) throws UninstallationException {
+    public void uninstall(Product product) throws InstallationException {
         String devicesValue = product.getProperty(DEVICE_FILES_COUNTER);
         for (int deviceNumber = 1; deviceNumber <= parseInteger(devicesValue); deviceNumber++) {
             String packagesValue = product.getProperty(DEVICE_FILE + String.valueOf(deviceNumber) + DEVICE_FILE_PACKAGES_COUNTER);
             for (int packageNumber = 1; packageNumber <= parseInteger(packagesValue); packageNumber++) {
                 try {
                     String value = product.getProperty(DEVICE_FILE + String.valueOf(deviceNumber) + DEVICE_FILE_PACKAGE + String.valueOf(packageNumber));
-                    LogManager.log("executing command: pkgrm -R " + target + " -n " + value);
+                    //LogManager.log("executing command: pkgrm -R " + target + " -n " + value);
                     Process p = new ProcessBuilder(pkgRoot + "/pkgrm", "-n",
                               "-a", defaultAdminFile.getAbsolutePath(), value).start();
                     if (p.waitFor() != 0) {
-                        throw new UninstallationException("Error native. Returned not zero.");
+                        throw new InstallationException("Error native. Returned not zero.");
                     }
                 } catch (InterruptedException ex) {
-                    throw new UninstallationException("Error native.", ex);
+                    throw new InstallationException("Error native.", ex);
                 } catch (IOException ex) {
-                    throw new UninstallationException("Error native.", ex);
+                    throw new InstallationException("Error native.", ex);
                 }
             }
         }
