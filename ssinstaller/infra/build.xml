@@ -624,7 +624,6 @@ jarsigner.storepass=${jarsigner.storepass}
             <component uid="ss-base" version="1.0.0.0.0"/>
             
 	    <component uid="nb-base" version="${nb.full.version}"/>
-	    <component uid="nb-cnd" version="${nb.full.version}"/>
 	    <component uid="cc" version="1.0.0.0.0"/>            
 	    <component uid="cpp" version="1.0.0.0.0"/>
     	    <component uid="fortran" version="1.0.0.0.0"/>
