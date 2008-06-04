@@ -43,6 +43,7 @@ import java.util.List;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
 
 /**
  *
@@ -64,6 +65,11 @@ public class CompoundType extends TypeRef {
         return types;
     }
 
+    @Override
+    public AstScope getEnclosingScope() {
+        return types.get(0).getEnclosingScope();
+    }        
+    
     @Override
     public String getName() {
         StringBuilder sb = new StringBuilder();

@@ -463,19 +463,79 @@ public abstract class IndexedElement extends AstElement {
         return comment;
     }
 
-    public String getTypeString() {
+    public String getTypeName() {
         if (getKind() == ElementKind.CLASS || getKind() == ElementKind.PACKAGE) {
             return null;
         }
-        int typeIndex = getAttributeSection(TYPE_INDEX);
-        int endIndex = attributes.indexOf(';', typeIndex);
-        if (endIndex > typeIndex) {
-            return attributes.substring(typeIndex, endIndex);
+        
+        int typeIdx = getAttributeSection(TYPE_INDEX);
+        int endIdx = attributes.indexOf(';', typeIdx);
+        if (endIdx > typeIdx) {
+            String typeAttribute = attributes.substring(typeIdx, endIdx);
+            int typeArgsIdx = typeAttribute.indexOf("<");
+            if (typeArgsIdx != -1) {
+                return typeAttribute.substring(0, typeArgsIdx);
+            } else {
+                return typeAttribute;
+            }
         }
 
         return null;
     }
+    
+    public List<List<String>> getTypeArgsList() {
+        if (getKind() == ElementKind.PACKAGE) {
+            return null;
+        }
+        
+        int typeIdx = getAttributeSection(TYPE_INDEX);
+        int endIdx = attributes.indexOf(';', typeIdx);
+        if (endIdx > typeIdx) {
+            String typeAttribute = attributes.substring(typeIdx, endIdx);
+            int typeArgsIdx = typeAttribute.indexOf('<');
+            int typeArgsEndIdx = typeAttribute.indexOf('>', typeArgsIdx);
+            if (typeArgsEndIdx > typeArgsIdx) {
+                String[] typeArgs = typeAttribute.substring(typeArgsIdx, typeAttribute.length()).split(",");
+                
+            } else {
+                return null;
+            }
+        }
+        
+        return null;
+    }
 
+    private TypeName decodeType(String typeAttr, int i, int level, TypeName currTypeName) {
+        StringBuilder sb = new StringBuilder();
+        while (i < typeAttr.length()) {
+            char c = typeAttr.charAt(i);
+            i++;
+            if (c == '<') {
+                level++;
+                TypeName typeName = decodeType(typeAttr, i, level, currTypeName);
+            } else if (c == '>') {
+                level--;
+            } else if (c == ',') {
+                TypeName typeName = new TypeName(sb.toString());                        ;
+                decodeType(typeAttr, i, level, typeName);
+            } else if (c == ' ') {
+                // strip it
+            } else {
+                sb.append(c);
+            }
+        }
+        return null;
+    }
+    
+    public class TypeName {
+        public String name;
+        public List<List<TypeName>> typeArgs;
+        
+        public TypeName(String name) {
+            this.name = name;
+        }
+    }
+    
     public void setSmart(boolean smart) {
         this.smart = smart;
     }
@@ -782,11 +842,7 @@ public abstract class IndexedElement extends AstElement {
 //                type = typeMap != null ? typeMap.get(JsCommentLexer.AT_RETURN) : null; // NOI18N
 //            }
         if (type != null) {
-            if (type.isResolved()) {
-                sb.append(type.getQualifiedName());
-            } else {
-                sb.append(type.getName());
-            }
+            encodeAttributesOfType(type, sb);
         } else {
             // @Todo
         }
@@ -799,7 +855,7 @@ public abstract class IndexedElement extends AstElement {
      * We'll keep the sigunature as same as java's class file format for type paramters, also
      * @see org.netbeans.modules.scala.editing.JavaUtilities#getTypeName(TypeMirror, boolean, boolean)
      */
-    private static void encodeAttributesOfTypeRef(TypeRef type, StringBuilder sb) {
+    private static void encodeAttributesOfType(TypeRef type, StringBuilder sb) {
         if (type.isResolved()) {
             sb.append(type.getQualifiedName());
         } else {
@@ -812,7 +868,7 @@ public abstract class IndexedElement extends AstElement {
             List<TypeRef> typeArgs = itr.next();
             for (Iterator<TypeRef> itr1 = typeArgs.iterator(); itr1.hasNext();) {
                 TypeRef typeArg = itr1.next();
-                encodeAttributesOfTypeRef(typeArg, sb);
+                encodeAttributesOfType(typeArg, sb);
                 if (itr1.hasNext()) {
                     sb.append(",");
                 }
@@ -1207,7 +1263,7 @@ public abstract class IndexedElement extends AstElement {
                 sb.append(")"); // NOI18N
             }
 
-            sb.append(" :").append(function.getTypeString());
+            sb.append(" :").append(function.getTypeName());
         }
 
         sb.append("</td>\n"); // NOI18N

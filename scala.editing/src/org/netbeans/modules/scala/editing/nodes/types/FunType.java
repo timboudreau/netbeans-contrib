@@ -42,6 +42,7 @@ package org.netbeans.modules.scala.editing.nodes.types;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
 
 /**
  *
@@ -71,6 +72,11 @@ public class FunType extends TypeRef {
     public TypeRef getRhs() {
         return rhs;
     }
+
+    @Override
+    public AstScope getEnclosingScope() {
+        return rhs.getEnclosingScope();
+    }    
 
     /** Since idToken is null, we should implement getPickOffset */
     @Override
