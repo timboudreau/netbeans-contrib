@@ -70,7 +70,7 @@ public class IndexedPackage extends IndexedElement {
     }
     
     @Override
-    public String getTypeName() {
+    public TypeName getTypeName() {
         return null;
     }
     
