@@ -61,7 +61,7 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
     
     public String install(String pathToPackage, String packageName) throws InstallationException {
         try {
-            // LogManager.log("executing command: pkgadd -n -d " + pathToPackage + " " + packageName);
+            Logger.getAnonymousLogger().warning("executing command: pkgadd -n -d " + pathToPackage + " " + packageName);
             Process p = new ProcessBuilder(pkgRoot + "/pkgadd", "-n",
                     "-a", defaultAdminFile.getAbsolutePath(),
                     "-r", defaultResponse.getAbsolutePath(),
@@ -97,6 +97,7 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
         DeviceFileAnalyzer analyzer = new DeviceFileAnalyzer(pathToPackage);
         packageNames = analyzer;
         for(String packageName : packageNames) {
+            Logger.getAnonymousLogger().warning("Analyzed package: " + packageName);
             install(pathToPackage, packageName);
         }
         return packageNames;
@@ -109,12 +110,15 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
         //product.setProperty(DEVICE_FILE + String.valueOf(counter) + DEVICE_FILE_PACKAGES_COUNTER, String.valueOf(analyzer.getPackagesCount()));
         int i = 1;
         //if (analyzer.containsPackages()) {
-            for (String packageName : install(pathToPackage, new ArrayList())) {
-                product.setProperty(DEVICE_FILE + String.valueOf(counter) + DEVICE_FILE_PACKAGE + String.valueOf(i), install(pathToPackage, packageName));
+         //Logger.getAnonymousLogger().warning("executing command: pkgadd -n -d " + pathToPackage + " " + packageName);
+        Iterable<String> installedPackageNames = install(pathToPackage, new ArrayList());
+            for (String packageName : installedPackageNames) {
+                Logger.getAnonymousLogger().warning("Installed package: " + packageName);
+                product.setProperty(DEVICE_FILE + String.valueOf(counter) + DEVICE_FILE_PACKAGE + String.valueOf(i), packageName);
                 i++;
             }            
             
-        product.setProperty(DEVICE_FILE + String.valueOf(counter) + DEVICE_FILE_PACKAGES_COUNTER, String.valueOf(i));
+        product.setProperty(DEVICE_FILE + String.valueOf(counter) + DEVICE_FILE_PACKAGES_COUNTER, String.valueOf(i - 1));
         //}
         product.setProperty(DEVICE_FILES_COUNTER, String.valueOf(counter));
     }
@@ -122,7 +126,7 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
         
     public void uninstall(String packageName) throws InstallationException {                
             try {
-                //LogManager.log("executing command: pkgrm -R " + target + " -n " + value);
+                Logger.getAnonymousLogger().warning("executing command: pkgrm -R " + target + " -n " + packageName);
                 Process p = new ProcessBuilder(pkgRoot + "/pkgrm", "-n",
                         "-a", defaultAdminFile.getAbsolutePath(), packageName).start();
                 if (p.waitFor() != 0) {
