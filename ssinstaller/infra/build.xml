@@ -567,19 +567,17 @@ jarsigner.storepass=${jarsigner.storepass}
      </macrodef>
     <target name="generate-netbeans-cpp-bundles">
         <!-- C/C++ bundles -->
-        <!--
+        
 	<create-bundle root="${output.dir}/registry-temp" 
                        platform="linux" 
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-linux.sh">
             <component uid="ss-base" version="1.0.0.0.0"/>
             <component uid="nb-base" version="${nb.full.version}"/>
-	    <component uid="nb-cnd" version="${nb.full.version}"/>
 	    <component uid="cc" version="1.0.0.0.0"/>
 	    <component uid="cpp" version="1.0.0.0.0"/>
     	    <component uid="fortran" version="1.0.0.0.0"/>
     	    <component uid="dbx" version="1.0.0.0.0"/>
     	    <component uid="dmake" version="1.0.0.0.0"/>
-    	    <!- -<component uid="x-designer" version="1.0.0.0.0"/>- ->
     	    <component uid="support-files" version="1.0.0.0.0"/>
     	    <component uid="perf-lib" version="1.0.0.0.0"/>
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
@@ -590,8 +588,7 @@ jarsigner.storepass=${jarsigner.storepass}
                        platform="linux" 
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-linux-external.sh">
             <component uid="ss-base" version="1.0.0.0.0"/>
-            <component uid="nb-base" version="${nb.full.version}"/>
-	    <component uid="nb-cnd" version="${nb.full.version}"/>
+	    <component uid="nb-base" version="${nb.full.version}"/>
 	    <component uid="cc" version="1.0.0.0.0"/>
 	    <component uid="cpp" version="1.0.0.0.0"/>
     	    <component uid="fortran" version="1.0.0.0.0"/>
@@ -603,7 +600,6 @@ jarsigner.storepass=${jarsigner.storepass}
             <property name="product.data.all.location" value="http://endif.russia.sun.com/installer/packaged" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
-        -->	
 
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-x86" 
@@ -621,7 +617,6 @@ jarsigner.storepass=${jarsigner.storepass}
     	    <component uid="third-party-source" version="1.0.0.0.0"/>
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
-        <!-- 
         <delete file="${output.dir}/registry-temp/bundles.list" />
         <create-bundle root="${output.dir}/registry-temp" 
                        platform="solaris-x86" 
@@ -646,7 +641,6 @@ jarsigner.storepass=${jarsigner.storepass}
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-sparc.sh">            
             <component uid="ss-base" version="1.0.0.0.0"/>
             <component uid="nb-base" version="${nb.full.version}"/>
-            <component uid="nb-cnd" version="${nb.full.version}"/>
 	    <component uid="cc" version="1.0.0.0.0"/>            
 	    <component uid="cpp" version="1.0.0.0.0"/>
     	    <component uid="fortran" version="1.0.0.0.0"/>
@@ -664,7 +658,6 @@ jarsigner.storepass=${jarsigner.storepass}
                        target="${output.dir}/bundles/${ss.bundle.files.prefix}-solaris-sparc-external.sh">            
             <component uid="ss-base" version="1.0.0.0.0"/>
             <component uid="nb-base" version="${nb.full.version}"/>
-            <component uid="nb-cnd" version="${nb.full.version}"/>
 	    <component uid="cc" version="1.0.0.0.0"/>            
 	    <component uid="cpp" version="1.0.0.0.0"/>
     	    <component uid="fortran" version="1.0.0.0.0"/>
@@ -676,7 +669,6 @@ jarsigner.storepass=${jarsigner.storepass}
             <property name="product.data.all.location" value="http://endif.russia.sun.com/installer/packaged" />
 	    <bundleProperty name="${welcome.type}" value="sunstudio"/>
         </create-bundle>
-        -->
 	
     </target>
     
