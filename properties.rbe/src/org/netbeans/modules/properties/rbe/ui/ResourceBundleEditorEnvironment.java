@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.properties.rbe.ui;
 
+import org.netbeans.modules.properties.rbe.ui.ResourceBundleEditorOpen;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -95,11 +96,11 @@ public class ResourceBundleEditorEnvironment implements CloneableOpenSupport.Env
     }
 
     public void markModified() throws IOException {
-        dataObject.setModified(true);
+//        dataObject.setModified(true);
     }
 
     public void unmarkModified() {
-        dataObject.setModified(false);
+//        dataObject.setModified(false);
     }
 
     public CloneableOpenSupport findCloneableOpenSupport() {

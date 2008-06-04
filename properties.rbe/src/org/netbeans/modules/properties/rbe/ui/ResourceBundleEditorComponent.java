@@ -41,13 +41,18 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 import java.awt.Image;
+import java.util.Iterator;
 import javax.swing.ActionMap;
 import javax.swing.BoxLayout;
 import org.netbeans.modules.properties.PropertiesDataObject;
+import org.netbeans.modules.properties.PropertiesEditorSupport;
+import org.netbeans.modules.properties.PropertiesFileEntry;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.util.lookup.Lookups;
+import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.CloneableTopComponent;
 
 /**
@@ -66,12 +71,28 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
     public ResourceBundleEditorComponent(PropertiesDataObject dataObject) {
         this.dataObject = dataObject;
         explorerManager = new ExplorerManager();
-        associateLookup(ExplorerUtils.createLookup(explorerManager, new ActionMap()));
+        associateLookup(new ProxyLookup(ExplorerUtils.createLookup(explorerManager, new ActionMap()), Lookups.singleton(dataObject)));
 
         setName(dataObject.getName() + ".properties");
         setToolTipText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "CTL_ResourceBundleEditorComponent"));
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         add(new UIWindow(new RBE(dataObject)));
+    }
+
+    @Override
+    public boolean canClose() {
+        closeEntry((PropertiesFileEntry) dataObject.getPrimaryEntry());
+        for (Iterator it = dataObject.secondaryEntries().iterator(); it.hasNext();) {
+            closeEntry((PropertiesFileEntry) it.next());
+        }
+
+        return true;
+    }
+
+    /** Helper method. Closes entry. */
+    private void closeEntry(PropertiesFileEntry entry) {
+        PropertiesEditorSupport editorSupport = entry.getCookie(PropertiesEditorSupport.class);
+        editorSupport.close();
     }
 
     @Override

@@ -6,8 +6,10 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 import java.util.Locale;
-import org.netbeans.modules.properties.Element.ItemElem;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.netbeans.modules.properties.rbe.model.Bundle;
+import org.netbeans.modules.properties.rbe.model.BundlePropertyValue;
 import org.openide.util.NbBundle;
 
 /**
@@ -17,20 +19,32 @@ import org.openide.util.NbBundle;
 public class UIPropertyPanel extends javax.swing.JPanel {
 
     /** Creates new form Propertypanel */
-    public UIPropertyPanel(Locale locale, ItemElem itemElem, Bundle bundle) {
+    public UIPropertyPanel(final BundlePropertyValue value) {
         initComponents();
-        if (Bundle.DEFAULT_LOCALE.equals(locale)) {
+        if (Bundle.DEFAULT_LOCALE.equals(value.getLocale())) {
             titleLabel.setText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "DefaultLocale"));
         } else {
-            String title = String.format("%s (%s)%s", locale.getDisplayLanguage(),
-                    locale.getLanguage(), locale.getDisplayCountry().length() > 0 ? " - " + locale.getDisplayCountry() : "");
+            String title = String.format("%s (%s)%s", value.getLocale().getDisplayLanguage(),
+                value.getLocale().getLanguage(), value.getLocale().getDisplayCountry().length() > 0 ? " - " + value.getLocale().getDisplayCountry() : "");
             titleLabel.setText(title);
         }
-        if (itemElem != null) {
-            textArea.setText(
-                    "Value: " + itemElem.getValue() + "\n" +
-                    "Comment: " + itemElem.getComment());
-        }
+        textArea.setText(value.getValue());
+
+        textArea.getDocument().addDocumentListener(new DocumentListener() {
+
+            public void insertUpdate(DocumentEvent e) {
+                value.setValue(textArea.getText());
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                value.setValue(textArea.getText());
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                value.setValue(textArea.getText());
+            }
+        });
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

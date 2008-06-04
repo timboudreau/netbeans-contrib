@@ -59,7 +59,7 @@ public final class BundleProperty implements Comparable<BundleProperty> {
     /** The fullname of the property */
     private String fullname;
     /** The different locale representation of the property */
-    private Map<Locale, ItemElem> localeRepresentation;
+    private Map<Locale, BundlePropertyValue> localeRepresentation;
 
     public BundleProperty(Bundle bundle, String name, String fullname) {
         this.name = name;
@@ -75,34 +75,40 @@ public final class BundleProperty implements Comparable<BundleProperty> {
         this.name = name;
     }
 
-    public String getFullname() {
+    public String getKey() {
         return fullname;
     }
 
-    public void setFullName(String fullname) {
-        this.fullname = fullname;
-    }
-
+//    public void setFullName(String fullname) {
+//        this.fullname = fullname;
+//    }
     public Bundle getBundle() {
         return bundle;
     }
 
-    public Map<Locale, ItemElem> getLocaleRepresentation() {
-        return localeRepresentation == null ? Collections.<Locale, ItemElem>emptyMap() : Collections.unmodifiableMap(localeRepresentation);
+//    public Map<Locale, BundlePropertyValue> getLocaleRepresentation() {
+//        return localeRepresentation == null ? Collections.<Locale, BundlePropertyValue>emptyMap() : Collections.unmodifiableMap(localeRepresentation);
+//    }
+    public BundlePropertyValue getLocalRepresentation(Locale locale) {
+        if (localeRepresentation == null) {
+            localeRepresentation = new HashMap<Locale, BundlePropertyValue>();
+        }
+        BundlePropertyValue value = localeRepresentation.get(locale);
+        return value == null ? new BundlePropertyValue(this, locale, null) : value;
     }
 
     public boolean isEmpty() {
         return localeRepresentation == null ? true : localeRepresentation.isEmpty();
     }
 
-    public void addLocaleRepresentation(Locale locale, ItemElem itemElem) {
+    void addLocaleRepresentation(Locale locale, ItemElem itemElem) {
         if (localeRepresentation == null) {
-            localeRepresentation = new HashMap<Locale, ItemElem>();
+            localeRepresentation = new HashMap<Locale, BundlePropertyValue>();
         }
-        localeRepresentation.put(locale, itemElem);
+        localeRepresentation.put(locale, new BundlePropertyValue(this, locale, itemElem));
     }
 
-    public void removeLocaleRepresentation(Locale locale) {
+    void removeLocaleRepresentation(Locale locale) {
         if (localeRepresentation.containsKey(locale)) {
             localeRepresentation.remove(locale);
         }

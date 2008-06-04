@@ -135,7 +135,7 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
         rightPanel.removeAll();
         if (bundlePropertyNode != null) {
             for (Locale locale : bundlePropertyNode.getProperty().getBundle().getLocales()) {
-                rightPanel.add(new UIPropertyPanel(locale, bundlePropertyNode.getProperty().getLocaleRepresentation().get(locale), bundlePropertyNode.getProperty().getBundle()));
+                rightPanel.add(new UIPropertyPanel(bundlePropertyNode.getProperty().getLocalRepresentation(locale)));
             }
         }
         rightPanel.updateUI();
@@ -300,7 +300,7 @@ private void changeModeButtonActionPerformed(java.awt.event.ActionEvent evt) {//
 }//GEN-LAST:event_changeModeButtonActionPerformed
 
 private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
-    rbe.getBundle().addProperty(searchTextField.getText());
+    rbe.getBundle().createProperty(searchTextField.getText());
 //    rbe.getBundle().save();
 }//GEN-LAST:event_createButtonActionPerformed
 
@@ -310,12 +310,12 @@ private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         }
         for (Node node : root.getChildren().getNodes()) {
             BundleProperty property = node.getLookup().lookup(BundleProperty.class);
-            if (property != null && property.getFullname().startsWith(prefix)) {
+            if (property != null && property.getKey().startsWith(prefix)) {
                 return node;
             }
             Node subnode = getNode(node, prefix);
             property = subnode.getLookup().lookup(BundleProperty.class);
-            if (property != null && property.getFullname().startsWith(prefix)) {
+            if (property != null && property.getKey().startsWith(prefix)) {
                 return subnode;
             }
         }

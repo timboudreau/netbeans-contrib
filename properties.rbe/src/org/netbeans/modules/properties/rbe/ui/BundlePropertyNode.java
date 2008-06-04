@@ -75,12 +75,12 @@ public class BundlePropertyNode extends AbstractNode implements PropertyChangeLi
 
     @Override
     public String getName() {
-        return treeItem.getValue().getFullname();
+        return treeItem.getValue().getKey();
     }
 
     @Override
     public String getDisplayName() {
-        return treeItem.getParent() == null ? treeItem.getValue().getFullname() : treeItem.getValue().getName();
+        return treeItem.getParent() == null ? treeItem.getValue().getKey() : treeItem.getValue().getName();
     }
 
     @Override
@@ -127,7 +127,6 @@ public class BundlePropertyNode extends AbstractNode implements PropertyChangeLi
 
         @Override
         protected Node[] createNodes(TreeItem<BundleProperty> key) {
-            System.out.println(key.getValue().getFullname());
             return new Node[]{new BundlePropertyNode(key, rbe)};
         }
     }

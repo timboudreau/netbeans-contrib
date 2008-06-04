@@ -40,7 +40,7 @@ public class TreeItem<T extends Comparable<T>> implements VisitableTree<TreeItem
         firePropertyChangeEvent(PROPERTY_VALUE, null, null);
     }
 
-    public TreeItem getParent() {
+    public TreeItem<T> getParent() {
         return parent;
     }
 

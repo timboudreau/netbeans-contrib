@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 import org.netbeans.modules.properties.BundleStructure;
 import org.netbeans.modules.properties.Element.ItemElem;
 import org.netbeans.modules.properties.PropertiesFileEntry;
@@ -74,11 +75,11 @@ public class Bundle {
     public final static Locale DEFAULT_LOCALE = new Locale("__", "", "");
     /** The property change event names */
     public static final String PROPERTY_LOCALES = "PROPERTY_LOCALES";
+    static final LocaleComparator LOCALE_COMPARATOR = new LocaleComparator();
 
     public Bundle(BundleStructure bundleStructure) {
         this.bundleStructure = bundleStructure;
         locales = new TreeSet<Locale>(new LocaleComparator());
-
     }
 
     public Set<Locale> getLocales() {
@@ -89,22 +90,21 @@ public class Bundle {
      * Adds property
      * @param fullname
      */
-    public synchronized void addProperty(String fullname) {
+    public synchronized void createProperty(String key) {
         TreeItem<BundleProperty> tree = treeRoot;
         int index;
         int offset = 0;
         boolean finded = true;
-        fullname = fullname.replaceAll("(\\.)+", "."); //// .....
-        System.out.println("/*** " + fullname);
+        key = key.replaceAll(Pattern.quote(getTreeSeparator()) + "+", getTreeSeparator());
         while (true) {
-            index = fullname.indexOf(getTreeSeparator(), offset);
-            String group = index == -1 ? fullname : fullname.substring(0, index);
+            index = key.indexOf(getTreeSeparator(), offset);
+            String group = index == -1 ? key : key.substring(0, index);
             offset = group.length() + getTreeSeparator().length();
 
             if (finded) {
                 finded = false;
                 for (TreeItem<BundleProperty> item : tree.getChildren()) {
-                    if (item.getValue().getFullname().equals(group)) {
+                    if (item.getValue().getKey().equals(group)) {
                         tree = item;
                         finded = true;
                         break;
@@ -113,7 +113,6 @@ public class Bundle {
             }
             if (!finded) {
                 BundleProperty property = createProperty(getPropertyName(group), group);
-                bundleStructure.getNthEntry(0).getHandler().getStructure().addItem(property.getFullname(), "Value", "Comment");
                 TreeItem<BundleProperty> treeItem = new TreeItem<BundleProperty>(property);
                 tree.addChild(treeItem);
                 tree = treeItem;
@@ -124,6 +123,17 @@ public class Bundle {
         }
     }
 
+    ItemElem createNewItemElem(Locale locale, String key, String value, String comment) {
+        for (int e = 0; e < bundleStructure.getEntryCount(); e++) {
+            PropertiesFileEntry entry = bundleStructure.getNthEntry(e);
+            if (locale.equals(getLocaleFromPropertiesFileEntry(entry))) {
+                entry.getHandler().getStructure().addItem(key, value, comment);
+                return entry.getHandler().getStructure().getItem(key);
+            }
+        }
+        return null;
+    }
+
     public void save() {
         treeRoot.accept(new TreeVisitor<TreeItem<BundleProperty>>() {
 
@@ -131,7 +141,7 @@ public class Bundle {
                 if (tree.getHeight() == 1) {
                     System.out.println();
                 }
-                System.out.println(tree.getValue() == null ? "" : tree.getValue().getFullname());
+                System.out.println(tree.getValue() == null ? "" : tree.getValue().getKey());
             }
 
             public void postVisit(TreeItem<BundleProperty> tree) {
@@ -147,9 +157,9 @@ public class Bundle {
     protected synchronized SortedMap<String, BundleProperty> getProperties() {
         if (properties == null) {
             properties = new TreeMap<String, BundleProperty>();
-            for (int k = 0; k <
-                bundleStructure.getKeyCount(); k++) {
-                String propertyName = bundleStructure.getKeys()[k];
+            String replaceRegex = Pattern.quote(getTreeSeparator()) + "+";
+            for (int k = 0; k < bundleStructure.getKeyCount(); k++) {
+                String propertyName = bundleStructure.getKeys()[k].replaceAll(replaceRegex, getTreeSeparator());
                 BundleProperty bundleProperty = createProperty(getPropertyName(propertyName), propertyName);
                 for (int e = 0; e < bundleStructure.getEntryCount(); e++) {
                     Locale locale = getLocaleFromPropertiesFileEntry(bundleStructure.getNthEntry(e));
@@ -157,8 +167,7 @@ public class Bundle {
                     bundleProperty.addLocaleRepresentation(locale, item);
                     locales.add(locale);
                 }
-
-                properties.put(bundleProperty.getFullname(), bundleProperty);
+                properties.put(bundleProperty.getKey(), bundleProperty);
             }
         }
 
@@ -181,11 +190,11 @@ public class Bundle {
      */
     private TreeItem<BundleProperty> createChildren(TreeItem<BundleProperty> tree, BundleProperty groupProperty, Collection<BundleProperty> groupProperties) {
         TreeItem<BundleProperty> subtree = new TreeItem<BundleProperty>(groupProperty);
-        int offset = groupProperty == null ? 0 : groupProperty.getFullname().length() + getTreeSeparator().length();
+        int offset = groupProperty == null ? 0 : groupProperty.getKey().length() + getTreeSeparator().length();
         BundleProperty subgroup = null;
         Set<BundleProperty> subgroupProperties = new TreeSet<BundleProperty>();
         for (BundleProperty property : groupProperties) {
-            if (subgroup != null && property.getFullname().startsWith(subgroup.getFullname() + getTreeSeparator())) {
+            if (subgroup != null && property.getKey().startsWith(subgroup.getKey() + getTreeSeparator())) {
                 //Property is from the current group property subtree
                 subgroupProperties.add(property);
             } else {
@@ -196,13 +205,13 @@ public class Bundle {
                     subgroupProperties.clear();
                 }
                 //Finding the new subgroup property
-                int index = property.getFullname().indexOf(getTreeSeparator(), offset);
+                int index = property.getKey().indexOf(getTreeSeparator(), offset);
                 if (index != -1) {
-                    String fullname = property.getFullname().substring(0, index);
+                    String fullname = property.getKey().substring(0, index);
                     subgroup = createProperty(getPropertyName(fullname), fullname);
                     subgroupProperties.add(property);
-                    while ((index = property.getFullname().indexOf(getTreeSeparator(), fullname.length() + getTreeSeparator().length())) != -1) {
-                        fullname = property.getFullname().substring(0, index);
+                    while ((index = property.getKey().indexOf(getTreeSeparator(), fullname.length() + getTreeSeparator().length())) != -1) {
+                        fullname = property.getKey().substring(0, index);
                         subgroupProperties.add(createProperty(getPropertyName(fullname), fullname));
                     }
                 } else {
@@ -222,7 +231,6 @@ public class Bundle {
 
     private BundleProperty createProperty(String name, String fullname) {
         BundleProperty bundleProperty = new BundleProperty(this, name, fullname);
-        System.out.println(bundleProperty.getFullname());
         properties.put(fullname, bundleProperty);
         return bundleProperty;
     }
@@ -235,17 +243,6 @@ public class Bundle {
     private String getPropertyName(String fullname) {
         int lastIndex = fullname.lastIndexOf(getTreeSeparator());
         return lastIndex == -1 ? fullname : fullname.substring(lastIndex + getTreeSeparator().length());
-    }
-
-    /**
-     * Gets property group, fullname property "a.b.c" has name "a" 
-     * or "" if property hasn't separator in the fullname
-     * @param fullname
-     * @return
-     */
-    private String getPropertyGroupName(String fullname) {
-        int lastIndex = fullname.lastIndexOf(getTreeSeparator());
-        return lastIndex == -1 ? "" : fullname.substring(0, lastIndex);
     }
 
     private Locale getLocaleFromPropertiesFileEntry(PropertiesFileEntry entry) {
