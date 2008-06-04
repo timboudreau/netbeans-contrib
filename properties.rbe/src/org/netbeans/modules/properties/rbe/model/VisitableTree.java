@@ -6,7 +6,7 @@ package org.netbeans.modules.properties.rbe.model;
 
 /**
  *
- * @author denis
+ * @author Denis Stepanov
  */
 public interface VisitableTree<T extends TreeItem<?>> {
 

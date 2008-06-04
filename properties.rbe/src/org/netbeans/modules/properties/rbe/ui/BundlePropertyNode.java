@@ -80,7 +80,7 @@ public class BundlePropertyNode extends AbstractNode implements PropertyChangeLi
 
     @Override
     public String getDisplayName() {
-        return treeItem.getRoot() == null ? treeItem.getValue().getFullname() : treeItem.getValue().getName();
+        return treeItem.getParent() == null ? treeItem.getValue().getFullname() : treeItem.getValue().getName();
     }
 
     @Override

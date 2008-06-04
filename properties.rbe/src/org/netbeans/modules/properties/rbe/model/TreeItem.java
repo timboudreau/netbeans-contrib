@@ -12,12 +12,12 @@ import java.util.TreeSet;
 
 /**
  *
- * @author denis
+ * @author Denis Stepanov
  */
 public class TreeItem<T extends Comparable<T>> implements VisitableTree<TreeItem<T>>, Comparable<TreeItem<T>> {
 
     protected T value;
-    protected TreeItem<T> root;
+    protected TreeItem<T> parent;
     protected SortedSet<TreeItem<T>> children;
     /** Property change support */
     protected PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
@@ -40,18 +40,18 @@ public class TreeItem<T extends Comparable<T>> implements VisitableTree<TreeItem
         firePropertyChangeEvent(PROPERTY_VALUE, null, null);
     }
 
-    public TreeItem getRoot() {
-        return root;
+    public TreeItem getParent() {
+        return parent;
     }
 
-    public void setRoot(TreeItem<T> root) {
-        this.root = root;
+    public void setParent(TreeItem<T> parent) {
+        this.parent = parent;
         firePropertyChangeEvent(PROPERTY_ROOT, null, null);
     }
 
     public void addChild(TreeItem<T> child) {
         children.add(child);
-        child.setRoot(this);
+        child.setParent(this);
         firePropertyChangeEvent(PROPERTY_CHILDREN, null, null);
     }
 
@@ -73,6 +73,20 @@ public class TreeItem<T extends Comparable<T>> implements VisitableTree<TreeItem
         return children.isEmpty();
     }
 
+    public int getHeight() {
+        return getParent() == null ? 0 : getParent().getHeight() + 1;
+    }
+
+    public void accept(TreeVisitor<TreeItem<T>> visitor) {
+        if (!visitor.isDone()) {
+            visitor.preVisit(this);
+            for (TreeItem<T> tree : children) {
+                tree.accept(visitor);
+            }
+            visitor.postVisit(this);
+        }
+    }
+
     public void addPropertyChangeListener(PropertyChangeListener l) {
         propertyChangeSupport.addPropertyChangeListener(l);
     }
@@ -83,14 +97,6 @@ public class TreeItem<T extends Comparable<T>> implements VisitableTree<TreeItem
 
     protected void firePropertyChangeEvent(String property, Object oldValue, Object newValue) {
         propertyChangeSupport.firePropertyChange(property, oldValue, newValue);
-    }
-
-    public void accept(TreeVisitor<TreeItem<T>> visitor) {
-        for (TreeItem<T> tree : children) {
-            visitor.preVisit(tree);
-            tree.accept(visitor);
-            visitor.postVisit(tree);
-        }
     }
 
     public int compareTo(TreeItem<T> o) {

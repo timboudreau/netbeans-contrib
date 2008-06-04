@@ -40,8 +40,6 @@
  */
 package org.netbeans.modules.properties.rbe.model;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
@@ -62,17 +60,11 @@ public final class BundleProperty implements Comparable<BundleProperty> {
     private String fullname;
     /** The different locale representation of the property */
     private Map<Locale, ItemElem> localeRepresentation;
-    /** The property change support */
-    private PropertyChangeSupport propertyChangeSupport;
-    /** The property change event names */
-    public static final String PROPERTY_LOCALES = "PROPERTY_LOCALES";
 
     public BundleProperty(Bundle bundle, String name, String fullname) {
         this.name = name;
         this.fullname = fullname;
         this.bundle = bundle;
-
-        propertyChangeSupport = new PropertyChangeSupport(this);
     }
 
     public String getName() {
@@ -108,22 +100,12 @@ public final class BundleProperty implements Comparable<BundleProperty> {
             localeRepresentation = new HashMap<Locale, ItemElem>();
         }
         localeRepresentation.put(locale, itemElem);
-        propertyChangeSupport.firePropertyChange(PROPERTY_LOCALES, null, null);
     }
 
     public void removeLocaleRepresentation(Locale locale) {
         if (localeRepresentation.containsKey(locale)) {
             localeRepresentation.remove(locale);
-            propertyChangeSupport.firePropertyChange(PROPERTY_LOCALES, null, null);
         }
-    }
-
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.addPropertyChangeListener(listener);
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.removePropertyChangeListener(listener);
     }
 
     public int compareTo(BundleProperty o) {

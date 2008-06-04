@@ -6,12 +6,20 @@ package org.netbeans.modules.properties.rbe.model;
 
 /**
  *
- * @author denis
+ * @author Denis Stepanov
  */
 public interface TreeVisitor<T extends TreeItem<?>> {
 
+    /**
+     * Pre tree visit
+     * @param tree
+     */
     void preVisit(T tree);
 
+    /**
+     * Post tree visit
+     * @param tree
+     */
     void postVisit(T tree);
 
     boolean isDone();

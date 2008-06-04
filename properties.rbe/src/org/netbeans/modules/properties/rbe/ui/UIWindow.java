@@ -301,6 +301,7 @@ private void changeModeButtonActionPerformed(java.awt.event.ActionEvent evt) {//
 
 private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
     rbe.getBundle().addProperty(searchTextField.getText());
+//    rbe.getBundle().save();
 }//GEN-LAST:event_createButtonActionPerformed
 
     protected Node getNode(Node root, String prefix) {
