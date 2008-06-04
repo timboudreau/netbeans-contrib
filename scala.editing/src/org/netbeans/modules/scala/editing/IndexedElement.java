@@ -44,6 +44,7 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.gsf.api.ParserFile;
 import org.netbeans.modules.gsf.spi.DefaultParserFile;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -267,8 +268,8 @@ public abstract class IndexedElement extends AstElement {
     @Override
     public String toString() {
         return getSignature() + ":" + getFilenameUrl() + ";" + decodeFlags(flags);
-    }    
-    
+    }
+
     public ScalaIndex getIndex() {
         return index;
     }
@@ -463,79 +464,58 @@ public abstract class IndexedElement extends AstElement {
         return comment;
     }
 
-    public String getTypeName() {
+    public TypeName getTypeName() {
         if (getKind() == ElementKind.CLASS || getKind() == ElementKind.PACKAGE) {
             return null;
         }
-        
+
         int typeIdx = getAttributeSection(TYPE_INDEX);
         int endIdx = attributes.indexOf(';', typeIdx);
         if (endIdx > typeIdx) {
             String typeAttribute = attributes.substring(typeIdx, endIdx);
-            int typeArgsIdx = typeAttribute.indexOf("<");
-            if (typeArgsIdx != -1) {
-                return typeAttribute.substring(0, typeArgsIdx);
-            } else {
-                return typeAttribute;
-            }
+            TypeName typeName = new TypeName();
+            int[] iAndLevel = new int[]{0, 0};
+            decodeType(typeAttribute, iAndLevel, typeName);
+            
+            return typeName;
         }
 
         return null;
     }
-    
-    public List<List<String>> getTypeArgsList() {
-        if (getKind() == ElementKind.PACKAGE) {
-            return null;
-        }
-        
-        int typeIdx = getAttributeSection(TYPE_INDEX);
-        int endIdx = attributes.indexOf(';', typeIdx);
-        if (endIdx > typeIdx) {
-            String typeAttribute = attributes.substring(typeIdx, endIdx);
-            int typeArgsIdx = typeAttribute.indexOf('<');
-            int typeArgsEndIdx = typeAttribute.indexOf('>', typeArgsIdx);
-            if (typeArgsEndIdx > typeArgsIdx) {
-                String[] typeArgs = typeAttribute.substring(typeArgsIdx, typeAttribute.length()).split(",");
-                
-            } else {
-                return null;
-            }
-        }
-        
-        return null;
-    }
 
-    private TypeName decodeType(String typeAttr, int i, int level, TypeName currTypeName) {
+    private void decodeType(String typeAttr, int[] iAndLevel, TypeName curr) {
         StringBuilder sb = new StringBuilder();
-        while (i < typeAttr.length()) {
-            char c = typeAttr.charAt(i);
-            i++;
+        while (iAndLevel[0] < typeAttr.length()) {
+            char c = typeAttr.charAt(iAndLevel[0]);
+            iAndLevel[0] = iAndLevel[0] + 1;
             if (c == '<') {
-                level++;
-                TypeName typeName = decodeType(typeAttr, i, level, currTypeName);
+                iAndLevel[1] = iAndLevel[1] + 1;
+                curr.name = sb.toString();
+                curr.newTypeArgs();
+
+                TypeName typeName = new TypeName();
+                decodeType(typeAttr, iAndLevel, typeName);
+                curr.addTypeArg(typeName);
             } else if (c == '>') {
-                level--;
+                iAndLevel[1] = iAndLevel[1] - 1;
             } else if (c == ',') {
-                TypeName typeName = new TypeName(sb.toString());                        ;
-                decodeType(typeAttr, i, level, typeName);
+                curr.name = sb.toString();
+
+                TypeName typeName = new TypeName();
+                decodeType(typeAttr, iAndLevel, typeName);
+                curr.addTypeArg(typeName);
             } else if (c == ' ') {
                 // strip it
             } else {
                 sb.append(c);
             }
         }
-        return null;
-    }
-    
-    public class TypeName {
-        public String name;
-        public List<List<TypeName>> typeArgs;
-        
-        public TypeName(String name) {
-            this.name = name;
+
+        if (curr.name == null) {
+            curr.name = sb.toString();
         }
     }
-    
+
     public void setSmart(boolean smart) {
         this.smart = smart;
     }
@@ -861,7 +841,7 @@ public abstract class IndexedElement extends AstElement {
         } else {
             sb.append(type.getName());
         }
-                
+
         List<List<TypeRef>> typeArgsList = type.getTypeArgsList();
         for (Iterator<List<TypeRef>> itr = typeArgsList.iterator(); itr.hasNext();) {
             sb.append("<");
@@ -1263,7 +1243,7 @@ public abstract class IndexedElement extends AstElement {
                 sb.append(")"); // NOI18N
             }
 
-            sb.append(" :").append(function.getTypeName());
+            sb.append(" :").append(function.getTypeName().toString());
         }
 
         sb.append("</td>\n"); // NOI18N
@@ -1282,5 +1262,54 @@ public abstract class IndexedElement extends AstElement {
         }
 
         return sb.toString();
+    }
+
+    /** Inner class used for represent a type ref just for name usage */
+    public class TypeName {
+
+        public String name;
+        public List<List<TypeName>> typeArgsList;
+        private List<TypeName> currTypeArgs;
+
+        protected void newTypeArgs() {
+            if (typeArgsList == null) {
+                typeArgsList = new ArrayList<List<TypeName>>();
+            }
+
+            currTypeArgs = new ArrayList<TypeName>();
+            typeArgsList.add(currTypeArgs);
+        }
+
+        protected void addTypeArg(TypeName typeArg) {
+            assert currTypeArgs != null : "Should new a typeArgs first";
+            currTypeArgs.add(typeArg);
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(name);
+            if (typeArgsList == null) {
+                return sb.toString();
+            }
+            
+            for (List<TypeName> typeArgs : typeArgsList) {
+                sb.append("[");
+                if (typeArgs.size() == 0) {
+                    // wildcard
+                    sb.append("_");
+                } else {
+                    for (Iterator<TypeName> itr = typeArgs.iterator(); itr.hasNext();) {
+                        sb.append(itr.next().name);
+                        if (itr.hasNext()) {
+                            sb.append(", ");
+                        }
+                    }
+                }
+                sb.append("]");
+            }
+
+            return sb.toString();
+        }
     }
 }

@@ -133,11 +133,11 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
         }
 
         if (indexedElement != null) {
-            String type = indexedElement.getTypeName();
+            IndexedElement.TypeName type = indexedElement.getTypeName();
             if (type != null) {
                 formatter.appendHtml(" :"); // NOI18N
                 formatter.type(true);
-                formatter.appendText(type);
+                formatter.appendText(type.toString());
                 formatter.type(false);
             }
         }
@@ -324,7 +324,7 @@ public abstract class ScalaCompletionItem implements CompletionProposal {
                     indexedElement.getKind() != ElementKind.CONSTRUCTOR) {
                 formatter.appendHtml(" :");
                 formatter.type(true);
-                formatter.appendText(indexedElement.getTypeName());
+                formatter.appendText(indexedElement.getTypeName().toString());
                 formatter.type(false);
             }
 
