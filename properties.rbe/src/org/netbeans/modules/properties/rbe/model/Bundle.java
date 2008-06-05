@@ -79,7 +79,13 @@ public class Bundle {
 
     private void initProperties() {
         properties = new TreeMap<String, BundleProperty>();
-        bridge.createProperties();
+        for (String key : bridge.getKeys()) {
+            BundleProperty bundleProperty = createBundleProperty(key);
+            for (Locale locale : locales) {
+                BundlePropertyValue value = bridge.getBundlePropertyValue(locale, bundleProperty, true);
+                bundleProperty.addLocaleRepresentation(locale, value);
+            }
+        }
     }
 
     private void initTree() {
@@ -197,7 +203,10 @@ public class Bundle {
     }
 
     private void createPropertyValues(BundleProperty property) {
-        bridge.createPropertyValues(property);
+        for (Locale locale : locales) {
+            BundlePropertyValue value = bridge.getBundlePropertyValue(locale, property, true);
+            property.addLocaleRepresentation(locale, value);
+        }
     }
 
     /**

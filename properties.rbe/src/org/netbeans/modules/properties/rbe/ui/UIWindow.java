@@ -52,6 +52,8 @@ import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.netbeans.modules.properties.rbe.model.BundlePropertyValue;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.BeanTreeView;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 
@@ -108,7 +110,7 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
     }
 
     protected void updateBeanTree() {
-        explorer.setRootContext(new RootNode(rbe));
+        explorer.setRootContext(new AbstractNode(Children.create(new BundlePropertyNodeFactory(rbe), true)));
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
@@ -120,13 +122,13 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
     protected void updateSelectedProperty() {
         if (explorer.getSelectedNodes().length == 1) {
             Node selectedNode = explorer.getSelectedNodes()[0];
-            if (selectedNode instanceof TreeItemPropertyNode) {
-                selectProperty((TreeItemPropertyNode) selectedNode);
+            if (selectedNode instanceof BundlePropertyNode) {
+                selectProperty((BundlePropertyNode) selectedNode);
             }
         }
     }
 
-    public void selectProperty(final TreeItemPropertyNode bundlePropertyNode) {
+    public void selectProperty(final BundlePropertyNode bundlePropertyNode) {
         rightPanel.removeAll();
         SwingUtilities.invokeLater(new Runnable() {
 

@@ -52,7 +52,7 @@ import org.openide.util.lookup.Lookups;
  * The Bundle property node
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class TreeItemPropertyNode extends PropertyNode implements PropertyChangeListener, Comparable<TreeItemPropertyNode> {
+public class TreeItemPropertyNode extends BundlePropertyNode implements PropertyChangeListener, Comparable<TreeItemPropertyNode> {
 
     private final TreeItem<BundleProperty> treeItem;
 
