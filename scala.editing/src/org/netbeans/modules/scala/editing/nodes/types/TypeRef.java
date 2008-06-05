@@ -275,6 +275,23 @@ public class TypeRef extends AstRef {
     }
 
     @Override
+    public String getName() {
+        String name = super.getName();
+        if (name == null) {
+            if (isResolved()) {
+                String qName = getQualifiedName();
+                int lastDot = qName.lastIndexOf('.');
+                if (lastDot > 0) {
+                    name = qName.substring(lastDot, qName.length());
+                    setName(name);
+                }
+            }
+        }
+
+        return name;
+    }
+
+    @Override
     public TypeRef getType() {
         return this;
     }
@@ -304,7 +321,7 @@ public class TypeRef extends AstRef {
     public static class PseudoTypeRef extends TypeRef {
 
         public PseudoTypeRef() {
-            super("Pseudo type ref", null, ElementKind.CLASS);
+            super(null, null, ElementKind.CLASS);
             setEnclosingScope(AstScope.emptyScope());
         }
 
@@ -316,14 +333,6 @@ public class TypeRef extends AstRef {
         @Override
         public String getQualifiedName() {
             return qualifiedName == null ? UNRESOLVED : qualifiedName;
-        }
-    }
-
-    /** Inner class used for represent a type ref just for name usage */
-    public static class TypeName extends TypeRef {
-
-        public TypeName() {
-            super(null, null, ElementKind.CLASS);
         }
 
         @Override

@@ -68,7 +68,7 @@ import org.netbeans.modules.scala.editing.nodes.tmpls.ObjectTemplate;
 import org.netbeans.modules.scala.editing.nodes.tmpls.TraitTemplate;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.netbeans.modules.scala.editing.nodes.Var;
-import org.netbeans.modules.scala.editing.nodes.types.TypeRef.TypeName;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef.PseudoTypeRef;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
@@ -486,7 +486,7 @@ public abstract class IndexedElement extends AstElement {
 
     /** @todo decode tuple type, function type etc */
     private TypeRef decodeType(String typeAttr, int[] posAndLevel, List<TypeRef> typeArgs) {
-        TypeName curr = new TypeName();
+        PseudoTypeRef curr = new PseudoTypeRef();
         StringBuilder sb = new StringBuilder();
         while (posAndLevel[0] < typeAttr.length()) {
             char c = typeAttr.charAt(posAndLevel[0]);
