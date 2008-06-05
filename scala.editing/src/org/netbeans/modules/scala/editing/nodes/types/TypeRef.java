@@ -282,7 +282,7 @@ public class TypeRef extends AstRef {
                 String qName = getQualifiedName();
                 int lastDot = qName.lastIndexOf('.');
                 if (lastDot > 0) {
-                    name = qName.substring(lastDot, qName.length());
+                    name = qName.substring(lastDot + 1, qName.length());
                     setName(name);
                 }
             }
@@ -296,6 +296,16 @@ public class TypeRef extends AstRef {
         return this;
     }
 
+    @Override
+    public void htmlFormat(HtmlFormatter formatter) {
+        super.htmlFormat(formatter);
+        if (getName() != null) {
+            formatter.appendText(getName());
+        }
+    }
+
+    
+    
     public void htmlFormatTypeArgs(HtmlFormatter formatter) {
         for (List<TypeRef> typeArgs : getTypeArgsList()) {
             formatter.appendText("[");
