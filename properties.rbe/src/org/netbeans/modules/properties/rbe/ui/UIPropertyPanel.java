@@ -52,7 +52,7 @@ import org.openide.util.NbBundle;
  */
 public class UIPropertyPanel extends javax.swing.JPanel {
 
-    /** Creates new form Propertypanel */
+    /** Creates new form Property panel */
     public UIPropertyPanel(final BundlePropertyValue value) {
         initComponents();
         if (Bundle.DEFAULT_LOCALE.equals(value.getLocale())) {
