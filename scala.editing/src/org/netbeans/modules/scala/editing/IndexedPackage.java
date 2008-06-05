@@ -36,24 +36,24 @@
  * 
  * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.scala.editing;
 
 import java.util.Collections;
 import java.util.Set;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.Modifier;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 
 /**
  *
  * @author Tor Norbye
  */
 public class IndexedPackage extends IndexedElement {
-    
+
     IndexedPackage(String fqn, String name, String in, ScalaIndex index, String fileUrl, String attributes, int flags, ElementKind kind) {
         super(fqn, name, in, index, fileUrl, attributes, flags, kind);
     }
-    
+
     @Override
     public String getSignature() {
         if (signature == null) {
@@ -68,12 +68,12 @@ public class IndexedPackage extends IndexedElement {
 
         return signature;
     }
-    
+
     @Override
-    public TypeName getTypeName() {
+    public TypeRef getType() {
         return null;
     }
-    
+
     @Override
     public Set<Modifier> getModifiers() {
         return Collections.emptySet();
@@ -98,17 +98,17 @@ public class IndexedPackage extends IndexedElement {
     public boolean isStatic() {
         return false;
     }
-    
+
     @Override
     public boolean isPrivate() {
         return false;
     }
-    
+
     @Override
     public boolean isDocumented() {
         return false;
     }
-    
+
     @Override
     public boolean isPublic() {
         return true;
@@ -123,7 +123,7 @@ public class IndexedPackage extends IndexedElement {
     public boolean isFinal() {
         return false;
     }
-    
+
     @Override
     public boolean isDocOnly() {
         return false;

@@ -68,6 +68,7 @@ import org.netbeans.modules.scala.editing.nodes.tmpls.ObjectTemplate;
 import org.netbeans.modules.scala.editing.nodes.tmpls.TraitTemplate;
 import org.netbeans.modules.scala.editing.nodes.types.TypeRef;
 import org.netbeans.modules.scala.editing.nodes.Var;
+import org.netbeans.modules.scala.editing.nodes.types.TypeRef.TypeName;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
@@ -464,7 +465,8 @@ public abstract class IndexedElement extends AstElement {
         return comment;
     }
 
-    public TypeName getTypeName() {
+    @Override
+    public TypeRef getType() {
         if (getKind() == ElementKind.CLASS || getKind() == ElementKind.PACKAGE) {
             return null;
         }
@@ -473,37 +475,39 @@ public abstract class IndexedElement extends AstElement {
         int endIdx = attributes.indexOf(';', typeIdx);
         if (endIdx > typeIdx) {
             String typeAttribute = attributes.substring(typeIdx, endIdx);
-            TypeName typeName = new TypeName();
-            int[] iAndLevel = new int[]{0, 0};
-            decodeType(typeAttribute, iAndLevel, typeName);
-            
+            int[] posAndLevel = new int[]{0, 0};
+            TypeRef typeName = decodeType(typeAttribute, posAndLevel, null);
+
             return typeName;
         }
 
         return null;
     }
 
-    private void decodeType(String typeAttr, int[] iAndLevel, TypeName curr) {
+    /** @todo decode tuple type, function type etc */
+    private TypeRef decodeType(String typeAttr, int[] posAndLevel, List<TypeRef> typeArgs) {
+        TypeName curr = new TypeName();
         StringBuilder sb = new StringBuilder();
-        while (iAndLevel[0] < typeAttr.length()) {
-            char c = typeAttr.charAt(iAndLevel[0]);
-            iAndLevel[0] = iAndLevel[0] + 1;
+        while (posAndLevel[0] < typeAttr.length()) {
+            char c = typeAttr.charAt(posAndLevel[0]);
+            posAndLevel[0]++;
             if (c == '<') {
-                iAndLevel[1] = iAndLevel[1] + 1;
-                curr.name = sb.toString();
-                curr.newTypeArgs();
+                posAndLevel[1]++;
+                curr.setName(sb.toString());
+                typeArgs = new ArrayList<TypeRef>();
+                curr.addTypeArgs(typeArgs);
 
-                TypeName typeName = new TypeName();
-                decodeType(typeAttr, iAndLevel, typeName);
-                curr.addTypeArg(typeName);
+                TypeRef typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
+                typeArgs.add(typeArg);                
             } else if (c == '>') {
-                iAndLevel[1] = iAndLevel[1] - 1;
+                posAndLevel[1]--;
             } else if (c == ',') {
-                curr.name = sb.toString();
-
-                TypeName typeName = new TypeName();
-                decodeType(typeAttr, iAndLevel, typeName);
-                curr.addTypeArg(typeName);
+                TypeRef typeArg = decodeType(typeAttr, posAndLevel, typeArgs);
+                if (typeArgs != null) {
+                    typeArgs.add(typeArg);                    
+                } else {
+                    //System.out.println(typeAttr);
+                }                
             } else if (c == ' ') {
                 // strip it
             } else {
@@ -511,9 +515,11 @@ public abstract class IndexedElement extends AstElement {
             }
         }
 
-        if (curr.name == null) {
-            curr.name = sb.toString();
+        if (curr.getName() == null) {
+            curr.setName(sb.toString());
         }
+        
+        return curr;
     }
 
     public void setSmart(boolean smart) {
@@ -590,7 +596,7 @@ public abstract class IndexedElement extends AstElement {
     /** Return flag corresponding to the given encoding chars */
     public static int decode(String s, int startIndex, int defaultValue) {
         int value = 0;
-        for (int i = startIndex, n = s.length(); i < n; i++) {
+        for (int i = startIndex,  n = s.length(); i < n; i++) {
             char c = s.charAt(i);
             if (c == ';') {
                 if (i == startIndex) {
@@ -1212,7 +1218,7 @@ public abstract class IndexedElement extends AstElement {
                         int typeIndex = ve.indexOf(':');
                         if (typeIndex != -1) {
                             sb.append("<font color=\"#808080\">"); // NOI18N
-                            for (int i = typeIndex + 1, n = ve.length(); i < n; i++) {
+                            for (int i = typeIndex + 1,  n = ve.length(); i < n; i++) {
                                 char c = ve.charAt(i);
                                 if (c == '<') { // Handle types... Array<String> etc
                                     sb.append("&lt;");
@@ -1243,7 +1249,7 @@ public abstract class IndexedElement extends AstElement {
                 sb.append(")"); // NOI18N
             }
 
-            sb.append(" :").append(function.getTypeName().toString());
+            sb.append(" :").append(function.getType().toString());
         }
 
         sb.append("</td>\n"); // NOI18N
@@ -1262,54 +1268,5 @@ public abstract class IndexedElement extends AstElement {
         }
 
         return sb.toString();
-    }
-
-    /** Inner class used for represent a type ref just for name usage */
-    public class TypeName {
-
-        public String name;
-        public List<List<TypeName>> typeArgsList;
-        private List<TypeName> currTypeArgs;
-
-        protected void newTypeArgs() {
-            if (typeArgsList == null) {
-                typeArgsList = new ArrayList<List<TypeName>>();
-            }
-
-            currTypeArgs = new ArrayList<TypeName>();
-            typeArgsList.add(currTypeArgs);
-        }
-
-        protected void addTypeArg(TypeName typeArg) {
-            assert currTypeArgs != null : "Should new a typeArgs first";
-            currTypeArgs.add(typeArg);
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(name);
-            if (typeArgsList == null) {
-                return sb.toString();
-            }
-            
-            for (List<TypeName> typeArgs : typeArgsList) {
-                sb.append("[");
-                if (typeArgs.size() == 0) {
-                    // wildcard
-                    sb.append("_");
-                } else {
-                    for (Iterator<TypeName> itr = typeArgs.iterator(); itr.hasNext();) {
-                        sb.append(itr.next().name);
-                        if (itr.hasNext()) {
-                            sb.append(", ");
-                        }
-                    }
-                }
-                sb.append("]");
-            }
-
-            return sb.toString();
-        }
     }
 }

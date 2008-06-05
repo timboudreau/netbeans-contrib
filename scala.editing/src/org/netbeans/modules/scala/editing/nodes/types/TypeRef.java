@@ -38,6 +38,7 @@
  */
 package org.netbeans.modules.scala.editing.nodes.types;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -184,7 +185,7 @@ public class TypeRef extends AstRef {
     }
     private static final String UNRESOLVED = "-1";
     private List<String> annotations;
-    private List<List<TypeRef>> typeArgsList;
+    protected List<List<TypeRef>> typeArgsList;
 
     public TypeRef(String name, Token idToken, ElementKind kind) {
         super(name, idToken, kind);
@@ -309,4 +310,53 @@ public class TypeRef extends AstRef {
             return qualifiedName == null ? UNRESOLVED : qualifiedName;
         }
     }
+    
+    /** Inner class used for represent a type ref just for name usage */
+    public static class TypeName extends TypeRef {
+
+        public TypeName() {
+            super(null, null, ElementKind.CLASS);
+        }
+        
+        public void addTypeArgs(List<TypeRef> typeArgs) {
+            if (typeArgsList == null) {
+                typeArgsList = new ArrayList<List<TypeRef>>();
+            }
+
+            typeArgsList.add(typeArgs);
+        }
+
+        @Override
+        public String getName() {
+            return super.getName();
+        }        
+        
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(getName());
+            if (typeArgsList == null) {
+                return sb.toString();
+            }
+            
+            for (List<TypeRef> typeArgs : typeArgsList) {
+                sb.append("[");
+                if (typeArgs.size() == 0) {
+                    // wildcard
+                    sb.append("_");
+                } else {
+                    for (Iterator<TypeRef> itr = typeArgs.iterator(); itr.hasNext();) {
+                        sb.append(itr.next().getName());
+                        if (itr.hasNext()) {
+                            sb.append(", ");
+                        }
+                    }
+                }
+                sb.append("]");
+            }
+
+            return sb.toString();
+        }
+    }
+    
 }
