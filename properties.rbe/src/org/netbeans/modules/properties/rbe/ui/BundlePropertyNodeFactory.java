@@ -41,8 +41,8 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 import java.util.List;
-import org.netbeans.modules.properties.rbe.Bundle;
-import org.netbeans.modules.properties.rbe.BundleProperty;
+import org.netbeans.modules.properties.rbe.model.BundleProperty;
+import org.netbeans.modules.properties.rbe.model.TreeItem;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
 
@@ -50,40 +50,23 @@ import org.openide.nodes.Node;
  * The Bundle property node factory
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class BundlePropertyNodeFactory extends ChildFactory<BundleProperty> {
+public class BundlePropertyNodeFactory extends ChildFactory<TreeItem<BundleProperty>> {
 
-    /** The display mode */
-    private Bundle bundle;
     private RBE rbe;
 
-    public BundlePropertyNodeFactory(Bundle bundle, RBE rbe) {
+    public BundlePropertyNodeFactory(RBE rbe) {
         super();
-        this.bundle = bundle;
         this.rbe = rbe;
     }
 
     @Override
-    protected boolean createKeys(List<BundleProperty> toPopulate) {
-        switch (rbe.getMode()) {
-            case FLAT:
-                createAsFlat(toPopulate);
-                break;
-            case TREE:
-                createAsTree(toPopulate);
-        }
+    protected boolean createKeys(List<TreeItem<BundleProperty>> toPopulate) {
+        toPopulate.addAll(rbe.getBundle().getPropertiesTree().getChildren());
         return true;
     }
 
-    private void createAsFlat(List<BundleProperty> toPopulate) {
-        toPopulate.addAll(bundle.getProperties());
-    }
-
-    private void createAsTree(List<BundleProperty> toPopulate) {
-        toPopulate.addAll(bundle.getPropertiesAsTree());
-    }
-
     @Override
-    protected Node createNodeForKey(BundleProperty bundleProperty) {
-        return new BundlePropertyNode(bundleProperty, rbe);
+    protected Node createNodeForKey(TreeItem<BundleProperty> key) {
+        return new BundlePropertyNode(key, rbe);
     }
 }

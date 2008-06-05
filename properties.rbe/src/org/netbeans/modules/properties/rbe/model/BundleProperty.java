@@ -38,43 +38,82 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.properties.rbe.ui;
+package org.netbeans.modules.properties.rbe.model;
 
-import org.netbeans.modules.properties.PropertiesDataObject;
-import org.netbeans.modules.properties.rbe.model.Bundle;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import org.netbeans.modules.properties.Element.ItemElem;
 
 /**
- *
+ * The Bundle property
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class RBE {
+public final class BundleProperty implements Comparable<BundleProperty> {
 
-    /** The display mode */
-    private DisplayMode mode = DisplayMode.FLAT;
-    /** The properties data object */
-    private PropertiesDataObject propertiesDataObject;
-    /** The bundle */
+    /** The property bundle */
     private Bundle bundle;
+    /** The name of the property */
+    private String name;
+    /** The key of the property */
+    private String key;
+    /** The different locale representation of the property */
+    private Map<Locale, BundlePropertyValue> localeRepresentation;
 
-    public RBE(PropertiesDataObject propertiesDataObject) {
-        this.propertiesDataObject = propertiesDataObject;
-        bundle = new Bundle(propertiesDataObject.getBundleStructure());
+    public BundleProperty(Bundle bundle, String name, String fullname) {
+        this.name = name;
+        this.key = fullname;
+        this.bundle = bundle;
     }
 
-    public DisplayMode getMode() {
-        return mode;
+    public String getName() {
+        return name;
     }
 
-    public void setMode(DisplayMode mode) {
-        this.mode = mode;
+    public void setName(String name) {
+        this.name = name;
     }
 
+    public String getKey() {
+        return key;
+    }
+
+//    public void setFullName(String fullname) {
+//        this.fullname = fullname;
+//    }
     public Bundle getBundle() {
         return bundle;
     }
 
-    public static enum DisplayMode {
+//    public Map<Locale, BundlePropertyValue> getLocaleRepresentation() {
+//        return localeRepresentation == null ? Collections.<Locale, BundlePropertyValue>emptyMap() : Collections.unmodifiableMap(localeRepresentation);
+//    }
+    public BundlePropertyValue getLocalRepresentation(Locale locale) {
+        if (localeRepresentation == null) {
+            localeRepresentation = new HashMap<Locale, BundlePropertyValue>();
+        }
+        BundlePropertyValue value = localeRepresentation.get(locale);
+        return value == null ? new BundlePropertyValue(this, locale, null) : value;
+    }
 
-        TREE, FLAT
+    public boolean isEmpty() {
+        return localeRepresentation == null ? true : localeRepresentation.isEmpty();
+    }
+
+    void addLocaleRepresentation(Locale locale, ItemElem itemElem) {
+        if (localeRepresentation == null) {
+            localeRepresentation = new HashMap<Locale, BundlePropertyValue>();
+        }
+        localeRepresentation.put(locale, new BundlePropertyValue(this, locale, itemElem));
+    }
+
+    void removeLocaleRepresentation(Locale locale) {
+        if (localeRepresentation.containsKey(locale)) {
+            localeRepresentation.remove(locale);
+        }
+    }
+
+    public int compareTo(BundleProperty o) {
+        return this.key.compareTo(o.key);
     }
 }

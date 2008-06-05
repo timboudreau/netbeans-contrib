@@ -38,26 +38,75 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.properties.rbe.ui;
+package org.netbeans.modules.properties.rbe.model;
 
-import org.openide.explorer.view.BeanTreeView;
+import java.util.Locale;
+import org.netbeans.modules.properties.Element.ItemElem;
 
 /**
- * The base BeanTreeView class with collapse all method 
+ * The Bundle Property Value
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class ImprovedBeanTreeView extends BeanTreeView {
+public class BundlePropertyValue implements Comparable<BundlePropertyValue> {
 
-    /** 
-     * Collapses all paths.
-     */
-    public void collapseAll() {
-        int i = tree.getRowCount() - 1;
-        while (i >= 0) {
-            tree.collapseRow(i--);
-            if (i >= tree.getRowCount()) {
-                i = tree.getRowCount() - 1;
-            }
+    private BundleProperty property;
+    private Locale locale;
+    private ItemElem itemElem;
+
+    protected BundlePropertyValue(BundleProperty property, Locale locale, ItemElem itemElem) {
+        this.property = property;
+        this.locale = locale;
+        this.itemElem = itemElem;
+    }
+
+    public String getKey() {
+        return property.getKey();
+    }
+
+    public String getValue() {
+        return itemElem == null ? "" : itemElem.getValue();
+    }
+
+    public String getComment() {
+        return itemElem == null ? "" : itemElem.getComment();
+    }
+
+    public void setValue(String value) {
+        if (itemElem == null) {
+            itemElem = property.getBundle().createNewItemElem(locale, property.getKey(), value, "");
+        } else {
+            itemElem.setValue(value);
         }
+    }
+
+    public void setComment(String comment) {
+        if (itemElem == null) {
+            itemElem = property.getBundle().createNewItemElem(locale, property.getKey(), "", comment);
+        } else {
+            itemElem.setComment(comment);
+        }
+    }
+
+    public Locale getLocale() {
+        return locale;
+    }
+
+    public BundleProperty getProperty() {
+        return property;
+    }
+
+    public boolean isCreated() {
+        return itemElem != null;
+    }
+
+    void setItemElem(ItemElem itemElem) {
+        this.itemElem = itemElem;
+    }
+
+    public int compareTo(BundlePropertyValue o) {
+        if (!property.equals(o.property)) {
+            return property.getKey().compareTo(o.property.getKey());
+        }
+        return Bundle.LOCALE_COMPARATOR.compare(locale, o.locale);
     }
 }
