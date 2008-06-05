@@ -328,18 +328,23 @@ initEnvironmentFromSystemRegistry() {
 
 initEnvironment() {
    HOST=`uname -n`
-   HOSTID=`hostid | sed 's/[0x]*//'`
+   HOSTID=""
+   if [`hostid 2> /dev/null 1> /dev/null` ]; then
+       HOSTID=`hostid | sed 's/[0x]*//'`
+   fi
    OSNAME=`uname -s`
    OSVERSION=`uname -r`
    SYSTEMMODEL=`uname -m`::`uname -v`
-   if [ `smbios 2> /dev/null 1>/dev/null` ]; then
+   SYSTEMMANUFACTURER=""
+   CPUMANUFACTORER=""
+   SERIALNUMBER=""
+
+   if [`smbios 2> /dev/null 1>/dev/null` ]; then
       SYSTEMMANUFACTURER=`smbios -t SMB_TYPE_SYSTEM | grep Manufacturer | cut -d: -f2-`
       CPUMANUFACTORER=`smbios -t SMB_TYPE_PROCESSOR | grep Manufacturer | cut -d: -f2-`
       SERIALNUMBER=`smbios -t SMB_TYPE_CHASSIS | grep "Serial Number" | cut -d: -f2-`
-   else 
-      SYSTEMMANUFACTURER=""
-      CPUMANUFACTORER=""
-      SERIALNUMBER=""
+   else
+      CPUMANUFACTORER=`grep vendor /proc/cpuinfo | cut -d: -f2 |uniq`   
    fi
 
    UUID=`generateUUID`
@@ -422,7 +427,7 @@ EOF
 createRegistrationDocument() {
    agentInfoFile="${TMPDIR}/environment.xml"
 
-   if [ ${STSUPPORTED} -eq 1 ]; then
+   if [ ${STSUPPORTED} -eq 1 ] && [ -f /usr/bin/curl ]; then
       initEnvironmentFromSystemRegistry
    else 
       initEnvironment
@@ -578,8 +583,8 @@ for i in $COMPONENTS; do
 done
 
 if [ $DOREGISTER -eq 1 -a "_${COMPONENTS}_" != "__" ]; then
-   createRegistrationDocument
-   generateRegistrationHTML
+   `createRegistrationDocument 1>/dev/null 2>/dev/null`
+   `generateRegistrationHTML 1>/dev/null 2>/dev/null`
    browse "file://${REGISTRATION_PAGE_FILE}"
 fi
 
