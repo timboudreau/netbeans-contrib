@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.properties.rbe;
 
+import java.util.WeakHashMap;
 import org.netbeans.modules.properties.PropertiesDataObject;
 import org.netbeans.modules.properties.rbe.ui.ResourceBundleEditorOpen;
 import org.openide.nodes.Node;
@@ -53,10 +54,19 @@ import org.openide.util.actions.CookieAction;
  */
 public class ResourceBundleEditorAction extends CookieAction {
 
+    /** Cache for all RBE editors */
+    private final WeakHashMap<PropertiesDataObject, ResourceBundleEditorOpen> editors = new WeakHashMap<PropertiesDataObject, ResourceBundleEditorOpen>();
+
     protected void performAction(Node[] activatedNodes) {
         PropertiesDataObject dataObject = activatedNodes[0].getLookup().lookup(PropertiesDataObject.class);
-        ResourceBundleEditorOpen editor = new ResourceBundleEditorOpen(dataObject);
-        editor.open();
+        synchronized (editors) { // Could be?
+            ResourceBundleEditorOpen editor = editors.get(dataObject);
+            if (editor == null) {
+                editor = new ResourceBundleEditorOpen(dataObject);
+                editors.put(dataObject, editor);
+            }
+            editor.open();
+        }
     }
 
     protected int mode() {

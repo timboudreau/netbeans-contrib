@@ -48,7 +48,11 @@ import javax.swing.BoxLayout;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.netbeans.modules.properties.rbe.model.BundleProperty;
 import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.view.BeanTreeView;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 
@@ -101,9 +105,13 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
             explorer = provider.getExplorerManager();
         }
         explorer.addPropertyChangeListener(this);
-        explorer.setRootContext(rbe.createTree());
-        
+        updateBeanTree();
         super.addNotify();
+    }
+
+    protected void updateBeanTree() {
+        explorer.setRootContext(new AbstractNode(Children.create(new BundlePropertyNodeFactory(rbe), true)) {
+        });
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
@@ -113,21 +121,25 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
     }
 
     protected void updateSelectedProperty() {
-        BundlePropertyNode bundlePropertyNode = null;
         if (explorer.getSelectedNodes().length == 1) {
             Node selectedNode = explorer.getSelectedNodes()[0];
             if (selectedNode instanceof BundlePropertyNode) {
-                bundlePropertyNode = (BundlePropertyNode) selectedNode;
+                selectProperty((BundlePropertyNode) selectedNode);
             }
         }
-        selectProperty(bundlePropertyNode);
     }
 
-    public void selectProperty(BundlePropertyNode bundlePropertyNode) {
+    public void selectProperty(final BundlePropertyNode bundlePropertyNode) {
         rightPanel.removeAll();
+        SwingUtilities.invokeLater(new Runnable() {
+
+            public void run() {
+                searchTextField.setText(bundlePropertyNode.getName());
+            }
+        });
         if (bundlePropertyNode != null) {
             for (Locale locale : bundlePropertyNode.getProperty().getBundle().getLocales()) {
-                rightPanel.add(new UIPropertyPanel(locale, bundlePropertyNode.getProperty().getLocaleRepresentation().get(locale), bundlePropertyNode.getProperty().getBundle()));
+                rightPanel.add(new UIPropertyPanel(bundlePropertyNode.getProperty().getLocalRepresentation(locale)));
             }
         }
         rightPanel.updateUI();
@@ -148,7 +160,6 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
         rightPanel = new javax.swing.JPanel();
 
         splitPane.setContinuousLayout(true);
-        splitPane.setMinimumSize(new java.awt.Dimension(15, 6));
 
         leftPanel.setPreferredSize(new java.awt.Dimension(270, 200));
 
@@ -192,7 +203,7 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
         treePanel.setLayout(treePanelLayout);
         treePanelLayout.setHorizontalGroup(
             treePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 65, Short.MAX_VALUE)
+            .add(0, 270, Short.MAX_VALUE)
         );
         treePanelLayout.setVerticalGroup(
             treePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -202,14 +213,19 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
         searchTextField.setText(org.openide.util.NbBundle.getMessage(UIWindow.class, "UIWindow.searchTextField.text")); // NOI18N
 
         createButton.setText(org.openide.util.NbBundle.getMessage(UIWindow.class, "UIWindow.createButton.text")); // NOI18N
+        createButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                createButtonActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout leftPanelLayout = new org.jdesktop.layout.GroupLayout(leftPanel);
         leftPanel.setLayout(leftPanelLayout);
         leftPanelLayout.setHorizontalGroup(
             leftPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(toolbar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 65, Short.MAX_VALUE)
+            .add(toolbar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, leftPanelLayout.createSequentialGroup()
-                .add(searchTextField)
+                .add(searchTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
                 .add(0, 0, 0)
                 .add(createButton))
             .add(treePanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -240,16 +256,16 @@ public class UIWindow extends javax.swing.JPanel implements PropertyChangeListen
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(5, 5, 5)
-                .add(splitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)
-                .add(5, 5, 5))
+                .add(12, 12, 12)
+                .add(splitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 475, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(5, 5, 5)
+            .add(layout.createSequentialGroup()
+                .add(12, 12, 12)
                 .add(splitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 576, Short.MAX_VALUE)
-                .add(5, 5, 5))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -276,53 +292,41 @@ private void changeModeButtonActionPerformed(java.awt.event.ActionEvent evt) {//
     if (rbe.getMode() == RBE.DisplayMode.FLAT) {
         changeModeButton.setText("Flat");
         rbe.setMode(RBE.DisplayMode.TREE);
-        explorer.setRootContext(rbe.createTree());
         collapseAllButton.setEnabled(true);
         expandAllButton.setEnabled(true);
     } else {
         changeModeButton.setText("Tree");
         rbe.setMode(RBE.DisplayMode.FLAT);
-        explorer.setRootContext(rbe.createTree());
         collapseAllButton.setEnabled(false);
         expandAllButton.setEnabled(false);
     }
+    updateBeanTree();
 }//GEN-LAST:event_changeModeButtonActionPerformed
+
+private void createButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createButtonActionPerformed
+    rbe.getBundle().createProperty(searchTextField.getText());
+    updateSelectedProperty();
+//    rbe.getBundle().save();
+}//GEN-LAST:event_createButtonActionPerformed
 
     protected Node getNode(Node root, String prefix) {
         if (root.getChildren().getNodes().length == 0) {
             return root;
         }
-        int xdiff = 0;
-        Node xnode = root;
         for (Node node : root.getChildren().getNodes()) {
-            Node leafNode = getNode(node, prefix);
-            int diff = startWithLength(prefix, leafNode.getName());
-            if (diff > xdiff) {
-                xdiff = diff;
-                xnode = leafNode;
+            BundleProperty property = node.getLookup().lookup(BundleProperty.class);
+            if (property != null && property.getKey().startsWith(prefix)) {
+                return node;
+            }
+            Node subnode = getNode(node, prefix);
+            property = subnode.getLookup().lookup(BundleProperty.class);
+            if (property != null && property.getKey().startsWith(prefix)) {
+                return subnode;
             }
         }
-        int diff = startWithLength(prefix, root.getName());
-        if (diff >= xdiff) {
-            return root;
-        }
-        return xnode;
+        return root;
     }
-
-    protected int startWithLength(String prefix, String string) {
-        char[] prefixArray = prefix.toCharArray();
-        char[] stringArray = string.toCharArray();
-        if (prefix.length() > string.length()) {
-            return 0;
-        }
-        for (int i = 0; i < prefix.length(); i++) {
-            if (prefixArray[i] != stringArray[i]) {
-                return i;
-            }
-        }
-        return prefix.length();
-    }
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton changeModeButton;
     private javax.swing.JButton collapseAllButton;
@@ -336,4 +340,20 @@ private void changeModeButtonActionPerformed(java.awt.event.ActionEvent evt) {//
     private javax.swing.JToolBar toolbar;
     private javax.swing.JPanel treePanel;
     // End of variables declaration//GEN-END:variables
+}
+
+class ImprovedBeanTreeView extends BeanTreeView {
+
+    /** 
+     * Collapses all paths.
+     */
+    public void collapseAll() {
+        int i = tree.getRowCount() - 1;
+        while (i >= 0) {
+            tree.collapseRow(i--);
+            if (i >= tree.getRowCount()) {
+                i = tree.getRowCount() - 1;
+            }
+        }
+    }
 }

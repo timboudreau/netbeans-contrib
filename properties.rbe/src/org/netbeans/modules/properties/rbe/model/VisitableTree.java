@@ -38,16 +38,13 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.properties.rbe.ui;
+package org.netbeans.modules.properties.rbe.model;
 
 /**
- * The Resource Bundle Editor options
- * TODO
+ * The Visitable tree
  * @author Denis Stepanov <denis.stepanov at gmail.com>
  */
-public class ResourceBundleEditorOptions {
+public interface VisitableTree<T extends TreeItem<?>> {
 
-    public static String getSeparator() {
-        return "_";
-    }
+    void accept(TreeVisitor<T> visitor);
 }
