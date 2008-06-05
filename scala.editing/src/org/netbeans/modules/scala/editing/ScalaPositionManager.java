@@ -50,7 +50,6 @@ import org.netbeans.modules.gsf.api.PositionManager;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstDef;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -61,11 +60,8 @@ public class ScalaPositionManager implements PositionManager {
     public OffsetRange getOffsetRange(CompilationInfo info, ElementHandle object) {
         OffsetRange range = OffsetRange.NONE;
 
-        final Document document;
-        try {
-            document = info.getDocument();
-        } catch (Exception e) {
-            Exceptions.printStackTrace(e);
+        final Document document = info.getDocument();
+        if (document == null) {
             return OffsetRange.NONE;
         }
 

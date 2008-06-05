@@ -51,7 +51,6 @@ import org.netbeans.modules.gsf.api.OffsetRange;
 import org.netbeans.modules.scala.editing.lexer.ScalaLexUtilities;
 import org.netbeans.modules.scala.editing.nodes.AstElement;
 import org.netbeans.modules.scala.editing.nodes.AstScope;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -73,11 +72,8 @@ public class ScalaInstantRenamer implements InstantRenamer {
             return false;
         }
 
-        final Document document;
-        try {
-            document = info.getDocument();
-        } catch (Exception e) {
-            Exceptions.printStackTrace(e);
+        final Document document = info.getDocument();
+        if (document == null) {
             return false;
         }
 
@@ -113,11 +109,8 @@ public class ScalaInstantRenamer implements InstantRenamer {
             return Collections.emptySet();
         }
 
-        final Document document;
-        try {
-            document = info.getDocument();
-        } catch (Exception e) {
-            Exceptions.printStackTrace(e);
+        final Document document = info.getDocument();
+        if (document == null) {
             return Collections.emptySet();
         }
 

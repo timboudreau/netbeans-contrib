@@ -257,6 +257,7 @@ public class GenerateXSD {
 
         ret += getTab(level) + "<xsd:complexType name=\"ResponseAttributeType\" >" + "\n";
         ret += getTab(level + 1) + "<xsd:sequence>" + "\n";
+        ret += generateElement("itemIndex", "xsd:int", null, level+2);
         ret += mResponseTypeElements;
         ret += getTab(level + 1) + "</xsd:sequence>" + "\n";
         ret += getTab(level) + "</xsd:complexType>" + "\n";
@@ -381,6 +382,9 @@ public class GenerateXSD {
         ret+=getTab(level+1)+"<xsd:sequence>\n";
         ret+=generateElement("code", "xsd:string", null, level+2);
         ret+=generateElement("requestId", "xsd:string", null, level+2);
+        if (mFunction.equals("Search")) {
+            ret+=generateElement("itemCount", "xsd:int", null, level+2);
+        }
         ret+=getTab(level+1)+"</xsd:sequence>\n";
         ret+=getTab(level)+"</xsd:complexType>\n\n";    
         return ret;

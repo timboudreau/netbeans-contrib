@@ -54,10 +54,12 @@ public class EJSLanguage extends JsLanguage {
         return EJSTokenId.language();
     }
 
+    @Override
     public String getDisplayName() {
         return "EJS";
     }
 
+    @Override
     public String getPreferredExtension() {
         return "ejs"; // NOI18N
     }

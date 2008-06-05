@@ -40,8 +40,8 @@
  */
 package org.netbeans.modules.scala.stdplatform.platformdefinition;
 
-import org.netbeans.api.scala.platform.JavaPlatform;
-import org.netbeans.api.scala.platform.JavaPlatformManager;
+import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.modules.gsfpath.spi.queries.SourceLevelQueryImplementation;
 
 /**
@@ -57,7 +57,7 @@ public class J2SEPlatformSourceLevelQueryImpl implements SourceLevelQueryImpleme
     public String getSourceLevel(org.openide.filesystems.FileObject javaFile) {
         try {
         } catch (Exception e) {}
-        JavaPlatform[] platforms = JavaPlatformManager.getDefault().getInstalledPlatforms ();
+        ScalaPlatform[] platforms = ScalaPlatformManager.getDefault().getInstalledPlatforms ();
         for (int i=0; i< platforms.length; i++) {
             if (J2SEPlatformImpl.PLATFORM_J2SE.equalsIgnoreCase(platforms[i].getSpecification().getName()) && platforms[i].getSourceFolders().contains(javaFile)) {   //NOI18N
                 return platforms[i].getSpecification().getVersion().toString();

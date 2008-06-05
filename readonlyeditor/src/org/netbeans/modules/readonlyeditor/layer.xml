@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Editors">
+        <folder name="Toolbars">
+            <folder name="Default">
+                <file name="SeparatorBeforeToggleReadOnlyAction.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    <attr name="position" intvalue="20000"/>
+                </file>
+                <file name="org-netbeans-modules-readonlyeditor-ToggleReadOnlyAction.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.readonlyeditor.ToggleReadOnlyAction"/>
+                    <attr name="position" intvalue="20100"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="OptionsDialog">
+        <folder name="Advanced">
+            <file name="org-netbeans-modules-readonlyeditor-ReadOnlyEditorAdvancedOption.instance"/>
+        </folder>
+    </folder>
+</filesystem>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://xml.netbeans.org/schema/ProductDescription"
+            xmlns:tns="http://xml.netbeans.org/schema/ProductDescription"
+            elementFormDefault="qualified">
+    <xsd:element name="component">
+        <xsd:complexType>
+            <xsd:sequence
+                maxOccurs="unbounded">
+                <xsd:element ref="tns:block"/>
+            </xsd:sequence>
+            <xsd:attribute name="name" type="xsd:string" use="required"/>
+            <xsd:attribute name="uid" type="xsd:ID" use="required"/>
+            <xsd:attribute name="dependency" type="xsd:IDREF"/>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="product">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="tns:group" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="tns:component" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="name" type="xsd:string" use="required"/>
+            <xsd:attribute name="version" type="xsd:string" use="required"/>
+            <xsd:attribute name="source" type="xsd:string" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="group">
+        <xsd:complexType>
+            <xsd:sequence maxOccurs="unbounded">
+                <xsd:element ref="tns:component"/>
+            </xsd:sequence>
+            <xsd:attribute name="name" type="xsd:string" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="unit" type="tns:unit"></xsd:element>
+    <xsd:element name="block">
+        <xsd:complexType>
+            <xsd:sequence maxOccurs="unbounded">
+            <xsd:choice>
+                <xsd:element name="nbm" type="tns:nbm" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element name="svr" type="tns:svr" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element name="rpm" type="tns:rpm" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element name="file" type="tns:file" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element name="patch" type="tns:patch" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:choice>
+            </xsd:sequence>
+            <xsd:attribute name="platform" type="tns:platform"/>
+            <xsd:attribute name="source" type="xsd:string"/>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:simpleType name="platform">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="solaris-x86"/>
+            <xsd:enumeration value="solaris-sparc"/>
+            <xsd:enumeration value="linux-x86"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <!--
+    <xsd:simpleType name="unitType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="file"/>
+            <xsd:enumeration value="svr4"/>
+            <xsd:enumeration value="rpm"/>
+            <xsd:enumeration value="nbm"/>
+            <xsd:enumeration value="zip"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    -->
+    
+    <xsd:complexType name="unit" abstract="true">
+        <xsd:attribute name="source" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="nbm">
+        <xsd:complexContent>
+            <xsd:extension base="tns:unit"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+  
+    <xsd:complexType name="zip">
+        <xsd:complexContent>
+            <xsd:extension base="tns:unit"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="svr">
+        <xsd:complexContent>
+            <xsd:extension base="tns:unit"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="rpm">
+        <xsd:complexContent>
+            <xsd:extension base="tns:unit"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="file">
+        <xsd:complexContent>
+            <xsd:extension base="tns:unit"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="patch">
+        <xsd:complexContent>
+            <xsd:extension base="tns:unit"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+</xsd:schema>

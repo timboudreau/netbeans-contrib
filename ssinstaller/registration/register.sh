@@ -6,6 +6,12 @@
 
 trap "on_exit; exit" 1 2 15 EXIT
 
+if [ `uname` != "SunOS" ] && [ `uname` != "Linux" ]
+then
+  echo "Neither Solaris or Linux. Exiting." 
+  exit 1
+fi
+
 #
 # Below are some customization properties ...
 #
@@ -18,7 +24,12 @@ PRODUCTID="nb"
 
 # REGISTRATION_DIR - a directory to store UIDs for
 #      already registered instances of product
-REGISTRATION_DIR="SUNWspro/registration"
+
+SUNSTUDIO_DIR=`uname | sed s/SunOS/SUNWspro/ | sed s/Linux/sunstudioceres/`
+
+NETBEANS_DIR="netbeans-6.1"
+
+REGISTRATION_DIR="${SUNSTUDIO_DIR}/registration"
 
 # REGISTRATION_PAGE - location of a generated registration page
 REGISTRATION_PAGE=`pwd`/"${REGISTRATION_DIR}/register-sunstudio.html"
@@ -45,7 +56,7 @@ STDIR="./servicetag"
 
 #cd `dirname "$0"`
 PWD=`pwd`
-PATH=/usr/bin:/usr/sbin:/bin:$PWD/SUNWspro/bin
+PATH=/usr/bin:/usr/sbin:/bin:$PWD/${SUNSTUDIO_DIR}/bin
 MYNAME=`basename "$0"`
 PID=$$
 TMPDIR=/tmp/ssregister.${PID}
@@ -86,6 +97,9 @@ ExtractSWValue() {
 #
 
 generateUUID() {
+if [ `uname` == "Linux" ]; then
+  echo `uuidgen`
+else
    cd ${TMPDIR}
    PROGNAME="./genuuid"
 
@@ -104,7 +118,9 @@ int main() {
 EOF
   cc -luuid ${PROGNAME}.c -o ${PROGNAME}
   echo `${PROGNAME}`
+fi
 }
+
 
 # This script allows to install/uninstall servicetags for 
 # LOCALLY installed products only.
@@ -529,17 +545,18 @@ browse() {
 }
 
 unpack() {
-    echo "Please wait while Sun Studio is unpacked into this directory"
+    echo "Please wait while Sun Studio is unpacked into this directory."
     
-    mkdir SUNWspro || exit 1;
-    rm -r SUNWspro
+    mkdir ${SUNSTUDIO_DIR} || exit 1;
+    rm -r ${SUNSTUDIO_DIR}
     
-    mkdir netbeans-6.1 || exit 1;
-    rm -r netbeans-6.1
+    mkdir ${NETBEANS_DIR} || exit 1;
+    rm -r ${NETBEANS_DIR}
 
     tail +__tail_length > ${TMPDIR}/sunstudio.tar.bz2
     bzcat ${TMPDIR}/sunstudio.tar.bz2 | tar -xf -
     rm ${TMPDIR}/sunstudio.tar.bz2
+    echo "Sun Studio was successfully installed."
 }
 
 

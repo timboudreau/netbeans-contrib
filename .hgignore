@@ -1,5 +1,7 @@
 /build$
 /nbproject/private$
+/nbproject/sqe.properties$
+/nbproject/findbugs.settings$
 /test/(coverage|lib|results|work)$
 \.class$
 \.DS_Store$
@@ -36,7 +38,6 @@
 ^htmldiff/.*\.nbm$
 ^htmldiff/diff$
 ^other/jfind/dist$
-^omnidebugger/external/debugger\.jar$
 ^other/oome/netbeans$
 ^other/oome/.*-subst\.mf$
 ^other/oome/tmp_insanesrc$

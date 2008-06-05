@@ -51,8 +51,8 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.netbeans.api.scala.platform.JavaPlatformManager;
-import org.netbeans.api.scala.platform.JavaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
+import org.netbeans.api.scala.platform.ScalaPlatform;
 import org.netbeans.modules.gsfpath.api.queries.SourceForBinaryQuery;
 import org.netbeans.modules.gsfpath.spi.queries.SourceForBinaryQueryImplementation;
 import org.openide.util.ChangeSupport;
@@ -86,8 +86,8 @@ public class PlatformSourceForBinaryQuery implements SourceForBinaryQueryImpleme
         if (res != null) {
             return res;
         }
-        JavaPlatformManager mgr = JavaPlatformManager.getDefault();
-        for (JavaPlatform platform : mgr.getInstalledPlatforms()) {
+        ScalaPlatformManager mgr = ScalaPlatformManager.getDefault();
+        for (ScalaPlatform platform : mgr.getInstalledPlatforms()) {
             for (ClassPath.Entry entry : platform.getBootstrapLibraries().entries()) {
                 if (entry.getURL().equals (binaryRoot)) {
                     res = new Result(platform);
@@ -121,10 +121,10 @@ public class PlatformSourceForBinaryQuery implements SourceForBinaryQueryImpleme
     
     private static class Result implements SourceForBinaryQuery.Result, PropertyChangeListener {
                         
-        private JavaPlatform platform;
+        private ScalaPlatform platform;
         private final ChangeSupport cs = new ChangeSupport(this);
                         
-        public Result (JavaPlatform platform) {
+        public Result (ScalaPlatform platform) {
             this.platform = platform;
             this.platform.addPropertyChangeListener(WeakListeners.create(PropertyChangeListener.class, this, platform));
         }
@@ -145,7 +145,7 @@ public class PlatformSourceForBinaryQuery implements SourceForBinaryQueryImpleme
         }
         
         public void propertyChange (PropertyChangeEvent event) {
-            if (JavaPlatform.PROP_SOURCE_FOLDER.equals(event.getPropertyName())) {
+            if (ScalaPlatform.PROP_SOURCE_FOLDER.equals(event.getPropertyName())) {
                 cs.fireChange();
             }
         }

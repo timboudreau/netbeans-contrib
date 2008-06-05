@@ -40,6 +40,7 @@ package org.netbeans.modules.fortress.editing;
 
 import com.sun.fortress.nodes.Node;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.Map;
 import org.netbeans.modules.fortress.editing.visitors.Scope;
 import org.netbeans.modules.fortress.editing.visitors.Signature;
@@ -55,9 +56,9 @@ import org.netbeans.modules.gsf.api.SemanticAnalyzer;
 public class FortressSemanticAnalyzer implements SemanticAnalyzer {
 
     private boolean cancelled;
-    private Map<OffsetRange, ColoringAttributes> semanticHighlights;
+    private Map<OffsetRange, Set<ColoringAttributes>> semanticHighlights;
 
-    public Map<OffsetRange, ColoringAttributes> getHighlights() {
+    public Map<OffsetRange, Set<ColoringAttributes>> getHighlights() {
         return semanticHighlights;
     }
 
@@ -96,7 +97,7 @@ public class FortressSemanticAnalyzer implements SemanticAnalyzer {
 
         Scope rootScope = result.getRootScope();
         
-        Map<OffsetRange, ColoringAttributes> highlights = new HashMap<OffsetRange, ColoringAttributes>(100);
+        Map<OffsetRange, Set<ColoringAttributes>> highlights = new HashMap<OffsetRange, Set<ColoringAttributes>>(100);
         visitScopeRecursively(info, rootScope, highlights);
 
         if (highlights.size() > 0) {
@@ -118,21 +119,21 @@ public class FortressSemanticAnalyzer implements SemanticAnalyzer {
         }
     }
 
-    private void visitScopeRecursively(CompilationInfo info, Scope scope, Map<OffsetRange, ColoringAttributes> highlights) {
+    private void visitScopeRecursively(CompilationInfo info, Scope scope, Map<OffsetRange, Set<ColoringAttributes>> highlights) {
         for (Signature definition : scope.getDefinitions()) {
             OffsetRange range = definition.getNameRange();
             switch (definition.getKind()) {
                 case MODULE:
-                    highlights.put(range, ColoringAttributes.CLASS);
+                    highlights.put(range, ColoringAttributes.CLASS_SET);
                     break;
                 case CLASS:
-                    highlights.put(range, ColoringAttributes.CLASS);
+                    highlights.put(range, ColoringAttributes.CLASS_SET);
                     break;
                 case METHOD:
-                    highlights.put(range, ColoringAttributes.METHOD);
+                    highlights.put(range, ColoringAttributes.METHOD_SET);
                     break;
                 case FIELD:
-                    highlights.put(range, ColoringAttributes.FIELD);
+                    highlights.put(range, ColoringAttributes.FIELD_SET);
                     break;
                 default:
             }

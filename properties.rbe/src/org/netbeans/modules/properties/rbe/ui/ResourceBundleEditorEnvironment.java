@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.properties.rbe.ui;
 
+import org.netbeans.modules.properties.rbe.ui.ResourceBundleEditorOpen;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;

@@ -264,7 +264,8 @@ public class ScalaTypeInferencer {
                 IndexedFunction idxFunction = (IndexedFunction) member;
 
                 if (idxFunction.isReferredBy(funRef)) {
-                    String idxRetTypeStr = idxFunction.getTypeString();
+                    IndexedElement.TypeName idxRetTypeName = idxFunction.getTypeName();
+                    String idxRetTypeStr = idxRetTypeName == null ? null : idxRetTypeName.name;
                     if (idxRetTypeStr == null) {
                         idxRetTypeStr = "void";
                     }
@@ -373,12 +374,12 @@ public class ScalaTypeInferencer {
                     IndexedFunction idxFunction = (IndexedFunction) member;
                     if (idxFunction.isNullArgs()) {
                         isCandicate = true;
-                        idxRetTypeStr = idxFunction.getTypeString();
+                        idxRetTypeStr = idxFunction.getTypeName().name;
                     }
                 } else if (member instanceof IndexedField) {
                     IndexedField idxField = (IndexedField) member;
                     isCandicate = true;
-                    idxRetTypeStr = idxField.getTypeString();
+                    idxRetTypeStr = idxField.getTypeName().name;
                 }
 
                 if (isCandicate) {

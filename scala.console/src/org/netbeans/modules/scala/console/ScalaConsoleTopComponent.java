@@ -48,6 +48,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.io.PrintStream;
@@ -57,15 +58,19 @@ import javax.swing.BorderFactory;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import java.io.Serializable;
+import java.util.List;
+import java.util.concurrent.Callable;
 import javax.swing.UIManager;
 import javax.swing.text.Caret;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
-import org.netbeans.modules.languages.execution.ExecutionDescriptor;
-import org.netbeans.modules.languages.execution.ExecutionService;
+import org.netbeans.modules.extexecution.api.ExecutionDescriptor;
+import org.netbeans.modules.extexecution.api.ExecutionDescriptorBuilder;
+import org.netbeans.modules.extexecution.api.ExecutionService;
+import org.netbeans.modules.extexecution.api.ExternalProcessBuilder;
+import org.netbeans.modules.extexecution.api.input.InputProcessor;
 import org.netbeans.modules.languages.execution.console.TextAreaReadline;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
@@ -74,32 +79,35 @@ import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.Task;
 import org.openide.util.TaskListener;
+import org.openide.windows.OutputListener;
+import org.openide.windows.OutputWriter;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.openide.util.Utilities;
+import org.openide.windows.InputOutput;
 
 /**
- * 
+ *
  * @author Tor Norbye, Caoyuan Deng
  */
 final class ScalaConsoleTopComponent extends TopComponent {
     private boolean finished = true;
     private JTextPane textPane;
     private String mimeType = "text/x-console";
-    
+
     private static ScalaConsoleTopComponent instance;
     /** path to the icon used by the component and its open action */
     static final String ICON_PATH = "org/netbeans/modules/scala/console/resources/scala16x16.png"; // NOI18N
-    
+
     private static final String PREFERRED_ID = "ScalaConsoleTopComponent"; // NOI18N
-    
+
     private ScalaConsoleTopComponent() {
         initComponents();
         setName(NbBundle.getMessage(ScalaConsoleTopComponent.class, "CTL_ScalaConsoleTopComponent"));
         setToolTipText(NbBundle.getMessage(ScalaConsoleTopComponent.class, "HINT_ScalaConsoleTopComponent"));
         setIcon(Utilities.loadImage(ICON_PATH, true));
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -110,11 +118,11 @@ final class ScalaConsoleTopComponent extends TopComponent {
 
         setLayout(new java.awt.BorderLayout());
     }// </editor-fold>//GEN-END:initComponents
-    
-    
+
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
-    
+
     /**
      * Gets default instance. Do not use directly: reserved for *.settings files only,
      * i.e. deserialization routines; otherwise you could get a non-deserialized instance.
@@ -126,7 +134,7 @@ final class ScalaConsoleTopComponent extends TopComponent {
         }
         return instance;
     }
-    
+
     /**
      * Obtain the IrbTopComponent instance. Never call {@link #getDefault} directly!
      */
@@ -145,12 +153,12 @@ final class ScalaConsoleTopComponent extends TopComponent {
                 "' ID. That is a potential source of errors and unexpected behavior.");
         return getDefault();
     }
-    
+
     @Override
     public int getPersistenceType() {
         return TopComponent.PERSISTENCE_ALWAYS;
     }
-    
+
     @Override
     public void componentOpened() {
         if (finished) {
@@ -160,12 +168,12 @@ final class ScalaConsoleTopComponent extends TopComponent {
             createTerminal();
         }
     }
-    
+
     @Override
     public void componentClosed() {
         // Leave the terminal session running
     }
-    
+
     @Override
     public void componentActivated() {
         // Make the caret visible. See comment under componentDeactivated.
@@ -176,7 +184,7 @@ final class ScalaConsoleTopComponent extends TopComponent {
             }
         }
     }
-    
+
     @Override
     public void componentDeactivated() {
         // I have to turn off the caret when the window loses focus. Text components
@@ -190,36 +198,36 @@ final class ScalaConsoleTopComponent extends TopComponent {
             }
         }
     }
-    
+
     /** replaces this in object stream */
     @Override
     public Object writeReplace() {
         return new ResolvableHelper();
     }
-    
+
     @Override
     protected String preferredID() {
         return PREFERRED_ID;
     }
-    
+
     final static class ResolvableHelper implements Serializable {
         private static final long serialVersionUID = 1L;
         public Object readResolve() {
             return ScalaConsoleTopComponent.getDefault();
         }
     }
-    
+
     public void createTerminal() {
         final PipedInputStream pipeIn = new PipedInputStream();
-        
+
         textPane = new JTextPane();
         textPane.getDocument().putProperty("mimeType", mimeType);
-	
+
         textPane.setMargin(new Insets(8,8,8,8));
         textPane.setCaretColor(new Color(0xa4, 0x00, 0x00));
         textPane.setBackground(new Color(0xf2, 0xf2, 0xf2));
         textPane.setForeground(new Color(0xa4, 0x00, 0x00));
-        
+
         // From core/output2/**/AbstractOutputPane
         Integer i = (Integer) UIManager.get("customFontSize"); //NOI18N
         int size;
@@ -229,22 +237,22 @@ final class ScalaConsoleTopComponent extends TopComponent {
             Font f = (Font) UIManager.get("controlFont"); // NOI18N
             size = f != null ? f.getSize() : 11;
         }
-        
+
         Font font = new Font("Monospaced", Font.PLAIN, size); //NOI18N
         if (font == null) {
             font = new Font("Lucida Sans Typewriter", Font.PLAIN, size);
         }
         textPane.setFont(font);
-        
+
         setBorder(BorderFactory.createEmptyBorder());
-        
+
         // Try to initialize colors from NetBeans properties, see core/output2
         Color c = UIManager.getColor("nb.output.selectionBackground"); // NOI18N
         if (c != null) {
             textPane.setSelectionColor(c);
         }
 
-	
+
         //Object value = Settings.getValue(BaseKit.class, SettingsNames.CARET_COLOR_INSERT_MODE);
         //Color caretColor;
         //if (value instanceof Color) {
@@ -275,8 +283,8 @@ final class ScalaConsoleTopComponent extends TopComponent {
         //if (unselectedErr == null) {
         //    unselectedErr = selectedErr;
         //}
-        
-        
+
+
         JScrollPane pane = new JScrollPane();
         pane.setViewportView(textPane);
         pane.setBorder(BorderFactory.createLineBorder(Color.darkGray));
@@ -288,14 +296,41 @@ final class ScalaConsoleTopComponent extends TopComponent {
                 pipeIn); // NOI18N
         File pwd = getMainProjectWorkPath();
 	String workPath = pwd.getPath();
-        Reader in = new InputStreamReader(pipeIn);
-        PrintWriter out = new PrintWriter(new PrintStream(taReadline));
-        PrintWriter err = new PrintWriter(new PrintStream(taReadline));
-        ExecutionDescriptor descriptor = new ExecutionDescriptor("Scala Shell", pwd);
-        descriptor.interactive(true).showProgress(false).showSuspended(false).rebuildCmd(true);  
-//		.initialArgs("-Xmx256M -Xms16M " + "-classpath " + workPath + File.separator + "build ");  
-        ExecutionService executionService = new ScalaExecution(descriptor);
-        Task task = executionService.run(in, out, err);
+        final Reader in = new InputStreamReader(pipeIn);
+        final PrintWriter out = new PrintWriter(new PrintStream(taReadline));
+        final PrintWriter err = new PrintWriter(new PrintStream(taReadline));
+//        ExecutionDescriptor descriptor = new ExecutionDescriptor("Scala Shell", pwd);
+//        descriptor.interactive(true).showProgress(false).showSuspended(false).rebuildCmd(true);
+
+
+        String scalaHome = ScalaExecution.getScalaHome();
+        String cmdName = ScalaExecution.getScala().getName();
+        List<String> scalaArgs = ScalaExecution.getScalaArgs(scalaHome, cmdName);
+        final ExternalProcessBuilder builder = new ExternalProcessBuilder(scalaArgs.get(0));
+
+
+        for (int index = 1; index < scalaArgs.size(); index++) {
+            builder.addArgument(scalaArgs.get(index));
+        }
+        builder.addEnvironmentVariable("JAVA_HOME", ScalaExecution.getJavaHome());
+        builder.addEnvironmentVariable("SCALA_HOME", ScalaExecution.getScalaHome());
+        builder.pwd(pwd);
+
+//        ExecutionService executionService = new ScalaExecution(descriptor);
+//        Task task = executionService.run(in, out, err);
+        ExecutionDescriptorBuilder execBuilder = new ExecutionDescriptorBuilder();
+        execBuilder.frontWindow(true).inputVisible(true);
+        execBuilder.inputOutput(new CustomInputOutput(in, out, err));
+        
+        ExecutionService executionService = new ExecutionService(new Callable<Process>() {
+
+            public Process call() throws Exception {
+                return builder.create();
+            }
+
+        }, "Scala Shell", execBuilder.create());
+
+        Task task = executionService.run();
 
         task.addTaskListener(new TaskListener() {
             public void taskFinished(Task task) {
@@ -310,7 +345,7 @@ final class ScalaConsoleTopComponent extends TopComponent {
                 });
             }
         });
-        
+
         // [Issue 91208]  avoid of putting cursor in IRB console on line where is not a prompt
         textPane.addMouseListener(new MouseAdapter() {
             @Override
@@ -325,10 +360,10 @@ final class ScalaConsoleTopComponent extends TopComponent {
                         if (pos == -1) {
                             return;
                         }
-                        
+
                         try {
                             Rectangle r = textPane.modelToView(pos);
-                            
+
                             if (mouseY >= r.y) {
                                 // The click was on the last line; try to set the X to the position where
                                 // the user clicked since perhaps it was an attempt to edit the existing
@@ -338,7 +373,7 @@ final class ScalaConsoleTopComponent extends TopComponent {
                                 r.x = mouseX;
                                 pos = textPane.viewToModel(r.getLocation());
                             }
-                            
+
                             textPane.getCaret().setDot(pos);
                         } catch (BadLocationException ble) {
                             Exceptions.printStackTrace(ble);
@@ -346,25 +381,25 @@ final class ScalaConsoleTopComponent extends TopComponent {
                     }
                 });
             }
-        }); 
+        });
     }
-    
+
     @Override
     public void requestFocus() {
         if (textPane != null) {
             textPane.requestFocus();
         }
     }
-    
+
     @Override
     public boolean requestFocusInWindow() {
         if (textPane != null) {
             return textPane.requestFocusInWindow();
         }
-        
+
         return false;
     }
-    
+
     private File getMainProjectWorkPath() {
         File pwd = null;
         Project mainProject = OpenProjects.getDefault().getMainProject();
@@ -380,5 +415,95 @@ final class ScalaConsoleTopComponent extends TopComponent {
             pwd = new File(userHome);
         }
         return pwd;
+    }
+
+    private static class CustomInputOutput implements InputOutput {
+
+        private final Reader input;
+
+        private final PrintWriter out;
+
+        private final PrintWriter err;
+
+        private boolean closed;
+
+        public CustomInputOutput(Reader input, PrintWriter out, PrintWriter err) {
+            this.input = input;
+            this.out = out;
+            this.err = err;
+        }
+                
+        public void closeInputOutput() {
+            closed = true;
+        }
+
+        public Reader flushReader() {
+            return input;
+        }
+
+        public OutputWriter getErr() {
+            return new CustomOutputWriter(err);
+        }
+
+        public Reader getIn() {
+            return input;
+        }
+
+        public OutputWriter getOut() {
+            return new CustomOutputWriter(out);
+        }
+
+        public boolean isClosed() {
+            return closed;
+        }
+
+        public boolean isErrSeparated() {
+            return false;
+        }
+
+        public boolean isFocusTaken() {
+            return false;
+        }
+
+        public void select() {
+            
+        }
+
+        public void setErrSeparated(boolean value) {
+            
+        }
+
+        public void setErrVisible(boolean value) {
+            
+        }
+
+        public void setFocusTaken(boolean value) {
+            
+        }
+
+        public void setInputVisible(boolean value) {
+            
+        }
+
+        public void setOutputVisible(boolean value) {
+            
+        }
+    }
+
+    private static class CustomOutputWriter extends OutputWriter {
+
+        public CustomOutputWriter(PrintWriter pw) {
+            super(pw);
+        }
+
+        @Override
+        public void println(String s, OutputListener l) throws IOException {
+            println(s);
+        }
+
+        @Override
+        public void reset() throws IOException {
+
+        }
     }
 }

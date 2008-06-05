@@ -48,8 +48,8 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
 import org.netbeans.modules.gsfpath.spi.classpath.ClassPathProvider;
-import org.netbeans.api.scala.platform.JavaPlatform;
-import org.netbeans.api.scala.platform.JavaPlatformManager;
+import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.modules.gsfpath.spi.classpath.PathResourceImplementation;
 
 
@@ -66,13 +66,13 @@ public class PlatformClassPathProvider implements ClassPathProvider {
         if (fo == null || type == null) {
             throw new IllegalArgumentException();
         }
-        JavaPlatform lp = this.getLastUsedPlatform(fo);
-        JavaPlatform[] platforms;
+        ScalaPlatform lp = this.getLastUsedPlatform(fo);
+        ScalaPlatform[] platforms;
         if (lp != null) {
-            platforms = new JavaPlatform[] {lp};
+            platforms = new ScalaPlatform[] {lp};
         }
         else {
-            JavaPlatformManager manager = JavaPlatformManager.getDefault();
+            ScalaPlatformManager manager = ScalaPlatformManager.getDefault();
             platforms = manager.getInstalledPlatforms();
         }
         for (int i=0; i<platforms.length; i++) {
@@ -113,12 +113,12 @@ public class PlatformClassPathProvider implements ClassPathProvider {
         return this.emptyCp;
     }
 
-    private synchronized void setLastUsedPlatform (FileObject root, JavaPlatform platform) {
+    private synchronized void setLastUsedPlatform (FileObject root, ScalaPlatform platform) {
         this.lastUsedRoot = root;
         this.lastUsedPlatform = platform;
     }
 
-    private synchronized JavaPlatform getLastUsedPlatform (FileObject file) {
+    private synchronized ScalaPlatform getLastUsedPlatform (FileObject file) {
         if (this.lastUsedRoot != null && FileUtil.isParentOf(this.lastUsedRoot,file)) {
             return lastUsedPlatform;
         }
@@ -128,6 +128,6 @@ public class PlatformClassPathProvider implements ClassPathProvider {
     }
 
     private FileObject lastUsedRoot;
-    private JavaPlatform lastUsedPlatform;
+    private ScalaPlatform lastUsedPlatform;
     private ClassPath emptyCp;
 }

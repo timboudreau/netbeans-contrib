@@ -1388,15 +1388,11 @@ public class ScalaLexUtilities {
     public static List<String> gatherDocumentation(CompilationInfo info, BaseDocument baseDoc, int nodeOffset) {
         LinkedList<String> comments = new LinkedList<String>();
         int elementBegin = nodeOffset;
-        try {
-            if (info != null && info.getDocument() == baseDoc) {
-                elementBegin = ScalaLexUtilities.getLexerOffset(info, elementBegin);
-                if (elementBegin == -1) {
-                    return null;
-                }
+        if (info != null && info.getDocument() == baseDoc) {
+            elementBegin = ScalaLexUtilities.getLexerOffset(info, elementBegin);
+            if (elementBegin == -1) {
+                return null;
             }
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
         }
 
         try {

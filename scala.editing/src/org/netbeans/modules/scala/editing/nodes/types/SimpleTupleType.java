@@ -46,6 +46,7 @@ import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.modules.gsf.api.ElementKind;
 import org.netbeans.modules.gsf.api.HtmlFormatter;
+import org.netbeans.modules.scala.editing.nodes.AstScope;
 
 /**
  *
@@ -66,6 +67,11 @@ public class SimpleTupleType extends TypeRef {
         return types == null ? Collections.<TypeRef>emptyList() : types;
     }
 
+    @Override
+    public AstScope getEnclosingScope() {
+        return types.get(0).getEnclosingScope();
+    }    
+    
     @Override
     public int getPickOffset(TokenHierarchy th) {
         return -1;

@@ -198,7 +198,7 @@ final class IndexBrowserTopComponent extends TopComponent {
     
     private String getUrlLabel(URL url) {
         String path = url.toExternalForm();
-        int index = path.indexOf("jruby-1.1");
+        int index = path.indexOf("jruby-1.1.2");
         if (index != -1) {
             path = path.substring(index+12);
         }

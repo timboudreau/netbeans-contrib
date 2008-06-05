@@ -116,34 +116,77 @@ public class JavaIndex {
             prefix = fqnPrefix.substring(lastDot + 1, fqnPrefix.length());
         }
 
+        Types theTypes = info.getTypes();
         Elements theElements = info.getElements();
         PackageElement pe = theElements.getPackageElement(pkgName);
         if (pe != null) {
+            Set<Element> foundElements = new HashSet<Element>();
+            Set<String> scalaElementNames = new HashSet<String>();
+
             Set<IndexedElement> idxElements = new HashSet<IndexedElement>();
+
             for (Element e : pe.getEnclosedElements()) {
-                if (e.getKind().isClass() || e.getKind().isInterface()) {
-                    String simpleName = e.getSimpleName().toString();
-                    if (JavaUtilities.startsWith(simpleName, prefix)) {
-                        String in = "";
-                        StringBuilder base = new StringBuilder();
-                        base.append(simpleName.toLowerCase());
-                        base.append(';');
-                        if (in != null) {
-                            base.append(in);
+                String simpleName = e.getSimpleName().toString();
+                
+                TypeMirror tm = e.asType();
+                TypeElement te = tm.getKind() == TypeKind.DECLARED
+                        ? (TypeElement) ((DeclaredType) tm).asElement()
+                        : null;
+
+                if (te != null) {
+                    JavaScalaMapping.ScalaKind scalaKind = JavaScalaMapping.getScalaKind(te);
+                    if (scalaKind != null) {
+                        switch (scalaKind) {
+                            case Trait:
+                                scalaElementNames.add(simpleName + "$class");
+                                break;
+                            case Object:
+                                int dollor = simpleName.lastIndexOf('$');
+                                if (dollor != -1) {
+                                    scalaElementNames.add(simpleName.substring(0, dollor));
+                                }
+                                break;
                         }
-                        base.append(';');
-                        base.append(simpleName);
-                        base.append(';');
-
-                        String attrs = IndexedElement.computeAttributes(e);
-                        base.append(attrs);
-
-                        IndexedElement idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
-                        idxElement.setJavaInfo(e, info);
-                        idxElements.add(idxElement);
+                        
+                        continue;
                     }
                 }
+
+                if (e.getKind().isClass() || e.getKind().isInterface()) {
+
+                    if (JavaUtilities.startsWith(simpleName, prefix)) {
+                        foundElements.add(e);
+                    }
+                }
+
             }
+
+            for (Element e : foundElements) {
+                String simpleName = e.getSimpleName().toString();
+                
+                if (scalaElementNames.contains(simpleName)) {
+                    continue;
+                }
+
+                String in = "";
+                StringBuilder base = new StringBuilder();
+                base.append(simpleName.toLowerCase());
+                base.append(';');
+                if (in != null) {
+                    base.append(in);
+                }
+                base.append(';');
+                base.append(simpleName);
+                base.append(';');
+
+                String attrs = IndexedElement.encodeAttributes(e);
+                base.append(attrs);
+
+                IndexedElement idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
+                idxElement.setJavaInfo(e, info);
+                idxElements.add(idxElement);
+            }
+
             return idxElements;
         }
         return Collections.<IndexedElement>emptySet();
@@ -227,9 +270,15 @@ public class JavaIndex {
                 }
             }
 
-            TypeMirror typeMirror = te.asType();
-            TypeElement typeElem = typeMirror.getKind() == TypeKind.DECLARED ? (TypeElement) ((DeclaredType) typeMirror).asElement() : null;
+            boolean isScala = JavaScalaMapping.isScala(te);
 
+            if (isScala) {
+                continue;
+            }
+
+            TypeMirror tm = te.asType();
+            TypeElement typeElem = tm.getKind() == TypeKind.DECLARED ? (TypeElement) ((DeclaredType) tm).asElement() : null;
+            
             if (te != null) {
                 for (Element e : theElements.getAllMembers(te)) {
 
@@ -254,7 +303,7 @@ public class JavaIndex {
                             if ("this".equals(simpleName) || "class".equals(simpleName) || "super".equals(simpleName)) {
                                 //results.add(JavaCompletionItem.createKeywordItem(ename, null, anchorOffset, false));
                             } else {
-                                TypeMirror tm = typeMirror.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) typeMirror, e) : e.asType();
+                                TypeMirror tm1 = tm.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) tm, e) : e.asType();
                             //results.add(JavaCompletionItem.createVariableItem((VariableElement) e, tm, anchorOffset, typeElem != e.getEnclosingElement(), elements.isDeprecated(e), isOfSmartType(env, tm, smartTypes)));
                             }
 
@@ -268,7 +317,7 @@ public class JavaIndex {
                             base.append(simpleName);
                             base.append(';');
 
-                            String attrs = IndexedElement.computeAttributes(e);
+                            String attrs = IndexedElement.encodeAttributes(e);
                             base.append(attrs);
 
                             idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
@@ -278,7 +327,7 @@ public class JavaIndex {
                         case CONSTRUCTOR:
                             simpleName = e.getEnclosingElement().getSimpleName().toString();
                         case METHOD: {
-                            ExecutableType et = (ExecutableType) (typeMirror.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) typeMirror, e) : e.asType());
+                            ExecutableType et = (ExecutableType) (tm.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) tm, e) : e.asType());
 
                             StringBuilder base = new StringBuilder();
                             base.append(simpleName.toLowerCase());
@@ -290,7 +339,7 @@ public class JavaIndex {
                             base.append(simpleName);
                             base.append(';');
 
-                            String attrs = IndexedElement.computeAttributes(e);
+                            String attrs = IndexedElement.encodeAttributes(e);
                             base.append(attrs);
 
                             idxElement = IndexedElement.create(simpleName, base.toString(), null, scalaIndex, false);
@@ -301,7 +350,7 @@ public class JavaIndex {
                         case ENUM:
                         case INTERFACE:
                         case ANNOTATION_TYPE:
-                            DeclaredType dt = (DeclaredType) (typeMirror.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) typeMirror, e) : e.asType());
+                            DeclaredType dt = (DeclaredType) (tm.getKind() == TypeKind.DECLARED ? theTypes.asMemberOf((DeclaredType) tm, e) : e.asType());
                             //results.add(JavaCompletionItem.createTypeItem((TypeElement) e, dt, anchorOffset, false, elements.isDeprecated(e), insideNew, false));
                             break;
                     }
@@ -315,11 +364,11 @@ public class JavaIndex {
                     } else if (!isFunction && !includeProperties) {
                         continue;
                     }
-                    
+
                     if (onlyConstructors && !idxElement.getKind().name().equals(ElementKind.CONSTRUCTOR.name())) {
                         continue;
                     }
-                    
+
                     if (!haveRedirected) {
                         idxElement.setSmart(true);
                     }

@@ -64,6 +64,7 @@ made subject to such option by the copyright holder.
                 <attr name="template" boolvalue="true"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.velocity.Bundle"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/languages/velocity/EmptyVelocityFileDescription.html"/>
+                <attr name="position" intvalue="300"/>
             </file>
         </folder>
     </folder>

@@ -47,8 +47,8 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.netbeans.api.scala.platform.JavaPlatform;
-import org.netbeans.api.scala.platform.JavaPlatformManager;
+import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.api.scala.platform.Specification;
 import org.netbeans.napi.gsfret.source.ClasspathInfo;
 import org.netbeans.api.project.Project;
@@ -150,18 +150,18 @@ public class J2SEProjectUtil {
      * project platform is broken.
      * @param activePlatformId the name of platform used by Ant script or null
      * for default platform.
-     * @return active {@link JavaPlatform} or null if the project's platform
+     * @return active {@link ScalaPlatform} or null if the project's platform
      * is broken
      */
-    public static JavaPlatform getActivePlatform (final String activePlatformId) {
-        final JavaPlatformManager pm = JavaPlatformManager.getDefault();
+    public static ScalaPlatform getActivePlatform (final String activePlatformId) {
+        final ScalaPlatformManager pm = ScalaPlatformManager.getDefault();
         if (activePlatformId == null) {
             return pm.getDefaultPlatform();
         }
         else {
-            JavaPlatform[] installedPlatforms = pm.getPlatforms(null, new Specification ("std",null));   //NOI18N
+            ScalaPlatform[] installedPlatforms = pm.getPlatforms(null, new Specification ("std",null));   //NOI18N
             for (int i=0; i<installedPlatforms.length; i++) {
-                String antName = (String) installedPlatforms[i].getProperties().get("platform.ant.name");        //NOI18N
+                String antName = (String) installedPlatforms[i].getProperties().get("scala.platform.ant.name");        //NOI18N
                 if (antName != null && antName.equals(activePlatformId)) {
                     return installedPlatforms[i];
                 }

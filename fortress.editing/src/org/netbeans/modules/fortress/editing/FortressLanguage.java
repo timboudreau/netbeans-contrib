@@ -42,6 +42,12 @@ package org.netbeans.modules.fortress.editing;
 
 import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.fortress.editing.lexer.FortressTokenId;
+import org.netbeans.modules.gsf.api.InstantRenamer;
+import org.netbeans.modules.gsf.api.KeystrokeHandler;
+import org.netbeans.modules.gsf.api.OccurrencesFinder;
+import org.netbeans.modules.gsf.api.Parser;
+import org.netbeans.modules.gsf.api.SemanticAnalyzer;
+import org.netbeans.modules.gsf.api.StructureScanner;
 import org.netbeans.modules.gsf.spi.DefaultLanguageConfig;
 
 public class FortressLanguage extends DefaultLanguageConfig {
@@ -72,5 +78,47 @@ public class FortressLanguage extends DefaultLanguageConfig {
     @Override
     public String getPreferredExtension() {
         return "fss"; // NOI18N
+    }
+
+    // Service Registrations
+    
+    @Override
+    public KeystrokeHandler getKeystrokeHandler() {
+        return new FortressBracketCompleter();
+    }
+
+    @Override
+    public Parser getParser() {
+        return new FortressParser();
+    }
+
+    @Override
+    public boolean hasStructureScanner() {
+        return true;
+    }
+    
+    @Override
+    public StructureScanner getStructureScanner() {
+        return new FortressStructureAnalyzer();
+    }
+
+    @Override
+    public SemanticAnalyzer getSemanticAnalyzer() {
+        return new FortressSemanticAnalyzer();
+    }
+
+    @Override
+    public boolean hasOccurrencesFinder() {
+        return true;
+    }
+
+    @Override
+    public OccurrencesFinder getOccurrencesFinder() {
+        return new FortressOccurrencesFinder();
+    }
+
+    @Override
+    public InstantRenamer getInstantRenamer() {
+        return new FortressInstantRenamer();
     }
 }

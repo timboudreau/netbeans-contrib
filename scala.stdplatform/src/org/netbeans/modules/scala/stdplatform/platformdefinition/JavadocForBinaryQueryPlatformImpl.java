@@ -49,8 +49,8 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.event.ChangeListener;
 import org.netbeans.modules.gsfpath.api.classpath.ClassPath;
-import org.netbeans.api.scala.platform.JavaPlatform;
-import org.netbeans.api.scala.platform.JavaPlatformManager;
+import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.modules.gsfpath.api.queries.JavadocForBinaryQuery;
 import org.netbeans.modules.gsfpath.spi.queries.JavadocForBinaryQueryImplementation;
 import org.openide.ErrorManager;
@@ -84,11 +84,11 @@ public class JavadocForBinaryQueryPlatformImpl implements JavadocForBinaryQueryI
     public JavadocForBinaryQuery.Result findJavadoc(final URL b) {
         class R implements JavadocForBinaryQuery.Result, PropertyChangeListener {
 
-            private JavaPlatform platform;
+            private ScalaPlatform platform;
             private final ChangeSupport cs = new ChangeSupport(this);
             private URL[] cachedRoots;
 
-            public R (JavaPlatform plat) {
+            public R (ScalaPlatform plat) {
                 this.platform = plat;
                 this.platform.addPropertyChangeListener (WeakListeners.propertyChange(this,this.platform));
             }
@@ -114,7 +114,7 @@ public class JavadocForBinaryQueryPlatformImpl implements JavadocForBinaryQueryI
             }
             
             public void propertyChange (PropertyChangeEvent event) {
-                if (JavaPlatform.PROP_JAVADOC_FOLDER.equals(event.getPropertyName())) {
+                if (ScalaPlatform.PROP_JAVADOC_FOLDER.equals(event.getPropertyName())) {
                     synchronized (this) {
                         this.cachedRoots = null;
                     }
@@ -123,10 +123,10 @@ public class JavadocForBinaryQueryPlatformImpl implements JavadocForBinaryQueryI
             }
             
         }
-        JavaPlatformManager jpm = JavaPlatformManager.getDefault();
-        JavaPlatform platforms[] = jpm.getInstalledPlatforms();
+        ScalaPlatformManager jpm = ScalaPlatformManager.getDefault();
+        ScalaPlatform platforms[] = jpm.getInstalledPlatforms();
         for (int i=0; i<platforms.length; i++) {
-            JavaPlatform jp = platforms[i];
+            ScalaPlatform jp = platforms[i];
 //Not valid assumption: May change in the future result should be returned, since the result is live.            
 //            if (jp.getJavadocFolders().size() == 0) {
 //                continue;

@@ -41,15 +41,20 @@
 package org.netbeans.modules.properties.rbe.ui;
 
 import java.awt.Image;
+import java.io.IOException;
+import java.util.Iterator;
 import javax.swing.ActionMap;
 import javax.swing.BoxLayout;
 import org.netbeans.modules.properties.PropertiesDataObject;
+import org.netbeans.modules.properties.PropertiesEditorSupport;
+import org.netbeans.modules.properties.PropertiesFileEntry;
+import org.openide.cookies.SaveCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import org.openide.util.lookup.AbstractLookup;
-import org.openide.util.lookup.InstanceContent;
+import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.CloneableTopComponent;
 
@@ -62,32 +67,49 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
     public static final String PREFERRED_ID = "ResourceBundleEditorComponent";
     /** Properties data object */
     private final PropertiesDataObject dataObject;
-    /** The Explorer manager for nodes */
-    private ExplorerManager explorer;
+    /** The explorer manager */
+    private ExplorerManager explorerManager;
 
     /** The tree view */
     public ResourceBundleEditorComponent(PropertiesDataObject dataObject) {
         this.dataObject = dataObject;
-
-        explorer = new ExplorerManager();
-        RBE rbe = new RBE(dataObject);
-
-        InstanceContent ic = new InstanceContent();
-        ic.add(rbe);
-        ic.add(explorer);
-
-        associateLookup(new ProxyLookup(ExplorerUtils.createLookup(explorer, new ActionMap()), new AbstractLookup(ic)));
+        explorerManager = new ExplorerManager();
+        associateLookup(new ProxyLookup(ExplorerUtils.createLookup(explorerManager, new ActionMap()), Lookups.singleton(dataObject)));
 
         setName(dataObject.getName() + ".properties");
         setToolTipText(NbBundle.getMessage(ResourceBundleEditorComponent.class, "CTL_ResourceBundleEditorComponent"));
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        add(new UIWindow(getLookup()));
+        add(new UIWindow(new RBE(dataObject)));
+    }
+
+    @Override
+    public boolean canClose() {
+        // TODO: add some save interaction
+        SaveCookie saveCookie = dataObject.getLookup().lookup(SaveCookie.class);
+        if (saveCookie != null) {
+            try {
+                saveCookie.save();
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
+        closeEntry((PropertiesFileEntry) dataObject.getPrimaryEntry());
+        for (Iterator it = dataObject.secondaryEntries().iterator(); it.hasNext();) {
+            closeEntry((PropertiesFileEntry) it.next());
+        }
+        return true;
+    }
+
+    /** Helper method. Closes entry. */
+    private void closeEntry(PropertiesFileEntry entry) {
+        PropertiesEditorSupport editorSupport = entry.getCookie(PropertiesEditorSupport.class);
+        editorSupport.close();
     }
 
     @Override
     public Image getIcon() {
         return Utilities.loadImage("org/netbeans/modules/properties/rbe/resources/propertiesObject.png"); // NOI18N
-
     }
 
     @Override
@@ -101,6 +123,6 @@ public class ResourceBundleEditorComponent extends CloneableTopComponent impleme
     }
 
     public ExplorerManager getExplorerManager() {
-        return explorer;
+        return explorerManager;
     }
 }

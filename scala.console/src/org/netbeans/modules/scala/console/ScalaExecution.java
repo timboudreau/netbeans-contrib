@@ -43,13 +43,8 @@ package org.netbeans.modules.scala.console;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
-import org.netbeans.modules.languages.execution.ExecutionDescriptor;
-import org.netbeans.modules.languages.execution.ExecutionService;
-import org.netbeans.modules.languages.execution.RegexpOutputRecognizer;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
@@ -65,83 +60,71 @@ import org.openide.util.Utilities;
  * 
  * @author Caoyuan Deng
  */
-public class ScalaExecution extends ExecutionService {
+public class ScalaExecution {
     
     private static final String SCALA_MAIN_CLASS = "scala.tools.nsc.MainGenericRunner"; // NOI18N
     
-    private static final String WINDOWS_DRIVE = "(?:\\S{1}:[\\\\/])"; // NOI18N
-    private static final String FILE_CHAR = "[^\\s\\[\\]\\:\\\"]"; // NOI18N
-    private static final String FILE = "((?:" + FILE_CHAR + "*))"; // NOI18N
-    private static final String FILE_WIN = "(" + WINDOWS_DRIVE + "(?:" + FILE_CHAR + ".*))"; // NOI18N
-    private static final String LINE = "([1-9][0-9]*)"; // NOI18N
-    private static final String ROL = ".*\\s?"; // NOI18N
-    private static final String SEP = "\\:"; // NOI18N
-    private static final String STD_SUFFIX = FILE + SEP + LINE + ROL;
+//    private static final String WINDOWS_DRIVE = "(?:\\S{1}:[\\\\/])"; // NOI18N
+//    private static final String FILE_CHAR = "[^\\s\\[\\]\\:\\\"]"; // NOI18N
+//    private static final String FILE = "((?:" + FILE_CHAR + "*))"; // NOI18N
+//    private static final String FILE_WIN = "(" + WINDOWS_DRIVE + "(?:" + FILE_CHAR + ".*))"; // NOI18N
+//    private static final String LINE = "([1-9][0-9]*)"; // NOI18N
+//    private static final String ROL = ".*\\s?"; // NOI18N
+//    private static final String SEP = "\\:"; // NOI18N
+//    private static final String STD_SUFFIX = FILE + SEP + LINE + ROL;
     
-    private static List<RegexpOutputRecognizer> stdScalaRecognizers;
-
-    private static final RegexpOutputRecognizer RUBY_COMPILER =
-        new RegexpOutputRecognizer(".*?" + STD_SUFFIX); // NOI18N
-
-    private static final RegexpOutputRecognizer RUBY_COMPILER_WIN_MY =
-        new RegexpOutputRecognizer(".*?" + FILE_WIN + SEP + LINE + ROL); // NOI18N
-
-    /* Keeping old one. Get rid of this with more specific recongizers? */
-    private static final RegexpOutputRecognizer RUBY_COMPILER_WIN =
-        new RegexpOutputRecognizer("^(?:(?:\\[|\\]|\\-|\\:|[0-9]|\\s|\\,)*)(?:\\s*from )?" + FILE_WIN + SEP + LINE + ROL); // NOI18N
-
-    private static final RegexpOutputRecognizer RAILS_RECOGNIZER =
-        new RegexpOutputRecognizer(".*#\\{RAILS_ROOT\\}/" + STD_SUFFIX); // NOI18N
-
-    public static final RegexpOutputRecognizer RUBY_TEST_OUTPUT =
-        new RegexpOutputRecognizer("\\s*test.*\\[" + STD_SUFFIX); // NOI18N
+//    private static List<RegexpOutputRecognizer> stdScalaRecognizers;
+//
+//    private static final RegexpOutputRecognizer SCALA_COMPILER =
+//        new RegexpOutputRecognizer(".*?" + STD_SUFFIX); // NOI18N
+//
+//    private static final RegexpOutputRecognizer SCALA_COMPILER_WIN_MY =
+//        new RegexpOutputRecognizer(".*?" + FILE_WIN + SEP + LINE + ROL); // NOI18N
+//
+//    /* Keeping old one. Get rid of this with more specific recongizers? */
+//    private static final RegexpOutputRecognizer SCALA_COMPILER_WIN =
+//        new RegexpOutputRecognizer("^(?:(?:\\[|\\]|\\-|\\:|[0-9]|\\s|\\,)*)(?:\\s*from )?" + FILE_WIN + SEP + LINE + ROL); // NOI18N
+//
+//    public static final RegexpOutputRecognizer SCALA_TEST_OUTPUT =
+//        new RegexpOutputRecognizer("\\s*test.*\\[" + STD_SUFFIX); // NOI18N
     
-    // TODO - add some more recognizers here which recognize the prefix path to Ruby (gems, GEM_HOME, etc.) such that I
-    // can hyperlink to errors in the "rake", "rails" etc. load scripts
+//    private String charsetName;
+//    
+//    public ScalaExecution(ExecutionDescriptor descriptor) {
+//        super(descriptor);
+//
+//        assert descriptor != null;
+//        
+//        if (descriptor.getCmd() == null) {
+//            descriptor.cmd(getScala());
+//        }
+//
+//        descriptor.addBinPath(true);
+//    }
 
+    /** Create a Scala execution service with the given source-encoding charset */
+//    public ScalaExecution(ExecutionDescriptor descriptor, String charsetName) {
+//        this(descriptor);
+//        this.charsetName = charsetName;
+//    }
     
-    /** When not set (the default) bypass the JRuby launcher unix/ba-file scripts and launch VM directly */
-    public static final boolean LAUNCH_JRUBY_SCRIPT =
-        System.getProperty("ruby.use.jruby.script") != null; // NOI18N
-
-    private String charsetName;
-    
-    public ScalaExecution(ExecutionDescriptor descriptor) {
-        super(descriptor);
-
-        if (descriptor != null) {
-            if (descriptor.getCmd() == null) {
-                descriptor.cmd(getScala());
-            }
-            
-            descriptor.addBinPath(true);
-        }        
-    }
-
-    /** Create a Ruby execution service with the given source-encoding charset */
-    public ScalaExecution(ExecutionDescriptor descriptor, String charsetName) {
-        this(descriptor);
-        this.charsetName = charsetName;
-    }
-    
-    public synchronized static List<? extends RegexpOutputRecognizer> getStandardRubyRecognizers() {
-        if (stdScalaRecognizers == null) {
-            stdScalaRecognizers = new LinkedList<RegexpOutputRecognizer>();
-            stdScalaRecognizers.add(ScalaExecution.RAILS_RECOGNIZER);
-            stdScalaRecognizers.add(ScalaExecution.RUBY_COMPILER_WIN_MY);
-            stdScalaRecognizers.add(ScalaExecution.RUBY_COMPILER);
-            stdScalaRecognizers.add(ScalaExecution.RUBY_COMPILER_WIN);
-        }
-        return stdScalaRecognizers;
-    }
+//    public synchronized static List<? extends RegexpOutputRecognizer> getStandardScalaRecognizers() {
+//        if (stdScalaRecognizers == null) {
+//            stdScalaRecognizers = new LinkedList<RegexpOutputRecognizer>();
+//            stdScalaRecognizers.add(SCALA_COMPILER_WIN_MY);
+//            stdScalaRecognizers.add(SCALA_COMPILER);
+//            stdScalaRecognizers.add(SCALA_COMPILER_WIN);
+//        }
+//        return stdScalaRecognizers;
+//    }
 
     /**
      * Returns the basic Scala interpreter command and associated flags (not
      * application arguments)
      */
-    public static List<? extends String> getScalaArgs(String scalaHome, String cmdName) {
-        return new ScalaExecution(null).getScalaArgs(scalaHome, cmdName, null);
-    }
+//    public static List<String> getScalaArgs(String scalaHome, String cmdName) {
+//        return getScalaArgs(scalaHome, cmdName, null);
+//    }
 
     /**
      * 
@@ -160,12 +143,8 @@ public class ScalaExecution extends ExecutionService {
      *      -Djline.terminal=jline.UnsupportedTerminal
      *      scala.tools.nsc.MainGenericRunner
      */    
-    private List<? extends String> getScalaArgs(String scalaHome, String cmdName, ExecutionDescriptor descriptor) {
+    public static List<String> getScalaArgs(String scalaHome, String cmdName) {
         List<String> argvList = new ArrayList<String>();
-        // Decide whether I'm launching JRuby, and if so, take a shortcut and launch
-        // the VM directly. This is important because killing JRuby via the launcher script
-        // is not working right; now that JRuby on Unix exec's the VM that part is okay but
-        // on Windows there are still problems.        
         if (cmdName.equals("scala")) { // NOI18N
             String javaHome = getJavaHome();
 
@@ -173,7 +152,7 @@ public class ScalaExecution extends ExecutionService {
                 "java"); // NOI18N   
             // XXX Do I need java.exe on Windows?
 
-            // Additional execution flags specified in the JRuby startup script:
+            // Additional execution flags specified in the Scala startup script:
             argvList.add("-Xverify:none"); // NOI18N
             argvList.add("-da"); // NOI18N
             
@@ -212,7 +191,7 @@ public class ScalaExecution extends ExecutionService {
             }
 
             File scalaLib = new File(scalaHomeDir, "lib"); // NOI18N
-            assert scalaLib.exists() : '"' + scalaLib.getAbsolutePath() + "\" exists (\"" + descriptor.getCmd() + "\" is not valid Scala executable?)";
+            assert scalaLib.exists();// : '"' + scalaLib.getAbsolutePath() + "\" exists (\"" + descriptor.getCmd() + "\" is not valid Scala executable?)";
 
             // BootClassPath
             argvList.add("-Xbootclasspath/a:" + scalaLib.getAbsolutePath() + File.separator + "scala-library.jar");            
@@ -221,8 +200,10 @@ public class ScalaExecution extends ExecutionService {
             argvList.add("-classpath"); // NOI18N
 
 
-            argvList.add(computeScalaClassPath(
-                    descriptor == null ? null : descriptor.getClassPath(), scalaLib));
+//            argvList.add(computeScalaClassPath(
+//                    descriptor == null ? null : descriptor.getClassPath(), scalaLib));
+            
+            argvList.add(computeScalaClassPath(null, scalaLib));            
             
             argvList.add("-Dscala.home=" + scalaHomeDir); // NOI18N
             
@@ -246,15 +227,15 @@ public class ScalaExecution extends ExecutionService {
         return argvList;
     }
 
-    @Override
-    protected List<? extends String> buildArgs() {
-        List<String> argvList = new ArrayList<String>();
-        String scalaHome = getScalaHome();
-        String cmdName = descriptor.getCmd().getName();
-        argvList.addAll(getScalaArgs(scalaHome, cmdName, descriptor));
-        argvList.addAll(super.buildArgs());
-        return argvList;
-    }
+//    @Override
+//    protected List<? extends String> buildArgs() {
+//        List<String> argvList = new ArrayList<String>();
+//        String scalaHome = getScalaHome();
+//        String cmdName = descriptor.getCmd().getName();
+//        argvList.addAll(getScalaArgs(scalaHome, cmdName, descriptor));
+//        argvList.addAll(super.buildArgs());
+//        return argvList;
+//    }
     
     public static String getJavaHome() {
         String javaHome = System.getProperty("scala.java.home"); // NOI18N
@@ -324,11 +305,11 @@ public class ScalaExecution extends ExecutionService {
      * Add settings in the environment appropriate for running Scala:
      * add the given directory into the path, and set up SCALA_HOME
      */
-    public @Override void setupProcessEnvironment(Map<String, String> env) {
-        super.setupProcessEnvironment(env);
-        env.put("JAVA_HOME", getJavaHome());
-        env.put("SCALA_HOME", getScalaHome());
-    }
+//    public @Override void setupProcessEnvironment(Map<String, String> env) {
+//        super.setupProcessEnvironment(env);
+//        env.put("JAVA_HOME", getJavaHome());
+//        env.put("SCALA_HOME", getScalaHome());
+//    }
     
     /** Package-private for unit test. */
     static String computeScalaClassPath(String extraCp, final File scalaLib) {
@@ -346,7 +327,7 @@ public class ScalaExecution extends ExecutionService {
             }
         }
 
-        // Add in user-specified jars passed via JRUBY_EXTRA_CLASSPATH
+        // Add in user-specified jars passed via SCALA_EXTRA_CLASSPATH
 
         if (extraCp != null && File.pathSeparatorChar != ':') {
             // Ugly hack - getClassPath has mixed together path separator chars

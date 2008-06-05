@@ -52,8 +52,8 @@ import org.openide.loaders.DataObject;
 import org.openide.modules.ModuleInstall;
 import org.openide.util.Exceptions;
 import org.openide.util.Exceptions;
-import org.netbeans.api.scala.platform.JavaPlatform;
-import org.netbeans.api.scala.platform.JavaPlatformManager;
+import org.netbeans.api.scala.platform.ScalaPlatform;
+import org.netbeans.api.scala.platform.ScalaPlatformManager;
 import org.netbeans.api.scala.platform.Specification;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.spi.project.support.ant.EditableProperties;
@@ -93,7 +93,7 @@ public class J2SEPlatformModule extends ModuleInstall {
     }
     
     private static boolean updateSourceLevel(EditableProperties ep) {
-        JavaPlatform platform = JavaPlatformManager.getDefault().getDefaultPlatform();
+        ScalaPlatform platform = ScalaPlatformManager.getDefault().getDefaultPlatform();
         String ver = platform.getSpecification().getVersion().toString();
         if (!ver.equals(ep.getProperty("default.javac.source"))) { //NOI18N
             ep.setProperty("default.javac.source", ver); //NOI18N
@@ -107,10 +107,10 @@ public class J2SEPlatformModule extends ModuleInstall {
 
     private static boolean updateBuildProperties (EditableProperties ep) {
         boolean changed = false;
-        JavaPlatform[] installedPlatforms = JavaPlatformManager.getDefault().getPlatforms(null, new Specification ("Std",null));   //NOI18N
+        ScalaPlatform[] installedPlatforms = ScalaPlatformManager.getDefault().getPlatforms(null, new Specification ("Std",null));   //NOI18N
         for (int i=0; i<installedPlatforms.length; i++) {
             //Handle only platforms created by this module
-            if (!installedPlatforms[i].equals (JavaPlatformManager.getDefault().getDefaultPlatform()) && installedPlatforms[i] instanceof J2SEPlatformImpl) {
+            if (!installedPlatforms[i].equals (ScalaPlatformManager.getDefault().getDefaultPlatform()) && installedPlatforms[i] instanceof J2SEPlatformImpl) {
                 String systemName = ((J2SEPlatformImpl)installedPlatforms[i]).getAntName();
                 String key = PlatformConvertor.createName(systemName,"home");   //NOI18N
                 if (!ep.containsKey (key)) {

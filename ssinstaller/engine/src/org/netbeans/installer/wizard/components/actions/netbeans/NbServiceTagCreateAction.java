@@ -58,7 +58,6 @@ import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.StringUtils;
 import org.netbeans.installer.utils.SystemUtils;
-import org.netbeans.installer.utils.applications.GlassFishUtils;
 import org.netbeans.installer.utils.applications.JavaUtils;
 import org.netbeans.installer.utils.applications.NetBeansUtils;
 import org.netbeans.installer.utils.exceptions.InitializationException;
@@ -146,8 +145,6 @@ public class NbServiceTagCreateAction extends WizardAction {
             String uid = product.getUid();
             if (uid.equals("nb-base")) {
                 createSTNetBeans(product);
-            } else if (uid.equals("glassfish")) {
-                createSTGlassFish(product, true);
             } else if (uid.equals("ss-base")) {
                 createSTSunStudio(product, true);
             } else if (uid.equals("jdk")) {
@@ -213,7 +210,7 @@ public class NbServiceTagCreateAction extends WizardAction {
             }
         }
     }
-
+/*
     private void createSTGlassFish(Product gfProduct, boolean createInstallationST) {
         LogManager.log("... create ST for GlassFish/AppServer");
         File location = gfProduct.getInstallationLocation();
@@ -298,7 +295,7 @@ public class NbServiceTagCreateAction extends WizardAction {
             LogManager.log(e);
         }
     }
-    
+  */  
             /**
      * Return the NetBeans service tag from local registration data.
      * Return null if srevice tag is not found.

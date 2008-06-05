@@ -1,38 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="contrib/omnidebugger" basedir="." default="netbeans">
-    
     <import file="../../nbbuild/templates/projectized.xml"/>
-    
-    <target name="netbeans-extra" depends="build-init">
-        <ant dir="external" target="download"/>
-        <mkdir dir="${cluster}/modules/ext"/>
-        <copy file="external/debugger.jar" tofile="${cluster}/modules/ext/omni-debugger.jar"/>
-    </target>
-    
-    <target name="nbm" depends="init,netbeans,-nbm-prompt-for-storepass" description="Build NBM archive.">
-        <mkdir dir="build"/>
-        <unzip src="external/debugger.jar" dest="build">
-            <patternset>
-                <include name="COPYING"/>
-            </patternset>
-        </unzip>
-        <makenbm file="build/${nbm}"
-                 productdir="${cluster}"
-                 module="${module.jar}"
-                 homepage="${nbm.homepage}"
-                 distribution="${nbm.distribution}"
-                 needsrestart="${nbm.needs.restart}"
-                 global="${nbm.is.global}"
-                 releasedate="${nbm.release.date}"
-		 moduleauthor="${nbm.module.author}">
-            <license>
-                <text>For the integration module:</text>
-                <file location="${license.file}"/>
-                <text>For the Omniscient Debugger program:</text>
-                <file location="build/COPYING"/>
-            </license>
-            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-        </makenbm>
-    </target>
-    
 </project>

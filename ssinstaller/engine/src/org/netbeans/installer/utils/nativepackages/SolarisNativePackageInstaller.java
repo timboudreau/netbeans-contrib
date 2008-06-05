@@ -1,38 +1,61 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * 
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * 
+ * The contents of this file are subject to the terms of either the GNU General
+ * Public License Version 2 only ("GPL") or the Common Development and Distribution
+ * License("CDDL") (collectively, the "License"). You may not use this file except in
+ * compliance with the License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html or nbbuild/licenses/CDDL-GPL-2-CP. See the
+ * License for the specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header Notice in
+ * each file and include the License file at nbbuild/licenses/CDDL-GPL-2-CP.  Sun
+ * designates this particular file as subject to the "Classpath" exception as
+ * provided by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the License Header,
+ * with the fields enclosed by brackets [] replaced by your own identifying
+ * information: "Portions Copyrighted [year] [name of copyright owner]"
+ * 
+ * Contributor(s):
+ * 
+ * The Original Software is NetBeans. The Initial Developer of the Original Software
+ * is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun Microsystems, Inc. All
+ * Rights Reserved.
+ * 
+ * If you wish your version of this file to be governed by only the CDDL or only the
+ * GPL Version 2, indicate your decision by adding "[Contributor] elects to include
+ * this software in this distribution under the [CDDL or GPL Version 2] license." If
+ * you do not indicate a single choice of license, a recipient has the option to
+ * distribute your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above. However, if
+ * you add GPL Version 2 code and therefore, elected the GPL Version 2 license, then
+ * the option applies only if the new code is made subject to such option by the
+ * copyright holder.
  */
 package org.netbeans.installer.utils.nativepackages;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.installer.product.components.Product;
-import org.netbeans.installer.utils.LogManager;
-import org.netbeans.installer.utils.exceptions.InstallationException;
-import org.netbeans.installer.utils.exceptions.UninstallationException;
 
 /**
  *
  * @author Igor Nikiforov
  */
-public class SolarisNativePackageInstaller implements NativePackageInstaller {
+class SolarisNativePackageInstaller implements NativePackageInstaller {
 
-    public static final String DEVICE_FILES_COUNTER = "device_files_counter";
-    public static final String DEVICE_FILE = "device_file.";
-    public static final String DEVICE_FILE_PACKAGES_COUNTER = ".packages_counter";
-    public static final String DEVICE_FILE_PACKAGE = ".package.";
+//    public static final String DEVICE_FILES_COUNTER = "device_files_counter";
+//    public static final String DEVICE_FILE = "device_file.";
+   
     private String target = null;
     //TODO fix
     static final File TMP_DIR = new File("/tmp");
@@ -64,91 +87,95 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
             throw new Error("Unexpected Error.", ex);
         }
     }
+    
+    public String install(String pathToPackage, String packageName) throws InstallationException {
+        try {
+            Logger.getAnonymousLogger().warning("executing command: pkgadd -n -d " + pathToPackage + " " + packageName);
+            Process p = new ProcessBuilder(pkgRoot + "/pkgadd", "-n",
+                    "-a", defaultAdminFile.getAbsolutePath(),
+                    "-r", defaultResponse.getAbsolutePath(),
+                    "-d", pathToPackage,
+                    packageName).start();
 
-    public void install(String pathToPackage, Product product) throws InstallationException {
-        String value = product.getProperty(DEVICE_FILES_COUNTER);
-        int counter = parseInteger(value) + 1;
-        DeviceFileAnalizer analizer = new DeviceFileAnalizer(pathToPackage);
-        product.setProperty(DEVICE_FILE + String.valueOf(counter) + DEVICE_FILE_PACKAGES_COUNTER, String.valueOf(analizer.getPackagesCount()));
-        int i = 1;
-        if (analizer.containsPackages()) {
-            for (String packageName : analizer) {
-                try {
-                    LogManager.log("executing command: pkgadd -n -d " + pathToPackage + " " + packageName);
-                    Process p = new ProcessBuilder( pkgRoot + "/pkgadd", "-n",
-                            "-a", defaultAdminFile.getAbsolutePath(),
-                            "-r", defaultResponse.getAbsolutePath(),
-                            "-d", pathToPackage,
-                            packageName).start();
-                    
-                    if (p.waitFor() != 0) {
-                        String line;
-                        StringBuffer message = new StringBuffer();
-                        message.append("Error = ");
-                        BufferedReader input =
-                                new BufferedReader(new InputStreamReader(p.getErrorStream()));
-                        while ((line = input.readLine()) != null) {
-                            message.append(line);
-                        }
-                        message.append("\n Output = ");
-                        input =
-                                new BufferedReader(new InputStreamReader(p.getInputStream()));
-                        while ((line = input.readLine()) != null) {
-                            message.append(line);
-                        }
-                        throw new InstallationException("Error native. " + message);
-                    }
-                    product.setProperty(DEVICE_FILE + String.valueOf(counter) + DEVICE_FILE_PACKAGE + String.valueOf(i), packageName);
-                    i++;
-                } catch (InterruptedException ex) {
-                    throw new InstallationException("Error native.", ex);
-                } catch (IOException ex) {
-                    throw new InstallationException("Error native.", ex);
+            if (p.waitFor() != 0) {
+                String line;
+                StringBuffer message = new StringBuffer();
+                message.append("Error = ");
+                BufferedReader input =
+                        new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                while ((line = input.readLine()) != null) {
+                    message.append(line);
                 }
-            }
-            product.setProperty(DEVICE_FILES_COUNTER, String.valueOf(counter));
-        }
-    }
-
-    public void uninstall(Product product) throws UninstallationException {
-        String devicesValue = product.getProperty(DEVICE_FILES_COUNTER);
-        for (int deviceNumber = 1; deviceNumber <= parseInteger(devicesValue); deviceNumber++) {
-            String packagesValue = product.getProperty(DEVICE_FILE + String.valueOf(deviceNumber) + DEVICE_FILE_PACKAGES_COUNTER);
-            for (int packageNumber = 1; packageNumber <= parseInteger(packagesValue); packageNumber++) {
-                try {
-                    String value = product.getProperty(DEVICE_FILE + String.valueOf(deviceNumber) + DEVICE_FILE_PACKAGE + String.valueOf(packageNumber));
-                    LogManager.log("executing command: pkgrm -R " + target + " -n " + value);
-                    Process p = new ProcessBuilder(pkgRoot + "/pkgrm", "-n",
-                              "-a", defaultAdminFile.getAbsolutePath(), value).start();
-                    if (p.waitFor() != 0) {
-                        throw new UninstallationException("Error native. Returned not zero.");
-                    }
-                } catch (InterruptedException ex) {
-                    throw new UninstallationException("Error native.", ex);
-                } catch (IOException ex) {
-                    throw new UninstallationException("Error native.", ex);
+                message.append("\n Output = ");
+                input =
+                        new BufferedReader(new InputStreamReader(p.getInputStream()));
+                while ((line = input.readLine()) != null) {
+                    message.append(line);
                 }
+                throw new InstallationException("Error native. " + message);
             }
+        } catch (InterruptedException ex) {
+            throw new InstallationException("Error native.", ex);
+        } catch (IOException ex) {
+            throw new InstallationException("Error native.", ex);
         }
-        product.setProperty(DEVICE_FILES_COUNTER, "0");
+        return packageName;
     }
+    
+    public Iterable<String> install(String pathToPackage, Collection<String> packageNames) throws InstallationException {        
+        ArrayList installedPackageNames = new ArrayList(packageNames.size());
+        for(String packageName : packageNames) {
+            Logger.getAnonymousLogger().warning("Analyzed package: " + packageName);
+            install(pathToPackage, packageName);
+        }
+        return packageNames;
+    }      
+    
+    public Iterable<String> install(String pathToPackage) throws InstallationException {
+        DeviceFileAnalyzer analyzer = new DeviceFileAnalyzer(pathToPackage); 
+        Logger.getAnonymousLogger().warning("File is:" + pathToPackage + " packages" +
+                ((analyzer.getNames().size() > 0) ? analyzer.getNames().iterator().next() : " none-----xxxxx" ));
+        return install(pathToPackage, analyzer.getNames());
+    }      
+        
+    public void uninstall(String packageName) throws InstallationException {                
+            try {
+                Logger.getAnonymousLogger().warning("executing command: pkgrm -R " + target + " -n " + packageName);
+                Process p = new ProcessBuilder(pkgRoot + "/pkgrm", "-n",
+                        "-a", defaultAdminFile.getAbsolutePath(), packageName).start();
+                if (p.waitFor() != 0) {
+                    throw new InstallationException("Error native. Returned not zero.");
+                }
+            } catch (InterruptedException ex) {
+                throw new InstallationException("Error native.", ex);
+            } catch (IOException ex) {
+                throw new InstallationException("Error native.", ex);
+            }
+      
+    }
+    
+    public void uninstall(Collection<String> packageNames) throws InstallationException {                
+        for (String value : packageNames) {
+            uninstall(value);
+        }        
+    }   
 
     public boolean isCorrectPackageFile(String pathToPackage) {
-        return DeviceFileAnalizer.isCorrectPackage(pathToPackage);
+        return DeviceFileAnalyzer.isCorrectPackage(pathToPackage);
     }
 
     private int parseInteger(String value) {
         return (value == null || value.length() == 0)? 0: Integer.parseInt(value);
     }
 
-    public static class DeviceFileAnalizer implements Iterable<String> {
+    public static class DeviceFileAnalyzer {
 
         public static int PKGINFO_OUTPUT_FILEDS_COUNT = 3;
         public static int PKGINFO_PACKAGE_NAME_FIELD_INDEX = 1;
         
         private List<String> packages = new LinkedList<String>();
 
-        public DeviceFileAnalizer(String fileName) {
+        public DeviceFileAnalyzer(String fileName) {
             try {
                 Process p = new ProcessBuilder("pkginfo", "-d", fileName).start();
                 if (p.waitFor() == 0) {
@@ -179,16 +206,9 @@ public class SolarisNativePackageInstaller implements NativePackageInstaller {
             }
         }
 
-        public boolean containsPackages() {
-            return !packages.isEmpty();
-        }
-
-        public int getPackagesCount() {
-            return packages.size();
-        }
-
-        public Iterator<String> iterator() {
-            return packages.iterator();
+        public Collection<String> getNames(){
+            return packages;
         }
     }
+
 }
